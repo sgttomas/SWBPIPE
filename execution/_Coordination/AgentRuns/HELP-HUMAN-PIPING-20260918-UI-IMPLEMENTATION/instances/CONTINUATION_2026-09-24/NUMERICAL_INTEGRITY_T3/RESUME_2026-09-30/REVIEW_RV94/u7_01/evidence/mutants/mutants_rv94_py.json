@@ -1,0 +1,80 @@
+[
+ {
+  "id": "M01_py_flag_off",
+  "kind": "py",
+  "file": "core/analysis_runs/retained_precision.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_is_eligible_only_with_the_invocation_and_comes_only_from_the_receipt[dense_scrutiny]"
+  ],
+  "seconds": 0.8
+ },
+ {
+  "id": "M02_py_reader_no_invocation",
+  "kind": "py",
+  "file": "core/analysis_runs/retained_precision.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_contract.py::test_complete_synthetic_draft_control_is_not_qualification"
+  ],
+  "seconds": 83.0
+ },
+ {
+  "id": "M03_py_reader_selected_only",
+  "kind": "py",
+  "file": "core/analysis_runs/retained_precision.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_contract.py::test_public_entry_equals_the_draft_on_every_corpus_entry"
+  ],
+  "seconds": 126.9
+ },
+ {
+  "id": "M04_py_reader_admits_unavailable",
+  "kind": "py",
+  "file": "core/analysis_runs/retained_precision.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_contract.py::test_complete_synthetic_draft_control_is_not_qualification"
+  ],
+  "seconds": 80.5
+ },
+ {
+  "id": "M09_py_reader_no_mechanics",
+  "kind": "py",
+  "file": "core/analysis_runs/retained_precision.py",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 162.7
+ },
+ {
+  "id": "M05_py_carrier_no_requested",
+  "kind": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "seconds": 2.5
+ },
+ {
+  "id": "M06_py_carrier_no_nr_ordinary",
+  "kind": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "seconds": 2.0
+ },
+ {
+  "id": "M07_py_summary_reader_only",
+  "kind": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_classification_summary_counts_validated_classes[dense_scrutiny]"
+  ],
+  "seconds": 56.5
+ }
+]

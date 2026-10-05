@@ -1,0 +1,835 @@
+{
+  "candidate": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+  "base": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+  "records_pin": "4f9799a9631895e1bf1bbfe9bb9755728b8ffe2c",
+  "scope_paths": 2,
+  "source_clean": true,
+  "three_consumers_use_owned_loop": true,
+  "expected_prefix_derivation": "Reservation: AllocationRequest1, capacity MapWrite1, actual reserve LibraryBoundary1, RustCapacityBytes=observed capacity. Fill: one shape ValidationEntry, one checked MapWrite before each push, no resize/bulk call. Prior fault returns before any event.",
+  "prefixes": [
+    {
+      "kind": "success",
+      "n": 0,
+      "expected": [
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "observed": [
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "capacity": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "kind": "success",
+      "n": 1,
+      "expected": [
+        0,
+        0,
+        2,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1
+      ],
+      "observed": [
+        0,
+        0,
+        2,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1
+      ],
+      "capacity": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "kind": "success",
+      "n": 4,
+      "expected": [
+        0,
+        0,
+        5,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        4
+      ],
+      "observed": [
+        0,
+        0,
+        5,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        4
+      ],
+      "capacity": [
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "kind": "success",
+      "n": 3,
+      "expected": [
+        0,
+        0,
+        4,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        3
+      ],
+      "observed": [
+        0,
+        0,
+        4,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        3
+      ],
+      "capacity": [
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "kind": "success",
+      "n": 12,
+      "expected": [
+        0,
+        0,
+        13,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        12
+      ],
+      "observed": [
+        0,
+        0,
+        13,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        12
+      ],
+      "capacity": [
+        12,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "kind": "after_reserve",
+      "expected": [
+        0,
+        0,
+        18446744073709551615,
+        5,
+        0,
+        0,
+        1,
+        1,
+        0,
+        4
+      ],
+      "observed": [
+        0,
+        0,
+        18446744073709551615,
+        5,
+        0,
+        0,
+        1,
+        1,
+        0,
+        4
+      ]
+    },
+    {
+      "kind": "mid_fill",
+      "expected": [
+        0,
+        0,
+        18446744073709551615,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        4
+      ],
+      "observed": [
+        0,
+        0,
+        18446744073709551615,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        4
+      ]
+    }
+  ],
+  "fresh_debug_tests": 19,
+  "author_optimized_tests": 19,
+  "optimized_rerun_by_reviewer": false,
+  "semantic_checks": [
+    {
+      "label": "fresh_debug",
+      "input": {
+        "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv65_named_support/repair04/pp_debug.log",
+        "bytes": 1060420,
+        "sha256": "4b31f3471f7e0d25e300b198cffdb864e09f4354b3c04bff25929667ddff885e",
+        "scope_read": "semantic/count comparison input",
+        "revision": null
+      },
+      "old_semantic_records": 104,
+      "named_all_other_fields_equal": true,
+      "exact_deltas": [
+        {
+          "tag": "I45_ADAPTER",
+          "index": 0,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I45_ADAPTER",
+          "index": 1,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I47_ADAPTER",
+          "index": 0,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I47_ADAPTER",
+          "index": 1,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I47_ADAPTER",
+          "index": 2,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I47_ADAPTER",
+          "index": 3,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I50_RECORD",
+          "mode": "sparse_interactive",
+          "delta": [
+            0,
+            0,
+            19,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I50_RECORD",
+          "mode": "dense_scrutiny",
+          "delta": [
+            0,
+            0,
+            19,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "label": "author_debug",
+      "input": {
+        "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/pp_debug.log",
+        "bytes": 1060423,
+        "sha256": "dd04d0c90db24736a5fbb8682aa40fdf4ca8c7e7886137c2c7fa59083b086dc0",
+        "scope_read": "semantic/count comparison input",
+        "revision": null
+      },
+      "old_semantic_records": 104,
+      "named_all_other_fields_equal": true,
+      "exact_deltas": [
+        {
+          "tag": "I45_ADAPTER",
+          "index": 0,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I45_ADAPTER",
+          "index": 1,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I47_ADAPTER",
+          "index": 0,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I47_ADAPTER",
+          "index": 1,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I47_ADAPTER",
+          "index": 2,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I47_ADAPTER",
+          "index": 3,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I50_RECORD",
+          "mode": "sparse_interactive",
+          "delta": [
+            0,
+            0,
+            19,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I50_RECORD",
+          "mode": "dense_scrutiny",
+          "delta": [
+            0,
+            0,
+            19,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "label": "author_optimized",
+      "input": {
+        "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/pp_optimized.log",
+        "bytes": 1060415,
+        "sha256": "9797e3992dd090733a1fca699d04671e41df6f9c1f9546de040945e493408a7d",
+        "scope_read": "semantic/count comparison input",
+        "revision": null
+      },
+      "old_semantic_records": 104,
+      "named_all_other_fields_equal": true,
+      "exact_deltas": [
+        {
+          "tag": "I45_ADAPTER",
+          "index": 0,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I45_ADAPTER",
+          "index": 1,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I47_ADAPTER",
+          "index": 0,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I47_ADAPTER",
+          "index": 1,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I47_ADAPTER",
+          "index": 2,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I47_ADAPTER",
+          "index": 3,
+          "delta": [
+            0,
+            0,
+            13,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I50_RECORD",
+          "mode": "sparse_interactive",
+          "delta": [
+            0,
+            0,
+            19,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "tag": "I50_RECORD",
+          "mode": "dense_scrutiny",
+          "delta": [
+            0,
+            0,
+            19,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "author_runtime": [
+    {
+      "name": "pp_debug",
+      "input": {
+        "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/pp_debug.json",
+        "bytes": 1531,
+        "sha256": "343f9dbc292fef8cb9507335a6b7479005fe94467c452eb795856ef5666d07ea",
+        "scope_read": "author command source/exit/custody record",
+        "revision": null
+      },
+      "matches_exact_final_source": true,
+      "disposition": "final-candidate evidence"
+    },
+    {
+      "name": "pp_optimized",
+      "input": {
+        "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/pp_optimized.json",
+        "bytes": 1548,
+        "sha256": "aa1e620ca2d98ae43ed652c50abd760d6dcd27228487fb39b818a8e19ecf24ff",
+        "scope_read": "author command source/exit/custody record",
+        "revision": null
+      },
+      "matches_exact_final_source": true,
+      "disposition": "final-candidate evidence"
+    },
+    {
+      "name": "bitmap_first",
+      "input": {
+        "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/bitmap_first.json",
+        "bytes": 1560,
+        "sha256": "426a6d4d99e9a8c1e68ec632fe2ab79d93800e8492c41010eeea22e2cf0d2a25",
+        "scope_read": "author command source/exit/custody record",
+        "revision": null
+      },
+      "matches_exact_final_source": false,
+      "disposition": "historical first-focused command; earlier test bytes, no final-candidate credit"
+    }
+  ],
+  "prior194_rows_and135_PASS_reference_transfers_by_exact_semantic_equality": true,
+  "preservation": {
+    "repair_packet_files": 8,
+    "new_author_bulk_files": 15,
+    "unchanged_baseline_files": 955,
+    "original_packet_files": 10,
+    "original_author_bulk_files": 73,
+    "prior_reviewer_seal_unchanged": true
+  },
+  "origins": [
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "bytes": 120741,
+      "sha256": "9c0e7094d28307a09418cf20c1f1eb56e5e3c8889c4e4d0c3749965abb6a0a92",
+      "scope_read": "entire repair diff and local surrounding count/consumer context",
+      "revision": "c79a1c293dbf5581468e839c8545b5a815a32df7"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+      "bytes": 98238,
+      "sha256": "e0c18d22aa1d64fc645f6196c632ae61ec8914d83bc3e929c5c5cc0ce7eb61c0",
+      "scope_read": "entire repair diff and local surrounding count/consumer context",
+      "revision": "c79a1c293dbf5581468e839c8545b5a815a32df7"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/support_accounting_repair_03/RETURN.md",
+      "bytes": 5873,
+      "sha256": "fa3f9674fdd4c72e7383b6e9599a84944bc4250e888c3029b1d65e59bc897e07",
+      "scope_read": "repair evidence and exact count rule",
+      "revision": "c79a1c293dbf5581468e839c8545b5a815a32df7"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/support_accounting_repair_03/FINAL_SOURCE.json",
+      "bytes": 1086,
+      "sha256": "8f27718a9db570deffed1cd9cad7d9769ac8173ca8b7aef9e1cf7913a6fd094a",
+      "scope_read": "repair evidence and exact count rule",
+      "revision": "c79a1c293dbf5581468e839c8545b5a815a32df7"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/support_accounting_repair_03/SEAL.json",
+      "bytes": 3928,
+      "sha256": "e37365ae6fbde108d22f9bc2659f51542f3dcf0b369681d2b945f1bb1b3a5635",
+      "scope_read": "repair evidence and exact count rule",
+      "revision": "c79a1c293dbf5581468e839c8545b5a815a32df7"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/support_accounting_repair_03/BULK_MANIFEST.json",
+      "bytes": 4383,
+      "sha256": "40151595839f6298ed15f3086e46a38e9d8ba046595a1109158dab667ffc1e68",
+      "scope_read": "repair evidence and exact count rule",
+      "revision": "c79a1c293dbf5581468e839c8545b5a815a32df7"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/support_accounting_repair_03/compare.py",
+      "bytes": 2732,
+      "sha256": "5e08a43f056f3565fb15fd795c63e75454405e2da093a97cdef0cba47a903532",
+      "scope_read": "repair evidence and exact count rule",
+      "revision": "c79a1c293dbf5581468e839c8545b5a815a32df7"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/support_accounting_repair_03/run_check.py",
+      "bytes": 2224,
+      "sha256": "f693d73467223a18abab93aca6989a057dfbaf57848e23bc0e8969e86c1faeaf",
+      "scope_read": "repair evidence and exact count rule",
+      "revision": "c79a1c293dbf5581468e839c8545b5a815a32df7"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/AGENTS.md",
+      "bytes": 14200,
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "scope_read": "continued Root instructions",
+      "revision": "4f9799a9631895e1bf1bbfe9bb9755728b8ffe2c"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/agents/AGENT_TASK.md",
+      "bytes": 1499,
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "scope_read": "continued TASK role",
+      "revision": "4f9799a9631895e1bf1bbfe9bb9755728b8ffe2c"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/AGENTS.md",
+      "bytes": 9016,
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "scope_read": "continued project instructions",
+      "revision": "4f9799a9631895e1bf1bbfe9bb9755728b8ffe2c"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/.agents/skills/software-code-review/SKILL.md",
+      "bytes": 1411,
+      "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+      "scope_read": "continued selected review skill",
+      "revision": "4f9799a9631895e1bf1bbfe9bb9755728b8ffe2c"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV65_BITMAP_REPAIR_BACKCHECK.md",
+      "bytes": 2313,
+      "sha256": "91244d692955f3b581c11fb383af4c5328981cbe114a6cb66f586347a20d3bc9",
+      "scope_read": "full new brief",
+      "revision": "4f9799a9631895e1bf1bbfe9bb9755728b8ffe2c"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/named_support_implementation_03/REVIEW.md",
+      "bytes": 14075,
+      "sha256": "56180f4aa5be2867b806c4b8c117cc7b81c2a9fc3422302274f9d9bea87f6fac",
+      "scope_read": "prior finding/functional/numerical limits continued",
+      "revision": "4f9799a9631895e1bf1bbfe9bb9755728b8ffe2c"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/named_support_implementation_03/SEAL.json",
+      "bytes": 4992,
+      "sha256": "76dd57e8822d7ff633f6f96ed5a0a4c054040b669034c2bbc3ffc6e7d3225440",
+      "scope_read": "prior review seal verified unchanged",
+      "revision": "4f9799a9631895e1bf1bbfe9bb9755728b8ffe2c"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "sealed_utc": "2026-10-03T16:30:22.096417+00:00",
+  "actor": "/root/i52_public_formation_contract",
+  "status": "sealed once for independent backcheck; not selected",
+  "payloads": [
+    {
+      "path": "ADDENDUM.md",
+      "bytes": 2177,
+      "sha256": "2e9bfb7abd8e94f097613877d643127397958a107a5eb13fd05ce3ae8242cdbe"
+    },
+    {
+      "path": "MANIFEST.json",
+      "bytes": 542,
+      "sha256": "e67ab23054425fe8a971457b595a3d7ab947f984083a9cb027223927e1e85811"
+    }
+  ],
+  "corrections": "addenda only"
+}

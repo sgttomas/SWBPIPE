@@ -1,0 +1,26 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+    "-j",
+    "4",
+    "--test",
+    "lane",
+    "checked_work_one_clean_record_keeps_bytes_and_nonexact_attempt_is_refused",
+    "--",
+    "--nocapture"
+  ],
+  "start": "2026-10-02T23:01:13.630775+00:00",
+  "end": "2026-10-02T23:01:16.127480+00:00",
+  "exit": 0,
+  "target": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i37-numerical-robustness",
+  "candidate_hashes": "FINAL_CANDIDATE_B_HASHES.json",
+  "owned_pid": 73326,
+  "environment": {
+    "RUST_TEST_THREADS": "2",
+    "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i37-numerical-robustness"
+  },
+  "wall_limit_seconds": 1200
+}

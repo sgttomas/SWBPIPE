@@ -1,0 +1,40 @@
+{
+  "task": "RV76",
+  "parent": "ROOT HELP_HUMAN /root",
+  "mechanism": "delegated-harness-native collaboration",
+  "disposition": "CLEAR for ROOT design disposition only",
+  "findings": [],
+  "no_implementation_this_run": true,
+  "files": [
+    {
+      "path": "BOOLEAN_REDERIVATION.json",
+      "sha256": "fe9df3288af45dfa7a1eb3e2f86e431143f4fcd0a3604fa3c99805b2b1f3ba9f",
+      "bytes": 577
+    },
+    {
+      "path": "CLOCK.json",
+      "sha256": "0f2b86b7cdbd7b8839d8e07f9bc3710d2e36e87232e659f4ee9d95131e84c474",
+      "bytes": 615
+    },
+    {
+      "path": "INDEPENDENT_DERIVATION.md",
+      "sha256": "95c7ae37a5b8d850a52bb037c74327683e12499333ee0ea1d00df2d5ee21e309",
+      "bytes": 2994
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "fbafef8986fa8e93815f87128ec5191caf25d25693d79fac761bfcdf38098840",
+      "bytes": 1543
+    },
+    {
+      "path": "REVIEW.md",
+      "sha256": "10341323b974d7a24155f23013d16b43e803f1d3cb6638df052a6ce2f51a61f3",
+      "bytes": 8987
+    },
+    {
+      "path": "SOURCE_EVIDENCE_MANIFEST.json",
+      "sha256": "e68f4c675ead3b30cd8e7474b15a3cf132fbacd16537855c53ff92d50a2e59f6",
+      "bytes": 14354
+    }
+  ]
+}

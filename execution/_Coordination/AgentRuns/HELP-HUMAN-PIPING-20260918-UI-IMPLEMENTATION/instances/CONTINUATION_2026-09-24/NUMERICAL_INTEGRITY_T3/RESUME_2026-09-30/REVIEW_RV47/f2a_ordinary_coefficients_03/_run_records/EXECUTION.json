@@ -1,0 +1,35 @@
+{
+  "status": "same-reviewer correction confirmed; returned to ROOT; no wider acceptance",
+  "task": "/root/rv47_f2a_preview_truth",
+  "parent": "/root",
+  "role": "TASK",
+  "mechanism": "delegated-harness-native continuation",
+  "receipt_utc": "2026-10-02 22:51:55 UTC",
+  "new_check_cutoff_utc": "2026-10-02 23:01:55 UTC",
+  "return_deadline_utc": "2026-10-02 23:06:55 UTC",
+  "checks_completed_by_utc": "2026-10-02 22:53:37 UTC",
+  "written_at_utc": "2026-10-02T22:54:27.464686+00:00",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "candidate": "7bca4a0dfd88de4fd3f6d1c59de3c98a189ab7ee",
+  "original": "f5ca39a1a2d4c63b0fda3fe2e3c61bbe8afde074",
+  "brief": "9fb9748897071fa8a7dbb33548e802d36c922e77",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV47/f2a_ordinary_coefficients_03",
+  "commands": [
+    {
+      "command": "python3 -B projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV47/f2a_ordinary_coefficients_03/_run_records/verify.py > projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV47/f2a_ordinary_coefficients_03/_run_records/CHECKS.json",
+      "command_utf8_sha256": "2d7842525d2294c83de8ed973fa7e907c1c5f89085ae6a96ec793678766f4f7d",
+      "script_sha256": "9ca61eec543111fcddc970a388836c4e61c3b32f1476770655b326e5c06be6c1",
+      "stdout_sha256": "08ba9c9cf32a77e3336af7ed854f92f6293d05fae8363f3bb5fa7dacce8a1068",
+      "exit_code": 0
+    }
+  ],
+  "enforcement": "Actual host permits broader access. Assignment boundaries followed without asserting a sandbox. All necessary Git reads used GIT_OPTIONAL_LOCKS=0. Only standard-library exact abstract checks and record inspection executed.",
+  "not_done": [
+    "maintained source reads/edits for a wider proof",
+    "compiler/solver/model/product/runtime/host probes",
+    "Git/index/API writes",
+    "delegation",
+    "full source-tree copies"
+  ],
+  "return_path": "ROOT owns acceptance and Git; RV47-C1 repair independently confirmed"
+}

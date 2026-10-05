@@ -1,0 +1,39 @@
+{
+  "sealed_at": "2026-10-03 07:18:55 UTC",
+  "disposition": "VERIFIED_FIXED_SCALE_OBSTRUCTION",
+  "payloads": [
+    {
+      "path": "EXECUTION.json",
+      "bytes": 3936,
+      "sha256": "ecee1953dc398355780f419ab628f024acd8d983c3ec8292672f0d7b5ead9f56"
+    },
+    {
+      "path": "MANIFEST.json",
+      "bytes": 2360,
+      "sha256": "e691fd5d80d662603fbbfc465fdd945ef44fced728db79e6ab91bee1ccf934f1"
+    },
+    {
+      "path": "RESULTS.json",
+      "bytes": 10891,
+      "sha256": "9ae252ace3a67345d947ce5af2b43bccc10db182fb82d0efee03098a0fb0301c"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 2157,
+      "sha256": "99fc89bb14e9f416fabcf6b1b683734c3f4b6f5e54b44550e5ed1f78063b277c"
+    },
+    {
+      "path": "REVIEW.md",
+      "bytes": 12153,
+      "sha256": "acb350aa8f13b90f7bc061407999ac37955153be4cebd909dabda141909ca001"
+    },
+    {
+      "path": "check.py",
+      "bytes": 14914,
+      "sha256": "6605a1cb1c13961c324761908a26f974d83bfa2550fa4839c6194623f0539492"
+    }
+  ],
+  "payload_count": 6,
+  "bulk_manifest": "MANIFEST.json",
+  "policy": "Sealed once after audit. Preserve originals; corrections only through addenda."
+}

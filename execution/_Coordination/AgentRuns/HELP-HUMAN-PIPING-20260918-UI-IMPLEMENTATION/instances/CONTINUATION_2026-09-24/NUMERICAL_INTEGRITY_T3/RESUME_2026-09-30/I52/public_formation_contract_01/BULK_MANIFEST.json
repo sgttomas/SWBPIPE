@@ -1,0 +1,29 @@
+{
+  "files": [
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV68/prepared_producer_01/FROZEN_ASSESSMENT.md",
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i52_public_formation_contract/FROZEN_ASSESSMENT.md",
+      "bytes": 7072,
+      "sha256": "fed05f9f795fa504ecb85bb75254627593b2ddddeaa02f4cf78ba8b6347b1546",
+      "read_scope": "complete or bounded stated excerpts",
+      "authority": "unsealed working independent-review qualification; no acceptance"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV68/prepared_producer_01/PROVENANCE_BACKCHECK.md",
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i52_public_formation_contract/PROVENANCE_BACKCHECK.md",
+      "bytes": 3171,
+      "sha256": "f48cf9f0b7f76f7628894226946fb89f64561d5db161d3b7e1f442e29a2cbd4b",
+      "read_scope": "complete or bounded stated excerpts",
+      "authority": "unsealed working independent-review qualification; no acceptance"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV68/prepared_producer_01/LOCAL_ACCOUNTING_NOTES.md",
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i52_public_formation_contract/LOCAL_ACCOUNTING_NOTES.md",
+      "bytes": 3175,
+      "sha256": "d612cdb6ada1732cfdc87e177ca9fb2688d72334ad03d169f05c4fe87b1a76a0",
+      "read_scope": "complete or bounded stated excerpts",
+      "authority": "unsealed working independent-review qualification; no acceptance"
+    }
+  ],
+  "purpose": "preserve exact unsealed working qualifications read, not acceptance"
+}

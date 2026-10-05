@@ -1,0 +1,32 @@
+{
+  "agent": "/root/i49_conservative_predicate",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native",
+  "role": "TASK Type2",
+  "descendants": [],
+  "first_observed_utc": "2026-10-03T05:09:07Z",
+  "substantive_result_reported_utc": "2026-10-03T05:15:07Z",
+  "checkpoint_reported_utc": "2026-10-03T05:16:55Z",
+  "analysis_complete_before_utc": "2026-10-03T05:16:55Z",
+  "seal_started_utc": "2026-10-03T05:18:11.039221+00:00",
+  "deadline_new_analysis": "2026-10-03T05:24:07Z",
+  "deadline_return": "2026-10-03T05:31:07Z",
+  "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "engine_identity": "Codex current delegated harness; exact model identifier not exposed in this child context",
+  "actual_host_permissions": "unrestricted filesystem; assignment narrowed writes to this new packet and forbade Git/index/API/runtime work",
+  "write_scope": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I49/conservative_predicate_01",
+  "work": "pinned reads, exact Fraction arithmetic, rational pi bracketing, algebraic source diagnosis, evidence writing",
+  "not_executed": [
+    "compiler",
+    "product model",
+    "solver",
+    "native product runtime",
+    "network/API",
+    "Git/index writes",
+    "host-tool engineering",
+    "delegation"
+  ],
+  "source_revision": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4",
+  "brief_revision": "19703b23a89e816dcdda32faa8cd473f4214832f"
+}

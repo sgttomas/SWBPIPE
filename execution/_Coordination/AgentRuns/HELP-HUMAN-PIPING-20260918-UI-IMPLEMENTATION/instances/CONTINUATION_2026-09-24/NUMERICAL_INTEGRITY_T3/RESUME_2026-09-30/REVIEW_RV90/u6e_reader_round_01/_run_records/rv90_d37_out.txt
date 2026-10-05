@@ -1,0 +1,13 @@
+kinds equal: True []
+  abandoned    rv90=['CCCCCCC---', 'CCCCCCF---', 'CCCCF-----'] corpus=['CCCCCCC---', 'CCCCCCF---', 'CCCCF-----'] OK
+  capture      rv90=['CC--------', 'CCCCCCCC--', 'CCCCCCCCCC', 'CF--------'] corpus=['CC--------', 'CCCCCCCC--', 'CCCCCCCCCC', 'CF--------'] OK
+  g5a          rv90=['CCCCCCCCCF'] corpus=['CCCCCCCCCF'] OK
+  native       rv90=['CF--------'] corpus=['CF--------'] OK
+  numeric      rv90=['CCCCCCCCCC'] corpus=['CCCCCCCCCC'] OK
+  observable   rv90=['CCCCCCCCFC', 'CCCCCCCCFF'] corpus=['CCCCCCCCFC', 'CCCCCCCCFF'] OK
+  preparation  rv90=['F---------'] corpus=['F---------'] OK
+  proof        rv90=['CCCCCCCF--', 'CCCCCCCFCC', 'CCCCCCCFCF', 'CCCCCCCFFC', 'CCCCCCCFFF', 'CCCF------', 'CCF-------'] corpus=['CCCCCCCF--', 'CCCCCCCFCC', 'CCCCCCCFCF', 'CCCCCCCFFC', 'CCCCCCCFFF', 'CCCF------', 'CCF-------'] OK
+  values       rv90=['CCCCCF----'] corpus=['CCCCCF----'] OK
+universe 25 equal to corpus records: True all exits inside: True
+unreachable universe records (refused for every kind): ['----------', 'C---------', 'CCC-------', 'CCCC------', 'CCCCC-----', 'CCCCCC----']
+C3 kinds: True unknown: ['storage']

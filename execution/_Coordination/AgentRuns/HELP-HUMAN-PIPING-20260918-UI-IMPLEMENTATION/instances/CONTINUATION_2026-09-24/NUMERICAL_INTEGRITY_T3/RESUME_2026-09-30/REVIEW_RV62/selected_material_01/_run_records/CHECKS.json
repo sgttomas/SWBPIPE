@@ -1,0 +1,56 @@
+{
+  "pp_debug": {
+    "exit": 0,
+    "summary": [
+      "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 414 filtered out; finished in 5.71s"
+    ],
+    "source_unchanged": true,
+    "command_record_sha256": "7a0eaba609149ca8ba21ec289eed6475ae217c0d3ffed0b76886f8d37dfe6eaf",
+    "log_sha256": "4a5705f93875ce0d2ea4cb857258e92cd03232111b0711e1d084bcbe2b44b743"
+  },
+  "pp_optimized": {
+    "exit": 0,
+    "summary": [
+      "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 414 filtered out; finished in 0.26s"
+    ],
+    "source_unchanged": true,
+    "command_record_sha256": "8e17332bd96179eb58aa0332b3836916e610a3c7dc1d514d5cd55de886cb95c2",
+    "log_sha256": "de3dbb416c791a087d7c85ca050dabfdacb151bfcd45c2de5ab50303fec67e2a"
+  },
+  "controls": {
+    "exit": 0,
+    "summary": [
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 428 filtered out; finished in 0.64s"
+    ],
+    "source_unchanged": true,
+    "command_record_sha256": "7134161c99adedb7d88531527a61f0c8481d78544daadec91ec38f1bdf51fd9b",
+    "log_sha256": "4b0ab001a370290f7c3864987ab388a0c31b24765fd4f0bfda5a1398e740eb25"
+  },
+  "fk_certificates": {
+    "exit": 0,
+    "summary": [
+      "test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 446 filtered out; finished in 0.02s"
+    ],
+    "source_unchanged": true,
+    "command_record_sha256": "8951fea3d52253406c1e35dd11999f2a6861951c5bbffb8a50f92ed248852472",
+    "log_sha256": "f598a5b873ecd1e7e5438e50026b3b7339aa8bf561420a2e643bb6b4781a5ac8"
+  },
+  "pp_s11": {
+    "exit": 0,
+    "summary": [
+      "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.37s"
+    ],
+    "source_unchanged": true,
+    "command_record_sha256": "bb673c4e9799a0a189209dfb947d0b242393f42621f5ee66db70771b14c30756",
+    "log_sha256": "56c36081ca8bab57f7e519c3dc29bcd86b8bf99582ec1ee219b4e00d2bf43b1d"
+  },
+  "fk_s11": {
+    "exit": 0,
+    "summary": [
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s"
+    ],
+    "source_unchanged": true,
+    "command_record_sha256": "79d392411d4b286ea897b1f2aae8e78e8973a7d4754227a5cb75d016dc525b8a",
+    "log_sha256": "ae7a4e394e983cb9afbed8ea6cddb365878105f5dc907fb8b61a09326d0876cf"
+  }
+}

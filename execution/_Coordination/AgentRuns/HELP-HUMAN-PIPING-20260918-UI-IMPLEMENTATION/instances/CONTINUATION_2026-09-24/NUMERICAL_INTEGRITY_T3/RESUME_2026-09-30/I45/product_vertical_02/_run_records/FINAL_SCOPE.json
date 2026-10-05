@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-03T03:46:53.481768+00:00",
+  "repaired_since_interim_freeze": [
+    "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+    "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs"
+  ],
+  "exact_expected_repair": true,
+  "all_other_baseline_files_unchanged": true,
+  "diff_check_exit": 0,
+  "final_inventory_sha256": "753b19858a949894c7f3123b344c28b9241a5b1d844210b2b87cd6623b6882e2",
+  "old_inventory_sha256": "10286ce519e96adbc735c841c225512abcdd240ba4c704e619c987ced467dea0",
+  "pp09_unchanged": true,
+  "oracle09_unchanged": true
+}

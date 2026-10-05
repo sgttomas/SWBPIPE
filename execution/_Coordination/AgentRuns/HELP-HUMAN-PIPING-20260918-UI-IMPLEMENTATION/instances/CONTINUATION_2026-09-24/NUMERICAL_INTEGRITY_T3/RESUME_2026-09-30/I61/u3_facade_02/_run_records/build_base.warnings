@@ -1,0 +1,9 @@
+warning: `open_pipe_stress_product_physics` (lib) generated 8 warnings
+warning: field `springs` is never read
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+warning: function `derived` is never used
+warning: function `expected_primary` is never used
+warning: function `is_exact_pressure_result_kind` is never used
+warning: function `solve_load_case` is never used
+warning: method `spring_actions` is never used
+warning: multiple fields are never read

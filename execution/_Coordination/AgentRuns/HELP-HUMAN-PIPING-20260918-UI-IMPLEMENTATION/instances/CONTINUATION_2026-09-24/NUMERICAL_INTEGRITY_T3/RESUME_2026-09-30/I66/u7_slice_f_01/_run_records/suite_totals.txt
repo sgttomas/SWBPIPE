@@ -1,0 +1,14 @@
+base_sweep: 1843 passed, 30 skipped in 872.03s (0:14:32)
+cand_sweep: 1843 passed, 30 skipped in 969.63s (0:16:09)
+py_final: 459 passed in 160.51s (0:02:40)
+base_re: 168 ok, 0 failed, 0 ignored; failures: 
+cand_re_final: 169 ok, 0 failed, 0 ignored; failures: 
+base_pp_reg: 705 ok, 1 failed, 9 ignored; failures: s11g_tests::t13_committed_fallback_uz_is_byte_identical 
+cand_pp_reg: 705 ok, 1 failed, 9 ignored; failures: s11g_tests::t13_committed_fallback_uz_is_byte_identical 
+base_pp_stale: 705 ok, 1 failed, 9 ignored; failures: s11g_tests::t13_committed_fallback_uz_is_byte_identical 
+cand_pp_stale: 705 ok, 1 failed, 9 ignored; failures: s11g_tests::t13_committed_fallback_uz_is_byte_identical 
+base_runner: 85 ok, 2 failed, 0 ignored; failures: cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes 
+cand_runner: 85 ok, 2 failed, 0 ignored; failures: cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes 
+mut_baseline_rs: 75 ok, 0 failed, 0 ignored; failures: 
+mut_rs_baseline: 75 ok, 0 failed, 0 ignored; failures: 
+mut_baseline_py: 403 passed in 177.68s (0:02:57)

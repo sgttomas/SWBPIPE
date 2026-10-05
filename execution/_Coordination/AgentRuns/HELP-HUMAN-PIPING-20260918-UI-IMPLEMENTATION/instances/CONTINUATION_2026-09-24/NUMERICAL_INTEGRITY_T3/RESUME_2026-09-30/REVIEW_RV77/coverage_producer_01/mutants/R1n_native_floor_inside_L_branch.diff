@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs
+@@ -1489,7 +1489,7 @@
+                 positive[2] || positive[3],
+             ];
+         }
+-        if let Some(floor) = &owner.evidence().floor {
++        if let Some(floor) = owner.evidence().floor.as_ref().filter(|_| owner.prep.extents[body as usize] != 0.0) {
+             let f = floor
+                 .iter()
+                 .find(|f| f.0 == body)

@@ -1,0 +1,74 @@
+{
+  "note": "Evidence-producing command index. Full explicit-cwd shell invocations, cat/rg discovery, copying and hash checks are retained in the harness transcript. The checker uses only exact arithmetic and records, importing no product code.",
+  "commands": [
+    {
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "environment": {
+        "GIT_OPTIONAL_LOCKS": "0"
+      },
+      "argv": [
+        "git",
+        "show",
+        "26160e94661ef49db726c3fde5809121a584c10f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I49_REQUIRED_READOUT_ADDENDUM.md"
+      ],
+      "result_sha256": "5da9780a5642debff736b82beeaf570e3878d5a25a8c4dc19957b7d3620314e1"
+    },
+    {
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "environment": {
+        "GIT_OPTIONAL_LOCKS": "0"
+      },
+      "argv": [
+        "git",
+        "show",
+        "26160e94661ef49db726c3fde5809121a584c10f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/material_truth_coverage_challenge_01/CHALLENGE.md"
+      ],
+      "result_sha256": "302f3e338402fe36113b20d328cccc42590ba5edbd7bd3816b554b944406161a"
+    },
+    {
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "environment": {
+        "GIT_OPTIONAL_LOCKS": "0"
+      },
+      "argv": [
+        "git",
+        "show",
+        "26160e94661ef49db726c3fde5809121a584c10f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/material_truth_coverage_challenge_01/ROOT_CHECK.json"
+      ],
+      "result_sha256": "3c5d73b36cddcf371f1153ed473756f7d0934da913599316432ed361a9e71779"
+    },
+    {
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "environment": {
+        "GIT_OPTIONAL_LOCKS": "0"
+      },
+      "argv": [
+        "git",
+        "show",
+        "26160e94661ef49db726c3fde5809121a584c10f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_preview_truth_01/RETURN.md"
+      ],
+      "result_sha256": "0f3ea0bed9b3ce93e7c7e75ee3dc6acac2f23d6f29f775058c24be7c69d9211c"
+    },
+    {
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "environment": {
+        "GIT_OPTIONAL_LOCKS": "0"
+      },
+      "argv": [
+        "git",
+        "show",
+        "26160e94661ef49db726c3fde5809121a584c10f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/RETURN.md"
+      ],
+      "result_sha256": "74670d4f43e58f13e6fd03c69cbde7cd514c117d66d29691ff6d225f2f2e5d3a"
+    },
+    {
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "argv": [
+        "python3",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I49/full_truth_addendum_02/_run_records/check_addendum.py"
+      ],
+      "stdout": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I49/full_truth_addendum_02/_run_records/CHECK.stdout",
+      "exit_code": 0
+    }
+  ]
+}

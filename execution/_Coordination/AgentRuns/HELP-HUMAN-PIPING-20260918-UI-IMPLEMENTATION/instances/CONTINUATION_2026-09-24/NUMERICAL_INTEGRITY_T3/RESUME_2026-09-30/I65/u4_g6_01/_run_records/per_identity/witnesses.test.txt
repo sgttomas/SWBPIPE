@@ -1,0 +1,45 @@
+# I65 U4 G6: the S1 witnesses in the test build (one process each; R/k = 4 MiB unless stated).
+== witness_w1_milestone
+I65_G5_WITNESS W1 SparseInteractive stack=4194304 ran=Successor
+I65_G5_WITNESS W1 DenseScrutiny stack=4194304 ran=Successor
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 543 filtered out; finished in 1.40s
+== witness_w2_cap_maximal
+I65_G5_WITNESS W2 SparseInteractive stack=4194304 ran=Fallback("Preparation")
+I65_G5_WITNESS W2 DenseScrutiny stack=4194304 ran=Fallback("Preparation")
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 543 filtered out; finished in 0.04s
+== witness_w2_deep_milestone_publishes
+I65_G5_WITNESS W2-deep SparseInteractive stack=4194304 ran=Successor
+I65_G5_WITNESS W2-deep SparseInteractive stack=1048576 ran=Successor
+I65_G5_WITNESS W2-deep DenseScrutiny stack=4194304 ran=Successor
+I65_G5_WITNESS W2-deep DenseScrutiny stack=1048576 ran=Successor
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 543 filtered out; finished in 2.73s
+== witness_w2b_cap_maximal_solvable
+I65_G5_WITNESS W2b SparseInteractive stack=4194304 ran=Fallback("Candidate")
+I65_G5_WITNESS W2b DenseScrutiny stack=4194304 ran=Fallback("Candidate")
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 543 filtered out; finished in 43.31s
+== witness_w3_exact_selected
+I65_G5_WITNESS W3 SparseInteractive stack=4194304 ran=ExactSelected
+I65_G5_WITNESS W3 DenseScrutiny stack=4194304 ran=ExactSelected
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 543 filtered out; finished in 0.10s
+== witness_w4_preparation_refusal
+I65_G5_WITNESS W4 SparseInteractive stack=4194304 ran=Fallback("Preparation")
+I65_G5_WITNESS W4 DenseScrutiny stack=4194304 ran=Fallback("Preparation")
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 543 filtered out; finished in 0.01s
+== witness_w6_force_scaled
+I65_G5_WITNESS_INPUT W6 force_scaled=true
+I65_G5_WITNESS W6 SparseInteractive stack=4194304 ran=Fallback("Native")
+I65_G5_WITNESS_OUTCOME W6 SparseInteractive Fallback("Native")
+I65_G5_WITNESS W6 DenseScrutiny stack=4194304 ran=Fallback("Native")
+I65_G5_WITNESS_OUTCOME W6 DenseScrutiny Fallback("Native")
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 543 filtered out; finished in 0.12s
+== witness_w7_fault_fallbacks
+I65_G5_WITNESS W7 native stack=4194304 ran=Fallback("Native")
+I65_G5_WITNESS W7 serializer stack=4194304 ran=Fallback("Serializer(ReceiptFailure { check: Encoding, field_path: \"cases[].run.invocation_after\" })")
+I65_G5_WITNESS W7 staging stack=4194304 ran=Fallback("Staging(StagingFault(\"pipe_stress_extrema[]\"))")
+I65_G5_WITNESS W7 precommit binding stack=4194304 ran=Fallback("Precommit { gate: \"G8\", code: \"RETAINED_PRECISION_INVOCATION_MISMATCH\" }")
+I65_G5_WITNESS W7 precommit corruption stack=4194304 ran=Fallback("Precommit { gate: \"G1\", code: \"RETAINED_PRECISION_RECEIPT_MISMATCH\" }")
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 543 filtered out; finished in 2.69s
+== witness_headroom_w1_at_one_mebibyte
+I65_G5_WITNESS W1@1MiB SparseInteractive stack=1048576 ran=Successor
+I65_G5_WITNESS W1@1MiB DenseScrutiny stack=1048576 ran=Successor
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 543 filtered out; finished in 1.38s

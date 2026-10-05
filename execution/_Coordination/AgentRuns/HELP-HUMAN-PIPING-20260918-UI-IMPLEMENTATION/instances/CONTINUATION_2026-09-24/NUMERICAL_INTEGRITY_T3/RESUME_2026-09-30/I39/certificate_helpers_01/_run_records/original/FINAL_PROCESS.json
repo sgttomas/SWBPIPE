@@ -1,0 +1,15 @@
+{
+  "checked_utc": "2026-10-02T23:48:34.312383+00:00",
+  "owned_pids": [
+    95093,
+    96791,
+    97351,
+    97372,
+    97620,
+    98222,
+    98253
+  ],
+  "owned_processes_alive": [],
+  "cargo_lane": "released to ROOT after RELEASE_FINAL exit 0; no further build/test commands planned",
+  "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n"
+}

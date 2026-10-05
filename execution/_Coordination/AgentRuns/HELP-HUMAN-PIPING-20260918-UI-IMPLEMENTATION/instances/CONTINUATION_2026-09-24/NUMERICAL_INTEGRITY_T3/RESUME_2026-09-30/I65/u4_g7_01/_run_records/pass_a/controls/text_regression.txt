@@ -1,0 +1,19 @@
+# I65 U4 G7: regression control for the G7 text_budget.py (edge_zero breaks cycles; a multi-member SCC fails the run; non-candidate dump).
+# Run on G6's final inputs at 1e323058f3 (u4_g6_01/_run_records_g6r: text_args, loop_bounds, inventory; part 2's edges and lexicon), D = 14,734.
+# Compared with u4_g6_01/_run_records_g6r/text_g6r/, after dropping the one new informational key (self_recursive_ancestors).
+text_budget.caps.out.json: identical
+text_budget_W.caps.out.json: identical
+text_budget_X.caps.out.json: identical
+text_budget_env.caps.out.json: identical
+# The integrated tree's rows against G6's (text_row_diff.py: rows matched by file, kind, enclosing fn, ordinal):
+text_budget: {"rows": [2807, 2814], "changed": 0, "unmatched_positive_in_first": 0, "only_in_second": 7, "tav": [2150800830, 2150800830], "max_site": [2599962, 2599962], "D": [14734, 14734], "reachable_fns": [2752, 2770], "complete": [true, true]}
+text_budget_W: {"rows": [2807, 2814], "changed": 0, "unmatched_positive_in_first": 0, "only_in_second": 7, "tav": [1570041862, 1570041862], "max_site": [2599962, 2599962], "D": [9400, 9400], "reachable_fns": [2752, 2770], "complete": [true, true]}
+text_budget_X: {"rows": [2807, 2814], "changed": 0, "unmatched_positive_in_first": 0, "only_in_second": 7, "tav": [1440401002, 1440401002], "max_site": [2599962, 2599962], "D": [14723, 14723], "reachable_fns": [2752, 2770], "complete": [true, true]}
+text_budget_env: {"rows": [2807, 2814], "changed": 0, "unmatched_positive_in_first": 0, "only_in_second": 7, "tav": [642949448, 642949448], "max_site": [2599962, 2599962], "D": [9361, 9361], "reachable_fns": [2752, 2770], "complete": [true, true]}
+ONLY-SECOND reporting/result_export/src/derivative.rs ('format', 'class_disclosure', 0) 51 0 0 False
+ONLY-SECOND reporting/result_export/src/derivative.rs ('format', 'not_covered_message', 0) 39 0 0 False
+ONLY-SECOND reporting/result_export/src/retained_precision.rs ('into_text', 'validate_transport_metadata', 0) 4341 0 0 True
+ONLY-SECOND reporting/result_export/src/semantic_contract.rs ('format', 'verify_preview_physics_retained_table', 0) 126 0 0 True
+ONLY-SECOND reporting/result_export/src/semantic_contract.rs ('into_text', 'verify_preview_physics_retained_table', 0) 127 0 0 True
+ONLY-SECOND reporting/result_export/src/semantic_contract.rs ('into_text', 'verify_preview_physics_retained_table', 1) 134 0 0 True
+ONLY-SECOND reporting/result_export/src/semantic_contract.rs ('to_string', 'verify_preview_physics_retained_table', 0) 130 0 0 True

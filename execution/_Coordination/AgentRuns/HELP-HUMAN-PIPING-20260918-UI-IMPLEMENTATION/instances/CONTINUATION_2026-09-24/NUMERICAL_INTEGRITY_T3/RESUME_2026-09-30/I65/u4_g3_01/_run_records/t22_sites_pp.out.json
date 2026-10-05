@@ -1,0 +1,514 @@
+{
+ "summary": {
+  "checked_mul": 26,
+  "CountRange": 38,
+  "u32::try_from": 8
+ },
+ "CountRange_with_literal_label": 36,
+ "rows": [
+  {
+   "file": "core/product_physics/src/retained_memory.rs",
+   "line": 203,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "nodes.checked_mul(6).ok_or(CensusStatus::ArithmeticOverflow)"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 70,
+   "kind": "CountRange",
+   "label": null,
+   "text": "CountRange(&'static str),"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 165,
+   "kind": "CountRange",
+   "label": null,
+   "text": "self.error = Some(CaptureError::CountRange(s));"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 385,
+   "kind": "CountRange",
+   "label": "\"basis record calls\"",
+   "text": ".ok_or(CaptureError::CountRange(\"basis record calls\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 505,
+   "kind": "CountRange",
+   "label": "\"observation layout\"",
+   "text": ".map_err(|_| CaptureError::CountRange(\"observation layout\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 507,
+   "kind": "CountRange",
+   "label": "\"observation bytes\"",
+   "text": "u64::try_from(text.len()).map_err(|_| CaptureError::CountRange(\"observation bytes\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 525,
+   "kind": "CountRange",
+   "label": "\"observation capacity\"",
+   "text": ".map_err(|_| CaptureError::CountRange(\"observation capacity\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 624,
+   "kind": "CountRange",
+   "label": "\"observation calls\"",
+   "text": ".ok_or(CaptureError::CountRange(\"observation calls\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 732,
+   "kind": "CountRange",
+   "label": "\"final modes\"",
+   "text": ".ok_or(CaptureError::CountRange(\"final modes\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 745,
+   "kind": "CountRange",
+   "label": "\"final parity\"",
+   "text": ".ok_or(CaptureError::CountRange(\"final parity\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 772,
+   "kind": "CountRange",
+   "label": "\"support layout\"",
+   "text": ".map_err(|_| CaptureError::CountRange(\"support layout\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 782,
+   "kind": "CountRange",
+   "label": "\"support capacity bytes\"",
+   "text": ".ok_or(CaptureError::CountRange(\"support capacity bytes\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 785,
+   "kind": "CountRange",
+   "label": "\"support capacity total\"",
+   "text": ".ok_or(CaptureError::CountRange(\"support capacity total\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 787,
+   "kind": "CountRange",
+   "label": "\"support capacity conversion\"",
+   "text": ".map_err(|_| CaptureError::CountRange(\"support capacity conversion\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 824,
+   "kind": "CountRange",
+   "label": "\"support dofs\"",
+   "text": ".ok_or(CaptureError::CountRange(\"support dofs\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 832,
+   "kind": "CountRange",
+   "label": "\"support count\"",
+   "text": "u32::try_from(count).map_err(|_| CaptureError::CountRange(\"support count\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 838,
+   "kind": "CountRange",
+   "label": "\"support slots\"",
+   "text": ".ok_or(CaptureError::CountRange(\"support slots\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 859,
+   "kind": "CountRange",
+   "label": "\"support layout quantities\"",
+   "text": ".ok_or(CaptureError::CountRange(\"support layout quantities\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 860,
+   "kind": "CountRange",
+   "label": "\"support layout quantities\"",
+   "text": "u32::try_from(q).map_err(|_| CaptureError::CountRange(\"support layout quantities\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 927,
+   "kind": "CountRange",
+   "label": "\"support global dof\"",
+   "text": ".ok_or(CaptureError::CountRange(\"support global dof\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 1168,
+   "kind": "CountRange",
+   "label": "\"stations\"",
+   "text": ".ok_or(CaptureError::CountRange(\"stations\"))?,"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 1992,
+   "kind": "CountRange",
+   "label": "\"support rows\"",
+   "text": "count=count.checked_add(1).ok_or(CaptureError::CountRange(\"support rows\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 2934,
+   "kind": "CountRange",
+   "label": "\"adapter layout\"",
+   "text": ".map_err(|_| CaptureError::CountRange(\"adapter layout\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 2945,
+   "kind": "CountRange",
+   "label": "\"adapter capacity bytes\"",
+   "text": ".ok_or(CaptureError::CountRange(\"adapter capacity bytes\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 2947,
+   "kind": "CountRange",
+   "label": "\"adapter capacity conversion\"",
+   "text": ".map_err(|_| CaptureError::CountRange(\"adapter capacity conversion\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 2954,
+   "kind": "CountRange",
+   "label": "\"identity bytes\"",
+   "text": "let n = u64::try_from(s.len()).map_err(|_| CaptureError::CountRange(\"identity bytes\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 2979,
+   "kind": "CountRange",
+   "label": "\"adapter growth bytes\"",
+   "text": ".ok_or(CaptureError::CountRange(\"adapter growth bytes\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 3066,
+   "kind": "CountRange",
+   "label": "\"prepared late hooks\"",
+   "text": "let count=self.prepared_late_calls.checked_add(1).ok_or(CaptureError::CountRange(\"prepared late hooks\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 3084,
+   "kind": "CountRange",
+   "label": "\"prepared layout\"",
+   "text": "std::alloc::Layout::array::<T>(n).map_err(|_|CaptureError::CountRange(\"prepared layout\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 3087,
+   "kind": "CountRange",
+   "label": "\"prepared capacity\"",
+   "text": "let bytes=v.capacity().checked_mul(std::mem::size_of::<T>()).ok_or(CaptureError::CountRange(\"prepared capacity\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 3088,
+   "kind": "CountRange",
+   "label": "\"prepared capacity sum\"",
+   "text": "capacities[slot]=capacities[slot].checked_add(bytes).ok_or(CaptureError::CountRange(\"prepared capacity sum\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 3089,
+   "kind": "CountRange",
+   "label": "\"prepared capacity conversion\"",
+   "text": "adapter.enter(AdapterEvent::RustCapacityBytes,u64::try_from(bytes).map_err(|_|CaptureError::CountRange(\"prepared capacity conversion\"))?);"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 3093,
+   "kind": "CountRange",
+   "label": "\"prepared string length\"",
+   "text": "let n=u64::try_from(text.len()).map_err(|_|CaptureError::CountRange(\"prepared string length\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 3097,
+   "kind": "CountRange",
+   "label": "\"prepared string capacity\"",
+   "text": "capacities[10]=capacities[10].checked_add(s.capacity()).ok_or(CaptureError::CountRange(\"prepared string capacity\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 3434,
+   "kind": "CountRange",
+   "label": "\"maximum span index\"",
+   "text": "let numbers=[n(maximum.station)?,nu(u64::try_from(maximum.span_index).map_err(|_|CaptureError::CountRange(\"maximum span index\"))?)?,n(maximum.local_fraction)?,"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 3436,
+   "kind": "CountRange",
+   "label": "\"maximum subdivisions\"",
+   "text": "nu(u64::try_from(maximum.subdivisions).map_err(|_|CaptureError::CountRange(\"maximum subdivisions\"))?)?];"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 3546,
+   "kind": "CountRange",
+   "label": "\"commit maxima\"",
+   "text": "let moves=payload.values.len().checked_add(payload.maxima.len().checked_mul(8).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange(\"commit max"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 3547,
+   "kind": "CountRange",
+   "label": "\"commit moves\"",
+   "text": ".and_then(|v|v.checked_add(2)).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange(\"commit moves\")))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 3548,
+   "kind": "CountRange",
+   "label": "\"commit count\"",
+   "text": "self.capture.adapter.enter(AdapterEvent::MapWrite,u64::try_from(moves).map_err(|_|PreparedCandidateError::Capture(CaptureError::CountRange(\"commit count\")))?);"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 179,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "if u32::try_from(model.nodes.len()).is_err()"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 181,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "|| u32::try_from(model.pipe_segments.len())"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 185,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "|| u32::try_from(model.supports.len()).is_err()"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 832,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "u32::try_from(count).map_err(|_| CaptureError::CountRange(\"support count\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 860,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "u32::try_from(q).map_err(|_| CaptureError::CountRange(\"support layout quantities\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 1238,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "let id = match u32::try_from(i) {"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 1270,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "let (Ok(ni), Ok(nj)) = (u32::try_from(b.node_i.index), u32::try_from(b.node_j.index))"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 1270,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "let (Ok(ni), Ok(nj)) = (u32::try_from(b.node_i.index), u32::try_from(b.node_j.index))"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 180,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "|| model.nodes.len().checked_mul(6).is_none()"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 183,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".and_then(|m| m.checked_mul(3))"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 781,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(std::mem::size_of::<T>())"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 823,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(6)"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 837,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(6)"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 842,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(7)"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 847,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(30)"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 856,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(2)"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 925,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(6)"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 1167,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(3)"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 1333,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "let Some(station) = id.checked_mul(3).and_then(|v| v.checked_add(j as u32)) else {"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 2944,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(std::mem::size_of::<T>())"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 2978,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(std::mem::size_of::<T>())"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 3087,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "let bytes=v.capacity().checked_mul(std::mem::size_of::<T>()).ok_or(CaptureError::CountRange(\"prepared capacity\"))?;"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 3546,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "let moves=payload.values.len().checked_add(payload.maxima.len().checked_mul(8).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange(\"commit max"
+  },
+  {
+   "file": "core/product_physics/src/source_recovery.rs",
+   "line": 511,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(DOF_PER_NODE)"
+  },
+  {
+   "file": "core/product_physics/src/source_recovery.rs",
+   "line": 516,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(144)"
+  },
+  {
+   "file": "core/product_physics/src/case_state/temperature.rs",
+   "line": 46,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(other.den)?"
+  },
+  {
+   "file": "core/product_physics/src/case_state/temperature.rs",
+   "line": 47,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_add(other.num.checked_mul(self.den)?)?;"
+  },
+  {
+   "file": "core/product_physics/src/case_state/temperature.rs",
+   "line": 48,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "Self::new(num, self.den.checked_mul(other.den)?)"
+  },
+  {
+   "file": "core/product_physics/src/case_state/temperature.rs",
+   "line": 52,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "self.num.checked_mul(other.num)?,"
+  },
+  {
+   "file": "core/product_physics/src/case_state/temperature.rs",
+   "line": 53,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "self.den.checked_mul(other.den)?,"
+  },
+  {
+   "file": "core/product_physics/src/case_state/temperature.rs",
+   "line": 59,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(other.den)?"
+  },
+  {
+   "file": "core/product_physics/src/case_state/temperature.rs",
+   "line": 60,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".cmp(&other.num.checked_mul(self.den)?),"
+  },
+  {
+   "file": "core/product_physics/src/case_state/temperature.rs",
+   "line": 79,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "Self::new(signed.checked_mul(power)?, 1)"
+  }
+ ]
+}

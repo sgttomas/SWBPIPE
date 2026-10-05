@@ -1,0 +1,13 @@
+{
+  "checked_utc": "2026-10-03T06:28:58.093729+00:00",
+  "actor": "ROOT HELP_HUMAN /root",
+  "full_return_checker_and_seal_history_read": true,
+  "files": 9,
+  "total_bytes": 57159,
+  "base_seal_sha256": "37815efb029dd1b494bc57c53bc46ee918650a4676a035c52c48b69f93219f7f",
+  "addendum_seal_sha256": "8b8c6a8dec57c178a3894a82ae88e1fb430cfc5f54141a2451757aa6022ac8da",
+  "return_sha256": "5a21abd41ca53c5b2ae89501b91cbaa1bcca5955914a81ce430711b50d1728ba",
+  "source_comparisons": 10,
+  "decision": "Preserve for independent component interface review; no implementation grant yet",
+  "qualification": "First seal and three provenance payloads were overwritten before final return; prior hashes/transcript are recorded, original overwritten bytes not claimed preserved; current final packet fully verified"
+}

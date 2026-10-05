@@ -1,0 +1,1 @@
+{"files": 30, "hunks_and_files": 75, "classes": {"not-d1": 20, "no-code": 31, "item": 3, "cfg-test-stmt": 3, "test": 11, "generated": 1, "qualification-test": 1, "unreachable": 5}, "verdict": "PASS: every hunk classified; every live, item, cfg(test)-statement or qualification-test hunk has a reviewed entry"}

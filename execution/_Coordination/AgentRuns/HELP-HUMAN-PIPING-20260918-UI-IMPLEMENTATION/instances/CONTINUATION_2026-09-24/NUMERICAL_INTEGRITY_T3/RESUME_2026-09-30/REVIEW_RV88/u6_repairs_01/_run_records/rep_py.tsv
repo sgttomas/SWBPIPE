@@ -1,0 +1,34 @@
+case	sparse_interactive:invocation	needs_recompute	ok	needs_recompute	ok
+case	sparse_interactive:no_invocation	needs_recompute	ok	needs_recompute	ok
+case	sparse_interactive:no_requested	needs_recompute	ok	needs_recompute	ok
+case	sparse_interactive:other_requested	needs_recompute	ok	needs_recompute	ok
+case	sparse_interactive:edited_row	unsupported	RETAINED_PRECISION_RECEIPT_MISMATCH	unsupported	RETAINED_PRECISION_RECEIPT_MISMATCH
+case	sparse_interactive:foreign_mode	unsupported	ok	unsupported	ok
+case	sparse_interactive:relabelled_base_with_receipt	unsupported	RETAINED_PRECISION_DOWNGRADE_FORBIDDEN	unsupported	RETAINED_PRECISION_DOWNGRADE_FORBIDDEN
+case	dense_scrutiny:invocation	needs_recompute	ok	needs_recompute	ok
+case	dense_scrutiny:no_invocation	needs_recompute	ok	needs_recompute	ok
+case	dense_scrutiny:no_requested	needs_recompute	ok	needs_recompute	ok
+case	dense_scrutiny:other_requested	needs_recompute	ok	needs_recompute	ok
+case	dense_scrutiny:edited_row	unsupported	RETAINED_PRECISION_RECEIPT_MISMATCH	unsupported	RETAINED_PRECISION_RECEIPT_MISMATCH
+case	dense_scrutiny:foreign_mode	unsupported	ok	unsupported	ok
+case	dense_scrutiny:relabelled_base_with_receipt	unsupported	RETAINED_PRECISION_DOWNGRADE_FORBIDDEN	unsupported	RETAINED_PRECISION_DOWNGRADE_FORBIDDEN
+case	legacy_0_1:token_last_row_only	unsupported	RETAINED_PRECISION_DOWNGRADE_FORBIDDEN	unsupported	RETAINED_PRECISION_DOWNGRADE_FORBIDDEN
+case	legacy_0_1:receipt_member_empty	unsupported	RETAINED_PRECISION_DOWNGRADE_FORBIDDEN	unsupported	RETAINED_PRECISION_DOWNGRADE_FORBIDDEN
+case	legacy_0_1:receipt_member_null	unsupported	RETAINED_PRECISION_DOWNGRADE_FORBIDDEN	unsupported	RETAINED_PRECISION_DOWNGRADE_FORBIDDEN
+case	preview_physics_1:token_last_row_only	unsupported	RETAINED_PRECISION_DOWNGRADE_FORBIDDEN	unsupported	RETAINED_PRECISION_DOWNGRADE_FORBIDDEN
+case	preview_physics_1:receipt_member_empty	unsupported	RETAINED_PRECISION_DOWNGRADE_FORBIDDEN	unsupported	RETAINED_PRECISION_DOWNGRADE_FORBIDDEN
+case	preview_physics_1:receipt_member_null	unsupported	RETAINED_PRECISION_DOWNGRADE_FORBIDDEN	unsupported	RETAINED_PRECISION_DOWNGRADE_FORBIDDEN
+dd	I67-F1:unregistered_invalid_statement	milestone_sparse_interactive	unsupported	unsupported
+dd	I67-F1:unregistered_invalid_statement	milestone_dense_scrutiny	unsupported	unsupported
+dd	I67-F2:display_only_binding_precheck	milestone_sparse_interactive	by_validated_class	by_validated_class
+dd	I67-F2:display_only_binding_precheck	milestone_dense_scrutiny	by_validated_class	by_validated_class
+dd	F-U6b-2:python_refuses_transport	milestone_sparse_interactive	SOURCE_PRODUCER_CONTRACT_UNSUPPORTED	SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dd	F-U6b-2:python_refuses_transport	milestone_dense_scrutiny	SOURCE_PRODUCER_CONTRACT_UNSUPPORTED	SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dd	F5:refused_statement_binding	milestone_sparse_interactive	every_row:RULE_QUANTITY_NOT_COVERED	every_row:RULE_QUANTITY_NOT_COVERED
+dd	F5:refused_statement_binding	milestone_dense_scrutiny	every_row:RULE_QUANTITY_NOT_COVERED	every_row:RULE_QUANTITY_NOT_COVERED
+legacy_token	first	contribution_preserving_multiprecision_v1	{"raw": ["err", "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"], "transport": ["ok", ["openpipestress_result_semantics_v0_2"]], "standing": "unsupported", "build_analysis_run": ["err", "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"], "build_v0_2": ["err", "ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"], "wrapper_0_1_0": ["err", "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"]}
+legacy_token	first	rv88_other_method	{"raw": ["ok", ["openpipestress_result_semantics_v0_2"]], "transport": ["ok", ["openpipestress_result_semantics_v0_2"]], "standing": "needs_recompute", "build_analysis_run": ["ok", "0.2.0"], "build_v0_2": ["ok", "0.2.0"], "wrapper_0_1_0": ["ok", "0.1.0"]}
+legacy_token	middle	contribution_preserving_multiprecision_v1	{"raw": ["err", "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"], "transport": ["ok", ["openpipestress_result_semantics_v0_2"]], "standing": "unsupported", "build_analysis_run": ["err", "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"], "build_v0_2": ["err", "ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"], "wrapper_0_1_0": ["err", "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"]}
+legacy_token	middle	rv88_other_method	{"raw": ["ok", ["openpipestress_result_semantics_v0_2"]], "transport": ["ok", ["openpipestress_result_semantics_v0_2"]], "standing": "needs_recompute", "build_analysis_run": ["ok", "0.2.0"], "build_v0_2": ["ok", "0.2.0"], "wrapper_0_1_0": ["ok", "0.1.0"]}
+legacy_token	last	contribution_preserving_multiprecision_v1	{"raw": ["err", "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"], "transport": ["ok", ["openpipestress_result_semantics_v0_2"]], "standing": "unsupported", "build_analysis_run": ["err", "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"], "build_v0_2": ["err", "ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"], "wrapper_0_1_0": ["err", "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"]}
+legacy_token	last	rv88_other_method	{"raw": ["ok", ["openpipestress_result_semantics_v0_2"]], "transport": ["ok", ["openpipestress_result_semantics_v0_2"]], "standing": "needs_recompute", "build_analysis_run": ["ok", "0.2.0"], "build_v0_2": ["ok", "0.2.0"], "wrapper_0_1_0": ["ok", "0.1.0"]}

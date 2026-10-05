@@ -1,0 +1,11 @@
+{
+  "checked_utc": "2026-10-03T19:15:57.233821+00:00",
+  "kind": "independent Boolean/source algebra, no native execution",
+  "row_patterns_total": 1800,
+  "c3_zero_input_patterns": 1152,
+  "p512_force_moment_charge_equals_stop": true,
+  "feasibility_accepts_every_source_generated_C3_pattern": true,
+  "estimate_charge_subchecks": 21600,
+  "failed": 0,
+  "scope": "row-level nonzero/input/presence, both extent states, four floor-positivity pairs, four E-positivity pairs, p128/p256/p512; excludes private numerical solve, encoders, readers and authenticating attestations"
+}

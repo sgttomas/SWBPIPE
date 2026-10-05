@@ -1,0 +1,17 @@
+{
+  "utc": "2026-10-03T01:14:54.951916+00:00",
+  "checks": {
+    "debug": 0,
+    "optimized": 0,
+    "legacy_radius": 0,
+    "legacy_sharper": 0,
+    "s11": 0
+  },
+  "all_credited_freezes_match": true,
+  "native_debug_optimized_trace_matches_original_I42": true,
+  "native_trace_lines": 109,
+  "original_I42_packet_payload_hashes_match": true,
+  "guard_5387_alive": true,
+  "all_owned_commands_exited": true,
+  "plan_sha256": "ceddf500cb9389eed312ea7facc98bb5801a18d3e1c5ce8666ab0ed263980305"
+}

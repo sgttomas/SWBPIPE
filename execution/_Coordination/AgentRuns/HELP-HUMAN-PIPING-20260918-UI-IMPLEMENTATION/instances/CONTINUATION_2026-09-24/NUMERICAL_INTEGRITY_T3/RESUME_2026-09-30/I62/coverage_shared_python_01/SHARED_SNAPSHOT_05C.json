@@ -1,0 +1,124 @@
+{
+  "version": "I62_SHARED_SNAPSHOT_05C",
+  "freeze_utc": "2026-10-03T20:59:59.567764+00:00",
+  "status": "Frozen C1c shared corpus: 05b minus three retired must_pass entries; no acceptance, eligibility or reader approval.",
+  "basis": {
+    "ruling": "ROOT_RULINGS_V1 'Snapshot 05b verified; three non-native must-pass entries retired as 05c' at NUM 1586bca12e",
+    "previous_snapshot": "SHARED_SNAPSHOT_05B 63df061ad0 (corpus ea6fe2c757; READER 8430571cc4)"
+  },
+  "files": [
+    {
+      "path": "P/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+      "bytes": 8346,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05c/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "changed_from_snapshot_05b": false
+    },
+    {
+      "path": "P/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+      "bytes": 52328,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05c/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "changed_from_snapshot_05b": false
+    },
+    {
+      "path": "P/fixtures/results/retained_precision_cases.json",
+      "sha256": "85bff98ea76e5d3433076d12593c91bc49350cc374981db259259282926e3824",
+      "bytes": 2844631,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05c/fixtures/results/retained_precision_cases.json",
+      "changed_from_snapshot_05b": true
+    },
+    {
+      "path": "P/schemas/retained_precision_mp_v2.schema.json",
+      "sha256": "f943ebd3511e31bcdfe09bac2788362d3a5734040bc3088fbe585361b571cd21",
+      "bytes": 174354,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05c/schemas/retained_precision_mp_v2.schema.json",
+      "changed_from_snapshot_05b": false
+    },
+    {
+      "path": "P/schemas/results.v0.3.schema.yaml",
+      "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586",
+      "bytes": 131530,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05c/schemas/results.v0.3.schema.yaml",
+      "changed_from_snapshot_05b": false
+    }
+  ],
+  "removed_must_pass": [
+    {
+      "id": "cert_failed_after_summary",
+      "reason": "Attested a numeric predicate certificate failure in case 1 of base F, whose inputs repeat case 0, which passed its certificate; identical inputs cannot give a different numeric verdict. Replaced by cert_failed_after_summary_accounting (kept)."
+    },
+    {
+      "id": "cert_failed_predicate_null_undetectable",
+      "reason": "Same identical-input contradiction (numeric predicate failure in case 1 of base F); the native path cannot occur."
+    },
+    {
+      "id": "old_operational_error_new_ready",
+      "reason": "Attested a coefficient_range refusal of the old operational evaluation for ordinary-magnitude operands; no native trigger established."
+    }
+  ],
+  "unchanged": "All 9 cases, all 121 mutations and the other 16 must_pass entries are byte-identical to 05b (asserted); the corpus diff is deletion-only (3 hunks, 227 lines). Schema, table, yaml and definition unchanged. Nothing was rehashed.",
+  "counts": {
+    "cases": 9,
+    "mutations": 121,
+    "must_pass": 16
+  },
+  "python": {
+    "tests": "python_schema_E1: 164 passed, 0 failed (167 in 05b minus the 3 parametrized must_pass entries)",
+    "reader_sha256": "3b12ca7511c698143b77af4058b7e41932026714453dad97240031183ed87994",
+    "tests_sha256": "7eab5b3793a504755313d3f3fb7236c4448f5a9f901112622f4734e90db3b5c9",
+    "note": "No Python-only test referenced the removed entries. The pre-existing I58 Python-only test test_old_operational_error_is_retained_independently_of_new_ready makes the same coefficient_range edit independently of the corpus; it was left unchanged (outside this grant) and is flagged for ROOT."
+  },
+  "bulk": [
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/build_corpus_05c.py",
+      "sha256": "52f602224d980499b6283519474a57380765a8f401789039965138070ec6c84f",
+      "bytes": 996
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/before_05c/retained_precision_cases.json",
+      "sha256": "ea6fe2c7574fb80b409c2931a7979451313d00a7c1d863ec993ec572b68dc808",
+      "bytes": 2850052
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/snapshot_05b_to_05c.diff",
+      "sha256": "bf126941a91e8762d14477f67f656c124fd1ae67601777e233eb91ebcdb8a20d",
+      "bytes": 5929
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/python_schema_E1.json",
+      "sha256": "4c6cd3e50dbcededfe7dab6185f93b9886c59313420945b9ccc429fc3f4a0b69",
+      "bytes": 2247
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/python_schema_E1.log",
+      "sha256": "7e0db4ec02d0ac90528994bc3a69cc9e8d1b4d89812c045fabaee4f71c4d1936",
+      "bytes": 19830
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05c/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+      "bytes": 8346
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05c/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+      "bytes": 52328
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05c/fixtures/results/retained_precision_cases.json",
+      "sha256": "85bff98ea76e5d3433076d12593c91bc49350cc374981db259259282926e3824",
+      "bytes": 2844631
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05c/schemas/retained_precision_mp_v2.schema.json",
+      "sha256": "f943ebd3511e31bcdfe09bac2788362d3a5734040bc3088fbe585361b571cd21",
+      "bytes": 174354
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05c/schemas/results.v0.3.schema.yaml",
+      "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586",
+      "bytes": 131530
+    }
+  ]
+}

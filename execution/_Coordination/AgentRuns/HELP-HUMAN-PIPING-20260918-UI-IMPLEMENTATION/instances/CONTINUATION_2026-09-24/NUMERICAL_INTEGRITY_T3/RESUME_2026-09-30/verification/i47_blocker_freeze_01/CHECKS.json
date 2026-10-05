@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-03T04:39:43.453168+00:00",
+  "base": "0215e471d293cd2d6e7f3f177913a216ab73a988",
+  "candidate": "58912a48b3fbdff75540649d04014025772d2749",
+  "source": "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+  "sha256": "0f02e9d2ef0d593e5c0edbd540ae56baaf345b70fb4301cffb1e593b96ca806c",
+  "payloads": 57,
+  "original_test_prefix_unchanged": true,
+  "current_core_files": 588,
+  "final_debug_exit": 101,
+  "final_optimized_exit": 101,
+  "focused_S11_exit": 0,
+  "status": "Unaccepted blocker candidate; no production source changed; no NUM fan-in"
+}

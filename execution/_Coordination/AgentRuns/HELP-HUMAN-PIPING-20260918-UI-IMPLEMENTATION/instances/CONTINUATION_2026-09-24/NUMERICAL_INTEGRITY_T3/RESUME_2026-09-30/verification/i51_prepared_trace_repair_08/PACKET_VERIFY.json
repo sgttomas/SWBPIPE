@@ -1,0 +1,19 @@
+{
+  "utc": "2026-10-03T16:57:28.624457+00:00",
+  "author": {
+    "seal_sha256": "11d8f97aa6eac6a7869d248882d7a9d48ce2278fe6e31a3e0f446f2fdd0a641b",
+    "payload_files": 7,
+    "packet_bytes": 10519,
+    "external_files": 3,
+    "external_bytes": 2578550
+  },
+  "review": {
+    "seal_sha256": "f7ab63acde7427f1dd25ec47a46d71cfd1023ad0922657e70648dc383d96193f",
+    "payload_files": 19,
+    "packet_bytes": 80257,
+    "external_files": 12,
+    "external_bytes": 5264391
+  },
+  "root_reads": "complete original core diff, complete repair diff, both RETURNs and full independent REVIEW",
+  "result": "all hashes/sizes pass; independent F1 closed"
+}

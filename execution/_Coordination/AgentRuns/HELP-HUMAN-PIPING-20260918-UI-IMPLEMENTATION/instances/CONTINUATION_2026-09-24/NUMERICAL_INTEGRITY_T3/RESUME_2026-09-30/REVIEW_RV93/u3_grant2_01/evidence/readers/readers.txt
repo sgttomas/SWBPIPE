@@ -1,0 +1,22 @@
+# Rust reader (in-process, zz_rv93_milestone_direct)
+RV93_MILESTONE mode=sparse_interactive counts=C { runs: 1, solves: 1, gb: 1, gc: 1 } published_sha=1d9ba7098dd20390357851e84a136890581a625ae21bf928864c30bc98a1a8c9 published_len=113733 doc_sha=ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc receipt="efc1a39bbe83840df6bd0761c932b8020285d3b8c005ba8fd0b45ba10d667494" rust_reader: PASS invocation_bound=true eligible=false classes=98 publication_sha256=26ef44356d6088dae5320fe390f3ced0b39ec0778af52b129bb13796ad994d2f
+RV93_MILESTONE mode=dense_scrutiny counts=C { runs: 1, solves: 1, gb: 1, gc: 1 } published_sha=7c5fe5c59f2bcc3b3313055223214d0f4884dc44981e3f6bb615a8d84acca595 published_len=114894 doc_sha=6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5 receipt="3e26499f17caff8f5fc0d46406bbe54acf43e8cb16e761784aa5074413b0ac4a" rust_reader: PASS invocation_bound=true eligible=false classes=99 publication_sha256=487c4cf2e1c9c39ec9b1d3695fee620945bce4fe399f68d74170f6c61d59af66
+
+# Python reader (py_reader.py, candidate copy as root; I52 CLIs)
+module core/analysis_runs/retained_precision.py IMPLEMENTATION_COMPLETE False
+PY u1_milestone_dense_scrutiny.json PASS standing=needs_recompute eligible=False invocation_bound=True classes=99 by_class={'absolute_verified': 69, 'input_derived': 3, 'non_quantity': 2, 'relative_verified': 25} schema_violations=0
+PY u1_milestone_dense_scrutiny.json public entry refuses G0 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED (eligibility off on this branch)
+PY u1_milestone_dense_scrutiny.json negative control refused G1 RETAINED_PRECISION_RECEIPT_MISMATCH
+PY u1_milestone_sparse_interactive.json PASS standing=needs_recompute eligible=False invocation_bound=True classes=98 by_class={'absolute_verified': 69, 'input_derived': 3, 'non_quantity': 1, 'relative_verified': 25} schema_violations=0
+PY u1_milestone_sparse_interactive.json public entry refuses G0 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED (eligibility off on this branch)
+PY u1_milestone_sparse_interactive.json negative control refused G1 RETAINED_PRECISION_RECEIPT_MISMATCH
+
+# Byte compare with NUM's U6 fixture copies
+sparse_interactive: identical
+dense_scrutiny: identical
+
+# sha256 of the documents and published values obtained
+7c5fe5c59f2bcc3b3313055223214d0f4884dc44981e3f6bb615a8d84acca595  published_dense_scrutiny.bin
+1d9ba7098dd20390357851e84a136890581a625ae21bf928864c30bc98a1a8c9  published_sparse_interactive.bin
+6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5  u1_milestone_dense_scrutiny.json
+ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc  u1_milestone_sparse_interactive.json

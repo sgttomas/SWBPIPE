@@ -1,0 +1,1194 @@
+[
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:239",
+  "before": "      // D1 (C2:98; PP:1238, 1296; F1:130): old, prepared and new member ids are exactly 0..len-1 in",
+  "after": "      // D1 (C2:98; retained_product.rs `ProductCapture::capture_case_source`; F1:130): old, prepared and new member ids are exactly 0..len-1 in",
+  "citations": [
+   {
+    "citation": "PP:1238, 1296",
+    "symbols": "retained_product.rs `ProductCapture::capture_case_source`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:262",
+  "before": "  // D29: a CaseSource with an empty body inventory cannot be emitted (source.rs:498 NoNodes; I57 §1).",
+  "after": "  // D29: a CaseSource with an empty body inventory cannot be emitted (source.rs `PrimitiveSource::new` NoNodes; I57 §1).",
+  "citations": [
+   {
+    "citation": "source.rs:498",
+    "symbols": "source.rs `PrimitiveSource::new`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:294",
+  "before": "  // (adaptive.rs:4545, 4777, 4996), and such a run is never emitted. It lies outside the emitted",
+  "after": "  // (adaptive.rs `run_schedule_inner`, `finish_terminal`, `solve_cases_projected`), and such a run is never emitted. It lies outside the emitted",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4545, 4777, 4996",
+    "symbols": "adaptive.rs `run_schedule_inner`, `finish_terminal`, `solve_cases_projected`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:300",
+  "before": "  // shared build (adaptive.rs:4286), no verification work, and no verification summary (adaptive.rs:4333).",
+  "after": "  // shared build (adaptive.rs `verify_precision`), no verification work, and no verification summary (adaptive.rs `verify_precision`).",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4286",
+    "symbols": "adaptive.rs `verify_precision`",
+    "resolved_at": "fc23cff95f"
+   },
+   {
+    "citation": "adaptive.rs:4333",
+    "symbols": "adaptive.rs `verify_precision`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:314",
+  "before": "    // D33: the native verification estimate exists only for force and moment rows (FK/retained/verify.rs:880).",
+  "after": "    // D33: the native verification estimate exists only for force and moment rows (verify.rs `verify_state`).",
+  "citations": [
+   {
+    "citation": "FK/retained/verify.rs:880",
+    "symbols": "verify.rs `verify_state`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:348",
+  "before": "    // D5c (adaptive.rs:4576-4579): rejected(verification_failed) only with a failed verification phase.",
+  "after": "    // D5c (adaptive.rs `run_schedule_inner`): rejected(verification_failed) only with a failed verification phase.",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4576-4579",
+    "symbols": "adaptive.rs `run_schedule_inner`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:394",
+  "before": "  // D8 kernel scope (checkpoint A; C1:66-68; adaptive.rs:4545, 4777, 4996): a work_accounting stop or",
+  "after": "  // D8 kernel scope (checkpoint A; C1:66-68; adaptive.rs `run_schedule_inner`, `finish_terminal`, `solve_cases_projected`): a work_accounting stop or",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4545, 4777, 4996",
+    "symbols": "adaptive.rs `run_schedule_inner`, `finish_terminal`, `solve_cases_projected`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:414",
+  "before": "      // N10 (adaptive.rs:4994-5015): an invocation-entry return is idle with group null. Its only",
+  "after": "      // N10 (adaptive.rs `solve_cases_projected`): an invocation-entry return is idle with group null. Its only",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4994-5015",
+    "symbols": "adaptive.rs `solve_cases_projected`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:427",
+  "before": "        // N10 (adaptive.rs:5055-5075): a run with no attempt in a ready group is the CasePrep refusal.",
+  "after": "        // N10 (adaptive.rs `solve_cases_projected`): a run with no attempt in a ready group is the CasePrep refusal.",
+  "citations": [
+   {
+    "citation": "adaptive.rs:5055-5075",
+    "symbols": "adaptive.rs `solve_cases_projected`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:528",
+  "before": "  // C5 (C2:143; adaptive.rs:4989-5030): call-local groups partition the call's non-idle sources by",
+  "after": "  // C5 (C2:143; adaptive.rs `solve_cases_projected`): call-local groups partition the call's non-idle sources by",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4989-5030",
+    "symbols": "adaptive.rs `solve_cases_projected`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:557",
+  "before": " * R1: an adapter overflow fault (PP:2896-2907) or any CaptureError/G5aError accounting{event} cause",
+  "after": " * R1: an adapter overflow fault (retained_product.rs `AdapterWork::enter`) or any CaptureError/G5aError accounting{event} cause",
+  "citations": [
+   {
+    "citation": "PP:2896-2907",
+    "symbols": "retained_product.rs `AdapterWork::enter`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:558",
+  "before": " *     built from it (PP:2910-2912, 617, 2527, 2586) is never emittable (C3:233-236).",
+  "after": " *     built from it (retained_product.rs `AdapterWork::require`, `ProductCapture::solver_observations`, `ProductCapture::g5a`) is never emittable (C3:233-236).",
+  "citations": [
+   {
+    "citation": "PP:2910-2912, 617, 2527, 2586",
+    "symbols": "retained_product.rs `AdapterWork::require`, `ProductCapture::solver_observations`, `ProductCapture::g5a`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:559",
+  "before": " * R2: ScalarTrace.lost is set only at u64::MAX (PP:2310-2349), so it is never emittable.",
+  "after": " * R2: ScalarTrace.lost is set only at u64::MAX (retained_product.rs `ScalarWork::check` through `ScalarWork::operation`), so it is never emittable.",
+  "citations": [
+   {
+    "citation": "PP:2310-2349",
+    "symbols": "retained_product.rs `ScalarWork::check` through `ScalarWork::operation`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:560",
+  "before": " * R3: a work_accounting{fault} cause comes from its owning trace's status (FC:358-379, 1580), so the",
+  "after": " * R3: a work_accounting{fault} cause comes from its owning trace's status (final_case.rs `ProductCertificateSpent::visit`, `ProductCertificateSpent::f64_op`, `begin_prepared_product`), so the",
+  "citations": [
+   {
+    "citation": "FC:358-379, 1580",
+    "symbols": "final_case.rs `ProductCertificateSpent::visit`, `ProductCertificateSpent::f64_op`, `begin_prepared_product`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:565",
+  "before": "  // R1': adapter overflow, or any CaptureError/G5aError accounting{event} cause (PP:2896-2912, 617, 2527, 2586).",
+  "after": "  // R1': adapter overflow, or any CaptureError/G5aError accounting{event} cause (retained_product.rs `AdapterWork::enter`, `AdapterWork::require`, `ProductCapture::solver_observations`, `ProductCapture::g5a`).",
+  "citations": [
+   {
+    "citation": "PP:2896-2912, 617, 2527, 2586",
+    "symbols": "retained_product.rs `AdapterWork::enter`, `AdapterWork::require`, `ProductCapture::solver_observations`, `ProductCapture::g5a`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:568",
+  "before": "  // prepared_arithmetic cause or a G5aError operational/arithmetic cause (PP:2311-2347).",
+  "after": "  // prepared_arithmetic cause or a G5aError operational/arithmetic cause (retained_product.rs `ScalarWork::check` through `ScalarWork::operation`).",
+  "citations": [
+   {
+    "citation": "PP:2311-2347",
+    "symbols": "retained_product.rs `ScalarWork::check` through `ScalarWork::operation`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:585",
+  "before": "  // R4: a SectionError accounting needs a non-exact status in that member's PreparationWork (FK product_certificate.rs:676-679).",
+  "after": "  // R4: a SectionError accounting needs a non-exact status in that member's PreparationWork (FK product_certificate.rs `SectionPreparationWork::check`).",
+  "citations": [
+   {
+    "citation": "product_certificate.rs:676-679",
+    "symbols": "product_certificate.rs `SectionPreparationWork::check`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:693",
+  "before": "    // P2 (C3:196-201; PP:3511-3537): only returned transitions are retained. Preparation completed iff",
+  "after": "    // P2 (C3:196-201; retained_product.rs `PreparedCase::project_candidate`): only returned transitions are retained. Preparation completed iff",
+  "citations": [
+   {
+    "citation": "PP:3511-3537",
+    "symbols": "retained_product.rs `PreparedCase::project_candidate`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:725",
+  "before": "      // P6 (C3:253-257; PP:3476-3491): a values failure keeps its own completion; abandonment after",
+  "after": "      // P6 (C3:253-257; retained_product.rs `PreparedCase::project_candidate`): a values failure keeps its own completion; abandonment after",
+  "citations": [
+   {
+    "citation": "PP:3476-3491",
+    "symbols": "retained_product.rs `PreparedCase::project_candidate`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:1008",
+  "before": "      // SECTION. Native rejects nonpositive inputs (PP:2442, 2462), range-checks EA/L and GJ/L (PP:2360) and",
+  "after": "      // SECTION. Native rejects nonpositive inputs (retained_product.rs `evaluate_operational`), range-checks EA/L and GJ/L (retained_product.rs `ScalarWork::operation`) and",
+  "citations": [
+   {
+    "citation": "PP:2442, 2462",
+    "symbols": "retained_product.rs `evaluate_operational`",
+    "resolved_at": "fc23cff95f"
+   },
+   {
+    "citation": "PP:2360",
+    "symbols": "retained_product.rs `ScalarWork::operation`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:1009",
+  "before": "      // needs area, Z > 0 (endpoint_maximum.rs:128). The term-versus-member-map identity is G8's binding.",
+  "after": "      // needs area, Z > 0 (endpoint_maximum.rs `endpoint_maximum`). The term-versus-member-map identity is G8's binding.",
+  "citations": [
+   {
+    "citation": "endpoint_maximum.rs:128",
+    "symbols": "endpoint_maximum.rs `endpoint_maximum`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:1113",
+  "before": "  // D31: the model schema_version is 0.1.0, 0.2.0 or 0.3.0 (PP pressure_runtime.rs:113-118 treats 0.1.0 and",
+  "after": "  // D31: the model schema_version is 0.1.0, 0.2.0 or 0.3.0 (PP pressure_runtime.rs `validate_profile` treats 0.1.0 and",
+  "citations": [
+   {
+    "citation": "pressure_runtime.rs:113-118",
+    "symbols": "pressure_runtime.rs `validate_profile`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecision.ts:1138",
+  "before": "    // lib.rs:9258-9333 requires all three source quantities at both bracket points, even on the",
+  "after": "    // lib.rs `materials_for_modulus_basis_observed` requires all three source quantities at both bracket points, even on the",
+  "citations": [
+   {
+    "citation": "lib.rs:9258-9333",
+    "symbols": "lib.rs `materials_for_modulus_basis_observed`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx:190",
+  "before": "  // resultsSessionState.ts:62-76 composes. Current requires a fresh identity, eligible",
+  "after": "  // resultsSessionState.ts `currentSolvedResult` composes. Current requires a fresh identity, eligible",
+  "citations": [
+   {
+    "citation": "resultsSessionState.ts:62-76",
+    "symbols": "resultsSessionState.ts `currentSolvedResult`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:251",
+  "before": "    (PP:2311-2347), located as a MemberOperational error, a CaptureError prepared_arithmetic cause",
+  "after": "    (retained_product.rs `ScalarWork::check` through `ScalarWork::operation`), located as a MemberOperational error, a CaptureError prepared_arithmetic cause",
+  "citations": [
+   {
+    "citation": "PP:2311-2347",
+    "symbols": "retained_product.rs `ScalarWork::check` through `ScalarWork::operation`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:255",
+  "before": "    (FK product_certificate.rs:676-679).",
+  "after": "    (FK product_certificate.rs `SectionPreparationWork::check`).",
+  "citations": [
+   {
+    "citation": "product_certificate.rs:676-679",
+    "symbols": "product_certificate.rs `SectionPreparationWork::check`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:259",
+  "before": "    R1: an adapter overflow is never emittable. AdapterWork::enter (PP:2896-2907) faults only when",
+  "after": "    R1: an adapter overflow is never emittable. AdapterWork::enter (retained_product.rs `AdapterWork::enter`) faults only when",
+  "citations": [
+   {
+    "citation": "PP:2896-2907",
+    "symbols": "retained_product.rs `AdapterWork::enter`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:263",
+  "before": "    (PP:2910-2912, 617, 2527, 2586), so it is covered too.",
+  "after": "    (retained_product.rs `AdapterWork::require`, `ProductCapture::solver_observations`, `ProductCapture::g5a`), so it is covered too.",
+  "citations": [
+   {
+    "citation": "PP:2910-2912, 617, 2527, 2586",
+    "symbols": "retained_product.rs `AdapterWork::require`, `ProductCapture::solver_observations`, `ProductCapture::g5a`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:264",
+  "before": "    R2: ScalarTrace.lost is set only when entered/checks is at u64::MAX (PP:2310-2349).",
+  "after": "    R2: ScalarTrace.lost is set only when entered/checks is at u64::MAX (retained_product.rs `ScalarWork::check` through `ScalarWork::operation`).",
+  "citations": [
+   {
+    "citation": "PP:2310-2349",
+    "symbols": "retained_product.rs `ScalarWork::check` through `ScalarWork::operation`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:265",
+  "before": "    R3: a work_accounting{fault} cause is raised from the owning trace's status (FC:358-379, 1580;",
+  "after": "    R3: a work_accounting{fault} cause is raised from the owning trace's status (final_case.rs `ProductCertificateSpent::visit`, `ProductCertificateSpent::f64_op`, `begin_prepared_product`;",
+  "citations": [
+   {
+    "citation": "FC:358-379, 1580",
+    "symbols": "final_case.rs `ProductCertificateSpent::visit`, `ProductCertificateSpent::f64_op`, `begin_prepared_product`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:266",
+  "before": "    FK product_certificate.rs:186-206), so the attempt's emitted Count faults and sticky statuses",
+  "after": "    FK product_certificate.rs `NumericWork::begin`, `NumericWork::checked`), so the attempt's emitted Count faults and sticky statuses",
+  "citations": [
+   {
+    "citation": "product_certificate.rs:186-206",
+    "symbols": "product_certificate.rs `NumericWork::begin`, `NumericWork::checked`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:312",
+  "before": "    \"\"\"Existing K4SRC/K4STF bytes, source.rs:778–905; no solve or exact ledger.\"\"\"",
+  "after": "    \"\"\"Existing K4SRC/K4STF bytes, source.rs `PrimitiveSource::encoding` and `PrimitiveSource::stiffness_encoding`; no solve or exact ledger.\"\"\"",
+  "citations": [
+   {
+    "citation": "source.rs:778–905",
+    "symbols": "source.rs `PrimitiveSource::encoding` through `checked_work_profile_scalar_overflow_refuses_without_allocating`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": "hand: the range ran into the tests module; the K4SRC/K4STF encoders named"
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:395",
+  "before": "    \"\"\"FK/adaptive.rs:4349-4378 terminal(): the exact kernel terminal of a terminal stop, or",
+  "after": "    \"\"\"adaptive.rs `terminal` terminal(): the exact kernel terminal of a terminal stop, or",
+  "citations": [
+   {
+    "citation": "FK/adaptive.rs:4349-4378",
+    "symbols": "adaptive.rs `terminal`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:417",
+  "before": "    \"\"\"Checklist N1-N9, N13, N14: replay the actual native ladder (FK/adaptive.rs:4519-4766).",
+  "after": "    \"\"\"Checklist N1-N9, N13, N14: replay the actual native ladder (adaptive.rs `run_schedule_inner`).",
+  "citations": [
+   {
+    "citation": "FK/adaptive.rs:4519-4766",
+    "symbols": "adaptive.rs `run_schedule_inner`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:429",
+  "before": "    # (adaptive.rs:4545, 4777, 4996); C1:66-68 forbids emitting such a run, and C2's",
+  "after": "    # (adaptive.rs `run_schedule_inner`, `finish_terminal`, `solve_cases_projected`); C1:66-68 forbids emitting such a run, and C2's",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4545, 4777, 4996",
+    "symbols": "adaptive.rs `run_schedule_inner`, `finish_terminal`, `solve_cases_projected`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:434",
+  "before": "        # Pre-schedule returns (adaptive.rs:4994-5075): invocation entry with a meter fault",
+  "after": "        # Pre-schedule returns (adaptive.rs `solve_cases_projected`): invocation entry with a meter fault",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4994-5075",
+    "symbols": "adaptive.rs `solve_cases_projected`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:480",
+  "before": "            # D5c (adaptive.rs:4576-4590; C1:27): set only on a failed verification solve.",
+  "after": "            # D5c (adaptive.rs `run_schedule_inner`; C1:27): set only on a failed verification solve.",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4576-4590",
+    "symbols": "adaptive.rs `run_schedule_inner`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:496",
+  "before": "            # unreachable for it, adaptive.rs:4377).",
+  "after": "            # unreachable for it, adaptive.rs `terminal`).",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4377",
+    "symbols": "adaptive.rs `terminal`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:513",
+  "before": "        # N5: a terminal stop ends on its exact terminal() translation (adaptive.rs:4349-4378).",
+  "after": "        # N5: a terminal stop ends on its exact terminal() translation (adaptive.rs `terminal`).",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4349-4378",
+    "symbols": "adaptive.rs `terminal`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:517",
+  "before": "        # (adaptive.rs:4545-4546, 4581-4582), which is never emitted (C1:66-68).",
+  "after": "        # (adaptive.rs `run_schedule_inner`), which is never emitted (C1:66-68).",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4545-4546, 4581-4582",
+    "symbols": "adaptive.rs `run_schedule_inner`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:526",
+  "before": "    \"\"\"Checklist C1-C3 (FK/adaptive.rs:3984-4026 obtain): a cached slot is reused, never",
+  "after": "    \"\"\"Checklist C1-C3 (adaptive.rs `obtain` obtain): a cached slot is reused, never",
+  "citations": [
+   {
+    "citation": "FK/adaptive.rs:3984-4026",
+    "symbols": "adaptive.rs `obtain`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:603",
+  "before": "    # Run, a build or a group refusal is outside the emitted domain (adaptive.rs:4545, 4777, 4996).",
+  "after": "    # Run, a build or a group refusal is outside the emitted domain (adaptive.rs `run_schedule_inner`, `finish_terminal`, `solve_cases_projected`).",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4545, 4777, 4996",
+    "symbols": "adaptive.rs `run_schedule_inner`, `finish_terminal`, `solve_cases_projected`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:621",
+  "before": "            # always opens with a fresh p128 candidate in record 0 (adaptive.rs:4519-4521);",
+  "after": "            # always opens with a fresh p128 candidate in record 0 (adaptive.rs `run_schedule_inner`);",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4519-4521",
+    "symbols": "adaptive.rs `run_schedule_inner`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:632",
+  "before": "                    # D33 (FK/retained/verify.rs:880): the verification estimate exists only for force/moment rows.",
+  "after": "                    # D33 (verify.rs `verify_state`): the verification estimate exists only for force/moment rows.",
+  "citations": [
+   {
+    "citation": "FK/retained/verify.rs:880",
+    "symbols": "verify.rs `verify_state`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:634",
+  "before": "                    # D5d/D28 (C2:22-24, :54; C1:114; adaptive.rs:4169-4197, 4714-4720): stop_rule,",
+  "after": "                    # D5d/D28 (C2:22-24, :54; C1:114; adaptive.rs `rejection_reason`, `run_schedule_inner`): stop_rule,",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4169-4197, 4714-4720",
+    "symbols": "adaptive.rs `rejection_reason`, `run_schedule_inner`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:642",
+  "before": "                    # D5a (C1:105; adaptive.rs:4076-4079, 4333): only verification passes write these.",
+  "after": "                    # D5a (C1:105; adaptive.rs `solve_precision`, `verify_precision`): only verification passes write these.",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4076-4079, 4333",
+    "symbols": "adaptive.rs `solve_precision`, `verify_precision`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:646",
+  "before": "                    # D5b (adaptive.rs:4593-4611, 4377): an escalating stop is a verification *solve*",
+  "after": "                    # D5b (adaptive.rs `run_schedule_inner`, `terminal`): an escalating stop is a verification *solve*",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4593-4611, 4377",
+    "symbols": "adaptive.rs `run_schedule_inner`, `terminal`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:649",
+  "before": "                    # (adaptive.rs:4286) or a verification summary (set only by verify_precision, 4333).",
+  "after": "                    # (adaptive.rs `verify_precision`) or a verification summary (set only by verify_precision, 4333).",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4286",
+    "symbols": "adaptive.rs `verify_precision`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:714",
+  "before": "                # N17: the budget test checks case room first (adaptive.rs:276-286).",
+  "after": "                # N17: the budget test checks case room first (adaptive.rs `StageGuard::test`).",
+  "citations": [
+   {
+    "citation": "adaptive.rs:276-286",
+    "symbols": "adaptive.rs `StageGuard::test`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:743",
+  "before": "        # an idle (group-null) run never formed a group (adaptive.rs:4994-5015).",
+  "after": "        # an idle (group-null) run never formed a group (adaptive.rs `solve_cases_projected`).",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4994-5015",
+    "symbols": "adaptive.rs `solve_cases_projected`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:820",
+  "before": "    \"\"\"Checklist P2, P6, P11 (C3:196-201, 253-257; retained_receipt.rs:45-54,111-113).\"\"\"",
+  "after": "    \"\"\"Checklist P2, P6, P11 (C3:196-201, 253-257; retained_receipt.rs `PreparedTrace::enter` through `PreparedTrace::checked`, `project`).\"\"\"",
+  "citations": [
+   {
+    "citation": "retained_receipt.rs:45-54,111-113",
+    "symbols": "retained_receipt.rs `PreparedTrace::enter` through `PreparedTrace::checked`, `project`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:857",
+  "before": "    attempt result error matches the first failing stage (PP:3469-3543, S06:30-45).\"\"\"",
+  "after": "    attempt result error matches the first failing stage (retained_product.rs `PreparedCase::project_candidate`, S06:30-45).\"\"\"",
+  "citations": [
+   {
+    "citation": "PP:3469-3543",
+    "symbols": "retained_product.rs `PreparedCase::project_candidate`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:866",
+  "before": "    # D37 (D35 widened; PP/retained_product.rs:3136-3290, 3456-3567; S06 s1): the error kind and the",
+  "after": "    # D37 (D35 widened; retained_product.rs `ProductCapture::prepare_owned_case` through `PreparedCase::solve_native`, `PreparedCase::project_candidate`; S06 s1): the error kind and the",
+  "citations": [
+   {
+    "citation": "PP/retained_product.rs:3136-3290, 3456-3567",
+    "symbols": "retained_product.rs `ProductCapture::prepare_owned_case` through `PreparedCase::solve_native`, `PreparedCase::project_candidate`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:923",
+  "before": "            # D6b (C1:101; C2:153, :164; source_receipt.rs:546-550): only an attempted trigger selects.",
+  "after": "            # D6b (C1:101; C2:153, :164; source_receipt.rs `OrdinaryAttempt::wire`): only an attempted trigger selects.",
+  "citations": [
+   {
+    "citation": "source_receipt.rs:546-550",
+    "symbols": "source_receipt.rs `OrdinaryAttempt::wire`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:1123",
+  "before": "    \"\"\"verify.rs:321-334 e_hat: a single-node body (L=0) keeps E.\"\"\"",
+  "after": "    \"\"\"verify.rs `e_hat` e_hat: a single-node body (L=0) keeps E.\"\"\"",
+  "citations": [
+   {
+    "citation": "verify.rs:321-334",
+    "symbols": "verify.rs `e_hat`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:1131",
+  "before": "    \"\"\"verify.rs:365-376: Phi = fl-up(2^-438 * e_hat), nearest then next up when below.\"\"\"",
+  "after": "    \"\"\"verify.rs `phi_512`: Phi = fl-up(2^-438 * e_hat), nearest then next up when below.\"\"\"",
+  "citations": [
+   {
+    "citation": "verify.rs:365-376",
+    "symbols": "verify.rs `phi_512`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:1137",
+  "before": "    \"\"\"Full canonical layout rebuilt from the bound source maps (FK/recover.rs:101 order).",
+  "after": "    \"\"\"Full canonical layout rebuilt from the bound source maps (recover.rs `layout` order).",
+  "citations": [
+   {
+    "citation": "FK/recover.rs:101",
+    "symbols": "recover.rs `layout`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:1195",
+  "before": "    e-hat > 0, adaptive.rs:2294-2307); no Selection rosters and no selected pass",
+  "after": "    e-hat > 0, adaptive.rs `rule`); no Selection rosters and no selected pass",
+  "citations": [
+   {
+    "citation": "adaptive.rs:2294-2307",
+    "symbols": "adaptive.rs `rule`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:1197",
+  "before": "    (final_case.rs:1371-1448, assigned at 1195), so every complete vector meets these.",
+  "after": "    (final_case.rs `summary_coverage_data`, assigned once every body completes), so every complete vector meets these.",
+  "citations": [
+   {
+    "citation": "final_case.rs:1371-1448",
+    "symbols": "final_case.rs `summary_coverage_data`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": "hand: the bare 'assigned at 1195' replaced by its meaning"
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:1379",
+  "before": "            # D18 (PP:2360, 2442, 2462; endpoint_maximum.rs:128): each echoed term equals the source's and is positive.",
+  "after": "            # D18 (retained_product.rs `ScalarWork::operation`, `evaluate_operational`; endpoint_maximum.rs `endpoint_maximum`): each echoed term equals the source's and is positive.",
+  "citations": [
+   {
+    "citation": "PP:2360, 2442, 2462",
+    "symbols": "retained_product.rs `ScalarWork::operation`, `evaluate_operational`",
+    "resolved_at": "fc23cff95f"
+   },
+   {
+    "citation": "endpoint_maximum.rs:128",
+    "symbols": "endpoint_maximum.rs `endpoint_maximum`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:1446",
+  "before": "        need(bracket is not None)  # strict adjacent bracket (PP/lib.rs:9237-9250); D16: an explicit G8 check",
+  "after": "        need(bracket is not None)  # strict adjacent bracket (lib.rs `materials_for_modulus_basis_observed`); D16: an explicit G8 check",
+  "citations": [
+   {
+    "citation": "PP/lib.rs:9237-9250",
+    "symbols": "lib.rs `materials_for_modulus_basis_observed`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/analysis_runs/retained_precision.py:1449",
+  "before": "        # lib.rs:9258-9333 requires all three source quantities even for the",
+  "after": "        # lib.rs `materials_for_modulus_basis_observed` requires all three source quantities even for the",
+  "citations": [
+   {
+    "citation": "lib.rs:9258-9333",
+    "symbols": "lib.rs `materials_for_modulus_basis_observed`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/product_physics/src/retained_memory.rs:2570",
+  "before": "/// PP/lib.rs:4125-4148: `ordinary_initial_failure` for a structural failure or a",
+  "after": "/// lib.rs `solve_load_case_observed`: `ordinary_initial_failure` for a structural failure or a",
+  "citations": [
+   {
+    "citation": "PP/lib.rs:4125-4148",
+    "symbols": "lib.rs `solve_load_case_observed`",
+    "resolved_at": "2bb81ec1ea"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/product_physics/src/retained_memory.rs:2572",
+  "before": "/// published report of a successful solve (`ordinary_report`, :4543, the only exit of",
+  "after": "/// published report of a successful solve (`ordinary_report` in lib.rs, the only exit of",
+  "citations": [],
+  "note": "hand: the bare ':4543' (lib.rs) replaced by the file name"
+ },
+ {
+  "at": "P/core/product_physics/src/retained_memory_law_tests.rs:1238",
+  "before": "/// load-application findings, PP/lib.rs:3918), no supports (validation) and a lone spring",
+  "after": "/// load-application findings, lib.rs `solve_load_case_observed`), no supports (validation) and a lone spring",
+  "citations": [
+   {
+    "citation": "PP/lib.rs:3918",
+    "symbols": "lib.rs `solve_load_case_observed`",
+    "resolved_at": "2bb81ec1ea"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:728",
+  "before": "    // D29 (FK/retained/source.rs:498 NoNodes; I57 s1): every CaseSource has a",
+  "after": "    // D29 (source.rs `PrimitiveSource::new` NoNodes; I57 s1): every CaseSource has a",
+  "citations": [
+   {
+    "citation": "FK/retained/source.rs:498",
+    "symbols": "source.rs `PrimitiveSource::new`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:738",
+  "before": "        // D1 (C2:98; F1:78-84, 101, 130; PP:1238, 1296): old, prepared and new",
+  "after": "        // D1 (C2:98; F1:78-84, 101, 130; retained_product.rs `ProductCapture::capture_case_source`): old, prepared and new",
+  "citations": [
+   {
+    "citation": "PP:1238, 1296",
+    "symbols": "retained_product.rs `ProductCapture::capture_case_source`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:906",
+  "before": "    // domain (adaptive.rs:4545, 4777, 4996).",
+  "after": "    // domain (adaptive.rs `run_schedule_inner`, `finish_terminal`, `solve_cases_projected`).",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4545, 4777, 4996",
+    "symbols": "adaptive.rs `run_schedule_inner`, `finish_terminal`, `solve_cases_projected`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:1012",
+  "before": "                    // D5a (C1:105; adaptive.rs:4076-4079, 4333): a candidate record",
+  "after": "                    // D5a (C1:105; adaptive.rs `solve_precision`, `verify_precision`): a candidate record",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4076-4079, 4333",
+    "symbols": "adaptive.rs `solve_precision`, `verify_precision`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:1027",
+  "before": "                    // D5b (adaptive.rs:4576-4611, 4377): an escalating stop on a failed",
+  "after": "                    // D5b (adaptive.rs `run_schedule_inner`, `terminal`): an escalating stop on a failed",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4576-4611, 4377",
+    "symbols": "adaptive.rs `run_schedule_inner`, `terminal`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:1031",
+  "before": "                    // it is obtained only inside verify_precision (adaptive.rs:4286).",
+  "after": "                    // it is obtained only inside verify_precision (adaptive.rs `verify_precision`).",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4286",
+    "symbols": "adaptive.rs `verify_precision`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:1038",
+  "before": "                // D5d/D28 (C2:22-24, :54; C1:114; adaptive.rs:4169-4197,",
+  "after": "                // D5d/D28 (C2:22-24, :54; C1:114; adaptive.rs `rejection_reason`,",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4169-4197",
+    "symbols": "adaptive.rs `rejection_reason`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:1055",
+  "before": "                    // D33 (RV80-N1; verify.rs:880): the native verification",
+  "after": "                    // D33 (RV80-N1; verify.rs `verify_state`): the native verification",
+  "citations": [
+   {
+    "citation": "verify.rs:880",
+    "symbols": "verify.rs `verify_state`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:1074",
+  "before": "                // candidate comparison use the other slots (verify.rs:745–1222).",
+  "after": "                // candidate comparison use the other slots (verify.rs `verify_state`).",
+  "citations": [
+   {
+    "citation": "verify.rs:745–1222",
+    "symbols": "verify.rs `verify_state`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:1489",
+  "before": "    // exact (adaptive.rs:4545, 4777, 4996); C1:66-68 forbids emitting such a",
+  "after": "    // exact (adaptive.rs `run_schedule_inner`, `finish_terminal`, `solve_cases_projected`); C1:66-68 forbids emitting such a",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4545, 4777, 4996",
+    "symbols": "adaptive.rs `run_schedule_inner`, `finish_terminal`, `solve_cases_projected`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:1495",
+  "before": "        // Pre-schedule returns (adaptive.rs:4994-5075): invocation exhaustion",
+  "after": "        // Pre-schedule returns (adaptive.rs `solve_cases_projected`): invocation exhaustion",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4994-5075",
+    "symbols": "adaptive.rs `solve_cases_projected`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:1621",
+  "before": "        // (adaptive.rs:4349-4378).",
+  "after": "        // (adaptive.rs `terminal`).",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4349-4378",
+    "symbols": "adaptive.rs `terminal`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:1625",
+  "before": "        // fault (adaptive.rs:4545-4546, 4581-4582), which is never emitted.",
+  "after": "        // fault (adaptive.rs `run_schedule_inner`), which is never emitted.",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4545-4546, 4581-4582",
+    "symbols": "adaptive.rs `run_schedule_inner`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:1632",
+  "before": "/// FK/adaptive.rs:4349-4378 terminal(): the exact kernel terminal of a",
+  "after": "/// adaptive.rs `terminal` terminal(): the exact kernel terminal of a",
+  "citations": [
+   {
+    "citation": "FK/adaptive.rs:4349-4378",
+    "symbols": "adaptive.rs `terminal`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:1835",
+  "before": "/// (an adapter overflow leaves a count of at least 2^62, PP:2896-2907).",
+  "after": "/// (an adapter overflow leaves a count of at least 2^62, retained_product.rs `AdapterWork::enter`).",
+  "citations": [
+   {
+    "citation": "PP:2896-2907",
+    "symbols": "retained_product.rs `AdapterWork::enter`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:1837",
+  "before": "/// (returned only for a lost ScalarWork, PP:2311-2347).",
+  "after": "/// (returned only for a lost ScalarWork, retained_product.rs `ScalarWork::check` through `ScalarWork::operation`).",
+  "citations": [
+   {
+    "citation": "PP:2311-2347",
+    "symbols": "retained_product.rs `ScalarWork::check` through `ScalarWork::operation`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:1843",
+  "before": "/// member's PreparationWork (FK product_certificate.rs:676-679).",
+  "after": "/// member's PreparationWork (FK product_certificate.rs `SectionPreparationWork::check`).",
+  "citations": [
+   {
+    "citation": "product_certificate.rs:676-679",
+    "symbols": "product_certificate.rs `SectionPreparationWork::check`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:2323",
+  "before": "/// (PP/retained_product.rs:3140-3290 preparation and native, 3460-3555 the",
+  "after": "/// (retained_product.rs `ProductCapture::prepare_owned_case` through `PreparedCase::solve_native` preparation and native, `PreparedCase::project_candidate` the",
+  "citations": [
+   {
+    "citation": "PP/retained_product.rs:3140-3290",
+    "symbols": "retained_product.rs `ProductCapture::prepare_owned_case` through `PreparedCase::solve_native`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": "hand: the bare second range '3460-3555' named"
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:2324",
+  "before": "/// prepared candidate; retained_receipt.rs:45-54 trace states) fixes, for each",
+  "after": "/// prepared candidate; retained_receipt.rs `PreparedTrace::enter` through `PreparedTrace::checked` trace states) fixes, for each",
+  "citations": [
+   {
+    "citation": "retained_receipt.rs:45-54",
+    "symbols": "retained_receipt.rs `PreparedTrace::enter` through `PreparedTrace::checked`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:2387",
+  "before": "/// P2/P6 (C3:196-201, 253-257; retained_receipt.rs:45-54): stages advance",
+  "after": "/// P2/P6 (C3:196-201, 253-257; retained_receipt.rs `PreparedTrace::enter` through `PreparedTrace::checked`): stages advance",
+  "citations": [
+   {
+    "citation": "retained_receipt.rs:45-54",
+    "symbols": "retained_receipt.rs `PreparedTrace::enter` through `PreparedTrace::checked`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:2770",
+  "before": "/// Φ = phi_512(ê) > 0 from that record (adaptive.rs:2285-2307). No Selection",
+  "after": "/// Φ = phi_512(ê) > 0 from that record (adaptive.rs `rule`). No Selection",
+  "citations": [
+   {
+    "citation": "adaptive.rs:2285-2307",
+    "symbols": "adaptive.rs `rule`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/src/retained_precision.rs:3448",
+  "before": "        // (pressure_runtime.rs:113-118); 0.4.0 stays excluded.",
+  "after": "        // (pressure_runtime.rs `validate_profile`); 0.4.0 stays excluded.",
+  "citations": [
+   {
+    "citation": "pressure_runtime.rs:113-118",
+    "symbols": "pressure_runtime.rs `validate_profile`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/core/reporting/result_export/tests/retained_precision_contract.rs:888",
+  "before": "/// C1 G5b \"same E/ê/Φ at p512\" (FK/verify.rs:321-376). No p512 corpus base",
+  "after": "/// C1 G5b \"same E/ê/Φ at p512\" (verify.rs `e_hat` through `phi_512`). No p512 corpus base",
+  "citations": [
+   {
+    "citation": "FK/verify.rs:321-376",
+    "symbols": "verify.rs `e_hat` through `phi_512`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/tests/test_retained_precision_contract.py:323",
+  "before": "    \"\"\"C1 G5b 'same E/e-hat/Phi at p512' (verify.rs:321-376). Python-only until the",
+  "after": "    \"\"\"C1 G5b 'same E/e-hat/Phi at p512' (verify.rs `e_hat` through `phi_512`). Python-only until the",
+  "citations": [
+   {
+    "citation": "verify.rs:321-376",
+    "symbols": "verify.rs `e_hat` through `phi_512`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/tests/test_retained_precision_contract.py:353",
+  "before": "    # N10 (adaptive.rs:4994-5002): exhaustion gives Budget(invocation) and requires",
+  "after": "    # N10 (adaptive.rs `solve_cases_projected`): exhaustion gives Budget(invocation) and requires",
+  "citations": [
+   {
+    "citation": "adaptive.rs:4994-5002",
+    "symbols": "adaptive.rs `solve_cases_projected`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ },
+ {
+  "at": "P/tests/test_retained_precision_contract.py:740",
+  "before": "    \"\"\"D33 (FK/retained/verify.rs:880): an estimate rejection naming a translation or rotation row fails G5 ATTEMPT.\"\"\"",
+  "after": "    \"\"\"D33 (verify.rs `verify_state`): an estimate rejection naming a translation or rotation row fails G5 ATTEMPT.\"\"\"",
+  "citations": [
+   {
+    "citation": "FK/retained/verify.rs:880",
+    "symbols": "verify.rs `verify_state`",
+    "resolved_at": "fc23cff95f"
+   }
+  ],
+  "note": null
+ }
+]

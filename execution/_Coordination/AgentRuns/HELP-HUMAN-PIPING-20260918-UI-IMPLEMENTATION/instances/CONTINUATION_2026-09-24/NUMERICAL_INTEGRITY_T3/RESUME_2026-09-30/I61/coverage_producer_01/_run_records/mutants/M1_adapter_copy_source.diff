@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/product_physics/src/retained_receipt.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_receipt.rs
+@@ -106,7 +106,7 @@
+     proof:Option<&k::ProductProofTrace<'a>>,costs:&mut ProjectionWork)->Result<Option<SummaryCoverage<'a>>,TraceProjectionError> {
+     let Some(proof)=proof else {return Ok(None)};
+     costs.local.record::<SummaryCoverage<'_>>();
+-    let entries=proof.summary_coverage;
++    let entries=&capture.summary_coverage[..];
+     if entries.is_empty() {
+         // final_case assigns the vector only after every body completes, so empty is
+         // null. A Ready product, completed certificate or passed G5a requires coverage.

@@ -1,0 +1,19 @@
+I61 U9 G6 part 2: candidate C2 92a5a9da1c against base M 5fdc5ab601, 2026-10-04 22:49:30Z-22:55:53Z.
+Driver: I13's gate_part2.py (e43c662b..., F1b gate 2), unchanged. run_one is unchanged; TIMEOUT_LARGE is 1800 s; the probe caps its heap at 6 GiB
+(rlimit_as_bytes 6442450944); one run at a time, base then candidate per run. No load wait was triggered.
+Host: quiet before the start (3 consecutive 15 s polls with no foreign cargo, rustc, test or probe process). CORRECTION: the summary line "0 of 76" was a parsing error (the watcher wrote a literal "\t"); parsed correctly, foreign jobs (RV95 or RV89 cargo test, pytest, vitest) were present in 60 of 76 samples, overlapping 7 of the 8 runs (all but base CHAIN captured). Rerun as part2_run2.
+RF-LARGE-CHAIN-n01000-ROT dense_scrutiny captured base: ended in 45.7909 s (timed_out False, exit 0); outcome refused_blocked; peak_rss 3609739264; full envelope sha256 68cf1929c6767787f831b4cb56cb2090b9e4597f062791542626809b361e1fc7
+RF-LARGE-CHAIN-n01000-ROT dense_scrutiny captured cand: ended in 46.1509 s (timed_out False, exit 0); outcome refused_blocked; peak_rss 3609559040; full envelope sha256 68cf1929c6767787f831b4cb56cb2090b9e4597f062791542626809b361e1fc7
+  base == candidate (full envelope and outcome): True
+RF-LARGE-CHAIN-n01000-ROT dense_scrutiny typed base: ended in 48.3325 s (timed_out False, exit 0); outcome refused_blocked; peak_rss 3594764288; full envelope sha256 cb6112105d0a2521ae5ca5632193b70f9bb99ef63e18d3a50b4dd19363557150
+RF-LARGE-CHAIN-n01000-ROT dense_scrutiny typed cand: ended in 47.936 s (timed_out False, exit 0); outcome refused_blocked; peak_rss 3599106048; full envelope sha256 cb6112105d0a2521ae5ca5632193b70f9bb99ef63e18d3a50b4dd19363557150
+  base == candidate (full envelope and outcome): True
+RF-LARGE-TREE-n01000-AX dense_scrutiny captured base: ended in 47.1189 s (timed_out False, exit 0); outcome refused_blocked; peak_rss 3618406400; full envelope sha256 7a3d32b4570986266abf284f8fe1f64d884a46eb5b7d58207bca3316b8696f42
+RF-LARGE-TREE-n01000-AX dense_scrutiny captured cand: ended in 52.8302 s (timed_out False, exit 0); outcome refused_blocked; peak_rss 3621093376; full envelope sha256 7a3d32b4570986266abf284f8fe1f64d884a46eb5b7d58207bca3316b8696f42
+  base == candidate (full envelope and outcome): True
+RF-LARGE-TREE-n01000-AX dense_scrutiny typed base: ended in 46.9522 s (timed_out False, exit 0); outcome refused_blocked; peak_rss 3602022400; full envelope sha256 9384c225dc88e5285ed194647ef5ae84dc163ca5f1ffda12d5e141cc883b68cb
+RF-LARGE-TREE-n01000-AX dense_scrutiny typed cand: ended in 46.4417 s (timed_out False, exit 0); outcome refused_blocked; peak_rss 3605020672; full envelope sha256 9384c225dc88e5285ed194647ef5ae84dc163ca5f1ffda12d5e141cc883b68cb
+  base == candidate (full envelope and outcome): True
+Every full-envelope sha256 equals KF2 B's part-2 record for the same run (68cf1929..., cb611210..., 7a3d32b4..., 9384c225...).
+RESULT PASS
+Blocking diagnostics, from the full envelopes (blocking.txt): every run, on both sides, is MODEL_INCOMPLETE with no results and exactly one blocking NUMERICAL_INTEGRITY_UNRESOLVED (the dense factor's refusal), as in KF2 B.

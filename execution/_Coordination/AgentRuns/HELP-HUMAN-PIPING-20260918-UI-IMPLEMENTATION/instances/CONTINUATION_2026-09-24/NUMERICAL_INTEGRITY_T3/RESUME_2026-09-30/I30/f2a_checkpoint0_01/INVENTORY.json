@@ -1,0 +1,38 @@
+{
+  "status": "informational, revisable inventory; not acceptance",
+  "files": [
+    {
+      "path": "_run_records/EXECUTION.json",
+      "bytes": 14238,
+      "sha256": "9ae588ad47b87fe71b2cb297c2df4b8d3c7fc1530f5931e01e0728f6c532d90e"
+    },
+    {
+      "path": "PLAN.md",
+      "bytes": 24416,
+      "sha256": "0f94d190c317319e1040b3d34f8cc1ea2b07b882266a82e0048eea28c8b07263"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 2036,
+      "sha256": "a09e109d7816f706cb2d6ad79d07591340a0c3995b45b77566f4b1bb184aca67"
+    },
+    {
+      "path": "SOURCE_MAP.md",
+      "bytes": 15433,
+      "sha256": "869bece8c64a7ac8cef2c2c44c3eba0dda0f38dd58005333b3499476e6dd8627"
+    }
+  ],
+  "root_revision": {
+    "actor": "ROOT",
+    "original_author_return_commit": "edc939d62c0ee0658fa78b6cafbb81afb7c86244",
+    "scope": "Evidence-directory placement of unchanged EXECUTION.json and corresponding draft links; no plan decision/figure/source change",
+    "inventory_kind": "Revisable current inventory; original at-return inventory and drafts remain in the named Git commit"
+  },
+  "root_corrections": [
+    {
+      "finding": "RV41-3",
+      "actor": "ROOT",
+      "change": "Ownership lifetime is distinct from explicit source/case/row provenance checks; no implementation is accepted."
+    }
+  ]
+}

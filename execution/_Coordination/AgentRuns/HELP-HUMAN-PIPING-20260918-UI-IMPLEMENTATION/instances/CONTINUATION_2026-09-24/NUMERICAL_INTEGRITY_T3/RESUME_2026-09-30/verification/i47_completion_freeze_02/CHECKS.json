@@ -1,0 +1,30 @@
+{
+  "utc": "2026-10-03T05:02:40.269337+00:00",
+  "base": "58912a48b3fbdff75540649d04014025772d2749",
+  "candidate": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4",
+  "source_hashes": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "90b2d6b19824630aa9469386e6c90ad03739c8b8ad6184bae993ef6338de80f1",
+    "projects/chirality-piping/core/product_physics/src/retained_product.rs": "9f870e5ca79d18cf50e343799fc538a349c2ad4844ae6739a70af9e3219abe27",
+    "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs": "5853f21fe2689cda02ec6ef23a008f8c6cc12cd9173a7ceb5484472133773b55",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "46eabbe3cca8bcd7fbd096b2166f8a4ecc830c17fb2df6580c26c9011f345a7a"
+  },
+  "root_core_read_hashes_match": true,
+  "payloads": 58,
+  "core_file_count": 588,
+  "old_blocker_payloads_unchanged": 57,
+  "original_pre_I47_tests_preserved": true,
+  "checks": {
+    "pp_debug": "PASS; full final source freeze",
+    "pp_optimized": "PASS; full final source freeze",
+    "pp_s11": "PASS; full final source freeze",
+    "fk_certificates": "PASS; full final source freeze",
+    "fk_s11": "PASS; full final source freeze"
+  },
+  "actual_passing_predicates_with_truth_upper_bound_pass": {
+    "debug": 390,
+    "optimized": 390
+  },
+  "manager_check_correction": "Initial ROOT assertion incorrectly compared the declared changed-source inventory digest with FINAL_SOURCE_INVENTORY.json. Digest 90ea1412 names CHANGED_SOURCE_INVENTORY.json; full inventory digest is7e8f227d. Both already match the sealed payload manifest. No input/source/evidence changed and no Git mutation occurred before that assertion stopped. This corrected artifact lookup verifies both.",
+  "review": "RV62 pending",
+  "scope": "Private selected-material actual witness; no NUM/main/public acceptance"
+}

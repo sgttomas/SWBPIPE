@@ -1,0 +1,102 @@
+{
+  "receipt_utc": "2026-10-03 03:43:00 UTC",
+  "checkpoint_utc": "2026-10-03 03:48:00 UTC",
+  "cutoff_utc": "2026-10-03 03:53:00 UTC",
+  "deadline_utc": "2026-10-03 03:58:00 UTC",
+  "role": "TASK Type2",
+  "parent": "ROOT HELP_HUMAN",
+  "mechanism": "delegated-harness-native",
+  "brief_pin": "2b2d2d86473d4e3d569dba57a06b6478917c1e18",
+  "original_pin": "330dc2e405de87f451189616d2d5b73aaac86de7",
+  "original_files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I46/product_refusal_01/_run_records/original/CHECKPOINT.md",
+      "sha256": "3390ab2b4e42a662f8b55163b345015add431bd4fc6bdf92be4f8d61f8527829",
+      "bytes": 689
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I46/product_refusal_01/_run_records/original/INVENTORY.json",
+      "sha256": "8aaf0bd04fd935371382b1153c390284315d2b62c8f530112b8c20de6f20ece1",
+      "bytes": 1430
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I46/product_refusal_01/_run_records/original/RETURN.md",
+      "sha256": "959e4346fddba1c275bc61358c20ad8ec26ceb09019f9d83e384e64282c68eec",
+      "bytes": 11154
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I46/product_refusal_01/_run_records/original/analysis_results.json",
+      "sha256": "416fa3c4949436ad9ed600f47baeaf69a25598dc6fe9c53def163dbf7cf1eb95",
+      "bytes": 323744
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I46/product_refusal_01/_run_records/original/analyze.py",
+      "sha256": "aaa6ee62b368eaba2b8ab9a47810f8404f306a721448cffb80c422bd6c76d22d",
+      "bytes": 12560
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I46/product_refusal_01/_run_records/original/basis.json",
+      "sha256": "89beff5f637d39046b31df22a0820547bcd3ff6fc123bef57515d809a9f2c5f1",
+      "bytes": 5639
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I46/product_refusal_01/_run_records/original/captured_records.json",
+      "sha256": "894f39c05f4559948e692ed2d63d30d235c9ed869fd6f87ad2b54f649afe3fcb",
+      "bytes": 210386
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I46/product_refusal_01/_run_records/original/exact_check.stdout.log",
+      "sha256": "a7742095573a0f2099afbd09fd826663097cb388fccf5a4aed3cb2bc44edc99e",
+      "bytes": 2885
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I46/product_refusal_01/_run_records/original/rx_counterexample.json",
+      "sha256": "e6bf48ef285d8e07f4a16300d3d46de5db6e911d38ce4d23b4324c485a3971ab",
+      "bytes": 37866
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I46/product_refusal_01/_run_records/original/source_origins.json",
+      "sha256": "9fb2f8457a49b1c21ee86ebad51abe1a4e3323957f8e4d84461e6c1404bfa93f",
+      "bytes": 1530
+    }
+  ],
+  "origins": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016
+    },
+    {
+      "path": ".agents/skills/software-defect-diagnosis/SKILL.md",
+      "sha256": "7e423dfd24132c33d3aa8fe6994bf17a1def966c396723f6bd72ac8d2442112b",
+      "bytes": 1498
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I46_PRODUCT_REFUSAL_G5A_CORRECTION.md",
+      "sha256": "016f9a547e2ad8b91885443cef5cb359bf2adace940db2c8f8ce2e9b47c460c7",
+      "bytes": 1978
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_NUMERICS/REV_5A3_CANDIDATE/D1_REV_5A3_SSTAR_RESOLUTION_R7.md",
+      "sha256": "5502aef9803f05f42e93c2a05a0de495401e3f94fe92adb19fc2a0c3f80d8f42",
+      "bytes": 173990
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_NUMERICS/DESIGN.md",
+      "sha256": "fb62ef4a8282e53fd5875430e8903da80f1e0821c2dfba075dce5a97e5f27a74",
+      "bytes": 224200
+    }
+  ],
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I46/product_refusal_correction_02",
+  "correction_scope": "Supporting G5a coupling only; original numeric/Rx/projection theorems remain frozen."
+}

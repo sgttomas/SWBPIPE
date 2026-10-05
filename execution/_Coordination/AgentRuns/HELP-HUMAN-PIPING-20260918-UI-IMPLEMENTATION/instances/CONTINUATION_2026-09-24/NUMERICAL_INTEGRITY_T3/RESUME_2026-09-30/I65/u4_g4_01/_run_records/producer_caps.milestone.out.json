@@ -1,0 +1,134 @@
+{
+ "which": "milestone",
+ "counts": {
+  "n": 2,
+  "m": 1,
+  "s": 3,
+  "r": 6,
+  "l": 3,
+  "g": 4,
+  "N": 12,
+  "F": 12,
+  "k": 6,
+  "Q": 61,
+  "U": 81,
+  "P": 147,
+  "Zu": 144,
+  "H": 78,
+  "P_final": 100,
+  "E_src": 882,
+  "E_stf": 239,
+  "E_led": 1696,
+  "O": 183,
+  "Kt": 16
+ },
+ "missing_assumed": [],
+ "rows": {
+  "T11.1 ProductCapture early observation (nodes, materials, selections, basis record)": {
+   "symbolic": "4*s((String,[f64;3])) + 8*s((String,f64,f64)) + 1*s(BasisRecord) + 8*s(MaterialSelection) + 5376",
+   "assumed_bytes": 6496
+  },
+  "T11.2 solver observations (case, mode basis, parity basis copies)": {
+   "symbolic": "1*s(SolverObservations) + 2176",
+   "assumed_bytes": 2272
+  },
+  "T11.3 support/member/term identity maps (capture_supports, members, terms)": {
+   "symbolic": "4*s((String,usize)) + 4*s(MemberIdentity) + 4*s(ProductMemberFacts) + 4*s(SpringIdentity) + 4*s(TermIdentity) + 4*s([bool;6]) + 2560",
+   "assumed_bytes": 5752
+  },
+  "T11.4 U1(a) F4 OrdinarySeed (one case: case id, initial, W2 trigger/failure, refs)": {
+   "symbolic": "4*s(OrdinarySeed) + 4608",
+   "assumed_bytes": 6208
+  },
+  "T11.5 late old-source capture P1_old_source (Option<PrimitiveSource> = SourceParts + constructor survivors)": {
+   "symbolic": "12*s(Option<f64>) + 8*s(SrcConstraint) + 4*s(SrcCoord) + 4*s(SrcMember) + 4*s(SrcNodal) + 4*s(SrcSpring) + 4*s(SrcStation) + 4*s(SrcSupport) + 22*s(u32) + 400",
+   "assumed_bytes": 1960
+  },
+  "T11.6 operational records, case id, error, census arrays": {
+   "symbolic": "1*s(CaptureError) + 4*s(OperationalSpent) + 128",
+   "assumed_bytes": 560
+  },
+  "T11.7 U1 grant 2 delta: invocation_digest clone": {
+   "symbolic": "64",
+   "assumed_bytes": 64
+  },
+  "T12.1 InputMap/material/source registries (owned id copies)": {
+   "symbolic": "8*s(ConstraintMapE) + 8*s(MaterialDescriptor) + 4*s(MemberMapE) + 4*s(NodalMapE) + 4*s(NodeMapE) + 4*s(SectionMapE) + 4*s(SpringMapE) + 4*s(StationMapE) + 4*s(SupportMapE) + 36*s(usize) + 2944",
+   "assumed_bytes": 5760
+  },
+  "T12.2 SourceParts + PrimitiveSource constructor scratch": {
+   "symbolic": "4*s(ExactWideSum) + 12*s(Option<f64>) + 8*s(SrcConstraint) + 4*s(SrcCoord) + 4*s(SrcMember) + 4*s(SrcNodal) + 4*s(SrcSpring) + 4*s(SrcStation) + 4*s(SrcSupport) + 22*s(u32) + 416",
+   "assumed_bytes": 6392
+  },
+  "T12.3 source clone (original + one complete clone)": {
+   "symbolic": "12*s(Option<f64>) + 8*s(SrcConstraint) + 4*s(SrcCoord) + 4*s(SrcMember) + 4*s(SrcNodal) + 4*s(SrcSpring) + 4*s(SrcStation) + 4*s(SrcSupport) + 22*s(u32) + 400",
+   "assumed_bytes": 1960
+  },
+  "T12.4 exact ledger (accumulators, nets, limbs)": {
+   "symbolic": "4*s((usize,ExactAccumulator,bool)) + 4*s((usize,LedgerNet)) + 420*s(u64) + 3",
+   "assumed_bytes": 8003
+  },
+  "T12.5 prescriptions, identity encodings (E_src, E_stf, E_led)": {
+   "symbolic": "8*s((usize,VecPair)) + 36*s(Pair) + 2825",
+   "assumed_bytes": 3657
+  },
+  "T12.6 layout/extents, body membership": {
+   "symbolic": "4*s(BodyMapE) + 64*s(QuantityMeta) + 4*s(SrcCoord) + 22*s(u32) + 24",
+   "assumed_bytes": 2480
+  },
+  "T12.7 geometry (assessment + exact witness)": {
+   "symbolic": "4*s(BodyGeometry) + 4*s(Expansion6) + 52*s(Row6) + 4*s(SrcCoord) + 5152",
+   "assumed_bytes": 8960
+  },
+  "T12.8 pattern/tagging": {
+   "symbolic": "128*s((usize,usize)) + 128*s(ContributionE) + 128*s(Tag) + 12*s(Vec<usize>) + 342*s(usize) + 8320",
+   "assumed_bytes": 19536
+  },
+  "T12.9 ordering/RCM + free blocks": {
+   "symbolic": "36*s(Vec<usize>) + 1032*s(usize) + 1892",
+   "assumed_bytes": 11012
+  },
+  "T12.10 call/group/source registries, Arc preps": {
+   "symbolic": "1*s(ArcCasePrep) + 1*s(ArcGroupPrep) + 8*s(RegistryE) + 4096",
+   "assumed_bytes": 7168
+  },
+  "T13.1 RetainSuperset (4 S_p, 4 Z_p, 3 VS_p + reports + cached refusal, selected finish)": {
+   "symbolic": "64*s((QuantityId,Binary64Outcome)) + 64*s((QuantityId,u64)) + 8*s((u32,Kind,u64)) + 4*s((u32,SpringKind)) + 5*s(AttemptRecord) + 16*s(BlockBound<16>) + 16*s(BlockBound<4>) + 16*s(BlockBound<8>) + 16*s(BlockCertificate<16>) + 16*s(BlockCertificate<4>) + 16*s(BlockCertificate<8>) + 16*s(BlockNorms<16>) + 16*s(BlockNorms<4>) + 16*s(BlockNorms<8>) + 176*s(BlockRefusal) + 4*s(BodyGeometry) + 4*s(BodyReport<16>) + 4*s(BodyReport<4>) + 4*s(BodyReport<8>) + 8*s(BoundedCoefficients<16>) + 4*s(BoundedCoefficients<4>) + 4*s(BoundedCoefficients<8>) + 4*s(MemberOperators<16>) + 8*s(MemberOperators<4>) + 4*s(MemberOperators<8>) + 336*s(Option<Wide<16>>) + 336*s(Option<Wide<4>>) + 336*s(Option<Wide<8>>) + 16*s(PivotScreen<16>) + 32*s(PivotScreen<4>) + 16*s(PivotScreen<8>) + 4*s(PrecisionState) + 64*s(PublishedRow) + 1*s(RetainedSolve) + 1*s(Shared<16>) + 2*s(Shared<4>) + 1*s(Shared<8>) + 1*s(Solved<16>) + 2*s(Solved<4>) + 1*s(Solved<8>) + 48*s(Vec<Wide>) + 1*s(VerificationReport<16>) + 1*s(VerificationReport<4>) + 1*s(VerificationReport<8>) + 1*s(VerifyShared<16>) + 1*s(VerifyShared<4>) + 1*s(VerifyShared<8>) + 2406*s(Wide<16>) + 1436*s(Wide<4>) + 1574*s(Wide<8>) + 8898",
+   "assumed_bytes": 1167362
+  },
+  "T13.2 max ScratchSuperset (sum of the scratch rows, conservative)": {
+   "symbolic": "4*Node(TrackerKey,()) + 4*Node(TrackerKey,Tracker) + 16*s((EWS,EWS,f64)) + 32*s((Wide,Wide,Wide)) + 16*s((bool,f64,Wide)) + 64*s(Binary64Outcome) + 16*s(BlockBound<16>) + 48*s(BlockRefusal) + 4*s(BoundedCoefficients<16>) + 256*s(LazyE) + 4*s(MemberOperators<16>) + 16*s(Option<BoundRefusal>) + 352*s(Option<Wide<16>>) + 64*s(PublishedRow) + 64*s(QuantityMeta) + 695*s(TableE) + 112*s(TrackerE) + 36*s(Vec<Wide>) + 12*s(Vec<usize>) + 3048*s(Wide<16>) + 2165",
+   "assumed_bytes": 1363909
+  },
+  "T14.1 K lane + source lane (two views, masks, correction, readouts)": {
+   "symbolic": "128*s(EnclosureE) + 128*s(LawE) + 288*s(Wide<16>) + 72",
+   "assumed_bytes": 88648
+  },
+  "T14.2 projection + maximum (descriptor rows, raw values, conversions, hull, one maximum helper)": {
+   "symbolic": "128*s(AliasE) + 128*s(ConversionE) + 4*s(MaximumE) + 262144*s(Node_SR) + 128*s(ProductRowSpec) + 128*s(ProjectionOutcome) + 128*s(f64) + 119056",
+   "assumed_bytes": 16928528
+  },
+  "T14.3 final certificate (verdicts, coverage bitmaps/scales, comparisons, intervals)": {
+   "symbolic": "1*s(ArcPrepared) + 4*s(BodyCoverage) + 4*s(CoverageFact) + 128*s(IntervalE) + 128*s(ProductRow) + 128*s(ProductRowVerdict) + 256*s(ProductValue) + 64*s(RunRow) + 4*s(SupportCoverage)",
+   "assumed_bytes": 33792
+  },
+  "T15 C3 event storage and evidence completion": {
+   "symbolic": "1*s(AdapterSnapshot) + 16*s(ConversionEvent) + 128*s(FinalRowConversion) + 2*s(LaneTerminal) + 4*s(OperationalSpent) + 4*s(PreparedMemberEvent) + 1*s(RecordedCase) + 1*s(RecordedInvocation) + 4096",
+   "assumed_bytes": 17792
+  }
+ },
+ "terms": {
+  "T11": 23312,
+  "T12": 74928,
+  "T13": 2531271,
+  "T14": 17050968,
+  "T15": 17792
+ },
+ "symbolic_terms": {
+  "T11": "4*s((String,[f64;3])) + 8*s((String,f64,f64)) + 4*s((String,usize)) + 1*s(BasisRecord) + 1*s(CaptureError) + 8*s(MaterialSelection) + 4*s(MemberIdentity) + 4*s(OperationalSpent) + 12*s(Option<f64>) + 4*s(OrdinarySeed) + 4*s(ProductMemberFacts) + 1*s(SolverObservations) + 4*s(SpringIdentity) + 8*s(SrcConstraint) + 4*s(SrcCoord) + 4*s(SrcMember) + 4*s(SrcNodal) + 4*s(SrcSpring) + 4*s(SrcStation) + 4*s(SrcSupport) + 4*s(TermIdentity) + 4*s([bool;6]) + 22*s(u32) + 15312",
+  "T12": "4*s((usize,ExactAccumulator,bool)) + 4*s((usize,LedgerNet)) + 8*s((usize,VecPair)) + 128*s((usize,usize)) + 1*s(ArcCasePrep) + 1*s(ArcGroupPrep) + 4*s(BodyGeometry) + 4*s(BodyMapE) + 8*s(ConstraintMapE) + 128*s(ContributionE) + 4*s(ExactWideSum) + 4*s(Expansion6) + 8*s(MaterialDescriptor) + 4*s(MemberMapE) + 4*s(NodalMapE) + 4*s(NodeMapE) + 24*s(Option<f64>) + 36*s(Pair) + 64*s(QuantityMeta) + 8*s(RegistryE) + 52*s(Row6) + 4*s(SectionMapE) + 4*s(SpringMapE) + 16*s(SrcConstraint) + 16*s(SrcCoord) + 8*s(SrcMember) + 8*s(SrcNodal) + 8*s(SrcSpring) + 8*s(SrcStation) + 8*s(SrcSupport) + 4*s(StationMapE) + 4*s(SupportMapE) + 128*s(Tag) + 48*s(Vec<usize>) + 66*s(u32) + 420*s(u64) + 1410*s(usize) + 26072",
+  "T13": "4*Node(TrackerKey,()) + 4*Node(TrackerKey,Tracker) + 16*s((EWS,EWS,f64)) + 64*s((QuantityId,Binary64Outcome)) + 64*s((QuantityId,u64)) + 32*s((Wide,Wide,Wide)) + 16*s((bool,f64,Wide)) + 8*s((u32,Kind,u64)) + 4*s((u32,SpringKind)) + 5*s(AttemptRecord) + 64*s(Binary64Outcome) + 32*s(BlockBound<16>) + 16*s(BlockBound<4>) + 16*s(BlockBound<8>) + 16*s(BlockCertificate<16>) + 16*s(BlockCertificate<4>) + 16*s(BlockCertificate<8>) + 16*s(BlockNorms<16>) + 16*s(BlockNorms<4>) + 16*s(BlockNorms<8>) + 224*s(BlockRefusal) + 4*s(BodyGeometry) + 4*s(BodyReport<16>) + 4*s(BodyReport<4>) + 4*s(BodyReport<8>) + 12*s(BoundedCoefficients<16>) + 4*s(BoundedCoefficients<4>) + 4*s(BoundedCoefficients<8>) + 256*s(LazyE) + 8*s(MemberOperators<16>) + 8*s(MemberOperators<4>) + 4*s(MemberOperators<8>) + 16*s(Option<BoundRefusal>) + 688*s(Option<Wide<16>>) + 336*s(Option<Wide<4>>) + 336*s(Option<Wide<8>>) + 16*s(PivotScreen<16>) + 32*s(PivotScreen<4>) + 16*s(PivotScreen<8>) + 4*s(PrecisionState) + 128*s(PublishedRow) + 64*s(QuantityMeta) + 1*s(RetainedSolve) + 1*s(Shared<16>) + 2*s(Shared<4>) + 1*s(Shared<8>) + 1*s(Solved<16>) + 2*s(Solved<4>) + 1*s(Solved<8>) + 695*s(TableE) + 112*s(TrackerE) + 84*s(Vec<Wide>) + 12*s(Vec<usize>) + 1*s(VerificationReport<16>) + 1*s(VerificationReport<4>) + 1*s(VerificationReport<8>) + 1*s(VerifyShared<16>) + 1*s(VerifyShared<4>) + 1*s(VerifyShared<8>) + 5454*s(Wide<16>) + 1436*s(Wide<4>) + 1574*s(Wide<8>) + 11063",
+  "T14": "128*s(AliasE) + 1*s(ArcPrepared) + 4*s(BodyCoverage) + 128*s(ConversionE) + 4*s(CoverageFact) + 128*s(EnclosureE) + 128*s(IntervalE) + 128*s(LawE) + 4*s(MaximumE) + 262144*s(Node_SR) + 128*s(ProductRow) + 128*s(ProductRowSpec) + 128*s(ProductRowVerdict) + 256*s(ProductValue) + 128*s(ProjectionOutcome) + 64*s(RunRow) + 4*s(SupportCoverage) + 288*s(Wide<16>) + 128*s(f64) + 119128",
+  "T15": "1*s(AdapterSnapshot) + 16*s(ConversionEvent) + 128*s(FinalRowConversion) + 2*s(LaneTerminal) + 4*s(OperationalSpent) + 4*s(PreparedMemberEvent) + 1*s(RecordedCase) + 1*s(RecordedInvocation) + 4096"
+ }
+}

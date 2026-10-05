@@ -1,0 +1,362 @@
+{
+ "own:sparse_interactive:contract_evidence_edit_resealed": {
+  "route": {
+   "reader_error": true,
+   "gate": "G7",
+   "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G7",
+   "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+  }
+ },
+ "own:sparse_interactive:profile_wrong": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "own:sparse_interactive:component_version_wrong": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "own:sparse_interactive:schema_0_1_0": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "own:sparse_interactive:schema_0_3_0": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "own:sparse_interactive:receipt_null": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "own:sparse_interactive:receipt_array": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "own:sparse_interactive:receipt_string": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "own:sparse_interactive:receipt_absent": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "own:sparse_interactive:contract_evidence_absent": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G7",
+   "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+  }
+ },
+ "own:sparse_interactive:source_block_recovery_added": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G7",
+   "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+  }
+ },
+ "own:dense_scrutiny:contract_evidence_edit_resealed": {
+  "route": {
+   "reader_error": true,
+   "gate": "G7",
+   "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G7",
+   "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+  }
+ },
+ "own:dense_scrutiny:profile_wrong": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "own:dense_scrutiny:component_version_wrong": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "own:dense_scrutiny:schema_0_1_0": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "own:dense_scrutiny:schema_0_3_0": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "own:dense_scrutiny:receipt_null": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "own:dense_scrutiny:receipt_array": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "own:dense_scrutiny:receipt_string": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "own:dense_scrutiny:receipt_absent": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "own:dense_scrutiny:contract_evidence_absent": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G7",
+   "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+  }
+ },
+ "own:dense_scrutiny:source_block_recovery_added": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G7",
+   "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+  }
+ },
+ "other:legacy_0_1:producer_successor_id": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "other:precision_1:producer_successor_id": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "other:physics_1:producer_successor_id": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "other:preview_physics_1:producer_successor_id": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "other:source_blocks_1:producer_successor_id": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "other:physics_source_1:producer_successor_id": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "other:load_reference_1:producer_successor_id": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ },
+ "other:load_reference_source_1:producer_successor_id": {
+  "route": {
+   "reader_error": false,
+   "gate": null,
+   "code": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+  },
+  "reader_transport": {
+   "reader_error": true,
+   "gate": "G0",
+   "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+  }
+ }
+}

@@ -1,0 +1,54 @@
+transcription: 47 forms and 244 assumed atoms; mismatches=0
+record in-build  sparse max=W3 E_mov=3507808260 +R=3574917124 frac=0.887840 margin_0.9M=48961532 margin_M=451614716 phases_equal_record=True
+   W1 requested=1846906578 moving=8388608 +R=1922404050 (0.4774 M)
+   W2 requested=1954716984 moving=8388608 +R=2030214456 (0.5042 M)
+   W3 requested=3318504979 moving=189303281 +R=3574917124 (0.8878 M)
+   W4 requested=3292147144 moving=189303281 +R=3548559289 (0.8813 M)
+   W5 requested=2126973066 moving=8388608 +R=2202470538 (0.5470 M)
+   X1 requested=3066383486 moving=189079500 +R=3322571850 (0.8252 M)
+   X2 requested=1767812292 moving=8388608 +R=1843309764 (0.4578 M)
+record in-build  dense  max=W3 E_mov=3527518708 +R=3594627572 frac=0.892735 margin_0.9M=29251084 margin_M=431904268 phases_equal_record=True
+   W1 requested=1866617026 moving=8388608 +R=1942114498 (0.4823 M)
+   W2 requested=1974427432 moving=8388608 +R=2049924904 (0.5091 M)
+   W3 requested=3338215427 moving=189303281 +R=3594627572 (0.8927 M)
+   W4 requested=3311857592 moving=189303281 +R=3568269737 (0.8862 M)
+   W5 requested=2146683514 moving=8388608 +R=2222180986 (0.5519 M)
+   X1 requested=3086093934 moving=189079500 +R=3342282298 (0.8301 M)
+   X2 requested=1787522740 moving=8388608 +R=1863020212 (0.4627 M)
+chain assumed    sparse max=W3 E_mov=3437013739 +R=3504122603 frac=0.870258 margin_0.9M=119756053 margin_M=522409237 phases_equal_record=None
+chain assumed    dense  max=W3 E_mov=3456724187 +R=3523833051 frac=0.875153 margin_0.9M=100045605 margin_M=502698789 phases_equal_record=None
+W3 dense terms (in-build):
+   TAV_W           1,569,180,716  0.3897 M
+   T16 (P2)        1,268,332,585  0.3150 M
+   O_base_dense      291,873,022  0.0725 M
+   T16_moving        189,303,281  0.0470 M
+   STAGED             95,455,410  0.0237 M
+   T14                55,557,520  0.0138 M
+   T13                50,468,254  0.0125 M
+   STATICS             5,397,696  0.0013 M
+   T12                 1,566,634  0.0004 M
+   T15                   217,112  0.0001 M
+   T11                   155,712  0.0000 M
+   T19                     9,880  0.0000 M
+   NOTICE                    886  0.0000 M
+   total+R 3,594,627,572
+W3 dense: layout-free constants 2,842,945,474 (0.7061 M); layout terms 495,269,953 (0.1230 M)
+largest layout contributions (atom: coefficient x in-build value = bytes; bytes per +1 B of stride):
+   Node(String,Value)               InBuild      227,301 x    736 =   167,293,536
+   s(Node_SR)                       InBuild      524,288 x    184 =    96,468,992
+   Text(row)                        Text           8,302 x  11474 =    95,257,148
+   s(Wide<16>)                      InBuild      144,192 x    144 =    20,763,648
+   s(Value)                         InBuild      616,454 x     32 =    19,726,528
+   s(Expansion)                     InBuild      480,192 x     32 =    15,366,144
+   Text(recovery_finding)           Text               1 x 10466306 =    10,466,306
+   Node(String,ResultItem)          InBuild        2,403 x   3640 =     8,746,920
+   s(TrackerE)                      SourceUpper    1,792 x   4472 =     8,013,824
+   s(ContributionRounding)          InBuild       47,776 x     96 =     4,586,496
+   s(Wide<8>)                       InBuild       50,976 x     80 =     4,078,080
+   s(Diagnostic)                    InBuild       25,746 x    144 =     3,707,424
+   s(ResultItem)                    InBuild       12,306 x    296 =     3,642,576
+   s(Wide<4>)                       InBuild       75,584 x     48 =     3,628,032
+   s(Option<Wide<16>>)              InBuild       21,248 x    144 =     3,059,712
+Estimate atoms in W3 dense: 0 with weight 0
++10% on every layout atom moves W3 by 49,526,995 B
+Estimate atoms (dense): stride, coefficient in W3 / in the largest phase using it, weight in W3, stride that alone would consume the 0.9 M margin

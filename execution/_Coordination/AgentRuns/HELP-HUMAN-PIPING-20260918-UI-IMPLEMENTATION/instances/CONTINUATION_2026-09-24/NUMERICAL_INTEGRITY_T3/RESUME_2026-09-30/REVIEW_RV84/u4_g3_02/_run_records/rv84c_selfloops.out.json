@@ -1,0 +1,293 @@
+[
+ {
+  "fn": "core/serialization/canonical_json/src/lib.rs:125:write_canonical",
+  "reachable": true,
+  "self_call_sites": [
+   [
+    140,
+    "           out.push(',');                 }                 write_canonical(item, out);             }             ou"
+   ],
+   [
+    157,
+    " as JSON\"));                 out.push(':');                 write_canonical(&map[key.as_str()], out);             } "
+   ]
+  ]
+ },
+ {
+  "fn": "core/serialization/canonical_json/src/lib.rs:94:validate_checked_value",
+  "reachable": true,
+  "self_call_sites": [
+   [
+    111,
+    "     }         Value::Array(values) => for item in values { validate_checked_value(item)?; },         Value::Object(values)"
+   ],
+   [
+    112,
+    "     Value::Object(values) => for item in values.values() { validate_checked_value(item)?; },         _ => {}     }     Ok("
+   ]
+  ]
+ },
+ {
+  "fn": "core/reporting/result_export/src/derivative.rs:13:guard_json",
+  "reachable": true,
+  "self_call_sites": [
+   [
+    23,
+    "lue::Array(a) => {             for x in a {                 guard_json(x)?;             }         }         Val"
+   ],
+   [
+    28,
+    "t(o) => {             for x in o.values() {                 guard_json(x)?;             }         }         _ ="
+   ]
+  ]
+ },
+ {
+  "fn": "core/solver/frame_kernel/src/structural/sparse.rs:592:assemble_sparse_stiffness",
+  "reachable": true,
+  "self_call_sites": [
+   [
+    605,
+    "mes, users, blocks, springs, *force_scale)?;         return assemble_sparse_stiffness(             node_count,             &fr"
+   ]
+  ]
+ },
+ {
+  "fn": "core/product_physics/src/self_weight.rs:558:retained_basis",
+  "reachable": true,
+  "self_call_sites": [
+   [
+    751,
+    "              return Err(fail());             }             retained_basis(&legacy, case_id)?;         }         le"
+   ]
+  ]
+ },
+ {
+  "fn": "core/product_physics/src/retained_wire.rs:1310:safe_integers",
+  "reachable": true,
+  "self_call_sites": []
+ },
+ {
+  "fn": "core/reporting/result_export/src/retained_precision.rs:1722:located",
+  "reachable": true,
+  "self_call_sites": [
+   [
+    1732,
+    "n o {                 path.push(k.clone());                 located(x, path, out);                 path.pop("
+   ],
+   [
+    1739,
+    "{                 path.push(i.to_string());                 located(x, path, out);                 path.pop("
+   ]
+  ]
+ },
+ {
+  "fn": "core/reporting/result_export/src/retained_precision.rs:1694:objects",
+  "reachable": true,
+  "self_call_sites": [
+   [
+    1699,
+    ".push(o);             for x in o.values() {                 objects(x, out);             }         }        "
+   ],
+   [
+    1704,
+    "lue::Array(a) => {             for x in a {                 objects(x, out);             }         }        "
+   ]
+  ]
+ },
+ {
+  "fn": "core/reporting/result_export/src/retained_precision.rs:1886:exact_work",
+  "reachable": true,
+  "self_call_sites": []
+ },
+ {
+  "fn": "core/reporting/result_export/src/retained_precision.rs:252:floats",
+  "reachable": true,
+  "self_call_sites": []
+ },
+ {
+  "fn": "core/reporting/result_export/src/retained_precision.rs:260:normalize",
+  "reachable": true,
+  "self_call_sites": []
+ },
+ {
+  "fn": "core/reporting/result_export/src/retained_precision.rs:360:shape",
+  "reachable": true,
+  "self_call_sites": [
+   [
+    364,
+    "ter(r.trim_start_matches('#'))             .is_some_and(|s| shape(v, s));     }     if let Some(bs) = s[\"o"
+   ],
+   [
+    367,
+    "s[\"oneOf\"].as_array() {         return bs.iter().filter(|s| shape(v, s)).count() == 1;     }     if let So"
+   ],
+   [
+    383,
+    "       .all(|(k, v)| s[\"properties\"].get(k).is_some_and(|s| shape(v, s)))         }),         Some(\"array\""
+   ],
+   [
+    388,
+    "s_u64().unwrap_or(SAFE)                 && a.iter().all(|v| shape(v, &s[\"items\"]))         }),         Som"
+   ]
+  ]
+ },
+ {
+  "fn": "core/reporting/result_export/src/retained_precision.rs:400:encoding",
+  "reachable": true,
+  "self_call_sites": [
+   [
+    402,
+    "{     if let Some(r) = s[\"$ref\"].as_str() {         return encoding(             v,             schema()    "
+   ],
+   [
+    410,
+    "   if let Some(bs) = s[\"oneOf\"].as_array() {         return encoding(             v,             bs.iter()   "
+   ],
+   [
+    438,
+    "  if let Some(p) = s[\"properties\"].get(k) {                 encoding(v, p)?;             }         }     }   "
+   ],
+   [
+    444,
+    "\"type\"] == \"array\" {         for v in list(v) {             encoding(v, &s[\"items\"])?;         }     }     Ok"
+   ]
+  ]
+ },
+ {
+  "fn": "core/reporting/result_export/src/retained_precision.rs:456:negative_zero",
+  "reachable": true,
+  "self_call_sites": []
+ },
+ {
+  "fn": "core/reporting/result_export/src/load_reference.rs:278:same",
+  "reachable": true,
+  "self_call_sites": [
+   [
+    282,
+    "         x.len() == y.len() && x.iter().zip(y).all(|(p, q)| same(p, q))         }         (Value::Object("
+   ],
+   [
+    285,
+    "= y.len() && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| same(v, w)))         }         _ => a == b,  "
+   ]
+  ]
+ },
+ {
+  "fn": "core/reporting/result_export/src/load_reference.rs:306:finite_tree",
+  "reachable": true,
+  "self_call_sites": [
+   [
+    313,
+    "lue::Array(a) => {             for x in a {                 finite_tree(x)?;             }         }         Val"
+   ],
+   [
+    318,
+    "t(o) => {             for x in o.values() {                 finite_tree(x)?;             }         }         _ ="
+   ]
+  ]
+ },
+ {
+  "fn": "core/reporting/result_export/src/source_blocks.rs:87:shape_in",
+  "reachable": true,
+  "self_call_sites": [
+   [
+    91,
+    ".trim_start_matches('#'))             .is_some_and(|target| shape_in(v, target, root));     }     if let Some"
+   ],
+   [
+    94,
+    "s[\"anyOf\"].as_array() {         if !branches.iter().any(|s| shape_in(v, s, root)) {             return false;"
+   ],
+   [
+    99,
+    "\"oneOf\"].as_array() {         if branches.iter().filter(|s| shape_in(v, s, root)).count() != 1 {             "
+   ],
+   [
+    104,
+    "s[\"allOf\"].as_array() {         if !branches.iter().all(|s| shape_in(v, s, root)) {             return false;"
+   ],
+   [
+    112,
+    "e();             branch[\"type\"] = kind.clone();             shape_in(v, &branch, root)         });     }     "
+   ],
+   [
+    150,
+    "             .all(|(k, v)| properties.get(k).is_none_or(|s| shape_in(v, s, root)))         }         Some(\"ar"
+   ],
+   [
+    155,
+    "wrap_or(16384) as usize                 && a.iter().all(|v| shape_in(v, &s[\"items\"], root))         }),      "
+   ]
+  ]
+ },
+ {
+  "fn": "core/reporting/result_export/src/physics_evidence.rs:77:finite_tree",
+  "reachable": true,
+  "self_call_sites": [
+   [
+    84,
+    "lue::Array(a) => {             for x in a {                 finite_tree(x)?;             }         }         Val"
+   ],
+   [
+    89,
+    "t(o) => {             for x in o.values() {                 finite_tree(x)?;             }         }         _ ="
+   ]
+  ]
+ },
+ {
+  "fn": "core/reporting/result_export/src/preview_physics_evidence.rs:126:finite_tree",
+  "reachable": true,
+  "self_call_sites": [
+   [
+    133,
+    "lue::Array(a) => {             for x in a {                 finite_tree(x)?;             }         }         Val"
+   ],
+   [
+    138,
+    "t(o) => {             for x in o.values() {                 finite_tree(x)?;             }         }         _ ="
+   ]
+  ]
+ },
+ {
+  "fn": "core/serialization/canonical_json/src/binary64.rs:179:validate_value",
+  "reachable": false,
+  "self_call_sites": [
+   [
+    217,
+    "h_length, &index.to_string(), path_bytes)?;                 validate_value(item, depth + 1, nodes, bytes, child, pa"
+   ],
+   [
+    226,
+    "path_length(path_length, key, path_bytes)?;                 validate_value(item, depth + 1, nodes, bytes, child, pa"
+   ]
+  ]
+ },
+ {
+  "fn": "core/serialization/canonical_json/src/binary64.rs:263:write_value",
+  "reachable": false,
+  "self_call_sites": [
+   [
+    274,
+    "        output.push(',');                 }                 write_value(item, output);             }            "
+   ],
+   [
+    288,
+    "tring\"));                 output.push(':');                 write_value(&items[*key], output);             }    "
+   ]
+  ]
+ },
+ {
+  "fn": "core/serialization/canonical_json/src/binary64.rs:320:value",
+  "reachable": false,
+  "self_call_sites": [
+   [
+    353,
+    "ms.len().to_string())?;                     items.push(self.value(depth + 1, &child)?);                   "
+   ],
+   [
+    379,
+    "ointer(pointer, &key)?;                     let item = self.value(depth + 1, &child)?;                    "
+   ]
+  ]
+ }
+]

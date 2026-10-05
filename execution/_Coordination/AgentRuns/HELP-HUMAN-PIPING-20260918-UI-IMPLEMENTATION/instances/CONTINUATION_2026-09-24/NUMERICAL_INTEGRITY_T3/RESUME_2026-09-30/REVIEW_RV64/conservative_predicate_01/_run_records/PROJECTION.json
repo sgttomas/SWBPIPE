@@ -1,0 +1,366 @@
+[
+  {
+    "kind": 0,
+    "native": 0,
+    "normalized_bits": "0000000000000000",
+    "quantity": "Displacement(Dof { node: 0, component: Ux })",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 0,
+    "native": 1,
+    "normalized_bits": "0000000000000000",
+    "quantity": "Displacement(Dof { node: 0, component: Uy })",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 0,
+    "native": 2,
+    "normalized_bits": "0000000000000000",
+    "quantity": "Displacement(Dof { node: 0, component: Uz })",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 1,
+    "native": 3,
+    "normalized_bits": "0000000000000000",
+    "quantity": "Displacement(Dof { node: 0, component: Rx })",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 1,
+    "native": 4,
+    "normalized_bits": "0000000000000000",
+    "quantity": "Displacement(Dof { node: 0, component: Ry })",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 1,
+    "native": 5,
+    "normalized_bits": "0000000000000000",
+    "quantity": "Displacement(Dof { node: 0, component: Rz })",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 0,
+    "native": 6,
+    "normalized_bits": "3e2e4be8dc1e94ec",
+    "quantity": "Displacement(Dof { node: 1, component: Ux })",
+    "raw_bits": "3ecd962166f5dd6e"
+  },
+  {
+    "kind": 0,
+    "native": 7,
+    "normalized_bits": "3eb16f9372e4cfce",
+    "quantity": "Displacement(Dof { node: 1, component: Uy })",
+    "raw_bits": "3f5106f5fe3372ef"
+  },
+  {
+    "kind": 0,
+    "native": 8,
+    "normalized_bits": "0000000000000000",
+    "quantity": "Displacement(Dof { node: 1, component: Uz })",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 1,
+    "native": 9,
+    "normalized_bits": "3ed8d89883b941b9",
+    "quantity": "Displacement(Dof { node: 1, component: Rx })",
+    "raw_bits": "3ed8d89883b941b9"
+  },
+  {
+    "kind": 1,
+    "native": 10,
+    "normalized_bits": "0000000000000000",
+    "quantity": "Displacement(Dof { node: 1, component: Ry })",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 1,
+    "native": 11,
+    "normalized_bits": "3eba275d2c5737b5",
+    "quantity": "Displacement(Dof { node: 1, component: Rz })",
+    "raw_bits": "3eba275d2c5737b5"
+  },
+  {
+    "kind": 0,
+    "native": 12,
+    "normalized_bits": "0000000000000000",
+    "quantity": "DisplacementMagnitude(0)",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 0,
+    "native": 13,
+    "normalized_bits": "3eb16f9a0778f692",
+    "quantity": "DisplacementMagnitude(1)",
+    "raw_bits": "3f5106fc6b4c20cb"
+  },
+  {
+    "kind": 2,
+    "native": 14,
+    "normalized_bits": "bff0000000000000",
+    "quantity": "EndAction { member: 0, end: I, component: Ux }",
+    "raw_bits": "bff0000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 15,
+    "normalized_bits": "bff0000000000000",
+    "quantity": "EndAction { member: 0, end: I, component: Uy }",
+    "raw_bits": "bff0000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 16,
+    "normalized_bits": "0000000000000000",
+    "quantity": "EndAction { member: 0, end: I, component: Uz }",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 17,
+    "normalized_bits": "bff0000000000000",
+    "quantity": "EndAction { member: 0, end: I, component: Rx }",
+    "raw_bits": "bff0000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 18,
+    "normalized_bits": "0000000000000000",
+    "quantity": "EndAction { member: 0, end: I, component: Ry }",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 19,
+    "normalized_bits": "bff0000000000000",
+    "quantity": "EndAction { member: 0, end: I, component: Rz }",
+    "raw_bits": "bff0000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 20,
+    "normalized_bits": "3ff0000000000000",
+    "quantity": "EndAction { member: 0, end: J, component: Ux }",
+    "raw_bits": "3ff0000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 21,
+    "normalized_bits": "3ff0000000000000",
+    "quantity": "EndAction { member: 0, end: J, component: Uy }",
+    "raw_bits": "3ff0000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 22,
+    "normalized_bits": "0000000000000000",
+    "quantity": "EndAction { member: 0, end: J, component: Uz }",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 23,
+    "normalized_bits": "3ff0000000000000",
+    "quantity": "EndAction { member: 0, end: J, component: Rx }",
+    "raw_bits": "3ff0000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 24,
+    "normalized_bits": "0000000000000000",
+    "quantity": "EndAction { member: 0, end: J, component: Ry }",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 25,
+    "normalized_bits": "0000000000000000",
+    "quantity": "EndAction { member: 0, end: J, component: Rz }",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 26,
+    "normalized_bits": "3ff0000000000000",
+    "quantity": "StationAction { station: 0, component: Ux }",
+    "raw_bits": "3ff0000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 27,
+    "normalized_bits": "3ff0000000000000",
+    "quantity": "StationAction { station: 0, component: Uy }",
+    "raw_bits": "3ff0000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 28,
+    "normalized_bits": "0000000000000000",
+    "quantity": "StationAction { station: 0, component: Uz }",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 29,
+    "normalized_bits": "3ff0000000000000",
+    "quantity": "StationAction { station: 0, component: Rx }",
+    "raw_bits": "3ff0000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 30,
+    "normalized_bits": "0000000000000000",
+    "quantity": "StationAction { station: 0, component: Ry }",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 31,
+    "normalized_bits": "3fe8000000000000",
+    "quantity": "StationAction { station: 0, component: Rz }",
+    "raw_bits": "3fe8000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 32,
+    "normalized_bits": "3ff0000000000000",
+    "quantity": "StationAction { station: 1, component: Ux }",
+    "raw_bits": "3ff0000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 33,
+    "normalized_bits": "3ff0000000000000",
+    "quantity": "StationAction { station: 1, component: Uy }",
+    "raw_bits": "3ff0000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 34,
+    "normalized_bits": "0000000000000000",
+    "quantity": "StationAction { station: 1, component: Uz }",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 35,
+    "normalized_bits": "3ff0000000000000",
+    "quantity": "StationAction { station: 1, component: Rx }",
+    "raw_bits": "3ff0000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 36,
+    "normalized_bits": "0000000000000000",
+    "quantity": "StationAction { station: 1, component: Ry }",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 37,
+    "normalized_bits": "3fe0000000000000",
+    "quantity": "StationAction { station: 1, component: Rz }",
+    "raw_bits": "3fe0000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 38,
+    "normalized_bits": "3ff0000000000000",
+    "quantity": "StationAction { station: 2, component: Ux }",
+    "raw_bits": "3ff0000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 39,
+    "normalized_bits": "3ff0000000000000",
+    "quantity": "StationAction { station: 2, component: Uy }",
+    "raw_bits": "3ff0000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 40,
+    "normalized_bits": "0000000000000000",
+    "quantity": "StationAction { station: 2, component: Uz }",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 41,
+    "normalized_bits": "3ff0000000000000",
+    "quantity": "StationAction { station: 2, component: Rx }",
+    "raw_bits": "3ff0000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 42,
+    "normalized_bits": "0000000000000000",
+    "quantity": "StationAction { station: 2, component: Ry }",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 43,
+    "normalized_bits": "3fd0000000000000",
+    "quantity": "StationAction { station: 2, component: Rz }",
+    "raw_bits": "3fd0000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 44,
+    "normalized_bits": "bff0000000000000",
+    "quantity": "Reaction(Dof { node: 0, component: Ux })",
+    "raw_bits": "bff0000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 45,
+    "normalized_bits": "bff0000000000000",
+    "quantity": "Reaction(Dof { node: 0, component: Uy })",
+    "raw_bits": "bff0000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 46,
+    "normalized_bits": "0000000000000000",
+    "quantity": "Reaction(Dof { node: 0, component: Uz })",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 47,
+    "normalized_bits": "bff0000000000000",
+    "quantity": "Reaction(Dof { node: 0, component: Rx })",
+    "raw_bits": "bff0000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 48,
+    "normalized_bits": "0000000000000000",
+    "quantity": "Reaction(Dof { node: 0, component: Ry })",
+    "raw_bits": "0000000000000000"
+  },
+  {
+    "kind": 3,
+    "native": 49,
+    "normalized_bits": "bff0000000000000",
+    "quantity": "Reaction(Dof { node: 0, component: Rz })",
+    "raw_bits": "bff0000000000000"
+  },
+  {
+    "kind": 2,
+    "native": 50,
+    "normalized_bits": "3ff6a09e667f3bcd",
+    "quantity": "SupportForceMagnitude(0)",
+    "raw_bits": "3ff6a09e667f3bcd"
+  },
+  {
+    "kind": 3,
+    "native": 51,
+    "normalized_bits": "3ff6a09e667f3bcd",
+    "quantity": "SupportMomentMagnitude(0)",
+    "raw_bits": "3ff6a09e667f3bcd"
+  }
+]

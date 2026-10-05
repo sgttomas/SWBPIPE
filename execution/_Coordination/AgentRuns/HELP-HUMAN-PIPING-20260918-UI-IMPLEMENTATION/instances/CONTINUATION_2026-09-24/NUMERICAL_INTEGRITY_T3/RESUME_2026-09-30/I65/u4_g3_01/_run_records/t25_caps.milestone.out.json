@@ -1,0 +1,125 @@
+{
+ "which": "milestone",
+ "EPS": 6,
+ "facts": {
+  "publication": {
+   "arr": 2702,
+   "obj": 755,
+   "ent": 4230,
+   "strb": 4928568,
+   "keyb": 84288,
+   "nums": 170,
+   "depth": 6
+  },
+  "payload": {
+   "arr": 2064,
+   "obj": 1605,
+   "ent": 3635,
+   "strb": 79986,
+   "keyb": 116320,
+   "nums": 1763,
+   "depth": 7
+  },
+  "body": {
+   "arr": 353,
+   "obj": 264,
+   "ent": 1124,
+   "strb": 1109056,
+   "keyb": 27328,
+   "nums": 90,
+   "depth": 8
+  },
+  "publication_text_upper": 29715240,
+  "payload_text_upper": 684148
+ },
+ "rows": {
+  "T25.1a requested(): raw clone + typed request + serde buffering": {
+   "symbolic": "39320*Node(String,Value) + 16384*s((Content,Content)) + 4*s(Authored<Vec<ExpansionLawInput>>) + 8*s(MaterialInput) + 1*s(PreviewLoadCase) + 2*s(PreviewNode) + 1*s(PreviewPipe) + 4*s(PreviewSupport) + 3*s(PrimitiveLoadInput) + 6*s(String) + 128*s(TemperaturePoint) + 65536*s(Value) + 918144",
+   "assumed_bytes": 33035536
+  },
+  "T25.1b materials clone, O-N transients, diagnostics": {
+   "symbolic": "4*s(MaterialInput) + 64*s(TemperaturePoint) + 62976",
+   "assumed_bytes": 77184
+  },
+  "T25.1c build_model + helper maps + boundary": {
+   "symbolic": "20*s((&str,&T)) + 4*s((&str,usize)) + 4*s((String,DerivedSection)) + 4*s(FrameElement) + 4*s(FrameNode) + 8*s(LinearSupport) + 4*s(SpringEntry) + 4*s(StraightPipeElement) + 8*s(SupportFinding) + 8*s(usize) + 1552",
+   "assumed_bytes": 6576
+  },
+  "T25.1d dense stiffness, loads, application, force, prescribed, free": {
+   "symbolic": "6*s((usize,f64)) + 4*s(ForceTerm) + 4*s(NodalLoadContribution) + 4*s(Option<FormationRecord>) + 6*s(PrimitiveLoad) + 12*s(Vec) + 12*s(Vec<usize>) + 2992",
+   "assumed_bytes": 5088
+  },
+  "T25.1e replay_against: Sources #2 and prepare_sources locals": {
+   "symbolic": "16*s(&str) + 12*s((&str,&T)) + 8*s((&str,usize)) + 4*s((&str,usize,u64)) + 8*s((String,usize)) + 7*s((usize,f64)) + 4*s((usize,usize,bool)) + 659*s(AffineTerm) + 4*s(ForceContribution) + 4*s(ForceTerm) + 1*s(FrameElement) + 112*s(FunctionalDescriptor) + 4*s(Option<FormationRecord>) + 2*s(Option<[f64;3]>) + 12*s(Option<f64>) + 12*s(Option<usize>) + 256*s(StiffnessContribution) + 132*s(String) + 571*s(Vec) + 12*s(Vec<usize>) + 186037",
+   "assumed_bytes": 247349
+  },
+  "T25.1f replay: Context #2, Response #2, values #2, temporaries": {
+   "symbolic": "16*s(BlockWitness) + 168*s(Expansion) + 3*s(ForceContribution) + 105*s(Ratio) + 147*s(StiffnessContribution) + 36*s(Vec) + 16*s(Vec<usize>) + 702430",
+   "assumed_bytes": 721342
+  },
+  "T25.2 check_binding_against: Sources #3": {
+   "symbolic": "16*s(&str) + 12*s((&str,&T)) + 8*s((&str,usize)) + 4*s((&str,usize,u64)) + 8*s((String,usize)) + 7*s((usize,f64)) + 4*s((usize,usize,bool)) + 659*s(AffineTerm) + 4*s(ForceContribution) + 4*s(ForceTerm) + 1*s(FrameElement) + 112*s(FunctionalDescriptor) + 4*s(Option<FormationRecord>) + 2*s(Option<[f64;3]>) + 12*s(Option<f64>) + 12*s(Option<usize>) + 256*s(StiffnessContribution) + 132*s(String) + 571*s(Vec) + 12*s(Vec<usize>) + 186685",
+   "assumed_bytes": 247997
+  },
+  "T25.3 rows::bind ledger, maps, primary/derived, supports (+ json! copy)": {
+   "symbolic": "21*Node(&str,&ResultItem) + 17*Node(String,()) + 21*Node(String,RowTreatment) + 254*Node(String,Value) + 17*Node(usize,ResultItem) + 17*Node(usize,String) + 100*s(Derived) + 128*s(Projection) + 100*s(RowTreatment) + 144*s(Value) + 3729274",
+   "assumed_bytes": 4090314
+  },
+  "T25.4 source commitment: payload + hash, functions, plan + hash, blocks": {
+   "symbolic": "9827*Node(String,Value) + 6*Node(usize,()) + 480*s(String) + 18868*s(Value) + 12*s(Vec<usize>) + 22539263",
+   "assumed_bytes": 30388719
+  },
+  "T25.5 actual_rows Value, work Value, retained FinalizedSourceBlockCase": {
+   "symbolic": "304*Node(String,Value) + 1*s(FinalizedSourceBlockCase) + 200*s(Value) + 1161032",
+   "assumed_bytes": 1392376
+  },
+  "T25.6 serialized(envelope) = publication Value": {
+   "symbolic": "1601*Node(String,Value) + 2702*s(Value) + 5012856",
+   "assumed_bytes": 6277656
+  },
+  "T25.7 requested() x2 (the first a temporary), assessed quality Values x2": {
+   "symbolic": "78680*Node(String,Value) + 32768*s((Content,Content)) + 8*s(Authored<Vec<ExpansionLawInput>>) + 16*s(MaterialInput) + 2*s(PreviewLoadCase) + 4*s(PreviewNode) + 2*s(PreviewPipe) + 8*s(PreviewSupport) + 6*s(PrimitiveLoadInput) + 12*s(String) + 256*s(TemperaturePoint) + 131072*s(Value) + 1849280",
+   "assumed_bytes": 66113504
+  },
+  "T25.8 ids set, accounted set, observations": {
+   "symbolic": "105*Node(&str,()) + 21*Node(String,()) + 100*s(String) + 204800",
+   "assumed_bytes": 245336
+  },
+  "T25.9 per case: actual rows clone + serialized(actual) + wire entry": {
+   "symbolic": "780*Node(String,Value) + 100*s(ResultItem) + 453*s(Value) + 3340432",
+   "assumed_bytes": 3958608
+  },
+  "T25.10 body json! (copies wire) + hash(publication) inside it": {
+   "symbolic": "3690*Node(String,Value) + 192*s(String) + 11479*s(Value) + 130112842",
+   "assumed_bytes": 133200618
+  },
+  "T25.11 hash(body), into_wire copy, retained receipt in the envelope": {
+   "symbolic": "1952*Node(String,Value) + 256*s(String) + 2821*s(Value) + 31361320",
+   "assumed_bytes": 32894408
+  }
+ },
+ "stages": {
+  "S1 check_input (requested, rebuild, replay)": 34093075,
+  "S2 check_binding_against": 247997,
+  "S3 rows::bind": 4090314,
+  "S4 source commitment (+ carried ledger)": 32920343,
+  "S5 serialized(rows), work, case": 3924000,
+  "I1 body json! with hash(publication) inside": 176760186,
+  "I2 hash(body)": 74947128,
+  "I3 into_wire copy": 46573264
+ },
+ "peak": {
+  "case_stage": "S1 check_input (requested, rebuild, replay)",
+  "invocation_stage": "I1 body json! with hash(publication) inside",
+  "rule": "T25 = carried case outputs + max(per-case stage peak, per-invocation stage peak); the max is taken in-build (G5) over the evaluated stage expressions"
+ },
+ "sum_of_rows_for_reference": 312902611,
+ "T25_requested": {
+  "symbolic": "105*Node(&str,()) + 21*Node(String,()) + 45865*Node(String,Value) + 16384*s((Content,Content)) + 4*s(Authored<Vec<ExpansionLawInput>>) + 8*s(MaterialInput) + 1*s(PreviewLoadCase) + 2*s(PreviewNode) + 1*s(PreviewPipe) + 4*s(PreviewSupport) + 3*s(PrimitiveLoadInput) + 128*s(Projection) + 100*s(ResultItem) + 100*s(RowTreatment) + 298*s(String) + 128*s(TemperaturePoint) + 80442*s(Value) + 141784922",
+  "assumed_bytes": 179291810
+ },
+ "moving_extra": {
+  "symbolic": "29715240",
+  "assumed_bytes": 29715240
+ }
+}

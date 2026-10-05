@@ -1,0 +1,2 @@
+{"id": "N3a_seam_called_in_derivative", "lang": "rs", "file": "core/reporting/result_export/src/derivative.rs", "status": "KILLED", "killed_by": ["u6_doc_hidden_seams_have_no_product_callers"], "summary": ["error: test failed, to rerun pass `--test retained_precision_carriers`"], "seconds": 34.0}
+{"id": "N3b_seam_named_atop_tauri", "lang": "rs", "file": "apps/desktop/src-tauri/src/lib.rs", "status": "KILLED", "killed_by": ["u6_doc_hidden_seams_have_no_product_callers"], "summary": ["error: test failed, to rerun pass `--test retained_precision_carriers`"], "seconds": 33.7}

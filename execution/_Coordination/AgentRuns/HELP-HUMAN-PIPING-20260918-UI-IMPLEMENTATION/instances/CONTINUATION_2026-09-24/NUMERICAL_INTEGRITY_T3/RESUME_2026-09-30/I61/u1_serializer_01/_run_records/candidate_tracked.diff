@@ -1,0 +1,503 @@
+diff --git a/projects/chirality-piping/core/product_physics/Cargo.lock b/projects/chirality-piping/core/product_physics/Cargo.lock
+index 1991989930..833cbda45a 100644
+--- a/projects/chirality-piping/core/product_physics/Cargo.lock
++++ b/projects/chirality-piping/core/product_physics/Cargo.lock
+@@ -148,6 +148,7 @@ dependencies = [
+  "open_pipe_stress_nonlinear_integration",
+  "open_pipe_stress_nonlinear_supports",
+  "open_pipe_stress_primitive_loads",
++ "open_pipe_stress_result_export",
+  "open_pipe_stress_solver_diagnostics",
+  "open_pipe_stress_sparse_direct",
+  "open_pipe_stress_straight_pipe",
+@@ -158,6 +159,16 @@ dependencies = [
+  "sha2",
+ ]
+ 
++[[package]]
++name = "open_pipe_stress_result_export"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_canonical_json",
++ "open_pipe_stress_units",
++ "serde_json",
++ "sha2",
++]
++
+ [[package]]
+ name = "open_pipe_stress_solver_diagnostics"
+ version = "0.1.0"
+diff --git a/projects/chirality-piping/core/product_physics/Cargo.toml b/projects/chirality-piping/core/product_physics/Cargo.toml
+index 4684f1ca31..11557d4a50 100644
+--- a/projects/chirality-piping/core/product_physics/Cargo.toml
++++ b/projects/chirality-piping/core/product_physics/Cargo.toml
+@@ -25,3 +25,8 @@ open_pipe_stress_stress_recovery = { path = "../loads/stress_recovery" }
+ open_pipe_stress_units = { path = "../units" }
+ serde = { version = "1", features = ["derive"] }
+ serde_json = { version = "1", features = ["float_roundtrip"] }
++
++[dev-dependencies]
++# I61 U1: the accepted Rust reader validates the serializer's output in tests only.
++# The runtime path dependency for precommit validation (decision 5) belongs to U3.
++open_pipe_stress_result_export = { path = "../reporting/result_export" }
+diff --git a/projects/chirality-piping/core/product_physics/src/lib.rs b/projects/chirality-piping/core/product_physics/src/lib.rs
+index 1467a2fc89..a4bb593843 100644
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -114,6 +114,8 @@ mod preview_physics;
+ mod retained_product;
+ mod retained_receipt;
+ mod retained_memory;
++// I61 U1: the private serializer (production-unreachable until U3).
++mod retained_wire;
+ pub use retained_memory::{
+     borrowed_request_census, borrowed_value_census, AllowanceStatus, BorrowedRequestFacts,
+     BorrowedValueFacts, CapacityFact, CensusStatus, HeadlessRootFacts, MissingAdmissionTerm,
+@@ -121,6 +123,8 @@ pub use retained_memory::{
+ };
+ #[cfg(test)]
+ mod retained_product_tests;
++#[cfg(test)]
++mod retained_wire_tests;
+ pub use pressure_runtime::{PressureContractInput, PressureRegionInput, PressureTerminalInput};
+ 
+ const DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_POLICY_REF: &str =
+@@ -3539,6 +3543,10 @@ fn solve_load_case_observed(
+         |dof| integrity_dof_label(model, dof),
+         &load_case.id,
+     );
++    // I61 U1 (G-b): the typed finding; its disclosure, if any, is set at the report.
++    if let Some(observer) = product.as_deref_mut() {
++        observer.ordinary_finding(&load_case.id, load_row_finding.as_ref());
++    }
+ 
+     // F1b: the basis's formed values (none when its range refusal was
+     // deferred, ROOT Q2).
+@@ -3657,6 +3665,10 @@ fn solve_load_case_observed(
+         // range refusal; nothing was formed to attempt.
+         BasisStiffness::RangeDeferred(error) => Err(OrdinaryFailure::Formation(error.clone())),
+     };
++    // I61 U1 (G-b; C2 §5): the initial failure, captured before W2 consumes it.
++    if let (Some(observer), Err(failure)) = (product.as_deref_mut(), &attempted_linear) {
++        observer.ordinary_initial_failure(&load_case.id, failure);
++    }
+     let report_sensitive = matches!(&attempted_linear, Ok(solve) if solve.structural_report.quality == SolveQuality::Sensitive);
+     let attempt_err = attempted_linear.is_err();
+     let needs_source_recovery =
+@@ -3697,6 +3709,8 @@ fn solve_load_case_observed(
+         // route would not attempt (report Passed, no Err) is declined for its
+         // load-row finding without running an attempt, so the invocation
+         // ledger equals the unguarded one.
++        // I61 U1 (G-l; D39): whether an actual `solve_ordinary` attempt ran.
++        let mut legacy_attempted = false;
+         let attempt = if !crate::needs_source_recovery(report_sensitive, attempt_err, None) {
+             Err(source_recovery::formation_decline_without_attempt())
+         } else if formed.is_none() {
+@@ -3707,6 +3721,7 @@ fn solve_load_case_observed(
+             Err(source_recovery::range_formation_decline_without_attempt())
+         } else {
+             source_budget.attempts += 1;
++            legacy_attempted = true;
+             let case_limit = source_budget.case_limit();
+             source_recovery::solve_ordinary(
+                 recovery_input(),
+@@ -3756,10 +3771,18 @@ fn solve_load_case_observed(
+                     format!("The bounded retained-source method did not produce a selected response: {failure:?}{withheld}"),
+                     vec![load_case.id.clone()],
+                 ));
++                // I61 U1 (G-l; C2:160-162): the typed failure and its actual WorkReport.
++                if let (Some(observer), Some(record)) = (product.as_deref_mut(), diagnostics.last()) {
++                    observer.ordinary_legacy_failure(&load_case.id, legacy_attempted, &failure, &record.id);
++                }
+                 source_failure = Some(failure);
+             }
+         }
+     }
++    // I61 U1 (G-l; D39): the route rows that carry no RecoveryFailure.
++    if let Some(observer) = product.as_deref_mut() {
++        observer.ordinary_legacy_route(&load_case.id, source_eligible, needs_source_recovery, selected_source.is_some());
++    }
+     if load_state.is_some() && selected_source.is_none() {
+         let attempt = if !needs_source_recovery {
+             "not_required_ordinary_checks_passed"
+@@ -3829,6 +3852,10 @@ fn solve_load_case_observed(
+                     solver_mode,
+                 ) {
+                     Ok((solve, publication)) => {
++                        // I61 U1 (G-b): W2 published at b != 0.
++                        if let Some(observer) = product.as_deref_mut() {
++                            observer.ordinary_w2_published(&load_case.id, &trigger, publication.force_scale_exponent);
++                        }
+                         w2_publication = Some(publication);
+                         Some(solve)
+                     }
+@@ -3840,6 +3867,10 @@ fn solve_load_case_observed(
+                             &trigger,
+                             model,
+                         );
++                        // I61 U1 (G-b): W2's actual failure, before the early return.
++                        if let (Some(observer), Some(record)) = (product.as_deref_mut(), diagnostics.last()) {
++                            observer.ordinary_w2_failed(&load_case.id, &trigger, &refusal, &record.id);
++                        }
+                         return Ok(LoadCaseSolve {
+                 load_state_evidence: None,
+                 pressure_evidence: Vec::new(),
+@@ -3867,6 +3898,10 @@ fn solve_load_case_observed(
+                 // actual error alone.
+                 (None, OrdinaryFailure::Structural(error)) => {
+                     append_integrity_failure(diagnostics, &load_case.id, &error, model);
++                    // I61 U1 (G-b): the initial failure's own integrity diagnostic.
++                    if let (Some(observer), Some(record)) = (product.as_deref_mut(), diagnostics.last()) {
++                        observer.ordinary_failure_diagnostic(&load_case.id, &record.id);
++                    }
+                     return Ok(LoadCaseSolve {
+                 load_state_evidence: None,
+                 pressure_evidence: Vec::new(),
+@@ -4025,6 +4060,16 @@ fn solve_load_case_observed(
+                 linear.formation_check.as_ref(),
+                 w2_publication.as_ref(),
+             );
++            // I61 U1 (G-b): the published report; `demote` discloses the finding
++            // only on a Passed report, and K-D5's record is one line of it.
++            if let (Some(observer), Some(record)) = (product.as_deref_mut(), diagnostics.last()) {
++                observer.ordinary_report(
++                    &load_case.id,
++                    record,
++                    load_row_finding.is_some() && linear.structural_report.quality != SolveQuality::Sensitive,
++                    linear.formation_check.is_some(),
++                );
++            }
+             if let Some(report) = &linear.load_fidelity {
+                 append_load_contribution_absorbed(diagnostics, &load_case.id, report);
+             }
+@@ -4891,11 +4936,15 @@ fn solve_load_case_observed(
+         if let Some(finding) =
+             formation_guard::recovery_finding(&recovery_records, &scales, &load_case.id)
+         {
+-            formation_guard::amend_integrity_report(
++            let demoted = formation_guard::amend_integrity_report(
+                 diagnostics,
+                 &integrity_diagnostic_id(&load_case.id),
+                 &finding,
+             );
++            // I61 U1 (G-b): no wire member carries R-b''s finding.
++            if let (true, Some(observer)) = (demoted, product.as_deref_mut()) {
++                observer.ordinary_recovery_demoted(&load_case.id);
++            }
+         }
+     }
+     require_finite_mechanics(results.iter().map(|row| row.value))?;
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_product.rs b/projects/chirality-piping/core/product_physics/src/retained_product.rs
+index bba370af01..f638db8da8 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_product.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_product.rs
+@@ -131,8 +131,160 @@ pub(super) struct ProductCapture {
+     pub source_correction_calls: Option<k::WorkTotal>,
+     pub work: String,
+     pub capacities: Vec<(&'static str, usize)>,
++    /// G-b/G-l (I61 U1): each solved case's actual ordinary attempt, captured
++    /// typed at its sites in `solve_load_case_observed` (C2 §5; D39). Only an
++    /// installed observer records it; the observer=None route is unchanged.
++    pub ordinary: Vec<OrdinarySeed>,
++}
++/// G-b/G-l (I61 U1): one case's ordinary attempt as the route actually ran it.
++/// Diagnostic references are the ids of the diagnostics actually pushed; no
++/// diagnostic text is read back. Payloads are owned copies made only while an
++/// observer is installed (memory: counted by U4, not by the adapter arrays).
++#[derive(Debug, Clone)]
++pub(super) struct OrdinarySeed {
++    pub case: String,
++    /// None until the initial attempt's outcome is known (a case that returns
++    /// before its solve keeps None: its not-attempted cause is not captured).
++    pub initial: Option<InitialSeed>,
++    pub w2: W2Seed,
++    pub load_row_finding: Option<FindingSeed>,
++    pub d5_diagnostic_ref: Option<String>,
++    /// R-b' (`amend_integrity_report`) demoted the published verdict after the
++    /// report: no wire member carries that finding, so the serializer declines.
++    pub recovery_demoted: bool,
++    pub legacy: Option<LegacySeed>,
++}
++/// C2 §5 `initial`, before any W2 consumption of the attempt.
++#[derive(Debug, Clone)]
++pub(super) enum InitialSeed {
++    /// The actual successful ordinary solve: its integrity diagnostic as published
++    /// (code after load-row/D5 demotion; R-b' tracked separately).
++    Report { code: String, report_diagnostic_ref: String },
++    /// An actual attempted solve failure; the reference is the diagnostic emitted
++    /// for it before any W2, else None.
++    StructuralFailure { error: StructuralError, diagnostic_ref: Option<String> },
++    /// A deferred unformed basis (F1b): its formation `NumericalRange`.
++    FormationFailure { error: FrameKernelError },
++}
++/// C2 §5 `w2`.
++#[derive(Debug, Clone, Default)]
++pub(super) enum W2Seed {
++    #[default]
++    NotTriggered,
++    Published { trigger: RangeTrigger, force_scale_exponent: i32, report_diagnostic_ref: Option<String> },
++    Failed { trigger: RangeTrigger, failure: ForceScalingFailure, diagnostic_ref: String },
++}
++/// The S11-G load-row finding and the diagnostic that discloses it, if any.
++#[derive(Debug, Clone)]
++pub(super) struct FindingSeed {
++    pub sentence: String,
++    pub fired: Vec<String>,
++    pub diagnostic_ref: Option<String>,
++}
++/// G-l with D39 (ROOT, 2026-10-04): the legacy source route's actual branch.
++#[derive(Debug, Clone)]
++pub(super) enum LegacySeed {
++    /// `!source_eligible`.
++    NotEligible,
++    /// `source_eligible && !needs_source_recovery`.
++    NotRequired,
++    /// A formation-guard or range-formation decline (no attempt; WorkReport 0/0/0).
++    DeclinedWithoutAttempt { work: LegacyWork, diagnostic_ref: String },
++    /// An actual `solve_ordinary` attempt that did not select.
++    Unavailable { work: LegacyWork, diagnostic_ref: String },
++    /// `Ok(recovery)`: exact-block selected; coexistence bypass (D-15), no successor.
++    ExactSelected,
++}
++/// The typed `RecoveryFailure` stage and its actual `WorkReport`.
++#[derive(Debug, Clone, Copy, PartialEq, Eq)]
++pub(super) struct LegacyWork {
++    pub stage: &'static str,
++    pub helper_stage: open_pipe_stress_frame_kernel::structural::exact_boundary::functionals::AttemptStage,
++    pub charged: usize,
++    pub rejected: usize,
++    pub limit: usize,
+ }
+ impl ProductCapture {
++    fn ordinary_seed(&mut self, case: &str) -> &mut OrdinarySeed {
++        if self.ordinary.last().is_none_or(|seed| seed.case != case) {
++            self.ordinary.push(OrdinarySeed {
++                case: case.to_owned(), initial: None, w2: W2Seed::NotTriggered, load_row_finding: None,
++                d5_diagnostic_ref: None, recovery_demoted: false, legacy: None,
++            });
++        }
++        let last = self.ordinary.len() - 1;
++        &mut self.ordinary[last]
++    }
++    /// G-b: the S11-G load-row finding, before the solve (its disclosure, if any, at the report).
++    pub(super) fn ordinary_finding(&mut self, case: &str, finding: Option<&formation_guard::FormationFinding>) {
++        let seed = self.ordinary_seed(case);
++        seed.load_row_finding = finding.map(|f| FindingSeed { sentence: f.sentence.clone(), fired: f.fired.clone(), diagnostic_ref: None });
++    }
++    /// G-b: the initial attempt's failure, before W2 consumes it.
++    pub(super) fn ordinary_initial_failure(&mut self, case: &str, failure: &OrdinaryFailure) {
++        self.ordinary_seed(case).initial = Some(match failure {
++            OrdinaryFailure::Structural(error) => InitialSeed::StructuralFailure { error: error.clone(), diagnostic_ref: None },
++            OrdinaryFailure::Formation(error) => InitialSeed::FormationFailure { error: error.clone() },
++        });
++    }
++    /// G-b: the initial structural failure's own integrity diagnostic (no W2).
++    pub(super) fn ordinary_failure_diagnostic(&mut self, case: &str, diagnostic_ref: &str) {
++        if let Some(InitialSeed::StructuralFailure { diagnostic_ref: slot, .. }) = &mut self.ordinary_seed(case).initial {
++            *slot = Some(diagnostic_ref.to_owned());
++        }
++    }
++    /// G-l: the typed `RecoveryFailure` at the attempt's `Err` arm (D39).
++    pub(super) fn ordinary_legacy_failure(&mut self, case: &str, attempted: bool,
++        failure: &source_recovery::RecoveryFailure, diagnostic_ref: &str) {
++        let work = LegacyWork { stage: failure.stage, helper_stage: failure.helper_stage, charged: failure.work.charged,
++            rejected: failure.work.rejected, limit: failure.work.limit };
++        let diagnostic_ref = diagnostic_ref.to_owned();
++        self.ordinary_seed(case).legacy = Some(if attempted {
++            LegacySeed::Unavailable { work, diagnostic_ref }
++        } else {
++            LegacySeed::DeclinedWithoutAttempt { work, diagnostic_ref }
++        });
++    }
++    /// G-l: the branches without a `RecoveryFailure` (D39 rows 1, 2 and 5).
++    pub(super) fn ordinary_legacy_route(&mut self, case: &str, source_eligible: bool, needs_source_recovery: bool, exact_selected: bool) {
++        let seed = self.ordinary_seed(case);
++        if !source_eligible {
++            seed.legacy = Some(LegacySeed::NotEligible);
++        } else if !needs_source_recovery {
++            seed.legacy = Some(LegacySeed::NotRequired);
++        } else if exact_selected {
++            seed.legacy = Some(LegacySeed::ExactSelected);
++        }
++    }
++    /// G-b: W2 published at b != 0 (its report reference is set at the report).
++    pub(super) fn ordinary_w2_published(&mut self, case: &str, trigger: &RangeTrigger, force_scale_exponent: i32) {
++        self.ordinary_seed(case).w2 = W2Seed::Published { trigger: trigger.clone(), force_scale_exponent, report_diagnostic_ref: None };
++    }
++    /// G-b: W2's actual failure and the diagnostic it emitted, before the early return.
++    pub(super) fn ordinary_w2_failed(&mut self, case: &str, trigger: &RangeTrigger, failure: &ForceScalingFailure, diagnostic_ref: &str) {
++        self.ordinary_seed(case).w2 = W2Seed::Failed { trigger: trigger.clone(), failure: failure.clone(), diagnostic_ref: diagnostic_ref.to_owned() };
++    }
++    /// G-b: the integrity report actually published for the case's solve.
++    pub(super) fn ordinary_report(&mut self, case: &str, record: &Diagnostic, finding_disclosed: bool, d5_line: bool) {
++        let seed = self.ordinary_seed(case);
++        match &mut seed.w2 {
++            W2Seed::Published { report_diagnostic_ref, .. } => *report_diagnostic_ref = Some(record.id.clone()),
++            _ if seed.initial.is_none() => {
++                seed.initial = Some(InitialSeed::Report { code: record.code.clone(), report_diagnostic_ref: record.id.clone() });
++            }
++            _ => {}
++        }
++        if let (Some(finding), true) = (&mut seed.load_row_finding, finding_disclosed) {
++            finding.diagnostic_ref = Some(record.id.clone());
++        }
++        if d5_line {
++            seed.d5_diagnostic_ref = Some(record.id.clone());
++        }
++    }
++    /// G-b: R-b' demoted the case's published integrity report after the report.
++    pub(super) fn ordinary_recovery_demoted(&mut self, case: &str) {
++        self.ordinary_seed(case).recovery_demoted = true;
++    }
+     pub(super) fn invocation(
+         &mut self,
+         capture: Option<&source_receipt::CapturedInvocation>,
+@@ -3339,9 +3491,11 @@ pub(super) struct PreparedCandidateRefusal {
+     pub certificate:Option<k::CertifiedProductProof>,pub values:Option<k::FrozenProductValues>,
+ }
+ pub(super) struct PrivatePreparedCandidate { envelope:MechanicsEnvelope,prepared:PreparedCase,
+-    pub certificate:k::CertifiedProductProof }
++    certificate:k::CertifiedProductProof }
+ impl PrivatePreparedCandidate {
+     pub(super) fn envelope(&self)->&MechanicsEnvelope{&self.envelope}
++    /// U2: read-only; the serializer binds it to the selected owner structurally.
++    pub(super) fn certificate(&self)->&k::CertifiedProductProof{&self.certificate}
+     pub(super) fn capture(&self)->&ProductCapture{&self.prepared.capture}
+     pub(super) fn local_work(&self)->(&ScalarWork,&[PreparedAssociation]){(&self.prepared.overlay_work,&self.prepared.associations)}
+ }
+@@ -3583,6 +3737,11 @@ impl PreparedCandidateRefusal {
+ }
+ #[cfg(test)]
+ impl PrivatePreparedCandidate {
++    /// I61 U2 control: exchange the certified proofs of two candidates whose public
++    /// facts are identical, so each carries a proof of a foreign selected owner.
++    pub(super) fn test_swap_certificate(&mut self, other: &mut Self) {
++        std::mem::swap(&mut self.certificate, &mut other.certificate);
++    }
+     pub(super) fn test_reentry(mut self)->(PreparedCandidateRefusal,k::CertifiedProductProof) {
+         let counts=self.prepared.capture.adapter.counts.get();
+         self.prepared.ordinary=Some(self.envelope);
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs b/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs
+index 697fc0d5e0..b4ec43f252 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs
+@@ -2591,14 +2591,14 @@ fn i51_complete_prepared_candidate_both_modes() {
+         match prepared.project_candidate() {
+             Ok(candidate)=>{
+                 println!("I51_CANDIDATE mode={} committed_private=true",mode.as_str());
+-                assert!(candidate.certificate.passed());
++                assert!(candidate.certificate().passed());
+                 let (work,associations)=candidate.local_work();assert_eq!(work.entered,3);assert!(!work.lost);
+                 assert_eq!(associations.len(),1);assert_eq!(associations[0].old_source[5],0x3f0c52664442210e);
+                 assert_eq!(associations[0].old_facts[3],associations[0].old_source[3]);
+                 assert_eq!(associations[0].old_facts[4],associations[0].old_source[5]);
+                 assert_eq!(associations[0].prepared,[0x3f7872fa3a37ac13,0x3efc52664442210a,0x3f0c52664442210a,0x3f31b37feaa954a6,0x3fb999999999999a]);
+                 println!("I51_ASSOCIATION mode={} {:?}",mode.as_str(),candidate.local_work());
+-                assert_eq!(candidate.certificate.work().source_correction_calls().unwrap().exact(),Ok(2));
++                assert_eq!(candidate.certificate().work().source_correction_calls().unwrap().exact(),Ok(2));
+                 i50_dump(candidate.envelope(),candidate.capture(),mode);
+             }
+             Err(failure)=>{
+@@ -2720,7 +2720,7 @@ fn i51_owned_ordinary_cannot_be_substituted_after_finish() {
+     let candidate=match prepared.project_candidate(){Ok(c)=>c,Err(e)=>panic!("{:?}",e.error)};
+     let actual=candidate.envelope();assert_eq!((&actual.schema_version,&actual.producer,&actual.document_kind,&actual.run_id,&actual.model_ref,&actual.status),
+         (&expected.0,&expected.1,&expected.2,&expected.3,&expected.4,&expected.5));assert!(actual.source_block_recovery.is_none());
+-    assert_ne!(actual.run_id,substitute.run_id);assert!(candidate.certificate.passed());
++    assert_ne!(actual.run_id,substitute.run_id);assert!(candidate.certificate().passed());
+ }
+ 
+ fn prepared_trace_observed()->(ProductCapture,MechanicsEnvelope) {
+@@ -2949,10 +2949,10 @@ fn i61_ready_carries_complete_proof_owned_coverage_and_lower_p_charge_is_estimat
+         let mut reads=retained_receipt::ProjectionWork::default();let view=candidate.typed_trace(&mut reads).unwrap();
+         let owner=i61_owner(candidate.capture());let p=owner.selected_precision();
+         assert!(p==128||p==256);assert!(owner.evidence().floor.is_none());
+-        i61_assert_roster(&view,owner,candidate.certificate.summary_coverage());
++        i61_assert_roster(&view,owner,candidate.certificate().summary_coverage());
+         let proof=view.proof.as_ref().unwrap();assert_eq!(proof.projection_conversions.exact(),Ok(88),"fixed 1024 projection ran");
+         for c in proof.summary_coverage {assert_eq!(c.charge,c.estimate);}
+-        assert_eq!(candidate.capture().summary_coverage,candidate.certificate.summary_coverage(),"adapter copy complete on Ready");
++        assert_eq!(candidate.capture().summary_coverage,candidate.certificate().summary_coverage(),"adapter copy complete on Ready");
+         assert!(reads.kernel.events.exact().unwrap()>=4 && !reads.local.lost);
+         println!("I61_PP_LAYOUT SummaryCoverage={} CoverageBody={} PreparedAttemptView={}",std::mem::size_of::<retained_receipt::SummaryCoverage<'static>>(),
+             std::mem::size_of::<retained_receipt::CoverageBody>(),std::mem::size_of::<retained_receipt::PreparedAttemptView<'static>>());
+@@ -2976,8 +2976,8 @@ fn i61_specimen_zero_and_cancelled_bodies_keep_actual_flags() {
+         prepared.solve_native().unwrap();
+         let (view_coverage,proof):(Vec<_>,Vec<k::ProductSummaryCoverage>)=match prepared.project_candidate() {
+             Ok(candidate)=>{let mut reads=retained_receipt::ProjectionWork::default();let view=candidate.typed_trace(&mut reads).unwrap();
+-                i61_assert_roster(&view,i61_owner(candidate.capture()),candidate.certificate.summary_coverage());
+-                (i61_complete(&view).bodies().collect(),candidate.certificate.summary_coverage().to_vec())},
++                i61_assert_roster(&view,i61_owner(candidate.capture()),candidate.certificate().summary_coverage());
++                (i61_complete(&view).bodies().collect(),candidate.certificate().summary_coverage().to_vec())},
+             Err(refusal)=>{let mut reads=retained_receipt::ProjectionWork::default();let view=refusal.typed_trace(&mut reads).unwrap();
+                 println!("I61_SPECIMEN {label} refusal={:?}",refusal.error);
+                 let proof=view.proof.as_ref().unwrap().summary_coverage.to_vec();
+@@ -3034,7 +3034,7 @@ fn i61_failure_prefixes_null_complete_and_adapter_prefix() {
+     let (_,prepared)=i51_ready_for_controls();let before=prepared.capture().adapter.counts.get()[E::MapWrite as usize];
+     let candidate=match prepared.project_candidate(){Ok(c)=>c,Err(e)=>panic!("{:?}",e.error)};
+     let writes=candidate.capture().adapter.counts.get()[E::MapWrite as usize]-before;
+-    let rows=candidate.certificate.verdicts().len();let nb=candidate.certificate.summary_coverage().len();drop(candidate);
++    let rows=candidate.certificate().verdicts().len();let nb=candidate.certificate().summary_coverage().len();drop(candidate);
+     let probe=|allowed:u64|{let (_,prepared)=i51_ready_for_controls();let mut counts=prepared.capture().adapter.counts.get();
+         counts[E::MapWrite as usize]=u64::MAX-allowed;prepared.capture().adapter.counts.set(counts);
+         match prepared.project_candidate(){Err(e)=>e,Ok(_)=>panic!("permit {allowed} committed")}};
+@@ -3123,9 +3123,11 @@ fn i61_certificate_prefixes_and_stage_rules_with_actual_fk_proofs() {
+         assert!(matches!(project(&trace,prepared.capture(),&[],&[],&ZERO,ResultRef::Unavailable(FailureRef::Proof(late.failure())),
+             Some(late.work()),failure,None,&mut ProjectionWork::default()),Err(T::StageConsistency)),"defect {defect}");
+     }
+-    // Documented custody limit (I57 §5, RV77-N3): a proof projected against a different
+-    // selected owner with identical public facts is NOT refused by this seam. Owner identity
+-    // rests on producer custody; a later structural binding must flip this assertion deliberately.
++    // Documented custody limit (I57 §5, RV77-N3): a proof *failure* projected against a
++    // different selected owner with identical public facts is NOT refused by this seam.
++    // U2 (I61 U1 grant 1) flips this deliberately for the certified path: the serializer
++    // refuses a foreign owner structurally (retained_wire_tests::u2_foreign_owner_refused).
++    // The failure seam keeps custody binding until a refusal is serialized (U1 grant 2).
+     let (_,other)=i51_ready_for_controls();let mut capture_trace=i61_stage_trace(other.capture(),Some(false),false);capture_trace.source_ready=true;
+     let view=project(&capture_trace,other.capture(),&[],&[],&ZERO,ResultRef::Unavailable(FailureRef::Proof(late.failure())),
+         Some(late.work()),Some(late.failure()),None,&mut ProjectionWork::default());
+diff --git a/projects/chirality-piping/core/product_physics/src/s11g_tests.rs b/projects/chirality-piping/core/product_physics/src/s11g_tests.rs
+index 3d83bf9528..1ff43f2932 100644
+--- a/projects/chirality-piping/core/product_physics/src/s11g_tests.rs
++++ b/projects/chirality-piping/core/product_physics/src/s11g_tests.rs
+@@ -1718,6 +1718,27 @@ fn t13b_already_sensitive_case_is_left_untouched() {
+     }
+ }
+ 
++/// I61 U1 (G-b): T13b's case through the observed route. The load-row finding
++/// is captured typed but, the report being already Sensitive, `demote` leaves it
++/// undisclosed, so its diagnostic reference stays null; the ordinary bytes are
++/// unchanged by the capture.
++#[test]
++fn u1_already_sensitive_finding_is_captured_undisclosed() {
++    let request = n05_request(vec![n05_tip_noise("case")]);
++    for mode in MODES {
++        let plain = serde_json::to_vec(&run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap();
++        let (typed, capture) = source_receipt::CapturedInvocation::parse(request.clone(), mode).unwrap();
++        let mut observer = crate::retained_product::ProductCapture::prepared_probe();
++        let observed = run_linear_static_preview_observed(typed, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
++        assert_eq!(serde_json::to_vec(&observed).unwrap(), plain, "{mode:?}: capture leaves the ordinary bytes unchanged");
++        let [seed] = &observer.ordinary[..] else { panic!("one seed") };
++        assert!(matches!(&seed.initial, Some(crate::retained_product::InitialSeed::Report { code, .. }) if code == "NUMERICAL_INTEGRITY_SENSITIVE"), "{mode:?}: {:?}", seed.initial);
++        let finding = seed.load_row_finding.as_ref().expect("the load-row guard fires");
++        assert!(!finding.sentence.is_empty(), "{mode:?}");
++        assert_eq!(finding.diagnostic_ref, None, "{mode:?}: already Sensitive, so the finding is not disclosed");
++    }
++}
++
+ /// The invented bend of S11-F's F8 on a 2 m chord (OD 0.168 m, wall 0.007 m).
+ fn curved_body(model: &mut Value, prefix: &str, origin: f64, loads: Vec<Value>) {
+     let n0 = format!("{prefix}0");
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs
+index baab4e767b..226fcc34af 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs
+@@ -1848,6 +1848,9 @@ impl CertifiedProductProof {
+     pub fn summary_coverage(&self)->&[ProductSummaryCoverage] {&self.work.coverage}
+     pub fn work(&self)->&ProductCertificateSpent<'static> {&self.work}
+     pub fn matches_values(&self,values:&FrozenProductValues)->bool {std::sync::Arc::ptr_eq(&self.anchor,&values.anchor)}
++    /// RV77-N4 (I61 U2): whether this proof was started on `owner`'s own prepared
++    /// solve. Structural owner binding through the proof anchor, not custody.
++    pub fn owner_matches(&self,owner:&adaptive::RetainedSolve)->bool {self.anchor.matches_owner(owner)}
+ }
+ pub struct ProductFinalSpent {result:Result<CertifiedProductProof,ProductProofFailure>}
+ impl ProductFinalSpent {pub fn into_ready(self)->Result<CertifiedProductProof,ProductProofFailure>{self.result}}

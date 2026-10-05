@@ -1,0 +1,45 @@
+{
+  "sealed_utc": "2026-10-03T06:26:24.537571+00:00",
+  "checkpoint": "0",
+  "files": [
+    {
+      "path": "EXECUTION.json",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/first_publishing_component_01/EXECUTION.json",
+      "bytes": 5636,
+      "sha256": "49f65e452bed330be86fec268b557fe174eec0df55c0955a7012e1fcd23369ba"
+    },
+    {
+      "path": "NAMED_REQUEST.json",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/first_publishing_component_01/NAMED_REQUEST.json",
+      "bytes": 2747,
+      "sha256": "2aa51bee095186b95463567f190198f82a69557a569bf8a6a7b318aad37ab0b1"
+    },
+    {
+      "path": "ORIGINS.json",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/first_publishing_component_01/ORIGINS.json",
+      "bytes": 17673,
+      "sha256": "8dcf764593d4c806e57be1b383400a6661153510292231b0735476d3f70874f3"
+    },
+    {
+      "path": "RETURN.md",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/first_publishing_component_01/RETURN.md",
+      "bytes": 15993,
+      "sha256": "5a21abd41ca53c5b2ae89501b91cbaa1bcca5955914a81ce430711b50d1728ba"
+    },
+    {
+      "path": "SOURCE_CHECK.json",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/first_publishing_component_01/SOURCE_CHECK.json",
+      "bytes": 4055,
+      "sha256": "e5602f91569f8ab10f7bacf98c331ca4447bbd93a4a63860569b62d9be43c91f"
+    },
+    {
+      "path": "source_check.py",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/first_publishing_component_01/source_check.py",
+      "bytes": 5202,
+      "sha256": "549bba094b2ee06e2bff35f7621b66a989edab812f169f87fa44a7fc0196ae5f"
+    }
+  ],
+  "payload_count_excluding_seal": 6,
+  "external_bulk": [],
+  "next_authority": "ROOT exact grant for checkpoint A; B/D not executed"
+}

@@ -1,0 +1,30 @@
+{
+  "pins": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV60_PRODUCT_VERTICAL_IMPLEMENTATION_REVIEW.md",
+      "revision": "d33541e51a77c1f90bc291e8f32a4d6af2b2d95e",
+      "equal": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I45_PRODUCT_VERTICAL_SUPPLEMENT_01.md",
+      "revision": "65a23ea1567dd4e42db4d12aed3e1a911931aa7c",
+      "equal": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I45/product_vertical_01/RETURN.md",
+      "revision": "24f24e98ba8bb7f0de2483a07716ff4b45a92630",
+      "equal": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV59/product_vertical_01/REVIEW.md",
+      "revision": "5691d7f7b3d0",
+      "equal": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV59/product_vertical_g5a_02/REVIEW.md",
+      "revision": "00bb882c5592096a39c1c2113a548288e0df3afa",
+      "equal": true
+    }
+  ],
+  "maintained_basis_to_base_core_delta": ""
+}

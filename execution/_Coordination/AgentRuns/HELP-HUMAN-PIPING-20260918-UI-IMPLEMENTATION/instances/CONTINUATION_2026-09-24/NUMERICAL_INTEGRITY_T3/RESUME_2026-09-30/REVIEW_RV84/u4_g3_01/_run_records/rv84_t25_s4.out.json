@@ -1,0 +1,67 @@
+{
+ "U16384_EPS2": {
+  "payload_facts": {
+   "arr": 76928,
+   "obj": 26754,
+   "ent": 81081,
+   "arrays": 34355,
+   "strb": 3772970,
+   "keyb": 712185,
+   "nums": 27040
+  },
+  "payload_e": 10171165,
+  "plan_e": 42797434,
+  "S4_core_rv84": 563157457
+ },
+ "U16384_EPS6": {
+  "payload_facts": {
+   "arr": 76928,
+   "obj": 26754,
+   "ent": 81081,
+   "arrays": 34355,
+   "strb": 3772970,
+   "keyb": 712185,
+   "nums": 27040
+  },
+  "payload_e": 25263045,
+  "plan_e": 122452846,
+  "S4_core_rv84": 956542313
+ },
+ "U41760_EPS2": {
+  "payload_facts": {
+   "arr": 102304,
+   "obj": 52130,
+   "ent": 157209,
+   "arrays": 85107,
+   "strb": 4178986,
+   "keyb": 1524217,
+   "nums": 52416
+  },
+  "payload_e": 13216285,
+  "plan_e": 52364186,
+  "S4_core_rv84": 862040913
+ },
+ "U41760_EPS6": {
+  "payload_facts": {
+   "arr": 102304,
+   "obj": 52130,
+   "ent": 157209,
+   "arrays": 85107,
+   "strb": 4178986,
+   "keyb": 1524217,
+   "nums": 52416
+  },
+  "payload_e": 29932229,
+  "plan_e": 147346702,
+  "S4_core_rv84": 1323230441
+ },
+ "packet_S4_stage": {
+  "EPS2": 511364855,
+  "EPS6": 783153911,
+  "note": "includes carried case outputs 51,639,470"
+ },
+ "packet_payload_facts": {
+  "arr": 63200,
+  "obj": null
+ }
+}

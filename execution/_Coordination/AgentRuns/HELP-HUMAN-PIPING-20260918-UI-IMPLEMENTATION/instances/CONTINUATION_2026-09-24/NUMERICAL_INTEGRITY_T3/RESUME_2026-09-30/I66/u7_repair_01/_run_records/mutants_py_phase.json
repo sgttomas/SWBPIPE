@@ -1,0 +1,34 @@
+[
+ {
+  "id": "P1_py_condition_removed_own_cases",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_classification_summary_counts_validated_classes[dense_scrutiny]"
+  ],
+  "seconds": 47.1
+ },
+ {
+  "id": "P2_py_always_current",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_declared_differences_python"
+  ],
+  "seconds": 8.9
+ },
+ {
+  "id": "P3_py_never_current",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_classification_summary_counts_validated_classes[dense_scrutiny]"
+  ],
+  "seconds": 47.7
+ },
+ {
+  "id": "P4_py_refs_dropped_at_entry",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_classification_summary_counts_validated_classes[dense_scrutiny]"
+  ],
+  "seconds": 46.9
+ }
+]

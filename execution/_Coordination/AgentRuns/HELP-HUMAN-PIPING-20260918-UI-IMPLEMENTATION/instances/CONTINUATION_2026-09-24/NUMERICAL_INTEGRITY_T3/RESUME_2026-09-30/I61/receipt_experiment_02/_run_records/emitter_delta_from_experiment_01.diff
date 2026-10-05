@@ -1,0 +1,165 @@
+--- WT/scratch/i61_receipt_experiment_01/prod/projects/chirality-piping/core/product_physics/src/i61_receipt_probe.rs	2026-10-03 19:03:13
++++ WT/scratch/i61_receipt_experiment_02/prod/projects/chirality-piping/core/product_physics/src/i61_receipt_probe.rs	2026-10-03 19:47:32
+@@ -133,7 +133,7 @@
+ 
+ /// Envelope transformation (provisional, experiment-local): the readers' successor identity,
+ /// row tokens on selected rows, and one RETAINED_PRECISION_* diagnostic per case.
+-fn successor_envelope(mut env: Value, case_id: &str, selected: bool, prov_: &mut Vec<(String,String)>) -> (Value, String) {
++fn successor_envelope(mut env: Value, case_id: &str, selected: bool, prov_: &mut Vec<(String,String)>) -> (Value, String, Option<Value>) {
+     env["producer"]["semantic_contract_id"] = json!(RETAINED_ID);
+     env["formulation_basis"]["profile_id"] = json!(RETAINED_PROFILE);
+     prov(prov_, "envelope.producer.semantic_contract_id", "CONTRACT-ONLY: semantic table id (READER fixture); producer has no constant");
+@@ -144,10 +144,18 @@
+         }
+         prov(prov_, "envelope.results[].recovery_method", "CONTRACT-ONLY: METHOD token on every row of the selected case");
+     }
+-    if selected && std::env::var("I61_VARIANT").as_deref()==Ok("drop_source_diag") {
+-        env["diagnostics"].as_array_mut().unwrap().retain(|d| !(d["code"]=="SOURCE_BLOCK_RECOVERY_UNAVAILABLE"
+-            && d["affected_refs"].as_array().is_some_and(|a| a.iter().any(|r| r==case_id))));
+-        prov(prov_, "PROBE-B", "COUNTERFACTUAL ONLY: SOURCE_BLOCK_RECOVERY_UNAVAILABLE removed from a selected case; not a contract reading");
++    // T1 option (a), owner-confirmed (ROOT ruling "T1 confirmed by the owner"): on a
++    // retained-selected case the successor omits the legacy disclosure naming it.
++    let mut legacy_omitted = None;
++    if selected {
++        let diags = env["diagnostics"].as_array_mut().unwrap();
++        if let Some(i) = diags.iter().position(|d| d["code"]=="SOURCE_BLOCK_RECOVERY_UNAVAILABLE"
++            && d["affected_refs"].as_array().is_some_and(|a| a.iter().any(|r| r==case_id))) {
++            legacy_omitted = Some(diags.remove(i));
++            assert!(!diags.iter().any(|d| d["code"]=="SOURCE_BLOCK_RECOVERY_UNAVAILABLE"
++                && d["affected_refs"].as_array().is_some_and(|a| a.iter().any(|r| r==case_id))), "single legacy disclosure");
++        }
++        prov(prov_, "envelope.diagnostics[-SOURCE_BLOCK_RECOVERY_UNAVAILABLE]", "T1 (a): omitted on the retained-selected case (owner-confirmed); unselected/fallback bytes unchanged");
+     }
+     let id = format!("diagnostic:retained-precision:{case_id}");
+     let (code, severity, message) = if selected {
+@@ -157,10 +165,21 @@
+     };
+     env["diagnostics"].as_array_mut().unwrap().push(json!({"id":id,"code":code,"severity":severity,"message":message,"source":"core/product_physics","affected_refs":[case_id]}));
+     prov(prov_, "envelope.diagnostics[+RETAINED_PRECISION_*]", "EXPERIMENT TEXT: id/message/severity chosen by the emitter (no producer or table text)");
+-    (env, id)
++    (env, id, legacy_omitted)
+ }
+ 
+-fn ordinary_attempt(env: &Value, case_index: usize, case_id: &str, mode: PreviewSolverMode, prov_: &mut Vec<(String,String)>) -> Value {
++/// PRODUCER GAP: the typed RecoveryFailure/WorkReport is not captured by the private driver;
++/// the experiment reads the actual values back from the actual diagnostic's message.
++fn legacy_work(case_index: usize, message: &str) -> Value {
++    let after = |key: &str| -> &str { let i = message.find(key).unwrap_or_else(|| panic!("{key} in {message}")) + key.len(); &message[i..] };
++    let stage = { let t = after("stage: \""); &t[..t.find('"').unwrap()] };
++    let helper = { let t = after("helper_stage: "); &t[..t.find(|c: char| c==',' || c==' ').unwrap()] };
++    let helper_snake: String = helper.chars().enumerate().flat_map(|(i,c)| if c.is_uppercase() && i>0 {vec!['_', c.to_ascii_lowercase()]} else {vec![c.to_ascii_lowercase()]}).collect();
++    let work = after("WorkReport {");
++    let num = |key: &str| -> u64 { let i = work.find(key).unwrap() + key.len(); work[i..].trim_start().split(|c: char| !c.is_ascii_digit()).next().unwrap().parse().unwrap() };
++    json!({"case_index":case_index,"stage":stage,"helper_stage":helper_snake,"charged":num("charged:"),"rejected":num("rejected:"),"limit":num("limit:"),"settlement":"booked"})
++}
++fn ordinary_attempt(env: &Value, case_index: usize, case_id: &str, mode: PreviewSolverMode, legacy_omitted: Option<&Value>, work: &mut Vec<Value>, prov_: &mut Vec<(String,String)>) -> Value {
+     // D6a reading (assumption A2): the case's own ordinary diagnostics are those naming it.
+     let diags: Vec<&Value> = env["diagnostics"].as_array().unwrap().iter()
+         .filter(|d| d["affected_refs"].as_array().is_some_and(|a| a.iter().any(|r| r==case_id)))
+@@ -174,17 +193,28 @@
+         other => json!({"kind":"report","report_diagnostic_ref":report,"outcome":format!("UNMAPPED {other}")}),
+     };
+     prov(prov_, "ordinary_attempts[].initial", "PRODUCER GAP: read back from envelope numerical_quality.cases[].solve_quality/evidence_refs (no typed capture)");
+-    prov(prov_, "ordinary_attempts[].w2/formation/legacy_source", "PRODUCER GAP: no typed capture; emitted as not_triggered/null/not_eligible after checking the envelope has no W2/K-D5/source-block diagnostics");
++    prov(prov_, "ordinary_attempts[].w2/formation", "PRODUCER GAP: no typed capture; emitted as not_triggered/null after checking the envelope has no W2/K-D5 diagnostics");
+     let codes: Vec<&str> = env["diagnostics"].as_array().unwrap().iter().map(|d| d["code"].as_str().unwrap()).collect();
+     println!("I61_ORDINARY_DIAGNOSTICS {codes:?}");
+     assert!(!codes.iter().any(|c| c.contains("W2") || c.contains("FORMATION_CHECK")), "unmapped ordinary diagnostics present: {codes:?}");
+     // The actual ordinary route declined legacy source-block recovery for this case.
+     let legacy = env["diagnostics"].as_array().unwrap().iter().find(|d| d["code"]=="SOURCE_BLOCK_RECOVERY_UNAVAILABLE"
+         && d["affected_refs"].as_array().is_some_and(|a| a.iter().any(|r| r==case_id)));
+-    let legacy_v = match legacy { Some(d)=>json!({"disposition":"unavailable","diagnostic_ref":d["id"],"work_ref":null}),
+-        None if std::env::var("I61_VARIANT").as_deref()==Ok("drop_source_diag") => json!({"disposition":"unavailable","diagnostic_ref":null,"work_ref":null}),
+-        None=>json!({"disposition":"not_eligible","diagnostic_ref":null,"work_ref":null}) };
+-    prov(prov_, "ordinary_attempts[].legacy_source", "PRODUCER GAP: read back from the actual SOURCE_BLOCK_RECOVERY_UNAVAILABLE diagnostic; work_ref null (no typed legacy work capture)");
++    let legacy_v = match (legacy, legacy_omitted) {
++        (None, Some(omitted)) => {
++            // T1 (a): selected case — the disclosure is omitted; the work goes to legacy_source_work[k].
++            work.push(legacy_work(case_index, omitted["message"].as_str().unwrap()));
++            json!({"disposition":"unavailable","diagnostic_ref":null,"work_ref":work.len()-1})
++        }
++        (Some(d), None) => {
++            work.push(legacy_work(case_index, d["message"].as_str().unwrap()));
++            json!({"disposition":"unavailable","diagnostic_ref":d["id"],"work_ref":work.len()-1})
++        }
++        (None, None) => json!({"disposition":"not_eligible","diagnostic_ref":null,"work_ref":null}),
++        (Some(_), Some(_)) => panic!("legacy disclosure both kept and omitted"),
++    };
++    prov(prov_, "ordinary_attempts[].legacy_source", "T1 (a): selected case {unavailable, null, work_ref}; unselected keeps diagnostic_ref. PRODUCER GAP: no typed legacy capture");
++    prov(prov_, "body.legacy_source_work[]", "PRODUCER GAP: actual WorkReport (stage, helper_stage, charged, rejected, limit) read back from the actual diagnostic message; settlement booked (T1 ruling)");
+     prov(prov_, "ordinary_attempts[].diagnostic_refs", "ASSUMPTION A2 (D6a): diagnostics whose affected_refs name the case, excluding RETAINED_PRECISION_*");
+     json!({"case_index":case_index,"case_id":case_id,"material_basis_ref":0,"requested_mode":mode.as_str(),"initial":initial,
+         "w2":{"kind":"not_triggered"},"formation":{"load_row_finding":null,"d5_diagnostic_ref":null},
+@@ -422,11 +452,8 @@
+ 
+ pub(super) fn milestone(mode: PreviewSolverMode) -> Probe {
+     let mut p = Vec::new();
+-    let mut raw: Value = serde_json::from_str(REQUEST).unwrap();
+-    if let Ok(v) = std::env::var("I61_REQUEST_SCHEMA") {
+-        raw["model"]["schema_version"] = json!(v);
+-        prov(&mut p, "PROBE-C", "COUNTERFACTUAL ONLY: request model.schema_version replaced before parse; not the milestone input");
+-    }
++    let raw: Value = serde_json::from_str(REQUEST).unwrap();
++    assert_eq!(raw["model"]["schema_version"], json!("0.1.0"), "milestone request unchanged at 0.1.0");
+     let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+     let mut prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|e| panic!("{:?}", e.capture.error));
+     prepared.solve_native().unwrap();
+@@ -438,7 +465,7 @@
+     let k::ExecutionOutcome::Selected(owner) = &case.outcome else { panic!("not selected") };
+     let case_id = raw["model"]["load_cases"][0]["id"].as_str().unwrap().to_owned();
+     let env0 = serde_json::to_value(candidate.envelope()).unwrap();
+-    let (env, _diag) = successor_envelope(env0, &case_id, true, &mut p);
++    let (env, _diag, legacy_omitted) = successor_envelope(env0, &case_id, true, &mut p);
+     // Result ids: the producer's own row binding (bind_rows) maps QuantityId -> row id.
+     let rows = pc.bind_rows(candidate.envelope(), owner).unwrap();
+     let ids: Vec<(k::QuantityId,String)> = rows.iter().filter_map(|r| match r.recipe { k::ProductRecipe::Native(q)=>Some((q,r.id.to_owned())), _=>None }).collect();
+@@ -477,12 +504,13 @@
+         "state":match b.state{k::BuildState::Success=>"success",k::BuildState::NonbudgetFailure=>"nonbudget_failure",k::BuildState::BudgetFailure=>"budget_failure"},
+         "reason":b.reason.as_ref().map(|r|json!(format!("UNMAPPED {r:?}"))),"work":exact(b.work,"build"),"stages":stages(&b.stages)})).collect();
+     p.push(("calls/groups/builds".into(),"PRODUCER: RecordedInvocation calls()/groups()/builds(); group source_refs = runs naming the group".into()));
+-    let ordinary = ordinary_attempt(&env, 0, &case_id, mode, &mut p);
++    let mut legacy_source_work = Vec::new();
++    let ordinary = ordinary_attempt(&env, 0, &case_id, mode, legacy_omitted.as_ref(), &mut legacy_source_work, &mut p);
+     let body = json!({"receipt_version":1,"policy":"M03-INTEGRITY-MP-v2","projection_policy":"RP-LOGICAL-ATTEMPTS-v1","work_policy":"W1-LME-20B-60B-v1",
+         "facade_policy":"RP-FACADE-SI-v2","canonicalization":"openpipestress_jcs_ijson_v1","invocation":invocation_body(&capture),"publication_sha256":"",
+         "work":{"case_limit":20_000_000_000u64,"invocation_limit":60_000_000_000u64,"charged":inv.meter().charged(),"execution_order":[{"kind":"case","index":0}]},
+         "cases":[case_v],"combinations":[],"sources":[source],"material_bases":[material_basis(pc,&raw,&mut p)],"calls":calls,"groups":groups,"builds":builds,
+-        "ordinary_attempts":[ordinary],"product_attempts":[attempt]});
++        "ordinary_attempts":[ordinary],"product_attempts":[attempt],"legacy_source_work":legacy_source_work});
+     p.push(("work".into(),"PRODUCER: RecordedInvocation::new(60e9)/CaseLimit(20e9) (retained_product.rs:3282-3283); charged = meter().charged()".into()));
+     let source_env = finish(env, body, &mut p);
+     Probe { source: source_env, invocation: json!({"request":raw,"solver_mode":mode.as_str()}), prov: p, peak: String::new(), verdicts: verdict_lines }
+@@ -503,7 +531,7 @@
+     let view = failed.typed_trace(&mut costs).unwrap();
+     let case_id = raw["model"]["load_cases"][0]["id"].as_str().unwrap().to_owned();
+     let env0 = serde_json::to_value(&failed.ordinary).unwrap();
+-    let (env, diag) = successor_envelope(env0, &case_id, false, &mut p);
++    let (env, diag, _) = successor_envelope(env0, &case_id, false, &mut p);
+     let error = json!({"kind":"preparation","capture":capture_error(failed.capture.error.as_ref().expect("capture error")),
+         "section":failed.preparation_error.as_ref().map(section_error)});
+     let attempt = product_attempt(&view, None, None, json!({"kind":"unavailable","error":error}), &mut p);
+@@ -511,12 +539,13 @@
+         "product_attempt_ref":0,"status":"unavailable","reason":{"code":"source_unavailable","phase":"preparation","cause":{"kind":"prepared_product_failure","product_attempt_ref":0}},
+         "diagnostic_ref":diag,"run":null,"source_ref":null});
+     prov(&mut p, "cases[].reason", "CONTRACT: (source_unavailable, preparation) for a preparation error (C3/S06 D4d; PY:986); D19 prepared_product_failure; D9b explicit source_ref null");
+-    let ordinary_v = ordinary_attempt(&env, 0, &case_id, mode, &mut p);
++    let mut legacy_source_work = Vec::new();
++    let ordinary_v = ordinary_attempt(&env, 0, &case_id, mode, None, &mut legacy_source_work, &mut p);
+     let body = json!({"receipt_version":1,"policy":"M03-INTEGRITY-MP-v2","projection_policy":"RP-LOGICAL-ATTEMPTS-v1","work_policy":"W1-LME-20B-60B-v1",
+         "facade_policy":"RP-FACADE-SI-v2","canonicalization":"openpipestress_jcs_ijson_v1","invocation":invocation_body(&capture),"publication_sha256":"",
+         "work":{"case_limit":20_000_000_000u64,"invocation_limit":60_000_000_000u64,"charged":0,"execution_order":[]},
+         "cases":[case_v],"combinations":[],"sources":[],"material_bases":[material_basis(&failed.capture,&raw,&mut p)],"calls":[],"groups":[],"builds":[],
+-        "ordinary_attempts":[ordinary_v],"product_attempts":[attempt]});
++        "ordinary_attempts":[ordinary_v],"product_attempts":[attempt],"legacy_source_work":legacy_source_work});
+     prov(&mut p, "work/sources/calls", "PRODUCER: no native Run, call or CaseSource exists after a preparation refusal (charged 0)");
+     let source_env = finish(env, body, &mut p);
+     Probe { source: source_env, invocation: json!({"request":raw,"solver_mode":mode.as_str()}), prov: p, peak: String::new(), verdicts: Vec::new() }
+@@ -533,7 +562,7 @@
+         std::fs::write(out.join(format!("{name}.verdicts.txt")), probe.verdicts.join("\n")).unwrap();
+         println!("I61_EMITTED {name}");
+     }
+-    if std::env::var("I61_VARIANT").is_err() {
++    {
+         let probe = refusal(PreviewSolverMode::SparseInteractive);
+         let name = "refusal_preparation_sparse_interactive";
+         std::fs::write(out.join(format!("{name}.json")), serde_json::to_string_pretty(&json!({"id":name,"source":probe.source,"invocation":probe.invocation})).unwrap()).unwrap();

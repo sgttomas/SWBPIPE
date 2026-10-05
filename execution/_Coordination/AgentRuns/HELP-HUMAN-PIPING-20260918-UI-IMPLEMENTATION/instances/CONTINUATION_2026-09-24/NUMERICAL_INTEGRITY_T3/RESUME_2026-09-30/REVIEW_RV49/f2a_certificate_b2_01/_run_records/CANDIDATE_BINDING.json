@@ -1,0 +1,47 @@
+{
+  "candidate_revision": "514f04a943dcb5a7a627a1b3c9c1eb08dddcf37b",
+  "source_pin": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "candidate_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_certificate_b2",
+  "file_count": 6,
+  "payload_count": 5,
+  "all_inventory_checks_pass": true,
+  "files": [
+    {
+      "path": "RETURN.md",
+      "bytes": 19627,
+      "sha256": "de865343d823d6b48e862c9657f331704eb25e9daf5f349e86562b182df76e34",
+      "inventory_match": true
+    },
+    {
+      "path": "_run_records/EXECUTION.json",
+      "bytes": 3087,
+      "sha256": "5aea41cd599addd2a3be9e6744f25fc1ec4c138840687c48878fccb7069840bc",
+      "inventory_match": true
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "bytes": 9150,
+      "sha256": "51e0ecc784de377a99c06f46d74d0e7eebd24d454c0fd1b9305e33c614c79011",
+      "inventory_match": true
+    },
+    {
+      "path": "_run_records/arithmetic.json",
+      "bytes": 2033,
+      "sha256": "e68b9fc649c4240b8f222dcf1033aef4bf5297ad39610f391d03916baad8c8ac",
+      "inventory_match": true
+    },
+    {
+      "path": "_run_records/exact_b2_checks.py",
+      "bytes": 7565,
+      "sha256": "c56eabb055c5e4e2fa3a2582c9ebb100c144cb9f513c5ad9aa6623286d0579ba",
+      "inventory_match": true
+    },
+    {
+      "path": "_run_records/INVENTORY.json",
+      "bytes": 949,
+      "sha256": "c339d97f94378a9ea442a3a0d83bdfa44e51371cd277998f171e7c9a239fd7e0",
+      "inventory_match": "self excluded as declared"
+    }
+  ],
+  "script_safety_inspection": "Only fractions.Fraction, math.isqrt and json imports; deterministic exact abstract constants, assertions and stdout JSON. No product imports, filesystem writes, subprocess/network/model/solver/compiler calls. Execute immutable bytes using isolated Python, replay outputs only under owned review scope."
+}

@@ -1,0 +1,86 @@
+{
+  "focused_invocations": [
+    {
+      "command": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_retained_precision_contract.py",
+        "tests/test_retained_precision_schema.py"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping",
+      "env": {
+        "OPENPIPESTRESS_CHECKED_JSON_BIN": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i52-readers/canonical_json/release/openpipestress_jcs_ijson",
+        "OPENPIPESTRESS_UNITS_BIN": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i52-readers/units/release/openpipestress_units"
+      },
+      "start": "2026-10-03T19:08:03.847445+00:00",
+      "end": "2026-10-03T19:08:06.850544+00:00",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_retained_precision_contract.py",
+        "tests/test_retained_precision_schema.py"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping",
+      "env": {
+        "OPENPIPESTRESS_CHECKED_JSON_BIN": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i52-readers/canonical_json/release/openpipestress_jcs_ijson",
+        "OPENPIPESTRESS_UNITS_BIN": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i52-readers/units/release/openpipestress_units"
+      },
+      "start": "2026-10-03T19:10:54.017245+00:00",
+      "end": "2026-10-03T19:10:58.732130+00:00",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_retained_precision_contract.py",
+        "tests/test_retained_precision_schema.py"
+      ],
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping",
+      "env": {
+        "OPENPIPESTRESS_CHECKED_JSON_BIN": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i52-readers/canonical_json/release/openpipestress_jcs_ijson",
+        "OPENPIPESTRESS_UNITS_BIN": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i52-readers/units/release/openpipestress_units"
+      },
+      "start": "2026-10-03T19:13:43.947662+00:00",
+      "end": "2026-10-03T19:13:48.931501+00:00",
+      "returncode": 0,
+      "input_hashes": [
+        {
+          "path": "core/analysis_runs/retained_precision.py",
+          "sha256": "a9819e6a7afb7aae109b7fb49b082f2644c565ac2b87003c7ccc3accf75f9a3b"
+        },
+        {
+          "path": "fixtures/results/retained_precision_cases.json",
+          "sha256": "67d5cbcc00e26691f67e0c44e7ffa60262ee29487533779a3ff96f93a86aaed8"
+        },
+        {
+          "path": "tests/test_retained_precision_contract.py",
+          "sha256": "ed910da85847f28dbd9faaadc18e498653ab6babd1fd16a8a01922053121a874"
+        },
+        {
+          "path": "tests/test_retained_precision_schema.py",
+          "sha256": "90bbd5660c504d3344ce19756d2b2250f80c0bd5d93b3ec123e5abf10523e504"
+        }
+      ]
+    }
+  ],
+  "final_source_hashes_match_frozen": true,
+  "new_source_files_changed": 3,
+  "no_failures_in_focused_checks": true,
+  "non_test_observations": [
+    "An initial zsh core/kernel_* search glob did not exist; repeated bounded core search succeeded.",
+    "Several guessed source filenames/one wrong project cwd path did not exist; actual paths resolved via rg.",
+    "Initial multi-file instruction output was truncated; NUM AGENTS fully reread before closure."
+  ],
+  "completed": "independent Fraction helper controls,53 final tests including corrected2 complete synthetic records and30 shared mutations",
+  "not_completed": "full G0-G8 proof/coverage, complete refusal-family controls, fresh source review, joint frozen three-language parity, producer/native qualification"
+}

@@ -1,0 +1,20 @@
+{
+  "candidate": "4afbac6e613203f93a499b780082b28be37f6c2c",
+  "status": "?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I42/source_bridge_rv56_repair_02/\n",
+  "source_count": 9,
+  "packet_count": 87,
+  "unexpected": [],
+  "source_sha256": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "cbd78d3e79fe11a5ae3cdd5422d641850980b88aa0dbb7fa318d6a5e7ce8d8bb",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs": "bdffbeb81c54ed99c3869928e9b4f1fd3fee2b77610e4ad2cc7c89390bcd2b78",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs": "20c3b86a834c065726b9cff627b7cb9bad43245712237cb4de576f6f97b57e94",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs": "6bdcc659913e6caa6687190b5f12a36d1e53e272a9880ee3c8cd12bddf300bba",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/bridge.rs": "0cbc204925748ecb1bee480b762f7de4b425965c68ec972f5e8963e985c0a8df",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_tests.rs": "12bb7ec09844892532de15dd6a051d0aa5c87ceb031f9d6f093e999720681313",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_vectors.py": "a32170d85bccb5f966d5e7677e7d2d57ee7e4ece8be0e78e35bb09167cfeaec8",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_vectors.rs": "fc7dc63470bc78500b32430a5e48c6dd17542fc04bbc88ef5c2f2ab0f412af9c",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs": "f5af5e2f7267233d109889bd5ba25868de5c93f0bb8772c382db48cffbc54b67"
+  },
+  "harness_adaptive_exact": true,
+  "harness_original_tests_prefix_exact": true
+}

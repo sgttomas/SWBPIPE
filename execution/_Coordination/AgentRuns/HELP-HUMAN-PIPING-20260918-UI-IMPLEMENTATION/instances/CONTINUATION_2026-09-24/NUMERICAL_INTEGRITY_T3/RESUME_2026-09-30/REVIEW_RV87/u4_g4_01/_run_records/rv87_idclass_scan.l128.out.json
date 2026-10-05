@@ -1,0 +1,108 @@
+{
+ "X": {
+  "sites": [
+   {
+    "site": "core/product_physics/src/lib.rs:2728",
+    "kind": "clone_text",
+    "mult": 2115,
+    "priced_each": 256,
+    "under_count": 1624320,
+    "source": "row.id.clone(),"
+   },
+   {
+    "site": "core/product_physics/src/lib.rs:2730",
+    "kind": "clone_text",
+    "mult": 2115,
+    "priced_each": 256,
+    "under_count": 1624320,
+    "source": "row.id.clone()"
+   },
+   {
+    "site": "core/product_physics/src/lib.rs:2738",
+    "kind": "clone_text",
+    "mult": 2115,
+    "priced_each": 256,
+    "under_count": 1624320,
+    "source": "let base_id = result.id.clone();"
+   },
+   {
+    "site": "core/product_physics/src/lib.rs:5292",
+    "kind": "clone_text",
+    "mult": 2115,
+    "priced_each": 256,
+    "under_count": 1624320,
+    "source": "let ids: HashMap<_, _> = rows.iter().map(|row| (row.id.clone(), if is_default || (pressure_runtime::is_exact(model) && r"
+   },
+   {
+    "site": "core/product_physics/src/lib.rs:5292",
+    "kind": "clone_text",
+    "mult": 2115,
+    "priced_each": 256,
+    "under_count": 1624320,
+    "source": "let ids: HashMap<_, _> = rows.iter().map(|row| (row.id.clone(), if is_default || (pressure_runtime::is_exact(model) && r"
+   },
+   {
+    "site": "core/product_physics/src/preview_physics.rs:194",
+    "kind": "clone_text",
+    "mult": 2115,
+    "priced_each": 256,
+    "under_count": 1624320,
+    "source": "row.id.clone()"
+   }
+  ],
+  "under_count_total": 9745920
+ },
+ "W": {
+  "sites": [
+   {
+    "site": "core/product_physics/src/lib.rs:2728",
+    "kind": "clone_text",
+    "mult": 2115,
+    "priced_each": 256,
+    "under_count": 1624320,
+    "source": "row.id.clone(),"
+   },
+   {
+    "site": "core/product_physics/src/lib.rs:2730",
+    "kind": "clone_text",
+    "mult": 2115,
+    "priced_each": 256,
+    "under_count": 1624320,
+    "source": "row.id.clone()"
+   },
+   {
+    "site": "core/product_physics/src/lib.rs:2738",
+    "kind": "clone_text",
+    "mult": 2115,
+    "priced_each": 256,
+    "under_count": 1624320,
+    "source": "let base_id = result.id.clone();"
+   },
+   {
+    "site": "core/product_physics/src/lib.rs:5292",
+    "kind": "clone_text",
+    "mult": 2115,
+    "priced_each": 256,
+    "under_count": 1624320,
+    "source": "let ids: HashMap<_, _> = rows.iter().map(|row| (row.id.clone(), if is_default || (pressure_runtime::is_exact(model) && r"
+   },
+   {
+    "site": "core/product_physics/src/lib.rs:5292",
+    "kind": "clone_text",
+    "mult": 2115,
+    "priced_each": 256,
+    "under_count": 1624320,
+    "source": "let ids: HashMap<_, _> = rows.iter().map(|row| (row.id.clone(), if is_default || (pressure_runtime::is_exact(model) && r"
+   },
+   {
+    "site": "core/product_physics/src/preview_physics.rs:194",
+    "kind": "clone_text",
+    "mult": 2115,
+    "priced_each": 256,
+    "under_count": 1624320,
+    "source": "row.id.clone()"
+   }
+  ],
+  "under_count_total": 9745920
+ }
+}

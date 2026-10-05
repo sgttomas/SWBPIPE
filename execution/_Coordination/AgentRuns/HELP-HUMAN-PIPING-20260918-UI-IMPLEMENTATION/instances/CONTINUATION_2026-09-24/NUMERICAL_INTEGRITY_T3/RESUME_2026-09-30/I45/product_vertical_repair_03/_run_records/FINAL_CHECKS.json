@@ -1,0 +1,40 @@
+{
+  "pp_debug": {
+    "exit": 0,
+    "before_after_final_equal": true,
+    "summary": [
+      "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 414 filtered out; finished in 1.17s"
+    ],
+    "rv60_false_diagnostics": [
+      "RV60_MISSING_COMBINATION_GATES_ACCEPTED false",
+      "RV60_FOREIGN_COMBINATION_GATES_ACCEPTED false",
+      "RV60_EXTRA_CASE_KEY_ACCEPTED false",
+      "RV60_EXTRA_COVERAGE_ACCEPTED false",
+      "RV60_EXTRA_ATTRIBUTION_ACCEPTED false",
+      "RV60_SYNTHETIC_FULL_GATES_ACCEPT_WRONG_MODE_SIGN false"
+    ]
+  },
+  "pp_release": {
+    "exit": 0,
+    "before_after_final_equal": true,
+    "summary": [
+      "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 414 filtered out; finished in 0.06s"
+    ],
+    "rv60_false_diagnostics": [
+      "RV60_MISSING_COMBINATION_GATES_ACCEPTED false",
+      "RV60_FOREIGN_COMBINATION_GATES_ACCEPTED false",
+      "RV60_EXTRA_CASE_KEY_ACCEPTED false",
+      "RV60_EXTRA_COVERAGE_ACCEPTED false",
+      "RV60_EXTRA_ATTRIBUTION_ACCEPTED false",
+      "RV60_SYNTHETIC_FULL_GATES_ACCEPT_WRONG_MODE_SIGN false"
+    ]
+  },
+  "pp_s11": {
+    "exit": 0,
+    "before_after_final_equal": true,
+    "summary": [
+      "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.37s"
+    ],
+    "rv60_false_diagnostics": []
+  }
+}

@@ -1,0 +1,8 @@
+sparse_interactive: committed schema refuses: sparse_interactive derivative vs committed schema failed JSON Schema validation:
+$.result_envelope.row_disclosures[1].reason_code: 'retained_precision_absolute_verified' is not one of ['diagnostic_evidence_not_physical_quantity', 'discrete_evidence_not_ratio', 'review_metadata_incomplete', 'physical
+sparse_interactive: lane schema with the U6c RowDisclosure delta accepts the derivative
+sparse_interactive: receipt-dropped derivative refused by the successor branch
+dense_scrutiny: committed schema refuses: dense_scrutiny derivative vs committed schema failed JSON Schema validation:
+$.result_envelope.row_disclosures[2].reason_code: 'retained_precision_absolute_verified' is not one of ['diagnostic_evidence_not_physical_quantity', 'discrete_evidence_not_ratio', 'review_metadata_incomplete', 'physical_met
+dense_scrutiny: lane schema with the U6c RowDisclosure delta accepts the derivative
+dense_scrutiny: receipt-dropped derivative refused by the successor branch

@@ -1,0 +1,57 @@
+{
+  "status": "informational, revisable; not acceptance",
+  "self_excluded": "_run_records/WRITE_INVENTORY.json",
+  "repair": "hats_repair_02; RV52-1 pending backcheck",
+  "files": [
+    {
+      "path": "ENVELOPE.md",
+      "bytes": 24798,
+      "sha256": "708b0e04dff8177b40819f74af63438062e26526256357fa54b736795e182d0b"
+    },
+    {
+      "path": "OWNER_LEDGER.md",
+      "bytes": 9600,
+      "sha256": "748a99e3953e2e66480f2fc79fee3c33dfd19f4df3e87925e28e174cabcf379c"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 4233,
+      "sha256": "f02c60f1f831961d689480551aef3b51da16cc8ed89d4530d4baafcbf02a40f5"
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "bytes": 2763,
+      "sha256": "69d4fba4e638fca0cca3bd017c03ad86cb3709d8e426c9752bab3118487c5e1e"
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "bytes": 11012,
+      "sha256": "a94db605ee6ce792ed417ad40c2ddd9420f1894864234343915820b5ebacd88f"
+    },
+    {
+      "path": "_run_records/SESSION.json",
+      "bytes": 2324,
+      "sha256": "7729ec92d9a4e5bdf2dc657952c02e11c8b67e6b7a162f35dd8d88ac493e21a1"
+    },
+    {
+      "path": "_run_records/hats_repair_02/CORRECTION.json",
+      "bytes": 10647,
+      "sha256": "cb41513a0085b4d3f9fc52bb18eda6b02dc02ebc2903974e4cc4e299a250325d"
+    },
+    {
+      "path": "_run_records/hats_repair_02/checks.json",
+      "bytes": 1917,
+      "sha256": "1926da38028c26b1570a610eec59d27a86642fb7190e00ea7b5019a7cad5ee98"
+    },
+    {
+      "path": "_run_records/hats_repair_02/checks.py",
+      "bytes": 6288,
+      "sha256": "3d73d9b50924f186f5e26b7e059a73a1c12de7c5ee0e5d7b98fd260a2506f916"
+    },
+    {
+      "path": "_run_records/owner_graph_checks.py",
+      "bytes": 5636,
+      "sha256": "155d5bf26fec78f4492153d09a599d612d6e968c8d7f4fa36d07837fed91c257"
+    }
+  ]
+}

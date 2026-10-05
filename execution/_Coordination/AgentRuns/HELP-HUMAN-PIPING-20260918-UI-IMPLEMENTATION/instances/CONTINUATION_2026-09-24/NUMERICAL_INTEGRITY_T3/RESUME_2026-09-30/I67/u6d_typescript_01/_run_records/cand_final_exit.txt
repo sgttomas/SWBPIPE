@@ -1,0 +1,3 @@
+vitest_exit=1
+tsc_exit=0
+seconds=110

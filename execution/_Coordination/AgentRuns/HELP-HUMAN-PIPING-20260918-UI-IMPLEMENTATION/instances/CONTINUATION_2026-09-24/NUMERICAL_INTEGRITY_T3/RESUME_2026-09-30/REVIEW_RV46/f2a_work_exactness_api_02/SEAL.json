@@ -1,0 +1,12 @@
+{
+  "sealed_utc": "2026-10-02T22:15:52.478500+00:00",
+  "candidate": "45d9a2d75ab354a83ba233edd85e11994df1146a",
+  "source": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "disposition": "CLEAR for API-plan fan-in with nonblocking manifest correction; implementation/qualification remains unprovided.",
+  "blocking_findings": 0,
+  "nonblocking_findings": [
+    "RV46-API02-N1"
+  ],
+  "inventory_sha256": "80b913baca8932c195af24b7eb5e9f1f64d299cd86c2d9db9f2d8797c83fbda5",
+  "payload_files": 7
+}

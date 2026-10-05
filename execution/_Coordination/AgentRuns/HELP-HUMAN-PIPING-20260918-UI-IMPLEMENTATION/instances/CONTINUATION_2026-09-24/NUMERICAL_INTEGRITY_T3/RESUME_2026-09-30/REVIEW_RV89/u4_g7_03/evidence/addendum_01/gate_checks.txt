@@ -1,0 +1,27 @@
+### Pass B gate checks run by RV89 on F = 20dd3d929d2a8b6e51671023b2f1eaa74f364a88 (RV89's archive extract; I65's recorded outputs where a build is needed)
+tree: listed 2950, mismatched 0, extra 0
+entry: F vs 0c7827b6ad -> code 0  {"check": "entry", "code": 0, "equal": true, "threshold": "4_026_531_840", "diff": []} 
+law: I65's frozen law log, F's entry -> code 0  {"check": "law", "code": 0, "identity_equal": true, "inputs_equal": true, "layouts_equal": true, "summary": ["test result: ok. 42 passed; 0 failed; 9 ignored; 0 measured; 502 filtered out; finished in 3.20s"], "registered_tests":  
+statics: F -> code 0  {"check": "statics", "code": 0, "added": [], "removed": []} 
+linemap ba1faa1c..F: exit 0 remapped 0 unmapped 0
+premise: F -> code 0  {"check": "premise", "code": 0, "pins": 3, "bad": []} 
+forms: F -> code 0  {"check": "forms", "code": 0, "equal": true, "diff": []} 
+text: I65's frozen outputs vs Pass A -> code 0  {"check": "text", "code": 0, "issues": [], "D": 14734} 
+noncand: I65's frozen comparison -> code 0  {"check": "noncand", "code": 0, "run_rows": 410, "new": 0, "absent": 0} 
+controls: I65's frozen controls -> code 0  {"check": "controls", "code": 0, "passed": 12, "of": 12, "failing": []} 
+outcomes PP: Pass A reference vs I65's frozen run -> code 6  {"check": "outcomes", "code": 6, "lines": [710, 716], "diff": ["@@ -297,0 +298,6 @@", "+unittests :: test retained_facade_tests::u3g2_d_u6_5_carrier_fixtures_are_the_live_successors ... ok", "+unittests :: test retained_facade_tes 
+outcomes runner: Pass A reference vs I65's frozen run -> code 0  {"check": "outcomes", "code": 0, "lines": [87, 87], "diff": []} 
+I65's frozen PP outcomes vs RV89's own 6b9bb19a5f registered run: identical
+I65's frozen runner outcomes vs RV89's own 6b9bb19a5f run: identical
+witnesses (I65 cargo.out): 9/9 exit 0; challenge: 1 ok
+I65_G5_CHALLENGE milestone SparseInteractive permitted=true peak_bytes=3541898 bound_bytes=3508669422 ratio=0.001009
+I65_G5_CHALLENGE milestone DenseScrutiny permitted=true peak_bytes=2252863 bound_bytes=3528379870 ratio=0.000638
+I65_G5_CHALLENGE cap_maximal SparseInteractive permitted=false peak_bytes=13221606 bound_bytes=1856156348 ratio=0.007123
+I65_G5_CHALLENGE cap_maximal DenseScrutiny permitted=false peak_bytes=13229826 bound_bytes=1875866796 ratio=0.007053
+I65_G5_PROFILE mode=sparse max_without_R=3508669422 E_mov_plus_R=3575778286 fraction_of_M=0.8881 phase=W3 publication (T
+I65_G5_PROFILE mode=dense max_without_R=3528379870 E_mov_plus_R=3595488734 fraction_of_M=0.8929 phase=W3 publication (T1
+law record vs RV89's 6b9bb19a5f record: identical
+I65 VERDICT: VERDICT DELTAS TO READ exit=6 basis=20dd3d929d2a8b6e51671023b2f1eaa74f364a88 tag=frozen overlay=none gates=tree:0 entry:0 law:0 statics:0 linemap:0 premise:0 text_run:0 delta:0 text:0 forms:0 noncand_run:0 noncand:0 controls_run:0 controls:0 pp_outcomes:6 runner_outcomes:0 witnesses:0 challenge:0 
+
+witness lines (I65's frozen run) vs RV89's 6b9bb19a5f run: identical
+result_export unchanged between 92a5a9da1c and F (git diff --quiet)

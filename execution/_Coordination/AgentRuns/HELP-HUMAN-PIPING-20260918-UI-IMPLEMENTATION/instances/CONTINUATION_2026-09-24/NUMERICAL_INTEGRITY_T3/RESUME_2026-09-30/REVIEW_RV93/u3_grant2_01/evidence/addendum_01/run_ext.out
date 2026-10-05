@@ -1,0 +1,28 @@
+== sweep_head_reg start 2026-10-04T16:48:03Z
+== sweep_head_reg exit=0 2026-10-04T16:48:40Z
+== sweep_head_stale start 2026-10-04T16:48:40Z
+== sweep_head_stale exit=0 2026-10-04T16:49:10Z
+   sweep reg: head == grant 2 == base (byte-identical)
+   sweep stale: head == grant 2 == base (byte-identical)
+== pp_head_reg start 2026-10-04T16:49:10Z
+== pp_head_reg exit=101 2026-10-04T16:50:58Z
+   pp_head_reg: ok 705 failed 1 ignored 10
+   test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+== pp_head_stale start 2026-10-04T16:50:58Z
+== pp_head_stale exit=101 2026-10-04T16:52:25Z
+   pp_head_stale: ok 705 failed 1 ignored 10
+   test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+   PP registered == Stale outcomes
+== profile_head start 2026-10-04T16:52:25Z
+== profile_head exit=0 2026-10-04T16:52:26Z
+I65_G5_PROFILE mode=sparse max_without_R=3508669422 E_mov_plus_R=3575778286 fraction_of_M=0.8881 phase=W3 publication (T16) with the staged copy
+I65_G5_PROFILE mode=dense max_without_R=3528379870 E_mov_plus_R=3595488734 fraction_of_M=0.8929 phase=W3 publication (T16) with the staged copy
+== nontest_head start 2026-10-04T16:52:26Z
+== nontest_head exit=0 2026-10-04T16:52:33Z
+RV93_NONTEST sparse_interactive profile=Some("Registered") Successor doc_sha=ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc value_sha=1d9ba7098dd20390357851e84a136890581a625ae21bf928864c30bc98a1a8c9 envelope_sha=9c7ec1a144a729f456a25fedb5dbe6a7dafde67d52b9cc8caff6c39bb0050871
+RV93_NONTEST dense_scrutiny profile=Some("Registered") Successor doc_sha=6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5 value_sha=7c5fe5c59f2bcc3b3313055223214d0f4884dc44981e3f6bb615a8d84acca595 envelope_sha=21ca629c27e6ca03b1411c8c51097f7a50f90429045b1e36313163014dd4278a
+== runner_head start 2026-10-04T16:52:33Z
+== runner_head exit=101 2026-10-04T16:53:37Z
+   runner: ok 85 failed 2
+   runner outcomes == grant 2's
+== done

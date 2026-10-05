@@ -1,0 +1,11 @@
+RV91 round 3 basis (placeholders: WT, REPO_ROOT; P = projects/chirality-piping)
+Candidate: 76477534f6e4febe72eeac25290c97687484afcb on codex/piping-f2a-carriers-20261004; parent 52052ece6119d0b3924cbc36c3052d1a615bd70f (52052ece61, the U6d merge)
+Fence (3 files; 1 product):
+  projects/chirality-piping/apps/desktop/src/features/results/knownSemanticLimitations.ts
+  projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
+  projects/chirality-piping/apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts
+Shared case file (unchanged by the round): 21b158dec2ea3268245a76a45c21afc3da7612e31d292b357b5511b56d5eb96c (format v2, 20 cases, 4 declared differences); same at 52052ece61: 21b158dec2ea3268...
+Lanes: WT/rv91/cand3 = git archive 76477534f6; WT/rv91/base3 = git archive 52052ece61; WT/rv91/mut3 = APFS clone of cand3 (mutants, committed tests only). Sweep inputs: the fixed tree WT/rv91/cand3/P for both lanes.
+Runtime: as rounds 01-02 (node_modules linked to REPO_ROOT's; WASM copied from WT/f2a-readers, same hashes; node v24.18.0, vitest 4.1.10, tsc 5.9.3); TMPDIR=WT/scratch/rv91_u6d/tmp; memory guard PID 5387 running; no install, build, Cargo, native, solver or DEC-025 job; Git reads only (GIT_OPTIONAL_LOCKS=0).
+Probe fix disclosed: the first run of RV91's unit-table probe failed on RV91's own harness (an object literal cannot hold a '__proto__' key); the probe now uses a Map. The rerun observes the product's result for '__proto__' directly: N_RP_NOT_COVERED.
+NUM HEAD at report: 3e264e2894 (records(T3): RV88 confirms U6 repairs (one gap); U6f dispatched; post-U6f round routing)

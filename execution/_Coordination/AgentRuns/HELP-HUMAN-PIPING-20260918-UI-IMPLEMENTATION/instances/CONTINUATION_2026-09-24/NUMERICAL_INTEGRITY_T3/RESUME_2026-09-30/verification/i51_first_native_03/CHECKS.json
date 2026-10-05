@@ -1,0 +1,45 @@
+{
+  "actor": "ROOT /root",
+  "utc": "2026-10-03T10:17:20.591047+00:00",
+  "first_native": {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/FIRST_NATIVE.json",
+    "bytes": 5396,
+    "sha256": "910c917bc6a385d6c9a24edad01f2518a46f9c7e11dcbd856ff7420f7c53b5aa"
+  },
+  "verified_payloads": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c1_native_03.log",
+      "bytes": 202191,
+      "sha256": "24182d8cb410fcdac427fd0c7fd5c16ee8ff6cd4d44f52d789f9b5c30cc5c02b"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c1_native_03.json",
+      "bytes": 1944,
+      "sha256": "299655f5076b9ac72a5240240f60b75c1a441bf0c7b7bde3039e010f4c727306"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/C1_SOURCE.patch",
+      "bytes": 23634,
+      "sha256": "4a906c15ca6c35b0ab6c4e1a8460d7847f219a6489ccd99159fb085bb932cfff"
+    }
+  ],
+  "root_read": [
+    "FIRST_NATIVE.json",
+    "pp_c1_native_03.json",
+    "I51_PREPARATION/I51_NATIVE records and test result in pp_c1_native_03.log",
+    "complete frozen C1_SOURCE.patch"
+  ],
+  "scope": "Authentic first native checkpoint only, source correctness not independently reviewed or committed; no complete product candidate/G5a/publication acceptance",
+  "c0_qualification": "I51 confirms helper/return-temporary live schedule and full deferred-snapshot nested-copy/capacity ledger were incomplete before C1. ROOT caught this at checkpoint review and held further runtime pending local correction; original result preserved.",
+  "numerical_observation": {
+    "modes": [
+      "sparse_interactive",
+      "dense_scrutiny"
+    ],
+    "native_p_bits": 128,
+    "verification_P_bits": 256,
+    "native_rows_per_mode": 58,
+    "native_calls_per_mode": 1,
+    "source_sha256": "e61b9eeb14c50ca144659366ee74941310099a03df49ebd6b8f2cbd9f9c4ca43"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "utc": "2026-10-03T01:01:36.667052+00:00",
+  "actor": "ROOT HELP_HUMAN",
+  "candidate": "4afbac6e613203f93a499b780082b28be37f6c2c",
+  "base": "57636e98704117d65e6b7ff085a3fb641f79f168",
+  "source_paths_verified": 9,
+  "packet_files_verified": 87,
+  "return_sha256": "191396addae97e30295c939d6f749631152eaa07c1821165b89c9a92bf5b2560",
+  "inventory_sha256": "056e62b2dbc5b8757101736e3e3a56bf4a12d766de05a078841ef158eb37eea7",
+  "scope": "Exact tracked/untracked source set equals inventory; all packet hashes and size/tree matches; index empty before exact staging; source checkout clean after commit. ROOT read core diff, tests, generator and return.",
+  "final_commands": {
+    "debug_final": {
+      "exit": 0,
+      "source_hashes_verified": 78,
+      "command_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I42/source_bridge_01/_run_records/debug_final.json"
+    },
+    "optimized": {
+      "exit": 0,
+      "source_hashes_verified": 78,
+      "command_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I42/source_bridge_01/_run_records/optimized.json"
+    },
+    "site_final": {
+      "exit": 0,
+      "source_hashes_verified": 78,
+      "command_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I42/source_bridge_01/_run_records/site_final.json"
+    },
+    "radius_compatibility": {
+      "exit": 0,
+      "source_hashes_verified": 78,
+      "command_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I42/source_bridge_01/_run_records/radius_compatibility.json"
+    },
+    "coefficient_compatibility": {
+      "exit": 0,
+      "source_hashes_verified": 78,
+      "command_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I42/source_bridge_01/_run_records/coefficient_compatibility.json"
+    },
+    "ledger_compatibility": {
+      "exit": 0,
+      "source_hashes_verified": 78,
+      "command_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I42/source_bridge_01/_run_records/ledger_compatibility.json"
+    }
+  },
+  "standing": "Frozen for RV56 independent review; not fan-in acceptance or product qualification."
+}

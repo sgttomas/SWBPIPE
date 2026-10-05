@@ -1,0 +1,1293 @@
+diff --git a/projects/chirality-piping/core/analysis_runs/compatibility.py b/projects/chirality-piping/core/analysis_runs/compatibility.py
+index cbc1c51663..32f2df4b34 100644
+--- a/projects/chirality-piping/core/analysis_runs/compatibility.py
++++ b/projects/chirality-piping/core/analysis_runs/compatibility.py
+@@ -319,7 +319,7 @@ def _retained_standing_from(validation: Mapping[str, Any], source: Mapping[str,
+     """D2 4.9.4: numerically_eligible needs an invocation-bound validation with
+     eligibility set, requested refs equal to the receipt's case order,
+     MECHANICS_SOLVED and the not_required conjunct. numerical_quality never
+-    contributes. While the reader's eligibility is held, needs_recompute."""
++    contributes."""
+     cases = source["retained_precision"]["body"]["cases"]
+     expected = [case["basis_ref"] for case in cases]
+     if (not validation["invocation_bound"] or not validation["numerical_eligible"] or list(requested_basis_refs) != expected
+diff --git a/projects/chirality-piping/core/analysis_runs/retained_precision.py b/projects/chirality-piping/core/analysis_runs/retained_precision.py
+index 780e290de1..2aa2448ab7 100644
+--- a/projects/chirality-piping/core/analysis_runs/retained_precision.py
++++ b/projects/chirality-piping/core/analysis_runs/retained_precision.py
+@@ -25,9 +25,9 @@ METHOD = "contribution_preserving_multiprecision_v1"
+ SAFE = (1 << 53) - 1
+ MAX_BITS = 0x7FEFFFFFFFFFFFFF
+ # D-U6-1 (I66 U6a): this flag gates eligibility only, as Rust's
+-# IMPLEMENTATION_COMPLETE and TypeScript's SUMMARY_COVERAGE_COMPLETE do. It stays
+-# false until U7; every gate runs regardless.
+-_IMPLEMENTATION_COMPLETE = False
++# IMPLEMENTATION_COMPLETE and TypeScript's SUMMARY_COVERAGE_COMPLETE do. It is on
++# since U7 (D-U7-5); every gate runs regardless.
++_IMPLEMENTATION_COMPLETE = True
+ 
+ 
+ class RetainedPrecisionError(ValueError):
+@@ -1588,14 +1588,14 @@ def _g8(body, source, invocation):
+ 
+ 
+ def validate_retained_precision(source: Any, invocation: Any = None) -> dict[str, Any]:
+-    """The accepted ordered reader (G0-G8). D-U6-1: every gate runs, and
+-    `_IMPLEMENTATION_COMPLETE` gates only `numerical_eligible`, so a valid
+-    statement reads needs_recompute while it is false."""
++    """The accepted ordered reader (G0-G8). D-U6-1: every gate runs; since U7 a valid invocation-bound
++    statement of a solved model whose cases are selected or not_required reads eligible. Hashes bind
++    the supplied statements; they do not establish producer origin (D-U7-6)."""
+     return _validate_draft(source, invocation)
+ 
+ 
+ def _validate_draft(source: Any, invocation: Any = None) -> dict[str, Any]:
+-    """Unqualified development checks; eligibility remains disabled with the API."""
++    """The ordered checks behind the public entry (D-U6-1)."""
+     gate="G0"
+     try:
+         producer=source.get("producer") if type(source) is dict else None;basis=source.get("formulation_basis") if type(source) is dict else None
+diff --git a/projects/chirality-piping/core/product_physics/src/lib.rs b/projects/chirality-piping/core/product_physics/src/lib.rs
+index 74079dfd86..7de691aeb5 100644
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -3153,7 +3153,7 @@ fn retained_w1(
+     #[cfg(test)]
+     retained_tests_hooks::before_precommit(&mut successor);
+     // Decision 5: precommit validation by the accepted Rust reader, against the
+-    // actual invocation (eligibility stays off).
++    // actual invocation (only Ok/Err is used here; eligibility is not read).
+     #[cfg_attr(not(test), allow(unused_mut))]
+     let mut invocation = serde_json::json!({"request": capture.borrowed_raw(), "solver_mode": capture.mode().as_str()});
+     #[cfg(test)]
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs b/projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs
+index 032fe13b96..d90643fbcf 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs
+@@ -106,7 +106,7 @@ fn u1_typed_ordinary_capture_milestone() {
+ }
+ 
+ /// The deliverable: the serializer's milestone receipts, both modes, validated
+-/// in-process by the accepted Rust reader with eligibility off, with exact
++/// in-process by the accepted Rust reader, eligible with the invocation (U7), with exact
+ /// class parity against the certificate's own verdicts, byte-stable.
+ #[test]
+ fn u1_milestone_successor_both_modes() {
+@@ -119,7 +119,7 @@ fn u1_milestone_successor_both_modes() {
+         assert_eq!(pretty(&successor), pretty(&again), "{name}: deterministic");
+         let invocation = invocation(mode);
+         let validation = reader::validate(&successor, Some(&invocation)).unwrap_or_else(|e| panic!("{name}: reader {e:?}"));
+-        assert!(validation.invocation_bound && !validation.numerical_eligible, "{name}: eligibility off");
++        assert!(validation.invocation_bound && validation.numerical_eligible, "{name}: eligible with the actual invocation (U7)");
+         // Parity: every reader class equals the certificate's verdict class.
+         let rows: Vec<&str> = successor["results"].as_array().unwrap().iter().map(|r| r["id"].as_str().unwrap()).collect();
+         let verdicts = candidate.certificate().verdicts();
+diff --git a/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs b/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs
+index 1b47d6c60a..4d14abf9a4 100644
+--- a/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs
++++ b/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs
+@@ -4264,9 +4264,9 @@ fn project(source: &Value, raw: bool) -> VResult<Value> {
+     }
+     Ok(projected)
+ }
+-// Eligibility stays held: the reader is unaccepted until the snapshot-07 repair
+-// wave (review RV78-RV81) is confirmed by the reviewers and ROOT accepts it.
+-const IMPLEMENTATION_COMPLETE: bool = false;
++// Eligibility is on (U7, D-U7-5): an invocation-bound statement of a solved
++// model whose cases are selected or not_required is eligible; every gate runs.
++const IMPLEMENTATION_COMPLETE: bool = true;
+ /// Validate a raw successor statement against the original request/mode.
+ /// Hashes bind the supplied statements; they do not establish producer origin.
+ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> VResult<Validation> {
+diff --git a/projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs b/projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs
+index ab8c9da434..554de9abfd 100644
+--- a/projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs
++++ b/projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs
+@@ -578,8 +578,8 @@ pub fn class_binding_refusal(
+ /// eligibility is set; requested refs equal to the receipt's case order;
+ /// `MECHANICS_SOLVED`; and every `not_required` case ordinarily eligible by
+ /// the base rules (C1:160; I66 F-7). `numerical_quality` never contributes
+-/// for a selected case. While the reader's eligibility is held this always
+-/// yields `needs_recompute`.
++/// for a selected case. The reader's eligibility is on since U7; the other
++/// conjuncts still apply.
+ #[doc(hidden)]
+ pub fn retained_standing_from(
+     validation: &crate::retained_precision::Validation,
+diff --git a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs
+index 1601e8dbd8..091fc244d4 100644
+--- a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs
++++ b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs
+@@ -2,8 +2,9 @@
+ //! (dispatch, standing, binding refusal, classification summary and the
+ //! canonical derivative) and back out. The inputs are byte-identical copies of
+ //! PP's pinned milestone successor files (D-U6-5), checked by sha256 here. They
+-//! are producer test outputs, not native Current evidence. Eligibility stays
+-//! held, so standing is `needs_recompute` (D-U6-6); U7 owns the switch.
++//! are producer test outputs, not native Current evidence. Since U7 (D-U7-5) the
++//! reader's eligibility is on: with its actual invocation and requested cases the
++//! milestone stands `numerically_eligible`, and without them `needs_recompute`.
+ use open_pipe_stress_result_export::{
+     derivative as d, retained_precision as rp, semantic_contract as s, source_blocks,
+ };
+@@ -180,18 +181,18 @@ fn u6a_dispatch_admits_the_successor_through_the_accepted_reader_only() {
+ }
+ 
+ #[test]
+-fn u6a_standing_is_needs_recompute_and_comes_only_from_the_receipt() {
++fn u6a_standing_is_eligible_only_with_the_invocation_and_comes_only_from_the_receipt() {
+     for m in milestones() {
+         let refs = requested(&m.invocation);
+         assert_eq!(s::numerical_use_standing(&m.source, &refs), "needs_recompute");
+         assert_eq!(
+             s::numerical_use_standing_with_context(&m.source, &refs, Some(&m.invocation)),
+-            "needs_recompute",
+-            "{}: eligibility held",
++            "numerically_eligible",
++            "{}: eligible with the actual invocation (U7)",
+             m.mode
+         );
+         let validation = rp::validate(&m.source, Some(&m.invocation)).unwrap();
+-        assert!(validation.invocation_bound && !validation.numerical_eligible);
++        assert!(validation.invocation_bound && validation.numerical_eligible);
+         // An edited covered row or a foreign invocation is unsupported.
+         let mut row = m.source.clone();
+         row["results"][0]["value"] = json!(row["results"][0]["value"].as_f64().unwrap() * 2.0 + 1.0);
+@@ -215,8 +216,28 @@ fn u6a_standing_is_needs_recompute_and_comes_only_from_the_receipt() {
+     }
+ }
+ 
+-/// The post-U7 rule, exercised now through the test seam with a validation
+-/// whose eligibility is set; the flags themselves are untouched.
++/// U7: a hash-consistent successor whose mechanics status is not
++/// `MECHANICS_SOLVED` is refused at G7 by the base preview validator (a blocked
++/// envelope carries no preview evidence), so the reader's own MECHANICS_SOLVED
++/// conjunct is never the deciding one (I66 U7 slice F, mutant C5).
++#[test]
++fn u7_a_solved_status_is_required_before_the_eligibility_conjunct() {
++    for m in milestones() {
++        for status in ["MODEL_INCOMPLETE", "MECHANICS_FAILED", "NOT_RUN"] {
++            let mut unsolved = m.source.clone();
++            unsolved["status"]["mechanics"] = json!(status);
++            let unsolved = rehash(unsolved);
++            let error = rp::validate(&unsolved, Some(&m.invocation)).unwrap_err();
++            // C1 G7 (06b settlement): each language reports its own base code; Rust's
++            // preview validator names the blocked envelope.
++            assert_eq!((error.gate, error.code.as_str()), ("G7", "SOURCE_PREVIEW_PHYSICS_BLOCKED_ENVELOPE"), "{status}");
++            assert_eq!(s::numerical_use_standing_with_context(&unsolved, &requested(&m.invocation), Some(&m.invocation)), "unsupported");
++        }
++    }
++}
++
++/// The standing rule's conjuncts, through the test seam with a validation whose
++/// eligibility is set (the reader's own eligibility is on since U7).
+ #[test]
+ fn u6a_standing_rule_conjuncts_with_eligibility_set() {
+     let m = &milestones()[0];
+@@ -311,7 +332,7 @@ fn u6a_derivative_carries_the_receipt_and_it_comes_back_out() {
+         back["retained_precision"] = e["retained_precision"].clone();
+         let after = rp::validate(&back, Some(&m.invocation)).unwrap();
+         assert_eq!(after, before);
+-        assert!(!after.numerical_eligible);
++        assert!(after.numerical_eligible);
+         // Transport: the derivative's metadata view is G0-G2 valid, never eligible.
+         let view = json!({"schema_version":"0.2.0","producer":e["producer"],"numerical_quality":e["numerical_quality"],"formulation_basis":e["formulation_basis"],"contract_evidence":e["contract_evidence"],"retained_precision":e["retained_precision"]});
+         let transport = rp::validate_transport_metadata(&view).unwrap();
+@@ -545,19 +566,20 @@ fn u6a_classification_summary_counts_validated_classes() {
+         let expected = json!([{"case_id":case_id,"relative_verified":relative,"absolute_verified":absolute,
+             "interval_bindable":0,"not_covered":0,"input_derived":input,"non_quantity":non_quantity,
+             "withheld":relative + absolute + input}]);
+-        // Not Current (eligibility held): every quantity row is withheld.
+-        assert_eq!(json!(s::classification_summary(&m.source, Some(&m.invocation))), expected);
++        // U7: with its actual invocation the envelope is Current, so only absolute
++        // and not-covered rows stay withheld; without it every quantity row is.
++        let mut current = expected.clone();
++        current[0]["withheld"] = json!(absolute);
++        assert_eq!(json!(s::classification_summary(&m.source, Some(&m.invocation))), current);
+         assert_eq!(json!(s::classification_summary(&m.source, None)), expected);
+         let mut broken = m.source.clone();
+         broken["results"][0]["value"] = json!(12345.0);
+         assert!(s::classification_summary(&broken, Some(&m.invocation)).is_empty());
+         assert!(s::classification_summary(&projected_base(&m.source), None).is_empty());
+-        // After U7 (exercised through the seam): only absolute and not-covered
+-        // rows stay withheld, and only for the invocation's requested cases.
++        // Through the seam: only absolute and not-covered rows stay withheld, and
++        // only for the invocation's requested cases.
+         let mut validation = rp::validate(&m.source, Some(&m.invocation)).unwrap();
+         validation.numerical_eligible = true;
+-        let mut current = expected.clone();
+-        current[0]["withheld"] = json!(absolute);
+         assert_eq!(json!(s::classification_summary_from(&validation, &m.source, Some(&m.invocation))), current);
+         assert_eq!(json!(s::classification_summary_from(&validation, &m.source, None)), expected);
+         let mut other = m.invocation.clone();
+@@ -618,14 +640,18 @@ const CASES: &str = include_str!("../../../../fixtures/results/retained_precisio
+ /// RR "RV88 on U6a, U6c, U6b (and U6d)": the only ruled differences between the
+ /// languages' carriers (and F5's shared semantics); any other is a defect. RR
+ /// "RV92 (U6f) on the whole of U6" adds the fifth (N-2, with N-5) and widens
+-/// I67-F2 (N-3).
+-const DECLARED: [&str; 5] = [
++/// I67-F2 (N-3). RR "The memory branch merged into NUM; U7 slices T and P
++/// committed" adds D-U7-4 (format v4).
++const DECLARED: [&str; 6] = [
+     "I67-F1:unregistered_invalid_statement",
+     "I67-F2:display_only_binding_precheck",
+     "F-U6b-2:python_refuses_transport",
+     "F5:refused_statement_binding",
+     "RV92-N2-N5:ts_refuses_token_rows_at_the_header",
++    "D-U7-4:ts_requires_live_native_capture",
+ ];
++/// Every field a v4 form may carry; any other field is a defect, never silently ignored.
++const FORM_FIELDS: [&str; 9] = ["label", "fixtures", "invocation", "capture", "requested", "edits", "current_model_edits", "subject", "expected"];
+ 
+ /// The shared file's fixtures, by id, as (source, invocation or Null).
+ fn shared_fixtures(cases: &Value) -> Vec<(String, Value, Value)> {
+@@ -682,7 +708,7 @@ fn apply_shared(c: &Value, fixture: &(String, Value, Value)) -> (Value, Option<V
+ #[test]
+ fn u6a_shared_carrier_cases_rust() {
+     let cases: Value = serde_json::from_str(CASES).unwrap();
+-    assert_eq!(cases["format"], "I66-U6-CARRIER-CASES-v3");
++    assert_eq!(cases["format"], "I66-U6-CARRIER-CASES-v4");
+     let fixtures = shared_fixtures(&cases);
+     let mut n = 0;
+     for c in cases["cases"].as_array().unwrap() {
+@@ -704,7 +730,8 @@ fn u6a_shared_carrier_cases_rust() {
+ }
+ 
+ /// 'by_validated_class' for the summary subject: per receipt case, the reader's
+-/// class counts, interval binding 0, and the held withheld count.
++/// class counts, interval binding 0, and the not-Current withheld count (these
++/// forms carry no invocation).
+ fn expected_summary(source: &Value) -> Value {
+     let v = rp::validate(source, None).unwrap();
+     let cases = source["retained_precision"]["body"]["cases"].as_array().unwrap();
+@@ -755,7 +782,7 @@ fn expected_binding(source: &Value, expected: &str) -> Vec<Option<String>> {
+ #[test]
+ fn u6_declared_differences_rust() {
+     let cases: Value = serde_json::from_str(CASES).unwrap();
+-    assert!(["G7 parity compares the reader's (gate, code)", "parity there compares only accept against refuse"].iter().all(|p| cases["scope"].as_str().unwrap().contains(p)));
++    assert!(["G7 parity compares the reader's (gate, code)", "parity there compares only accept against refuse", "no carrier authenticates producer origin"].iter().all(|p| cases["scope"].as_str().unwrap().contains(p)));
+     let fixtures = shared_fixtures(&cases);
+     let entries = cases["declared_differences"].as_array().unwrap();
+     let mut ids: Vec<&str> = entries.iter().map(|e| e["id"].as_str().unwrap()).collect();
+@@ -775,11 +802,44 @@ fn u6_declared_differences_rust() {
+             let expected = &form["expected"]["rust"];
+             let subject = form["subject"].as_str().unwrap();
+             subjects.insert(subject.to_string());
++            let unknown: Vec<&String> = form.as_object().unwrap().keys().filter(|k| !FORM_FIELDS.contains(&k.as_str())).collect();
++            assert!(unknown.is_empty(), "{id} {label}: {unknown:?}");
++            // v4 'capture': 'none' is TS's (no IPC capture); Rust reads the invocation
++            // argument exactly as for 'invocation': 'fixture'.
++            if let Some(capture) = form.get("capture") {
++                assert!(capture == "none" && form["invocation"] == "fixture", "{id} {label}");
++                subjects.insert("capture".to_string());
++            }
+             for fid in form["fixtures"].as_array().unwrap() {
+                 let fixture = fixtures.iter().find(|f| fid == f.0.as_str()).unwrap();
+                 let (source, invocation, requested) = apply_shared(form, fixture);
++                // v4 'current_model_edits' change only TS's current model: applied here to a
++                // copy of the invocation's model, they must change it, while Rust's inputs
++                // (the source, the invocation and the requested refs) stay as they are.
++                if let Some(edits) = form.get("current_model_edits") {
++                    let mut model = fixture.2["request"]["model"].clone();
++                    for edit in edits.as_array().unwrap() {
++                        assert!(edit["op"] == "set" && edit.as_object().unwrap().len() == 3, "{id} {label}");
++                        let mut at = &mut model;
++                        for key in edit["path"].as_array().unwrap() {
++                            at = match key {
++                                Value::String(k) => at.get_mut(k.as_str()).unwrap_or_else(|| panic!("{id} {label}: {k}")),
++                                Value::Number(i) => at.get_mut(i.as_u64().unwrap() as usize).unwrap_or_else(|| panic!("{id} {label}: {i}")),
++                                _ => panic!("path"),
++                            };
++                        }
++                        *at = edit["value"].clone();
++                    }
++                    assert!(model != fixture.2["request"]["model"] && invocation.as_ref() == Some(&fixture.2), "{id} {label}");
++                    subjects.insert("current_model_edits".to_string());
++                }
+                 match subject {
+-                    "standing" => assert_eq!(s::numerical_use_standing_with_context(&source, &requested, invocation.as_ref()), expected["standing"], "{id} {label}"),
++                    "standing" => {
++                        assert_eq!(s::numerical_use_standing_with_context(&source, &requested, invocation.as_ref()), expected["standing"], "{id} {label}");
++                        if expected["standing"] == "numerically_eligible" {
++                            subjects.insert("standing:numerically_eligible".to_string());
++                        }
++                    }
+                     "transport" => {
+                         let got = match s::for_source_metadata(&source) { Ok(_) => "ok".to_string(), Err(e) => e };
+                         assert_eq!(got, expected["transport"].as_str().unwrap(), "{id} {label}");
+@@ -799,7 +859,11 @@ fn u6_declared_differences_rust() {
+             }
+         }
+     }
+-    assert_eq!(subjects.into_iter().collect::<Vec<_>>(), ["binding", "standing", "summary", "transport"]);
++    // Every subject, the v4 fields and D-U7-4's side (eligible with the actual invocation) are exercised.
++    assert_eq!(
++        subjects.into_iter().collect::<Vec<_>>(),
++        ["binding", "capture", "current_model_edits", "standing", "standing:numerically_eligible", "summary", "transport"]
++    );
+ }
+ 
+ fn is_ident(c: u8) -> bool {
+diff --git a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+index 88e80a5537..e497a05afa 100644
+--- a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
++++ b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+@@ -197,15 +197,18 @@ fn apply_entry(shared: &Value, entry: &Value) -> (Value, Value) {
+     (source, invocation)
+ }
+ #[test]
+-fn complete_synthetic_controls_keep_eligibility_held() {
++fn complete_synthetic_controls_carry_their_shared_eligibility() {
+     let shared = corpus();
+     for case in shared["cases"].as_array().unwrap() {
+         let got = rp::validate(&case["source"], Some(&case["invocation"]))
+             .unwrap_or_else(|e| panic!("{}: {e:?}", case["id"]));
+         assert!(got.invocation_bound);
+-        assert!(
+-            !got.numerical_eligible,
+-            "native summary coverage remains held"
++        // U7 (07i, D-U7-2): 13 bases are eligible; the two with an unavailable case are not.
++        assert_eq!(
++            got.numerical_eligible,
++            case["expected"]["numerical_eligible"].as_bool().unwrap(),
++            "{}: the shared eligibility",
++            case["id"]
+         );
+         assert_eq!(
+             got.publication_sha256,
+@@ -822,7 +825,7 @@ fn g5_audit_local_controls() {
+ 
+ /// Snapshot-05a shared must-pass entries: each rehashed rewrite keeps every
+ /// public relation, so the reader admits it with the base case's
+-/// classifications; eligibility stays held.
++/// classifications and the eligibility the entry states (07i, U7).
+ #[test]
+ fn shared_must_pass_entries_validate() {
+     let shared = corpus();
+@@ -849,7 +852,9 @@ fn shared_must_pass_entries_validate() {
+             }
+         };
+         let expected = case["expected_classifications"].as_array().unwrap();
+-        let same = !got.numerical_eligible
++        // U7 (07i): each must-pass entry states its eligibility.
++        let same = got.numerical_eligible
++            == entry["expected_eligibility"]["numerical_eligible"].as_bool().unwrap()
+             && got.invocation_bound
+             && got.classifications.len() == expected.len()
+             && got.classifications.iter().zip(expected).all(|(g, w)| {
+@@ -960,7 +965,7 @@ fn coverage_layout_controls_fail_at_g5a() {
+ /// rewrites keep every public relation (feasibility, rederived estimate and
+ /// charge, exact rosters, record binding, direct data facts), so the reader must
+ /// admit them with the base classifications; only producer custody or replay
+-/// can catch such attested private flags. Eligibility stays held.
++/// can catch such attested private flags. Since U7 they keep the base's eligibility.
+ #[test]
+ fn publicly_consistent_coverage_attestations_are_not_rejected() {
+     use serde_json::json;
+@@ -1036,7 +1041,8 @@ fn publicly_consistent_coverage_attestations_are_not_rejected() {
+         rehash(&mut source);
+         let got = rp::validate(&source, Some(&case["invocation"]))
+             .unwrap_or_else(|e| panic!("{name}: {e:?}"));
+-        assert!(!got.numerical_eligible, "{name}");
++        assert!(case["expected"]["numerical_eligible"].as_bool().unwrap(), "{name}: an eligible base");
++        assert!(got.numerical_eligible, "{name}");
+         let expected = case["expected_classifications"].as_array().unwrap();
+         assert_eq!(got.classifications.len(), expected.len(), "{name}");
+         for (got, want) in got.classifications.iter().zip(expected) {
+diff --git a/projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json b/projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json
+index 3dc39b4702..f9cf3ac613 100644
+--- a/projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json
++++ b/projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json
+@@ -1,7 +1,7 @@
+ {
+-  "format": "I66-U6-CARRIER-CASES-v3",
+-  "note": "Shared carrier standing-parity scenarios for the Rust, Python and TypeScript carriers (I66 U6; D2 4.7 parity). Fixtures are byte-identical copies of PP's pinned milestone successor files (D-U6-5), producer test outputs, not native Current evidence. Edits apply literally, with no rehash. 'requested' is 'invocation' (the invocation model's load cases, in order) or an explicit list. 'expected_dispatch' is 'ok' or the raw dispatch's first error code. Eligibility is held until U7, so no case expects numerically_eligible. v2 (I66 U6 repairs): fixtures carry 'shape': 'milestone' ({id, invocation, source}) or 'raw' (the file is the source; its cases have no invocation). The F-5 guard cases (a W1 token on a non-first row only; a receipt member that is {} or null) on a legacy 0.1.0 source and on a preview-physics-1 source are refused in every language. 'declared_differences' lists the only ruled differences between the languages' carriers (and F5's shared semantics), each with its ruling and one expectation per language; any other difference is a defect. Their subjects: 'standing' (as the cases), 'binding' (every row of the edited source: 'by_validated_class' or 'every_row:<code>') and 'transport' (the header-only dispatch: 'ok' or the first error code). v3 (I66 post-U6f): 'declared_differences' entries carry 'forms'; each form names its fixtures, 'invocation' (null, 'fixture', or a literal object such as {}), 'requested', 'edits', one 'subject' and one expectation per language. Subjects: 'standing'; 'transport' ('ok' or the first error code); 'binding' over every row of the edited source ('by_validated_class', 'every_row:<code>', 'every_row:none', or 'source_blocks_summary:<code>': the open_formula_stress_summary rows and the max_open_formula_stress headline row refused, every other row bound); and 'summary' ('by_validated_class': one entry per receipt case counting the reader's classes, interval_bindable 0, the held withheld count; or 'empty'). An optional 'finding' or 'notice' is TS's.",
+-  "scope": "Differences inherited from the base carriers are not U6 differences and are not listed here: the G7 dispatch text (each language forwards its own base validator's detail), Rust's header dispatch ignoring carrier_evidence, and the AnalysisRun builders' refusal codes. G7 parity compares the reader's (gate, code), not the dispatch text (ROOT_RULINGS_V1 \"RV92 (U6f) on the whole of U6: PASS; the post-U6f repair round; U7 preconditions\"; RV92 u6f_01 N-4). Rust's header dispatch checks only that a preview contract_evidence is an object, so TS's transport route, like Python's transport check, refuses evidence content that Rust's transport accepts (for example a successor's contract_evidence with a key added and its hashes made consistent, which TS refuses at the reader's G7). A transport refused by a header check before the reader runs carries each language's own code (TS SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED; Rust the reader's G0 code or its base header code; Python F-U6b-2's code), so parity there compares only accept against refuse (ROOT_RULINGS_V1 \"RV92 on the post-U6f round: one transport residue, declared by a scope sentence\"; RV92 u6f_02 N-9 (a), (b)).",
++  "format": "I66-U6-CARRIER-CASES-v4",
++  "note": "Shared carrier standing-parity scenarios for the Rust, Python and TypeScript carriers (I66 U6; D2 4.7 parity). Fixtures are byte-identical copies of PP's pinned milestone successor files (D-U6-5), producer test outputs, not native Current evidence. Edits apply literally, with no rehash. 'requested' is 'invocation' (the invocation model's load cases, in order) or an explicit list. 'expected_dispatch' is 'ok' or the raw dispatch's first error code. Since U7 the readers' eligibility is switched on: an unedited milestone case with its fixture invocation and the invocation's requested cases expects numerically_eligible, and every other case keeps its expectation. v2 (I66 U6 repairs): fixtures carry 'shape': 'milestone' ({id, invocation, source}) or 'raw' (the file is the source; its cases have no invocation). The F-5 guard cases (a W1 token on a non-first row only; a receipt member that is {} or null) on a legacy 0.1.0 source and on a preview-physics-1 source are refused in every language. 'declared_differences' lists the only ruled differences between the languages' carriers (and F5's shared semantics), each with its ruling and one expectation per language; any other difference is a defect. Their subjects: 'standing' (as the cases), 'binding' (every row of the edited source: 'by_validated_class' or 'every_row:<code>') and 'transport' (the header-only dispatch: 'ok' or the first error code). v3 (I66 post-U6f): 'declared_differences' entries carry 'forms'; each form names its fixtures, 'invocation' (null, 'fixture', or a literal object such as {}), 'requested', 'edits', one 'subject' and one expectation per language. Subjects: 'standing'; 'transport' ('ok' or the first error code); 'binding' over every row of the edited source ('by_validated_class', 'every_row:<code>', 'every_row:none', or 'source_blocks_summary:<code>': the open_formula_stress_summary rows and the max_open_formula_stress headline row refused, every other row bound); and 'summary' ('by_validated_class': one entry per receipt case counting the reader's classes, interval_bindable 0, the not-Current withheld count (these forms carry no invocation); or 'empty'). An optional 'finding' or 'notice' is TS's. v4 (I66 U7 slice F): a form may carry 'capture' ('none': TS registers the form's invocation without an IPC capture, so no live native capture exists; Rust and Python read the invocation argument exactly as for 'invocation': 'fixture') and 'current_model_edits' (edits, op 'set', applied only to TS's current model, which is otherwise the captured invocation's model; Rust and Python have no current-model input beyond 'requested', so these edits change nothing they read). Every consumer reads both fields explicitly; any other unknown field is a defect.",
++  "scope": "Differences inherited from the base carriers are not U6 differences and are not listed here: the G7 dispatch text (each language forwards its own base validator's detail), Rust's header dispatch ignoring carrier_evidence, and the AnalysisRun builders' refusal codes. G7 parity compares the reader's (gate, code), not the dispatch text (ROOT_RULINGS_V1 \"RV92 (U6f) on the whole of U6: PASS; the post-U6f repair round; U7 preconditions\"; RV92 u6f_01 N-4). Rust's header dispatch checks only that a preview contract_evidence is an object, so TS's transport route, like Python's transport check, refuses evidence content that Rust's transport accepts (for example a successor's contract_evidence with a key added and its hashes made consistent, which TS refuses at the reader's G7). A transport refused by a header check before the reader runs carries each language's own code (TS SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED; Rust the reader's G0 code or its base header code; Python F-U6b-2's code), so parity there compares only accept against refuse (ROOT_RULINGS_V1 \"RV92 on the post-U6f round: one transport residue, declared by a scope sentence\"; RV92 u6f_02 N-9 (a), (b)). A numerically_eligible standing is a property of the supplied statement and its actual invocation, as the accepted reader checks them: no carrier authenticates producer origin, and none claims that a registered producer made the statement (ROOT_RULINGS_V1 \"RV93 on U3 grant 2: PASS; RV89 confirms the final basis re-qualified; U7 planned and ruled\", D-U7-6).",
+   "fixtures": {
+     "milestone_sparse_interactive": {
+       "path": "fixtures/results/retained_precision_milestone_successor_sparse_interactive.json",
+@@ -36,7 +36,7 @@
+       "invocation": "fixture",
+       "requested": "invocation",
+       "edits": [],
+-      "expected_standing": "needs_recompute",
++      "expected_standing": "numerically_eligible",
+       "expected_dispatch": "ok"
+     },
+     {
+@@ -143,7 +143,7 @@
+       "invocation": "fixture",
+       "requested": "invocation",
+       "edits": [],
+-      "expected_standing": "needs_recompute",
++      "expected_standing": "numerically_eligible",
+       "expected_dispatch": "ok"
+     },
+     {
+@@ -779,6 +779,73 @@
+           }
+         }
+       ]
++    },
++    {
++      "id": "D-U7-4:ts_requires_live_native_capture",
++      "kind": "language",
++      "ruling": "ROOT_RULINGS_V1 \"RV93 on U3 grant 2: PASS; RV89 confirms the final basis re-qualified; U7 planned and ruled\" (D-U7-4); RV91 u6d_01 N-2; RV88 u6d_01 S-1; I61 u7_scoping_01 PLAN section 2 row 5; I67 u7_slice_t_01",
++      "description": "A valid successor statement with its actual invocation, whose TS standing has no live native capture for these bytes and the current model: registered without an IPC capture, or read against a current model that differs from the captured one while keeping the same load-case ids. After U7, Rust and Python, given the invocation argument and requested refs equal to the receipt's case order, read numerically_eligible; TS binds standing to the live native capture (hasNativeMechanicsInvocation: an unchanged, not invalidated capture, unchanged bytes, and the current model equal to the captured one) and reads needs_recompute with RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED. Stricter; fails closed. Every TS consumer of eligible standing (session Current, the rule-check gate, the T6 panels) also requires hasNativeMechanicsInvocation.",
++      "forms": [
++        {
++          "label": "invocation_without_native_capture",
++          "fixtures": [
++            "milestone_sparse_interactive",
++            "milestone_dense_scrutiny"
++          ],
++          "invocation": "fixture",
++          "capture": "none",
++          "requested": "invocation",
++          "edits": [],
++          "subject": "standing",
++          "expected": {
++            "rust": {
++              "standing": "numerically_eligible"
++            },
++            "python": {
++              "standing": "numerically_eligible"
++            },
++            "typescript": {
++              "standing": "needs_recompute",
++              "finding": "RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED"
++            }
++          }
++        },
++        {
++          "label": "stale_current_model_same_case_ids",
++          "fixtures": [
++            "milestone_sparse_interactive",
++            "milestone_dense_scrutiny"
++          ],
++          "invocation": "fixture",
++          "requested": "invocation",
++          "edits": [],
++          "current_model_edits": [
++            {
++              "path": [
++                "nodes",
++                0,
++                "position",
++                "x"
++              ],
++              "op": "set",
++              "value": 1.0
++            }
++          ],
++          "subject": "standing",
++          "expected": {
++            "rust": {
++              "standing": "numerically_eligible"
++            },
++            "python": {
++              "standing": "numerically_eligible"
++            },
++            "typescript": {
++              "standing": "needs_recompute",
++              "finding": "RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED"
++            }
++          }
++        }
++      ]
+     }
+   ]
+ }
+diff --git a/projects/chirality-piping/fixtures/results/retained_precision_cases.json b/projects/chirality-piping/fixtures/results/retained_precision_cases.json
+index 8af31e0ea5..3807ca0954 100644
+--- a/projects/chirality-piping/fixtures/results/retained_precision_cases.json
++++ b/projects/chirality-piping/fixtures/results/retained_precision_cases.json
+@@ -5503,10 +5503,10 @@
+       ],
+       "expected": {
+         "invocation_bound": true,
+-        "numerical_eligible": false,
+-        "standing": "needs_recompute"
++        "numerical_eligible": true,
++        "standing": "eligible"
+       },
+-      "qualification": "DRAFT: full control and receipt work attestation audit incomplete; public API intentionally rejects."
++      "qualification": "DRAFT: full control and receipt work attestation audit incomplete; the public reader accepts it (D-U6-1); its eligibility is its expected value (U7)."
+     },
+     {
+       "id": "ordinary_prepared_dense_synthetic",
+@@ -10856,10 +10856,10 @@
+       ],
+       "expected": {
+         "invocation_bound": true,
+-        "numerical_eligible": false,
+-        "standing": "needs_recompute"
++        "numerical_eligible": true,
++        "standing": "eligible"
+       },
+-      "qualification": "DRAFT: full control and receipt work attestation audit incomplete; public API intentionally rejects."
++      "qualification": "DRAFT: full control and receipt work attestation audit incomplete; the public reader accepts it (D-U6-1); its eligibility is its expected value (U7)."
+     },
+     {
+       "id": "ordinary_prepared_no_data_synthetic",
+@@ -16395,10 +16395,10 @@
+       ],
+       "expected": {
+         "invocation_bound": true,
+-        "numerical_eligible": false,
+-        "standing": "needs_recompute"
++        "numerical_eligible": true,
++        "standing": "eligible"
+       },
+-      "qualification": "DRAFT: synthetic I57 section-5 zero/no-data positive control; zero-load receipt and its summary_coverage flags are synthetic producer attestations, not producer execution; full control and receipt work attestation audit incomplete; public API intentionally rejects."
++      "qualification": "DRAFT: synthetic I57 section-5 zero/no-data positive control; zero-load receipt and its summary_coverage flags are synthetic producer attestations, not producer execution; full control and receipt work attestation audit incomplete; the public reader accepts it (D-U6-1); its eligibility is its expected value (U7)."
+     },
+     {
+       "id": "ordinary_prepared_cancelled_loads_synthetic",
+@@ -21791,10 +21791,10 @@
+       ],
+       "expected": {
+         "invocation_bound": true,
+-        "numerical_eligible": false,
+-        "standing": "needs_recompute"
++        "numerical_eligible": true,
++        "standing": "eligible"
+       },
+-      "qualification": "DRAFT: synthetic I57 section-5 cancelled +x/-x positive control (native witness PP/retained_product_tests.rs:1460-1487); zero rows, synthetic B and summary_coverage attestations, not producer execution; public API intentionally rejects."
++      "qualification": "DRAFT: synthetic I57 section-5 cancelled +x/-x positive control (native witness PP/retained_product_tests.rs:1460-1487); zero rows, synthetic B and summary_coverage attestations, not producer execution; the public reader accepts it (D-U6-1); its eligibility is its expected value (U7)."
+     },
+     {
+       "id": "two_case_facade_after_certificate_synthetic",
+@@ -31045,7 +31045,7 @@
+         "numerical_eligible": false,
+         "standing": "needs_recompute"
+       },
+-      "qualification": "DRAFT: synthetic two-case unavailable template (C1a; rebased 06d). Case 1: certificate passed, then the adapter verdict-copy reservation was refused by the allocator (PP prepared_verdict_copy -> AdapterWork::reserve, Storage(\"adapter vector\")); complete proof-owned summary_coverage retained. Synthetic allocator refusal; not producer execution; public API intentionally rejects."
++      "qualification": "DRAFT: synthetic two-case unavailable template (C1a; rebased 06d). Case 1: certificate passed, then the adapter verdict-copy reservation was refused by the allocator (PP prepared_verdict_copy -> AdapterWork::reserve, Storage(\"adapter vector\")); complete proof-owned summary_coverage retained. Synthetic allocator refusal; not producer execution; the public reader accepts it (D-U6-1); its eligibility is its expected value (U7)."
+     },
+     {
+       "id": "two_case_preparation_failure_synthetic",
+@@ -38108,7 +38108,7 @@
+         "numerical_eligible": false,
+         "standing": "needs_recompute"
+       },
+-      "qualification": "DRAFT: synthetic two-case unavailable template (C1a; rebased 06d). Case 1: preparation refused before the first annulus helper by an allocator refusal at the first prepared reservation (PP prepared_reserve, Storage(\"prepared vector\")); no proof, no source, no native run. Synthetic allocator refusal; not producer execution; public API intentionally rejects. (07: explicit source_ref null, D9b.)"
++      "qualification": "DRAFT: synthetic two-case unavailable template (C1a; rebased 06d). Case 1: preparation refused before the first annulus helper by an allocator refusal at the first prepared reservation (PP prepared_reserve, Storage(\"prepared vector\")); no proof, no source, no native run. Synthetic allocator refusal; not producer execution; the public reader accepts it (D-U6-1); its eligibility is its expected value (U7). (07: explicit source_ref null, D9b.)"
+     },
+     {
+       "id": "two_body_synthetic",
+@@ -47526,10 +47526,10 @@
+       ],
+       "expected": {
+         "invocation_bound": true,
+-        "numerical_eligible": false,
+-        "standing": "needs_recompute"
++        "numerical_eligible": true,
++        "standing": "eligible"
+       },
+-      "qualification": "DRAFT: synthetic two-body model (C1b): a second, separately anchored, unloaded cantilever; body-1 zeros are source-forced, body-0 summaries and all work are synthetic attestations. Not producer execution; public API intentionally rejects."
++      "qualification": "DRAFT: synthetic two-body model (C1b): a second, separately anchored, unloaded cantilever; body-1 zeros are source-forced, body-0 summaries and all work are synthetic attestations. Not producer execution; the public reader accepts it (D-U6-1); its eligibility is its expected value (U7)."
+     },
+     {
+       "id": "p512_ladder_synthetic",
+@@ -57452,10 +57452,10 @@
+       ],
+       "expected": {
+         "invocation_bound": true,
+-        "numerical_eligible": false,
+-        "standing": "needs_recompute"
++        "numerical_eligible": true,
++        "standing": "eligible"
+       },
+-      "qualification": "DRAFT: synthetic two-body native p512 ladder (p128 rejected, reused p256 rejected, reused p512 accepted, p1024 verified); rejection triggers, work and summaries are synthetic attestations, floors are Phi = phi_512(e_hat). Not producer execution; public API intentionally rejects."
++      "qualification": "DRAFT: synthetic two-body native p512 ladder (p128 rejected, reused p256 rejected, reused p512 accepted, p1024 verified); rejection triggers, work and summaries are synthetic attestations, floors are Phi = phi_512(e_hat). Not producer execution; the public reader accepts it (D-U6-1); its eligibility is its expected value (U7)."
+     },
+     {
+       "id": "two_case_synthetic",
+@@ -67923,10 +67923,10 @@
+       ],
+       "expected": {
+         "invocation_bound": true,
+-        "numerical_eligible": false,
+-        "standing": "needs_recompute"
++        "numerical_eligible": true,
++        "standing": "eligible"
+       },
+-      "qualification": "DRAFT: synthetic two-load-case selected model (case 1 zero loads); summaries, work and coverage are synthetic attestations. Not producer execution; public API intentionally rejects."
++      "qualification": "DRAFT: synthetic two-load-case selected model (case 1 zero loads); summaries, work and coverage are synthetic attestations. Not producer execution; the public reader accepts it (D-U6-1); its eligibility is its expected value (U7)."
+     },
+     {
+       "id": "candidate_failure_skip_synthetic",
+@@ -73406,8 +73406,8 @@
+       ],
+       "expected": {
+         "invocation_bound": true,
+-        "numerical_eligible": false,
+-        "standing": "needs_recompute"
++        "numerical_eligible": true,
++        "standing": "eligible"
+       },
+       "qualification": "DRAFT: synthetic single-case native skip (p128 shared build Pivot failure, fresh p256 accepted, p512 verified); the Pivot and work are synthetic attestations. Not producer execution."
+     },
+@@ -79023,8 +79023,8 @@
+       ],
+       "expected": {
+         "invocation_bound": true,
+-        "numerical_eligible": false,
+-        "standing": "needs_recompute"
++        "numerical_eligible": true,
++        "standing": "eligible"
+       },
+       "qualification": "DRAFT: synthetic single-case native two-slot skip (p256 verification Condition failure, fresh p512 accepted, p1024 verified); the Condition and work are synthetic attestations. Not producer execution."
+     },
+@@ -89563,8 +89563,8 @@
+       ],
+       "expected": {
+         "invocation_bound": true,
+-        "numerical_eligible": false,
+-        "standing": "needs_recompute"
++        "numerical_eligible": true,
++        "standing": "eligible"
+       },
+       "qualification": "DRAFT: synthetic two-case shared cache (identical inputs; cached non-budget Pivot failure of s128 reused by case 1); triggers and work are synthetic attestations. Not producer execution."
+     },
+@@ -99967,8 +99967,8 @@
+       ],
+       "expected": {
+         "invocation_bound": true,
+-        "numerical_eligible": false,
+-        "standing": "needs_recompute"
++        "numerical_eligible": true,
++        "standing": "eligible"
+       },
+       "qualification": "DRAFT: synthetic two-case model; case 1 selects a named material point with E and G doubled, forming a second stiffness group in the same call. Rows derived by exact power-of-two scaling; work and summaries are synthetic attestations. Not producer execution."
+     },
+@@ -105338,8 +105338,8 @@
+       ],
+       "expected": {
+         "invocation_bound": true,
+-        "numerical_eligible": false,
+-        "standing": "needs_recompute"
++        "numerical_eligible": true,
++        "standing": "eligible"
+       },
+       "qualification": "DRAFT: synthetic base with a temperature-interpolated material (exact 200e9 at 301 K by the native operation order); not producer execution."
+     },
+@@ -110661,8 +110661,8 @@
+       ],
+       "expected": {
+         "invocation_bound": true,
+-        "numerical_eligible": false,
+-        "standing": "needs_recompute"
++        "numerical_eligible": true,
++        "standing": "eligible"
+       },
+       "qualification": "DRAFT: synthetic base with project length unit mm (positions x1000); not producer execution."
+     }
+@@ -131499,7 +131499,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": true,
++        "standing": "eligible"
++      }
+     },
+     {
+       "id": "loaded_all_stop_false",
+@@ -131538,7 +131543,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": true,
++        "standing": "eligible"
++      }
+     },
+     {
+       "id": "no_data_all_stop_true",
+@@ -131598,7 +131608,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": true,
++        "standing": "eligible"
++      }
+     },
+     {
+       "id": "no_data_attested_data_block",
+@@ -131672,7 +131687,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": true,
++        "standing": "eligible"
++      }
+     },
+     {
+       "id": "cancelled_all_stop_true",
+@@ -131732,7 +131752,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": true,
++        "standing": "eligible"
++      }
+     },
+     {
+       "id": "cert_failed_before_summary",
+@@ -131833,7 +131858,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": false,
++        "standing": "needs_recompute"
++      }
+     },
+     {
+       "id": "lane_k_failed",
+@@ -132102,7 +132132,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": false,
++        "standing": "needs_recompute"
++      }
+     },
+     {
+       "id": "lane_source_failed",
+@@ -132486,7 +132521,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": false,
++        "standing": "needs_recompute"
++      }
+     },
+     {
+       "id": "maxima_abandoned",
+@@ -132574,7 +132614,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": false,
++        "standing": "needs_recompute"
++      }
+     },
+     {
+       "id": "prefix_captured",
+@@ -132615,7 +132660,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": false,
++        "standing": "needs_recompute"
++      }
+     },
+     {
+       "id": "cert_failed_after_summary_storage",
+@@ -132704,7 +132754,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": false,
++        "standing": "needs_recompute"
++      }
+     },
+     {
+       "id": "two_body_swap_stop_with_rosters",
+@@ -132778,7 +132833,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": true,
++        "standing": "eligible"
++      }
+     },
+     {
+       "id": "p512_charge_follows_stop_zero_floor_body",
+@@ -132891,7 +132951,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": true,
++        "standing": "eligible"
++      }
+     },
+     {
+       "id": "copy_flags_into_unloaded",
+@@ -133007,7 +133072,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": true,
++        "standing": "eligible"
++      }
+     },
+     {
+       "id": "prefix_unattached_old_operand_attested",
+@@ -133030,7 +133100,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": false,
++        "standing": "needs_recompute"
++      }
+     },
+     {
+       "id": "values_failed_separate_completion",
+@@ -133136,7 +133211,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": false,
++        "standing": "needs_recompute"
++      }
+     },
+     {
+       "id": "aliases_abandoned",
+@@ -133224,7 +133304,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": false,
++        "standing": "needs_recompute"
++      }
+     },
+     {
+       "id": "bind_rows_abandoned",
+@@ -133312,7 +133397,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": false,
++        "standing": "needs_recompute"
++      }
+     },
+     {
+       "id": "interpolation_equal_e_bracketed_control",
+@@ -133353,7 +133443,12 @@
+           }
+         }
+       ],
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": true,
++        "standing": "eligible"
++      }
+     },
+     {
+       "id": "integral_float_integers_and_references",
+@@ -133744,7 +133839,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": true,
++        "standing": "eligible"
++      }
+     },
+     {
+       "id": "model_schema_version_0_1_0_accepted",
+@@ -133762,7 +133862,12 @@
+           "value": "0.1.0"
+         }
+       ],
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": true,
++        "standing": "eligible"
++      }
+     },
+     {
+       "id": "verification_estimate_names_moment_row",
+@@ -133822,7 +133927,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": true,
++        "standing": "eligible"
++      }
+     },
+     {
+       "id": "f5_envelope_reordered_exact_list",
+@@ -133950,7 +134060,12 @@
+         }
+       ],
+       "rehash": "all",
+-      "expected": "pass"
++      "expected": "pass",
++      "expected_eligibility": {
++        "invocation_bound": true,
++        "numerical_eligible": true,
++        "standing": "eligible"
++      }
+     }
+   ],
+   "d37": {
+diff --git a/projects/chirality-piping/tests/test_retained_precision_carriers.py b/projects/chirality-piping/tests/test_retained_precision_carriers.py
+index d09c352318..24764e1cc6 100644
+--- a/projects/chirality-piping/tests/test_retained_precision_carriers.py
++++ b/projects/chirality-piping/tests/test_retained_precision_carriers.py
+@@ -3,8 +3,9 @@ standing, binding refusal, classification summary, the AnalysisRun, and the
+ refusals of the legacy wrapper and the stress-neutral packager).
+ 
+ The milestone inputs are byte-identical copies of PP's pinned successor files
+-(D-U6-5): producer test outputs, not native Current evidence. Eligibility is held,
+-so standing is needs_recompute (D-U6-6); U7 owns the switch."""
++(D-U6-5): producer test outputs, not native Current evidence. Since U7 (D-U7-5) the
++reader's eligibility is on: with its actual invocation and requested cases the milestone
++stands numerically_eligible, and without them needs_recompute."""
+ from copy import deepcopy
+ import hashlib
+ import json
+@@ -104,13 +105,13 @@ def test_dispatch_admits_the_successor_through_the_accepted_reader_only(mode):
+ 
+ 
+ @pytest.mark.parametrize("mode", MODES)
+-def test_standing_is_needs_recompute_and_comes_only_from_the_receipt(mode):
++def test_standing_is_eligible_only_with_the_invocation_and_comes_only_from_the_receipt(mode):
+     source, invocation = milestone(mode)
+     refs = requested(invocation)
+     assert c.numerical_use_standing(source, refs) == "needs_recompute"
+-    assert c.numerical_use_standing(source, refs, invocation) == "needs_recompute"
++    assert c.numerical_use_standing(source, refs, invocation) == "numerically_eligible"
+     validation = rp.validate_retained_precision(source, invocation)
+-    assert validation["invocation_bound"] and not validation["numerical_eligible"]
++    assert validation["invocation_bound"] and validation["numerical_eligible"]
+     row = deepcopy(source)
+     row["results"][0]["value"] = row["results"][0]["value"] * 2.0 + 1.0
+     assert c.numerical_use_standing(row, refs) == "unsupported"
+@@ -131,8 +132,23 @@ def test_standing_is_needs_recompute_and_comes_only_from_the_receipt(mode):
+     assert c.numerical_use_standing(claimed, refs, invocation) == "unsupported"
+ 
+ 
++@pytest.mark.parametrize("mode", MODES)
++def test_a_solved_status_is_required_before_the_eligibility_conjunct(mode):
++    """U7: a hash-consistent successor whose mechanics status is not MECHANICS_SOLVED is refused
++    at G7 by the base preview validator (a blocked envelope carries no preview evidence), so the
++    reader's own MECHANICS_SOLVED conjunct is never the deciding one (I66 U7 slice F, mutant C2)."""
++    source, invocation = milestone(mode)
++    for status in ("MODEL_INCOMPLETE", "MECHANICS_FAILED", "NOT_RUN"):
++        unsolved = deepcopy(source)
++        unsolved["status"]["mechanics"] = status
++        with pytest.raises(rp.RetainedPrecisionError) as error:
++            rp.validate_retained_precision(rehash(unsolved), invocation)
++        assert (error.value.gate, error.value.code) == ("G7", "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"), status
++        assert c.numerical_use_standing(rehash(unsolved), requested(invocation), invocation) == "unsupported"
++
++
+ def test_standing_rule_conjuncts_with_eligibility_set():
+-    """The post-U7 rule, through the seam with eligibility set; no flag is touched."""
++    """The standing rule's conjuncts, through the seam (the reader's eligibility is on since U7)."""
+     source, invocation = milestone("sparse_interactive")
+     refs = requested(invocation)
+     validation = dict(rp.validate_retained_precision(source, invocation), numerical_eligible=True)
+@@ -183,14 +199,17 @@ CASES = ROOT / "fixtures/results/retained_precision_carrier_cases.json"
+ # RR "RV88 on U6a, U6c, U6b (and U6d)": the only ruled differences between the
+ # languages' carriers; any other difference is a defect.
+ # RR "RV92 (U6f) on the whole of U6" adds the fifth (N-2, with N-5) and widens I67-F2 (N-3).
++# RR "The memory branch merged into NUM; U7 slices T and P committed" adds D-U7-4 (format v4).
+ DECLARED = {"I67-F1:unregistered_invalid_statement", "I67-F2:display_only_binding_precheck",
+             "F-U6b-2:python_refuses_transport", "F5:refused_statement_binding",
+-            "RV92-N2-N5:ts_refuses_token_rows_at_the_header"}
++            "RV92-N2-N5:ts_refuses_token_rows_at_the_header", "D-U7-4:ts_requires_live_native_capture"}
++# Every field a v4 form may carry; any other field is a defect, never silently ignored.
++FORM_FIELDS = {"label", "fixtures", "invocation", "capture", "requested", "edits", "current_model_edits", "subject", "expected"}
+ 
+ 
+ def shared_cases():
+     cases = json.loads(CASES.read_text())
+-    assert cases["format"] == "I66-U6-CARRIER-CASES-v3"
++    assert cases["format"] == "I66-U6-CARRIER-CASES-v4"
+     docs = {}
+     for fid, spec in cases["fixtures"].items():
+         raw = (ROOT / spec["path"]).read_bytes()
+@@ -233,7 +252,7 @@ def test_shared_carrier_cases_python():
+ 
+ def expected_summary(source):
+     """'by_validated_class': per receipt case, the reader's class counts, interval
+-    binding 0, and the held withheld count (eligibility is held until U7)."""
++    binding 0, and the not-Current withheld count (these forms carry no invocation)."""
+     classes = rp.validate_retained_precision(source)["classifications"]
+     out = []
+     for case in source["retained_precision"]["body"]["cases"]:
+@@ -266,7 +285,8 @@ def test_declared_differences_python():
+     """Each ruled difference, form by form, with Python's own expectation; Rust
+     asserts its own from the same entries, and TS (I67) its own."""
+     cases, docs = shared_cases()
+-    assert all(p in cases["scope"] for p in ("G7 parity compares the reader's (gate, code)", "parity there compares only accept against refuse"))
++    assert all(p in cases["scope"] for p in ("G7 parity compares the reader's (gate, code)", "parity there compares only accept against refuse",
++                                              "no carrier authenticates producer origin"))
+     entries = cases["declared_differences"]
+     assert {entry["id"] for entry in entries} == DECLARED and len(entries) == len(DECLARED)
+     seen = set()
+@@ -274,10 +294,29 @@ def test_declared_differences_python():
+         assert entry["ruling"] and entry["kind"] in {"language", "semantics"} and entry["forms"], entry["id"]
+         for form in entry["forms"]:
+             assert set(form["expected"]) == {"rust", "python", "typescript"}, (entry["id"], form["label"])
++            assert set(form) <= FORM_FIELDS, (entry["id"], form["label"], set(form) - FORM_FIELDS)
++            # v4 'capture': 'none' is TS's (no IPC capture); Python reads the invocation argument as for 'fixture'.
++            assert form.get("capture", "none") == "none" and ("capture" not in form or form["invocation"] == "fixture"), form["label"]
+             expected = form["expected"]["python"]
+             for fid in form["fixtures"]:
+                 source, context, refs = apply_case(form, docs[fid])
+                 label = (entry["id"], form["label"], fid)
++                # v4 'current_model_edits' change only TS's current model: applied here to a copy of the
++                # invocation's model, they must change it, and Python's inputs (source, invocation, refs) stay as they are.
++                if "current_model_edits" in form:
++                    model = deepcopy(docs[fid]["invocation"]["request"]["model"])
++                    before = deepcopy(model)
++                    for edit in form["current_model_edits"]:
++                        assert edit["op"] == "set" and set(edit) == {"path", "op", "value"}, label
++                        target = model
++                        for key in edit["path"][:-1]:
++                            target = target[key]
++                        assert edit["path"][-1] in target, label
++                        target[edit["path"][-1]] = edit["value"]
++                    assert model != before and context == docs[fid]["invocation"], label
++                    seen.add(("current_model_edits", True))
++                if "capture" in form:
++                    seen.add(("capture", form["capture"]))
+                 seen.add((form["subject"], expected.get(form["subject"])))
+                 if form["subject"] == "standing":
+                     assert c.numerical_use_standing(source, refs, context) == expected["standing"], label
+@@ -289,8 +328,9 @@ def test_declared_differences_python():
+                 else:
+                     assert form["subject"] == "binding", label
+                     assert [c.rule_binding_refusal(source, row) for row in source["results"]] == expected_binding(source, expected["binding"]), label
+-    # Every subject and vocabulary that Python consumes is exercised.
+-    assert {subject for subject, _ in seen} == {"standing", "transport", "binding", "summary"}
++    # Every subject, vocabulary and v4 field that Python consumes is exercised, D-U7-4's side included.
++    assert {subject for subject, _ in seen} == {"standing", "transport", "binding", "summary", "current_model_edits", "capture"}
++    assert ("standing", "numerically_eligible") in seen
+ 
+ 
+ def dispatch_transport(source):
+@@ -432,16 +472,17 @@ def test_classification_summary_counts_validated_classes(mode):
+     expected = [{"case_id": case_id, "relative_verified": relative, "absolute_verified": absolute, "interval_bindable": 0,
+                  "not_covered": 0, "input_derived": input_derived, "non_quantity": non_quantity,
+                  "withheld": relative + absolute + input_derived}]
+-    assert c.classification_summary(source, invocation) == expected
++    current = deepcopy(expected)
++    current[0]["withheld"] = absolute
++    # U7: with its actual invocation the envelope is Current, so only absolute (and not-covered) rows stay withheld.
++    assert c.classification_summary(source, invocation) == current
+     assert c.classification_summary(source) == expected
+     broken = deepcopy(source)
+     broken["results"][0]["value"] = 12345.0
+     assert c.classification_summary(broken, invocation) == []
+     assert c.classification_summary(projected(source)) == []
+-    # After U7 (through the seam): only absolute and not-covered rows stay withheld.
++    # Through the seam: only absolute and not-covered rows stay withheld when Current.
+     validation = dict(rp.validate_retained_precision(source, invocation), numerical_eligible=True)
+-    current = deepcopy(expected)
+-    current[0]["withheld"] = absolute
+     assert c._classification_summary_from(validation, source, invocation) == current
+     assert c._classification_summary_from(validation, source, None) == expected
+     other = deepcopy(invocation)
+diff --git a/projects/chirality-piping/tests/test_retained_precision_contract.py b/projects/chirality-piping/tests/test_retained_precision_contract.py
+index 42fe690ad6..d44a2a0e04 100644
+--- a/projects/chirality-piping/tests/test_retained_precision_contract.py
++++ b/projects/chirality-piping/tests/test_retained_precision_contract.py
+@@ -146,11 +146,12 @@ def test_complete_synthetic_draft_control_is_not_qualification():
+         result = rp._validate_draft(source, invocation)
+         assert result["classifications"] == fixture["expected_classifications"]
+         assert result["invocation_bound"]
+-        assert result["numerical_eligible"] is False
+-        assert result["standing"] == "needs_recompute"
++        # U7 (07i, D-U7-2): the shared expectation; 13 bases are eligible, the two with an unavailable case are not.
++        assert result["numerical_eligible"] is fixture["expected"]["numerical_eligible"]
++        assert result["standing"] == fixture["expected"]["standing"]
+         assert source == fixture["source"] and invocation == fixture["invocation"]
+         assert rp._validate_draft(source)["numerical_eligible"] is False
+-        # D-U6-1: the public entry runs every gate; the flag holds eligibility only.
++        # D-U6-1: the public entry runs every gate; the flag gates eligibility only.
+         assert rp.validate_retained_precision(source, invocation) == result
+         assert rp.validate_retained_precision(source)["numerical_eligible"] is False
+ 
+@@ -162,16 +163,22 @@ def _outcome(entry, source, invocation):
+         return ("refuse", error.gate, error.code, error.detail)
+ 
+ 
++NOT_ELIGIBLE = {"invocation_bound": False, "numerical_eligible": False, "standing": "needs_recompute"}
++
++
+ def _corpus_entries():
++    """(label, source, invocation, expected eligibility if it passes): a base's
++    `expected`, a must-pass entry's `expected_eligibility` (07i), or not eligible
++    without an invocation. Mutations all refuse, so they carry None."""
+     data = corpus()
+     for fixture in data["cases"]:
+-        yield fixture["id"], deepcopy(fixture["source"]), deepcopy(fixture["invocation"])
+-        yield fixture["id"] + ":no-invocation", deepcopy(fixture["source"]), None
++        yield fixture["id"], deepcopy(fixture["source"]), deepcopy(fixture["invocation"]), fixture["expected"]
++        yield fixture["id"] + ":no-invocation", deepcopy(fixture["source"]), None, NOT_ELIGIBLE
+     for kind in ("mutations", "must_pass"):
+         for entry in data.get(kind, []):
+             fixture = next(f for f in data["cases"] if f["id"] == entry["base"])
+             source, invocation = apply_entry(fixture, entry)
+-            yield entry["id"], source, invocation
++            yield entry["id"], source, invocation, entry.get("expected_eligibility")
+ 
+ 
+ MILESTONE_PINS = {
+@@ -190,14 +197,16 @@ def _milestone(mode):
+ 
+ def test_public_entry_equals_the_draft_on_every_corpus_entry():
+     """D-U6-1: no input changes its accept/refuse outcome except by reaching the
+-    gates the public entry previously short-circuited at G0; eligibility stays off."""
++    gates the public entry previously short-circuited at G0. U7: a passing entry's
++    eligibility is its shared expectation (07i)."""
+     count = 0
+-    for label, source, invocation in _corpus_entries():
++    for label, source, invocation, eligibility in _corpus_entries():
+         public = _outcome(rp.validate_retained_precision, deepcopy(source), deepcopy(invocation))
+         draft = _outcome(rp._validate_draft, deepcopy(source), deepcopy(invocation))
+         assert public == draft, label
+         if public[0] == "pass":
+-            assert public[1]["numerical_eligible"] is False and public[1]["standing"] == "needs_recompute", label
++            got = {key: public[1][key] for key in ("invocation_bound", "numerical_eligible", "standing")}
++            assert got == eligibility, label
+         count += 1
+     assert count == 2 * len(corpus()["cases"]) + len(corpus()["mutations"]) + len(corpus().get("must_pass", []))
+ 
+@@ -208,7 +217,9 @@ def test_public_entry_on_the_real_milestone_receipts(mode):
+     for invocation in (doc["invocation"], None):
+         public = rp.validate_retained_precision(deepcopy(doc["source"]), deepcopy(invocation))
+         assert public == rp._validate_draft(deepcopy(doc["source"]), deepcopy(invocation))
+-        assert public["numerical_eligible"] is False and public["standing"] == "needs_recompute"
++        # U7: with its actual invocation the solved one-case milestone is eligible; without, not.
++        assert public["numerical_eligible"] is (invocation is not None)
++        assert public["standing"] == ("eligible" if invocation is not None else "needs_recompute")
+         assert public["invocation_bound"] is (invocation is not None)
+         counts = [sum(1 for c in public["classifications"] if c["class"] == k) for k in ("relative_verified", "absolute_verified", "input_derived", "non_quantity")]
+         assert counts == MILESTONE_PINS[mode][1], (mode, counts)
+@@ -242,7 +253,9 @@ def test_old_operational_error_is_retained_independently_of_new_ready():
+     }], "rehash":"all"})
+     result = rp._validate_draft(source, fixture["invocation"])
+     assert result["classifications"] == fixture["expected_classifications"]
+-    assert result["numerical_eligible"] is False
++    # U7: the edit touches product_attempts only, so the base's eligibility holds.
++    assert fixture["expected"]["numerical_eligible"] is True
++    assert result["numerical_eligible"] is True
+ 
+ 
+ def test_native_source_encoding_domain_and_load_separation():
+@@ -277,7 +290,9 @@ def test_shared_publicly_consistent_attestations_must_pass(entry):
+     source, invocation = apply_entry(fixture, entry)
+     result = rp._validate_draft(source, invocation)
+     assert result["classifications"] == fixture["expected_classifications"]
+-    assert result["numerical_eligible"] is False
++    # U7 (07i): 13 entries are eligible; the 10 with an unavailable case are not.
++    got = {key: result[key] for key in ("invocation_bound", "numerical_eligible", "standing")}
++    assert got == entry["expected_eligibility"]
+ 
+ 
+ def _layout_index(source, predicate):
+@@ -621,14 +636,18 @@ def test_rv79_surviving_mutants_m06_m09_m14():
+ 
+ 
+ def test_snapshot_07_counts_and_entry_format():
+-    """Snapshot 07h (I61 U6e repair; RV90 S1, N1, N2, N4): 15 cases, 277 mutations, 23 must-pass and
+-    the D37 table; only rehash "all" (D11); one expectation per entry except the per-reader G7 entry."""
++    """Snapshot 07i (U7, D-U7-2, on 07h: I61 U6e repair; RV90 S1, N1, N2, N4): 15 cases, 277 mutations,
++    23 must-pass and the D37 table; only rehash "all" (D11); one expectation per entry except the
++    per-reader G7 entry; each must-pass entry also states its eligibility."""
+     c = corpus()
+     assert (len(c["cases"]), len(c["mutations"]), len(c["must_pass"])) == (15, 277, 23)
+     assert set(c) == {"version", "provenance", "arithmetic", "cases", "mutations", "must_pass", "d37"}
+     entries = c["mutations"] + c["must_pass"]
+     assert all(e["rehash"] == "all" for e in entries)
+-    assert all(set(e) <= {"id", "base", "edits", "invocation_edits", "after_rehash", "rehash", "expected", "expected_by_reader"} for e in entries)
++    assert all(set(e) <= {"id", "base", "edits", "invocation_edits", "after_rehash", "rehash", "expected", "expected_by_reader", "expected_eligibility"} for e in entries)
++    assert all(("expected_eligibility" in e) == (e in c["must_pass"]) for e in entries)
++    eligible = lambda items, key: sum(item[key]["numerical_eligible"] for item in items)
++    assert (eligible(c["cases"], "expected"), eligible(c["must_pass"], "expected_eligibility")) == (13, 13)
+     assert [e["id"] for e in entries if "expected_by_reader" in e] == ["g7_maximum_off_enclosure"]
+     assert len({e["id"] for e in entries}) == len(entries)
+ 

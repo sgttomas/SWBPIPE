@@ -1,0 +1,358 @@
+{
+ "only_base": [
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the inputs and the pinned identity uses PP's byte-identical successors and the shared 20-case file (format v3)"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the post-U7 standing rules (seams; the reader's flag is untouched) is numerically_eligible only with every conjunct"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the post-U7 standing rules (seams; the reader's flag is untouched) counts withheld rows by standing (Rust classification_summary_from)"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: the simulated post-U7 path through the real carriers without absolute rows there is no absolute summary notice"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: the simulated post-U7 path through the real carriers without absolute rows there is no absolute summary notice"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: the rule-check gate and binding refusals (eligibility held) refuses a registered successor before any rule backend call, and unregistered bytes as not native"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: the rule-check gate and binding refusals (eligibility held) binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: the rule-check gate and binding refusals (eligibility held) summarizes classes per case over the registration only"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: the rule-check gate and binding refusals (eligibility held) refuses a registered successor before any rule backend call, and unregistered bytes as not native"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: the rule-check gate and binding refusals (eligibility held) binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: the rule-check gate and binding refusals (eligibility held) summarizes classes per case over the registration only"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the declared differences, with TypeScript's expectations are exactly the five ruled entries, each with a ruling, forms and one expectation per language"
+  ],
+  [
+   "src/features/results/retainedPrecisionOutputRefusal.test.tsx",
+   "other consumers are unchanged and never make a successor Current sparse_interactive: a registered successor is fresh but never numerically eligible, so it is never Current"
+  ],
+  [
+   "src/features/results/retainedPrecisionOutputRefusal.test.tsx",
+   "other consumers are unchanged and never make a successor Current dense_scrutiny: a registered successor is fresh but never numerically eligible, so it is never Current"
+  ],
+  [
+   "src/features/results/retainedPrecisionOutputRefusal.test.tsx",
+   "other consumers are unchanged and never make a successor Current the notices component renders the successor's preview and class notices as text only"
+  ]
+ ],
+ "only_cand": [
+  [
+   "src/features/results/retainedPrecision.test.ts",
+   "shared synthetic prepared receipt controls, never solver execution evidence must pass: not_required_second_case_checks_passed"
+  ],
+  [
+   "src/features/results/retainedPrecision.test.ts",
+   "07g round (I61 U6e): F5 and RV79-N1 U7: a solved status is required before the eligibility conjunct; a blocked envelope is refused at G7 with TS's own base code"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the inputs and the pinned identity uses PP's byte-identical successors and the shared 20-case file (format v4)"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the post-U7 standing rules (seams, independent of the reader's flag) is numerically_eligible only with every conjunct"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the post-U7 standing rules (seams, independent of the reader's flag) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the post-U7 standing rules (seams, independent of the reader's flag) counts withheld rows by standing (Rust classification_summary_from)"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: the post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: the post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: the post-U7 path through the real carriers without absolute rows there is no absolute summary notice"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: the post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: the post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: the post-U7 path through the real carriers without absolute rows there is no absolute summary notice"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: the rule-check gate and binding refusals passes a registered successor to the rule backend with its invocation (U7); copies and refused bytes are not native; the held reader's needs_recompute is refused before any backend call"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: the rule-check gate and binding refusals binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: the rule-check gate and binding refusals summarizes classes per case over the registration only"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: the rule-check gate and binding refusals passes a registered successor to the rule backend with its invocation (U7); copies and refused bytes are not native; the held reader's needs_recompute is refused before any backend call"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: the rule-check gate and binding refusals binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: the rule-check gate and binding refusals summarizes classes per case over the registration only"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the declared differences, with TypeScript's expectations are exactly the six ruled entries, each with a ruling, forms and one expectation per language, in closed field sets"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the declared differences, with TypeScript's expectations D-U7-4:ts_requires_live_native_capture / invocation_without_native_capture on milestone_sparse_interactive"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the declared differences, with TypeScript's expectations D-U7-4:ts_requires_live_native_capture / invocation_without_native_capture on milestone_dense_scrutiny"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the declared differences, with TypeScript's expectations D-U7-4:ts_requires_live_native_capture / stale_current_model_same_case_ids on milestone_sparse_interactive"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the declared differences, with TypeScript's expectations D-U7-4:ts_requires_live_native_capture / stale_current_model_same_case_ids on milestone_dense_scrutiny"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the declared differences, with TypeScript's expectations D-U7-4:ts_requires_live_native_capture / invocation_without_native_capture on milestone_sparse_interactive: the summary's withheld is the not-Current count"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the declared differences, with TypeScript's expectations D-U7-4:ts_requires_live_native_capture / invocation_without_native_capture on milestone_dense_scrutiny: the summary's withheld is the not-Current count"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the declared differences, with TypeScript's expectations D-U7-4:ts_requires_live_native_capture / stale_current_model_same_case_ids on milestone_sparse_interactive: the summary's withheld is the not-Current count"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "the declared differences, with TypeScript's expectations D-U7-4:ts_requires_live_native_capture / stale_current_model_same_case_ids on milestone_dense_scrutiny: the summary's withheld is the not-Current count"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: standing is bound to the live native capture and the current model (U7 slice T) eligible only for the captured model; another model with the same case ids reads needs_recompute"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: standing is bound to the live native capture and the current model (U7 slice T) an edit of the caller's model object after the capture voids the binding"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: standing is bound to the live native capture and the current model (U7 slice T) a job cancelled while the reader validates keeps no live capture"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: standing is bound to the live native capture and the current model (U7 slice T) a registration without a native capture is never eligible"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: standing is bound to the live native capture and the current model (U7 slice T) with the held reader (u7.held), every one of these reads as before U7 (NOT_NUMERICALLY_ELIGIBLE)"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: standing is bound to the live native capture and the current model (U7 slice T) eligible only for the captured model; another model with the same case ids reads needs_recompute"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: standing is bound to the live native capture and the current model (U7 slice T) an edit of the caller's model object after the capture voids the binding"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: standing is bound to the live native capture and the current model (U7 slice T) a job cancelled while the reader validates keeps no live capture"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: standing is bound to the live native capture and the current model (U7 slice T) a registration without a native capture is never eligible"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: standing is bound to the live native capture and the current model (U7 slice T) with the held reader (u7.held), every one of these reads as before U7 (NOT_NUMERICALLY_ELIGIBLE)"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: the class notices do not depend on standing (U7 slice T) an eligible successor shows exactly the notices a held one does; only `withheld` would differ"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: the class notices do not depend on standing (U7 slice T) an eligible successor shows exactly the notices a held one does; only `withheld` would differ"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: the T6 panels refuse a successor by an explicit gate (U7 slice T) result export: no packet is offered even when its builder would not refuse"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "sparse_interactive: the T6 panels refuse a successor by an explicit gate (U7 slice T) stress-neutral: the live binding is closed by the gate, and the panel shows the shared refusal"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: the T6 panels refuse a successor by an explicit gate (U7 slice T) result export: no packet is offered even when its builder would not refuse"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "dense_scrutiny: the T6 panels refuse a successor by an explicit gate (U7 slice T) stress-neutral: the live binding is closed by the gate, and the panel shows the shared refusal"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) pins the mapping from each token to TS's status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) the shared file's eligible cases are exactly these"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) sparse_interactive:invocation: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) sparse_interactive:no_invocation: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) sparse_interactive:no_requested: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) sparse_interactive:other_requested: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) sparse_interactive:edited_row: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) sparse_interactive:foreign_mode: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) sparse_interactive:relabelled_base_with_receipt: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) dense_scrutiny:invocation: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) dense_scrutiny:no_invocation: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) dense_scrutiny:no_requested: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) dense_scrutiny:other_requested: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) dense_scrutiny:edited_row: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) dense_scrutiny:foreign_mode: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) dense_scrutiny:relabelled_base_with_receipt: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) legacy_0_1:token_last_row_only: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) legacy_0_1:receipt_member_empty: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) legacy_0_1:receipt_member_null: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) preview_physics_1:token_last_row_only: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) preview_physics_1:receipt_member_empty: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) preview_physics_1:receipt_member_null: token and status"
+  ],
+  [
+   "src/features/results/retainedPrecisionOutputRefusal.test.tsx",
+   "other consumers are unchanged; the standing session Current reads of a successor sparse_interactive: a registered successor is fresh and numerically eligible for its captured model only (U7)"
+  ],
+  [
+   "src/features/results/retainedPrecisionOutputRefusal.test.tsx",
+   "other consumers are unchanged; the standing session Current reads of a successor dense_scrutiny: a registered successor is fresh and numerically eligible for its captured model only (U7)"
+  ],
+  [
+   "src/features/results/retainedPrecisionOutputRefusal.test.tsx",
+   "other consumers are unchanged; the standing session Current reads of a successor the notices component renders the successor's preview and class notices as text only"
+  ]
+ ]
+}

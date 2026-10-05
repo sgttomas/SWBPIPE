@@ -1,0 +1,236 @@
+{
+  "loaded_guard_exact_midpoint_proof": {
+    "exact_guard_product": "9442284654521309888195874665/9671406556917033397649408",
+    "lower_midpoint": "17175415731837909/17592186044416",
+    "upper_midpoint": "17175415731837911/17592186044416",
+    "rounded_bits": "408e82798cc86deb",
+    "strict_containment": true,
+    "coupling_fact": "L=1; original E_force > original E_moment, so both coupled values equal original E_force"
+  },
+  "status": "PASS",
+  "changed_analysis_leaves": [
+    {
+      "path": "/cases/loaded/g5a_arithmetic/resolution_guard_bits/1",
+      "old": "4042f77f9ea1ecb3",
+      "new": "408e82798cc86deb"
+    }
+  ],
+  "all_other_analysis_leaves_unchanged": true,
+  "rx_counterexample_byte_identical": true,
+  "stdout_byte_identical": true,
+  "captured_inputs_byte_identical": true,
+  "unchanged_numeric_scale_failure_subtrees": [
+    "zero/ordinary",
+    "zero/native_actual_point",
+    "zero/algebraic_direct_unit_projection",
+    "zero/ordinary_scales",
+    "zero/projected_recomputed_scales",
+    "zero/failures",
+    "zero/negative_zero_rows",
+    "loaded/ordinary",
+    "loaded/native_actual_point",
+    "loaded/algebraic_direct_unit_projection",
+    "loaded/ordinary_scales",
+    "loaded/projected_recomputed_scales",
+    "loaded/failures",
+    "loaded/negative_zero_rows"
+  ],
+  "original_files_unchanged": 10,
+  "abstract_scalar_controls": [
+    {
+      "name": "nonunit_force_from_moment",
+      "nodes": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          4
+        ]
+      ],
+      "uncoupled": [
+        3,
+        20
+      ],
+      "L_bits": "4010000000000000",
+      "coupled_bits": [
+        "4014000000000000",
+        "4034000000000000"
+      ],
+      "guarded_bits": [
+        "4014000000001400",
+        "4034000000001400"
+      ]
+    },
+    {
+      "name": "nonunit_moment_from_force",
+      "nodes": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          4
+        ]
+      ],
+      "uncoupled": [
+        20,
+        3
+      ],
+      "L_bits": "4010000000000000",
+      "coupled_bits": [
+        "4034000000000000",
+        "4054000000000000"
+      ],
+      "guarded_bits": [
+        "4034000000001400",
+        "4054000000001400"
+      ]
+    },
+    {
+      "name": "nonunit_division_rounding",
+      "nodes": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          2,
+          2
+        ]
+      ],
+      "uncoupled": [
+        1,
+        10
+      ],
+      "L_bits": "4008000000000000",
+      "coupled_bits": [
+        "400aaaaaaaaaaaab",
+        "4024000000000000"
+      ],
+      "guarded_bits": [
+        "400aaaaaaaaac556",
+        "4024000000001400"
+      ]
+    },
+    {
+      "name": "zero_extent_omits_coupling",
+      "nodes": [
+        [
+          2,
+          3,
+          4
+        ],
+        [
+          2,
+          3,
+          4
+        ]
+      ],
+      "uncoupled": [
+        3,
+        20
+      ],
+      "L_bits": "0000000000000000",
+      "coupled_bits": [
+        "4008000000000000",
+        "4034000000000000"
+      ],
+      "guarded_bits": [
+        "4008000000001800",
+        "4034000000001400"
+      ]
+    },
+    {
+      "name": "zero_rule_keeps_original_force_E",
+      "nodes": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          4
+        ]
+      ],
+      "uncoupled": [
+        0,
+        20
+      ],
+      "L_bits": "4010000000000000",
+      "coupled_bits": [
+        "4014000000000000",
+        "4034000000000000"
+      ],
+      "guarded_bits": [
+        "4014000000001400",
+        "4034000000001400"
+      ],
+      "negative_zero_bits": "8000000000000000",
+      "original_E_zero_rule_rejects": true,
+      "coupled_E_mutant_wrongly_accepts": true
+    },
+    {
+      "name": "extent_operation_order",
+      "nodes_hex": [
+        [
+          "0x0p+0",
+          "0x0p+0",
+          "0x0p+0"
+        ],
+        [
+          "0x1p+0",
+          "0x1.6c00000000000p-27",
+          "0x1.6c00000000000p-27"
+        ]
+      ],
+      "L_bits": "3ff0000000000001",
+      "expected_bits": "3ff0000000000001"
+    }
+  ],
+  "controls_are": "exact scalar algebra only; no admitted model, solver or product execution",
+  "actual_coupling_inputs": {
+    "zero": {
+      "body_extent_bits": "3ff0000000000000",
+      "uncoupled_resolution_bits": [
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "coupled_resolution_bits": [
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "guarded_resolution_bits": [
+        "0000000000000000",
+        "0000000000000000"
+      ],
+      "zero_rule_uses": "original uncoupled resolution"
+    },
+    "loaded": {
+      "body_extent_bits": "3ff0000000000000",
+      "uncoupled_resolution_bits": [
+        "408e82798cc84f69",
+        "4042f77f9ea1d9bc"
+      ],
+      "coupled_resolution_bits": [
+        "408e82798cc84f69",
+        "408e82798cc84f69"
+      ],
+      "guarded_resolution_bits": [
+        "408e82798cc86deb",
+        "408e82798cc86deb"
+      ],
+      "zero_rule_uses": "original uncoupled resolution"
+    }
+  }
+}

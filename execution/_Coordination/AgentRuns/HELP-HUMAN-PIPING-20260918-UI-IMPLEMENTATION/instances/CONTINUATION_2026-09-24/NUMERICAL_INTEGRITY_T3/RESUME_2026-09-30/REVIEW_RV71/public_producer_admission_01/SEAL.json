@@ -1,0 +1,46 @@
+{
+  "status": "SEALED_ONCE",
+  "sealed_utc": "2026-10-03T14:35:25.146192+00:00",
+  "reviewer": "/root/rv71_public_producer_admission",
+  "role": "TASK Type 2",
+  "parent": "/root HELP_HUMAN",
+  "mechanism": "delegated-harness-native descendant; no descendants",
+  "receipt_utc": "2026-10-03T13:55:49Z",
+  "initial_assessment_utc": "2026-10-03T13:59:23.551702+00:00",
+  "frozen_assessment_utc": "2026-10-03T14:21:42.957784+00:00",
+  "analysis_stopped_utc": "2026-10-03T14:35:00.540526+00:00",
+  "new_investigation_deadline": "2026-10-03T15:10:49Z",
+  "seal_deadline": "2026-10-03T15:25:49Z",
+  "verdict": "Conditional CLEAR for bounded design/prerequisite fan-in; RV71-1 closed; no unresolved blocking design finding. No qualified production permit, M, complete resource profile, public execution or full F2a C0.",
+  "reviewed_candidate": "8a7ae33ec0803231181f1af20665a8dc7c3a1c4c",
+  "reviewed_author_seal_sha256": "7812f66fa2742a0caeaa17cff16867fc3bfc2939e95516a8f9d2d2a39ed12dea",
+  "reviewed_author_manifest_sha256": "9a29e7c0eaaa49c40dbbbf4d13bbb9a7e1b5da09857fb76d5eb5e2dc3deabdc7",
+  "files": [
+    {
+      "path": "AUDIT.json",
+      "bytes": 23160,
+      "sha256": "89f9c22ea4f13523d8f3ec4f17663950c8bfdb9a6b3635bd57c17e662c8f1d3a"
+    },
+    {
+      "path": "INITIAL_ASSESSMENT.md",
+      "bytes": 8325,
+      "sha256": "d52cfd0dae05b6834cf77d2a0a077fe113be42dffc0bc22c41abe0749eb5bb1f"
+    },
+    {
+      "path": "ORIGINS.json",
+      "bytes": 27265,
+      "sha256": "6710169ee899978d5a3e0619871bb35be7aa7624d2666bcd36cd6086b57c4605"
+    },
+    {
+      "path": "REVIEW.md",
+      "bytes": 8992,
+      "sha256": "587224fe3b2fe1096ca8ba7357638861e46b713c6edfe7e239dd9992cc6fa8df"
+    }
+  ],
+  "runtime_commands": 0,
+  "maintained_source_writes": 0,
+  "git_index_api_writes": 0,
+  "descendants": 0,
+  "owned_background_processes_started": 0,
+  "writing_boundary": "Only this new review evidence directory; no external bulk was necessary."
+}

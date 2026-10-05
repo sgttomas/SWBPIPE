@@ -1,0 +1,10 @@
+{
+  "new_log": "baseline_pp.log",
+  "original_log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV60/product_vertical_01/_run_records/baseline_pp.log",
+  "parsed_json_records": 14,
+  "actual_json_equal": true,
+  "independent_exact_result_objects_equal": true,
+  "adapter_work_expected_to_increase": true,
+  "literal_json_lines_equal": true,
+  "literal_equality_preserves_signed_zero_and_every_raw_field": true
+}

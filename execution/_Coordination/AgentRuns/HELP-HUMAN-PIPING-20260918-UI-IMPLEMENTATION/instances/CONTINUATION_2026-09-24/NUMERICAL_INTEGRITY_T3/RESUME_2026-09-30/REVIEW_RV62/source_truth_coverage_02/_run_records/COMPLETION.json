@@ -1,0 +1,13 @@
+{
+  "utc": "2026-10-03T06:15:50.525081+00:00",
+  "status": "CLEAR for records-only correction",
+  "checkpoint": "useful completed-calculation status sent after 06:13:02Z, before 06:18:09Z deadline",
+  "runtime_lane": "never taken or used",
+  "source_runtime_work": "none",
+  "write_roots": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV62/source_truth_coverage_02",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv62_full_truth_02"
+  ],
+  "old_payloads_reverified": 141,
+  "bulk_sha256": "7a0e390b8bd0c4d54115206ffe13f91829b727ab86d0dda7fde3d2985b7603f4"
+}

@@ -1,0 +1,8 @@
+physr4_stale.log:RV95_PHYSR4 pressurized=true mode=sparse_interactive profile=Some("Stale") ordinary_equal=true successor=false exact=true notices=0 status="MODEL_INCOMPLETE"
+physr4_stale.log:RV95_PHYSR4 pressurized=true mode=dense_scrutiny profile=Some("Stale") ordinary_equal=true successor=false exact=true notices=0 status="MODEL_INCOMPLETE"
+physr4_stale.log:RV95_PHYSR4 pressurized=false mode=sparse_interactive profile=Some("Stale") ordinary_equal=true successor=false exact=true notices=0 status="MECHANICS_SOLVED"
+physr4_stale.log:RV95_PHYSR4 pressurized=false mode=dense_scrutiny profile=Some("Stale") ordinary_equal=true successor=false exact=true notices=0 status="MECHANICS_SOLVED"
+physr4_reg.log:RV95_PHYSR4 pressurized=true mode=sparse_interactive profile=Some("Registered") ordinary_equal=true successor=false exact=true notices=0 status="MODEL_INCOMPLETE"
+physr4_reg.log:RV95_PHYSR4 pressurized=true mode=dense_scrutiny profile=Some("Registered") ordinary_equal=true successor=false exact=true notices=0 status="MODEL_INCOMPLETE"
+physr4_reg.log:RV95_PHYSR4 pressurized=false mode=sparse_interactive profile=Some("Registered") ordinary_equal=true successor=false exact=true notices=0 status="MECHANICS_SOLVED"
+physr4_reg.log:RV95_PHYSR4 pressurized=false mode=dense_scrutiny profile=Some("Registered") ordinary_equal=true successor=false exact=true notices=0 status="MECHANICS_SOLVED"

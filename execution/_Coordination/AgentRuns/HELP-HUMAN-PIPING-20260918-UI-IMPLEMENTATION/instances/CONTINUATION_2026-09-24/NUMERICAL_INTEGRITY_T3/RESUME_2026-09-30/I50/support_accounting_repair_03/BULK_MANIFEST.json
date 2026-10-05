@@ -1,0 +1,82 @@
+{
+  "root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03",
+  "file_count": 15,
+  "total_bytes": 2295192,
+  "files": [
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/BASELINE.json",
+      "bytes": 153353,
+      "sha256": "5607701a2dde3be4623f173723c032da2d1f8a5b249d0686cd0b1fa6e7a2e1b0"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/COMPARISON_COMMANDS.json",
+      "bytes": 5743,
+      "sha256": "cadc2fea5e4ed447ac933648d5b99b8ef5e78a7a9f894e6de20b8c870419077e"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/FORMAT.json",
+      "bytes": 222,
+      "sha256": "684efeda69dca134a7a447e6825bf90327ef6cacc1154b88c0eebb9b88beb83c"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/PRESERVATION.json",
+      "bytes": 228,
+      "sha256": "70eaf4f686d0ce75f322b2c5a4e2ecd188a86953a045b32640dbbd7d3db0848d"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/RUNTIME_RELEASE.json",
+      "bytes": 272,
+      "sha256": "f7e35d3f942cd4a95cd6cf349bf2592e8162d9ee73a57777156250880cab1e24"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/bitmap_first.json",
+      "bytes": 1560,
+      "sha256": "426a6d4d99e9a8c1e68ec632fe2ab79d93800e8492c41010eeea22e2cf0d2a25"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/bitmap_first.log",
+      "bytes": 4547,
+      "sha256": "2b736615b963b63bf9f0af7e5a271f4b1c0d1d673bdffdfe59e8c0124f17e13f"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/comparison_debug.json",
+      "bytes": 2581,
+      "sha256": "b724f830a4ccf48d11ce34123229d2855fd7623d9d43031f356a18d86fac3b11"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/comparison_debug.log",
+      "bytes": 90,
+      "sha256": "517b768a1be7ffadda49b02291c6cf08f60b80969b06dfecde4c9ac9023c859f"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/comparison_optimized.json",
+      "bytes": 2589,
+      "sha256": "75c6a055b632cb472796f98f8ec52cd3f794d915258485f745cab4d4dbe896c4"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/comparison_optimized.log",
+      "bytes": 90,
+      "sha256": "517b768a1be7ffadda49b02291c6cf08f60b80969b06dfecde4c9ac9023c859f"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/pp_debug.json",
+      "bytes": 1531,
+      "sha256": "343f9dbc292fef8cb9507335a6b7479005fe94467c452eb795856ef5666d07ea"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/pp_debug.log",
+      "bytes": 1060423,
+      "sha256": "dd04d0c90db24736a5fbb8682aa40fdf4ca8c7e7886137c2c7fa59083b086dc0"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/pp_optimized.json",
+      "bytes": 1548,
+      "sha256": "aa1e620ca2d98ae43ed652c50abd760d6dcd27228487fb39b818a8e19ecf24ff"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/pp_optimized.log",
+      "bytes": 1060415,
+      "sha256": "9797e3992dd090733a1fca699d04671e41df6f9c1f9546de040945e493408a7d"
+    }
+  ]
+}

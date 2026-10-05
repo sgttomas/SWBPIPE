@@ -1,0 +1,3947 @@
+{
+ "reader_sha256": "6447c4e51ea0ca179bb5818c859e952f693f92c0c40df66cb6517882273b5487",
+ "test_sha256": "07b68be1844db33a87d77c1f5e26d3cab9ecd461973031d76bf16170a3eca446",
+ "corpus_sha256": "729c12574afe5f46f7e37ec3805cf5b50d684100a1ba46465501939df7cb9ce4",
+ "schema_sha256": "07951edacfedd410c153929ee75bb5bada15dbd222369ec63240c678b233b61c",
+ "method": "Each entry applied by the test applyEntry (07b format: edits; invocation_edits with digest rebinding; rehash \"all\" only, skipped when the receipt or body is removed; then after_rehash applied literally). Expected = expected_by_reader.typescript when present, else expected. Gate/code and must-pass classifications asserted by vitest_10_final; raising lines and key-order-insensitive must-pass classification equality recorded on the final reader by a temporary probe (probe_07b; removed, test file restored byte-identically).",
+ "cases": 15,
+ "mutations_total": 253,
+ "mutations_matched": 253,
+ "must_pass_total": 19,
+ "must_pass_passed": 19,
+ "mutations": [
+  {
+   "id": "method_null",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "method_number",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "method_alternate_metadata",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "method_alternate_container",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "method_empty",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G6",
+    "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+   },
+   "observed": {
+    "gate": "G6",
+    "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "validateRetainedPrecision:1277"
+  },
+  {
+   "id": "method_wrong",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G6",
+    "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+   },
+   "observed": {
+    "gate": "G6",
+    "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "validateRetainedPrecision:1277"
+  },
+  {
+   "id": "method_missing",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G6",
+    "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+   },
+   "observed": {
+    "gate": "G6",
+    "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "validateRetainedPrecision:1277"
+  },
+  {
+   "id": "nonfinite_then_method",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "encoding:146"
+  },
+  {
+   "id": "shape_then_encoding",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "negative_zero_counter",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "encoding:149"
+  },
+  {
+   "id": "coverage_then_method",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverage:222"
+  },
+  {
+   "id": "member_prefix_coverage",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:233"
+  },
+  {
+   "id": "diagnostic_then_method",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G4",
+    "code": "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+   },
+   "observed": {
+    "gate": "G4",
+    "code": "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "diagnostics:263"
+  },
+  {
+   "id": "native_work",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:376"
+  },
+  {
+   "id": "product_new_not_ready",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "body_scale",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "numericalScales:963"
+  },
+  {
+   "id": "section_echo",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SECTION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SECTION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:971"
+  },
+  {
+   "id": "absolute_bound",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5c",
+    "code": "RETAINED_PRECISION_CLASSIFICATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5c",
+    "code": "RETAINED_PRECISION_CLASSIFICATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "classifications:1007"
+  },
+  {
+   "id": "input_dof",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5c",
+    "code": "RETAINED_PRECISION_INPUT_DOF_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5c",
+    "code": "RETAINED_PRECISION_INPUT_DOF_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "classifications:992"
+  },
+  {
+   "id": "old_inputs_must_bind_old_J",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "invocationBinding:1191"
+  },
+  {
+   "id": "new_stiffness_must_bind_C2",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "invocationBinding:1195"
+  },
+  {
+   "id": "bad_invocation_digest",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_INVOCATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_INVOCATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "invocationBinding:1072"
+  },
+  {
+   "id": "v1_relabel",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "observed": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "match": true,
+   "raising_line_final_reader": "header:187"
+  },
+  {
+   "id": "native_source_digest_rehashed",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "invocationBinding:1178"
+  },
+  {
+   "id": "native_stiffness_digest_rehashed",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "invocationBinding:1178"
+  },
+  {
+   "id": "physical_residual_basis",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:430"
+  },
+  {
+   "id": "physical_stop_stage_partition",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:376"
+  },
+  {
+   "id": "negative_zero_scale_with_wrong_method",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "encoding:152"
+  },
+  {
+   "id": "shared_stage_projection_preserves_total",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:376"
+  },
+  {
+   "id": "verification_own_stage_projection_preserves_total",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:376"
+  },
+  {
+   "id": "coverage_member_missing",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_object_not_array",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_entry_null",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_stop_three",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_stop_five",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_stop_numeric_flag",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_stop_null_flag",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_has_data_numeric",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_has_data_null",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_has_data_missing",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_unknown_field",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_body_string",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_shape_then_duplicate",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_defect_with_null_method",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_body_negative_zero",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "encoding:149"
+  },
+  {
+   "id": "coverage_body_fraction",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "encoding:149"
+  },
+  {
+   "id": "coverage_body_negative",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "encoding:149"
+  },
+  {
+   "id": "coverage_encoding_then_duplicate",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "encoding:149"
+  },
+  {
+   "id": "coverage_empty_array",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:251"
+  },
+  {
+   "id": "coverage_duplicate_body",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:251"
+  },
+  {
+   "id": "coverage_foreign_body",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:251"
+  },
+  {
+   "id": "coverage_extra_body",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:251"
+  },
+  {
+   "id": "coverage_duplicate_then_flag_and_method",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:251"
+  },
+  {
+   "id": "attempt_owner_only",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:229"
+  },
+  {
+   "id": "coverage_null_on_ready",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:704"
+  },
+  {
+   "id": "coverage_null_then_method",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:704"
+  },
+  {
+   "id": "coverage_has_data_false",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:888"
+  },
+  {
+   "id": "certified_bound_unbound_drop_existing_g5",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:496"
+  },
+  {
+   "id": "coverage_drop_certified_bound",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:888"
+  },
+  {
+   "id": "coverage_no_data_claim_with_free_loads",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "dataCoverage:864"
+  },
+  {
+   "id": "coverage_stop_forbidden_entry",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:875"
+  },
+  {
+   "id": "coverage_stop_uncoupled_consistent_roster",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:875"
+  },
+  {
+   "id": "stop_rule_drop_required_zero",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:885"
+  },
+  {
+   "id": "stop_rule_duplicate_zero",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "numericSummaries:921"
+  },
+  {
+   "id": "estimate_drop_required_zero",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:885"
+  },
+  {
+   "id": "estimate_forbidden_translation_zero",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "numericSummaries:921"
+  },
+  {
+   "id": "charge_drop_required_zero",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:885"
+  },
+  {
+   "id": "charge_follows_stop_below_p512",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:885"
+  },
+  {
+   "id": "certified_bound_duplicate",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "numericSummaries:926"
+  },
+  {
+   "id": "coverage_flag_defect_then_method",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:888"
+  },
+  {
+   "id": "nodata_forbidden_stop_zero",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:885"
+  },
+  {
+   "id": "nodata_forbidden_estimate_zero",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:885"
+  },
+  {
+   "id": "nodata_forbidden_charge_zero",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:885"
+  },
+  {
+   "id": "nodata_forbidden_certified_bound",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:888"
+  },
+  {
+   "id": "nodata_has_data_without_bound",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:888"
+  },
+  {
+   "id": "nodata_estimate_coupling_L_nonzero",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:885"
+  },
+  {
+   "id": "coverage_flag_defect_then_body_scale",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:888"
+  },
+  {
+   "id": "layout_force_row_input_derived",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverageFacts:822"
+  },
+  {
+   "id": "layout_constrained_displacement_not_input_derived",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverageFacts:822"
+  },
+  {
+   "id": "layout_nonzero_prescription",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverageFacts:821"
+  },
+  {
+   "id": "coverage_null_and_product_work",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:704"
+  },
+  {
+   "id": "product_work_only",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:749"
+  },
+  {
+   "id": "native_work_then_coverage_null",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:376"
+  },
+  {
+   "id": "layout_row_relabelled",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverageFacts:822"
+  },
+  {
+   "id": "layout_row_dropped",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverageFacts:822"
+  },
+  {
+   "id": "layout_rows_reordered",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverageFacts:822"
+  },
+  {
+   "id": "layout_row_foreign_body",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverageFacts:822"
+  },
+  {
+   "id": "nodata_empty_coverage",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:251"
+  },
+  {
+   "id": "verification_bound_duplicate_entry",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "recordCoverage:858"
+  },
+  {
+   "id": "verification_bound_missing_entry",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "recordCoverage:858"
+  },
+  {
+   "id": "nodata_verification_bound_nonnull",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:888"
+  },
+  {
+   "id": "schedule_fresh_first_p256",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:307"
+  },
+  {
+   "id": "cancelled_no_data_claim",
+   "base": "ordinary_prepared_cancelled_loads_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "dataCoverage:864"
+  },
+  {
+   "id": "cancelled_drop_B_only",
+   "base": "ordinary_prepared_cancelled_loads_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:888"
+  },
+  {
+   "id": "unavailable_certificate_passed_coverage_null",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:704"
+  },
+  {
+   "id": "unavailable_empty_coverage",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:251"
+  },
+  {
+   "id": "unavailable_no_data_claim_with_free_loads",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "dataCoverage:864"
+  },
+  {
+   "id": "unavailable_stop_uncoupled",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:909"
+  },
+  {
+   "id": "unavailable_layout_relabelled",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverageFacts:822"
+  },
+  {
+   "id": "unavailable_verification_bound_duplicate",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "recordCoverage:858"
+  },
+  {
+   "id": "cert_failed_before_summary_g5a_passed",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:659"
+  },
+  {
+   "id": "lane_k_failed_with_coverage",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:701"
+  },
+  {
+   "id": "maxima_abandoned_with_coverage",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:702"
+  },
+  {
+   "id": "prefix_captured_with_members",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:236"
+  },
+  {
+   "id": "two_body_swap_has_data",
+   "base": "two_body_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:888"
+  },
+  {
+   "id": "two_body_swap_has_data_with_rosters",
+   "base": "two_body_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "dataCoverage:864"
+  },
+  {
+   "id": "two_body_swap_stop_only",
+   "base": "two_body_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:885"
+  },
+  {
+   "id": "two_body_body_order_swapped",
+   "base": "two_body_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:251"
+  },
+  {
+   "id": "two_body_missing_body",
+   "base": "two_body_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:251"
+  },
+  {
+   "id": "two_body_resolution_order_swapped",
+   "base": "two_body_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "numericSummaries:924"
+  },
+  {
+   "id": "p512_floor_not_phi",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "numericalScales:960"
+  },
+  {
+   "id": "p512_positive_floor_forces_stop",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:875"
+  },
+  {
+   "id": "p512_charge_follows_estimate",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:885"
+  },
+  {
+   "id": "p512_floor_null",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "numericSummaries:927"
+  },
+  {
+   "id": "p512_zero_floor_body_given_positive_floor",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:875"
+  },
+  {
+   "id": "copy_flags_into_loaded",
+   "base": "two_case_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "dataCoverage:864"
+  },
+  {
+   "id": "rebind_source_run_only",
+   "base": "two_case_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:645"
+  },
+  {
+   "id": "cross_case_gate_order_selected",
+   "base": "two_case_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:885"
+  },
+  {
+   "id": "cross_case_gate_order_unavailable",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "dataCoverage:864"
+  },
+  {
+   "id": "unavailable_record_resolution_duplicate",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "recordCoverage:857"
+  },
+  {
+   "id": "unavailable_record_theta_duplicate",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "recordCoverage:857"
+  },
+  {
+   "id": "skip_after_failed_candidate_reused",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:311"
+  },
+  {
+   "id": "skip_after_failed_candidate_wrong_slot",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:311"
+  },
+  {
+   "id": "failed_build_reason_mismatch",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:444"
+  },
+  {
+   "id": "failed_slot_not_cached",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:376"
+  },
+  {
+   "id": "failed_verification_reused_as_candidate",
+   "base": "verification_failure_skip_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:315"
+  },
+  {
+   "id": "failed_verification_one_slot",
+   "base": "verification_failure_skip_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:315"
+  },
+  {
+   "id": "cached_failed_slot_rebuilt",
+   "base": "two_case_shared_failed_cache_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:376"
+  },
+  {
+   "id": "corrections_above_three",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:284"
+  },
+  {
+   "id": "group_sources_out_of_order",
+   "base": "two_case_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:513"
+  },
+  {
+   "id": "w2_published_without_initial_failure",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1224"
+  },
+  {
+   "id": "legacy_source_dangling_diagnostic",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "diagnostic:1216"
+  },
+  {
+   "id": "formation_d5_dangling_diagnostic",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "diagnostic:1216"
+  },
+  {
+   "id": "native_stage_disagrees_with_run",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:650"
+  },
+  {
+   "id": "conversion_subnormal_kind_normal_bits",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:681"
+  },
+  {
+   "id": "conversion_normal_kind_subnormal_bits",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:681"
+  },
+  {
+   "id": "conversion_ready_underflow_nonzero_row",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:683"
+  },
+  {
+   "id": "conversion_ready_overflow",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:683"
+  },
+  {
+   "id": "conversion_subnormal_metadata_negative_zero",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "encoding:152"
+  },
+  {
+   "id": "g7_maximum_off_enclosure",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G7",
+    "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+   },
+   "observed": {
+    "gate": "G7",
+    "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+   },
+   "match": true,
+   "raising_line_final_reader": "baseError:27"
+  },
+  {
+   "id": "row_index_foreign_support_norm",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:247"
+  },
+  {
+   "id": "row_index_missing_row",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:247"
+  },
+  {
+   "id": "row_index_unsorted",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:247"
+  },
+  {
+   "id": "row_index_ready_subset",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:693"
+  },
+  {
+   "id": "maps_extra_support_id",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "invocationBinding:1137"
+  },
+  {
+   "id": "maps_member_ends_swapped",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1143"
+  },
+  {
+   "id": "maxima_abandoned_separate_failure",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:686"
+  },
+  {
+   "id": "certificate_check_wrong_wrapper",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:726"
+  },
+  {
+   "id": "certificate_stage_check_disagree",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:677"
+  },
+  {
+   "id": "stage_entered_after_failure",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:655"
+  },
+  {
+   "id": "ceiling_before_last_slot",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:355"
+  },
+  {
+   "id": "escalating_end_not_a_terminal_translation",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:355"
+  },
+  {
+   "id": "terminal_stop_wrong_translation",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:361"
+  },
+  {
+   "id": "terminal_refusal_wrong_kind",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:361"
+  },
+  {
+   "id": "idle_budget_below_invocation_limit",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:408"
+  },
+  {
+   "id": "idle_ready_group_not_ledger_refusal",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:415"
+  },
+  {
+   "id": "work_accounting_prior_not_on_wire",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "refused_member_conversion_kind_bits",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:664"
+  },
+  {
+   "id": "prefix_attached_old_input_unbound",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "invocationBinding:1191"
+  },
+  {
+   "id": "report_reference_unrelated_diagnostic",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "diagnostic:1216"
+  },
+  {
+   "id": "distinct_stiffness_merged_group",
+   "base": "two_case_two_groups_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "at:126"
+  },
+  {
+   "id": "named_point_value_mismatch",
+   "base": "two_case_two_groups_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1122"
+  },
+  {
+   "id": "interpolation_target_mismatch",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1122"
+  },
+  {
+   "id": "work_accounting_after_escalating_stop",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:384"
+  },
+  {
+   "id": "idle_work_accounting_run",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:384"
+  },
+  {
+   "id": "work_accounting_at_last_slot",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:384"
+  },
+  {
+   "id": "mm_unnormalized_coordinate",
+   "base": "ordinary_prepared_mm_units_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1138"
+  },
+  {
+   "id": "interpolation_missing_alpha",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1099"
+  },
+  {
+   "id": "interpolation_duplicate_temperature",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1094"
+  },
+  {
+   "id": "interpolation_target_below_range",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1095"
+  },
+  {
+   "id": "interpolation_target_at_lower_point",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1095"
+  },
+  {
+   "id": "interpolation_target_at_upper_point",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1095"
+  },
+  {
+   "id": "interpolation_target_above_range",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1095"
+  },
+  {
+   "id": "adapter_fault_present",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:749"
+  },
+  {
+   "id": "accounting_cause_without_fault",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:749"
+  },
+  {
+   "id": "scalar_trace_lost_unavailable",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:749"
+  },
+  {
+   "id": "work_accounting_cause_exact_status",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:749"
+  },
+  {
+   "id": "idle_budget_not_exhausted_no_group",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:408"
+  },
+  {
+   "id": "execution_order_swapped",
+   "base": "two_case_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverage:258"
+  },
+  {
+   "id": "run_id_not_execution_position",
+   "base": "two_case_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverage:258"
+  },
+  {
+   "id": "old_members_reordered",
+   "base": "two_body_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:233"
+  },
+  {
+   "id": "complete_old_short_of_source",
+   "base": "two_body_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:233"
+  },
+  {
+   "id": "unsourced_old_member_noncontiguous",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:233"
+  },
+  {
+   "id": "complete_old_longer_than_source",
+   "base": "two_body_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:240"
+  },
+  {
+   "id": "unavailable_source_backref_foreign",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:645"
+  },
+  {
+   "id": "attempt_basis_not_ordinary",
+   "base": "two_case_two_groups_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:644"
+  },
+  {
+   "id": "native_error_with_selected_run",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:718"
+  },
+  {
+   "id": "group_call_out_of_range",
+   "base": "two_case_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:412"
+  },
+  {
+   "id": "escalating_failed_verification_pass_entered",
+   "base": "verification_failure_skip_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:314"
+  },
+  {
+   "id": "stop_rule_quantity_other_body",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:302"
+  },
+  {
+   "id": "candidate_record_with_verification",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:303"
+  },
+  {
+   "id": "ordinary_diagnostic_ref_duplicate",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1220"
+  },
+  {
+   "id": "ordinary_diagnostic_ref_dangling",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1220"
+  },
+  {
+   "id": "ordinary_dangling_plus_adapter_fault",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1220"
+  },
+  {
+   "id": "selected_case_ordinary_checks_passed",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1235"
+  },
+  {
+   "id": "section_accounting_exact_status",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:749"
+  },
+  {
+   "id": "nested_stop_work_accounting_exact_status",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:749"
+  },
+  {
+   "id": "view_work_fault_exact_status",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:749"
+  },
+  {
+   "id": "old_operational_accounting_not_lost",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:749"
+  },
+  {
+   "id": "interpolation_target_at_lower_point_equal_e",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1095"
+  },
+  {
+   "id": "interpolation_target_below_range_equal_e",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1095"
+  },
+  {
+   "id": "interpolation_target_at_upper_point_equal_e",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1095"
+  },
+  {
+   "id": "interpolation_target_above_range_equal_e",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1095"
+  },
+  {
+   "id": "source_preparation_null",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:645"
+  },
+  {
+   "id": "run_ref_null_with_case_run",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:646"
+  },
+  {
+   "id": "preparation_error_with_selected_run",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:717"
+  },
+  {
+   "id": "prepared_failure_cause_without_own_attempt",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:627"
+  },
+  {
+   "id": "prepared_failure_cause_foreign_attempt",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:627"
+  },
+  {
+   "id": "reason_code_phase_mismatch_on_facade",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:722"
+  },
+  {
+   "id": "reason_code_phase_mismatch_on_preparation",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:722"
+  },
+  {
+   "id": "rejected_verification_failed_with_completed_verification",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:336"
+  },
+  {
+   "id": "rejected_attempt_with_verified_record",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:330"
+  },
+  {
+   "id": "ordinary_attempt_order_swapped",
+   "base": "two_case_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:227"
+  },
+  {
+   "id": "record_index_not_contiguous",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:421"
+  },
+  {
+   "id": "selected_verification_record_not_verified",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:330"
+  },
+  {
+   "id": "projection_conversions_count_mismatch",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:749"
+  },
+  {
+   "id": "preparation_conversion_count_mismatch",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:749"
+  },
+  {
+   "id": "retained_diagnostic_names_unrequested_case",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G4",
+    "code": "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+   },
+   "observed": {
+    "gate": "G4",
+    "code": "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "diagnostics:270"
+  },
+  {
+   "id": "g0_case_limit_threshold",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "observed": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "match": true,
+   "raising_line_final_reader": "header:188"
+  },
+  {
+   "id": "g0_invocation_limit_threshold",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "observed": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "match": true,
+   "raising_line_final_reader": "header:188"
+  },
+  {
+   "id": "g0_receipt_version_not_1",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "observed": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "match": true,
+   "raising_line_final_reader": "header:187"
+  },
+  {
+   "id": "g0_canonicalization_profile",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "observed": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "match": true,
+   "raising_line_final_reader": "header:187"
+  },
+  {
+   "id": "g0_retained_precision_absent",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "observed": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "match": true,
+   "raising_line_final_reader": "header:185"
+  },
+  {
+   "id": "g0_receipt_body_absent",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "observed": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "match": true,
+   "raising_line_final_reader": "header:185"
+  },
+  {
+   "id": "refusal_work_accounting_variant",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "refusal_count_range_variant",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "unavailable_source_ref_absent",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "source_decline_with_source_ref",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "rcond_label_plus_adapter_fault",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:495"
+  },
+  {
+   "id": "native_attempt_defect_after_native_work_defect",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:284"
+  },
+  {
+   "id": "dangling_candidate_record",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "at:126"
+  },
+  {
+   "id": "dangling_build_ref",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:376"
+  },
+  {
+   "id": "dangling_ordinary_attempt_ref",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "at:126"
+  },
+  {
+   "id": "g5b_zero_section_area",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SECTION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SECTION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:971"
+  },
+  {
+   "id": "ordinary_dangling_ref_plus_source_preparation_null",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1220"
+  },
+  {
+   "id": "g5b_zero_section_length",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07a",
+   "expected_typescript": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SECTION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SECTION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:971"
+  },
+  {
+   "id": "unavailable_attempt_under_facade_failure_cause",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:635",
+   "source_decision": "D19 (RV79-C1; S06 s1)"
+  },
+  {
+   "id": "unavailable_attempt_under_source_error_cause",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:635",
+   "source_decision": "D19 (RV79-C1; S06 s1)"
+  },
+  {
+   "id": "preparation_error_selected_run_under_receipt_cause",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:635",
+   "source_decision": "D19 + D4d (RV79-C1 probe 3)"
+  },
+  {
+   "id": "selected_case_without_c3_attempt",
+   "base": "two_case_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:630",
+   "source_decision": "D20 (RV79-C3; C3:165)"
+  },
+  {
+   "id": "vbuild_on_escalating_failed_verification",
+   "base": "verification_failure_skip_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:314",
+   "source_decision": "D21 (RV79-C2; adaptive.rs:4286)"
+  },
+  {
+   "id": "dangling_attempt_source_ref",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "at:126",
+   "source_decision": "D22 (D16; C3:146-148)"
+  },
+  {
+   "id": "source_member_map_kernel_id_noncanonical",
+   "base": "two_body_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:240",
+   "source_decision": "D23 (RV78-S1; RV78 N_D1 probe)"
+  },
+  {
+   "id": "forged_publication_hash",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:206",
+   "after_rehash": 2,
+   "source_decision": "D24 G1 publication hash"
+  },
+  {
+   "id": "forged_preparation_hash",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:212",
+   "after_rehash": 3,
+   "source_decision": "D24 G1 preparation hash (source identity re-literalized so the preparation check is reached)"
+  },
+  {
+   "id": "source_identity_stale_receipt_rehashed",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:208",
+   "after_rehash": 2,
+   "source_decision": "D24 G1 source identity = T4c (now expressible with after_rehash)"
+  },
+  {
+   "id": "forged_receipt_hash",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:205",
+   "after_rehash": 1,
+   "source_decision": "D24 G1 receipt hash"
+  },
+  {
+   "id": "g5a_sanity_margin_between_2m40_and_2m39",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "numericSummaries:934",
+   "source_decision": "D26 (RV79-C4 M21 vector)"
+  },
+  {
+   "id": "idle_run_exhausted_meter_chain_broken",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:376",
+   "source_decision": "D27 (RV80-C1 PR14)"
+  },
+  {
+   "id": "verification_estimate_quantity_not_in_layout",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:302",
+   "source_decision": "D28 (RV80-C2 PR12)"
+  },
+  {
+   "id": "charge_quantity_not_in_layout",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:302",
+   "source_decision": "D28"
+  },
+  {
+   "id": "publication_enclosure_quantity_not_in_layout",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:302",
+   "source_decision": "D28"
+  },
+  {
+   "id": "empty_body_inventory",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07b",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:251",
+   "source_decision": "D29 (RV80-C4 PR11; FK/source.rs:498 NoNodes)"
+  }
+ ],
+ "must_pass": [
+  {
+   "id": "loaded_stop_without_force_moment",
+   "base": "ordinary_prepared_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "loaded_all_stop_false",
+   "base": "ordinary_prepared_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "no_data_all_stop_true",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "no_data_attested_data_block",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "cancelled_all_stop_true",
+   "base": "ordinary_prepared_cancelled_loads_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "cert_failed_before_summary",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "lane_k_failed",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "lane_source_failed",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "maxima_abandoned",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "prefix_captured",
+   "base": "two_case_preparation_failure_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "cert_failed_after_summary_storage",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "two_body_swap_stop_with_rosters",
+   "base": "two_body_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "p512_charge_follows_stop_zero_floor_body",
+   "base": "p512_ladder_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "copy_flags_into_unloaded",
+   "base": "two_case_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "prefix_unattached_old_operand_attested",
+   "base": "two_case_preparation_failure_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "values_failed_separate_completion",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "aliases_abandoned",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "bind_rows_abandoned",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "interpolation_equal_e_bracketed_control",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  }
+ ],
+ "supersedes_note": "Refreshes the TypeScript outcome file after D18 (RV78-N4): OUTCOMES_P2.json predates D18; on 07a the same reader also gave 236/236 and 19/19 (probe_07a)."
+}

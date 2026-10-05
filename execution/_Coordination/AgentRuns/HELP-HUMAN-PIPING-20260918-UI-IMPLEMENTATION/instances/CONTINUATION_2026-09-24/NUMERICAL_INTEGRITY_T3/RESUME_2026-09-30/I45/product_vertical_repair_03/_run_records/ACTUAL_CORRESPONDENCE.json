@@ -1,0 +1,22 @@
+{
+  "debug": {
+    "actual_cases": [
+      "loaded",
+      "zero"
+    ],
+    "raw_request_count": 2,
+    "comparison": "exact emitted JSON text, preserving zero signs and bits",
+    "unchanged_request_source_rows_predicates_g5a_native": true,
+    "oracle_matches_preserved": true
+  },
+  "release": {
+    "actual_cases": [
+      "loaded",
+      "zero"
+    ],
+    "raw_request_count": 2,
+    "comparison": "exact emitted JSON text, preserving zero signs and bits",
+    "unchanged_request_source_rows_predicates_g5a_native": true,
+    "oracle_matches_preserved": true
+  }
+}

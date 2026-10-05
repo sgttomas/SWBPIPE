@@ -1,0 +1,49 @@
+{
+  "sealed_utc": "2026-10-03T08:28:51.797898+00:00",
+  "actor": "/root/i51_replacement_producer",
+  "parent": "/root",
+  "status": "checkpoint0_design_return_only",
+  "seal_policy": "single seal; any later correction must be an addendum, never rewrite these payloads",
+  "payloads": [
+    {
+      "path": "AUDIT.json",
+      "bytes": 1948,
+      "sha256": "672d7b1e716f17847fa0ba58dc7362660751917120ffcee6f9c76758486d1cd9"
+    },
+    {
+      "path": "BULK_MANIFEST.json",
+      "bytes": 1303,
+      "sha256": "4b2f4ad3308ba33ecd97c24e66aefb897030aa760b683b3cb2bcddf88d00750c"
+    },
+    {
+      "path": "EXECUTION.json",
+      "bytes": 5279,
+      "sha256": "1bd9104cce55223e7d8859ec7476d85bbd8c516d802d475ca80f456e7d2d5b74"
+    },
+    {
+      "path": "INTERFACE.md",
+      "bytes": 13839,
+      "sha256": "1e17ac4a516bd9078e442e3b270c8ee017380da35fdb5510f4e57731a18e00ed"
+    },
+    {
+      "path": "ORIGINS.json",
+      "bytes": 21213,
+      "sha256": "16df5fc7d582fdd735d941d02f0c093b557622db2f17d5143514d6e87fad103c"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 10277,
+      "sha256": "a3e82a9a3bcfa920dfc47ea53079ae45515dff41aaa278f7db17968348e1df63"
+    },
+    {
+      "path": "WITNESS.md",
+      "bytes": 9776,
+      "sha256": "a4a860648b5b26ad24f19f2c9d3425f82726a3606df983572f45c3723b115731"
+    }
+  ],
+  "payload_count": 7,
+  "bulk_manifest": "BULK_MANIFEST.json",
+  "new_analysis_closed_utc": "2026-10-03 08:27:22 UTC",
+  "no_publication_claim": true,
+  "read_intent_git_status_qualification": "EXECUTION.json and AUDIT.json preserve the startup optional-index-refresh uncertainty"
+}

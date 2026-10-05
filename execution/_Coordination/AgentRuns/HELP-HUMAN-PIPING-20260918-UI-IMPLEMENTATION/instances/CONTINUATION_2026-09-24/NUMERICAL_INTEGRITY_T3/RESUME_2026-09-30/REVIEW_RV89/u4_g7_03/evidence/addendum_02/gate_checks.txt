@@ -1,0 +1,25 @@
+### RV89 gate checks on F' = 5488136a193ef8921bd88c33a8124647c4cb352d (RV89's archive extract; I65's recorded refreeze outputs for the TEXT-dependent gates)
+tree: listed 2950, mismatched 0, extra 0
+entry: F' vs 0c7827b6ad -> code 0  {"check": "entry", "code": 0, "equal": true, "threshold": "4_026_531_840", "diff": []} 
+statics: F' -> code 0  {"check": "statics", "code": 0, "added": [], "removed": []} 
+linemap ba1faa1c..F': exit 0 remapped 0 unmapped 0
+premise: F' -> code 0  {"check": "premise", "code": 0, "pins": 3, "bad": []} 
+forms: F' -> code 0  {"check": "forms", "code": 0, "equal": true, "diff": []} 
+text: I65's refreeze outputs vs Pass A -> code 0  {"check": "text", "code": 0, "issues": [], "D": 14734} 
+noncand: I65's refreeze comparison -> code 0  {"check": "noncand", "code": 0, "run_rows": 410, "new": 0, "absent": 0} 
+controls: I65's refreeze controls -> code 0  {"check": "controls", "code": 0, "passed": 12, "of": 12, "failing": []} 
+delta (empty table): exit 5 {"files": 36, "hunks_and_files": 87, "classes": {"not-d1": 22, "no-code": 35, "item": 4, "cfg-test-stmt": 3, "test": 12, "generated": 1, "qualification-test": 4, "unreachable": 6}, "verdict": "STOP: 7
+UNREVIEWED core/product_physics/src/lib.rs 2235-2235 item 09a2779c35c4b96f
+UNREVIEWED core/product_physics/src/lib.rs 2254-2254 item 38a7b43fd37f6845
+UNREVIEWED core/product_physics/src/lib.rs 2379-2379 cfg-test-stmt 44ce5c671ad34b3e
+UNREVIEWED core/product_physics/src/lib.rs 3005-3005 cfg-test-stmt c5e1d6c96bd07c60
+UNREVIEWED core/product_physics/src/retained_product.rs 3244-3244 cfg-test-stmt 2a8be2da9031008a
+UNREVIEWED core/reporting/result_export/src/retained_precision.rs 4267-4269 item 1ea4bbe3d178aa2d
+UNREVIEWED core/reporting/result_export/src/source_blocks.rs after 55 item 2718103130462590
+UNREVIEWED core/product_physics/src/retained_memory_law_tests.rs 2-4 qualification-test 9b81ac2ee4bdcda0
+UNREVIEWED core/product_physics/src/retained_memory_law_tests.rs 1238-1238 qualification-test 71e1fff29b187e92
+UNREVIEWED core/product_physics/src/retained_memory_witness_tests.rs 6-6 qualification-test 4198b681db65c62a
+UNREVIEWED core/product_physics/tests/retained_memory_challenge.rs 6-10 qualification-test eb06a586f6d1f50e
+delta (I65's 11-entry table): exit 0 {"files": 36, "hunks_and_files": 87, "classes": {"not-d1": 22, "no-code": 35, "item": 4, "cfg-test-stmt": 3, "test": 12, "generated": 1, "qualification-test": 4, "unreachable": 6}, "verdict": "PASS: e
+rows: mine 87 I65 refreeze 87 equal: True
+vs RV89's F inventory (86 rows): added [('core/solver/nonlinear_integration/src/s11k_tests.rs', None, 'test', None)] removed []

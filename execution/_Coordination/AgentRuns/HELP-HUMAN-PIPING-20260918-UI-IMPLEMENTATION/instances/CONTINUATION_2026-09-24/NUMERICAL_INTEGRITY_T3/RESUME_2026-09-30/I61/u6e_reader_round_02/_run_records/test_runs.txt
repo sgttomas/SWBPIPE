@@ -1,0 +1,13 @@
+# Test runs (counts; base = 5e1e2625ac (snapshot 07g) in a git archive, candidate = WT/f2a-readers-round, uncommitted)
+python 07h: 391 passed in 88.56s (0:01:28)   [tests/test_retained_precision_contract.py + tests/test_retained_precision_schema.py]
+python 07g (RV90, same base): 384 passed
+rust 07h:   164 passed, 0 failed over 12 binaries (result_export, all targets); retained_precision_contract 61 passed
+rust 07g:   163 passed (RV90 and I61 U6e)
+ts 07h:     Tests  448 passed (448)   [vitest retainedPrecision.test.ts; reader and test bytes unchanged, corpus 07h]
+ts 07g:     Tests  444 passed (444)
+tsc 07h:    exit 0, no output (--noEmit -p apps/desktop/tsconfig.json, 07h lane)
+python per-entry outcomes 07h: 15 bases pass with equal classifications; 277/277 mutations and 23/23 must-pass match
+rust 07h slice (I61_OUTCOME_07H): 3/3 match
+probe dumps: python, rust and typescript, each on 07g and 07h readers: 14 probes each (probes/)
+mutants: 14 run, 14 killed, 0 compile or collect errors (mutants_07h_{py,rs,ts}.json)
+toolchain: cargo/rustc 1.97.1 (default), Python 3.13.14, pytest 9.1.1, node v24.18.0, vitest 4.1.10, tsc 5.9.3

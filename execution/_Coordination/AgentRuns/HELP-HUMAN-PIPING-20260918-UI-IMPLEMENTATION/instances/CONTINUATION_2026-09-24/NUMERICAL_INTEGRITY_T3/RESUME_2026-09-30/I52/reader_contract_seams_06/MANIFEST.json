@@ -1,0 +1,103 @@
+{
+  "actor": "/root/i52_public_formation_contract",
+  "parent": "/root",
+  "role": "same native TASK Type2, no descendants",
+  "status": "proposed three narrow corrections, dependent code unselected",
+  "implementation_receipt_utc": "2026-10-03T16:06:17Z",
+  "seam_clock_observation_utc": "2026-10-03T16:16:25Z",
+  "seam_deadline_utc": "2026-10-03T16:31:25Z",
+  "audit_utc": "2026-10-03T16:19:56.839985+00:00",
+  "grant": "direct ROOT message to draft outer cause/row path and discriminator collision; no dependent assumption before review/selection",
+  "origins": [
+    {
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "bytes": 991062,
+      "sha256": "d2f0f2dc73a717412cf5a37f3df8bcb808703466378ecf56052866b073b35f61",
+      "scope": "ResultItem1976-1988 and current recovery_method locations"
+    },
+    {
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "bytes": 161582,
+      "sha256": "e9949ff88fef71a32cf07d552cf2b065d445d85cbb7bee9e53f8678562d6d982",
+      "scope": "G5a enum2473-2492,2623-2635,2715-2744 previously directly read"
+    },
+    {
+      "commit": "77bb95e4ac",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/prepared_public_contract_02/C3_DELTA.md",
+      "bytes": 32788,
+      "sha256": "fd00d2c1e8f4f7e2077f304560a63830e2b7b61cb5b1d47aff994c7874ed292e",
+      "scope": "full selected author packet retained; exact schema error union/row requirement"
+    },
+    {
+      "commit": "7b4709bcec",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/prepared_public_contract_correction_03/ADDENDUM.md",
+      "bytes": 11381,
+      "sha256": "6b8ebea5b83c3033211df144f69add8fcb753855cae570ec66afdd6684ddbf36",
+      "scope": "selected F1 retained"
+    },
+    {
+      "commit": "54e8428f48",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/CONTRACT_DELTA.md",
+      "bytes": 53986,
+      "sha256": "923da0b97eb5becad7e7c1373c5a6f362568dc28ac8eab029c9170677c890869",
+      "scope": "section2 closed cause map; actual interface"
+    },
+    {
+      "commit": "54e8428f48",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/WIRE_CONTRACT.md",
+      "bytes": 29991,
+      "sha256": "c8ab2318457bd3897e207888af80f54f1a889071bf630ff1815939d922a567e3",
+      "scope": "G6/G7 row binding and projection"
+    },
+    {
+      "commit": "54e8428f48",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_STANDING/DESIGN.md",
+      "bytes": 149372,
+      "sha256": "edc78f9c20db9848b2f4bad1250359e6ba06c2c3af053039099a147201f7b992",
+      "scope": "D2 row evidence path clause529"
+    }
+  ],
+  "collision_search": {
+    "prepared_product_failure": [],
+    "quantity_kind": [
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/comparison_tolerance.schema.json:576:        \"quantity_kind\",",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/comparison_tolerance.schema.json:611:        \"quantity_kind\": {",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/component.schema.yaml:312:        \"quantity_kind\",",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/component.schema.yaml:325:        \"quantity_kind\": {",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/material.schema.yaml:335:              \"quantity_kind\": {",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/material.schema.yaml:348:        \"quantity_kind\",",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/material.schema.yaml:361:        \"quantity_kind\": {",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/material.schema.yaml:447:                  \"quantity_kind\": {",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/material.schema.yaml:733:        \"quantity_kind\",",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/material.schema.yaml:756:        \"quantity_kind\": {",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/section.schema.yaml:498:        \"quantity_kind\",",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/section.schema.yaml:511:        \"quantity_kind\": {",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/section.schema.yaml:588:        \"quantity_kind\",",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/section.schema.yaml:601:        \"quantity_kind\": {",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/units.schema.yaml:154:        \"valid_for_quantity_kind\": {",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/units.schema.yaml:595:        \"quantity_kind\",",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/units.schema.yaml:610:        \"quantity_kind\": {",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/units.schema.yaml:686:        \"quantity_kind\",",
+      "24af17c47011608d187811024b51807395e4e526:projects/chirality-piping/schemas/units.schema.yaml:713:        \"quantity_kind\": {"
+    ]
+  },
+  "effects": {
+    "definition_changed": false,
+    "prior_seals_changed": false,
+    "owner_numerical_meaning_decision": false,
+    "code_phase_mapping": "new closed cause points to actual unavailable product attempt; existing outer codes retained",
+    "method_path": "results[i].recovery_method scalar",
+    "g5a_payload": "quantity_kind0|1 replaces colliding numeric kind only"
+  },
+  "source_implementation_status": "independent exact helpers and fail-closed stubs written in READER; no dependent correction assumed; no Cargo or test invocation",
+  "checks": {
+    "source_key_collision_observed": true,
+    "no_original_receipt_rewrite": true,
+    "no_tolerance_or_standing_change": true,
+    "reference_only_failure_branch": true,
+    "no_debug_mapping": true
+  },
+  "bulk_files": []
+}

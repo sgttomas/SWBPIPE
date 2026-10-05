@@ -1,0 +1,110 @@
+[
+  {
+    "case": "point-zero",
+    "captured_interpolation_primitives": {}
+  },
+  {
+    "case": "point-loaded",
+    "captured_interpolation_primitives": {}
+  },
+  {
+    "case": "interpolated-zero",
+    "captured_interpolation_primitives": {
+      "t_lo": {
+        "bits": "4072500000000000",
+        "exact": "293",
+        "significant_bits": 9
+      },
+      "t": {
+        "bits": "4072f00000000000",
+        "exact": "303",
+        "significant_bits": 9
+      },
+      "t_hi": {
+        "bits": "4073900000000000",
+        "exact": "313",
+        "significant_bits": 9
+      },
+      "e_lo": {
+        "bits": "42474876e8000001",
+        "exact": "6553600000000001/32768",
+        "significant_bits": 53
+      },
+      "e_hi": {
+        "bits": "4244f46b04000000",
+        "exact": "180000000000",
+        "significant_bits": 27
+      },
+      "g_lo": {
+        "bits": "422bf08eb0000001",
+        "exact": "7864320000000001/131072",
+        "significant_bits": 53
+      },
+      "g_hi": {
+        "bits": "4222a05f20000000",
+        "exact": "40000000000",
+        "significant_bits": 24
+      },
+      "e_hat": {
+        "bits": "42461e70f6000000",
+        "exact": "190000000000",
+        "significant_bits": 28
+      },
+      "g_hat": {
+        "bits": "42274876e8000000",
+        "exact": "50000000000",
+        "significant_bits": 26
+      }
+    }
+  },
+  {
+    "case": "interpolated-loaded",
+    "captured_interpolation_primitives": {
+      "t_lo": {
+        "bits": "4072500000000000",
+        "exact": "293",
+        "significant_bits": 9
+      },
+      "t": {
+        "bits": "4072f00000000000",
+        "exact": "303",
+        "significant_bits": 9
+      },
+      "t_hi": {
+        "bits": "4073900000000000",
+        "exact": "313",
+        "significant_bits": 9
+      },
+      "e_lo": {
+        "bits": "42474876e8000001",
+        "exact": "6553600000000001/32768",
+        "significant_bits": 53
+      },
+      "e_hi": {
+        "bits": "4244f46b04000000",
+        "exact": "180000000000",
+        "significant_bits": 27
+      },
+      "g_lo": {
+        "bits": "422bf08eb0000001",
+        "exact": "7864320000000001/131072",
+        "significant_bits": 53
+      },
+      "g_hi": {
+        "bits": "4222a05f20000000",
+        "exact": "40000000000",
+        "significant_bits": 24
+      },
+      "e_hat": {
+        "bits": "42461e70f6000000",
+        "exact": "190000000000",
+        "significant_bits": 28
+      },
+      "g_hat": {
+        "bits": "42274876e8000000",
+        "exact": "50000000000",
+        "significant_bits": 26
+      }
+    }
+  }
+]

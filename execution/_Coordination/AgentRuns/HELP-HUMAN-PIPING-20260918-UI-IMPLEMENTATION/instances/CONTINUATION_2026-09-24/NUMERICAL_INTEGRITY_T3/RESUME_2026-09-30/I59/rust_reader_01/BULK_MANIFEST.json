@@ -1,0 +1,64 @@
+{
+  "files": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i59_rust_reader_01/I59_DELTA.diff",
+      "sha256": "61f1663f690307759bd7540d3c471db7a651f5984f5174f06a4120f3a73adc7a",
+      "bytes": 51189
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i59_rust_reader_01/RATIONAL_HELPER_ORACLE.json",
+      "sha256": "a68dcf9586f7ee48c6340292908d84fa669e65b8ceea863788da4c7465f58141",
+      "bytes": 22806
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i59_rust_reader_01/cargo_01.json",
+      "sha256": "dc93ccd90db50ad7925f5f792be14e87de29a7e5f03e5b0dbf8f92ce55f66a37",
+      "bytes": 3427
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i59_rust_reader_01/cargo_01.log",
+      "sha256": "5ed4dcba71fd0539673f3c02411fdf2d411b02ac47980a7556b454a339279ea5",
+      "bytes": 1152
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i59_rust_reader_01/cargo_02.json",
+      "sha256": "0a7b152c76489d51697b3a6393a1ca1599fa26cf88c435a1d75c138d2a7a8f98",
+      "bytes": 3873
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i59_rust_reader_01/cargo_02.log",
+      "sha256": "e104f433264a6abb1520bd4e12cf7b79993af84cae1e78627dfbba999270c513",
+      "bytes": 23013
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i59_rust_reader_01/cargo_03.json",
+      "sha256": "43161f5e6a33b054c9cbbd3c109bec7325407b706407dec61f6515043cb832bc",
+      "bytes": 3871
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i59_rust_reader_01/cargo_03.log",
+      "sha256": "9032d1c35c86aa0ca9667fed43b99c92af3adc25d97a07da355ee4daeb5b6017",
+      "bytes": 1395
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i59_rust_reader_01/final_source/projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "sha256": "375b07313518a0cdd09e317b83b9ca7536acef5c80fd4cd0a94920fd8bf2486d",
+      "bytes": 66051
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i59_rust_reader_01/final_source/projects/chirality-piping/core/reporting/result_export/src/physics_source.rs",
+      "sha256": "c4e380ee7c01eb1581930013e8fc77f8be37c68e1978dedbb78ab5d3cd656f37",
+      "bytes": 51284
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i59_rust_reader_01/final_source/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs",
+      "sha256": "b43595136e2cba5b813f4b82e19371c3fde422ee82bd8eb90c66f36a63446d17",
+      "bytes": 119761
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i59_rust_reader_01/final_source/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs",
+      "sha256": "9a3b557780b9b14eba4d88e1206f38b4d7a66c545e7868591ed1998143cd70ac",
+      "bytes": 38728
+    }
+  ]
+}

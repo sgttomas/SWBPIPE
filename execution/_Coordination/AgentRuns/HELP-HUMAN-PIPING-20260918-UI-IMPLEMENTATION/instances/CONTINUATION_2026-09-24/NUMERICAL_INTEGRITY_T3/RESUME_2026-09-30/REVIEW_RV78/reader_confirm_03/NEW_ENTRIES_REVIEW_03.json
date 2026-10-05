@@ -1,0 +1,200 @@
+[
+ {
+  "id": "unavailable_attempt_under_facade_failure_cause",
+  "base": "two_case_facade_after_certificate_synthetic",
+  "corpus_expected": "G5 PRODUCT_ATTEMPT_MISMATCH",
+  "rv78_expected": "G5 PRODUCT_ATTEMPT",
+  "agree": true,
+  "basis": "D19; S06 s1 ('existing C2 cause branches ... for outcomes without an actual C3 product attempt')",
+  "emittability": "correct rejection: not emittable (an unavailable C3 attempt's case carries prepared_product_failure)",
+  "note": "isolating (I62: 07a Python passed it)",
+  "uses_after_rehash": false
+ },
+ {
+  "id": "unavailable_attempt_under_source_error_cause",
+  "base": "two_case_preparation_failure_synthetic",
+  "corpus_expected": "G5 PRODUCT_ATTEMPT_MISMATCH",
+  "rv78_expected": "G5 PRODUCT_ATTEMPT",
+  "agree": true,
+  "basis": "D19; S06 s1",
+  "emittability": "correct rejection: not emittable (C3 attempt under a C2 source_error cause)",
+  "note": "latent second defect: source_decline no_nodes with constructor_counts.nodes 2 (RV78 confirm_03 N2)",
+  "uses_after_rehash": false
+ },
+ {
+  "id": "preparation_error_selected_run_under_receipt_cause",
+  "base": "two_case_facade_after_certificate_synthetic",
+  "corpus_expected": "G5 PRODUCT_ATTEMPT_MISMATCH",
+  "rv78_expected": "G5 PRODUCT_ATTEMPT",
+  "agree": true,
+  "basis": "D19 + D4d",
+  "emittability": "correct rejection: not emittable (unavailable attempt under receipt_failure; preparation error with a selected Run)",
+  "note": "two D19/D4d defects, same class and code",
+  "uses_after_rehash": false
+ },
+ {
+  "id": "selected_case_without_c3_attempt",
+  "base": "two_case_synthetic",
+  "corpus_expected": "G5 PRODUCT_ATTEMPT_MISMATCH",
+  "rv78_expected": "G5 PRODUCT_ATTEMPT",
+  "agree": true,
+  "basis": "D20; C3:165",
+  "emittability": "correct rejection: not emittable (a selected prepared-route case has its C3 attempt)",
+  "note": "07a Python gave ATTEMPT (combined ordinary check); now split",
+  "uses_after_rehash": false
+ },
+ {
+  "id": "vbuild_on_escalating_failed_verification",
+  "base": "verification_failure_skip_synthetic",
+  "corpus_expected": "G5 ATTEMPT_MISMATCH",
+  "rv78_expected": "G5 ATTEMPT",
+  "agree": true,
+  "basis": "D21; adaptive.rs:4286 (obtain_verify only in verify_precision)",
+  "emittability": "correct rejection: not emittable (verification build present with an escalating solve stop)",
+  "note": "isolating: RV78's work/build checker finds the added build, charges and chain consistent",
+  "uses_after_rehash": false
+ },
+ {
+  "id": "dangling_attempt_source_ref",
+  "base": "two_case_facade_after_certificate_synthetic",
+  "corpus_expected": "G5 PRODUCT_ATTEMPT_MISMATCH",
+  "rv78_expected": "G5 PRODUCT_ATTEMPT",
+  "agree": true,
+  "basis": "D22; D16; C3:146-148",
+  "emittability": "correct rejection: not emittable (dangling source reference)",
+  "note": "",
+  "uses_after_rehash": false
+ },
+ {
+  "id": "source_member_map_kernel_id_noncanonical",
+  "base": "two_body_synthetic",
+  "corpus_expected": "G3 COVERAGE_MISMATCH",
+  "rv78_expected": "G3 COVERAGE",
+  "agree": true,
+  "basis": "D23 (RV78 confirm_02 S1); C2:98",
+  "emittability": "correct rejection: not emittable (kernel_member = model_index)",
+  "note": "byte-identical to RV78 probe N_D1_source_member_map_kernel_id_noncanonical",
+  "uses_after_rehash": false
+ },
+ {
+  "id": "forged_publication_hash",
+  "base": "ordinary_prepared_synthetic",
+  "corpus_expected": "G1 RECEIPT_MISMATCH",
+  "rv78_expected": "G1 RECEIPT",
+  "agree": true,
+  "basis": "D24; C1 G1 row",
+  "emittability": "correct rejection: not emittable (forged publication hash)",
+  "note": "isolating: RV78's JCS confirms receipt and source identity valid, only publication forged",
+  "uses_after_rehash": true
+ },
+ {
+  "id": "forged_preparation_hash",
+  "base": "ordinary_prepared_synthetic",
+  "corpus_expected": "G1 RECEIPT_MISMATCH",
+  "rv78_expected": "G1 RECEIPT",
+  "agree": true,
+  "basis": "D24; C3 G1 row",
+  "emittability": "correct rejection: not emittable (forged preparation hash)",
+  "note": "isolating: source identity and receipt re-literalized and valid (RV78 JCS)",
+  "uses_after_rehash": true
+ },
+ {
+  "id": "source_identity_stale_receipt_rehashed",
+  "base": "ordinary_prepared_synthetic",
+  "corpus_expected": "G1 RECEIPT_MISMATCH",
+  "rv78_expected": "G1 RECEIPT",
+  "agree": true,
+  "basis": "D24; C3 G1 row (= T4c)",
+  "emittability": "correct rejection: not emittable (stale source identity)",
+  "note": "isolating: receipt valid, source identity invalid (RV78 JCS)",
+  "uses_after_rehash": true
+ },
+ {
+  "id": "forged_receipt_hash",
+  "base": "ordinary_prepared_synthetic",
+  "corpus_expected": "G1 RECEIPT_MISMATCH",
+  "rv78_expected": "G1 RECEIPT",
+  "agree": true,
+  "basis": "D24; C1 G1 row",
+  "emittability": "correct rejection: not emittable (forged receipt hash)",
+  "note": "isolating",
+  "uses_after_rehash": true
+ },
+ {
+  "id": "g5a_sanity_margin_between_2m40_and_2m39",
+  "base": "ordinary_prepared_synthetic",
+  "corpus_expected": "G5a SCALE_MISMATCH",
+  "rv78_expected": "G5a SCALE",
+  "agree": true,
+  "basis": "D26; C1 G5a row (R7 s6.3 sanity test); RV79 M21 vector",
+  "emittability": "correct rejection: not emittable (resolution scale outside the sanity margin)",
+  "note": "margin arithmetic not rederived by RV78 (RV79 scope)",
+  "uses_after_rehash": false
+ },
+ {
+  "id": "idle_run_exhausted_meter_chain_broken",
+  "base": "two_case_facade_after_certificate_synthetic",
+  "corpus_expected": "G5 WORK_MISMATCH",
+  "rv78_expected": "G5 WORK",
+  "agree": true,
+  "basis": "D27; C1:60; C2:131",
+  "emittability": "correct rejection: not emittable (meter chain broken)",
+  "note": "isolating: RV78's checker finds exactly the run-1 chaining defect",
+  "uses_after_rehash": false
+ },
+ {
+  "id": "verification_estimate_quantity_not_in_layout",
+  "base": "p512_ladder_synthetic",
+  "corpus_expected": "G5 ATTEMPT_MISMATCH",
+  "rv78_expected": "G5 ATTEMPT",
+  "agree": true,
+  "basis": "D28; C2:24,54; adaptive.rs:4181-4185",
+  "emittability": "correct rejection: not emittable (reason quantity not in layout)",
+  "note": "isolating (07a Python passed it)",
+  "uses_after_rehash": false
+ },
+ {
+  "id": "charge_quantity_not_in_layout",
+  "base": "p512_ladder_synthetic",
+  "corpus_expected": "G5 ATTEMPT_MISMATCH",
+  "rv78_expected": "G5 ATTEMPT",
+  "agree": true,
+  "basis": "D28; adaptive.rs:4192-4196",
+  "emittability": "correct rejection: not emittable (reason quantity not in layout)",
+  "note": "isolating (07a Python passed it)",
+  "uses_after_rehash": false
+ },
+ {
+  "id": "publication_enclosure_quantity_not_in_layout",
+  "base": "p512_ladder_synthetic",
+  "corpus_expected": "G5 ATTEMPT_MISMATCH",
+  "rv78_expected": "G5 ATTEMPT",
+  "agree": true,
+  "basis": "D28; C2:24",
+  "emittability": "correct rejection: not emittable (reason quantity not in layout)",
+  "note": "isolating (07a Python passed it)",
+  "uses_after_rehash": false
+ },
+ {
+  "id": "empty_body_inventory",
+  "base": "ordinary_prepared_synthetic",
+  "corpus_expected": "G3 COVERAGE_MISMATCH",
+  "rv78_expected": "G3 COVERAGE",
+  "agree": true,
+  "basis": "D29; FK source.rs:498 NoNodes; I57 s1",
+  "emittability": "correct rejection: not emittable (empty body inventory)",
+  "note": "isolating (07a Python gave G5a)",
+  "uses_after_rehash": false
+ },
+ {
+  "id": "verification_summary_on_escalating_failed_verification",
+  "base": "verification_failure_skip_synthetic",
+  "corpus_expected": "G5 ATTEMPT_MISMATCH",
+  "rv78_expected": "G5 ATTEMPT",
+  "agree": true,
+  "basis": "D21 third indicator; adaptive.rs:4333",
+  "emittability": "correct rejection: not emittable (verification summary with an escalating solve stop)",
+  "note": "Rust already rejected; Python and TypeScript added in 07c",
+  "uses_after_rehash": false
+ }
+]

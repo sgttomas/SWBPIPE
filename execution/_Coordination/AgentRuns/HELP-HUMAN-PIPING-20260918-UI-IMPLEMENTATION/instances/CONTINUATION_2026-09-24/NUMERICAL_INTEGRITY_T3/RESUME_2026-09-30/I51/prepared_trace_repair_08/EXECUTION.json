@@ -1,0 +1,28 @@
+{
+  "role": "TASK Type 2",
+  "parent": "/root HELP_HUMAN",
+  "mechanism": "native; no descendants",
+  "receipt_utc": "2026-10-03T16:42:55Z",
+  "original_cutoff": "2026-10-03T16:57:40Z",
+  "original_seal_due": "2026-10-03T17:17:40Z",
+  "baseline": "7018513af3d6574be382d5c3aaee01e36cb0b28e",
+  "grant": "8b01547538",
+  "cargo_limit": 1,
+  "cargo_commands": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_repair_08/cargo_01.json"
+  ],
+  "bulk": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_repair_08",
+  "status": "sealed repair; same-reviewer backcheck and ROOT disposition pending",
+  "source_edits_stopped_utc": "2026-10-03T16:50:15.721471+00:00",
+  "lane_released": true,
+  "lane_release_confirmed_utc": "2026-10-03T16:50:15.721471+00:00",
+  "runtime_finish": "2026-10-03T16:47:47.764193+00:00",
+  "running_commands": 0,
+  "git_index_api_writes": 0,
+  "descendants": 0,
+  "root_source_commit": "fc23cff95fca3cce2bc10055b96aef5afd7c8478",
+  "parent_packet_preserved_at": "50fb93e77b",
+  "source_matches_root_commit": true,
+  "seal_utc": "2026-10-03T16:52:23.068227+00:00",
+  "runtime_lane_released": true
+}

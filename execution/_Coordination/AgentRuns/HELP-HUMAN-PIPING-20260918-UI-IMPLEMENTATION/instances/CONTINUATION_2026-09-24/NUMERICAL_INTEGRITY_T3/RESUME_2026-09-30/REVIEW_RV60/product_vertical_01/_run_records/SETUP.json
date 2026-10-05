@@ -1,0 +1,16 @@
+{
+  "completed": "2026-10-03T03:52:06.039862+00:00",
+  "scratch": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv60-product-vertical",
+  "candidate": "52842022cc49d0c9dd8d0760e727963d29015842",
+  "copied": [
+    "core/product_physics",
+    "core/solver/frame_kernel"
+  ],
+  "symlinked_read_only": [
+    "remaining core children",
+    "remaining solver children",
+    "fixtures"
+  ],
+  "sealed_tree": false,
+  "instructions": "Copy candidate PP/FK into scratch, link untouched dependencies and fixtures; append preserved control source only. Never seal scratch symlinks."
+}

@@ -1,0 +1,5 @@
+base cb03315779 (24 files + retained schema): {'PASSED': 1766, 'SKIPPED': 4, 'FAILED': 19}
+cand c89a7a986c (same + carrier tests): {'PASSED': 1787, 'SKIPPED': 4, 'FAILED': 19}
+changed outcome: []
+new: {'PASSED': 21} files ['tests/test_retained_precision_carriers.py']
+failing in cand (files): ['tests/test_handoff_export_workflow.py', 'tests/test_handoff_package_schema.py']

@@ -1,0 +1,162 @@
+{
+  "version": "I62_SHARED_SNAPSHOT_07A",
+  "freeze_utc": "2026-10-04T00:21:14.500716+00:00",
+  "status": "Frozen delta from SHARED_SNAPSHOT_07 under ruling D18; no acceptance, eligibility or reader approval.",
+  "basis": {
+    "ruling": "Phase 2 returns; D18 section truth includes positive echo terms (NUM 253ac9404e); D10 corrected in place",
+    "previous_snapshot": "SHARED_SNAPSHOT_07 82072054ec (corpus 90f6e4ed9b)",
+    "native": "PP:2360 (EA/L and GJ/L range), PP:2442, PP:2462; endpoint_maximum.rs:128"
+  },
+  "files": [
+    {
+      "path": "P/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+      "bytes": 8346,
+      "snapshot": "WT/scratch/i62_review_repair_07/shared_snapshot_07a/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "changed_from_snapshot_07": false
+    },
+    {
+      "path": "P/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+      "bytes": 52328,
+      "snapshot": "WT/scratch/i62_review_repair_07/shared_snapshot_07a/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "changed_from_snapshot_07": false
+    },
+    {
+      "path": "P/fixtures/results/retained_precision_cases.json",
+      "sha256": "a6fa398731c35245baca098e322a9846399c7535b2d4cd882a5058010de456c9",
+      "bytes": 4747059,
+      "snapshot": "WT/scratch/i62_review_repair_07/shared_snapshot_07a/fixtures/results/retained_precision_cases.json",
+      "changed_from_snapshot_07": true
+    },
+    {
+      "path": "P/schemas/retained_precision_mp_v2.schema.json",
+      "sha256": "07951edacfedd410c153929ee75bb5bada15dbd222369ec63240c678b233b61c",
+      "bytes": 177115,
+      "snapshot": "WT/scratch/i62_review_repair_07/shared_snapshot_07a/schemas/retained_precision_mp_v2.schema.json",
+      "changed_from_snapshot_07": false
+    },
+    {
+      "path": "P/schemas/results.v0.3.schema.yaml",
+      "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586",
+      "bytes": 131530,
+      "snapshot": "WT/scratch/i62_review_repair_07/shared_snapshot_07a/schemas/results.v0.3.schema.yaml",
+      "changed_from_snapshot_07": false
+    }
+  ],
+  "delta": [
+    {
+      "id": "g5b_zero_section_area",
+      "change": "expected G5b RETAINED_PRECISION_SCALE_MISMATCH -> G5b RETAINED_PRECISION_SECTION_MISMATCH; edits unchanged",
+      "why": "D18: an echoed section term must equal the source's and be positive; Python's SCALE came only through its catch-all ZeroDivisionError (a D16 fallback)."
+    },
+    {
+      "id": "g5b_zero_section_length",
+      "change": "added",
+      "base": "ordinary_prepared_synthetic",
+      "edits": [
+        {
+          "path": [
+            "retained_precision",
+            "body",
+            "sources",
+            0,
+            "section_terms",
+            0,
+            "length"
+          ],
+          "op": "set",
+          "value": "0000000000000000"
+        },
+        {
+          "path": [
+            "retained_precision",
+            "body",
+            "cases",
+            0,
+            "selection",
+            "section_terms",
+            0,
+            "length"
+          ],
+          "op": "set",
+          "value": "0000000000000000"
+        }
+      ],
+      "expected": {
+        "gate": "G5b",
+        "code": "RETAINED_PRECISION_SECTION_MISMATCH"
+      },
+      "why": "D18 pin: a zero length echo term (source and selection equal), so only positivity fails; the 07 Python reader reported G8 PREPARATION for it."
+    }
+  ],
+  "unchanged": "All cases, all 19 must-pass entries and the other 235 mutations byte-identical (asserted). Schema, definition, semantic fixture and results yaml unchanged.",
+  "counts": {
+    "cases": 15,
+    "mutations": 236,
+    "must_pass": 19
+  },
+  "python": {
+    "tests": "pytest_07a: 328 passed in 25.73s",
+    "reader_sha256": "9669b88359f0f40756d0d27d0aa503f2ddd35ce4ac1174363671e12b33c8611e",
+    "tests_sha256": "2d2ca008c9cd24f0bb6e70dfcf85c5e65e42b7c20212d3fae1112bda2030a65b",
+    "all_entries": "15 bases pass with expected classifications; 236/236 mutations at expected first failure; 19/19 must_pass pass (PYTHON_OUTCOMES_07A.json)"
+  },
+  "bulk": [
+    {
+      "path": "WT/scratch/i62_review_repair_07/07a_vs_07_reader.txt",
+      "sha256": "5fafe554edd84d1be6eb6338c3049148abfa610c51f4eaa0ba1918ab7287cd4c",
+      "bytes": 149
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/before_07a/retained_precision.py",
+      "sha256": "dddac2fa96adc1e148cab4e305739cf7055873f515051b5151dc4ccf56bdf752",
+      "bytes": 110318
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/before_07a/retained_precision_cases.json",
+      "sha256": "90f6e4ed9b5ebd00eb5d459397476c1e459b0a923eb1209037f8f86e0009367e",
+      "bytes": 4746240
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/before_07a/test_retained_precision_contract.py",
+      "sha256": "a0ead068405324b5b89ff98ba309cda275d06c07037e0fa84b4fbf64caced186",
+      "bytes": 63587
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/build_07a.py",
+      "sha256": "11b7bdf01ac23b685ae9762d02ca4943ec6904f0c0e7ea13cea3bfd8f021ad2e",
+      "bytes": 1335
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/freeze_07a.py",
+      "sha256": "e8038fbf686f6c46ae8680a3b6694011c5383b25eecff2177f857f884683dbb7",
+      "bytes": 5073
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/pytest_07a.log",
+      "sha256": "79a97350c4888a2e0066b729485ccdb7cdc48a7cf99d15b67f19d5167b423ede",
+      "bytes": 40100
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/python_outcomes_07a.json",
+      "sha256": "3f3a14ae31183a29eb2cad3ea5b8c477507a1f54d149af076477f27a7aa763e7",
+      "bytes": 100252
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/source_final_07a/core/analysis_runs/retained_precision.py",
+      "sha256": "9669b88359f0f40756d0d27d0aa503f2ddd35ce4ac1174363671e12b33c8611e",
+      "bytes": 110465
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/source_final_07a/tests/test_retained_precision_contract.py",
+      "sha256": "2d2ca008c9cd24f0bb6e70dfcf85c5e65e42b7c20212d3fae1112bda2030a65b",
+      "bytes": 63877
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/source_final_07a/tests/test_retained_precision_schema.py",
+      "sha256": "90bbd5660c504d3344ce19756d2b2250f80c0bd5d93b3ec123e5abf10523e504",
+      "bytes": 3627
+    }
+  ]
+}

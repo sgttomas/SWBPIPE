@@ -1,0 +1,53 @@
+{
+  "kind": "author proposal packet; not acceptance",
+  "root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05",
+  "created_utc": "2026-10-03T14:30:18.827016+00:00",
+  "files": [
+    {
+      "path": "API.md",
+      "bytes": 10686,
+      "sha256": "ffb33762586e62b153c6f92256f40fa2f6a99adf355dd59cecfa74acef11d28d"
+    },
+    {
+      "path": "AUDIT.json",
+      "bytes": 4787,
+      "sha256": "221cc85a5662fde07b7ad588fd6cfbbea9ec4759a98d0f731d6da24c40b08b28"
+    },
+    {
+      "path": "BULK_MANIFEST.json",
+      "bytes": 2227,
+      "sha256": "26c2b0f863b4cff600fe7dd730e0e56e198cbbf9d28117e81b232c62884748b9"
+    },
+    {
+      "path": "COMPOSITION.md",
+      "bytes": 23780,
+      "sha256": "ca99009a652d457915d6d508cc821d412a37341d1c7c7199e250fafce0b76241"
+    },
+    {
+      "path": "EXECUTION.json",
+      "bytes": 1327,
+      "sha256": "53c8adcddf8a1b0ed65cf70786aaea70906930cae394d13a645f3864113c69d7"
+    },
+    {
+      "path": "FENCE.md",
+      "bytes": 12392,
+      "sha256": "2699811f4b89c1c2f0ebee94b9207249bd623ea3a63c365352a2acefc9b420e4"
+    },
+    {
+      "path": "ORIGINS.json",
+      "bytes": 15007,
+      "sha256": "755de57204dd61651a00f53f96dcbeef9d952ed76ebcd8a07ccb821659a92a3e"
+    },
+    {
+      "path": "RECEIVED_INPUTS.json",
+      "bytes": 1119,
+      "sha256": "e0a48b769e5295376120f30b5b0bea5b6daaa011d835ae4e49c24ed5e4ad71d4"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 6872,
+      "sha256": "0666e8d396b5c61772a409602902ba4a58a1faf58734fad280aa4caf8d72b7e6"
+    }
+  ],
+  "external_bulk_manifest": "BULK_MANIFEST.json"
+}

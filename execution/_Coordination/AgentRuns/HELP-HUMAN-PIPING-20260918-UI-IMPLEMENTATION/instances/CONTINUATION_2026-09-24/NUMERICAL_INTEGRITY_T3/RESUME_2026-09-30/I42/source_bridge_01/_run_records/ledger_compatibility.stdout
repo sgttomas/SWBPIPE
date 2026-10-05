@@ -1,0 +1,12 @@
+
+running 7 tests
+test structural::retained::ledger::tests::cancelling_contributions_are_exact_per_dof ... ok
+test structural::retained::ledger::tests::the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_zero ... ok
+test structural::retained::ledger::tests::the_ledger_encoding_is_canonical_and_order_independent ... ok
+test structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie ... ok
+test structural::retained::ledger::tests::the_projection_at_p53_gives_round_on_normal_results_and_the_exact_projection_everywhere ... ok
+test structural::retained::ledger::tests::the_projection_matches_the_fraction_oracle_at_every_precision ... ok
+test structural::retained::ledger::tests::canonical_encodings_equal_the_generators_independent_bytes ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 436 filtered out; finished in 0.30s
+

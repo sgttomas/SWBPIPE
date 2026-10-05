@@ -1,0 +1,69 @@
+{
+  "task": "I54_ORDINARY_BOUND_CORRECTION",
+  "status": "Sealed for independent review; corrects the four specified source ownership families, with explicit remaining formatter/build facts.",
+  "sealed_utc": "2026-10-03T17:26:49.089386+00:00",
+  "entry_revision": "6c3e2dc295626637a71694569a5facbd25edc749",
+  "ordinary_source": "24af17c47011608d187811024b51807395e4e526",
+  "original_packet_revision": "71615e34b845f3fbc09bf6c546cb99fdc6d22987",
+  "original_manifest_sha256": "19c97f0d17953e0bb90162d1ca95b892ab279742fa59cd1c8b673091a977da31",
+  "preservation": {
+    "original_governed_payloads": 6,
+    "original_external_files": 79,
+    "all_verified_unchanged": true
+  },
+  "payloads": [
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I54/direct_ordinary_bound_correction_03/ADDENDUM.md",
+      "bytes": 17280,
+      "sha256": "c42f7e99a4bfb0b6659054d3c150bc90b01318e7af3932fc3134dd6de479b827"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I54/direct_ordinary_bound_correction_03/RESIDUALS.md",
+      "bytes": 6297,
+      "sha256": "989f5c13acb91a675b5e84d17740f3ed3b088ad29b45e8c044137b4c25957e7f"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I54/direct_ordinary_bound_correction_03/RETURN.md",
+      "bytes": 3128,
+      "sha256": "c51ad683e00db4f9cf0b3c4adcf499fb9bc4e8dfecbe92bccfbc17bde96d6b22"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I54/direct_ordinary_bound_correction_03/EXECUTION.json",
+      "bytes": 5838,
+      "sha256": "baedf174f64a563e3038873c195bb38c0da74a5ac2cfb43ca5bd98cc0ee425a4"
+    }
+  ],
+  "external_bulk_index": {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_correction_03/BULK_MANIFEST.json",
+    "bytes": 2527,
+    "sha256": "fcd888fc37a452600e53b30f769389cffad77f8d646effa75fbb376d4ff43d41"
+  },
+  "source_input_index": {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_correction_03/INPUTS.json",
+    "bytes": 11269,
+    "sha256": "600ecf0d09bc0163f2b3aae63b4535b23bb6917d92cf422d2933ad8085d0e201"
+  },
+  "key_evidence": [
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_correction_03/calculate.py",
+      "bytes": 10456,
+      "sha256": "2356c95e16ca7db03a76e954d97704673234bb08d38ce558f53a7ecaa834453a"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_correction_03/ARITHMETIC.json",
+      "bytes": 9226,
+      "sha256": "d3bc9d434a9f6555a0b487ffaa6f957cc1d9a0a83d3c5adc21566b0a6a12999a"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_correction_03/AUDIT.json",
+      "bytes": 751,
+      "sha256": "b99787befeceb5bdb581bea8b8424610dbbb4465a71e4a744dfa460795511038"
+    }
+  ],
+  "qualifications": [
+    "Final consumer layouts/configuration and remaining explicit source/text/stack terms are required.",
+    "Both existing modes/guards/refusal branches retained.",
+    "Common core corrections propagate into W2 evaluations; no complete ordinary/DirectPp total or fit follows.",
+    "No runtime, maintained source, Git/index/API write, new tooling or descendants."
+  ]
+}

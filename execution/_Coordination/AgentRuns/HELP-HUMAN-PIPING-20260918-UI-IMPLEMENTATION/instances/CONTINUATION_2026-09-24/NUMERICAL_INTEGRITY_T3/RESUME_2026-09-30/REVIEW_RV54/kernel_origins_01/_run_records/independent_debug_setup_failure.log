@@ -1,0 +1,24 @@
+     Locking 1 package to latest compatible version
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling rv54_origins_controls v0.0.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV54/kernel_origins_01/controls)
+error[E0308]: mismatched types
+    --> lib.rs:74:75
+     |
+  74 | ...::MAX);let legacy=match solve_case(&source("N05"),limit(),&mut meter){CaseOutcome::Selected(s)=>s,o=>panic!("{o:?}")};
+     |                            ---------- ^^^^^^^^^^^^^^ expected `PrimitiveSource`, found `&PrimitiveSource`
+     |                            |
+     |                            arguments to this function are incorrect
+     |
+note: function defined here
+    --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs:5014:8
+     |
+5014 | pub fn solve_case(
+     |        ^^^^^^^^^^
+help: consider removing the borrow
+     |
+  74 -  let mut meter=InvocationMeter::new(u64::MAX);let legacy=match solve_case(&source("N05"),limit(),&mut meter){CaseOutcome::Selected(s)=>s,o=>panic!("{o:?}")};
+  74 +  let mut meter=InvocationMeter::new(u64::MAX);let legacy=match solve_case(source("N05"),limit(),&mut meter){CaseOutcome::Selected(s)=>s,o=>panic!("{o:?}")};
+     |
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `rv54_origins_controls` (lib test) due to 1 previous error

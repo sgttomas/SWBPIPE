@@ -1,0 +1,2 @@
+sparse_interactive: rows 98 py==ts True agree_with_verdicts 98/98 py_classes_equal_exp03 True
+dense_scrutiny: rows 99 py==ts True agree_with_verdicts 99/99 py_classes_equal_exp03 True

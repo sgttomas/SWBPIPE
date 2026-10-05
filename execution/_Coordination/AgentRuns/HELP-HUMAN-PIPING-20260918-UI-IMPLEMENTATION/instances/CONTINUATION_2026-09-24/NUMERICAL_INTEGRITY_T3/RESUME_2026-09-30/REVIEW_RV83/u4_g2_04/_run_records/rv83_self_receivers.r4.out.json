@@ -1,0 +1,295 @@
+{
+ "tokens": [
+  {
+   "line": "core/product_physics/src/case_state/thermal.rs:254",
+   "call": "len",
+   "receiver": "points",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/product_physics/src/formation_guard.rs:105",
+   "call": "max",
+   "receiver": "ra",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/product_physics/src/pressure_runtime.rs:843",
+   "call": "len",
+   "receiver": "assembled_loads",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/product_physics/src/source_receipt/composite.rs:261",
+   "call": "max",
+   "receiver": null,
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/product_physics/src/source_receipt/endpoint_maximum.rs:52",
+   "call": "max",
+   "receiver": null,
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/reporting/result_export/src/physics_source.rs:227",
+   "call": "max",
+   "receiver": null,
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/reporting/result_export/src/preview_physics_evidence.rs:751",
+   "call": "len",
+   "receiver": "hits",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/reporting/result_export/src/retained_precision.rs:1617",
+   "call": "len",
+   "receiver": "attempts",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/reporting/result_export/src/retained_precision.rs:181",
+   "call": "max",
+   "receiver": "fo",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/reporting/result_export/src/retained_precision.rs:181",
+   "call": "max",
+   "receiver": "mo",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/reporting/result_export/src/retained_precision.rs:3585",
+   "call": "max",
+   "receiver": "a",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/serialization/canonical_json/src/lib.rs:157",
+   "call": "as_str",
+   "receiver": "key",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/lib.rs:1431",
+   "call": "len",
+   "receiver": "restrained_dofs",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/rigid_body.rs:727",
+   "call": "min",
+   "receiver": "a",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/rigid_body.rs:727",
+   "call": "max",
+   "receiver": "a",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/assemble.rs:637",
+   "call": "len",
+   "receiver": "tagged",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/factor.rs:227",
+   "call": "len",
+   "receiver": "neighbors",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/factor.rs:245",
+   "call": "len",
+   "receiver": "neighbors",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/verify.rs:333",
+   "call": "max",
+   "receiver": "fo",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/verify.rs:333",
+   "call": "max",
+   "receiver": "mo",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/wide/multi.rs:353",
+   "call": "len",
+   "receiver": "b",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:433",
+   "call": "min",
+   "receiver": "k",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:775",
+   "call": "max",
+   "receiver": "used",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/sparse.rs:897",
+   "call": "len",
+   "receiver": "force",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/nonlinear_integration/src/structural_adapter.rs:1399",
+   "call": "len",
+   "receiver": "coordinates",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/sparse_direct/src/lib.rs:581",
+   "call": "len",
+   "receiver": "neighbors",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/sparse_direct/src/lib.rs:599",
+   "call": "len",
+   "receiver": "neighbors",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/straight_pipe/src/lib.rs:1846",
+   "call": "abs",
+   "receiver": "end_fraction",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/straight_pipe/src/lib.rs:1846",
+   "call": "abs",
+   "receiver": "start_fraction",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  }
+ ],
+ "cycles_closed_by_dropped_edges": []
+}

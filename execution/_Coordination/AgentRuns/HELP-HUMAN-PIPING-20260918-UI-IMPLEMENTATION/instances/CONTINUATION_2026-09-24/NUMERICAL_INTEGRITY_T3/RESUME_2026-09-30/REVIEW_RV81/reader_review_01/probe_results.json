@@ -1,0 +1,121 @@
+{
+ "P1_old_member_out_of_range_with_invocation": {
+  "gate": "G8",
+  "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+ },
+ "P1_old_member_out_of_range_without_invocation": {
+  "result": "pass",
+  "eligible": false,
+  "standing": "needs_recompute"
+ },
+ "P2_base_diagnostic_refs": [
+  [
+   "diagnostic:numerical-integrity:case:six-component-load",
+   "diagnostic:retained:unavailable-row"
+  ],
+  [
+   "diagnostic:numerical-integrity:case:unavailable-row"
+  ]
+ ],
+ "P2_foreign_listed_diagnostic": {
+  "gate": "G5",
+  "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+ },
+ "P3_product_attempts_object": {
+  "gate": "G0",
+  "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+ },
+ "P4_work_removed": {
+  "gate": "G0",
+  "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+ },
+ "P5_base_record0": {
+  "role": "candidate",
+  "v": true,
+  "vref": null,
+  "vlme": 0
+ },
+ "P5_candidate_record_verification_lme": {
+  "gate": "G5",
+  "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+ },
+ "P6_accounting_rules": {
+  "base": [
+   true,
+   true,
+   true
+  ],
+  "unmutated": true,
+  "proto_key_rejected": [
+   true,
+   true,
+   false
+  ],
+  "missing_adapter_throws": true
+ },
+ "P7_base_initial": {
+  "kind": "report",
+  "outcome": "sensitive",
+  "q": "sensitive"
+ },
+ "P7_selected_checks_passed": {
+  "gate": "G5",
+  "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+ },
+ "P8_component_version": {
+  "gate": "G7",
+  "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+ },
+ "P9_base_schema_version": "0.2.0",
+ "P9_schema_version": {
+  "gate": "G7",
+  "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+ },
+ "P10_base_shape": [
+  [
+   128,
+   "failed",
+   "rejected"
+  ],
+  [
+   512,
+   "completed",
+   "accepted"
+  ]
+ ],
+ "P11_prefix_captured_base": {
+  "result": "pass",
+  "eligible": false,
+  "standing": "needs_recompute"
+ },
+ "P11_attempt": {
+  "id": 1,
+  "source_ref": null,
+  "run_ref": null,
+  "pm": 0,
+  "new": 0
+ },
+ "P11_captured_prefix_with_run_ref": {
+  "gate": "G3",
+  "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+ },
+ "P12_base_case1": {
+  "status": "unavailable",
+  "par": 1,
+  "cause": {
+   "kind": "prepared_product_failure",
+   "product_attempt_ref": 0
+  },
+  "run": null
+ },
+ "P12_orphan_cause_dangling_attempt": {
+  "result": "pass",
+  "eligible": false,
+  "standing": "needs_recompute"
+ },
+ "P12_orphan_cause_foreign_ready_attempt": {
+  "result": "pass",
+  "eligible": false,
+  "standing": "needs_recompute"
+ }
+}

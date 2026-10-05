@@ -1,0 +1,529 @@
+{
+ "reachable_on_I65_graph": 1881,
+ "missed_generic_receiver_calls": [
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1448:evaluate_original_residual_bound",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:1453",
+   "recv": "equations",
+   "recv_type": "R",
+   "method": "validate_equations",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:474:validate_equations",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1119:validate_equations"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1448:evaluate_original_residual_bound",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:1487",
+   "recv": "equations",
+   "recv_type": "R",
+   "method": "prescribed_coupled",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:480:prescribed_coupled",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1125:prescribed_coupled"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1687:finish_checked_factor",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:1699",
+   "recv": "equations",
+   "recv_type": "R",
+   "method": "validate_equations",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:474:validate_equations",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1119:validate_equations"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1687:finish_checked_factor",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:1702",
+   "recv": "prepared",
+   "recv_type": "P",
+   "method": "gate_shape_matches",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:534:gate_shape_matches",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1684:gate_shape_matches"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1687:finish_checked_factor",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:1705",
+   "recv": "prepared",
+   "recv_type": "P",
+   "method": "gate_rcond",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:537:gate_rcond",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1687:gate_rcond"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1687:finish_checked_factor",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:1706",
+   "recv": "prepared",
+   "recv_type": "P",
+   "method": "gate_assembly",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:555:gate_assembly",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1705:gate_assembly"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1687:finish_checked_factor",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:1714",
+   "recv": "prepared",
+   "recv_type": "P",
+   "method": "gate_scale_exponents",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:546:gate_scale_exponents",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1696:gate_scale_exponents"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1687:finish_checked_factor",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:1715",
+   "recv": "prepared",
+   "recv_type": "P",
+   "method": "gate_binding",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:549:gate_binding",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1699:gate_binding"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1687:finish_checked_factor",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:1716",
+   "recv": "prepared",
+   "recv_type": "P",
+   "method": "gate_rhs",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:543:gate_rhs",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1693:gate_rhs"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1687:finish_checked_factor",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:1747",
+   "recv": "equations",
+   "recv_type": "R",
+   "method": "load_fidelity",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:493:load_fidelity",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1148:load_fidelity"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1687:finish_checked_factor",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:1760",
+   "recv": "prepared",
+   "recv_type": "P",
+   "method": "gate_formation",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:552:gate_formation",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1702:gate_formation"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1687:finish_checked_factor",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:1761",
+   "recv": "equations",
+   "recv_type": "R",
+   "method": "formation_check",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:500:formation_check",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1155:formation_check"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1687:finish_checked_factor",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:1771",
+   "recv": "prepared",
+   "recv_type": "P",
+   "method": "gate_symmetry",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:564:gate_symmetry",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1714:gate_symmetry"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1687:finish_checked_factor",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:1790",
+   "recv": "equations",
+   "recv_type": "R",
+   "method": "contributions_supplied",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:471:contributions_supplied",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1116:contributions_supplied"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1687:finish_checked_factor",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:1791",
+   "recv": "prepared",
+   "recv_type": "P",
+   "method": "gate_contribution_rounding",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:561:gate_contribution_rounding",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1711:gate_contribution_rounding"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:938:audit_intended_action",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:942",
+   "recv": "equations",
+   "recv_type": "R",
+   "method": "contribution_sums",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:483:contribution_sums",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1135:contribution_sums"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:938:audit_intended_action",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:955",
+   "recv": "equations",
+   "recv_type": "R",
+   "method": "sums_row",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:486:sums_row",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1138:sums_row"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:938:audit_intended_action",
+   "call_line": "core/solver/frame_kernel/src/structural.rs:969",
+   "recv": "equations",
+   "recv_type": "R",
+   "method": "sums_row",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural.rs:486:sums_row",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1138:sums_row"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural/retained/bound.rs:415:u_pass",
+   "call_line": "core/solver/frame_kernel/src/structural/retained/bound.rs:426",
+   "recv": "f",
+   "recv_type": "F",
+   "method": "rows",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:397:rows",
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:858:rows"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural/retained/bound.rs:415:u_pass",
+   "call_line": "core/solver/frame_kernel/src/structural/retained/bound.rs:433",
+   "recv": "f",
+   "recv_type": "F",
+   "method": "first_of",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:400:first_of",
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:861:first_of"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural/retained/bound.rs:415:u_pass",
+   "call_line": "core/solver/frame_kernel/src/structural/retained/bound.rs:488",
+   "recv": "f",
+   "recv_type": "F",
+   "method": "first_of",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:400:first_of",
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:861:first_of"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural/retained/bound.rs:523:nl_pass",
+   "call_line": "core/solver/frame_kernel/src/structural/retained/bound.rs:534",
+   "recv": "f",
+   "recv_type": "F",
+   "method": "rows",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:397:rows",
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:858:rows"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural/retained/bound.rs:523:nl_pass",
+   "call_line": "core/solver/frame_kernel/src/structural/retained/bound.rs:541",
+   "recv": "f",
+   "recv_type": "F",
+   "method": "first_of",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:400:first_of",
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:861:first_of"
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural/retained/bound.rs:523:nl_pass",
+   "call_line": "core/solver/frame_kernel/src/structural/retained/bound.rs:579",
+   "recv": "f",
+   "recv_type": "F",
+   "method": "first_of",
+   "unreached_defs": [
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:400:first_of",
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:861:first_of"
+   ]
+  }
+ ],
+ "functions_hidden_behind_them": [
+  "core/solver/frame_kernel/src/structural.rs:1007:term_exponent",
+  "core/solver/frame_kernel/src/structural.rs:1016:subtract_term",
+  "core/solver/frame_kernel/src/structural.rs:1037:audit_load_fidelity",
+  "core/solver/frame_kernel/src/structural.rs:1098:row_sources",
+  "core/solver/frame_kernel/src/structural.rs:1106:unaudited_row",
+  "core/solver/frame_kernel/src/structural.rs:1135:audit_load_row",
+  "core/solver/frame_kernel/src/structural.rs:1573:estimate_rcond",
+  "core/solver/frame_kernel/src/structural.rs:1589:estimate_rcond",
+  "core/solver/frame_kernel/src/structural.rs:471:contributions_supplied",
+  "core/solver/frame_kernel/src/structural.rs:474:validate_equations",
+  "core/solver/frame_kernel/src/structural.rs:480:prescribed_coupled",
+  "core/solver/frame_kernel/src/structural.rs:483:contribution_sums",
+  "core/solver/frame_kernel/src/structural.rs:486:sums_row",
+  "core/solver/frame_kernel/src/structural.rs:493:load_fidelity",
+  "core/solver/frame_kernel/src/structural.rs:500:formation_check",
+  "core/solver/frame_kernel/src/structural.rs:534:gate_shape_matches",
+  "core/solver/frame_kernel/src/structural.rs:537:gate_rcond",
+  "core/solver/frame_kernel/src/structural.rs:543:gate_rhs",
+  "core/solver/frame_kernel/src/structural.rs:546:gate_scale_exponents",
+  "core/solver/frame_kernel/src/structural.rs:549:gate_binding",
+  "core/solver/frame_kernel/src/structural.rs:552:gate_formation",
+  "core/solver/frame_kernel/src/structural.rs:555:gate_assembly",
+  "core/solver/frame_kernel/src/structural.rs:561:gate_contribution_rounding",
+  "core/solver/frame_kernel/src/structural.rs:564:gate_symmetry",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:106:unavailable",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:143:detail",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:155:check",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:182:evaluate",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:342:scaled_exponent",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:360:pow2",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:372:body_scales",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:470:sub3",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:477:dot3",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:484:cross3",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:492:scale3",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:495:norm3",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:573:small",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:580:frame_matrix",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:640:user_matrix",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:665:curved_matrix",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:806:mul6",
+  "core/solver/frame_kernel/src/structural/formation_check.rs:826:invert6",
+  "core/solver/frame_kernel/src/structural/retained/bound.rs:397:rows",
+  "core/solver/frame_kernel/src/structural/retained/bound.rs:400:first_of",
+  "core/solver/frame_kernel/src/structural/retained/bound.rs:858:rows",
+  "core/solver/frame_kernel/src/structural/retained/bound.rs:861:first_of",
+  "core/solver/frame_kernel/src/structural/retained/wide.rs:902:sub",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1116:contributions_supplied",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1119:validate_equations",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1125:prescribed_coupled",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1135:contribution_sums",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1138:sums_row",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1148:load_fidelity",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1155:formation_check",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1684:gate_shape_matches",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1687:gate_rcond",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1693:gate_rhs",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1696:gate_scale_exponents",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1699:gate_binding",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1702:gate_formation",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1705:gate_assembly",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1711:gate_contribution_rounding",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1714:gate_symmetry",
+  "core/solver/frame_kernel/src/structural/sparse.rs:1815:audit_sparse_load_fidelity"
+ ],
+ "hidden_function_count": 64,
+ "hidden_text_rows": 5,
+ "hidden_text_rows_per_file": {
+  "core/solver/frame_kernel/src/structural/formation_check.rs": 5
+ },
+ "hidden_text_rows_detail": [
+  {
+   "file": "core/solver/frame_kernel/src/structural/formation_check.rs",
+   "line": 145,
+   "kind": "format",
+   "fn": "core/solver/frame_kernel/src/structural/formation_check.rs:143:detail"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/formation_check.rs",
+   "line": 146,
+   "kind": "format",
+   "fn": "core/solver/frame_kernel/src/structural/formation_check.rs:143:detail"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/formation_check.rs",
+   "line": 147,
+   "kind": "format",
+   "fn": "core/solver/frame_kernel/src/structural/formation_check.rs:143:detail"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/formation_check.rs",
+   "line": 148,
+   "kind": "format",
+   "fn": "core/solver/frame_kernel/src/structural/formation_check.rs:143:detail"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/formation_check.rs",
+   "line": 171,
+   "kind": "format",
+   "fn": "core/solver/frame_kernel/src/structural/formation_check.rs:155:check"
+  }
+ ],
+ "dropped_calls_to_reachable_defs": [
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1448:evaluate_original_residual_bound",
+   "line": 1454,
+   "method": "view",
+   "reachable_defs": [
+    "core/solver/frame_kernel/src/structural.rs:458:view",
+    "core/solver/frame_kernel/src/structural.rs:468:view",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1109:view"
+   ],
+   "text_req_below_defs": 0
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1448:evaluate_original_residual_bound",
+   "line": 1472,
+   "method": "row",
+   "reachable_defs": [
+    "core/solver/frame_kernel/src/structural.rs:477:row",
+    "core/solver/frame_kernel/src/structural/sparse.rs:180:row",
+    "core/solver/frame_kernel/src/structural/sparse.rs:292:row",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1122:row",
+    "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs:1570:row"
+   ],
+   "text_req_below_defs": 0
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1448:evaluate_original_residual_bound",
+   "line": 1487,
+   "method": "prescribed_coupled",
+   "reachable_defs": [
+    "core/solver/frame_kernel/src/structural.rs:1247:prescribed_coupled"
+   ],
+   "text_req_below_defs": 0
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1448:evaluate_original_residual_bound",
+   "line": 1497,
+   "method": "row",
+   "reachable_defs": [
+    "core/solver/frame_kernel/src/structural.rs:477:row",
+    "core/solver/frame_kernel/src/structural/sparse.rs:180:row",
+    "core/solver/frame_kernel/src/structural/sparse.rs:292:row",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1122:row",
+    "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs:1570:row"
+   ],
+   "text_req_below_defs": 0
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1687:finish_checked_factor",
+   "line": 1700,
+   "method": "view",
+   "reachable_defs": [
+    "core/solver/frame_kernel/src/structural.rs:458:view",
+    "core/solver/frame_kernel/src/structural.rs:468:view",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1109:view"
+   ],
+   "text_req_below_defs": 0
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:938:audit_intended_action",
+   "line": 942,
+   "method": "contribution_sums",
+   "reachable_defs": [
+    "core/solver/frame_kernel/src/structural.rs:820:contribution_sums"
+   ],
+   "text_req_below_defs": 0
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:938:audit_intended_action",
+   "line": 945,
+   "method": "view",
+   "reachable_defs": [
+    "core/solver/frame_kernel/src/structural.rs:458:view",
+    "core/solver/frame_kernel/src/structural.rs:468:view",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1109:view"
+   ],
+   "text_req_below_defs": 0
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural/retained/bound.rs:415:u_pass",
+   "line": 426,
+   "method": "rows",
+   "reachable_defs": [
+    "core/product_physics/src/retained_product.rs:3308:rows"
+   ],
+   "text_req_below_defs": 0
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural/retained/bound.rs:415:u_pass",
+   "line": 434,
+   "method": "entry",
+   "reachable_defs": [
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:403:entry",
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:864:entry"
+   ],
+   "text_req_below_defs": 0
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural/retained/bound.rs:415:u_pass",
+   "line": 473,
+   "method": "entry",
+   "reachable_defs": [
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:403:entry",
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:864:entry"
+   ],
+   "text_req_below_defs": 0
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural/retained/bound.rs:415:u_pass",
+   "line": 489,
+   "method": "entry",
+   "reachable_defs": [
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:403:entry",
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:864:entry"
+   ],
+   "text_req_below_defs": 0
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural/retained/bound.rs:523:nl_pass",
+   "line": 534,
+   "method": "rows",
+   "reachable_defs": [
+    "core/product_physics/src/retained_product.rs:3308:rows"
+   ],
+   "text_req_below_defs": 0
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural/retained/bound.rs:523:nl_pass",
+   "line": 542,
+   "method": "entry",
+   "reachable_defs": [
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:403:entry",
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:864:entry"
+   ],
+   "text_req_below_defs": 0
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural/retained/bound.rs:523:nl_pass",
+   "line": 564,
+   "method": "entry",
+   "reachable_defs": [
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:403:entry",
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:864:entry"
+   ],
+   "text_req_below_defs": 0
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural/retained/bound.rs:523:nl_pass",
+   "line": 580,
+   "method": "entry",
+   "reachable_defs": [
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:403:entry",
+    "core/solver/frame_kernel/src/structural/retained/bound.rs:864:entry"
+   ],
+   "text_req_below_defs": 0
+  }
+ ]
+}

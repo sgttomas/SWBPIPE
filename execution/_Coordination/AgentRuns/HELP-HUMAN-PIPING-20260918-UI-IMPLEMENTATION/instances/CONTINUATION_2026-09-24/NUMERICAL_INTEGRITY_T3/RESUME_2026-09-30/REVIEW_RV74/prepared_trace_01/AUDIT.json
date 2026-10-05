@@ -1,0 +1,24 @@
+{
+  "utc": "2026-10-03T16:55:11.824053+00:00",
+  "result": "PASS",
+  "final_source": "fc23cff95fca3cce2bc10055b96aef5afd7c8478",
+  "source_hashes_current": true,
+  "source_count": 12,
+  "complete_original_diff_read": true,
+  "complete_repair_delta_read": true,
+  "final_diff_check_exit": 0,
+  "author_packet_payload_bulk_counts": [
+    11,
+    19
+  ],
+  "repair_packet_payload_bulk_counts": [
+    7,
+    3
+  ],
+  "runtime_count": 5,
+  "runtime_all_passed_reaped_source_stable": true,
+  "unresolved_blocking_findings": 0,
+  "finding_closed": "RV74-F1",
+  "limits": "bounded private typed source/evidence fan-in only; no wider qualification",
+  "lane_released": "2026-10-03T16:52:34.331879Z"
+}

@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-03T06:52:19.789782+00:00",
+  "actor": "ROOT HELP_HUMAN /root",
+  "first_run_manifest_sha256": "1773eb7d47e432b8cb1440a95815938951591fd4352b2751909d56886ede7d0e",
+  "all_manifested_files_verified": 12,
+  "interpretation": "Preserved first-attempt source snapshots and raw evidence; numerical findings await full review; dense ancillary interface held",
+  "public_source_pin": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4"
+}

@@ -1,0 +1,545 @@
+{
+ "rebase_TAV": 2044707716,
+ "part2_TAV": 2116606292,
+ "changed_rows": [
+  {
+   "site": "core/product_physics/src/lib.rs:1764",
+   "kind": "collect_string",
+   "rebase": null,
+   "part2": [
+    2,
+    4020,
+    16080
+   ],
+   "delta": 16080
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:2759",
+   "kind": "clone_text",
+   "rebase": [
+    2115,
+    128,
+    541440
+   ],
+   "part2": [
+    2115,
+    1024,
+    4331520
+   ],
+   "delta": 3790080
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:2761",
+   "kind": "clone_text",
+   "rebase": [
+    2115,
+    128,
+    541440
+   ],
+   "part2": [
+    2115,
+    1024,
+    4331520
+   ],
+   "delta": 3790080
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:2769",
+   "kind": "clone_text",
+   "rebase": [
+    2115,
+    128,
+    541440
+   ],
+   "part2": [
+    2115,
+    1024,
+    4331520
+   ],
+   "delta": 3790080
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:5559",
+   "kind": "clone_text",
+   "rebase": [
+    2115,
+    128,
+    541440
+   ],
+   "part2": [
+    2115,
+    1024,
+    4331520
+   ],
+   "delta": 3790080
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:5559",
+   "kind": "clone_text",
+   "rebase": [
+    2115,
+    128,
+    541440
+   ],
+   "part2": [
+    2115,
+    1024,
+    4331520
+   ],
+   "delta": 3790080
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:13322",
+   "kind": "clone_text",
+   "rebase": [
+    0,
+    128,
+    0
+   ],
+   "part2": [
+    0,
+    1024,
+    0
+   ],
+   "delta": 0
+  },
+  {
+   "site": "core/product_physics/src/preview_physics.rs:194",
+   "kind": "clone_text",
+   "rebase": [
+    2115,
+    128,
+    541440
+   ],
+   "part2": [
+    2115,
+    1024,
+    4331520
+   ],
+   "delta": 3790080
+  },
+  {
+   "site": "core/product_physics/src/preview_physics.rs:517",
+   "kind": "clone_text",
+   "rebase": [
+    32,
+    128,
+    8192
+   ],
+   "part2": [
+    32,
+    1024,
+    65536
+   ],
+   "delta": 57344
+  },
+  {
+   "site": "core/product_physics/src/preview_physics.rs:690",
+   "kind": "clone_text",
+   "rebase": [
+    1,
+    128,
+    256
+   ],
+   "part2": [
+    1,
+    1024,
+    2048
+   ],
+   "delta": 1792
+  },
+  {
+   "site": "core/product_physics/src/retained_product.rs:2239",
+   "kind": "format",
+   "rebase": [
+    8460,
+    153,
+    2588760
+   ],
+   "part2": [
+    8460,
+    1049,
+    17749080
+   ],
+   "delta": 15160320
+  },
+  {
+   "site": "core/product_physics/src/retained_product.rs:2434",
+   "kind": "format",
+   "rebase": [
+    8460,
+    150,
+    2538000
+   ],
+   "part2": [
+    8460,
+    1046,
+    17698320
+   ],
+   "delta": 15160320
+  },
+  {
+   "site": "core/product_physics/src/source_receipt/rows.rs:294",
+   "kind": "clone_text",
+   "rebase": [
+    1760,
+    128,
+    450560
+   ],
+   "part2": [
+    1760,
+    1024,
+    3604480
+   ],
+   "delta": 3153920
+  },
+  {
+   "site": "core/product_physics/src/source_receipt/rows.rs:522",
+   "kind": "clone_text",
+   "rebase": [
+    960,
+    128,
+    245760
+   ],
+   "part2": [
+    960,
+    1024,
+    1966080
+   ],
+   "delta": 1720320
+  },
+  {
+   "site": "core/product_physics/src/source_receipt/rows.rs:608",
+   "kind": "clone_text",
+   "rebase": [
+    1760,
+    128,
+    450560
+   ],
+   "part2": [
+    1760,
+    1024,
+    3604480
+   ],
+   "delta": 3153920
+  },
+  {
+   "site": "core/product_physics/src/source_receipt/rows.rs:610",
+   "kind": "clone_text",
+   "rebase": [
+    1760,
+    128,
+    450560
+   ],
+   "part2": [
+    1760,
+    1024,
+    3604480
+   ],
+   "delta": 3153920
+  },
+  {
+   "site": "core/product_physics/src/source_receipt/rows.rs:631",
+   "kind": "clone_text",
+   "rebase": [
+    2115,
+    128,
+    541440
+   ],
+   "part2": [
+    2115,
+    1024,
+    4331520
+   ],
+   "delta": 3790080
+  },
+  {
+   "site": "core/product_physics/src/source_receipt/rows.rs:633",
+   "kind": "clone_text",
+   "rebase": [
+    2115,
+    128,
+    541440
+   ],
+   "part2": [
+    2115,
+    1024,
+    4331520
+   ],
+   "delta": 3790080
+  }
+ ],
+ "s2_positive_sites": 16,
+ "s2_delta": 71882496,
+ "collect_string_delta": 16080,
+ "zero_mult_changed": [
+  "core/product_physics/src/lib.rs:13322"
+ ],
+ "remaining": [
+  {
+   "site": "core/product_physics/src/lib.rs:5592",
+   "kind": "clone_text",
+   "class": "A",
+   "branch": "W,X",
+   "mult": 1760,
+   "priced": 128,
+   "bound": 1024,
+   "req": 450560,
+   "req_at_bound": 3604480,
+   "delta": 3153920,
+   "note": "matched[0].id.clone(): matched: Vec<&ResultItem> (source_row_bindings :5570; called beside qualify_source_case_rows :5489-5491)"
+  },
+  {
+   "site": "core/product_physics/src/source_receipt/rows.rs:390",
+   "kind": "clone_text",
+   "class": "A",
+   "branch": "X",
+   "mult": 96,
+   "priced": 128,
+   "bound": 1024,
+   "req": 24576,
+   "req_at_bound": 196608,
+   "delta": 172032,
+   "note": "primary[&s.functional_indices[c]].id.clone(): primary: &BTreeMap<usize, ResultItem> (:332)"
+  },
+  {
+   "site": "core/product_physics/src/source_receipt/rows.rs:533",
+   "kind": "clone_text",
+   "class": "A",
+   "branch": "X",
+   "mult": 960,
+   "priced": 128,
+   "bound": 1024,
+   "req": 245760,
+   "req_at_bound": 1966080,
+   "delta": 1720320,
+   "note": "vec![primary[&function].id.clone()]"
+  },
+  {
+   "site": "core/product_physics/src/source_receipt/rows.rs:308",
+   "kind": "format",
+   "class": "A",
+   "branch": "X",
+   "mult": 3875,
+   "priced": 157,
+   "bound": 1053,
+   "req": 1216750,
+   "req_at_bound": 8160750,
+   "delta": 6944000,
+   "note": "format!(\"row semantic/value mismatch: {}\", actual.id): actual: &ResultItem (compare :306)"
+  },
+  {
+   "site": "core/product_physics/src/source_receipt/rows.rs:625",
+   "kind": "format",
+   "class": "A",
+   "branch": "X",
+   "mult": 2115,
+   "priced": 158,
+   "bound": 1054,
+   "req": 668340,
+   "req_at_bound": 4458420,
+   "delta": 3790080,
+   "note": "format!(\"required derived row missing: {}\", d.row.id): d.row: ResultItem"
+  },
+  {
+   "site": "core/product_physics/src/source_receipt/rows.rs:590",
+   "kind": "clone_text",
+   "class": "B",
+   "branch": "X",
+   "mult": 1760,
+   "priced": 128,
+   "bound": 1024,
+   "req": 450560,
+   "req_at_bound": 3604480,
+   "delta": 3153920,
+   "note": "binding.result_id.clone(): FunctionalRowBinding.result_id = matched[0].id (lib.rs:5592)"
+  },
+  {
+   "site": "core/product_physics/src/source_receipt/rows.rs:592",
+   "kind": "clone_text",
+   "class": "B",
+   "branch": "X",
+   "mult": 1760,
+   "priced": 128,
+   "bound": 1024,
+   "req": 450560,
+   "req_at_bound": 3604480,
+   "delta": 3153920,
+   "note": "binding.result_id.clone()"
+  },
+  {
+   "site": "core/product_physics/src/source_receipt.rs:1016",
+   "kind": "clone_text",
+   "class": "B",
+   "branch": "X",
+   "mult": 4230,
+   "priced": 128,
+   "bound": 1024,
+   "req": 1082880,
+   "req_at_bound": 8663040,
+   "delta": 7580160,
+   "note": "r.result_id.clone(): RowTreatment.result_id = row.id (finalize_for :867)"
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:13044",
+   "kind": "to_string",
+   "class": "C",
+   "branch": "W,X",
+   "mult": 1344,
+   "priced": 128,
+   "bound": 872,
+   "req": 344064,
+   "req_at_bound": 2343936,
+   "delta": 1999872,
+   "note": "id: id.to_string() in append_endpoint_stress_result: ids from :12881 (872 B), :12898 (757), :12913 (765)"
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:13074",
+   "kind": "to_string",
+   "class": "C",
+   "branch": "W,X",
+   "mult": 1536,
+   "priced": 128,
+   "bound": 292,
+   "req": 393216,
+   "req_at_bound": 897024,
+   "delta": 503808,
+   "note": "id: id.to_string() in append_station_stress_result: ids from :12985 (292), :13002 (177), :13017 (185)"
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:11617",
+   "kind": "to_string",
+   "class": "C",
+   "branch": "W,X",
+   "mult": 768,
+   "priced": 128,
+   "bound": 158,
+   "req": 196608,
+   "req_at_bound": 242688,
+   "delta": 46080,
+   "note": "id: id.to_string() in append_endpoint_force_result: ids from :11375-:11416 (<= 158)"
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:11649",
+   "kind": "to_string",
+   "class": "C",
+   "branch": "W,X",
+   "mult": 1152,
+   "priced": 128,
+   "bound": 173,
+   "req": 294912,
+   "req_at_bound": 398592,
+   "delta": 103680,
+   "note": "id: id.to_string(): station force ids from :11546-:11581 (<= 173)"
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:4624",
+   "kind": "clone_text",
+   "class": "C",
+   "branch": "W,X",
+   "mult": 32,
+   "priced": 128,
+   "bound": 140,
+   "req": 8192,
+   "req_at_bound": 8960,
+   "delta": 768,
+   "note": "result_ref: result_id.clone(); result_id from :4609 (140)"
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:5276",
+   "kind": "clone_text",
+   "class": "C",
+   "branch": "W,X",
+   "mult": 32,
+   "priced": 128,
+   "bound": 322,
+   "req": 8192,
+   "req_at_bound": 20608,
+   "delta": 12416,
+   "note": "id: result_id.clone(); result_id from :5275 (322)"
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:5281",
+   "kind": "clone_text",
+   "class": "C",
+   "branch": "W,X",
+   "mult": 32,
+   "priced": 128,
+   "bound": 322,
+   "req": 8192,
+   "req_at_bound": 20608,
+   "delta": 12416,
+   "note": "result_ref: result_id.clone() (second clone on the line)"
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:5314",
+   "kind": "clone_text",
+   "class": "C",
+   "branch": "W,X",
+   "mult": 32,
+   "priced": 128,
+   "bound": 322,
+   "req": 8192,
+   "req_at_bound": 20608,
+   "delta": 12416,
+   "note": "id:result_id.clone(); result_id from :5307 (322)"
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:5329",
+   "kind": "clone_text",
+   "class": "C",
+   "branch": "W,X",
+   "mult": 32,
+   "priced": 128,
+   "bound": 322,
+   "req": 8192,
+   "req_at_bound": 20608,
+   "delta": 12416,
+   "note": "result_ref: result_id.clone()"
+  },
+  {
+   "site": "core/product_physics/src/lib.rs:5359",
+   "kind": "clone_text",
+   "class": "C",
+   "branch": "W,X",
+   "mult": 32,
+   "priced": 128,
+   "bound": 142,
+   "req": 8192,
+   "req_at_bound": 9088,
+   "delta": 896,
+   "note": "result_ref: result_id.clone(); result_id from :5349 (142)"
+  }
+ ],
+ "remaining_total": {
+  "whole": 32373120,
+  "W": 5858688,
+  "X": 32373120
+ },
+ "inbuild_effect_upper": {
+  "W3_dense": {
+   "before": 3580540218,
+   "after_upper": 3586398906,
+   "fraction_after": 0.8907,
+   "margin_to_0.9M_after": 37479750
+  },
+  "W3_sparse": {
+   "before": 3560829770,
+   "after_upper": 3566688458,
+   "fraction_after": 0.8858,
+   "margin_to_0.9M_after": 57190198
+  },
+  "X1_dense": {
+   "before": 3308986800,
+   "after_upper": 3341359920,
+   "fraction_after": 0.8298,
+   "margin_to_0.9M_after": 282518736
+  },
+  "X1_sparse": {
+   "before": 3289276352,
+   "after_upper": 3321649472,
+   "fraction_after": 0.8249,
+   "margin_to_0.9M_after": 302229184
+  }
+ }
+}

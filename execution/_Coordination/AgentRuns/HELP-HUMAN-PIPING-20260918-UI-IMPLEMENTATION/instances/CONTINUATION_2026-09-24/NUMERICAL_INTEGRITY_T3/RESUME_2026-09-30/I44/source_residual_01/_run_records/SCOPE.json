@@ -1,0 +1,53 @@
+{
+  "maintained_source_files": 8,
+  "adaptive_original_bytes_preserved_as_prefix": true,
+  "protected_files": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "sha256": "f2e034573db9c0bdd0af4ccf3cf392dde8c02da4f960ac3955a1e7ce6e20d29d",
+      "matches_baseline": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/bridge.rs",
+      "sha256": "0cbc204925748ecb1bee480b762f7de4b425965c68ec972f5e8963e985c0a8df",
+      "matches_baseline": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed/certificate.rs",
+      "sha256": "3525a99225a7d19a3e798cfdfe40921f658bb61acc2151098b28c3f19292926e",
+      "matches_baseline": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_tests.rs",
+      "sha256": "e6ffcfc563b602ab6602456c9815a55798a5a03f2f4e6356c2766a832bce127b",
+      "matches_baseline": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_vectors.py",
+      "sha256": "a32170d85bccb5f966d5e7677e7d2d57ee7e4ece8be0e78e35bb09167cfeaec8",
+      "matches_baseline": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_vectors.rs",
+      "sha256": "fc7dc63470bc78500b32430a5e48c6dd17542fc04bbc88ef5c2f2ab0f412af9c",
+      "matches_baseline": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs",
+      "sha256": "7d473352d032bcfa3fade1bdb1b8cb84107c21ca6870dd9ceee36debdfc0ac3e",
+      "matches_baseline": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_tests.rs",
+      "sha256": "4b704dacd360a46ae82a6e0e27668a23fab9a6c574f1e63e24a02ca042300b1e",
+      "matches_baseline": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "sha256": "9956c08421eebb44ee2663a790cf3ac882452f5119f6470cf6c5dcc386c3f2b8",
+      "matches_baseline": true
+    }
+  ],
+  "root_target_relocation": "ROOT atomically moved initial .i44-target outside checkout; no agent deletion/prune/index/ignore change",
+  "execution": "No Git/index/API writes, delegation, heavy sweep, UI, dependencies or host tooling installation."
+}

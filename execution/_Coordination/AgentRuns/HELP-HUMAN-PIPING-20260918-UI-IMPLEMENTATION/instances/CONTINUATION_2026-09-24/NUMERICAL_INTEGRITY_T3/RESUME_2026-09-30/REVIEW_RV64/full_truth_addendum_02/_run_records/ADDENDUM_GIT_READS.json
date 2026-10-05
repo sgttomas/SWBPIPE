@@ -1,0 +1,57 @@
+[
+  {
+    "argv": [
+      "git",
+      "show",
+      "4987f8290fbdd8b2ca228da24c138a1b90453eed:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV64_FULL_TRUTH_BACKCHECK.md"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+    "env": {
+      "GIT_OPTIONAL_LOCKS": "0"
+    }
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "4987f8290fbdd8b2ca228da24c138a1b90453eed:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/material_truth_coverage_challenge_01/CHALLENGE.md"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+    "env": {
+      "GIT_OPTIONAL_LOCKS": "0"
+    }
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "4987f8290fbdd8b2ca228da24c138a1b90453eed:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_preview_truth_01/RETURN.md"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+    "env": {
+      "GIT_OPTIONAL_LOCKS": "0"
+    }
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "4987f8290fbdd8b2ca228da24c138a1b90453eed:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/RETURN.md"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+    "env": {
+      "GIT_OPTIONAL_LOCKS": "0"
+    }
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "4987f8290fbdd8b2ca228da24c138a1b90453eed:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/material_truth_coverage_challenge_01/ROOT_CHECK.json"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+    "env": {
+      "GIT_OPTIONAL_LOCKS": "0"
+    }
+  }
+]

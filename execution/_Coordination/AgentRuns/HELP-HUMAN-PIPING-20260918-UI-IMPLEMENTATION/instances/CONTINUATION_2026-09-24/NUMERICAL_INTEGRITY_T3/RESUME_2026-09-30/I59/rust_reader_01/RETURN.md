@@ -1,0 +1,38 @@
+# I59 Rust reader recovery handoff
+
+**Frozen incomplete checkpoint; no acceptance or eligibility.** TASK Type 2 directly under ROOT HELP_HUMAN through native delegation. Receipt 2026-10-03 19:06:16 UTC; four-path freeze 19:16:15 UTC on Ryans-MacBook-Pro.local. The owner requested graceful conclusion before the original 75-minute maximum. No descendants, Git/index/API writes, installs, new runner/tool, kernel/producer/schema/fixture/Python/TS edits occurred.
+
+Only retained_precision.rs and its integration test changed during I59. The inherited lib.rs wiring and physics_source.rs stayed unchanged. SOURCE_FREEZE.json records full hashes and four external snapshots; I59_DELTA.diff is relative to the preserved recovery WIP, not a claim to cover the complete eventual merge diff.
+
+| Frozen path under P/core/reporting/result_export | SHA256 prefix |
+|---|---|
+| src/retained_precision.rs | b43595136e |
+| tests/retained_precision_contract.rs | 9a3b557780 |
+| src/lib.rs, unchanged in I59 | 375b073135 |
+| src/physics_source.rs, unchanged in I59 | c4e380ee7c |
+
+The selected basis remains C1/C2/C3/F1 plus ROOT-selected 06+07+08 at e0055868da. Inherited code was unaccepted and audited afresh at the cited seams. ORIGINS.json retains instruction/contract/source origins; inclusion is provenance, not a complete independent source review. No pending coverage amendment was implemented.
+
+## Concrete changes and results
+
+- Exported absolute_bound accepts either signed zero scale and returns canonical +0; upward_product also canonicalizes zero; upward_small_sum of zero terms remains the mandatory minimum-subnormal tail. G2 still rejects negative-zero nonnegative wire scales before later method defects. Positive arithmetic and one-final-upward-round sum semantics are unchanged.
+- Native G5 now checks the actual residual basis p+64 except p1024, at most three corrections, p128/fresh schedule start, immediate prior reuse, failed-solve versus failed-verification advancement, verification-stage entry before terminal handling, native role/outcome compatibility, stop_rule_lme equality with the stop_rule stage, and verification_lme equality with scale+estimate+charge+bound+shift. Existing per-stage shared/build and exact accounting checks remain.
+- C3 accounting failures now wait until the C3 attempt association/stage/check pass is complete. Completed proof_start requires both completed lanes. Outcomes retain the entered hull-projection prefix and completed projection coverage. Stage/native result and complete-preparation consistency are checked. Completion merged is permitted after completed projection even before values entry: PP3421 abandons a maxima-failed builder through abandon_values; final_case1712 merges its work. Alias/certificate paths require merged completion. These changes remain unreviewed source changes.
+- The public boundary remains validate(&Value, Option<&Value>) -> Result<Validation, ValidationError>, with source-authority checked canonicalization and units. Raw validation runs G0,G1,G2,G3,G4,G5,G5a,G5b,G5c,G6,G7,G8 in order. G7 still invokes the literal unchanged preview base validator. Metadata transport retains only G0–G2 plus unchanged base metadata checks and returns no numerical eligibility. No raw bytes are claimed verified by transport.
+
+Final focused command: cargo test --locked --offline --manifest-path READER/P/core/reporting/result_export/Cargo.toml --test retained_precision_contract -- --test-threads=2. Existing target WT/targets/i52-readers/result_export, CARGO_BUILD_JOBS=4, RUST_TEST_THREADS=2, CARGO_NET_OFFLINE=true, 1200-second wall under existing memguard. Normal unoptimized test profile; no solve/native/public execution.
+
+Run1 passed four tests on snapshot02. Run2 on final snapshot03 passed seven and failed one new Q/stage mutation, exposing the missing verification stage equality. The defect was source-confirmed and repaired; its raw failure remains preserved. Run3 passed all eight tests at the frozen hashes, ending 19:15:26 UTC. Before/after hashes match. Three of six permitted Cargo invocations used; all children reaped; no Cargo/rustc process at freeze; lane released. The existing unrelated dead-code warning in source_blocks.rs remains.
+
+Final evidence covers two synthetic sparse/dense complete records through bound, absent-invocation and metadata routes, all 30 shared rehashed first-failure mutations, seven directly affected G5 audit mutations including a compound ordering defect, G2 signed-zero/method precedence, 18 protected SMALL fixture values, six fixture products, and 160 independently Fraction-derived least-upper product/sum pairs. The rational oracle checks each chosen upper and its immediate predecessor; it uses deterministic seed590310 and includes zero, subnormal, normal transition, distant tails and finite overflow. These are validator/arithmetic controls, not producer/native execution. Snapshot03 corpus is 67d5cbcc00; its manifest is 506bb5373e. Rust independently re-encodes K4SRC/K4STF and accepts the corrected bytes. K4LED/K4RST remain producer/Rust replay attestations under C1/C2, not an exact-sum engine here.
+
+## Exact remaining obligations
+
+1. **Native summary coverage is unresolved and unimplemented.** IMPLEMENTATION_COMPLETE remains false. The inherited G5a layout/resolution-derived estimate/charge coverage condition is not accepted as proof of private native nonzero/data coverage. I57's proposal needs independent review and ROOT selection before implementation. No partial eligibility, native Current, physical certificate or published result is claimed.
+2. **G5 source/branch audit is incomplete beyond exercised branches.** Finish all native terminal/reason/reference domains, group/call/source coverage and ordinary/source_decline relationships, C3 typed error/stage/failure-prefix consistency, and source-bound work/status/completion obligations. Current schedule/stage repairs are not a completed exhaustive gate implementation or independent review.
+3. Shared positive controls for pre-helper failure, captured_prefix, unequal helper/new prefixes, K-only/Source-failed work, complete old-Err/new-Ready, source construction failure and post-native unavailable outcomes remain missing. I58 reports the old-Err control exists only in Python. The maxima-failed/merged-before-values source correction still needs a complete shared positive control. Do not infer these paths from successful selected records.
+4. Complete the required distinct G7 malformed-base mutation and G8 named/interpolated material, project-length normalization, failed-prefix association and source/map boundary controls. Existing direct calls and the two base-material records do not establish all branches.
+5. Obtain fresh independent review of the entire frozen Rust diff (including inherited implementation, not only I59_DELTA), corrected shared schema/corpus, all arithmetic and each gate; then run joint three-language parity on one immutable input snapshot. Reassess affected checks after any change. No historical regression suite, DEC-025 sweep, whole-source review or final PR gate ran here.
+6. Carrier/UI/standing integration, producer actual typed capture and Rust replay, public finalization, resource/caller admission, exact/combination promised routes and product qualification remain with ROOT and their owning assignments. This standalone checkpoint does not activate those routes or authorize omission.
+
+Next safe continuation is a bounded review/implementation assignment using SOURCE_FREEZE.json and snapshot03, closing the listed contract/fixture gaps before reconsidering the eligibility flag. ROOT owns integration, Git, acceptance and any new work allocation.

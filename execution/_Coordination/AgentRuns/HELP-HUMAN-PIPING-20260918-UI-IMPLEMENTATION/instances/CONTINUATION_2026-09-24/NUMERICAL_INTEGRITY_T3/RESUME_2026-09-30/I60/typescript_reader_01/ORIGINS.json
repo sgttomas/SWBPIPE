@@ -1,0 +1,138 @@
+{
+  "recorded_utc": "2026-10-03T19:16:51.420777+00:00",
+  "supplied_instruction_origins": "RECEIPT.json",
+  "contract_and_source_inputs": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/WIRE_CONTRACT.md",
+      "sha256": "c8ab2318457bd3897e207888af80f54f1a889071bf630ff1815939d922a567e3",
+      "bytes": 29991
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/SOURCE_COMBINATIONS.md",
+      "sha256": "28bc4dd617d3d929da178be1716b74db80d77391aefac2bae8af47b0744a4054",
+      "bytes": 22497
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/CONTRACT_DELTA.md",
+      "sha256": "923da0b97eb5becad7e7c1373c5a6f362568dc28ac8eab029c9170677c890869",
+      "bytes": 53986
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/prepared_public_contract_02/C3_DELTA.md",
+      "sha256": "fd00d2c1e8f4f7e2077f304560a63830e2b7b61cb5b1d47aff994c7874ed292e",
+      "bytes": 32788
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/prepared_public_contract_02/DEFINITION.json",
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+      "bytes": 8346
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/prepared_public_contract_correction_03/ADDENDUM.md",
+      "sha256": "6b8ebea5b83c3033211df144f69add8fcb753855cae570ec66afdd6684ddbf36",
+      "bytes": 11381
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/reader_contract_seams_06/ADDENDUM.md",
+      "sha256": "031b2a150545df4d80da8d8078b956e98760e0df757a75f98bd39b914dec42ab",
+      "bytes": 10294
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/reader_contract_seams_correction_07/ADDENDUM.md",
+      "sha256": "efdaaf544a6e606d04e2b0cde4ee389dbc0a5d2503f492e8810d73894321ce9e",
+      "bytes": 6410
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/reader_contract_seams_g4_08/ADDENDUM.md",
+      "sha256": "2e9bfb7abd8e94f097613877d643127397958a107a5eb13fd05ce3ae8242cdbe",
+      "bytes": 2177
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV69/reader_seams_03/REVIEW.md",
+      "sha256": "a0614622c766ab21cddccd02c205593b96255a59d478373f55717676171d5c40",
+      "bytes": 11885
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/reader_integration_04/RETURN.md",
+      "sha256": "df50f223c8502aa2d274bc7fb3ae589c2ede205ceb985ec7fba1e1c090c66426",
+      "bytes": 16480
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "sha256": "9956c08421eebb44ee2663a790cf3ac882452f5119f6470cf6c5dcc386c3f2b8",
+      "bytes": 29168
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "sha256": "6a2fc382bf8cae0502c41030da8ac9bc0cfe1f1b80b7aceac60ff7e40f345eda",
+      "bytes": 207733
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+      "sha256": "66022cc78bb5779d021a35e33fafc7cc7bc2d64723a5d0fdaf3a48cb6fea795e",
+      "bytes": 48032
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+      "sha256": "65355259ae404a6c2552d3eddb717b7271463eb27c9d604396eba78795de3bdf",
+      "bytes": 26117
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+      "sha256": "053fabc7a94e6ee0a0e4e8780985aee7654e0f7ced7944d7512f59ed6ef86083",
+      "bytes": 72837
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "sha256": "e9949ff88fef71a32cf07d552cf2b065d445d85cbb7bee9e53f8678562d6d982",
+      "bytes": 161582
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_vectors.py",
+      "sha256": "4c24add95da95062da72896f73a06124709afd419de065f11167470ce16e30e8",
+      "bytes": 5592
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_tests.rs",
+      "sha256": "4b704dacd360a46ae82a6e0e27668a23fab9a6c574f1e63e24a02ca042300b1e",
+      "bytes": 11094
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/apps/desktop/src/services/hashService.ts",
+      "sha256": "0f1d342d60501b212c3a307b96ba1dfa625fcc1845cc33b47e54dd58341cf7e1",
+      "bytes": 7029
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/apps/desktop/src/test/setup.ts",
+      "sha256": "65c02a3ba648174d681c4389b61707c58e8ee02cc7228b9446074a2ac1772e38",
+      "bytes": 466
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/apps/desktop/vite.config.ts",
+      "sha256": "9e59361cfb4e89b53d2ce1acfe7a9b000b6d87c38fd7cae283019efc13d04bf9",
+      "bytes": 3317
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/apps/desktop/tsconfig.json",
+      "sha256": "cc32a3c2be133425d30e112e3dc863c9dbe1ecbbdd81123abf6d6a0300a8ae5c",
+      "bytes": 525
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/apps/desktop/src/features/results/previewPhysicsEvidence.ts",
+      "sha256": "fd2e4a796ed23c4ced85d8edf5133a6a6cbee7e08e55ee8a8d307259602ac589",
+      "bytes": 31879
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I58/python_shared_01/SHARED_SNAPSHOT_02.json",
+      "sha256": "702dbc12007833678992823f9e6ae341d6a0bd4ddd0537183f4dacfbe8988721",
+      "bytes": 4112
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I58/python_shared_01/SHARED_SNAPSHOT_03.json",
+      "sha256": "506bb5373e73b9ae074e8b472f4a96c61c3aa07b00d0c55ce4ecb5e62c0ef503",
+      "bytes": 5016
+    }
+  ],
+  "basis_note": "Source-qualified NUM briefs and selected contracts; READER source-bound authorities. Root launch names NUM9a6cd1d43b; observed NUM later cd7e044acc; recovery STATE initially4b91e1c22c. Moving parent HEAD is not a replacement contract selection. No skill/workflow body selected; direct bounded brief.",
+  "replay_limit": "No independent final source review performed by this implementing TASK."
+}

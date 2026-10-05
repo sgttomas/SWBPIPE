@@ -1,0 +1,21 @@
+{
+  "sealed_utc": "2026-10-03T13:05:03Z",
+  "files": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I53/native_caller_qualification_01/RETURN.md",
+      "sha256": "66a2b26db7840a050aec97fc9090fe79a62f0c59e4240b864a7725a39d3f70b0"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I53/native_caller_qualification_01/ORIGINS.json",
+      "sha256": "1d4b71fccbb71afed52a59e181dcc4640684904b30ff6aedc89094a2864aac0f"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i53_native_caller/SOURCE_MANIFEST.json",
+      "sha256": "86bee0b43f7345015c43c6b2f68f929c2472aa584e622957a17977f041e374b8"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i53_native_caller/VENDOR_OBSERVATIONS.json",
+      "sha256": "60783dac03582536e168a71add36bfdae760e6484dfa0e5896af4def79ff1ae3"
+    }
+  ]
+}

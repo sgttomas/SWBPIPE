@@ -1,0 +1,10 @@
+{
+  "frozen_at_utc": "2026-10-02T21:00:02.528527+00:00",
+  "path": "SOURCE_DERIVATION.md",
+  "sha256": "3ab84b43f54ac26f095043c3435f8f72156503f7851524fd7a3b13a059128a01",
+  "author_exposure_before_freeze": false,
+  "native_parent": "/root",
+  "native_child": "/root/rv45_f2a_source_bridge",
+  "mechanism": "delegated-harness-native spawn_agent TASK",
+  "enforcement": "brief-bounded; host filesystem unrestricted; no isolation claimed"
+}

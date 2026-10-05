@@ -1,0 +1,40 @@
+{
+  "status": "complete bounded source-only return; awaiting independent review, not acceptance",
+  "mechanism": "delegated-harness-native",
+  "task": "/root/i36_f2a_preview_truth",
+  "parent": "/root",
+  "role": "TASK; agents/AGENT_TASK.md read from NUM",
+  "receipt_utc": "2026-10-02 21:20:20 UTC",
+  "new_analysis_cutoff_utc": "2026-10-02 21:45:20 UTC",
+  "return_deadline_utc": "2026-10-02 21:55:20 UTC",
+  "analysis_completed_by_utc": "2026-10-02 21:27:41 UTC",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_preview_truth_01",
+  "basis": "d85405edcdbb894544a64051faa768db8951060c",
+  "source_pin": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "instructions_supplied": "Parent launch assignment; explicit NUM cwd; NUM Root/TASK/project instructions and I36 brief; origins hashed in ORIGINS.json.",
+  "enforcement": "Host filesystem permits broader access; source-only/read and assigned-write boundaries enforced by the brief and this agent, not a claimed sandbox. Git reads used GIT_OPTIONAL_LOCKS=0.",
+  "allowed_operations_used": [
+    "source/authority file reads and searches",
+    "read-only Git revision/blob inspection",
+    "standard-library metadata hashing and byte equality",
+    "owned Markdown/JSON evidence writes"
+  ],
+  "not_done": [
+    "delegation",
+    "new solver or bridge derivation",
+    "product code",
+    "arithmetic design control execution",
+    "compiler/solver/model/runtime/host probes",
+    "Git/index/API writes",
+    "full tracked-tree copying"
+  ],
+  "skill_or_workflow_activated": null,
+  "return_path": "ROOT /root; fresh independent review precedes reliance",
+  "outputs": [
+    "RETURN.md",
+    "_run_records/ORIGINS.json",
+    "_run_records/CHECKS.json",
+    "_run_records/EXECUTION.json",
+    "_run_records/INVENTORY.json"
+  ]
+}

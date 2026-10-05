@@ -1,0 +1,275 @@
+[
+ {
+  "id": "D01_no_successor_dispatch",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "KILLED",
+  "rv88_by": [
+   "facts differ"
+  ],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[sparse_interactive]",
+   "tests/test_retained_precision_carriers.py::test_shared_carrier_cases_python"
+  ]
+ },
+ {
+  "id": "D05_transport_admitted_checked",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "SURVIVED",
+  "rv88_by": [],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[sparse_interactive]"
+  ]
+ },
+ {
+  "id": "D09_no_member_guard",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "KILLED",
+  "rv88_by": [
+   "FAIL sparse_interactive/relabel_member_code ('openpipestress.result_semantics/0.3.0/preview-physics-1', True, 'receipt', ('err', 'SOURCE_FORMULATION_BASIS_UNSUPPORTED'))",
+   "FAIL sparse_interactive/relabel_member_code ('openpipestress.result_semantics/0.3.0/preview-physics-1', True, 'null', ('err', 'SOURCE_FORMULATION_BASIS_UNSUPPORTED'))"
+  ],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_downgrades_are_refused[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_downgrades_are_refused[sparse_interactive]"
+  ]
+ },
+ {
+  "id": "D13_is_retained_profile",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "KILLED",
+  "rv88_by": [
+   "facts differ"
+  ],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[sparse_interactive]",
+   "tests/test_retained_precision_carriers.py::test_standing_is_needs_recompute_and_comes_only_from_the_receipt[dense_scrutiny]"
+  ]
+ },
+ {
+  "id": "F04_router_old_set",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "KILLED",
+  "rv88_by": [
+   "facts differ"
+  ],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[sparse_interactive]",
+   "tests/test_retained_precision_carriers.py::test_stress_neutral_packager_still_refuses_the_successor[dense_scrutiny]"
+  ]
+ },
+ {
+  "id": "S03_reader_error_needs_recompute",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "KILLED",
+  "rv88_by": [
+   "FAIL sparse_interactive/edited_row_unsupported ",
+   "FAIL sparse_interactive/foreign_mode_unsupported "
+  ],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_standing_is_needs_recompute_and_comes_only_from_the_receipt[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_standing_is_needs_recompute_and_comes_only_from_the_receipt[sparse_interactive]",
+   "tests/test_retained_precision_carriers.py::test_shared_carrier_cases_python"
+  ]
+ },
+ {
+  "id": "S06_no_eligibility",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "KILLED",
+  "rv88_by": [
+   "FAIL sparse_interactive/standing_inv ",
+   "FAIL sparse_interactive/summary "
+  ],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_standing_is_needs_recompute_and_comes_only_from_the_receipt[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_standing_is_needs_recompute_and_comes_only_from_the_receipt[sparse_interactive]",
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ]
+ },
+ {
+  "id": "S10_no_not_required",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "SURVIVED",
+  "rv88_by": [],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ]
+ },
+ {
+  "id": "N03_no_basis_check",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "SURVIVED",
+  "rv88_by": [],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ]
+ },
+ {
+  "id": "N07_accuracy_unresolved",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "SURVIVED",
+  "rv88_by": [],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ]
+ },
+ {
+  "id": "B01_codes_swapped",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "KILLED",
+  "rv88_by": [
+   "FAIL sparse_interactive/binding_by_receipt_list {}",
+   "FAIL dense_scrutiny/binding_by_receipt_list {}"
+  ],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_binding_refusal_follows_the_validated_class_only[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_binding_refusal_follows_the_validated_class_only[sparse_interactive]",
+   "tests/test_retained_precision_carriers.py::test_each_class_maps_to_its_refusal"
+  ]
+ },
+ {
+  "id": "B05_no_binding_branch",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "KILLED",
+  "rv88_by": [
+   "FAIL sparse_interactive/binding_by_receipt_list {'result:disp:N0': None, 'result:disp:N1:ux': None, 'result:support-action:4:case:8:rigid:N0:Fx': None, 'result:support-action:4:case:8:rigid:N0:Fy': None, 'result:support-action:4:case:8:rigid:N0:Fz': None, 'result:support-action:4:case:8:rigid:N0:Mx': None, 'result:support-action:4:case:8:rigid:N0",
+   "FAIL sparse_interactive/binding_refused_statement "
+  ],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_binding_refusal_follows_the_validated_class_only[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_binding_refusal_follows_the_validated_class_only[sparse_interactive]"
+  ]
+ },
+ {
+  "id": "C04_not_per_case",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "SURVIVED",
+  "rv88_by": [],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_classification_summary_counts_validated_classes[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_classification_summary_counts_validated_classes[sparse_interactive]"
+  ]
+ },
+ {
+  "id": "A02_receipt_body_only",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "KILLED",
+  "rv88_by": [
+   "facts differ"
+  ],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[sparse_interactive]",
+   "tests/test_retained_precision_carriers.py::test_stress_neutral_packager_still_refuses_the_successor[dense_scrutiny]"
+  ]
+ },
+ {
+  "id": "A06_v02_admits_receipt",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "KILLED",
+  "rv88_by": [
+   "FAIL v0_2_refuses_legacy_receipt ('ok', {'schema_version': '0.2.0', 'deliverable_id': 'DEL-14-02', 'package_id': 'PKG-14', 'scope_item': 'SOW-072', 'objectives': ['OBJ-016'], 'run_contract_status': {'record_contract': 'strict_analysis_run_v0_2', 'result_binding': 'received_mechanics_result', 'external_validation_boundary': 'referen",
+   "FAIL v0_2_refuses_legacy_null ('ok', {'schema_version': '0.2.0', 'deliverable_id': 'DEL-14-02', 'package_id': 'PKG-14', 'scope_item': 'SOW-072', 'objectives': ['OBJ-016'], 'run_contract_status': {'record_contract': 'strict_analysis_run_v0_2', 'result_binding': 'received_mechanics_result', 'external_validation_boundary': 'referen"
+  ],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_downgrades_are_refused[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_downgrades_are_refused[sparse_interactive]"
+  ]
+ },
+ {
+  "id": "Q01_member_guard_null_slips",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "KILLED",
+  "rv88_by": [
+   "FAIL sparse_interactive/relabel_member_code ('openpipestress.result_semantics/0.3.0/preview-physics-1', True, 'null', ('err', 'SOURCE_FORMULATION_BASIS_UNSUPPORTED'))",
+   "FAIL sparse_interactive/relabel_member_code ('openpipestress.result_semantics/0.3.0/physics-1', False, 'null', ('err', 'SOURCE_FORMULATION_BASIS_UNSUPPORTED'))"
+  ],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_downgrades_are_refused[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_downgrades_are_refused[sparse_interactive]"
+  ]
+ },
+ {
+  "id": "Q02_token_guard_first_row_only",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "SURVIVED",
+  "rv88": "KILLED",
+  "rv88_by": [
+   "FAIL sparse_interactive/relabel_refused ('openpipestress.result_semantics/0.3.0/preview-physics-1', False, 'one_token_last')",
+   "FAIL sparse_interactive/relabel_standing ('openpipestress.result_semantics/0.3.0/preview-physics-1', False, 'one_token_last')"
+  ],
+  "i66_failed": []
+ },
+ {
+  "id": "Q03_ar_equality_by_sha_only",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "KILLED",
+  "rv88_by": [
+   "FAIL sparse_interactive/ar_body_refused ('err', 'ANALYSIS_RECORD_CHECKSUM_MISMATCH')",
+   "FAIL sparse_interactive/ar_extra_refused ('err', 'ANALYSIS_RECORD_CHECKSUM_MISMATCH')"
+  ],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[sparse_interactive]"
+  ]
+ },
+ {
+  "id": "Q04_refused_statement_binds",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "KILLED",
+  "rv88": "KILLED",
+  "rv88_by": [
+   "FAIL sparse_interactive/binding_refused_statement ",
+   "FAIL dense_scrutiny/binding_refused_statement "
+  ],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_binding_refusal_follows_the_validated_class_only[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_binding_refusal_follows_the_validated_class_only[sparse_interactive]"
+  ]
+ },
+ {
+  "id": "Q05_wrapper_null_slips",
+  "file": "core/analysis_runs/records.py",
+  "i66_suite": "KILLED",
+  "rv88": "KILLED",
+  "rv88_by": [
+   "FAIL wrapper_refuses_legacy_null ",
+   "FAIL wrapper_refuses_legacy_null "
+  ],
+  "i66_failed": [
+   "tests/test_retained_precision_carriers.py::test_legacy_record_wrapper_refuses_a_receipt[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_legacy_record_wrapper_refuses_a_receipt[sparse_interactive]"
+  ]
+ },
+ {
+  "id": "Q06_refs_order_insensitive",
+  "file": "core/analysis_runs/compatibility.py",
+  "i66_suite": "SURVIVED",
+  "rv88": "KILLED",
+  "rv88_by": [
+   "FAIL sparse_interactive/seam_two_case_order ",
+   "FAIL dense_scrutiny/seam_two_case_order "
+  ],
+  "i66_failed": []
+ }
+]

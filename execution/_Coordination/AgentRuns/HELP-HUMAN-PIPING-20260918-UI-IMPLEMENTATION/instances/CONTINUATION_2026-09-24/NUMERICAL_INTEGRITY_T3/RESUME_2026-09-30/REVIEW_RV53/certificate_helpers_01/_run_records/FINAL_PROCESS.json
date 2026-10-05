@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "ps",
+    "-axo",
+    "pid=,ppid=,comm="
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic",
+  "exit": 0,
+  "observed_utc": "2026-10-02T23:55:48.999634+00:00",
+  "matching_cargo_rustc_test_processes": [],
+  "owned_cargo_pids": [
+    1948,
+    3028
+  ],
+  "owned_commands_exited": true,
+  "guard": "  PID  PPID COMMAND\n 5387     1 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+  "guard_exit": 0,
+  "lane": "returned to ROOT; no further Cargo/rustc/test commands planned"
+}

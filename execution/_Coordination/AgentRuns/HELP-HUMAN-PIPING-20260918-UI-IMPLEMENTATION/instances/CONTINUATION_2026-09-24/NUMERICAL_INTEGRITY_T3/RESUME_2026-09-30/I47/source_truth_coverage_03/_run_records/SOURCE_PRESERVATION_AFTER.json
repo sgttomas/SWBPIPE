@@ -1,0 +1,6 @@
+{
+  "projects/chirality-piping/core/product_physics/src/retained_product.rs": "9f870e5ca79d18cf50e343799fc538a349c2ad4844ae6739a70af9e3219abe27",
+  "projects/chirality-piping/core/product_physics/src/lib.rs": "90b2d6b19824630aa9469386e6c90ad03739c8b8ad6184bae993ef6338de80f1",
+  "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs": "5853f21fe2689cda02ec6ef23a008f8c6cc12cd9173a7ceb5484472133773b55",
+  "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "46eabbe3cca8bcd7fbd096b2166f8a4ecc830c17fb2df6580c26c9011f345a7a"
+}

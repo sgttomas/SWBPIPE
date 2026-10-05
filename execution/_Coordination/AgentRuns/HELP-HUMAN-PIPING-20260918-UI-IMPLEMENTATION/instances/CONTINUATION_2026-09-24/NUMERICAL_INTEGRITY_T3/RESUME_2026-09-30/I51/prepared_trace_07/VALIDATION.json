@@ -1,0 +1,233 @@
+{
+  "utc": "2026-10-03T16:27:30.060317+00:00",
+  "commands": [
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_01.json",
+      "record_sha256": "a4c3a10036a0f56bc7c0d8a84e261fd931df9647563e1d64f66bc194375ea7e7",
+      "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_01.log",
+      "log_sha256": "3776b2c561fa859f09772ddfa508f95435af469375d2e4017e026de4d56b6c6b",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "product_certificate",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T16:04:19.051718+00:00",
+      "finish": "2026-10-03T16:04:29.077671+00:00",
+      "exit": 0,
+      "source_stable": true,
+      "reaped": true,
+      "process_group_alive": false,
+      "summaries": [
+        "test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 447 filtered out; finished in 0.32s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_02.json",
+      "record_sha256": "890735c5b934bdc7adec31ff6b848b1bcf4af4253c7104c76759c268a6b6b065",
+      "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_02.log",
+      "log_sha256": "e8b5295c4603883caa9070d94aa618ffd20a9aad1827d18a61041c1caf1bb921",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "retained_product_tests",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T16:08:17.013712+00:00",
+      "finish": "2026-10-03T16:08:47.475786+00:00",
+      "exit": 0,
+      "source_stable": true,
+      "reaped": true,
+      "process_group_alive": false,
+      "summaries": [
+        "test result: ok. 32 passed; 0 failed; 0 ignored; 0 measured; 419 filtered out; finished in 14.67s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_03.json",
+      "record_sha256": "85bb41021e3f1577a3e508626b5b6683d95d4d118d753665a5556be0d462805a",
+      "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_03.log",
+      "log_sha256": "d7b59dd6fa5d033835eb27c5ad71d3c0936b5a467cc375131b31b26de6791218",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "product_certificate",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T16:10:42.900877+00:00",
+      "finish": "2026-10-03T16:10:47.550403+00:00",
+      "exit": 0,
+      "source_stable": true,
+      "reaped": true,
+      "process_group_alive": false,
+      "summaries": [
+        "test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 447 filtered out; finished in 0.32s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_04.json",
+      "record_sha256": "cfe545fa2174bd7a036eafa4f5486cca2fecce38653ba30a0be5299f51e2889a",
+      "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_04.log",
+      "log_sha256": "2bcce409f5ca72a3cacd43a6491a2047a3a44f14255afacf6f92a579fe0c2bb1",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--test",
+        "s11_site_table",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T16:13:10.743566+00:00",
+      "finish": "2026-10-03T16:13:15.460104+00:00",
+      "exit": 101,
+      "source_stable": true,
+      "reaped": true,
+      "process_group_alive": false,
+      "summaries": [
+        "test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_05.json",
+      "record_sha256": "36b1689ffb04709c1477a6a805babf6ce421a59fc325a20a3c34bdb8c8e2c128",
+      "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_05.log",
+      "log_sha256": "8e63fbb0058fcd64e9e282508406c2333b89fc1b43e7ed61059c0f511b8da4a4",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "product_certificate",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T16:15:55.094571+00:00",
+      "finish": "2026-10-03T16:15:59.828186+00:00",
+      "exit": 0,
+      "source_stable": true,
+      "reaped": true,
+      "process_group_alive": false,
+      "summaries": [
+        "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 447 filtered out; finished in 0.32s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_06.json",
+      "record_sha256": "05ca17f0a835caad3252b884607c2115907c030a9cd7b2c99da187ec319ad980",
+      "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_06.log",
+      "log_sha256": "291944c48f5f655839b480b77650bbaeed3292eb4c5cdcd77943e450afb695aa",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--test",
+        "s11_site_table",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T16:18:23.624423+00:00",
+      "finish": "2026-10-03T16:18:25.647190+00:00",
+      "exit": 0,
+      "source_stable": true,
+      "reaped": true,
+      "process_group_alive": false,
+      "summaries": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_07.json",
+      "record_sha256": "9a8ded4b82709df3b4e10660b6745609d9a367dbf3106e98ad818feec245d55d",
+      "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_07.log",
+      "log_sha256": "dc7d20adbdb7b18d8ffa3b20fa820e55813e81dae78e6a0056d32f1367e35a8b",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "retained_product_tests",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T16:19:48.830132+00:00",
+      "finish": "2026-10-03T16:20:10.890526+00:00",
+      "exit": 0,
+      "source_stable": true,
+      "reaped": true,
+      "process_group_alive": false,
+      "summaries": [
+        "test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 419 filtered out; finished in 15.29s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_08.json",
+      "record_sha256": "4f0109b37090bc97f8d63c227d5c55f0ca844303cab67e123c63015469669911",
+      "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_08.log",
+      "log_sha256": "f787d6ec95a79773ab15ceacf78c447b030395b8ee1119b5deef3a53f507c36e",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--test",
+        "s11f_site_test",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T16:21:48.639523+00:00",
+      "finish": "2026-10-03T16:21:56.491971+00:00",
+      "exit": 0,
+      "source_stable": true,
+      "reaped": true,
+      "process_group_alive": false,
+      "summaries": [
+        "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.40s"
+      ]
+    }
+  ],
+  "final_checks": {
+    "PP_private_and_trace": "33/33, including original 28 tests",
+    "FK_product_certificate": "28/28",
+    "S11_K": "3/3 after one authorized row",
+    "S11_F": "11/11 unchanged"
+  },
+  "failed_command": 4,
+  "failure_and_repair": "Exactly one new bounded integer round-prefix site. Preserved original failure, ROOT addendum 7ec3dc6984, one exact table row, guard moved before conversion count, full-buffer refusal adds no conversion/outcome.",
+  "repair_patch": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/S11_REPAIR.patch",
+  "repair_patch_sha256": "9e3d1841f623f8bc9bd9087c710f078e3430fe27c938ae691962e9583051996b",
+  "numeric_parity": "See external NUMERICAL_PARITY.json; all seven prior frozen result events retain their numerical/observable signatures",
+  "scope_limit": "No public W1 activation, profile/M adoption, full DEC-025/T9/native UI/large model/RSS work"
+}

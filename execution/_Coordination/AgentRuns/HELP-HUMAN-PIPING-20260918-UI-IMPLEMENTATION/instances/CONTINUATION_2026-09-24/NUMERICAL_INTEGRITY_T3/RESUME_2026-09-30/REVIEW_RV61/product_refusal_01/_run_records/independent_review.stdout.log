@@ -1,0 +1,159 @@
+{
+  "cases": {
+    "zero": {
+      "failures": {
+        "ordinary": {
+          "source": [],
+          "represented": []
+        },
+        "native": {
+          "source": [],
+          "represented": []
+        },
+        "projected": {
+          "source": [],
+          "represented": []
+        }
+      },
+      "ordinary_scales": {
+        "tr": "0000000000000000",
+        "ro": "0000000000000000",
+        "fo": "0000000000000000",
+        "mo": "0000000000000000",
+        "input": "0000000000000000",
+        "stress": "0000000000000000",
+        "maximum": "0000000000000000"
+      },
+      "projected_scales": {
+        "tr": "0000000000000000",
+        "ro": "0000000000000000",
+        "fo": "0000000000000000",
+        "mo": "0000000000000000",
+        "input": "0000000000000000",
+        "stress": "0000000000000000",
+        "maximum": "0000000000000000"
+      },
+      "zero_sign_failures": [
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52
+      ]
+    },
+    "loaded": {
+      "failures": {
+        "ordinary": {
+          "source": [
+            2,
+            9,
+            10,
+            12,
+            14,
+            20,
+            22,
+            33,
+            34,
+            40,
+            46,
+            52,
+            53,
+            55,
+            56,
+            57,
+            59,
+            60,
+            61,
+            63,
+            64,
+            65,
+            67,
+            68,
+            69,
+            71,
+            72,
+            73
+          ],
+          "represented": [
+            2,
+            10,
+            14,
+            20,
+            22,
+            33,
+            34,
+            40,
+            46,
+            52,
+            55,
+            59,
+            63,
+            67,
+            71,
+            73
+          ]
+        },
+        "native": {
+          "source": [
+            2,
+            9,
+            10,
+            12,
+            14
+          ],
+          "represented": []
+        },
+        "projected": {
+          "source": [
+            2,
+            9,
+            10,
+            12,
+            14
+          ],
+          "represented": []
+        }
+      },
+      "ordinary_scales": {
+        "tr": "3ecf0ebea4a79227",
+        "ro": "3ecf0ebea4a79227",
+        "fo": "3ff6a09e667f3bcd",
+        "mo": "3ff6a09e667f3bcd",
+        "input": "0000000000000000",
+        "stress": "40e4ea61c624e70a",
+        "maximum": "40fd27f079f052fe"
+      },
+      "projected_scales": {
+        "tr": "3ecf0ebea4a79227",
+        "ro": "3ecf0ebea4a79227",
+        "fo": "3ff6a09e667f3bcd",
+        "mo": "3ff6a09e667f3bcd",
+        "input": "0000000000000000",
+        "stress": "40e4ea61c624e70a",
+        "maximum": "40fd27f079f052fe"
+      },
+      "zero_sign_failures": []
+    }
+  },
+  "source_error_ratio": 4.946857599755607,
+  "dual_gap_ratio": 2.4386560618049797,
+  "source_error_lower": 2.0343683366291755e-21,
+  "A_exact": 4.1124457205513273e-22,
+  "represented_error": 2.860019757011872e-23,
+  "gap_lower": 2.0057681390590568e-21,
+  "two_allowance_upper": 8.224891449327546e-22,
+  "I46_comparison": "all counts and scalar exact operands match; narrow I46 pi enclosure lies inside independent enclosure"
+}

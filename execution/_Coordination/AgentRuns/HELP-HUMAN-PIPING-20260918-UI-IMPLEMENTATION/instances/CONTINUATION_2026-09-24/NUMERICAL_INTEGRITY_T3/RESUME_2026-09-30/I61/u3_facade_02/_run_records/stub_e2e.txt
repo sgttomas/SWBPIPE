@@ -1,0 +1,103 @@
+# Disposable stub archive (WT/scratch/i61_u3_facade_02/stub = lane archive of bee3dc07ca + final candidate PP files + stub_patch.py + stub_test_tail.rs).
+# u3_capture_permit_is_linear fails here by construction: the stub replaces the maintained CapturePermit (structural test of maintained code).
+I61_U3_STUB_SWEEP domain/invented_physical_source_of_truth_model.json sparse_interactive Err(request: invalid type: map, expected a string)
+I61_U3_STUB_SWEEP domain/invented_physical_source_of_truth_model.json dense_scrutiny Err(request: invalid type: map, expected a string)
+I61_U3_STUB_C1 sparse_interactive Some("SOURCE_BLOCKS_FINALIZATION_FAILED")
+I61_U3_STUB_SWEEP model_operations/exact_pressure_authoring_model.json sparse_interactive Domain
+I61_U3_STUB_SWEEP model_operations/exact_pressure_authoring_model.json dense_scrutiny Domain
+I61_U3_STUB_SWEEP model_operations/physics_thermal_ui_model.json sparse_interactive Domain
+I61_U3_STUB_SWEEP model_operations/physics_thermal_ui_model.json dense_scrutiny Domain
+I61_U3_STUB_C1 dense_scrutiny Some("SOURCE_BLOCKS_FINALIZATION_FAILED")
+test retained_facade_tests::u3_archive_stub_finalization_failure_stays_fail_closed ... ok
+I61_U3_STUB_SWEEP model_operations/precision_connected_ui_model.json sparse_interactive Candidate +notice
+I61_U3_STUB sparse_interactive successor_file_sha256=ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc receipt="efc1a39bbe83840df6bd0761c932b8020285d3b8c005ba8fd0b45ba10d667494"
+I61_U3_STUB sparse_interactive RefuseLate fallback=LateGate(PhaseRefusal { gate: Late })
+I61_U3_STUB sparse_interactive RefuseComplete fallback=CompleteGate(PhaseRefusal { gate: Complete })
+I61_U3_STUB sparse_interactive NoStack fallback=StackReservation
+I61_U3_STUB_SWEEP model_operations/precision_connected_ui_model.json dense_scrutiny Candidate +notice
+I61_U3_STUB_SWEEP product_preview/invented_dec092_temperature_g_request.json sparse_interactive Domain
+I61_U3_STUB_SWEEP product_preview/invented_dec092_temperature_g_request.json dense_scrutiny Domain
+I61_U3_STUB_SWEEP product_preview/invented_preview_model.json sparse_interactive Domain
+I61_U3_STUB_SWEEP product_preview/invented_preview_model.json dense_scrutiny Domain
+I61_U3_STUB_SWEEP product_preview/load_reference/connected.request.json sparse_interactive Domain
+I61_U3_STUB_SWEEP product_preview/load_reference/connected.request.json dense_scrutiny Domain
+I61_U3_STUB_SWEEP product_preview/load_reference/pressure.request.json sparse_interactive Domain
+I61_U3_STUB_SWEEP product_preview/load_reference/pressure.request.json dense_scrutiny Domain
+I61_U3_STUB_SWEEP product_preview/load_reference_source/eigen_motion.request.json sparse_interactive Domain
+I61_U3_STUB sparse_interactive carried Precommit fallback=Precommit { gate: "G1", code: "RETAINED_PRECISION_RECEIPT_MISMATCH" }
+I61_U3_STUB sparse_interactive carried Native fallback=Native
+I61_U3_STUB_SWEEP product_preview/load_reference_source/eigen_motion.request.json dense_scrutiny Domain
+I61_U3_STUB_SWEEP product_preview/load_reference_source/fields.request.json sparse_interactive Domain
+I61_U3_STUB_SWEEP product_preview/load_reference_source/fields.request.json dense_scrutiny Domain
+I61_U3_STUB_SWEEP product_preview/load_reference_source/mixed.request.json sparse_interactive Domain
+I61_U3_STUB_SWEEP product_preview/load_reference_source/mixed.request.json dense_scrutiny Domain
+I61_U3_STUB dense_scrutiny successor_file_sha256=6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5 receipt="3e26499f17caff8f5fc0d46406bbe54acf43e8cb16e761784aa5074413b0ac4a"
+I61_U3_STUB dense_scrutiny RefuseLate fallback=LateGate(PhaseRefusal { gate: Late })
+I61_U3_STUB dense_scrutiny RefuseComplete fallback=CompleteGate(PhaseRefusal { gate: Complete })
+I61_U3_STUB dense_scrutiny NoStack fallback=StackReservation
+I61_U3_STUB_SWEEP product_preview/load_reference_source/n05.request.json sparse_interactive Domain
+I61_U3_STUB_SWEEP product_preview/load_reference_source/n05.request.json dense_scrutiny Domain
+I61_U3_STUB_SWEEP product_preview/load_reference_source/n06.request.json sparse_interactive Domain
+I61_U3_STUB_SWEEP product_preview/load_reference_source/n06.request.json dense_scrutiny Domain
+I61_U3_STUB_SWEEP product_preview/numerical_sensitive_torsion_model.json sparse_interactive Coexistence
+I61_U3_STUB_SWEEP product_preview/numerical_sensitive_torsion_model.json dense_scrutiny Coexistence
+I61_U3_STUB dense_scrutiny carried Precommit fallback=Precommit { gate: "G1", code: "RETAINED_PRECISION_RECEIPT_MISMATCH" }
+I61_U3_STUB dense_scrutiny carried Native fallback=Native
+test retained_facade_tests::u3_archive_stub_permitted_dispatch_end_to_end ... ok
+test retained_facade_tests::u3_capture_permit_is_linear ... FAILED
+I61_U3_STUB_SWEEP product_preview/physics_source/fields.request.json sparse_interactive Domain
+I61_U3_STUB_SWEEP product_preview/physics_source/fields.request.json dense_scrutiny Domain
+I61_U3_STUB_SWEEP product_preview/physics_source/mixed.request.json sparse_interactive Domain
+I61_U3_STUB_SWEEP product_preview/physics_source/mixed.request.json dense_scrutiny Domain
+I61_U3_STUB_SWEEP product_preview/physics_source/mixed_units.request.json sparse_interactive Domain
+I61_U3_STUB_SWEEP product_preview/physics_source/mixed_units.request.json dense_scrutiny Domain
+I61_U3_STUB_SWEEP product_preview/physics_source/n05.request.json sparse_interactive Domain
+I61_U3_STUB_SWEEP product_preview/physics_source/n05.request.json dense_scrutiny Domain
+I61_U3_STUB_SWEEP product_preview/physics_source/n05_unicode.request.json sparse_interactive Domain
+I61_U3_STUB_SWEEP product_preview/physics_source/n05_unicode.request.json dense_scrutiny Domain
+I61_U3_STUB_SWEEP product_preview/physics_source/n05_units.request.json sparse_interactive Domain
+I61_U3_STUB_SWEEP product_preview/physics_source/n05_units.request.json dense_scrutiny Domain
+I61_U3_STUB_SWEEP product_preview/physics_source/n06.request.json sparse_interactive Domain
+I61_U3_STUB_SWEEP product_preview/physics_source/n06.request.json dense_scrutiny Domain
+I61_U3_STUB_SWEEP product_preview/rf_skew_t_cant_off_122_r1e-04.request.json sparse_interactive successor
+I61_U3_STUB_SWEEP product_preview/rf_skew_t_cant_off_122_r1e-04.request.json dense_scrutiny successor
+I61_U3_STUB_SWEEP product_preview/source_blocks/multicase-dense_scrutiny.request.json sparse_interactive Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/multicase-dense_scrutiny.request.json dense_scrutiny Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/multicase-sparse_interactive.request.json sparse_interactive Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/multicase-sparse_interactive.request.json dense_scrutiny Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/n05-dense_scrutiny.request.json sparse_interactive Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/n05-dense_scrutiny.request.json dense_scrutiny Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/n05-sparse_interactive.request.json sparse_interactive Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/n05-sparse_interactive.request.json dense_scrutiny Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/n06-dense_scrutiny.request.json sparse_interactive Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/n06-dense_scrutiny.request.json dense_scrutiny Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/n06-sparse_interactive.request.json sparse_interactive Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/n06-sparse_interactive.request.json dense_scrutiny Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/rejected_stress_range/dense_scrutiny.request.json sparse_interactive Preparation +notice
+I61_U3_STUB_SWEEP product_preview/source_blocks/rejected_stress_range/dense_scrutiny.request.json dense_scrutiny Preparation +notice
+I61_U3_STUB_SWEEP product_preview/source_blocks/rejected_stress_range/sparse_interactive.request.json sparse_interactive Preparation +notice
+I61_U3_STUB_SWEEP product_preview/source_blocks/rejected_stress_range/sparse_interactive.request.json dense_scrutiny Preparation +notice
+I61_U3_STUB_SWEEP product_preview/source_blocks/ui/multicase-dense_scrutiny.request.json sparse_interactive Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/ui/multicase-dense_scrutiny.request.json dense_scrutiny Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/ui/multicase-sparse_interactive.request.json sparse_interactive Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/ui/multicase-sparse_interactive.request.json dense_scrutiny Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/ui/n05-dense_scrutiny.request.json sparse_interactive Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/ui/n05-dense_scrutiny.request.json dense_scrutiny Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/ui/n05-sparse_interactive.request.json sparse_interactive Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/ui/n05-sparse_interactive.request.json dense_scrutiny Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/ui/n06-dense_scrutiny.request.json sparse_interactive Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/ui/n06-dense_scrutiny.request.json dense_scrutiny Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/ui/n06-sparse_interactive.request.json sparse_interactive Coexistence
+I61_U3_STUB_SWEEP product_preview/source_blocks/ui/n06-sparse_interactive.request.json dense_scrutiny Coexistence
+I61_U3_STUB_SWEEP checked=72 causes={"Candidate": 2, "Coexistence": 26, "Domain": 36, "Err(request: invalid type: map, expected a string)": 2, "Preparation": 4, "successor": 2} problems=[]
+test retained_facade_tests::u3_archive_stub_every_fixture_keeps_ordinary_bytes ... ok
+test retained_facade_tests::u3_n9_single_parse_custody ... ok
+test retained_facade_tests::u3_no_permit_entries_are_the_ordinary_route ... ok
+test retained_facade_tests::u3_permitted_path_publishes_the_pinned_successor ... ok
+test retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes ... ok
+test retained_facade_tests::u3_r2_base_readers_accept_the_unavailable_notice ... ok
+test retained_facade_tests::u3_r2_notice_bytes_are_pinned ... ok
+test retained_facade_tests::u3_reserved_stack_runner ... ok
+test retained_facade_tests::u3_r1_carrier_names_exactly_one_publication ... ok
+test retained_facade_tests::u3_test_hooks_follow_the_reserved_stack_thread ... ok
+test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 489 filtered out; finished in 14.08s

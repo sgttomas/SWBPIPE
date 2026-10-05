@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-03T01:19:47.095002+00:00",
+  "candidate": "17ded278c64e0bb96db2b93ec6ebf3a1f1600907",
+  "source_status": "",
+  "both_source_hashes_match": true,
+  "original_review_inventory_revalidated": true,
+  "original_payload_entries": 47,
+  "runtime_lane": "released to ROOT; no more compilation planned",
+  "active_cargo_rustc_or_target_processes": [],
+  "memguard_pid": 5387,
+  "memguard_alive": true,
+  "all_four_review_commands_pass": true,
+  "completion_before_checkpoint10_cutoff15_deadline20": true
+}

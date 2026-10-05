@@ -1,0 +1,432 @@
+{
+  "status": "informational origins, not acceptance",
+  "mechanism": "delegated-harness-native fresh TASK",
+  "parent": "/root",
+  "task": "/root/i36_f2a_preview_truth",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "basis_revision": "d85405edcdbb894544a64051faa768db8951060c",
+  "maintained_source_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "read_policy": "Selective source and authority inspection only. Whole-file hashes identify origins; they do not assert full-file reading. No skill or workflow body selected. No full source copies retained.",
+  "entries": [
+    {
+      "path": "AGENTS.md",
+      "category": "instruction",
+      "read_selection": "full",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "3abfab6b99d1c02a02f06ae4c07a1b0d10257960",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "category": "role",
+      "read_selection": "full",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "8eec6fec3f455d5933c7f0a9d5cd3aaf6dc16aa0",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "category": "project_instruction",
+      "read_selection": "full",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "91606231a1e218fdac671874f80fcce79638a9c6",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I36_F2A_PREVIEW_TRUTH_01.md",
+      "category": "brief",
+      "read_selection": "full",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "284712a9c9a5be32de9f7b490784c3c53139b338",
+      "sha256": "627a133fe9fe2f3ebc379de0978904cfb4537ac110483a921d448d697e60dbbe",
+      "bytes": 2122,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+      "category": "authority",
+      "read_selection": "d85405edcd added disposition; lines 5102-5132 and 5183-end; selective relevant searches including no-retirement dispositions",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "c7befe6b844899b36d589f1e480be851dd50ce1d",
+      "sha256": "24df9d8ca993b28fcfc40b4ddd16b69808c9db4849f5a20b22cb4cbafc1a9bc2",
+      "bytes": 481283,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_SELECTION_DESIGNS.md",
+      "category": "authority",
+      "read_selection": "full",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "7e6124a4684a2dae29f9e98ad456394742539dba",
+      "sha256": "2ef5325ba68bceb98b2978dd5f6953fd9ac0c8820d34f5db47e481b2620004de",
+      "bytes": 4120,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_SELECTION_REFERENCES.md",
+      "category": "authority",
+      "read_selection": "full",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "020607f9110f1eeeb12a626ec24a0a8d2d0847ac",
+      "sha256": "6c7a6f0ef347896a3384eca8e25732afa127eee69ecb4211bf1e8c89dcbad35f",
+      "bytes": 2534,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V2.md",
+      "category": "authority",
+      "read_selection": "lines 1-90 (full file)",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "28b659115104955f0d25aefad6dea55387a3dc0f",
+      "sha256": "4addbdbcd848cd42d7196b5015cf55f8a18752a83c064a5233091d26e58ca183",
+      "bytes": 3415,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_NUMERICS/DESIGN.md",
+      "category": "selected_D1",
+      "read_selection": "selective searches; lines 1-18,265-295,325-380,445-512,1045-1095; sections 4.1.1-2,4.1.6.1,4.3,7.1",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "8e4ba12ad0b460de831c8681410471bbcfc7054a",
+      "sha256": "fb62ef4a8282e53fd5875430e8903da80f1e0821c2dfba075dce5a97e5f27a74",
+      "bytes": 224200,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REFERENCES/README.md",
+      "category": "frozen_R1_context",
+      "read_selection": "sections 0-3,5,7-8 shown in a truncated full-file read; follow-up selected line searches. No full-file reading claim.",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "7b3279c3a6455aa1a32337d9baf017eb60bea815",
+      "sha256": "5a89bad917d36aa71e3abb7f7ac237f7ba111af33878aac7fa1568a6017cc2a9",
+      "bytes": 40221,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DEFAULT_ROUTE_DESIGN/ROOT_SELECTION.md",
+      "category": "selected_T0R_authority",
+      "read_selection": "full",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "48dfff61d0c7c38c730aa86d42ef5a4e855ad2e0",
+      "sha256": "923ec424ea322a205a183b5b9c24936a878b8ef10b58739f8eb4b507cfc6839f",
+      "bytes": 5735,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DEFAULT_ROUTE_DESIGN/ROOT_RULINGS.md",
+      "category": "T0R_authority",
+      "read_selection": "full across two outputs",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "6305fb8b3d81bd2fb91141c8aebb0a93846507ac",
+      "sha256": "81af712fe10472e66f77a5ba4a5d3120d514427d17f45b77e6c0361ee1e46077",
+      "bytes": 8247,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DEFAULT_ROUTE_DESIGN/DESIGN.md",
+      "category": "selected_T0R",
+      "read_selection": "selective searches; sections 3,5.2-5.4,5.8,9.1,12",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "a73d46393ad85d0098bd29b691f35618ab3aa5cc",
+      "sha256": "5fdadc0d11754294d1a07eb5e14e6ffb52a300b1c22091ab17c3a30294cfd1eb",
+      "bytes": 66059,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DEFAULT_ROUTE_DESIGN/IMPLEMENTATION/S1_INTERFACE.md",
+      "category": "T0R_interface",
+      "read_selection": "sections 1-10; follow-up tail and amendment-specific searches; A1-A4 relevant reader constraints",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "b53f9cd3e3ebba15bcf308d80fa5029eef064ebf",
+      "sha256": "4288143bb363b1a5a692043af74882c096263566069cb90d302ea16c244349a8",
+      "bytes": 31954,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DEFAULT_ROUTE_DESIGN/references.py",
+      "category": "frozen_T0R_derivation",
+      "read_selection": "lines 1-230; rechecked exact line numbers for annulus, REF-M33-G, REF-M05-SPRING; never executed",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "33edfb2ac2b83991d65dffbf98b61b33d1937a5e",
+      "sha256": "2451162b68ddf6fa2dca652a045689515f234baa5f73245c55f0d9a209569ec4",
+      "bytes": 32240,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DEFAULT_ROUTE_DESIGN/_run_records/references.stdout.txt",
+      "category": "frozen_T0R_values",
+      "read_selection": "first 85 lines; whole-byte equality/hash verification against maintained copy, not regenerated",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "5638c956015bfce5b15ee24188a23e5b8e6fb98c",
+      "sha256": "1d1bdeed37c78ff11bb9bd913dd7b23eaeab3beddbbfd5f3b56f4ed448cba33d",
+      "bytes": 23773,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-36_RULING_2026-07-09.md",
+      "category": "owner_material_wall_policy",
+      "read_selection": "full",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "140eacdd0eeb1604877996065b640403e8eb50bd",
+      "sha256": "1a27e47ea054b76d48b3fc87a1547bd1c74ebcb7ca07bdfbbfe9566a5a9d8497",
+      "bytes": 2428,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-38_temperature_interpolation_policy.md",
+      "category": "owner_material_wall_policy",
+      "read_selection": "full",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "84a0b2eca71ce2e04223a0f2b4a9986a7c7077a5",
+      "sha256": "76e4fd46c7b94bd54130b0a5279d085c9ab3b9d7459c3f5cb836962067208e06",
+      "bytes": 6047,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-45_RULING_2026-08-01.md",
+      "category": "owner_material_wall_policy",
+      "read_selection": "full",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "b2df9fbe241dfd44823b75d9517dc29103907528",
+      "sha256": "f24a2e81b742651223b486d9059681d9bf4d9e8d68b72779f867d4a43b4c7eda",
+      "bytes": 3550,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+      "category": "owner_material_wall_policy",
+      "read_selection": "D-36/D-38/D-45 relevant rows",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "ab9c8d41d6aacd5801d33d291b30c96f068df8ce",
+      "sha256": "03364e06368419c0905926a0acae8b3cd30f06e962140f8789e3d1fe0c0bbf2a",
+      "bytes": 80175,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-PMM-P3-MILLTOL-001.md",
+      "category": "historical_implementation",
+      "read_selection": "full; policy application and source pointer",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "4be4103cfb6d02b35c9cab839e1131a984276237",
+      "sha256": "09848376e3572edf48544a5989937269e64dd848eb955a6a2125464242e46013",
+      "bytes": 4821,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-PMM-P3-MODULUSBASIS-001.md",
+      "category": "historical_implementation",
+      "read_selection": "full; historical E/alpha-only scope superseded by D-38/D-45, not treated as current G policy",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "f5cd345bbfda9c48cce2cc0a4d5fe41ad7d4fdab",
+      "sha256": "4660b2c5a88ac35254a525e1675625c931e4ddb0d06dc326664f12d28ef379c8",
+      "bytes": 6595,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/hand_calcs/stress/tp_pmm_p3_milltol_effective_wall_stress.md",
+      "category": "reference_scope",
+      "read_selection": "full",
+      "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "git_blob": "b62343273fe037dc517b3fffd12c6c749b208a92",
+      "sha256": "58205251ee0a3f2c07166fb978cc3ec173c9f393f3e83234228fb4a8b92e8f5c",
+      "bytes": 4577,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "category": "maintained_source",
+      "read_selection": "selected searches and ranges: 688-732,1010-1040,1880-1950,3980-4065,6468-6588,8934-8955,8990-9160,9180-9270,9436-9493,10797-10975,11200-11235,18600-18660,19460-19479,19562-19670",
+      "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "git_blob": "88c01600dbf5fa23b2aaaaf46c2886b693c1a92f",
+      "sha256": "b6c8d32de08535825cc5b591ce25f1a3761374abe8aa591c8e5c059dd34a956f",
+      "bytes": 984833,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/preview_physics.rs",
+      "category": "maintained_source",
+      "read_selection": "lines 1-115,528-586; selected formula/render searches",
+      "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "git_blob": "5547568af090a43c4926d1eb2fe3c6503bd455e8",
+      "sha256": "2b8265403dd506130eded40cadb05401423a78e0d24d1f8f028cbc6106c6aafa",
+      "bytes": 57331,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/README.md",
+      "category": "maintained_source",
+      "read_selection": "full",
+      "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "git_blob": "5e48feab12bfca2405ce3f77e7d527363e8405c9",
+      "sha256": "531a31d2c35fabb3587aa4e6ea34350f604f0535f64c14cbdddda0874c5bfbbb",
+      "bytes": 2775,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/tests/preview_physics_runtime.rs",
+      "category": "maintained_source",
+      "read_selection": "lines 1-100,294-348,490-533; selected material and reference searches",
+      "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "git_blob": "ae8f56ac2266f27562aa0e8c4a60f47b381596ff",
+      "sha256": "460c87dceb9ca9890aedda28f3c1346171e6381a011d2a5d2c40158ff10ea120",
+      "bytes": 70247,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/tests/fixtures/preview_physics/references.stdout.txt",
+      "category": "maintained_source",
+      "read_selection": "lines 185-207,272-295,938-961; selected key searches and full-byte hash comparison",
+      "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "git_blob": "5638c956015bfce5b15ee24188a23e5b8e6fb98c",
+      "sha256": "1d1bdeed37c78ff11bb9bd913dd7b23eaeab3beddbbfd5f3b56f4ed448cba33d",
+      "bytes": 23773,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_preview_physics_1.json",
+      "category": "maintained_source",
+      "read_selection": "selected vocabulary, row signatures, full terminal profile and combination policy from truncated full-file output; no full-file reading claim",
+      "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "git_blob": "ab661011f988b8b89275b06915826fffc69e7240",
+      "sha256": "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a",
+      "bytes": 50751,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/tests/fixtures/pressure_reference/SOURCE_ODWALL_EXPECTATIONS.json",
+      "category": "maintained_source",
+      "read_selection": "lines 1-55, especially authority/source_semantics lines6-8; exact-profile discriminator only",
+      "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "git_blob": "c0336eb25f97c0bacb2a96efa24c9fe5b1f56271",
+      "sha256": "7e51ecb3c7eca573194ce60222f2e2e7422b817be7aacad9a2a5e79102801ab1",
+      "bytes": 52182,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/tests/pressure_section_geometry.rs",
+      "category": "maintained_source",
+      "read_selection": "lines 287-343,450-471",
+      "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "git_blob": "3e894ae68987625b2279ff179a024baaf3bb416d",
+      "sha256": "ef8c9f52e5c144618c7ebc15b373ac7e45d45e3d8679773a1e74af3fd6464f76",
+      "bytes": 30751,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/physics_source.rs",
+      "category": "maintained_source",
+      "read_selection": "lines 918-977",
+      "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "git_blob": "caabf07f20892ca34d6b0a8c8b666a3c152f24b6",
+      "sha256": "c4e380ee7c01eb1581930013e8fc77f8be37c68e1978dedbb78ab5d3cd656f37",
+      "bytes": 51284,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "category": "maintained_source",
+      "read_selection": "lines 1-115",
+      "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "git_blob": "53abd0bceb8d049f3a82b9714c6b95b530c2da82",
+      "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9",
+      "bytes": 24432,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/stress_recovery/src/lib.rs",
+      "category": "maintained_source",
+      "read_selection": "lines 485-515,877-927",
+      "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "git_blob": "d636bbc9482b49aefa7109bd63fab3268443c312",
+      "sha256": "38c66ecd2bcb96561d27217294094ded1d5683af19f6f63a00840d0ffd056a1a",
+      "bytes": 55962,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_certificate_b1/RETURN.md",
+      "category": "prior_B1",
+      "read_selection": "lines 1-155",
+      "revision": "751ac56ce8de40f88445641aa98dd87eabb0695f",
+      "git_blob": "d2cea1422ac0ac7506549234f169c135d3479572",
+      "sha256": "8c146c911a0f5c66b8a984cd556b4277d007ef6f0628e2d1598a84bc018dfe29",
+      "bytes": 19804,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_certificate_b1/SOURCE_OPERANDS.md",
+      "category": "prior_B1_map",
+      "read_selection": "full",
+      "revision": "751ac56ce8de40f88445641aa98dd87eabb0695f",
+      "git_blob": "b7b9618b00d5da072af10f75d1d06d3e20e6dc05",
+      "sha256": "f5a4da9ca434fae8a940825e9ce27d03fb846e372bb3e4c5d8f2c8b962d40dde",
+      "bytes": 11013,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_source_geometry_b1c/RETURN.md",
+      "category": "prior_B1C",
+      "read_selection": "sections 1,5,6; partial full-file output, geometry middle truncated; no new geometry derivation",
+      "revision": "a4e21279b9462334e9dadf53b9211391576c98be",
+      "git_blob": "3331abe4b798ab10b3a7e733558dd885bce0fc20",
+      "sha256": "b0a249dda0a1545d1b2f71c93549ae9a7cce4c7fa89201d7f9ce1dcae39415e7",
+      "bytes": 19179,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I33/f2a_source_action_bridge_01/RETURN.md",
+      "category": "selected_I33",
+      "read_selection": "full",
+      "revision": "9f1ef2693d7b7d9c364fd8084a2a2a9ae272502a",
+      "git_blob": "e4267193ca94403a04c37eafe3d873529e1cd558",
+      "sha256": "918cbc00dc94a6135b8de4f69c2c64087d1a189028146b2ecda11f9c25d417d9",
+      "bytes": 17504,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I33/f2a_source_action_bridge_01/INTERFACE_AND_COST.md",
+      "category": "selected_I33",
+      "read_selection": "full",
+      "revision": "9f1ef2693d7b7d9c364fd8084a2a2a9ae272502a",
+      "git_blob": "4e16ba73a0526d5936346ecef358a2b54adfe3dd",
+      "sha256": "bfb4491c97d3b68e7ee52800a4f9c5df8cbc2658952df33deca8aa2a0392582e",
+      "bytes": 10569,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I33/f2a_source_action_bridge_01/_run_records/ORIGINS.json",
+      "category": "source_locator",
+      "read_selection": "source paths and selected input revisions; not authority for unread source content",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "aa62c45e08b3e42469249bd3f6945e57650fe110",
+      "sha256": "3042a9c8eae1cdb22c9822e4b2122f0f514ecd1c7dd888268349243b5eb7eabd",
+      "bytes": 14328,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV45/f2a_source_bridge_01/REVIEW.md",
+      "category": "independent_review",
+      "read_selection": "full",
+      "revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "git_blob": "062d414d54ac8dca5c6209b4142340d3894244bc",
+      "sha256": "d347d751c0cb06fc32ab0c955cd583b4e961319bf4bd04b80cda67cd45691fed",
+      "bytes": 8640,
+      "worktree_matches_revision": true
+    },
+    {
+      "path": "projects/chirality-piping/docs/PRD.md",
+      "category": "exploratory_search",
+      "read_selection": "mill-tolerance matching lines only",
+      "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "git_blob": "f399024936690ea52db8fd181290897d1a2c260b",
+      "sha256": "cd6297af2ed9588f6da24c0665d32c74ee33d3e7f9115e733b47244fd75b4611",
+      "bytes": 70148,
+      "worktree_matches_revision": true
+    }
+  ]
+}

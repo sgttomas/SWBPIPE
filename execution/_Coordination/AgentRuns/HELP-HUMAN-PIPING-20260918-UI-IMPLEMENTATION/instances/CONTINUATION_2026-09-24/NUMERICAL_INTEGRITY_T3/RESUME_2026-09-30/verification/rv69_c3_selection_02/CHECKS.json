@@ -1,0 +1,131 @@
+{
+  "utc": "2026-10-03T13:23:26.444429+00:00",
+  "actor": "ROOT /root",
+  "review_seal": "13bf13a563fedad5901f790369c7780a42cdbe5fbef64e3cb2de7afab35717d4",
+  "payloads": 8,
+  "external_files": 26,
+  "record_bytes_including_seal": 53974,
+  "external_bytes": 148051,
+  "root_read": "Full C3 draft and final changed sections/definition, complete corrective ADDENDUM, full REVIEW/RETURN; final counts/error/row mappings read separately.",
+  "main": "381be775ae9b8d94e7d650713a0c97cba304950b",
+  "maintained_basis": "922db9dce33c2623385841ad3a4a002a79089e3a",
+  "collision_checked_head": "92790ca0cce2fecb2f58a9b2f56199f685631019",
+  "collisions": [
+    {
+      "name": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
+      "matches": []
+    },
+    {
+      "name": "openpipestress.result_semantics/0.3.0/physics-retained-1",
+      "matches": []
+    },
+    {
+      "name": "product_preview_retained_w1a_v2",
+      "matches": []
+    },
+    {
+      "name": "exact_straight_retained_w1a_v2",
+      "matches": []
+    },
+    {
+      "name": "retained_precision_receipt_mp_v2",
+      "matches": []
+    },
+    {
+      "name": "retained_precision_publication_mp_v2",
+      "matches": []
+    },
+    {
+      "name": "retained_precision_source_mp_v2",
+      "matches": []
+    },
+    {
+      "name": "RP-LOGICAL-ATTEMPTS-v1",
+      "matches": []
+    },
+    {
+      "name": "W1-LME-20B-60B-v1",
+      "matches": []
+    },
+    {
+      "name": "RP-FACADE-SI-v2",
+      "matches": []
+    },
+    {
+      "name": "contribution_preserving_multiprecision_v1",
+      "matches": [
+        "HEAD:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs:57:pub const METHOD_TOKEN: &str = \"contribution_preserving_multiprecision_v1\";"
+      ]
+    },
+    {
+      "name": "RP-PREPARED-ORDINARY-DUAL-v1",
+      "matches": []
+    },
+    {
+      "name": "RP-PREPARED-ANNULUS-v1",
+      "matches": []
+    },
+    {
+      "name": "retained_precision_formation_v1",
+      "matches": []
+    },
+    {
+      "name": "retained_precision_preparation_v1",
+      "matches": []
+    },
+    {
+      "name": "RETAINED_PRECISION_FORMATION_MISMATCH",
+      "matches": []
+    },
+    {
+      "name": "RETAINED_PRECISION_PREPARATION_MISMATCH",
+      "matches": []
+    },
+    {
+      "name": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+      "matches": []
+    },
+    {
+      "name": "M03-INTEGRITY-MP-v2",
+      "matches": [
+        "HEAD:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs:60:pub const POLICY: &str = \"M03-INTEGRITY-MP-v2\";",
+        "HEAD:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs:473:    assert_eq!(solve.evidence().policy, \"M03-INTEGRITY-MP-v2\");",
+        "HEAD:projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:124:    assert_eq!(POLICY, \"M03-INTEGRITY-MP-v2\");"
+      ]
+    },
+    {
+      "name": "RETAINED_PRECISION_RECEIPT_MISMATCH",
+      "matches": []
+    },
+    {
+      "name": "RETAINED_PRECISION_ENCODING_MISMATCH",
+      "matches": []
+    },
+    {
+      "name": "RETAINED_PRECISION_COVERAGE_MISMATCH",
+      "matches": []
+    },
+    {
+      "name": "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH",
+      "matches": []
+    },
+    {
+      "name": "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+      "matches": []
+    },
+    {
+      "name": "RETAINED_PRECISION_WORK_MISMATCH",
+      "matches": []
+    },
+    {
+      "name": "RETAINED_PRECISION_ROW_METHOD_MISMATCH",
+      "matches": []
+    },
+    {
+      "name": "RETAINED_PRECISION_INVOCATION_MISMATCH",
+      "matches": []
+    }
+  ],
+  "definition_domain_hash": "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349",
+  "disposition": "Select corrected ordinary C3 prospective contract and reserve scoped names; no maintained installation, implementation grant, public activation or resource qualification."
+}

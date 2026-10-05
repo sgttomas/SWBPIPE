@@ -1,0 +1,313 @@
+[
+ {
+  "id": "M01_floor_positivity_dropped",
+  "description": "G5a feasibility ignores the p512 floor positivity",
+  "mutated_sha256": "081d2d978a865be5249ff3fa7c854cb86e97ae21ba0b0658523ae63d4857528c",
+  "exit": 1,
+  "killed": true,
+  "summary": "2 failed, 326 passed in 31.08s",
+  "killing_tests": [
+   "test_shared_draft_first_failure_controls[p512_positive_floor_forces_stop]",
+   "test_shared_draft_first_failure_controls[p512_zero_floor_body_given_positive_floor]"
+  ],
+  "killing_test_count": 2,
+  "seconds": 31.3
+ },
+ {
+  "id": "M02_p512_charge_is_estimate",
+  "description": "G5a charge roster uses the estimate at p512",
+  "mutated_sha256": "b9159f933359242a80136a3ab30b8d1934b175c43ed522f3fa455f5ef1b74942",
+  "exit": 1,
+  "killed": true,
+  "summary": "2 failed, 326 passed in 28.78s",
+  "killing_tests": [
+   "test_shared_draft_first_failure_controls[p512_charge_follows_estimate]",
+   "test_shared_publicly_consistent_attestations_must_pass[p512_charge_follows_stop_zero_floor_body]"
+  ],
+  "killing_test_count": 2,
+  "seconds": 28.9
+ },
+ {
+  "id": "M03_failed_verification_skips_one",
+  "description": "N4: escalating failed verification advances one slot",
+  "mutated_sha256": "b45ceb8d1a65a6eaee9b66a0b37ff4166c71d1f1922c4d8faf12d7cab999f516",
+  "exit": 1,
+  "killed": true,
+  "summary": "2 failed, 326 passed in 27.13s",
+  "killing_tests": [
+   "test_ceiling_after_p128_verification_solve_failure_d13",
+   "test_complete_synthetic_draft_control_is_not_qualification"
+  ],
+  "killing_test_count": 2,
+  "seconds": 27.3
+ },
+ {
+  "id": "M04_R3_disabled",
+  "description": "R3 cause/status containment disabled",
+  "mutated_sha256": "5d38d6b28b7cffc0abdcd563bdd624c2e0a0dc3031cb7a9a3aaf46afe46c11a2",
+  "exit": 1,
+  "killed": true,
+  "summary": "6 failed, 322 passed in 29.10s",
+  "killing_tests": [
+   "test_accounting_rules_d8_and_r3_both",
+   "test_rv78_probe_relations[Q1_nested_stop_work_accounting_exact_status]",
+   "test_rv78_probe_relations[Q2_view_work_fault_exact_status]",
+   "test_shared_draft_first_failure_controls[nested_stop_work_accounting_exact_status]",
+   "test_shared_draft_first_failure_controls[view_work_fault_exact_status]",
+   "test_shared_draft_first_failure_controls[work_accounting_cause_exact_status]"
+  ],
+  "killing_test_count": 6,
+  "seconds": 29.3
+ },
+ {
+  "id": "M05_N17_case_scope_ge",
+  "description": "N17 case-scope overshoot uses >= instead of >",
+  "mutated_sha256": "46cf23b6417e0ecbb6a643e855381202230d6e0e9b8dd7f2d51b01372de52054",
+  "exit": 0,
+  "killed": false,
+  "summary": "328 passed in 27.96s",
+  "killing_tests": [],
+  "killing_test_count": 0,
+  "seconds": 28.1
+ },
+ {
+  "id": "M06_coverage_null_on_passed_g5a",
+  "description": "I57 s3: null coverage allowed after a passed G5a",
+  "mutated_sha256": "f028786d0b1e8802620813de1742c3abc9a65e20425dcb64dfdf7b7b473a0176",
+  "exit": 1,
+  "killed": true,
+  "summary": "1 failed, 327 passed in 27.84s",
+  "killing_tests": [
+   "test_rv79_surviving_mutants_m06_m09_m14"
+  ],
+  "killing_test_count": 1,
+  "seconds": 28.0
+ },
+ {
+  "id": "M07_G5b_phi_check_removed",
+  "description": "G5b floor equality Phi = phi_512(e_hat) removed",
+  "mutated_sha256": "01abb8aa51fe129f479e8ae71db6ce73fead94affaba85c9c26c992837817fa8",
+  "exit": 1,
+  "killed": true,
+  "summary": "1 failed, 327 passed in 28.08s",
+  "killing_tests": [
+   "test_shared_draft_first_failure_controls[p512_floor_not_phi]"
+  ],
+  "killing_test_count": 1,
+  "seconds": 28.2
+ },
+ {
+  "id": "M08_layout_input_derived_false",
+  "description": "canonical layout never marks constrained DOFs input-derived",
+  "mutated_sha256": "612b4ca6236b2b4897e9d5c0940d36bd19fe5c1d0d46687d2880433148669ddf",
+  "exit": 1,
+  "killed": true,
+  "summary": "62 failed, 266 passed in 23.35s",
+  "killing_tests": [
+   "test_complete_synthetic_draft_control_is_not_qualification",
+   "test_g5b_section_echo_terms_positive_d18",
+   "test_old_operational_error_is_retained_independently_of_new_ready",
+   "test_rv78_probe_relations[B_control_equal_point_E_bracketed]",
+   "test_rv78_probe_relations[B_interpolation_target_above_range_equal_point_E]",
+   "test_rv78_probe_relations[B_interpolation_target_at_lower_point_equal_point_E]",
+   "test_rv78_probe_relations[B_interpolation_target_at_upper_point_equal_point_E]",
+   "test_rv78_probe_relations[B_interpolation_target_below_range_equal_point_E]",
+   "test_rv78_probe_relations[Q0_control_lane_source_failed_storage]",
+   "test_rv78_probe_relations[S2_unavailable_source_ref_null_instead_of_absent]",
+   "test_rv78_probe_relations[maps_member_ends_swapped__k4]",
+   "test_shared_draft_first_failure_controls[absolute_bound]"
+  ],
+  "killing_test_count": 62,
+  "seconds": 23.5
+ },
+ {
+  "id": "M09_separate_failure_unchecked",
+  "description": "P6: a values failure need not be separate_failure",
+  "mutated_sha256": "2a437e74a353ae8a4b55264f178bfe72e4a8fb3a0f8501c36181237f836adcfd",
+  "exit": 1,
+  "killed": true,
+  "summary": "1 failed, 327 passed in 28.96s",
+  "killing_tests": [
+   "test_rv79_surviving_mutants_m06_m09_m14"
+  ],
+  "killing_test_count": 1,
+  "seconds": 29.1
+ },
+ {
+  "id": "M10_G3_roster_order_unchecked",
+  "description": "G3 coverage roster need not be 0..n-1",
+  "mutated_sha256": "4b803791486a270f691811555580f6464b97d1fd1d76734bee70aff919c3f3c8",
+  "exit": 1,
+  "killed": true,
+  "summary": "2 failed, 326 passed in 27.74s",
+  "killing_tests": [
+   "test_shared_draft_first_failure_controls[coverage_foreign_body]",
+   "test_shared_draft_first_failure_controls[two_body_body_order_swapped]"
+  ],
+  "killing_test_count": 2,
+  "seconds": 27.9
+ },
+ {
+  "id": "M11_small_scale_threshold",
+  "description": "absolute_bound small-scale threshold 2^-988 -> 2^-987",
+  "mutated_sha256": "49715bfeeecc2b25078535558fa904f5dba78de1b2462f68f2eb9ff20a027300",
+  "exit": 1,
+  "killed": true,
+  "summary": "1 failed, 327 passed in 27.13s",
+  "killing_tests": [
+   "test_absolute_bound_small_scale_switch_both_sides_d13"
+  ],
+  "killing_test_count": 1,
+  "seconds": 27.2
+ },
+ {
+  "id": "M12_budget_failure_cached",
+  "description": "C1: budget failures are cached",
+  "mutated_sha256": "df927db1b255e44e83ce7e3186ad717a10c71af2fa51f149a1a8b741813c4e4c",
+  "exit": 0,
+  "killed": false,
+  "summary": "328 passed in 27.72s",
+  "killing_tests": [],
+  "killing_test_count": 0,
+  "seconds": 27.8
+ },
+ {
+  "id": "M13_w2_trigger_rule_removed",
+  "description": "O3: W2 need not follow an initial failure",
+  "mutated_sha256": "30e0ba28f4ae4236b272209baf3fa66001285e181b22950766c91192c994e998",
+  "exit": 0,
+  "killed": false,
+  "summary": "328 passed in 30.06s",
+  "killing_tests": [],
+  "killing_test_count": 0,
+  "seconds": 30.2
+ },
+ {
+  "id": "M14_typed_first_failure_removed",
+  "description": "P9/P8: result error vs first failed stage unchecked",
+  "mutated_sha256": "5d729fd71becea91b8b906936749fba57385b8a6319e5aed823226f2b6833f8c",
+  "exit": 1,
+  "killed": true,
+  "summary": "1 failed, 327 passed in 27.54s",
+  "killing_tests": [
+   "test_rv79_surviving_mutants_m06_m09_m14"
+  ],
+  "killing_test_count": 1,
+  "seconds": 27.7
+ },
+ {
+  "id": "M15_N5_any_nonselected_terminal",
+  "description": "N5: any non-selected terminal accepted after a terminal stop",
+  "mutated_sha256": "4ed087b7d3a62e4bd662c0d21da75c1023472bce2ebeb3601d496bdb98dc2248",
+  "exit": 1,
+  "killed": true,
+  "summary": "2 failed, 326 passed in 26.68s",
+  "killing_tests": [
+   "test_shared_draft_first_failure_controls[terminal_refusal_wrong_kind]",
+   "test_shared_draft_first_failure_controls[terminal_stop_wrong_translation]"
+  ],
+  "killing_test_count": 2,
+  "seconds": 26.8
+ },
+ {
+  "id": "M16_N10_exhaustion_not_required",
+  "description": "N10: idle group-null run need not be exhausted",
+  "mutated_sha256": "7719bd56d42f9860d9a5c1e931e7bcb9badbdbbdb1f9f40c9157d3e1600af066",
+  "exit": 1,
+  "killed": true,
+  "summary": "2 failed, 326 passed in 26.84s",
+  "killing_tests": [
+   "test_schedule_replay_terminal_branches_reader_logic",
+   "test_shared_draft_first_failure_controls[idle_budget_not_exhausted_no_group]"
+  ],
+  "killing_test_count": 2,
+  "seconds": 27.0
+ },
+ {
+  "id": "M17_L0_feasibility_coupled",
+  "description": "G5a feasibility couples kinds even at L = 0",
+  "mutated_sha256": "f57d82be8d948cd5f6cff4896b3658651e6c81ee9912d87e1c22f06e2c7a36a9",
+  "exit": 0,
+  "killed": false,
+  "summary": "328 passed in 29.14s",
+  "killing_tests": [],
+  "killing_test_count": 0,
+  "seconds": 29.3
+ },
+ {
+  "id": "M18_strict_bracket_relaxed",
+  "description": "G8 interpolation bracket made non-strict",
+  "mutated_sha256": "96c80e2eb3a19fc8e75d3d567f098534f14b6095279b6f7090b660c845c4f4cf",
+  "exit": 1,
+  "killed": true,
+  "summary": "4 failed, 324 passed in 28.12s",
+  "killing_tests": [
+   "test_rv78_probe_relations[B_interpolation_target_at_lower_point_equal_point_E]",
+   "test_rv78_probe_relations[B_interpolation_target_at_upper_point_equal_point_E]",
+   "test_shared_draft_first_failure_controls[interpolation_target_at_lower_point_equal_e]",
+   "test_shared_draft_first_failure_controls[interpolation_target_at_upper_point_equal_e]"
+  ],
+  "killing_test_count": 4,
+  "seconds": 28.3
+ },
+ {
+  "id": "M19_implementation_complete",
+  "description": "eligibility hold flipped to true",
+  "mutated_sha256": "053b7e962b9ed3cf76440eaeeb1fbc9058f03f384ebfb5467c34d215cdd22359",
+  "exit": 1,
+  "killed": true,
+  "summary": "11 failed, 317 passed in 26.67s",
+  "killing_tests": [
+   "test_complete_synthetic_draft_control_is_not_qualification",
+   "test_old_operational_error_is_retained_independently_of_new_ready",
+   "test_shared_publicly_consistent_attestations_must_pass[cancelled_all_stop_true]",
+   "test_shared_publicly_consistent_attestations_must_pass[copy_flags_into_unloaded]",
+   "test_shared_publicly_consistent_attestations_must_pass[interpolation_equal_e_bracketed_control]",
+   "test_shared_publicly_consistent_attestations_must_pass[loaded_all_stop_false]",
+   "test_shared_publicly_consistent_attestations_must_pass[loaded_stop_without_force_moment]",
+   "test_shared_publicly_consistent_attestations_must_pass[no_data_all_stop_true]",
+   "test_shared_publicly_consistent_attestations_must_pass[no_data_attested_data_block]",
+   "test_shared_publicly_consistent_attestations_must_pass[p512_charge_follows_stop_zero_floor_body]",
+   "test_shared_publicly_consistent_attestations_must_pass[two_body_swap_stop_with_rosters]"
+  ],
+  "killing_test_count": 11,
+  "seconds": 26.8
+ },
+ {
+  "id": "M20_R2_disabled",
+  "description": "R2 lost-trace rule disabled",
+  "mutated_sha256": "b5a55b4b36cb30d0d89fbf23e48ef8113a68476a9e0239d87574b779e0147e70",
+  "exit": 1,
+  "killed": true,
+  "summary": "1 failed, 327 passed in 26.62s",
+  "killing_tests": [
+   "test_shared_draft_first_failure_controls[scalar_trace_lost_unavailable]"
+  ],
+  "killing_test_count": 1,
+  "seconds": 26.8
+ },
+ {
+  "id": "M21_upper_sanity_factor",
+  "description": "G5a sanity factor 1+2^-40 -> 1+2^-39",
+  "mutated_sha256": "bed9fb96a30ce610ec410cb371f138128d56e474adf7b4f43b4cd4d8749edcfb",
+  "exit": 0,
+  "killed": false,
+  "summary": "328 passed in 26.63s",
+  "killing_tests": [],
+  "killing_test_count": 0,
+  "seconds": 26.7
+ },
+ {
+  "id": "M22_extent_order",
+  "description": "body extent summation order changed",
+  "mutated_sha256": "9cd80787c3c8374b62b8a4503967432f56e12b531cd46122327df1c403ac413e",
+  "exit": 1,
+  "killed": true,
+  "summary": "1 failed, 327 passed in 28.08s",
+  "killing_tests": [
+   "test_body_extent_summation_order"
+  ],
+  "killing_test_count": 1,
+  "seconds": 28.2
+ }
+]

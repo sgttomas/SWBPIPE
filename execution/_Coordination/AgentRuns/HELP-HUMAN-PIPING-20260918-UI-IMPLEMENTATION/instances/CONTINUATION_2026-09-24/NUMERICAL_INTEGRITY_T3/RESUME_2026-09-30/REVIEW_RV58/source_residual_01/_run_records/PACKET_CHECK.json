@@ -1,0 +1,299 @@
+{
+  "pins": {
+    "RETURN.md": "8a1ef094bd68d4106f49007b45a9b7e3e63d5f39a2f2f8dca8a7c9625b52ed3f",
+    "INVENTORY.json": "029ff2839be3cc1a95b72764e09d1be8fc4996537bca0ab6d5c111cc237052d4",
+    "_run_records/SOURCE_INVENTORY.json": "cc3bfaaf05bb35a6d211ad19b331d888a2d75ad5dc1e571eefae959fcaca7af2"
+  },
+  "checks": [
+    {
+      "path": "OWNERSHIP_AND_COUNTS.md",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "RETURN.md",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/ENVIRONMENT.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/FINAL_CHECKS.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/ORACLE_CHECKS.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/PUBLICATION_PARITY.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/RUNTIME_RELEASE.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/S11_SCANNER_PARITY.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/SCOPE.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/SOURCE_INVENTORY.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/WITNESS_SUMMARY.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/compat_bridge.command.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/compat_bridge.log",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/compat_bridge_05.command.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/compat_bridge_05.log",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/compat_member.command.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/compat_member.log",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/compat_member_05.command.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/compat_member_05.log",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/compat_sqrt.command.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/compat_sqrt.log",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/compat_sqrt_05.command.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/compat_sqrt_05.log",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/controls_debug_02.command.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/controls_debug_02.log",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/controls_debug_03.command.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/controls_debug_03.log",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/controls_debug_04.command.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/controls_debug_04.log",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/final_debug.command.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/final_debug.log",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/final_debug_05.command.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/final_debug_05.log",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/final_release.command.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/final_release.log",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/final_release_05.command.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/final_release_05.log",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/native_debug_01.command.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/native_debug_01.log",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/oracle_03.stderr",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/oracle_03.stdout",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/oracle_debug.stderr",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/oracle_debug.stdout",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/oracle_original_bridge.stderr",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/oracle_original_bridge.stdout",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/oracle_release.stderr",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/oracle_release.stdout",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/run_checks.py",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/s11.command.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/s11.log",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/s11_05.command.json",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/s11_05.log",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/tracked_changes.diff",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/vector_replay/source_residual_vectors.py",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/vector_replay/source_residual_vectors.rs",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/vector_replay.stderr",
+      "matches": true,
+      "bytes_match": true
+    },
+    {
+      "path": "_run_records/vector_replay.stdout",
+      "matches": true,
+      "bytes_match": true
+    }
+  ]
+}

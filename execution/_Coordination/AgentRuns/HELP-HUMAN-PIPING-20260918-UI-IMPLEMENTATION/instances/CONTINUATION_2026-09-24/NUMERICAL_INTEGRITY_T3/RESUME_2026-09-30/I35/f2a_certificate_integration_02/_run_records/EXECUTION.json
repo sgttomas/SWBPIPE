@@ -1,0 +1,37 @@
+{
+  "agent": "/root/i35_f2a_certificate_arithmetic",
+  "checkpoint_delivered": "Native message after 23:07:59 clock reading and before 23:14:09; substantive draft existed and was reported before checkpoint deadline.",
+  "checkpoint_due_utc": "2026-10-02T23:12:02+00:00",
+  "code_implementation_performed": false,
+  "completed_utc": "2026-10-02T23:16:37.893286+00:00",
+  "controls": {
+    "command": "python3 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I35/f2a_certificate_integration_02/_run_records/integration_controls.py",
+    "exit_code": 0,
+    "first_run_passed": true,
+    "groups_passed": 6,
+    "kind": "standard-library exact abstract integration controls",
+    "output": "_run_records/CONTROLS.json"
+  },
+  "coordination": [
+    "ROOT receipt/timing acknowledgment",
+    "ROOT substantive checkpoint",
+    "ROOT pause acknowledgment",
+    "I29 informational scratch/overlap handoff; no assignment or delegation"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "expansion_cutoff_utc": "2026-10-02T23:32:02+00:00",
+  "git_reads": "GIT_OPTIONAL_LOCKS=0, including subprocess reads",
+  "inventory_kind": "informational owned-file inventory, not acceptance seal",
+  "mechanism": "existing delegated-harness-native child resumed by ROOT",
+  "outer_deadline_utc": "2026-10-02T23:42:02+00:00",
+  "owned_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I35/f2a_certificate_integration_02",
+  "parent": "/root",
+  "prohibited_operations_performed": [],
+  "receipt_utc": "2026-10-02T22:52:02+00:00",
+  "remaining": "RETURN.md final prerequisite paragraph; no further work launched",
+  "reported_unreviewed_dependency": "ROOT-frozen I37 fdae294643b798c1849da8b2e643085562593686, not inspected; RV51 and full C2 origins unresolved",
+  "role": "TASK",
+  "source_pin": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "state": "stopped for owner graceful pause; RV50 review and any code dispatch held until owner resumes",
+  "task": "I35_F2A_CERTIFICATE_INTEGRATION_02"
+}

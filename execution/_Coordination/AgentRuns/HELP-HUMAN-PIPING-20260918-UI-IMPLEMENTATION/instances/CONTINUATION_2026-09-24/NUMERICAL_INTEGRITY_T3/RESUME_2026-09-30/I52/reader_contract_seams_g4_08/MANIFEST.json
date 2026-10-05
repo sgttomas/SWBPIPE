@@ -1,0 +1,12 @@
+{
+  "actor": "/root/i52_public_formation_contract",
+  "parent": "/root",
+  "status": "proposed explicit G4/G6 clarification for RS-F1",
+  "audit_utc": "2026-10-03T16:30:22.096417+00:00",
+  "deadline_utc": "2026-10-03T16:34:08Z",
+  "authority": "direct ROOT instruction to preserve07 and add this exact gate-allocation clarification",
+  "prior07_unchanged": true,
+  "definition_changed": false,
+  "dependent_implementation_assumed": false,
+  "origin": "selected C1/C3 gate order and ROOT/RV69 correction messages; no new source read needed"
+}

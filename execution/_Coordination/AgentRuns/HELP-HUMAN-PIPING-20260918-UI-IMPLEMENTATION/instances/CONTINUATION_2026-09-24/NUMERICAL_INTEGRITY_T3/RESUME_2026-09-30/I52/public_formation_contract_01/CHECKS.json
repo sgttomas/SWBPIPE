@@ -1,0 +1,33 @@
+{
+  "utc": "2026-10-03T12:41:40.456027+00:00",
+  "public_base": "381be775ae",
+  "dispatch": "7073e8942d",
+  "public_paths": [
+    "projects/chirality-piping/core/reporting/result_export",
+    "projects/chirality-piping/core/analysis_runs",
+    "projects/chirality-piping/apps/desktop/src",
+    "projects/chirality-piping/schemas"
+  ],
+  "dispatch_public_diff": "",
+  "working_public_diff": "",
+  "empty_public_diff": true,
+  "selected_documents_matching_local": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/DESIGN.md",
+      "commit": "cf515e3725",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/API.md",
+      "commit": "cf515e3725",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/FENCE.md",
+      "commit": "cf515e3725",
+      "match": true
+    }
+  ],
+  "first_amended_patch_matches_root_pin": true,
+  "executed_validation": "source inspection, explicit immutable Git comparisons, hash/inventory audit only; no runtime/parity/solver claim"
+}

@@ -1,0 +1,8 @@
+{"carrier":"rust_derivative","error":null,"mode":"sparse_interactive","receipt_byte_equal":true,"revalidated":true,"standing":"numerically_eligible","standing_no_invocation":"needs_recompute"}
+{"carrier":"rust_derivative_validate","mode":"sparse_interactive","result":"ok"}
+{"carrier":"python_analysis_run","error":null,"mode":"sparse_interactive","receipt_byte_equal":true,"revalidated":true,"standing":"numerically_eligible","standing_no_invocation":"needs_recompute"}
+{"carrier":"ts_analysis_run","error":null,"mode":"sparse_interactive","receipt_byte_equal":true,"revalidated":true,"standing":"numerically_eligible","standing_no_invocation":"needs_recompute"}
+{"carrier":"rust_derivative","error":null,"mode":"dense_scrutiny","receipt_byte_equal":true,"revalidated":true,"standing":"numerically_eligible","standing_no_invocation":"needs_recompute"}
+{"carrier":"rust_derivative_validate","mode":"dense_scrutiny","result":"ok"}
+{"carrier":"python_analysis_run","error":null,"mode":"dense_scrutiny","receipt_byte_equal":true,"revalidated":true,"standing":"numerically_eligible","standing_no_invocation":"needs_recompute"}
+{"carrier":"ts_analysis_run","error":null,"mode":"dense_scrutiny","receipt_byte_equal":true,"revalidated":true,"standing":"numerically_eligible","standing_no_invocation":"needs_recompute"}

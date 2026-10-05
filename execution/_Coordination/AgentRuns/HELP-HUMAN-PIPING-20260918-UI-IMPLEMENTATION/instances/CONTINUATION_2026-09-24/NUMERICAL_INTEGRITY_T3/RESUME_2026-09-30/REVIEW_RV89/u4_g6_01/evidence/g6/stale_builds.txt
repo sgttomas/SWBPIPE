@@ -1,0 +1,23 @@
+### g6_stale_flags
+test retained_memory::law_tests::admit_grants_a_permit_for_the_milestone_in_the_registered_build ... ok
+test retained_memory::law_tests::registered_g_c_declines_only_unattempted_solves ... ok
+test retained_memory::law_tests::the_registered_profile_is_the_only_permit_source ... ok
+RV89_G6_BUILD identity=Some("v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=--cfg%1Frv89_stale;pkg=open_pipe_stress_product_physics@0.2.0")
+RV89_G6_BUILD status=Err(Stale)
+RV89_G6_STALE ok
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 546 filtered out; finished in 0.03s
+### g6_stale_opt1
+test retained_memory::law_tests::admit_grants_a_permit_for_the_milestone_in_the_registered_build ... ok
+test retained_memory::law_tests::registered_g_c_declines_only_unattempted_solves ... ok
+test retained_memory::law_tests::the_registered_profile_is_the_only_permit_source ... ok
+RV89_G6_BUILD identity=Some("v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=1;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0")
+RV89_G6_BUILD status=Err(Stale)
+RV89_G6_STALE ok
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 546 filtered out; finished in 0.01s
+### g6_rel_identity
+test retained_memory::law_tests::admit_grants_a_permit_for_the_milestone_in_the_registered_build ... ok
+test retained_memory::law_tests::the_registered_profile_is_the_only_permit_source ... ok
+RV89_G6_BUILD identity=Some("v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=release;opt_level=3;debug_assertions=false;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0")
+RV89_G6_BUILD status=Err(Stale)
+RV89_G6_STALE ok
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 547 filtered out; finished in 0.01s

@@ -1,0 +1,58 @@
+[
+ {
+  "id": "RS01_f5_removed",
+  "killed": true,
+  "compile_error": false,
+  "killing_tests": [
+   "d6_d7_ordinary_and_diagnostic_relations",
+   "f5_kills_u1_m09_m10_m20_on_the_real_milestone_receipts",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07g_mutation_outcomes"
+  ],
+  "seconds": 77.7
+ },
+ {
+  "id": "RS02_f5_retained_included",
+  "killed": true,
+  "compile_error": false,
+  "killing_tests": [
+   "audit_mutations_retain_native_and_product_first_failures",
+   "complete_synthetic_controls_keep_eligibility_held",
+   "coverage_layout_controls_fail_at_g5a",
+   "d13_reader_local_pins_and_mutant_kills",
+   "d19_converse_cause_binding",
+   "d1_g3_coverage_relations",
+   "d20_selected_without_c3_attempt",
+   "d21_last_slot_verification_shared_build"
+  ],
+  "seconds": 61.6
+ },
+ {
+  "id": "RS03_d37_values_widened",
+  "killed": true,
+  "compile_error": false,
+  "killing_tests": [
+   "retained_precision::u6e_reader_round_tests::d37_error_stages_matches_the_corpus_table_rv79_n1"
+  ],
+  "seconds": 81.9
+ },
+ {
+  "id": "RS04_d37_abandoned_widened_after_certificate",
+  "killed": true,
+  "compile_error": false,
+  "killing_tests": [
+   "d37_error_kind_agrees_with_stage_record",
+   "retained_precision::u6e_reader_round_tests::d37_error_stages_matches_the_corpus_table_rv79_n1"
+  ],
+  "seconds": 82.2
+ },
+ {
+  "id": "RS05_m50_statement_normalized",
+  "killed": true,
+  "compile_error": false,
+  "killing_tests": [
+   "retained_precision::u6e_reader_round_tests::rv80_n2_integral_receipt_touches_only_the_receipt"
+  ],
+  "seconds": 76.8
+ }
+]

@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-03T04:33:07.814826+00:00",
+  "host": "Mac.lan",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "cpu": "Apple M5 Max",
+  "guard": 5387,
+  "owned_commands_exited": true,
+  "cargo_rustc_tests_remaining": [],
+  "lane_released": true,
+  "more_runtime_planned": false,
+  "test_sha256": "0f02e9d2ef0d593e5c0edbd540ae56baaf345b70fb4301cffb1e593b96ca806c"
+}

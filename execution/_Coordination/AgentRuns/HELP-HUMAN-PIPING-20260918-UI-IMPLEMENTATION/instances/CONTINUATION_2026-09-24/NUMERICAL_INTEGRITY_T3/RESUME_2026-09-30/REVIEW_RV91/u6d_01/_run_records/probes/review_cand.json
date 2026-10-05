@@ -1,0 +1,511 @@
+{
+ "parity": [
+  {
+   "id": "sparse_interactive:invocation",
+   "standing": "needs_recompute",
+   "dispatch": "ok",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"
+   ],
+   "expected_standing": "needs_recompute",
+   "expected_dispatch": "ok"
+  },
+  {
+   "id": "sparse_interactive:no_invocation",
+   "standing": "needs_recompute",
+   "dispatch": "ok",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_VALIDATION_REQUIRED"
+   ],
+   "expected_standing": "needs_recompute",
+   "expected_dispatch": "ok"
+  },
+  {
+   "id": "sparse_interactive:no_requested",
+   "standing": "needs_recompute",
+   "dispatch": "ok",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"
+   ],
+   "expected_standing": "needs_recompute",
+   "expected_dispatch": "ok"
+  },
+  {
+   "id": "sparse_interactive:other_requested",
+   "standing": "needs_recompute",
+   "dispatch": "ok",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"
+   ],
+   "expected_standing": "needs_recompute",
+   "expected_dispatch": "ok"
+  },
+  {
+   "id": "sparse_interactive:edited_row",
+   "standing": "unsupported",
+   "dispatch": "RETAINED_PRECISION_RECEIPT_MISMATCH",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   ],
+   "expected_standing": "unsupported",
+   "expected_dispatch": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+  },
+  {
+   "id": "sparse_interactive:foreign_mode",
+   "standing": "unsupported",
+   "dispatch": "ok",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_INVOCATION_MISMATCH"
+   ],
+   "expected_standing": "unsupported",
+   "expected_dispatch": "ok"
+  },
+  {
+   "id": "sparse_interactive:relabelled_base_with_receipt",
+   "standing": "unsupported",
+   "dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+   ],
+   "expected_standing": "unsupported",
+   "expected_dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+  },
+  {
+   "id": "dense_scrutiny:invocation",
+   "standing": "needs_recompute",
+   "dispatch": "ok",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"
+   ],
+   "expected_standing": "needs_recompute",
+   "expected_dispatch": "ok"
+  },
+  {
+   "id": "dense_scrutiny:no_invocation",
+   "standing": "needs_recompute",
+   "dispatch": "ok",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_VALIDATION_REQUIRED"
+   ],
+   "expected_standing": "needs_recompute",
+   "expected_dispatch": "ok"
+  },
+  {
+   "id": "dense_scrutiny:no_requested",
+   "standing": "needs_recompute",
+   "dispatch": "ok",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"
+   ],
+   "expected_standing": "needs_recompute",
+   "expected_dispatch": "ok"
+  },
+  {
+   "id": "dense_scrutiny:other_requested",
+   "standing": "needs_recompute",
+   "dispatch": "ok",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"
+   ],
+   "expected_standing": "needs_recompute",
+   "expected_dispatch": "ok"
+  },
+  {
+   "id": "dense_scrutiny:edited_row",
+   "standing": "unsupported",
+   "dispatch": "RETAINED_PRECISION_RECEIPT_MISMATCH",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   ],
+   "expected_standing": "unsupported",
+   "expected_dispatch": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+  },
+  {
+   "id": "dense_scrutiny:foreign_mode",
+   "standing": "unsupported",
+   "dispatch": "ok",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_INVOCATION_MISMATCH"
+   ],
+   "expected_standing": "unsupported",
+   "expected_dispatch": "ok"
+  },
+  {
+   "id": "dense_scrutiny:relabelled_base_with_receipt",
+   "standing": "unsupported",
+   "dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+   ],
+   "expected_standing": "unsupported",
+   "expected_dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+  },
+  {
+   "id": "rv91:sparse:edited_row_no_invocation",
+   "standing": "needs_recompute",
+   "dispatch": "RETAINED_PRECISION_RECEIPT_MISMATCH",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_VALIDATION_REQUIRED"
+   ],
+   "expected_standing": null,
+   "expected_dispatch": null
+  },
+  {
+   "id": "rv91:dense:edited_row_no_invocation",
+   "standing": "needs_recompute",
+   "dispatch": "RETAINED_PRECISION_RECEIPT_MISMATCH",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_VALIDATION_REQUIRED"
+   ],
+   "expected_standing": null,
+   "expected_dispatch": null
+  },
+  {
+   "id": "rv91:sparse:quality_rewritten_no_invocation",
+   "standing": "needs_recompute",
+   "dispatch": "RETAINED_PRECISION_RECEIPT_MISMATCH",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_VALIDATION_REQUIRED"
+   ],
+   "expected_standing": null,
+   "expected_dispatch": null
+  },
+  {
+   "id": "rv91:sparse:receipt_null_on_base",
+   "standing": "unsupported",
+   "dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+   ],
+   "expected_standing": null,
+   "expected_dispatch": null
+  },
+  {
+   "id": "rv91:sparse:token_row_on_base",
+   "standing": "unsupported",
+   "dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+   ],
+   "expected_standing": null,
+   "expected_dispatch": null
+  },
+  {
+   "id": "rv91:sparse:receipt_dropped_on_successor",
+   "standing": "unsupported",
+   "dispatch": "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+   ],
+   "expected_standing": null,
+   "expected_dispatch": null
+  },
+  {
+   "id": "rv91:sparse:legacy_with_receipt",
+   "standing": "unsupported",
+   "dispatch": "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN",
+   "ts_status": "needs_recompute",
+   "ts_findings": [
+    "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+   ],
+   "expected_standing": null,
+   "expected_dispatch": null
+  }
+ ],
+ "registration_voids": {
+  "row value": {
+   "voided": true,
+   "standing": [
+    "RETAINED_PRECISION_VALIDATION_REQUIRED"
+   ],
+   "native": false,
+   "reverted": {
+    "reg": true,
+    "standing": [
+     "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"
+    ]
+   }
+  },
+  "row value sign of zero": {
+   "voided": true,
+   "standing": [
+    "RETAINED_PRECISION_VALIDATION_REQUIRED"
+   ],
+   "native": false,
+   "reverted": {
+    "reg": true,
+    "standing": [
+     "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"
+    ]
+   }
+  },
+  "new top-level member": {
+   "voided": true,
+   "standing": [
+    "RETAINED_PRECISION_VALIDATION_REQUIRED"
+   ],
+   "native": false,
+   "reverted": {
+    "reg": true,
+    "standing": [
+     "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"
+    ]
+   }
+  },
+  "numerical_quality.status": {
+   "voided": true,
+   "standing": [
+    "RETAINED_PRECISION_VALIDATION_REQUIRED"
+   ],
+   "native": false,
+   "reverted": {
+    "reg": true,
+    "standing": [
+     "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"
+    ]
+   }
+  },
+  "receipt body member": {
+   "voided": true,
+   "standing": [
+    "RETAINED_PRECISION_VALIDATION_REQUIRED"
+   ],
+   "native": false,
+   "reverted": {
+    "reg": true,
+    "standing": [
+     "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"
+    ]
+   }
+  },
+  "row method token removed": {
+   "voided": true,
+   "standing": [
+    "RETAINED_PRECISION_VALIDATION_REQUIRED"
+   ],
+   "native": false,
+   "reverted": {
+    "reg": false,
+    "standing": [
+     "RETAINED_PRECISION_VALIDATION_REQUIRED"
+    ]
+   }
+  },
+  "diagnostic edited": {
+   "voided": true,
+   "standing": [
+    "RETAINED_PRECISION_VALIDATION_REQUIRED"
+   ],
+   "native": false,
+   "reverted": {
+    "reg": false,
+    "standing": [
+     "RETAINED_PRECISION_VALIDATION_REQUIRED"
+    ]
+   }
+  },
+  "contract_evidence edited": {
+   "voided": true,
+   "standing": [
+    "RETAINED_PRECISION_VALIDATION_REQUIRED"
+   ],
+   "native": false,
+   "reverted": {
+    "reg": false,
+    "standing": [
+     "RETAINED_PRECISION_VALIDATION_REQUIRED"
+    ]
+   }
+  }
+ },
+ "registration_key_reorder_object_is_new": true,
+ "registration_edit_during_await": {
+  "outcome": "validated",
+  "while_edited": null,
+  "after_revert": "validation"
+ },
+ "model_divergence_post_u7": {
+  "successor_standing_eligible_with_other_model": true,
+  "native_invocation_with_other_model": false,
+  "rule_check_gate": "RULE_NATIVE_INVOCATION_REQUIRED"
+ },
+ "analysis_run_sparse_interactive": {
+  "unchanged": "ok",
+  "dropped": "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH",
+  "null": "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH",
+  "receipt_sha256 altered": "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH",
+  "body altered": "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH",
+  "extra member": "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH",
+  "key order reversed": "ok",
+  "receipt on preview-physics-1 record": "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN",
+  "edited source": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+ },
+ "analysis_run_dense_scrutiny": {
+  "unchanged": "ok",
+  "dropped": "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH",
+  "null": "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH",
+  "receipt_sha256 altered": "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH",
+  "body altered": "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH",
+  "extra member": "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH",
+  "key order reversed": "ok",
+  "receipt on preview-physics-1 record": "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN",
+  "edited source": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+ },
+ "f_u6b_3": {
+  "legacy_route": "unsupported",
+  "v02_built": true,
+  "v02_record_has_receipt": false,
+  "v02_received_result_hash_binds_receipt": true,
+  "v02_null_member_built": true,
+  "token_route": "unsupported",
+  "v02_token_rows_built": true,
+  "v02_successor": "HISTORICAL_ANALYSIS_SOURCE_UNSUPPORTED"
+ },
+ "reopen": {
+  "plain": [
+   "HISTORICAL_INPUT_MANIFEST_MISSING",
+   "RETAINED_PRECISION_VALIDATION_REQUIRED"
+  ],
+  "altered_rehashed": [
+   "HISTORICAL_INPUT_MANIFEST_MISSING",
+   "RETAINED_PRECISION_VALIDATION_REQUIRED",
+   "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH"
+  ],
+  "mutated_row": [
+   "HISTORICAL_INPUT_MANIFEST_MISSING",
+   "RETAINED_PRECISION_VALIDATION_REQUIRED",
+   "RETAINED_PRECISION_RECEIPT_MISMATCH",
+   "HISTORICAL_RESULT_HASH_MISMATCH"
+  ],
+  "plain_standing_eligible": false
+ },
+ "gate_sparse_interactive": {
+  "held": "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE",
+  "copy": "RULE_NATIVE_INVOCATION_REQUIRED",
+  "backend_calls_when_held": 0,
+  "post_u7_invocation_equals_captured": false
+ },
+ "gate_dense_scrutiny": {
+  "held": "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE",
+  "copy": "RULE_NATIVE_INVOCATION_REQUIRED",
+  "backend_calls_when_held": 0,
+  "post_u7_invocation_equals_captured": false
+ },
+ "upward_bound": {
+  "samples": 25017,
+  "unsound": 0,
+  "loose": 5,
+  "badFormat": 0,
+  "looseExamples": [
+   "1.25 -> 1.26e+0",
+   "0.0625 -> 6.26e-2",
+   "0.0625 -> 6.26e-2",
+   "1 -> 1.01e+0",
+   "123 -> 1.24e+2"
+  ],
+  "zero": "0"
+ },
+ "absolute_labels": [
+  {
+   "mode": "sparse_interactive",
+   "listed": 69,
+   "checked": 69,
+   "bad": 0,
+   "units": [
+    "mm->m",
+    "N->N",
+    "N*m->N*m",
+    "MPa->Pa",
+    "Pa->Pa"
+   ],
+   "classes": {
+    "non_quantity": 1,
+    "absolute_verified": 69,
+    "relative_verified": 25,
+    "input_derived": 3
+   },
+   "example": "Uncovered quantity: verified only to an absolute bound of ±5.43e-24 m, below the relative accuracy floor for this body. It is shown for inspection; rule checks cannot bind to it."
+  },
+  {
+   "mode": "dense_scrutiny",
+   "listed": 69,
+   "checked": 69,
+   "bad": 0,
+   "units": [
+    "mm->m",
+    "N->N",
+    "N*m->N*m",
+    "MPa->Pa",
+    "Pa->Pa"
+   ],
+   "classes": {
+    "non_quantity": 2,
+    "absolute_verified": 69,
+    "relative_verified": 25,
+    "input_derived": 3
+   },
+   "example": "Uncovered quantity: verified only to an absolute bound of ±5.43e-24 m, below the relative accuracy floor for this body. It is shown for inspection; rule checks cannot bind to it."
+  }
+ ],
+ "texts": {
+  "unregistered_standing": "Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute. Selected cases: 1 of 1. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "unregistered_notices": [
+   {
+    "id": "headline-label",
+    "text": "Stress headline: maximum elastic normal stress; nominal; no component intensification; not a code stress."
+   },
+   {
+    "id": "retained-precision-unvalidated",
+    "text": "Retained-precision accuracy classes are unavailable for these exact bytes (not validated in this session, or refused by the reader). No quantity of this result is shown as verified, and rule checks cannot bind to any of them."
+   }
+  ],
+  "unregistered_panel_mentions": {
+   "checks_passed": false,
+   "verified": 1,
+   "integrity": false
+  },
+  "registered_standing": "Retained precision: receipt validated by the retained-precision reader against the actual invocation for these exact bytes. Selected cases: 1 of 1. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "registered_notices": [
+   {
+    "id": "headline-label",
+    "text": "Stress headline: maximum elastic normal stress; nominal; no component intensification; not a code stress."
+   },
+   {
+    "id": "retained-precision-absolute:case",
+    "text": "case: 69 quantities verified only to an absolute bound, below the relative accuracy floor. Each is labelled and shown for inspection; rule checks cannot bind to them."
+   }
+  ],
+  "refused_standing": "Retained precision: receipt refused by the retained-precision reader (RETAINED_PRECISION_RECEIPT_MISMATCH); unsupported, historical values only. Selected cases: 1 of 1. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "output_refusal": "RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE: Output of retained-precision results (preview-physics-retained-1) is not yet available on the desktop; it is routed to T6. The result remains readable here; this is not a finding about the result.",
+  "output_refusal_unregistered": "RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE: Output of retained-precision results (preview-physics-retained-1) is not yet available on the desktop; it is routed to T6. The result remains readable here; this is not a finding about the result.",
+  "output_refusal_relabelled": null,
+  "precheck_unregistered": [
+   {
+    "input_id": "a",
+    "result_id": "result:solver-mode:linear-solve-basis",
+    "reason": "RULE_QUANTITY_NOT_COVERED",
+    "notice": "Retained-precision accuracy classes are unavailable for these exact bytes (not validated in this session, or refused by the reader). No quantity of this result is shown as verified, and rule checks cannot bind to any of them."
+   }
+  ]
+ }
+}

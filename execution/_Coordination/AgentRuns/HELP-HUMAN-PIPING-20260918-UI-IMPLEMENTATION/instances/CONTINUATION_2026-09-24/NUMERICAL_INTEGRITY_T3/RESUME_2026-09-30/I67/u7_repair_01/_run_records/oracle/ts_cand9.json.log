@@ -1,0 +1,10 @@
+
+ RUN  v4.1.10 WT/scratch/i67_u6d/lanes/cand9/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  15:09:12
+   Duration  15.19s (transform 173ms, setup 46ms, import 184ms, tests 14.79s, environment 116ms)
+
+exit=0

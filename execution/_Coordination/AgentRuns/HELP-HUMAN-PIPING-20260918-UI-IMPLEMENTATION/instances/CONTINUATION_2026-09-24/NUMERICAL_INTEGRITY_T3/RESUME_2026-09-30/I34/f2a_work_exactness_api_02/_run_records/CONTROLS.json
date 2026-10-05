@@ -1,0 +1,184 @@
+{
+  "scope": "selected API specification controls only; not compiled/source-edge/runtime witnesses",
+  "passed": 12,
+  "controls": [
+    {
+      "id": "A01_stream_identity",
+      "pass": true,
+      "result": {
+        "foreign_equal": "I",
+        "exact_same_equal": 0,
+        "lost_equal": "O"
+      }
+    },
+    {
+      "id": "A02_persistent_clone",
+      "pass": true,
+      "result": {
+        "before": 18446744073709551115,
+        "sign_delta": 128,
+        "round_delta": 384,
+        "persistent_clone_round": "overflow",
+        "incorrect_fresh_reclone_would_fit": true
+      }
+    },
+    {
+      "id": "A03_pending_base",
+      "pass": true,
+      "result": {
+        "committed_prefix": 27,
+        "pending_base_uncommitted": 4,
+        "next_carry_performed": false,
+        "exact_total_claim": false
+      }
+    },
+    {
+      "id": "A04_poisoned_clear",
+      "pass": true,
+      "result": {
+        "value_reset": "full",
+        "work_flag": "O",
+        "next_numeric_operation": "WorkAccounting"
+      }
+    },
+    {
+      "id": "A05_compound_poison",
+      "pass": true,
+      "result": {
+        "second_failed_before_write": true,
+        "destination_poisoned": true
+      }
+    },
+    {
+      "id": "A06_prior_and_no_escalation",
+      "pass": true,
+      "result": {
+        "condition_with_O": {
+          "kind": "work_accounting",
+          "fault": 1,
+          "prior": "Condition"
+        },
+        "span_with_I": {
+          "kind": "work_accounting",
+          "fault": 2,
+          "prior": "Span"
+        },
+        "new_precision_started": false
+      }
+    },
+    {
+      "id": "A07_zero_price_status",
+      "pass": true,
+      "result": {
+        "case_charge_diagnostic": 7,
+        "actual_new_increment": 0,
+        "incoming_prefix": 12,
+        "invocation_receipt_state": "O"
+      }
+    },
+    {
+      "id": "A08_c2_pre_source",
+      "pass": true,
+      "result": {
+        "call": {
+          "variant": "PreSourceRefusal",
+          "before": [
+            12,
+            1
+          ],
+          "after": [
+            12,
+            1
+          ],
+          "run": null,
+          "source": null
+        },
+        "successor_emitted": false
+      }
+    },
+    {
+      "id": "A09_closed_fresh_helpers",
+      "pass": true,
+      "result": {
+        "chord_d": 1152,
+        "chord_c": 2688,
+        "determinant_sum": 12416,
+        "determinant_c128": 192,
+        "determinant_c192": 384,
+        "intensified_sum": 1664,
+        "row_bound_num_clone": 2048,
+        "row_bound_den_clone": 896,
+        "row_bound_context": 17506,
+        "fresh_correction_scratch": 2688,
+        "binary64_up": 1152
+      }
+    },
+    {
+      "id": "A10_pinned_prices",
+      "pass": true,
+      "result": [
+        {
+          "L": 4,
+          "prices": [
+            8,
+            8,
+            16,
+            1290,
+            1548,
+            8,
+            48,
+            32
+          ]
+        },
+        {
+          "L": 8,
+          "prices": [
+            16,
+            16,
+            64,
+            4626,
+            5140,
+            16,
+            96,
+            96
+          ]
+        },
+        {
+          "L": 16,
+          "prices": [
+            32,
+            32,
+            256,
+            17442,
+            18468,
+            32,
+            192,
+            320
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A11_view_gate",
+      "pass": true,
+      "result": {
+        "H_work_lines_on_non_E": false,
+        "VR_record_on_non_E": null,
+        "legacy_Refused_fields_changed": false,
+        "E_serialized_status_field": false
+      }
+    },
+    {
+      "id": "A12_exact_range",
+      "pass": true,
+      "result": {
+        "native_exact_MAX": "E",
+        "JSON_successor": "work_counter_range",
+        "unknown": "work_counter_unknown",
+        "OI": "work_counter_inconsistent",
+        "O": "work_counter_overflow",
+        "automatic_lower_bound": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+ "schema_nodes_visited": 1383,
+ "cycles": [],
+ "cycle_count": 0,
+ "max_same_value_chain": 6,
+ "max_total_recursion_depth_from_root": 36,
+ "max_value_depth_reached_by_schema": 15
+}

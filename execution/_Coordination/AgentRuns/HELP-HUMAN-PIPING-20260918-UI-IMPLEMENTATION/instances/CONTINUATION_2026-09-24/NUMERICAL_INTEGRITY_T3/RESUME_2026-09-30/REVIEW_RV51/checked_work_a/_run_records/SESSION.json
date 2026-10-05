@@ -1,0 +1,13 @@
+{
+  "actual_receipt_first_clock": "2026-10-02 23:06:55 UTC",
+  "parent": "/root",
+  "child": "/root/rv51_checked_work_source",
+  "mechanism": "delegated-harness-native descendant",
+  "role": "TASK Type2",
+  "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a",
+  "candidate": "fdae294643b798c1849da8b2e643085562593686",
+  "base": "14ff4e86dd549aa6c22804de5913e25c8ab4d20a",
+  "write_boundary": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV51/checked_work_a",
+  "enforcement": "host danger-full-access; brief read-only source, evidence write boundary, no delegation or Git/index/API mutations",
+  "limits": "one Cargo/rustc lane; max 4 jobs, 2 test threads; 1200 seconds each; no heavy/native/model-scale/full-sweep work"
+}

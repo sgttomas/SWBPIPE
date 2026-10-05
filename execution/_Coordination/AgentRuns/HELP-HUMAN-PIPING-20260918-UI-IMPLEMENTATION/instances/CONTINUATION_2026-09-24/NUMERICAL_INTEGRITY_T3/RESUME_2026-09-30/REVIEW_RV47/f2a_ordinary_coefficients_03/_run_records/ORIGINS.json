@@ -1,0 +1,86 @@
+{
+  "status": "minimal immutable correction origins; no acceptance",
+  "candidate": "7bca4a0dfd88de4fd3f6d1c59de3c98a189ab7ee",
+  "original": "f5ca39a1a2d4c63b0fda3fe2e3c61bbe8afde074",
+  "brief_basis": "9fb9748897071fa8a7dbb33548e802d36c922e77",
+  "instruction_context": "Root/TASK/project instructions and software-code-review skill retained from preceding RV47 turns; origin/hash chain preserved in the unchanged prior review packets. No new role or workflow selected.",
+  "entries": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV47_F2A_EXACT_K_BACKCHECK_03.md",
+      "revision": "9fb9748897071fa8a7dbb33548e802d36c922e77",
+      "sha256": "a42d0a61803461a668de12540a6d17d7fbc34a015ee616cd955947338b8a73ae",
+      "bytes": 1191,
+      "read_selection": "full"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I36_F2A_EXACT_K_CONTROL_REPAIR_03.md",
+      "revision": "8ed7a1d5c51f07a44494ee2dce272831f28722a1",
+      "sha256": "22d02f23a68d7518474b4f96938a4a2e589cd818d87de6c3d4965e567c8a1b8c",
+      "bytes": 1575,
+      "read_selection": "full; allowed author fence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/_run_records/exact_controls.py",
+      "revision": "f5ca39a1a2d4c63b0fda3fe2e3c61bbe8afde074",
+      "sha256": "69c2671a89d8b574cb72d8b2327335ef555f4e4f316b34971dbae31044984dfd",
+      "bytes": 7751,
+      "read_selection": "prior full source inspection retained; replayed frozen bytes; compared unchanged statements"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/_run_records/exact_controls.json",
+      "revision": "f5ca39a1a2d4c63b0fda3fe2e3c61bbe8afde074",
+      "sha256": "02d3318f3d8c6e521e940297f95a878b6b7bc340f310e4884cb3182625407534",
+      "bytes": 1465,
+      "read_selection": "frozen-output byte comparison and parsed original fields"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/RETURN.md",
+      "revision": "f5ca39a1a2d4c63b0fda3fe2e3c61bbe8afde074",
+      "sha256": "0233a8d8d2f618d9020a20d260e555d1532c3be5b94a3b682b5c82aa23f88094",
+      "bytes": 14277,
+      "read_selection": "prior full read retained; compared theorem sections and diff"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/RETURN.md",
+      "revision": "7bca4a0dfd88de4fd3f6d1c59de3c98a189ab7ee",
+      "sha256": "74670d4f43e58f13e6fd03c69cbde7cd514c117d66d29691ff6d225f2f2e5d3a",
+      "bytes": 16704,
+      "read_selection": "full correction diff; theorem preservation comparison"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/_run_records/correction_03/exact_controls.py",
+      "revision": "7bca4a0dfd88de4fd3f6d1c59de3c98a189ab7ee",
+      "sha256": "8592a613549894703ae8fa59cbb09e45e4099a726b5c5df8893522a9fe730c9f",
+      "bytes": 9884,
+      "read_selection": "complete changed-code diff against inspected original; replayed and shared-constructor mutation check"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/_run_records/correction_03/exact_controls.json",
+      "revision": "7bca4a0dfd88de4fd3f6d1c59de3c98a189ab7ee",
+      "sha256": "85b90020323d0de7b729f3a98e862706d0105099c6f0ec4f23c551d5a1c127fc",
+      "bytes": 12505,
+      "read_selection": "full; independently checked all reported exact products/deltas and discriminator"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/_run_records/correction_03/CORRECTION.json",
+      "revision": "7bca4a0dfd88de4fd3f6d1c59de3c98a189ab7ee",
+      "sha256": "c75bdbc3269eb7361cdcc4de2f40f0822837799d48ec3da219c30ec7f91745cd",
+      "bytes": 9456,
+      "read_selection": "full; independently checked preservation, origin and command claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/_run_records/INVENTORY.json",
+      "revision": "7bca4a0dfd88de4fd3f6d1c59de3c98a189ab7ee",
+      "sha256": "d59ae83f068677bf4cfeb277838796a8443e15bd7b13c1193c452ba0aae7adf4",
+      "bytes": 1778,
+      "read_selection": "full; all ten payloads and exact tree coverage verified"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV47/f2a_ordinary_coefficients_02/REVIEW.md",
+      "revision": "dfd7a0771122d061dfa4bcec8a0aac4358c5da2f",
+      "sha256": "12b65138365e5338d9930d7960882d661abea617d988e2c6bc7f3a816c647564",
+      "bytes": 9796,
+      "read_selection": "same reviewer prior findings retained; all prior review files byte-compared"
+    }
+  ]
+}

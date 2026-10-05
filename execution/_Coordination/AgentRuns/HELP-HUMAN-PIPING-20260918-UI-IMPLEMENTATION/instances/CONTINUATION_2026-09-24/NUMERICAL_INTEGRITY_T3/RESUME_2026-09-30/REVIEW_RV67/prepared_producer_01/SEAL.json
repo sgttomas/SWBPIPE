@@ -1,0 +1,59 @@
+{
+  "sealed_utc": "2026-10-03T09:08:40.074167+00:00",
+  "actor": "/root/rv67_prepared_producer_design",
+  "parent": "/root",
+  "subject_commit": "8d025201b8dc4591aa3be7f4534c0cbb932e594c",
+  "dispatch_basis": "e85ab6541bcc4ecca339c38ed9961b8fd5b0ceac",
+  "disposition": "conditional mathematics verified; three blocking design-readiness findings; no implementation/method selection",
+  "blocking_findings": [
+    "RV67-1",
+    "RV67-2",
+    "RV67-3"
+  ],
+  "payloads": [
+    {
+      "path": "AUDIT.json",
+      "bytes": 1680,
+      "sha256": "1ff23e1d6dc8d69c7f5f5fa75bdfc3ffede7b9216bb958b05da13a5ab15db66e"
+    },
+    {
+      "path": "BULK_MANIFEST.json",
+      "bytes": 1842,
+      "sha256": "39efa61f4a7c94ca6f5639631f6d5d819251606287025e749c60364b50201414"
+    },
+    {
+      "path": "CHECK_SUMMARY.json",
+      "bytes": 3084,
+      "sha256": "319ca0e8bef3871257eff4711a5206dcf377052d1b592472d115c68c233c5299"
+    },
+    {
+      "path": "DESIGN_FENCE.md",
+      "bytes": 11128,
+      "sha256": "8d17aad6aea1ce19c35fe731a711e589febbdfe958ebd96aee95de4bbaaa4c6d"
+    },
+    {
+      "path": "EXECUTION.json",
+      "bytes": 5773,
+      "sha256": "473f6592167fc82a6e80c41b95ebf8c5717afb36baea09a9e9fb5c409a27e770"
+    },
+    {
+      "path": "ORIGINS.json",
+      "bytes": 36702,
+      "sha256": "bbcf77acd41a68b3227e6a0ca2dd65316fc08dc6fe14973c60f4d74ff1047836"
+    },
+    {
+      "path": "REVIEW.md",
+      "bytes": 17212,
+      "sha256": "8d65452c5ec43c68a9ee561b6a6251e444339689bf3e257c1a570c8fff8579f2"
+    },
+    {
+      "path": "check.py",
+      "bytes": 15040,
+      "sha256": "b926b26b02c8d4f55ad706828135e95e2073fa5c7f5aa0afc1a681533ba026cc"
+    }
+  ],
+  "payload_count": 8,
+  "bulk_manifest": "BULK_MANIFEST.json",
+  "seal_policy": "single immutable seal; later changes only by new addendum, never rewrite payloads",
+  "no_publication_claim": true
+}

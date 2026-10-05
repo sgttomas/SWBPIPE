@@ -1,0 +1,13 @@
+
+ RUN  v4.1.10 WT/rv91/cand/projects/chirality-piping/apps/desktop
+
+ ✓ src/features/results/zzRV91Review2.test.tsx > RV91 part 2 > sparse_interactive: binding and summary, registered (job IPC) and unregistered 214ms
+ ✓ src/features/results/zzRV91Review2.test.tsx > RV91 part 2 > dense_scrutiny: binding and summary, registered (job IPC) and unregistered 187ms
+ ✓ src/features/results/zzRV91Review2.test.tsx > RV91 part 2 > a cancellation accepted while the reader awaits: native registration void, retained registration kept 21ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  05:15:39
+   Duration  981ms (transform 236ms, setup 65ms, import 258ms, tests 423ms, environment 165ms)
+
+exit=0

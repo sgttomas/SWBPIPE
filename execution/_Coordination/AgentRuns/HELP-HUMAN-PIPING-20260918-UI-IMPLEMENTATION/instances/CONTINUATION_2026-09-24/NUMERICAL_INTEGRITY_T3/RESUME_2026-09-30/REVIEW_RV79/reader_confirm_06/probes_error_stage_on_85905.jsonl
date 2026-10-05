@@ -1,0 +1,6 @@
+{"id": "control_capture_storage (base)", "python": "PASS"}
+{"id": "g5a_error_but_g5a_not_entered", "python": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH lines=[1684, 1058, 868, 951, 128]"}
+{"id": "observable_error_but_observables_not_entered", "python": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH lines=[1684, 1058, 868, 951, 128]"}
+{"id": "proof_error_but_certificate_passed", "python": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH lines=[1684, 1058, 868, 951, 128]"}
+{"id": "values_error_but_values_completed", "python": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH lines=[1684, 1058, 868, 951, 128]"}
+{"id": "numeric_error_null_cause", "python": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH lines=[1684, 1058, 868, 951, 128]"}

@@ -1,0 +1,550 @@
+{
+  "version": "I62_SHARED_SNAPSHOT_05B",
+  "freeze_utc": "2026-10-03T20:56:52.776565+00:00",
+  "status": "Frozen C1b shared corpus for ROOT verification; no acceptance, eligibility or reader approval.",
+  "basis": {
+    "rulings": "ROOT_RULINGS_V1 'Snapshot 05a verified; floor and ladder are existing contract' and 'Rust and TypeScript aligned to snapshot 05a; ...; two more parity rules' at NUM 6c8c0f30e8",
+    "previous_snapshot": "SHARED_SNAPSHOT_05A fed637869f (corpus 159ef78c47; READER ccdfd04fd7)"
+  },
+  "files": [
+    {
+      "path": "P/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+      "bytes": 8346,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05b/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "changed_from_snapshot_05a": false
+    },
+    {
+      "path": "P/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+      "bytes": 52328,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05b/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "changed_from_snapshot_05a": false
+    },
+    {
+      "path": "P/fixtures/results/retained_precision_cases.json",
+      "sha256": "ea6fe2c7574fb80b409c2931a7979451313d00a7c1d863ec993ec572b68dc808",
+      "bytes": 2850052,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05b/fixtures/results/retained_precision_cases.json",
+      "changed_from_snapshot_05a": true
+    },
+    {
+      "path": "P/schemas/retained_precision_mp_v2.schema.json",
+      "sha256": "f943ebd3511e31bcdfe09bac2788362d3a5734040bc3088fbe585361b571cd21",
+      "bytes": 174354,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05b/schemas/retained_precision_mp_v2.schema.json",
+      "changed_from_snapshot_05a": false
+    },
+    {
+      "path": "P/schemas/results.v0.3.schema.yaml",
+      "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586",
+      "bytes": 131530,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05b/schemas/results.v0.3.schema.yaml",
+      "changed_from_snapshot_05a": false
+    }
+  ],
+  "unchanged_from_05a": "schema, table, yaml, definition; all 6 cases, 104 mutations and 15 must_pass entries of 05a byte-identical (asserted). No existing expected outcome moved: the C1a Python reader differs from 05b expectations only on the four new parity-pin mutations.",
+  "new_cases": [
+    {
+      "id": "two_body_synthetic",
+      "qualification": "DRAFT: synthetic two-body model (C1b): a second, separately anchored, unloaded cantilever; body-1 zeros are source-forced, body-0 summaries and all work are synthetic attestations. Not producer execution; public API intentionally rejects.",
+      "receipt_sha256": "0f0c7143279bd8493c231074863738722e9bdd3044edb7e9fe7924dbef673993"
+    },
+    {
+      "id": "p512_ladder_synthetic",
+      "qualification": "DRAFT: synthetic two-body native p512 ladder (p128 rejected, reused p256 rejected, reused p512 accepted, p1024 verified); rejection triggers, work and summaries are synthetic attestations, floors are Phi = phi_512(e_hat). Not producer execution; public API intentionally rejects.",
+      "receipt_sha256": "2654932742d88ca661637ae68ddf91518f724b2333861bdd73dad88da598a938"
+    },
+    {
+      "id": "two_case_synthetic",
+      "qualification": "DRAFT: synthetic two-load-case selected model (case 1 zero loads); summaries, work and coverage are synthetic attestations. Not producer execution; public API intentionally rejects.",
+      "receipt_sha256": "1d7f01602f0048e23f26a16cf3e268f998107c23400ac016d0c4aab25b41b1d4"
+    }
+  ],
+  "native_paths": {
+    "two_body_synthetic": "Second anchored unloaded cantilever; bodies = member components numbered by lowest node (FK/source.rs:665-716); unanchored body is a mechanism (PP lib.rs:13692-13718); unloaded zeros witnessed (PP tests 1442-1453); layout in FK/recover.rs:101 order; producer row order (nodes, supports, per-pipe blocks) as in the multi-pipe preview fixture; storage 288 = 2x(12x12), 42 = 2x21 contiguous skylines. Work magnitudes copied (synthetic).",
+    "p512_ladder_synthetic": "Two-body model through FK/adaptive.rs:4519-4760: p128 candidate rejected, its v256 reused as candidate (VerificationThenCandidate) and rejected, v512 reused and accepted, v1024 verified; seven builds s128,s256,v256,s512,v512,s1024,v1024; residual 192/320/576/1024, limbs 4/4/8/16; floor Phi = phi_512(e_hat(E,L)) (adaptive.rs:2294-2307, verify.rs:321-376): positive for body 0, zero for body 1. Rejection triggers (private stop-rule comparisons) and work are synthetic.",
+    "two_case_synthetic": "One model, case 0 loaded and case 1 with all loads 0 (no-data witness), one call with runs at positions 0/1, one stiffness group; run 1 reuses s128/s256/v256 (C1 s1, b_r=v_r=0)."
+  },
+  "new_mutations": [
+    {
+      "id": "two_body_swap_has_data",
+      "base": "two_body_synthetic",
+      "expected_first_failure": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "why": "I57 s5 swap between bodies with distinguishable load constraints: B roster",
+      "observed_python": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5a_coverage",
+        685
+      ],
+      "c1a_python_observed": "same as expected"
+    },
+    {
+      "id": "two_body_swap_has_data_with_rosters",
+      "base": "two_body_synthetic",
+      "expected_first_failure": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "why": "swap with B/record made consistent: body 0's nonzero free-DOF terms force has_data (detectable)",
+      "observed_python": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5a_coverage",
+        699
+      ],
+      "c1a_python_observed": "same as expected"
+    },
+    {
+      "id": "two_body_swap_stop_only",
+      "base": "two_body_synthetic",
+      "expected_first_failure": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "why": "stop vectors swapped, stop_rule unchanged: roster",
+      "observed_python": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5a_coverage",
+        682
+      ],
+      "c1a_python_observed": "same as expected"
+    },
+    {
+      "id": "two_body_body_order_swapped",
+      "base": "two_body_synthetic",
+      "expected_first_failure": {
+        "gate": "G3",
+        "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      },
+      "why": "I57 s5 swapped body identity: G3",
+      "observed_python": {
+        "gate": "G3",
+        "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      },
+      "python_raised_at": [
+        "_validate_draft",
+        1059
+      ],
+      "c1a_python_observed": "same as expected"
+    },
+    {
+      "id": "two_body_missing_body",
+      "base": "two_body_synthetic",
+      "expected_first_failure": {
+        "gate": "G3",
+        "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      },
+      "why": "I57 s5 missing body: G3",
+      "observed_python": {
+        "gate": "G3",
+        "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      },
+      "python_raised_at": [
+        "_validate_draft",
+        1059
+      ],
+      "c1a_python_observed": "same as expected"
+    },
+    {
+      "id": "two_body_resolution_order_swapped",
+      "base": "two_body_synthetic",
+      "expected_first_failure": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "why": "body order of resolution lists (selection and record swapped together): selection order check at G5a",
+      "observed_python": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5_numeric",
+        731
+      ],
+      "c1a_python_observed": "same as expected"
+    },
+    {
+      "id": "p512_floor_not_phi",
+      "base": "p512_ladder_synthetic",
+      "expected_first_failure": {
+        "gate": "G5b",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "why": "C1 G5b 'same E/e-hat/Phi at p512': floor one ulp above phi_512(e_hat)",
+      "observed_python": {
+        "gate": "G5b",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5_numeric",
+        794
+      ],
+      "c1a_python_observed": "same as expected"
+    },
+    {
+      "id": "p512_positive_floor_forces_stop",
+      "base": "p512_ladder_synthetic",
+      "expected_first_failure": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "why": "I57 s2/s4: a positive floor forces force/moment stop",
+      "observed_python": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5a_coverage",
+        670
+      ],
+      "c1a_python_observed": "same as expected"
+    },
+    {
+      "id": "p512_charge_follows_estimate",
+      "base": "p512_ladder_synthetic",
+      "expected_first_failure": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "why": "p512 charge = stop on the zero-floor body (E=0, estimate empty)",
+      "observed_python": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5a_coverage",
+        684
+      ],
+      "c1a_python_observed": "same as expected"
+    },
+    {
+      "id": "p512_floor_null",
+      "base": "p512_ladder_synthetic",
+      "expected_first_failure": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "why": "C1 line 116: floor non-null at p512",
+      "observed_python": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5_numeric",
+        734
+      ],
+      "c1a_python_observed": "same as expected"
+    },
+    {
+      "id": "p512_zero_floor_body_given_positive_floor",
+      "base": "p512_ladder_synthetic",
+      "expected_first_failure": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "why": "a positive floor on the unloaded body forces its stop: feasibility (G5a) precedes the G5b Phi check",
+      "observed_python": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5a_coverage",
+        670
+      ],
+      "c1a_python_observed": "same as expected"
+    },
+    {
+      "id": "copy_flags_into_loaded",
+      "base": "two_case_synthetic",
+      "expected_first_failure": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "why": "I57 s5 copied flags (detectable direction): loaded case's free-load rule",
+      "observed_python": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5a_coverage",
+        699
+      ],
+      "c1a_python_observed": "same as expected"
+    },
+    {
+      "id": "rebind_source_run_only",
+      "base": "two_case_synthetic",
+      "expected_first_failure": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      },
+      "why": "I57 s5 source_ref/run_ref moved to another valid owner: G5",
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5_products",
+        424
+      ],
+      "c1a_python_observed": "same as expected"
+    },
+    {
+      "id": "cross_case_gate_order_selected",
+      "base": "two_case_synthetic",
+      "expected_first_failure": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "why": "parity pin: case 0 G5b + case 1 G5a -> G5a (gate-major; C3_DELTA s4, C1 s6)",
+      "observed_python": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5a_coverage",
+        682
+      ],
+      "c1a_python_observed": {
+        "gate": "G5b",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      }
+    },
+    {
+      "id": "cross_case_gate_order_unavailable",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "expected_first_failure": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "why": "parity pin: case 0 G5b + unavailable case 1 G5a -> G5a",
+      "observed_python": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5a_coverage",
+        699
+      ],
+      "c1a_python_observed": {
+        "gate": "G5b",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      }
+    },
+    {
+      "id": "unavailable_record_resolution_duplicate",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "expected_first_failure": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "why": "parity pin: record resolution bodies 0..n-1 in order (unavailable attempt)",
+      "observed_python": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5a_coverage",
+        641
+      ],
+      "c1a_python_observed": "pass"
+    },
+    {
+      "id": "unavailable_record_theta_duplicate",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "expected_first_failure": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "why": "parity pin: record theta bodies 0..n-1 in order (unavailable attempt)",
+      "observed_python": {
+        "gate": "G5a",
+        "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5a_coverage",
+        641
+      ],
+      "c1a_python_observed": "pass"
+    }
+  ],
+  "new_must_pass": [
+    {
+      "id": "cert_failed_after_summary_accounting",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "why": "faithful replacement trigger for 05a cert_failed_after_summary (accounting after summary assignment)",
+      "observed_python": "pass"
+    },
+    {
+      "id": "two_body_swap_stop_with_rosters",
+      "base": "two_body_synthetic",
+      "why": "undetectable: consistent stop swap between bodies (producer custody only)",
+      "observed_python": "pass"
+    },
+    {
+      "id": "p512_charge_follows_stop_zero_floor_body",
+      "base": "p512_ladder_synthetic",
+      "why": "positive: p512 charge equals stop on the zero-floor body",
+      "observed_python": "pass"
+    },
+    {
+      "id": "copy_flags_into_unloaded",
+      "base": "two_case_synthetic",
+      "why": "undetectable: loaded flags copied into the zero-load case with consistent rosters",
+      "observed_python": "pass"
+    }
+  ],
+  "parity_pins": {
+    "gate_order_across_cases": "Confirmed: C3_DELTA s4 'Keep C1 order G0,...,G8. Within a gate use this deterministic order, then ascending attempt/member/lane/row index. First failure wins.' and C1 WIRE_CONTRACT s6 'All readers execute G0->G8 in the same order'. Python _g5_numeric now runs G5a for all cases, then G5b, then G5c. Normalization/extent prerequisites of the G5a resolution tests now fail at G5a, as Rust numeric_cases/body_extent do.",
+    "record_body_order": "Python now requires the verification record's resolution and theta bodies to be exactly 0..n-1 in order (was a sorted-set comparison), for selected and unavailable attempts."
+  },
+  "deferred_or_dropped": [
+    "Ceiling (post-native unavailable): dropped from 05b. In the two-case template case 1 repeats case 0's inputs with the same stiffness and cache, so it cannot be accepted at p128 in case 0 yet rejected at every precision in case 1. A faithful Ceiling needs a case with genuinely different numerics, i.e. producer-solved rows. The builder (build_c1b.ceiling_row) and its four-record reuse chain are kept in scratch for that witness.",
+    "L = 0 and source-construction failure: deferred per ruling."
+  ],
+  "defect_found_in_05a": "05a must_pass 'cert_failed_after_summary' and 'cert_failed_predicate_null_undetectable' attest a numeric predicate failure in case 1 of base F, whose inputs repeat case 0 (which passed its certificate); identical inputs cannot give a different numeric verdict, so those two triggers are not native-faithful. Their public outcome (pass) is unaffected. 05b adds 'cert_failed_after_summary_accounting' (faithful accounting trigger after summary assignment); ROOT to rule on retiring or retargeting the two 05a entries (left byte-identical here). Also flagged: 05a 'old_operational_error_new_ready' (promoted I58 Python-only control) attests a coefficient_range refusal for ordinary-magnitude old operands, a trigger not established natively.",
+  "rust_correction": "C1a RETURN said Rust had no Phi check; Rust's inherited G5b already checked floor == phi_512(e_hat(E,L)) (ROOT ruling at 312f14f4a1).",
+  "python": {
+    "tests": "python_schema_D2: 167 passed, 0 failed",
+    "reader_sha256": "3b12ca7511c698143b77af4058b7e41932026714453dad97240031183ed87994"
+  },
+  "bulk": [
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/before_05b/retained_precision_C1A.py",
+      "sha256": "27fc1797c2fecb9fc27dc1c99facdb8a260fa98ab725e6113caa616185cefc0f",
+      "bytes": 76576
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/before_05b/retained_precision_cases.json",
+      "sha256": "159ef78c471875ec82878060b973b3c3a178248b821b4548e702c250d79f8ca6",
+      "bytes": 1657463
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/before_05b/test_contract_C1A.py",
+      "sha256": "7eab5b3793a504755313d3f3fb7236c4448f5a9f901112622f4734e90db3b5c9",
+      "bytes": 14149
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/build_c1b.py",
+      "sha256": "d609b18cb5b0560fa32a4527e3f50920b6f76c5d26d4c2ff4eb70f43d06e77a0",
+      "bytes": 27098
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/build_corpus_05b.py",
+      "sha256": "c8c08329331e6190b18c3e55629e1c057d177febce28723ab7ee857779b89d95",
+      "bytes": 9755
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/c1a_reader_probe/core/analysis_runs/retained_precision.py",
+      "sha256": "27fc1797c2fecb9fc27dc1c99facdb8a260fa98ab725e6113caa616185cefc0f",
+      "bytes": 76576
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/c1a_reader_vs_05b.json",
+      "sha256": "3241dbbf2ce5095dacb2a9e27f0813e573a957e4c584f527e1ea351df253e8f8",
+      "bytes": 394
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/checkpoint_C1B_reader.diff",
+      "sha256": "59003af29171e9a81f3debe8f7ffcf791603b3bf85bf172380cc145c45eb854e",
+      "bytes": 1677
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/proto_c1b.py",
+      "sha256": "094779d9e22d4cd7faf57ccd75a6a4599eac718a4f4716ff07cab3379ff2a2b7",
+      "bytes": 1447
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/python_schema_D1.json",
+      "sha256": "dd2949d4de34ed74d10916a97abbebb1b604b63399627875183a85dc62771020",
+      "bytes": 2247
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/python_schema_D1.log",
+      "sha256": "5f6243923e20ac1e08c0f2bb2a8a67e989fcb7a520d6535049f56e74897bb7f6",
+      "bytes": 17632
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/python_schema_D2.json",
+      "sha256": "2608cc2a04e30e719400e035cd4d77e3ef2c42bc8e131ecc677fb85da887941c",
+      "bytes": 2247
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/python_schema_D2.log",
+      "sha256": "62f27b1d032a799d6df12094d8f2518a2ab9891203fa447c3bc3c832f450b4ac",
+      "bytes": 20246
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/reasons_05b_1.json",
+      "sha256": "0863e4513e2044d98c1aa114d2e4b69468bccc9544f026c51e1b18821ac7fb07",
+      "bytes": 65561
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/reasons_05b_2.json",
+      "sha256": "8fa46b1587ba5f1de1dbc3be4f25c3d8d2cd79d5ce509d0ffce6ce6c5c18c807",
+      "bytes": 65959
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/reasons_05b_final.json",
+      "sha256": "9bdf18b9871cbb5fbf61b97450657b392ff6d7a27dc8e0c65e1ead1917117f1d",
+      "bytes": 65530
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05b/fixtures/results/retained_precision_cases.json",
+      "sha256": "ea6fe2c7574fb80b409c2931a7979451313d00a7c1d863ec993ec572b68dc808",
+      "bytes": 2850052
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05b/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+      "bytes": 8346
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05b/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+      "bytes": 52328
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05b/schemas/results.v0.3.schema.yaml",
+      "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586",
+      "bytes": 131530
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_05b/schemas/retained_precision_mp_v2.schema.json",
+      "sha256": "f943ebd3511e31bcdfe09bac2788362d3a5734040bc3088fbe585361b571cd21",
+      "bytes": 174354
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/source_final_C1B/core/analysis_runs/retained_precision.py",
+      "sha256": "3b12ca7511c698143b77af4058b7e41932026714453dad97240031183ed87994",
+      "bytes": 77207
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/source_final_C1B/tests/test_retained_precision_contract.py",
+      "sha256": "7eab5b3793a504755313d3f3fb7236c4448f5a9f901112622f4734e90db3b5c9",
+      "bytes": 14149
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/source_final_C1B/tests/test_retained_precision_schema.py",
+      "sha256": "90bbd5660c504d3344ce19756d2b2250f80c0bd5d93b3ec123e5abf10523e504",
+      "bytes": 3627
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/write_snapshot_05b.py",
+      "sha256": "7156807f5d6f2fbb070f6eb57bf4b1b5430d0591ffce32db46fff3b73bb4bb93",
+      "bytes": 9279
+    }
+  ]
+}

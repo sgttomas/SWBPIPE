@@ -1,0 +1,129 @@
+[
+ {
+  "id": "M23_integral_accepts_bool",
+  "description": "D32: _integral accepts bool (isinstance instead of type is int)",
+  "mutated_sha256": "efbf4f02a7dd58a6783836debcb0acc2245a01a9309b39413d535b3dcf350b1c",
+  "exit": 1,
+  "killed": true,
+  "summary": "1 failed, 364 passed in 32.35s",
+  "killing_tests": [
+   "test_g0_union_d2"
+  ],
+  "killing_test_count": 1,
+  "seconds": 32.5
+ },
+ {
+  "id": "M24_integral_allows_negative_zero",
+  "description": "D32: _integral drops its -0 exclusion",
+  "mutated_sha256": "218276e54602a22889aa6f16143cda15c38a7ffc84b231c5665bf067a888b7e3",
+  "exit": 0,
+  "killed": false,
+  "summary": "365 passed in 36.67s",
+  "killing_tests": [],
+  "killing_test_count": 0,
+  "seconds": 36.8
+ },
+ {
+  "id": "M25_normalize_skips_list_items",
+  "description": "D32: normalization leaves floats inside lists",
+  "mutated_sha256": "1a96d788ee3d62ff68e5c7a581f17b0d553b52b1b62fea73579b85d5ef2f9fdf",
+  "exit": 0,
+  "killed": false,
+  "summary": "365 passed in 35.77s",
+  "killing_tests": [],
+  "killing_test_count": 0,
+  "seconds": 35.9
+ },
+ {
+  "id": "M26_normalize_removed",
+  "description": "D32: no normalization after G2",
+  "mutated_sha256": "95781b6121adaf402da1a76f53d1b492fa88c835623183b65cce9edf64d07d75",
+  "exit": 1,
+  "killed": true,
+  "summary": "1 failed, 364 passed in 36.22s",
+  "killing_tests": [
+   "test_shared_publicly_consistent_attestations_must_pass[integral_float_integers_and_references]"
+  ],
+  "killing_test_count": 1,
+  "seconds": 36.4
+ },
+ {
+  "id": "M27_g1_identity_host_int",
+  "description": "D32: G1 source-identity site back to a host-int test",
+  "mutated_sha256": "333c7ab68083bad88473b7d68fa52a5641df18593d1ebfe64c06f4563c8a104b",
+  "exit": 1,
+  "killed": true,
+  "summary": "2 failed, 363 passed in 35.48s",
+  "killing_tests": [
+   "test_integers_by_value_at_every_site_d32",
+   "test_shared_draft_first_failure_controls[forged_source_identity_float_source_ref]"
+  ],
+  "killing_test_count": 2,
+  "seconds": 35.7
+ },
+ {
+  "id": "M28_g3_d23_host_int",
+  "description": "D32: G3 D23 site back to a host-int test",
+  "mutated_sha256": "80baf74645d61196714968354b2ec16dcb20f1635dc487d977c2a0079d438083",
+  "exit": 0,
+  "killed": false,
+  "summary": "365 passed in 36.96s",
+  "killing_tests": [],
+  "killing_test_count": 0,
+  "seconds": 37.2
+ },
+ {
+  "id": "M29_integral_truncates",
+  "description": "D32: _integral accepts non-integral floats (truncation)",
+  "mutated_sha256": "743a31de177bbe86e1097db2689e0645b08d90e872060d1775183b4d0c4395a9",
+  "exit": 1,
+  "killed": true,
+  "summary": "3 failed, 362 passed in 36.98s",
+  "killing_tests": [
+   "test_shared_draft_first_failure_controls[g0_case_limit_non_integral]",
+   "test_shared_draft_first_failure_controls[g0_invocation_limit_non_integral]",
+   "test_shared_draft_first_failure_controls[g0_receipt_version_non_integral]"
+  ],
+  "killing_test_count": 3,
+  "seconds": 37.1
+ },
+ {
+  "id": "M30_d34_check_removed",
+  "description": "D34: the -0 check at G2 removed",
+  "mutated_sha256": "360c66c1b13a64a32c0dcaa35d1f9a1bbb294cdc397c58a99698a9cb46104c99",
+  "exit": 1,
+  "killed": true,
+  "summary": "1 failed, 364 passed in 32.26s",
+  "killing_tests": [
+   "test_negative_zero_anywhere_in_the_receipt_d34"
+  ],
+  "killing_test_count": 1,
+  "seconds": 32.5
+ },
+ {
+  "id": "M31_d34_ignores_lists",
+  "description": "D34: _negative_zero does not look inside lists",
+  "mutated_sha256": "fc7d414d0ee57acba81a072b9adfce993f629ff9b6925561e6bec70165c38d82",
+  "exit": 1,
+  "killed": true,
+  "summary": "1 failed, 364 passed in 30.91s",
+  "killing_tests": [
+   "test_negative_zero_anywhere_in_the_receipt_d34"
+  ],
+  "killing_test_count": 1,
+  "seconds": 31.1
+ },
+ {
+  "id": "M32_d34_after_normalization",
+  "description": "D34: the -0 check runs after D32's normalization",
+  "mutated_sha256": "61139258335024e05e6c08340a9d5b4c8704abcc62d19138d6fd9e3b46ebe98e",
+  "exit": 1,
+  "killed": true,
+  "summary": "1 failed, 364 passed in 32.27s",
+  "killing_tests": [
+   "test_negative_zero_anywhere_in_the_receipt_d34"
+  ],
+  "killing_test_count": 1,
+  "seconds": 32.4
+ }
+]

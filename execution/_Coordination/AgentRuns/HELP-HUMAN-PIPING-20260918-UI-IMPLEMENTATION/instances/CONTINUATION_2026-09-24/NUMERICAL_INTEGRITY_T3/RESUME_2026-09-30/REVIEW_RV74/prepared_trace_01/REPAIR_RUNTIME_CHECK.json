@@ -1,0 +1,16 @@
+{
+  "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_05_repair.json",
+  "sha256": "e5d4cd600cf2b19a5886951221bfef3a550bce4ac0f83cd0bd0cfc6398a61f1a",
+  "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_05_repair.log",
+  "exit": 0,
+  "start": "2026-10-03T16:52:18.810925+00:00",
+  "finish": "2026-10-03T16:52:34.331879+00:00",
+  "reaped": true,
+  "source_stable": true,
+  "process_group_alive_after_wait": false,
+  "summaries": [
+    "I51_PRIOR_CAUSE sticky=false cause=Association(original capture cause: member identity) same_owner=true adapter_fault=None helper=0 new_evaluator=0 native=0 old_work=(23, 39, false) trace_costs=TraceCosts { events: 5, copy_bytes: 460, lost: false }",
+    "I51_PRIOR_CAUSE sticky=true cause=Association(original capture cause: member identity) same_owner=true adapter_fault=Some(Overflow(MapWrite)) helper=0 new_evaluator=0 native=0 old_work=(23, 39, false) trace_costs=TraceCosts { events: 5, copy_bytes: 460, lost: false }",
+    "test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 419 filtered out; finished in 15.33s"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv67_prepared_producer",
+  "files": [
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv67_prepared_producer/CHECK.json",
+      "bytes": 71492,
+      "sha256": "e3aa8543111cb201e9bc91f2eabb59c4286b525bfe7a8c16071aedcbbd703d14"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv67_prepared_producer/CHECK_FINAL.json",
+      "bytes": 72211,
+      "sha256": "7dc891c99ab50fddfe1e9940478f91f1bd53b11c0a4c1c156da95c61a6c47db5"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv67_prepared_producer/I50_REPAIR.diff",
+      "bytes": 3484,
+      "sha256": "60cee5f79982f7e3488e67f21e7875b2df767563515ec6d9a5bb15fe694db25c"
+    }
+  ],
+  "external_inputs": [
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_named_dense_completion.log",
+      "bytes": 222045,
+      "sha256": "d762d4dcc137e0bff9e739fb0a829fa086055ea9492f5b55f765ac5801c6dde7"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_replacement_producer/control_results.json",
+      "bytes": 321753,
+      "sha256": "574526effdd78a1902c1a28e96efbc8668a6ccc12e8d26e4989c517ca20ebccb"
+    }
+  ],
+  "replay": "Run packet check.py with a new output filepath in a fresh owned scratch directory; it refuses overwrite. It reads only the two hash-pinned external inputs. Sources are preserved by full Git pins/hashes in ORIGINS; temporary source cache was removed.",
+  "live_producer": false
+}

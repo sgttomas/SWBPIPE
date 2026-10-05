@@ -1,0 +1,10 @@
+{
+ "old": "ba1faa1c858ce3630a22767677310b1902a14b83",
+ "new": "ba1faa1c858ce3630a22767677310b1902a14b83",
+ "files": 0,
+ "hunks_and_files": 0,
+ "classes": {},
+ "unreviewed": [],
+ "verdict": "PASS: every hunk classified; every live, item or cfg(test)-statement hunk has a reviewed entry",
+ "rows": []
+}

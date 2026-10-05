@@ -1,0 +1,5 @@
+harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-05T03:03:22.3137895Z ^[[36;1m  && git rev-parse --verify --quiet "${ROUTING_BASE}^{commit}" >/dev/null; then^[[0m
+harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-05T03:03:22.3138427Z ^[[36;1m  python3 tools/run_affected_tests.py --base "${ROUTING_BASE}"^[[0m
+harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-05T03:03:22.3203567Z   ROUTING_BASE: e916ad17892d24fc0d577fc62edd1be22d8d73b4
+harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-05T03:03:22.3203949Z   CHIRALITY_REQUIRE_LIVE_TESTS: 1
+harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-05T03:04:55.7014585Z 1156 passed, 48 subtests passed in 91.34s (0:01:31)

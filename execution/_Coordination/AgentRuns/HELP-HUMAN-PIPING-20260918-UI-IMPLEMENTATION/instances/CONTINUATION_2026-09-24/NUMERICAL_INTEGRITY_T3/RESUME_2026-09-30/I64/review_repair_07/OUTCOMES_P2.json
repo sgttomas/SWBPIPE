@@ -1,0 +1,3712 @@
+{
+ "reader_sha256": "294ba19b8afaf388281049f8341fed76d1e318f94f2f08cc50cd22f1a04f1263",
+ "test_sha256": "bf2ad6d593770eff5ffd1e9fbad539946dbe492d2cdbb9256a134066ab1a833e",
+ "corpus_sha256": "90f6e4ed9b5ebd00eb5d459397476c1e459b0a923eb1209037f8f86e0009367e",
+ "schema_sha256": "07951edacfedd410c153929ee75bb5bada15dbd222369ec63240c678b233b61c",
+ "method": "Each entry applied by the test applyEntry (07 format: rehash \"all\" only; nothing to rehash when the receipt or body is removed), then validateRetainedPrecision(source, invocation). Expected = expected_by_reader.typescript when present, else expected. Mutation gate/code and must-pass classifications are asserted by vitest_07_final; raising lines and must-pass key-order-insensitive classification equality were recorded on the final reader by a temporary probe (probe_06; removed, test file restored byte-identically).",
+ "cases": 15,
+ "mutations_total": 235,
+ "mutations_matched": 235,
+ "must_pass_total": 19,
+ "must_pass_passed": 19,
+ "mutations": [
+  {
+   "id": "method_null",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "method_number",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "method_alternate_metadata",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "method_alternate_container",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "method_empty",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G6",
+    "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+   },
+   "observed": {
+    "gate": "G6",
+    "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "validateRetainedPrecision:1258"
+  },
+  {
+   "id": "method_wrong",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G6",
+    "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+   },
+   "observed": {
+    "gate": "G6",
+    "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "validateRetainedPrecision:1258"
+  },
+  {
+   "id": "method_missing",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G6",
+    "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+   },
+   "observed": {
+    "gate": "G6",
+    "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "validateRetainedPrecision:1258"
+  },
+  {
+   "id": "nonfinite_then_method",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "encoding:146"
+  },
+  {
+   "id": "shape_then_encoding",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "negative_zero_counter",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "encoding:149"
+  },
+  {
+   "id": "coverage_then_method",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverage:222"
+  },
+  {
+   "id": "member_prefix_coverage",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:233"
+  },
+  {
+   "id": "diagnostic_then_method",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G4",
+    "code": "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+   },
+   "observed": {
+    "gate": "G4",
+    "code": "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "diagnostics:259"
+  },
+  {
+   "id": "native_work",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:372"
+  },
+  {
+   "id": "product_new_not_ready",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "body_scale",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "numericalScales:945"
+  },
+  {
+   "id": "section_echo",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SECTION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SECTION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:953"
+  },
+  {
+   "id": "absolute_bound",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5c",
+    "code": "RETAINED_PRECISION_CLASSIFICATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5c",
+    "code": "RETAINED_PRECISION_CLASSIFICATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "classifications:989"
+  },
+  {
+   "id": "input_dof",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5c",
+    "code": "RETAINED_PRECISION_INPUT_DOF_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5c",
+    "code": "RETAINED_PRECISION_INPUT_DOF_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "classifications:974"
+  },
+  {
+   "id": "old_inputs_must_bind_old_J",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "invocationBinding:1173"
+  },
+  {
+   "id": "new_stiffness_must_bind_C2",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "invocationBinding:1177"
+  },
+  {
+   "id": "bad_invocation_digest",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_INVOCATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_INVOCATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "invocationBinding:1054"
+  },
+  {
+   "id": "v1_relabel",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "observed": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "match": true,
+   "raising_line_final_reader": "header:187"
+  },
+  {
+   "id": "native_source_digest_rehashed",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "invocationBinding:1160"
+  },
+  {
+   "id": "native_stiffness_digest_rehashed",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "invocationBinding:1160"
+  },
+  {
+   "id": "physical_residual_basis",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:424"
+  },
+  {
+   "id": "physical_stop_stage_partition",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:372"
+  },
+  {
+   "id": "negative_zero_scale_with_wrong_method",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "encoding:152"
+  },
+  {
+   "id": "shared_stage_projection_preserves_total",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:372"
+  },
+  {
+   "id": "verification_own_stage_projection_preserves_total",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:372"
+  },
+  {
+   "id": "coverage_member_missing",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_object_not_array",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_entry_null",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_stop_three",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_stop_five",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_stop_numeric_flag",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_stop_null_flag",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_has_data_numeric",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_has_data_null",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_has_data_missing",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_unknown_field",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_body_string",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_shape_then_duplicate",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_defect_with_null_method",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "coverage_body_negative_zero",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "encoding:149"
+  },
+  {
+   "id": "coverage_body_fraction",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "encoding:149"
+  },
+  {
+   "id": "coverage_body_negative",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "encoding:149"
+  },
+  {
+   "id": "coverage_encoding_then_duplicate",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "encoding:149"
+  },
+  {
+   "id": "coverage_empty_array",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:248"
+  },
+  {
+   "id": "coverage_duplicate_body",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:248"
+  },
+  {
+   "id": "coverage_foreign_body",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:248"
+  },
+  {
+   "id": "coverage_extra_body",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:248"
+  },
+  {
+   "id": "coverage_duplicate_then_flag_and_method",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:248"
+  },
+  {
+   "id": "attempt_owner_only",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:229"
+  },
+  {
+   "id": "coverage_null_on_ready",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:686"
+  },
+  {
+   "id": "coverage_null_then_method",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:686"
+  },
+  {
+   "id": "coverage_has_data_false",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:870"
+  },
+  {
+   "id": "certified_bound_unbound_drop_existing_g5",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:490"
+  },
+  {
+   "id": "coverage_drop_certified_bound",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:870"
+  },
+  {
+   "id": "coverage_no_data_claim_with_free_loads",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "dataCoverage:846"
+  },
+  {
+   "id": "coverage_stop_forbidden_entry",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:857"
+  },
+  {
+   "id": "coverage_stop_uncoupled_consistent_roster",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:857"
+  },
+  {
+   "id": "stop_rule_drop_required_zero",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:867"
+  },
+  {
+   "id": "stop_rule_duplicate_zero",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "numericSummaries:903"
+  },
+  {
+   "id": "estimate_drop_required_zero",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:867"
+  },
+  {
+   "id": "estimate_forbidden_translation_zero",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "numericSummaries:903"
+  },
+  {
+   "id": "charge_drop_required_zero",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:867"
+  },
+  {
+   "id": "charge_follows_stop_below_p512",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:867"
+  },
+  {
+   "id": "certified_bound_duplicate",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "numericSummaries:908"
+  },
+  {
+   "id": "coverage_flag_defect_then_method",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:870"
+  },
+  {
+   "id": "nodata_forbidden_stop_zero",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:867"
+  },
+  {
+   "id": "nodata_forbidden_estimate_zero",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:867"
+  },
+  {
+   "id": "nodata_forbidden_charge_zero",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:867"
+  },
+  {
+   "id": "nodata_forbidden_certified_bound",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:870"
+  },
+  {
+   "id": "nodata_has_data_without_bound",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:870"
+  },
+  {
+   "id": "nodata_estimate_coupling_L_nonzero",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:867"
+  },
+  {
+   "id": "coverage_flag_defect_then_body_scale",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:870"
+  },
+  {
+   "id": "layout_force_row_input_derived",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverageFacts:804"
+  },
+  {
+   "id": "layout_constrained_displacement_not_input_derived",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverageFacts:804"
+  },
+  {
+   "id": "layout_nonzero_prescription",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverageFacts:803"
+  },
+  {
+   "id": "coverage_null_and_product_work",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:686"
+  },
+  {
+   "id": "product_work_only",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:731"
+  },
+  {
+   "id": "native_work_then_coverage_null",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:372"
+  },
+  {
+   "id": "layout_row_relabelled",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverageFacts:804"
+  },
+  {
+   "id": "layout_row_dropped",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverageFacts:804"
+  },
+  {
+   "id": "layout_rows_reordered",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverageFacts:804"
+  },
+  {
+   "id": "layout_row_foreign_body",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverageFacts:804"
+  },
+  {
+   "id": "nodata_empty_coverage",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:248"
+  },
+  {
+   "id": "verification_bound_duplicate_entry",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "recordCoverage:840"
+  },
+  {
+   "id": "verification_bound_missing_entry",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "recordCoverage:840"
+  },
+  {
+   "id": "nodata_verification_bound_nonnull",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:870"
+  },
+  {
+   "id": "schedule_fresh_first_p256",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:303"
+  },
+  {
+   "id": "cancelled_no_data_claim",
+   "base": "ordinary_prepared_cancelled_loads_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "dataCoverage:846"
+  },
+  {
+   "id": "cancelled_drop_B_only",
+   "base": "ordinary_prepared_cancelled_loads_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:870"
+  },
+  {
+   "id": "unavailable_certificate_passed_coverage_null",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:686"
+  },
+  {
+   "id": "unavailable_empty_coverage",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:248"
+  },
+  {
+   "id": "unavailable_no_data_claim_with_free_loads",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "dataCoverage:846"
+  },
+  {
+   "id": "unavailable_stop_uncoupled",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:891"
+  },
+  {
+   "id": "unavailable_layout_relabelled",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverageFacts:804"
+  },
+  {
+   "id": "unavailable_verification_bound_duplicate",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "recordCoverage:840"
+  },
+  {
+   "id": "cert_failed_before_summary_g5a_passed",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:641"
+  },
+  {
+   "id": "lane_k_failed_with_coverage",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:683"
+  },
+  {
+   "id": "maxima_abandoned_with_coverage",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:684"
+  },
+  {
+   "id": "prefix_captured_with_members",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:236"
+  },
+  {
+   "id": "two_body_swap_has_data",
+   "base": "two_body_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:870"
+  },
+  {
+   "id": "two_body_swap_has_data_with_rosters",
+   "base": "two_body_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "dataCoverage:846"
+  },
+  {
+   "id": "two_body_swap_stop_only",
+   "base": "two_body_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:867"
+  },
+  {
+   "id": "two_body_body_order_swapped",
+   "base": "two_body_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:248"
+  },
+  {
+   "id": "two_body_missing_body",
+   "base": "two_body_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:248"
+  },
+  {
+   "id": "two_body_resolution_order_swapped",
+   "base": "two_body_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "numericSummaries:906"
+  },
+  {
+   "id": "p512_floor_not_phi",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "numericalScales:942"
+  },
+  {
+   "id": "p512_positive_floor_forces_stop",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:857"
+  },
+  {
+   "id": "p512_charge_follows_estimate",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:867"
+  },
+  {
+   "id": "p512_floor_null",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "numericSummaries:909"
+  },
+  {
+   "id": "p512_zero_floor_body_given_positive_floor",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:857"
+  },
+  {
+   "id": "copy_flags_into_loaded",
+   "base": "two_case_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "dataCoverage:846"
+  },
+  {
+   "id": "rebind_source_run_only",
+   "base": "two_case_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:627"
+  },
+  {
+   "id": "cross_case_gate_order_selected",
+   "base": "two_case_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedCoverage:867"
+  },
+  {
+   "id": "cross_case_gate_order_unavailable",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "dataCoverage:846"
+  },
+  {
+   "id": "unavailable_record_resolution_duplicate",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "recordCoverage:839"
+  },
+  {
+   "id": "unavailable_record_theta_duplicate",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "recordCoverage:839"
+  },
+  {
+   "id": "skip_after_failed_candidate_reused",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:307"
+  },
+  {
+   "id": "skip_after_failed_candidate_wrong_slot",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:307"
+  },
+  {
+   "id": "failed_build_reason_mismatch",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:438"
+  },
+  {
+   "id": "failed_slot_not_cached",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:372"
+  },
+  {
+   "id": "failed_verification_reused_as_candidate",
+   "base": "verification_failure_skip_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:311"
+  },
+  {
+   "id": "failed_verification_one_slot",
+   "base": "verification_failure_skip_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:311"
+  },
+  {
+   "id": "cached_failed_slot_rebuilt",
+   "base": "two_case_shared_failed_cache_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:372"
+  },
+  {
+   "id": "corrections_above_three",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:280"
+  },
+  {
+   "id": "group_sources_out_of_order",
+   "base": "two_case_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:507"
+  },
+  {
+   "id": "w2_published_without_initial_failure",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1206"
+  },
+  {
+   "id": "legacy_source_dangling_diagnostic",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "diagnostic:1198"
+  },
+  {
+   "id": "formation_d5_dangling_diagnostic",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "diagnostic:1198"
+  },
+  {
+   "id": "native_stage_disagrees_with_run",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:632"
+  },
+  {
+   "id": "conversion_subnormal_kind_normal_bits",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:663"
+  },
+  {
+   "id": "conversion_normal_kind_subnormal_bits",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:663"
+  },
+  {
+   "id": "conversion_ready_underflow_nonzero_row",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:665"
+  },
+  {
+   "id": "conversion_ready_overflow",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:665"
+  },
+  {
+   "id": "conversion_subnormal_metadata_negative_zero",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "encoding:152"
+  },
+  {
+   "id": "g7_maximum_off_enclosure",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G7",
+    "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+   },
+   "observed": {
+    "gate": "G7",
+    "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+   },
+   "match": true,
+   "raising_line_final_reader": "baseError:27"
+  },
+  {
+   "id": "row_index_foreign_support_norm",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:244"
+  },
+  {
+   "id": "row_index_missing_row",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:244"
+  },
+  {
+   "id": "row_index_unsorted",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:244"
+  },
+  {
+   "id": "row_index_ready_subset",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:675"
+  },
+  {
+   "id": "maps_extra_support_id",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "invocationBinding:1119"
+  },
+  {
+   "id": "maps_member_ends_swapped",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1125"
+  },
+  {
+   "id": "maxima_abandoned_separate_failure",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:668"
+  },
+  {
+   "id": "certificate_check_wrong_wrapper",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:708"
+  },
+  {
+   "id": "certificate_stage_check_disagree",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:659"
+  },
+  {
+   "id": "stage_entered_after_failure",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:637"
+  },
+  {
+   "id": "ceiling_before_last_slot",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:351"
+  },
+  {
+   "id": "escalating_end_not_a_terminal_translation",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:351"
+  },
+  {
+   "id": "terminal_stop_wrong_translation",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:357"
+  },
+  {
+   "id": "terminal_refusal_wrong_kind",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:357"
+  },
+  {
+   "id": "idle_budget_below_invocation_limit",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:402"
+  },
+  {
+   "id": "idle_ready_group_not_ledger_refusal",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:409"
+  },
+  {
+   "id": "work_accounting_prior_not_on_wire",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201"
+  },
+  {
+   "id": "refused_member_conversion_kind_bits",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:646"
+  },
+  {
+   "id": "prefix_attached_old_input_unbound",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "invocationBinding:1173"
+  },
+  {
+   "id": "report_reference_unrelated_diagnostic",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "diagnostic:1198"
+  },
+  {
+   "id": "distinct_stiffness_merged_group",
+   "base": "two_case_two_groups_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "at:126"
+  },
+  {
+   "id": "named_point_value_mismatch",
+   "base": "two_case_two_groups_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1104"
+  },
+  {
+   "id": "interpolation_target_mismatch",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1104"
+  },
+  {
+   "id": "work_accounting_after_escalating_stop",
+   "base": "candidate_failure_skip_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:380"
+  },
+  {
+   "id": "idle_work_accounting_run",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:380"
+  },
+  {
+   "id": "work_accounting_at_last_slot",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:380"
+  },
+  {
+   "id": "mm_unnormalized_coordinate",
+   "base": "ordinary_prepared_mm_units_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1120"
+  },
+  {
+   "id": "interpolation_missing_alpha",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1081"
+  },
+  {
+   "id": "interpolation_duplicate_temperature",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1076"
+  },
+  {
+   "id": "interpolation_target_below_range",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1077"
+  },
+  {
+   "id": "interpolation_target_at_lower_point",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1077"
+  },
+  {
+   "id": "interpolation_target_at_upper_point",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1077"
+  },
+  {
+   "id": "interpolation_target_above_range",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1077"
+  },
+  {
+   "id": "adapter_fault_present",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:731"
+  },
+  {
+   "id": "accounting_cause_without_fault",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:731"
+  },
+  {
+   "id": "scalar_trace_lost_unavailable",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:731"
+  },
+  {
+   "id": "work_accounting_cause_exact_status",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:731"
+  },
+  {
+   "id": "idle_budget_not_exhausted_no_group",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "06d-carried",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:402"
+  },
+  {
+   "id": "execution_order_swapped",
+   "base": "two_case_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverage:254",
+   "source_decision": "D1 (RV78 R1a, S1)"
+  },
+  {
+   "id": "run_id_not_execution_position",
+   "base": "two_case_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "coverage:254",
+   "source_decision": "D1 (RV78 R1b, S1)"
+  },
+  {
+   "id": "old_members_reordered",
+   "base": "two_body_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:233",
+   "source_decision": "D1 (RV78 R2)"
+  },
+  {
+   "id": "complete_old_short_of_source",
+   "base": "two_body_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:233",
+   "source_decision": "D1 (RV78 R3)"
+  },
+  {
+   "id": "unsourced_old_member_noncontiguous",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:233",
+   "source_decision": "D1 (RV78 R2b, S1)"
+  },
+  {
+   "id": "complete_old_longer_than_source",
+   "base": "two_body_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:237",
+   "source_decision": "D1 (RV78 R3b, S1)"
+  },
+  {
+   "id": "unavailable_source_backref_foreign",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:627",
+   "source_decision": "D4a (RV78 R4, S1)"
+  },
+  {
+   "id": "attempt_basis_not_ordinary",
+   "base": "two_case_two_groups_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:626",
+   "source_decision": "D4b (RV78 R5, S1)"
+  },
+  {
+   "id": "native_error_with_selected_run",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:700",
+   "source_decision": "D4d (RV78 R6a, B1)"
+  },
+  {
+   "id": "group_call_out_of_range",
+   "base": "two_case_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:406",
+   "source_decision": "D5e (RV78 R8)"
+  },
+  {
+   "id": "escalating_failed_verification_pass_entered",
+   "base": "verification_failure_skip_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:310",
+   "source_decision": "D5b (RV78 T1, B1)"
+  },
+  {
+   "id": "stop_rule_quantity_other_body",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:298",
+   "source_decision": "D5d (RV78 T2, B1)"
+  },
+  {
+   "id": "candidate_record_with_verification",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:299",
+   "source_decision": "D5a (RV78 T3, B1)"
+  },
+  {
+   "id": "ordinary_diagnostic_ref_duplicate",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1202",
+   "source_decision": "D6a (RV78 T4a, B1)"
+  },
+  {
+   "id": "ordinary_diagnostic_ref_dangling",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1202",
+   "source_decision": "D6a / D16 class 2 ordinary (RV78 T4b)"
+  },
+  {
+   "id": "ordinary_dangling_plus_adapter_fault",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1202",
+   "source_decision": "D3 class order (RV78 T4d, S1)"
+  },
+  {
+   "id": "selected_case_ordinary_checks_passed",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1216",
+   "source_decision": "D6b (RV78 T4e, B1)"
+  },
+  {
+   "id": "section_accounting_exact_status",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:731",
+   "source_decision": "D8 R4 (RV78 S2)"
+  },
+  {
+   "id": "nested_stop_work_accounting_exact_status",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:731",
+   "source_decision": "D8 R3' (RV78 S2 Q1)"
+  },
+  {
+   "id": "view_work_fault_exact_status",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:731",
+   "source_decision": "D8 R3' (RV78 S2 Q2)"
+  },
+  {
+   "id": "old_operational_accounting_not_lost",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:731",
+   "source_decision": "D8 R2' (RV78 S2 Q4)"
+  },
+  {
+   "id": "interpolation_target_at_lower_point_equal_e",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1077",
+   "source_decision": "D11 equal-E strict bracket (RV78-N1)"
+  },
+  {
+   "id": "interpolation_target_below_range_equal_e",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1077",
+   "source_decision": "D11 equal-E strict bracket (RV78-N1)"
+  },
+  {
+   "id": "interpolation_target_at_upper_point_equal_e",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1077",
+   "source_decision": "D11 equal-E strict bracket (RV78-N1)"
+  },
+  {
+   "id": "interpolation_target_above_range_equal_e",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "observed": {
+    "gate": "G8",
+    "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "selectedMaterial:1077",
+   "source_decision": "D11 equal-E strict bracket (RV78-N1)"
+  },
+  {
+   "id": "source_preparation_null",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:627",
+   "source_decision": "D4a (RV79 B1a)"
+  },
+  {
+   "id": "run_ref_null_with_case_run",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:628",
+   "source_decision": "D4e (RV79 B1d)"
+  },
+  {
+   "id": "preparation_error_with_selected_run",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:699",
+   "source_decision": "D4d (RV79 B1c)"
+  },
+  {
+   "id": "prepared_failure_cause_without_own_attempt",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:620",
+   "source_decision": "D4c (RV81-B2)"
+  },
+  {
+   "id": "prepared_failure_cause_foreign_attempt",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:620",
+   "source_decision": "D4c (RV81-B2)"
+  },
+  {
+   "id": "reason_code_phase_mismatch_on_facade",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:704",
+   "source_decision": "D11 S4 P8 on F'"
+  },
+  {
+   "id": "reason_code_phase_mismatch_on_preparation",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:704",
+   "source_decision": "D11 S4 P8 on P'"
+  },
+  {
+   "id": "rejected_verification_failed_with_completed_verification",
+   "base": "p512_ladder_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:332",
+   "source_decision": "D5c (RV79 B2h; S4 N13)"
+  },
+  {
+   "id": "rejected_attempt_with_verified_record",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:326",
+   "source_decision": "D11 S4 N13 (rejected + verified record)"
+  },
+  {
+   "id": "ordinary_attempt_order_swapped",
+   "base": "two_case_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:227",
+   "source_decision": "D11 S4 O1"
+  },
+  {
+   "id": "record_index_not_contiguous",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:415",
+   "source_decision": "D11 S4 N1"
+  },
+  {
+   "id": "selected_verification_record_not_verified",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:326",
+   "source_decision": "D11 S4 N7"
+  },
+  {
+   "id": "projection_conversions_count_mismatch",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:731",
+   "source_decision": "D11 S4 W2"
+  },
+  {
+   "id": "preparation_conversion_count_mismatch",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "productAttempts:731",
+   "source_decision": "D11 S4 W3"
+  },
+  {
+   "id": "retained_diagnostic_names_unrequested_case",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G4",
+    "code": "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+   },
+   "observed": {
+    "gate": "G4",
+    "code": "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "diagnostics:266",
+   "source_decision": "D7 (RV79 B2e)"
+  },
+  {
+   "id": "g0_case_limit_threshold",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "observed": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "match": true,
+   "raising_line_final_reader": "header:188",
+   "source_decision": "D2 (RV79-S4)"
+  },
+  {
+   "id": "g0_invocation_limit_threshold",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "observed": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "match": true,
+   "raising_line_final_reader": "header:188",
+   "source_decision": "D2"
+  },
+  {
+   "id": "g0_receipt_version_not_1",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "observed": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "match": true,
+   "raising_line_final_reader": "header:187",
+   "source_decision": "D2 / settled reading 1"
+  },
+  {
+   "id": "g0_canonicalization_profile",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "observed": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "match": true,
+   "raising_line_final_reader": "header:187",
+   "source_decision": "D2"
+  },
+  {
+   "id": "g0_retained_precision_absent",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "observed": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "match": true,
+   "raising_line_final_reader": "header:185",
+   "source_decision": "D2 / settled reading 2"
+  },
+  {
+   "id": "g0_receipt_body_absent",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "observed": {
+    "gate": "G0",
+    "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+   },
+   "match": true,
+   "raising_line_final_reader": "header:185",
+   "source_decision": "D2 / settled reading 2"
+  },
+  {
+   "id": "refusal_work_accounting_variant",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201",
+   "source_decision": "D9a"
+  },
+  {
+   "id": "refusal_count_range_variant",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201",
+   "source_decision": "D9a"
+  },
+  {
+   "id": "unavailable_source_ref_absent",
+   "base": "two_case_preparation_failure_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201",
+   "source_decision": "D9b"
+  },
+  {
+   "id": "source_decline_with_source_ref",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "integrity:201",
+   "source_decision": "D9b"
+  },
+  {
+   "id": "rcond_label_plus_adapter_fault",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeClass:489",
+   "source_decision": "D3 class order (RV79 D2)"
+  },
+  {
+   "id": "native_attempt_defect_after_native_work_defect",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeSchedule:280",
+   "source_decision": "D3 class-1 convention"
+  },
+  {
+   "id": "dangling_candidate_record",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "at:126",
+   "source_decision": "D16 class 1 (ATTEMPT)"
+  },
+  {
+   "id": "dangling_build_ref",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_WORK_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "nativeRuns:372",
+   "source_decision": "D16 class 1 (WORK, C1 build provenance)"
+  },
+  {
+   "id": "dangling_ordinary_attempt_ref",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "at:126",
+   "source_decision": "D16 class 2 C3 (PRODUCT_ATTEMPT)"
+  },
+  {
+   "id": "g5b_zero_section_area",
+   "base": "ordinary_prepared_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5b",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "stressScale:968",
+   "source_decision": "D10 (RV79-S3)"
+  },
+  {
+   "id": "ordinary_dangling_ref_plus_source_preparation_null",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "snapshot": "07",
+   "expected_typescript": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "raising_line_final_reader": "retainedPrecision.ts:1202",
+   "source_decision": "D17 (ordinary ATTEMPT before C3 association)"
+  }
+ ],
+ "must_pass": [
+  {
+   "id": "loaded_stop_without_force_moment",
+   "base": "ordinary_prepared_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "loaded_all_stop_false",
+   "base": "ordinary_prepared_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "no_data_all_stop_true",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "no_data_attested_data_block",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "cancelled_all_stop_true",
+   "base": "ordinary_prepared_cancelled_loads_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "cert_failed_before_summary",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "lane_k_failed",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "lane_source_failed",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "maxima_abandoned",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "prefix_captured",
+   "base": "two_case_preparation_failure_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "cert_failed_after_summary_storage",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "two_body_swap_stop_with_rosters",
+   "base": "two_body_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "p512_charge_follows_stop_zero_floor_body",
+   "base": "p512_ladder_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "copy_flags_into_unloaded",
+   "base": "two_case_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "prefix_unattached_old_operand_attested",
+   "base": "two_case_preparation_failure_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "values_failed_separate_completion",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "aliases_abandoned",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "bind_rows_abandoned",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  },
+  {
+   "id": "interpolation_equal_e_bracketed_control",
+   "base": "ordinary_prepared_interpolated_material_synthetic",
+   "expected": "pass",
+   "observed": "pass"
+  }
+ ]
+}

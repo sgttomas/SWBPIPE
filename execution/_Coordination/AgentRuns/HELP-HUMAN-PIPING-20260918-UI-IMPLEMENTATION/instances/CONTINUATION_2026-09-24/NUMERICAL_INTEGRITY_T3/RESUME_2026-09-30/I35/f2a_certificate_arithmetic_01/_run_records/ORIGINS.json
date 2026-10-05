@@ -1,0 +1,316 @@
+{
+  "instructions": [
+    "AGENTS.md",
+    "agents/AGENT_TASK.md",
+    "projects/chirality-piping/AGENTS.md"
+  ],
+  "messages": [
+    {
+      "authority": "proposed B2 arithmetic dependency, not independently reviewed source/maximum acceptance",
+      "content_record": "SCHEDULE_AND_COUNTS.md section 6; parent/sibling conversation event stream retains original messages",
+      "from": "/root/i31_f2a_certificate_b1",
+      "kind": "native sibling B2 operation/count interface"
+    }
+  ],
+  "no_source_copies": true,
+  "origins": [
+    {
+      "bytes": 14200,
+      "git_blob": "3abfab6b99d1c02a02f06ae4c07a1b0d10257960",
+      "git_revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "path": "AGENTS.md",
+      "purpose": "Root instructions",
+      "read_coverage": "complete",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 1499,
+      "git_blob": "8eec6fec3f455d5933c7f0a9d5cd3aaf6dc16aa0",
+      "git_revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "path": "agents/AGENT_TASK.md",
+      "purpose": "TASK role",
+      "read_coverage": "complete",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 9016,
+      "git_blob": "91606231a1e218fdac671874f80fcce79638a9c6",
+      "git_revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "path": "projects/chirality-piping/AGENTS.md",
+      "purpose": "Piping instructions",
+      "read_coverage": "complete",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 2608,
+      "git_blob": "961289ccd34cb12fcae39051ef40787f27a4fed8",
+      "git_revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I35_F2A_CERTIFICATE_ARITHMETIC_01.md",
+      "purpose": "bounded brief",
+      "read_coverage": "complete",
+      "sha256": "b2a397aef4e109016f37e1f3ac9f33423b4c31366fb97da7034759cc6bdc0ea3",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 481283,
+      "git_blob": "c7befe6b844899b36d589f1e480be851dd50ce1d",
+      "git_revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "later_working_sha256": "b133c003533ce793be4f1e016364384269ea9928fcc520e0cfc9199fade87590",
+      "note": "Read basis is the receipt checkout revision, not a later concurrently appended working record.",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+      "purpose": "ROOT disposition",
+      "read_coverage": "tail: conditional source bridge selection appended at d85405edcd",
+      "sha256": "24df9d8ca993b28fcfc40b4ddd16b69808c9db4849f5a20b22cb4cbafc1a9bc2",
+      "working_bytes_match_revision": false
+    },
+    {
+      "bytes": 19804,
+      "git_blob": "d2cea1422ac0ac7506549234f169c135d3479572",
+      "git_revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_certificate_b1/RETURN.md",
+      "purpose": "B1 premise",
+      "read_coverage": "substantive identity/recipes/final-predicate sections; long combined tool output truncated near resource tail",
+      "sha256": "8c146c911a0f5c66b8a984cd556b4277d007ef6f0628e2d1598a84bc018dfe29",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 19179,
+      "git_blob": "3331abe4b798ab10b3a7e733558dd885bce0fc20",
+      "git_revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_source_geometry_b1c/RETURN.md",
+      "purpose": "B1C premise",
+      "read_coverage": "complete substantive return; first 85 lines reread separately",
+      "sha256": "b0a249dda0a1545d1b2f71c93549ae9a7cce4c7fa89201d7f9ce1dcae39415e7",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 7752,
+      "git_blob": "9731ad41464a010d1fa4db248d7d7302dbfd7927",
+      "git_revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV42/f2a_source_geometry_b1c_02/REVIEW.md",
+      "purpose": "B1C review",
+      "read_coverage": "complete",
+      "sha256": "392c4837d04e7da424d42e4e4f2a00b93194929ffce7fd3ee35dcfb4506223a0",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 17504,
+      "git_blob": "e4267193ca94403a04c37eafe3d873529e1cd558",
+      "git_revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I33/f2a_source_action_bridge_01/RETURN.md",
+      "purpose": "I33 theorem",
+      "read_coverage": "complete",
+      "sha256": "918cbc00dc94a6135b8de4f69c2c64087d1a189028146b2ecda11f9c25d417d9",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 10569,
+      "git_blob": "4e16ba73a0526d5936346ecef358a2b54adfe3dd",
+      "git_revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I33/f2a_source_action_bridge_01/INTERFACE_AND_COST.md",
+      "purpose": "I33 counts/seam",
+      "read_coverage": "complete",
+      "sha256": "bfb4491c97d3b68e7ee52800a4f9c5df8cbc2658952df33deca8aa2a0392582e",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 8640,
+      "git_blob": "062d414d54ac8dca5c6209b4142340d3894244bc",
+      "git_revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV45/f2a_source_bridge_01/REVIEW.md",
+      "purpose": "RV45 review",
+      "read_coverage": "complete",
+      "sha256": "d347d751c0cb06fc32ab0c955cd583b4e961319bf4bd04b80cda67cd45691fed",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 20415,
+      "git_blob": "44bdfc58a2dd594aa70138d4f2dce0c5a41eb356",
+      "git_revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I34/f2a_work_exactness_design_01/DESIGN.md",
+      "purpose": "proposed work-state dependency",
+      "read_coverage": "substantive design in long tool output; not adopted API",
+      "sha256": "e3789925cc7ea509775a968f9b1c83f1a765ad0bac92ce643f396a10a32fd397",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 4329,
+      "git_blob": "e2a23b962f83c8ef01f1c0cece768edf1a57c7d1",
+      "git_revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I34/f2a_work_exactness_design_01/RETURN.md",
+      "purpose": "I34 return",
+      "read_coverage": "complete",
+      "sha256": "1180113ce75d7de38d5ddb7271ce8c1dcd26d5f06868e59df7e4c3ad98977b1c",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 29991,
+      "git_blob": "ddb8b96f12c46ce1896dbd442def99fb42a98ba0",
+      "git_revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/WIRE_CONTRACT.md",
+      "purpose": "C1 fixed coordinates/contract",
+      "read_coverage": "selected sections and targeted rg; lines 75-165 reread",
+      "sha256": "c8ab2318457bd3897e207888af80f54f1a889071bf630ff1815939d922a567e3",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 53986,
+      "git_blob": "0d483cd750543fd307de79fe8f97181cf5a27fa7",
+      "git_revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/CONTRACT_DELTA.md",
+      "purpose": "C2 map/failure contract",
+      "read_coverage": "selected sections and targeted rg; lines 75-118 reread",
+      "sha256": "923da0b97eb5becad7e7c1373c5a6f362568dc28ac8eab029c9170677c890869",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 23071,
+      "git_blob": "6dfdb500cc3b7cc17bd0f9e26894a7f8b2691e76",
+      "git_revision": "d85405edcdbb894544a64051faa768db8951060c",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_memory_plan_02/RETURN.md",
+      "purpose": "P1-P5 proof-owner labels",
+      "read_coverage": "lines 235-255 and targeted rg only",
+      "sha256": "bcb52af88340cd205e26960bffd77fe28bf10322b3fb49fa008f1f56cb15e69e",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 37105,
+      "git_blob": "347544d778ef39f5c42ef0fc275591e5112d03d9",
+      "git_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs",
+      "purpose": "existing arithmetic",
+      "read_coverage": "value model, checked_exponent, core width2 context viewed from full-file call with truncation; not relying on K-D5 atan",
+      "sha256": "5d35b70d45680f769354bbc6694c78186354d235a7af29891a9b09e7b4a293ad",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 41558,
+      "git_blob": "b6337636b9975a9316f8a45aa30298dda4c155ad",
+      "git_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+      "purpose": "existing arithmetic",
+      "read_coverage": "1-597,598-657,710-938,960-1227; targeted function inventory",
+      "sha256": "76d96ee2a0d183ab8b288c41b0075b2cb2feb74016b7a3efcfa3f6eb6bb09d17",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 6085,
+      "git_blob": "ed1f6133432ff8ec103896c4daaa76cfe670d659",
+      "git_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs",
+      "purpose": "existing directed arithmetic",
+      "read_coverage": "complete",
+      "sha256": "8aaace7bc8fb65a8a1f60e5e6e630ee54b62bd43ed7c108a2fe193b372b74af4",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 19741,
+      "git_blob": "76b37e4262c9c2df5a53a9c6cdced59072caf9b8",
+      "git_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+      "purpose": "existing exact-sum grammar",
+      "read_coverage": "1-545",
+      "sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 160870,
+      "git_blob": "0fd7fceebb238bb18cb022e9c86a0ed5c99e3a4e",
+      "git_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "purpose": "existing bounded/publication owner",
+      "read_coverage": "325-470;2735-3095;3400-3543; targeted function inventory",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 46099,
+      "git_blob": "025789b96576e5807cb641eb19ce65ba9086da86",
+      "git_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+      "purpose": "data predicate",
+      "read_coverage": "127-158",
+      "sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 29088,
+      "git_blob": "093d12d9e2c924a93aa4ceeffa17f4ada2f2aea4",
+      "git_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "purpose": "verification scaling accessor",
+      "read_coverage": "624-628",
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 29280,
+      "git_blob": "a1fb3223e6b633e9990b4aff783fed5a8f4eaff1",
+      "git_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+      "purpose": "full structural member pattern",
+      "read_coverage": "545-581",
+      "sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 17973,
+      "git_blob": "9f5ae091231ea83051a9986c18f72525dc3ac8bf",
+      "git_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+      "purpose": "station action law",
+      "read_coverage": "373-395",
+      "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 2687,
+      "git_blob": "a00a48a5bd6040d6174b427d3c459ee7cd1b662e",
+      "git_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs",
+      "purpose": "private modules",
+      "read_coverage": "complete",
+      "sha256": "78bb76773dd4fd4d799b5668f21a679f0ebf9c088ec5fff655e13a0453d6dc2a",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 117294,
+      "git_blob": "ad574ac81d7440b90084868dbe8493f9abd6a66d",
+      "git_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "purpose": "public retained API seam",
+      "read_coverage": "1-38",
+      "sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 92593,
+      "git_blob": "3667f43c952e06315dfca59393d9f998db9a9924",
+      "git_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "purpose": "public module discovery",
+      "read_coverage": "targeted rg only",
+      "sha256": "627404d6c0de08e6c681dcc876b39efc68fa04b5c155636785e2abb0f4faff0b",
+      "working_bytes_match_revision": true
+    },
+    {
+      "bytes": 41139,
+      "git_blob": "31cef9316c47eeaafd596d8e7768ad0de407341b",
+      "git_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "purpose": "source material source confirmation",
+      "read_coverage": "235-250",
+      "sha256": "b85630992db2e3a8be9c87f395dee09b0d27c68cf80ea9765cddb57b69768fa0",
+      "working_bytes_match_revision": true
+    }
+  ],
+  "read_head_at_manifest": "da2eebfaa2c465a89d70addebfa98498693f1bd4",
+  "receipt_head": "d85405edcdbb894544a64051faa768db8951060c",
+  "scope": "bounded TASK brief; no broader role/governance bodies loaded",
+  "skill_body_selected": null,
+  "source_pin": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "workflow_selected": null
+}

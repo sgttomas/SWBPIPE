@@ -1,0 +1,791 @@
+{
+ "impl_fn_param": [
+  {
+   "file": "core/product_physics/src/formation_guard.rs",
+   "line": 301,
+   "text": "impl Fn(",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/product_physics/src/historical_pressure_reference.rs",
+   "line": 16,
+   "text": "impl FnOnce(",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural.rs",
+   "line": 447,
+   "text": "where\n        F: Fn(",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural.rs",
+   "line": 508,
+   "text": "where\n        F: Fn(",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural.rs",
+   "line": 521,
+   "text": "where\n        F: Fn(",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural.rs",
+   "line": 538,
+   "text": "where\n        F: Fn(",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural.rs",
+   "line": 1574,
+   "text": "where\n    F: Fn(",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural.rs",
+   "line": 1590,
+   "text": "where\n        F: Fn(",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural.rs",
+   "line": 1694,
+   "text": "where\n    R: Represented + ?Sized,\n    P: PreparedGate + ?Sized,\n    F: Fn(",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/exact_boundary.rs",
+   "line": 632,
+   "text": "impl FnOnce(",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/formation_check.rs",
+   "line": 163,
+   "text": "where\n    F: Fn(",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/formation_check.rs",
+   "line": 190,
+   "text": "where\n    F: Fn(",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/sparse.rs",
+   "line": 1163,
+   "text": "where\n        F: Fn(",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/sparse.rs",
+   "line": 1688,
+   "text": "where\n        F: Fn(",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/exact_boundary/functionals.rs",
+   "line": 66,
+   "text": "impl FnOnce(",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 2956,
+   "text": "impl FnMut(",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 4987,
+   "text": "impl FnMut(",
+   "alloc_in_body": false,
+   "body_len": 0
+  }
+ ],
+ "op_impl": [
+  {
+   "file": "core/product_physics/src/historical_pressure_reference.rs",
+   "line": 18,
+   "text": "impl Drop for Restore ",
+   "alloc_in_body": false,
+   "body_len": 67
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "line": 228,
+   "text": "impl<'de> Deserialize<'de> for PreviewModel ",
+   "alloc_in_body": true,
+   "body_len": 1091
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "line": 755,
+   "text": "impl<'de> Deserialize<'de> for LinearStaticPreviewRequest ",
+   "alloc_in_body": false,
+   "body_len": 585
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "line": 807,
+   "text": "impl Default for PreviewSolverMode ",
+   "alloc_in_body": false,
+   "body_len": 67
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "line": 857,
+   "text": "impl Default for SourceRecoveryBudget ",
+   "alloc_in_body": false,
+   "body_len": 280
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 2503,
+   "text": "impl From<OperationalError> for G5aFailure ",
+   "alloc_in_body": false,
+   "body_len": 79
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 2988,
+   "text": "impl From<&str> for CaptureError ",
+   "alloc_in_body": true,
+   "body_len": 80
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 2993,
+   "text": "impl From<String> for CaptureError ",
+   "alloc_in_body": false,
+   "body_len": 70
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 3303,
+   "text": "impl std::ops::Deref for ProductRowView<",
+   "alloc_in_body": false,
+   "body_len": 67
+  },
+  {
+   "file": "core/product_physics/src/source_recovery.rs",
+   "line": 61,
+   "text": "impl From<exact::Error> for RecoveryError ",
+   "alloc_in_body": false,
+   "body_len": 78
+  },
+  {
+   "file": "core/product_physics/src/case_state/input.rs",
+   "line": 57,
+   "text": "impl<'de, T: Deserialize<'de>> Deserialize<'de> for Authored<T> ",
+   "alloc_in_body": false,
+   "body_len": 323
+  },
+  {
+   "file": "core/solver/frame_kernel/src/exact_sum.rs",
+   "line": 50,
+   "text": "impl Default for ExactAccumulator ",
+   "alloc_in_body": false,
+   "body_len": 55
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/exact_boundary.rs",
+   "line": 26,
+   "text": "impl From<StructuralError> for Error ",
+   "alloc_in_body": false,
+   "body_len": 78
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/exact_boundary.rs",
+   "line": 63,
+   "text": "impl Default for Limits ",
+   "alloc_in_body": false,
+   "body_len": 186
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/exact_boundary.rs",
+   "line": 157,
+   "text": "impl PartialEq for Ratio ",
+   "alloc_in_body": false,
+   "body_len": 192
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/formation_check.rs",
+   "line": 127,
+   "text": "impl From<WideError> for Failure ",
+   "alloc_in_body": false,
+   "body_len": 66
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/formation_check.rs",
+   "line": 132,
+   "text": "impl From<SumError> for Failure ",
+   "alloc_in_body": false,
+   "body_len": 64
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/formation_check.rs",
+   "line": 137,
+   "text": "impl From<StructuralError> for Failure ",
+   "alloc_in_body": false,
+   "body_len": 78
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 197,
+   "text": "impl From<SumRefusal> for AttemptStop ",
+   "alloc_in_body": false,
+   "body_len": 462
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 210,
+   "text": "impl From<WideError> for AttemptStop ",
+   "alloc_in_body": false,
+   "body_len": 328
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 941,
+   "text": "impl From<LedgerRefusal> for CombinationPreparationError ",
+   "alloc_in_body": false,
+   "body_len": 72
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1332,
+   "text": "impl From<WorkFault> for AttemptStop ",
+   "alloc_in_body": false,
+   "body_len": 84
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+   "line": 115,
+   "text": "impl From<AttemptStop> for NumericError ",
+   "alloc_in_body": false,
+   "body_len": 74
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide.rs",
+   "line": 1003,
+   "text": "impl From<super::work::WorkFault> for WideError ",
+   "alloc_in_body": false,
+   "body_len": 97
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+   "line": 68,
+   "text": "impl From<WideError> for SumRefusal ",
+   "alloc_in_body": false,
+   "body_len": 375
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+   "line": 97,
+   "text": "impl From<WorkFault> for SumRefusal ",
+   "alloc_in_body": false,
+   "body_len": 84
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+   "line": 237,
+   "text": "impl Default for ExactWideSum ",
+   "alloc_in_body": false,
+   "body_len": 55
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/work.rs",
+   "line": 132,
+   "text": "impl std::ops::Add for WorkTotal ",
+   "alloc_in_body": false,
+   "body_len": 92
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/work.rs",
+   "line": 138,
+   "text": "impl std::ops::Sub for WorkTotal ",
+   "alloc_in_body": false,
+   "body_len": 98
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/bridge.rs",
+   "line": 33,
+   "text": "impl From<NumericError> for BridgeError ",
+   "alloc_in_body": false,
+   "body_len": 72
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 217,
+   "text": "impl From<NumericError> for ProductFailure ",
+   "alloc_in_body": false,
+   "body_len": 110
+  },
+  {
+   "file": "core/solver/curved_bend/src/lib.rs",
+   "line": 57,
+   "text": "impl From<FrameKernelError> for CurvedBendError ",
+   "alloc_in_body": false,
+   "body_len": 83
+  },
+  {
+   "file": "core/solver/linear_supports/src/lib.rs",
+   "line": 378,
+   "text": "impl From<FrameKernelError> for SupportApplicationError ",
+   "alloc_in_body": false,
+   "body_len": 88
+  },
+  {
+   "file": "core/solver/nonlinear_integration/src/lib.rs",
+   "line": 65,
+   "text": "impl Default for LinearSolveMode ",
+   "alloc_in_body": false,
+   "body_len": 67
+  },
+  {
+   "file": "core/solver/nonlinear_integration/src/lib.rs",
+   "line": 413,
+   "text": "impl From<StructuralError> for NonlinearIntegrationError ",
+   "alloc_in_body": false,
+   "body_len": 86
+  },
+  {
+   "file": "core/solver/nonlinear_integration/src/lib.rs",
+   "line": 419,
+   "text": "impl From<FrameKernelError> for NonlinearIntegrationError ",
+   "alloc_in_body": false,
+   "body_len": 88
+  },
+  {
+   "file": "core/solver/nonlinear_integration/src/lib.rs",
+   "line": 425,
+   "text": "impl From<NonlinearSupportError> for NonlinearIntegrationError ",
+   "alloc_in_body": false,
+   "body_len": 98
+  },
+  {
+   "file": "core/solver/straight_pipe/src/lib.rs",
+   "line": 377,
+   "text": "impl From<FrameKernelError> for StraightPipeError ",
+   "alloc_in_body": false,
+   "body_len": 88
+  },
+  {
+   "file": "core/loads/stress_recovery/src/elastic_extrema.rs",
+   "line": 120,
+   "text": "impl PartialEq for Node ",
+   "alloc_in_body": false,
+   "body_len": 88
+  },
+  {
+   "file": "core/loads/stress_recovery/src/elastic_extrema.rs",
+   "line": 126,
+   "text": "impl PartialOrd for Node ",
+   "alloc_in_body": false,
+   "body_len": 96
+  },
+  {
+   "file": "core/loads/stress_recovery/src/elastic_extrema.rs",
+   "line": 131,
+   "text": "impl Ord for Node ",
+   "alloc_in_body": false,
+   "body_len": 266
+  }
+ ],
+ "macro_rules": [
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 3597,
+   "text": "macro_rules! layout",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 4082,
+   "text": "macro_rules! run",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 4279,
+   "text": "macro_rules! run",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+   "line": 740,
+   "text": "macro_rules! assign",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+   "line": 121,
+   "text": "macro_rules! merge",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+   "line": 142,
+   "text": "macro_rules! delta",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+   "line": 120,
+   "text": "macro_rules! core_width",
+   "alloc_in_body": false,
+   "body_len": 0
+  }
+ ],
+ "fmt_impl": [
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 2998,
+   "text": "impl std::fmt::Display for CaptureError ",
+   "alloc_in_body": false,
+   "body_len": 204
+  },
+  {
+   "file": "core/solver/frame_kernel/src/exact_sum.rs",
+   "line": 31,
+   "text": "impl std::fmt::Display for SumError ",
+   "alloc_in_body": false,
+   "body_len": 367
+  },
+  {
+   "file": "core/solver/frame_kernel/src/lib.rs",
+   "line": 376,
+   "text": "impl fmt::Display for FrameKernelError ",
+   "alloc_in_body": false,
+   "body_len": 2214
+  },
+  {
+   "file": "core/solver/frame_kernel/src/load_ledger.rs",
+   "line": 58,
+   "text": "impl fmt::Display for LedgerError ",
+   "alloc_in_body": false,
+   "body_len": 430
+  },
+  {
+   "file": "core/solver/frame_kernel/src/load_ledger.rs",
+   "line": 117,
+   "text": "impl fmt::Debug for LoadLedger ",
+   "alloc_in_body": false,
+   "body_len": 171
+  },
+  {
+   "file": "core/solver/frame_kernel/src/load_ledger.rs",
+   "line": 249,
+   "text": "impl fmt::Debug for AssembledForce ",
+   "alloc_in_body": false,
+   "body_len": 308
+  },
+  {
+   "file": "core/solver/frame_kernel/src/load_ledger.rs",
+   "line": 532,
+   "text": "impl fmt::Debug for FormationRow ",
+   "alloc_in_body": false,
+   "body_len": 882
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural.rs",
+   "line": 296,
+   "text": "impl fmt::Display for StructuralError ",
+   "alloc_in_body": false,
+   "body_len": 123
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural.rs",
+   "line": 2311,
+   "text": "impl fmt::Display for ForceScaleReason ",
+   "alloc_in_body": false,
+   "body_len": 694
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural.rs",
+   "line": 2346,
+   "text": "impl fmt::Display for ForceScalingRefusal ",
+   "alloc_in_body": false,
+   "body_len": 98
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural.rs",
+   "line": 2373,
+   "text": "impl fmt::Display for ForceScaledError ",
+   "alloc_in_body": false,
+   "body_len": 261
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1303,
+   "text": "impl std::fmt::Debug for StageWork ",
+   "alloc_in_body": false,
+   "body_len": 1115
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 2823,
+   "text": "impl std::fmt::Debug for AttemptRecord ",
+   "alloc_in_body": false,
+   "body_len": 1457
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/origins.rs",
+   "line": 814,
+   "text": "impl std::fmt::Debug for ProductOwnerStamp ",
+   "alloc_in_body": false,
+   "body_len": 168
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 262,
+   "text": "impl std::fmt::Display for SourceError ",
+   "alloc_in_body": false,
+   "body_len": 128
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide.rs",
+   "line": 177,
+   "text": "impl fmt::Display for WideError ",
+   "alloc_in_body": false,
+   "body_len": 1315
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide.rs",
+   "line": 212,
+   "text": "impl fmt::Debug for Wide<2> ",
+   "alloc_in_body": false,
+   "body_len": 286
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+   "line": 203,
+   "text": "impl std::fmt::Debug for SumWork ",
+   "alloc_in_body": false,
+   "body_len": 509
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+   "line": 243,
+   "text": "impl std::fmt::Debug for ExactWideSum ",
+   "alloc_in_body": false,
+   "body_len": 426
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/work.rs",
+   "line": 12,
+   "text": "impl fmt::Display for WorkFault ",
+   "alloc_in_body": false,
+   "body_len": 241
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/work.rs",
+   "line": 45,
+   "text": "impl fmt::Debug for WorkStatus ",
+   "alloc_in_body": false,
+   "body_len": 207
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/work.rs",
+   "line": 121,
+   "text": "impl fmt::Debug for WorkTotal ",
+   "alloc_in_body": false,
+   "body_len": 309
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+   "line": 947,
+   "text": "impl<const L: usize> fmt::Debug for Wide<L>",
+   "alloc_in_body": false,
+   "body_len": 384
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+   "line": 1271,
+   "text": "impl fmt::Debug for WidthWork ",
+   "alloc_in_body": false,
+   "body_len": 546
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 1597,
+   "text": "impl std::fmt::Debug for ProductProofFailure ",
+   "alloc_in_body": false,
+   "body_len": 188
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 1771,
+   "text": "impl std::fmt::Debug for ProductValuesFailure ",
+   "alloc_in_body": false,
+   "body_len": 212
+  },
+  {
+   "file": "core/solver/curved_bend/src/lib.rs",
+   "line": 38,
+   "text": "impl fmt::Display for CurvedBendError ",
+   "alloc_in_body": false,
+   "body_len": 688
+  },
+  {
+   "file": "core/loads/load_case_algebra/src/lib.rs",
+   "line": 242,
+   "text": "impl fmt::Display for AlgebraError ",
+   "alloc_in_body": false,
+   "body_len": 234
+  },
+  {
+   "file": "core/solver/linear_supports/src/lib.rs",
+   "line": 297,
+   "text": "impl fmt::Display for LinearSupportError ",
+   "alloc_in_body": false,
+   "body_len": 613
+  },
+  {
+   "file": "core/solver/linear_supports/src/lib.rs",
+   "line": 337,
+   "text": "impl fmt::Display for SupportApplicationError ",
+   "alloc_in_body": false,
+   "body_len": 1053
+  },
+  {
+   "file": "core/solver/nonlinear_integration/src/lib.rs",
+   "line": 387,
+   "text": "impl fmt::Display for NonlinearIntegrationError ",
+   "alloc_in_body": false,
+   "body_len": 533
+  },
+  {
+   "file": "core/solver/nonlinear_supports/src/lib.rs",
+   "line": 356,
+   "text": "impl fmt::Display for NonlinearSupportError ",
+   "alloc_in_body": false,
+   "body_len": 1186
+  },
+  {
+   "file": "core/loads/primitive_loads/src/lib.rs",
+   "line": 268,
+   "text": "impl fmt::Display for BoundaryMetadataError ",
+   "alloc_in_body": false,
+   "body_len": 1589
+  },
+  {
+   "file": "core/loads/primitive_loads/src/lib.rs",
+   "line": 1652,
+   "text": "impl fmt::Display for PrimitiveLoadError ",
+   "alloc_in_body": false,
+   "body_len": 733
+  },
+  {
+   "file": "core/solver/diagnostics/src/lib.rs",
+   "line": 261,
+   "text": "impl fmt::Display for DiagnosticsError ",
+   "alloc_in_body": false,
+   "body_len": 667
+  },
+  {
+   "file": "core/solver/sparse_direct/src/lib.rs",
+   "line": 58,
+   "text": "impl fmt::Display for SparseDirectError ",
+   "alloc_in_body": false,
+   "body_len": 1139
+  },
+  {
+   "file": "core/solver/straight_pipe/src/lib.rs",
+   "line": 344,
+   "text": "impl fmt::Display for StraightPipeError ",
+   "alloc_in_body": false,
+   "body_len": 1175
+  },
+  {
+   "file": "core/loads/stress_recovery/src/lib.rs",
+   "line": 466,
+   "text": "impl fmt::Display for StressRecoveryError ",
+   "alloc_in_body": false,
+   "body_len": 824
+  },
+  {
+   "file": "core/units/src/lib.rs",
+   "line": 1083,
+   "text": "impl fmt::Display for UnitError ",
+   "alloc_in_body": false,
+   "body_len": 1637
+  }
+ ],
+ "dyn": [
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 3291,
+   "text": "dyn FnMut",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/linear_supports/src/lib.rs",
+   "line": 367,
+   "text": "dyn Error",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/nonlinear_integration/src/lib.rs",
+   "line": 403,
+   "text": "dyn Error",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/nonlinear_integration/src/structural_adapter.rs",
+   "line": 974,
+   "text": "dyn FnMut",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/nonlinear_integration/src/structural_adapter.rs",
+   "line": 1004,
+   "text": "dyn FnMut",
+   "alloc_in_body": false,
+   "body_len": 0
+  },
+  {
+   "file": "core/solver/nonlinear_integration/src/structural_adapter.rs",
+   "line": 1058,
+   "text": "dyn FnMut",
+   "alloc_in_body": false,
+   "body_len": 0
+  }
+ ],
+ "impl_trait_param": [
+  {
+   "file": "core/loads/stress_recovery/src/lib.rs",
+   "line": 560,
+   "text": ": impl AsRef",
+   "alloc_in_body": false,
+   "body_len": 0
+  }
+ ]
+}

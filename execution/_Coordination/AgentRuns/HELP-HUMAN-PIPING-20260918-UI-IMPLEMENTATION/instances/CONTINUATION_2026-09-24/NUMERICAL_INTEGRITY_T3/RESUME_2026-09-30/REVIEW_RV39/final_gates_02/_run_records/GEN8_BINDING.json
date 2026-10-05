@@ -1,0 +1,18 @@
+{
+  "candidate": "9994462204231fb92073e17eb09775756bec22f3",
+  "original_command_string": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python -m pytest -q tools/practitioner_harness/test_live_baseline.py -k gen8 > /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/gen8.log 2>&1",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/sweep-skewpin",
+  "provenance": "ROOT-transcribed actual parent tool record supplied directly during review; not a claim that raw pytest stdout contains argv or a new RV39 execution.",
+  "parent_tool_chunks": {
+    "clean_detached_head_and_empty_status": "c35138",
+    "initial_exec": "183c8f",
+    "session": 72314,
+    "completion": "1e780d",
+    "completion_exit": 0
+  },
+  "raw_stdout": ".                                                                        [100%]\n1 passed, 10 deselected in 34.87s\n",
+  "raw_stdout_sha256": "dcde2eb8225fabe4532fe1d842d1525a932a1e5b5a181cb6eff0188d8b40d746",
+  "binding_sha256": "ad7752d1c1ec6212d61ab6f17578ca0574ae558520d06c87f3251d2f9f591411",
+  "binding_statuses": "candidate_status and sweep_status both empty; binding captured after GEN8 pass and before sweep",
+  "current_checkout_limit": "Read-only RV39 Git inspection finds same9994462 head and only generated untracked sweep summary; does not invent a fresh test or past cleanliness observation."
+}

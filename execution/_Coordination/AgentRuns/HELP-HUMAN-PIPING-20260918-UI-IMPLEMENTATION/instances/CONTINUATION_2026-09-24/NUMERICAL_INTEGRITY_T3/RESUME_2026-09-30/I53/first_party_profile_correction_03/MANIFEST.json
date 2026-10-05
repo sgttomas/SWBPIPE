@@ -1,0 +1,62 @@
+{
+  "status": "RV70_P02_1_CORRECTIVE_INTERFACE_FOR_BACKCHECK",
+  "role": "TASK Type 2",
+  "agent": "/root/i53_native_caller_qualification",
+  "parent": "/root HELP_HUMAN",
+  "mechanism": "delegated-harness-native corrective continuation; no descendants",
+  "NUM": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "WT": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3",
+  "write_scope": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I53/first_party_profile_correction_03",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i53_first_party_profile_correction_03"
+  ],
+  "clocks_utc": {
+    "receipt": "2026-10-03T13:31:09Z",
+    "draft_due": "2026-10-03T13:36:09Z",
+    "investigation_cutoff_due": "2026-10-03T13:41:09Z",
+    "seal_due": "2026-10-03T13:46:09Z",
+    "draft_complete": "2026-10-03T13:33:41Z",
+    "sealed": "2026-10-03T13:34:32Z"
+  },
+  "authority": {
+    "assignment_origin": "ROOT parent message in this continuation, 15-minute narrow correction",
+    "finding_origin": "ROOT-forwarded RV70-P02-1 exact supplement in this continuation",
+    "finding_text": "RV70 exact supplement (P2 RV70-P02-1, blocks use as complete I51 composition interface only): profile domain W_call,J; upstream U_J retains producer + resident R_J until actual lease/record last-owner Drop. Caller overlay A_call,J = B_call,J + O_call,J + \u03a3C_a + \u03a3L_i + \u03a3D_j; compose U_J+A_call,J at actual overlap, no second R_J. C owns request/context allocations; O only ordinary response work not already C/U; L/D only W1 response allocations (repartition I30 D if C charges request/id/header). Outside W_call, overlay makes no wider promise while resident lease persists. Also logical one-start does not imply one backend worker if fetch\u2192postMessage fallback admits twice; bind upstream reservations to actual job/invocation. No observed duplicate/dedup feature demanded. Incorporate in current narrow addendum.",
+    "finding_text_sha256": "284c2d4dd8874ea03b69c26957fa8838971b52d9bdc67bca75ed9f3f576c133e",
+    "instruction_continuity": "Root/TASK/Piping instructions and earlier supplied source/dependency basis retained from sealed I53 manifests; no additional workflow or role loaded."
+  },
+  "correction_scope": [
+    "Supersedes profile 02 line 9 W_J scope and downstream W_J/formula uses only as specified in addendum.",
+    "Separates upstream producer/resident U_J from caller A_call,J and avoids a second R_J.",
+    "Partitions original context C, ordinary response O and W1 responses L/D without duplicating I30 request/id/header costs.",
+    "Clarifies logical start count is not an actual native worker count."
+  ],
+  "evidence": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i53_first_party_profile_correction_03/SOURCE_ORIGINS.json",
+      "sha256": "d797a649277d2f0290367999ff1066c17f4233df94a8549c7d28bef31034111f"
+    }
+  ],
+  "output": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I53/first_party_profile_correction_03/ADDENDUM.md",
+    "sha256": "1234487f0e802e9515dec5969f5606b94a3bf4c0d00086543dc40434b42a05d7"
+  },
+  "checks": [
+    "Both original I53 seals and every sealed payload reverified unchanged.",
+    "Native lib.rs SHA-256 still equals its prior frozen-source verified manifest.",
+    "Source and authority line anchors read for the specific correction; no vendor research reopened.",
+    "Addendum implements the exact ROOT-forwarded RV70 interface; independent backcheck not claimed."
+  ],
+  "limits": [
+    "No source/runtime/build/native UI, install, host tooling, Git/index/API writes, external messages or descendants.",
+    "No Git operation was needed in this correction.",
+    "Only owned new evidence files written; no old packet repaired in place.",
+    "No current H, \u03b4, K, allowance, resource/RSS guarantee, duplicate-worker observation, deduplication feature, availability change or public activation claimed.",
+    "Actual host permissions unrestricted; narrow evidence-only write scope enforced instructionally."
+  ],
+  "process_state": {
+    "background_commands": false,
+    "runtime_started": false,
+    "descendants": false
+  }
+}

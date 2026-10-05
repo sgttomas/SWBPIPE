@@ -1,0 +1,35 @@
+[
+ {
+  "id": "RV90:TS01_f5_length_check_dropped",
+  "lang": "ts",
+  "killed": true,
+  "compile_or_collect_error": false,
+  "failing_count": 1,
+  "failing": [
+   "\u00d7 f5_ordinary_refs_strict_prefix 18ms"
+  ],
+  "seconds": 10.0
+ },
+ {
+  "id": "RV90:TS02_f5_first_case_only",
+  "lang": "ts",
+  "killed": true,
+  "compile_or_collect_error": false,
+  "failing_count": 1,
+  "failing": [
+   "\u00d7 f5_ordinary_refs_second_case_relaxed_d6a_form 30ms"
+  ],
+  "seconds": 9.9
+ },
+ {
+  "id": "RV90:TS04_f5_isArray_guard_dropped",
+  "lang": "ts",
+  "killed": true,
+  "compile_or_collect_error": false,
+  "failing_count": 1,
+  "failing": [
+   "\u00d7 f5_affected_refs_string_names_no_case 14ms"
+  ],
+  "seconds": 10.0
+ }
+]

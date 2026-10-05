@@ -1,0 +1,386 @@
+[
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/API.md",
+    "commit": "cf515e37250446163e80546e99171dba2b990852",
+    "bytes": 20950,
+    "sha256": "5107c8a36cbf2de0a6b1dd18f22558dc5287b13e1832d532a0793b26c225e55e",
+    "scope": "complete subject document or structured manifest",
+    "access": "working file checked identical to frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/AUDIT.json",
+    "commit": "cf515e37250446163e80546e99171dba2b990852",
+    "bytes": 2228,
+    "sha256": "d35cb355ef432c17e8dcbd792b5d43e6f7e868d2f69036f6fe25dd9853707bb0",
+    "scope": "complete subject document or structured manifest",
+    "access": "working file checked identical to frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/BULK_MANIFEST.json",
+    "commit": "cf515e37250446163e80546e99171dba2b990852",
+    "bytes": 577,
+    "sha256": "1acc658a250b16acdbb0845c607b4d858d8914ceb6e8b20d0864752bcde82eb7",
+    "scope": "complete subject document or structured manifest",
+    "access": "working file checked identical to frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/DESIGN.md",
+    "commit": "cf515e37250446163e80546e99171dba2b990852",
+    "bytes": 14647,
+    "sha256": "6eee08e2ad9abd1a422692596537f0619a012a2de3887f9a43209fb753417325",
+    "scope": "complete subject document or structured manifest",
+    "access": "working file checked identical to frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/EXECUTION.json",
+    "commit": "cf515e37250446163e80546e99171dba2b990852",
+    "bytes": 4862,
+    "sha256": "4b836d28e388b76ed27737bd1e1fccf5742438b155769b7ceeafaad359097c3a",
+    "scope": "complete subject document or structured manifest",
+    "access": "working file checked identical to frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/FENCE.md",
+    "commit": "cf515e37250446163e80546e99171dba2b990852",
+    "bytes": 9518,
+    "sha256": "25b3f427265addcaf912eeccebd75ca53b1d4f64a715c627431a79052451fd02",
+    "scope": "complete subject document or structured manifest",
+    "access": "working file checked identical to frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/ORIGINS.json",
+    "commit": "cf515e37250446163e80546e99171dba2b990852",
+    "bytes": 8722,
+    "sha256": "91b976daf31b9a0099be0f7907fb0edcf3014a5de8d1042a43060d2fe8e05303",
+    "scope": "complete subject document or structured manifest",
+    "access": "working file checked identical to frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/RETURN.md",
+    "commit": "cf515e37250446163e80546e99171dba2b990852",
+    "bytes": 4026,
+    "sha256": "2df6cef8a16bac019e8e4185381b0c845109211e0b6fae3b8474e4c897d8e9ad",
+    "scope": "complete subject document or structured manifest",
+    "access": "working file checked identical to frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/SEAL.json",
+    "commit": "cf515e37250446163e80546e99171dba2b990852",
+    "bytes": 1705,
+    "sha256": "2611151ec3bea60266970784fd9238e0d2b099004cda3500051e465bb5188909",
+    "scope": "complete subject document or structured manifest",
+    "access": "working file checked identical to frozen Git object"
+  },
+  {
+    "path": "AGENTS.md",
+    "commit": "42727b2af5ded2ba6c2d29444a27e68d8070d267",
+    "bytes": 14200,
+    "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "agents/AGENT_TASK.md",
+    "commit": "42727b2af5ded2ba6c2d29444a27e68d8070d267",
+    "bytes": 1499,
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/AGENTS.md",
+    "commit": "42727b2af5ded2ba6c2d29444a27e68d8070d267",
+    "bytes": 9016,
+    "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I51_PREPARED_PRODUCER_DESIGN_CORRECTION.md",
+    "commit": "42727b2af5ded2ba6c2d29444a27e68d8070d267",
+    "bytes": 5108,
+    "sha256": "10eba4e2692dd48e3cecd89d390218b0c28b0234dcdfdd3c300bc26be381e213",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV67/prepared_producer_01/REVIEW.md",
+    "commit": "ec6e5080f823144258465149f4d7d007cf43d777",
+    "bytes": 17212,
+    "sha256": "8d65452c5ec43c68a9ee561b6a6251e444339689bf3e257c1a570c8fff8579f2",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV67/prepared_producer_01/DESIGN_FENCE.md",
+    "commit": "ec6e5080f823144258465149f4d7d007cf43d777",
+    "bytes": 11128,
+    "sha256": "8d17aad6aea1ce19c35fe731a711e589febbdfe958ebd96aee95de4bbaaa4c6d",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 25970,
+    "sha256": "1f2c80c372a776986f17211d6421ebbb24df40751fc0ffacc68c80ff17a12f2e",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 36264,
+    "sha256": "764aa537c93990c4e825a81f9b00b2786ccfd2ccaf80a9cfaa7f7f49f7581695",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 120741,
+    "sha256": "9c0e7094d28307a09418cf20c1f1eb56e5e3c8889c4e4d0c3749965abb6a0a92",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 988359,
+    "sha256": "802cc1694f47c984ad01e1eb5380b6445219e0bb3694f17fbad97a50383780b5",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/preview_physics.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 57331,
+    "sha256": "2b8265403dd506130eded40cadb05401423a78e0d24d1f8f028cbc6106c6aafa",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 207408,
+    "sha256": "473948b1beba7721c231b304e72e841120efb71762b2d6216c70f5257c9380d3",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 7488,
+    "sha256": "031457491dcb9c2ae939de8ed617e7b59d5006debd5ad485a0fc9f8fd49c6b01",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 44050,
+    "sha256": "510d6f640ad718de7edb3b1767c531bb1ea1984f5717a4eaecb72e98877c58fe",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 18923,
+    "sha256": "ca59f5acd00d77f14f6f4953116276a88440198ad66feffeb91ccdd53a4c09b9",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 61780,
+    "sha256": "cc6f9e9992853b6d144a823e8865e9f914057d9ba255d1244ad40f0d3f7de075",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 40489,
+    "sha256": "65ec3071eddd539faa5a39499beba11e98a226f20ccdc3c8a24f7b1c2f4cc723",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 98238,
+    "sha256": "e0c18d22aa1d64fc645f6196c632ae61ec8914d83bc3e929c5c5cc0ce7eb61c0",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_NUMERICS/DESIGN.md",
+    "commit": "42727b2af5ded2ba6c2d29444a27e68d8070d267",
+    "bytes": 224200,
+    "sha256": "fb62ef4a8282e53fd5875430e8903da80f1e0821c2dfba075dce5a97e5f27a74",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/replacement_producer_01/SEAL.json",
+    "commit": "8d025201b8dc4591aa3be7f4534c0cbb932e594c",
+    "bytes": 1606,
+    "sha256": "ba0c9b7f68447987d62a8ee546b5c5aa26ff19e762b3d35c858d5f9bb521d1a6",
+    "scope": "hash audit only in this backcheck unless selective reread recorded",
+    "access": "frozen Git object"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_completion/origin_audit.json",
+    "bytes": 1545,
+    "sha256": "a375c14225374d40992689a501099043f060e764e247943878eca5eb79e60944",
+    "scope": "external origin audit hash verified"
+  },
+  {
+    "path": "AGENTS.md",
+    "commit": "cf515e37250446163e80546e99171dba2b990852",
+    "bytes": 14200,
+    "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "scope": "complete startup instructions/brief; skill retained from prior activation, same bytes",
+    "access": "working file checked identical to frozen Git object"
+  },
+  {
+    "path": "agents/AGENT_TASK.md",
+    "commit": "cf515e37250446163e80546e99171dba2b990852",
+    "bytes": 1499,
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "scope": "complete startup instructions/brief; skill retained from prior activation, same bytes",
+    "access": "working file checked identical to frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/AGENTS.md",
+    "commit": "cf515e37250446163e80546e99171dba2b990852",
+    "bytes": 9016,
+    "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "scope": "complete startup instructions/brief; skill retained from prior activation, same bytes",
+    "access": "working file checked identical to frozen Git object"
+  },
+  {
+    "path": ".agents/skills/software-code-review/SKILL.md",
+    "commit": "cf515e37250446163e80546e99171dba2b990852",
+    "bytes": 1411,
+    "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+    "scope": "complete startup instructions/brief; skill retained from prior activation, same bytes",
+    "access": "working file checked identical to frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV67_PREPARED_PRODUCER_BACKCHECK.md",
+    "commit": "cf515e37250446163e80546e99171dba2b990852",
+    "bytes": 3664,
+    "sha256": "4047baedc061d7bf6aca785d163d0436c5e09bdd96e21419b78e2c9a5ac090a7",
+    "scope": "complete startup instructions/brief; skill retained from prior activation, same bytes",
+    "access": "working file checked identical to frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 988359,
+    "sha256": "802cc1694f47c984ad01e1eb5380b6445219e0bb3694f17fbad97a50383780b5",
+    "scope": [
+      [
+        745,
+        860
+      ],
+      [
+        9653,
+        9750
+      ]
+    ],
+    "access": "selective lines printed from frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/preview_physics.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 57331,
+    "sha256": "2b8265403dd506130eded40cadb05401423a78e0d24d1f8f028cbc6106c6aafa",
+    "scope": [
+      [
+        156,
+        186
+      ],
+      [
+        270,
+        308
+      ]
+    ],
+    "access": "selective lines printed from frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 207408,
+    "sha256": "473948b1beba7721c231b304e72e841120efb71762b2d6216c70f5257c9380d3",
+    "scope": [
+      [
+        86,
+        148
+      ],
+      [
+        5290,
+        5332
+      ]
+    ],
+    "access": "selective lines printed from frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 25970,
+    "sha256": "1f2c80c372a776986f17211d6421ebbb24df40751fc0ffacc68c80ff17a12f2e",
+    "scope": [
+      [
+        786,
+        815
+      ]
+    ],
+    "access": "selective lines printed from frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 36264,
+    "sha256": "764aa537c93990c4e825a81f9b00b2786ccfd2ccaf80a9cfaa7f7f49f7581695",
+    "scope": [
+      [
+        600,
+        650
+      ]
+    ],
+    "access": "selective lines printed from frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 120741,
+    "sha256": "9c0e7094d28307a09418cf20c1f1eb56e5e3c8889c4e4d0c3749965abb6a0a92",
+    "scope": [
+      [
+        1458,
+        1539
+      ]
+    ],
+    "access": "selective lines printed from frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 61780,
+    "sha256": "cc6f9e9992853b6d144a823e8865e9f914057d9ba255d1244ad40f0d3f7de075",
+    "scope": "explicit fenced-file inclusion lines in exact source inventories",
+    "access": "selective matching lines printed from frozen Git object"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+    "commit": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+    "bytes": 40489,
+    "sha256": "65ec3071eddd539faa5a39499beba11e98a226f20ccdc3c8a24f7b1c2f4cc723",
+    "scope": "explicit fenced-file inclusion lines in exact source inventories",
+    "access": "selective matching lines printed from frozen Git object"
+  }
+]

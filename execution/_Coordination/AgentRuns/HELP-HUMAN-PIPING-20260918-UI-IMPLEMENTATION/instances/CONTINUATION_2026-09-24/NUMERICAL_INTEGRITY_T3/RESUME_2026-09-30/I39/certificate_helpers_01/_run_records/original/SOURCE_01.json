@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-02T23:41:18.867912+00:00",
+  "sha256": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs": "3682ee4f7c78a4f7cf5f96ca3065dcae903f1fcce28c0265f614bf305eb441e6",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed/certificate.rs": "fb3e58a8c1fcab82b1a7b5adb7a441a5340713e9c2f03991cf1c9212ba96183c",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_tests.rs": "90ac7dd4caa793190054bac3bfee09edddd47407f40b6d730c949f975dc1b90a",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_vectors.rs": "a5bab841b3125bc1c0445cefd356ca3dea5fba0273d1cab20ab9a69baec07185",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_vectors.py": "99fd05e2e9467fda62d1f479fde423b26af4aeae47720ce5968609fc93e831a9"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "status": "SEALED_ONCE",
+  "utc": "2026-10-03T15:10:48.747538+00:00",
+  "role": "TASK Type 2",
+  "parent": "/root HELP_HUMAN",
+  "mechanism": "native; no descendants",
+  "manifest_sha256": "20f2261440b443e43901a8de0d4d6b42446c98236adb739e425bacbe687408ac",
+  "source_patch_sha256": "2dbd59b73c7dddf449df84cfc89c0c2e8ca35ed5e3e844079f38b48cb09131d3",
+  "payload_files": 9,
+  "bulk_files": 12,
+  "cargo_commands": 5,
+  "source_stable_and_reaped": true,
+  "lane_released": true,
+  "production_admission": "none; every retained entry refuses W1",
+  "acceptance": "independent review and ROOT pending"
+}

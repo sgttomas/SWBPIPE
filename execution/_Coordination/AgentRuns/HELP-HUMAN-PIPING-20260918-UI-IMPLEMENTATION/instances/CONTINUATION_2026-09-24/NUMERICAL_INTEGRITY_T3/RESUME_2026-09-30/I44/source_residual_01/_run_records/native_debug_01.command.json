@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+    "--lib",
+    "source_residual_actual_zero_loaded_witness",
+    "--",
+    "--nocapture"
+  ],
+  "environment": {
+    "CARGO_BUILD_JOBS": "4",
+    "RUST_TEST_THREADS": "2",
+    "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/.i44-target/frame_kernel"
+  },
+  "timeout_seconds": 1200,
+  "elapsed_seconds": 12.365987062454224,
+  "exit_code": 0
+}

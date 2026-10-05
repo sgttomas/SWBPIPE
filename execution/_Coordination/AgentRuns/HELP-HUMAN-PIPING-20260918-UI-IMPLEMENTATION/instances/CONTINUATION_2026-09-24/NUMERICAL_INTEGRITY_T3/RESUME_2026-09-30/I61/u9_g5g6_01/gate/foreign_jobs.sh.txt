@@ -1,0 +1,3 @@
+#!/bin/bash
+# Print the foreign build/solver/test processes on the host (anything but this gate's own i61-u9g6 probes).
+ps -axo pid=,command= | grep -E 'cargo |/rustc |pytest|vitest|t3_p1_probe|calib_fixdiff|open_pipe_stress|/deps/[a-z_]+-[0-9a-f]{16}|cargo_run|run_cargo|run_suites|run_sweeps' | grep -v -E 'grep -E|foreign_jobs|targets/i61-u9g6/|[(]t3_p1_probe[)]' | cut -c1-160

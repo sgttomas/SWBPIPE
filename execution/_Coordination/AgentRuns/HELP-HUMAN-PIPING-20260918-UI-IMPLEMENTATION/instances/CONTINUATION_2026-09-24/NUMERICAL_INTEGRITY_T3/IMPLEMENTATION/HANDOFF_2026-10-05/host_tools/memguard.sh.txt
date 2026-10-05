@@ -1,0 +1,21 @@
+#!/bin/bash
+# T3 memory guard (this Mac has no swap). Every second, read kern.memorystatus_level (% of memory
+# available). Below FLOOR, SIGKILL T3 heavy processes: anything whose command line names a T3 root
+# (<wt>), or a calibration/gate probe. Logs what was killed. Never touches other applications.
+ROOTS='(/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3|/Users/ryan/dev/chirality/.claude/worktrees/t3)/'
+FLOOR=${FLOOR:-35}
+LOG=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.log
+echo "$(date '+%F %T') memguard start floor=${FLOOR}% pid=$$" >> $LOG
+while true; do
+  lvl=$(sysctl -n kern.memorystatus_level 2>/dev/null || echo 100)
+  if [ "$lvl" -lt "$FLOOR" ]; then
+    for p in $(pgrep -f "$ROOTS") $(pgrep -f 't3_p1_probe|calib_fixdiff'); do
+      [ "$p" = "$$" ] && continue
+      cmd=$(ps -o rss=,command= -p $p 2>/dev/null | cut -c1-200)
+      case "$cmd" in *memguard*|*shell-snapshots*) continue;; esac
+      kill -9 $p 2>/dev/null && echo "$(date '+%F %T') level=${lvl}% KILLED $p $cmd" >> $LOG
+    done
+    sleep 3
+  fi
+  sleep 1
+done

@@ -1,0 +1,92 @@
+{
+  "kind": "abstract exact design controls; no realized source/solver reach claim",
+  "groups": 12,
+  "checks": [
+    {
+      "name": "scalar_success_distinct_operators",
+      "status": "pass",
+      "delta": "1/1152921504606846976",
+      "error": "1/1152921504606846977",
+      "bound": "1/1152921504606846975"
+    },
+    {
+      "name": "scalar_sharper_refusal_despite_decimal_pass",
+      "status": "pass",
+      "delta": "1/1099511627776",
+      "error": "1/1099511627777",
+      "bound": "1/1099511627775",
+      "A_exact": "22482136439148511845009522660433665273628151112682556255474909966289934313665744479303867177311334937288255736698245777786078612201886674947706879203378851406716004153993281343367742666401479717484029303213245256199569247313742796281691778806852988312763775617021905329293471940260521079213173841192485388289/202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784",
+      "A_f64": "4297064449/38685626227668133590597632"
+    },
+    {
+      "name": "zero_component_bare_b_refusal",
+      "status": "pass",
+      "source_zero_row": "-4503599627370496/20282409603651670423947251286015",
+      "bound": "1/4503599627370495",
+      "bare_b": "1/18446744073709551616"
+    },
+    {
+      "name": "alpha_one_refuses_while_source_is_invertible",
+      "status": "pass",
+      "alpha": "1",
+      "source_solution": "1/2"
+    },
+    {
+      "name": "prescribed_coupling_term",
+      "status": "pass",
+      "exact_error": "3/70368744177664",
+      "correct_bound": "3/70368744177664",
+      "omitted_term_bound": "0"
+    },
+    {
+      "name": "action_functional_and_equilibrium_scope",
+      "status": "pass",
+      "displacement_bound": "1/1125899906842622",
+      "branch_error": "1/1125899906842626",
+      "branch_bound": "3/1125899906842622",
+      "total_action": "1"
+    },
+    {
+      "name": "radix_scaled_components",
+      "status": "pass",
+      "beta": "1/2",
+      "eta": "1/140737488355328",
+      "residual_majorant": "1/562949953421312",
+      "tau": "1/1125899906842620"
+    },
+    {
+      "name": "publication_radius_in_residual_majorant",
+      "status": "pass",
+      "x": "1180591620717411303425/1180591620717411303424",
+      "R_K": "1/1180591620717411303424",
+      "source_error": "1181744542222018150401/1361129467683753855034090050444484149248",
+      "H": "131304949135779794489/151236607520417094741434089889962393600"
+    },
+    {
+      "name": "source_geometry_and_derived_G_difference",
+      "status": "pass",
+      "exact_G": "2/5",
+      "admitted_G": "3602879701896397/9007199254740992",
+      "torsion_difference_bound": "11615572443520935157581415103178443489315510952474335420499764705881815606858642788983345898510080695004673718498228990243820260945262470331/13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084096"
+    },
+    {
+      "name": "nonpositive_operand_and_absence_refusals",
+      "status": "pass",
+      "invalid_nu": "-1",
+      "invalid_D": "4",
+      "invalid_t": "2"
+    },
+    {
+      "name": "exact_load_terms_not_rounded_net",
+      "status": "pass",
+      "exact_net": "1/1208925819614629174706176",
+      "rounded_fold": "0"
+    },
+    {
+      "name": "checked_arithmetic_cap_refusal",
+      "status": "pass",
+      "abstract_cap_bits": "64",
+      "refused_denominator_bits": "129"
+    }
+  ]
+}

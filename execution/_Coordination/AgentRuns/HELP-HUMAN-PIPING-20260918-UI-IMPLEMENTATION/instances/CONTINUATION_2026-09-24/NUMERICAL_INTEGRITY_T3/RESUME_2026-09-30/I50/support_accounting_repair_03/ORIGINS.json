@@ -1,0 +1,51 @@
+{
+  "role": "TASK Type 2",
+  "parent": "/root",
+  "task": "/root/i50_named_case_component",
+  "mechanism": "delegated-harness-native",
+  "descendants": [],
+  "source_pin": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+  "brief_pin": "d332699b2d2ded34414de8ad9044cf387acb7aa6",
+  "review_pin": "0869aa6265de6ee120b8f97bc3c80904d94d6f37",
+  "selected_skills": [],
+  "selected_workflows": [],
+  "instructions_and_review": [
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/AGENTS.md",
+      "revision": "d332699b2d2ded34414de8ad9044cf387acb7aa6",
+      "read_scope": "continued active Root instruction",
+      "bytes": 14200,
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/agents/AGENT_TASK.md",
+      "revision": "d332699b2d2ded34414de8ad9044cf387acb7aa6",
+      "read_scope": "continued active TASK instruction",
+      "bytes": 1499,
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/AGENTS.md",
+      "revision": "d332699b2d2ded34414de8ad9044cf387acb7aa6",
+      "read_scope": "continued active project instruction",
+      "bytes": 9016,
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I50_BITMAP_ACCOUNTING_REPAIR.md",
+      "revision": "d332699b2d2ded34414de8ad9044cf387acb7aa6",
+      "read_scope": "full repair brief",
+      "bytes": 3596,
+      "sha256": "50ce769cc69f4cc431c70d4edf4695b42960310f0e8b0a8938f4b8897cf6f371"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/named_support_implementation_03/REVIEW.md",
+      "revision": "0869aa6265de6ee120b8f97bc3c80904d94d6f37",
+      "read_scope": "full independent review; exact I1 discriminator and hits warrant",
+      "bytes": 14075,
+      "sha256": "56180f4aa5be2867b806c4b8c117cc7b81c2a9fc3422302274f9d9bea87f6fac"
+    }
+  ],
+  "baseline_source_inventory": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/repair03/BASELINE.json",
+  "continued_basis": "I50 prior sealed A/B/D packet and selected RV65 contracts, unchanged except this exact two-file repair"
+}

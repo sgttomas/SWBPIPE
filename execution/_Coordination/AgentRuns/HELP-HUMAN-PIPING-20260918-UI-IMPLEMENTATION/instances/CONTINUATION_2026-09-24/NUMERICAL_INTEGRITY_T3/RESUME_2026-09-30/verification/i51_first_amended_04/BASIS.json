@@ -1,0 +1,33 @@
+{
+  "actor": "ROOT /root",
+  "utc": "2026-10-03T11:52:00.865818+00:00",
+  "base_commit": "430bc4f798a1ff5d158733cbfce5b6e7e096dbe0",
+  "files": [
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_completion/implementation_04/FIRST_AMENDED.json",
+      "bytes": 830,
+      "sha256": "5f05cafae8ae1cdf9f5acb7fee8a7ef1792355720c4d4925b2ec2d0665e1eeaf"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_completion/implementation_04/FIRST_AMENDED_SOURCE.patch",
+      "bytes": 12559,
+      "sha256": "dd6c65aafbf7804425935fdfaae43d5b09a735b39039d9e8028eb83772716925"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_completion/implementation_04/pp_amended_candidate_01.json",
+      "bytes": 1387,
+      "sha256": "2cff96e5377b51c49fe66683946563d168cad80aaef42bdb3c4faf301a828fde"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_completion/implementation_04/pp_amended_candidate_01.log",
+      "bytes": 412044,
+      "sha256": "359cbec10d13965da085784dcf38867feb6edfd52e42f5d27254d845792ac73d"
+    }
+  ],
+  "actual_source_delta": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "7acdf5fefbf0264b02f51b717987e1dbe8a21d645ca89cae1e0e6b90ba8b3266",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs": "715be4403118411d762a30f45b6945d0a3ce02a7fd8131d3af7e479d3a915b9c"
+  },
+  "root_read": "First actual report/command and successful candidate/test raw records; no complete amended-source acceptance",
+  "status": "first private success frozen for independent full component review; author controls/accounting ongoing"
+}

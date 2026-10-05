@@ -1,0 +1,126 @@
+{
+  "schema": "rv41_native_reply_backcheck_03",
+  "status": "SEALED FINITE RETURN",
+  "task": "/root/rv41_f2a_checkpoint0",
+  "role": "TASK Type 2",
+  "parent": "/root HELP_HUMAN",
+  "mechanism": "native followup_task in same independent child; no descendants",
+  "clock": {
+    "receipt_utc": "2026-10-02T20:31:40Z",
+    "new_check_cutoff_utc": "2026-10-02T20:46:40Z",
+    "hard_return_utc": "2026-10-02T20:56:40Z",
+    "sealed_at_utc": "2026-10-02T20:35:14.422923+00:00"
+  },
+  "basis": {
+    "NUM": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+    "frozen_packet_and_closing_HEAD": "a4e21279b9462334e9dadf53b9211391576c98be",
+    "maintained_main": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+    "maintained_worktree_diff_and_status_empty": true
+  },
+  "parent_dispatch": "Backcheck native first-party completion at frozen a4e21279b9, R/I30/f2a_native_reply_03. ROOT read full CONTRACT/RETURN and verified three payload hashes/exact four-file scope. Own new R/REVIEW_RV41/f2a_native_reply_03. Twenty-five minutes total, new-check cutoff15 from receipt; acknowledge times. Check RV41-B1 Busy→same-job sequential retry through actual service/solveJobAudit/workspace state, matching job/code/closed frame, capture identity, terminalClaimed and async stale/cancellation races, with ordinary paths unchanged. Assess wrapper success/small-error ownership and truthful remaining P4 aggregate denied-request gap; no unlimited-small-reply bound or numeric K inferred. Verify no new IPC/retry framework, fake backend state or hidden solver rerun. This is control/interface backcheck only, not byte/runtime qualification. No compiler/solver/model/runtime/host tools, delegation, source/Git/index/API edits; minimal sealed packet with origins under _run_records. Stop early on complete finite checks.",
+  "scope": {
+    "owned": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV41/f2a_native_reply_03",
+    "fence": "instructional shared unrestricted host",
+    "delegation": false,
+    "git_index_api_mutation": false,
+    "maintained_edits": false,
+    "runtime_compiler_solver_model_probe_host_tool_operations": false,
+    "continued_skill": "software-code-review",
+    "workflow": null,
+    "allowed_operations": [
+      "read-only source and metadata",
+      "optional-locks-disabled Git metadata/diff/status",
+      "owned sealed review writes"
+    ]
+  },
+  "disposition": {
+    "RV41_B1": "closed at proposed control/interface level; no new blocking control finding",
+    "P4": "aggregate denied/error overlap, all byte/capacity/profile terms and native tests remain open",
+    "numeric_K_or_M_selected": false
+  },
+  "checks": [
+    "Read complete frozen CONTRACT/RETURN and actual cited first-party service, wait, generation, workspace and native cancel/result paths.",
+    "Rechecked Busy classification, original capture identity, terminal claim exclusion, staleness during async validation, accepted/refused cancellation and legacy path separation.",
+    "Carried forward independently source-checked Tauri response/error handoff from RV41 routing backcheck; local file hash retained for correspondence.",
+    "Verified maintained worktree diff and status empty against pinned main.",
+    "No tests/runtime were performed. ROOT inventory verification was supplied context and is not re-claimed as a fresh wholesale inventory check."
+  ],
+  "interpretation_to_preserve": "The contract's explicit ordinary/exact preservation governs its new stale/detached and pending-validation behavior: those are W1 retrieval branches, not a generic change to every legacy poll. Implementation must retain original capture before waits and commit validation/registration/claim synchronously after the final guard.",
+  "limits": [
+    "This is a control/interface review only, not a byte proof or native behavior witness.",
+    "The denied-request aggregate gap is expressly unclosed; no unlimited-small-reply bound is inferred.",
+    "W1ReplyError finite codes/widths and emergency serialization success still require interface freeze and P4.",
+    "Dependency source/build authenticity and features are not newly qualified; previous source inspection and exact hash are preserved.",
+    "No new owner policy or implementation authority follows."
+  ],
+  "parent_dispatch_sha256": "12e5f180b9b9e9d35aee39929e451a37dee99be3e548b4c532791ac71282fea3",
+  "continued_instruction_origins": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/92ea/chirality/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/92ea/chirality/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/92ea/chirality/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca"
+    }
+  ],
+  "basis_origins": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_native_reply_03/CONTRACT.md",
+      "sha256": "75304a6bc381d3cd5b4f398550b330902228e38e192f32e3efe5177210d250ed"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_native_reply_03/RETURN.md",
+      "sha256": "7fa6350062fce1bd5a04127bca303928117319532defccd8e5c0cb6701e9a62f"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_native_reply_03/_run_records/ORIGINS.json",
+      "sha256": "2bbeb74894deb86b863a6f1d2504dc247a096ea8077d87fe46f11068f115ba15"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV41/f2a_routing_02/BACKCHECK.md",
+      "sha256": "8afb2571f3ed9a9cf33522d5c7a1588a7ecf374a84feadf3556c3bc7ef4de1b5"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+      "sha256": "725e5c8789954f4ad788711152357e1a7e2faac1ef552d19d0f928ad2c6d9972"
+    }
+  ],
+  "source_origins": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "5d8a7443ca67166d63c7ac6cef8836dfaf8d8b504adb19a91e87622c84662ce2"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/apps/desktop/src/features/workspace/solveJobAudit.ts",
+      "sha256": "df1e5ae7c5110bedf98a49dfee36bf1f98e07479e7dc96b5c4ac778ec0f6c755"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "sha256": "b1e59fa4c4a2409a4694cda56662db365fb302bb0e26296b9b50096cf62204f8"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/apps/desktop/src/features/workspace/solveGates.ts",
+      "sha256": "1684fb9c8576c6c1a6b6b66b04e1f4a1cf2068d4d77ccb8b00c146c44ff63be4"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "8f9281c3184a5c407bf371582d8a601b03617c7b71e68168b10a38a54ce7f6bd"
+    }
+  ],
+  "inherited_dependency_check": {
+    "prior_review": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV41/f2a_routing_02/BACKCHECK.md",
+    "file": {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.11.1/src/ipc/mod.rs",
+      "sha256": "8c18c612897de97dc4e1b3c1aa62869b66d610e85093e2015b1b6abc3418364d"
+    }
+  }
+}

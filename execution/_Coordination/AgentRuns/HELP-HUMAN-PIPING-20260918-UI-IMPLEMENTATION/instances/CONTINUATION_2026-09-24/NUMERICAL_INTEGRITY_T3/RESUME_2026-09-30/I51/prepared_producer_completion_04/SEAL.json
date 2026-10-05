@@ -1,0 +1,63 @@
+{
+  "sealed_utc": "2026-10-03T12:40:43.105684+00:00",
+  "seal_count": 1,
+  "status": "passing private candidate; RV68 final confirmation and ROOT acceptance pending; no publication",
+  "payloads": [
+    {
+      "path": "AUDIT.json",
+      "bytes": 1728,
+      "sha256": "7dab28bbc5d71aea431c37fad57ae847edac3d6a6490074ac94e7cca96e7a804"
+    },
+    {
+      "path": "BULK_MANIFEST.json",
+      "bytes": 31947,
+      "sha256": "b0e93ac61bca3b22fc920a8e89fabee52afb8eff23266ccf8ab0035b9048ab3f"
+    },
+    {
+      "path": "EXECUTION.json",
+      "bytes": 1808,
+      "sha256": "2918d2c8f0a8465b733d8e12645e903daafa00c6321b8221404b1ce85d2ef7ac"
+    },
+    {
+      "path": "LOCAL_ACCOUNTING.md",
+      "bytes": 9573,
+      "sha256": "b460cf823dcfa384d4bb407d023b2a2c7df73298780dbbbe19587b80ea11079e"
+    },
+    {
+      "path": "ORIGINS.json",
+      "bytes": 2710,
+      "sha256": "b0744d16ed37ab3ac6f953a9980eef0da7ddaab6f64e8f4d57c17128f662735e"
+    },
+    {
+      "path": "PRIOR_SEAL_CHECK.json",
+      "bytes": 210,
+      "sha256": "cd7bd3e751a261db3f016c11dd57cac213e5bf0173d13f034248d0c08703dacc"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 3433,
+      "sha256": "5c0fa9f660204f3501872c30905af4bd444f9da09677fa70c90cb219384d84f9"
+    },
+    {
+      "path": "SOURCE.json",
+      "bytes": 3211,
+      "sha256": "e4385531d3e42fbb47be1c82c41d6ae8ff6a63f187f33c8af3fc89ba24898806"
+    },
+    {
+      "path": "VALIDATION.json",
+      "bytes": 39892,
+      "sha256": "083471c8b0f48e93d7b53182d64a9252794ed0261626e64914835f4302a75ce7"
+    },
+    {
+      "path": "VIEW_PREFIX_DEPENDENCY.json",
+      "bytes": 1091,
+      "sha256": "d46cedd16dfdca423526eb1e83040407f284bfa3e72cfc231b6fd5e8f8ee7323"
+    }
+  ],
+  "bulk_files": 105,
+  "changed_source_files": 8,
+  "unchanged_baseline_files": 581,
+  "runtime_released_utc": "2026-10-03T12:36:23.292239+00:00",
+  "source_cutoff_miss_seconds": 14.115977,
+  "original_seal_deadline": "2026-10-03T12:43:46Z"
+}

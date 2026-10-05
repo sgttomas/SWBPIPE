@@ -1,0 +1,41 @@
+{
+  "sealed_at": "2026-10-03T19:17:03.313797+00:00",
+  "status": "incomplete unaccepted recovery checkpoint; eligibility held; Cargo released",
+  "files": [
+    {
+      "path": "BULK_MANIFEST.json",
+      "sha256": "fa519de1462e0bc75fda457ecd9e280c848baa6ef052f745a0a9504945ca628e",
+      "bytes": 3460
+    },
+    {
+      "path": "CHECKS.json",
+      "sha256": "a6f63746b24b539891f636180298c6261ffadcf35e5b036822a17e70ae99ad13",
+      "bytes": 13420
+    },
+    {
+      "path": "INHERITED_VERIFICATION.json",
+      "sha256": "275239c5310a9d0afbb77f2c73acf34b5b58963a77e7e8d408909650a378c423",
+      "bytes": 1254
+    },
+    {
+      "path": "ORIGINS.json",
+      "sha256": "a5e6280bc69abbd325a857cd82bb72139d6321682a0eb75461b2c134d847dcc2",
+      "bytes": 10753
+    },
+    {
+      "path": "RECEIPT.json",
+      "sha256": "ad71b0f3221f675cd3408cf575f531257e84ed268c62dba377e41c5e23dc2a23",
+      "bytes": 2392
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "d77574b804d4cfc94f8dbcac6ea91f2408e4123a5244fd80a75df2a42b9302b5",
+      "bytes": 7695
+    },
+    {
+      "path": "SOURCE_FREEZE.json",
+      "sha256": "487671f30ee29e7c97f5beeef81a95882a53d0e5dd8ee8629e419a96909890c6",
+      "bytes": 2504
+    }
+  ]
+}

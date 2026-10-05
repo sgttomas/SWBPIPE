@@ -1,0 +1,31 @@
+{
+  "role": "TASK Type2 I48",
+  "parent": "ROOT HELP_HUMAN /root",
+  "mechanism": "delegated-harness-native",
+  "agent": "/root/i48_product_availability",
+  "receipt_utc": "2026-10-03T03:53:07Z",
+  "checkpoint_utc": "2026-10-03T04:01:07Z",
+  "cutoff_utc": "2026-10-03T04:08:07Z",
+  "return_deadline_utc": "2026-10-03T04:13:07Z",
+  "scope": "Read-only availability-warrant check; output only I48/product_availability_01; no runtime, implementation, network, Git/index writes, delegation",
+  "enforcement": "Actual host unrestricted filesystem; narrower brief enforced by agent; no host sandbox claim",
+  "selected_workflow": null,
+  "selected_skill": null,
+  "formal_checkpoint_utc": "2026-10-03T04:01:30Z",
+  "new_reference_expansion_stopped_utc": "2026-10-03T04:01:30Z",
+  "sealed_return_utc": "2026-10-03T04:03:47Z",
+  "result": "No protected availability breach established by this expressly conditional private specimen; exact owner and missing actual producer boundaries stated.",
+  "checks": {
+    "origins": 33,
+    "frozen_matches": 32,
+    "root_rulings_append_only": true,
+    "source_hashes_still_match": true,
+    "runtime_executions": 0,
+    "git_or_index_writes": 0,
+    "network_calls": 0,
+    "descendants": 0
+  },
+  "inherited_context": "Parent TASK dispatch and user-supplied Root AGENTS for92ea were present in harness context. Runtime filesystem instructions actually read from NUM are recorded in ORIGINS; no other full role, workflow or skill body loaded.",
+  "source_candidate": "Parent supplied I45 candidate52842022cc49 under RV60; not inspected or reviewed by I48.",
+  "limitations": "Tests and protected records were read, not run; no public producer/routing or availability qualification is claimed."
+}

@@ -1,0 +1,50 @@
+   Compiling proc-macro2 v1.0.106
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.45
+   Compiling serde_core v1.0.228
+   Compiling zmij v1.0.21
+   Compiling serde v1.0.228
+   Compiling serde_json v1.0.150
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.2
+   Compiling syn v2.0.117
+   Compiling serde_derive v1.0.228
+   Compiling open_pipe_stress_library_import_document v0.1.0 (<WORKTREE>/projects/chirality-piping/core/library_import/library_import_document)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.56s
+     Running unittests src/lib.rs (<TARGET>/debug/deps/open_pipe_stress_library_import_document-f2ebd2880780c552)
+
+running 11 tests
+test tests::missing_library_metadata_and_records_block ... ok
+test tests::item_level_status_overrides_provenance_status ... ok
+test tests::incomplete_provenance_lists_sorted_missing_fields ... ok
+test tests::diagnostic_envelope_carries_pkg02_shape ... ok
+test tests::nested_value_without_units_or_provenance_is_flagged ... ok
+test tests::non_object_record_is_rejected ... ok
+test tests::private_only_is_blocked_for_public_visibility ... ok
+test tests::private_privacy_class_blocks_public_import_even_with_permissive_redistribution ... ok
+test tests::rejected_source_disposition_blocks_import ... ok
+test tests::token_parsers_reject_unsupported_inputs ... ok
+test tests::unaccepted_public_redistribution_is_flagged ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/provenance_parity.rs (<TARGET>/debug/deps/provenance_parity-8fc242d02c1a06a6)
+
+running 8 tests
+test private_material_import_can_remain_local_with_tbd_rights ... ok
+test missing_provenance_blocks_import_without_defaults ... ok
+test protected_suspected_metadata_quarantines_import ... ok
+test public_material_import_with_tbd_rights_is_rejected_for_review ... ok
+test import_findings_map_to_pkg02_diagnostic_envelope ... ok
+test public_component_import_requires_accepted_public_provenance ... ok
+test unit_metadata_is_preserved_for_imported_values ... ok
+test hanger_shared_cases_match_python_codes_paths_severities_and_outcomes ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+   Doc-tests open_pipe_stress_library_import_document
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

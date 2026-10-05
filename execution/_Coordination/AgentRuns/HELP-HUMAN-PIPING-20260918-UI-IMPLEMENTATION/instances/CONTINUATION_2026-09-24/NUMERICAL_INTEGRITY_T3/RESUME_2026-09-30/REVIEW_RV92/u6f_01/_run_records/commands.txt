@@ -1,0 +1,31 @@
+# RV92 (U6f) commands. Placeholders: WT, REPO_ROOT, NUM = WT/numerics, P = projects/chirality-piping, S = WT/scratch/rv92_u6f.
+# Git reads only (GIT_OPTIONAL_LOCKS=0):
+git -C NUM merge-base 76477534f6 codex/piping-numerical-integrity-20260926          # -> 7e4f5a51dd
+git -C WT/f2a-carriers archive 76477534f6 | tar -x -C WT/rv92/cand
+git -C WT/f2a-carriers archive 7e4f5a51dd | tar -x -C WT/rv92/base
+git -C NUM archive 3e264e2894 -- P ':(exclude)P/execution' | tar -x -C WT/rv92/merge   # then the 40 candidate files copied over (disjoint from NUM's 4 PP changes)
+# Runtime: P/node_modules -> REPO_ROOT/P/node_modules (symlink, both lanes); WASM copied from WT/f2a-readers/P/apps/desktop/public/{wasm-engine,self-weight-engine}.
+# CLIs from the candidate archive: (cd WT/rv92/cand/P/core/serialization/canonical_json && CARGO_TARGET_DIR=WT/targets/rv92/cli cargo build --locked --offline --release --features checked-cli --bin openpipestress_jcs_ijson)
+#                                  (cd WT/rv92/cand/P/core/units && CARGO_TARGET_DIR=WT/targets/rv92/cli cargo build --locked --offline --release --features cli --bin openpipestress_units)
+# Every cargo job: CARGO_BUILD_JOBS=4 RUST_TEST_THREADS=2 TMPDIR=S/tmp, memory guard checked (pgrep -f memguard.sh).
+## Suites
+(cd WT/rv92/{cand,base}/P/core/reporting/result_export && CARGO_TARGET_DIR=WT/targets/rv92/re_{cand,base} cargo test --locked --offline --no-fail-fast)
+harness/run_py.sh cand_sweep WT/rv92/cand/P <24 files + test_retained_precision_schema.py + test_retained_precision_carriers.py>
+harness/run_py.sh base_sweep WT/rv92/base/P <the 24 files>;  harness/run_py.sh {cand,base}_extra ... <I66's 5 extra consumer files>
+harness/run_suite.sh WT/rv92/{cand,base}/P/apps/desktop S/vitest_{cand,base}      # vitest run --maxWorkers=4 --reporter=json; tsc -p tsconfig.json --noEmit
+(cd WT/rv92/merge/P/core/product_physics && CARGO_TARGET_DIR=WT/targets/rv92/pp_merge cargo test --locked --offline --no-fail-fast --lib -- retained_wire_tests retained_facade_tests)
+(cd WT/rv92/{cand,base}/P/core/runner/headless && CARGO_TARGET_DIR=WT/targets/rv92/runner_{cand,base} cargo test --locked --offline --no-fail-fast)
+## Parity table (192 probes; review harness files copied into the candidate lane only, after its suites ran)
+python rv92_probes.py WT/rv92/cand/P S/probes                                       # REPO_ROOT/P/.venv python, CLIs from WT/targets/rv92/cli
+(cd WT/rv92/cand/P/core/reporting/result_export && RV92_PROBES=S/probes RV92_OUT=S/parity_rust.jsonl cargo test --locked --offline --test zz_rv92_parity)
+python rv92_py_parity.py WT/rv92/cand/P S/probes S/parity_py.jsonl
+(cd WT/rv92/cand/P/apps/desktop && RV92_PROBES=S/probes RV92_OUT=S/parity_ts.jsonl ../../node_modules/.bin/vitest run --maxWorkers=1 src/zzRV92Parity.test.ts)
+python3 rv92_compare.py S/probes parity_rust.jsonl parity_py.jsonl parity_ts.jsonl full    # -> full_table.jsonl, full_summary.txt
+## Existing-behaviour sweep (546 inputs from the BASE tree; base-compatible harnesses in both lanes)
+python3 rv92_sweep_inputs.py WT/rv92/base/P S/sweep_inputs
+harness/run_rs_sweep.sh ; harness/run_py_sweep.sh {base,cand} ; vitest run src/zzRV92Sweep.test.ts in each lane (RV92_SWEEP=S/sweep_inputs)
+python3 rv92_sweep_compare.py sweep_{lang}_base.jsonl sweep_{lang}_cand.jsonl {lang}
+# extra base-vs-candidate inputs (S/extra_inputs: preview-physics-1 + carrier_evidence; the projected base + carrier_evidence / MODEL_INCOMPLETE / contract_evidence edit) through the same three sweeps
+## Receipt survival (harness/run_chain.sh): step a in each language (Rust derive+validate, Python and TS AnalysisRun build+validate, TS save+reopen), then step b in each language over all three carriers' outputs
+## Exactness probe: rv92_py_exact.py (Python) and zzRV92Exact.test.ts (TS): a resealed AnalysisRun whose receipt copy has false/true for 0/1, or 0.0 for 0
+## Extra checks: zz_rv92_extra.rs (debug and --release): validation cost; a non-successor derivative claiming a class code

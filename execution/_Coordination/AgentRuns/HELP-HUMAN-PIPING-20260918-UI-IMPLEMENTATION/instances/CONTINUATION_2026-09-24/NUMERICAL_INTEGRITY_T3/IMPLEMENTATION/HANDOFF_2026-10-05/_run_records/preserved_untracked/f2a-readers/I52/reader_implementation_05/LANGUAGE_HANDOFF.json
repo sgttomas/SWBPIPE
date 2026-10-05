@@ -1,0 +1,109 @@
+{
+  "actor": "/root/i52_public_formation_contract",
+  "freeze_utc": "2026-10-03T17:15:47.224280+00:00",
+  "root_reallocation_observed_utc": "2026-10-03T17:14:47Z",
+  "rust": [
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs",
+      "bytes": 5244,
+      "sha256": "5e1867ceaf0f4f57ab408eb93e1b949b39dda80361f12f530f1586126552e71f"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "bytes": 66051,
+      "sha256": "375b07313518a0cdd09e317b83b9ca7536acef5c80fd4cd0a94920fd8bf2486d"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/physics_source.rs",
+      "bytes": 51284,
+      "sha256": "c4e380ee7c01eb1581930013e8fc77f8be37c68e1978dedbb78ab5d3cd656f37"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs",
+      "bytes": 1351,
+      "sha256": "fd6a3e0c417a0dc8176af17aab44d71a96e28429478cc69e5a10f380be389b57"
+    }
+  ],
+  "typescript": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts",
+      "bytes": 3785,
+      "sha256": "e177f8e0298ea9212cbe27ca703ac0d994761ad8a58843240f5531915b1887d5"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.ts",
+      "bytes": 33005,
+      "sha256": "ef7ab4c9505825dff5085ee8f836d4e506da458fe67036dfb7ed6036fcd10e42"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts",
+      "bytes": 1329,
+      "sha256": "390054c72e2d80088e64b05e8e15987c6966f1935d4504d02666fc66f8075ecb"
+    }
+  ],
+  "shared_current_not_final": [
+    {
+      "path": "projects/chirality-piping/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "bytes": 8346,
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "bytes": 50993,
+      "sha256": "bcc18806d0c6427a4624f8543dc2e6aab24d28727c600f74ab3532f5f83b1c75"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/retained_precision_cases.json",
+      "bytes": 5239,
+      "sha256": "651bee8a36df5db43db443e62aba93c2304f0d040d8f5c91691426ffa857bf2d"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/retained_precision_mp_v2.schema.json",
+      "bytes": 173167,
+      "sha256": "5652929173237c547ac58669f14d4b347f6c075634579e1abd5660c774e8dcd0"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "bytes": 127012,
+      "sha256": "740c47e496a0936b464e79da601417042829d9c8473b95af55a592e33cb612e4"
+    }
+  ],
+  "status": {
+    "rust": "Finite helpers and2 integration helper tests passed at prior exact helper revision. Since that test, Validation/RowClassification/AccuracyClass API types and String error code added. Entry validate still unconditionally refuses; no gate implementation.",
+    "typescript": "Exact finite helper implementation and3 helper tests passed; validateRetainedPrecision is an unconditional unsupported stub. No gate implementation.",
+    "helper_only_existing_paths": "Rust physics_source.rs and TS physicsSourceRecovery.ts unchanged from immutable maintained basis; narrow helpers remain available to new owners within their fences.",
+    "schema": "66 closed definitions, selected06+07+08 shapes included. Ordinary-prepared only; body.combinations currently empty-only. Full independent schema audit and tests remain.",
+    "table": "Base preview table cloned with successor id/profile/inherited hash, receipt metadata and selected definition hash. Accuracy-class table and final table hash still need completion by I52.",
+    "fixtures": "18 protected SMALL vectors and6 rational product controls only; cases[] is empty. Complete prepared shared control/mutations not yet built.",
+    "python": "765-line draft includes shape/encoding and G3-G8 helpers but public implementation-complete flag is false. Draft subchecks still need audit/control execution; no semantic pass claimed.",
+    "results_schema": "Unchanged; ordinary successor branch not yet installed."
+  },
+  "api": {
+    "rust": "validate(source:&Value,actual_invocation:Option<&Value>)->Result<Validation,ValidationError>; Validation invocation_bound,numerical_eligible,publication_sha256,classifications; RowClassification result_id,basis_ref,normalized_bits,scale_bits,class. Error gate:&static str,code:String.",
+    "typescript": "Current helper functions exported. Future raw result should match Rust/Python fields; no registration side effects. Existing stub has Promise<never> pending real return shape.",
+    "context": "Original {request:actual_raw_request,solver_mode}, not typed reserialization; no complete validator may report eligibility before every gate."
+  },
+  "selected_seams": "NUM e0055868da selects06+07+08; review R/REVIEW_RV69/reader_seams_03. Row method direct optional string G1; meaning/scope G6; G4diagnostics only. prepared_product_failure refs actual unavailable attempt. G5a quantity_kind0|1.",
+  "runtime": {
+    "cargo_lane": "released; no active process",
+    "i52_build_test_invocations_used": 5,
+    "checked_json_bin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i52-readers/canonical_json/release/openpipestress_jcs_ijson",
+    "units_bin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i52-readers/units/release/openpipestress_units",
+    "required_python_env": [
+      "OPENPIPESTRESS_CHECKED_JSON_BIN",
+      "OPENPIPESTRESS_UNITS_BIN"
+    ],
+    "venv": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv",
+    "wasm": "READER/P/apps/desktop/public/{wasm-engine,self-weight-engine}; built by existing source script; locks unchanged",
+    "artifact_records": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i52_reader_implementation_05",
+    "command_records": [
+      "canonical_01.json",
+      "units_02.json",
+      "wasm_03_04.json",
+      "rust_helpers_05.json",
+      "python_helpers_01.json",
+      "ts_helpers_01.json"
+    ]
+  },
+  "limits": "New owners must use these hashes as the handoff baseline. Shared schema/table/corpus are not frozen final; I52 will issue updated shared hashes. Historical fixtures and ROOT-owned symlinks untouched."
+}

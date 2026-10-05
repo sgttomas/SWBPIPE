@@ -1,0 +1,31 @@
+run 1: envelopes cand=107 base=105; existing identity 90 (legacy 0.1.0: 0); successor 17
+run 1: existing envelopes absent from base: []
+run 1: identities {'openpipestress.result_semantics/0.3.0/load-reference-1': 14, 'openpipestress.result_semantics/0.3.0/source-blocks-1': 15, 'openpipestress.result_semantics/0.3.0/precision-1': 4, 'openpipestress.result_semantics/0.3.0/preview-physics-1': 7, 'openpipestress.result_semantics/0.3.0/load-reference-source-1': 30, 'openpipestress.result_semantics/0.3.0/physics-source-1': 14, 'openpipestress.result_semantics/0.3.0/physics-1': 6}
+run 1: existing-identity envelopes differing from base (excluding the adversarial probe): 2
+    fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.raw.json#: {'derive': ('err:SOURCE_BLOCKS_STRESS_OUTPUT_RANGE', 'err:SOURCE_BLOCKS_SUMMARY_INPUT_RANGE')}
+    fixtures/product_preview/source_blocks/rejected_stress_range/sparse_interactive.raw.json#: {'derive': ('err:SOURCE_BLOCKS_STRESS_OUTPUT_RANGE', 'err:SOURCE_BLOCKS_SUMMARY_INPUT_RANGE')}
+run 1: adversarial seeded-receipt probe (base -> cand): {('err:DERIVATIVE_HASH_MISMATCH', 'err:RETAINED_PRECISION_DOWNGRADE_FORBIDDEN'): 57}
+run 1: existing accepted by for_source 59, derived 57
+run 1: form !receipt: {'n': 90, 'for_source_DG': 90, 'metadata_DG': 90, 'derive_DG': 90, 'standing_all_unsupported': 90, 'base_for_source_ok': 23, 'base_derive_ok': 21}
+run 1: form !null: {'n': 90, 'for_source_DG': 90, 'metadata_DG': 90, 'derive_DG': 90, 'standing_all_unsupported': 90, 'base_for_source_ok': 23, 'base_derive_ok': 21}
+run 1: form !token0: {'n': 60, 'for_source_DG': 60, 'metadata_DG': 0, 'derive_DG': 60, 'standing_all_unsupported': 60, 'base_for_source_ok': 21, 'base_derive_ok': 21}
+run 1: form !tokenlast: {'n': 60, 'for_source_DG': 60, 'metadata_DG': 0, 'derive_DG': 60, 'standing_all_unsupported': 60, 'base_for_source_ok': 21, 'base_derive_ok': 21}
+run 1: form !othertoken: {'n': 60, 'identical_to_base_excl_adv': 60}
+run 2: envelopes cand=114 base=112; existing identity 97 (legacy 0.1.0: 7); successor 17
+run 2: existing envelopes absent from base: []
+run 2: identities {'openpipestress.result_semantics/0.3.0/load-reference-1': 14, 'openpipestress.result_semantics/0.3.0/source-blocks-1': 15, '(legacy 0.1.0)': 7, 'openpipestress.result_semantics/0.3.0/precision-1': 4, 'openpipestress.result_semantics/0.3.0/preview-physics-1': 7, 'openpipestress.result_semantics/0.3.0/load-reference-source-1': 30, 'openpipestress.result_semantics/0.3.0/physics-source-1': 14, 'openpipestress.result_semantics/0.3.0/physics-1': 6}
+run 2: existing-identity envelopes differing from base (excluding the adversarial probe): 2
+    fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.raw.json#: {'for_source': ('err:SOURCE_BLOCKS_SUMMARY_INPUT_RANGE', 'err:SOURCE_BLOCKS_STRESS_OUTPUT_RANGE')}
+    fixtures/product_preview/source_blocks/rejected_stress_range/sparse_interactive.raw.json#: {'derive': ('err:SOURCE_BLOCKS_STRESS_OUTPUT_RANGE', 'err:SOURCE_BLOCKS_SUMMARY_INPUT_RANGE')}
+run 2: adversarial seeded-receipt probe (base -> cand): {('err:DERIVATIVE_HASH_MISMATCH', 'err:RETAINED_PRECISION_DOWNGRADE_FORBIDDEN'): 64}
+run 2: existing accepted by for_source 66, derived 64
+run 2: form !receipt: {'n': 97, 'for_source_DG': 97, 'metadata_DG': 97, 'derive_DG': 97, 'standing_all_unsupported': 97, 'base_for_source_ok': 30, 'base_derive_ok': 28}
+run 2: form !null: {'n': 97, 'for_source_DG': 97, 'metadata_DG': 97, 'derive_DG': 97, 'standing_all_unsupported': 97, 'base_for_source_ok': 30, 'base_derive_ok': 28}
+run 2: form !token0: {'n': 67, 'for_source_DG': 67, 'metadata_DG': 0, 'derive_DG': 67, 'standing_all_unsupported': 67, 'base_for_source_ok': 28, 'base_derive_ok': 28}
+run 2: form !tokenlast: {'n': 67, 'for_source_DG': 67, 'metadata_DG': 0, 'derive_DG': 67, 'standing_all_unsupported': 67, 'base_for_source_ok': 28, 'base_derive_ok': 28}
+run 2: form !othertoken: {'n': 67, 'identical_to_base_excl_adv': 67}
+run 2: form !r2notice: {'n': 97, 'identical_to_base_excl_adv': 97}
+base run1 vs run2 (same code; determinism): 465 common keys, 1 differ
+    fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.raw.json#: {'for_source': ('err:SOURCE_BLOCKS_STRESS_OUTPUT_RANGE', 'err:SOURCE_BLOCKS_SUMMARY_INPUT_RANGE')}
+cand run1 vs run2 (same code; determinism): 467 common keys, 1 differ
+    fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.raw.json#: {'derive': ('err:SOURCE_BLOCKS_SUMMARY_INPUT_RANGE', 'err:SOURCE_BLOCKS_STRESS_OUTPUT_RANGE')}

@@ -1,0 +1,19 @@
+{
+  "utc": "2026-10-03T16:02:28.631569+00:00",
+  "status": "first typed source boundary; compilation and control construction next",
+  "roster": [
+    "PreparedTrace",
+    "PreparationEntry",
+    "PrivateAdapterSnapshot",
+    "OperationalSpent.member",
+    "SectionPreparationWork.conversion_outcomes[9]",
+    "ProductCertificateSpent.lane_errors[2]",
+    "NumericTrace",
+    "TraceCopyWork",
+    "LaneWorkTrace",
+    "ProductProofTrace",
+    "TraceCosts",
+    "ProjectionWork",
+    "PreparedAttemptView"
+  ]
+}

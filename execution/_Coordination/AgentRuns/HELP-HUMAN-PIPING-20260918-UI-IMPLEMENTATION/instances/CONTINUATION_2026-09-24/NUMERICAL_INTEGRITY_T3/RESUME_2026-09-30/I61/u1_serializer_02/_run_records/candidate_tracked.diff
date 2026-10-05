@@ -1,0 +1,1865 @@
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_product.rs b/projects/chirality-piping/core/product_physics/src/retained_product.rs
+index f638db8da8..b53d9595fb 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_product.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_product.rs
+@@ -90,6 +90,11 @@ pub(super) struct ProductCapture {
+     pub adapter: AdapterWork,
+     pub invocation_calls: usize,
+     pub invocation_mode: Option<PreviewSolverMode>,
++    /// RV82-S2 (I61 U1 grant 2): the actual invocation's identity, its
++    /// `source_blocks_invocation_v1` digest, so a serializer binds structurally to
++    /// the invocation this capture observed (not only to its mode). Untracked by
++    /// the adapter arrays (receipt bytes unchanged; counted by U4).
++    pub invocation_digest: Option<String>,
+     pub observation_calls: usize,
+     pub observations: Option<SolverObservations>,
+     /// Successfully allocated case/mode-basis/parity-basis capacities, even on later failure.
+@@ -300,6 +305,7 @@ impl ProductCapture {
+         }
+         if !self.adapter.enter(AdapterEvent::MapWrite, 1) { self.fail("invocation accounting"); return; }
+         self.invocation_mode = Some(mode);
++        self.invocation_digest = capture.map(|c| c.borrowed_digest().clone());
+     }
+     fn fail(&mut self, s: impl Into<String>) {
+         if self.error.is_none() {
+@@ -3421,6 +3427,8 @@ impl PreparedCase {
+         observer.prepare_owned_case(ordinary)
+     }
+     pub(super) fn ordinary(&self)->&MechanicsEnvelope {self.ordinary.as_ref().expect("owned ordinary before attempt")}
++    /// The owned ordinary envelope, if this case still owns it (no panic).
++    pub(super) fn owned_ordinary(&self)->Option<&MechanicsEnvelope> {self.ordinary.as_ref()}
+     pub(super) fn solve_native(&mut self) -> Result<(),&CaptureError> {
+         if self.trace.stages[trace::Stage::Native as usize]!=trace::StageState::NotEntered {
+             return Err(&CaptureError::PreparedAttemptConsumed);
+@@ -3488,7 +3496,7 @@ pub(super) enum PreparedCandidateError {Capture(CaptureError),Proof(k::ProductPr
+     Values{failure:k::ProductValuesFailure,proof:k::ProductProofFailure},Abandoned{cause:CaptureError,proof:k::ProductProofFailure},Numeric,Observable,G5a}
+ pub(super) struct PreparedCandidateRefusal {
+     pub ordinary:MechanicsEnvelope,prepared:PreparedCase,pub error:PreparedCandidateError,
+-    pub certificate:Option<k::CertifiedProductProof>,pub values:Option<k::FrozenProductValues>,
++    certificate:Option<k::CertifiedProductProof>,pub values:Option<k::FrozenProductValues>,
+ }
+ pub(super) struct PrivatePreparedCandidate { envelope:MechanicsEnvelope,prepared:PreparedCase,
+     certificate:k::CertifiedProductProof }
+@@ -3500,6 +3508,13 @@ impl PrivatePreparedCandidate {
+     pub(super) fn local_work(&self)->(&ScalarWork,&[PreparedAssociation]){(&self.prepared.overlay_work,&self.prepared.associations)}
+ }
+ impl PreparedCandidateRefusal {
++    /// U2 (failure path): read-only; a serialized refusal binds it structurally.
++    pub(super) fn certificate(&self)->Option<&k::CertifiedProductProof>{self.certificate.as_ref()}
++    /// The refused proof's own failure work, when a proof was started.
++    pub(super) fn proof_failure(&self)->Option<&k::ProductProofFailure>{
++        match &self.error {PreparedCandidateError::Proof(e)=>Some(e),
++            PreparedCandidateError::Values{proof,..}|PreparedCandidateError::Abandoned{proof,..}=>Some(proof),_=>None}
++    }
+     pub(super) fn capture(&self)->&ProductCapture{&self.prepared.capture}
+     pub(super) fn local_work(&self)->(&ScalarWork,&[PreparedAssociation]){(&self.prepared.overlay_work,&self.prepared.associations)}
+ }
+@@ -3736,6 +3751,18 @@ impl PreparedCandidateRefusal {
+     }
+ }
+ #[cfg(test)]
++impl PreparedCandidateRefusal {
++    /// I61 U2 (failure path) control: exchange the refusal causes (and their proof
++    /// work) of two refusals whose public facts are identical.
++    pub(super) fn test_swap_error(&mut self, other: &mut Self) {
++        std::mem::swap(&mut self.error, &mut other.error);
++    }
++    /// The same for a commit refusal's surviving certified proof.
++    pub(super) fn test_swap_certificate(&mut self, other: &mut Self) {
++        std::mem::swap(&mut self.certificate, &mut other.certificate);
++    }
++}
++#[cfg(test)]
+ impl PrivatePreparedCandidate {
+     /// I61 U2 control: exchange the certified proofs of two candidates whose public
+     /// facts are identical, so each carries a proof of a foreign selected owner.
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs b/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs
+index b4ec43f252..82591de9b7 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs
+@@ -2704,7 +2704,7 @@ fn i51_atomic_commit_accounting_refusal_keeps_all_checked_work() {
+     let refusal=match prepared.project_candidate(){Err(e)=>e,Ok(_)=>panic!("commit permit should refuse")};
+     assert_eq!(serde_json::to_vec(&refusal.ordinary).unwrap(),original);
+     assert!(matches!(refusal.error,PreparedCandidateError::Capture(CaptureError::Accounting(_))));
+-    let proof=refusal.certificate.as_ref().expect("numerical work survives commit refusal");assert!(proof.passed());
++    let proof=refusal.certificate().expect("numerical work survives commit refusal");assert!(proof.passed());
+     assert_eq!(proof.work().source_correction_calls().unwrap().exact(),Ok(2));assert!(refusal.capture().adapter.fault.get().is_some());
+ }
+ 
+@@ -3038,13 +3038,13 @@ fn i61_failure_prefixes_null_complete_and_adapter_prefix() {
+     let probe=|allowed:u64|{let (_,prepared)=i51_ready_for_controls();let mut counts=prepared.capture().adapter.counts.get();
+         counts[E::MapWrite as usize]=u64::MAX-allowed;prepared.capture().adapter.counts.set(counts);
+         match prepared.project_candidate(){Err(e)=>e,Ok(_)=>panic!("permit {allowed} committed")}};
+-    let copied=|r:&retained_product::PreparedCandidateRefusal|r.certificate.is_some() && r.capture().verdicts.len()==rows;
++    let copied=|r:&retained_product::PreparedCandidateRefusal|r.certificate().is_some() && r.capture().verdicts.len()==rows;
+     let (mut lo,mut hi)=(0u64,writes-1);assert!(copied(&probe(hi)));
+     while lo<hi {let mid=lo+(hi-lo)/2;if copied(&probe(mid)){hi=mid;}else{lo=mid+1;}}
+     let refusal=probe(lo);
+     assert!(matches!(refusal.error,PreparedCandidateError::Capture(CaptureError::Accounting(_))));
+     let adapter=&refusal.capture().summary_coverage;assert!(adapter.len()<nb,"adapter holds a strict prefix");
+-    let certified=refusal.certificate.as_ref().unwrap();assert_eq!(certified.summary_coverage().len(),nb);
++    let certified=refusal.certificate().unwrap();assert_eq!(certified.summary_coverage().len(),nb);
+     let view=refusal.typed_trace(&mut ProjectionWork::default()).unwrap();
+     i61_assert_roster(&view,i61_owner(refusal.capture()),certified.summary_coverage());
+     println!("I61_ADAPTER_PREFIX permit={lo} writes={writes} rows={rows} bodies={nb} adapter_prefix={}",adapter.len());
+@@ -3123,16 +3123,17 @@ fn i61_certificate_prefixes_and_stage_rules_with_actual_fk_proofs() {
+         assert!(matches!(project(&trace,prepared.capture(),&[],&[],&ZERO,ResultRef::Unavailable(FailureRef::Proof(late.failure())),
+             Some(late.work()),failure,None,&mut ProjectionWork::default()),Err(T::StageConsistency)),"defect {defect}");
+     }
+-    // Documented custody limit (I57 §5, RV77-N3): a proof *failure* projected against a
+-    // different selected owner with identical public facts is NOT refused by this seam.
+-    // U2 (I61 U1 grant 1) flips this deliberately for the certified path: the serializer
+-    // refuses a foreign owner structurally (retained_wire_tests::u2_foreign_owner_refused).
+-    // The failure seam keeps custody binding until a refusal is serialized (U1 grant 2).
++    // RV77-N4, deliberately flipped (I61 U1 grant 2, U2 on the failure path): this seam
++    // formerly accepted a proof *failure* projected against a different selected owner
++    // with identical public facts (custody only; I57 §5, RV77-N3). The proof work now
++    // carries its anchor, so the foreign owner is refused structurally; the same failure
++    // against its own owner still projects (the late-failure roster above).
+     let (_,other)=i51_ready_for_controls();let mut capture_trace=i61_stage_trace(other.capture(),Some(false),false);capture_trace.source_ready=true;
+     let view=project(&capture_trace,other.capture(),&[],&[],&ZERO,ResultRef::Unavailable(FailureRef::Proof(late.failure())),
+         Some(late.work()),Some(late.failure()),None,&mut ProjectionWork::default());
+     println!("I61_FOREIGN_OWNER same_public_facts_result_ok={}",view.is_ok());
+-    assert!(view.is_ok(),"custody limit: same-public-facts foreign owner is accepted by the seam");
++    assert!(matches!(view,Err(T::WorkAssociation)),"foreign owner refused structurally at the seam");
++    assert!(late.owner_matches(i61_owner(prepared.capture())) && !late.owner_matches(i61_owner(other.capture())));
+ }
+ 
+ // ---------------------------------------------------------------- RV77 reviewer tests (RV77-S1)
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_receipt.rs b/projects/chirality-piping/core/product_physics/src/retained_receipt.rs
+index af1258672d..55cb78dbf6 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_receipt.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_receipt.rs
+@@ -171,6 +171,13 @@ pub(super) fn project<'a>(trace:&'a PreparedTrace,capture:&'a p::ProductCapture,
+     if trace.stages[Stage::ProofStart as usize]!=StageState::NotEntered && proof.is_none() {
+         return Err(TraceProjectionError::MissingFailure);
+     }
++    // RV77-N4 (I61 U2, failure path): proof work, certified or refused, binds
++    // structurally to this capture's selected owner through the proof anchor.
++    if let Some(work)=proof {
++        let owner=match capture.native.as_ref().map(|(_,case)|&case.outcome) {
++            Some(k::ExecutionOutcome::Selected(owner))=>owner,_=>return Err(TraceProjectionError::WorkAssociation)};
++        if !work.owner_matches(owner) {return Err(TraceProjectionError::WorkAssociation);}
++    }
+     let proof=proof.map(|p|p.typed_trace(&mut costs.kernel));
+     let completion=if let Some(f)=values_failure {CompletionRef::SeparateFailure{visits:f.visits,capacity_bytes:f.capacity}}
+         else if proof.as_ref().is_some_and(|p|p.completion_merged){CompletionRef::Merged}else{CompletionRef::NotEntered};
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_wire.rs b/projects/chirality-piping/core/product_physics/src/retained_wire.rs
+index 659f943ee4..c672632133 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_wire.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_wire.rs
+@@ -98,6 +98,13 @@ fn fail(check: ReceiptCheck, field_path: &'static str) -> ReceiptFailure {
+     ReceiptFailure { check, field_path }
+ }
+ 
++/// RV82-N7, the precedence: `Enc` keeps every failure it records and returns the
++/// first of them at `finish`. A structural early return (`?` on a Scope,
++/// Association or Untranslated refusal from a later step, such as `legacy_source`,
++/// `successor_envelope` or `material_basis`) takes precedence over failures the
++/// encoder recorded before it. Either way the cause is typed and maps onto
++/// C1:68's vocabulary; no successor is emitted.
++///
+ /// First-failure encoder: every Bits value is finite, every counter exact and
+ /// safe. It keeps the projection total so the first failure is reported.
+ #[derive(Default)]
+@@ -112,6 +119,11 @@ impl Enc {
+         self.fail(ReceiptCheck::Untranslated, path);
+         Value::Null
+     }
++    /// A native variant with no wire form (C1 §4): the receipt cannot encode it.
++    fn unencodable(&self, path: &'static str) -> Value {
++        self.fail(ReceiptCheck::Encoding, path);
++        Value::Null
++    }
+     fn bits(&self, x: f64, path: &'static str) -> Value {
+         if !x.is_finite() {
+             self.fail(ReceiptCheck::Encoding, path);
+@@ -263,18 +275,339 @@ fn quantity(e: &Enc, q: k::QuantityId) -> Value {
+             json!({"tag":"spring_action","spring":spring,"component":comp(component)})
+         }
+         // The ordinary prepared source declares no directional springs (C2 SourceError note).
+-        k::QuantityId::DirectionalSpringAction { .. } => e.untranslated("sources[].layout[].quantity"),
++        k::QuantityId::DirectionalSpringAction { .. } => {
++            e.fail(ReceiptCheck::Association, "QuantityId.directional_spring_action");
++            Value::Null
++        }
+         k::QuantityId::SupportForceMagnitude(s) => json!({"tag":"support_force_magnitude","support":s}),
+         k::QuantityId::SupportMomentMagnitude(s) => json!({"tag":"support_moment_magnitude","support":s}),
+     }
+ }
+-/// Outcome; a rejected/failed reason is the closed Reason translation (G-i, grant 2).
++/// Outcome (C1 §4): a rejected/failed reason is the attempt-space Reason (G-i).
+ fn outcome(e: &Enc, o: &k::AttemptOutcome) -> Value {
+     match o {
+         k::AttemptOutcome::Accepted => json!({"kind":"accepted"}),
+         k::AttemptOutcome::Verified => json!({"kind":"verified"}),
+         k::AttemptOutcome::Solved => json!({"kind":"solved"}),
+-        k::AttemptOutcome::Rejected(_) | k::AttemptOutcome::Failed(_) => e.untranslated("Outcome.reason"),
++        k::AttemptOutcome::Rejected(r) => json!({"kind":"rejected","reason":attempt_reason(e,r)}),
++        k::AttemptOutcome::Failed(r) => json!({"kind":"failed","reason":attempt_reason(e,r)}),
++    }
++}
++
++// ---- G-i: the closed translations (C1 §4 Reason; C2 §2 and §4; C3 §3). Every
++// variant is mapped; a variant without a wire form fails `encoding` (C1 §4:
++// "unknown variants fail encoding to the named ordinary fallback"). No Debug text.
++
++fn fault_tag(f: k::WorkFault) -> &'static str {
++    fault_name(f)
++}
++fn budget_scope(s: k::BudgetScope) -> &'static str {
++    match s {
++        k::BudgetScope::Case => "case",
++        k::BudgetScope::Invocation => "invocation",
++    }
++}
++fn certificate_issue(i: k::CertificateIssue) -> &'static str {
++    match i {
++        k::CertificateIssue::Shape => "shape",
++        k::CertificateIssue::PairIdentity => "pair_identity",
++        k::CertificateIssue::Precision => "precision",
++        k::CertificateIssue::RowIdentity => "row_identity",
++        k::CertificateIssue::MissingField => "missing_field",
++        k::CertificateIssue::NegativeField => "negative_field",
++        k::CertificateIssue::NonFinite => "non_finite",
++        k::CertificateIssue::NonCanonicalZero => "non_canonical_zero",
++        k::CertificateIssue::RadiusClassMismatch => "radius_class_mismatch",
++    }
++}
++fn publication_predicate(p: k::PublicationPredicate) -> &'static str {
++    match p {
++        k::PublicationPredicate::AbsoluteBound => "absolute_bound",
++        k::PublicationPredicate::PublicRelative => "public_relative",
++        k::PublicationPredicate::SharperExact => "sharper_exact",
++        k::PublicationPredicate::SharperBinary64 => "sharper_binary64",
++    }
++}
++fn sum_error(err: &open_pipe_stress_frame_kernel::exact_sum::SumError) -> Value {
++    use open_pipe_stress_frame_kernel::exact_sum::SumError as S;
++    json!({"tag":match err { S::NonFinite=>"non_finite", S::AccumulatorOverflow=>"accumulator_overflow", S::NonRepresentable=>"non_representable" }})
++}
++/// WideError (C2 §2). CountRange and WorkAccounting have no wire form.
++fn wide_error(e: &Enc, err: &k::WideError) -> Value {
++    let tag = |t: &str| json!({"tag":t});
++    match err {
++        k::WideError::InvalidPrecision(p) => json!({"tag":"invalid_precision","precision":p}),
++        k::WideError::NonFinite => tag("non_finite"),
++        k::WideError::ExponentRange => tag("exponent_range"),
++        k::WideError::DivisionByZero => tag("division_by_zero"),
++        k::WideError::NegativeSqrt => tag("negative_sqrt"),
++        k::WideError::NotNormalized => tag("not_normalized"),
++        k::WideError::AngleDomain => tag("angle_domain"),
++        k::WideError::ArctangentLimit => tag("arctangent_limit"),
++        k::WideError::SplitOverflow => tag("split_overflow"),
++        k::WideError::OperandPrecision => tag("operand_precision"),
++        k::WideError::Accumulator(s) => json!({"tag":"accumulator","error":sum_error(s)}),
++        k::WideError::CountRange(_) => e.unencodable("WideError.count_range"),
++        k::WideError::WorkAccounting(_) => e.unencodable("WideError.work_accounting"),
++    }
++}
++/// AttemptStop as the Stop union (space "stop"; C2 §2, C3 §3).
++fn stop(e: &Enc, s: &k::AttemptStop) -> Value {
++    let tag = |t: &str| json!({"space":"stop","tag":t});
++    match s {
++        k::AttemptStop::CountRange(name) => json!({"space":"stop","tag":"count_range","name":name}),
++        k::AttemptStop::WorkAccounting(f) => json!({"space":"stop","tag":"work_accounting","fault":fault_tag(*f)}),
++        k::AttemptStop::Budget(scope) => json!({"space":"stop","tag":"budget","scope":budget_scope(*scope)}),
++        k::AttemptStop::Span => tag("span"),
++        k::AttemptStop::Exponent => tag("exponent"),
++        k::AttemptStop::Arithmetic(w) => json!({"space":"stop","tag":"arithmetic","error":wide_error(e,w)}),
++        k::AttemptStop::Structure => tag("structure"),
++        k::AttemptStop::Pivot { global_dof } => json!({"space":"stop","tag":"pivot","global_dof":global_dof}),
++        k::AttemptStop::ZeroDiagonal { global_dof } => json!({"space":"stop","tag":"zero_diagonal","global_dof":global_dof}),
++        k::AttemptStop::NegativeEnergy { i, j } => json!({"space":"stop","tag":"negative_energy","i":i,"j":j}),
++        k::AttemptStop::Condition => tag("condition"),
++        k::AttemptStop::ResidualGate { global_dof } => json!({"space":"stop","tag":"residual_gate","global_dof":global_dof}),
++        k::AttemptStop::ResolutionScale { body, kind } => json!({"space":"stop","tag":"resolution_scale","body":body,"kind":kind_name(*kind)}),
++        k::AttemptStop::PublicationCertificate { index, issue } => {
++            json!({"space":"stop","tag":"publication_certificate","index":index,"issue":certificate_issue(*issue)})
++        }
++    }
++}
++/// AttemptReason (space "attempt"; C2 §2).
++fn attempt_reason(e: &Enc, r: &k::AttemptReason) -> Value {
++    let qbk = |tag: &str, q: &k::QuantityId, body: &u32, kind: &k::Kind| {
++        json!({"space":"attempt","tag":tag,"quantity":quantity(e,*q),"body":body,"kind":kind_name(*kind)})
++    };
++    match r {
++        k::AttemptReason::Stop(s) => json!({"space":"attempt","tag":"stop","stop":stop(e,s)}),
++        k::AttemptReason::StopRule { quantity: q, body, kind } => qbk("stop_rule", q, body, kind),
++        k::AttemptReason::VerificationEstimate { quantity: q, body, kind } => qbk("verification_estimate", q, body, kind),
++        k::AttemptReason::Charge { quantity: q, body, kind } => qbk("charge", q, body, kind),
++        k::AttemptReason::VerificationFailed => json!({"space":"attempt","tag":"verification_failed"}),
++        k::AttemptReason::PublicationEnclosure { quantity: q, body, kind, predicate } => json!({"space":"attempt","tag":"publication_enclosure",
++            "quantity":quantity(e,*q),"body":body,"kind":kind_name(*kind),"predicate":publication_predicate(*predicate)}),
++        k::AttemptReason::Uc { body } => json!({"space":"attempt","tag":"uc","body":body}),
++        k::AttemptReason::Theta { body } => json!({"space":"attempt","tag":"theta","body":body}),
++        k::AttemptReason::GValidity { member } => json!({"space":"attempt","tag":"g_validity","member":member}),
++    }
++}
++/// UnresolvedReason (space "unresolved"; C2 §2). The schema's work_accounting
++/// carries the fault only; the private prior stop is not a wire member.
++fn unresolved(e: &Enc, r: &k::UnresolvedReason) -> Value {
++    let tag = |t: &str| json!({"space":"unresolved","tag":t});
++    match r {
++        k::UnresolvedReason::CountRange(name) => json!({"space":"unresolved","tag":"count_range","name":name}),
++        k::UnresolvedReason::WorkAccounting { fault, .. } => json!({"space":"unresolved","tag":"work_accounting","fault":fault_tag(*fault)}),
++        k::UnresolvedReason::Ceiling => tag("ceiling"),
++        k::UnresolvedReason::Budget(scope) => json!({"space":"unresolved","tag":"budget","scope":budget_scope(*scope)}),
++        k::UnresolvedReason::ExactSumSpan => tag("exact_sum_span"),
++        k::UnresolvedReason::ExponentRange => tag("exponent_range"),
++        k::UnresolvedReason::ZeroDiagonal { global_dof } => json!({"space":"unresolved","tag":"zero_diagonal","global_dof":global_dof}),
++        k::UnresolvedReason::Arithmetic(w) => json!({"space":"unresolved","tag":"arithmetic","error":wide_error(e,w)}),
++        k::UnresolvedReason::ResolutionScaleUnencodable { body, kind } => {
++            json!({"space":"unresolved","tag":"resolution_scale_unencodable","body":body,"kind":kind_name(*kind)})
++        }
++        k::UnresolvedReason::CertifiedBoundUnencodable { body } => json!({"space":"unresolved","tag":"certified_bound_unencodable","body":body}),
++        k::UnresolvedReason::PublicationCertificate { index, issue } => {
++            json!({"space":"unresolved","tag":"publication_certificate","index":index,"issue":certificate_issue(*issue)})
++        }
++    }
++}
++/// Refusal (space "refusal"; C2 §2).
++fn refusal(e: &Enc, r: &k::Refusal) -> Value {
++    const P: &str = "Refusal";
++    match r {
++        k::Refusal::MechanismWitnessed { body, rigid_parameters } => json!({"space":"refusal","tag":"mechanism_witnessed","body":body,
++            "rigid_parameters":rigid_parameters.iter().map(|x|e.bits(*x,P)).collect::<Vec<_>>()}),
++        k::Refusal::GeometryUnavailable { body, error } => {
++            json!({"space":"refusal","tag":"geometry_unavailable","body":body,"error":structural_error(e,error)})
++        }
++        k::Refusal::NegativeEnergy { i, j } => json!({"space":"refusal","tag":"negative_energy","i":i,"j":j}),
++        k::Refusal::LedgerUnavailable(k::LedgerRefusal::Accumulator(s)) => {
++            json!({"space":"refusal","tag":"ledger_unavailable","error":{"tag":"accumulator","error":sum_error(s)}})
++        }
++        k::Refusal::Structure => json!({"space":"refusal","tag":"structure"}),
++    }
++}
++/// BlockRefusal (C1 §4): a per-block `usize::MAX` row is the `block_step` sentinel.
++fn block_refusal(b: &k::BlockRefusal) -> Value {
++    let pass = match b.refusal.pass {
++        k::BoundPass::Forward => "forward",
++        k::BoundPass::Pivot => "pivot",
++        k::BoundPass::Backward => "backward",
++        k::BoundPass::NlColumn => "nl_column",
++        k::BoundPass::NlScale => "nl_scale",
++        k::BoundPass::NlRow => "nl_row",
++        k::BoundPass::Form => "form",
++        k::BoundPass::Need => "need",
++        k::BoundPass::Sigma => "sigma",
++        k::BoundPass::ShiftFactor => "shift_factor",
++        k::BoundPass::ShiftForm => "shift_form",
++    };
++    let location = if b.refusal.row == usize::MAX { json!({"kind":"block_step"}) } else { json!({"kind":"row","index":b.refusal.row}) };
++    json!({"block":b.block,"bound":match b.bound { k::CertifiedBound::Uc=>"uc", k::CertifiedBound::S=>"s" },
++        "kind":match b.refusal.kind { k::RefusalKind::Span=>"span", k::RefusalKind::Exponent=>"exponent" },"pass":pass,"location":location})
++}
++/// NumericError (C3 §3).
++fn numeric_error(e: &Enc, err: &k::NumericError) -> Value {
++    let kind = |t: &str| json!({"kind":t});
++    match err {
++        k::NumericError::Arithmetic(s) => json!({"kind":"arithmetic","cause":stop(e,s)}),
++        k::NumericError::NonFinite => kind("non_finite"),
++        k::NumericError::NonpositiveSource => kind("nonpositive_source"),
++        k::NumericError::InvalidGeometry => kind("invalid_geometry"),
++        k::NumericError::InvalidMaterial => kind("invalid_material"),
++        k::NumericError::MaterialBits => kind("material_bits"),
++        k::NumericError::TemperatureOrder => kind("temperature_order"),
++        k::NumericError::NonpositiveDenominator => kind("nonpositive_denominator"),
++        k::NumericError::AxisBits => kind("axis_bits"),
++        k::NumericError::Binary64Range => kind("binary64_range"),
++    }
++}
++/// ViewIssue (C3 §3).
++fn view_issue(v: &k::ViewFailure) -> Value {
++    let kind = |t: &str| json!({"kind":t});
++    match v {
++        k::ViewFailure::Certificate(i) => json!({"kind":"certificate","issue":certificate_issue(*i)}),
++        k::ViewFailure::ForeignOwner => kind("foreign_owner"),
++        k::ViewFailure::UnsupportedCombination => kind("unsupported_combination"),
++        k::ViewFailure::VerificationCache => kind("verification_cache"),
++        k::ViewFailure::Ordering => kind("ordering"),
++        k::ViewFailure::BodyBound => kind("body_bound"),
++        k::ViewFailure::CountRange => kind("count_range"),
++        k::ViewFailure::Work(f) => json!({"kind":"work","fault":fault_tag(*f)}),
++    }
++}
++/// BridgeError (C3 §3). Alpha's private endpoint is never serialized.
++fn bridge_error(e: &Enc, b: &k::BridgeFailure<'_>) -> Value {
++    let kind = |t: &str| json!({"kind":t});
++    match b {
++        k::BridgeFailure::View(v) => json!({"kind":"view","issue":view_issue(v)}),
++        k::BridgeFailure::Numeric(n) => json!({"kind":"numeric","cause":numeric_error(e,n)}),
++        k::BridgeFailure::MemberOwner => kind("member_owner"),
++        k::BridgeFailure::UnsupportedDirectionalSpring => kind("unsupported_directional_spring"),
++        k::BridgeFailure::MissingRadius(row) => json!({"kind":"missing_radius","row":row}),
++        k::BridgeFailure::MissingUniquenessWarrant(body) => json!({"kind":"missing_uniqueness_warrant","body":body}),
++        k::BridgeFailure::RowIdentity(row) => json!({"kind":"row_identity","row":row}),
++        k::BridgeFailure::CountRange => kind("count_range"),
++        k::BridgeFailure::Storage => kind("storage"),
++        k::BridgeFailure::AlphaCondition { block } => json!({"kind":"alpha_condition","block":block}),
++    }
++}
++/// ProductError (C3 §3) through the kernel's typed view.
++fn product_error(e: &Enc, f: &k::ProductFailure) -> Value {
++    let mut copies = k::TraceCopyWork::default();
++    let v = product_error_view(e, f.typed_cause(&mut copies));
++    if !copies.status().is_exact() {
++        e.fail(ReceiptCheck::Encoding, "ProductError");
++    }
++    v
++}
++fn product_error_view(e: &Enc, view: k::ProductFailureView<'_>) -> Value {
++    match view {
++        k::ProductFailureView::Association(d) => json!({"kind":"association","detail":d}),
++        k::ProductFailureView::Numeric(n) => json!({"kind":"numeric","cause":numeric_error(e,n)}),
++        k::ProductFailureView::Native(b) => json!({"kind":"native_source","cause":bridge_error(e,&b)}),
++        k::ProductFailureView::Accounting(fault) => json!({"kind":"work_accounting","fault":fault_tag(fault)}),
++        k::ProductFailureView::CountRange(d) => json!({"kind":"count_range","detail":d}),
++        k::ProductFailureView::Storage => json!({"kind":"storage"}),
++        k::ProductFailureView::G5a(d) => json!({"kind":"g5a","detail":d}),
++        k::ProductFailureView::Predicate { row, predicate } => json!({"kind":"numeric_predicate","row":row,"predicate":match predicate {
++            k::ProductPredicate::Absolute=>"absolute", k::ProductPredicate::SharperExact=>"sharper_exact",
++            k::ProductPredicate::SharperBinary64=>"sharper_binary64", k::ProductPredicate::DecimalSi=>"decimal_si",
++            k::ProductPredicate::DecimalRaw=>"decimal_raw", k::ProductPredicate::InputDerived=>"input_derived" }}),
++        k::ProductFailureView::Helper(h) => json!({"kind":"numeric_helper","cause":match h {
++            k::HelperFailure::Arithmetic(s)=>json!({"kind":"arithmetic","cause":stop(e,s)}),
++            k::HelperFailure::InvalidSmallBoundInput=>json!({"kind":"invalid_small_bound_input"}),
++            k::HelperFailure::Binary64Range=>json!({"kind":"binary64_range"}),
++            k::HelperFailure::Invariant=>json!({"kind":"invariant"}) }}),
++    }
++}
++fn member_property(p: k::MemberProperty) -> &'static str {
++    match p {
++        k::MemberProperty::ElasticModulus => "elastic_modulus",
++        k::MemberProperty::ShearModulus => "shear_modulus",
++        k::MemberProperty::Area => "area",
++        k::MemberProperty::SecondMomentY => "second_moment_y",
++        k::MemberProperty::SecondMomentZ => "second_moment_z",
++        k::MemberProperty::TorsionConstant => "torsion_constant",
++        k::MemberProperty::YReference => "y_reference",
++    }
++}
++/// SourceError (C2 §3). The directional variants are impossible from the declared
++/// empty directional-spring list: an association failure (C2), never a wire form.
++fn source_error(e: &Enc, err: &k::SourceError) -> Value {
++    use k::SourceError as S;
++    let id = |t: &str, id: &u32| json!({"tag":t,"id":id});
++    let member = |t: &str, m: &u32| json!({"tag":t,"member":m});
++    let prop = |t: &str, m: &u32, p: &k::MemberProperty| json!({"tag":t,"member":m,"property":member_property(*p)});
++    match err {
++        S::CountRange(name) => json!({"tag":"count_range","name":name}),
++        S::NoNodes => json!({"tag":"no_nodes"}),
++        S::NonFiniteCoordinate { node } => json!({"tag":"non_finite_coordinate","node":node}),
++        S::NodeOutOfRange { node } => json!({"tag":"node_out_of_range","node":node}),
++        S::DuplicateMemberId { id: i } => id("duplicate_member_id", i),
++        S::RepeatedMemberNode { member: m } => member("repeated_member_node", m),
++        S::NonFiniteProperty { member: m, property } => prop("non_finite_property", m, property),
++        S::NonPositiveProperty { member: m, property } => prop("non_positive_property", m, property),
++        S::SubnormalDerivedPrimitive { member: m, property } => prop("subnormal_derived_primitive", m, property),
++        S::ZeroLength { member: m } => member("zero_length", m),
++        S::DegenerateAxis { member: m } => member("degenerate_axis", m),
++        S::DuplicateSpringId { id: i } => id("duplicate_spring_id", i),
++        S::NonPositiveSpring { id: i } => id("non_positive_spring", i),
++        S::ZeroDirection { .. } | S::NonFiniteDirection { .. } => {
++            e.fail(ReceiptCheck::Association, "SourceError.directional_spring");
++            Value::Null
++        }
++        S::DuplicateConstraint { dof: d } => json!({"tag":"duplicate_constraint","dof":dof(*d)}),
++        S::NonFiniteValue { dof: d } => json!({"tag":"non_finite_value","dof":dof(*d)}),
++        S::EmptyLoadSource { dof: d } => json!({"tag":"empty_load_source","dof":dof(*d)}),
++        S::DuplicateStationId { id: i } => id("duplicate_station_id", i),
++        S::UnknownMember { station, member: m } => json!({"tag":"unknown_member","station":station,"member":m}),
++        S::StationOutOfRange { id: i } => id("station_out_of_range", i),
++        S::DuplicateSupportId { id: i } => id("duplicate_support_id", i),
++        S::SupportMismatch { id: i } => id("support_mismatch", i),
++    }
++}
++/// OriginError (C3 §3).
++fn origin_error(err: &k::OriginError) -> Value {
++    match err {
++        k::OriginError::CountRange(d) => json!({"kind":"count_range","detail":d}),
++        k::OriginError::Capacity => json!({"kind":"capacity"}),
++        k::OriginError::Allocation => json!({"kind":"allocation"}),
++        k::OriginError::MissingSelectedOrigin { operand } => json!({"kind":"missing_selected_origin","operand":operand}),
++    }
++}
++fn adapter_event(e: &Enc, ev: rp::AdapterEvent) -> Value {
++    EVENTS.get(ev as usize).map_or_else(|| { e.fail(ReceiptCheck::Association, "AdapterEvent"); Value::Null }, |n| json!(n))
++}
++/// CaptureError (C3 §3). Original strings stay strings.
++fn capture_error(e: &Enc, err: &rp::CaptureError) -> Value {
++    match err {
++        rp::CaptureError::Association(d) => json!({"kind":"association","detail":d}),
++        rp::CaptureError::CountRange(d) => json!({"kind":"count_range","detail":d}),
++        rp::CaptureError::Storage(d) => json!({"kind":"storage","detail":d}),
++        rp::CaptureError::Accounting(rp::AdapterFault::Overflow(ev)) => json!({"kind":"accounting","event":adapter_event(e,*ev)}),
++        rp::CaptureError::Source(s) => json!({"kind":"source","cause":source_error(e,s)}),
++        rp::CaptureError::Origin(o) => json!({"kind":"origin","cause":origin_error(o)}),
++        rp::CaptureError::NativeUnavailable => json!({"kind":"native_unavailable"}),
++        rp::CaptureError::PreparedArithmetic(o) => json!({"kind":"prepared_arithmetic","cause":op_error(o)}),
++        rp::CaptureError::PreparedProof(f) => json!({"kind":"prepared_proof","cause":product_error(e,f)}),
++        rp::CaptureError::PreparedAttemptConsumed => json!({"kind":"prepared_attempt_consumed"}),
++    }
++}
++/// G5aError (C3 §3; the schema names the force/moment index `quantity_kind`, 0 or 1).
++fn g5a_error(e: &Enc, err: &rp::G5aFailure) -> Value {
++    let quantity_kind = |k: &usize| if *k <= 1 { json!(k) } else { e.unencodable("G5aError.quantity_kind") };
++    match err {
++        rp::G5aFailure::Accounting(rp::AdapterFault::Overflow(ev)) => json!({"kind":"accounting","event":adapter_event(e,*ev)}),
++        rp::G5aFailure::Shape(d) => json!({"kind":"shape","detail":d}),
++        rp::G5aFailure::Summary(d) => json!({"kind":"summary","detail":d}),
++        rp::G5aFailure::Zero { row } => json!({"kind":"zero","row":row}),
++        rp::G5aFailure::Sanity { body, kind } => json!({"kind":"sanity","body":body,"quantity_kind":quantity_kind(kind)}),
++        rp::G5aFailure::Lower { member, kind } => json!({"kind":"lower","member":member,"quantity_kind":quantity_kind(kind)}),
++        rp::G5aFailure::Operational { member, cause } => json!({"kind":"operational","member_index":member,"cause":op_error(cause)}),
++        rp::G5aFailure::Arithmetic(cause) => json!({"kind":"arithmetic","cause":op_error(cause)}),
+     }
+ }
+ fn slot_name(s: k::OriginSlot) -> &'static str {
+@@ -350,13 +683,13 @@ fn section_error(e: &Enc, err: &k::SectionPreparationError) -> Value {
+         k::SectionPreparationError::Accounting => json!({"kind":"accounting"}),
+         k::SectionPreparationError::AmbiguousRounding(p) => match P.get(*p) {
+             Some(name) => json!({"kind":"ambiguous_rounding","property":name}),
+-            None => e.untranslated("SectionError.property"),
++            None => e.unencodable("SectionError.property"),
+         },
+         k::SectionPreparationError::PrimitiveRange(p) => match P.get(*p) {
+             Some(name) => json!({"kind":"primitive_range","property":name}),
+-            None => e.untranslated("SectionError.property"),
++            None => e.unencodable("SectionError.property"),
+         },
+-        k::SectionPreparationError::Arithmetic(_) => e.untranslated("SectionError.arithmetic.cause"),
++        k::SectionPreparationError::Arithmetic(c) => json!({"kind":"arithmetic","cause":numeric_error(e,c.cause())}),
+     }
+ }
+ fn stage_name(e: &Enc, s: rr::StageState) -> Value {
+@@ -398,7 +731,7 @@ fn range_trigger(e: &Enc, trigger: &RangeTrigger) -> Value {
+         RangeTrigger::Evaluation(StructuralError::Range(detail)) => {
+             json!({"tag":"evaluation","error":{"tag":"range","detail":detail}})
+         }
+-        _ => e.untranslated("ordinary_attempts[].w2.trigger"),
++        _ => e.unencodable("ordinary_attempts[].w2.trigger"),
+     }
+ }
+ 
+@@ -438,8 +771,11 @@ fn successor_envelope(env: &mut Value, case_id: &str, omit: Option<&str>) -> Res
+ 
+ /// D39 with T1 (a): the legacy disposition; on the selected case a captured
+ /// disclosure is omitted and its actual WorkReport goes to legacy_source_work.
+-fn legacy_source(e: &Enc, seed: Option<&rp::LegacySeed>, case_index: usize, work: &mut Vec<Value>)
++/// On an unselected (unavailable) case the disclosure is kept and referenced
++/// (C2:160 "the original diagnostic_ref preserves original source failure disclosure").
++fn legacy_source(e: &Enc, seed: Option<&rp::LegacySeed>, case_index: usize, work: &mut Vec<Value>, selected: bool)
+     -> Result<(Value, Option<String>), ReceiptFailure> {
++    let disclosed = |d: &String| if selected { (Value::Null, Some(d.clone())) } else { (json!(d), None) };
+     let entry = |w: &rp::LegacyWork| {
+         // D-4 §3 item 4: `charged` and `limit` are guarded exact; `rejected` is
+         // projected only within the safe range (beyond it only saturation reaches).
+@@ -460,11 +796,13 @@ fn legacy_source(e: &Enc, seed: Option<&rp::LegacySeed>, case_index: usize, work
+         Some(rp::LegacySeed::NotRequired) => (json!({"disposition":"not_required","diagnostic_ref":null,"work_ref":null}), None),
+         Some(rp::LegacySeed::DeclinedWithoutAttempt { work: w, diagnostic_ref }) => {
+             work.push(entry(w));
+-            (json!({"disposition":"declined_without_attempt","diagnostic_ref":null,"work_ref":work.len()-1}), Some(diagnostic_ref.clone()))
++            let (reference, omit) = disclosed(diagnostic_ref);
++            (json!({"disposition":"declined_without_attempt","diagnostic_ref":reference,"work_ref":work.len()-1}), omit)
+         }
+         Some(rp::LegacySeed::Unavailable { work: w, diagnostic_ref }) => {
+             work.push(entry(w));
+-            (json!({"disposition":"unavailable","diagnostic_ref":null,"work_ref":work.len()-1}), Some(diagnostic_ref.clone()))
++            let (reference, omit) = disclosed(diagnostic_ref);
++            (json!({"disposition":"unavailable","diagnostic_ref":reference,"work_ref":work.len()-1}), omit)
+         }
+         // Coexistence (D-15): exact-block selected, so W1 is not attempted.
+         Some(rp::LegacySeed::ExactSelected) => return Err(fail(ReceiptCheck::Scope, "ordinary_attempts[].legacy_source")),
+@@ -479,7 +817,10 @@ fn ordinary_members(e: &Enc, seed: &rp::OrdinarySeed) -> (Value, Value, Value) {
+             let outcome = match code.as_str() {
+                 "NUMERICAL_INTEGRITY_SENSITIVE" => json!("sensitive"),
+                 "NUMERICAL_INTEGRITY_CHECKS_PASSED" => json!("checks_passed"),
+-                _ => e.untranslated("ordinary_attempts[].initial.outcome"),
++                _ => {
++                    e.fail(ReceiptCheck::Association, "ordinary_attempts[].initial.outcome");
++                    Value::Null
++                }
+             };
+             json!({"kind":"report","report_diagnostic_ref":report_diagnostic_ref,"outcome":outcome})
+         }
+@@ -549,11 +890,13 @@ fn material_basis(e: &Enc, capture: &rp::ProductCapture, raw: &Value, case_index
+ }
+ 
+ #[allow(clippy::too_many_arguments)]
+-fn case_source(e: &Enc, capture: &rp::ProductCapture, owner: &k::RetainedSolve, inv: &k::RecordedInvocation,
++/// The CaseSource binding (C1 §3; C2 §3) of the source the kernel registered for
++/// this run: the selected owner's bound source, or the prepared source of an
++/// unavailable run (which must equal the registered identity bytes' owner).
++fn case_source(e: &Enc, capture: &rp::ProductCapture, source: &k::PrimitiveSource, inv: &k::RecordedInvocation,
+     run: &k::RunOrigins, case_index: usize, case_id: &str, attempt: &rr::PreparedAttemptView<'_>) -> Result<Value, ReceiptFailure> {
+     let assoc = |p| fail(ReceiptCheck::Association, p);
+     const P: &str = "sources[]";
+-    let source = owner.source();
+     let origin = inv.sources().get(run.source).ok_or(assoc("sources[].kernel_source_sha256"))?;
+     let mut nodes = Vec::with_capacity(capture.nodes.len());
+     for (i, (id, c)) in capture.nodes.iter().enumerate() {
+@@ -590,7 +933,7 @@ fn case_source(e: &Enc, capture: &rp::ProductCapture, owner: &k::RetainedSolve,
+     }).collect();
+     let stations: Vec<Value> = source.stations().iter().map(|s| {
+         let location = if s.fraction == 0.25 { json!("quarter_1") } else if s.fraction == 0.5 { json!("midspan") }
+-            else if s.fraction == 0.75 { json!("quarter_3") } else { e.untranslated("sources[].stations[].location") };
++            else if s.fraction == 0.75 { json!("quarter_3") } else { e.unencodable("sources[].stations[].location") };
+         json!({"id":s.id,"member":s.member,"location":location,"fraction":e.bits(s.fraction,P)})
+     }).collect();
+     let supports: Vec<Value> = source.supports().iter().map(|s| {
+@@ -684,10 +1027,6 @@ fn physical(e: &Enc, i: usize, r: &k::AttemptRecord, links: k::RecordBuildLinks)
+         k::AttemptRole::Verification => "verification",
+         k::AttemptRole::VerificationThenCandidate => "verification_then_candidate",
+     };
+-    // BlockRefusal's closed translation is grant 2's.
+-    if !r.bound_refusals.is_empty() {
+-        e.untranslated("run.records[].bound_refusals");
+-    }
+     json!({"index":i,"precision":r.precision,"role":role,"outcome":outcome(e,&r.outcome),"residual_basis":r.residual_basis,"corrections":r.corrections,
+         "pivot_margin_min":r.pivot_margin_min.map(|x|e.bits(x,P)),"rcond":r.rcond.map(|x|e.bits(x,P)),"residual_worst":r.residual_worst.map(|x|e.bits(x,P)),"gate":gate,
+         "work":{"wide_lme":work.wide,"exact_sum_lme":work.exact_sum,"own_lme":work.own,"shared_lme":work.shared,"stop_rule_lme":work.stop_rule,
+@@ -695,7 +1034,7 @@ fn physical(e: &Enc, i: usize, r: &k::AttemptRecord, links: k::RecordBuildLinks)
+             "own_stages":stages(e,&r.stages,"run.records[].work.own_stages"),"shared_stages":stages(e,&r.shared_stages,"run.records[].work.shared_stages"),
+             "shared_built_here":r.shared_built_here,"verification_shared_built_here":r.verification_shared_built_here},
+         "storage":{"pattern_entries":r.storage.pattern_entries,"profile_entries":r.storage.profile_entries,"limbs_per_entry":r.storage.limbs_per_entry},
+-        "verification":verification,"bound_refusals":[],"shared_build_ref":links.shared,"verification_shared_build_ref":links.verification_shared})
++        "verification":verification,"bound_refusals":r.bound_refusals.iter().map(block_refusal).collect::<Vec<_>>(),"shared_build_ref":links.shared,"verification_shared_build_ref":links.verification_shared})
+ }
+ 
+ /// C1 §1 projection (RP-LOGICAL-ATTEMPTS-v1), deterministic in native record order.
+@@ -720,9 +1059,17 @@ fn logical(e: &Enc, records: &[k::AttemptRecord]) -> Vec<Value> {
+                     e.fail(ReceiptCheck::Association, "run.attempts[].verification");
+                     continue;
+                 };
+-                let phase = if matches!(r.role, k::AttemptRole::VerificationThenCandidate)
+-                    || matches!(r.outcome, k::AttemptOutcome::Verified | k::AttemptOutcome::Solved) { "completed" } else { "failed" };
+-                out[last]["verification"] = json!({"record":i,"precision":r.precision,"phase":phase,"reason":null});
++                // C1 §1 item 2: a failed verification keeps its failure reason; a
++                // VerificationThenCandidate's earlier phase completed.
++                let (phase, reason) = match (&r.role, &r.outcome) {
++                    (k::AttemptRole::VerificationThenCandidate, _) | (_, k::AttemptOutcome::Verified | k::AttemptOutcome::Solved) => ("completed", Value::Null),
++                    (_, k::AttemptOutcome::Failed(reason)) => ("failed", attempt_reason(e, reason)),
++                    _ => {
++                        e.fail(ReceiptCheck::Association, "run.attempts[].verification.phase");
++                        ("failed", Value::Null)
++                    }
++                };
++                out[last]["verification"] = json!({"record":i,"precision":r.precision,"phase":phase,"reason":reason});
+                 parts[last].0.push(json!({"record":i,"part":"solve_and_verification"}));
+                 parts[last].1 = e.sum(&[parts[last].1, b_case], "run.attempts[].case_charge");
+                 parts[last].2 = e.sum(&[parts[last].2, b_inv], "run.attempts[].invocation_increment");
+@@ -755,7 +1102,7 @@ fn run_conservation(e: &Enc, attempts: &[Value], run: &k::RunOrigins) {
+     for (ok, path) in [
+         (total("case_charge", "cases[].run.case_charge") == case, "cases[].run.case_charge"),
+         (total("invocation_increment", "cases[].run.invocation_increment") == increment, "cases[].run.invocation_increment"),
+-        (e.sum(&[before, increment], "cases[].run.invocation_after") == after, "cases[].run.invocation_after"),
++        (after_conserved(e, before, increment, after), "cases[].run.invocation_after"),
+     ] {
+         if !ok {
+             e.fail(ReceiptCheck::WorkCounterInconsistent, path);
+@@ -763,6 +1110,11 @@ fn run_conservation(e: &Enc, attempts: &[Value], run: &k::RunOrigins) {
+     }
+ }
+ 
++/// C1 §1: invocation_after = invocation_before + invocation_increment.
++fn after_conserved(e: &Enc, before: u64, increment: u64, after: u64) -> bool {
++    e.sum(&[before, increment], "cases[].run.invocation_after") == after
++}
++
+ /// G-e: `not_covered` from the certificate's verdicts: a quantity row (not a
+ /// record/observation recipe) with no class. A certified proof refuses an
+ /// unpublishable row, so Unpublishable never reaches here; it is refused typed.
+@@ -833,18 +1185,53 @@ fn lane_work(e: &Enc, w: &k::LaneWorkTrace<'_>) -> Value {
+         "d_products":e.count(w.d_products),"h_products":e.count(w.h_products),
+         "capacities":w.capacities.iter().map(|(n,c)|json!({"name":n,"capacity":c})).collect::<Vec<_>>(),"data_capacity":w.data_capacity})
+ }
+-fn check(e: &Enc, c: &rr::CheckRef<'_>) -> Value {
++fn check(e: &Enc, c: &rr::CheckRef<'_>, capture: &rp::ProductCapture) -> Value {
+     match c {
+         rr::CheckRef::NotEntered => json!({"kind":"not_entered"}),
+         rr::CheckRef::Passed => json!({"kind":"passed"}),
+-        rr::CheckRef::Failed(_) => e.untranslated("product_attempts[].proof.checks"),
++        rr::CheckRef::Failed(f) => json!({"kind":"failed","error":public_error(e,f,capture)}),
+     }
+ }
+-fn proof_trace(e: &Enc, view: &rr::PreparedAttemptView<'_>) -> Value {
++/// PublicError (C3 §3 PublicFailure). A native failure with a recorded Run is
++/// `native{run_ref}`; before any Run it is D38's `capture{cause}` with the actual
++/// cause. Observable/G5a/Numeric unwrap their actually captured errors.
++fn public_error(e: &Enc, f: &rr::FailureRef<'_>, capture: &rp::ProductCapture) -> Value {
++    let captured = |cause: Option<Value>, path: &'static str| cause.unwrap_or_else(|| {
++        e.fail(ReceiptCheck::Association, path);
++        Value::Null
++    });
++    match f {
++        rr::FailureRef::Preparation { capture: c, section } => json!({"kind":"preparation","capture":capture_error(e,c),
++            "section":section.map(|s|section_error(e,s))}),
++        rr::FailureRef::Native(c) => match capture.native.as_ref() {
++            Some((_, case)) => json!({"kind":"native","run_ref":case.run}),
++            None => json!({"kind":"capture","cause":capture_error(e,c)}),
++        },
++        rr::FailureRef::Candidate(err) => match err {
++            rp::PreparedCandidateError::Capture(c) => json!({"kind":"capture","cause":capture_error(e,c)}),
++            rp::PreparedCandidateError::Proof(p) => json!({"kind":"proof","cause":product_error(e,p.failure())}),
++            rp::PreparedCandidateError::Values { failure, proof } => {
++                json!({"kind":"values","cause":product_error(e,&failure.failure),"proof":product_error(e,proof.failure())})
++            }
++            rp::PreparedCandidateError::Abandoned { cause, proof } => {
++                json!({"kind":"abandoned","cause":capture_error(e,cause),"proof":product_error(e,proof.failure())})
++            }
++            rp::PreparedCandidateError::Numeric => json!({"kind":"numeric","cause":capture.numeric_failure.as_ref().map(|n|product_error(e,n))}),
++            rp::PreparedCandidateError::Observable => json!({"kind":"observable",
++                "cause":captured(capture.observable_error.as_ref().map(|c|capture_error(e,c)), "PublicError.observable")}),
++            rp::PreparedCandidateError::G5a => json!({"kind":"g5a",
++                "cause":captured(capture.g5a_error.as_ref().map(|g|g5a_error(e,g)), "PublicError.g5a")}),
++        },
++        rr::FailureRef::Proof(p) => json!({"kind":"proof","cause":product_error(e,p)}),
++        rr::FailureRef::Observable(c) => json!({"kind":"observable","cause":capture_error(e,c)}),
++        rr::FailureRef::G5a(g) => json!({"kind":"g5a","cause":g5a_error(e,g)}),
++    }
++}
++fn proof_trace(e: &Enc, view: &rr::PreparedAttemptView<'_>, capture: &rp::ProductCapture) -> Value {
+     const P: &str = "product_attempts[].proof";
+     let Some(p) = view.proof.as_ref() else { return Value::Null };
+     let lanes: Vec<Value> = p.lanes.iter().flatten().map(|l| {
+-        let error = match &l.result { Ok(()) => Value::Null, Err(_) => e.untranslated("product_attempts[].proof.lanes[].error") };
++        let error = match &l.result { Ok(()) => Value::Null, Err(b) => bridge_error(e,b) };
+         json!({"law":match l.law { k::ReadoutLaw::AdmittedK=>"admitted_k", k::ReadoutLaw::AnnularSource=>"annular_source" },
+             "state":if l.result.is_ok() {"completed"} else {"failed"},"error":error,"work":lane_work(e,&l.work)})
+     }).collect();
+@@ -864,9 +1251,10 @@ fn proof_trace(e: &Enc, view: &rr::PreparedAttemptView<'_>) -> Value {
+         "projection_conversions":e.count(p.projection_conversions),
+         "projection_outcomes":p.projection_outcomes.iter().map(|(r,o)|json!({"row_index":r,"outcome":conversion(e,o)})).collect::<Vec<_>>(),
+         "capacities":p.capacities,"prepared_capacity_bytes":p.prepared_capacity_bytes,"completion":completion,
+-        "checks":{"certificate":check(e,&view.checks[0]),"observables":check(e,&view.checks[1]),"g5a":check(e,&view.checks[2])},"summary_coverage":coverage})
++        "checks":{"certificate":check(e,&view.checks[0],capture),"observables":check(e,&view.checks[1],capture),"g5a":check(e,&view.checks[2],capture)},"summary_coverage":coverage})
+ }
+-fn product_attempt(e: &Enc, view: &rr::PreparedAttemptView<'_>, case_index: usize, source_ref: usize, run_ref: usize) -> Value {
++fn product_attempt(e: &Enc, view: &rr::PreparedAttemptView<'_>, case_index: usize, source_ref: Option<usize>, run_ref: Option<usize>,
++    result: Value, capture: &rp::ProductCapture) -> Value {
+     const PROPS: [&str; 5] = ["area", "second_moment", "polar_moment", "section_modulus", "radius"];
+     const P: &str = "product_attempts[].preparation";
+     let mut copies = k::TraceCopyWork::default();
+@@ -897,7 +1285,7 @@ fn product_attempt(e: &Enc, view: &rr::PreparedAttemptView<'_>, case_index: usiz
+     }
+     let a = view.adapter;
+     json!({"id":0,"definition_id":DEFINITION_ID,"owner_ref":{"kind":"case","index":case_index},"ordinary_attempt_ref":case_index,"material_basis_ref":0,
+-        "source_ref":source_ref,"run_ref":run_ref,"result":{"kind":"ready"},"preparation":{"members":members},"stages":stages_v,"proof":proof_trace(e,view),
++        "source_ref":source_ref,"run_ref":run_ref,"result":result,"preparation":{"members":members},"stages":stages_v,"proof":proof_trace(e,view,capture),
+         "adapter":{"counts":a.counts,"fault":a.fault.map(|rp::AdapterFault::Overflow(ev)|json!({"kind":"overflow","event":EVENTS.get(ev as usize).map_or_else(||e.untranslated("product_attempts[].adapter.fault.event"),|n|json!(n))})),
+             "prepared_capacity_bytes":a.prepared_capacity_bytes,"observation_capacity_bytes":a.observation_capacity_bytes,"support_capacity_bytes":a.support_capacity_bytes},
+         "operational":{"old_coverage":match view.old_coverage { rr::OldCoverage::Complete=>"complete", rr::OldCoverage::CapturedPrefix=>"captured_prefix" },
+@@ -920,8 +1308,154 @@ fn safe_integers(v: &Value) -> bool {
+     }
+ }
+ 
++/// G-j scope shared by every one-case serialization: the actual invocation, one
++/// requested case and no combination, and that case's single ordinary seed.
++fn one_case<'a>(pc: &'a rp::ProductCapture, invocation: &source_receipt::CapturedInvocation)
++    -> Result<(usize, String, &'a rp::OrdinarySeed), ReceiptFailure> {
++    let assoc = |p| fail(ReceiptCheck::Association, p);
++    let scope = |p| fail(ReceiptCheck::Scope, p);
++    if pc.invocation_mode != Some(invocation.mode()) {
++        return Err(assoc("invocation"));
++    }
++    // RV82-S2: the supplied invocation must be the one this capture observed
++    // (its digest), not merely one with the same mode and case id.
++    if pc.invocation_digest.as_deref() != Some(invocation.borrowed_digest().as_str()) {
++        return Err(assoc("invocation"));
++    }
++    let raw = invocation.borrowed_raw();
++    let request_cases = raw["model"]["load_cases"].as_array().ok_or(assoc("cases"))?;
++    let combinations = raw["model"]["combinations"].as_array().map_or(0, Vec::len);
++    if request_cases.len() != 1 || combinations != 0 {
++        return Err(scope("cases"));
++    }
++    let case_index = 0usize;
++    let case_id = request_cases[case_index]["id"].as_str().ok_or(assoc("cases[].basis_ref"))?.to_owned();
++    let [seed] = &pc.ordinary[..] else { return Err(scope("ordinary_attempts")) };
++    if seed.case != case_id {
++        return Err(assoc("ordinary_attempts[].case_id"));
++    }
++    Ok((case_index, case_id, seed))
++}
++/// One recorded native call with one run of this case (G-j).
++fn one_run<'a>(inv: &'a k::RecordedInvocation, case: &k::RecordedCase, case_index: usize) -> Result<&'a k::RunOrigins, ReceiptFailure> {
++    if inv.runs().len() != 1 || inv.calls().len() != 1 || inv.sources().len() != 1 || case.run != 0 {
++        return Err(fail(ReceiptCheck::Scope, "cases[].run"));
++    }
++    let run = &inv.runs()[case.run];
++    if run.id != case.run || !matches!(run.owner, k::NativeOwner::Case(i) if i == case_index) {
++        return Err(fail(ReceiptCheck::Association, "cases[].run.origin"));
++    }
++    Ok(run)
++}
++/// The native records of any kernel outcome and its C1 §4 terminal.
++fn kernel_outcome<'a>(e: &Enc, outcome: &'a k::ExecutionOutcome) -> (&'a [k::AttemptRecord], Value) {
++    match outcome {
++        k::ExecutionOutcome::Selected(owner) => (&owner.evidence().attempts, json!({"kind":"selected","reason":null})),
++        k::ExecutionOutcome::Refused { refusal: r, attempts, .. } => (attempts, json!({"kind":"refused","reason":refusal(e,r)})),
++        k::ExecutionOutcome::Unresolved { reason, attempts, .. } => (attempts, json!({"kind":"unresolved","reason":unresolved(e,reason)})),
++    }
++}
++/// The Run (C1 §1, §4; C2 §4) for selected and unavailable kernel outcomes alike.
++fn run_value(e: &Enc, run: &k::RunOrigins, records: &[k::AttemptRecord], terminal: Value, case_index: usize) -> Result<Value, ReceiptFailure> {
++    // Only the first `physical_records` links describe actual records.
++    if records.len() != run.physical_records || records.len() > run.records.len() {
++        return Err(fail(ReceiptCheck::Association, "cases[].run.records"));
++    }
++    let physical_v: Vec<Value> = records.iter().enumerate().map(|(i, r)| physical(e, i, r, run.records[i])).collect();
++    let attempts_v = logical(e, records);
++    run_conservation(e, &attempts_v, run);
++    Ok(json!({"id":run.id,"origin":{"call":run.call,"position":run.position,"group":run.group,"source_ref":run.source,"owner_ref":{"kind":"case","index":case_index}},
++        "cache_before":slots(&run.cache_before),"cache_after":slots(&run.cache_after),"kernel_terminal":terminal,
++        "records":physical_v,"attempts":attempts_v,"case_charge":e.exact(run.work.case(),"cases[].run.case_charge"),
++        "invocation_before":e.exact(run.work.invocation_before(),"cases[].run.invocation_before"),
++        "invocation_increment":e.exact(run.work.invocation_increment(),"cases[].run.invocation_increment"),
++        "invocation_after":e.exact(run.work.invocation_after(),"cases[].run.invocation_after")}))
++}
++/// The invocation's calls, groups and builds (C2 §4), and its exact final charge.
++fn invocation_arrays(e: &Enc, inv: &k::RecordedInvocation, run: &k::RunOrigins) -> Result<(Vec<Value>, Vec<Value>, Vec<Value>, u64), ReceiptFailure> {
++    let calls: Vec<Value> = inv.calls().iter().map(|c| json!({"id":c.id,"kind":"case_batch",
++        "owner_refs":c.owners.iter().map(|o|match o { k::NativeOwner::Case(i)=>json!({"kind":"case","index":i}), k::NativeOwner::Combination(i)=>json!({"kind":"combination","index":i}) }).collect::<Vec<_>>(),
++        "source_refs":c.sources,"run_refs":c.runs,"invocation_before":e.exact(c.invocation_before,"calls[].invocation_before"),
++        "invocation_after":e.exact(c.invocation_after,"calls[].invocation_after"),"result":{"kind":"runs"}})).collect();
++    let groups: Vec<Value> = inv.groups().iter().map(|g| {
++        let preparation = match &g.preparation { k::GroupPreparation::Ready => json!({"kind":"ready"}), k::GroupPreparation::Refused(r) => json!({"kind":"refused","reason":refusal(e,r)}) };
++        let stiffness = inv.sources().get(g.first_source).map(|s| sha_hex(&s.stiffness));
++        if stiffness.is_none() { e.fail(ReceiptCheck::Association, "groups[].stiffness_sha256"); }
++        json!({"id":g.id,"call":g.call,"first_source_ref":g.first_source,
++            "source_refs":inv.runs().iter().filter(|r|r.group==Some(g.id)).map(|r|r.source).collect::<Vec<_>>(),
++            "stiffness_sha256":stiffness,"preparation":preparation})
++    }).collect();
++    let builds: Vec<Value> = inv.builds().iter().map(|b| json!({"id":b.id,"group":b.group,"slot":slot_name(b.slot),
++        "origin":{"call":b.call,"run":b.run,"physical_record":b.physical_record,"phase":match b.phase { k::BuildPhase::Shared=>"shared", k::BuildPhase::VerificationShared=>"verification_shared" }},
++        "state":match b.state { k::BuildState::Success=>"success", k::BuildState::NonbudgetFailure=>"nonbudget_failure", k::BuildState::BudgetFailure=>"budget_failure" },
++        "reason":b.reason.as_ref().map(|r|stop(e,r)),"work":e.exact(b.work,"builds[].work"),"stages":stages(e,&b.stages,"builds[].stages")})).collect();
++    // W1-LME-20B-60B-v1: the meter's own limit and its exact final charge.
++    if inv.meter().limit() != INVOCATION_LIMIT {
++        return Err(fail(ReceiptCheck::Association, "work.invocation_limit"));
++    }
++    // C1 §4 body.work: charged equals the final after (before = 0).
++    let charged = e.exact(inv.meter().checked_charged(), "work.charged");
++    if charged != e.exact(run.work.invocation_after(), "work.charged") {
++        return Err(fail(ReceiptCheck::WorkCounterInconsistent, "work.charged"));
++    }
++    Ok((calls, groups, builds, charged))
++}
++/// The ordinary attempt entry (G-b, G-c, G-l) and the case's quality index.
++fn ordinary_value(e: &Enc, env: &Value, case_id: &str, case_index: usize, mode: PreviewSolverMode, seed: &rp::OrdinarySeed, legacy: Value)
++    -> Result<(Value, usize), ReceiptFailure> {
++    let assoc = |p| fail(ReceiptCheck::Association, p);
++    let quality_index = env["numerical_quality"]["cases"].as_array().and_then(|q| {
++        let found: Vec<usize> = q.iter().enumerate().filter(|(_, x)| x["basis_ref"]["ref_id"] == json!(case_id)).map(|(i, _)| i).collect();
++        if let &[i] = found.as_slice() { Some(i) } else { None }
++    }).ok_or(assoc("cases[].ordinary.quality_binding"))?;
++    let (initial, w2, formation) = ordinary_members(e, seed);
++    // C2 §5: the report's outcome is the case's unchanged assessed quality.
++    if initial["kind"] == "report" && env["numerical_quality"]["cases"][quality_index]["solve_quality"] != initial["outcome"] {
++        return Err(assoc("ordinary_attempts[].initial.outcome"));
++    }
++    // D6a (decision 2): the diagnostics naming the case, once each, in envelope
++    // order, excluding RETAINED_PRECISION_* (a T1 (a) omission is already applied).
++    let diagnostic_refs: Vec<Value> = env["diagnostics"].as_array().ok_or(assoc("diagnostics"))?.iter()
++        .filter(|d| d["affected_refs"].as_array().is_some_and(|a| a.iter().any(|r| r == case_id)))
++        .filter(|d| !d["code"].as_str().is_some_and(|c| c.starts_with("RETAINED_PRECISION_")))
++        .map(|d| d["id"].clone()).collect();
++    Ok((json!({"case_index":case_index,"case_id":case_id,"material_basis_ref":0,"requested_mode":mode.as_str(),
++        "initial":initial,"w2":w2,"formation":formation,"legacy_source":legacy,"diagnostic_refs":diagnostic_refs}), quality_index))
++}
++/// The body around its members, then the two hashes (C1 §3): publication over the
++/// final envelope without the receipt, then the body.
++#[allow(clippy::too_many_arguments)]
++fn finish(e: Enc, mut env: Value, invocation: &source_receipt::CapturedInvocation, charged: u64, execution_order: Value, case_v: Value,
++    sources: Vec<Value>, material: Value, (calls, groups, builds): (Vec<Value>, Vec<Value>, Vec<Value>), ordinary: Value, attempt: Value,
++    legacy_source_work: Vec<Value>) -> Result<Value, ReceiptFailure> {
++    let mut body = json!({"receipt_version":1,"policy":POLICY,"projection_policy":PROJECTION_POLICY,"work_policy":WORK_POLICY,
++        "facade_policy":FACADE_POLICY,"canonicalization":CANONICALIZATION,
++        "invocation":{"algorithm":"sha256","profile":CANONICALIZATION,"scope":"actual_request_and_solver_mode","domain":"source_blocks_invocation_v1","value":invocation.borrowed_digest()},
++        "publication_sha256":"",
++        "work":{"case_limit":CASE_LIMIT,"invocation_limit":INVOCATION_LIMIT,"charged":charged,"execution_order":execution_order},
++        "cases":[case_v],"combinations":[],"sources":sources,"material_bases":[material],"calls":calls,"groups":groups,"builds":builds,
++        "ordinary_attempts":[ordinary],"product_attempts":[attempt],"legacy_source_work":legacy_source_work});
++    e.finish()?;
++    if !safe_integers(&body) {
++        return Err(fail(ReceiptCheck::Encoding, "body"));
++    }
++    let publication = domain_hash("retained_precision_publication_mp_v2", &env).ok_or(fail(ReceiptCheck::PublicationHashRange, "publication_sha256"))?;
++    body["publication_sha256"] = json!(publication);
++    let receipt = domain_hash("retained_precision_receipt_mp_v2", &body).ok_or(fail(ReceiptCheck::Encoding, "receipt_sha256"))?;
++    env.as_object_mut().ok_or(fail(ReceiptCheck::Association, "envelope"))?.insert("retained_precision".into(), json!({"body":body,"receipt_sha256":receipt}));
++    Ok(env)
++}
++/// The source's preparation reference (C3 §2) for product attempt 0.
++fn bind_preparation(source: &mut Value, attempt: &Value) -> Result<(), ReceiptFailure> {
++    let preparation = domain_hash("retained_precision_preparation_v1", &preparation_payload(attempt)).ok_or(fail(ReceiptCheck::Encoding, "sources[].preparation.sha256"))?;
++    source["preparation"] = json!({"attempt_ref":0,"sha256":preparation});
++    Ok(())
++}
++
+ /// Serialize one selected, certified, one-case prepared candidate (grant 1).
+-/// Returns the successor envelope with `retained_precision` as its last member.
++/// Returns the successor envelope carrying the `retained_precision` member (PP's
++/// `serde_json::Map` is key-sorted, so it sits between `results` and `status`;
++/// every hash is canonical, so the position is immaterial).
+ pub(super) fn serialize_selected(candidate: &rp::PrivatePreparedCandidate, invocation: &source_receipt::CapturedInvocation)
+     -> Result<Value, ReceiptFailure> {
+     let assoc = |p| fail(ReceiptCheck::Association, p);
+@@ -930,17 +1464,7 @@ pub(super) fn serialize_selected(candidate: &rp::PrivatePreparedCandidate, invoc
+     let mode = invocation.mode();
+     let raw = invocation.borrowed_raw();
+     let pc = candidate.capture();
+-    if pc.invocation_mode != Some(mode) {
+-        return Err(assoc("invocation"));
+-    }
+-    // G-j: one requested case, one native call/run/source and one ordinary capture.
+-    let request_cases = raw["model"]["load_cases"].as_array().ok_or(assoc("cases"))?;
+-    let combinations = raw["model"]["combinations"].as_array().map_or(0, Vec::len);
+-    if request_cases.len() != 1 || combinations != 0 {
+-        return Err(scope("cases"));
+-    }
+-    let case_index = 0usize;
+-    let case_id = request_cases[case_index]["id"].as_str().ok_or(assoc("cases[].basis_ref"))?.to_owned();
++    let (case_index, case_id, seed) = one_case(pc, invocation)?;
+     let (inv, case) = pc.native.as_ref().ok_or(assoc("cases[].run"))?;
+     let k::ExecutionOutcome::Selected(owner) = &case.outcome else { return Err(scope("cases[].status")) };
+     // U2 (RV77-N4): the proof must have started on this selected owner's own solve.
+@@ -951,21 +1475,14 @@ pub(super) fn serialize_selected(candidate: &rp::PrivatePreparedCandidate, invoc
+     if !certificate.passed() {
+         return Err(assoc("cases[].selection.certificate"));
+     }
+-    if inv.runs().len() != 1 || inv.calls().len() != 1 || inv.sources().len() != 1 || case.run != 0 {
+-        return Err(scope("cases[].run"));
+-    }
+-    let [seed] = &pc.ordinary[..] else { return Err(scope("ordinary_attempts")) };
+-    if seed.case != case_id {
+-        return Err(assoc("ordinary_attempts[].case_id"));
+-    }
+-    let run = &inv.runs()[case.run];
++    let run = one_run(inv, case, case_index)?;
+     let mut costs = rr::ProjectionWork::default();
+     let view = candidate.typed_trace(&mut costs).map_err(|_| assoc("product_attempts[]"))?;
+ 
+     // The successor envelope (G-a; T1 (a)).
+     let mut env = serde_json::to_value(candidate.envelope()).map_err(|_| fail(ReceiptCheck::Encoding, "envelope"))?;
+     let mut legacy_source_work = Vec::new();
+-    let (legacy, omit) = legacy_source(&e, seed.legacy.as_ref(), case_index, &mut legacy_source_work)?;
++    let (legacy, omit) = legacy_source(&e, seed.legacy.as_ref(), case_index, &mut legacy_source_work, true)?;
+     successor_envelope(&mut env, &case_id, omit.as_deref())?;
+ 
+     // Row bindings: the producer's own QuantityId/recipe binding in envelope row order.
+@@ -978,98 +1495,150 @@ pub(super) fn serialize_selected(candidate: &rp::PrivatePreparedCandidate, invoc
+     let recipes: Vec<k::ProductRecipe> = rows.iter().map(|r| r.recipe).collect();
+ 
+     // The native run (C1 §1).
+-    let records = &owner.evidence().attempts;
+-    // Only the first `physical_records` links describe actual records.
+-    if records.len() != run.physical_records || records.len() > run.records.len() {
+-        return Err(assoc("cases[].run.records"));
+-    }
+-    if run.id != case.run || !matches!(run.owner, k::NativeOwner::Case(i) if i == case_index) {
+-        return Err(assoc("cases[].run.origin"));
+-    }
+-    let physical_v: Vec<Value> = records.iter().enumerate().map(|(i, r)| physical(&e, i, r, run.records[i])).collect();
+-    let attempts_v = logical(&e, records);
+-    run_conservation(&e, &attempts_v, run);
+-    let run_v = json!({"id":run.id,"origin":{"call":run.call,"position":run.position,"group":run.group,"source_ref":run.source,"owner_ref":{"kind":"case","index":case_index}},
+-        "cache_before":slots(&run.cache_before),"cache_after":slots(&run.cache_after),"kernel_terminal":{"kind":"selected","reason":null},
+-        "records":physical_v,"attempts":attempts_v,"case_charge":e.exact(run.work.case(),"cases[].run.case_charge"),
+-        "invocation_before":e.exact(run.work.invocation_before(),"cases[].run.invocation_before"),
+-        "invocation_increment":e.exact(run.work.invocation_increment(),"cases[].run.invocation_increment"),
+-        "invocation_after":e.exact(run.work.invocation_after(),"cases[].run.invocation_after")});
+-    let mut source = case_source(&e, pc, owner, inv, run, case_index, &case_id, &view)?;
+-    let attempt = product_attempt(&e, &view, case_index, run.source, case.run);
+-    let preparation = domain_hash("retained_precision_preparation_v1", &preparation_payload(&attempt)).ok_or(fail(ReceiptCheck::Encoding, "sources[].preparation.sha256"))?;
+-    source["preparation"] = json!({"attempt_ref":0,"sha256":preparation});
++    let (records, terminal) = kernel_outcome(&e, &case.outcome);
++    let run_v = run_value(&e, run, records, terminal, case_index)?;
++    let mut source = case_source(&e, pc, owner.source(), inv, run, case_index, &case_id, &view)?;
++    let attempt = product_attempt(&e, &view, case_index, Some(run.source), Some(case.run), json!({"kind":"ready"}), pc);
++    bind_preparation(&mut source, &attempt)?;
+     let source_identity = {
+         let mut binding = source.clone();
+         binding.as_object_mut().ok_or(assoc("sources[]"))?.remove("index");
+         domain_hash("retained_precision_source_mp_v2", &binding).ok_or(fail(ReceiptCheck::Encoding, "cases[].source_identity_sha256"))?
+     };
+     let selection_v = selection(&e, owner, pc, &view, certificate.verdicts(), &recipes, &row_ids)?;
+-
+-    // The ordinary attempt (G-b, G-c, G-l).
+-    let quality_index = env["numerical_quality"]["cases"].as_array().and_then(|q| {
+-        let found: Vec<usize> = q.iter().enumerate().filter(|(_, x)| x["basis_ref"]["ref_id"] == json!(case_id)).map(|(i, _)| i).collect();
+-        if let &[i] = found.as_slice() { Some(i) } else { None }
+-    }).ok_or(assoc("cases[].ordinary.quality_binding"))?;
+-    let (initial, w2, formation) = ordinary_members(&e, seed);
+-    // C2 §5: the report's outcome is the case's unchanged assessed quality.
+-    if initial["kind"] == "report" && env["numerical_quality"]["cases"][quality_index]["solve_quality"] != initial["outcome"] {
+-        return Err(assoc("ordinary_attempts[].initial.outcome"));
+-    }
+-    // D6a (decision 2): the diagnostics naming the case, once each, in envelope
+-    // order, excluding RETAINED_PRECISION_* (the T1 (a) omission is already applied).
+-    let diagnostic_refs: Vec<Value> = env["diagnostics"].as_array().ok_or(assoc("diagnostics"))?.iter()
+-        .filter(|d| d["affected_refs"].as_array().is_some_and(|a| a.iter().any(|r| r == case_id.as_str())))
+-        .filter(|d| !d["code"].as_str().is_some_and(|c| c.starts_with("RETAINED_PRECISION_")))
+-        .map(|d| d["id"].clone()).collect();
+-    let ordinary = json!({"case_index":case_index,"case_id":case_id,"material_basis_ref":0,"requested_mode":mode.as_str(),
+-        "initial":initial,"w2":w2,"formation":formation,"legacy_source":legacy,"diagnostic_refs":diagnostic_refs});
+-
++    let (ordinary, quality_index) = ordinary_value(&e, &env, &case_id, case_index, mode, seed, legacy)?;
+     let case_v = json!({"basis_ref":{"ref_type":"load_case","ref_id":case_id},"ordinary":{"attempt_ref":case_index,"quality_binding":{"kind":"present","index":quality_index}},
+         "product_attempt_ref":0,"status":"selected","method":METHOD,"run":run_v,"source_ref":run.source,"source_identity_sha256":source_identity,"selection":selection_v});
+-    let calls: Vec<Value> = inv.calls().iter().map(|c| json!({"id":c.id,"kind":"case_batch",
+-        "owner_refs":c.owners.iter().map(|o|match o { k::NativeOwner::Case(i)=>json!({"kind":"case","index":i}), k::NativeOwner::Combination(i)=>json!({"kind":"combination","index":i}) }).collect::<Vec<_>>(),
+-        "source_refs":c.sources,"run_refs":c.runs,"invocation_before":e.exact(c.invocation_before,"calls[].invocation_before"),
+-        "invocation_after":e.exact(c.invocation_after,"calls[].invocation_after"),"result":{"kind":"runs"}})).collect();
+-    let groups: Vec<Value> = inv.groups().iter().map(|g| {
+-        let preparation = match &g.preparation { k::GroupPreparation::Ready => json!({"kind":"ready"}), k::GroupPreparation::Refused(_) => e.untranslated("groups[].preparation") };
+-        let stiffness = inv.sources().get(g.first_source).map(|s| sha_hex(&s.stiffness));
+-        if stiffness.is_none() { e.fail(ReceiptCheck::Association, "groups[].stiffness_sha256"); }
+-        json!({"id":g.id,"call":g.call,"first_source_ref":g.first_source,
+-            "source_refs":inv.runs().iter().filter(|r|r.group==Some(g.id)).map(|r|r.source).collect::<Vec<_>>(),
+-            "stiffness_sha256":stiffness,"preparation":preparation})
+-    }).collect();
+-    let builds: Vec<Value> = inv.builds().iter().map(|b| json!({"id":b.id,"group":b.group,"slot":slot_name(b.slot),
+-        "origin":{"call":b.call,"run":b.run,"physical_record":b.physical_record,"phase":match b.phase { k::BuildPhase::Shared=>"shared", k::BuildPhase::VerificationShared=>"verification_shared" }},
+-        "state":match b.state { k::BuildState::Success=>"success", k::BuildState::NonbudgetFailure=>"nonbudget_failure", k::BuildState::BudgetFailure=>"budget_failure" },
+-        "reason":b.reason.as_ref().map(|_|e.untranslated("builds[].reason")),"work":e.exact(b.work,"builds[].work"),"stages":stages(&e,&b.stages,"builds[].stages")})).collect();
+-    // W1-LME-20B-60B-v1: the meter's own limit and its exact final charge.
+-    if inv.meter().limit() != INVOCATION_LIMIT {
+-        return Err(assoc("work.invocation_limit"));
+-    }
+-    // C1 §4 body.work: charged equals the final after (before = 0).
+-    let charged = e.exact(inv.meter().checked_charged(), "work.charged");
+-    if charged != e.exact(run.work.invocation_after(), "work.charged") {
+-        return Err(fail(ReceiptCheck::WorkCounterInconsistent, "work.charged"));
+-    }
++    let (calls, groups, builds, charged) = invocation_arrays(&e, inv, run)?;
+     let material = material_basis(&e, pc, raw, case_index)?;
+-    let mut body = json!({"receipt_version":1,"policy":POLICY,"projection_policy":PROJECTION_POLICY,"work_policy":WORK_POLICY,
+-        "facade_policy":FACADE_POLICY,"canonicalization":CANONICALIZATION,
+-        "invocation":{"algorithm":"sha256","profile":CANONICALIZATION,"scope":"actual_request_and_solver_mode","domain":"source_blocks_invocation_v1","value":invocation.borrowed_digest()},
+-        "publication_sha256":"",
+-        "work":{"case_limit":CASE_LIMIT,"invocation_limit":INVOCATION_LIMIT,"charged":charged,"execution_order":[{"kind":"case","index":case_index}]},
+-        "cases":[case_v],"combinations":[],"sources":[source],"material_bases":[material],"calls":calls,"groups":groups,"builds":builds,
+-        "ordinary_attempts":[ordinary],"product_attempts":[attempt],"legacy_source_work":legacy_source_work});
+-    e.finish()?;
+-    if !safe_integers(&body) {
+-        return Err(fail(ReceiptCheck::Encoding, "body"));
++    finish(e, env, invocation, charged, json!([{"kind":"case","index":case_index}]), case_v, vec![source], material,
++        (calls, groups, builds), ordinary, attempt, legacy_source_work)
++}
++
++/// A refused one-case prepared attempt: the three actual refusal owners.
++pub(super) enum Refused<'a> {
++    /// Preparation refused before any native call (`prepare_case`).
++    Preparation(&'a rp::PreparedCaseFailure),
++    /// `solve_native` returned an error: with a recorded Run (non-selected kernel
++    /// outcome), or before any kernel schedule (D38).
++    Native(&'a rp::PreparedCase),
++    /// The candidate was refused after its native stage (proof, facade or capture).
++    Candidate(&'a rp::PreparedCandidateRefusal),
++}
++
++/// The fixed product text of the unavailable-case diagnostic (G-a; D1 §4.1.4: one
++/// info diagnostic per case).
++pub(super) const UNAVAILABLE_CODE: &str = "RETAINED_PRECISION_UNAVAILABLE";
++pub(super) const UNAVAILABLE_MESSAGE: &str = "Retained-precision recovery is unavailable for this load case. Its published rows keep their ordinary values, standing and diagnostics; the retained_precision receipt records the actual attempt and its typed cause.";
++
++/// G-a for an unavailable case: identity and profile, no method token, the
++/// legacy disclosure kept, and the unavailable diagnostic.
++fn unavailable_envelope(env: &mut Value, case_id: &str) -> Result<String, ReceiptFailure> {
++    let assoc = |p| fail(ReceiptCheck::Association, p);
++    env["producer"]["semantic_contract_id"] = json!(RETAINED_SEMANTIC_ID);
++    env["formulation_basis"]["profile_id"] = json!(RETAINED_PROFILE_ID);
++    let diags = env["diagnostics"].as_array_mut().ok_or(assoc("diagnostics"))?;
++    let id = format!("diagnostic:retained-precision:{case_id}:unavailable");
++    if diags.iter().any(|d| d["id"] == json!(id)) {
++        return Err(assoc("diagnostics[+unavailable].id"));
+     }
+-    // Hashes (C1 §3): publication over the final envelope without the receipt, then the body.
+-    let publication = domain_hash("retained_precision_publication_mp_v2", &env).ok_or(fail(ReceiptCheck::PublicationHashRange, "publication_sha256"))?;
+-    body["publication_sha256"] = json!(publication);
+-    let receipt = domain_hash("retained_precision_receipt_mp_v2", &body).ok_or(fail(ReceiptCheck::Encoding, "receipt_sha256"))?;
+-    env.as_object_mut().ok_or(assoc("envelope"))?.insert("retained_precision".into(), json!({"body":body,"receipt_sha256":receipt}));
+-    Ok(env)
++    diags.push(json!({"id":id,"code":UNAVAILABLE_CODE,"severity":"info","message":UNAVAILABLE_MESSAGE,
++        "source":"core/product_physics","affected_refs":[case_id]}));
++    Ok(id)
++}
++
++/// The C1-C3 unavailable representation of a refused one-case prepared attempt:
++/// the unavailable case (reason by the readers' accepted D4d table), its product
++/// attempt with the typed PublicError, the Run when the kernel recorded one, and
++/// D38's `run:null`/`run_ref:null`/`capture` cause when it failed first.
++///
++/// **Not a publication.** Under T3 (ROOT) a one-case invocation whose case is
++/// unavailable has no successor publication: the caller publishes the ordinary
++/// envelope. The value exists for wider F2a and the reader round, and every
++/// accepted reader refuses it at G3 (no selected case).
++pub(super) fn serialize_unavailable(refused: Refused<'_>, invocation: &source_receipt::CapturedInvocation) -> Result<Value, ReceiptFailure> {
++    let assoc = |p| fail(ReceiptCheck::Association, p);
++    let e = Enc::default();
++    let mode = invocation.mode();
++    let raw = invocation.borrowed_raw();
++    let (pc, ordinary_env) = match &refused {
++        Refused::Preparation(f) => (&f.capture, &f.ordinary),
++        Refused::Native(p) => (p.capture(), p.owned_ordinary().ok_or(assoc("envelope"))?),
++        Refused::Candidate(r) => (r.capture(), &r.ordinary),
++    };
++    let (case_index, case_id, seed) = one_case(pc, invocation)?;
++    let selected_owner = pc.native.as_ref().and_then(|(_, case)| match &case.outcome { k::ExecutionOutcome::Selected(o) => Some(&**o), _ => None });
++    // U2 on the failure path: refused proof work and any certificate bind to the
++    // selected owner structurally (before any projection reads them).
++    if let Refused::Candidate(r) = &refused {
++        let bound = |matches: &dyn Fn(&k::RetainedSolve) -> bool| selected_owner.is_some_and(matches);
++        if r.proof_failure().is_some_and(|f| !bound(&|o| f.owner_matches(o))) {
++            return Err(assoc("product_attempts[].proof.owner"));
++        }
++        if r.certificate().is_some_and(|c| !bound(&|o| c.owner_matches(o))) {
++            return Err(assoc("product_attempts[].proof.owner"));
++        }
++    }
++    let mut costs = rr::ProjectionWork::default();
++    let view = match &refused {
++        Refused::Preparation(f) => f.typed_trace(&mut costs),
++        Refused::Native(p) => p.native_refusal_trace(&mut costs),
++        Refused::Candidate(r) => r.typed_trace(&mut costs),
++    }.map_err(|_| assoc("product_attempts[]"))?;
++    let rr::ResultRef::Unavailable(failure) = &view.result else { return Err(assoc("product_attempts[].result")) };
++    let mut env = serde_json::to_value(ordinary_env).map_err(|_| fail(ReceiptCheck::Encoding, "envelope"))?;
++    let mut legacy_source_work = Vec::new();
++    let (legacy, _) = legacy_source(&e, seed.legacy.as_ref(), case_index, &mut legacy_source_work, false)?;
++    let diagnostic_ref = unavailable_envelope(&mut env, &case_id)?;
++    let (ordinary, quality_index) = ordinary_value(&e, &env, &case_id, case_index, mode, seed, legacy)?;
++    let error = public_error(&e, failure, pc);
++    let material = material_basis(&e, pc, raw, case_index)?;
++    let (case_v, attempt, sources, arrays, charged, order) = match pc.native.as_ref() {
++        // D38: no kernel schedule ran, so no Run, run_ref or execution entry.
++        None => {
++            // A source-constructor refusal carries C2's `source_decline` (constructor
++            // counts are not captured typed here; fail closed).
++            if matches!(failure, rr::FailureRef::Preparation { capture: rp::CaptureError::Source(_), .. }) {
++                return Err(fail(ReceiptCheck::Untranslated, "cases[].source_decline"));
++            }
++            if view.prepared_source.is_some() {
++                // A prepared source with no native call: its CaseSource would need identity
++                // bytes the kernel registers only at the call (not decided here; fail closed).
++                return Err(fail(ReceiptCheck::Untranslated, "sources[].kernel_source_sha256"));
++            }
++            let code = ("source_unavailable", "preparation");
++            let attempt = product_attempt(&e, &view, case_index, None, None, json!({"kind":"unavailable","error":error}), pc);
++            let case_v = json!({"basis_ref":{"ref_type":"load_case","ref_id":case_id},"ordinary":{"attempt_ref":case_index,"quality_binding":{"kind":"present","index":quality_index}},
++                "product_attempt_ref":0,"status":"unavailable","reason":{"code":code.0,"phase":code.1,"cause":{"kind":"prepared_product_failure","product_attempt_ref":0}},
++                "diagnostic_ref":diagnostic_ref,"run":null,"source_ref":null});
++            (case_v, attempt, Vec::new(), (Vec::new(), Vec::new(), Vec::new()), 0u64, json!([]))
++        }
++        Some((inv, case)) => {
++            let run = one_run(inv, case, case_index)?;
++            let (records, terminal) = kernel_outcome(&e, &case.outcome);
++            let kind = terminal["kind"].as_str().unwrap_or_default().to_owned();
++            let run_v = run_value(&e, run, records, terminal, case_index)?;
++            let source = match selected_owner { Some(owner) => owner.source(), None => view.prepared_source.ok_or(assoc("sources[]"))? };
++            let mut source_v = case_source(&e, pc, source, inv, run, case_index, &case_id, &view)?;
++            // The readers' accepted D4d table (S06): a nonselected Run is the kernel's;
++            // after a selected Run, the facade's.
++            let code = match (error["kind"].as_str(), kind.as_str()) {
++                (Some("preparation"), _) => return Err(assoc("product_attempts[].result")),
++                (_, "selected") => ("facade_certificate".to_owned(), "facade"),
++                (_, other) => (format!("kernel_{other}"), "kernel"),
++            };
++            let attempt = product_attempt(&e, &view, case_index, Some(run.source), Some(case.run), json!({"kind":"unavailable","error":error}), pc);
++            if view.members.iter().all(|m| matches!(m.result, rr::PreparationResult::Prepared(_))) {
++                bind_preparation(&mut source_v, &attempt)?;
++            }
++            let case_v = json!({"basis_ref":{"ref_type":"load_case","ref_id":case_id},"ordinary":{"attempt_ref":case_index,"quality_binding":{"kind":"present","index":quality_index}},
++                "product_attempt_ref":0,"status":"unavailable","reason":{"code":code.0,"phase":code.1,"cause":{"kind":"prepared_product_failure","product_attempt_ref":0}},
++                "diagnostic_ref":diagnostic_ref,"run":run_v,"source_ref":run.source});
++            let (calls, groups, builds, charged) = invocation_arrays(&e, inv, run)?;
++            (case_v, attempt, vec![source_v], (calls, groups, builds), charged, json!([{"kind":"case","index":case_index}]))
++        }
++    };
++    finish(e, env, invocation, charged, order, case_v, sources, material, arrays, ordinary, attempt, legacy_source_work)
+ }
+ 
+ /// Test access to the D39 mapping with its first-failure encoder.
+@@ -1077,7 +1646,7 @@ pub(super) fn serialize_selected(candidate: &rp::PrivatePreparedCandidate, invoc
+ pub(super) fn test_legacy_source(seed: Option<&rp::LegacySeed>, case_index: usize, work: &mut Vec<Value>)
+     -> Result<(Value, Option<String>), ReceiptFailure> {
+     let e = Enc::default();
+-    let mapped = legacy_source(&e, seed, case_index, work)?;
++    let mapped = legacy_source(&e, seed, case_index, work, true)?;
+     e.finish()?;
+     Ok(mapped)
+ }
+@@ -1118,3 +1687,257 @@ pub(super) fn test_run_conservation(attempts: &[Value], run: &k::RunOrigins) ->
+     run_conservation(&e, attempts, run);
+     e.failures.into_inner()
+ }
++
++/// G-i translation corpus (test only): every variant constructible outside the
++/// kernel, labelled by its schema `$def`, with the encoder failures it records.
++#[cfg(test)]
++pub(super) mod corpus {
++    use super::*;
++    use open_pipe_stress_frame_kernel::exact_sum::SumError;
++    pub(in super::super) struct Entry {
++        pub def: &'static str,
++        pub label: String,
++        pub value: Value,
++        pub failures: Vec<ReceiptFailure>,
++    }
++    fn one(out: &mut Vec<Entry>, def: &'static str, label: impl Into<String>, f: impl FnOnce(&Enc) -> Value) {
++        let e = Enc::default();
++        let value = f(&e);
++        out.push(Entry { def, label: label.into(), value, failures: e.failures.into_inner() });
++    }
++    fn dof() -> k::Dof {
++        k::Dof { node: 3, component: k::Component::Ry }
++    }
++    pub(in super::super) fn wide_errors() -> Vec<k::WideError> {
++        vec![k::WideError::CountRange("w"), k::WideError::WorkAccounting(k::WorkFault::Overflow), k::WideError::InvalidPrecision(96),
++            k::WideError::NonFinite, k::WideError::ExponentRange, k::WideError::DivisionByZero, k::WideError::NegativeSqrt,
++            k::WideError::NotNormalized, k::WideError::AngleDomain, k::WideError::ArctangentLimit, k::WideError::SplitOverflow,
++            k::WideError::Accumulator(SumError::NonFinite), k::WideError::Accumulator(SumError::AccumulatorOverflow),
++            k::WideError::Accumulator(SumError::NonRepresentable), k::WideError::OperandPrecision]
++    }
++    pub(in super::super) fn stops() -> Vec<k::AttemptStop> {
++        let issues = [k::CertificateIssue::Shape, k::CertificateIssue::PairIdentity, k::CertificateIssue::Precision, k::CertificateIssue::RowIdentity,
++            k::CertificateIssue::MissingField, k::CertificateIssue::NegativeField, k::CertificateIssue::NonFinite, k::CertificateIssue::NonCanonicalZero,
++            k::CertificateIssue::RadiusClassMismatch];
++        let mut v = vec![k::AttemptStop::CountRange("rows"), k::AttemptStop::WorkAccounting(k::WorkFault::Overflow),
++            k::AttemptStop::WorkAccounting(k::WorkFault::Inconsistent), k::AttemptStop::WorkAccounting(k::WorkFault::Both),
++            k::AttemptStop::Budget(k::BudgetScope::Case), k::AttemptStop::Budget(k::BudgetScope::Invocation), k::AttemptStop::Span,
++            k::AttemptStop::Exponent, k::AttemptStop::Arithmetic(k::WideError::DivisionByZero), k::AttemptStop::Structure,
++            k::AttemptStop::Pivot { global_dof: 7 }, k::AttemptStop::ZeroDiagonal { global_dof: 8 }, k::AttemptStop::NegativeEnergy { i: 1, j: 2 },
++            k::AttemptStop::Condition, k::AttemptStop::ResidualGate { global_dof: 9 },
++            k::AttemptStop::ResolutionScale { body: 1, kind: k::Kind::Translation }, k::AttemptStop::ResolutionScale { body: 1, kind: k::Kind::Rotation },
++            k::AttemptStop::ResolutionScale { body: 1, kind: k::Kind::Force }, k::AttemptStop::ResolutionScale { body: 1, kind: k::Kind::Moment },
++            k::AttemptStop::PublicationCertificate { index: None, issue: k::CertificateIssue::Shape }];
++        v.extend(issues.into_iter().map(|issue| k::AttemptStop::PublicationCertificate { index: Some(4), issue }));
++        v
++    }
++    pub(in super::super) fn build() -> Vec<Entry> {
++        let mut out = Vec::new();
++        for (i, w) in wide_errors().into_iter().enumerate() {
++            one(&mut out, "WideError", format!("wide_{i}"), |e| wide_error(e, &w));
++        }
++        for (i, s) in stops().into_iter().enumerate() {
++            one(&mut out, "Stop", format!("stop_{i}"), |e| stop(e, &s));
++        }
++        let q = k::QuantityId::Displacement(dof());
++        let quantities = [q, k::QuantityId::Reaction(dof()), k::QuantityId::DisplacementMagnitude(2),
++            k::QuantityId::EndAction { member: 1, end: k::End::I, component: k::Component::Ux },
++            k::QuantityId::EndAction { member: 1, end: k::End::J, component: k::Component::Rz },
++            k::QuantityId::StationAction { station: 3, component: k::Component::Uy },
++            k::QuantityId::SpringAction { spring: 0, component: k::Component::Uz },
++            k::QuantityId::SupportForceMagnitude(1), k::QuantityId::SupportMomentMagnitude(1)];
++        for (i, q) in quantities.into_iter().enumerate() {
++            one(&mut out, "Quantity", format!("quantity_{i}"), |e| quantity(e, q));
++        }
++        let reasons = vec![k::AttemptReason::Stop(k::AttemptStop::Condition),
++            k::AttemptReason::StopRule { quantity: q, body: 0, kind: k::Kind::Translation },
++            k::AttemptReason::VerificationEstimate { quantity: q, body: 0, kind: k::Kind::Force },
++            k::AttemptReason::Charge { quantity: q, body: 1, kind: k::Kind::Moment }, k::AttemptReason::VerificationFailed,
++            k::AttemptReason::PublicationEnclosure { quantity: q, body: 0, kind: k::Kind::Rotation, predicate: k::PublicationPredicate::AbsoluteBound },
++            k::AttemptReason::PublicationEnclosure { quantity: q, body: 0, kind: k::Kind::Rotation, predicate: k::PublicationPredicate::PublicRelative },
++            k::AttemptReason::PublicationEnclosure { quantity: q, body: 0, kind: k::Kind::Rotation, predicate: k::PublicationPredicate::SharperExact },
++            k::AttemptReason::PublicationEnclosure { quantity: q, body: 0, kind: k::Kind::Rotation, predicate: k::PublicationPredicate::SharperBinary64 },
++            k::AttemptReason::Uc { body: 2 }, k::AttemptReason::Theta { body: 3 }, k::AttemptReason::GValidity { member: 4 }];
++        for (i, r) in reasons.iter().enumerate() {
++            one(&mut out, "Reason", format!("attempt_{i}"), |e| attempt_reason(e, r));
++        }
++        for (i, r) in reasons.into_iter().enumerate() {
++            one(&mut out, "Outcome", format!("outcome_rejected_{i}"), |e| outcome(e, &k::AttemptOutcome::Rejected(r.clone())));
++            one(&mut out, "Outcome", format!("outcome_failed_{i}"), |e| outcome(e, &k::AttemptOutcome::Failed(r)));
++        }
++        for (i, o) in [k::AttemptOutcome::Accepted, k::AttemptOutcome::Verified, k::AttemptOutcome::Solved].into_iter().enumerate() {
++            one(&mut out, "Outcome", format!("outcome_{i}"), |e| outcome(e, &o));
++        }
++        let unresolved_reasons = vec![k::UnresolvedReason::CountRange("cases"),
++            k::UnresolvedReason::WorkAccounting { fault: k::WorkFault::Both, prior: Some(k::AttemptStop::Span) },
++            k::UnresolvedReason::Ceiling, k::UnresolvedReason::Budget(k::BudgetScope::Invocation), k::UnresolvedReason::ExactSumSpan,
++            k::UnresolvedReason::ExponentRange, k::UnresolvedReason::ZeroDiagonal { global_dof: 5 },
++            k::UnresolvedReason::Arithmetic(k::WideError::InvalidPrecision(8)),
++            k::UnresolvedReason::ResolutionScaleUnencodable { body: 1, kind: k::Kind::Moment },
++            k::UnresolvedReason::CertifiedBoundUnencodable { body: 2 },
++            k::UnresolvedReason::PublicationCertificate { index: Some(3), issue: k::CertificateIssue::RowIdentity }];
++        for (i, r) in unresolved_reasons.iter().enumerate() {
++            one(&mut out, "Unresolved", format!("unresolved_{i}"), |e| unresolved(e, r));
++        }
++        let refusals = vec![k::Refusal::MechanismWitnessed { body: 0, rigid_parameters: [1.0, 0.0, -0.5, 0.25, 2.0, 0.0] },
++            k::Refusal::GeometryUnavailable { body: 1, error: StructuralError::Range("geometry") },
++            k::Refusal::NegativeEnergy { i: 3, j: 4 }, k::Refusal::LedgerUnavailable(k::LedgerRefusal::Accumulator(SumError::NonRepresentable)),
++            k::Refusal::Structure];
++        for (i, r) in refusals.iter().enumerate() {
++            one(&mut out, "Refusal", format!("refusal_{i}"), |e| refusal(e, r));
++        }
++        let passes = [k::BoundPass::Forward, k::BoundPass::Pivot, k::BoundPass::Backward, k::BoundPass::NlColumn, k::BoundPass::NlScale,
++            k::BoundPass::NlRow, k::BoundPass::Form, k::BoundPass::Need, k::BoundPass::Sigma, k::BoundPass::ShiftFactor, k::BoundPass::ShiftForm];
++        for (i, pass) in passes.into_iter().enumerate() {
++            let b = k::BlockRefusal { block: i as u32, bound: if i % 2 == 0 { k::CertifiedBound::Uc } else { k::CertifiedBound::S },
++                refusal: k::BoundRefusal { kind: if i % 3 == 0 { k::RefusalKind::Span } else { k::RefusalKind::Exponent }, pass,
++                    row: if i == 0 { usize::MAX } else { i } } };
++            one(&mut out, "BlockRefusal", format!("block_{i}"), |_| block_refusal(&b));
++        }
++        let numerics = vec![k::NumericError::Arithmetic(k::AttemptStop::Exponent), k::NumericError::NonFinite, k::NumericError::NonpositiveSource,
++            k::NumericError::InvalidGeometry, k::NumericError::InvalidMaterial, k::NumericError::MaterialBits, k::NumericError::TemperatureOrder,
++            k::NumericError::NonpositiveDenominator, k::NumericError::AxisBits, k::NumericError::Binary64Range];
++        for (i, n) in numerics.iter().enumerate() {
++            one(&mut out, "NumericError", format!("numeric_{i}"), |e| numeric_error(e, n));
++        }
++        let views = vec![k::ViewFailure::Certificate(k::CertificateIssue::NonFinite), k::ViewFailure::ForeignOwner, k::ViewFailure::UnsupportedCombination,
++            k::ViewFailure::VerificationCache, k::ViewFailure::Ordering, k::ViewFailure::BodyBound, k::ViewFailure::CountRange,
++            k::ViewFailure::Work(k::WorkFault::Inconsistent)];
++        for (i, v) in views.iter().enumerate() {
++            one(&mut out, "ViewIssue", format!("view_{i}"), |_| view_issue(v));
++        }
++        let numeric = k::NumericError::AxisBits;
++        let bridges = vec![k::BridgeFailure::View(k::ViewFailure::Ordering), k::BridgeFailure::Numeric(&numeric), k::BridgeFailure::MemberOwner,
++            k::BridgeFailure::UnsupportedDirectionalSpring, k::BridgeFailure::MissingRadius(11), k::BridgeFailure::MissingUniquenessWarrant(2),
++            k::BridgeFailure::RowIdentity(12), k::BridgeFailure::CountRange, k::BridgeFailure::Storage, k::BridgeFailure::AlphaCondition { block: 3 }];
++        for (i, b) in bridges.iter().enumerate() {
++            one(&mut out, "BridgeError", format!("bridge_{i}"), |e| bridge_error(e, b));
++        }
++        let helper_stop = k::AttemptStop::Structure;
++        let predicates = [k::ProductPredicate::Absolute, k::ProductPredicate::SharperExact, k::ProductPredicate::SharperBinary64,
++            k::ProductPredicate::DecimalSi, k::ProductPredicate::DecimalRaw, k::ProductPredicate::InputDerived];
++        let mut products = vec![k::ProductFailureView::Association("assoc"), k::ProductFailureView::Numeric(&numeric),
++            k::ProductFailureView::Native(k::BridgeFailure::Storage), k::ProductFailureView::Accounting(k::WorkFault::Overflow),
++            k::ProductFailureView::CountRange("count"), k::ProductFailureView::Storage, k::ProductFailureView::G5a("g5a"),
++            k::ProductFailureView::Helper(k::HelperFailure::Arithmetic(&helper_stop)), k::ProductFailureView::Helper(k::HelperFailure::InvalidSmallBoundInput),
++            k::ProductFailureView::Helper(k::HelperFailure::Binary64Range), k::ProductFailureView::Helper(k::HelperFailure::Invariant)];
++        products.extend(predicates.into_iter().map(|predicate| k::ProductFailureView::Predicate { row: 6, predicate }));
++        for (i, p) in products.into_iter().enumerate() {
++            one(&mut out, "ProductError", format!("product_{i}"), |e| product_error_view(e, p));
++        }
++        let props = [k::MemberProperty::ElasticModulus, k::MemberProperty::ShearModulus, k::MemberProperty::Area, k::MemberProperty::SecondMomentY,
++            k::MemberProperty::SecondMomentZ, k::MemberProperty::TorsionConstant, k::MemberProperty::YReference];
++        let mut sources = vec![k::SourceError::CountRange("nodes"), k::SourceError::NoNodes, k::SourceError::NonFiniteCoordinate { node: 1 },
++            k::SourceError::NodeOutOfRange { node: 9 }, k::SourceError::DuplicateMemberId { id: 2 }, k::SourceError::RepeatedMemberNode { member: 3 },
++            k::SourceError::ZeroLength { member: 4 }, k::SourceError::DegenerateAxis { member: 5 }, k::SourceError::DuplicateSpringId { id: 6 },
++            k::SourceError::NonPositiveSpring { id: 7 }, k::SourceError::ZeroDirection { id: 8 }, k::SourceError::NonFiniteDirection { id: 9 },
++            k::SourceError::DuplicateConstraint { dof: dof() }, k::SourceError::NonFiniteValue { dof: dof() }, k::SourceError::EmptyLoadSource { dof: dof() },
++            k::SourceError::DuplicateStationId { id: 10 }, k::SourceError::UnknownMember { station: 11, member: 12 },
++            k::SourceError::StationOutOfRange { id: 13 }, k::SourceError::DuplicateSupportId { id: 14 }, k::SourceError::SupportMismatch { id: 15 }];
++        for property in props {
++            sources.push(k::SourceError::NonFiniteProperty { member: 1, property });
++            sources.push(k::SourceError::NonPositiveProperty { member: 1, property });
++            sources.push(k::SourceError::SubnormalDerivedPrimitive { member: 1, property });
++        }
++        for (i, s) in sources.iter().enumerate() {
++            one(&mut out, "SourceError", format!("source_{i}"), |e| source_error(e, s));
++        }
++        let origins = [k::OriginError::CountRange("calls"), k::OriginError::Capacity, k::OriginError::Allocation, k::OriginError::MissingSelectedOrigin { operand: 1 }];
++        for (i, o) in origins.iter().enumerate() {
++            one(&mut out, "OriginError", format!("origin_{i}"), |_| origin_error(o));
++        }
++        let events = [rp::AdapterEvent::SourceVisit, rp::AdapterEvent::RowVisit, rp::AdapterEvent::MapWrite, rp::AdapterEvent::ValidationEntry,
++            rp::AdapterEvent::IdentityByteRead, rp::AdapterEvent::KeyProbe, rp::AdapterEvent::AllocationRequest, rp::AdapterEvent::LibraryBoundary,
++            rp::AdapterEvent::RequestedCopyBytes, rp::AdapterEvent::RustCapacityBytes];
++        let op = rp::OperationalError::NonFinite { operation: rp::ScalarOperation::Div, entered: 3 };
++        let mut captures = vec![rp::CaptureError::Association("assoc".into()), rp::CaptureError::CountRange("count"), rp::CaptureError::Storage("store"),
++            rp::CaptureError::Source(k::SourceError::NoNodes), rp::CaptureError::Origin(k::OriginError::Capacity), rp::CaptureError::NativeUnavailable,
++            rp::CaptureError::PreparedArithmetic(op.clone()), rp::CaptureError::PreparedProof(k::ProductFailure::from(k::NumericError::NonFinite)),
++            rp::CaptureError::PreparedAttemptConsumed];
++        captures.extend(events.iter().map(|ev| rp::CaptureError::Accounting(rp::AdapterFault::Overflow(*ev))));
++        for (i, c) in captures.iter().enumerate() {
++            one(&mut out, "CaptureError", format!("capture_{i}"), |e| capture_error(e, c));
++        }
++        let ops = [rp::OperationalError::MissingOrForeign, rp::OperationalError::Input, rp::OperationalError::Degenerate, rp::OperationalError::Accounting,
++            rp::OperationalError::NonFinite { operation: rp::ScalarOperation::Add, entered: 1 },
++            rp::OperationalError::NonFinite { operation: rp::ScalarOperation::Sub, entered: 2 },
++            rp::OperationalError::NonFinite { operation: rp::ScalarOperation::Mul, entered: 3 },
++            rp::OperationalError::CoefficientRange { coefficient: "EA/L", operation: rp::ScalarOperation::Sqrt }];
++        for (i, o) in ops.iter().enumerate() {
++            one(&mut out, "OperationalError", format!("operational_{i}"), |_| op_error(o));
++        }
++        let g5as = [rp::G5aFailure::Accounting(rp::AdapterFault::Overflow(rp::AdapterEvent::KeyProbe)), rp::G5aFailure::Shape("shape"),
++            rp::G5aFailure::Summary("summary"), rp::G5aFailure::Zero { row: 4 }, rp::G5aFailure::Sanity { body: 1, kind: 0 },
++            rp::G5aFailure::Sanity { body: 1, kind: 1 }, rp::G5aFailure::Lower { member: 2, kind: 1 }, rp::G5aFailure::Sanity { body: 1, kind: 2 },
++            rp::G5aFailure::Operational { member: 3, cause: op.clone() }, rp::G5aFailure::Arithmetic(rp::OperationalError::Input)];
++        for (i, g) in g5as.iter().enumerate() {
++            one(&mut out, "G5aError", format!("g5a_{i}"), |e| g5a_error(e, g));
++        }
++        let sections = [k::SectionPreparationError::InvalidGeometry, k::SectionPreparationError::Accounting,
++            k::SectionPreparationError::AmbiguousRounding(4), k::SectionPreparationError::PrimitiveRange(0), k::SectionPreparationError::PrimitiveRange(5)];
++        for (i, s) in sections.iter().enumerate() {
++            one(&mut out, "SectionError", format!("section_{i}"), |e| section_error(e, s));
++        }
++        let structurals = [StructuralError::InvalidInput("input"), StructuralError::Range("range"),
++            StructuralError::Asymmetric { row: 1, col: 2, relative_skew: 1e-3 },
++            StructuralError::NumericallyUnresolved { reason: "zero original diagonal", global_dof: Some(5) },
++            StructuralError::NumericallyUnresolved { reason: "pivot", global_dof: None },
++            StructuralError::NegativeEnergy { direction: vec![0.5, -0.5, 0.0], energy: -1.0, allowance: 1e-9 },
++            StructuralError::Mechanism { direction: vec![1.0, 0.0] }];
++        for (i, s) in structurals.iter().enumerate() {
++            one(&mut out, "StructuralError", format!("structural_{i}"), |e| structural_error(e, s));
++        }
++        // PublicError over the capture-free FailureRef variants.
++        let capture = rp::ProductCapture::default();
++        let cap = rp::CaptureError::Origin(k::OriginError::Allocation);
++        let section = k::SectionPreparationError::InvalidGeometry;
++        let proof = k::ProductFailure::from(k::NumericError::InvalidMaterial);
++        let g5a = rp::G5aFailure::Zero { row: 1 };
++        let candidate_capture = rp::PreparedCandidateError::Capture(rp::CaptureError::NativeUnavailable);
++        let candidate_numeric = rp::PreparedCandidateError::Numeric;
++        let refs = [rr::FailureRef::Preparation { capture: &cap, section: Some(&section) }, rr::FailureRef::Preparation { capture: &cap, section: None },
++            rr::FailureRef::Native(&cap), rr::FailureRef::Candidate(&candidate_capture), rr::FailureRef::Candidate(&candidate_numeric),
++            rr::FailureRef::Proof(&proof), rr::FailureRef::Observable(&cap), rr::FailureRef::G5a(&g5a)];
++        for (i, f) in refs.iter().enumerate() {
++            one(&mut out, "PublicError", format!("public_{i}"), |e| public_error(e, f, &capture));
++        }
++        out
++    }
++}
++/// Test access to the logical projection and the kernel-outcome terminal.
++#[cfg(test)]
++pub(super) fn test_logical(records: &[k::AttemptRecord]) -> (Vec<Value>, Vec<ReceiptFailure>) {
++    let e = Enc::default();
++    let v = logical(&e, records);
++    (v, e.failures.into_inner())
++}
++#[cfg(test)]
++pub(super) fn test_kernel_terminal(outcome: &k::ExecutionOutcome) -> (usize, Value) {
++    let e = Enc::default();
++    let (records, terminal) = kernel_outcome(&e, outcome);
++    (records.len(), terminal)
++}
++/// Test access to the structural checks RV82-N1 names.
++#[cfg(test)]
++pub(super) fn test_successor_envelope(env: &mut Value, case_id: &str, omit: Option<&str>) -> Result<String, ReceiptFailure> {
++    successor_envelope(env, case_id, omit)
++}
++#[cfg(test)]
++pub(super) fn test_after_conserved(before: u64, increment: u64, after: u64) -> (bool, Vec<ReceiptFailure>) {
++    let e = Enc::default();
++    let ok = after_conserved(&e, before, increment, after);
++    (ok, e.failures.into_inner())
++}
++#[cfg(test)]
++pub(super) fn test_invocation_arrays(inv: &k::RecordedInvocation, run: &k::RunOrigins) -> Result<u64, ReceiptFailure> {
++    let e = Enc::default();
++    let (_, _, _, charged) = invocation_arrays(&e, inv, run)?;
++    e.finish()?;
++    Ok(charged)
++}
++#[cfg(test)]
++pub(super) fn test_ordinary_value(env: &Value, case_id: &str, seed: &rp::OrdinarySeed) -> Result<Value, ReceiptFailure> {
++    let e = Enc::default();
++    let (v, _) = ordinary_value(&e, env, case_id, 0, PreviewSolverMode::SparseInteractive, seed, Value::Null)?;
++    Ok(v)
++}
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs b/projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs
+index 2942528bcd..52702efb92 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs
+@@ -53,8 +53,9 @@ fn pretty(v: &Value) -> String {
+     serde_json::to_string_pretty(v).unwrap()
+ }
+ 
+-/// Protected byte control 1 (experiment 03 A, B, B'): capture never changes
+-/// the ordinary bytes, and the no-permit retained entry is the plain route.
++/// Protected byte control 1 (experiment 03 A and B): capture never changes the
++/// ordinary bytes, and the no-permit retained entry is the plain route. B' (the
++/// envelope returned on a permit path) belongs to U3, which installs that path.
+ #[test]
+ fn u1_ordinary_bytes_unchanged_under_capture() {
+     for (mode, (name, len, digest)) in MODES.into_iter().zip(ORDINARY_SHA256) {
+@@ -382,13 +383,15 @@ fn u1_refusals_are_typed() {
+     let (candidate, _, _) = milestone_candidate(mode);
+     let (_, other) = source_receipt::CapturedInvocation::parse(milestone_raw(), PreviewSolverMode::DenseScrutiny).unwrap();
+     assert_eq!(wire::serialize_selected(&candidate, &other).err().map(|f| f.field_path), Some("invocation"));
+-    // A second requested case is wider F2a (G-j): refused before any projection.
++    // A second requested case is wider F2a; since RV82-S2 such an invocation is
++    // also not the one this candidate observed, so it is refused as foreign first
++    // (the Scope branch remains for the candidate's own invocation).
+     let mut raw = milestone_raw();
+     let mut second = raw["model"]["load_cases"][0].clone();
+     second["id"] = json!("case-2");
+     raw["model"]["load_cases"].as_array_mut().unwrap().push(second);
+     let (_, two) = source_receipt::CapturedInvocation::parse(raw, mode).unwrap();
+-    assert_eq!(wire::serialize_selected(&candidate, &two).err(), Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Scope, field_path: "cases" }));
++    assert_eq!(wire::serialize_selected(&candidate, &two).err(), Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "invocation" }));
+ }
+ 
+ /// G-b and D39 on an actual load-row case (S11-G T1, RF-CANCEL-UDL-W1e8, captured
+@@ -416,6 +419,8 @@ fn u1_load_row_case_capture() {
+         let finding = seed.load_row_finding.as_ref().expect("load-row finding");
+         assert_eq!(finding.diagnostic_ref.as_deref(), Some(integrity.as_str()), "{mode:?}: disclosed by demotion");
+         assert!(!finding.sentence.is_empty() && finding.fired.iter().any(|f| f.contains("S1:RZ")), "{mode:?}: {finding:?}");
++        // RV82-S1: F1 in the absent direction; this case's report carries no K-D5 line.
++        assert_eq!(seed.d5_diagnostic_ref, None, "{mode:?}: no K-D5 line, so no d5 reference");
+         let record = observed.diagnostics.iter().find(|d| d.id == integrity).unwrap();
+         assert!(record.message.ends_with(&finding.sentence) || record.message.contains(&finding.sentence), "test oracle only");
+         match &seed.legacy {
+@@ -428,3 +433,314 @@ fn u1_load_row_case_capture() {
+         println!("I61_U1_LOAD_ROW {} initial=report(sensitive) finding_ref={:?} d5={:?} legacy=declined_without_attempt", mode.as_str(), finding.diagnostic_ref, seed.d5_diagnostic_ref);
+     }
+ }
++
++/// G-i (U1 grant 2): every constructible variant of each closed translation table,
++/// against the pinned golden corpus (each value is also validated against its
++/// schema `$def` in the Python lane). Variants without a wire form record their
++/// typed failure instead of a value.
++#[test]
++fn u1g2_translation_corpus() {
++    let entries = wire::corpus::build();
++    let corpus: Vec<Value> = entries.iter().map(|x| json!({"def":x.def,"label":x.label,"value":x.value,
++        "failures":x.failures.iter().map(|f| json!({"check":f.check.wire(),"path":f.field_path,"typed":format!("{:?}", f.check)})).collect::<Vec<_>>()})).collect();
++    let text = serde_json::to_string_pretty(&corpus).unwrap();
++    if let Some(dir) = std::env::var("I61_U1_OUT").ok().map(std::path::PathBuf::from) {
++        std::fs::write(dir.join("translation_corpus.json"), &text).unwrap();
++    }
++    println!("I61_U1G2_CORPUS entries={} sha256={}", corpus.len(), sha(text.as_bytes()));
++    assert_eq!(sha(text.as_bytes()), GOLDEN_CORPUS_SHA256, "pinned translation corpus");
++}
++const GOLDEN_CORPUS_SHA256: &str = "4489a9df4ba668811ce5948b307b55432bc7ba95d801d103c47351a497b4c6f6";
++
++/// The private driver up to a refused candidate (selected native Run, then an
++/// injected facade fault after the proof started).
++fn refused_candidate(mode: PreviewSolverMode, fault: super::retained_receipt::TraceFault)
++    -> (rp::PreparedCandidateRefusal, source_receipt::CapturedInvocation) {
++    let (request, capture) = source_receipt::CapturedInvocation::parse(milestone_raw(), mode).unwrap();
++    let mut prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|e| panic!("{:?}", e.capture.error));
++    prepared.test_capture_mut().trace_fault = Some(fault);
++    prepared.solve_native().unwrap();
++    match prepared.project_candidate() { Err(r) => (r, capture), Ok(_) => panic!("refusal expected") }
++}
++fn write_receipt(name: &str, successor: &Value, mode: PreviewSolverMode) {
++    if let Some(dir) = std::env::var("I61_U1_OUT").ok().map(std::path::PathBuf::from) {
++        std::fs::write(dir.join(format!("{name}.json")), pretty(&json!({"id":name,"source":successor,"invocation":invocation(mode)}))).unwrap();
++    }
++}
++fn body(successor: &Value) -> &Value {
++    &successor["retained_precision"]["body"]
++}
++
++/// Grant 2, item 4: the C1-C3 unavailable representation of an actual
++/// preparation refusal (injected trigger, as experiment 02: facts[0] diameter 0).
++/// Under T3 it is not a publication; every accepted reader refuses it at G3.
++#[test]
++fn u1g2_preparation_refusal_representation() {
++    let mode = PreviewSolverMode::SparseInteractive;
++    let (request, capture) = source_receipt::CapturedInvocation::parse(milestone_raw(), mode).unwrap();
++    let mut observer = rp::ProductCapture::prepared_probe();
++    let ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
++    observer.facts[0].diameter = 0.0;
++    let failed = match observer.prepare_case(ordinary) { Err(f) => f, Ok(_) => panic!("helper refusal expected") };
++    let successor = wire::serialize_unavailable(wire::Refused::Preparation(&failed), &capture).unwrap_or_else(|f| panic!("{f:?}"));
++    let b = body(&successor);
++    let case = &b["cases"][0];
++    assert_eq!((case["status"].as_str(), &case["reason"]), (Some("unavailable"),
++        &json!({"code":"source_unavailable","phase":"preparation","cause":{"kind":"prepared_product_failure","product_attempt_ref":0}})));
++    assert_eq!((&case["run"], &case["source_ref"], &b["sources"], &b["work"]["execution_order"], &b["calls"]), (&Value::Null, &Value::Null, &json!([]), &json!([]), &json!([])));
++    let attempt = &b["product_attempts"][0];
++    assert_eq!((attempt["result"]["kind"].as_str(), attempt["result"]["error"]["kind"].as_str(), &attempt["run_ref"], &attempt["source_ref"]),
++        (Some("unavailable"), Some("preparation"), &Value::Null, &Value::Null));
++    // Unselected: the legacy disclosure is kept and referenced (C2:160), no method token.
++    assert_eq!(b["ordinary_attempts"][0]["legacy_source"], json!({"disposition":"unavailable","diagnostic_ref":"diagnostic:source-recovery:case","work_ref":0}));
++    assert!(successor["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"));
++    assert!(successor["results"].as_array().unwrap().iter().all(|r| r.get("recovery_method").is_none()));
++    let unavailable: Vec<&Value> = successor["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == wire::UNAVAILABLE_CODE).collect();
++    assert_eq!(unavailable.len(), 1);
++    assert_eq!((unavailable[0]["id"].as_str(), &case["diagnostic_ref"]), (Some("diagnostic:retained-precision:case:unavailable"), &unavailable[0]["id"]));
++    write_receipt("u1g2_preparation_refusal_sparse_interactive", &successor, mode);
++}
++
++/// Grant 2, item 2 (D38): a prepared solve that fails before any kernel schedule
++/// (injected: the prepared source is withdrawn) carries `run:null`, `run_ref:null`
++/// and a `capture` error with the actual cause.
++#[test]
++fn u1g2_d38_failure_before_any_run() {
++    for mode in MODES {
++        let (request, capture) = source_receipt::CapturedInvocation::parse(milestone_raw(), mode).unwrap();
++        let mut prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|e| panic!("{:?}", e.capture.error));
++        prepared.test_capture_mut().source = None;
++        assert!(prepared.solve_native().is_err());
++        assert!(prepared.capture().native.is_none(), "precondition: no kernel schedule ran");
++        let successor = wire::serialize_unavailable(wire::Refused::Native(&prepared), &capture).unwrap_or_else(|f| panic!("{f:?}"));
++        let b = body(&successor);
++        let (case, attempt) = (&b["cases"][0], &b["product_attempts"][0]);
++        assert_eq!((&case["run"], &attempt["run_ref"], &case["source_ref"], &attempt["source_ref"]), (&Value::Null, &Value::Null, &Value::Null, &Value::Null));
++        assert_eq!(attempt["result"], json!({"kind":"unavailable","error":{"kind":"capture","cause":{"kind":"association","detail":"prepared source"}}}));
++        assert_eq!(attempt["stages"]["native"], json!("failed"), "the native stage was entered");
++        assert_eq!((&case["reason"]["code"], &case["reason"]["phase"]), (&json!("source_unavailable"), &json!("preparation")));
++        assert_eq!((&b["work"]["charged"], &b["work"]["execution_order"], &b["calls"]), (&json!(0), &json!([]), &json!([])));
++        write_receipt(&format!("u1g2_d38_{}", mode.as_str()), &successor, mode);
++    }
++}
++
++/// Grant 2, items 3 and 4: a candidate refused after its selected native Run (an
++/// injected facade fault). The refused proof binds to its owner (U2, failure path);
++/// the case is unavailable at the facade with the actual selected Run.
++#[test]
++fn u1g2_candidate_refusal_after_selected_run() {
++    use super::retained_receipt::TraceFault as F;
++    let mode = PreviewSolverMode::SparseInteractive;
++    for (fault, error) in [(F::Maxima, "abandoned"), (F::ValuesCompletion, "values")] {
++        let (refused, capture) = refused_candidate(mode, fault);
++        let successor = wire::serialize_unavailable(wire::Refused::Candidate(&refused), &capture).unwrap_or_else(|f| panic!("{fault:?}: {f:?}"));
++        let b = body(&successor);
++        let (case, attempt) = (&b["cases"][0], &b["product_attempts"][0]);
++        assert_eq!(attempt["result"]["error"]["kind"].as_str(), Some(error), "{fault:?}");
++        assert_eq!((&case["reason"]["code"], &case["reason"]["phase"]), (&json!("facade_certificate"), &json!("facade")));
++        assert_eq!(case["run"]["kernel_terminal"], json!({"kind":"selected","reason":null}));
++        assert_eq!((&case["source_ref"], &attempt["source_ref"], &attempt["run_ref"]), (&json!(0), &json!(0), &json!(0)));
++        assert_eq!(b["sources"].as_array().map(Vec::len), Some(1));
++        assert!(case.get("selection").is_none() && case.get("method").is_none());
++        write_receipt(&format!("u1g2_candidate_{error}_sparse_interactive"), &successor, mode);
++    }
++}
++
++/// U2 on the failure path: a refused proof of another selected owner with
++/// identical public facts is refused structurally.
++#[test]
++fn u2_failure_path_foreign_owner_refused() {
++    use super::retained_receipt::TraceFault as F;
++    let mode = PreviewSolverMode::SparseInteractive;
++    let (mut first, capture) = refused_candidate(mode, F::ValuesCompletion);
++    let (mut second, _) = refused_candidate(mode, F::ValuesCompletion);
++    assert!(wire::serialize_unavailable(wire::Refused::Candidate(&first), &capture).is_ok(), "own refused proof serializes");
++    first.test_swap_error(&mut second);
++    let refused = wire::serialize_unavailable(wire::Refused::Candidate(&first), &capture);
++    println!("I61_FOREIGN_OWNER failure_path_serializer_refused={}", refused.is_err());
++    assert_eq!(refused.err(), Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "product_attempts[].proof.owner" }));
++}
++
++/// C1 §1 item 2 (grant 2): a failed verification keeps its translated failure
++/// reason; a completed one has none. The milestone's records, with the
++/// verification outcome replaced (a projection control, not a native run).
++#[test]
++fn u1g2_failed_verification_keeps_its_reason() {
++    let (candidate, _, _) = milestone_candidate(PreviewSolverMode::SparseInteractive);
++    let k::ExecutionOutcome::Selected(owner) = &candidate.capture().native.as_ref().unwrap().1.outcome else { panic!("selected") };
++    let mut records = owner.evidence().attempts.clone();
++    assert!(matches!(records[1].role, k::AttemptRole::Verification), "precondition: a candidate/verification pair");
++    let (completed, _) = wire::test_logical(&records);
++    assert_eq!(completed[0]["verification"]["phase"], json!("completed"));
++    assert_eq!(completed[0]["verification"]["reason"], Value::Null);
++    records[1].outcome = k::AttemptOutcome::Failed(k::AttemptReason::Stop(k::AttemptStop::Condition));
++    let (failed, failures) = wire::test_logical(&records);
++    assert!(failures.is_empty(), "{failures:?}");
++    assert_eq!(failed[0]["verification"], json!({"record":1,"precision":records[1].precision,"phase":"failed",
++        "reason":{"space":"attempt","tag":"stop","stop":{"space":"stop","tag":"condition"}}}));
++    records[1].outcome = k::AttemptOutcome::Rejected(k::AttemptReason::VerificationFailed);
++    let (_, failures) = wire::test_logical(&records);
++    assert_eq!(failures.iter().map(|f| f.field_path).collect::<Vec<_>>(), vec!["run.attempts[].verification.phase"]);
++}
++
++/// C1 §4 Run.kernel_terminal for each kernel outcome (grant 2).
++#[test]
++fn u1g2_kernel_terminals() {
++    let (candidate, _, _) = milestone_candidate(PreviewSolverMode::SparseInteractive);
++    let outcome = &candidate.capture().native.as_ref().unwrap().1.outcome;
++    let k::ExecutionOutcome::Selected(owner) = outcome else { panic!("selected") };
++    let records = owner.evidence().attempts.clone();
++    assert_eq!(wire::test_kernel_terminal(outcome), (records.len(), json!({"kind":"selected","reason":null})));
++    let unresolved = k::ExecutionOutcome::Unresolved { reason: k::UnresolvedReason::Ceiling, attempts: records.clone(), geometry: Vec::new() };
++    assert_eq!(wire::test_kernel_terminal(&unresolved), (records.len(), json!({"kind":"unresolved","reason":{"space":"unresolved","tag":"ceiling"}})));
++    let refused = k::ExecutionOutcome::Refused { refusal: k::Refusal::Structure, attempts: Vec::new(), geometry: Vec::new() };
++    assert_eq!(wire::test_kernel_terminal(&refused), (0, json!({"kind":"refused","reason":{"space":"refusal","tag":"structure"}})));
++}
++
++/// C2/C3: a source-constructor refusal needs `source_decline`, whose constructor
++/// counts are not captured typed in grant 1-2, so it fails closed (typed).
++#[test]
++fn u1g2_source_constructor_refusal_fails_closed() {
++    use super::retained_receipt::TraceFault as F;
++    let mode = PreviewSolverMode::SparseInteractive;
++    let (request, capture) = source_receipt::CapturedInvocation::parse(milestone_raw(), mode).unwrap();
++    let mut observer = rp::ProductCapture::prepared_probe();
++    let ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
++    observer.trace_fault = Some(F::SourceConstruction);
++    let failed = match observer.prepare_case(ordinary) { Err(f) => f, Ok(_) => panic!("source refusal expected") };
++    assert!(matches!(failed.capture.error, Some(rp::CaptureError::Source(_))), "precondition: {:?}", failed.capture.error);
++    assert_eq!(wire::serialize_unavailable(wire::Refused::Preparation(&failed), &capture).err(),
++        Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Untranslated, field_path: "cases[].source_decline" }));
++}
++
++/// U2 on the failure path, certified proof of a commit refusal: the proof survives
++/// an atomic-commit accounting refusal (as i51's control); a foreign one is refused.
++#[test]
++fn u2_failure_path_foreign_certificate_refused() {
++    use rp::AdapterEvent as E;
++    let mode = PreviewSolverMode::SparseInteractive;
++    let commit_refusal = || {
++        let (request, capture) = source_receipt::CapturedInvocation::parse(milestone_raw(), mode).unwrap();
++        let prepared_case = || {
++            let mut p = rp::PreparedCase::prepare_observed(request.clone(), mode, &capture).unwrap_or_else(|e| panic!("{:?}", e.capture.error));
++            p.solve_native().unwrap();
++            p
++        };
++        let first = prepared_case();
++        let before = first.capture().adapter.counts.get()[E::MapWrite as usize];
++        let candidate = match first.project_candidate() { Ok(c) => c, Err(e) => panic!("{:?}", e.error) };
++        let writes = candidate.capture().adapter.counts.get()[E::MapWrite as usize] - before;
++        let prepared = prepared_case();
++        let mut counts = prepared.capture().adapter.counts.get();
++        counts[E::MapWrite as usize] = u64::MAX - (writes - 1);
++        prepared.capture().adapter.counts.set(counts);
++        let refusal = match prepared.project_candidate() { Err(r) => r, Ok(_) => panic!("commit refusal expected") };
++        assert!(refusal.certificate().is_some() && refusal.proof_failure().is_none(), "precondition: certified proof survives");
++        (refusal, capture)
++    };
++    let (mut first, capture) = commit_refusal();
++    let (mut second, _) = commit_refusal();
++    first.test_swap_certificate(&mut second);
++    let refused = wire::serialize_unavailable(wire::Refused::Candidate(&first), &capture);
++    assert_eq!(refused.err(), Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "product_attempts[].proof.owner" }));
++}
++
++/// RV82-S2: the supplied invocation binds structurally (its digest), not by mode
++/// and case id alone: a same-mode invocation with another case label, project id
++/// or load is refused before projection, on both serializer paths.
++#[test]
++fn u1g2_foreign_invocation_refused() {
++    let mode = PreviewSolverMode::SparseInteractive;
++    let (candidate, own, _) = milestone_candidate(mode);
++    assert!(wire::serialize_selected(&candidate, &own).is_ok(), "own invocation serializes");
++    let foreign = |edit: &dyn Fn(&mut Value)| {
++        let mut raw = milestone_raw();
++        edit(&mut raw);
++        source_receipt::CapturedInvocation::parse(raw, mode).unwrap().1
++    };
++    let refused = Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "invocation" });
++    for (label, edit) in [
++        ("label", &(|r: &mut Value| r["model"]["load_cases"][0]["label"] = json!("another label")) as &dyn Fn(&mut Value)),
++        ("project_id", &|r: &mut Value| r["model"]["project"]["id"] = json!("another-project")),
++        ("load", &|r: &mut Value| r["model"]["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = json!(0.0049)),
++    ] {
++        let other = foreign(edit);
++        assert_eq!(other.mode(), mode, "{label}: same mode");
++        assert_ne!(other.borrowed_digest(), own.borrowed_digest(), "{label}: a different invocation");
++        assert_eq!(wire::serialize_selected(&candidate, &other).err(), refused, "{label}");
++    }
++    let (refusal, own_refusal_invocation) = refused_candidate(mode, super::retained_receipt::TraceFault::ValuesCompletion);
++    assert!(wire::serialize_unavailable(wire::Refused::Candidate(&refusal), &own_refusal_invocation).is_ok());
++    let other = foreign(&|r: &mut Value| r["model"]["load_cases"][0]["label"] = json!("another label"));
++    assert_eq!(wire::serialize_unavailable(wire::Refused::Candidate(&refusal), &other).err(), refused);
++}
++
++/// RV82-N1 (R08, R09): run after = before + increment, and body charged = the
++/// final after, each refused as `work_counter_inconsistent` when violated.
++#[test]
++fn u1g2_run_and_body_charge_conservation_negatives() {
++    assert_eq!(wire::test_after_conserved(5, 7, 12), (true, Vec::new()));
++    let (ok, failures) = wire::test_after_conserved(5, 7, 13);
++    assert!(!ok && failures.is_empty(), "R08: the after check fails without an encoder fault");
++    let (sparse, _, _) = milestone_candidate(PreviewSolverMode::SparseInteractive);
++    let (inv, case) = sparse.capture().native.as_ref().unwrap();
++    let run = &inv.runs()[case.run];
++    assert!(wire::test_invocation_arrays(inv, run).is_ok(), "own run");
++    // An invocation whose meter never charged this run (same policy limit).
++    let capacity = k::OriginCapacity::for_calls(&[1], &[]).unwrap();
++    let fresh = k::RecordedInvocation::new(wire::INVOCATION_LIMIT, capacity).unwrap();
++    assert_eq!(fresh.meter().checked_charged().exact(), Ok(0));
++    assert_eq!(wire::test_invocation_arrays(&fresh, run).err(),
++        Some(wire::ReceiptFailure { check: wire::ReceiptCheck::WorkCounterInconsistent, field_path: "work.charged" }), "R09");
++}
++
++/// RV82-N1 (R10, R14): T1 (a)'s guards on a doctored envelope: another legacy
++/// disclosure still naming the selected case (G4), and an omitted id whose
++/// diagnostic is not the legacy disclosure.
++#[test]
++fn u1g2_t1a_guard_negatives() {
++    let (candidate, _, _) = milestone_candidate(PreviewSolverMode::SparseInteractive);
++    let base = serde_json::to_value(candidate.envelope()).unwrap();
++    let legacy_id = "diagnostic:source-recovery:case";
++    let mut own = base.clone();
++    assert!(wire::test_successor_envelope(&mut own, "case", Some(legacy_id)).is_ok(), "precondition: the actual envelope");
++    // R10: a second legacy disclosure naming the selected case survives the omission.
++    let mut doubled = base.clone();
++    let mut copy = doubled["diagnostics"].as_array().unwrap().iter().find(|d| d["id"] == legacy_id).unwrap().clone();
++    copy["id"] = json!("diagnostic:source-recovery:case:second");
++    doubled["diagnostics"].as_array_mut().unwrap().push(copy);
++    assert_eq!(wire::test_successor_envelope(&mut doubled, "case", Some(legacy_id)).err(),
++        Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "diagnostics[legacy]" }), "R10");
++    // R14: the captured id resolves to a diagnostic naming the case with another code.
++    let mut recoded = base.clone();
++    for d in recoded["diagnostics"].as_array_mut().unwrap() {
++        if d["id"] == legacy_id { d["code"] = json!("NUMERICAL_INTEGRITY_SENSITIVE"); }
++    }
++    assert_eq!(wire::test_successor_envelope(&mut recoded, "case", Some(legacy_id)).err(),
++        Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "diagnostics[-legacy]" }), "R14");
++}
++
++/// RV82-N1 (R13): the report outcome must equal the unchanged assessed quality.
++#[test]
++fn u1g2_initial_quality_crosscheck_negative() {
++    let (candidate, _, _) = milestone_candidate(PreviewSolverMode::SparseInteractive);
++    let [seed] = &candidate.capture().ordinary[..] else { panic!("one seed") };
++    let mut env = serde_json::to_value(candidate.envelope()).unwrap();
++    assert!(wire::test_ordinary_value(&env, "case", seed).is_ok(), "precondition: sensitive = sensitive");
++    env["numerical_quality"]["cases"][0]["solve_quality"] = json!("checks_passed");
++    assert_eq!(wire::test_ordinary_value(&env, "case", seed).err(),
++        Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "ordinary_attempts[].initial.outcome" }), "R13");
++}
++
++/// RV82-N1 (R22): 2^53-1 itself is a safe JSON integer; only beyond it refuses.
++#[test]
++fn u1g2_safe_range_boundary() {
++    let max_safe = (1usize << 53) - 1;
++    let at = rp::LegacyWork { stage: "solve", helper_stage: AttemptStage::Solve, charged: max_safe, rejected: max_safe, limit: max_safe };
++    let mut work = Vec::new();
++    assert!(wire::test_legacy_source(Some(&rp::LegacySeed::Unavailable { work: at, diagnostic_ref: "d".into() }), 0, &mut work).is_ok(), "R22: 2^53-1 is in range");
++    assert_eq!(work[0]["charged"], json!(max_safe as u64));
++    let beyond = rp::LegacyWork { charged: max_safe + 1, ..at };
++    assert_eq!(wire::test_legacy_source(Some(&rp::LegacySeed::Unavailable { work: beyond, diagnostic_ref: "d".into() }), 0, &mut Vec::new()).err().map(|f| f.check),
++        Some(wire::ReceiptCheck::WorkCounterRange));
++}
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs
+index 226fcc34af..49057d2f22 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs
+@@ -345,6 +345,9 @@ pub struct ProductCertificateSpent<'a> {
+     projection_conversions:WorkTotal,
+     lane_errors:[Option<bridge::BridgeError>;2],completion_merged:bool,
+     trace_copy_work:TraceCopyWork,
++    /// RV77-N4 (I61 U2, failure path): the proof's anchor once it exists, so the
++    /// work of a refused proof stays structurally bound to its selected owner.
++    anchor:Option<std::sync::Arc<ProofAnchor>>,
+ }
+ impl<'a> ProductCertificateSpent<'a> {
+     fn new(rows: &'a [ProductFinalRow<'a>]) -> Self {
+@@ -363,8 +366,14 @@ impl<'a> ProductCertificateSpent<'a> {
+             prepared_capacities: [0; 6],
+             projection_outcomes:Vec::new(),projection_conversions:WorkTotal::zero(),
+             lane_errors:[None,None],completion_merged:false,trace_copy_work:TraceCopyWork::default(),
++            anchor:None,
+         }
+     }
++    /// RV77-N4 (I61 U2): whether this work belongs to a proof started on `owner`'s
++    /// own prepared solve. False before the anchor exists (a refused proof start).
++    pub fn owner_matches(&self,owner:&adaptive::RetainedSolve)->bool {
++        self.anchor.as_ref().is_some_and(|anchor|anchor.matches_owner(owner))
++    }
+     pub fn typed_trace<'b>(&'b self,copies:&mut TraceCopyWork)->ProductProofTrace<'b> {
+         copies.record::<ProductProofTrace<'_>>();
+         let lane=|work:&'b ResidualWork,index:usize,copies:&mut TraceCopyWork| LaneTrace {
+@@ -429,7 +438,7 @@ impl<'a> ProductCertificateSpent<'a> {
+             numeric:self.numeric, comparisons:self.comparisons, visits:self.visits,
+             scalar_operations:self.scalar_operations, capacities:self.capacities, prepared_capacities:self.prepared_capacities,
+             projection_outcomes:self.projection_outcomes,projection_conversions:self.projection_conversions,
+-            lane_errors:self.lane_errors,completion_merged:self.completion_merged,trace_copy_work:self.trace_copy_work }
++            lane_errors:self.lane_errors,completion_merged:self.completion_merged,trace_copy_work:self.trace_copy_work,anchor:self.anchor }
+     }
+     fn retain_lane(&mut self,result:Result<source_residual::LaneReadouts,bridge::BridgeError>,work:ResidualWork)
+         ->Result<source_residual::LaneReadouts,ProductFailure> {
+@@ -1602,6 +1611,8 @@ impl std::fmt::Debug for ProductProofFailure {
+ impl ProductProofFailure {
+     pub fn failure(&self)->&ProductFailure { &self.failure }
+     pub fn work(&self)->&ProductCertificateSpent<'static> { &self.work }
++    /// RV77-N4 (I61 U2, failure path): structural owner binding of a refused proof.
++    pub fn owner_matches(&self,owner:&adaptive::RetainedSolve)->bool { self.work.owner_matches(owner) }
+ }
+ pub struct ProductProofDraft<'s,'m> { data:ProofData<'s,'m>, work:ProductCertificateSpent<'static> }
+ impl<'s,'m> ProductProofStartSpent<'s,'m> {
+@@ -1622,6 +1633,7 @@ pub(crate) fn begin_prepared_product<'s,'m>(invocation:&RecordedInvocation,run:u
+         work.prepared_capacities[4]=std::mem::size_of::<ProofAnchor>().checked_add(2*std::mem::size_of::<usize>())
+             .ok_or(ProductFailure{cause:Cause::CountRange("proof anchor layout")})?;
+         let anchor=std::sync::Arc::new(ProofAnchor{owner:stamp});
++        work.anchor=Some(std::sync::Arc::clone(&anchor));
+         if facts.len()!=source.members().len() || specs.is_empty() {return Err(bad("prepared facts/specs"));}
+         let mut values=work.prepared_reserve(0,specs.len())?;
+         for spec in specs {

@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/Users/ryan/.cargo/bin/cargo",
+    "test",
+    "--manifest-path",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+    "--locked",
+    "--offline",
+    "--lib",
+    "retained_product_tests",
+    "--",
+    "--nocapture"
+  ],
+  "start": "2026-10-03T04:08:59.321616+00:00",
+  "before": {
+    "projects/chirality-piping/core/product_physics/src/retained_product.rs": "1c91363565207758827ea7c19e08909c9ef984d73004a8580ae8e50bf3207691",
+    "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs": "55ca1c4c1f5157a573003348c6127f82c5cc3e9d4bdc7aaeb67b25bbbe2b0917"
+  },
+  "target": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i45-product-vertical/product_physics",
+  "jobs": 4,
+  "threads": 2,
+  "wall_seconds": 1200,
+  "exit": 0,
+  "after": {
+    "projects/chirality-piping/core/product_physics/src/retained_product.rs": "1c91363565207758827ea7c19e08909c9ef984d73004a8580ae8e50bf3207691",
+    "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs": "55ca1c4c1f5157a573003348c6127f82c5cc3e9d4bdc7aaeb67b25bbbe2b0917"
+  },
+  "end": "2026-10-03T04:09:05.437580+00:00"
+}

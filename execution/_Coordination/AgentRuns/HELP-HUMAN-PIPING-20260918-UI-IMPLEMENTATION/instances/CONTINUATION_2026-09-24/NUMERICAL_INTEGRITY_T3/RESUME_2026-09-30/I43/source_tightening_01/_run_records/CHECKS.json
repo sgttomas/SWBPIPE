@@ -1,0 +1,60 @@
+{
+  "final_control_command": [
+    "python3",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I43/source_tightening_01/_run_records/exact_controls.py"
+  ],
+  "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "final_exit": 0,
+  "final_stdout": "exact_controls_08.stdout",
+  "final_stdout_sha256": "0d0021a7cc9038e8a571cf606814cd6da5db801f393f5fdfc1af20d2bb994cb2",
+  "final_script_sha256": "3d4f8471708bfba51c20f1cebaf298ad07b1e7af19fa73afa751e3003439c6a1",
+  "loaded": {
+    "rows": 52,
+    "baseline_pass": 7,
+    "no_solve_pass": 7,
+    "constructed_center_pass": 52,
+    "reference_pass": 52,
+    "wrong_zero_center_pass": 7
+  },
+  "zero": {
+    "rows": 52,
+    "unchanged_proved": 52
+  },
+  "arithmetic_only": true,
+  "actual_factor_executed": false,
+  "counter_controls": {
+    "wrong_center_is_not_accepted_without_residual": true,
+    "K_only_residual_misses_delta_c": true,
+    "omitted_prescribed_column_falsely_zeroes_residual": true,
+    "unchanged_output_source_violation_remains": true,
+    "no_data_requires_original_zero_and_uniqueness_warrant": true,
+    "no_free_data_does_not_erase_constrained_recovery": true
+  },
+  "failure_history": [
+    {
+      "file": "exact_controls.stderr",
+      "kind": "control decoder error",
+      "meaning": "absent prescribed radius was erroneously parsed as hex; repaired only by explicit captured InputDerived constraint-source handling"
+    },
+    {
+      "file": "exact_controls_06.stderr",
+      "kind": "basis guard refusal",
+      "meaning": "live native test source changed during separately owned RV56 repair; not a numeric failure. Retained original expected hashes and read four immutable 4af input files."
+    }
+  ],
+  "successful_history": [
+    "exact_controls_02.stdout",
+    "exact_controls_03.stdout",
+    "exact_controls_04.stdout",
+    "exact_controls_05.stdout",
+    "exact_controls_07.stdout",
+    "exact_controls_08.stdout"
+  ],
+  "source_write": false,
+  "git_index_api_write": false,
+  "inverse_bound_extra_check": {
+    "file": "inverse_bound_comparison.json",
+    "method": "Exact closed 6x6 block inverse row sums and exact predecessor comparison: predecessor(B)<norm<=B; B/norm-1=1.957159309422064e-17 approximately."
+  },
+  "root_clarification": "No-data proves only free motion zero, not source actions. Added fully fixed prescribed-strain/constrained-load algebra counter-control before sealing."
+}

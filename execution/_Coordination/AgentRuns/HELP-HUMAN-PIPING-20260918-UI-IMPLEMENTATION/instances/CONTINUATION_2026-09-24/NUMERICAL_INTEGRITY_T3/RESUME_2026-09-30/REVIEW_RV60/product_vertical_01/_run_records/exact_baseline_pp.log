@@ -1,0 +1,29 @@
+[
+  {
+    "case": "zero",
+    "pass_count": 73,
+    "fail_count": 0,
+    "g5a_failure": "Zero { row: 35 }",
+    "g5a_lower": [],
+    "g5a_upper": [
+      0.0,
+      0.0
+    ],
+    "g5a_operations": 9
+  },
+  {
+    "case": "loaded",
+    "pass_count": 45,
+    "fail_count": 28,
+    "g5a_failure": null,
+    "g5a_lower": [
+      295.6593001841618,
+      1.3809523809523807
+    ],
+    "g5a_upper": [
+      976.3093505533737,
+      976.3093505533737
+    ],
+    "g5a_operations": 35
+  }
+]

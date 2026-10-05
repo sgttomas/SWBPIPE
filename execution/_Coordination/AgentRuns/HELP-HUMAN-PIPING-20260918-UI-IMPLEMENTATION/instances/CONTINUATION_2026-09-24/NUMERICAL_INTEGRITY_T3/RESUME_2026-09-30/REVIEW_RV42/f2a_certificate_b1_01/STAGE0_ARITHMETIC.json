@@ -1,0 +1,44 @@
+{
+  "nature": "abstract standard-library exact rational checks, not product/solver evidence",
+  "unit_round_trip": {
+    "x": "3602879701896397/36028797018963968",
+    "y": "100",
+    "a": "1/1000",
+    "e_pub": "1/180143985094819840",
+    "e_norm": "1/180143985094819840",
+    "round_trip_same": true
+  },
+  "axial_negative": {
+    "lo": "-19/8",
+    "hi": "-55/24",
+    "center": "-7/3",
+    "radius": "1/24"
+  },
+  "bending": {
+    "lo": "237/112",
+    "hi": "243/112",
+    "center": "15/7",
+    "radius": "3/112"
+  },
+  "torsion_negative": {
+    "lo": "-679/240",
+    "hi": "-133/48",
+    "center": "-14/5",
+    "radius": "7/240"
+  },
+  "uncertain_denominator": {
+    "numerator": [
+      "-3",
+      "2"
+    ],
+    "denominator": [
+      "1/2",
+      "4"
+    ],
+    "interval": [
+      "-6",
+      "4"
+    ],
+    "reject_zero_containing": true
+  }
+}

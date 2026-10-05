@@ -1,0 +1,9 @@
+{
+  "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "a2c8da18c0a5ce99ec9c0833f11d1cdf01b341eeb37781dad0b3aa1cd3bb93e7",
+  "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs": "134c7a958ffe260cdc281fda898e5023d95dcf084d584912de2414b60e2e4982",
+  "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e",
+  "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs": "404e6a7ad192d4ca946028d876ba21e52c773e70c21df8008dcf29165c59eb76",
+  "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs": "ab7544d78557b04a034754b1b88a4b214c0dd70c054856f1f0052514d3070679",
+  "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed/certificate.rs": "3525a99225a7d19a3e798cfdfe40921f658bb61acc2151098b28c3f19292926e",
+  "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs": "62e17b44f27a176b0fb41254004d7191003edfdc3eaa99522fe3ed343aa47c1a"
+}

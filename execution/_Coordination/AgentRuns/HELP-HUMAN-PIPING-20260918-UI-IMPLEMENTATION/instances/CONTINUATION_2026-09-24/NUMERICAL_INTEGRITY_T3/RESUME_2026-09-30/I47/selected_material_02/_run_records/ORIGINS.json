@@ -1,0 +1,57 @@
+[
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I47_MODULUS_RECORD_IMPLEMENTATION.md",
+    "sha256": "8c65204a8f14182e176e9804ce846acef8dcd1e232dfc41c06edefba6f4d9910"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV63/modulus_record_01/REVIEW.md",
+    "sha256": "a63a8c74934fa5e7d1cc45706944225772e799afad5e3553f81ac5d9102f6c91"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/AGENTS.md",
+    "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "previously_read": true
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/agents/AGENT_TASK.md",
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "previously_read": true
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/AGENTS.md",
+    "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "previously_read": true
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I47/selected_material_01/_run_records/independent_oracle.py",
+    "sha256": "58b7dedfc6dd6fd65fffa1c7a589f126f9bc27856ee3c603e4cb0eac761786ca"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I47/selected_material_01/_run_records/FROZEN_ORACLE_COPY.py",
+    "sha256": "2b2adeca3edc498b4fe13ce2d4407aa5a580cbd1528412d88826c3e7909fb77f"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I47/selected_material_01/_run_records/run.py",
+    "sha256": "4757c6a265eeb11a9afd7745d1e46ced1fb034bf3f66d917cc12e976238a8959"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/lib.rs",
+    "supplied_baseline_sha256": "2c75314293a09bbcac0d3d9d05d8bfd77cbcdc19ae8b3965e3a7ad7a22f3a147",
+    "final_sha256": "90b2d6b19824630aa9469386e6c90ad03739c8b8ad6184bae993ef6338de80f1"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/retained_product.rs",
+    "supplied_baseline_sha256": "1c91363565207758827ea7c19e08909c9ef984d73004a8580ae8e50bf3207691",
+    "final_sha256": "9f870e5ca79d18cf50e343799fc538a349c2ad4844ae6739a70af9e3219abe27"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+    "supplied_baseline_sha256": "0f02e9d2ef0d593e5c0edbd540ae56baaf345b70fb4301cffb1e593b96ca806c",
+    "final_sha256": "5853f21fe2689cda02ec6ef23a008f8c6cc12cd9173a7ceb5484472133773b55"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+    "supplied_baseline_sha256": "c6ccf54051658235bb0637ecc0b4fc5bcecf556eed82444150b06e26de358060",
+    "final_sha256": "46eabbe3cca8bcd7fbd096b2166f8a4ecc830c17fb2df6580c26c9011f345a7a"
+  }
+]

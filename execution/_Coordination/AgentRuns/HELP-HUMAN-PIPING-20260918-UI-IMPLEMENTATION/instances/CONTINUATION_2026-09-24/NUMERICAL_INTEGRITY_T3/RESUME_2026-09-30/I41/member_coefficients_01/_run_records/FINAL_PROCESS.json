@@ -1,0 +1,13 @@
+{
+  "utc": "2026-10-03T00:10:32.860345+00:00",
+  "observed": [
+    {
+      "pid": 5387,
+      "ppid": 1,
+      "command": "/bin/bash"
+    }
+  ],
+  "owned_commands": "all exited; no cargo/rustc/frame-kernel process",
+  "guard_pid": 5387,
+  "guard_alive": true
+}

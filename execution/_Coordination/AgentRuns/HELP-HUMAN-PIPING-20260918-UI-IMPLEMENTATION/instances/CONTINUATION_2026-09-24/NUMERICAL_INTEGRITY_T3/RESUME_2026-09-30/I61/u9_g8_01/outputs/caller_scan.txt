@@ -1,0 +1,39 @@
+projects/chirality-piping/core/product_physics/src/lib.rs:122:    ProfileStatus, RetainedAdmissionReport, RetainedCaller, RetainedHeadlessContext,
+projects/chirality-piping/core/product_physics/src/lib.rs:2259:pub fn run_linear_static_preview_value_with_retained_direct(
+projects/chirality-piping/core/product_physics/src/lib.rs:2266:pub fn run_linear_static_preview_value_with_retained_headless(
+projects/chirality-piping/core/product_physics/src/lib.rs:2269:    context: RetainedHeadlessContext<'_>,
+projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs:219:        let direct = run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
+projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs:540:    let (output, counts) = hooks::counted(move || run_linear_static_preview_value_with_retained_direct(raw, mode).unwrap());
+projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs:675:        let headless = hooks::counted(|| run_linear_static_preview_value_with_retained_headless(milestone.clone(), mode,
+projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs:676:            RetainedHeadlessContext::from_borrowed_roots(&milestone, &invocation, &request_id)).unwrap());
+projects/chirality-piping/core/product_physics/src/retained_memory.rs:2759:pub struct RetainedHeadlessContext<'a> {
+projects/chirality-piping/core/product_physics/src/retained_memory.rs:2764:impl<'a> RetainedHeadlessContext<'a> {
+projects/chirality-piping/core/product_physics/src/retained_memory.rs:2870:    Headless(RetainedHeadlessContext<'a>),
+projects/chirality-piping/core/product_physics/src/retained_memory.rs:2988:                crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode)
+projects/chirality-piping/core/product_physics/src/retained_memory_law_tests.rs:318:        let headless = admit(&capture, &request, Entry::Headless(RetainedHeadlessContext::from_borrowed_roots(&raw, &invocation, &id)));
+projects/chirality-piping/core/product_physics/src/retained_memory_law_tests.rs:384:            let headless = assess(&capture, &request, Entry::Headless(RetainedHeadlessContext::from_borrowed_roots(&raw, &invocation, &id)));
+projects/chirality-piping/core/product_physics/src/retained_memory_law_tests.rs:660:            let output = crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
+projects/chirality-piping/core/product_physics/src/retained_memory_law_tests.rs:1380:            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw, mode).unwrap();
+projects/chirality-piping/core/product_physics/src/retained_memory_law_tests.rs:1389:        let milestone = crate::run_linear_static_preview_value_with_retained_direct(milestone(), mode).unwrap();
+projects/chirality-piping/core/product_physics/src/retained_memory_law_tests.rs:1392:            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw, mode).unwrap();
+projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs:67:        let direct = run_linear_static_preview_value_with_retained_direct(milestone_raw(), mode).unwrap();
+projects/chirality-piping/core/product_physics/tests/retained_memory_challenge.rs:13:use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_retained_direct, PreviewSolverMode};
+projects/chirality-piping/core/product_physics/tests/retained_memory_challenge.rs:119:            let output = run_linear_static_preview_value_with_retained_direct(input, mode).unwrap();
+projects/chirality-piping/core/product_physics/tests/retained_precision_admission.rs:66:            let actual = run_linear_static_preview_value_with_retained_direct(raw, mode).unwrap();
+projects/chirality-piping/core/product_physics/tests/retained_precision_admission.rs:97:            run_linear_static_preview_value_with_retained_direct(exact.clone(), mode).unwrap();
+projects/chirality-piping/core/product_physics/tests/retained_precision_admission.rs:107:        let refused = run_linear_static_preview_value_with_retained_direct(source, mode).unwrap();
+projects/chirality-piping/core/product_physics/tests/retained_precision_admission.rs:113:        let actual = run_linear_static_preview_value_with_retained_direct(invalid, mode).unwrap();
+projects/chirality-piping/core/product_physics/tests/retained_precision_admission.rs:128:        run_linear_static_preview_value_with_retained_direct(
+projects/chirality-piping/core/product_physics/tests/retained_precision_admission.rs:177:    let actual = run_linear_static_preview_value_with_retained_direct(
+projects/chirality-piping/core/product_physics/tests/retained_precision_admission.rs:235:    assert!(!native.contains("with_retained_direct") && !native.contains("with_retained_headless"));
+projects/chirality-piping/core/runner/headless/src/lib.rs:740:pub fn run_preview_model_value_with_retained_headless(
+projects/chirality-piping/core/runner/headless/src/lib.rs:772:                use open_pipe_stress_product_physics::{RetainedHeadlessContext, run_linear_static_preview_value_with_retained_headless};
+projects/chirality-piping/core/runner/headless/src/lib.rs:773:                let context = RetainedHeadlessContext::from_borrowed_roots(&solve_payload, &actual_invocation, &retained_request.request_id);
+projects/chirality-piping/core/runner/headless/src/lib.rs:774:                let (envelope, report) = run_linear_static_preview_value_with_retained_headless(solve_payload.clone(), mode, context)?.into_parts();
+projects/chirality-piping/core/runner/headless/tests/retained_precision_admission.rs:2:    run_preview_model_value_with_mode, run_preview_model_value_with_retained_headless,
+projects/chirality-piping/core/runner/headless/tests/retained_precision_admission.rs:8:    run_linear_static_preview_value_with_retained_direct, MissingAdmissionTerm,
+projects/chirality-piping/core/runner/headless/tests/retained_precision_admission.rs:65:            run_preview_model_value_with_retained_headless(metadata, raw, mode, None).unwrap();
+projects/chirality-piping/core/runner/headless/tests/retained_precision_admission.rs:97:        let direct = run_linear_static_preview_value_with_retained_direct(refused, mode).unwrap();
+projects/chirality-piping/core/runner/headless/tests/retained_precision_admission.rs:129:    let actual = run_preview_model_value_with_retained_headless(
+projects/chirality-piping/core/runner/headless/tests/retained_precision_admission.rs:152:        .find("pub fn run_preview_model_value_with_retained_headless(")
+projects/chirality-piping/core/runner/headless/tests/retained_precision_admission.rs:165:    assert!(!source.contains("with_retained_direct"));

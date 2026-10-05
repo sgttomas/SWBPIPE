@@ -1,0 +1,19 @@
+{
+  "utc": "2026-10-03T05:04:23Z",
+  "host": "Mac.lan",
+  "actor": "/root/rv62_selected_material",
+  "parent": "/root HELP_HUMAN",
+  "mechanism": "delegated-harness-native",
+  "role": "TASK Type2",
+  "no_delegation": true,
+  "code_head": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4",
+  "code_status": "",
+  "num_head": "7b6a115ee7e6d5bafa78d88445870e57932a43de",
+  "timebox": {
+    "checkpoint": "05:14:23Z",
+    "cutoff": "05:24:23Z",
+    "return": "05:34:23Z"
+  },
+  "scope": "NUM/R/REVIEW_RV62/selected_material_01; scratch WT/scratch/rv62-selected-material only; no Git/index/API writes",
+  "lane": "guard5387; four jobs; two test threads; locked/offline absolute manifests; 1200s wall; independent external targets"
+}

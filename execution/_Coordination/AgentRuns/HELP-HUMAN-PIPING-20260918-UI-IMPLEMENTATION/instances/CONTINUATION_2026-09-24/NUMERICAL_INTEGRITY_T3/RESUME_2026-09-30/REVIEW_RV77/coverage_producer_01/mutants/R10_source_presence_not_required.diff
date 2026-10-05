@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/product_physics/src/retained_receipt.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_receipt.rs
+@@ -118,7 +118,7 @@
+     let completed=|s:Stage|trace.stages[s as usize]==StageState::Completed;
+     let lanes=matches!(&proof.lanes,[Some(a),Some(b)] if a.law==k::ReadoutLaw::AdmittedK && a.result.is_ok()
+         && b.law==k::ReadoutLaw::AnnularSource && b.result.is_ok());
+-    if !lanes || !trace.source_ready || capture.source.is_none()
++    if !lanes || !trace.source_ready
+         || ![Stage::Preparation,Stage::Native,Stage::ProofStart,Stage::Projection,Stage::Maxima,Stage::Values,Stage::Aliases].into_iter().all(completed)
+         || trace.stages[Stage::Certificate as usize]==StageState::NotEntered || trace.checks[0]==CheckState::NotEntered {
+         return Err(TraceProjectionError::StageConsistency);

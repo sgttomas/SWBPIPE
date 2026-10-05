@@ -1,0 +1,10 @@
+== gate tree: code 0 {"check": "tree", "code": 0, "result": "listed 2950, mismatched 0, extra 0"} (2026-10-04T16:24:32Z)
+== gate entry: code 0 {"check": "entry", "code": 0, "equal": true, "threshold": "4_026_531_840", "diff": []} (2026-10-04T16:24:32Z)
+== gate law: code 0 {"check": "law", "code": 0, "identity_equal": true, "inputs_equal": true, "layouts_equal": true, "summary": ["test result: ok. 42 passed; 0 failed; 9 ignored; 0 measured; 502 filtered out; finished in 3.31s"], "registered_tests": {"the_registered_profile_is_the_only_permit_source": true, "admit_gran (2026-10-04T16:24:52Z)
+== gate statics: code 0 {"check": "statics", "code": 0, "added": [], "removed": []} (2026-10-04T16:24:55Z)
+== linemap: exit 0 (2026-10-04T16:24:55Z)
+== gate premise: code 0 {"check": "premise", "code": 0, "pins": 3, "bad": []} (2026-10-04T16:24:55Z)
+== TEXT chain exit 0 (2026-10-04T16:25:15Z)
+== D from the run: 14734 (2026-10-04T16:25:15Z)
+== delta: exit 5 {"files": 6, "hunks_and_files": 15, "classes": {"cfg-test-stmt": 3, "test": 11, "generated": 1}, "verdict": "STOP: 3 hunk(s) need a reviewed entry"} (2026-10-04T16:25:16Z)
+VERDICT STOP exit=5 basis=7f07a2f7b413b37ecaa879f81b3d759a9cde7f13 tag=final1 overlay=none gates=tree:0 entry:0 law:0 statics:0 linemap:0 premise:0 delta:5 

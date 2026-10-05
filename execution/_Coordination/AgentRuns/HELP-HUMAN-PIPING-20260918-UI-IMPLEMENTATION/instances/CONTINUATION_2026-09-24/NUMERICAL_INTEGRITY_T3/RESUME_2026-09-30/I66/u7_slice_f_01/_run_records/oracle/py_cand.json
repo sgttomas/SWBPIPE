@@ -1,0 +1,5242 @@
+{
+"carrier|dense_scrutiny:edited_row": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"carrier|dense_scrutiny:foreign_mode": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_INVOCATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"carrier|dense_scrutiny:invocation": {
+"carrier_token": "numerically_eligible",
+"classes": "14a9136d75c6a60c",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 2,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 69
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"carrier|dense_scrutiny:no_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "14a9136d75c6a60c",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 2,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 97
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"carrier|dense_scrutiny:no_requested": {
+"carrier_token": "needs_recompute",
+"classes": "14a9136d75c6a60c",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 2,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 69
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"carrier|dense_scrutiny:other_requested": {
+"carrier_token": "needs_recompute",
+"classes": "14a9136d75c6a60c",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 2,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 69
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"carrier|dense_scrutiny:relabelled_base_with_receipt": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+]
+},
+"carrier|legacy_0_1:receipt_member_empty": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+]
+},
+"carrier|legacy_0_1:receipt_member_null": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+]
+},
+"carrier|legacy_0_1:token_last_row_only": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"ok",
+[
+"openpipestress_result_semantics_v0_2",
+"4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da"
+]
+]
+},
+"carrier|preview_physics_1:receipt_member_empty": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+]
+},
+"carrier|preview_physics_1:receipt_member_null": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+]
+},
+"carrier|preview_physics_1:token_last_row_only": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"ok",
+[
+"openpipestress.result_semantics/0.3.0/preview-physics-1",
+"ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+]
+]
+},
+"carrier|sparse_interactive:edited_row": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"carrier|sparse_interactive:foreign_mode": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_INVOCATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"carrier|sparse_interactive:invocation": {
+"carrier_token": "numerically_eligible",
+"classes": "3a28bfc2de2218e4",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 69
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"carrier|sparse_interactive:no_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "3a28bfc2de2218e4",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 97
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"carrier|sparse_interactive:no_requested": {
+"carrier_token": "needs_recompute",
+"classes": "3a28bfc2de2218e4",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 69
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"carrier|sparse_interactive:other_requested": {
+"carrier_token": "needs_recompute",
+"classes": "3a28bfc2de2218e4",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 69
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"carrier|sparse_interactive:relabelled_base_with_receipt": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+]
+},
+"cases|candidate_failure_skip_synthetic|with_invocation": {
+"binding": "1db714190c174aa4",
+"carrier_token": "numerically_eligible",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|candidate_failure_skip_synthetic|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|ordinary_prepared_cancelled_loads_synthetic|with_invocation": {
+"binding": "12ed2beb30952685",
+"carrier_token": "numerically_eligible",
+"classes": "66fed4219be79ede",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 67,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 67
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|ordinary_prepared_cancelled_loads_synthetic|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "66fed4219be79ede",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 67,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 73
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|ordinary_prepared_dense_synthetic|with_invocation": {
+"binding": "c15ee5cadacbbcaf",
+"carrier_token": "numerically_eligible",
+"classes": "caf635b8089e5026",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 2,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|ordinary_prepared_dense_synthetic|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "caf635b8089e5026",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 2,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|ordinary_prepared_interpolated_material_synthetic|with_invocation": {
+"binding": "1db714190c174aa4",
+"carrier_token": "numerically_eligible",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|ordinary_prepared_interpolated_material_synthetic|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|ordinary_prepared_mm_units_synthetic|with_invocation": {
+"binding": "1db714190c174aa4",
+"carrier_token": "numerically_eligible",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|ordinary_prepared_mm_units_synthetic|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|ordinary_prepared_no_data_synthetic|with_invocation": {
+"binding": "12ed2beb30952685",
+"carrier_token": "numerically_eligible",
+"classes": "66fed4219be79ede",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 67,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 67
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|ordinary_prepared_no_data_synthetic|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "66fed4219be79ede",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 67,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 73
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|ordinary_prepared_synthetic|with_invocation": {
+"binding": "1db714190c174aa4",
+"carrier_token": "numerically_eligible",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|ordinary_prepared_synthetic|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|p512_ladder_synthetic|with_invocation": {
+"binding": "fca9c993ad1a9f8b",
+"carrier_token": "numerically_eligible",
+"classes": "dc8ab3eda4f3482a",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 68,
+"case_id": "case:six-component-load",
+"input_derived": 12,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 68
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|p512_ladder_synthetic|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "dc8ab3eda4f3482a",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 68,
+"case_id": "case:six-component-load",
+"input_derived": 12,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 146
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|two_body_synthetic|with_invocation": {
+"binding": "fca9c993ad1a9f8b",
+"carrier_token": "numerically_eligible",
+"classes": "dc8ab3eda4f3482a",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 68,
+"case_id": "case:six-component-load",
+"input_derived": 12,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 68
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|two_body_synthetic|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "dc8ab3eda4f3482a",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 68,
+"case_id": "case:six-component-load",
+"input_derived": 12,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 146
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|two_case_facade_after_certificate_synthetic|with_invocation": {
+"binding": "bdadc809f623ca02",
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 0,
+"case_id": "case:unavailable-row",
+"input_derived": 0,
+"interval_bindable": 0,
+"non_quantity": 0,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 0
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|two_case_facade_after_certificate_synthetic|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 0,
+"case_id": "case:unavailable-row",
+"input_derived": 0,
+"interval_bindable": 0,
+"non_quantity": 0,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 0
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|two_case_preparation_failure_synthetic|with_invocation": {
+"binding": "bdadc809f623ca02",
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 0,
+"case_id": "case:unavailable-row",
+"input_derived": 0,
+"interval_bindable": 0,
+"non_quantity": 0,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 0
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|two_case_preparation_failure_synthetic|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 0,
+"case_id": "case:unavailable-row",
+"input_derived": 0,
+"interval_bindable": 0,
+"non_quantity": 0,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 0
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|two_case_shared_failed_cache_synthetic|with_invocation": {
+"binding": "5035a3dd53be07ee",
+"carrier_token": "numerically_eligible",
+"classes": "1fc5af3a88521455",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+},
+{
+"absolute_verified": 1,
+"case_id": "case:unavailable-row",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|two_case_shared_failed_cache_synthetic|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "1fc5af3a88521455",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 1,
+"case_id": "case:unavailable-row",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|two_case_synthetic|with_invocation": {
+"binding": "f37c1107ef0db747",
+"carrier_token": "numerically_eligible",
+"classes": "b446975c6f9fdd47",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+},
+{
+"absolute_verified": 67,
+"case_id": "case:zero-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 67
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|two_case_synthetic|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "b446975c6f9fdd47",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 67,
+"case_id": "case:zero-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 73
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|two_case_two_groups_synthetic|with_invocation": {
+"binding": "5035a3dd53be07ee",
+"carrier_token": "numerically_eligible",
+"classes": "b5baae13a6031830",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+},
+{
+"absolute_verified": 1,
+"case_id": "case:stiff-basis",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|two_case_two_groups_synthetic|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "b5baae13a6031830",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 1,
+"case_id": "case:stiff-basis",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|verification_failure_skip_synthetic|with_invocation": {
+"binding": "1db714190c174aa4",
+"carrier_token": "numerically_eligible",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"cases|verification_failure_skip_synthetic|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|D-U7-4:ts_requires_live_native_capture|invocation_without_native_capture|milestone_dense_scrutiny": {
+"carrier_token": "numerically_eligible",
+"classes": "14a9136d75c6a60c",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 2,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 69
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|D-U7-4:ts_requires_live_native_capture|invocation_without_native_capture|milestone_sparse_interactive": {
+"carrier_token": "numerically_eligible",
+"classes": "3a28bfc2de2218e4",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 69
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|D-U7-4:ts_requires_live_native_capture|stale_current_model_same_case_ids|milestone_dense_scrutiny": {
+"carrier_token": "numerically_eligible",
+"classes": "14a9136d75c6a60c",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 2,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 69
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|D-U7-4:ts_requires_live_native_capture|stale_current_model_same_case_ids|milestone_sparse_interactive": {
+"carrier_token": "numerically_eligible",
+"classes": "3a28bfc2de2218e4",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 69
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|F-U6b-2:python_refuses_transport|unedited|milestone_dense_scrutiny": {
+"carrier_token": "needs_recompute",
+"classes": "14a9136d75c6a60c",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 2,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 97
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|F-U6b-2:python_refuses_transport|unedited|milestone_sparse_interactive": {
+"carrier_token": "needs_recompute",
+"classes": "3a28bfc2de2218e4",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 97
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|F5:refused_statement_binding|edited_row:no_invocation|milestone_dense_scrutiny": {
+"binding": "42703da0cec10efd",
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|F5:refused_statement_binding|edited_row:no_invocation|milestone_sparse_interactive": {
+"binding": "8290fb8eb35493f2",
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|I67-F1:unregistered_invalid_statement|edited_row:no_invocation|milestone_dense_scrutiny": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|I67-F1:unregistered_invalid_statement|edited_row:no_invocation|milestone_sparse_interactive": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|I67-F2:display_only_binding_precheck|none:binding|milestone_dense_scrutiny": {
+"binding": "9b56402cb15674b4",
+"carrier_token": "needs_recompute",
+"classes": "14a9136d75c6a60c",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 2,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 97
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|I67-F2:display_only_binding_precheck|none:binding|milestone_sparse_interactive": {
+"binding": "329fca49fc9b9dd1",
+"carrier_token": "needs_recompute",
+"classes": "3a28bfc2de2218e4",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 97
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|I67-F2:display_only_binding_precheck|none:summary|milestone_dense_scrutiny": {
+"carrier_token": "needs_recompute",
+"classes": "14a9136d75c6a60c",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 2,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 97
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|I67-F2:display_only_binding_precheck|none:summary|milestone_sparse_interactive": {
+"carrier_token": "needs_recompute",
+"classes": "3a28bfc2de2218e4",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 97
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|I67-F2:display_only_binding_precheck|refused_registration:edited_model|milestone_dense_scrutiny": {
+"binding": "9b56402cb15674b4",
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|I67-F2:display_only_binding_precheck|refused_registration:edited_model|milestone_sparse_interactive": {
+"binding": "329fca49fc9b9dd1",
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|I67-F2:display_only_binding_precheck|refused_registration:empty_invocation|milestone_dense_scrutiny": {
+"binding": "9b56402cb15674b4",
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|I67-F2:display_only_binding_precheck|refused_registration:empty_invocation|milestone_sparse_interactive": {
+"binding": "329fca49fc9b9dd1",
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|I67-F2:display_only_binding_precheck|refused_registration:foreign_mode:dense_scrutiny|milestone_dense_scrutiny": {
+"binding": "9b56402cb15674b4",
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_INVOCATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|I67-F2:display_only_binding_precheck|refused_registration:foreign_mode:sparse_interactive|milestone_sparse_interactive": {
+"binding": "329fca49fc9b9dd1",
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_INVOCATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"declared|RV92-N2-N5:ts_refuses_token_rows_at_the_header|header:token_row:legacy_0_1|legacy_preview_0_1": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"ok",
+[
+"openpipestress_result_semantics_v0_2",
+"4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da"
+]
+]
+},
+"declared|RV92-N2-N5:ts_refuses_token_rows_at_the_header|header:token_row:preview_physics_1|preview_physics_1_invented_sparse": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"ok",
+[
+"openpipestress.result_semantics/0.3.0/preview-physics-1",
+"ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
+]
+]
+},
+"declared|RV92-N2-N5:ts_refuses_token_rows_at_the_header|source_blocks_summary_row:receipt_member|source_blocks_n05_sparse": {
+"binding": "34f24d807c61e2b2",
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+]
+},
+"declared|RV92-N2-N5:ts_refuses_token_rows_at_the_header|source_blocks_summary_row:token_row|source_blocks_n05_sparse": {
+"binding": "34f24d807c61e2b2",
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"ok",
+[
+"openpipestress.result_semantics/0.3.0/source-blocks-1",
+"5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"
+]
+]
+},
+"milestone|dense_scrutiny|other_requested": {
+"carrier_token": "needs_recompute",
+"classes": "14a9136d75c6a60c",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 2,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 69
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"milestone|dense_scrutiny|with_invocation": {
+"analysis_run": [
+"ok",
+"c1f38d0fcf8a5ba6"
+],
+"analysis_run_validate": [
+"ok",
+null
+],
+"binding": "9b56402cb15674b4",
+"carrier_token": "numerically_eligible",
+"classes": "14a9136d75c6a60c",
+"invocation_bound": true,
+"numerical_eligible": true,
+"packager": [
+"err",
+"ValueError",
+"SN-SOURCE-METHOD-UNSUPPORTED"
+],
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 2,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 69
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+],
+"wrapper_0_1": [
+"err",
+"ValueError",
+"ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+]
+},
+"milestone|dense_scrutiny|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "14a9136d75c6a60c",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 2,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 97
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"milestone|sparse_interactive|other_requested": {
+"carrier_token": "needs_recompute",
+"classes": "3a28bfc2de2218e4",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 69
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"milestone|sparse_interactive|with_invocation": {
+"analysis_run": [
+"ok",
+"b0062642d592e45c"
+],
+"analysis_run_validate": [
+"ok",
+null
+],
+"binding": "329fca49fc9b9dd1",
+"carrier_token": "numerically_eligible",
+"classes": "3a28bfc2de2218e4",
+"invocation_bound": true,
+"numerical_eligible": true,
+"packager": [
+"err",
+"ValueError",
+"SN-SOURCE-METHOD-UNSUPPORTED"
+],
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 69
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+],
+"wrapper_0_1": [
+"err",
+"ValueError",
+"ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+]
+},
+"milestone|sparse_interactive|without_invocation": {
+"carrier_token": "needs_recompute",
+"classes": "3a28bfc2de2218e4",
+"invocation_bound": false,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 69,
+"case_id": "case",
+"input_derived": 3,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 25,
+"withheld": 97
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|aliases_abandoned": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 0,
+"case_id": "case:unavailable-row",
+"input_derived": 0,
+"interval_bindable": 0,
+"non_quantity": 0,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 0
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|bind_rows_abandoned": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 0,
+"case_id": "case:unavailable-row",
+"input_derived": 0,
+"interval_bindable": 0,
+"non_quantity": 0,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 0
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|cancelled_all_stop_true": {
+"carrier_token": "numerically_eligible",
+"classes": "66fed4219be79ede",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 67,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 67
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|cert_failed_after_summary_storage": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 0,
+"case_id": "case:unavailable-row",
+"input_derived": 0,
+"interval_bindable": 0,
+"non_quantity": 0,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 0
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|cert_failed_before_summary": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 0,
+"case_id": "case:unavailable-row",
+"input_derived": 0,
+"interval_bindable": 0,
+"non_quantity": 0,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 0
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|copy_flags_into_unloaded": {
+"carrier_token": "numerically_eligible",
+"classes": "b446975c6f9fdd47",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+},
+{
+"absolute_verified": 67,
+"case_id": "case:zero-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 67
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|f5_envelope_reordered_exact_list": {
+"carrier_token": "numerically_eligible",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|integral_float_integers_and_references": {
+"carrier_token": "numerically_eligible",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|interpolation_equal_e_bracketed_control": {
+"carrier_token": "numerically_eligible",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|lane_k_failed": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 0,
+"case_id": "case:unavailable-row",
+"input_derived": 0,
+"interval_bindable": 0,
+"non_quantity": 0,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 0
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|lane_source_failed": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 0,
+"case_id": "case:unavailable-row",
+"input_derived": 0,
+"interval_bindable": 0,
+"non_quantity": 0,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 0
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|loaded_all_stop_false": {
+"carrier_token": "numerically_eligible",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|loaded_stop_without_force_moment": {
+"carrier_token": "numerically_eligible",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|maxima_abandoned": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 0,
+"case_id": "case:unavailable-row",
+"input_derived": 0,
+"interval_bindable": 0,
+"non_quantity": 0,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 0
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|model_schema_version_0_1_0_accepted": {
+"carrier_token": "numerically_eligible",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 1
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|no_data_all_stop_true": {
+"carrier_token": "numerically_eligible",
+"classes": "66fed4219be79ede",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 67,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 67
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|no_data_attested_data_block": {
+"carrier_token": "numerically_eligible",
+"classes": "66fed4219be79ede",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 67,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 67
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|p512_charge_follows_stop_zero_floor_body": {
+"carrier_token": "numerically_eligible",
+"classes": "dc8ab3eda4f3482a",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 68,
+"case_id": "case:six-component-load",
+"input_derived": 12,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 68
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|prefix_captured": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 0,
+"case_id": "case:unavailable-row",
+"input_derived": 0,
+"interval_bindable": 0,
+"non_quantity": 0,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 0
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|prefix_unattached_old_operand_attested": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 0,
+"case_id": "case:unavailable-row",
+"input_derived": 0,
+"interval_bindable": 0,
+"non_quantity": 0,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 0
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|two_body_swap_stop_with_rosters": {
+"carrier_token": "numerically_eligible",
+"classes": "dc8ab3eda4f3482a",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 68,
+"case_id": "case:six-component-load",
+"input_derived": 12,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 68
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|values_failed_separate_completion": {
+"carrier_token": "needs_recompute",
+"classes": "d7c4dc2e6520c8e2",
+"invocation_bound": true,
+"numerical_eligible": false,
+"reader": "pass",
+"reader_standing": "needs_recompute",
+"summary": [
+{
+"absolute_verified": 1,
+"case_id": "case:six-component-load",
+"input_derived": 6,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 73
+},
+{
+"absolute_verified": 0,
+"case_id": "case:unavailable-row",
+"input_derived": 0,
+"interval_bindable": 0,
+"non_quantity": 0,
+"not_covered": 0,
+"relative_verified": 0,
+"withheld": 0
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"must_pass|verification_estimate_names_moment_row": {
+"carrier_token": "numerically_eligible",
+"classes": "dc8ab3eda4f3482a",
+"invocation_bound": true,
+"numerical_eligible": true,
+"reader": "pass",
+"reader_standing": "eligible",
+"summary": [
+{
+"absolute_verified": 68,
+"case_id": "case:six-component-load",
+"input_derived": 12,
+"interval_bindable": 0,
+"non_quantity": 1,
+"not_covered": 0,
+"relative_verified": 66,
+"withheld": 68
+}
+],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|absolute_bound": {
+"carrier_token": "unsupported",
+"reader": "G5c:RETAINED_PRECISION_CLASSIFICATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|accounting_cause_without_fault": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|adapter_fault_present": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|attempt_basis_not_ordinary": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|attempt_owner_only": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|bad_invocation_digest": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_INVOCATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|body_scale": {
+"carrier_token": "unsupported",
+"reader": "G5b:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|cached_failed_slot_rebuilt": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|cancelled_drop_B_only": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|cancelled_no_data_claim": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|candidate_record_with_verification": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|ceiling_before_last_slot": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|cert_failed_before_summary_g5a_passed": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|certificate_check_wrong_wrapper": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|certificate_stage_check_disagree": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|certified_bound_duplicate": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|certified_bound_unbound_drop_existing_g5": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|charge_drop_required_zero": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|charge_follows_stop_below_p512": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|charge_quantity_not_in_layout": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|complete_old_longer_than_source": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|complete_old_short_of_source": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|conversion_normal_kind_subnormal_bits": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|conversion_ready_overflow": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|conversion_ready_underflow_nonzero_row": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|conversion_subnormal_kind_normal_bits": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|conversion_subnormal_metadata_negative_zero": {
+"carrier_token": "unsupported",
+"reader": "G2:RETAINED_PRECISION_ENCODING_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|copy_flags_into_loaded": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|corrections_above_three": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_body_fraction": {
+"carrier_token": "unsupported",
+"reader": "G2:RETAINED_PRECISION_ENCODING_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_body_negative": {
+"carrier_token": "unsupported",
+"reader": "G2:RETAINED_PRECISION_ENCODING_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_body_negative_zero": {
+"carrier_token": "unsupported",
+"reader": "G2:RETAINED_PRECISION_ENCODING_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_body_string": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_defect_with_null_method": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_drop_certified_bound": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_duplicate_body": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_duplicate_then_flag_and_method": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_empty_array": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_encoding_then_duplicate": {
+"carrier_token": "unsupported",
+"reader": "G2:RETAINED_PRECISION_ENCODING_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_entry_null": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_extra_body": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_flag_defect_then_body_scale": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_flag_defect_then_method": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_foreign_body": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_has_data_false": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_has_data_missing": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_has_data_null": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_has_data_numeric": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_member_missing": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_no_data_claim_with_free_loads": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_null_and_product_work": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_null_on_ready": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_null_then_method": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_object_not_array": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_shape_then_duplicate": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_stop_five": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_stop_forbidden_entry": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_stop_null_flag": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_stop_numeric_flag": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_stop_three": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_stop_uncoupled_consistent_roster": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_then_method": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|coverage_unknown_field": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|cross_case_gate_order_selected": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|cross_case_gate_order_unavailable": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|dangling_attempt_source_ref": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|dangling_build_ref": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|dangling_candidate_record": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|dangling_ordinary_attempt_ref": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|diagnostic_then_method": {
+"carrier_token": "unsupported",
+"reader": "G4:RETAINED_PRECISION_DIAGNOSTIC_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|distinct_stiffness_merged_group": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|empty_body_inventory": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|escalating_end_not_a_terminal_translation": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|escalating_failed_verification_pass_entered": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|estimate_drop_required_zero": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|estimate_forbidden_translation_zero": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|execution_order_swapped": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|f5_affected_refs_string_names_no_case": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|f5_ordinary_refs_list_invocation_level_m10": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|f5_ordinary_refs_list_other_case": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|f5_ordinary_refs_list_retained_precision_m09": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|f5_ordinary_refs_omit_naming_diagnostic": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|f5_ordinary_refs_out_of_envelope_order": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|f5_ordinary_refs_relaxed_d6a_form": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|f5_ordinary_refs_second_case_relaxed_d6a_form": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|f5_ordinary_refs_strict_prefix": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|failed_build_reason_mismatch": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|failed_slot_not_cached": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|failed_verification_one_slot": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|failed_verification_reused_as_candidate": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|forged_preparation_hash": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|forged_publication_hash": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|forged_receipt_hash": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|forged_source_identity_float_source_ref": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|formation_d5_dangling_diagnostic": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|g0_canonicalization_profile": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|g0_case_limit_non_integral": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|g0_case_limit_threshold": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|g0_invocation_limit_non_integral": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|g0_invocation_limit_threshold": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|g0_receipt_body_absent": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|g0_receipt_version_non_integral": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|g0_receipt_version_not_1": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|g0_retained_precision_absent": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|g5a_error_with_g5a_not_entered": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|g5a_sanity_margin_between_2m40_and_2m39": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|g5b_zero_section_area": {
+"carrier_token": "unsupported",
+"reader": "G5b:RETAINED_PRECISION_SECTION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|g5b_zero_section_length": {
+"carrier_token": "unsupported",
+"reader": "G5b:RETAINED_PRECISION_SECTION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|g7_maximum_off_enclosure": {
+"carrier_token": "unsupported",
+"reader": "G7:SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|group_call_out_of_range": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|group_sources_out_of_order": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|idle_budget_below_invocation_limit": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|idle_budget_not_exhausted_no_group": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|idle_ready_group_not_ledger_refusal": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|idle_run_exhausted_meter_chain_broken": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|idle_work_accounting_run": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|input_dof": {
+"carrier_token": "unsupported",
+"reader": "G5c:RETAINED_PRECISION_INPUT_DOF_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|interpolation_duplicate_temperature": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|interpolation_missing_alpha": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|interpolation_target_above_range": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|interpolation_target_above_range_equal_e": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|interpolation_target_at_lower_point": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|interpolation_target_at_lower_point_equal_e": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|interpolation_target_at_upper_point": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|interpolation_target_at_upper_point_equal_e": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|interpolation_target_below_range": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|interpolation_target_below_range_equal_e": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|interpolation_target_mismatch": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|lane_k_failed_with_coverage": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|layout_constrained_displacement_not_input_derived": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|layout_force_row_input_derived": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|layout_nonzero_prescription": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|layout_row_dropped": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|layout_row_foreign_body": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|layout_row_relabelled": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|layout_rows_reordered": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|legacy_source_dangling_diagnostic": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|maps_extra_support_id": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|maps_member_ends_swapped": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|maxima_abandoned_separate_failure": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|maxima_abandoned_with_coverage": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|member_prefix_coverage": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|method_alternate_container": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|method_alternate_metadata": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|method_empty": {
+"carrier_token": "unsupported",
+"reader": "G6:RETAINED_PRECISION_ROW_METHOD_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|method_missing": {
+"carrier_token": "unsupported",
+"reader": "G6:RETAINED_PRECISION_ROW_METHOD_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|method_null": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|method_number": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|method_wrong": {
+"carrier_token": "unsupported",
+"reader": "G6:RETAINED_PRECISION_ROW_METHOD_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|mm_unnormalized_coordinate": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|model_schema_version_0_4_0_rejected": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_INVOCATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|named_point_value_mismatch": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|native_attempt_defect_after_native_work_defect": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|native_error_with_selected_run": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|native_source_digest_rehashed": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|native_stage_disagrees_with_run": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|native_stiffness_digest_rehashed": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|native_work": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|native_work_then_coverage_null": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|negative_zero_counter": {
+"carrier_token": "unsupported",
+"reader": "G2:RETAINED_PRECISION_ENCODING_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|negative_zero_scale_with_wrong_method": {
+"carrier_token": "unsupported",
+"reader": "G2:RETAINED_PRECISION_ENCODING_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|nested_stop_work_accounting_exact_status": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|new_stiffness_must_bind_C2": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|nodata_empty_coverage": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|nodata_estimate_coupling_L_nonzero": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|nodata_forbidden_certified_bound": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|nodata_forbidden_charge_zero": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|nodata_forbidden_estimate_zero": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|nodata_forbidden_stop_zero": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|nodata_has_data_without_bound": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|nodata_verification_bound_nonnull": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|nonfinite_then_method": {
+"carrier_token": "unsupported",
+"reader": "G2:RETAINED_PRECISION_ENCODING_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|numeric_error_with_checks_not_entered": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|observable_error_with_observables_not_entered": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|old_inputs_must_bind_old_J": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|old_members_reordered": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|old_operational_accounting_not_lost": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|ordinary_attempt_order_swapped": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|ordinary_dangling_plus_adapter_fault": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|ordinary_dangling_ref_plus_source_preparation_null": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|ordinary_diagnostic_ref_dangling": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|ordinary_diagnostic_ref_duplicate": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|p512_charge_follows_estimate": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|p512_floor_not_phi": {
+"carrier_token": "unsupported",
+"reader": "G5b:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|p512_floor_null": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|p512_positive_floor_forces_stop": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|p512_zero_floor_body_given_positive_floor": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|physical_residual_basis": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|physical_stop_stage_partition": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|prefix_attached_old_input_unbound": {
+"carrier_token": "unsupported",
+"reader": "G8:RETAINED_PRECISION_PREPARATION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|prefix_captured_with_members": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|preparation_conversion_count_mismatch": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|preparation_error_selected_run_under_receipt_cause": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|preparation_error_with_selected_run": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|prepared_failure_cause_foreign_attempt": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|prepared_failure_cause_without_own_attempt": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|product_new_not_ready": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|product_work_only": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|projection_conversions_count_mismatch": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|proof_error_with_certificate_passed": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|publication_enclosure_quantity_not_in_layout": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|rcond_label_plus_adapter_fault": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|ready_attempt_under_facade_failure_cause": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|ready_attempt_under_prepared_product_failure": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|reason_code_phase_mismatch_on_facade": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|reason_code_phase_mismatch_on_preparation": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|rebind_source_run_only": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|record_index_not_contiguous": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|refusal_count_range_variant": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|refusal_work_accounting_variant": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|refused_member_conversion_kind_bits": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|rejected_attempt_with_verified_record": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|rejected_verification_failed_with_completed_verification": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|report_reference_unrelated_diagnostic": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|retained_diagnostic_names_unrequested_case": {
+"carrier_token": "unsupported",
+"reader": "G4:RETAINED_PRECISION_DIAGNOSTIC_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|row_index_foreign_support_norm": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|row_index_missing_row": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|row_index_ready_subset": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|row_index_unsorted": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|run_id_not_execution_position": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|run_ref_null_with_case_run": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|scalar_trace_lost_unavailable": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|schedule_fresh_first_p256": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|section_accounting_exact_status": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|section_echo": {
+"carrier_token": "unsupported",
+"reader": "G5b:RETAINED_PRECISION_SECTION_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|selected_case_ordinary_checks_passed": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|selected_case_without_c3_attempt": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|selected_verification_record_not_verified": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|shape_then_encoding": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|shared_stage_projection_preserves_total": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|skip_after_failed_candidate_reused": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|skip_after_failed_candidate_wrong_slot": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|source_decline_with_source_ref": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|source_identity_stale_receipt_rehashed": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|source_member_map_kernel_id_noncanonical": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|source_preparation_null": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|stage_entered_after_failure": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|stop_rule_drop_required_zero": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|stop_rule_duplicate_zero": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|stop_rule_quantity_other_body": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|terminal_refusal_wrong_kind": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|terminal_stop_wrong_translation": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|two_body_body_order_swapped": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|two_body_missing_body": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|two_body_resolution_order_swapped": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|two_body_swap_has_data": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|two_body_swap_has_data_with_rosters": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|two_body_swap_stop_only": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|unavailable_attempt_under_facade_failure_cause": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|unavailable_attempt_under_source_error_cause": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|unavailable_certificate_passed_coverage_null": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|unavailable_empty_coverage": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|unavailable_layout_relabelled": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|unavailable_no_data_claim_with_free_loads": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|unavailable_record_resolution_duplicate": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|unavailable_record_theta_duplicate": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|unavailable_source_backref_foreign": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|unavailable_source_ref_absent": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|unavailable_stop_uncoupled": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|unavailable_verification_bound_duplicate": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|unsourced_old_member_noncontiguous": {
+"carrier_token": "unsupported",
+"reader": "G3:RETAINED_PRECISION_COVERAGE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|v1_relabel": {
+"carrier_token": "unsupported",
+"reader": "G0:SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|values_error_with_values_completed": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|vbuild_on_escalating_failed_verification": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|verification_bound_duplicate_entry": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|verification_bound_missing_entry": {
+"carrier_token": "unsupported",
+"reader": "G5a:RETAINED_PRECISION_SCALE_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|verification_estimate_names_rotation_row": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|verification_estimate_names_translation_row": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|verification_estimate_quantity_not_in_layout": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|verification_own_stage_projection_preserves_total": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|verification_summary_on_escalating_failed_verification": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|view_work_fault_exact_status": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|w2_published_without_initial_failure": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|work_accounting_after_escalating_stop": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|work_accounting_at_last_slot": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_ATTEMPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|work_accounting_cause_exact_status": {
+"carrier_token": "unsupported",
+"reader": "G5:RETAINED_PRECISION_WORK_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+},
+"mutations|work_accounting_prior_not_on_wire": {
+"carrier_token": "unsupported",
+"reader": "G1:RETAINED_PRECISION_RECEIPT_MISMATCH",
+"summary": [],
+"transport": [
+"err",
+"ValueError",
+"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+]
+}
+}

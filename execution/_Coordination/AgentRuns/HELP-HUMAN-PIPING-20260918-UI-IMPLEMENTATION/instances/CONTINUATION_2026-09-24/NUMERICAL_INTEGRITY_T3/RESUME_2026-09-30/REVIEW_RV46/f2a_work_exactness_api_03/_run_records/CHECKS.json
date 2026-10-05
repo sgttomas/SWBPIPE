@@ -1,0 +1,19 @@
+{
+  "parent": "33dfdac6f55e18a67a53be8ac67b6121e45fa71d",
+  "revision": "51d8d9fc1e35ad5ee0768005f82134be5606f43a",
+  "changed": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I34/f2a_work_exactness_api_02/IMPLEMENTATION_MANIFEST.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I34/f2a_work_exactness_api_02/WRITE_INVENTORY.json"
+  ],
+  "exact_expected_manifest_replacement": true,
+  "payloads_verified": 7,
+  "actual_regression_paths": [
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/wide_tests.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check_tests.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/references_tests.rs"
+  ],
+  "prior_review_seal_and_payloads_verified": true,
+  "original_candidate_immutable": true,
+  "result": "RV46-API02-N1 closed; no new issue in exact two-file correction",
+  "completed_utc": "2026-10-02T22:21:43.503886+00:00"
+}

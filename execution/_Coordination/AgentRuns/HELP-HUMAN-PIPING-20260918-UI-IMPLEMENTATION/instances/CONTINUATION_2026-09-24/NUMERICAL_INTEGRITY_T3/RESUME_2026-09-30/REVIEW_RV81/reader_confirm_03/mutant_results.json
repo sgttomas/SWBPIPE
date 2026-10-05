@@ -1,0 +1,487 @@
+[
+ {
+  "id": "M01_flag_true",
+  "target": "fail-closed hold",
+  "exit": 1,
+  "killed": true,
+  "tests": "23 failed | 386 passed (409)",
+  "failing": [
+   "review repair 07: RV78 probe relations (reader-local) > B_control_equal_point_E_bracketed",
+   "shared synthetic prepared receipt controls, never solver execution evidence > candidate_failure_skip_synthetic",
+   "shared synthetic prepared receipt controls, never solver execution evidence > must pass: cancelled_all_stop_true",
+   "shared synthetic prepared receipt controls, never solver execution evidence > must pass: copy_flags_into_unloaded",
+   "shared synthetic prepared receipt controls, never solver execution evidence > must pass: interpolation_equal_e_bracketed_control",
+   "shared synthetic prepared receipt controls, never solver execution evidence > must pass: loaded_all_stop_false",
+   "shared synthetic prepared receipt controls, never solver execution evidence > must pass: loaded_stop_without_force_moment",
+   "shared synthetic prepared receipt controls, never solver execution evidence > must pass: no_data_all_stop_true"
+  ],
+  "log_sha256": "8c6dedcf9786d7420e0795a9383a132f703e6f116657c81768a500c6115d71db"
+ },
+ {
+  "id": "M02_n4_vref_dropped",
+  "target": "D5b/D21 v-build indicator",
+  "exit": 1,
+  "killed": true,
+  "tests": "2 failed | 407 passed (409)",
+  "failing": [
+   "confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D21/RV81-N1: a failed verification showing its pass ran (a verification build, zero verification_lme) cannot carry an escalating stop",
+   "shared synthetic prepared receipt controls, never solver execution evidence > vbuild_on_escalating_failed_verification"
+  ],
+  "log_sha256": "c0a4dd696b4ca7fa9078098eb04daf889af3c8847c3e68156be70b8475e507db"
+ },
+ {
+  "id": "M03_reason_locator_removed",
+  "target": "D5d",
+  "exit": 1,
+  "killed": true,
+  "tests": "6 failed | 403 passed (409)",
+  "failing": [
+   "confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D28: every quantity-bearing reason resolves to a layout row with the same body and kind",
+   "review repair 07: RV78 probe relations (reader-local) > T2_stop_rule_quantity_other_body",
+   "shared synthetic prepared receipt controls, never solver execution evidence > charge_quantity_not_in_layout",
+   "shared synthetic prepared receipt controls, never solver execution evidence > publication_enclosure_quantity_not_in_layout",
+   "shared synthetic prepared receipt controls, never solver execution evidence > stop_rule_quantity_other_body",
+   "shared synthetic prepared receipt controls, never solver execution evidence > verification_estimate_quantity_not_in_layout"
+  ],
+  "log_sha256": "dd5d9eddf7a518e846c4f505c392bcef6ef02c70b032f6cc64e1dfcacf266c93"
+ },
+ {
+  "id": "M04_candidate_shape_lme",
+  "target": "D5a",
+  "exit": 1,
+  "killed": true,
+  "tests": "1 failed | 408 passed (409)",
+  "failing": [
+   "review repair 07: decisions without a probe (reader-local) > D5a/RV81-M04: a candidate record carrying verification work alone is an ATTEMPT defect"
+  ],
+  "log_sha256": "331c827da45ba01f9c20cce01eb8a68207b77fa6b4f96f7e0971143572413cde"
+ },
+ {
+  "id": "M05_refs_resolve_dropped",
+  "target": "D6a resolve (names-the-case dropped by D6a)",
+  "exit": 1,
+  "killed": true,
+  "tests": "5 failed | 404 passed (409)",
+  "failing": [
+   "review repair 07: RV78 probe relations (reader-local) > T4b_ordinary_diagnostic_ref_dangling",
+   "review repair 07: RV78 probe relations (reader-local) > T4d_ordinary_dangling_plus_adapter_fault",
+   "review repair 07: decisions without a probe (reader-local) > D6a (checkpoint A): untyped diagnostic_refs are unique and resolve, without naming the case; typed references stay strict",
+   "shared synthetic prepared receipt controls, never solver execution evidence > ordinary_dangling_plus_adapter_fault",
+   "shared synthetic prepared receipt controls, never solver execution evidence > ordinary_diagnostic_ref_dangling"
+  ],
+  "log_sha256": "10f4b085c0c7a6937952f979ec2401331bb67b6fff451aabbcd915caf4aa5a29"
+ },
+ {
+  "id": "M06_selected_quality_set",
+  "target": "D6b",
+  "exit": 1,
+  "killed": true,
+  "tests": "3 failed | 406 passed (409)",
+  "failing": [
+   "review repair 07: RV78 probe relations (reader-local) > T4e_selected_case_ordinary_checks_passed",
+   "review repair 07: decisions without a probe (reader-local) > D6b (checkpoint A): a selected case's quality is sensitive, unresolved or failed",
+   "shared synthetic prepared receipt controls, never solver execution evidence > selected_case_ordinary_checks_passed"
+  ],
+  "log_sha256": "dbb14936f719057331dfd9049f5f6dc60865c5d818ba08a51e75b2039e7adf3a"
+ },
+ {
+  "id": "M07_budget_scope_swapped",
+  "target": "N17",
+  "exit": 1,
+  "killed": true,
+  "tests": "1 failed | 408 passed (409)",
+  "failing": [
+   "review repair 07: decisions without a probe (reader-local) > RV81-M07 (N17): the case scope wins when both budget limits are exceeded"
+  ],
+  "log_sha256": "a99caf58e103bb070143801e3435b0760e3381500e44950928805233608fb507"
+ },
+ {
+  "id": "M08_r3_some",
+  "target": "R3' both",
+  "exit": 1,
+  "killed": true,
+  "tests": "1 failed | 408 passed (409)",
+  "failing": [
+   "review repair 07: decisions without a probe (reader-local) > D13/RV81-M08 and D8 owner scopes: R3' needs every fault of every fault-bearing cause in its owner, including both"
+  ],
+  "log_sha256": "2291d8254a2fc9f0750005fe5881a4ecfbfee4f0c1e1f87823f4e0af645c5a2a"
+ },
+ {
+  "id": "M09_ceil_no_increment",
+  "target": "upward rounding",
+  "exit": 1,
+  "killed": true,
+  "tests": "6 failed | 403 passed (409)",
+  "failing": [
+   "review repair 07: decisions without a probe (reader-local) > D13: the absolute bound switches at S = 2^-988 on both sides",
+   "synthetic prepared receipt arithmetic controls, not execution evidence > independently brackets every protected small-bound result with exact fractions",
+   "synthetic prepared receipt arithmetic controls, not execution evidence > independently brackets products, the normal boundary and distant-tail sums",
+   "synthetic prepared receipt arithmetic controls, not execution evidence > preserves finite exact-product controls and overflow refusal",
+   "synthetic prepared receipt arithmetic controls, not execution evidence > preserves the independently derived small-bound bits",
+   "synthetic prepared receipt arithmetic controls, not execution evidence > retains the distant low tail and canonicalizes bound zero"
+  ],
+  "log_sha256": "3d43d70cf589196c83b8c7dade23c6fd4ba6b397ae2d3c6038ef7e62489b9b61"
+ },
+ {
+  "id": "M10_phi_le",
+  "target": "phi_512",
+  "exit": 1,
+  "killed": true,
+  "tests": "8 failed | 401 passed (409)",
+  "failing": [
+   "native p512 floor rounding, independent of any corpus case > phi512 is the least binary64 at or above 2^-438 * e_hat and equals the native transcription",
+   "shared synthetic prepared receipt controls, never solver execution evidence > must pass: p512_charge_follows_stop_zero_floor_body",
+   "shared synthetic prepared receipt controls, never solver execution evidence > p512_ladder_synthetic",
+   "shared synthetic prepared receipt controls, never solver execution evidence > p512_ladder_synthetic missing invocation and metadata transport remain needs-recompute",
+   "shared synthetic prepared receipt controls, never solver execution evidence > p512_ladder_synthetic snapshots all inputs before awaiting",
+   "shared synthetic prepared receipt controls, never solver execution evidence > verification_failure_skip_synthetic",
+   "shared synthetic prepared receipt controls, never solver execution evidence > verification_failure_skip_synthetic missing invocation and metadata transport remain needs-recompute",
+   "shared synthetic prepared receipt controls, never solver execution evidence > verification_failure_skip_synthetic snapshots all inputs before awaiting"
+  ],
+  "log_sha256": "48355665b82aaac1140a3d1bfddbb6b91d181e6bba6bc5abe938e5d413f483d8"
+ },
+ {
+  "id": "M11_g8_member_sequence",
+  "target": "G8 backstop of D1",
+  "exit": 0,
+  "killed": false,
+  "tests": "409 passed (409)",
+  "failing": [],
+  "log_sha256": "6c2d720a5bb91abebb5137cfba5a417bf7db703f32adb6f136716c0a03741c94"
+ },
+ {
+  "id": "M12_empty_roster_g3",
+  "target": "empty roster",
+  "exit": 0,
+  "killed": false,
+  "tests": "409 passed (409)",
+  "failing": [],
+  "log_sha256": "b51df40e6fa4addffef4a90a481ac916cd12045d37615d37d7f766649e2e3576"
+ },
+ {
+  "id": "M13_nodata_theta",
+  "target": "D13 theta",
+  "exit": 1,
+  "killed": true,
+  "tests": "1 failed | 408 passed (409)",
+  "failing": [
+   "review repair 07: decisions without a probe (reader-local) > D13/RV81-M13: a no-data body needs theta = +0 in its verification record"
+  ],
+  "log_sha256": "b7b2fcfce6546b05a7aa7cac65e0221b55c12100eafdaf1aecacaca5b05149ed"
+ },
+ {
+  "id": "M14_g5_order_products_first",
+  "target": "D3/D17 order",
+  "exit": 1,
+  "killed": true,
+  "tests": "3 failed | 406 passed (409)",
+  "failing": [
+   "review repair 07: RV78 probe relations (reader-local) > T4d_ordinary_dangling_plus_adapter_fault",
+   "shared synthetic prepared receipt controls, never solver execution evidence > ordinary_dangling_plus_adapter_fault",
+   "shared synthetic prepared receipt controls, never solver execution evidence > ordinary_dangling_ref_plus_source_preparation_null"
+  ],
+  "log_sha256": "6b54fe19ecbe58c69a7f9646f4e3b50511b003d999b6caadd3cca4250cc9dc15"
+ },
+ {
+  "id": "M15_floor_or_dropped",
+  "target": "floor coverage",
+  "exit": 1,
+  "killed": true,
+  "tests": "3 failed | 406 passed (409)",
+  "failing": [
+   "native p512 floor rounding, independent of any corpus case > stopFeasible admits exactly the natively generated stop vectors, including L = 0",
+   "shared synthetic prepared receipt controls, never solver execution evidence > p512_positive_floor_forces_stop",
+   "shared synthetic prepared receipt controls, never solver execution evidence > p512_zero_floor_body_given_positive_floor"
+  ],
+  "log_sha256": "f7832734c754f2c97276907678d5a4b85bfb531b12f1d5331d97d761518bd867"
+ },
+ {
+  "id": "M16_ceiling_threshold",
+  "target": "D13 Ceiling",
+  "exit": 1,
+  "killed": true,
+  "tests": "1 failed | 408 passed (409)",
+  "failing": [
+   "review repair 07: decisions without a probe (reader-local) > D13/RV81-M16: a p128 verification-solve failure continues at p512, so it never ends in the Ceiling"
+  ],
+  "log_sha256": "432395aec00972789c8e10b4c2332c1d825938ae2642819534809e0d8eef3280"
+ },
+ {
+  "id": "R01_b1_g3_members_unique_only",
+  "target": "B1/D1 (restores the reviewed code)",
+  "exit": 1,
+  "killed": true,
+  "tests": "3 failed | 406 passed (409)",
+  "failing": [
+   "review repair 07: RV78 probe relations (reader-local) > R2b_unsourced_old_member_noncontiguous",
+   "review repair 07: decisions without a probe (reader-local) > D1/RV81-B1: unsourced old ids must be 0..len-1 at G3, with or without the invocation",
+   "shared synthetic prepared receipt controls, never solver execution evidence > unsourced_old_member_noncontiguous"
+  ],
+  "log_sha256": "86a44dbf16c1ead862e79cc265fe7cd5c7748c817912a2300991140e73ccb973"
+ },
+ {
+  "id": "R02_b2_d4c_removed",
+  "target": "B2/D4c",
+  "exit": 1,
+  "killed": true,
+  "tests": "2 failed | 407 passed (409)",
+  "failing": [
+   "review repair 07: decisions without a probe (reader-local) > D4c/RV81-B2: a prepared_product_failure cause must name the case's own attempt",
+   "shared synthetic prepared receipt controls, never solver execution evidence > prepared_failure_cause_without_own_attempt"
+  ],
+  "log_sha256": "94ea4cdeb7508a837c00c00fd707fd57477faeeaf17745c030fb4e2a5ea2843f"
+ },
+ {
+  "id": "R03_s1_captured_assoc_removed",
+  "target": "S1/D1 association at G5",
+  "exit": 0,
+  "killed": false,
+  "tests": "409 passed (409)",
+  "failing": [],
+  "log_sha256": "453be3b9fb16440735a79807f265e49f180d8bcf13cbbd6f049b01b4489b9220"
+ },
+ {
+  "id": "R04_s2_versions_removed",
+  "target": "S2/D2 producer versions",
+  "exit": 1,
+  "killed": true,
+  "tests": "1 failed | 408 passed (409)",
+  "failing": [
+   "review repair 07: decisions without a probe (reader-local) > D2: G0 owns the producer component/schema versions, receipt constants and thresholds; body shape waits for G1"
+  ],
+  "log_sha256": "fc6a328ad049d654c4dd73c984516e2a01fb037f21738e1c923d2e49bada5fb2"
+ },
+ {
+  "id": "R05_d18_positivity_removed",
+  "target": "D18",
+  "exit": 1,
+  "killed": true,
+  "tests": "3 failed | 406 passed (409)",
+  "failing": [
+   "review repair 07: decisions without a probe (reader-local) > D18: each echoed G5b section term equals the source term and is positive, else G5b SECTION",
+   "shared synthetic prepared receipt controls, never solver execution evidence > g5b_zero_section_area",
+   "shared synthetic prepared receipt controls, never solver execution evidence > g5b_zero_section_length"
+  ],
+  "log_sha256": "f3f99832ec313962cbf48633d7954dade68359d4d3c6c86ac6de7b4c4f8ca7ac"
+ },
+ {
+  "id": "R06_d2_table_bytes_removed",
+  "target": "D2 bundled bytes (unreachable from a receipt)",
+  "exit": 0,
+  "killed": false,
+  "tests": "409 passed (409)",
+  "failing": [],
+  "log_sha256": "87644df399efe6b598799b93b81b76f69463ea5b20211af95395b69c267d4540"
+ },
+ {
+  "id": "R07_d3_work_immediate",
+  "target": "D3 class-1 convention",
+  "exit": 1,
+  "killed": true,
+  "tests": "2 failed | 407 passed (409)",
+  "failing": [
+   "review repair 07: decisions without a probe (reader-local) > D3: a native class with an ATTEMPT defect reports ATTEMPT even when an earlier-coded WORK defect exists",
+   "shared synthetic prepared receipt controls, never solver execution evidence > native_attempt_defect_after_native_work_defect"
+  ],
+  "log_sha256": "5dec967ecdd1e2c7939ca32da70eea7439062478f83e8b81042e46340751dec2"
+ },
+ {
+  "id": "R08_d6d_code_work",
+  "target": "D6d code",
+  "exit": 1,
+  "killed": true,
+  "tests": "1 failed | 408 passed (409)",
+  "failing": [
+   "review repair 07: decisions without a probe (reader-local) > D6d/RV81-N2: legacy_source.work_ref is a reference check reported as ATTEMPT"
+  ],
+  "log_sha256": "886bb2610b8df6ee714704c1f5a00c6e71f2372476ee66682c4acf31a373aabe"
+ },
+ {
+  "id": "R09_d5c_removed",
+  "target": "D5c",
+  "exit": 1,
+  "killed": true,
+  "tests": "1 failed | 408 passed (409)",
+  "failing": [
+   "review repair 07: decisions without a probe (reader-local) > D5c: rejected(verification_failed) requires a failed verification phase"
+  ],
+  "log_sha256": "21471f54d15d3505ea22a9ec4548c32f84cf315b0fd26cfb09fd891197a19ae9"
+ },
+ {
+  "id": "R10_r4_removed",
+  "target": "D8 R4",
+  "exit": 1,
+  "killed": true,
+  "tests": "2 failed | 407 passed (409)",
+  "failing": [
+   "reader-logic checklist controls, not corpus or producer evidence > R1'-R4 (D8): each accounting mutation falsifies exactly its own rule on one attempt",
+   "shared synthetic prepared receipt controls, never solver execution evidence > section_accounting_exact_status"
+  ],
+  "log_sha256": "b34a8a941959769a52892abe05d1905b860c32e739dcf48f1143e76aa7a557e3"
+ },
+ {
+  "id": "R11_kernel_scope_removed",
+  "target": "D8 kernel scope",
+  "exit": 1,
+  "killed": true,
+  "tests": "1 failed | 408 passed (409)",
+  "failing": [
+   "confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > RV81-N2: the kernel scope alone decides for an unreferenced build carrying a work_accounting stop"
+  ],
+  "log_sha256": "431b3c7fa69f89b59dfcb551e369a9aa1bc8a343e81663b90698abeaeca2571b"
+ },
+ {
+  "id": "R12_d1_unsourced_count_removed",
+  "target": "D1 unsourced complete count",
+  "exit": 1,
+  "killed": true,
+  "tests": "1 failed | 408 passed (409)",
+  "failing": [
+   "review repair 07: decisions without a probe (reader-local) > D1 (checkpoint A): unsourced complete old coverage matches every CaseSource member count, with no emptiness rule"
+  ],
+  "log_sha256": "f7de65d614bcb14e01aa6499290fda78aff422f046d5e76b7f5c25cb966b2a9a"
+ },
+ {
+  "id": "R13_d2_body_absent_skipped",
+  "target": "settled reading 3",
+  "exit": 1,
+  "killed": true,
+  "tests": "2 failed | 407 passed (409)",
+  "failing": [
+   "shared synthetic prepared receipt controls, never solver execution evidence > g0_receipt_body_absent",
+   "shared synthetic prepared receipt controls, never solver execution evidence > g0_retained_precision_absent"
+  ],
+  "log_sha256": "4e18e49c5678785bd2a808242ef7bd8e47555b32f37726f8c143298db2ac9b9d"
+ },
+ {
+  "id": "R14_r2_operational_dropped",
+  "target": "D8 R2' operational",
+  "exit": 1,
+  "killed": true,
+  "tests": "2 failed | 407 passed (409)",
+  "failing": [
+   "reader-logic checklist controls, not corpus or producer evidence > R1'-R4 (D8): each accounting mutation falsifies exactly its own rule on one attempt",
+   "shared synthetic prepared receipt controls, never solver execution evidence > old_operational_accounting_not_lost"
+  ],
+  "log_sha256": "0afcf02fc60415a239699b7d5b19cd4f1019a4bf91925abc6e0dab6bb6dca430"
+ },
+ {
+  "id": "R15_d6c_exponent",
+  "target": "D6c exponent",
+  "exit": 1,
+  "killed": true,
+  "tests": "1 failed | 408 passed (409)",
+  "failing": [
+   "review repair 07: decisions without a probe (reader-local) > D6c: a published W2 needs a nonzero exponent and the initial failure's trigger"
+  ],
+  "log_sha256": "0dfaa6f87af31b1ff531ce9fe384dbf07ad6b5ca03743b3d404d20cd8ef1875d"
+ },
+ {
+  "id": "R16_d21_summary_indicator_dropped",
+  "target": "D21 third indicator",
+  "exit": 1,
+  "killed": true,
+  "tests": "2 failed | 407 passed (409)",
+  "failing": [
+   "confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D21 widened: a non-null verification summary on an escalating failed verification shows the pass ran",
+   "shared synthetic prepared receipt controls, never solver execution evidence > verification_summary_on_escalating_failed_verification"
+  ],
+  "log_sha256": "d0d74a2c24db17f3c3d70082495817c14211d6cf1fc98e49ecc306eb6fd80589"
+ },
+ {
+  "id": "R17_d21_lme_indicator_dropped",
+  "target": "D21 lme indicator",
+  "exit": 1,
+  "killed": true,
+  "tests": "2 failed | 407 passed (409)",
+  "failing": [
+   "review repair 07: RV78 probe relations (reader-local) > T1_escalating_failed_verification_pass_entered",
+   "shared synthetic prepared receipt controls, never solver execution evidence > escalating_failed_verification_pass_entered"
+  ],
+  "log_sha256": "3f241b75416d447dfc1ea562299d2bcc3b61561a11549ee2bd544057ef0459bd"
+ },
+ {
+  "id": "R18_d22_g3_on_dangling",
+  "target": "D22 (G3 fails on a dangling source_ref)",
+  "exit": 1,
+  "killed": true,
+  "tests": "2 failed | 407 passed (409)",
+  "failing": [
+   "confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D22/RV81-S1: a dangling attempt source_ref is a G5 PRODUCT_ATTEMPT defect, not G3",
+   "shared synthetic prepared receipt controls, never solver execution evidence > dangling_attempt_source_ref"
+  ],
+  "log_sha256": "122ae71c1ada6b23f02a3c6990c8bcb76b79b2ac54d78e38997b326dea8ee031"
+ },
+ {
+  "id": "R19_d29_removed",
+  "target": "D29",
+  "exit": 1,
+  "killed": true,
+  "tests": "1 failed | 408 passed (409)",
+  "failing": [
+   "confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D29: a CaseSource with an empty body inventory fails G3"
+  ],
+  "log_sha256": "e4e942bb495c996ae81318fe5d32f1592ba12e195063e857aeb75f3dcbc9b620"
+ },
+ {
+  "id": "R20_d27_reverted",
+  "target": "D27",
+  "exit": 1,
+  "killed": true,
+  "tests": "2 failed | 407 passed (409)",
+  "failing": [
+   "confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D27: the idle-Run rule reads the recorded invocation_before; a broken meter chain reports WORK",
+   "shared synthetic prepared receipt controls, never solver execution evidence > idle_run_exhausted_meter_chain_broken"
+  ],
+  "log_sha256": "20b520ec0760f5e572ba9d4d4d5cb3cc45f2e17fee0dee26a7c4a91e9ddef479"
+ },
+ {
+  "id": "R21_d20_removed",
+  "target": "D20",
+  "exit": 1,
+  "killed": true,
+  "tests": "2 failed | 407 passed (409)",
+  "failing": [
+   "confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D20: a selected case without a C3 attempt is a G5 PRODUCT_ATTEMPT association defect",
+   "shared synthetic prepared receipt controls, never solver execution evidence > selected_case_without_c3_attempt"
+  ],
+  "log_sha256": "dc271e97971c362a4ffbc825d05adfbc0fa1be965aee6f91ef1fe6b9625db339"
+ },
+ {
+  "id": "R22_d19_unavailable_half_removed",
+  "target": "D19 unavailable half",
+  "exit": 1,
+  "killed": true,
+  "tests": "4 failed | 405 passed (409)",
+  "failing": [
+   "confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D19: an unavailable C3 attempt must be reported through prepared_product_failure naming it",
+   "shared synthetic prepared receipt controls, never solver execution evidence > preparation_error_selected_run_under_receipt_cause",
+   "shared synthetic prepared receipt controls, never solver execution evidence > unavailable_attempt_under_facade_failure_cause",
+   "shared synthetic prepared receipt controls, never solver execution evidence > unavailable_attempt_under_source_error_cause"
+  ],
+  "log_sha256": "0758b915fe02ba02297036dd2260c4c082dba8ae4e0a6d9edcaee8ea70b86bc1"
+ },
+ {
+  "id": "R23_d19_ready_half_removed",
+  "target": "D19 Ready half",
+  "exit": 1,
+  "killed": true,
+  "tests": "1 failed | 408 passed (409)",
+  "failing": [
+   "confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D19: a Ready attempt belongs to a selected case, or to an unavailable case with a receipt_failure cause"
+  ],
+  "log_sha256": "b0e7abf5673f7645d123b115774a32b9ad83898f13da7ba31ffc79070ae9218c"
+ },
+ {
+  "id": "R24_d20_back_in_ordinary",
+  "target": "D20 code (selected without attempt reported ATTEMPT in the ordinary pass)",
+  "exit": 1,
+  "killed": true,
+  "tests": "2 failed | 407 passed (409)",
+  "failing": [
+   "confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D20: a selected case without a C3 attempt is a G5 PRODUCT_ATTEMPT association defect",
+   "shared synthetic prepared receipt controls, never solver execution evidence > selected_case_without_c3_attempt"
+  ],
+  "log_sha256": "8bd8e8adc50cba44410fce10a56a364f53bf8150309184309a0d325b5843ff7e"
+ }
+]

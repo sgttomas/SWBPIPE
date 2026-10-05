@@ -1,0 +1,19 @@
+mutant lane WT/scratch/i67_u6d/lanes/mut6 vs the worktree (changed files):
+same projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts
+same projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts
+same projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
+same projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
+same projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionStanding.ts
+same projects/chirality-piping/apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts
+same projects/chirality-piping/core/analysis_runs/compatibility.py
+same projects/chirality-piping/core/analysis_runs/retained_precision.py
+same projects/chirality-piping/core/product_physics/src/lib.rs
+same projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs
+same projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs
+same projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs
+same projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs
+same projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+same projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json
+same projects/chirality-piping/fixtures/results/retained_precision_cases.json
+same projects/chirality-piping/tests/test_retained_precision_carriers.py
+same projects/chirality-piping/tests/test_retained_precision_contract.py

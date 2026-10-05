@@ -1,0 +1,163 @@
+{
+ "summary": {
+  "old": "1e323058f3",
+  "new": "ba1faa1c858ce3630a22767677310b1902a14b83",
+  "changed_production_rs": [
+   "core/loads/stress_recovery/src/elastic_extrema.rs",
+   "core/product_physics/src/retained_memory.rs",
+   "core/reporting/result_export/src/derivative.rs",
+   "core/reporting/result_export/src/retained_precision.rs",
+   "core/reporting/result_export/src/semantic_contract.rs",
+   "core/solver/frame_kernel/src/structural.rs",
+   "core/solver/frame_kernel/src/structural/retained_resource.rs"
+  ],
+  "hunks": {
+   "core/loads/stress_recovery/src/elastic_extrema.rs": 1,
+   "core/product_physics/src/retained_memory.rs": 35,
+   "core/reporting/result_export/src/derivative.rs": 13,
+   "core/reporting/result_export/src/retained_precision.rs": 3,
+   "core/reporting/result_export/src/semantic_contract.rs": 8,
+   "core/solver/frame_kernel/src/structural.rs": 1,
+   "core/solver/frame_kernel/src/structural/retained_resource.rs": 1
+  },
+  "remapped": 27,
+  "unmapped": []
+ },
+ "remapped": [
+  [
+   "callgraph_rules.g4.json/rules/caller",
+   "core/loads/stress_recovery/src/elastic_extrema.rs:132:cmp",
+   "core/loads/stress_recovery/src/elastic_extrema.rs:136:cmp"
+  ],
+  [
+   "callgraph_rules.g4.json/rules/caller",
+   "core/solver/frame_kernel/src/structural.rs:468:view",
+   "core/solver/frame_kernel/src/structural.rs:470:view"
+  ],
+  [
+   "callgraph_rules.g4.json/rules/targets",
+   "core/solver/frame_kernel/src/structural.rs:458:view",
+   "core/solver/frame_kernel/src/structural.rs:460:view"
+  ],
+  [
+   "callgraph_rules.g4.json/rules/caller",
+   "core/solver/frame_kernel/src/structural.rs:1910:solve",
+   "core/solver/frame_kernel/src/structural.rs:1912:solve"
+  ],
+  [
+   "callgraph_rules.g4.json/rules/targets",
+   "core/solver/frame_kernel/src/structural.rs:1831:solve",
+   "core/solver/frame_kernel/src/structural.rs:1833:solve"
+  ],
+  [
+   "callgraph_rules.g4.json/rules/targets",
+   "core/solver/frame_kernel/src/structural.rs:2049:solve",
+   "core/solver/frame_kernel/src/structural.rs:2051:solve"
+  ],
+  [
+   "callgraph_rules.g4.json/rules/caller",
+   "core/solver/frame_kernel/src/structural.rs:1573:estimate_rcond",
+   "core/solver/frame_kernel/src/structural.rs:1575:estimate_rcond"
+  ],
+  [
+   "callgraph_rules.g4.json/rules/targets",
+   "core/solver/frame_kernel/src/structural.rs:1589:estimate_rcond",
+   "core/solver/frame_kernel/src/structural.rs:1591:estimate_rcond"
+  ],
+  [
+   "callgraph_rules.g4.json/rules/caller",
+   "core/solver/frame_kernel/src/structural.rs:2374:fmt",
+   "core/solver/frame_kernel/src/structural.rs:2376:fmt"
+  ],
+  [
+   "callgraph_rules.g4.json/rules/targets",
+   "core/solver/frame_kernel/src/structural.rs:2347:fmt",
+   "core/solver/frame_kernel/src/structural.rs:2349:fmt"
+  ],
+  [
+   "callgraph_rules.g4.json/rules/caller",
+   "core/reporting/result_export/src/derivative.rs:35:digest",
+   "core/reporting/result_export/src/derivative.rs:84:digest"
+  ],
+  [
+   "loop_bounds.g4.json/edge_zero/caller",
+   "semantic_contract.rs:344:for_source",
+   "semantic_contract.rs:437:for_source"
+  ],
+  [
+   "loop_bounds.g4.json/edge_zero/caller",
+   "semantic_contract.rs:344:for_source",
+   "semantic_contract.rs:437:for_source"
+  ],
+  [
+   "loop_bounds.g4.json/edge_zero/caller",
+   "semantic_contract.rs:344:for_source",
+   "semantic_contract.rs:437:for_source"
+  ],
+  [
+   "loop_bounds.g4.json/edge_zero/caller",
+   "semantic_contract.rs:344:for_source",
+   "semantic_contract.rs:437:for_source"
+  ],
+  [
+   "loop_bounds.g4.json/edge_zero/caller",
+   "semantic_contract.rs:344:for_source",
+   "semantic_contract.rs:437:for_source"
+  ],
+  [
+   "loop_bounds.g4.json/edge_zero/caller",
+   "semantic_contract.rs:344:for_source",
+   "semantic_contract.rs:437:for_source"
+  ],
+  [
+   "loop_bounds.g4.json/edge_zero/callee",
+   "semantic_contract.rs:389:forbid_load_reference_evidence",
+   "semantic_contract.rs:490:forbid_load_reference_evidence"
+  ],
+  [
+   "text_args.g4.json/site_zero/key",
+   "retained_precision.rs:4147",
+   "retained_precision.rs:4156"
+  ],
+  [
+   "text_args.g4.json/site_from/key",
+   "structural.rs:1099",
+   "structural.rs:1101"
+  ],
+  [
+   "text_args.g4.json/site_from/structural.rs:1099/from",
+   "structural.rs:1037:audit_load_fidelity",
+   "structural.rs:1039:audit_load_fidelity"
+  ],
+  [
+   "text_args.g4.json/site_from/retained_precision.rs:213/from",
+   "retained_precision.rs:4263:validate",
+   "retained_precision.rs:4272:validate"
+  ],
+  [
+   "text_args.g4.json/site_from/retained_precision.rs:211/from",
+   "retained_precision.rs:4263:validate",
+   "retained_precision.rs:4272:validate"
+  ],
+  [
+   "text_args.g4.json/site_from/preview_physics_evidence.rs:90/from",
+   "retained_precision.rs:4263:validate",
+   "retained_precision.rs:4272:validate"
+  ],
+  [
+   "text_args.g4.json/site_from/preview_physics_evidence.rs:100/from",
+   "retained_precision.rs:4263:validate",
+   "retained_precision.rs:4272:validate"
+  ],
+  [
+   "text_args.g4.json/id_audit/key",
+   "core/reporting/result_export/src/retained_precision.rs:4238",
+   "core/reporting/result_export/src/retained_precision.rs:4247"
+  ],
+  [
+   "text_args.g4.json/id_audit/key",
+   "core/solver/frame_kernel/src/structural.rs:1099",
+   "core/solver/frame_kernel/src/structural.rs:1101"
+  ]
+ ]
+}

@@ -1,0 +1,24 @@
+warning: function `derived` is never used
+   --> core/reporting/result_export/src/source_blocks.rs:433
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1607:27
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1608:27
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+warning: function `solve_load_case` is never used
+    --> src/lib.rs:3860:4
+warning: function `is_exact_pressure_result_kind` is never used
+     --> src/lib.rs:10320:4
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   --> src/source_recovery.rs:146:9
+warning: multiple fields are never read
+   --> src/source_recovery.rs:171:9
+warning: field `springs` is never read
+   --> src/source_recovery.rs:198:5
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:224:12
+warning: function `expected_primary` is never used
+  --> src/source_receipt/rows.rs:55:15
+warning: function `derived` is never used
+   --> src/source_receipt/rows.rs:329:15
+warning: `open_pipe_stress_product_physics` (lib) generated 10 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics` to apply 2 suggestions)

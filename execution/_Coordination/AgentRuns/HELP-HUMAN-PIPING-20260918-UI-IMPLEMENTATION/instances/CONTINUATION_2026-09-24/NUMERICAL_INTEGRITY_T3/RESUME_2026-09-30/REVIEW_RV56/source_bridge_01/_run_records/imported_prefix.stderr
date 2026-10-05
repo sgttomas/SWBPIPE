@@ -1,0 +1,625 @@
+   Compiling rv56_source_bridge_review v0.0.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported)
+error[E0583]: file not found for module `tests`
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs:321:1
+    |
+321 | mod tests;
+    | ^^^^^^^^^^
+    |
+    = help: to create the module `tests`, create file "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/tests.rs" or "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/tests/mod.rs"
+    = note: if there is a `mod tests` elsewhere in the crate already, import it with `use crate::...` instead
+
+error[E0583]: file not found for module `functionals`
+ --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs:9:1
+  |
+9 | pub mod functionals;
+  | ^^^^^^^^^^^^^^^^^^^^
+  |
+  = help: to create the module `functionals`, create file "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/functionals.rs" or "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/functionals/mod.rs"
+  = note: if there is a `mod functionals` elsewhere in the crate already, import it with `use crate::...` instead
+
+error[E0583]: file not found for module `multi`
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs:126:1
+    |
+126 | pub(crate) mod multi;
+    | ^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: to create the module `multi`, create file "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/multi.rs" or "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/multi/mod.rs"
+    = note: if there is a `mod multi` elsewhere in the crate already, import it with `use crate::...` instead
+
+error[E0583]: file not found for module `certificate`
+  --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs:21:1
+   |
+21 | mod certificate;
+   | ^^^^^^^^^^^^^^^^
+   |
+   = help: to create the module `certificate`, create file "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/certificate.rs" or "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/certificate/mod.rs"
+   = note: if there is a `mod certificate` elsewhere in the crate already, import it with `use crate::...` instead
+
+error[E0583]: file not found for module `bridge`
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs:593:1
+    |
+593 | pub(crate) mod bridge;
+    | ^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: to create the module `bridge`, create file "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bridge.rs" or "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bridge/mod.rs"
+    = note: if there is a `mod bridge` elsewhere in the crate already, import it with `use crate::...` instead
+
+error[E0583]: file not found for module `tests`
+    --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs:2015:1
+     |
+2015 | mod tests;
+     | ^^^^^^^^^^
+     |
+     = help: to create the module `tests`, create file "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/tests.rs" or "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/tests/mod.rs"
+     = note: if there is a `mod tests` elsewhere in the crate already, import it with `use crate::...` instead
+
+error[E0425]: cannot find type `StructuralSolution` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:122:38
+    |
+122 | fn c3_detect(terms: &[ForceTerm]) -> StructuralSolution {
+    |                                      ^^^^^^^^^^^^^^^^^^
+    |
+   ::: /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/structural.rs:86:1
+    |
+ 86 | pub struct StructuralSystem<'a> {
+    | ------------------------------- similarly named struct `StructuralSystem` defined here
+    |
+help: a struct with a similar name exists
+    |
+122 - fn c3_detect(terms: &[ForceTerm]) -> StructuralSolution {
+122 + fn c3_detect(terms: &[ForceTerm]) -> StructuralSystem {
+    |
+help: consider importing this struct
+    |
+  8 + use crate::structural::StructuralSolution;
+    |
+
+error[E0425]: cannot find function `solve_structural_dense_with_force_terms` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:133:5
+    |
+133 |     solve_structural_dense_with_force_terms(&system, terms).unwrap()
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::solve_structural_dense_with_force_terms;
+    |
+
+error[E0425]: cannot find type `StructuralSolution` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:136:36
+    |
+136 | fn c3_full(terms: &[ForceTerm]) -> StructuralSolution {
+    |                                    ^^^^^^^^^^^^^^^^^^
+    |
+   ::: /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/structural.rs:86:1
+    |
+ 86 | pub struct StructuralSystem<'a> {
+    | ------------------------------- similarly named struct `StructuralSystem` defined here
+    |
+help: a struct with a similar name exists
+    |
+136 - fn c3_full(terms: &[ForceTerm]) -> StructuralSolution {
+136 + fn c3_full(terms: &[ForceTerm]) -> StructuralSystem {
+    |
+help: consider importing this struct
+    |
+  8 + use crate::structural::StructuralSolution;
+    |
+
+error[E0425]: cannot find function `solve_assembled_structural_dense` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:147:5
+    |
+147 |     solve_assembled_structural_dense(&system).unwrap()
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::solve_assembled_structural_dense;
+    |
+
+error[E0433]: cannot find type `SolveQuality` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:166:47
+    |
+166 |             assert_eq!(detect.report.quality, SolveQuality::Sensitive, "{order:?}");
+    |                                               ^^^^^^^^^^^^ use of undeclared type `SolveQuality`
+    |
+help: consider importing this enum
+    |
+  8 + use crate::structural::SolveQuality;
+    |
+
+error[E0433]: cannot find type `SolveQuality` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:175:45
+    |
+175 |             assert_eq!(full.report.quality, SolveQuality::Passed);
+    |                                             ^^^^^^^^^^^^ use of undeclared type `SolveQuality`
+    |
+help: consider importing this enum
+    |
+  8 + use crate::structural::SolveQuality;
+    |
+
+error[E0433]: cannot find type `SolveQuality` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:205:43
+    |
+205 |         assert_eq!(detect.report.quality, SolveQuality::Passed);
+    |                                           ^^^^^^^^^^^^ use of undeclared type `SolveQuality`
+    |
+help: consider importing this enum
+    |
+  8 + use crate::structural::SolveQuality;
+    |
+
+error[E0425]: cannot find function `solve_structural_dense` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:208:22
+    |
+208 |         let legacy = solve_structural_dense(&StructuralSystem {
+    |                      ^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::solve_structural_dense;
+    |
+
+error[E0433]: cannot find type `SolveQuality` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:241:39
+    |
+241 |     assert_eq!(detect.report.quality, SolveQuality::Sensitive);
+    |                                       ^^^^^^^^^^^^ use of undeclared type `SolveQuality`
+    |
+help: consider importing this enum
+    |
+  8 + use crate::structural::SolveQuality;
+    |
+
+error[E0425]: cannot find function `solve_assembled_structural_dense` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:252:17
+    |
+252 |     let typed = solve_assembled_structural_dense(&StructuralSystem::assembled(
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::solve_assembled_structural_dense;
+    |
+
+error[E0425]: cannot find function `solve_structural_dense` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:256:18
+    |
+256 |     let legacy = solve_structural_dense(&StructuralSystem {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::solve_structural_dense;
+    |
+
+error[E0425]: cannot find function `solve_structural_dense` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:290:20
+    |
+290 |     let solution = solve_structural_dense(&system).unwrap();
+    |                    ^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::solve_structural_dense;
+    |
+
+error[E0425]: cannot find function `solve_structural_dense` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:452:21
+    |
+452 |         let dense = solve_structural_dense(&system).unwrap();
+    |                     ^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::solve_structural_dense;
+    |
+
+error[E0425]: cannot find function `prepare_structural` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:454:24
+    |
+454 |         let prepared = prepare_structural(&system).unwrap();
+    |                        ^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::prepare_structural;
+    |
+
+error[E0425]: cannot find function `radix_scale` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:458:13
+    |
+458 |             radix_scale(M, prepared.scale_exponents[5])
+    |             ^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::radix_scale;
+    |
+
+error[E0425]: cannot find function `finish_structural` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:466:13
+    |
+466 |             finish_structural(&factor_structural_profile(&prepared, &order, &first).unwrap())
+    |             ^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::finish_structural;
+    |
+
+error[E0425]: cannot find function `factor_structural_profile` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:466:32
+    |
+466 |             finish_structural(&factor_structural_profile(&prepared, &order, &first).unwrap())
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::factor_structural_profile;
+    |
+
+error[E0425]: cannot find function `solve_assembled_structural_dense` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:472:21
+    |
+472 |         let typed = solve_assembled_structural_dense(&StructuralSystem::assembled(
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::solve_assembled_structural_dense;
+    |
+
+error[E0425]: cannot find function `prepare_structural` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:500:24
+    |
+500 |         let prepared = prepare_structural(&system).unwrap();
+    |                        ^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::prepare_structural;
+    |
+
+error[E0425]: cannot find function `factor_structural_cholesky` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:501:22
+    |
+501 |         let factor = factor_structural_cholesky(&prepared).unwrap();
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::factor_structural_cholesky;
+    |
+
+error[E0425]: cannot find function `finish_checked_factor` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:503:24
+    |
+503 |         let solution = finish_checked_factor(
+    |                        ^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::finish_checked_factor;
+    |
+
+error[E0425]: cannot find function `prepare_structural` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:551:24
+    |
+551 |         let prepared = prepare_structural(&system).unwrap();
+    |                        ^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::prepare_structural;
+    |
+
+error[E0425]: cannot find function `checked_value` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:552:17
+    |
+552 |         let b = checked_value(-0.0 - checked_product(coupling, 0.0).unwrap()).unwrap();
+    |                 ^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::checked_value;
+    |
+
+error[E0425]: cannot find function `checked_product` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:552:38
+    |
+552 |         let b = checked_value(-0.0 - checked_product(coupling, 0.0).unwrap()).unwrap();
+    |                                      ^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::checked_product;
+    |
+
+error[E0425]: cannot find function `radix_scale` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:555:13
+    |
+555 |             radix_scale(b, prepared.scale_exponents[0])
+    |             ^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::radix_scale;
+    |
+
+error[E0425]: cannot find function `prepare_structural_binary64` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:593:24
+    |
+593 |         let prepared = prepare_structural_binary64(&system).unwrap();
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::prepare_structural_binary64;
+    |
+
+error[E0425]: cannot find function `checked_value` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:596:17
+    |
+596 |             b = checked_value(b - checked_product(p.k[11][c], v).unwrap()).unwrap();
+    |                 ^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::checked_value;
+    |
+
+error[E0425]: cannot find function `checked_product` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:596:35
+    |
+596 |             b = checked_value(b - checked_product(p.k[11][c], v).unwrap()).unwrap();
+    |                                   ^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::checked_product;
+    |
+
+error[E0425]: cannot find function `radix_scale` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:600:13
+    |
+600 |             radix_scale(b, prepared.scale_exponents[5])
+    |             ^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::radix_scale;
+    |
+
+error[E0425]: cannot find function `solve_structural_dense_binary64` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:604:24
+    |
+604 |         let solution = solve_structural_dense_binary64(&system).unwrap();
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::solve_structural_dense_binary64;
+    |
+
+error[E0425]: cannot find function `solve_structural_dense` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:605:21
+    |
+605 |         let dense = solve_structural_dense(&system).unwrap();
+    |                     ^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::solve_structural_dense;
+    |
+
+error[E0425]: cannot find function `evaluate_original_residual` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:638:20
+    |
+638 |         let rows = evaluate_original_residual(&system, &u).unwrap();
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::evaluate_original_residual;
+    |
+
+error[E0425]: cannot find function `radix_scale` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:642:22
+    |
+642 |         let mut r = -radix_scale(p.force[11], -e).unwrap();
+    |                      ^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::radix_scale;
+    |
+
+error[E0425]: cannot find function `checked_value` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:645:21
+    |
+645 |                 r = checked_value(r + normalized_product(k, x, e).unwrap()).unwrap();
+    |                     ^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::checked_value;
+    |
+
+error[E0425]: cannot find function `normalized_product` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:645:39
+    |
+645 |                 r = checked_value(r + normalized_product(k, x, e).unwrap()).unwrap();
+    |                                       ^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::normalized_product;
+    |
+
+error[E0433]: cannot find type `ExactAccumulator` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:650:35
+    |
+650 |         let mut exact_numerator = ExactAccumulator::new();
+    |                                   ^^^^^^^^^^^^^^^^ use of undeclared type `ExactAccumulator`
+    |
+help: consider importing this struct through its public re-export
+    |
+  8 + use crate::structural::ExactAccumulator;
+    |
+
+error[E0425]: cannot find function `evaluate_assembled_original_residual` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:666:26
+    |
+666 |         let exact_rows = evaluate_assembled_original_residual(&typed, &u).unwrap();
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+  8 + use crate::structural::evaluate_assembled_original_residual;
+    |
+
+error[E0433]: cannot find type `ExactAccumulator` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs:668:23
+    |
+668 |         let mut acc = ExactAccumulator::new();
+    |                       ^^^^^^^^^^^^^^^^ use of undeclared type `ExactAccumulator`
+    |
+help: consider importing this struct through its public re-export
+    |
+  8 + use crate::structural::ExactAccumulator;
+    |
+
+error[E0425]: cannot find type `ProposedMemberLaw` in this scope
+  --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/source_bridge_tests.rs:92:36
+   |
+92 | fn laws(owner: &RetainedSolve) -> [ProposedMemberLaw<'_>; 1] {
+   |                                    ^^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0422]: cannot find struct, variant or union type `ProposedMemberLaw` in this scope
+  --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/source_bridge_tests.rs:93:6
+   |
+93 |     [ProposedMemberLaw {
+   |      ^^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find type `ProposedMemberLaw` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/source_bridge_tests.rs:104:44
+    |
+104 | fn run<'a>(s: &'a RetainedSolve, law: &'a [ProposedMemberLaw<'a>]) -> BridgeSpent<'a> {
+    |                                            ^^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find type `BridgeSpent` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/source_bridge_tests.rs:104:71
+    |
+104 | fn run<'a>(s: &'a RetainedSolve, law: &'a [ProposedMemberLaw<'a>]) -> BridgeSpent<'a> {
+    |                                                                       ^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find type `ConditionalNativeSource` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/source_bridge_tests.rs:186:56
+    |
+186 | fn check_rows(label: &str, s: &RetainedSolve, native: &ConditionalNativeSource<'_>, loaded: bool) {
+    |                                                        ^^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+
+warning: unused import: `bridge::*`
+ --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/source_bridge_tests.rs:3:41
+  |
+3 | use super::super::product_certificate::{bridge::*, MaterialOperands};
+  |                                         ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0433]: cannot find type `BridgeError` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/source_bridge_tests.rs:292:38
+    |
+292 |         matches!(spent.result(), Err(BridgeError::Alpha { block: 0, .. })),
+    |                                      ^^^^^^^^^^^ use of undeclared type `BridgeError`
+    |
+help: an enum with a similar name exists
+    |
+292 -         matches!(spent.result(), Err(BridgeError::Alpha { block: 0, .. })),
+292 +         matches!(spent.result(), Err(WideError::Alpha { block: 0, .. })),
+    |
+
+error[E0433]: cannot find type `BridgeError` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/source_bridge_tests.rs:296:16
+    |
+296 |     if let Err(BridgeError::Alpha { alpha_hi, .. }) = spent.result() {
+    |                ^^^^^^^^^^^ use of undeclared type `BridgeError`
+    |
+help: an enum with a similar name exists
+    |
+296 -     if let Err(BridgeError::Alpha { alpha_hi, .. }) = spent.result() {
+296 +     if let Err(WideError::Alpha { alpha_hi, .. }) = spent.result() {
+    |
+
+error[E0433]: cannot find type `BridgeError` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/source_bridge_tests.rs:317:13
+    |
+317 |         Err(BridgeError::MemberOwner)
+    |             ^^^^^^^^^^^ use of undeclared type `BridgeError`
+    |
+help: an enum with a similar name exists
+    |
+317 -         Err(BridgeError::MemberOwner)
+317 +         Err(WideError::MemberOwner)
+    |
+
+error[E0433]: cannot find type `BridgeError` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/source_bridge_tests.rs:387:13
+    |
+387 |         Err(BridgeError::Numeric(
+    |             ^^^^^^^^^^^ use of undeclared type `BridgeError`
+    |
+help: an enum with a similar name exists
+    |
+387 -         Err(BridgeError::Numeric(
+387 +         Err(WideError::Numeric(
+    |
+
+error[E0433]: cannot find type `BridgeError` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/source_bridge_tests.rs:447:13
+    |
+447 |         Err(BridgeError::MissingUniquenessWarrant(0))
+    |             ^^^^^^^^^^^ use of undeclared type `BridgeError`
+    |
+help: an enum with a similar name exists
+    |
+447 -         Err(BridgeError::MissingUniquenessWarrant(0))
+447 +         Err(WideError::MissingUniquenessWarrant(0))
+    |
+
+error[E0433]: cannot find type `BridgeError` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/source_bridge_tests.rs:461:13
+    |
+461 |         Err(BridgeError::Numeric(
+    |             ^^^^^^^^^^^ use of undeclared type `BridgeError`
+    |
+help: an enum with a similar name exists
+    |
+461 -         Err(BridgeError::Numeric(
+461 +         Err(WideError::Numeric(
+    |
+
+error[E0433]: cannot find type `BridgeError` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/source_bridge_tests.rs:473:13
+    |
+473 |         Err(BridgeError::Numeric(
+    |             ^^^^^^^^^^^ use of undeclared type `BridgeError`
+    |
+help: an enum with a similar name exists
+    |
+473 -         Err(BridgeError::Numeric(
+473 +         Err(WideError::Numeric(
+    |
+
+error[E0425]: cannot find function `source_bridge` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/source_bridge_tests.rs:105:5
+    |
+105 |     source_bridge(
+    |     ^^^^^^^^^^^^^ not found in this scope
+
+Some errors have detailed explanations: E0422, E0425, E0433, E0583.
+For more information about an error, try `rustc --explain E0422`.
+warning: `rv56_source_bridge_review` (lib test) generated 1 warning
+error: could not compile `rv56_source_bridge_review` (lib test) due to 57 previous errors; 1 warning emitted

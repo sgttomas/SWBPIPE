@@ -1,0 +1,29 @@
+{
+  "status": "completed source-only review; returned to ROOT, no acceptance",
+  "mechanism": "delegated-harness-native fresh TASK",
+  "task": "/root/rv47_f2a_preview_truth",
+  "parent": "/root",
+  "role": "TASK",
+  "receipt_utc": "2026-10-02 21:33:12 UTC",
+  "new_check_cutoff_utc": "2026-10-02 21:58:12 UTC",
+  "return_deadline_utc": "2026-10-02 22:08:12 UTC",
+  "source_analysis_completed_by_utc": "2026-10-02 21:38:05 UTC",
+  "written_at_utc": "2026-10-02T21:39:49.162716+00:00",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV47/f2a_preview_truth_01",
+  "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV47_F2A_PREVIEW_TRUTH_REVIEW_01.md",
+  "basis": "640575bd6a84914316194968e23b51c24b3dac8e",
+  "candidate": "ec8abf41e9149d9498ebbbdf17ccfd8b30e11be4",
+  "source_pin": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "skill": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+  "enforcement": "Actual host has broader filesystem permissions; assignment boundaries were followed by the agent, not asserted as a sandbox. All Git reads used GIT_OPTIONAL_LOCKS=0.",
+  "not_done": [
+    "delegation",
+    "maintained edits",
+    "Git/index/API writes",
+    "compiler/solver/model/runtime/host probes",
+    "full source-tree copying"
+  ],
+  "independence": "Fresh review context. Author packet read before own source verification; no author-blind rederivation or model diversity claim.",
+  "return_path": "ROOT /root"
+}

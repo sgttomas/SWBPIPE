@@ -1,0 +1,225 @@
+## product_physics/src/lib.rs fn integrity_dof_label param dof  (9 calls)
+    product_physics/src/lib.rs:1155: dof
+    product_physics/src/lib.rs:1632: dof
+    product_physics/src/lib.rs:1644: dof
+    product_physics/src/lib.rs:1711: record.global_dof
+    product_physics/src/lib.rs:1723: *dof
+    product_physics/src/lib.rs:1741: *dof
+    product_physics/src/lib.rs:4020: dof
+    product_physics/src/s11g_tests.rs:273: dof
+    product_physics/src/f1a_tests.rs:270: dof
+## product_physics/src/lib.rs fn integrity_diagnostic_id param case_id  (26 calls)
+    product_physics/src/lib.rs:1122: case_id
+    product_physics/src/lib.rs:1327: case_id
+    product_physics/src/lib.rs:1830: case_id
+    product_physics/src/lib.rs:1849: &case.id
+    product_physics/src/lib.rs:4410: &load_case.id
+    product_physics/src/lib.rs:4416: &load_case.id
+    product_physics/src/lib.rs:4562: &load_case.id
+    product_physics/src/lib.rs:4573: &load_case.id
+    product_physics/src/lib.rs:5418: &load_case.id
+    product_physics/src/lib.rs:14282: &first.basis_ref.ref_id
+    product_physics/src/lib.rs:14283: &second.basis_ref.ref_id
+    product_physics/src/lib.rs:16848: "load:L-MIXED-NONLINEAR"
+    product_physics/src/lib.rs:16894: "load:L-MIXED-NONLINEAR"
+    product_physics/src/lib.rs:17401: "load:L-GAP"
+## product_physics/src/lib.rs fn reserve param case_id  (39 calls)
+    product_physics/src/retained_product.rs:402: ?
+    product_physics/src/retained_product.rs:416: ?
+    product_physics/src/retained_product.rs:1323: ?
+    product_physics/src/retained_product.rs:1324: ?
+    product_physics/src/retained_product.rs:1325: 
+    product_physics/src/retained_product.rs:1332: ?
+    product_physics/src/retained_product.rs:1333: ?
+    product_physics/src/retained_product.rs:1334: ?
+    product_physics/src/retained_product.rs:1335: ?
+    product_physics/src/retained_product.rs:1336: ?
+    product_physics/src/retained_product.rs:1337: ?
+    product_physics/src/retained_product.rs:1338: ?
+    product_physics/src/retained_product.rs:1339: ?
+    product_physics/src/retained_product.rs:1542: ?
+## product_physics/src/lib.rs fn qualified_load_case_result_id param load_case_id  (7 calls)
+    product_physics/src/preview_physics.rs:196: case_id
+    product_physics/src/lib.rs:2763: &load_case_id
+    product_physics/src/lib.rs:2775: &load_case_id
+    product_physics/src/lib.rs:3650: &case.load_case_id
+    product_physics/src/lib.rs:5559: case_id
+    product_physics/src/lib.rs:12179: load_case_id
+    product_physics/src/source_receipt/rows.rs:20: &input.load_case.id
+## product_physics/src/preview_physics.rs fn maximum_row param case_id  (1 calls)
+    product_physics/src/preview_physics.rs:514: case_id
+## product_physics/src/preview_physics.rs fn maximum_row param pipe_id  (1 calls)
+    product_physics/src/preview_physics.rs:514: &member.pipe_id
+## product_physics/src/preview_physics.rs fn render_members param case_id  (2 calls)
+    product_physics/src/preview_physics.rs:580: &case_id
+    product_physics/src/preview_physics.rs:1091: "case:1"
+## product_physics/src/retained_wire.rs fn successor_envelope param case_id  (2 calls)
+    product_physics/src/retained_wire.rs:1527: &case_id
+    product_physics/src/retained_wire.rs:1971: case_id
+## product_physics/src/source_receipt/rows.rs fn support_id param support  (1 calls)
+    product_physics/src/source_receipt/rows.rs:115: &support.support_id
+## product_physics/src/source_receipt/rows.rs fn support_id param component  (1 calls)
+    product_physics/src/source_receipt/rows.rs:115: COMPONENTS[c]
+## product_physics/src/source_receipt/rows.rs fn compare param actual  (15 calls)
+    product_physics/src/source_receipt/rows.rs:605: row
+    product_physics/src/source_receipt/rows.rs:626: row
+    product_physics/src/case_state/temperature.rs:135: b.0
+    solver/frame_kernel/src/exact_sum.rs:252: &self.positive
+    solver/frame_kernel/src/exact_sum.rs:257: &self.positive
+    solver/frame_kernel/src/exact_sum.rs:269: &self.positive
+    solver/frame_kernel/src/exact_sum.rs:293: &self.positive
+    solver/frame_kernel/src/structural/retained/wide_sum.rs:672: &self.positive[..self.used]
+    solver/frame_kernel/src/structural/retained/wide_sum.rs:741: &self.positive[..used]
+    solver/frame_kernel/src/structural/retained/adaptive.rs:3304: PublicationPredicate::AbsoluteBound
+    solver/frame_kernel/src/structural/retained/adaptive.rs:3314: PublicationPredicate::PublicRelative
+    solver/frame_kernel/src/structural/retained/adaptive.rs:3323: PublicationPredicate::SharperExact
+    solver/frame_kernel/src/structural/retained/adaptive.rs:3333: PublicationPredicate::SharperBinary64
+    solver/frame_kernel/src/structural/retained/directed/certificate.rs:202: b0
+## product_physics/src/validation.rs fn provenance_diag param entity  (2 calls)
+    product_physics/src/validation.rs:1445: entity
+    product_physics/src/validation.rs:1449: entity
+## product_physics/src/validation.rs fn provenance_diag param id  (2 calls)
+    product_physics/src/validation.rs:1445: id
+    product_physics/src/validation.rs:1449: id
+## reporting/result_export/src/load_reference.rs fn code param name  (35 calls)
+    reporting/result_export/src/retained_precision.rs:20: G7 base detail
+    reporting/result_export/src/load_reference.rs:230: name
+    reporting/result_export/src/load_reference.rs:240: "STRING_INVALID"
+    reporting/result_export/src/load_reference.rs:245: "NUMBER_INVALID"
+    reporting/result_export/src/load_reference.rs:262: "BOOLEAN_INVALID"
+    reporting/result_export/src/load_reference.rs:265: "INTEGER_INVALID"
+    reporting/result_export/src/load_reference.rs:268: "ARRAY_INVALID"
+    reporting/result_export/src/load_reference.rs:339: "TRANSPORT_SCHEMA_HASH"
+    reporting/result_export/src/load_reference.rs:341: "TRANSPORT_SCHEMA_HASH"
+    reporting/result_export/src/load_reference.rs:369: "PHYSICS_EVIDENCE"
+    reporting/result_export/src/load_reference.rs:493: "RECORD_CASE_UNRESOLVED"
+    reporting/result_export/src/load_reference.rs:527: "REGION_CASE_UNRESOLVED"
+    reporting/result_export/src/load_reference.rs:541: "REGION_MATERIAL_BINDING"
+    reporting/result_export/src/load_reference.rs:797: "RECORD_CASE_UNRESOLVED"
+## reporting/result_export/src/load_reference_source.rs fn code param name  (35 calls)
+    reporting/result_export/src/retained_precision.rs:20: G7 base detail
+    reporting/result_export/src/load_reference.rs:230: name
+    reporting/result_export/src/load_reference.rs:240: "STRING_INVALID"
+    reporting/result_export/src/load_reference.rs:245: "NUMBER_INVALID"
+    reporting/result_export/src/load_reference.rs:262: "BOOLEAN_INVALID"
+    reporting/result_export/src/load_reference.rs:265: "INTEGER_INVALID"
+    reporting/result_export/src/load_reference.rs:268: "ARRAY_INVALID"
+    reporting/result_export/src/load_reference.rs:339: "TRANSPORT_SCHEMA_HASH"
+    reporting/result_export/src/load_reference.rs:341: "TRANSPORT_SCHEMA_HASH"
+    reporting/result_export/src/load_reference.rs:369: "PHYSICS_EVIDENCE"
+    reporting/result_export/src/load_reference.rs:493: "RECORD_CASE_UNRESOLVED"
+    reporting/result_export/src/load_reference.rs:527: "REGION_CASE_UNRESOLVED"
+    reporting/result_export/src/load_reference.rs:541: "REGION_MATERIAL_BINDING"
+    reporting/result_export/src/load_reference.rs:797: "RECORD_CASE_UNRESOLVED"
+## reporting/result_export/src/physics_evidence.rs fn temperature param material_id  (29 calls)
+    reporting/result_export/src/physics_evidence.rs:663: text(&duplicate["material_id"])?
+    reporting/result_export/src/physics_evidence.rs:1106: text(&mm[pid]["material_id"])?
+    product_physics/src/lib.rs:579: ?
+    product_physics/src/case_state/material.rs:417: ?
+    product_physics/src/case_state/material.rs:424: ?
+    product_physics/src/case_state/material.rs:456: ?
+    product_physics/src/case_state/material.rs:463: ?
+    product_physics/src/case_state/material.rs:489: ?
+    product_physics/src/case_state/material.rs:496: ?
+    product_physics/src/case_state/material.rs:511: ?
+    product_physics/src/case_state/material.rs:519: ?
+    product_physics/src/case_state/material.rs:520: ?
+    product_physics/src/case_state/material.rs:529: ?
+    product_physics/src/case_state/material.rs:566: ?
+## reporting/result_export/src/retained_precision.rs fn error param suffix  (149 calls)
+    reporting/result_export/src/retained_precision.rs:221: suffix
+    reporting/result_export/src/retained_precision.rs:295: code
+    reporting/result_export/src/retained_precision.rs:319: "WORK_MISMATCH"
+    reporting/result_export/src/retained_precision.rs:323: code
+    reporting/result_export/src/retained_precision.rs:406: "ENCODING_MISMATCH"
+    reporting/result_export/src/retained_precision.rs:414: "ENCODING_MISMATCH"
+    reporting/result_export/src/retained_precision.rs:471: "RECEIPT_MISMATCH"
+    reporting/result_export/src/retained_precision.rs:594: "RECEIPT_MISMATCH"
+    reporting/result_export/src/retained_precision.rs:877: "WORK_MISMATCH"
+    reporting/result_export/src/retained_precision.rs:949: "ATTEMPT_MISMATCH"
+    reporting/result_export/src/retained_precision.rs:984: "ATTEMPT_MISMATCH"
+    reporting/result_export/src/retained_precision.rs:1189: "ATTEMPT_MISMATCH"
+    reporting/result_export/src/retained_precision.rs:1211: "ATTEMPT_MISMATCH"
+    reporting/result_export/src/retained_precision.rs:1254: "ATTEMPT_MISMATCH"
+## product_physics/src/lib.rs fn stable_suffix param id  (310 calls)
+    product_physics/src/preview_physics.rs:638: &association.component.id
+    product_physics/src/preview_physics.rs:639: &member.pipe_id
+    product_physics/src/preview_physics.rs:758: pipe_id
+    product_physics/src/retained_product.rs:646: &self.case_id
+    product_physics/src/retained_product.rs:2223: &row.entity_ref
+    product_physics/src/lib.rs:1291: case_id
+    product_physics/src/lib.rs:3586: load_case_id
+    product_physics/src/lib.rs:3949: &load_case.id
+    product_physics/src/lib.rs:3949: &pipe_id
+    product_physics/src/lib.rs:4059: &load_case.id
+    product_physics/src/lib.rs:4272: &load_case.id
+    product_physics/src/lib.rs:4609: &node.id
+    product_physics/src/lib.rs:4767: &support.id
+    product_physics/src/lib.rs:4844: &pipe.element_id
+## product_physics/src/lib.rs fn qualify_source_case_rows param case_id  (1 calls)
+    product_physics/src/lib.rs:5489: &load_case.id
+## product_physics/src/lib.rs fn normalize_node_coordinates param model  (3 calls)
+    product_physics/src/lib.rs:8045: model
+    product_physics/src/lib.rs:21788: &mut working
+    product_physics/src/lib.rs:21796: &mut working
+## product_physics/src/preview_physics.rs fn final_id param row  (2 calls)
+    product_physics/src/preview_physics.rs:594: &row
+    product_physics/src/preview_physics.rs:662: &row
+## product_physics/src/retained_product.rs fn ordinary_report param record  (1 calls)
+    product_physics/src/lib.rs:4543: load_row_finding.is_some() && linear.structural_report.quality != SolveQuality::Sensitive
+## product_physics/src/source_receipt/rows.rs fn qualify param input  (9 calls)
+    product_physics/src/source_receipt/rows.rs:80: input
+    product_physics/src/source_receipt/rows.rs:91: input
+    product_physics/src/source_receipt/rows.rs:107: input
+    product_physics/src/source_receipt/rows.rs:130: input
+    product_physics/src/source_receipt/rows.rs:149: input
+    product_physics/src/source_receipt/rows.rs:374: input
+    product_physics/src/source_receipt/rows.rs:393: input
+    product_physics/src/source_receipt/rows.rs:521: input
+    product_physics/src/source_receipt/rows.rs:545: input
+## product_physics/src/source_recovery.rs fn scaled_row param row  (1 calls)
+    product_physics/src/source_recovery.rs:1115: &rows[component]
+## product_physics/src/source_recovery.rs fn name param name  (40 calls)
+    reporting/report_package/src/lib.rs:59: ?
+    product_physics/src/f1b_tests.rs:2334: ?
+    product_physics/src/source_receipt.rs:1105: ?
+    product_physics/src/source_recovery.rs:479: budget
+    product_physics/src/source_recovery.rs:629: budget
+    product_physics/src/source_recovery.rs:630: budget
+    product_physics/src/source_recovery.rs:640: budget
+    product_physics/src/source_recovery.rs:647: budget
+    product_physics/src/source_recovery.rs:669: budget
+    product_physics/src/source_recovery.rs:695: budget
+    product_physics/src/source_recovery.rs:696: budget
+    product_physics/src/source_recovery.rs:697: budget
+    product_physics/src/source_recovery.rs:698: budget
+    product_physics/src/source_recovery.rs:699: budget
+## reporting/result_export/src/retained_precision.rs fn project param source  (46 calls)
+    reporting/result_export/src/retained_precision.rs:4292: source
+    reporting/result_export/src/retained_precision.rs:4321: source
+    reporting/result_export/src/load_reference.rs:363: source
+    reporting/result_export/src/load_reference_source.rs:96: source
+    runner/headless/src/load_reference_route_tests.rs:56: 
+    product_physics/src/retained_product.rs:3669: 
+    product_physics/src/retained_product.rs:3818: &p.trace
+    product_physics/src/retained_product.rs:3881: &self.trace
+    product_physics/src/retained_product.rs:3888: &self.trace
+    product_physics/src/retained_product.rs:3895: &p.trace
+    product_physics/src/retained_product.rs:3905: &p.trace
+    product_physics/src/retained_product_tests.rs:2653: 
+    product_physics/src/retained_product_tests.rs:3066: 
+    product_physics/src/retained_product_tests.rs:3093: &trace
+## reporting/result_export/src/retained_precision.rs fn g1 param source  (2 calls)
+    reporting/result_export/src/retained_precision.rs:4265: source
+    reporting/result_export/src/retained_precision.rs:4317: source
+## solver/frame_kernel/src/load_ledger.rs fn force_scaled_term param term  (1 calls)
+    solver/frame_kernel/src/load_ledger.rs:345: term
+## solver/frame_kernel/src/load_ledger.rs fn push_unique param source  (2 calls)
+    solver/frame_kernel/src/load_ledger.rs:701: &term.source
+    solver/frame_kernel/src/load_ledger.rs:726: &term.source
+## product_physics/src/retained_product.rs fn prepared_string param text  (1 calls)
+    product_physics/src/retained_product.rs:3370: &x.source_id
+## product_physics/src/retained_product.rs fn observation_copy param text  (3 calls)
+    product_physics/src/retained_product.rs:832: 0
+    product_physics/src/retained_product.rs:835: 1
+    product_physics/src/retained_product.rs:840: 2

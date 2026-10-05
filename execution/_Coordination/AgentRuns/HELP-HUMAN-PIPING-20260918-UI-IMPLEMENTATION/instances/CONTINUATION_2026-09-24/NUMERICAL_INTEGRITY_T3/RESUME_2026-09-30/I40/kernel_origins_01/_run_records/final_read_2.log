@@ -1,0 +1,7 @@
+ .../core/solver/frame_kernel/src/structural.rs     |   6 +
+ .../src/structural/retained/adaptive.rs            | 219 +++++++++++++++++----
+ .../src/structural/retained/combine.rs             |  75 ++++---
+ .../frame_kernel/src/structural/retained/mod.rs    |   2 +
+ .../tests/retained_k4/publication_tests.rs         |  18 +-
+ .../solver/frame_kernel/tests/s11_site_table.rs    |   4 +
+ 6 files changed, 251 insertions(+), 73 deletions(-)

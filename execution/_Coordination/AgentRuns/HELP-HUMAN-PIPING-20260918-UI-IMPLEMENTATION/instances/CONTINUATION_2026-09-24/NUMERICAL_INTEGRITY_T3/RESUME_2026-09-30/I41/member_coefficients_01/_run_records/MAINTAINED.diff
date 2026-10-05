@@ -1,0 +1,1383 @@
+--- /dev/null
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs
+@@ -0,0 +1,588 @@
++//! Bounded private normalized member arithmetic. These scalar records carry no
++//! source identity, eligibility, row certificate, admission policy, or tariff.
++#![allow(dead_code)] // No product caller in this isolated implementation slice.
++
++use super::adaptive::AttemptStop;
++use super::directed::{self, Toward};
++use super::wide::multi::{AttemptWork, WideContext};
++use super::wide::Wide;
++use super::wide_sum::{ExactWideSum, SumWork};
++use super::work::{WorkFault, WorkStatus, WorkTotal};
++use std::cmp::Ordering;
++
++type Endpoint = Wide<16>;
++
++#[derive(Debug, Clone, Copy)]
++pub(super) struct Enclosure {
++    lo: Endpoint,
++    hi: Endpoint,
++}
++impl Enclosure {
++    fn point(x: Endpoint) -> Self {
++        Self { lo: x, hi: x }
++    }
++    fn positive(self) -> Result<Self, NumericError> {
++        if positive(&self.lo) && self.lo.cmp_value(&self.hi) != Ordering::Greater {
++            Ok(self)
++        } else {
++            Err(NumericError::NonpositiveSource)
++        }
++    }
++    fn hull_point(self, x: Endpoint) -> Self {
++        Self {
++            lo: min(self.lo, x),
++            hi: max(self.hi, x),
++        }
++    }
++}
++
++/// Numeric routes only. A future checked source adapter must prove selection,
++/// adjacency, actual owner/ordinal association and all existing admission rules.
++#[derive(Debug, Clone, Copy)]
++pub(super) enum MaterialOperands {
++    ExactENu {
++        e: f64,
++        nu: f64,
++    },
++    Ordinary {
++        e: f64,
++        g: f64,
++    }, // base or exact point, independently selected E/G
++    Interpolated {
++        t_lo: f64,
++        t: f64,
++        t_hi: f64,
++        e_lo: f64,
++        e_hi: f64,
++        g_lo: f64,
++        g_hi: f64,
++        e_hat: f64,
++        g_hat: f64,
++    },
++}
++#[derive(Debug, Clone, Copy)]
++pub(super) struct AdmittedOperands {
++    e: f64,
++    g: f64,
++    a: f64,
++    j: f64,
++    iz: f64,
++    iy: f64,
++    z_hat: f64,
++}
++#[derive(Debug, Clone, Copy)]
++pub(super) struct MemberOperands {
++    diameter: f64,
++    effective_wall: f64,
++    material: MaterialOperands,
++    admitted: AdmittedOperands,
++}
++#[derive(Debug)]
++pub(super) struct MemberEnclosures {
++    effective_wall_bits: u64,
++    c: Endpoint,
++    ri: Enclosure,
++    p: Enclosure,
++    q: Enclosure,
++    geometry_g: Enclosure,
++    a: Enclosure,
++    i: Enclosure,
++    j: Enclosure,
++    z: Enclosure,
++    e: Enclosure,
++    g: Enclosure,
++    coefficients: [Enclosure; 4],
++    admitted_products: [Endpoint; 4],
++    coefficient_differences: [Endpoint; 4],
++    represented_z: Option<Enclosure>,
++}
++#[derive(Debug, Clone, PartialEq)]
++pub(super) enum NumericError {
++    Arithmetic(AttemptStop),
++    NonFinite,
++    NonpositiveSource,
++    InvalidGeometry,
++    InvalidMaterial,
++    MaterialBits,
++    TemperatureOrder,
++    NonpositiveDenominator,
++    AxisBits,
++    Binary64Range,
++}
++impl From<AttemptStop> for NumericError {
++    fn from(e: AttemptStop) -> Self {
++        Self::Arithmetic(e)
++    }
++}
++
++#[derive(Debug, Clone, Copy)]
++enum Entry {
++    Add = 0,
++    Sub = 1,
++    Mul = 2,
++    Div = 3,
++    R4 = 4,
++    B64U = 5,
++}
++#[derive(Debug)]
++pub(super) struct NumericWork {
++    wide: AttemptWork,
++    sums: SumWork,
++    entries: [WorkTotal; 6],
++    // No rounded binary64 arithmetic is performed by this component. Conversion
++    // entries are counted separately; abs/successor are bit operations.
++    f64_arithmetic: WorkTotal,
++    status: WorkStatus,
++}
++impl NumericWork {
++    fn new() -> Self {
++        Self {
++            wide: AttemptWork::default(),
++            sums: SumWork::default(),
++            entries: [WorkTotal::zero(); 6],
++            f64_arithmetic: WorkTotal::zero(),
++            status: WorkStatus::default(),
++        }
++    }
++    fn status(&self) -> WorkStatus {
++        self.entries.iter().fold(
++            self.wide
++                .checked_lme()
++                .add(self.sums.checked_lme())
++                .add(self.f64_arithmetic)
++                .status()
++                .join(self.status),
++            |s, v| s.join(v.status()),
++        )
++    }
++    fn begin(&mut self, entry: Entry) -> Result<(), NumericError> {
++        if let Some(f) = self.status().fault() {
++            return Err(AttemptStop::WorkAccounting(f).into());
++        }
++        let i = entry as usize;
++        let next = self.entries[i].add(WorkTotal::exact_count(1));
++        self.status = self.status.join(next.status());
++        if let Some(f) = next.status().fault() {
++            return Err(AttemptStop::WorkAccounting(f).into());
++        }
++        self.entries[i] = next;
++        Ok(())
++    }
++    fn checked<T>(&mut self, result: Result<T, NumericError>) -> Result<T, NumericError> {
++        if let Err(NumericError::Arithmetic(AttemptStop::WorkAccounting(f))) = &result {
++            self.status = self.status.join(WorkStatus::from_fault(*f));
++        }
++        match result {
++            Err(e) => Err(e), // retain original numeric cause, even with unavailable work
++            Ok(v) => match self.status().fault() {
++                Some(f) => Err(AttemptStop::WorkAccounting(f).into()),
++                None => Ok(v),
++            },
++        }
++    }
++}
++#[derive(Debug)]
++pub(super) struct MemberSpent {
++    result: Result<MemberEnclosures, NumericError>,
++    work: NumericWork,
++}
++impl MemberSpent {
++    pub(super) fn result(&self) -> Result<&MemberEnclosures, NumericError> {
++        match &self.result {
++            Err(e) => Err(e.clone()),
++            Ok(v) => match self.work.status().fault() {
++                Some(f) => Err(AttemptStop::WorkAccounting(f).into()),
++                None => Ok(v),
++            },
++        }
++    }
++    pub(super) fn work(&self) -> &NumericWork {
++        &self.work
++    }
++}
++
++fn positive(x: &Endpoint) -> bool {
++    !x.is_zero() && !x.is_sign_negative()
++}
++fn min(a: Endpoint, b: Endpoint) -> Endpoint {
++    if a.cmp_value(&b) == Ordering::Greater {
++        b
++    } else {
++        a
++    }
++}
++fn max(a: Endpoint, b: Endpoint) -> Endpoint {
++    if a.cmp_value(&b) == Ordering::Less {
++        b
++    } else {
++        a
++    }
++}
++fn lift(v: f64) -> Result<Endpoint, NumericError> {
++    if !v.is_finite() {
++        return Err(NumericError::NonFinite);
++    }
++    if v == 0.0 {
++        return Ok(Endpoint::ZERO);
++    }
++    Endpoint::from_f64(v).map_err(|e| NumericError::Arithmetic(e.into()))
++}
++fn pos_lift(v: f64) -> Result<Endpoint, NumericError> {
++    let x = lift(v)?;
++    if positive(&x) {
++        Ok(x)
++    } else {
++        Err(NumericError::NonpositiveSource)
++    }
++}
++fn shift(x: &Endpoint, k: i64) -> Result<Endpoint, NumericError> {
++    x.mul_pow2(k)
++        .map_err(|e| NumericError::Arithmetic(e.into()))
++}
++fn shift_interval(x: Enclosure, k: i64) -> Result<Enclosure, NumericError> {
++    Ok(Enclosure {
++        lo: shift(&x.lo, k)?,
++        hi: shift(&x.hi, k)?,
++    })
++}
++
++// An operation owns its fresh context and sum. No fallible exit can bypass
++// collection, including denominator rejection and lower-pass exact sign checks.
++fn scalar_owned(
++    work: &mut NumericWork,
++    entry: Entry,
++    a: &Endpoint,
++    b: &Endpoint,
++    toward: Toward,
++    mut ctx: WideContext<16>,
++    mut sum: ExactWideSum,
++) -> Result<Endpoint, NumericError> {
++    let result = (|| {
++        if matches!(entry, Entry::Div) && !positive(b) {
++            return Err(NumericError::NonpositiveDenominator);
++        }
++        let v = match entry {
++            Entry::Add => directed::add_toward(&mut ctx, &mut sum, a, b, toward),
++            Entry::Sub => directed::sub_toward(&mut ctx, &mut sum, a, b, toward),
++            Entry::Mul => directed::mul_toward(&mut ctx, &mut sum, a, b, toward),
++            Entry::Div => directed::div_toward(&mut ctx, &mut sum, a, b, toward),
++            _ => return Err(AttemptStop::WorkAccounting(WorkFault::Inconsistent).into()),
++        }?;
++        Ok(if v.is_zero() { Endpoint::ZERO } else { v })
++    })();
++    work.wide.record(&ctx);
++    work.sums.merge(&sum.work());
++    work.checked(result)
++}
++impl NumericWork {
++    fn scalar(
++        &mut self,
++        entry: Entry,
++        a: &Endpoint,
++        b: &Endpoint,
++        t: Toward,
++    ) -> Result<Endpoint, NumericError> {
++        self.begin(entry)?;
++        let ctx = WideContext::<16>::new(1024).map_err(|e| NumericError::Arithmetic(e.into()))?;
++        scalar_owned(self, entry, a, b, t, ctx, ExactWideSum::new())
++    }
++    fn mul(&mut self, a: Enclosure, b: Enclosure) -> Result<Enclosure, NumericError> {
++        a.positive()?;
++        b.positive()?;
++        Ok(Enclosure {
++            lo: self.scalar(Entry::Mul, &a.lo, &b.lo, Toward::Down)?,
++            hi: self.scalar(Entry::Mul, &a.hi, &b.hi, Toward::Up)?,
++        })
++        .and_then(Enclosure::positive)
++    }
++    fn div(&mut self, a: Enclosure, b: Enclosure) -> Result<Enclosure, NumericError> {
++        a.positive()?;
++        if !positive(&b.lo) || b.lo.cmp_value(&b.hi) == Ordering::Greater {
++            return Err(NumericError::NonpositiveDenominator);
++        }
++        Ok(Enclosure {
++            lo: self.scalar(Entry::Div, &a.lo, &b.hi, Toward::Down)?,
++            hi: self.scalar(Entry::Div, &a.hi, &b.lo, Toward::Up)?,
++        })
++        .and_then(Enclosure::positive)
++    }
++    fn sub_pair(&mut self, a: &Endpoint, b: &Endpoint) -> Result<Enclosure, NumericError> {
++        Ok(Enclosure {
++            lo: self.scalar(Entry::Sub, a, b, Toward::Down)?,
++            hi: self.scalar(Entry::Sub, a, b, Toward::Up)?,
++        })
++    }
++    fn add(&mut self, a: Enclosure, b: Enclosure) -> Result<Enclosure, NumericError> {
++        Ok(Enclosure {
++            lo: self.scalar(Entry::Add, &a.lo, &b.lo, Toward::Down)?,
++            hi: self.scalar(Entry::Add, &a.hi, &b.hi, Toward::Up)?,
++        })
++    }
++    fn exact_product(&mut self, a: f64, b: f64) -> Result<Endpoint, NumericError> {
++        // Separate lifts preserve up to 106 significant bits, including 2^-104.
++        let (a, b) = (lift(a)?, lift(b)?);
++        self.scalar(Entry::Mul, &a, &b, Toward::Up)
++    }
++    fn r4(&mut self, p: &[Endpoint; 4], t: Toward) -> Result<Endpoint, NumericError> {
++        self.begin(Entry::R4)?;
++        let ctx = WideContext::<16>::new(1024).map_err(|e| NumericError::Arithmetic(e.into()))?;
++        r4_owned(self, p, t, ctx, ExactWideSum::new())
++    }
++    fn absdiff(&mut self, a: &Endpoint, b: &Endpoint) -> Result<Endpoint, NumericError> {
++        let (large, small) = if a.cmp_value(b) == Ordering::Less {
++            (b, a)
++        } else {
++            (a, b)
++        };
++        self.scalar(Entry::Sub, large, small, Toward::Up)
++    }
++    fn binary64_up(&mut self, x: &Endpoint) -> Result<f64, NumericError> {
++        if x.is_sign_negative() && !x.is_zero() {
++            return Err(NumericError::InvalidMaterial);
++        }
++        self.begin(Entry::B64U)?;
++        let (result, sums) = directed::binary64_up_spent(x).into_parts();
++        self.collect_binary64(result, sums)
++    }
++    fn collect_binary64(
++        &mut self,
++        result: Result<f64, AttemptStop>,
++        sums: SumWork,
++    ) -> Result<f64, NumericError> {
++        self.sums.merge(&sums);
++        let value = self.checked(result.map_err(NumericError::Arithmetic))?;
++        if value.is_finite() {
++            Ok(value)
++        } else {
++            Err(NumericError::Binary64Range)
++        }
++    }
++}
++fn r4_owned(
++    work: &mut NumericWork,
++    p: &[Endpoint; 4],
++    t: Toward,
++    mut ctx: WideContext<16>,
++    mut sum: ExactWideSum,
++) -> Result<Endpoint, NumericError> {
++    let result = (|| {
++        for (v, negate) in p.iter().zip([false, true, false, true]) {
++            sum.add_wide(v, negate).map_err(AttemptStop::from)?;
++        }
++        if t == Toward::Down && sum.signum().map_err(AttemptStop::from)? <= 0 {
++            return Err(NumericError::NonpositiveSource);
++        }
++        directed::round_toward(&mut ctx, &mut sum, t).map_err(NumericError::Arithmetic)
++    })();
++    work.wide.record(&ctx);
++    work.sums.merge(&sum.work());
++    work.checked(result)
++}
++
++fn material(
++    work: &mut NumericWork,
++    m: MaterialOperands,
++    k: &AdmittedOperands,
++) -> Result<(Enclosure, Enclosure, bool), NumericError> {
++    match m {
++        MaterialOperands::ExactENu { e, nu } => {
++            let e = pos_lift(e)?;
++            let nu = lift(nu)?;
++            if nu.cmp_value(&Endpoint::ONE.neg()) != Ordering::Greater
++                || nu.cmp_value(&shift(&Endpoint::ONE, -1)?) != Ordering::Less
++            {
++                return Err(NumericError::InvalidMaterial);
++            }
++            if e.cmp_value(&lift(k.e)?) != Ordering::Equal {
++                return Err(NumericError::MaterialBits);
++            }
++            let denominator = work.add(Enclosure::point(Endpoint::ONE), Enclosure::point(nu))?;
++            let denominator = shift_interval(denominator, 1)?;
++            let e = Enclosure::point(e);
++            let g = work.div(e, denominator)?;
++            Ok((e, g, false))
++        }
++        MaterialOperands::Ordinary { e, g } => {
++            let pair = (pos_lift(e)?, pos_lift(g)?);
++            if e.to_bits() != k.e.to_bits() || g.to_bits() != k.g.to_bits() {
++                return Err(NumericError::MaterialBits);
++            }
++            Ok((Enclosure::point(pair.0), Enclosure::point(pair.1), true))
++        }
++        MaterialOperands::Interpolated {
++            t_lo,
++            t,
++            t_hi,
++            e_lo,
++            e_hi,
++            g_lo,
++            g_hi,
++            e_hat,
++            g_hat,
++        } => {
++            let (lo, at, hi) = (lift(t_lo)?, lift(t)?, lift(t_hi)?);
++            if lo.cmp_value(&at) != Ordering::Less || at.cmp_value(&hi) != Ordering::Less {
++                return Err(NumericError::TemperatureOrder);
++            }
++            let (ea, ga) = (pos_lift(e_hat)?, pos_lift(g_hat)?);
++            pos_lift(g_lo)?;
++            pos_lift(g_hi)?;
++            if e_hat.to_bits() != k.e.to_bits() || g_hat.to_bits() != k.g.to_bits() {
++                return Err(NumericError::MaterialBits);
++            }
++            let h = work.sub_pair(&hi, &lo)?.positive()?;
++            let mut property = |xlo: f64, xhi: f64, actual: Endpoint| {
++                let p = [
++                    work.exact_product(t_hi, xlo)?,
++                    work.exact_product(t, xlo)?,
++                    work.exact_product(t, xhi)?,
++                    work.exact_product(t_lo, xhi)?,
++                ];
++                let n = Enclosure {
++                    lo: work.r4(&p, Toward::Down)?,
++                    hi: work.r4(&p, Toward::Up)?,
++                };
++                Ok::<_, NumericError>(work.div(n, h)?.hull_point(actual))
++            };
++            let e = property(e_lo, e_hi, ea)?;
++            let g = property(g_lo, g_hi, ga)?;
++            Ok((e, g, true))
++        }
++    }
++}
++
++fn pi() -> Result<Enclosure, NumericError> {
++    // Reviewed 514-bit numerators / 2^512, normalized at exponent 1. Fixed
++    // constants only; no binary64 pi and no runtime transcendental calculation.
++    const LOWER: [u64; 16] = [
++        0x0000000000000000,
++        0x0000000000000000,
++        0x0000000000000000,
++        0x0000000000000000,
++        0x0000000000000000,
++        0x0000000000000000,
++        0x0000000000000000,
++        0xc000000000000000,
++        0x4fe1356d6d51c245,
++        0x302b0a6df25f1437,
++        0xef9519b3cd3a431b,
++        0x514a08798e3404dd,
++        0x020bbea63b139b22,
++        0x29024e088a67cc74,
++        0xc4c6628b80dc1cd1,
++        0xc90fdaa22168c234,
++    ];
++    const UPPER: [u64; 16] = [
++        0x0000000000000000,
++        0x0000000000000000,
++        0x0000000000000000,
++        0x0000000000000000,
++        0x0000000000000000,
++        0x0000000000000000,
++        0x0000000000000000,
++        0x0000000000000000,
++        0x4fe1356d6d51c246,
++        0x302b0a6df25f1437,
++        0xef9519b3cd3a431b,
++        0x514a08798e3404dd,
++        0x020bbea63b139b22,
++        0x29024e088a67cc74,
++        0xc4c6628b80dc1cd1,
++        0xc90fdaa22168c234,
++    ];
++    let make = |limbs| {
++        Endpoint::from_parts(false, 1, limbs).map_err(|e| NumericError::Arithmetic(e.into()))
++    };
++    Ok(Enclosure {
++        lo: make(LOWER)?,
++        hi: make(UPPER)?,
++    })
++}
++
++pub(super) fn member_coefficients(input: &MemberOperands) -> MemberSpent {
++    let mut work = NumericWork::new();
++    let result = build_member(input, &mut work);
++    let result = work.checked(result);
++    MemberSpent { result, work }
++}
++fn build_member(
++    input: &MemberOperands,
++    work: &mut NumericWork,
++) -> Result<MemberEnclosures, NumericError> {
++    let k = &input.admitted;
++    for v in [k.e, k.g, k.a, k.j, k.iz, k.iy] {
++        pos_lift(v)?;
++    }
++    let (e, g, ordinary) = material(work, input.material, k)?;
++    let d = pos_lift(input.diameter)?;
++    let t = pos_lift(input.effective_wall)?;
++    let c = shift(&d, -1)?;
++    if t.cmp_value(&c) != Ordering::Less {
++        return Err(NumericError::InvalidGeometry);
++    }
++    let ri = work.sub_pair(&c, &t)?.positive()?;
++    let d_minus_t = work.sub_pair(&d, &t)?.positive()?;
++    let p = work.mul(Enclosure::point(t), d_minus_t)?;
++    // c is the exact binary64 D lift shifted by one: c*c has <=106 bits.
++    let c_square = Enclosure::point(work.scalar(Entry::Mul, &c, &c, Toward::Up)?);
++    let ri_square = work.mul(ri, ri)?;
++    let q = work.add(c_square, ri_square)?.positive()?;
++    let geometry_g = work.mul(p, q)?;
++    let pi = pi()?;
++    let a = work.mul(pi, p)?;
++    let i = shift_interval(work.mul(pi, geometry_g)?, -2)?;
++    let j = shift_interval(i, 1)?;
++    let z = work.div(i, Enclosure::point(c))?;
++    let coefficients = [
++        work.mul(e, a)?,
++        work.mul(g, j)?,
++        work.mul(e, i)?,
++        work.mul(e, i)?,
++    ];
++    let admitted_products = [
++        work.exact_product(k.e, k.a)?,
++        work.exact_product(k.g, k.j)?,
++        work.exact_product(k.e, k.iz)?,
++        work.exact_product(k.e, k.iy)?,
++    ];
++    let mut coefficient_differences = [Endpoint::ZERO; 4];
++    for index in 0..4 {
++        let lo = work.absdiff(&coefficients[index].lo, &admitted_products[index])?;
++        let hi = work.absdiff(&coefficients[index].hi, &admitted_products[index])?;
++        coefficient_differences[index] = max(lo, hi);
++    }
++    let represented_z = if ordinary {
++        if k.iy.to_bits() != k.iz.to_bits() {
++            return Err(NumericError::AxisBits);
++        }
++        let actual = pos_lift(k.z_hat)?;
++        Some(
++            work.div(Enclosure::point(pos_lift(k.iz)?), Enclosure::point(c))?
++                .hull_point(actual),
++        )
++    } else {
++        None
++    };
++    Ok(MemberEnclosures {
++        effective_wall_bits: input.effective_wall.to_bits(),
++        c,
++        ri,
++        p,
++        q,
++        geometry_g,
++        a,
++        i,
++        j,
++        z,
++        e,
++        g,
++        coefficients,
++        admitted_products,
++        coefficient_differences,
++        represented_z,
++    })
++}
++
++#[cfg(test)]
++#[path = "../../../tests/retained_k4/product_certificate_tests.rs"]
++mod tests;
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs
+@@ -171,9 +171,21 @@
+     }
+ }
+ 
+-/// The least binary64 not below x ≥ 0 (+∞ beyond the range): K3's nearest
+-/// conversion, then `next_up` when the exact comparison shows it below x.
+-pub(crate) fn binary64_up<const L: usize>(x: &Wide<L>) -> Result<f64, AttemptStop>
++/// One conversion execution and its actual producing sum work. No tariff.
++#[derive(Debug)]
++pub(super) struct Binary64UpSpent {
++    result: Result<f64, AttemptStop>,
++    sums: super::wide_sum::SumWork,
++}
++
++impl Binary64UpSpent {
++    pub(super) fn into_parts(self) -> (Result<f64, AttemptStop>, super::wide_sum::SumWork) {
++        (self.result, self.sums)
++    }
++}
++
++/// The least binary64 not below x >= 0, retaining every executed work prefix.
++pub(super) fn binary64_up_spent<const L: usize>(x: &Wide<L>) -> Binary64UpSpent
+ where
+     Wide<L>: SupportedWidth,
+ {
+@@ -182,20 +194,63 @@
+         Binary64Outcome::Normal(v) => v.abs(),
+         Binary64Outcome::Subnormal { value, .. } => value.abs(),
+         Binary64Outcome::Underflow { .. } => 0.0,
+-        Binary64Outcome::Overflow { .. } => return Ok(f64::INFINITY),
+-    };
+-    let mut sum = ExactWideSum::new();
+-    sum.add_wide(x, false)?;
+-    sum.add_binary64(nearest, true)?;
+-    if sum.signum()? > 0 {
+-        Ok(if nearest == f64::MAX {
+-            f64::INFINITY
++        Binary64Outcome::Overflow { .. } => {
++            return Binary64UpSpent {
++                result: Ok(f64::INFINITY),
++                sums: super::wide_sum::SumWork::default(),
++            }
++        }
++    };
++    binary64_up_owned(x, nearest, ExactWideSum::new())
++}
++
++// Same producing owner on all exits. The private owned form also allows tests
++// to seed a bounded failure prefix without a runtime injection mechanism.
++fn binary64_up_owned<const L: usize>(
++    x: &Wide<L>,
++    nearest: f64,
++    mut sum: ExactWideSum,
++) -> Binary64UpSpent
++where
++    Wide<L>: SupportedWidth,
++{
++    let result = (|| {
++        sum.add_wide(x, false)?;
++        sum.add_binary64(nearest, true)?;
++        if sum.signum()? > 0 {
++            Ok(if nearest == f64::MAX {
++                f64::INFINITY
++            } else {
++                next_up(nearest)
++            })
+         } else {
+-            next_up(nearest)
+-        })
+-    } else {
+-        Ok(nearest)
+-    }
++            Ok(nearest)
++        }
++    })();
++    Binary64UpSpent {
++        result,
++        sums: sum.work(),
++    }
++}
++
++#[cfg(test)]
++pub(super) fn test_binary64_up_owned<const L: usize>(
++    x: &Wide<L>,
++    nearest: f64,
++    sum: ExactWideSum,
++) -> Binary64UpSpent
++where
++    Wide<L>: SupportedWidth,
++{
++    binary64_up_owned(x, nearest, sum)
++}
++
++/// Historical numerical projection of one execution; callers keep their policy.
++pub(crate) fn binary64_up<const L: usize>(x: &Wide<L>) -> Result<f64, AttemptStop>
++where
++    Wide<L>: SupportedWidth,
++{
++    binary64_up_spent(x).into_parts().0
+ }
+ 
+ #[cfg(test)]
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs
+@@ -39,6 +39,7 @@
+ pub(crate) mod factor;
+ pub(crate) mod ledger;
+ pub(crate) mod recover;
++mod product_certificate;
+ // V-K's seeded faults (T3 D1 §4.10, §7.3): compiled only for tests and under
+ // the `mutation-controls` feature, which only numerical_robustness's mutation
+ // run enables; inactive unless `FK_SEEDED_FAULT` names a fault.
+--- /dev/null
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs
+@@ -0,0 +1,425 @@
++//! Frozen independent Fraction targets and actual producing work custody.
++use super::*;
++#[path = "product_certificate_vectors.rs"]
++mod vectors;
++
++fn parse(token: &str) -> Endpoint {
++    if token == "Z+" {
++        return Endpoint::ZERO;
++    }
++    let (hex, e) = token[1..].split_once('p').unwrap();
++    let digits = format!("{hex:0<256}");
++    let mut limbs = [0; 16];
++    for (i, v) in limbs.iter_mut().rev().enumerate() {
++        *v = u64::from_str_radix(&digits[i * 16..i * 16 + 16], 16).unwrap();
++    }
++    Endpoint::from_parts(token.starts_with('-'), e.parse().unwrap(), limbs).unwrap()
++}
++fn input(mode: u8, geometry: [u64; 2], m: [u64; 9], k: [u64; 7]) -> MemberOperands {
++    let m = m.map(f64::from_bits);
++    let k = k.map(f64::from_bits);
++    let material = match mode {
++        0 => MaterialOperands::ExactENu { e: m[0], nu: m[1] },
++        1 => MaterialOperands::Ordinary { e: m[0], g: m[1] },
++        2 => MaterialOperands::Interpolated {
++            t_lo: m[0],
++            t: m[1],
++            t_hi: m[2],
++            e_lo: m[3],
++            e_hi: m[4],
++            g_lo: m[5],
++            g_hi: m[6],
++            e_hat: m[7],
++            g_hat: m[8],
++        },
++        _ => panic!("fixture mode"),
++    };
++    MemberOperands {
++        diameter: f64::from_bits(geometry[0]),
++        effective_wall: f64::from_bits(geometry[1]),
++        material,
++        admitted: AdmittedOperands {
++            e: k[0],
++            g: k[1],
++            a: k[2],
++            j: k[3],
++            iz: k[4],
++            iy: k[5],
++            z_hat: k[6],
++        },
++    }
++}
++fn ordinary() -> MemberOperands {
++    let (_, mode, geometry, m, k, _, _) = vectors::CASES[1];
++    input(mode, geometry, m, k)
++}
++fn covers(actual: Enclosure, reference: (&str, &str), label: &str) {
++    assert!(
++        actual.lo.cmp_value(&parse(reference.0)) != Ordering::Greater,
++        "lower {label}"
++    );
++    assert!(
++        actual.hi.cmp_value(&parse(reference.1)) != Ordering::Less,
++        "upper {label}"
++    );
++}
++#[test]
++fn product_certificate_fraction_geometry_material_and_coefficients() {
++    assert_eq!(vectors::CASES.len(), 8);
++    for &(name, mode, geometry, m, k, reference, products) in vectors::CASES {
++        let input = input(mode, geometry, m, k);
++        let spent = member_coefficients(&input);
++        assert!(spent.work().status().is_exact(), "{name}: {spent:?}");
++        let v = spent.result().unwrap();
++        assert_eq!(v.effective_wall_bits, geometry[1]);
++        let intervals = [
++            Enclosure::point(v.c),
++            v.ri,
++            v.p,
++            v.q,
++            v.geometry_g,
++            v.a,
++            v.i,
++            v.j,
++            v.z,
++            v.e,
++            v.g,
++            v.coefficients[0],
++            v.coefficients[1],
++            v.coefficients[2],
++            v.coefficients[3],
++            v.represented_z.unwrap_or(Enclosure::point(Endpoint::ZERO)),
++        ];
++        for (a, r) in intervals.into_iter().zip(reference.iter().copied()) {
++            covers(a, r, name);
++        }
++        for j in 0..4 {
++            assert_eq!(
++                v.admitted_products[j],
++                parse(products[j]),
++                "exact K {name} {j}"
++            );
++            assert!(
++                v.coefficient_differences[j].cmp_value(&parse(products[j + 4])) != Ordering::Less,
++                "delta {name} {j}"
++            );
++        }
++        let entries = spent.work.entries.map(|n| n.exact().unwrap());
++        assert_eq!(entries[Entry::R4 as usize], if mode == 2 { 4 } else { 0 });
++        assert_eq!(entries[Entry::B64U as usize], 0);
++        assert_eq!(spent.work.f64_arithmetic.exact(), Ok(0));
++        // An entered DM with an exact zero operand has no TwoProduct core
++        // call. Count the actual prefix, not a one-core-call-per-entry envelope.
++        let m = m.map(f64::from_bits);
++        let zero_products = if mode == 2 {
++            [
++                (m[2], m[3]),
++                (m[1], m[3]),
++                (m[1], m[4]),
++                (m[0], m[4]),
++                (m[2], m[5]),
++                (m[1], m[5]),
++                (m[1], m[6]),
++                (m[0], m[6]),
++            ]
++            .iter()
++            .filter(|(a, b)| *a == 0.0 || *b == 0.0)
++            .count() as u64
++        } else {
++            0
++        };
++        assert_eq!(
++            spent.work.wide.width::<16>().two_product,
++            entries[Entry::Mul as usize] + entries[Entry::Div as usize] - zero_products,
++            "actual TwoProduct calls {name}"
++        );
++        assert!(spent.work.wide.checked_lme().exact().unwrap() > 0);
++        assert!(spent.work.sums.checked_lme().exact().unwrap() > 0);
++    }
++}
++#[test]
++fn product_certificate_exact_k_retains_missing_binary64_tail() {
++    let x = f64::from_bits(1.0f64.to_bits() + 1);
++    let mut work = NumericWork::new();
++    let exact = work.exact_product(x, x).unwrap();
++    let rounded = lift(x * x).unwrap();
++    let delta = work.absdiff(&exact, &rounded).unwrap();
++    assert_eq!(delta, shift(&Endpoint::ONE, -104).unwrap());
++    assert_ne!(exact, rounded);
++}
++#[test]
++fn product_certificate_exact_zero_and_positive_subnormal_source() {
++    let mut work = NumericWork::new();
++    assert_eq!(
++        work.scalar(Entry::Sub, &Endpoint::ONE, &Endpoint::ONE, Toward::Up)
++            .unwrap(),
++        Endpoint::ZERO
++    );
++    assert_eq!(lift(-0.0).unwrap().parts().0, false);
++    let (_, mode, g, m, k, _, _) = vectors::CASES[4];
++    let spent = member_coefficients(&input(mode, g, m, k));
++    let v = spent.result().unwrap();
++    assert!(positive(&v.i.lo));
++    assert_eq!(v.i.lo.to_binary64().value().unwrap_or(0.0), 0.0);
++    // Positive wide source geometry survives even where a binary64 property
++    // would be zero. This abstract input does not prove product reachability.
++    assert!(v.i.lo.exponent() < -1074);
++}
++#[test]
++fn product_certificate_source_sign_precedes_positive_rounded_material() {
++    let mut x = ordinary();
++    x.material = MaterialOperands::Interpolated {
++        t_lo: 0.,
++        t: 7.,
++        t_hi: 25.,
++        e_lo: -7.,
++        e_hi: 18.,
++        g_lo: 1.,
++        g_hi: 1.,
++        e_hat: 2f64.powi(-50),
++        g_hat: 1.,
++    };
++    x.admitted.e = 2f64.powi(-50);
++    x.admitted.g = 1.;
++    let spent = member_coefficients(&x);
++    assert!(matches!(
++        spent.result(),
++        Err(NumericError::NonpositiveSource)
++    ));
++    assert!(spent.work.status().is_exact());
++    assert_eq!(spent.work.entries[Entry::R4 as usize].exact(), Ok(1));
++    assert_eq!(spent.work.entries[Entry::Mul as usize].exact(), Ok(4));
++    assert!(spent.work.sums.checked_lme().exact().unwrap() > 0);
++}
++#[test]
++fn product_certificate_refusals_and_ordinary_independent_g() {
++    let mut x = ordinary();
++    x.material = MaterialOperands::Ordinary { e: 2., g: 7. };
++    x.admitted.e = 2.;
++    x.admitted.g = 7.;
++    let spent = member_coefficients(&x);
++    assert_eq!(spent.result().unwrap().g.lo, lift(7.).unwrap());
++    x.admitted.g = 6.;
++    assert!(matches!(
++        member_coefficients(&x).result(),
++        Err(NumericError::MaterialBits)
++    ));
++    let mut x = ordinary();
++    x.effective_wall = x.diameter / 2.;
++    assert!(matches!(
++        member_coefficients(&x).result(),
++        Err(NumericError::InvalidGeometry)
++    ));
++    let mut x = ordinary();
++    x.admitted.iy = 2.;
++    assert!(matches!(
++        member_coefficients(&x).result(),
++        Err(NumericError::AxisBits)
++    ));
++    let mut x = ordinary();
++    x.diameter = f64::NAN;
++    assert!(matches!(
++        member_coefficients(&x).result(),
++        Err(NumericError::NonFinite)
++    ));
++    let mut x = ordinary();
++    x.material = MaterialOperands::ExactENu {
++        e: x.admitted.e,
++        nu: -1.,
++    };
++    assert!(matches!(
++        member_coefficients(&x).result(),
++        Err(NumericError::InvalidMaterial)
++    ));
++    let mut x = ordinary();
++    x.material = MaterialOperands::Interpolated {
++        t_lo: 0.,
++        t: 0.,
++        t_hi: 1.,
++        e_lo: 1.,
++        e_hi: 1.,
++        g_lo: 1.,
++        g_hi: 1.,
++        e_hat: 1.,
++        g_hat: 1.,
++    };
++    assert!(matches!(
++        member_coefficients(&x).result(),
++        Err(NumericError::TemperatureOrder)
++    ));
++    let mut work = NumericWork::new();
++    assert_eq!(
++        work.scalar(Entry::Div, &Endpoint::ONE, &Endpoint::ZERO, Toward::Up),
++        Err(NumericError::NonpositiveDenominator)
++    );
++    assert_eq!(work.entries[Entry::Div as usize].exact(), Ok(1));
++    assert_eq!(work.wide.checked_lme().exact(), Ok(0));
++}
++#[test]
++fn product_certificate_scalar_and_r4_failure_prefixes() {
++    let mut work = NumericWork::new();
++    let huge = shift(&Endpoint::ONE, 9000).unwrap();
++    assert!(work
++        .scalar(Entry::Add, &huge, &Endpoint::ONE, Toward::Up)
++        .is_err());
++    assert_eq!(work.entries[Entry::Add as usize].exact(), Ok(1));
++    assert!(work.sums.checked_lme().exact().unwrap() > 0);
++    let mut sum = ExactWideSum::new();
++    sum.add_binary64(1., false).unwrap();
++    sum.signum().unwrap();
++    sum.test_seed_term_work(u64::MAX);
++    let mut work = NumericWork::new();
++    let result = scalar_owned(
++        &mut work,
++        Entry::Div,
++        &Endpoint::ONE,
++        &Endpoint::ZERO,
++        Toward::Up,
++        WideContext::<16>::new(1024).unwrap(),
++        sum,
++    );
++    assert_eq!(result, Err(NumericError::NonpositiveDenominator));
++    // Numeric refusal and failed aggregate work extraction coexist.
++    assert!(!work.status().is_exact());
++    assert_eq!(
++        work.checked(result),
++        Err(NumericError::NonpositiveDenominator)
++    );
++    let mut sum = ExactWideSum::new();
++    sum.test_seed_term_work(u64::MAX - 2);
++    let mut work = NumericWork::new();
++    let p = [
++        lift(3.).unwrap(),
++        Endpoint::ONE,
++        lift(4.).unwrap(),
++        Endpoint::ONE,
++    ];
++    assert!(r4_owned(
++        &mut work,
++        &p,
++        Toward::Down,
++        WideContext::<16>::new(1024).unwrap(),
++        sum
++    )
++    .is_err());
++    assert!(!work.status().is_exact());
++    assert!(work.sums.term_limbs >= u64::MAX - 2);
++}
++#[test]
++fn product_certificate_checked_merge_blocks_success_and_keeps_numeric_cause() {
++    let mut work = NumericWork::new();
++    let mut seeded = ExactWideSum::new();
++    seeded.test_seed_term_work(u64::MAX);
++    work.sums = seeded.work();
++    let result = scalar_owned(
++        &mut work,
++        Entry::Add,
++        &Endpoint::ONE,
++        &Endpoint::ONE,
++        Toward::Up,
++        WideContext::<16>::new(1024).unwrap(),
++        ExactWideSum::new(),
++    );
++    assert!(matches!(
++        result,
++        Err(NumericError::Arithmetic(AttemptStop::WorkAccounting(_)))
++    ));
++    assert!(!work.status().is_exact());
++    let cause = Err::<(), _>(NumericError::InvalidGeometry);
++    assert_eq!(work.checked(cause.clone()), cause);
++}
++
++#[test]
++fn product_certificate_b64u_zero_normal_successor_underflow_and_overflow() {
++    let one = Endpoint::ONE;
++    let mut work = NumericWork::new();
++    let half_ulp = shift(&one, -54).unwrap();
++    let successor_input = work
++        .scalar(Entry::Add, &one, &half_ulp, Toward::Up)
++        .unwrap();
++    let max = lift(f64::MAX).unwrap();
++    let small = shift(&one, 969).unwrap();
++    let max_successor = work.scalar(Entry::Add, &max, &small, Toward::Up).unwrap();
++    for (x, expected, early) in [
++        (Endpoint::ZERO, 0., false),
++        (one, 1., false),
++        (successor_input, f64::from_bits(1.0f64.to_bits() + 1), false),
++        (shift(&one, -1075).unwrap(), f64::from_bits(1), false),
++        (shift(&one, -1074).unwrap(), f64::from_bits(1), false),
++        (max_successor, f64::INFINITY, false),
++        (shift(&one, 1024).unwrap(), f64::INFINITY, true),
++    ] {
++        let (result, sums) = directed::binary64_up_spent(&x).into_parts();
++        assert_eq!(result.as_ref().unwrap().to_bits(), expected.to_bits());
++        assert_eq!(
++            directed::binary64_up(&x).unwrap().to_bits(),
++            expected.to_bits()
++        );
++        assert!(sums.checked_lme().status().is_exact());
++        if early || x.is_zero() {
++            assert_eq!(sums.checked_lme().exact(), Ok(0));
++        } else {
++            assert!(sums.checked_lme().exact().unwrap() > 0);
++        }
++        let mut collector = NumericWork::new();
++        let collected = collector.binary64_up(&x);
++        assert_eq!(collector.entries[Entry::B64U as usize].exact(), Ok(1));
++        assert_eq!(collector.wide.checked_lme().exact(), Ok(0));
++        assert_eq!(collector.sums, sums);
++        if expected.is_infinite() {
++            assert_eq!(collected, Err(NumericError::Binary64Range));
++        } else {
++            assert_eq!(collected.unwrap().to_bits(), expected.to_bits());
++        }
++    }
++}
++#[test]
++fn product_certificate_b64u_each_refusal_prefix_and_collection_status() {
++    let x = lift(1.).unwrap();
++    let mut first = ExactWideSum::new();
++    first.add_wide(&x, false).unwrap();
++    let first_work = first.work();
++    first.add_binary64(1., true).unwrap();
++    let two_work = first.work();
++    let prefixes = [
++        (0, 0),
++        (first_work.checked_lme().exact().unwrap(), 1),
++        (two_work.checked_lme().exact().unwrap(), 2),
++    ];
++    for (budget, stage) in prefixes {
++        let mut sum = ExactWideSum::new();
++        sum.test_seed_term_work(u64::MAX - budget);
++        let (result, sums) = directed::test_binary64_up_owned(&x, 1., sum).into_parts();
++        assert!(result.is_err(), "stage {stage}");
++        assert!(!sums.checked_lme().status().is_exact());
++        assert!(sums.term_limbs >= u64::MAX - budget);
++        if stage == 0 {
++            assert_eq!(sums.term_limbs, u64::MAX);
++        }
++        if stage == 1 {
++            assert_eq!(sums.term_limbs, u64::MAX - budget + first_work.term_limbs);
++        }
++        if stage == 2 {
++            assert_eq!(sums.term_limbs, u64::MAX - budget + two_work.term_limbs);
++        }
++        let mut collector = NumericWork::new();
++        let saved = result.clone();
++        let collected = collector.collect_binary64(result, sums);
++        assert_eq!(collected, saved.map_err(NumericError::Arithmetic));
++        assert!(!collector.status().is_exact());
++    }
++    let mut collector = NumericWork::new();
++    let mut sum = ExactWideSum::new();
++    sum.test_seed_term_work(u64::MAX);
++    collector.sums = sum.work();
++    let (result, sums) = directed::binary64_up_spent(&x).into_parts();
++    assert!(matches!(
++        collector.collect_binary64(result, sums),
++        Err(NumericError::Arithmetic(AttemptStop::WorkAccounting(_)))
++    ));
++    assert!(!collector.status().is_exact());
++    assert_eq!(
++        collector.collect_binary64(Err(AttemptStop::Exponent), SumWork::default()),
++        Err(NumericError::Arithmetic(AttemptStop::Exponent))
++    );
++}
+--- /dev/null
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_vectors.rs
+@@ -0,0 +1,164 @@
++// Generated only by product_certificate_vectors.py; exact rational targets.
++#[rustfmt::skip]
++pub(super) const CASES: &[(&str, u8, [u64; 2], [u64; 9], [u64; 7], &[(&str, &str)], &[&str])] = &[
++    ("exact_normal", 0, [4616189618054758400, 4607182418800017408],
++     [4776193285385355264, 4599075939470750515, 0, 0, 0, 0, 0, 0, 0],
++     [4776193285385355264, 4770101698065677076, 4621256167635550208, 4629137466983448576, 4624633867356078080, 4624633867356078080, 4619567317775286272], &[
++        ("+8p1", "+8p1"),
++        ("+8p0", "+8p0"),
++        ("+cp1", "+cp1"),
++        ("+ap2", "+ap2"),
++        ("+fp3", "+fp3"),
++        ("+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b45p3", "+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b48p3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p3", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p4", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap4"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p2", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap2"),
++        ("+c393e6dp37", "+c393e6dp37"),
++        ("+9671c53d89d89de66d65afb74a39c8e0dc1d5d19fc2cd924fe60ad877e0f793a141c049c584a99e4fd8caefb4199c7fe7df586ed4af13a2620f09206bbd503c58059dcc25bb38d3b4afe0173822f86f312770c0158530bbc9807634a0bb8740ec9782d910f0c57de71571e30a5226180d3264551edc5d91f7a03461c2afbc499p36", "+9671c53d89d89de66d65afb74a39c8e0dc1d5d19fc2cd924fe60ad877e0f793a141c049c584a99e4fd8caefb4199c7fe7df586ed4af13a2620f09206bbd503c58059dcc25bb38d3b4afe0173822f86f312770c0158530bbc9807634a0bb8740ec9782d910f0c57de71571e30a5226180d3264551edc5d91f7a03461c2afbc49ap36"),
++        ("+e668db6178c8ed3f76adf5f7727a17317c9bf3d30e776c70b74bb296f6ec295940e66c53075390272f5bbe2680b5f91100e59789d0a3c71fa2884d15e7a22914f168a4c2p40", "+e668db6178c8ed3f76adf5f7727a17317c9bf3d30e776c70b74bb296f6ec295940e66c53075390272f5bbe2680b5f91100e59789d0a3c71fa2884d15e7a229153ac01b5p40"),
++        ("+dd8c356791ad8231aadbd3a03176beb644047e41fe5e586eda6540a3d8b709839a406a866dd63435d52d75dec4805589b087c22eab48456d838466d7150b9247885efb65071ef0f175870318130a6d34a1da84f8066a968afca098a17cab6939005ded390705acec8891fbb58d56b8f194e9aacd21ace36f54b7e0b243021d2p40", "+dd8c356791ad8231aadbd3a03176beb644047e41fe5e586eda6540a3d8b709839a406a866dd63435d52d75dec4805589b087c22eab48456d838466d7150b9247cee44fd9dfbc7af578cead75fdd5835e0908489c349f9c5453dde9f8ffc2aa0c39cb0f625068a50fdf6bedbb5416ceb0dff4c20c5ccdf6b13428a5256b0df6e6p40"),
++        ("+9001891ceb7d9447aa2cb9baa78c4e7eede17863e90aa3c6728f4f9e5a5399d7c89003b3e4943a187d9956d81071bbaaa08f7eb622665c73c595302db0c559ad16e166f94p41", "+9001891ceb7d9447aa2cb9baa78c4e7eede17863e90aa3c6728f4f9e5a5399d7c89003b3e4943a187d9956d81071bbaaa08f7eb622665c73c595302db0c559ad44b81112p41"),
++        ("+9001891ceb7d9447aa2cb9baa78c4e7eede17863e90aa3c6728f4f9e5a5399d7c89003b3e4943a187d9956d81071bbaaa08f7eb622665c73c595302db0c559ad16e166f94p41", "+9001891ceb7d9447aa2cb9baa78c4e7eede17863e90aa3c6728f4f9e5a5399d7c89003b3e4943a187d9956d81071bbaaa08f7eb622665c73c595302db0c559ad44b81112p41"),
++        ("Z+", "Z+"),
++     ], &["+dc0663aap40", "+8d0aa8e9b13b16p41", "+b75aa863p41", "+b75aa863p41", "+a6277b778c8ed3f76adf5f7727a17317c9bf3d30e776c70b74bb296f6ec295940e66c53075390272f5bbe2680b5f91100e59789d0a3c71fa2884d15e7a229153ac01b5p36", "+f22471af4322a7395490b17f3a250526efee06f806869e44966afd709d23d9f196fe55e648a72f28ab4a2884edfea9d93de0f74552deea49f1ee64a3abd1b6e1de84126be3843c3a29e3f39fb3d64b2d7895ec1fe655a5d40d7d9d7a0d525b1bfe884b1be3e94c4dddb81129caa51c39ac5954cb794c7242ad207d36f3f78b7fp38", "+9d647d185209aee1574d191561cec604487a1e705bd570e635c2c18696b198a0ddbff1306daf179e099aa49fbe3911557dc2052776668e30e9ab3f493cea994ba47a641bp39", "+9d647d185209aee1574d191561cec604487a1e705bd570e635c2c18696b198a0ddbff1306daf179e099aa49fbe3911557dc2052776668e30e9ab3f493cea994ba47a641bp39"]),
++    ("ordinary_exact_product", 1, [4616189618054758400, 4607182418800017408],
++     [4607182418800017409, 4607182418800017409, 0, 0, 0, 0, 0, 0, 0],
++     [4607182418800017409, 4607182418800017409, 4607182418800017409, 4607182418800017409, 4607182418800017409, 4607182418800017409, 4611686018427387904], &[
++        ("+8p1", "+8p1"),
++        ("+8p0", "+8p0"),
++        ("+cp1", "+cp1"),
++        ("+ap2", "+ap2"),
++        ("+fp3", "+fp3"),
++        ("+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b45p3", "+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b48p3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p3", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p4", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap4"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p2", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap2"),
++        ("+80000000000008p0", "+80000000000008p0"),
++        ("+80000000000008p0", "+80000000000008p0"),
++        ("+96cbe3f9990e9b1451d4637989bf8ed62b604490b927a7431d31357989e4247249e7512015ec9f75ec1585f14a26198f6154b57130ec956b80660f6e86efe972de81211fd51b45p3", "+96cbe3f9990e9b1451d4637989bf8ed62b604490b927a7431d31357989e4247249e7512015ec9f75ec1585f14a26198f6154b57130ec956b80660f6e86efe9730e81211fd51b48p3"),
++        ("+bc7edcf7ff5241d966497c57ec2f728bb63855b4e7719113e47d82d7ec5d2d8edc6125681b67c753671ae76d9caf9ff339a9e2cd7d27bac6607f934a28abe3cf96216967ca62164p4", "+bc7edcf7ff5241d966497c57ec2f728bb63855b4e7719113e47d82d7ec5d2d8edc6125681b67c753671ae76d9caf9ff339a9e2cd7d27bac6607f934a28abe3cfd2216967ca621ap4"),
++        ("+bc7edcf7ff5241d966497c57ec2f728bb63855b4e7719113e47d82d7ec5d2d8edc6125681b67c753671ae76d9caf9ff339a9e2cd7d27bac6607f934a28abe3cf96216967ca62164p3", "+bc7edcf7ff5241d966497c57ec2f728bb63855b4e7719113e47d82d7ec5d2d8edc6125681b67c753671ae76d9caf9ff339a9e2cd7d27bac6607f934a28abe3cfd2216967ca621ap3"),
++        ("+bc7edcf7ff5241d966497c57ec2f728bb63855b4e7719113e47d82d7ec5d2d8edc6125681b67c753671ae76d9caf9ff339a9e2cd7d27bac6607f934a28abe3cf96216967ca62164p3", "+bc7edcf7ff5241d966497c57ec2f728bb63855b4e7719113e47d82d7ec5d2d8edc6125681b67c753671ae76d9caf9ff339a9e2cd7d27bac6607f934a28abe3cfd2216967ca621ap3"),
++        ("+80000000000008p-1", "+8p1"),
++     ], &["+800000000000100000000000008p0", "+800000000000100000000000008p0", "+800000000000100000000000008p0", "+800000000000100000000000008p0", "+86cbe3f9990e991451d4637989af8ed62b604490b927a7431d31357989e4247249e7512015ec9f75ec1585f14a26198f6154b57130ec956b80660f6e86efe9730e81211fd51b48p3", "+b47edcf7ff5240d966497c57ec27728bb63855b4e7719113e47d82d7ec5d2d8edc6125681b67c753671ae76d9caf9ff339a9e2cd7d27bac6607f934a28abe3cfd2216967ca621ap4", "+ac7edcf7ff523fd966497c57ec1f728bb63855b4e7719113e47d82d7ec5d2d8edc6125681b67c753671ae76d9caf9ff339a9e2cd7d27bac6607f934a28abe3cfd2216967ca621ap3", "+ac7edcf7ff523fd966497c57ec1f728bb63855b4e7719113e47d82d7ec5d2d8edc6125681b67c753671ae76d9caf9ff339a9e2cd7d27bac6607f934a28abe3cfd2216967ca621ap3"]),
++    ("interpolated_negative_e", 2, [4616189618054758400, 4607182418800017408],
++     [0, 4607182418800017408, 4611686018427387904, 13830554455654793216, 4613937818241073152, 4611686018427387904, 4618441417868443648, 4607182418800017408, 4616189618054758400],
++     [4607182418800017408, 4616189618054758400, 4621256167635550208, 4629137466983448576, 4624633867356078080, 4624633867356078080, 4619567317775286272], &[
++        ("+8p1", "+8p1"),
++        ("+8p0", "+8p0"),
++        ("+cp1", "+cp1"),
++        ("+ap2", "+ap2"),
++        ("+fp3", "+fp3"),
++        ("+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b45p3", "+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b48p3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p3", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p4", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap4"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p2", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap2"),
++        ("+8p0", "+8p0"),
++        ("+8p2", "+8p2"),
++        ("+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b45p3", "+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b48p3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p6", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap6"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p3", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p3", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap3"),
++        ("+ep2", "+fp2"),
++     ], &["+9p3", "+fp6", "+fp3", "+fp3", "+d97c7f3321d234f272993d1414a2b39bd83750ccf9bb2ae03119df9589d68b379ef0cb6554e074ce75fa68db3d764a8c8408fa4eb8e9e52f7d1d02423faa369p-2", "+ce048c2002b727ba1e180e74dcc693efa6375b5ff8fac14cf853f510a2767a3f4f2a60382abcedbfbd90df9dbe65845a0b5e98e3b31b7430947377a5a60d677a7p4", "+ce048c2002b727ba1e180e74dcc693efa6375b5ff8fac14cf853f510a2767a3f4f2a60382abcedbfbd90df9dbe65845a0b5e98e3b31b7430947377a5a60d677a7p1", "+ce048c2002b727ba1e180e74dcc693efa6375b5ff8fac14cf853f510a2767a3f4f2a60382abcedbfbd90df9dbe65845a0b5e98e3b31b7430947377a5a60d677a7p1"]),
++    ("thin_cancellation", 1, [4607182418800017408, 4156822456062967808],
++     [4611686018427387904, 4613937818241073152, 0, 0, 0, 0, 0, 0, 0],
++     [4611686018427387904, 4613937818241073152, 4165829655317708800, 4147815256808226816, 4143311657180856320, 4143311657180856320, 4147815256808226816], &[
++        ("+8p-1", "+8p-1"),
++        ("+ffffffffffffffffffffffffep-2", "+ffffffffffffffffffffffffep-2"),
++        ("+fffffffffffffffffffffffffp-101", "+fffffffffffffffffffffffffp-101"),
++        ("+ffffffffffffffffffffffffe0000000000000000000000002p-2", "+ffffffffffffffffffffffffe0000000000000000000000002p-2"),
++        ("+ffffffffffffffffffffffffd0000000000000000000000003ffffffffffffffffffffffffep-102", "+ffffffffffffffffffffffffd0000000000000000000000003ffffffffffffffffffffffffep-102"),
++        ("+c90fdaa22168c234c4c6628b744b1f2706ebc1e53e1b664b49fdfcd928837641c8a38bb24e1348f38be3e001a825a2939747ca201365c29c130d913bba4f119ee0da0ebc8b01eca9292ae3dba4p-99", "+c90fdaa22168c234c4c6628b744b1f2706ebc1e53e1b664b49fdfcd928837641c8a38bb24e1348f38be3e001a825a2939747ca201365c29c130d913bba4f119f20da0ebc8b01eca9292ae3dbap-99"),
++        ("+c90fdaa22168c234c4c6628b5b2923d2c2bea99ea58299f9dd06b8a98be8cf898a69abadfbbc1f96b4e148bd398d67e9e4195cfb543a4d88619a2400ac023eecc5851e290bf085c6d90f913c080b89ada6c5dd8d524f41a7c941b41d791603d9525255c7b748p-102", "+c90fdaa22168c234c4c6628b5b2923d2c2bea99ea58299f9dd06b8a98be8cf898a69abadfbbc1f96b4e148bd398d67e9e4195cfb543a4d88619a2400ac023eed05851e290bf085c6d90f913bfc0b89ada6c5dd8d524f41a7ca41b41d791603d9525255c7b74p-102"),
++        ("+c90fdaa22168c234c4c6628b5b2923d2c2bea99ea58299f9dd06b8a98be8cf898a69abadfbbc1f96b4e148bd398d67e9e4195cfb543a4d88619a2400ac023eecc5851e290bf085c6d90f913c080b89ada6c5dd8d524f41a7c941b41d791603d9525255c7b748p-101", "+c90fdaa22168c234c4c6628b5b2923d2c2bea99ea58299f9dd06b8a98be8cf898a69abadfbbc1f96b4e148bd398d67e9e4195cfb543a4d88619a2400ac023eed05851e290bf085c6d90f913bfc0b89ada6c5dd8d524f41a7ca41b41d791603d9525255c7b74p-101"),
++        ("+c90fdaa22168c234c4c6628b5b2923d2c2bea99ea58299f9dd06b8a98be8cf898a69abadfbbc1f96b4e148bd398d67e9e4195cfb543a4d88619a2400ac023eecc5851e290bf085c6d90f913c080b89ada6c5dd8d524f41a7c941b41d791603d9525255c7b748p-101", "+c90fdaa22168c234c4c6628b5b2923d2c2bea99ea58299f9dd06b8a98be8cf898a69abadfbbc1f96b4e148bd398d67e9e4195cfb543a4d88619a2400ac023eed05851e290bf085c6d90f913bfc0b89ada6c5dd8d524f41a7ca41b41d791603d9525255c7b74p-101"),
++        ("+8p1", "+8p1"),
++        ("+cp1", "+cp1"),
++        ("+c90fdaa22168c234c4c6628b744b1f2706ebc1e53e1b664b49fdfcd928837641c8a38bb24e1348f38be3e001a825a2939747ca201365c29c130d913bba4f119ee0da0ebc8b01eca9292ae3dba4p-98", "+c90fdaa22168c234c4c6628b744b1f2706ebc1e53e1b664b49fdfcd928837641c8a38bb24e1348f38be3e001a825a2939747ca201365c29c130d913bba4f119f20da0ebc8b01eca9292ae3dbap-98"),
++        ("+96cbe3f9990e91a79394c9e8845edade120eff36fc21f37b65c50a7f28ee9ba727cf40c27ccd17b107a8f68deb2a0def6b1305bc7f2bba2649339b008101af319423d69ec8f4645522cbaced0608a7423d146629fdbb713dd6f147161ad082e2fdbdc055c976p-99", "+96cbe3f9990e91a79394c9e8845edade120eff36fc21f37b65c50a7f28ee9ba727cf40c27ccd17b107a8f68deb2a0def6b1305bc7f2bba2649339b008101af31c423d69ec8f4645522cbacecfd08a7423d146629fdbb713dd7b147161ad082e2fdbdc055c97p-99"),
++        ("+c90fdaa22168c234c4c6628b5b2923d2c2bea99ea58299f9dd06b8a98be8cf898a69abadfbbc1f96b4e148bd398d67e9e4195cfb543a4d88619a2400ac023eecc5851e290bf085c6d90f913c080b89ada6c5dd8d524f41a7c941b41d791603d9525255c7b748p-101", "+c90fdaa22168c234c4c6628b5b2923d2c2bea99ea58299f9dd06b8a98be8cf898a69abadfbbc1f96b4e148bd398d67e9e4195cfb543a4d88619a2400ac023eed05851e290bf085c6d90f913bfc0b89ada6c5dd8d524f41a7ca41b41d791603d9525255c7b74p-101"),
++        ("+c90fdaa22168c234c4c6628b5b2923d2c2bea99ea58299f9dd06b8a98be8cf898a69abadfbbc1f96b4e148bd398d67e9e4195cfb543a4d88619a2400ac023eecc5851e290bf085c6d90f913c080b89ada6c5dd8d524f41a7c941b41d791603d9525255c7b748p-101", "+c90fdaa22168c234c4c6628b5b2923d2c2bea99ea58299f9dd06b8a98be8cf898a69abadfbbc1f96b4e148bd398d67e9e4195cfb543a4d88619a2400ac023eed05851e290bf085c6d90f913bfc0b89ada6c5dd8d524f41a7ca41b41d791603d9525255c7b74p-101"),
++        ("+8p-102", "+8p-102"),
++     ], &["+8p-97", "+cp-101", "+8p-102", "+8p-102", "+dbc095777a5cf72cece675d22ed38363e450f86b079266d2d8080c9b5df226f8dd71d136c7b2dc31d0707ff95f6975b1a2e0d77fb268f58fb3c9bb1116c3b9847c97c50dd3f84d5b5b5470917p-100", "+cd97c7f3321d234f272993d108bdb5bc241dfe6df843e6f6cb8a14fe51dd374e4f9e8184f99a2f620f51ed1bd6541bded6260b78fe57744c9267360102035e638847ad3d91e8c8aa459759d9fa114e847a28cc53fb76e27baf628e2c35a105c5fb7b80ab92ep-100", "+890fdaa22168c234c4c6628b5b2923d2c2bea99ea58299f9dd06b8a98be8cf898a69abadfbbc1f96b4e148bd398d67e9e4195cfb543a4d88619a2400ac023eed05851e290bf085c6d90f913bfc0b89ada6c5dd8d524f41a7ca41b41d791603d9525255c7b74p-101", "+890fdaa22168c234c4c6628b5b2923d2c2bea99ea58299f9dd06b8a98be8cf898a69abadfbbc1f96b4e148bd398d67e9e4195cfb543a4d88619a2400ac023eed05851e290bf085c6d90f913bfc0b89ada6c5dd8d524f41a7ca41b41d791603d9525255c7b74p-101"]),
++    ("subnormal_geometry_material", 1, [4, 1],
++     [1, 1, 0, 0, 0, 0, 0, 0, 0],
++     [1, 1, 1, 1, 1, 1, 1], &[
++        ("+8p-1073", "+8p-1073"),
++        ("+8p-1074", "+8p-1074"),
++        ("+cp-2147", "+cp-2147"),
++        ("+ap-2146", "+ap-2146"),
++        ("+fp-4293", "+fp-4293"),
++        ("+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b45p-2145", "+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b48p-2145"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p-4293", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap-4293"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p-4292", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap-4292"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p-3220", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap-3220"),
++        ("+8p-1074", "+8p-1074"),
++        ("+8p-1074", "+8p-1074"),
++        ("+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b45p-3219", "+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b48p-3219"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p-5366", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap-5366"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p-5367", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap-5367"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p-5367", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap-5367"),
++        ("+8p-1074", "+8p-1"),
++     ], &["+8p-2148", "+8p-2148", "+8p-2148", "+8p-2148", "+8p-2148", "+8p-2148", "+8p-2148", "+8p-2148"]),
++    ("ratio_amplification", 0, [4616189618054758400, 4607182418800017408],
++     [4607182418800017408, 13830554455654793215, 0, 0, 0, 0, 0, 0, 0],
++     [4607182418800017408, 4841369599423283200, 4607182418800017408, 4607182418800017408, 4607182418800017408, 4607182418800017408, 4607182418800017408], &[
++        ("+8p1", "+8p1"),
++        ("+8p0", "+8p0"),
++        ("+cp1", "+cp1"),
++        ("+ap2", "+ap2"),
++        ("+fp3", "+fp3"),
++        ("+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b45p3", "+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b48p3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p3", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p4", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap4"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p2", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap2"),
++        ("+8p0", "+8p0"),
++        ("+8p52", "+8p52"),
++        ("+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b45p3", "+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b48p3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p56", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap56"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p3", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p3", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap3"),
++        ("Z+", "Z+"),
++     ], &["+8p0", "+8p52", "+8p0", "+8p0", "+86cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b48p3", "+b47edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap56", "+ac7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap3", "+ac7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap3"]),
++    ("interpolated_wide_span", 2, [4616189618054758400, 4607182418800017408],
++     [18442240474082181119, 0, 9218868437227405311, 1, 4607182418800017408, 1, 4607182418800017408, 4602678819172646912, 4602678819172646912],
++     [4602678819172646912, 4602678819172646912, 4607182418800017408, 4607182418800017408, 4607182418800017408, 4607182418800017408, 4607182418800017408], &[
++        ("+8p1", "+8p1"),
++        ("+8p0", "+8p0"),
++        ("+cp1", "+cp1"),
++        ("+ap2", "+ap2"),
++        ("+fp3", "+fp3"),
++        ("+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b45p3", "+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b48p3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p3", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p4", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap4"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p2", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap2"),
++        ("+8p-1", "+8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001p-1"),
++        ("+8p-1", "+8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001p-1"),
++        ("+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b45p2", "+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b480000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001p2"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p3", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001p3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p2", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001p2"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p2", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001p2"),
++        ("+8p-1", "+8p0"),
++     ], &["+8p-1", "+8p-1", "+8p-1", "+8p-1", "+86cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b480000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001p2", "+b47edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001p3", "+ac7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001p2", "+ac7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001p2"]),
++    ("interpolated_cancellation_span", 2, [4616189618054758400, 4607182418800017408],
++     [14280914418391842816, 0, 5057542381537067008, 13830554455654793216, 4607182418800017409, 1, 3, 4368491638549381120, 2],
++     [4368491638549381120, 2, 4607182418800017408, 4607182418800017408, 4607182418800017408, 4607182418800017408, 4607182418800017408], &[
++        ("+8p1", "+8p1"),
++        ("+8p0", "+8p0"),
++        ("+cp1", "+cp1"),
++        ("+ap2", "+ap2"),
++        ("+fp3", "+fp3"),
++        ("+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b45p3", "+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b48p3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p3", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap3"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p4", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap4"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p2", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap2"),
++        ("+8p-53", "+8p-53"),
++        ("+8p-1073", "+8p-1073"),
++        ("+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b45p-50", "+96cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b48p-50"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p-1069", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap-1069"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p-50", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap-50"),
++        ("+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca62164p-50", "+bc7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap-50"),
++        ("+8p-1", "+8p0"),
++     ], &["+8p-53", "+8p-1073", "+8p-53", "+8p-53", "+86cbe3f9990e91a79394c9e8a0a5159cdec1ba8667cdd9570188cefcac4eb459bcf7865b2aa703a673afd346d9ebb254642047d275c74f297be8e81211fd51b48p-50", "+b47edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap-1069", "+ac7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap-50", "+ac7edcf7ff5236117879fc62c8ce5b041672292801c14facc1eb02bbd76261702c3567f1f550c490109bc81890669ee97d2859c7133922f3dae32216967ca621ap-50"]),
++];
+--- /dev/null
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_vectors.py
+@@ -0,0 +1,80 @@
++#!/usr/bin/env python3
++"""I41 exact standard-library oracle. No product arithmetic imports or execution.
++Bounded binary64 Fractions and 128-term Machin proof; no exponent-sized input.
++Run with --write to regenerate only this new fixture, or default to verify it.
++"""
++from fractions import Fraction as F
++from pathlib import Path
++import json, struct, sys, hashlib
++
++def bits(x): return struct.unpack('>Q',struct.pack('>d',x))[0]
++def frac(x): return F.from_float(x)
++def token(x, up=False):
++    if x == 0: return 'Z+'
++    sign=x<0; x=abs(x)
++    e=x.numerator.bit_length()-x.denominator.bit_length()
++    if x < (F(2)**e): e-=1
++    step=F(2)**(e-1023)
++    m=x//step
++    if x != m*step and (up != sign): m+=1
++    if m.bit_length()>1024: m//=2; e+=1
++    return ('-' if sign else '+')+format(m,'0256x').rstrip('0')+'p'+str(e)
++
++def atan(q):
++    s=sum((F((-1)**k,(2*k+1)*q**(2*k+1)) for k in range(128)),F())
++    return s,s+F(1,257*q**257)
++a,b=atan(5),atan(239)
++plo,phi=16*a[0]-4*b[1],16*a[1]-4*b[0]
++scale=2**512
++pn=plo*scale//1; un=-(-phi*scale//1)
++assert un-pn==1
++assert hex(pn)[2:]=='3243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e638d01377be5466cf34e90c6cc0ac29b7c97c50dd3f84d5b5b5470917'
++assert F(pn,scale)<plo<phi<F(un,scale)
++assert phi-plo<F(1,2**600)
++pi=(F(pn,scale),F(un,scale))
++# mode, D, effective t, material operands [E,nu] / [E,G] /
++# [Tlo,T,Thi,Elo,Ehi,Glo,Ghi,Ehat,Ghat]; K [E,G,A,J,Iz,Iy,Zhat].
++x=float.fromhex('0x1.0000000000001p0'); h=float.fromhex('0x0.0000000000001p-1022')
++cases=[
++ ('exact_normal',0,4.,1.,[210e9,.3],[210e9,210e9/2.6,9.,30.,15.,15.,7.]),
++ ('ordinary_exact_product',1,4.,1.,[x,x],[x,x,x,x,x,x,2.]),
++ ('interpolated_negative_e',2,4.,1.,[0.,1.,2.,-1.,3.,2.,6.,1.,4.],[1.,4.,9.,30.,15.,15.,7.]),
++ ('thin_cancellation',1,1.,2.**-100,[2.,3.],[2.,3.,2.**-98,2.**-102,2.**-103,2.**-103,2.**-102]),
++ ('subnormal_geometry_material',1,4*h,h,[h,h],[h,h,h,h,h,h,h]),
++ ('ratio_amplification',0,4.,1.,[1.,float.fromhex('-0x1.fffffffffffffp-1')],[1.,2.**52,1.,1.,1.,1.,1.]),
++ ('interpolated_wide_span',2,4.,1.,[-float.fromhex('0x1.fffffffffffffp1023'),0.,float.fromhex('0x1.fffffffffffffp1023'),h,1.,h,1.,.5,.5],[.5,.5,1.,1.,1.,1.,1.]),
++ ('interpolated_cancellation_span',2,4.,1.,[-2.**100,0.,2.**100,-1.,float.fromhex('0x1.0000000000001p0'),h,3*h,2.**-53,2*h],[2.**-53,2*h,1.,1.,1.,1.,1.]),
++]
++lines=['// Generated only by product_certificate_vectors.py; exact rational targets.', '#[rustfmt::skip]', 'pub(super) const CASES: &[(&str, u8, [u64; 2], [u64; 9], [u64; 7], &[(&str, &str)], &[&str])] = &[']
++for name,mode,D,t,mat,k in cases:
++    d,w=frac(D),frac(t); c=d/2; ri=c-w; p=w*(d-w); q=c*c+ri*ri; g=p*q
++    assert 0<w<c and p==c*c-ri*ri and g==c**4-ri**4
++    a=(pi[0]*p,pi[1]*p); i=(pi[0]*g/4,pi[1]*g/4); j=(2*i[0],2*i[1]); z=(i[0]/c,i[1]/c)
++    m=list(map(frac,mat)); kk=list(map(frac,k))
++    if mode==0: E=(m[0],m[0]); G=(m[0]/(2*(1+m[1])),)*2
++    elif mode==1: E=(m[0],)*2; G=(m[1],)*2
++    else:
++        tl,T,th,el,eh,gl,gh,ea,ga=m
++        assert tl<T<th
++        def interp(lo,hi,actual):
++            numerator=th*lo-T*lo+T*hi-tl*hi
++            assert numerator==(th-T)*lo+(T-tl)*hi and numerator>0
++            val=numerator/(th-tl)
++            return min(val,actual),max(val,actual)
++        E=interp(el,eh,ea); G=interp(gl,gh,ga)
++    C=[(E[0]*a[0],E[1]*a[1]),(G[0]*j[0],G[1]*j[1]),(E[0]*i[0],E[1]*i[1]),(E[0]*i[0],E[1]*i[1])]
++    CK=[kk[0]*kk[2],kk[1]*kk[3],kk[0]*kk[4],kk[0]*kk[5]]
++    delta=[max(abs(lo-v),abs(hi-v)) for (lo,hi),v in zip(C,CK)]
++    rz=(min(kk[4]/c,kk[6]),max(kk[4]/c,kk[6])) if mode else (F(),F())
++    intervals=[(c,c),(ri,ri),(p,p),(q,q),(g,g),a,i,j,z,E,G,*C,rz]
++    vals=mat+[0.]*(9-len(mat))
++    lines += [f'    ("{name}", {mode}, [{bits(D)}, {bits(t)}],', '     ['+', '.join(str(bits(v)) for v in vals)+'],', '     ['+', '.join(str(bits(v)) for v in k)+'], &[']
++    lines += [f'        ("{token(lo)}", "{token(hi,True)}"),' for lo,hi in intervals]
++    lines += ['     ], &['+', '.join('"'+token(v,True)+'"' for v in CK+delta)+']),']
++lines+= ['];','']
++text='\n'.join(lines); path=Path(__file__).with_suffix('.rs')
++if '--write' in sys.argv: path.write_text(text)
++else: assert path.read_text()==text, 'frozen fixture differs'
++assert frac(x)*frac(x)-frac(x*x)==F(1,2**104)
++assert (F(25)*-7-F(7)*-7+F(7)*18)==0
++print(json.dumps({'cases':len(cases),'pi_bracket':'128-term rational Machin, adjacent 2^-512 grid','exact_K_discriminator':'2^-104','fixture_sha256':hashlib.sha256(text.encode()).hexdigest()},indent=2))

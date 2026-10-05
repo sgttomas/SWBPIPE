@@ -1,0 +1,94 @@
+{
+ "M": 4026531840,
+ "R": 67108864,
+ "modes": {
+  "sparse": {
+   "EPS6": {
+    "O_without_T25": 245209549,
+    "T25": 3074072410,
+    "text_TAV": 1540955362,
+    "T11": 204912,
+    "T12_T15": 68293632,
+    "branch_X_selected": {
+     "E_req": 4860442233,
+     "E_mov": 5476702565,
+     "E_mov_plus_R": 5543811429,
+     "fits_M": false,
+     "headroom": -1517279589
+    },
+    "branch_W_w1_G3_part": {
+     "E_req": 1854663455,
+     "E_mov": 1863052063,
+     "E_mov_plus_R": 1930160927,
+     "fits_M": true,
+     "headroom_for_G4": 2096370913
+    }
+   },
+   "EPS2": {
+    "O_without_T25": 245209549,
+    "T25": 1439324474,
+    "text_TAV": 1540955362,
+    "T11": 204912,
+    "T12_T15": 68293632,
+    "branch_X_selected": {
+     "E_req": 3225694297,
+     "E_mov": 3433267645,
+     "E_mov_plus_R": 3500376509,
+     "fits_M": true,
+     "headroom": 526155331
+    },
+    "branch_W_w1_G3_part": {
+     "E_req": 1854663455,
+     "E_mov": 1863052063,
+     "E_mov_plus_R": 1930160927,
+     "fits_M": true,
+     "headroom_for_G4": 2096370913
+    }
+   }
+  },
+  "dense": {
+   "EPS6": {
+    "O_without_T25": 264919997,
+    "T25": 3074072410,
+    "text_TAV": 1540955362,
+    "T11": 204912,
+    "T12_T15": 68293632,
+    "branch_X_selected": {
+     "E_req": 4880152681,
+     "E_mov": 5496413013,
+     "E_mov_plus_R": 5563521877,
+     "fits_M": false,
+     "headroom": -1536990037
+    },
+    "branch_W_w1_G3_part": {
+     "E_req": 1874373903,
+     "E_mov": 1882762511,
+     "E_mov_plus_R": 1949871375,
+     "fits_M": true,
+     "headroom_for_G4": 2076660465
+    }
+   },
+   "EPS2": {
+    "O_without_T25": 264919997,
+    "T25": 1439324474,
+    "text_TAV": 1540955362,
+    "T11": 204912,
+    "T12_T15": 68293632,
+    "branch_X_selected": {
+     "E_req": 3245404745,
+     "E_mov": 3452978093,
+     "E_mov_plus_R": 3520086957,
+     "fits_M": true,
+     "headroom": 506444883
+    },
+    "branch_W_w1_G3_part": {
+     "E_req": 1874373903,
+     "E_mov": 1882762511,
+     "E_mov_plus_R": 1949871375,
+     "fits_M": true,
+     "headroom_for_G4": 2076660465
+    }
+   }
+  }
+ }
+}

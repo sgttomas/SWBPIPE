@@ -1,0 +1,31 @@
+{
+  "root": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV46/f2a_work_exactness_api_03",
+  "payloads": [
+    {
+      "path": "RETURN.md",
+      "bytes": 1233,
+      "sha256": "faa320d3bb19d61f5324944b3cd706eef671951129fde333a8c38fbc27dae4af"
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "bytes": 1237,
+      "sha256": "6e1cccc9446982069abed0a85620d56a220ccbaf959159a57825a8da519356bf"
+    },
+    {
+      "path": "_run_records/CORRECTION.diff",
+      "bytes": 2976,
+      "sha256": "a1d2b7afa8d448c36ff898c4faf54f8f50a40941b9f5d82f87556c55ed9ec3e7"
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "bytes": 1940,
+      "sha256": "e066b71a1770f3e8ef65648e7413b9b58583133116b4dfac28ec41fe27e922f5"
+    },
+    {
+      "path": "_run_records/SESSION.json",
+      "bytes": 1284,
+      "sha256": "803bb26d9e1324b0e2e92bbfdb7877ba223088811b441e2ba0af00f361c57337"
+    }
+  ],
+  "inventory_and_seal_excluded": true
+}

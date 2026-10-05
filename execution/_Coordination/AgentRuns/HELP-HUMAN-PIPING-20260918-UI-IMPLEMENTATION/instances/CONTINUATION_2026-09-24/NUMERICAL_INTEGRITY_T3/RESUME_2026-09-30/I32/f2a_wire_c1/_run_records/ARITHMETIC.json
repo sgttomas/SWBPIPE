@@ -1,0 +1,579 @@
+{
+  "scope": "Exact integer/JSON arithmetic on existing immutable records, plus integer encoding boundaries; no numerical experiment or new solve.",
+  "examples": [
+    {
+      "id": "RF-RANGE-CHAIN-L-240",
+      "outcome": "Selected at 128",
+      "native_records": [
+        {
+          "corrections": 0,
+          "exact_sum_work": 49506,
+          "gate": "Coalesced",
+          "outcome": "Accepted",
+          "own_work": 3794970,
+          "precision": 128,
+          "residual_basis": 192,
+          "role": "Candidate",
+          "shared_built_here": true,
+          "shared_stages": {
+            "assembly": 3766,
+            "bound": 0,
+            "bounded_formation": 0,
+            "bounded_gate": 0,
+            "charge": 0,
+            "condition": 359022,
+            "estimate": 0,
+            "factor": 318633,
+            "formation": 138270,
+            "recovery": 0,
+            "refinement": 0,
+            "residual_formation": 142561,
+            "rhs": 0,
+            "scale": 0,
+            "shift": 0,
+            "solve": 0,
+            "stop_rule": 0,
+            "uc": 0,
+            "wide_formation": 0
+          },
+          "shared_work": 962252,
+          "stages": {
+            "assembly": 0,
+            "bound": 0,
+            "bounded_formation": 0,
+            "bounded_gate": 0,
+            "charge": 0,
+            "condition": 0,
+            "estimate": 0,
+            "factor": 0,
+            "formation": 0,
+            "recovery": 11382,
+            "refinement": 32644,
+            "residual_formation": 0,
+            "rhs": 296,
+            "scale": 0,
+            "shift": 0,
+            "solve": 50790,
+            "stop_rule": 3749364,
+            "uc": 0,
+            "wide_formation": 0
+          },
+          "stop_rule_work": 3749364,
+          "storage": {
+            "limbs_per_entry": 4,
+            "pattern_entries": 576,
+            "profile_entries": 256
+          },
+          "verification": null,
+          "verification_shared_built_here": false,
+          "verification_shared_work": 0,
+          "verification_work": 0
+        },
+        {
+          "corrections": 0,
+          "exact_sum_work": 28155,
+          "gate": "Coalesced",
+          "outcome": "Verified",
+          "own_work": 190002,
+          "precision": 256,
+          "residual_basis": 320,
+          "role": "Verification",
+          "shared_built_here": true,
+          "shared_stages": {
+            "assembly": 3904,
+            "bound": 0,
+            "bounded_formation": 151165,
+            "bounded_gate": 0,
+            "charge": 0,
+            "condition": 367310,
+            "estimate": 0,
+            "factor": 319023,
+            "formation": 139182,
+            "recovery": 0,
+            "refinement": 0,
+            "residual_formation": 465899,
+            "rhs": 0,
+            "scale": 0,
+            "shift": 0,
+            "solve": 0,
+            "stop_rule": 0,
+            "uc": 77451,
+            "wide_formation": 460390
+          },
+          "shared_work": 1295318,
+          "stages": {
+            "assembly": 0,
+            "bound": 933,
+            "bounded_formation": 0,
+            "bounded_gate": 0,
+            "charge": 47413,
+            "condition": 0,
+            "estimate": 64936,
+            "factor": 0,
+            "formation": 0,
+            "recovery": 11605,
+            "refinement": 34913,
+            "residual_formation": 0,
+            "rhs": 296,
+            "scale": 7271,
+            "shift": 0,
+            "solve": 50790,
+            "stop_rule": 0,
+            "uc": 0,
+            "wide_formation": 0
+          },
+          "stop_rule_work": 0,
+          "storage": {
+            "limbs_per_entry": 4,
+            "pattern_entries": 576,
+            "profile_entries": 256
+          },
+          "verification": {
+            "data_blocks": 1,
+            "g_max": 0,
+            "g_violation": null,
+            "shift_factorizations": 0,
+            "uc_missing": null
+          },
+          "verification_shared_built_here": true,
+          "verification_shared_work": 689006,
+          "verification_work": 120553
+        }
+      ],
+      "logical_attempts": [
+        {
+          "precision": 128,
+          "candidate_record": 0,
+          "candidate_origin": "fresh",
+          "verification_record": 1,
+          "kernel_outcome": "Accepted",
+          "fragments": [
+            {
+              "record": 0,
+              "part": "solve_and_verification",
+              "own": 95112,
+              "shared": 962252,
+              "verification_shared": 0
+            },
+            {
+              "record": 0,
+              "part": "candidate_stop",
+              "own": 3749364,
+              "shared": 0,
+              "verification_shared": 0
+            },
+            {
+              "record": 1,
+              "part": "solve_and_verification",
+              "own": 218157,
+              "shared": 1295318,
+              "verification_shared": 689006
+            }
+          ],
+          "case_charge": 7009209,
+          "invocation_increment": 7009209
+        }
+      ],
+      "native_case_charge": 7009209,
+      "native_invocation_increment": 7009209,
+      "wrong_subset_double_count": 10879126,
+      "wrong_verification_filter_charge": 4806728,
+      "stage_closure": true
+    },
+    {
+      "id": "RF-RANGE-THIN-A",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "native_records": [
+        {
+          "corrections": 0,
+          "exact_sum_work": 1072,
+          "gate": "Coalesced",
+          "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+          "own_work": 65802,
+          "precision": 128,
+          "residual_basis": 192,
+          "role": "Candidate",
+          "shared_built_here": true,
+          "shared_stages": {
+            "assembly": 844,
+            "bound": 0,
+            "bounded_formation": 0,
+            "bounded_gate": 0,
+            "charge": 0,
+            "condition": 79840,
+            "estimate": 0,
+            "factor": 20496,
+            "formation": 27140,
+            "recovery": 0,
+            "refinement": 0,
+            "residual_formation": 27984,
+            "rhs": 0,
+            "scale": 0,
+            "shift": 0,
+            "solve": 0,
+            "stop_rule": 0,
+            "uc": 0,
+            "wide_formation": 0
+          },
+          "shared_work": 156304,
+          "stages": {
+            "assembly": 0,
+            "bound": 0,
+            "bounded_formation": 0,
+            "bounded_gate": 0,
+            "charge": 0,
+            "condition": 0,
+            "estimate": 0,
+            "factor": 0,
+            "formation": 0,
+            "recovery": 5173,
+            "refinement": 48988,
+            "residual_formation": 0,
+            "rhs": 120,
+            "scale": 0,
+            "shift": 0,
+            "solve": 8460,
+            "stop_rule": 4133,
+            "uc": 0,
+            "wide_formation": 0
+          },
+          "stop_rule_work": 4133,
+          "storage": {
+            "limbs_per_entry": 4,
+            "pattern_entries": 144,
+            "profile_entries": 21
+          },
+          "verification": null,
+          "verification_shared_built_here": false,
+          "verification_shared_work": 0,
+          "verification_work": 0
+        },
+        {
+          "corrections": 0,
+          "exact_sum_work": 13828,
+          "gate": "Coalesced",
+          "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+          "own_work": 82528,
+          "precision": 256,
+          "residual_basis": 320,
+          "role": "VerificationThenCandidate",
+          "shared_built_here": true,
+          "shared_stages": {
+            "assembly": 844,
+            "bound": 0,
+            "bounded_formation": 27414,
+            "bounded_gate": 0,
+            "charge": 0,
+            "condition": 86868,
+            "estimate": 0,
+            "factor": 20532,
+            "formation": 27140,
+            "recovery": 0,
+            "refinement": 0,
+            "residual_formation": 92576,
+            "rhs": 0,
+            "scale": 0,
+            "shift": 0,
+            "solve": 0,
+            "stop_rule": 0,
+            "uc": 12294,
+            "wide_formation": 91108
+          },
+          "shared_work": 227960,
+          "stages": {
+            "assembly": 0,
+            "bound": 843,
+            "bounded_formation": 0,
+            "bounded_gate": 0,
+            "charge": 16282,
+            "condition": 0,
+            "estimate": 14744,
+            "factor": 0,
+            "formation": 0,
+            "recovery": 5291,
+            "refinement": 27634,
+            "residual_formation": 0,
+            "rhs": 120,
+            "scale": 3450,
+            "shift": 0,
+            "solve": 8460,
+            "stop_rule": 19532,
+            "uc": 0,
+            "wide_formation": 0
+          },
+          "stop_rule_work": 19532,
+          "storage": {
+            "limbs_per_entry": 4,
+            "pattern_entries": 144,
+            "profile_entries": 21
+          },
+          "verification": {
+            "data_blocks": 1,
+            "g_max": 0,
+            "g_violation": null,
+            "shift_factorizations": 0,
+            "uc_missing": null
+          },
+          "verification_shared_built_here": true,
+          "verification_shared_work": 130816,
+          "verification_work": 35319
+        },
+        {
+          "corrections": 0,
+          "exact_sum_work": 24193,
+          "gate": "Coalesced",
+          "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+          "own_work": 254320,
+          "precision": 512,
+          "residual_basis": 576,
+          "role": "VerificationThenCandidate",
+          "shared_built_here": true,
+          "shared_stages": {
+            "assembly": 1468,
+            "bound": 0,
+            "bounded_formation": 68934,
+            "bounded_gate": 0,
+            "charge": 0,
+            "condition": 243161,
+            "estimate": 0,
+            "factor": 72796,
+            "formation": 91108,
+            "recovery": 0,
+            "refinement": 0,
+            "residual_formation": 334080,
+            "rhs": 0,
+            "scale": 0,
+            "shift": 0,
+            "solve": 0,
+            "stop_rule": 0,
+            "uc": 41734,
+            "wide_formation": 331364
+          },
+          "shared_work": 742613,
+          "stages": {
+            "assembly": 0,
+            "bound": 2161,
+            "bounded_formation": 0,
+            "bounded_gate": 0,
+            "charge": 34107,
+            "condition": 0,
+            "estimate": 49157,
+            "factor": 0,
+            "formation": 0,
+            "recovery": 15402,
+            "refinement": 32080,
+            "residual_formation": 0,
+            "rhs": 216,
+            "scale": 7737,
+            "shift": 0,
+            "solve": 30156,
+            "stop_rule": 107497,
+            "uc": 0,
+            "wide_formation": 0
+          },
+          "stop_rule_work": 107497,
+          "storage": {
+            "limbs_per_entry": 8,
+            "pattern_entries": 144,
+            "profile_entries": 21
+          },
+          "verification": {
+            "data_blocks": 1,
+            "g_max": 0,
+            "g_violation": null,
+            "shift_factorizations": 0,
+            "uc_missing": null
+          },
+          "verification_shared_built_here": true,
+          "verification_shared_work": 442032,
+          "verification_work": 93162
+        },
+        {
+          "corrections": 0,
+          "exact_sum_work": 30909,
+          "gate": "Coalesced",
+          "outcome": "Solved",
+          "own_work": 464320,
+          "precision": 1024,
+          "residual_basis": 1024,
+          "role": "Verification",
+          "shared_built_here": true,
+          "shared_stages": {
+            "assembly": 2716,
+            "bound": 0,
+            "bounded_formation": 206550,
+            "bounded_gate": 0,
+            "charge": 0,
+            "condition": 841321,
+            "estimate": 0,
+            "factor": 272844,
+            "formation": 331364,
+            "recovery": 0,
+            "refinement": 0,
+            "residual_formation": 0,
+            "rhs": 0,
+            "scale": 0,
+            "shift": 0,
+            "solve": 0,
+            "stop_rule": 0,
+            "uc": 150584,
+            "wide_formation": 0
+          },
+          "shared_work": 1448245,
+          "stages": {
+            "assembly": 0,
+            "bound": 4562,
+            "bounded_formation": 0,
+            "bounded_gate": 0,
+            "charge": 79044,
+            "condition": 0,
+            "estimate": 168939,
+            "factor": 0,
+            "formation": 0,
+            "recovery": 52602,
+            "refinement": 55682,
+            "residual_formation": 0,
+            "rhs": 408,
+            "scale": 20700,
+            "shift": 0,
+            "solve": 113292,
+            "stop_rule": 0,
+            "uc": 0,
+            "wide_formation": 0
+          },
+          "stop_rule_work": 0,
+          "storage": {
+            "limbs_per_entry": 16,
+            "pattern_entries": 144,
+            "profile_entries": 21
+          },
+          "verification": {
+            "data_blocks": 1,
+            "g_max": 0,
+            "g_violation": null,
+            "shift_factorizations": 0,
+            "uc_missing": null
+          },
+          "verification_shared_built_here": true,
+          "verification_shared_work": 357134,
+          "verification_work": 273245
+        }
+      ],
+      "logical_attempts": [
+        {
+          "precision": 128,
+          "candidate_record": 0,
+          "candidate_origin": "fresh",
+          "verification_record": 1,
+          "kernel_outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+          "fragments": [
+            {
+              "record": 0,
+              "part": "solve_and_verification",
+              "own": 62741,
+              "shared": 156304,
+              "verification_shared": 0
+            },
+            {
+              "record": 0,
+              "part": "candidate_stop",
+              "own": 4133,
+              "shared": 0,
+              "verification_shared": 0
+            },
+            {
+              "record": 1,
+              "part": "solve_and_verification",
+              "own": 76824,
+              "shared": 227960,
+              "verification_shared": 130816
+            }
+          ],
+          "case_charge": 658778,
+          "invocation_increment": 658778
+        },
+        {
+          "precision": 256,
+          "candidate_record": 1,
+          "candidate_origin": "reused_verification",
+          "verification_record": 2,
+          "kernel_outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+          "fragments": [
+            {
+              "record": 1,
+              "part": "candidate_stop",
+              "own": 19532,
+              "shared": 0,
+              "verification_shared": 0
+            },
+            {
+              "record": 2,
+              "part": "solve_and_verification",
+              "own": 171016,
+              "shared": 742613,
+              "verification_shared": 442032
+            }
+          ],
+          "case_charge": 1375193,
+          "invocation_increment": 1375193
+        },
+        {
+          "precision": 512,
+          "candidate_record": 2,
+          "candidate_origin": "reused_verification",
+          "verification_record": 3,
+          "kernel_outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+          "fragments": [
+            {
+              "record": 2,
+              "part": "candidate_stop",
+              "own": 107497,
+              "shared": 0,
+              "verification_shared": 0
+            },
+            {
+              "record": 3,
+              "part": "solve_and_verification",
+              "own": 495229,
+              "shared": 1448245,
+              "verification_shared": 357134
+            }
+          ],
+          "case_charge": 2408105,
+          "invocation_increment": 2408105
+        }
+      ],
+      "native_case_charge": 4442076,
+      "native_invocation_increment": 4442076,
+      "wrong_subset_double_count": 4974964,
+      "wrong_verification_filter_charge": 2141468,
+      "stage_closure": true
+    }
+  ],
+  "stopped_prefix": {
+    "source_record": {
+      "kind": "prefix",
+      "prefix": 1,
+      "through_segment": "solve_128",
+      "case_limit": 2407264229,
+      "class": "Unresolved",
+      "reason": "Budget(Case)",
+      "attempts": 2,
+      "meter_charged": 2407292969
+    },
+    "overshoot_LME": 28740,
+    "scope": "Existing stopped-prefix summary only. Archive does not expose this prefix's native attempt breakdown; do not invent it or claim fragment conservation checked for that prefix."
+  },
+  "integer_boundaries": {
+    "safe_integer_max": 9007199254740991,
+    "u64_max_decimal": "18446744073709551615",
+    "safe_plus_one_refuses_checked_receipt": 9007199254740992,
+    "u64_saturation_example": {
+      "before_decimal": "18446744073709551612",
+      "increment": 5,
+      "native_saturating_after_decimal": "18446744073709551615",
+      "mathematical_sum_decimal": "18446744073709551617",
+      "exact_reconstruction_available_from_native_after_alone": false
+    }
+  }
+}

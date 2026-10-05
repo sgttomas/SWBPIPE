@@ -1,0 +1,5 @@
+vitest (3 case-file consumers): base 224 passed of 224; cand 224 passed of 224; same names True; changed []
+python carrier+schema: 78 passed in 101.44s (0:01:41)
+result_export: passed=168 failed=0 ignored=0
+node v24.18.0; vitest/4.1.10 darwin-arm64 node-v24.18.0
+base lane: git archive b10ee5cf08 (P without execution), node_modules linked to REPO_ROOT/P/node_modules, the prebuilt WASM assets and glue copied from the worktree's apps/desktop/public (not built)

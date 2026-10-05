@@ -1,0 +1,50 @@
+{
+  "sealed_at": "2026-10-03 03:32:14 UTC",
+  "files": [
+    {
+      "path": "CHECKPOINT.md",
+      "sha256": "3390ab2b4e42a662f8b55163b345015add431bd4fc6bdf92be4f8d61f8527829",
+      "bytes": 689
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "959e4346fddba1c275bc61358c20ad8ec26ceb09019f9d83e384e64282c68eec",
+      "bytes": 11154
+    },
+    {
+      "path": "analysis_results.json",
+      "sha256": "416fa3c4949436ad9ed600f47baeaf69a25598dc6fe9c53def163dbf7cf1eb95",
+      "bytes": 323744
+    },
+    {
+      "path": "analyze.py",
+      "sha256": "aaa6ee62b368eaba2b8ab9a47810f8404f306a721448cffb80c422bd6c76d22d",
+      "bytes": 12560
+    },
+    {
+      "path": "basis.json",
+      "sha256": "89beff5f637d39046b31df22a0820547bcd3ff6fc123bef57515d809a9f2c5f1",
+      "bytes": 5639
+    },
+    {
+      "path": "captured_records.json",
+      "sha256": "894f39c05f4559948e692ed2d63d30d235c9ed869fd6f87ad2b54f649afe3fcb",
+      "bytes": 210386
+    },
+    {
+      "path": "exact_check.stdout.log",
+      "sha256": "a7742095573a0f2099afbd09fd826663097cb388fccf5a4aed3cb2bc44edc99e",
+      "bytes": 2885
+    },
+    {
+      "path": "rx_counterexample.json",
+      "sha256": "e6bf48ef285d8e07f4a16300d3d46de5db6e911d38ce4d23b4324c485a3971ab",
+      "bytes": 37866
+    },
+    {
+      "path": "source_origins.json",
+      "sha256": "9fb2f8457a49b1c21ee86ebad51abe1a4e3323957f8e4d84461e6c1404bfa93f",
+      "bytes": 1530
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "sealed_utc": "2026-10-03T07:54:48.332523+00:00",
+  "candidate": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+  "verdict": "FINDINGS: RV65-I1 blocks component fan-in; functional RV65-1/2 and dense custody confirmed; exact named135 PASS checks sound",
+  "files": [
+    {
+      "path": "BULK_MANIFEST.json",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/named_support_implementation_03/BULK_MANIFEST.json",
+      "bytes": 10525,
+      "sha256": "b96ff712bd0de631075b220707c9d03a784106cbed4fb535efaa86fe4940df19"
+    },
+    {
+      "path": "CHECKS.json",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/named_support_implementation_03/CHECKS.json",
+      "bytes": 19694,
+      "sha256": "185486db2c7ea293affbbe32a8d50509b5e1e81f8bc8b1f4e26212f2b0fb627f"
+    },
+    {
+      "path": "EXECUTION.json",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/named_support_implementation_03/EXECUTION.json",
+      "bytes": 9136,
+      "sha256": "2648e26f199fb7c15420dffaac1e9d875a844d45b820fff1687f00c41f4885b8"
+    },
+    {
+      "path": "NUMERICAL.json",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/named_support_implementation_03/NUMERICAL.json",
+      "bytes": 3902,
+      "sha256": "15cc8cecdfff681f3276a16cb0db744483b678bb7a5a0d3597b9db6e3ed6157c"
+    },
+    {
+      "path": "RETURN.md",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/named_support_implementation_03/RETURN.md",
+      "bytes": 1533,
+      "sha256": "890687729015308652c0275054560c1bdd949b36996c49213cd89657c61adcd7"
+    },
+    {
+      "path": "REVIEW.md",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/named_support_implementation_03/REVIEW.md",
+      "bytes": 14075,
+      "sha256": "56180f4aa5be2867b806c4b8c117cc7b81c2a9fc3422302274f9d9bea87f6fac"
+    },
+    {
+      "path": "independent_rows.py",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/named_support_implementation_03/independent_rows.py",
+      "bytes": 18525,
+      "sha256": "409b2a66be15b59bbee5a6da3b21e2754efc2745f3c9dcccd383aef499f24e65"
+    },
+    {
+      "path": "run_focused.py",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/named_support_implementation_03/run_focused.py",
+      "bytes": 2822,
+      "sha256": "c4effb6620c91a5000ef38651030c64c7f0be692928cc74073bc96c5f8b54770"
+    },
+    {
+      "path": "verify_frozen.py",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/named_support_implementation_03/verify_frozen.py",
+      "bytes": 7732,
+      "sha256": "41c2f506328dca0af8d1ecc24dd88c244fa048d6f4ab7c48ded0b2f51814173a"
+    }
+  ],
+  "payload_count_excluding_seal": 9,
+  "external_bulk_manifest": "BULK_MANIFEST.json",
+  "first_and_only_seal": true,
+  "runtime_lane": "All owned processes reaped; released to ROOT; guard unchanged."
+}

@@ -1,0 +1,14 @@
+{
+  "candidate_revision": "2034c050d69e5b50708c27c72bf84862b05d5892",
+  "files": 10,
+  "inventory_payloads_verified": 9,
+  "author_script_safety": "Entire 390-line script read: only fractions/json imports; abstract fixed integer/rational loops and stdout; no file/network/process/product access.",
+  "command": "python3 -I - < git-show-pinned-author-script",
+  "author_script_sha256": "30778d9472c59ac9883fd1d8258c5a085166836cad48b5e1238c6c8f84a0a0f6",
+  "start_utc": "2026-10-02T22:05:34.249590+00:00",
+  "end_utc": "2026-10-02T22:05:34.381167+00:00",
+  "exit_code": 0,
+  "stdout_sha256": "13b797b2694fbf288a4bdc8d74c183600938b63994c7523c0a2ad188abb4963e",
+  "matches_author_arithmetic_bytes": true,
+  "groups_passed": 16
+}

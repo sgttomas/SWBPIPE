@@ -1,0 +1,26 @@
+{
+  "frozen_utc": "2026-10-03T10:24:59.704508+00:00",
+  "status": "unapplied source-only seam proposal; ROOT disposition required",
+  "base_hashes": {
+    "projects/chirality-piping/core/product_physics/src/retained_product.rs": "de13b4e4d4a912897556d8ed77d90f6a1e439ece25c8169715a06e04ad9f58c5",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "802cc1694f47c984ad01e1eb5380b6445219e0bb3694f17fbad97a50383780b5",
+    "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs": "12ddd4ce8b2116e723d941827cc2124a5e530c11c3b984ea25dea6b0ab83518a"
+  },
+  "patches": [
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/C0_PROPOSED_LIB_HOOK.patch",
+      "bytes": 555,
+      "sha256": "70f6d68e68a9b76ae289025a9c9ada062842fb2fe00a1ff00a29bbe01da8b9bf"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/C0_PROPOSED_CALLBACK.patch",
+      "bytes": 8118,
+      "sha256": "90c7f1c5bf2bf5656467efb230a5d58dbf48031686a368f182d920f1a8a8d185"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/C0_PROPOSED_TEST_ADJUST.patch",
+      "bytes": 973,
+      "sha256": "605e524990585190c3ca64ddccf71e1e67fe72c7b0f32393822e87fba6b027aa"
+    }
+  ]
+}

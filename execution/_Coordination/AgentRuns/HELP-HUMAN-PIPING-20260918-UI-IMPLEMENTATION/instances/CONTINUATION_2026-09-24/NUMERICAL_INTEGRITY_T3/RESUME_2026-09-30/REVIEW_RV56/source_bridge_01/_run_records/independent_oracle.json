@@ -1,0 +1,18 @@
+{
+  "derivation": "Independent Machin 16 atan(1/5)-4 atan(1/239); exact annular integrals and closed cantilever/spring equations; no evaluator/generator imports",
+  "machin_terms_per_atan": 192,
+  "native": {
+    "loaded": {
+      "rows": 52,
+      "source_contains": 52,
+      "exact_pass": 52,
+      "enclosure_pass": 7
+    },
+    "zero": {
+      "rows": 52,
+      "source_contains": 52,
+      "exact_pass": 52,
+      "enclosure_pass": 52
+    }
+  }
+}

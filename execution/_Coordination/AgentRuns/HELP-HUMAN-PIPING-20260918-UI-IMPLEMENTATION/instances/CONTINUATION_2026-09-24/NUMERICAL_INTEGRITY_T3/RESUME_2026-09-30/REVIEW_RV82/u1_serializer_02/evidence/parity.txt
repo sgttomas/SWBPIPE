@@ -1,0 +1,2 @@
+sparse_interactive: rows py=98 rs=98 ts=98 cert=98; py=rs=ts (id|normalized|scale|class): True; = certificate verdict classes: True; parity 98/98; classes {'non_quantity': 1, 'absolute_verified': 69, 'relative_verified': 25, 'input_derived': 3}
+dense_scrutiny: rows py=99 rs=99 ts=99 cert=99; py=rs=ts (id|normalized|scale|class): True; = certificate verdict classes: True; parity 99/99; classes {'non_quantity': 2, 'absolute_verified': 69, 'relative_verified': 25, 'input_derived': 3}

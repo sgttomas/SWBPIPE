@@ -1,0 +1,6 @@
+{
+  "cases": 8,
+  "pi_bracket": "128-term rational Machin, adjacent 2^-512 grid",
+  "exact_K_discriminator": "2^-104",
+  "fixture_sha256": "8cbe5d32ea21a3ced7d5dc5cf9ccde256d01a6d546e94406a43a5d46b3a39a37"
+}

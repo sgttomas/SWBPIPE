@@ -1,0 +1,129 @@
+[
+ {
+  "id": "R01_row_guard_first_row_only",
+  "kind": "rs",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "status": "KILLED",
+  "failed": [
+   "u6a_downgrades_to_a_base_identity_are_refused",
+   "u6a_legacy_sources_carrying_a_receipt_or_token_are_refused",
+   "u6a_shared_carrier_cases_rust"
+  ]
+ },
+ {
+  "id": "R02_doc_downgrade_ignores_null",
+  "kind": "rs",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "status": "KILLED",
+  "failed": [
+   "u6a_downgrades_to_a_base_identity_are_refused"
+  ]
+ },
+ {
+  "id": "R05_refs_order_insensitive",
+  "kind": "rs",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "status": "KILLED",
+  "failed": [
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ]
+ },
+ {
+  "id": "R06_member_guard_skips_legacy",
+  "kind": "rs",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "status": "KILLED",
+  "failed": [
+   "u6a_legacy_sources_carrying_a_receipt_or_token_are_refused",
+   "u6a_shared_carrier_cases_rust"
+  ]
+ },
+ {
+  "id": "V1_moment_unit_spelled_middle_dot",
+  "kind": "rs",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "status": "KILLED",
+  "failed": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_each_class_maps_to_its_refusal_and_disclosure"
+  ]
+ },
+ {
+  "id": "V2_kN_unmapped",
+  "kind": "rs",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "status": "KILLED",
+  "failed": [
+   "u6a_each_class_maps_to_its_refusal_and_disclosure"
+  ]
+ },
+ {
+  "id": "G1_seam_called_deep_in_tauri",
+  "kind": "rs",
+  "file": "apps/desktop/src-tauri/src/lib.rs",
+  "status": "SURVIVED",
+  "failed": []
+ },
+ {
+  "id": "G2_seam_called_in_runner_binding",
+  "kind": "rs",
+  "file": "core/runner/headless/src/result_envelope_binding.rs",
+  "status": "KILLED",
+  "failed": [
+   "u6_doc_hidden_seams_have_no_product_callers"
+  ]
+ },
+ {
+  "id": "Q02_token_helper_first_row_only",
+  "kind": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "failed": [
+   "tests/test_retained_precision_carriers.py::test_shared_carrier_cases_python",
+   "tests/test_retained_precision_carriers.py::test_downgrades_are_refused[dense_scrutiny]",
+   "tests/test_retained_precision_carriers.py::test_downgrades_are_refused[sparse_interactive]",
+   "tests/test_retained_precision_carriers.py::test_legacy_sources_with_a_token_row_are_refused_on_every_python_path"
+  ]
+ },
+ {
+  "id": "Q06_refs_order_insensitive",
+  "kind": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "failed": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ]
+ },
+ {
+  "id": "W06_sn_successor_annotations_optional",
+  "kind": "schema",
+  "file": "schemas/stress_neutral_export.v0.3.schema.json",
+  "status": "KILLED",
+  "failed": [
+   "tests/test_retained_precision_schema.py::test_stress_neutral_successor_branch_is_transport_shape_only[dense_scrutiny]",
+   "tests/test_retained_precision_schema.py::test_stress_neutral_successor_branch_is_transport_shape_only[sparse_interactive]"
+  ]
+ },
+ {
+  "id": "W09_sn_successor_admits_sbr",
+  "kind": "schema",
+  "file": "schemas/stress_neutral_export.v0.3.schema.json",
+  "status": "KILLED",
+  "failed": [
+   "tests/test_retained_precision_schema.py::test_stress_neutral_successor_branch_is_transport_shape_only[dense_scrutiny]",
+   "tests/test_retained_precision_schema.py::test_stress_neutral_successor_branch_is_transport_shape_only[sparse_interactive]"
+  ]
+ },
+ {
+  "id": "W10_results_successor_admits_sbr",
+  "kind": "schema",
+  "file": "schemas/results.v0.3.schema.yaml",
+  "status": "KILLED",
+  "failed": [
+   "tests/test_retained_precision_schema.py::test_rv78_n2_receipt_and_branch_probes[ordinary_prepared_synthetic-]",
+   "tests/test_retained_precision_schema.py::test_rv78_n2_receipt_and_branch_probes[ordinary_prepared_dense_synthetic-]",
+   "tests/test_retained_precision_schema.py::test_rv78_n2_receipt_and_branch_probes[ordinary_prepared_no_data_synthetic-]",
+   "tests/test_retained_precision_schema.py::test_rv78_n2_receipt_and_branch_probes[ordinary_prepared_cancelled_loads_synthetic-]"
+  ]
+ }
+]

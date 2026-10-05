@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-03T15:32:21.892828+00:00",
+  "actor": "ROOT /root",
+  "sealed_manifest_sha256": "3593ad552cdef42d902de845bc8b91f13bd052d210392f35d9871245ba8d6809",
+  "payloads_verified": 3,
+  "record_bytes_including_manifest": 54523,
+  "external_files_verified": 177,
+  "external_bytes": 20381139,
+  "preserved_inputs_verified": 197,
+  "root_read": "Complete RETURN and COEFFICIENTS; manifest and execution correction/limits inspected",
+  "disposition": "Preserve unaccepted container/profile lemmas for fresh independent source/arithmetic review. No M, full profile, fit or public execution."
+}

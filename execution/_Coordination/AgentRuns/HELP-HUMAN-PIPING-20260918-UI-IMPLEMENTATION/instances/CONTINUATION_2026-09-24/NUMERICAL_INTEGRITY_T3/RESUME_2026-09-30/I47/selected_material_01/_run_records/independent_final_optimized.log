@@ -1,0 +1,161 @@
+{
+  "result": "source blocker independently identified; complete numerical witness unavailable",
+  "cases": [
+    {
+      "case": "point-zero",
+      "source": {
+        "kind": "point",
+        "source_E": "195000000000",
+        "source_G": "55000000000",
+        "interpolation": {}
+      },
+      "mechanical_rows": 73,
+      "ancillary_rows": 2,
+      "boundary": {
+        "calls": [
+          1,
+          1,
+          1
+        ],
+        "error": "Some(Association(\"row member\"))",
+        "full_case": false,
+        "g5a_entered": 0,
+        "observable_error": "None",
+        "verdict_count": 0
+      }
+    },
+    {
+      "case": "point-loaded",
+      "source": {
+        "kind": "point",
+        "source_E": "195000000000",
+        "source_G": "55000000000",
+        "interpolation": {}
+      },
+      "mechanical_rows": 73,
+      "ancillary_rows": 2,
+      "boundary": {
+        "calls": [
+          1,
+          1,
+          1
+        ],
+        "error": "Some(Association(\"row member\"))",
+        "full_case": false,
+        "g5a_entered": 0,
+        "observable_error": "None",
+        "verdict_count": 0
+      }
+    },
+    {
+      "case": "interpolated-zero",
+      "source": {
+        "kind": "interpolated",
+        "source_E": "12451840000000001/65536",
+        "source_G": "13107200000000001/262144",
+        "interpolation": {
+          "e": {
+            "products": [
+              "2051276800000000313/32768",
+              "-1985740800000000303/32768",
+              "54540000000000",
+              "-52740000000000"
+            ],
+            "numerator": "62259200000000005/16384",
+            "denominator": "20",
+            "source": "12451840000000001/65536",
+            "represented_bits": "42461e70f6000000",
+            "exact_minus_represented": "1/65536"
+          },
+          "g": {
+            "products": [
+              "2461532160000000313/131072",
+              "-2382888960000000303/131072",
+              "12120000000000",
+              "-11720000000000"
+            ],
+            "numerator": "65536000000000005/65536",
+            "denominator": "20",
+            "source": "13107200000000001/262144",
+            "represented_bits": "42274876e8000000",
+            "exact_minus_represented": "1/262144"
+          }
+        }
+      },
+      "mechanical_rows": 73,
+      "ancillary_rows": 2,
+      "boundary": {
+        "calls": [
+          1,
+          1,
+          1
+        ],
+        "error": "Some(Association(\"row member\"))",
+        "full_case": false,
+        "g5a_entered": 0,
+        "observable_error": "None",
+        "verdict_count": 0
+      }
+    },
+    {
+      "case": "interpolated-loaded",
+      "source": {
+        "kind": "interpolated",
+        "source_E": "12451840000000001/65536",
+        "source_G": "13107200000000001/262144",
+        "interpolation": {
+          "e": {
+            "products": [
+              "2051276800000000313/32768",
+              "-1985740800000000303/32768",
+              "54540000000000",
+              "-52740000000000"
+            ],
+            "numerator": "62259200000000005/16384",
+            "denominator": "20",
+            "source": "12451840000000001/65536",
+            "represented_bits": "42461e70f6000000",
+            "exact_minus_represented": "1/65536"
+          },
+          "g": {
+            "products": [
+              "2461532160000000313/131072",
+              "-2382888960000000303/131072",
+              "12120000000000",
+              "-11720000000000"
+            ],
+            "numerator": "65536000000000005/65536",
+            "denominator": "20",
+            "source": "13107200000000001/262144",
+            "represented_bits": "42274876e8000000",
+            "exact_minus_represented": "1/262144"
+          }
+        }
+      },
+      "mechanical_rows": 73,
+      "ancillary_rows": 2,
+      "boundary": {
+        "calls": [
+          1,
+          1,
+          1
+        ],
+        "error": "Some(Association(\"row member\"))",
+        "full_case": false,
+        "g5a_entered": 0,
+        "observable_error": "None",
+        "verdict_count": 0
+      }
+    }
+  ],
+  "controls": [
+    "base-G-does-not-substitute",
+    "wrong-point-is-observably-distinct"
+  ],
+  "resolver_refusals": {
+    "missing-alpha": "MODULUS_BASIS_INPUT_MISSING",
+    "missing-selected-G": "MODULUS_BASIS_INPUT_MISSING",
+    "unknown-point": "MODULUS_BASIS_UNRESOLVED",
+    "at-point-temperature": "MODULUS_BASIS_UNRESOLVED"
+  }
+}

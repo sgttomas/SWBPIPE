@@ -1,0 +1,1 @@
+{"files": 6, "hunks_and_files": 15, "classes": {"cfg-test-stmt": 3, "test": 11, "generated": 1}, "verdict": "PASS: every hunk classified; every live, item or cfg(test)-statement hunk has a reviewed entry"}

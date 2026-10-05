@@ -1,0 +1,3010 @@
+{
+ "lane": "WT/scratch/i67_u6d/lanes/mut",
+ "files": [
+  "src/features/results/retainedPrecisionIntegration.test.tsx",
+  "src/services/retainedPrecisionAnalysisRun.test.ts",
+  "src/features/results/retainedPrecisionOutputRefusal.test.tsx",
+  "src/features/results/numericalResultQuality.test.ts",
+  "src/features/results/knownSemanticLimitations.test.ts",
+  "src/features/results/resultSemantics.test.ts",
+  "src/services/analysisRunCompatibility.test.ts",
+  "src/services/previewService.test.ts",
+  "src/services/ruleCheckService.test.ts",
+  "src/features/results/HistoricalRunContext.test.tsx",
+  "src/features/results/ResultsPanel.test.tsx"
+ ],
+ "mutants": [
+  {
+   "id": "N01",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "guard: the successor itself is not exempt",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 163,
+   "passed": 233,
+   "load_errors": [],
+   "first": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality builds through the product path with the complete receipt, byte-equal, and validates"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality row interpretation equals the base preview-physics-1 projection's except the contract binding"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality a dropped copy fails with ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH"
+    ]
+   ]
+  },
+  {
+   "id": "N02",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "guard: receipt member ignored",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 18,
+   "passed": 378,
+   "load_errors": [],
+   "first": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying a retained_precision object is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying an empty retained_precision object is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying a null retained_precision member is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ]
+   ]
+  },
+  {
+   "id": "N03",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "guard: token rows ignored",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 14,
+   "passed": 382,
+   "load_errors": [],
+   "first": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying a W1 token on the first row is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying a W1 token on the last row only is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.2.0 legacy-shaped source carrying a W1 token on the first row is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ]
+   ]
+  },
+  {
+   "id": "N04",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "guard: every row instead of any row",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 18,
+   "passed": 378,
+   "load_errors": [],
+   "first": [
+    [
+     "services/previewService.test.ts",
+     "buildAnalysisRunPreview reference rule-check aggregate (TP-C4-APPAGG-001) defaults to the solve envelope rule_check when no aggregate is supplied"
+    ],
+    [
+     "services/previewService.test.ts",
+     "buildAnalysisRunPreview reference rule-check aggregate (TP-C4-APPAGG-001) drives a recognized aggregate into analysis_status and the run-record hash, leaving the solve-envelope hash byte-stable"
+    ],
+    [
+     "services/previewService.test.ts",
+     "buildAnalysisRunPreview reference rule-check aggregate (TP-C4-APPAGG-001) records a USER_RULE_CHECKED aggregate likewise"
+    ]
+   ]
+  },
+  {
+   "id": "N05",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "guard: any method string",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the downgrade guard (F-5) with neither the receipt nor a token row it is the base identity again, and the guard ignores other method strings"
+    ]
+   ]
+  },
+  {
+   "id": "N06",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "dispatch: guard not applied",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 28,
+   "passed": 368,
+   "load_errors": [],
+   "first": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality a relabelled successor is refused by every builder; the legacy builder refuses the successor"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "dense_scrutiny: the AnalysisRun copies the receipt and validates its equality a relabelled successor is refused by every builder; the legacy builder refuses the successor"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the downgrade guard (F-5) a successor relabelled as preview-physics-1 keeping the receipt and the token rows is unsupported"
+    ]
+   ]
+  },
+  {
+   "id": "N07",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "dispatch: profile unchecked",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the downgrade guard (F-5) the successor's own header requires its profile, its contract evidence and a receipt object, and no other receipt"
+    ]
+   ]
+  },
+  {
+   "id": "N08",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "dispatch: contract evidence unchecked",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the downgrade guard (F-5) the successor's own header requires its profile, its contract evidence and a receipt object, and no other receipt"
+    ]
+   ]
+  },
+  {
+   "id": "N09",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "dispatch: null receipt admitted",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the downgrade guard (F-5) the successor's own header requires its profile, its contract evidence and a receipt object, and no other receipt"
+    ]
+   ]
+  },
+  {
+   "id": "N10",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "dispatch: non-object receipt admitted",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the downgrade guard (F-5) the successor's own header requires its profile, its contract evidence and a receipt object, and no other receipt"
+    ]
+   ]
+  },
+  {
+   "id": "N11",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "dispatch: array receipt admitted",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the downgrade guard (F-5) the successor's own header requires its profile, its contract evidence and a receipt object, and no other receipt"
+    ]
+   ]
+  },
+  {
+   "id": "N12",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "dispatch: id not admitted",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 163,
+   "passed": 233,
+   "load_errors": [],
+   "first": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality builds through the product path with the complete receipt, byte-equal, and validates"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality row interpretation equals the base preview-physics-1 projection's except the contract binding"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality a dropped copy fails with ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH"
+    ]
+   ]
+  },
+  {
+   "id": "N13",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "dispatch: routed as preview-physics-1",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 159,
+   "passed": 237,
+   "load_errors": [],
+   "first": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality builds through the product path with the complete receipt, byte-equal, and validates"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality row interpretation equals the base preview-physics-1 projection's except the contract binding"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality a dropped copy fails with ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH"
+    ]
+   ]
+  },
+  {
+   "id": "N14",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "binding: wrong table hash",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 9,
+   "passed": 387,
+   "load_errors": [],
+   "first": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality builds through the product path with the complete receipt, byte-equal, and validates"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality row interpretation equals the base preview-physics-1 projection's except the contract binding"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "dense_scrutiny: the AnalysisRun copies the receipt and validates its equality builds through the product path with the complete receipt, byte-equal, and validates"
+    ]
+   ]
+  },
+  {
+   "id": "N15",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "standing: downgrade code not reported",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 13,
+   "passed": 383,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the downgrade guard (F-5) a successor relabelled as preview-physics-1 keeping the receipt and the token rows is unsupported"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the downgrade guard (F-5) a successor relabelled as preview-physics-1 keeping the token rows only is unsupported"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the downgrade guard (F-5) a successor relabelled as preview-physics-1 keeping a null receipt member only is unsupported"
+    ]
+   ]
+  },
+  {
+   "id": "N16",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "standing: successor routed to the generic numerical_quality branch",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 42,
+   "passed": 354,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC direct IPC registers only after the accepted reader passes with the captured invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC job IPC registers only after the accepted reader passes with the captured invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC copies, saved bytes, headers and a model-less solve never register"
+    ]
+   ]
+  },
+  {
+   "id": "N17",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "standing: eligible status never shown",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 4,
+   "passed": 392,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) sparse_interactive:invocation: token and status with eligibility forced"
+    ]
+   ]
+  },
+  {
+   "id": "N18",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "predicate: structural status dropped",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+    ]
+   ]
+  },
+  {
+   "id": "N19",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "predicate: solve quality dropped",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/numericalResultQuality.test.ts",
+     "aggregate consistency is distinct from numerical qualification keeps honest 'sensitive' for [ 'sensitive', 'checks_passed' ] ineligible without a contradiction"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+    ]
+   ]
+  },
+  {
+   "id": "N20",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "predicate: fidelity dropped",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+    ]
+   ]
+  },
+  {
+   "id": "N21",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "predicate: accuracy evidence dropped",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+    ]
+   ]
+  },
+  {
+   "id": "N22",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "predicate: empty evidence refs admitted",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+    ]
+   ]
+  },
+  {
+   "id": "N23",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "predicate: unresolved refs admitted",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+    ]
+   ]
+  },
+  {
+   "id": "S01",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "register: success not recorded",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 46,
+   "passed": 350,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC direct IPC registers only after the accepted reader passes with the captured invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC job IPC registers only after the accepted reader passes with the captured invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+    ]
+   ]
+  },
+  {
+   "id": "S02",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "register: refusal not recorded",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 19,
+   "passed": 377,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with an edited covered row records the reader's first code: unsupported, never registered natively"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with a hash-consistent-looking quality claim of checks_passed records the reader's first code: unsupported, never registered natively"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with an altered receipt records the reader's first code: unsupported, never registered natively"
+    ]
+   ]
+  },
+  {
+   "id": "S03",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "register: refusal not rethrown (native registration proceeds)",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 12,
+   "passed": 384,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC bytes outside the checked profile never register, even when registration is called directly"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with an edited covered row records the reader's first code: unsupported, never registered natively"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with a hash-consistent-looking quality claim of checks_passed records the reader's first code: unsupported, never registered natively"
+    ]
+   ]
+  },
+  {
+   "id": "S04",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "register: unchecked bytes recorded",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC bytes outside the checked profile never register, even when registration is called directly"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC bytes outside the checked profile never register, even when registration is called directly"
+    ]
+   ]
+  },
+  {
+   "id": "S05",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "registered: text not compared",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 4,
+   "passed": 392,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC registration binds the bytes captured before the reader's await: an edit made while it awaits never registers (RV91 N-3, RV09)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+    ]
+   ]
+  },
+  {
+   "id": "S06",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "registered: zero signs not compared",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+    ]
+   ]
+  },
+  {
+   "id": "S07",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "standing: refusal not unsupported",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 16,
+   "passed": 380,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with an edited covered row records the reader's first code: unsupported, never registered natively"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with a hash-consistent-looking quality claim of checks_passed records the reader's first code: unsupported, never registered natively"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with an altered receipt records the reader's first code: unsupported, never registered natively"
+    ]
+   ]
+  },
+  {
+   "id": "S08",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "standing: reader code not reported",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 8,
+   "passed": 388,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with an edited covered row records the reader's first code: unsupported, never registered natively"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with a hash-consistent-looking quality claim of checks_passed records the reader's first code: unsupported, never registered natively"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with an altered receipt records the reader's first code: unsupported, never registered natively"
+    ]
+   ]
+  },
+  {
+   "id": "S09",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "seam: invocation binding not required",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) is numerically_eligible only with every conjunct"
+    ]
+   ]
+  },
+  {
+   "id": "S10",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "seam: reader eligibility not required",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 15,
+   "passed": 381,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC direct IPC registers only after the accepted reader passes with the captured invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC job IPC registers only after the accepted reader passes with the captured invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC direct IPC registers only after the accepted reader passes with the captured invocation"
+    ]
+   ]
+  },
+  {
+   "id": "S11",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "seam: requested count not compared",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) is numerically_eligible only with every conjunct"
+    ]
+   ]
+  },
+  {
+   "id": "S12",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "seam: requested order not compared",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 4,
+   "passed": 392,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) is numerically_eligible only with every conjunct"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ]
+   ]
+  },
+  {
+   "id": "S13",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "seam: mechanics status not required",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) is numerically_eligible only with every conjunct"
+    ]
+   ]
+  },
+  {
+   "id": "S14",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "seam: not_required conjunct dropped",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+    ]
+   ]
+  },
+  {
+   "id": "S15",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "not_required: selected cases checked as not_required",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 21,
+   "passed": 375,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC the registered invocation is a private copy: neither the caller's object nor a returned copy can alter it (RV03, RV04)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC the registered invocation is a private copy: neither the caller's object nor a returned copy can alter it (RV03, RV04)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) is numerically_eligible only with every conjunct"
+    ]
+   ]
+  },
+  {
+   "id": "S16",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "not_required: other statuses admitted",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+    ]
+   ]
+  },
+  {
+   "id": "S17",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "not_required: basis ref not compared",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+    ]
+   ]
+  },
+  {
+   "id": "S18",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "not_required: missing quality case admitted",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+    ]
+   ]
+  },
+  {
+   "id": "S19",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "not_required: duplicate ids admitted",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+    ]
+   ]
+  },
+  {
+   "id": "S20",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "not_required: missing or empty ids admitted",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+    ]
+   ]
+  },
+  {
+   "id": "S21",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "requested: wrong ref type",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 18,
+   "passed": 378,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC the registered invocation is a private copy: neither the caller's object nor a returned copy can alter it (RV03, RV04)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC the registered invocation is a private copy: neither the caller's object nor a returned copy can alter it (RV03, RV04)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ]
+   ]
+  },
+  {
+   "id": "S22",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "invocation: returned without eligible standing",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 10,
+   "passed": 386,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC direct IPC registers only after the accepted reader passes with the captured invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC job IPC registers only after the accepted reader passes with the captured invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a registration without an invocation is never eligible, even with the post-U7 reader, and says so"
+    ]
+   ]
+  },
+  {
+   "id": "S23",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "classes: never available",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 9,
+   "passed": 387,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers without absolute rows there is no absolute summary notice"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ]
+   ]
+  },
+  {
+   "id": "S24",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "summary: absolute and not_covered swapped",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 8,
+   "passed": 388,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) counts withheld rows by standing (Rust classification_summary_from)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ]
+   ]
+  },
+  {
+   "id": "S25",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "summary: current standing ignored",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 3,
+   "passed": 393,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) counts withheld rows by standing (Rust classification_summary_from)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ]
+   ]
+  },
+  {
+   "id": "S26",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "summary: not_covered not withheld when current",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) counts withheld rows by standing (Rust classification_summary_from)"
+    ]
+   ]
+  },
+  {
+   "id": "S27",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "summary: rows not filtered by case",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) counts withheld rows by standing (Rust classification_summary_from)"
+    ]
+   ]
+  },
+  {
+   "id": "S28",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "summary: model requested cases ignored",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ]
+   ]
+  },
+  {
+   "id": "S29",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "text: refusal and validation swapped",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 4,
+   "passed": 392,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a registration without an invocation is never eligible, even with the post-U7 reader, and says so"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC a registration without an invocation is never eligible, even with the post-U7 reader, and says so"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the standing text comes from the registered receipt, never from numerical_quality"
+    ]
+   ]
+  },
+  {
+   "id": "S30",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "text: invocation binding not stated",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a registration without an invocation is never eligible, even with the post-U7 reader, and says so"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC a registration without an invocation is never eligible, even with the post-U7 reader, and says so"
+    ]
+   ]
+  },
+  {
+   "id": "S31",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "text: selected count not counted",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the case count is the validated receipt's selected cases over all its cases (RV91 N-4)"
+    ]
+   ]
+  },
+  {
+   "id": "S32",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "registration query: undefined for none",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 12,
+   "passed": 384,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC copies, saved bytes, headers and a model-less solve never register"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC bytes outside the checked profile never register, even when registration is called directly"
+    ]
+   ]
+  },
+  {
+   "id": "T01",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "text: case count from an unvalidated receipt",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the standing text comes from the registered receipt, never from numerical_quality"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the case count is the validated receipt's selected cases over all its cases (RV91 N-4)"
+    ]
+   ]
+  },
+  {
+   "id": "T02",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "text: case count from a refused receipt",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the standing text comes from the registered receipt, never from numerical_quality"
+    ]
+   ]
+  },
+  {
+   "id": "RV03",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "registration: holds the caller's live invocation object",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC the registered invocation is a private copy: neither the caller's object nor a returned copy can alter it (RV03, RV04)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC the registered invocation is a private copy: neither the caller's object nor a returned copy can alter it (RV03, RV04)"
+    ]
+   ]
+  },
+  {
+   "id": "RV04",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "registered invocation handed out by reference",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC the registered invocation is a private copy: neither the caller's object nor a returned copy can alter it (RV03, RV04)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC the registered invocation is a private copy: neither the caller's object nor a returned copy can alter it (RV03, RV04)"
+    ]
+   ]
+  },
+  {
+   "id": "RV09",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "registration: fingerprint taken after the reader's await",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC registration binds the bytes captured before the reader's await: an edit made while it awaits never registers (RV91 N-3, RV09)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC registration binds the bytes captured before the reader's await: an edit made while it awaits never registers (RV91 N-3, RV09)"
+    ]
+   ]
+  },
+  {
+   "id": "K01",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "fresh set: successor absent",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 14,
+   "passed": 382,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/knownSemanticLimitations.test.ts",
+     "static fresh-identity set and standing reasons admits only preview-physics-1, source-blocks-1, physics-1, physics-source-1, T1's load-reference-1 and load-reference-source-1, and U6's preview-physics-retained-1 (D-U6-6)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the inputs and the pinned identity dispatch constants equal the accepted reader's and the pinned table, whose rows are preview-physics-1's"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC direct IPC registers only after the accepted reader passes with the captured invocation"
+    ]
+   ]
+  },
+  {
+   "id": "K02",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "binding: successor not class-refused",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 19,
+   "passed": 377,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ]
+   ]
+  },
+  {
+   "id": "K03",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "binding: unregistered rows bind",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 17,
+   "passed": 379,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the rule-check gate and binding refusals (eligibility held) binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused"
+    ]
+   ]
+  },
+  {
+   "id": "K04",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "binding: codes swapped",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 4,
+   "passed": 392,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the rule-check gate and binding refusals (eligibility held) binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused"
+    ]
+   ]
+  },
+  {
+   "id": "K05",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "binding: not_covered binds",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 4,
+   "passed": 392,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the rule-check gate and binding refusals (eligibility held) binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused"
+    ]
+   ]
+  },
+  {
+   "id": "K06",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "notices: preview notices not reused",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 5,
+   "passed": 391,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers without absolute rows there is no absolute summary notice"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers without absolute rows there is no absolute summary notice"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ]
+   ]
+  },
+  {
+   "id": "K07",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "notices: unvalidated notice absent",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 3,
+   "passed": 393,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text dense_scrutiny: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ],
+    [
+     "features/results/retainedPrecisionOutputRefusal.test.tsx",
+     "other consumers are unchanged and never make a successor Current the notices component renders the successor's preview and class notices as text only"
+    ]
+   ]
+  },
+  {
+   "id": "K08",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "notices: empty absolute notice",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers without absolute rows there is no absolute summary notice"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers without absolute rows there is no absolute summary notice"
+    ]
+   ]
+  },
+  {
+   "id": "K09",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "notices: empty not-covered notice",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 4,
+   "passed": 392,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers without absolute rows there is no absolute summary notice"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers without absolute rows there is no absolute summary notice"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ]
+   ]
+  },
+  {
+   "id": "K10",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "notices: absolute summary absent",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 3,
+   "passed": 393,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text dense_scrutiny: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the standing text comes from the registered receipt, never from numerical_quality"
+    ]
+   ]
+  },
+  {
+   "id": "K11",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "notices: not-covered summary absent",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ]
+   ]
+  },
+  {
+   "id": "K12",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "bound text: zero not exact",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ]
+   ]
+  },
+  {
+   "id": "K13",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "bound text: equal printed value not stepped up",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ]
+   ]
+  },
+  {
+   "id": "K14",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "bound text: nearest, not upward",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 3,
+   "passed": 393,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text dense_scrutiny: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ]
+   ]
+  },
+  {
+   "id": "K15",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "bound text: mantissa overflow not carried",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ]
+   ]
+  },
+  {
+   "id": "K16",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "bound text: exponent sign",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ]
+   ]
+  },
+  {
+   "id": "K17",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "units: MPa not normalized",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 3,
+   "passed": 393,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text dense_scrutiny: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ]
+   ]
+  },
+  {
+   "id": "K18",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "units: mm not normalized",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 3,
+   "passed": 393,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text dense_scrutiny: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ]
+   ]
+  },
+  {
+   "id": "K19",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "units: kN and kN*m not normalized",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ]
+   ]
+  },
+  {
+   "id": "K20",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "units: an unnormalized unit names a bound in the published unit",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ]
+   ]
+  },
+  {
+   "id": "U01",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "units: m not in the table",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ]
+   ]
+  },
+  {
+   "id": "U02",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "units: rad not in the table",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ]
+   ]
+  },
+  {
+   "id": "U03",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "units: SI units themselves not in the table",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 4,
+   "passed": 392,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text dense_scrutiny: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ]
+   ]
+  },
+  {
+   "id": "U04",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "units: inherited object members read as units",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ]
+   ]
+  },
+  {
+   "id": "U05",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "units: an unnormalized unit labelled unvalidated, not uncovered",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ]
+   ]
+  },
+  {
+   "id": "K21",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "label: absolute rows unlabelled",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 5,
+   "passed": 391,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the rule-check gate and binding refusals (eligibility held) binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the rule-check gate and binding refusals (eligibility held) binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ]
+   ]
+  },
+  {
+   "id": "K22",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "label: not_covered rows unlabelled",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ]
+   ]
+  },
+  {
+   "id": "K23",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "label: successor not labelled",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 5,
+   "passed": 391,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ]
+   ]
+  },
+  {
+   "id": "K24",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "label: class label never shown",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 5,
+   "passed": 391,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ]
+   ]
+  },
+  {
+   "id": "K25",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "label: kind label dropped with class label",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text dense_scrutiny: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ]
+   ]
+  },
+  {
+   "id": "RV08",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "binding: successor selected by route, not producer id",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the downgrade guard (F-5) the successor's own header requires its profile, its contract evidence and a receipt object, and no other receipt"
+    ]
+   ]
+  },
+  {
+   "id": "X01",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "transport: the reader's transport checks not run (header shape only)",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 12,
+   "passed": 384,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the carrier transport route runs the reader's transport checks (RV88 and RV92 N-1) receipt_sha_zero is refused with Rust's code"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the carrier transport route runs the reader's transport checks (RV88 and RV92 N-1) receipt_sha_zero_no_invocation is refused with Rust's code"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the carrier transport route runs the reader's transport checks (RV88 and RV92 N-1) receipt_body_edit (unsealed) is refused with Rust's code"
+    ]
+   ]
+  },
+  {
+   "id": "X02",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "transport: the reader's checks applied to every identity",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the carrier transport route on other identities is the header route resolves each existing route, and refuses an unsupported or downgraded header with its standing code"
+    ]
+   ]
+  },
+  {
+   "id": "X03",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "transport: downgrade code not reported",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 3,
+   "passed": 393,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the declared differences, with TypeScript's expectations RV92-N2-N5:ts_refuses_token_rows_at_the_header / header:token_row:legacy_0_1 on legacy_preview_0_1"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the declared differences, with TypeScript's expectations RV92-N2-N5:ts_refuses_token_rows_at_the_header / header:token_row:preview_physics_1 on preview_physics_1_invented_sparse"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the carrier transport route on other identities is the header route resolves each existing route, and refuses an unsupported or downgraded header with its standing code"
+    ]
+   ]
+  },
+  {
+   "id": "X04",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "transport: an unsupported header admitted",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 3,
+   "passed": 393,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the declared differences, with TypeScript's expectations RV92-N2-N5:ts_refuses_token_rows_at_the_header / header:token_row:legacy_0_1 on legacy_preview_0_1"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the declared differences, with TypeScript's expectations RV92-N2-N5:ts_refuses_token_rows_at_the_header / header:token_row:preview_physics_1 on preview_physics_1_invented_sparse"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the carrier transport route on other identities is the header route resolves each existing route, and refuses an unsupported or downgraded header with its standing code"
+    ]
+   ]
+  },
+  {
+   "id": "X05",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "transport: a header-only (row-less) transport not checked",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the carrier transport route runs the reader's transport checks (RV88 and RV92 N-1) transport_no_results_receipt_zero is refused with Rust's code"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the carrier transport route runs the reader's transport checks (RV88 and RV92 N-1) transport_no_results_receipt_zero is refused with Rust's code"
+    ]
+   ]
+  },
+  {
+   "id": "B01",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "binding: the live-capture check removed",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 8,
+   "passed": 388,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: standing is bound to the live native capture and the current model (U7 slice T) eligible only for the captured model; another model with the same case ids reads needs_recompute"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: standing is bound to the live native capture and the current model (U7 slice T) an edit of the caller's model object after the capture voids the binding"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: standing is bound to the live native capture and the current model (U7 slice T) a job cancelled while the reader validates keeps no live capture"
+    ]
+   ]
+  },
+  {
+   "id": "B02",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "binding: a capture's presence, not its liveness for this model",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 6,
+   "passed": 390,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: standing is bound to the live native capture and the current model (U7 slice T) eligible only for the captured model; another model with the same case ids reads needs_recompute"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: standing is bound to the live native capture and the current model (U7 slice T) an edit of the caller's model object after the capture voids the binding"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: standing is bound to the live native capture and the current model (U7 slice T) a job cancelled while the reader validates keeps no live capture"
+    ]
+   ]
+  },
+  {
+   "id": "B03",
+   "file": "src/services/previewService.ts",
+   "desc": "binding: the native capture never passed",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 12,
+   "passed": 384,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: standing is bound to the live native capture and the current model (U7 slice T) eligible only for the captured model; another model with the same case ids reads needs_recompute"
+    ]
+   ]
+  },
+  {
+   "id": "B04",
+   "file": "src/services/previewService.ts",
+   "desc": "binding: a capture that is always live, for any model",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 6,
+   "passed": 390,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: standing is bound to the live native capture and the current model (U7 slice T) eligible only for the captured model; another model with the same case ids reads needs_recompute"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: standing is bound to the live native capture and the current model (U7 slice T) an edit of the caller's model object after the capture voids the binding"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: standing is bound to the live native capture and the current model (U7 slice T) a job cancelled while the reader validates keeps no live capture"
+    ]
+   ]
+  },
+  {
+   "id": "B05",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "binding: checked before eligibility (unforced outcomes change)",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 9,
+   "passed": 387,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a registration without an invocation is never eligible, even with the post-U7 reader, and says so"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC a registration without an invocation is never eligible, even with the post-U7 reader, and says so"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ]
+   ]
+  },
+  {
+   "id": "G01",
+   "file": "src/features/result-export/ResultExportPanel.tsx",
+   "desc": "result export: the gate removed",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the T6 panels refuse a successor by an explicit gate (U7 slice T) result export: no packet is offered even when its builder would not refuse"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the T6 panels refuse a successor by an explicit gate (U7 slice T) result export: no packet is offered even when its builder would not refuse"
+    ]
+   ]
+  },
+  {
+   "id": "G02",
+   "file": "src/features/stress-neutral/StressNeutralExportPanel.tsx",
+   "desc": "stress-neutral: the gate removed",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the T6 panels refuse a successor by an explicit gate (U7 slice T) stress-neutral: the live binding is closed by the gate, and the panel shows the shared refusal"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the T6 panels refuse a successor by an explicit gate (U7 slice T) stress-neutral: the live binding is closed by the gate, and the panel shows the shared refusal"
+    ]
+   ]
+  },
+  {
+   "id": "G03",
+   "file": "src/features/stress-neutral/StressNeutralExportPanel.tsx",
+   "desc": "stress-neutral: the refusal not displayed (generic empty text)",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 4,
+   "passed": 392,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the T6 panels refuse a successor by an explicit gate (U7 slice T) stress-neutral: the live binding is closed by the gate, and the panel shows the shared refusal"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the T6 panels refuse a successor by an explicit gate (U7 slice T) stress-neutral: the live binding is closed by the gate, and the panel shows the shared refusal"
+    ],
+    [
+     "features/results/retainedPrecisionOutputRefusal.test.tsx",
+     "sparse_interactive: stress-neutral, result export and the report package keep their own refusal points stress-neutral packet build, packet validation and panel all refuse"
+    ]
+   ]
+  },
+  {
+   "id": "T01s",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "status: eligible mapped to needs_recompute",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 3,
+   "passed": 393,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) pins the mapping from each token to TS's status"
+    ]
+   ]
+  },
+  {
+   "id": "T02s",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "status: the token reported as the status string",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 16,
+   "passed": 380,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with an edited covered row records the reader's first code: unsupported, never registered natively"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with a hash-consistent-looking quality claim of checks_passed records the reader's first code: unsupported, never registered natively"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with an altered receipt records the reader's first code: unsupported, never registered natively"
+    ]
+   ]
+  },
+  {
+   "id": "T03s",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "status: an unsupported status invented",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 17,
+   "passed": 379,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with an edited covered row records the reader's first code: unsupported, never registered natively"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with a hash-consistent-looking quality claim of checks_passed records the reader's first code: unsupported, never registered natively"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with an altered receipt records the reader's first code: unsupported, never registered natively"
+    ]
+   ]
+  },
+  {
+   "id": "Q01",
+   "file": "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "desc": "harness: forced-eligibility parity compared by status string",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 6,
+   "passed": 390,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) sparse_interactive:invocation: token and status with eligibility forced"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) sparse_interactive:edited_row: token and status with eligibility forced"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T) sparse_interactive:foreign_mode: token and status with eligibility forced"
+    ]
+   ]
+  },
+  {
+   "id": "Q02",
+   "file": "src/features/results/retainedPrecisionIntegration.test.tsx",
+   "desc": "harness: shared parity compared by status string",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 4,
+   "passed": 392,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the 20 shared parity scenarios agree with Rust U6a and Python U6b sparse_interactive:edited_row"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the 20 shared parity scenarios agree with Rust U6a and Python U6b sparse_interactive:foreign_mode"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the 20 shared parity scenarios agree with Rust U6a and Python U6b dense_scrutiny:edited_row"
+    ]
+   ]
+  },
+  {
+   "id": "L01",
+   "file": "src/features/results/loadReferenceOutputAvailability.ts",
+   "desc": "refusal: successor not refused",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 45,
+   "passed": 351,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the T6 panels refuse a successor by an explicit gate (U7 slice T) result export: no packet is offered even when its builder would not refuse"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the T6 panels refuse a successor by an explicit gate (U7 slice T) stress-neutral: the live binding is closed by the gate, and the panel shows the shared refusal"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the T6 panels refuse a successor by an explicit gate (U7 slice T) result export: no packet is offered even when its builder would not refuse"
+    ]
+   ]
+  },
+  {
+   "id": "L02",
+   "file": "src/features/results/loadReferenceOutputAvailability.ts",
+   "desc": "refusal: null source throws",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 3,
+   "passed": 393,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionOutputRefusal.test.tsx",
+     "the shared refusal names the desktop route only, routes it to T6, never calls the result invalid or unsupported, and is distinct from load-reference"
+    ],
+    [
+     "features/results/retainedPrecisionOutputRefusal.test.tsx",
+     "sparse_interactive: stress-neutral, result export and the report package keep their own refusal points stress-neutral packet build, packet validation and panel all refuse"
+    ],
+    [
+     "features/results/retainedPrecisionOutputRefusal.test.tsx",
+     "dense_scrutiny: stress-neutral, result export and the report package keep their own refusal points stress-neutral packet build, packet validation and panel all refuse"
+    ]
+   ]
+  },
+  {
+   "id": "L03",
+   "file": "src/features/results/loadReferenceOutputAvailability.ts",
+   "desc": "refusal: load-reference text shown",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 43,
+   "passed": 353,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the T6 panels refuse a successor by an explicit gate (U7 slice T) stress-neutral: the live binding is closed by the gate, and the panel shows the shared refusal"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the T6 panels refuse a successor by an explicit gate (U7 slice T) stress-neutral: the live binding is closed by the gate, and the panel shows the shared refusal"
+    ],
+    [
+     "features/results/retainedPrecisionOutputRefusal.test.tsx",
+     "the shared refusal names the desktop route only, routes it to T6, never calls the result invalid or unsupported, and is distinct from load-reference"
+    ]
+   ]
+  },
+  {
+   "id": "R01",
+   "file": "src/features/results/resultSemantics.ts",
+   "desc": "table: inherited table returned",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the inputs and the pinned identity dispatch constants equal the accepted reader's and the pinned table, whose rows are preview-physics-1's"
+    ]
+   ]
+  },
+  {
+   "id": "A01",
+   "file": "src/services/analysisRunCompatibility.ts",
+   "desc": "build: recorded before the reader",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality an edited source is refused by the reader at build and at validation, with its own code"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "dense_scrutiny: the AnalysisRun copies the receipt and validates its equality an edited source is refused by the reader at build and at validation, with its own code"
+    ]
+   ]
+  },
+  {
+   "id": "A02",
+   "file": "src/services/analysisRunCompatibility.ts",
+   "desc": "build: receipt not copied",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 76,
+   "passed": 320,
+   "load_errors": [],
+   "first": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality builds through the product path with the complete receipt, byte-equal, and validates"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality row interpretation equals the base preview-physics-1 projection's except the contract binding"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality a dropped copy fails with ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH"
+    ]
+   ]
+  },
+  {
+   "id": "A03",
+   "file": "src/services/analysisRunCompatibility.ts",
+   "desc": "validate: source not revalidated",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality an edited source is refused by the reader at build and at validation, with its own code"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "dense_scrutiny: the AnalysisRun copies the receipt and validates its equality an edited source is refused by the reader at build and at validation, with its own code"
+    ]
+   ]
+  },
+  {
+   "id": "A04",
+   "file": "src/services/analysisRunCompatibility.ts",
+   "desc": "validate: copy equality not checked",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 8,
+   "passed": 388,
+   "load_errors": [],
+   "first": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality a dropped copy fails with ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality a altered copy fails with ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality a altered in its body copy fails with ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH"
+    ]
+   ]
+  },
+  {
+   "id": "A05",
+   "file": "src/services/analysisRunCompatibility.ts",
+   "desc": "validate: receipt on another identity admitted",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "no other identity's record carries a receipt a preview-physics-1 record given the successor's receipt is ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+    ]
+   ]
+  },
+  {
+   "id": "V01",
+   "file": "src/services/analysisRunCompatibility.ts",
+   "desc": "v0.2: receipt and tokens dropped silently",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 10,
+   "passed": 386,
+   "load_errors": [],
+   "first": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying a retained_precision object is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying an empty retained_precision object is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying a null retained_precision member is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ]
+   ]
+  },
+  {
+   "id": "V02",
+   "file": "src/services/analysisRunCompatibility.ts",
+   "desc": "v0.2: token rows admitted",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 4,
+   "passed": 392,
+   "load_errors": [],
+   "first": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying a W1 token on the first row is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying a W1 token on the last row only is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.2.0 legacy-shaped source carrying a W1 token on the first row is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ]
+   ]
+  },
+  {
+   "id": "V03",
+   "file": "src/services/analysisRunCompatibility.ts",
+   "desc": "v0.2: a null member and token rows admitted",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 6,
+   "passed": 390,
+   "load_errors": [],
+   "first": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying a null retained_precision member is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying a W1 token on the first row is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying a W1 token on the last row only is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ]
+   ]
+  },
+  {
+   "id": "V04",
+   "file": "src/services/analysisRunCompatibility.ts",
+   "desc": "v0.2: the twin code not used",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 10,
+   "passed": 386,
+   "load_errors": [],
+   "first": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying a retained_precision object is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying an empty retained_precision object is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying a null retained_precision member is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN"
+    ]
+   ]
+  },
+  {
+   "id": "P01",
+   "file": "src/services/previewService.ts",
+   "desc": "capture: successor registered without the reader",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 55,
+   "passed": 341,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC direct IPC registers only after the accepted reader passes with the captured invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC job IPC registers only after the accepted reader passes with the captured invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+    ]
+   ]
+  },
+  {
+   "id": "P02",
+   "file": "src/services/previewService.ts",
+   "desc": "capture: invocation not bound",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 33,
+   "passed": 363,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC direct IPC registers only after the accepted reader passes with the captured invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC job IPC registers only after the accepted reader passes with the captured invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a foreign solver mode is refused at the reader's invocation binding"
+    ]
+   ]
+  },
+  {
+   "id": "C01",
+   "file": "src/services/ruleCheckService.ts",
+   "desc": "gate: successor not gated",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the rule-check gate and binding refusals (eligibility held) refuses a registered successor before any rule backend call, and unregistered bytes as not native"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the rule-check gate and binding refusals (eligibility held) refuses a registered successor before any rule backend call, and unregistered bytes as not native"
+    ]
+   ]
+  },
+  {
+   "id": "C02",
+   "file": "src/services/ruleCheckService.ts",
+   "desc": "gate: invocation not passed",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ]
+   ]
+  },
+  {
+   "id": "C03",
+   "file": "src/services/ruleCheckService.ts",
+   "desc": "precheck: not_covered shows N-SB",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 14,
+   "passed": 382,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the rule-check gate and binding refusals (eligibility held) binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused"
+    ]
+   ]
+  },
+  {
+   "id": "C04",
+   "file": "src/services/ruleCheckService.ts",
+   "desc": "precheck: unvalidated shows N-SB",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 12,
+   "passed": 384,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the rule-check gate and binding refusals (eligibility held) binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the rule-check gate and binding refusals (eligibility held) binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the declared differences, with TypeScript's expectations I67-F2:display_only_binding_precheck / none:binding on milestone_sparse_interactive"
+    ]
+   ]
+  },
+  {
+   "id": "C05",
+   "file": "src/services/ruleCheckService.ts",
+   "desc": "gate: standing finding not reported",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the rule-check gate and binding refusals (eligibility held) refuses a registered successor before any rule backend call, and unregistered bytes as not native"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the rule-check gate and binding refusals (eligibility held) refuses a registered successor before any rule backend call, and unregistered bytes as not native"
+    ]
+   ]
+  },
+  {
+   "id": "RP1",
+   "file": "src/features/results/ResultsPanel.tsx",
+   "desc": "panel: generic numerical_quality text for the successor",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the standing text comes from the registered receipt, never from numerical_quality"
+    ]
+   ]
+  },
+  {
+   "id": "RP2",
+   "file": "src/features/results/ResultsPanel.tsx",
+   "desc": "panel: successor rows unlabelled",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 395,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the standing text comes from the registered receipt, never from numerical_quality"
+    ]
+   ]
+  },
+  {
+   "id": "H01",
+   "file": "src/features/results/HistoricalRunContext.tsx",
+   "desc": "reopen: successor not revalidated",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 6,
+   "passed": 390,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: reopen revalidates the saved statement and never mints standing a mutated saved row reads unsupported: the reader's own code is a finding"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: reopen revalidates the saved statement and never mints standing an altered AnalysisRun receipt copy is reported"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: reopen revalidates the saved statement and never mints standing an dropped AnalysisRun receipt copy is reported"
+    ]
+   ]
+  },
+  {
+   "id": "H02",
+   "file": "src/features/results/HistoricalRunContext.tsx",
+   "desc": "reopen: reader not run",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: reopen revalidates the saved statement and never mints standing a mutated saved row reads unsupported: the reader's own code is a finding"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: reopen revalidates the saved statement and never mints standing a mutated saved row reads unsupported: the reader's own code is a finding"
+    ]
+   ]
+  },
+  {
+   "id": "H03",
+   "file": "src/features/results/HistoricalRunContext.tsx",
+   "desc": "reopen: copy not compared",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 4,
+   "passed": 392,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: reopen revalidates the saved statement and never mints standing an altered AnalysisRun receipt copy is reported"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: reopen revalidates the saved statement and never mints standing an dropped AnalysisRun receipt copy is reported"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: reopen revalidates the saved statement and never mints standing an altered AnalysisRun receipt copy is reported"
+    ]
+   ]
+  },
+  {
+   "id": "H04",
+   "file": "src/features/results/HistoricalRunContext.tsx",
+   "desc": "reopen: absent record compared",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: reopen revalidates the saved statement and never mints standing a saved successor without an AnalysisRun is revalidated and reports no copy mismatch"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: reopen revalidates the saved statement and never mints standing a saved successor without an AnalysisRun is revalidated and reports no copy mismatch"
+    ]
+   ]
+  },
+  {
+   "id": "H05",
+   "file": "src/features/results/HistoricalRunContext.tsx",
+   "desc": "reopen: absent copy matches",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 394,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: reopen revalidates the saved statement and never mints standing an dropped AnalysisRun receipt copy is reported"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: reopen revalidates the saved statement and never mints standing an dropped AnalysisRun receipt copy is reported"
+    ]
+   ]
+  }
+ ],
+ "control": {
+  "exit": 0,
+  "failed": 0,
+  "passed": 396,
+  "load_errors": [],
+  "first": []
+ },
+ "seconds": 982
+}

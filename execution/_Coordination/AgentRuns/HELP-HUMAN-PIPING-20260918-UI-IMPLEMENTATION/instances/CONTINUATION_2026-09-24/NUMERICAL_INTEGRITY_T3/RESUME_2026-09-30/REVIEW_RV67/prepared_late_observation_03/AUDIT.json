@@ -1,0 +1,20 @@
+{
+  "utc": "2026-10-03T10:34:28.419850+00:00",
+  "subject_files_match_dispatch": true,
+  "proposal_manifest_hash_verified": true,
+  "qualification_snapshot_hash_and_size_verified": true,
+  "three_patch_hashes_verified": true,
+  "C1_source_patch_hash_and_size_verified": true,
+  "three_reconstructed_base_hashes_match_proposal": true,
+  "prior_design_seal_payloads_verified": 5,
+  "broad_deferred_snapshot_symbols_absent_from_proposed_adapter": true,
+  "findings": [
+    "RV67-L1: active marker entered-work/restore plus guard accounting-error propagation",
+    "RV67-L2: positive completed-observation custody missing before source construction"
+  ],
+  "callsite_scope_result": "sole-case/no-combination source_selected flag and late actual borrowed operands establish the intended callsite boundary; fixes required in callback",
+  "whole_C0": "not reviewed or accepted",
+  "runtime": "not performed or restored",
+  "new_analysis_closed": true,
+  "seal_policy": "single seal; later corrections only addenda"
+}

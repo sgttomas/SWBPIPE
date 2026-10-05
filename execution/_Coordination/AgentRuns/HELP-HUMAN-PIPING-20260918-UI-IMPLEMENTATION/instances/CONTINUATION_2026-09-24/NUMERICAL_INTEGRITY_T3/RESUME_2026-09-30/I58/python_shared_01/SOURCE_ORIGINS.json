@@ -1,0 +1,138 @@
+[
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+    "sha256": "9956c08421eebb44ee2663a790cf3ac882452f5119f6470cf6c5dcc386c3f2b8",
+    "bytes": 29168,
+    "scope": "750-925; canonical byte encoder and put helpers",
+    "hash_time": "closure; concurrently owned Rust reader could have changed after excerpt, retained source authority remains FK/PP"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "sha256": "6a2fc382bf8cae0502c41030da8ac9bc0cfe1f1b80b7aceac60ff7e40f345eda",
+    "bytes": 207733,
+    "scope": "1110-1175,2225-2315,2570-2620,4038-4078,4265-4348,4560-4695 and targeted residual/work searches",
+    "hash_time": "closure; concurrently owned Rust reader could have changed after excerpt, retained source authority remains FK/PP"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+    "sha256": "053fabc7a94e6ee0a0e4e8780985aee7654e0f7ced7944d7512f59ed6ef86083",
+    "bytes": 72837,
+    "scope": "905-1155 and row_scales/body_extent searches",
+    "hash_time": "closure; concurrently owned Rust reader could have changed after excerpt, retained source authority remains FK/PP"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+    "sha256": "66022cc78bb5779d021a35e33fafc7cc7bc2d64723a5d0fdaf3a48cb6fea795e",
+    "bytes": 48032,
+    "scope": "315-385,1000-1100 and exact stage assignment searches",
+    "hash_time": "closure; concurrently owned Rust reader could have changed after excerpt, retained source authority remains FK/PP"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+    "sha256": "bdffbeb81c54ed99c3869928e9b4f1fd3fee2b77610e4ad2cc7c89390bcd2b78",
+    "bytes": 47879,
+    "scope": "107-180,980-1090; actual data predicate and optional shifts",
+    "hash_time": "closure; concurrently owned Rust reader could have changed after excerpt, retained source authority remains FK/PP"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+    "sha256": "7f993858d4a17882c232dea728023f6c900ae4ffe4a94917c20f6ec4248f81b4",
+    "bytes": 29281,
+    "scope": "536-630; full member structural block",
+    "hash_time": "closure; concurrently owned Rust reader could have changed after excerpt, retained source authority remains FK/PP"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+    "sha256": "f2e034573db9c0bdd0af4ccf3cf392dde8c02da4f960ac3955a1e7ce6e20d29d",
+    "bytes": 29535,
+    "scope": "344-410; free ordering/profile",
+    "hash_time": "closure; concurrently owned Rust reader could have changed after excerpt, retained source authority remains FK/PP"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+    "sha256": "43c1f369a2fafef0dda00503f06b602bb3f0996c1c7f5fe398dce1145d735ee6",
+    "bytes": 75482,
+    "scope": "45-180; symmetric structural pattern",
+    "hash_time": "closure; concurrently owned Rust reader could have changed after excerpt, retained source authority remains FK/PP"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/product_physics/src/retained_product.rs",
+    "sha256": "e9949ff88fef71a32cf07d552cf2b065d445d85cbb7bee9e53f8678562d6d982",
+    "bytes": 161582,
+    "scope": "2540-2845; original maxima, G5a source order and conditional summaries",
+    "hash_time": "closure; concurrently owned Rust reader could have changed after excerpt, retained source authority remains FK/PP"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/product_physics/src/lib.rs",
+    "sha256": "d2f0f2dc73a717412cf5a37f3df8bcb808703466378ecf56052866b073b35f61",
+    "bytes": 991062,
+    "scope": "7440-7525,9160-9345; project-unit nodes and strict material interpolation",
+    "hash_time": "closure; concurrently owned Rust reader could have changed after excerpt, retained source authority remains FK/PP"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/units/src/lib.rs",
+    "sha256": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c",
+    "bytes": 65476,
+    "scope": "thermal_expansion_coefficient and accepted dimension searches",
+    "hash_time": "closure; concurrently owned Rust reader could have changed after excerpt, retained source authority remains FK/PP"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs",
+    "sha256": "c7651b7c7ee170f02242fae93962988e4fde8c6240e9bc3bf30b7f993238124f",
+    "bytes": 119376,
+    "scope": "2650-2790 and residual/stop searches; contemporaneous sibling draft used for navigation, not accepted authority",
+    "hash_time": "closure; concurrently owned Rust reader could have changed after excerpt, retained source authority remains FK/PP"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/tests/conftest.py",
+    "sha256": "e60106277cb7f586c83ffc25e3fcadd9bc04dec291770b6173b7b8cd8658e75e",
+    "bytes": 969,
+    "scope": "complete; both environment variables prevent implicit builds",
+    "hash_time": "closure; concurrently owned Rust reader could have changed after excerpt, retained source authority remains FK/PP"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/analysis_runs/retained_precision.py",
+    "sha256": "a9819e6a7afb7aae109b7fb49b082f2644c565ac2b87003c7ccc3accf75f9a3b",
+    "bytes": 63640,
+    "scope": "complete across bounded excerpts and owned editing",
+    "hash_time": "closure; concurrently owned Rust reader could have changed after excerpt, retained source authority remains FK/PP"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/tests/test_retained_precision_contract.py",
+    "sha256": "ed910da85847f28dbd9faaadc18e498653ab6babd1fd16a8a01922053121a874",
+    "bytes": 10920,
+    "scope": "complete",
+    "hash_time": "closure; concurrently owned Rust reader could have changed after excerpt, retained source authority remains FK/PP"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/tests/test_retained_precision_schema.py",
+    "sha256": "90bbd5660c504d3344ce19756d2b2250f80c0bd5d93b3ec123e5abf10523e504",
+    "bytes": 3627,
+    "scope": "complete",
+    "hash_time": "closure; concurrently owned Rust reader could have changed after excerpt, retained source authority remains FK/PP"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/WIRE_CONTRACT.md",
+    "sha256": "c8ab2318457bd3897e207888af80f54f1a889071bf630ff1815939d922a567e3",
+    "bytes": 29991,
+    "scope": "1-78,94-170 and targeted hash/gate/summary searches"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/CONTRACT_DELTA.md",
+    "sha256": "923da0b97eb5becad7e7c1373c5a6f362568dc28ac8eab029c9170677c890869",
+    "bytes": 53986,
+    "scope": "targeted91-147 source/hash/build/call contract and original search output"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/prepared_public_contract_02/C3_DELTA.md",
+    "sha256": "fd00d2c1e8f4f7e2077f304560a63830e2b7b61cb5b1d47aff994c7874ed292e",
+    "bytes": 32788,
+    "scope": "1-260"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/prepared_public_contract_correction_03/ADDENDUM.md",
+    "sha256": "6b8ebea5b83c3033211df144f69add8fcb753855cae570ec66afdd6684ddbf36",
+    "bytes": 11381,
+    "scope": "complete"
+  }
+]

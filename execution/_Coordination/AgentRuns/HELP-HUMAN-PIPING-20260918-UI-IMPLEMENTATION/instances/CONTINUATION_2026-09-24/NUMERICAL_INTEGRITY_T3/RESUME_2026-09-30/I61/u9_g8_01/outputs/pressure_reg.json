@@ -1,0 +1,122 @@
+[
+  {
+    "cause": "successor",
+    "class": "successor",
+    "clause": null,
+    "direct_sha": "1d9ba7098dd20390357851e84a136890581a625ae21bf928864c30bc98a1a8c9",
+    "label": "milestone",
+    "mode": "sparse_interactive",
+    "notices": 0,
+    "profile": "Registered",
+    "refusal": null,
+    "value_blocking": [],
+    "value_sha": "9c7ec1a144a729f456a25fedb5dbe6a7dafde67d52b9cc8caff6c39bb0050871",
+    "value_status": "MECHANICS_SOLVED"
+  },
+  {
+    "cause": "successor",
+    "class": "successor",
+    "clause": null,
+    "direct_sha": "7c5fe5c59f2bcc3b3313055223214d0f4884dc44981e3f6bb615a8d84acca595",
+    "label": "milestone",
+    "mode": "dense_scrutiny",
+    "notices": 0,
+    "profile": "Registered",
+    "refusal": null,
+    "value_blocking": [],
+    "value_sha": "21ca629c27e6ca03b1411c8c51097f7a50f90429045b1e36313163014dd4278a",
+    "value_status": "MECHANICS_SOLVED"
+  },
+  {
+    "cause": "none",
+    "class": "exact",
+    "clause": "D1.5",
+    "direct_sha": "3d4bb6e0a847a03de01b209bd024070b5881bf21b6380b639aacbafe39b4b635",
+    "label": "milestone_with_pressure",
+    "mode": "sparse_interactive",
+    "notices": 0,
+    "profile": "Registered",
+    "refusal": "Family(Case, PressureRegions)",
+    "value_blocking": [
+      "PREVIEW_CONTRACT_VERSION_MISMATCH"
+    ],
+    "value_sha": "3d4bb6e0a847a03de01b209bd024070b5881bf21b6380b639aacbafe39b4b635",
+    "value_status": "MODEL_INCOMPLETE"
+  },
+  {
+    "cause": "none",
+    "class": "exact",
+    "clause": "D1.5",
+    "direct_sha": "3d4bb6e0a847a03de01b209bd024070b5881bf21b6380b639aacbafe39b4b635",
+    "label": "milestone_with_pressure",
+    "mode": "dense_scrutiny",
+    "notices": 0,
+    "profile": "Registered",
+    "refusal": "Family(Case, PressureRegions)",
+    "value_blocking": [
+      "PREVIEW_CONTRACT_VERSION_MISMATCH"
+    ],
+    "value_sha": "3d4bb6e0a847a03de01b209bd024070b5881bf21b6380b639aacbafe39b4b635",
+    "value_status": "MODEL_INCOMPLETE"
+  },
+  {
+    "cause": "none",
+    "class": "exact",
+    "clause": "D1.3",
+    "direct_sha": "5a2b9663093b13f19d6e6dec068b0808acb885ab31627bafca435450edac6541",
+    "label": "phys_r4_pressurized",
+    "mode": "sparse_interactive",
+    "notices": 0,
+    "profile": "Registered",
+    "refusal": "Family(Namespace, SchemaVersion)",
+    "value_blocking": [
+      "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "value_sha": "5a2b9663093b13f19d6e6dec068b0808acb885ab31627bafca435450edac6541",
+    "value_status": "MODEL_INCOMPLETE"
+  },
+  {
+    "cause": "none",
+    "class": "exact",
+    "clause": "D1.3",
+    "direct_sha": "5a2b9663093b13f19d6e6dec068b0808acb885ab31627bafca435450edac6541",
+    "label": "phys_r4_pressurized",
+    "mode": "dense_scrutiny",
+    "notices": 0,
+    "profile": "Registered",
+    "refusal": "Family(Namespace, SchemaVersion)",
+    "value_blocking": [
+      "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "value_sha": "5a2b9663093b13f19d6e6dec068b0808acb885ab31627bafca435450edac6541",
+    "value_status": "MODEL_INCOMPLETE"
+  },
+  {
+    "cause": "none",
+    "class": "exact",
+    "clause": "D1.3",
+    "direct_sha": "44068a925313793ab672d2abf1a450c05b0ff4d7b10e1a8f6bc32cb14ec1e50b",
+    "label": "phys_r4_without_pressure",
+    "mode": "sparse_interactive",
+    "notices": 0,
+    "profile": "Registered",
+    "refusal": "Family(Namespace, SchemaVersion)",
+    "value_blocking": [],
+    "value_sha": "44068a925313793ab672d2abf1a450c05b0ff4d7b10e1a8f6bc32cb14ec1e50b",
+    "value_status": "MECHANICS_SOLVED"
+  },
+  {
+    "cause": "none",
+    "class": "exact",
+    "clause": "D1.3",
+    "direct_sha": "e5f669bdd153cfc68170d4887f58d4a0a2c2c8da9b04968a8e9431cd99b89aaa",
+    "label": "phys_r4_without_pressure",
+    "mode": "dense_scrutiny",
+    "notices": 0,
+    "profile": "Registered",
+    "refusal": "Family(Namespace, SchemaVersion)",
+    "value_blocking": [],
+    "value_sha": "e5f669bdd153cfc68170d4887f58d4a0a2c2c8da9b04968a8e9431cd99b89aaa",
+    "value_status": "MECHANICS_SOLVED"
+  }
+]

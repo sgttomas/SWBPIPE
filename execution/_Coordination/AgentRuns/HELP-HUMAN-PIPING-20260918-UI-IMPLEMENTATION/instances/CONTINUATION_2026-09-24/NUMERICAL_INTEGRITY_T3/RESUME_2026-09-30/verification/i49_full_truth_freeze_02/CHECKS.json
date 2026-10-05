@@ -1,0 +1,13 @@
+{
+  "checked_utc": "2026-10-03T06:05:58.190422+00:00",
+  "actor": "ROOT HELP_HUMAN /root",
+  "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I49/full_truth_addendum_02",
+  "return_read_by_ROOT": true,
+  "checker_source_read_by_ROOT": true,
+  "payload_count": 26,
+  "inventory_sha256": "1c7bf58603167c45ec20f35fb90879dafdc921f12141fa6ae59890ce35c605c7",
+  "return_sha256": "edfd6c25fa515158b932311d89898c828db9aad1700e0bcf6324d29406106fa0",
+  "seal_sha256": "50af5fd3dc7558cd2f424233d786d6feb3ddae64ab2753c9e7bece6eff5ad64c",
+  "decision": "Preserved for same RV64 independent backcheck; not yet accepted",
+  "source_changes": false
+}

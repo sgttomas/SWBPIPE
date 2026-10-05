@@ -1,0 +1,47 @@
+{
+  "sealed_utc": "2026-10-03T12:57:26.420917+00:00",
+  "actor": "/root/rv69_public_formation_contract",
+  "parent": "/root",
+  "status": "sealed once after final audit; CLEAR for C3 realization with RV69-N1 non-blocking; no implementation/public acceptance",
+  "code_basis": "922db9dce33c2623385841ad3a4a002a79089e3a",
+  "num_basis": "897f2092e4",
+  "payloads": [
+    {
+      "path": "AUDIT.json",
+      "bytes": 1816,
+      "sha256": "5acf53092b1c0c3b53c2c9ccd88d252e4839645803dd1a8b5751f6d2a6a472dd"
+    },
+    {
+      "path": "BULK_MANIFEST.json",
+      "bytes": 13338,
+      "sha256": "5cabf7be05ea8b2676e708cbc76722acdba7b983445b5fd20a68034d5a98a955"
+    },
+    {
+      "path": "CHECKS.json",
+      "bytes": 3024,
+      "sha256": "4131ae2390a9fc4e0c3e512efc967b141173cf63d5152949b22676670d8f2d66"
+    },
+    {
+      "path": "EXECUTION.json",
+      "bytes": 2062,
+      "sha256": "290476c23cb7034343b16def4e1f30486887fa234bb1321aeee8b2d975852245"
+    },
+    {
+      "path": "ORIGINS.json",
+      "bytes": 26435,
+      "sha256": "cbd8f64bf52a88346d1e8ee5fe701e256adf1fb74db9b085b806a2162563d456"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 1335,
+      "sha256": "136bbe5c2ff8191784135bfbe9e5c722ce3d7be86d51a4264c53e4e7094402b0"
+    },
+    {
+      "path": "REVIEW.md",
+      "bytes": 14465,
+      "sha256": "97527146f73e6e299e2a2f684782b2aa92c05939b0c1b09cb4de88d3ffdd97f5"
+    }
+  ],
+  "external_manifest": "BULK_MANIFEST.json",
+  "later_corrections": "addenda only"
+}

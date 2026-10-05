@@ -1,0 +1,22 @@
+{
+  "task": "RV43-F1 correction backcheck",
+  "agent": "/root/rv43_f2a_wire_c1",
+  "parent": "/root HELP_HUMAN",
+  "role": "TASK Type 2",
+  "mechanism": "same native delegated child; no delegation",
+  "receipt_utc": "2026-10-02 20:15:23 UTC",
+  "new_check_cutoff_utc": "2026-10-02 20:25:23 UTC",
+  "return_deadline_utc": "2026-10-02 20:30:23 UTC",
+  "checks_complete_utc": "2026-10-02 20:16:01 UTC",
+  "workdir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "owned_write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV43/f2a_wire_c1_02",
+  "instruction_basis": "Unchanged initial review instruction/skill origins in f2a_wire_c1_01/ORIGINS_STAGE0.json; parent bounded correction brief in native conversation",
+  "permissions": "Host unrestricted; scope enforced by instruction; explicit cwd and GIT_OPTIONAL_LOCKS=0 for all necessary Git reads",
+  "result": "CLEAR contract correction; arithmetic no-wrap proof and maintained implementation remain open",
+  "operations": [
+    "Read complete actual five-file diff and corrected context",
+    "Verified changed-path set, append-only ruling, author inventory, unchanged author run evidence, original sealed review and maintained source",
+    "Wrote compact backcheck, diff, provenance and seal inside owned scope"
+  ],
+  "prohibited_actions_performed": []
+}

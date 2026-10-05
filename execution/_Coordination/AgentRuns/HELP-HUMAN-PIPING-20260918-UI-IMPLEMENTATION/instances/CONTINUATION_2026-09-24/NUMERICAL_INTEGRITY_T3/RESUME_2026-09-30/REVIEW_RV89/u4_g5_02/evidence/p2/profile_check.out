@@ -1,0 +1,99 @@
+transcription: 47 forms and 244 assumed atoms; mismatches=0
+RV89's own in-build atom values vs I65's record: 244 atoms, differences=[]
+record in-build  sparse max=W3 E_mov=3493720906 +R=3560829770 frac=0.884342 margin_0.9M=63048886 margin_M=465702070 phases_equal_record=True
+   W1 requested=1842590832 moving=8388608 +R=1918088304 (0.4764 M)
+   W2 requested=1940629630 moving=8388608 +R=2016127102 (0.5007 M)
+   W3 requested=3304417625 moving=189303281 +R=3560829770 (0.8843 M)
+   W4 requested=3278059790 moving=189303281 +R=3534471935 (0.8778 M)
+   W5 requested=2112885712 moving=8388608 +R=2188383184 (0.5435 M)
+   X1 requested=3033087988 moving=189079500 +R=3289276352 (0.8169 M)
+   X2 requested=1734516794 moving=8388608 +R=1810014266 (0.4495 M)
+record in-build  dense  max=W3 E_mov=3513431354 +R=3580540218 frac=0.889237 margin_0.9M=43338438 margin_M=445991622 phases_equal_record=True
+   W1 requested=1862301280 moving=8388608 +R=1937798752 (0.4813 M)
+   W2 requested=1960340078 moving=8388608 +R=2035837550 (0.5056 M)
+   W3 requested=3324128073 moving=189303281 +R=3580540218 (0.8892 M)
+   W4 requested=3297770238 moving=189303281 +R=3554182383 (0.8827 M)
+   W5 requested=2132596160 moving=8388608 +R=2208093632 (0.5484 M)
+   X1 requested=3052798436 moving=189079500 +R=3308986800 (0.8218 M)
+   X2 requested=1754227242 moving=8388608 +R=1829724714 (0.4544 M)
+RV89 in-build    sparse max=W3 E_mov=3493720906 +R=3560829770 frac=0.884342 margin_0.9M=63048886 margin_M=465702070 phases_equal_record=True
+RV89 in-build    dense  max=W3 E_mov=3513431354 +R=3580540218 frac=0.889237 margin_0.9M=43338438 margin_M=445991622 phases_equal_record=True
+chain assumed    sparse max=W3 E_mov=3432697737 +R=3499806601 frac=0.869186 margin_0.9M=124072055 margin_M=526725239 phases_equal_record=None
+chain assumed    dense  max=W3 E_mov=3452408185 +R=3519517049 frac=0.874082 margin_0.9M=104361607 margin_M=507014791 phases_equal_record=None
+W3 dense terms (in-build):
+   TAV_W           1,564,864,714  0.3886 M
+   T16 (P2)        1,268,332,585  0.3150 M
+   O_base_dense      291,873,278  0.0725 M
+   T16_moving        189,303,281  0.0470 M
+   STAGED             95,455,410  0.0237 M
+   T14                54,563,728  0.0136 M
+   T13                41,504,510  0.0103 M
+   STATICS             5,397,696  0.0013 M
+   T12                 1,650,346  0.0004 M
+   T15                   319,328  0.0001 M
+   T11                   155,712  0.0000 M
+   T19                     9,880  0.0000 M
+   NOTICE                    886  0.0000 M
+   total+R 3,580,540,218
+W3 dense: layout-free constants 2,838,629,472 (0.7050 M); layout terms 485,498,601 (0.1206 M)
+largest layout contributions (atom: coefficient x in-build value = bytes; bytes per +1 B of stride):
+   Node(String,Value)               InBuild      227,301 x    736 =   167,293,536
+   s(Node_SR)                       InBuild      524,288 x    184 =    96,468,992
+   Text(row)                        Text           8,302 x  11474 =    95,257,148
+   s(Wide<16>)                      InBuild      144,192 x    144 =    20,763,648
+   s(Value)                         InBuild      616,454 x     32 =    19,726,528
+   s(Expansion)                     InBuild      480,192 x     32 =    15,366,144
+   Text(recovery_finding)           Text               1 x 10466306 =    10,466,306
+   Node(String,ResultItem)          InBuild        2,403 x   3640 =     8,746,920
+   s(ContributionRounding)          InBuild       47,776 x     96 =     4,586,496
+   s(Wide<8>)                       InBuild       50,976 x     80 =     4,078,080
+   s(Diagnostic)                    InBuild       25,746 x    144 =     3,707,424
+   s(ResultItem)                    InBuild       12,306 x    296 =     3,642,576
+   s(Wide<4>)                       InBuild       75,584 x     48 =     3,628,032
+   s(Option<Wide<16>>)              InBuild       21,248 x    144 =     3,059,712
+   Text(err)                        Text              98 x  16384 =     1,605,632
+Estimate atoms in W3 dense: 42 with weight 6,053,120
++10% on every layout atom moves W3 by 48,549,860 B
+Estimate atoms (dense): stride, coefficient in W3 / in the largest phase using it, weight in W3, stride that alone would consume the 0.9 M margin
+   Node(TrackerKey,())          stride=  512 W3coef=     52 W3weight=    26,624 forms=T13 breakeven_stride=833,943
+   Node(TrackerKey,Tracker)     stride= 4096 W3coef=     52 W3weight=   212,992 forms=T13 breakeven_stride=837,527
+   s((usize,VecPair))           stride=   32 W3coef=    256 W3weight=     8,192 forms=T12 breakeven_stride=169,322
+   s(AdapterSnapshot)           stride=  512 W3coef=      1 W3weight=       512 forms=T15 breakeven_stride=43,338,950
+   s(AliasE)                    stride=   32 W3coef=  4,096 W3weight=   131,072 forms=T14 breakeven_stride=10,612
+   s(ArcPrepared)               stride=  512 W3coef=      1 W3weight=       512 forms=T14 breakeven_stride=43,338,950
+   s(BodyCoverage)              stride=   32 W3coef=     32 W3weight=     1,024 forms=T14 breakeven_stride=1,354,358
+   s(BodyMapE)                  stride=   56 W3coef=     32 W3weight=     1,792 forms=T12 breakeven_stride=1,354,382
+   s(ConstraintMapE)            stride=   40 W3coef=    256 W3weight=    10,240 forms=T12 breakeven_stride=169,330
+   s(ContributionE)             stride=   40 W3coef=  4,096 W3weight=   163,840 forms=T12 breakeven_stride=10,620
+   s(ConversionE)               stride=   48 W3coef=  4,096 W3weight=   196,608 forms=T14 breakeven_stride=10,628
+   s(ConversionEvent)           stride=   64 W3coef=    512 W3weight=    32,768 forms=T15 breakeven_stride=84,709
+   s(CoverageFact)              stride=   32 W3coef=     32 W3weight=     1,024 forms=T14 breakeven_stride=1,354,358
+   s(EnclosureE)                stride=  304 W3coef=  4,096 W3weight= 1,245,184 forms=T14 breakeven_stride=10,884
+   s(Expansion6)                stride=  144 W3coef=     32 W3weight=     4,608 forms=T12 breakeven_stride=1,354,470
+   s(FinalRowConversion)        stride=   64 W3coef=  4,096 W3weight=   262,144 forms=T15 breakeven_stride=10,644
+   s(IntervalE)                 stride=   32 W3coef=  4,096 W3weight=   131,072 forms=T14 breakeven_stride=10,612
+   s(LaneTerminal)              stride=  256 W3coef=      2 W3weight=       512 forms=T15 breakeven_stride=21,669,475
+   s(LawE)                      stride=   64 W3coef=  4,096 W3weight=   262,144 forms=T14 breakeven_stride=10,644
+   s(LazyE)                     stride= 2232 W3coef=    512 W3weight= 1,142,784 forms=T13 breakeven_stride=86,877
+   s(MaterialDescriptor)        stride=   96 W3coef=      8 W3weight=       768 forms=T12 breakeven_stride=5,417,400
+   s(MaximumE)                  stride=  128 W3coef=     32 W3weight=     4,096 forms=T14 breakeven_stride=1,354,454
+   s(MemberMapE)                stride=   64 W3coef=     32 W3weight=     2,048 forms=T12 breakeven_stride=1,354,390
+   s(NodalMapE)                 stride=   48 W3coef=    128 W3weight=     6,144 forms=T12 breakeven_stride=338,629
+   s(NodeMapE)                  stride=   40 W3coef=     32 W3weight=     1,280 forms=T12 breakeven_stride=1,354,366
+   s(Pair)                      stride=   16 W3coef=  1,152 W3weight=    18,432 forms=T12 breakeven_stride=37,636
+   s(PreparedMemberEvent)       stride=  256 W3coef=     32 W3weight=     8,192 forms=T15 breakeven_stride=1,354,582
+   s(ProductRow)                stride=   96 W3coef=  4,096 W3weight=   393,216 forms=T14 breakeven_stride=10,676
+   s(ProductValue)              stride=   32 W3coef=  8,192 W3weight=   262,144 forms=T14 breakeven_stride=5,322
+   s(ProjectionOutcome)         stride=   64 W3coef=  4,096 W3weight=   262,144 forms=T14 breakeven_stride=10,644
+   s(RegistryE)                 stride=  128 W3coef=      8 W3weight=     1,024 forms=T12 breakeven_stride=5,417,432
+   s(Row6)                      stride=   48 W3coef=    672 W3weight=    32,256 forms=T12 breakeven_stride=64,539
+   s(RunRow)                    stride=   32 W3coef=  2,048 W3weight=    65,536 forms=T14 breakeven_stride=21,193
+   s(SectionMapE)               stride=   64 W3coef=     32 W3weight=     2,048 forms=T12 breakeven_stride=1,354,390
+   s(SpringMapE)                stride=   48 W3coef=     32 W3weight=     1,536 forms=T12 breakeven_stride=1,354,374
+   s(StationMapE)               stride=   32 W3coef=    128 W3weight=     4,096 forms=T12 breakeven_stride=338,613
+   s(SupportCoverage)           stride=   64 W3coef=     32 W3weight=     2,048 forms=T14 breakeven_stride=1,354,390
+   s(SupportMapE)               stride=   64 W3coef=     32 W3weight=     2,048 forms=T12 breakeven_stride=1,354,390
+   s(SupportVector)             stride=   80 W3coef=     32 W3weight=     2,560 forms=O_base_dense,O_base_sparse breakeven_stride=1,354,406
+   s(TableE)                    stride=   48 W3coef= 20,800 W3weight=   998,400 forms=T13 breakeven_stride=2,131
+   s(Tag)                       stride=    8 W3coef=  4,096 W3weight=    32,768 forms=T12 breakeven_stride=10,588
+   s(TrackerE)                  stride=   64 W3coef=  1,792 W3weight=   114,688 forms=T13 breakeven_stride=24,248

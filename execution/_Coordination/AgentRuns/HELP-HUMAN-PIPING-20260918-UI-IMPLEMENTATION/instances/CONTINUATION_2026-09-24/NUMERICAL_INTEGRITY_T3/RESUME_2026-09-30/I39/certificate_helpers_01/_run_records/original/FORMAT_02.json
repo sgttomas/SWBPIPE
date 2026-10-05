@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "rustfmt",
+    "--edition",
+    "2021",
+    "--check",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed/certificate.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_tests.rs"
+  ],
+  "exit": 0,
+  "source_hashes": "SOURCE_04.json"
+}

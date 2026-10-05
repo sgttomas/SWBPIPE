@@ -1,0 +1,117 @@
+[
+ {
+  "id": "R21_d74_summary_ts_side_current",
+  "lang": "ts",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "the declared differences, with TypeScript's expectations are exactly the six ruled entries, each with a ruling, forms an",
+   "the declared differences, with TypeScript's expectations D-U7-4:ts_requires_live_native_capture / invocation_without_nat",
+   "(+3)"
+  ],
+  "seconds": 9.5
+ },
+ {
+  "id": "R22_d74_summary_python_side_not_current",
+  "lang": "ts",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 9.6
+ },
+ {
+  "id": "R23_d74_summary_rust_side_not_current",
+  "lang": "ts",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 9.7
+ },
+ {
+  "id": "R24_d74_summary_forms_removed",
+  "lang": "ts",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "the declared differences, with TypeScript's expectations are exactly the six ruled entries, each with a ruling, forms an"
+  ],
+  "seconds": 9.9
+ },
+ {
+  "id": "R25_d74_summary_unknown_value",
+  "lang": "ts",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "the declared differences, with TypeScript's expectations are exactly the six ruled entries, each with a ruling, forms an",
+   "the declared differences, with TypeScript's expectations D-U7-4:ts_requires_live_native_capture / invocation_without_nat",
+   "(+3)"
+  ],
+  "seconds": 9.5
+ },
+ {
+  "id": "R26_n3_clause_removed",
+  "lang": "ts",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "the declared differences, with TypeScript's expectations carry the N-4 scope: differences inherited from the base carrie"
+  ],
+  "seconds": 10.2
+ },
+ {
+  "id": "R27_n3_clause_ts_code_misstated",
+  "lang": "ts",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "the declared differences, with TypeScript's expectations carry the N-4 scope: differences inherited from the base carrie"
+  ],
+  "seconds": 9.8
+ },
+ {
+  "id": "R31_probe_removed",
+  "lang": "ts",
+  "file": "fixtures/results/retained_precision_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "07g round (I61 U6e): F5 and RV79-N1 RV94 N-3: an invalid enum value in a not_required case's quality is refused at G7 wi"
+  ],
+  "seconds": 9.7
+ },
+ {
+  "id": "R32_probe_ts_code",
+  "lang": "ts",
+  "file": "fixtures/results/retained_precision_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "shared synthetic prepared receipt controls, never solver execution evidence g7_not_required_quality_enum_invalid",
+   "07g round (I61 U6e): F5 and RV79-N1 RV94 N-3: an invalid enum value in a not_required case's quality is refused at G7 wi"
+  ],
+  "seconds": 9.6
+ },
+ {
+  "id": "R33_probe_rust_code",
+  "lang": "ts",
+  "file": "fixtures/results/retained_precision_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 9.4
+ },
+ {
+  "id": "R34_probe_python_code",
+  "lang": "ts",
+  "file": "fixtures/results/retained_precision_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 9.5
+ },
+ {
+  "id": "R35_probe_expected_code",
+  "lang": "ts",
+  "file": "fixtures/results/retained_precision_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 9.2
+ }
+]

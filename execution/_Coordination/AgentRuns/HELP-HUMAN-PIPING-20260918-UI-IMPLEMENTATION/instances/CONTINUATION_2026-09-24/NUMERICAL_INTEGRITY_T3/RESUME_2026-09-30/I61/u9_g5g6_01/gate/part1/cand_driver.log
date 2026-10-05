@@ -1,0 +1,49 @@
+2026-10-04T22:37:02Z start 884 runs; phase A 24 (2 workers); phase B 860 (4 workers)
+2026-10-04T22:37:02Z phase A 24 runs, 2 workers
+2026-10-04T22:37:03Z 1 / 884 RF-LARGE-CHAIN-n10000-AX sparse_interactive typed ok 0.8392 exit 0 mem% 95 load1 13.75
+2026-10-04T22:37:03Z 2 / 884 RF-LARGE-CHAIN-n10000-AX sparse_interactive captured ok 0.9777 exit 0 mem% 94 load1 13.75
+2026-10-04T22:37:03Z 3 / 884 RF-LARGE-CHAIN-n10000-AX dense_scrutiny captured ok 0.2278 exit 0 mem% 94 load1 13.75
+2026-10-04T22:37:03Z 4 / 884 RF-LARGE-CHAIN-n10000-AX dense_scrutiny typed ok 0.0965 exit 0 mem% 94 load1 13.75
+2026-10-04T22:37:04Z 5 / 884 RF-LARGE-CHAIN-n10000-ROT sparse_interactive typed ok 0.5117 exit 0 mem% 95 load1 13.75
+2026-10-04T22:37:04Z 6 / 884 RF-LARGE-CHAIN-n10000-ROT sparse_interactive captured ok 0.6717 exit 0 mem% 95 load1 13.75
+2026-10-04T22:37:04Z 7 / 884 RF-LARGE-CHAIN-n10000-ROT dense_scrutiny typed ok 0.1084 exit 0 mem% 95 load1 13.75
+2026-10-04T22:37:04Z 8 / 884 RF-LARGE-CHAIN-n10000-ROT dense_scrutiny captured ok 0.2718 exit 0 mem% 95 load1 13.75
+2026-10-04T22:37:04Z 9 / 884 RF-LARGE-TREE-n10000-AX sparse_interactive typed ok 0.5167 exit 0 mem% 95 load1 13.75
+2026-10-04T22:37:05Z 10 / 884 RF-LARGE-TREE-n10000-AX sparse_interactive captured ok 0.6908 exit 0 mem% 95 load1 13.75
+2026-10-04T22:37:05Z 11 / 884 RF-LARGE-TREE-n10000-AX dense_scrutiny typed ok 0.0958 exit 0 mem% 95 load1 13.75
+2026-10-04T22:37:05Z 12 / 884 RF-LARGE-TREE-n10000-AX dense_scrutiny captured ok 0.2889 exit 0 mem% 95 load1 13.75
+2026-10-04T22:37:05Z 13 / 884 RF-LARGE-TREE-n10000-ROT sparse_interactive typed ok 0.6404 exit 0 mem% 94 load1 13.75
+2026-10-04T22:37:06Z 14 / 884 RF-LARGE-TREE-n10000-ROT sparse_interactive captured ok 0.907 exit 0 mem% 94 load1 13.75
+2026-10-04T22:37:06Z 15 / 884 RF-LARGE-TREE-n10000-ROT dense_scrutiny typed ok 0.1421 exit 0 mem% 94 load1 13.75
+2026-10-04T22:37:06Z 16 / 884 RF-LARGE-TREE-n10000-ROT dense_scrutiny captured ok 0.3884 exit 0 mem% 94 load1 13.75
+2026-10-04T22:37:15Z 17 / 884 RF-LARGE-CONT-n10000-AX sparse_interactive typed ok 7.107 exit 0 mem% 95 load1 12.77
+2026-10-04T22:37:15Z 18 / 884 RF-LARGE-CONT-n10000-AX dense_scrutiny captured ok 0.6453 exit 0 mem% 94 load1 12.77
+2026-10-04T22:37:15Z 19 / 884 RF-LARGE-CONT-n10000-AX dense_scrutiny typed ok 0.14 exit 0 mem% 94 load1 12.77
+2026-10-04T22:37:15Z 20 / 884 RF-LARGE-CONT-n10000-AX sparse_interactive captured ok 8.1342 exit 0 mem% 94 load1 12.77
+2026-10-04T22:37:25Z 21 / 884 RF-LARGE-CONT-n10000-ROT sparse_interactive typed ok 7.7763 exit 0 mem% 95 load1 13.83
+2026-10-04T22:37:26Z 22 / 884 RF-LARGE-CONT-n10000-ROT dense_scrutiny captured ok 0.6934 exit 0 mem% 94 load1 13.83
+2026-10-04T22:37:26Z 23 / 884 RF-LARGE-CONT-n10000-ROT dense_scrutiny typed ok 0.1629 exit 0 mem% 94 load1 13.83
+2026-10-04T22:37:26Z 24 / 884 RF-LARGE-CONT-n10000-ROT sparse_interactive captured ok 9.3053 exit 0 mem% 95 load1 13.83
+2026-10-04T22:37:26Z phase B 860 runs, 4 workers
+2026-10-04T22:39:25Z 37 / 884 RF-LARGE-CHAIN-n01000-AX dense_scrutiny typed ok 118.7491 exit 0 mem% 95 load1 11.66
+2026-10-04T22:39:26Z 38 / 884 RF-LARGE-CHAIN-n01000-AX dense_scrutiny captured ok 119.1706 exit 0 mem% 95 load1 11.66
+2026-10-04T22:39:29Z 41 / 884 RF-LARGE-TREE-n01000-ROT dense_scrutiny typed ok 119.1164 exit 0 mem% 95 load1 11.68
+2026-10-04T22:39:30Z 42 / 884 RF-LARGE-TREE-n01000-ROT dense_scrutiny captured ok 119.4837 exit 0 mem% 95 load1 11.68
+2026-10-04T22:40:21Z 50 / 884 RF-MECH-DISC-CHAIN100-SPRING sparse_interactive captured ok 0.0373 exit 0 mem% 95 load1 12.58
+2026-10-04T22:40:25Z 100 / 884 RF-CHAIN-T-n10-r1e-04 dense_scrutiny typed ok 0.0798 exit 0 mem% 95 load1 12.37
+2026-10-04T22:40:26Z 150 / 884 RF-LARGE-TREE-n00010-ROT sparse_interactive typed ok 0.03 exit 0 mem% 95 load1 12.37
+2026-10-04T22:40:27Z 200 / 884 RF-RANGE-CONT-SIM-b dense_scrutiny typed ok 0.0421 exit 0 mem% 95 load1 12.37
+2026-10-04T22:40:28Z 250 / 884 RF-INVARIANCE-CONT4-ROT-Q3 dense_scrutiny captured ok 0.0499 exit 0 mem% 95 load1 12.10
+2026-10-04T22:40:28Z 300 / 884 RF-CHAIN-A-n05-r1e-08 dense_scrutiny typed ok 0.0395 exit 0 mem% 95 load1 12.10
+2026-10-04T22:40:29Z 350 / 884 RF-RANGE-CHAIN-L-240 sparse_interactive typed ok 0.0086 exit 0 mem% 95 load1 12.10
+2026-10-04T22:40:30Z 400 / 884 RF-CHAIN-T-n03-r1e-08 sparse_interactive typed ok 0.007 exit 0 mem% 95 load1 12.10
+2026-10-04T22:40:30Z 450 / 884 RF-INVARIANCE-LFRAME-OFF-1e3 sparse_interactive captured ok 0.0365 exit 0 mem% 95 load1 12.10
+2026-10-04T22:40:31Z 500 / 884 RF-CANCEL-F-G1e7-nGG sparse_interactive captured ok 0.0112 exit 0 mem% 95 load1 12.10
+2026-10-04T22:40:31Z 550 / 884 RF-CANCEL-M-G1e5-GGn sparse_interactive typed ok 0.0272 exit 0 mem% 95 load1 12.10
+2026-10-04T22:40:32Z 600 / 884 RF-CANCEL-M-G1e8-GnG-INPLANE dense_scrutiny captured ok 0.0347 exit 0 mem% 95 load1 12.10
+2026-10-04T22:40:32Z 650 / 884 RF-SKEW-T-PIN-OFF-122-r1e-04 dense_scrutiny typed ok 0.0095 exit 0 mem% 95 load1 12.10
+2026-10-04T22:40:33Z 700 / 884 RF-SKEW-A-CANT-OFF-122-r1e-04 dense_scrutiny captured ok 0.0353 exit 0 mem% 95 load1 11.77
+2026-10-04T22:40:33Z 750 / 884 RF-RANGE-SKEW-SIM-b dense_scrutiny captured not-ok 0.0434 exit 0 mem% 95 load1 11.77
+2026-10-04T22:40:34Z 800 / 884 FX-N05 dense_scrutiny captured ok 0.0499 exit 0 mem% 95 load1 11.77
+2026-10-04T22:40:34Z 850 / 884 FX-R05 dense_scrutiny captured ok 0.0096 exit 0 mem% 95 load1 11.77
+2026-10-04T22:40:35Z done 884 runs in 213 s

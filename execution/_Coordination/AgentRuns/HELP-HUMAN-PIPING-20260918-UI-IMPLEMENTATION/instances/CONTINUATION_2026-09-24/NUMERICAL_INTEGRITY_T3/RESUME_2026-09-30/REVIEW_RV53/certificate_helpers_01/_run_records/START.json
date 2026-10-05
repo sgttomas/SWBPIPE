@@ -1,0 +1,18 @@
+{
+  "receipt_utc": "2026-10-02T23:50:50Z (approximate; first precise clock read 23:51:46Z)",
+  "evidence_started_utc": "2026-10-02T23:52:52.716364+00:00",
+  "role": "TASK Type 2",
+  "mechanism": "delegated-harness-native descendant",
+  "parent": "/root HELP_HUMAN",
+  "task": "/root/rv53_certificate_helpers",
+  "source_candidate": "82fc4ebdca043c25c701d435e09b8830640fe950",
+  "source_base": "fdae294643b798c1849da8b2e643085562593686",
+  "num_brief_basis": "538297c17a6b0dfcf126aca8479bf990ae14adf7",
+  "write_scope": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV53/certificate_helpers_01",
+  "limits": "50 min return; checkpoint20; expansion cutoff40; Cargo 4jobs/2threads/1200s isolated target; no source/Git/index/API writes/delegation",
+  "preliminary_deviations": [
+    "Initial Git status lacked GIT_OPTIONAL_LOCKS=0. No explicit Git/index mutation; subsequent reads disable optional locks.",
+    "One broad file-name discovery output truncated; no reliance on unrelated returned contents.",
+    "Two failed path reads: I39 brief missing _01 suffix, integration-02 absent from source checkout; both recovered in NUM."
+  ]
+}

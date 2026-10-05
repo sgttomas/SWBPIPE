@@ -1,0 +1,17 @@
+{
+  "utc": "2026-10-03T01:52:52.478511+00:00",
+  "command": [
+    "ps",
+    "-axo",
+    "pid,ppid,comm"
+  ],
+  "exit_code": 0,
+  "cargo_rustc_processes": [],
+  "runtime_released": true,
+  "no_targets_removed_or_pruned": true,
+  "source_frozen": true,
+  "task": "/root/i44_source_residual",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native",
+  "model": "inherited parent configuration; no override made"
+}

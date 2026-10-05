@@ -1,0 +1,13 @@
+I61_ADMISSION milestone_sparse_interactive profile=Missing allowance=Unselected
+I61_ORDINARY_DIAGNOSTICS ["LOAD_CATEGORY_PREVIEW_MAPPED", "LOAD_CATEGORY_PREVIEW_MAPPED", "LOAD_CATEGORY_PREVIEW_MAPPED", "NUMERICAL_INTEGRITY_SENSITIVE", "RULE_CHECK_INPUTS_MISSING", "RETAINED_PRECISION_SELECTED"]
+I61_OUTCOME milestone_sparse_interactive selected
+I61_CONTROLS milestone_sparse_interactive A=equal B=equal ordinary_bytes=68250 ordinary_sha256=9c7ec1a144a729f456a25fedb5dbe6a7dafde67d52b9cc8caff6c39bb0050871
+I61_LEGACY milestone_sparse_interactive Some(LegacyCapture { case: "case", attempted: true, stage: "source closure", helper_stage: "source_closure", charged: 46628, rejected: 0, limit: 4000000 })
+I61_EMITTED milestone_sparse_interactive
+I61_ADMISSION milestone_dense_scrutiny profile=Missing allowance=Unselected
+I61_ORDINARY_DIAGNOSTICS ["LOAD_CATEGORY_PREVIEW_MAPPED", "LOAD_CATEGORY_PREVIEW_MAPPED", "LOAD_CATEGORY_PREVIEW_MAPPED", "NUMERICAL_INTEGRITY_SENSITIVE", "RULE_CHECK_INPUTS_MISSING", "RETAINED_PRECISION_SELECTED"]
+I61_OUTCOME milestone_dense_scrutiny selected
+I61_CONTROLS milestone_dense_scrutiny A=equal B=equal ordinary_bytes=69366 ordinary_sha256=21ca629c27e6ca03b1411c8c51097f7a50f90429045b1e36313163014dd4278a
+I61_LEGACY milestone_dense_scrutiny Some(LegacyCapture { case: "case", attempted: true, stage: "source closure", helper_stage: "source_closure", charged: 46628, rejected: 0, limit: 4000000 })
+I61_EMITTED milestone_dense_scrutiny
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 458 filtered out; finished in 1.27s

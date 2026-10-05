@@ -1,0 +1,36 @@
+[
+  {
+    "revision": "8b0154753836599d986d7c0093aa9e2e6295b180",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I51_TRACE_PRIOR_CAUSE_REPAIR.md",
+    "sha256": "9fc77034d956186477e476bdc6b7a53c175a3176c9991d25effd048e9aa89a1c",
+    "bytes": 2521,
+    "read_scope": "complete"
+  },
+  {
+    "revision": "7018513af3d6574be382d5c3aaee01e36cb0b28e",
+    "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+    "sha256": "7b1241f31242fdf07a6e3aa8f47b65dea8c5f11014ff3bf1cc1de3def1a8f58d",
+    "bytes": 169832,
+    "read_scope": "prior-cause prelude and owning refusal"
+  },
+  {
+    "revision": "7018513af3d6574be382d5c3aaee01e36cb0b28e",
+    "path": "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+    "sha256": "3a698b70228e13184378e9bc03e8f33a841669e86daf8a8744434fb0af258866",
+    "bytes": 135525,
+    "read_scope": "existing typed controls and numerical suite"
+  },
+  {
+    "revision": "7018513af3d6574be382d5c3aaee01e36cb0b28e",
+    "path": "projects/chirality-piping/core/product_physics/src/retained_receipt.rs",
+    "sha256": "84810876aaae59e168165227bccf7f8ecaed233ac8be3981d4663d9fc9b8eace",
+    "bytes": 9444,
+    "read_scope": "inherited typed projection; unchanged"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_trace_07/ORIGINS.json",
+    "sha256": "034bd4c1061b6f27b65986525c96fa643d7ecec4ebb634c653f979beb50e5db4",
+    "bytes": 12286,
+    "read_scope": "sealed parent active instructions/design/C3 origins retained; no rebinding"
+  }
+]

@@ -1,0 +1,41 @@
+{
+  "status": "sealed bounded backcheck; not acceptance",
+  "self_excluded": "_run_records/WRITE_INVENTORY.json",
+  "files": [
+    {
+      "path": "RETURN.md",
+      "bytes": 4357,
+      "sha256": "f6a08d1e000670122e8657158e5677a9c368cb542fe5059093eb309fc40bc278"
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "bytes": 1685,
+      "sha256": "4364374c98f35437cd4ac31fa7ccf8201646f3c066c9ca62b309a52632945ef0"
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "bytes": 9682,
+      "sha256": "6dbf3c9d2008f25b6ce444a7c96d502d1dfd59c34dc5d0f29315985d4713be45"
+    },
+    {
+      "path": "_run_records/SESSION.json",
+      "bytes": 2302,
+      "sha256": "2f4007ccd8fca8c1c00c5a820b4aaf08b2fc18ebdbb3c20ac0f276ec98dd0fd3"
+    },
+    {
+      "path": "_run_records/author_replay/CORRECTION.json",
+      "bytes": 6099,
+      "sha256": "91a894e8c7c1a99f4b55e63091f0fbb8eab680a84ee59bea25301f218ba03b20"
+    },
+    {
+      "path": "_run_records/author_replay/checks.json",
+      "bytes": 1917,
+      "sha256": "1926da38028c26b1570a610eec59d27a86642fb7190e00ea7b5019a7cad5ee98"
+    },
+    {
+      "path": "_run_records/backcheck.py",
+      "bytes": 5568,
+      "sha256": "4b0a73fc541888214aac2f4c7bbc148572a0c951b01c0a1dbe2a072eee0327a5"
+    }
+  ]
+}

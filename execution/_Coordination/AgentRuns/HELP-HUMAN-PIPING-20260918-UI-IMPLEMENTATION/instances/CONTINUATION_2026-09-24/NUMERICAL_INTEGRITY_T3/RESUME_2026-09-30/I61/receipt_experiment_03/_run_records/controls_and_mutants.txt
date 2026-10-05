@@ -1,0 +1,17 @@
+# PP --lib in the archive: base bytes (NUM dca3b65b3d lib.rs and retained_product.rs, emitter absent) vs final experiment-03 bytes
+## base
+test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+test result: FAILED. 456 passed; 1 failed; 1 ignored; 0 measured; 0 filtered out; finished in 22.53s
+SparseInteractive: committed bytes changed
+## experiment 03 (final bytes)
+test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+test result: FAILED. 457 passed; 1 failed; 1 ignored; 0 measured; 0 filtered out; finished in 22.90s
+SparseInteractive: committed bytes changed
+## outcome-set diff (base -> experiment 03)
+72a73
+> test i61_receipt_probe::i61_facade_receipts ... ok
+## G-l negative controls (I61_MUTANT on the final binary; each must fail)
+MUTANT gl_charged exit=101 assertion `left == right` failed: typed G-l equals the disclosed failure test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 458 filtered out; finished in 0.59s 
+MUTANT gl_helper exit=101 assertion `left == right` failed: typed G-l equals the disclosed failure test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 458 filtered out; finished in 0.59s 
+MUTANT gl_drop exit=101 UNMAPPED legacy outcome (contract reading needed): typed=None kept=false omitted=true test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 458 filtered out; finished in 0.59s 
+MUTANT gl_unattempted exit=101 UNMAPPED legacy outcome (contract reading needed): typed=Some(LegacyCapture { case: "case", attempted: false, stage: "source closure", helper_stage: "source_closure", charged: 46628, rejected: 0, limit: 4000000 }) kept=false omitted=true test result: FAILED. 0

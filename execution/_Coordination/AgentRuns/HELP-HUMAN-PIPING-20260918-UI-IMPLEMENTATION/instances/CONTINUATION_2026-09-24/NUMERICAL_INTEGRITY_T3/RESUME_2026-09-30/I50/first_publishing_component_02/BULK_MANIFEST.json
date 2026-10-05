@@ -1,0 +1,372 @@
+{
+  "root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02",
+  "files": [
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/AUXILIARY_COMMANDS.json",
+      "bytes": 10079,
+      "sha256": "23c69496497b16917550c63b6fbc343844241f3b4ae25397dfa429676e19c194"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/BASELINE.json",
+      "bytes": 153186,
+      "sha256": "1d035f0554c71ae2c4674e76e80a26f99dc2ceb4eb7bbbbb7df5b74fb4b37d6e"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/ENVIRONMENT.json",
+      "bytes": 262,
+      "sha256": "cc727aafdae09b230c5307074b3e6163732bb5a0c6d5c8cf5249429f99ebd8eb"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/FINAL_AUDIT.json",
+      "bytes": 554,
+      "sha256": "a279683194a96584c582d7cef487a7254d19609325706b73af5f73542ba6e628"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/RUNTIME_RELEASE.json",
+      "bytes": 332,
+      "sha256": "02289c13ac73fcc008a0336becc87ab7e07a5cb0ce9406fd3fbc816ce46bf684"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/compatibility_debug.log",
+      "bytes": 514,
+      "sha256": "935b468e0bd446ea1c4ec77863ca6bd2b9150cfce4b14af5abb55cc5b5417182"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/compatibility_debug_02.json",
+      "bytes": 3876,
+      "sha256": "3f58608d20117dae7a252d65293258c638164879c364c5535337dd028e338946"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/compatibility_debug_02.log",
+      "bytes": 54,
+      "sha256": "1d5174d2ef149be86a115a210d33649dff7d076cd5fdce47e0b397da852d189c"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/compatibility_debug_final.json",
+      "bytes": 3869,
+      "sha256": "c1f29b3bb22e00e624f09f913d2eaa602ddc7a71783de3499094e302a79a9807"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/compatibility_debug_final.log",
+      "bytes": 54,
+      "sha256": "1d5174d2ef149be86a115a210d33649dff7d076cd5fdce47e0b397da852d189c"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/compatibility_optimized_final.json",
+      "bytes": 3877,
+      "sha256": "2f1c24b03ac5dbc3d970aae78740241687cc4a8363a61837ea80dd515c0990d6"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/compatibility_optimized_final.log",
+      "bytes": 54,
+      "sha256": "1d5174d2ef149be86a115a210d33649dff7d076cd5fdce47e0b397da852d189c"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/first_candidate_0.rs",
+      "bytes": 103747,
+      "sha256": "5a350d53ca3f4fd207dcfccd6797894269cd9f2ec12f6b867e0a623776a5cdc7"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/first_candidate_1.rs",
+      "bytes": 62502,
+      "sha256": "4b70a806a75af08ce48bbfe5d667174068f25eca9947c390d20d0d922d48a3f0"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/first_candidate_2.rs",
+      "bytes": 41899,
+      "sha256": "2e14cce9379c92e6ceec9887d181f7a21fb02babf80b67b080ed947b76c3a2f9"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/first_candidate_3.rs",
+      "bytes": 46284,
+      "sha256": "af41689e5905347474bbc875e184dee9323a28eabc07d1e259f3e4c13c56e490"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/first_candidate_4.json",
+      "bytes": 2747,
+      "sha256": "2aa51bee095186b95463567f190198f82a69557a569bf8a6a7b318aad37ab0b1"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/fk_certificate_final.json",
+      "bytes": 2343,
+      "sha256": "3f617e88aadc59122c1e5f713616997c0f108c7c04760b5f51d45a15ccd545da"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/fk_certificate_final.log",
+      "bytes": 2954,
+      "sha256": "fb376f213ce5fa8b2dc0e2ccb3b5f860f2757f8ddd5204e3cbc25db4a7aa0837"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/fk_certificate_first.json",
+      "bytes": 2210,
+      "sha256": "fa0e969abf02537218287ed8a9a68f2c876c775483ed5a2a6b23cab0f0066854"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/fk_certificate_first.log",
+      "bytes": 2798,
+      "sha256": "0f1207dbaeec6239e486e926669276fd96399ad439bd805db6180b57789cfc98"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/fk_s11.json",
+      "bytes": 2206,
+      "sha256": "cc4a6359032c42b0afad142f8e2f11a5ed9e72c28c316d5e0d50c8c4e1cb1518"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/fk_s11.log",
+      "bytes": 750,
+      "sha256": "7d8b3abdc5ca58dd55da0c5c9c6ae2349b6d7f90c65aea076b84fecd9d67b5ac"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/fk_s11_final.json",
+      "bytes": 2339,
+      "sha256": "69a77c055abcd3830c0114d2957f02776ed5ca9126a011190900c2055c7ad025"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/fk_s11_final.log",
+      "bytes": 750,
+      "sha256": "de9ec15ac54eafc9ec0600b93aa58c63d78a52567b2441f6cfac023e2056e54b"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/format.json",
+      "bytes": 1612,
+      "sha256": "414e88af775bca5ec87ff2fea0f702170e30c5d58dde7d7ea412b206fd1343c3"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/format_final.json",
+      "bytes": 1229,
+      "sha256": "4470f3cb9c6cc16bcde4409fe778f7bae0358ec0623de56490ed1b7f5cf0e31d"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/named_oracle_complete_first.json",
+      "bytes": 1206412,
+      "sha256": "ab6fc9014c742310da06844004838083849c89e0d597996270d5008b7cc87935"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/named_oracle_complete_first.log",
+      "bytes": 1250,
+      "sha256": "ab2098e7d23b440d8d3e4c1a1a121868381a5c08649024095a435997f1eb6c16"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/named_oracle_first.json",
+      "bytes": 648728,
+      "sha256": "03f590cd622821d9a344d0e85e87f0a06fe372544a8f727ca120080775f7a2de"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/named_oracle_first.log",
+      "bytes": 916,
+      "sha256": "06d154c370a8cac47e4a50bf2e0bfcd93aa3c008959e71bef3f05b326f13f11d"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/named_oracle_full.json",
+      "bytes": 1205947,
+      "sha256": "008297abd36f8240e8d16b66914f8fdccf6173e3dbb146ad32f79809936cf647"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/named_oracle_full.log",
+      "bytes": 1251,
+      "sha256": "625d8e571e6de3266757f20cf10fee6538df457636c9f9af2cb908410e27b566"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/oracle_debug_final.json",
+      "bytes": 1206412,
+      "sha256": "ab6fc9014c742310da06844004838083849c89e0d597996270d5008b7cc87935"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/oracle_debug_final.log",
+      "bytes": 1250,
+      "sha256": "ab2098e7d23b440d8d3e4c1a1a121868381a5c08649024095a435997f1eb6c16"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/oracle_optimized_final.json",
+      "bytes": 1206412,
+      "sha256": "ab6fc9014c742310da06844004838083849c89e0d597996270d5008b7cc87935"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/oracle_optimized_final.log",
+      "bytes": 1250,
+      "sha256": "ab2098e7d23b440d8d3e4c1a1a121868381a5c08649024095a435997f1eb6c16"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_debug_complete.json",
+      "bytes": 2347,
+      "sha256": "47260dc8d72c9aeec90e9cfa6d476aff160d74db8ad372a73bccdde44935d46d"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_debug_complete.log",
+      "bytes": 1062102,
+      "sha256": "0968e73d6f8f42bb4b7a89f52629a8210fd387cb66e5bfdd3dfa90999dbd98b0"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_debug_final.json",
+      "bytes": 2345,
+      "sha256": "2c8ae317319caa6da1501c9072e5447304e6c99ace50b5753f7b267b56311f29"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_debug_final.log",
+      "bytes": 1059560,
+      "sha256": "5ced66b5e030db563298dac2d4385345a0d3fcd2c05514f86df0b43c18270b69"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_debug_support_final.json",
+      "bytes": 2291,
+      "sha256": "91c8531736b30a06e5ceeb287cbd2deafb2297d137cc6c6fa67a9578cd0f3a8b"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_debug_support_final.log",
+      "bytes": 839256,
+      "sha256": "90f720c9d589fa3138d33b26d634ea3bc5943f9e62470180a77cfcd5263435bd"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_debug_support_scope.json",
+      "bytes": 2293,
+      "sha256": "16d4c113e9886381403ea48777adc06bfabd4f6bf1a9634af1feef3c66771bb2"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_debug_support_scope.log",
+      "bytes": 838296,
+      "sha256": "03646a803942ca33909167bd925f4b54d61df38b09a0545416b276a6507fd63c"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_formation.json",
+      "bytes": 2305,
+      "sha256": "508cd3501d4d31834e3a2d2b187a5a80bfad41927f258454123148c2a8a5a104"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_formation.log",
+      "bytes": 4598,
+      "sha256": "92e15ba9f240d86db324a326d2c491eebd63abb2bc6133ed029afbffa8afc670"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_formation_final.json",
+      "bytes": 2438,
+      "sha256": "65b4477cba42cc69590516c6970ffd08d1ab86f41bf3045d2b00b5a2f80941d8"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_formation_final.log",
+      "bytes": 4598,
+      "sha256": "cc829f5ecb855d1533304a315ee87d2302076d86cce2729e2b1a7ee3b32cdb95"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_named_dense_completion.json",
+      "bytes": 2380,
+      "sha256": "83cb55e5b6795d8d0cbf5a1a54686719956d2f9627be1c5819f3080b66f97868"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_named_dense_completion.log",
+      "bytes": 222045,
+      "sha256": "d762d4dcc137e0bff9e739fb0a829fa086055ea9492f5b55f765ac5801c6dde7"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_named_first.json",
+      "bytes": 2077,
+      "sha256": "bb9e1af8856e5535fe44edeeae9997dacaa0cbf93c692290dabcbd6b7603cc18"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_named_first.log",
+      "bytes": 2840,
+      "sha256": "36fb78578dd82ec25ee81ea8937a04db83781b05d2895fbfb90ec658ee9deb9b"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_named_second.json",
+      "bytes": 2077,
+      "sha256": "79e89838fa106b3020b8fbc6bc723cda39e485aa5a10be1ed2409b1dd7f5fdd1"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_named_second.log",
+      "bytes": 197239,
+      "sha256": "92ace49fe3a748c6cf462ef5af7f1b87b7d420866b2892161bfc93360959a096"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_observation_controls.json",
+      "bytes": 2338,
+      "sha256": "61c60feb30cfcb5dfa9df1bbf1458a82dc2206efc2d9b3807d5a9083936b2f7e"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_observation_controls.log",
+      "bytes": 5460,
+      "sha256": "e1f52f3e5db1d75ff84e681aba528c716bd0061dbd6ce70fb5b4a9e07becd757"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_optimized_final.json",
+      "bytes": 2362,
+      "sha256": "842f8bd9831807791980fa4709918ee3e82357c75118452b4d22dea2fe850dab"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_optimized_final.log",
+      "bytes": 1061715,
+      "sha256": "2e48d681713fb65326ba6c2868fcd22a9118112f4afd083ac8ec65aa5b89ed41"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_optimized_support_scope.json",
+      "bytes": 2308,
+      "sha256": "c54a8a9d007f2c051a9f1e184376caecf44b22237300c853b843abaf37e434fa"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_optimized_support_scope.log",
+      "bytes": 841411,
+      "sha256": "8e0cd024eba4bb3c1c693f5d48a26e1575530c4dab82810edf2d3a9bffde84b6"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_s11.json",
+      "bytes": 2205,
+      "sha256": "ab529570178f36e96c60110f0add967a16e52d4c2c01f68987fb1ca8a58c3266"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_s11.log",
+      "bytes": 7407,
+      "sha256": "3f1f2bdc5af7a392a4333219bc5ed04e14d230b22c82afacba400ece581e42de"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_s11_final.json",
+      "bytes": 2338,
+      "sha256": "2f4b5cdcbe512dadee61ed82577e8f8b533dbbe7feaf03bcecf5f560bfdd7741"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_s11_final.log",
+      "bytes": 5244,
+      "sha256": "4524437c7bb4997ec4568d920e8bceb518059b16e24ecffb3268df9b1198a7fb"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_source_controls.json",
+      "bytes": 2243,
+      "sha256": "50e123348a1d4c033d18ffc2574c4cfdf3256468e04a433c4a97299c8a4dc2a4"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_source_controls.log",
+      "bytes": 7120,
+      "sha256": "b5b62775258f6e4d3d28547bec38ff4a0d211ba12c2ace4d4c3a8a5a4d218742"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_source_controls_02.json",
+      "bytes": 2243,
+      "sha256": "8b4d8546121b70f7bc844158ca94e86806689c66f9f6efae8bea9bdaa7e24550"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_source_controls_02.log",
+      "bytes": 7310,
+      "sha256": "817b5db99b120ae1670f12c662279f320765974213027b2835ab54d46d106089"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_support_controls.json",
+      "bytes": 2203,
+      "sha256": "f2c804a6faf5eb447755aa939080819057cdaf472d9ccf95873b01d2b39173b2"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_support_controls.log",
+      "bytes": 2966,
+      "sha256": "1d6158a704ebe4c7306ab7377d913841e64a4cdbfc3fd8f860e4ded332fe7d39"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_support_controls_02.json",
+      "bytes": 2201,
+      "sha256": "7c83c030852083b8e6094930fab37cb9f38ee5a1cdd9f3739503a6a24b48e92a"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_support_controls_02.log",
+      "bytes": 4522,
+      "sha256": "b67bb05bd894ee50f9bab4601cc02c970e3df43f3e22736d03deb61099a748ca"
+    }
+  ],
+  "file_count": 73,
+  "total_bytes": 12147592
+}

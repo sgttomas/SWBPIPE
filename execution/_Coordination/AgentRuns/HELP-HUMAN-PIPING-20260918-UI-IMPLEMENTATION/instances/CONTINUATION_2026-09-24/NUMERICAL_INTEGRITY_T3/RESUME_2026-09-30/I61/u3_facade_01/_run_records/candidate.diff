@@ -1,0 +1,874 @@
+diff --git a/projects/chirality-piping/core/product_physics/Cargo.toml b/projects/chirality-piping/core/product_physics/Cargo.toml
+index 11557d4a50..b04a7a4646 100644
+--- a/projects/chirality-piping/core/product_physics/Cargo.toml
++++ b/projects/chirality-piping/core/product_physics/Cargo.toml
+@@ -25,8 +25,5 @@ open_pipe_stress_stress_recovery = { path = "../loads/stress_recovery" }
+ open_pipe_stress_units = { path = "../units" }
+ serde = { version = "1", features = ["derive"] }
+ serde_json = { version = "1", features = ["float_roundtrip"] }
+-
+-[dev-dependencies]
+-# I61 U1: the accepted Rust reader validates the serializer's output in tests only.
+-# The runtime path dependency for precommit validation (decision 5) belongs to U3.
++# U3 (decision 5): the accepted Rust reader validates the successor precommit.
+ open_pipe_stress_result_export = { path = "../reporting/result_export" }
+diff --git a/projects/chirality-piping/core/product_physics/src/lib.rs b/projects/chirality-piping/core/product_physics/src/lib.rs
+index a4bb593843..e2fe9c9014 100644
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -125,6 +125,8 @@ pub use retained_memory::{
+ mod retained_product_tests;
+ #[cfg(test)]
+ mod retained_wire_tests;
++#[cfg(test)]
++mod retained_facade_tests;
+ pub use pressure_runtime::{PressureContractInput, PressureRegionInput, PressureTerminalInput};
+ 
+ const DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_POLICY_REF: &str =
+@@ -2175,9 +2177,47 @@ pub fn run_linear_static_preview_value_with_mode(
+ pub struct RetainedPreviewOutput {
+     envelope: MechanicsEnvelope,
+     admission: Option<RetainedAdmissionReport>,
++    /// U3 (D-a): a permitted invocation's W1 result: the checked successor, or
++    /// the private cause of its fallback. `None` on every refused or shared call.
++    /// Crate-private in U3 grant 1: no public type changes before ROOT rules
++    /// checkpoint item 1. Read only by tests until a permit exists (U4 G5).
++    #[cfg_attr(not(test), allow(dead_code))]
++    retained: Option<Result<RetainedSuccessor, W1Fallback>>,
++}
++/// U3 (D-a): the successor document (the envelope with `retained_precision`),
++/// staged, serialized and validated before the transfer moved it here.
++#[derive(Debug, Clone, PartialEq)]
++pub(crate) struct RetainedSuccessor(serde_json::Value);
++impl RetainedSuccessor {
++    #[cfg_attr(not(test), allow(dead_code))]
++    pub(crate) fn value(&self) -> &serde_json::Value { &self.0 }
++}
++/// U3: why a permitted invocation published the untouched ordinary bytes.
++#[derive(Debug, Clone, PartialEq)]
++pub(crate) enum W1Fallback {
++    /// Load-state or exact-pressure model: outside D1 (D1.3), the ordinary route.
++    Domain,
++    /// The reserved-stack thread could not be spawned (STACK_PLAN §1).
++    StackReservation,
++    /// Exact-block selected on the ordinary route (coexistence, D-15).
++    Coexistence,
++    /// G-B or G-C refused.
++    LateGate(retained_memory::PhaseRefusal),
++    CompleteGate(retained_memory::PhaseRefusal),
++    /// The prepared attempt refused at a stage (one-case: no successor, RR:8436).
++    Preparation,
++    Native,
++    Candidate,
++    /// The serializer refused typed.
++    Serializer(retained_wire::ReceiptFailure),
++    /// Precommit validation (decision 5): the accepted Rust reader's first failure.
++    Precommit { gate: &'static str, code: String },
+ }
+ impl RetainedPreviewOutput {
+     pub fn envelope(&self) -> &MechanicsEnvelope { &self.envelope }
++    /// U3: the permitted invocation's W1 result (see `retained`).
++    #[cfg_attr(not(test), allow(dead_code))]
++    pub(crate) fn retained(&self) -> Option<&Result<RetainedSuccessor, W1Fallback>> { self.retained.as_ref() }
+     /// None means the existing pre-parse refusal returned before census entry.
+     pub fn admission(&self) -> Option<&RetainedAdmissionReport> { self.admission.as_ref() }
+     pub fn into_parts(self) -> (MechanicsEnvelope, Option<RetainedAdmissionReport>) {
+@@ -2206,13 +2246,30 @@ fn run_linear_static_preview_value_dispatch(
+     retained_entry: Option<retained_memory::Entry<'_>>,
+ ) -> Result<RetainedPreviewOutput, String> {
+     if let Some(refused) = preview_physics::imposed_displacement_refusal(&actual_request) {
+-        return refused.map(|envelope| RetainedPreviewOutput { envelope, admission: None });
++        return refused.map(|envelope| RetainedPreviewOutput { envelope, admission: None, retained: None });
+     }
+     let (request, capture) = source_receipt::CapturedInvocation::parse(actual_request, solver_mode)
+         .map_err(|error| error.0)?;
+-    // Census runs before any ProductCapture can be installed. Its refusal is
+-    // private evidence only; the once-only ordinary route below is unchanged.
+-    let admission = retained_entry.map(|entry| retained_memory::assess(&capture, &request, entry));
++    // G-A (API.md §2): census, then admission, before any ProductCapture can be
++    // installed. A refusal is private evidence only; the once-only ordinary route
++    // below is unchanged. No permit exists until U4 G5 (decision 7).
++    let admission = match retained_entry.map(|entry| retained_memory::admit(&capture, &request, entry)) {
++        Some(Ok(permit)) => return permitted_dispatch(permit, request, capture, solver_mode),
++        Some(Err(report)) => Some(report),
++        None => None,
++    };
++    ordinary_dispatch(request, &capture, solver_mode, admission, None)
++}
++
++/// The unchanged ordinary route of every refused or shared call (and of a
++/// permitted call whose reserved-stack thread could not be spawned).
++fn ordinary_dispatch(
++    request: LinearStaticPreviewRequest,
++    capture: &source_receipt::CapturedInvocation,
++    solver_mode: PreviewSolverMode,
++    admission: Option<RetainedAdmissionReport>,
++    retained: Option<Result<RetainedSuccessor, W1Fallback>>,
++) -> Result<RetainedPreviewOutput, String> {
+     // The composite profile pays for retained-source and physical evidence.
+     // This closed resource policy does not change old source-blocks-1 or the
+     // exact helper defaults, and never changes the numerical criterion.
+@@ -2222,13 +2279,16 @@ fn run_linear_static_preview_value_dispatch(
+     }
+     #[cfg(test)]
+     retained_memory::tests::ordinary_dispatch_entered();
+-    let result = run_linear_static_preview_captured(request, solver_mode, Some(&capture), &mut budget);
+-    if matches!(result.producer.semantic_contract_id.as_str(), SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID | PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID | LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID)
+-        && result.source_block_recovery.is_none()
+-    {
++    let result = run_linear_static_preview_captured(request, solver_mode, Some(capture), &mut budget);
++    if source_finalization_failed(&result) {
+         return Err("SOURCE_BLOCKS_FINALIZATION_FAILED".into());
+     }
+-    Ok(RetainedPreviewOutput { envelope: result, admission })
++    Ok(RetainedPreviewOutput { envelope: result, admission, retained })
++}
++
++fn source_finalization_failed(envelope: &MechanicsEnvelope) -> bool {
++    matches!(envelope.producer.semantic_contract_id.as_str(), SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID | PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID | LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID)
++        && envelope.source_block_recovery.is_none()
+ }
+ 
+ fn run_linear_static_preview_captured(
+@@ -2819,6 +2879,156 @@ fn run_linear_static_preview_observed(
+     envelope
+ }
+ 
++/// U3: a permitted retained invocation (API.md §3). Everything after G-A runs on
++/// one scoped thread with the permit's reserved stack (STACK_PLAN §1, D-3 = S1):
++/// the single observed ordinary run, G-B (inside the capture), G-C and every W1
++/// phase. A spawn failure runs the unchanged ordinary route on this thread.
++/// Unreachable until U4 G5 adds a registered profile.
++fn permitted_dispatch(
++    permit: retained_memory::CapturePermit,
++    request: LinearStaticPreviewRequest,
++    capture: source_receipt::CapturedInvocation,
++    solver_mode: PreviewSolverMode,
++) -> Result<RetainedPreviewOutput, String> {
++    let mut slot = Some(request);
++    let ran = on_reserved_stack(permit.reserved_stack_bytes(), || {
++        slot.take().map(|request| permitted_run(permit, request, &capture, solver_mode))
++    });
++    match (ran.flatten(), slot) {
++        (Some(result), _) => result,
++        (None, Some(request)) => ordinary_dispatch(request, &capture, solver_mode, None, Some(Err(W1Fallback::StackReservation))),
++        (None, None) => Err("retained dispatch lost its request".into()),
++    }
++}
++
++/// STACK_PLAN §1: run `work` on one scoped thread with `bytes` of reserved stack,
++/// borrowing the caller's owners. `None` when the thread cannot be spawned (the
++/// work did not run). A panic is re-raised here with its original payload.
++fn on_reserved_stack<T: Send>(bytes: usize, work: impl FnOnce() -> T + Send) -> Option<T> {
++    std::thread::scope(|scope| {
++        match std::thread::Builder::new().stack_size(bytes).spawn_scoped(scope, work) {
++            Ok(handle) => Some(match handle.join() {
++                Ok(value) => value,
++                Err(payload) => std::panic::resume_unwind(payload),
++            }),
++            Err(_) => None,
++        }
++    })
++}
++
++/// The permitted run on the reserved-stack thread: the single observed ordinary
++/// run with capture installed, G-C, then the W1 phases.
++fn permitted_run(
++    permit: retained_memory::CapturePermit,
++    request: LinearStaticPreviewRequest,
++    capture: &source_receipt::CapturedInvocation,
++    solver_mode: PreviewSolverMode,
++) -> Result<RetainedPreviewOutput, String> {
++    // D1.3: load-state and exact-pressure models never reach W1; defensively, a
++    // permit for one takes the unchanged ordinary route (with its SF-1 logic).
++    if case_state::is_load_state(&request.model) || pressure_runtime::is_exact(&request.model) {
++        return ordinary_dispatch(request, capture, solver_mode, None, Some(Err(W1Fallback::Domain)));
++    }
++    let mut budget = SourceRecoveryBudget::default();
++    let mut observer = retained_product::ProductCapture::permitted_probe(permit);
++    let ordinary = run_linear_static_preview_observed(request, solver_mode, Some(capture), &mut budget, Some(&mut observer));
++    if source_finalization_failed(&ordinary) {
++        return Err("SOURCE_BLOCKS_FINALIZATION_FAILED".into());
++    }
++    let (envelope, retained) = match permit.check_complete(&retained_memory::CompleteFacts { ordinary: &ordinary }) {
++        Err(refusal) => (ordinary, Err(W1Fallback::CompleteGate(refusal))),
++        Ok(()) => retained_w1(observer, ordinary, capture),
++    };
++    Ok(RetainedPreviewOutput { envelope, admission: None, retained: Some(retained) })
++}
++
++/// U3: the W1 phases over the single actual ordinary run's capture: coexistence,
++/// G-B's outcome, preparation, native, proof (the frozen candidate), staging,
++/// serialization, precommit validation and the transfer. The ordinary envelope
++/// is never mutated: it returns untouched on every fallback (D-b), and beside the
++/// successor on success. No fallible step follows the transfer's first move.
++fn retained_w1(
++    observer: retained_product::ProductCapture,
++    ordinary: MechanicsEnvelope,
++    capture: &source_receipt::CapturedInvocation,
++) -> (MechanicsEnvelope, Result<RetainedSuccessor, W1Fallback>) {
++    if ordinary.source_block_recovery.is_some() {
++        return (ordinary, Err(W1Fallback::Coexistence));
++    }
++    if let Some(refusal) = observer.late_refusal() {
++        let refusal = refusal.clone();
++        return (ordinary, Err(W1Fallback::LateGate(refusal)));
++    }
++    let mut prepared = match observer.prepare_case(ordinary) {
++        Ok(prepared) => prepared,
++        Err(failure) => return (failure.ordinary, Err(W1Fallback::Preparation)),
++    };
++    #[cfg(test)]
++    retained_tests_hooks::before_native(&mut prepared);
++    if prepared.solve_native().is_err() {
++        return (prepared.into_ordinary(), Err(W1Fallback::Native));
++    }
++    let frozen = match prepared.freeze_candidate() {
++        Ok(frozen) => frozen,
++        Err(refusal) => return (refusal.ordinary, Err(W1Fallback::Candidate)),
++    };
++    // Staging: the overlay applies to a copy; the ordinary owner stays intact.
++    let staged = frozen.staged_envelope();
++    let serialized = retained_wire::serialize_frozen(&frozen, &staged, capture);
++    drop(staged);
++    #[cfg_attr(not(test), allow(unused_mut))]
++    let mut successor = match serialized {
++        Ok(successor) => successor,
++        Err(failure) => return (frozen.into_ordinary(), Err(W1Fallback::Serializer(failure))),
++    };
++    #[cfg(test)]
++    retained_tests_hooks::before_precommit(&mut successor);
++    // Decision 5: precommit validation by the accepted Rust reader, against the
++    // actual invocation (eligibility stays off).
++    #[cfg_attr(not(test), allow(unused_mut))]
++    let mut invocation = serde_json::json!({"request": capture.borrowed_raw(), "solver_mode": capture.mode().as_str()});
++    #[cfg(test)]
++    retained_tests_hooks::before_precommit_invocation(&mut invocation);
++    if let Err(error) = open_pipe_stress_result_export::retained_precision::validate(&successor, Some(&invocation)) {
++        return (frozen.into_ordinary(), Err(W1Fallback::Precommit { gate: error.gate, code: error.code }));
++    }
++    drop(invocation);
++    // The transfer: moves only.
++    (frozen.into_ordinary(), Ok(RetainedSuccessor(successor)))
++}
++
++/// Test-only fault seam for the precommit stage (decision 7 permits no test
++/// permit; this injects a fault into the W1 phases the private driver reaches).
++#[cfg(test)]
++pub(crate) mod retained_tests_hooks {
++    thread_local! {
++        static CORRUPT: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
++        static WITHDRAW: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
++        static REBIND: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
++    }
++    /// Precommit binding fault: the next precommit validates against the other mode.
++    pub(crate) fn rebind_next_precommit_invocation() { REBIND.with(|c| c.set(true)); }
++    pub(crate) fn before_precommit_invocation(invocation: &mut serde_json::Value) {
++        if REBIND.with(|c| c.replace(false)) {
++            let other = if invocation["solver_mode"] == "dense_scrutiny" { "sparse_interactive" } else { "dense_scrutiny" };
++            invocation["solver_mode"] = serde_json::json!(other);
++        }
++    }
++    pub(crate) fn corrupt_next_precommit() { CORRUPT.with(|c| c.set(true)); }
++    /// Native-stage fault: the prepared source is withdrawn before the native solve.
++    pub(crate) fn withdraw_next_native_source() { WITHDRAW.with(|c| c.set(true)); }
++    pub(crate) fn before_native(prepared: &mut super::retained_product::PreparedCase) {
++        if WITHDRAW.with(|c| c.replace(false)) {
++            prepared.test_capture_mut().source = None;
++        }
++    }
++    pub(crate) fn before_precommit(successor: &mut serde_json::Value) {
++        if CORRUPT.with(|c| c.replace(false)) {
++            successor["retained_precision"]["receipt_sha256"] = serde_json::json!("0".repeat(64));
++        }
++    }
++}
++
+ /// Resolved thermal+fit eigenstrain with each member's own E and the exact
+ /// annulus wall area; assembled once and removed once in recovery. The
+ /// product route and captured-source replay share this one construction.
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_memory.rs b/projects/chirality-piping/core/product_physics/src/retained_memory.rs
+index e5c43e9c30..970993f0bb 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_memory.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_memory.rs
+@@ -297,9 +297,56 @@ impl RetainedAdmissionReport {
+ // No values of this type, including test values, exist. Adding a registered
+ // production profile is a later reviewed source change, not a public constructor.
+ enum RegisteredProfile {}
++#[derive(Clone, Copy)]
+ pub(super) struct CapturePermit {
+     _profile: &'static RegisteredProfile,
+ }
++
++// ---- U3 consumer shim (D-5; R/I65/u4_g2_01/API.md §2) ----------------------
++// The signatures U3's dispatch calls. U4 G5 replaces these bodies and fixes the
++// fact fields (G3); no profile or permit is constructed here (decision 7). With
++// `RegisteredProfile` uninhabited, every body below is statically unreachable.
++/// G-B facts: the live ordinary owners at the late old-source capture, borrowed.
++/// Read by U4 G5's bodies; unread while every body is unreachable.
++#[allow(dead_code)]
++pub(super) struct LateFacts<'a> {
++    pub(super) model: &'a crate::PreviewModel,
++    pub(super) built: &'a crate::BuiltModel,
++    pub(super) materials: &'a [crate::MaterialInput],
++    pub(super) case: &'a crate::PreviewLoadCase,
++    pub(super) restrained: &'a [usize],
++    pub(super) springs: &'a [crate::SpringEntry],
++}
++/// G-C facts: the complete ordinary owner, borrowed.
++#[allow(dead_code)]
++pub(super) struct CompleteFacts<'a> {
++    pub(super) ordinary: &'a crate::MechanicsEnvelope,
++}
++#[derive(Debug, Clone, Copy, PartialEq, Eq)]
++#[allow(dead_code)]
++pub(super) enum PhaseGate {
++    Late,
++    Complete,
++}
++/// U4 extends this with the failing fact, observed value and cap (API.md §2).
++#[derive(Debug, Clone, PartialEq, Eq)]
++pub(super) struct PhaseRefusal {
++    pub(super) gate: PhaseGate,
++}
++impl CapturePermit {
++    /// R from STACK_PLAN.md §1.
++    pub(super) fn reserved_stack_bytes(&self) -> usize {
++        match *self._profile {}
++    }
++    /// G-B, immediately before the late old-source capture.
++    pub(super) fn check_late(&self, _facts: &LateFacts<'_>) -> Result<(), PhaseRefusal> {
++        match *self._profile {}
++    }
++    /// G-C, after the complete ordinary owner returns.
++    pub(super) fn check_complete(&self, _facts: &CompleteFacts<'_>) -> Result<(), PhaseRefusal> {
++        match *self._profile {}
++    }
++}
+ fn admission(report: RetainedAdmissionReport) -> Result<CapturePermit, RetainedAdmissionReport> {
+     // All counts and missing premises survive the refusal, including incomplete
+     // traversal and overflow. A measured capacity is never promoted to a permit.
+@@ -309,11 +356,26 @@ pub(super) enum Entry<'a> {
+     Direct,
+     Headless(RetainedHeadlessContext<'a>),
+ }
++// The dispatch calls `admit` since U3; `assess` keeps its report-only form for
++// the existing census tests.
++#[cfg_attr(not(test), allow(dead_code))]
+ pub(super) fn assess(
+     capture: &CapturedInvocation,
+     request: &LinearStaticPreviewRequest,
+     entry: Entry<'_>,
+ ) -> RetainedAdmissionReport {
++    match admit(capture, request, entry) {
++        Err(report) => report,
++        Ok(permit) => match *permit._profile {},
++    }
++}
++/// G-A (API.md §2): the census, then the admission decision. U4 G5 adds the D1
++/// predicate and the registered profile; until then every call refuses.
++pub(super) fn admit(
++    capture: &CapturedInvocation,
++    request: &LinearStaticPreviewRequest,
++    entry: Entry<'_>,
++) -> Result<CapturePermit, RetainedAdmissionReport> {
+     let (caller, headless) = match entry {
+         Entry::Direct => (RetainedCaller::Direct, None),
+         Entry::Headless(c) => (
+@@ -336,10 +398,7 @@ pub(super) fn assess(
+         profile: ProfileStatus::Missing,
+         allowance: AllowanceStatus::Unselected,
+     };
+-    match admission(report) {
+-        Err(report) => report,
+-        Ok(permit) => match *permit._profile {},
+-    }
++    admission(report)
+ }
+ 
+ #[cfg(test)]
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_product.rs b/projects/chirality-piping/core/product_physics/src/retained_product.rs
+index b53d9595fb..fdb9ad79bd 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_product.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_product.rs
+@@ -140,6 +140,10 @@ pub(super) struct ProductCapture {
+     /// typed at its sites in `solve_load_case_observed` (C2 §5; D39). Only an
+     /// installed observer records it; the observer=None route is unchanged.
+     pub ordinary: Vec<OrdinarySeed>,
++    /// U3: the capture permit the facade installed with this observer (G-B), and
++    /// G-B's refusal if the late gate refused (the late capture is then skipped).
++    permit: Option<super::retained_memory::CapturePermit>,
++    late_refusal: Option<super::retained_memory::PhaseRefusal>,
+ }
+ /// G-b/G-l (I61 U1): one case's ordinary attempt as the route actually ran it.
+ /// Diagnostic references are the ids of the diagnostics actually pushed; no
+@@ -3235,6 +3239,12 @@ impl ProductCapture {
+             Ok(())
+         })();
+         if let Err(e)=checked {self.error=Some(e);return;}
++        // U3, G-B (I51 COMPOSITION §2): immediately before the late old-source
++        // capture. A refusal skips the capture; the ordinary solve is unaffected.
++        if let Some(permit)=self.permit {
++            let facts=super::retained_memory::LateFacts{model,built,materials,case,restrained,springs};
++            if let Err(refusal)=permit.check_late(&facts) {self.late_refusal=Some(refusal);return;}
++        }
+         self.capture_case_source(model,built,materials,case,restrained,springs,application,thermal,pressure);
+     }
+ }
+@@ -3289,7 +3299,12 @@ pub(super) struct PreparedCaseFailure {
+ }
+ impl ProductCapture {
+     pub(super) fn prepared_probe() -> Self { Self {prepared_probe:true,..Self::default()} }
+-    #[cfg(test)]
++    /// U3: the facade's observer, bound to its capture permit for G-B.
++    pub(super) fn permitted_probe(permit:super::retained_memory::CapturePermit) -> Self {
++        Self {prepared_probe:true,permit:Some(permit),..Self::default()}
++    }
++    pub(super) fn late_refusal(&self)->Option<&super::retained_memory::PhaseRefusal> {self.late_refusal.as_ref()}
++    /// Preparation over the single actual ordinary run's capture (U3 and tests).
+     pub(super) fn prepare_case(self,ordinary:MechanicsEnvelope)->Result<PreparedCase,PreparedCaseFailure> {self.prepare_owned_case(ordinary)}
+     fn prepare_owned_case(mut self, ordinary:MechanicsEnvelope) -> Result<PreparedCase,PreparedCaseFailure> {
+         let mut preparations=Vec::new(); let mut work=Vec::new();let mut associations=Vec::new();
+@@ -3427,6 +3442,8 @@ impl PreparedCase {
+         observer.prepare_owned_case(ordinary)
+     }
+     pub(super) fn ordinary(&self)->&MechanicsEnvelope {self.ordinary.as_ref().expect("owned ordinary before attempt")}
++    /// U3 fallback after a native refusal: the untouched ordinary envelope.
++    pub(super) fn into_ordinary(mut self)->MechanicsEnvelope {self.ordinary.take().expect("owned ordinary before attempt")}
+     /// The owned ordinary envelope, if this case still owns it (no panic).
+     pub(super) fn owned_ordinary(&self)->Option<&MechanicsEnvelope> {self.ordinary.as_ref()}
+     pub(super) fn solve_native(&mut self) -> Result<(),&CaptureError> {
+@@ -3622,7 +3639,15 @@ impl ProductCapture {
+     }
+ }
+ impl PreparedCase {
+-    pub(super) fn project_candidate(mut self)->Result<PrivatePreparedCandidate,PreparedCandidateRefusal> {
++    /// The private driver's all-in-one form: freeze, then commit the overlay into
++    /// the owned ordinary envelope (unchanged behaviour and bytes).
++    pub(super) fn project_candidate(self)->Result<PrivatePreparedCandidate,PreparedCandidateRefusal> {
++        self.freeze_candidate().map(FrozenCandidate::commit_private)
++    }
++    /// U3 (I51 frozen-candidate split): every private gate, proof and move-plan
++    /// check runs, and the ordinary envelope is returned **untouched** beside the
++    /// frozen payload. No ordinary mutation happens here; the fallback owns it (D-b).
++    pub(super) fn freeze_candidate(mut self)->Result<FrozenCandidate,PreparedCandidateRefusal> {
+         let ordinary=self.ordinary.take().expect("closed owning preparation transition");
+         let native=self.capture.native.take();
+         let mut certificate=None;let mut saved_values=None;
+@@ -3723,22 +3748,65 @@ impl PreparedCase {
+         match result {
+             Err(error)=>{self.trace.fail_entered();self.trace.freeze(&self.capture);Err(PreparedCandidateRefusal{ordinary,prepared:self,error,certificate,values:saved_values})},
+             Ok(payload)=>{
+-                let mut envelope=ordinary;
+-                for (i,row) in envelope.results.iter_mut().enumerate(){row.value=*payload.values.value(i).expect("checked frozen index");}
+-                let cases=envelope.contract_evidence.as_mut().unwrap().as_object_mut().unwrap().get_mut("preview_cases").unwrap().as_array_mut().unwrap();
+-                let extrema=cases[0].as_object_mut().unwrap().get_mut("pipe_stress_extrema").unwrap().as_array_mut().unwrap();
+-                for patch in payload.maxima {
+-                    let object=extrema[patch.evidence_index].as_object_mut().unwrap();
+-                    for (key,number) in PREPARED_MAX_KEYS.into_iter().zip(patch.numbers){*object.get_mut(key).unwrap()=serde_json::Value::Number(number);}
++                // The adapter snapshot is final here: no adapter event follows.
++                self.trace.freeze(&self.capture);
++                match certificate {
++                    Some(certificate)=>Ok(FrozenCandidate{ordinary,payload,prepared:self,certificate}),
++                    None=>{self.trace.fail_entered();Err(PreparedCandidateRefusal{ordinary,prepared:self,
++                        error:PreparedCandidateError::Capture("frozen candidate without certificate".into()),certificate:None,values:Some(payload.values)})}
+                 }
+-                envelope.summary.max_displacement=Some(payload.displacement);envelope.summary.max_open_formula_stress=Some(payload.stress);
+-                self.trace.costs.record::<bool>();self.trace.private_committed=true;self.trace.freeze(&self.capture);
+-                Ok(PrivatePreparedCandidate{envelope,prepared:self,certificate:certificate.unwrap()})
+             }
+         }
+     }
+ }
+ 
++/// The frozen overlay (values, maxima patches and summary aliases) applied to one
++/// envelope. Shared by the private commit and the facade's staging copy, so both
++/// produce the same rows.
++fn apply_prepared_overlay(envelope:&mut MechanicsEnvelope,payload:&PreparedPayload) {
++    for (i,row) in envelope.results.iter_mut().enumerate(){row.value=*payload.values.value(i).expect("checked frozen index");}
++    let cases=envelope.contract_evidence.as_mut().unwrap().as_object_mut().unwrap().get_mut("preview_cases").unwrap().as_array_mut().unwrap();
++    let extrema=cases[0].as_object_mut().unwrap().get_mut("pipe_stress_extrema").unwrap().as_array_mut().unwrap();
++    for patch in &payload.maxima {
++        let object=extrema[patch.evidence_index].as_object_mut().unwrap();
++        for (key,number) in PREPARED_MAX_KEYS.into_iter().zip(patch.numbers.iter()){*object.get_mut(key).unwrap()=serde_json::Value::Number(number.clone());}
++    }
++    envelope.summary.max_displacement=Some(payload.displacement.clone());envelope.summary.max_open_formula_stress=Some(payload.stress.clone());
++}
++
++/// U3 (I51 frozen-candidate split): a certified, private-gate-passed candidate whose
++/// ordinary envelope is still intact. The facade stages its successor from a copy
++/// and either transfers it or returns the untouched ordinary bytes (D-b).
++pub(super) struct FrozenCandidate { ordinary:MechanicsEnvelope,payload:PreparedPayload,prepared:PreparedCase,
++    certificate:k::CertifiedProductProof }
++impl FrozenCandidate {
++    pub(super) fn ordinary(&self)->&MechanicsEnvelope{&self.ordinary}
++    pub(super) fn capture(&self)->&ProductCapture{&self.prepared.capture}
++    pub(super) fn certificate(&self)->&k::CertifiedProductProof{&self.certificate}
++    /// The staging copy: the ordinary envelope cloned, with the frozen overlay
++    /// applied. The ordinary owner is not touched.
++    pub(super) fn staged_envelope(&self)->MechanicsEnvelope {
++        let mut staged=self.ordinary.clone();
++        apply_prepared_overlay(&mut staged,&self.payload);
++        staged
++    }
++    /// The fallback: the untouched ordinary envelope; every W1 owner drops here.
++    pub(super) fn into_ordinary(self)->MechanicsEnvelope {self.ordinary}
++    /// The private driver's commit (unchanged bytes): the overlay moves into the
++    /// owned ordinary envelope.
++    fn commit_private(mut self)->PrivatePreparedCandidate {
++        let mut envelope=self.ordinary;
++        apply_prepared_overlay(&mut envelope,&self.payload);
++        self.prepared.trace.costs.record::<bool>();self.prepared.trace.private_committed=true;self.prepared.trace.freeze(&self.prepared.capture);
++        PrivatePreparedCandidate{envelope,prepared:self.prepared,certificate:self.certificate}
++    }
++    pub(super) fn typed_trace<'a>(&'a self,costs:&mut trace::ProjectionWork)->Result<trace::PreparedAttemptView<'a>,trace::TraceProjectionError> {
++        let p=&self.prepared;
++        trace::project(&p.trace,&p.capture,&p.preparation_work,&p.old_operational,&p.overlay_work,
++            trace::ResultRef::Ready,Some(self.certificate.work()),None,None,costs)
++    }
++}
++
+ #[cfg(test)]
+ impl PreparedCandidateRefusal {
+     pub(super) fn test_reentry(mut self)->(Self,PreparedCandidateError) {
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_wire.rs b/projects/chirality-piping/core/product_physics/src/retained_wire.rs
+index c672632133..601cff1371 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_wire.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_wire.rs
+@@ -1091,14 +1091,22 @@ fn logical(e: &Enc, records: &[k::AttemptRecord]) -> Vec<Value> {
+ /// C1 §1: the logical partition conserves the run's case charge and
+ /// invocation increment, and after = before + increment.
+ fn run_conservation(e: &Enc, attempts: &[Value], run: &k::RunOrigins) {
+-    let total = |key: &str, path| {
+-        let parts: Vec<u64> = attempts.iter().map(|a| a[key].as_u64().unwrap_or(u64::MAX)).collect();
+-        e.sum(&parts, path)
+-    };
+     let case = e.exact(run.work.case(), "cases[].run.case_charge");
+     let before = e.exact(run.work.invocation_before(), "cases[].run.invocation_before");
+     let increment = e.exact(run.work.invocation_increment(), "cases[].run.invocation_increment");
+     let after = e.exact(run.work.invocation_after(), "cases[].run.invocation_after");
++    run_conservation_amounts(e, attempts, case, before, increment, after);
++}
++
++/// The run-level conservation checks over the run's four exact amounts. Split
++/// from `run_conservation` (RV82 N1′) so that each check, including R08's
++/// `invocation_after` at its call site, is pinned by a test: `RunWork` cannot be
++/// constructed from PP, and native runs are self-consistent.
++fn run_conservation_amounts(e: &Enc, attempts: &[Value], case: u64, before: u64, increment: u64, after: u64) {
++    let total = |key: &str, path| {
++        let parts: Vec<u64> = attempts.iter().map(|a| a[key].as_u64().unwrap_or(u64::MAX)).collect();
++        e.sum(&parts, path)
++    };
+     for (ok, path) in [
+         (total("case_charge", "cases[].run.case_charge") == case, "cases[].run.case_charge"),
+         (total("invocation_increment", "cases[].run.invocation_increment") == increment, "cases[].run.invocation_increment"),
+@@ -1457,6 +1465,39 @@ fn bind_preparation(source: &mut Value, attempt: &Value) -> Result<(), ReceiptFa
+ /// `serde_json::Map` is key-sorted, so it sits between `results` and `status`;
+ /// every hash is canonical, so the position is immaterial).
+ pub(super) fn serialize_selected(candidate: &rp::PrivatePreparedCandidate, invocation: &source_receipt::CapturedInvocation)
++    -> Result<Value, ReceiptFailure> {
++    serialize_selected_from(candidate, candidate.envelope(), invocation)
++}
++
++/// U3: the same serialization over the facade's frozen candidate, whose overlay
++/// lives in the staging copy `staged` while the ordinary owner stays intact.
++pub(super) fn serialize_frozen(candidate: &rp::FrozenCandidate, staged: &MechanicsEnvelope, invocation: &source_receipt::CapturedInvocation)
++    -> Result<Value, ReceiptFailure> {
++    serialize_selected_from(candidate, staged, invocation)
++}
++
++/// What the selected serialization reads from a certified candidate.
++pub(super) trait SelectedCandidate {
++    fn capture(&self) -> &rp::ProductCapture;
++    fn certificate(&self) -> &k::CertifiedProductProof;
++    fn typed_trace<'a>(&'a self, costs: &mut rr::ProjectionWork) -> Result<rr::PreparedAttemptView<'a>, rr::TraceProjectionError>;
++}
++impl SelectedCandidate for rp::PrivatePreparedCandidate {
++    fn capture(&self) -> &rp::ProductCapture { rp::PrivatePreparedCandidate::capture(self) }
++    fn certificate(&self) -> &k::CertifiedProductProof { rp::PrivatePreparedCandidate::certificate(self) }
++    fn typed_trace<'a>(&'a self, costs: &mut rr::ProjectionWork) -> Result<rr::PreparedAttemptView<'a>, rr::TraceProjectionError> {
++        rp::PrivatePreparedCandidate::typed_trace(self, costs)
++    }
++}
++impl SelectedCandidate for rp::FrozenCandidate {
++    fn capture(&self) -> &rp::ProductCapture { rp::FrozenCandidate::capture(self) }
++    fn certificate(&self) -> &k::CertifiedProductProof { rp::FrozenCandidate::certificate(self) }
++    fn typed_trace<'a>(&'a self, costs: &mut rr::ProjectionWork) -> Result<rr::PreparedAttemptView<'a>, rr::TraceProjectionError> {
++        rp::FrozenCandidate::typed_trace(self, costs)
++    }
++}
++
++fn serialize_selected_from(candidate: &impl SelectedCandidate, overlaid: &MechanicsEnvelope, invocation: &source_receipt::CapturedInvocation)
+     -> Result<Value, ReceiptFailure> {
+     let assoc = |p| fail(ReceiptCheck::Association, p);
+     let scope = |p| fail(ReceiptCheck::Scope, p);
+@@ -1480,13 +1521,13 @@ pub(super) fn serialize_selected(candidate: &rp::PrivatePreparedCandidate, invoc
+     let view = candidate.typed_trace(&mut costs).map_err(|_| assoc("product_attempts[]"))?;
+ 
+     // The successor envelope (G-a; T1 (a)).
+-    let mut env = serde_json::to_value(candidate.envelope()).map_err(|_| fail(ReceiptCheck::Encoding, "envelope"))?;
++    let mut env = serde_json::to_value(overlaid).map_err(|_| fail(ReceiptCheck::Encoding, "envelope"))?;
+     let mut legacy_source_work = Vec::new();
+     let (legacy, omit) = legacy_source(&e, seed.legacy.as_ref(), case_index, &mut legacy_source_work, true)?;
+     successor_envelope(&mut env, &case_id, omit.as_deref())?;
+ 
+     // Row bindings: the producer's own QuantityId/recipe binding in envelope row order.
+-    let rows = pc.bind_rows(candidate.envelope(), owner).map_err(|_| assoc("cases[].selection.absolute_verified"))?;
++    let rows = pc.bind_rows(overlaid, owner).map_err(|_| assoc("cases[].selection.absolute_verified"))?;
+     let row_ids: Vec<String> = env["results"].as_array().ok_or(assoc("results"))?.iter()
+         .map(|r| r["id"].as_str().map(str::to_owned)).collect::<Option<_>>().ok_or(assoc("results[].id"))?;
+     if rows.len() != row_ids.len() || rows.iter().zip(&row_ids).any(|(r, id)| r.id != id.as_str()) {
+@@ -1687,6 +1728,13 @@ pub(super) fn test_run_conservation(attempts: &[Value], run: &k::RunOrigins) ->
+     run_conservation(&e, attempts, run);
+     e.failures.into_inner()
+ }
++/// Test access to the run-level conservation checks over explicit amounts (RV82 N1′).
++#[cfg(test)]
++pub(super) fn test_run_conservation_amounts(attempts: &[Value], case: u64, before: u64, increment: u64, after: u64) -> Vec<ReceiptFailure> {
++    let e = Enc::default();
++    run_conservation_amounts(&e, attempts, case, before, increment, after);
++    e.failures.into_inner()
++}
+ 
+ /// G-i translation corpus (test only): every variant constructible outside the
+ /// kernel, labelled by its schema `$def`, with the encoder failures it records.
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs b/projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs
+index 52702efb92..455549b661 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs
+@@ -675,6 +675,21 @@ fn u1g2_foreign_invocation_refused() {
+     assert_eq!(wire::serialize_unavailable(wire::Refused::Candidate(&refusal), &other).err(), refused);
+ }
+ 
++/// RV82 N1′ (R08 at its call site): `run_conservation`'s own checks over explicit
++/// amounts. Each violated amount is refused at its own path, and only there.
++#[test]
++fn u1g2_run_conservation_pins_each_check_at_its_call_site() {
++    let inconsistent = |path: &'static str| vec![wire::ReceiptFailure { check: wire::ReceiptCheck::WorkCounterInconsistent, field_path: path }];
++    let attempts = [json!({"case_charge": 3, "invocation_increment": 4}), json!({"case_charge": 2, "invocation_increment": 1})];
++    assert!(wire::test_run_conservation_amounts(&attempts, 5, 10, 5, 15).is_empty(), "conserved");
++    assert_eq!(wire::test_run_conservation_amounts(&attempts, 5, 10, 5, 16), inconsistent("cases[].run.invocation_after"), "R08");
++    assert_eq!(wire::test_run_conservation_amounts(&attempts, 5, 10, 5, 14), inconsistent("cases[].run.invocation_after"), "R08");
++    assert_eq!(wire::test_run_conservation_amounts(&attempts, 6, 10, 5, 15), inconsistent("cases[].run.case_charge"));
++    let mut both = inconsistent("cases[].run.invocation_increment");
++    both.extend(inconsistent("cases[].run.invocation_after"));
++    assert_eq!(wire::test_run_conservation_amounts(&attempts, 5, 10, 6, 15), both, "increment, then the after it implies");
++}
++
+ /// RV82-N1 (R08, R09): run after = before + increment, and body charged = the
+ /// final after, each refused as `work_counter_inconsistent` when violated.
+ #[test]
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs b/projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs
+new file mode 100644
+index 0000000000..e1b15e7cf0
+--- /dev/null
++++ b/projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs
+@@ -0,0 +1,208 @@
++//! I61 U3 grant 1: the facade's W1 phases through the private driver. No permit
++//! exists until U4 G5 and decision 7 forbids a test permit, so these tests enter
++//! `retained_w1` (the body the permitted dispatch runs after G-C) with an observer
++//! installed in the actual single ordinary run, exactly as the facade does.
++use super::retained_product as rp;
++use super::*;
++use serde_json::{json, Value};
++use sha2::{Digest, Sha256};
++
++const MILESTONE: &str = include_str!("../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json");
++const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
++/// U1's committed successor bytes (retained_wire_tests::SUCCESSOR_SHA256).
++const PINNED: [(&str, &str, &str); 2] = [
++    ("sparse_interactive", "ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc", "efc1a39bbe83840df6bd0761c932b8020285d3b8c005ba8fd0b45ba10d667494"),
++    ("dense_scrutiny", "6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5", "3e26499f17caff8f5fc0d46406bbe54acf43e8cb16e761784aa5074413b0ac4a"),
++];
++
++fn sha(bytes: &[u8]) -> String {
++    format!("{:x}", Sha256::digest(bytes))
++}
++fn raw() -> Value {
++    serde_json::from_str(MILESTONE).unwrap()
++}
++fn plain(mode: PreviewSolverMode, raw: &Value) -> Vec<u8> {
++    serde_json::to_vec(&run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap()
++}
++/// The facade's single observed ordinary run: the captured invocation, the
++/// observer with capture installed, and the ordinary envelope it returned.
++fn observed(mode: PreviewSolverMode, raw: &Value) -> (source_receipt::CapturedInvocation, rp::ProductCapture, MechanicsEnvelope) {
++    let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
++    let mut observer = rp::ProductCapture::prepared_probe();
++    let ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
++    (capture, observer, ordinary)
++}
++
++/// Control 2: the permitted path publishes U1's pinned successor bytes, in both
++/// modes, through the frozen candidate and its staging copy; the ordinary
++/// envelope it returns beside the successor is byte-identical to the plain route.
++#[test]
++fn u3_permitted_path_publishes_the_pinned_successor() {
++    let out = std::env::var("I61_U3_OUT").ok().map(std::path::PathBuf::from);
++    for (mode, (name, file_sha, receipt_sha)) in MODES.into_iter().zip(PINNED) {
++        assert_eq!(mode.as_str(), name);
++        let raw = raw();
++        let plain = plain(mode, &raw);
++        let (capture, observer, ordinary) = observed(mode, &raw);
++        assert_eq!(serde_json::to_vec(&ordinary).unwrap(), plain, "{name}: the observed run is the plain run");
++        let (envelope, retained) = retained_w1(observer, ordinary, &capture);
++        assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{name}: the ordinary owner is untouched");
++        let successor = retained.unwrap_or_else(|f| panic!("{name}: {f:?}"));
++        let text = serde_json::to_string_pretty(&json!({"id":format!("u1_milestone_{name}"),"source":successor.value(),
++            "invocation":{"request":raw,"solver_mode":mode.as_str()}})).unwrap();
++        assert_eq!((sha(text.as_bytes()).as_str(), successor.value()["retained_precision"]["receipt_sha256"].as_str()), (file_sha, Some(receipt_sha)),
++            "{name}: U1's pinned successor bytes");
++        if let Some(dir) = &out {
++            std::fs::write(dir.join(format!("u3_successor_{name}.json")), &text).unwrap();
++        }
++    }
++}
++
++/// Control 3: a fault at each W1 stage falls back to the preserved ordinary bytes
++/// with its private cause (grant 1: no public notice; checkpoint item 2).
++#[test]
++fn u3_each_stage_fault_falls_back_to_the_ordinary_bytes() {
++    use super::retained_receipt::TraceFault as F;
++    let mode = PreviewSolverMode::SparseInteractive;
++    let raw = raw();
++    let plain = plain(mode, &raw);
++    let fallback = |envelope: &MechanicsEnvelope, label: &str| {
++        assert_eq!(serde_json::to_vec(envelope).unwrap(), plain, "{label}: preserved ordinary bytes");
++    };
++    // Preparation: the closed annulus helper refuses (experiment 02's trigger).
++    let (capture, mut observer, ordinary) = observed(mode, &raw);
++    observer.facts[0].diameter = 0.0;
++    let (envelope, retained) = retained_w1(observer, ordinary, &capture);
++    assert_eq!(retained.err(), Some(W1Fallback::Preparation));
++    fallback(&envelope, "preparation");
++    // Native: the prepared source is withdrawn before the solve (D38's trigger).
++    let (capture, observer, ordinary) = observed(mode, &raw);
++    retained_tests_hooks::withdraw_next_native_source();
++    let (envelope, retained) = retained_w1(observer, ordinary, &capture);
++    assert_eq!(retained.err(), Some(W1Fallback::Native));
++    fallback(&envelope, "native");
++    // Proof/facade: injected faults after the proof started.
++    for fault in [F::Maxima, F::ValuesCompletion] {
++        let (capture, mut observer, ordinary) = observed(mode, &raw);
++        observer.trace_fault = Some(fault);
++        let (envelope, retained) = retained_w1(observer, ordinary, &capture);
++        assert_eq!(retained.err(), Some(W1Fallback::Candidate), "{fault:?}");
++        fallback(&envelope, "candidate");
++    }
++    // Serializer: an invocation other than the observed one (RV82-S2) refuses typed.
++    let (_, observer, ordinary) = observed(mode, &raw);
++    let mut other = raw.clone();
++    other["model"]["load_cases"][0]["label"] = json!("another label");
++    let (_, foreign) = source_receipt::CapturedInvocation::parse(other, mode).unwrap();
++    let (envelope, retained) = retained_w1(observer, ordinary, &foreign);
++    assert_eq!(retained.err(), Some(W1Fallback::Serializer(retained_wire::ReceiptFailure {
++        check: retained_wire::ReceiptCheck::Association, field_path: "invocation" })));
++    fallback(&envelope, "serializer");
++    // Precommit validation: a corrupted receipt hash is the reader's G1 refusal.
++    let (capture, observer, ordinary) = observed(mode, &raw);
++    retained_tests_hooks::corrupt_next_precommit();
++    let (envelope, retained) = retained_w1(observer, ordinary, &capture);
++    assert_eq!(retained.err(), Some(W1Fallback::Precommit { gate: "G1", code: "RETAINED_PRECISION_RECEIPT_MISMATCH".into() }));
++    fallback(&envelope, "precommit");
++    // Precommit binding: the reader validates against the actual invocation, so a
++    // successor checked against another solver mode is refused.
++    let (capture, observer, ordinary) = observed(mode, &raw);
++    retained_tests_hooks::rebind_next_precommit_invocation();
++    let (envelope, retained) = retained_w1(observer, ordinary, &capture);
++    assert_eq!(retained.err(), Some(W1Fallback::Precommit { gate: "G8", code: "RETAINED_PRECISION_INVOCATION_MISMATCH".into() }));
++    fallback(&envelope, "precommit binding");
++    // Coexistence: an ordinary envelope carrying an exact source-block publication.
++    let (capture, observer, mut ordinary) = observed(mode, &raw);
++    ordinary.source_block_recovery = Some(json!({"marker":"exact"}));
++    let marked = serde_json::to_vec(&ordinary).unwrap();
++    let (envelope, retained) = retained_w1(observer, ordinary, &capture);
++    assert_eq!(retained.err(), Some(W1Fallback::Coexistence));
++    assert_eq!(serde_json::to_vec(&envelope).unwrap(), marked, "coexistence: the exact publication is returned as is");
++}
++
++/// Control 1: with no permit (always, until U4 G5) both retained entries and the
++/// shared route are the unchanged ordinary route, with no W1 result.
++#[test]
++fn u3_no_permit_entries_are_the_ordinary_route() {
++    for mode in MODES {
++        let raw = raw();
++        let plain = plain(mode, &raw);
++        let direct = run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
++        assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain);
++        assert!(direct.retained().is_none());
++        assert!(direct.admission().is_some(), "G-A's census still runs");
++    }
++}
++
++/// STACK_PLAN §1: the reserved-stack runner returns the work's value, re-raises a
++/// panic with its original payload, and reports a spawn failure without running.
++#[test]
++fn u3_reserved_stack_runner() {
++    // A 3 MiB frame needs more than the 2 MiB default spawned-thread stack: it
++    // runs only because the reservation is honoured.
++    let observed_stack = on_reserved_stack(8 << 20, || {
++        let frame = std::hint::black_box([7u8; 3 << 20]);
++        frame.iter().map(|b| *b as usize).sum::<usize>()
++    });
++    assert_eq!(observed_stack, Some(7 * (3 << 20)));
++    let borrowed = vec![1, 2, 3];
++    assert_eq!(on_reserved_stack(1 << 20, || borrowed.iter().sum::<i32>()), Some(6), "borrows, no clone");
++    let panicked = std::panic::catch_unwind(|| on_reserved_stack(1 << 20, || -> u8 { std::panic::panic_any(41usize) }));
++    assert_eq!(panicked.err().and_then(|p| p.downcast::<usize>().ok()).map(|b| *b), Some(41), "original payload");
++    let mut ran = false;
++    assert_eq!(on_reserved_stack(1usize << 62, || ran = true), None, "spawn failure");
++    assert!(!ran, "the work did not run");
++}
++
++/// RV82 N9 (single-parse custody): each invocation is parsed exactly once. The
++/// typed request that runs and the captured invocation the serializer binds (S2's
++/// digest) are the two halves of that one `CapturedInvocation::parse`: the capture
++/// is not `Clone`, `parse` is its only constructor, the dispatch is the only
++/// production parse site, and the permitted path only moves or borrows its halves.
++#[test]
++fn u3_n9_single_parse_custody() {
++    const PARSE: &str = "CapturedInvocation::parse(";
++    let lib = include_str!("lib.rs");
++    let section = |start: &str, end: &str| {
++        let suffix = &lib[lib.find(start).unwrap()..];
++        &suffix[..suffix.find(end).unwrap()]
++    };
++    assert_eq!(lib.matches(PARSE).count(), 1, "lib.rs has one parse site");
++    let dispatch = section("fn run_linear_static_preview_value_dispatch(", "fn ordinary_dispatch(");
++    assert!(dispatch.contains("let (request, capture) = source_receipt::CapturedInvocation::parse(actual_request, solver_mode)"));
++    assert!(dispatch.contains("Some(Ok(permit)) => return permitted_dispatch(permit, request, capture, solver_mode),"));
++    assert!(dispatch.contains("ordinary_dispatch(request, &capture, solver_mode, admission, None)"));
++    // The permitted path: the parse's two halves, moved or borrowed, never re-derived.
++    let permitted = section("fn permitted_dispatch(", "pub(crate) mod retained_tests_hooks");
++    for forbidden in ["parse(", "CapturedInvocation {", "capture.clone()", "request.clone()", "from_value("] {
++        assert!(!permitted.contains(forbidden), "{forbidden}");
++    }
++    for required in [
++        "slot.take().map(|request| permitted_run(permit, request, &capture, solver_mode))",
++        "(None, Some(request)) => ordinary_dispatch(request, &capture, solver_mode, None, Some(Err(W1Fallback::StackReservation))),",
++        "run_linear_static_preview_observed(request, solver_mode, Some(capture), &mut budget, Some(&mut observer))",
++        "Ok(()) => retained_w1(observer, ordinary, capture),",
++        "retained_wire::serialize_frozen(&frozen, &staged, capture)",
++    ] {
++        assert!(permitted.contains(required), "{required}");
++    }
++    // No other production parse site, and no second custody constructor.
++    for (name, text) in [
++        ("retained_product.rs", include_str!("retained_product.rs")),
++        ("retained_wire.rs", include_str!("retained_wire.rs")),
++        ("retained_receipt.rs", include_str!("retained_receipt.rs")),
++    ] {
++        assert!(!text.contains(PARSE) && !text.contains("impl Clone for CapturedInvocation"), "{name}");
++    }
++    let memory = include_str!("retained_memory.rs");
++    assert!(!memory[..memory.find("#[cfg(test)]\npub(super) mod tests {").unwrap()].contains(PARSE), "retained_memory.rs");
++    let receipt = include_str!("source_receipt.rs");
++    assert!(receipt.contains("#[derive(Debug)]\npub(super) struct CapturedInvocation {"), "not Clone");
++    assert_eq!(receipt.matches("impl CapturedInvocation {").count(), 1);
++    assert!(!receipt.contains("for CapturedInvocation") && !lib.contains("for CapturedInvocation"), "no trait constructor or Clone");
++    let block = &receipt[receipt.find("\nimpl CapturedInvocation {\n").unwrap()..];
++    let block = &block[..block.find("\n}\n").unwrap()];
++    assert_eq!(block.matches("Self {").count(), 1, "parse's literal is the only constructor");
++    assert_eq!(block.matches("-> Result<(LinearStaticPreviewRequest, Self), ReceiptError>").count(), 1);
++    assert!(!block.contains("-> Self"));
++}

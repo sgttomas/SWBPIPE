@@ -1,0 +1,38 @@
+{
+  "task": "RV43 C2 finite mapping review",
+  "agent": "/root/rv43_f2a_wire_c1",
+  "parent": "/root HELP_HUMAN",
+  "role": "TASK Type 2",
+  "mechanism": "native direct child follow-up; no delegation",
+  "receipt_utc": "2026-10-02 20:36:18 UTC",
+  "new_check_cutoff_utc": "2026-10-02 21:01:18 UTC",
+  "return_deadline_utc": "2026-10-02 21:11:18 UTC",
+  "checks_complete_utc": "2026-10-02 20:44:31 UTC",
+  "source": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "candidate": "0440ea0777",
+  "corrected_c1": "0017eba992",
+  "workdir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "owned_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV43/f2a_wire_c2_03",
+  "instruction_origin": "Same TASK, project and software-code-review basis preserved in original f2a_wire_c1_01/ORIGINS_STAGE0.json; bounded parent follow-up in native conversation",
+  "enforcement": "Unrestricted actual host; instruction write fence. Explicit cwd and GIT_OPTIONAL_LOCKS=0 for necessary Git reads.",
+  "operations": [
+    "Read complete frozen RETURN/CONTRACT_DELTA; reread truncated source-map table and other prose ranges separately",
+    "Read targeted immutable Rust declarations, material/source/ordinary/W2 paths, combination preparation/ledger/refusal cases and corrected C1",
+    "Independently compared packet inventory, fixed enum declarations, ordinary literals and consumer excerpts with read-only Git and Python standard library text/JSON/hash operations; no source import/execution",
+    "Initial consumer checker failed because a line had two Refused occurrences; corrected line-offset matching checked both. No source/candidate repair or runtime credited",
+    "Wrote only owned review documents/JSON evidence and seal"
+  ],
+  "author_script_execution": false,
+  "prohibited_actions_performed": [],
+  "findings": [
+    "RV43-C2-F1",
+    "RV43-C2-F2"
+  ],
+  "unproved": [
+    "upstream no-wrap admission",
+    "complete memory/cost/caller composition",
+    "geometric physical-action bridge",
+    "final-row/B2 certificates",
+    "atomic implementation and three-reader/native qualification"
+  ]
+}

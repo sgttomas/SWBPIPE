@@ -1,0 +1,26 @@
+A sparse_interactive publication=Successor:true pinned_file=true receipt="efc1a39bbe83840df6bd0761c932b8020285d3b8c005ba8fd0b45ba10d667494" envelope_plain=true successor_accessor_equals_publication=true
+A dense_scrutiny publication=Successor:true pinned_file=true receipt="3e26499f17caff8f5fc0d46406bbe54acf43e8cb16e761784aa5074413b0ac4a" envelope_plain=true successor_accessor_equals_publication=true
+B NOTICED {model}:fixtures/model_operations/precision_connected_ui_model.json	sparse_interactive	direct	Candidate	for_source_ok=true standing=numerically_eligible	readers_unchanged=true
+B NOTICED {model}:fixtures/model_operations/precision_connected_ui_model.json	sparse_interactive	headless	Candidate	for_source_ok=true standing=numerically_eligible	readers_unchanged=true
+B NOTICED {model}:fixtures/model_operations/precision_connected_ui_model.json	dense_scrutiny	direct	Candidate	for_source_ok=true standing=numerically_eligible	readers_unchanged=true
+B NOTICED {model}:fixtures/model_operations/precision_connected_ui_model.json	dense_scrutiny	headless	Candidate	for_source_ok=true standing=numerically_eligible	readers_unchanged=true
+B NOTICED fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.request.json	sparse_interactive	direct	Preparation	for_source_ok=true standing=needs_recompute	readers_unchanged=true
+B NOTICED fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.request.json	sparse_interactive	headless	Preparation	for_source_ok=true standing=needs_recompute	readers_unchanged=true
+B NOTICED fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.request.json	dense_scrutiny	direct	Preparation	for_source_ok=true standing=needs_recompute	readers_unchanged=true
+B NOTICED fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.request.json	dense_scrutiny	headless	Preparation	for_source_ok=true standing=needs_recompute	readers_unchanged=true
+B NOTICED fixtures/product_preview/source_blocks/rejected_stress_range/sparse_interactive.request.json	sparse_interactive	direct	Preparation	for_source_ok=true standing=needs_recompute	readers_unchanged=true
+B NOTICED fixtures/product_preview/source_blocks/rejected_stress_range/sparse_interactive.request.json	sparse_interactive	headless	Preparation	for_source_ok=true standing=needs_recompute	readers_unchanged=true
+B NOTICED fixtures/product_preview/source_blocks/rejected_stress_range/sparse_interactive.request.json	dense_scrutiny	direct	Preparation	for_source_ok=true standing=needs_recompute	readers_unchanged=true
+B NOTICED fixtures/product_preview/source_blocks/rejected_stress_range/sparse_interactive.request.json	dense_scrutiny	headless	Preparation	for_source_ok=true standing=needs_recompute	readers_unchanged=true
+B inputs=49 mismatches=0 panics=0 noticed=12 reader_diffs=0 causes={"direct:Candidate": 2, "direct:Coexistence": 26, "direct:Domain": 64, "direct:Preparation": 4, "direct:SUCCESSOR": 2, "headless:Candidate": 2, "headless:Coexistence": 26, "headless:Domain": 64, "headless:Preparation": 4, "headless:SUCCESSOR": 2}
+C sparse_interactive cause=LateGate(PhaseRefusal { gate: Late }) Ordinary_plain=true complete_calls=1
+C dense_scrutiny cause=LateGate(PhaseRefusal { gate: Late }) Ordinary_plain=true complete_calls=1
+D sparse_interactive cause=CompleteGate(PhaseRefusal { gate: Complete }) Ordinary_plain=true complete_calls=1
+D dense_scrutiny cause=CompleteGate(PhaseRefusal { gate: Complete }) Ordinary_plain=true complete_calls=1
+E sparse_interactive cause=StackReservation Ordinary_plain=true complete_calls=0
+E dense_scrutiny cause=StackReservation Ordinary_plain=true complete_calls=0
+F withdraw_native: through_permitted_entry=Native Ordinary_plain_plus_notice=true caller_armed_empty=true next_direct_retained_w1_on_caller=SUCCESSOR
+F corrupt_precommit: through_permitted_entry=Precommit { gate: "G1", code: "RETAINED_PRECISION_RECEIPT_MISMATCH" } Ordinary_plain_plus_notice=true caller_armed_empty=true next_direct_retained_w1_on_caller=SUCCESSOR
+F rebind_precommit: through_permitted_entry=Precommit { gate: "G8", code: "RETAINED_PRECISION_INVOCATION_MISMATCH" } Ordinary_plain_plus_notice=true caller_armed_empty=true next_direct_retained_w1_on_caller=SUCCESSOR
+F serializer_encoding: through_permitted_entry=Serializer(ReceiptFailure { check: Encoding, field_path: "cases[].run.invocation_after" }) Ordinary_plain_plus_notice=true caller_armed_empty=true next_direct_retained_w1_on_caller=SUCCESSOR
+G unfired fault: cause=LateGate(PhaseRefusal { gate: Late }) caller_armed_empty_after=true

@@ -1,0 +1,189 @@
+[
+ {
+  "mutant": "baseline (unmutated lane)",
+  "expected": "passes",
+  "result": "passes",
+  "tests": [
+   "test u6_product_text_drops_only_test_gated_items ... ok",
+   "test u6_doc_hidden_seams_have_no_product_callers ... ok",
+   "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.34s"
+  ]
+ },
+ {
+  "mutant": "G1 seam named in src-tauri solver_result_row_value (RV88's site)",
+  "file": "apps/desktop/src-tauri/src/lib.rs",
+  "expected": "killed",
+  "result": "killed",
+  "as_expected": true,
+  "tests": [
+   "test u6_product_text_drops_only_test_gated_items ... ok",
+   "test u6_doc_hidden_seams_have_no_product_callers ... FAILED",
+   "test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.05s"
+  ],
+  "why": [
+   "thread 'u6_doc_hidden_seams_have_no_product_callers' (58841522) panicked at tests/retained_precision_carriers.rs:1005:13:",
+   "assertion `left == right` failed: class_binding_refusal in apps/desktop/src-tauri/src/lib.rs"
+  ]
+ },
+ {
+  "mutant": "G2 aliased seam import at the end of runner/headless lib.rs",
+  "file": "core/runner/headless/src/lib.rs",
+  "expected": "killed",
+  "result": "killed",
+  "as_expected": true,
+  "tests": [
+   "test u6_product_text_drops_only_test_gated_items ... ok",
+   "test u6_doc_hidden_seams_have_no_product_callers ... FAILED",
+   "test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.23s"
+  ],
+  "why": [
+   "thread 'u6_doc_hidden_seams_have_no_product_callers' (58841583) panicked at tests/retained_precision_carriers.rs:1005:13:",
+   "assertion `left == right` failed: retained_standing_from in core/runner/headless/src/lib.rs"
+  ]
+ },
+ {
+  "mutant": "G3 seam named in a product fn at the end of product_physics lib.rs",
+  "file": "core/product_physics/src/lib.rs",
+  "expected": "killed",
+  "result": "killed",
+  "as_expected": true,
+  "tests": [
+   "test u6_product_text_drops_only_test_gated_items ... ok",
+   "test u6_doc_hidden_seams_have_no_product_callers ... FAILED",
+   "test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.19s"
+  ],
+  "why": [
+   "thread 'u6_doc_hidden_seams_have_no_product_callers' (58841669) panicked at tests/retained_precision_carriers.rs:1005:13:",
+   "assertion `left == right` failed: classification_summary_from in core/product_physics/src/lib.rs"
+  ]
+ },
+ {
+  "mutant": "G4 a fourth class_disclosure mention in derivative.rs product text",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "expected": "killed",
+  "result": "killed",
+  "as_expected": true,
+  "tests": [
+   "test u6_product_text_drops_only_test_gated_items ... ok",
+   "test u6_doc_hidden_seams_have_no_product_callers ... FAILED",
+   "test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.26s"
+  ],
+  "why": [
+   "thread 'u6_doc_hidden_seams_have_no_product_callers' (58842431) panicked at tests/retained_precision_carriers.rs:1005:13:",
+   "assertion `left == right` failed: class_disclosure in core/reporting/result_export/src/derivative.rs"
+  ]
+ },
+ {
+  "mutant": "G5 raw string holding '#[cfg(test)] mod x {' then a seam, in a product fn",
+  "file": "apps/desktop/src-tauri/src/lib.rs",
+  "expected": "killed",
+  "result": "killed",
+  "as_expected": true,
+  "tests": [
+   "test u6_product_text_drops_only_test_gated_items ... ok",
+   "test u6_doc_hidden_seams_have_no_product_callers ... FAILED",
+   "test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.05s"
+  ],
+  "why": [
+   "thread 'u6_doc_hidden_seams_have_no_product_callers' (58843344) panicked at tests/retained_precision_carriers.rs:1005:13:",
+   "assertion `left == right` failed: class_binding_refusal in apps/desktop/src-tauri/src/lib.rs"
+  ]
+ },
+ {
+  "mutant": "G6 a line comment holding '#[cfg(test)] {' then a seam on the next line",
+  "file": "apps/desktop/src-tauri/src/lib.rs",
+  "expected": "killed",
+  "result": "killed",
+  "as_expected": true,
+  "tests": [
+   "test u6_product_text_drops_only_test_gated_items ... ok",
+   "test u6_doc_hidden_seams_have_no_product_callers ... FAILED",
+   "test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.05s"
+  ],
+  "why": [
+   "thread 'u6_doc_hidden_seams_have_no_product_callers' (58843412) panicked at tests/retained_precision_carriers.rs:1005:13:",
+   "assertion `left == right` failed: class_binding_refusal in apps/desktop/src-tauri/src/lib.rs"
+  ]
+ },
+ {
+  "mutant": "G7 a #[cfg(test)] statement, then a seam on the next statement",
+  "file": "apps/desktop/src-tauri/src/lib.rs",
+  "expected": "killed",
+  "result": "killed",
+  "as_expected": true,
+  "tests": [
+   "test u6_product_text_drops_only_test_gated_items ... ok",
+   "test u6_doc_hidden_seams_have_no_product_callers ... FAILED",
+   "test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.07s"
+  ],
+  "why": [
+   "thread 'u6_doc_hidden_seams_have_no_product_callers' (58843489) panicked at tests/retained_precision_carriers.rs:1005:13:",
+   "assertion `left == right` failed: class_binding_refusal in apps/desktop/src-tauri/src/lib.rs"
+  ]
+ },
+ {
+  "mutant": "G8 a seam in a product doc comment of runner lib.rs",
+  "file": "core/runner/headless/src/lib.rs",
+  "expected": "killed",
+  "result": "killed",
+  "as_expected": true,
+  "tests": [
+   "test u6_product_text_drops_only_test_gated_items ... ok",
+   "test u6_doc_hidden_seams_have_no_product_callers ... FAILED",
+   "test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.25s"
+  ],
+  "why": [
+   "thread 'u6_doc_hidden_seams_have_no_product_callers' (58843561) panicked at tests/retained_precision_carriers.rs:1005:13:",
+   "assertion `left == right` failed: retained_standing_from in core/runner/headless/src/lib.rs"
+  ]
+ },
+ {
+  "mutant": "C1 control: a seam inside src-tauri's mod tests",
+  "file": "apps/desktop/src-tauri/src/lib.rs",
+  "expected": "passes",
+  "result": "passes",
+  "as_expected": true,
+  "tests": [
+   "test u6_product_text_drops_only_test_gated_items ... ok",
+   "test u6_doc_hidden_seams_have_no_product_callers ... ok",
+   "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.34s"
+  ],
+  "why": []
+ },
+ {
+  "mutant": "C2 control: a #[cfg(test)]-gated use of a seam in runner lib.rs",
+  "file": "core/runner/headless/src/lib.rs",
+  "expected": "passes",
+  "result": "passes",
+  "as_expected": true,
+  "tests": [
+   "test u6_product_text_drops_only_test_gated_items ... ok",
+   "test u6_doc_hidden_seams_have_no_product_callers ... ok",
+   "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.28s"
+  ],
+  "why": []
+ },
+ {
+  "mutant": "C3 control: a gated test fn holding braces in strings and chars, then product text",
+  "file": "core/runner/headless/src/lib.rs",
+  "expected": "passes",
+  "result": "passes",
+  "as_expected": true,
+  "tests": [
+   "test u6_product_text_drops_only_test_gated_items ... ok",
+   "test u6_doc_hidden_seams_have_no_product_callers ... ok",
+   "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.31s"
+  ],
+  "why": []
+ },
+ {
+  "mutant": "baseline after restore",
+  "expected": "passes",
+  "result": "passes",
+  "tests": [
+   "test u6_product_text_drops_only_test_gated_items ... ok",
+   "test u6_doc_hidden_seams_have_no_product_callers ... ok",
+   "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.28s"
+  ]
+ }
+]

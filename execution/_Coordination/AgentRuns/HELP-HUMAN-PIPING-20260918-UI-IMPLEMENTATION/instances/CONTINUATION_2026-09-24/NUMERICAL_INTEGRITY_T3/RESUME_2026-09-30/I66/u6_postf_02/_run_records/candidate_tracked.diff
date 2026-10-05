@@ -1,0 +1,52 @@
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
+index b81536f308..cc5d1f8b79 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
+@@ -579,7 +579,7 @@ describe("the declared differences, with TypeScript's expectations", () => {
+   });
+   it("carry the N-4 scope: differences inherited from the base carriers are not U6's", () => {
+     expect(caseFile.scope).toMatch(/inherited from the base carriers are not U6 differences/);
+-    expect(caseFile.scope).toMatch(/G7 parity compares the reader's \(gate, code\)/);
++    expect(caseFile.scope).toMatch(/G7 parity compares the reader's \(gate, code\)[\s\S]*parity there compares only accept against refuse/);
+   });
+   it.each<[string, string, Json]>(declaredForms)("%s on %s", async (_id, fixtureId, form) => {
+     const expected = form.expected.typescript;
+diff --git a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs
+index e5c24ec3f8..1601e8dbd8 100644
+--- a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs
++++ b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs
+@@ -755,7 +755,7 @@ fn expected_binding(source: &Value, expected: &str) -> Vec<Option<String>> {
+ #[test]
+ fn u6_declared_differences_rust() {
+     let cases: Value = serde_json::from_str(CASES).unwrap();
+-    assert!(cases["scope"].as_str().unwrap().contains("G7 parity compares the reader's (gate, code)"));
++    assert!(["G7 parity compares the reader's (gate, code)", "parity there compares only accept against refuse"].iter().all(|p| cases["scope"].as_str().unwrap().contains(p)));
+     let fixtures = shared_fixtures(&cases);
+     let entries = cases["declared_differences"].as_array().unwrap();
+     let mut ids: Vec<&str> = entries.iter().map(|e| e["id"].as_str().unwrap()).collect();
+diff --git a/projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json b/projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json
+index fa7c85925b..3dc39b4702 100644
+--- a/projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json
++++ b/projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json
+@@ -1,7 +1,7 @@
+ {
+   "format": "I66-U6-CARRIER-CASES-v3",
+   "note": "Shared carrier standing-parity scenarios for the Rust, Python and TypeScript carriers (I66 U6; D2 4.7 parity). Fixtures are byte-identical copies of PP's pinned milestone successor files (D-U6-5), producer test outputs, not native Current evidence. Edits apply literally, with no rehash. 'requested' is 'invocation' (the invocation model's load cases, in order) or an explicit list. 'expected_dispatch' is 'ok' or the raw dispatch's first error code. Eligibility is held until U7, so no case expects numerically_eligible. v2 (I66 U6 repairs): fixtures carry 'shape': 'milestone' ({id, invocation, source}) or 'raw' (the file is the source; its cases have no invocation). The F-5 guard cases (a W1 token on a non-first row only; a receipt member that is {} or null) on a legacy 0.1.0 source and on a preview-physics-1 source are refused in every language. 'declared_differences' lists the only ruled differences between the languages' carriers (and F5's shared semantics), each with its ruling and one expectation per language; any other difference is a defect. Their subjects: 'standing' (as the cases), 'binding' (every row of the edited source: 'by_validated_class' or 'every_row:<code>') and 'transport' (the header-only dispatch: 'ok' or the first error code). v3 (I66 post-U6f): 'declared_differences' entries carry 'forms'; each form names its fixtures, 'invocation' (null, 'fixture', or a literal object such as {}), 'requested', 'edits', one 'subject' and one expectation per language. Subjects: 'standing'; 'transport' ('ok' or the first error code); 'binding' over every row of the edited source ('by_validated_class', 'every_row:<code>', 'every_row:none', or 'source_blocks_summary:<code>': the open_formula_stress_summary rows and the max_open_formula_stress headline row refused, every other row bound); and 'summary' ('by_validated_class': one entry per receipt case counting the reader's classes, interval_bindable 0, the held withheld count; or 'empty'). An optional 'finding' or 'notice' is TS's.",
+-  "scope": "Differences inherited from the base carriers are not U6 differences and are not listed here: the G7 dispatch text (each language forwards its own base validator's detail), Rust's header dispatch ignoring carrier_evidence, and the AnalysisRun builders' refusal codes. G7 parity compares the reader's (gate, code), not the dispatch text (ROOT_RULINGS_V1 \"RV92 (U6f) on the whole of U6: PASS; the post-U6f repair round; U7 preconditions\"; RV92 u6f_01 N-4).",
++  "scope": "Differences inherited from the base carriers are not U6 differences and are not listed here: the G7 dispatch text (each language forwards its own base validator's detail), Rust's header dispatch ignoring carrier_evidence, and the AnalysisRun builders' refusal codes. G7 parity compares the reader's (gate, code), not the dispatch text (ROOT_RULINGS_V1 \"RV92 (U6f) on the whole of U6: PASS; the post-U6f repair round; U7 preconditions\"; RV92 u6f_01 N-4). Rust's header dispatch checks only that a preview contract_evidence is an object, so TS's transport route, like Python's transport check, refuses evidence content that Rust's transport accepts (for example a successor's contract_evidence with a key added and its hashes made consistent, which TS refuses at the reader's G7). A transport refused by a header check before the reader runs carries each language's own code (TS SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED; Rust the reader's G0 code or its base header code; Python F-U6b-2's code), so parity there compares only accept against refuse (ROOT_RULINGS_V1 \"RV92 on the post-U6f round: one transport residue, declared by a scope sentence\"; RV92 u6f_02 N-9 (a), (b)).",
+   "fixtures": {
+     "milestone_sparse_interactive": {
+       "path": "fixtures/results/retained_precision_milestone_successor_sparse_interactive.json",
+diff --git a/projects/chirality-piping/tests/test_retained_precision_carriers.py b/projects/chirality-piping/tests/test_retained_precision_carriers.py
+index 12f481e816..d09c352318 100644
+--- a/projects/chirality-piping/tests/test_retained_precision_carriers.py
++++ b/projects/chirality-piping/tests/test_retained_precision_carriers.py
+@@ -266,7 +266,7 @@ def test_declared_differences_python():
+     """Each ruled difference, form by form, with Python's own expectation; Rust
+     asserts its own from the same entries, and TS (I67) its own."""
+     cases, docs = shared_cases()
+-    assert "G7 parity compares the reader's (gate, code)" in cases["scope"]
++    assert all(p in cases["scope"] for p in ("G7 parity compares the reader's (gate, code)", "parity there compares only accept against refuse"))
+     entries = cases["declared_differences"]
+     assert {entry["id"] for entry in entries} == DECLARED and len(entries) == len(DECLARED)
+     seen = set()

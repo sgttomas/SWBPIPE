@@ -1,0 +1,58 @@
+{
+  "utc": "2026-10-03T09:48:18.165037+00:00",
+  "source_origins_verified": 20,
+  "prior_I51_payloads_verified": 7,
+  "findings_addressed_for_backcheck": {
+    "RV67-1": [
+      "explicit prospective D1 scope",
+      "native p/P versus fixed proof/projection precision",
+      "native stop scope versus direct final error proof",
+      "all row-family arithmetic including norms, prescribed, maxima and ancillary",
+      "f5/f4 stress discriminator",
+      "native-p512 floors only",
+      "method/replay/readers deferred explicitly"
+    ],
+    "RV67-2": [
+      "private preparation result and Spent",
+      "old-to-old versus new preparation binding",
+      "concrete PP capture/prepared constructors",
+      "one owner-bound dual draft",
+      "closed AdmittedK/AnnularSource and own recovery",
+      "same lanes used by projection/final checks without old certifier call",
+      "ancillary observed bits explicitly sourced and checked",
+      "consuming work transfer and first-success/second-failure custody"
+    ],
+    "RV67-3": [
+      "one immutable overlay for all gates",
+      "new PreparedCase G5a operational/facts",
+      "eight regenerated numeric maximum fields, existing coefficient routine",
+      "complete coverage and candidate aliases",
+      "no full-envelope/evidence-tree clone",
+      "borrow scopes end before owning commit",
+      "no fallible/allocation work after first mutation",
+      "both lane data/alpha/epsilon lifetimes",
+      "withdrawn32 target and named symbolic layout",
+      "failure/capacity/copy/serialization obligations",
+      "exact private fence and ordered checkpoints"
+    ]
+  },
+  "limitations": [
+    "signatures are a typed design, not compiled",
+    "no live new-K p/residual/G5a/private candidate",
+    "no all-in invocation debit or resource/profile qualification",
+    "no public method/receipt/reader activation",
+    "same reviewer backcheck and ROOT selection still required"
+  ],
+  "authored_files_before_seal": [
+    "API.md",
+    "BULK_MANIFEST.json",
+    "DESIGN.md",
+    "EXECUTION.json",
+    "FENCE.md",
+    "ORIGINS.json",
+    "RETURN.md",
+    "AUDIT.json"
+  ],
+  "no_unresolved_authoring_markers": true,
+  "analysis_closed_utc": "2026-10-03 09:47:22 UTC"
+}

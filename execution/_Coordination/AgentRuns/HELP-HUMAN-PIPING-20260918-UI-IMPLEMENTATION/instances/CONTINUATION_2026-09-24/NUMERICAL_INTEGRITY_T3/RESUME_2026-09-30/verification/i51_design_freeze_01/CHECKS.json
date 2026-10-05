@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-03T08:48:13.940624+00:00",
+  "actor": "ROOT HELP_HUMAN /root",
+  "full_review_or_proposal_read": true,
+  "packet": "I51/replacement_producer_01",
+  "payload_count": 7,
+  "external_files_verified": 3,
+  "external_bytes": 341280,
+  "seal_sha256": "ba0c9b7f68447987d62a8ee546b5c5aa26ff19e762b3d35c858d5f9bb521d1a6",
+  "decision": "RV65 repair clear for local component acceptance; I51 proposal preserved unselected for fresh design re-derivation"
+}

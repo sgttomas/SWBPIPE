@@ -1,0 +1,40 @@
+{
+  "role": "TASK Type 2",
+  "parent": "/root HELP_HUMAN Agent 0",
+  "agent": "/root/rv40_w1_limits",
+  "mechanism": "delegated-harness-native descendant via collaboration.spawn_agent, fresh bounded assignment",
+  "receipt_utc": "2026-10-02T17:10:18Z",
+  "new_check_cutoff_utc": "2026-10-02T17:45:18Z",
+  "stop_deadline_utc": "2026-10-02T17:50:18Z",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV40/w1_limits_01",
+  "write_fence": "Instructional only; host danger-full-access, approval never; shared M5 per supplied brief",
+  "permissions_used": [
+    "read filesystem and Git objects with GIT_OPTIONAL_LOCKS=0",
+    "standard-library integer/JSON/archive arithmetic",
+    "write own review evidence only"
+  ],
+  "not_performed": [
+    "delegation",
+    "Git/index/API write",
+    "solver/model/build/runtime/comparator experiment",
+    "source edit",
+    "policy enactment",
+    "host/resource change"
+  ],
+  "python": "3.9.6",
+  "host": "macOS-26.6.2-arm64-arm-64bit",
+  "NUM_HEAD_at_receipt": "70b1a0b150ae803445b5f0fa65c495378180629b",
+  "K6C_frozen": "9994462204231fb92073e17eb09775756bec22f3",
+  "proposal_commit": "8fada07f2c975cd20e52856a3d4fb589b05767e5",
+  "maintained_source": "81c03849033f3ce745668f581f446530789397b8",
+  "reader_repair_notes": [
+    "Initial extractor excluded T1 root archive members; fixed name filter, reran.",
+    "Initial Selected counter assumed refused records carried selected_precision; changed to optional key, reran. Both were reviewer scripts only; no source/data changes.",
+    "NUM has no K6c implementation index; one path search failed, no reliance on it.",
+    "One write-tool JavaScript string failed parsing before execution; no files were written by that call, and the corrected call wrote the final return."
+  ],
+  "finished_utc": "2026-10-02T17:27:07.573039+00:00",
+  "disposition": "PASS prospective preparation; work selection after K6c merge; memory adoption conditional, RV40-N1",
+  "new_checks_stopped_before_cutoff": true,
+  "final_arithmetic_exit_code": 0
+}

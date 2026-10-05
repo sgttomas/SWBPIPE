@@ -1,0 +1,59 @@
+{
+  "checks": {
+    "arithmetic_constants": "pass",
+    "controls_passed": 16,
+    "json_parse": "pass",
+    "payload_count": 9,
+    "source_origins": 29
+  },
+  "files": [
+    {
+      "bytes": 16904,
+      "path": "ARITHMETIC_DESIGN.md",
+      "sha256": "2e5cf547adf071283da810b96356e1cf33e704b897194a8406f2dcd8e9fe142c"
+    },
+    {
+      "bytes": 4096,
+      "path": "RETURN.md",
+      "sha256": "28463edbf5828ddac8428d8219b2df63a67fbc3126fdc5c89bc9e24f527539b2"
+    },
+    {
+      "bytes": 21962,
+      "path": "SCHEDULE_AND_COUNTS.md",
+      "sha256": "a5e861949a1152b5a324cc0e7ad5cff5839f96a58cabe133dc9b829a5927ce17"
+    },
+    {
+      "bytes": 9324,
+      "path": "SOURCE_MANIFEST.md",
+      "sha256": "5093d6a5f46a0bb645157cfded6922c56f60f2a4ceaf8b5e159ee11a098456d1"
+    },
+    {
+      "bytes": 3407,
+      "path": "_run_records/ARITHMETIC.json",
+      "sha256": "13b797b2694fbf288a4bdc8d74c183600938b63994c7523c0a2ad188abb4963e"
+    },
+    {
+      "bytes": 950,
+      "path": "_run_records/CHECK_HISTORY.json",
+      "sha256": "e8b9298761691e3e166a03793b1c795b764231636f3641c970d9dcc4d5ffe29b"
+    },
+    {
+      "bytes": 2969,
+      "path": "_run_records/EXECUTION.json",
+      "sha256": "77b0ad3b44e229b0839764ff5855e4d489a807d0321b08672defa77f87458b50"
+    },
+    {
+      "bytes": 16707,
+      "path": "_run_records/ORIGINS.json",
+      "sha256": "2a7f1c9b82c50905e2cca405e046cd07a67d9367fb67e377c13d40efa7055409"
+    },
+    {
+      "bytes": 14269,
+      "path": "_run_records/exact_controls.py",
+      "sha256": "30778d9472c59ac9883fd1d8258c5a085166836cad48b5e1238c6c8f84a0a0f6"
+    }
+  ],
+  "kind": "informational owned-packet inventory; not acceptance seal",
+  "root": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I35/f2a_certificate_arithmetic_01",
+  "self_excluded": "INVENTORY.json"
+}

@@ -1,0 +1,65 @@
+{
+  "status": "PASS",
+  "finding_disposition": "RV52-1 CLOSED",
+  "production_execution": false,
+  "checks": [
+    {
+      "name": "bounded_packet_hash_delta",
+      "status": "pass",
+      "changed": [
+        "ENVELOPE.md",
+        "OWNER_LEDGER.md",
+        "RETURN.md",
+        "_run_records/WRITE_INVENTORY.json"
+      ],
+      "added": [
+        "_run_records/hats_repair_02/CORRECTION.json",
+        "_run_records/hats_repair_02/checks.json",
+        "_run_records/hats_repair_02/checks.py"
+      ],
+      "removed": [],
+      "caveat": "packet filesystem scope compared with sealed prior hashes; ROOT separately verified Git diff"
+    },
+    {
+      "name": "candidate_inventory",
+      "status": "pass",
+      "payloads": 10
+    },
+    {
+      "name": "original_raw_and_review_immutable",
+      "status": "pass",
+      "original_raw": 4,
+      "review_files_including_seal": 7
+    },
+    {
+      "name": "source_and_baseline_unchanged_in_NUM_and_F2A",
+      "status": "pass",
+      "files_each": 12
+    },
+    {
+      "name": "all_author_repair_controls_reproduce",
+      "status": "pass",
+      "controls": 8
+    },
+    {
+      "name": "source_to_repaired_terms",
+      "status": "pass"
+    },
+    {
+      "name": "independent_lifetime_and_moving_events",
+      "status": "pass",
+      "floor_branches": 2,
+      "note": "hats old backing only in its growth event; live hats also overlaps later summary growth"
+    },
+    {
+      "name": "uc_two_phase_domination",
+      "status": "pass",
+      "phase_sizes": [
+        2,
+        4
+      ],
+      "block_max_vectors": 2,
+      "premise": "maximum qualified site capacity law for Wide<L>(F); no byte coefficient"
+    }
+  ]
+}

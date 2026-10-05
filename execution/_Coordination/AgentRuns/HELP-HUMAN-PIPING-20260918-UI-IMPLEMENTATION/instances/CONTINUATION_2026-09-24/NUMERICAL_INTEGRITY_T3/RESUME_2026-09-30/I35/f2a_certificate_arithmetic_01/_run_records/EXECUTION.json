@@ -1,0 +1,49 @@
+{
+  "agent": "/root/i35_f2a_certificate_arithmetic",
+  "basis": [
+    "B1/B1C and RV42",
+    "I33 9f1ef2693d",
+    "RV45 d05bb825ff",
+    "corrected C1/C2",
+    "I34 proposed status direction only"
+  ],
+  "check_history": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I35/f2a_certificate_arithmetic_01/_run_records/CHECK_HISTORY.json",
+  "check_output": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I35/f2a_certificate_arithmetic_01/_run_records/ARITHMETIC.json",
+  "command": "python3 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I35/f2a_certificate_arithmetic_01/_run_records/exact_controls.py",
+  "completed_utc": "2026-10-02T21:43:54.186456+00:00",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "engine": "Codex",
+  "git_reads": "GIT_OPTIONAL_LOCKS=0 for every Git read, including subprocess source-origin checks",
+  "limits": "Mathematical/source inspection and exact abstract controls only. Not an implementation/acceptance seal. Fresh independent review precedes code/reliance.",
+  "mechanism": "delegated-harness-native collaboration child",
+  "model": "not separately probed; no model or harness substitution",
+  "new_analysis_cutoff_utc": "2026-10-02T22:00:00+00:00",
+  "not_performed": [
+    "delegation",
+    "maintained source change",
+    "Git/index/API write",
+    "compiler or test-build invocation",
+    "solver/model/product runtime",
+    "host/native/browser probe",
+    "complete memory or actual availability qualification",
+    "full tracked-source copies"
+  ],
+  "parent": "/root",
+  "receipt_head": "d85405edcdbb894544a64051faa768db8951060c",
+  "receipt_utc": "2026-10-02T21:20:01+00:00",
+  "return": "RETURN.md",
+  "return_deadline_utc": "2026-10-02T22:10:00+00:00",
+  "role": "TASK",
+  "source_discovery_notes": [
+    "Two guessed module paths did not exist (retained.rs and structural/mod.rs); directory/source discovery resolved actual retained/mod.rs and structural.rs. No affected numeric check was omitted."
+  ],
+  "source_pin": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "task": "I35_F2A_CERTIFICATE_ARITHMETIC_01",
+  "work_performed": [
+    "source/document reads and bounded searches",
+    "private finite arithmetic/storage/count design",
+    "standard-library exact abstract controls",
+    "owned packet writes and hashes"
+  ],
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I35/f2a_certificate_arithmetic_01"
+}

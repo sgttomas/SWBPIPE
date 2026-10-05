@@ -1,0 +1,28 @@
+#!/bin/bash
+# I61 U9 G5: T9 (S11-K's fixdiff harness ec089c1d..., release) on git-archive trees of base M 5fdc5ab601 and
+# candidate C 6b9bb19a5f (projects/chirality-piping, execution/ excluded), plus F1b's extra corpus (8 requests, 16 outputs).
+# Mac only; one cargo job at a time; derived from KF2 B's run_t9.sh (paths only) with the builds added in front.
+set -u
+WT=WT
+B=$WT/scratch/u9_t9
+EXTRA=$WT/scratch/i13/a1/extra_corpus
+pgrep -f memguard.sh >/dev/null || { echo "MEMGUARD NOT RUNNING"; exit 9; }
+for n in base cand; do
+  echo "== build $n start $(date -u +%FT%TZ)"
+  ( cd $B/harness_$n && env -u RUSTFLAGS CARGO_BUILD_JOBS=4 cargo build --release --offline --target-dir $WT/targets/i61-u9g5/$n > $B/logs/build_$n.log 2>&1 ); echo "== build $n exit=$? $(date -u +%FT%TZ)"
+done
+for n in base cand; do
+  BIN=$WT/targets/i61-u9g5/$n/release/calib_fixdiff_native
+  TREE=$B/tree_$n
+  rm -rf $B/out_$n $B/extra_$n; : > $B/logs/run_$n.log
+  echo "== run $n start $(date -u +%FT%TZ)"
+  for root in core fixtures validation; do
+    mkdir -p $B/out_$n/$root
+    $BIN $TREE/projects/chirality-piping/$root $B/out_$n/$root >> $B/logs/run_$n.log 2>&1; echo "$root rc=$?" >> $B/logs/run_$n.log
+  done
+  ( cd $B/out_$n && find . -type f -name '*.out' | sort | xargs shasum -a 256 ) > $B/sha_$n.txt
+  mkdir -p $B/extra_$n; $BIN $EXTRA $B/extra_$n >> $B/logs/run_$n.log 2>&1; echo "extra rc=$?" >> $B/logs/run_$n.log
+  ( cd $B/extra_$n && ls | sort | xargs shasum -a 256 ) > $B/extra_sha_$n.txt
+  echo "== run $n end $(date -u +%FT%TZ)"
+done
+echo T9-DONE $(date -u +%FT%TZ)

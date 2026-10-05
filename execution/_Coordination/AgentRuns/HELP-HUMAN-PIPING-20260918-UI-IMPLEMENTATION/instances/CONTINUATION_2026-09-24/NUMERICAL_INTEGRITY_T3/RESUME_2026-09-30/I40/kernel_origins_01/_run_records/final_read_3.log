@@ -1,0 +1,9 @@
+ M projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
+ M projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+ M projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs
+ M projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs
+ M projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs
+ M projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs
+?? projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs
+?? projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/origins_tests.rs
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I40/

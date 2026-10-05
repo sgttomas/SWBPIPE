@@ -1,0 +1,34 @@
+RV77 enumeration and stage-rule results
+Source: candidate c618675e84 (RV77 git archive) plus the two reviewer test includes only (tests/rv77_enum.rs, tests/rv77_pp.rs).
+Log: WT/scratch/rv77_coverage_producer_01/mutants/NONE_B.log. cargo test --locked --offline --lib <filter>, CARGO_BUILD_JOBS=4, RUST_TEST_THREADS=2, memory guard running.
+
+=== fk:rv77_
+RV77_PAYLOAD_SPEC accepted=9288 refused=64440
+test structural::retained::product_certificate::final_case::rv77_enum::rv77_full_payload_domain_matches_independent_spec ... ok
+RV77_INPUT_DERIVED_FM p512_identity_breaks=336
+test structural::retained::product_certificate::final_case::rv77_enum::rv77_input_derived_force_moment_would_break_the_p512_identity ... ok
+RV77_GENUINE cases=589824 p512=393216 p512_estimate_ne_charge=157696 refusals=0 mismatches=0
+test structural::retained::product_certificate::final_case::rv77_enum::rv77_genuine_domain_rederives_bit_for_bit_and_is_never_refused ... ok
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 478 filtered out; finished in 0.16s
+=== exit fk:rv77_ 0
+=== fk:i61_
+test structural::retained::product_certificate::final_case::product_final_case_tests::i61_rederivation_refuses_partial_reordered_and_mismatched_vectors ... ok
+test structural::retained::product_certificate::final_case::product_final_case_tests::i61_synthetic_rederivation_precision_floor_extent_and_absent_kinds ... ok
+test structural::retained::product_certificate::final_case::product_final_case_tests::i61_actual_native_coverage_is_borrowed_and_all_nine_flags_rederive ... ok
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 478 filtered out; finished in 0.57s
+=== exit fk:i61_ 0
+=== pp:rv77_
+RV77_PP_STAGE_RULES ok
+test retained_product_tests::rv77_pp::rv77_stage_rules_null_and_non_null_prerequisites ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 457 filtered out; finished in 1.03s
+=== exit pp:rv77_ 0
+=== pp:i61_
+I61_FOREIGN_OWNER same_public_facts_result_ok=true
+test retained_product_tests::i61_certificate_prefixes_and_stage_rules_with_actual_fk_proofs ... ok
+test retained_product_tests::i61_ready_carries_complete_proof_owned_coverage_and_lower_p_charge_is_estimate ... ok
+test retained_product_tests::i61_specimen_zero_and_cancelled_bodies_keep_actual_flags ... ok
+test retained_product_tests::i61_failure_prefixes_null_complete_and_adapter_prefix ... ok
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 454 filtered out; finished in 8.57s
+=== exit pp:i61_ 0
+
+Reading: genuine domain 589,824 cases, 0 refusals, 0 mismatches; payload domain 73,728 cases match RV77's spec (9,288 accepted, 64,440 refused); 336 input-derived force/moment patterns would break the p512 identity, which is why coverage_facts must refuse them.

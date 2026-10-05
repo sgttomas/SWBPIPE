@@ -1,0 +1,92 @@
+{
+  "utc": "2026-10-03T19:04:57.406795+00:00",
+  "reason": "user authorized resumption after usage-limit interruption",
+  "host": "M5 Max 128 GiB; guard PID 5387; no cargo/rustc",
+  "main": "381be775ae9b8d94e7d650713a0c97cba304950b",
+  "NUM": "4b91e1c22cea7f9746d4474993ba22199838b78c",
+  "READER": "a8bec61e8cd81e6a93f1e27878acb5ae184bff5f",
+  "reader_wip": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts",
+      "sha256": "2fd8ceaa7857154cc18719ce9512ba343e133b95f692bd175a322711616e68e1",
+      "bytes": 5279,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/reader_source/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts",
+      "sha256": "d7392658647a7e55cf9e40f496a17a943139f0b6b7881eaa8b1c8b8a5f342b20",
+      "bytes": 71238,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/reader_source/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts"
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/retained_precision.py",
+      "sha256": "ec0d400c00e6bb9c20ca892c705be6a48dd6d6662b76cbd958662b9fd79e305d",
+      "bytes": 60052,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/reader_source/projects/chirality-piping/core/analysis_runs/retained_precision.py"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "sha256": "375b07313518a0cdd09e317b83b9ca7536acef5c80fd4cd0a94920fd8bf2486d",
+      "bytes": 66051,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/reader_source/projects/chirality-piping/core/reporting/result_export/src/lib.rs"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs",
+      "sha256": "f99859e61f2724f33e084f46a386827d16fcb47f1d9c0a5050d169d7f185fac6",
+      "bytes": 115230,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/reader_source/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs",
+      "sha256": "fd6a3e0c417a0dc8176af17aab44d71a96e28429478cc69e5a10f380be389b57",
+      "bytes": 1351,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/reader_source/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/retained_precision_cases.json",
+      "sha256": "9d621a11ee6a055c19fb80c3c7f95cc12e441ecd63828885fbcf49d5757da6cf",
+      "bytes": 428642,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/reader_source/projects/chirality-piping/fixtures/results/retained_precision_cases.json"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+      "bytes": 8346,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/reader_source/projects/chirality-piping/fixtures/results/retained_precision_prepared_ordinary_v1.json"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+      "bytes": 52328,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/reader_source/projects/chirality-piping/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586",
+      "bytes": 131530,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/reader_source/projects/chirality-piping/schemas/results.v0.3.schema.yaml"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/retained_precision_mp_v2.schema.json",
+      "sha256": "5652929173237c547ac58669f14d4b347f6c075634579e1abd5660c774e8dcd0",
+      "bytes": 173167,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/reader_source/projects/chirality-piping/schemas/retained_precision_mp_v2.schema.json"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_retained_precision_contract.py",
+      "sha256": "14a99e91949fc4764b38cf46f79cf32bbde0464fd62ad0bb00c6c27e08344eb3",
+      "bytes": 5804,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/reader_source/projects/chirality-piping/tests/test_retained_precision_contract.py"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_retained_precision_schema.py",
+      "sha256": "90bbd5660c504d3344ce19756d2b2250f80c0bd5d93b3ec123e5abf10523e504",
+      "bytes": 3627,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/reader_source/projects/chirality-piping/tests/test_retained_precision_schema.py"
+    }
+  ],
+  "prior_agents": "none live on current collaboration list; I51/I52/I55/I56/RV73 ended with usage-limit error",
+  "acceptance": "no unfinished source, coverage proposal or ordinary correction review accepted",
+  "original_deadlines": "preserved historically; no assertion original clocks completed; new bounded recovery assignments required",
+  "draft_records_snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/interrupted_records"
+}

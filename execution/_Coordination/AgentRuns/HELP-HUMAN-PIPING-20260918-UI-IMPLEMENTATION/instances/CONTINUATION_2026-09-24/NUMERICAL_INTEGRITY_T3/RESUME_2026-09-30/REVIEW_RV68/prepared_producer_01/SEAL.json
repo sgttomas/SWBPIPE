@@ -1,0 +1,76 @@
+{
+  "sealed_utc": "2026-10-03T12:53:15.308003+00:00",
+  "seal_count": 1,
+  "status": "bounded CLEAR; all findings closed; ROOT acceptance/public activation not implied",
+  "final_commit": "922db9dce33c2623385841ad3a4a002a79089e3a",
+  "author_seal_sha256": "a9cd40eb8c554a7f8f5d0c6cfc33717f8477b33c46fb98c5b7d3a33ba2a8e85b",
+  "payloads": [
+    {
+      "path": "AUDIT.json",
+      "bytes": 740,
+      "sha256": "50bf03524e4044b08abd34972f45465fafcb0147a230f4aedadbd12d38e87962"
+    },
+    {
+      "path": "BULK_MANIFEST.json",
+      "bytes": 29862,
+      "sha256": "6772cede610709dff667b67c7144d4bc633cd7ad4cd37c4ff25e4e77908bac4f"
+    },
+    {
+      "path": "CHECKS_FIRST_AMENDED.json",
+      "bytes": 6685,
+      "sha256": "c0b98779efd41030c5ae722633acd1d1557bc1f64ca9a67a9d3dd704a528821c"
+    },
+    {
+      "path": "COMMITTED_SOURCE_CONFIRMATION.json",
+      "bytes": 3437,
+      "sha256": "342e3c0ec84a8935164c1c154d4ce21de0807eb71293405fb2ec5c5b0adba0da"
+    },
+    {
+      "path": "CUSTODY_BACKCHECK.md",
+      "bytes": 4473,
+      "sha256": "2ce0075ec3e6e7380ed3fe2b466a1ce2e36d2558a28be63b1f3de8e2b9e2d8dd"
+    },
+    {
+      "path": "EXECUTION.json",
+      "bytes": 5081,
+      "sha256": "4aa3db7f731343c4d9e4dd9d50671d5a4fe3f7b9e2569fe37a05be97f171b722"
+    },
+    {
+      "path": "FROZEN_ASSESSMENT.md",
+      "bytes": 7072,
+      "sha256": "fed05f9f795fa504ecb85bb75254627593b2ddddeaa02f4cf78ba8b6347b1546"
+    },
+    {
+      "path": "LOCAL_ACCOUNTING_NOTES.md",
+      "bytes": 3175,
+      "sha256": "d612cdb6ada1732cfdc87e177ca9fb2688d72334ad03d169f05c4fe87b1a76a0"
+    },
+    {
+      "path": "ORIGINS.json",
+      "bytes": 33425,
+      "sha256": "845c8f6d8e85cc47af44d42efe7102d5d7368408cc4ed43b41ea0f75ef30be38"
+    },
+    {
+      "path": "PROVENANCE_BACKCHECK.md",
+      "bytes": 3141,
+      "sha256": "cb3bd75c60fe709faa7ab8342b61afc0c8555cb6b5a17b4fbb882efc3e21797e"
+    },
+    {
+      "path": "REENTRY_BACKCHECK.md",
+      "bytes": 2495,
+      "sha256": "730c87d6b789acf967aefbb0841339d7192c85fd16f384c4deeb76bfdc943695"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 1128,
+      "sha256": "c3d0d2a226bdf648b33cc7b3e7b95825f9c4ce50c86590bd0355110435dc7ba0"
+    },
+    {
+      "path": "REVIEW.md",
+      "bytes": 9496,
+      "sha256": "e0ea0d135ec63e588f849763683ca2d7cae7dfc5379376538a610ddedee35f96"
+    }
+  ],
+  "bulk_count": 96,
+  "runtime_released_utc": "2026-10-03T12:44:34.985163Z"
+}

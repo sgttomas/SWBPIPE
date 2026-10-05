@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV62/source_truth_coverage_02/_run_records/backcheck.py"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "script_sha256": "a7bce4e84ff9abb631122aa8b394682f5e5e9fa0aa07dac5ef902857e9baf948",
+  "exit": 0,
+  "utc": "2026-10-03T06:14:07.240680+00:00",
+  "type": "records-only exact arithmetic; successful replay after compacting output packaging only"
+}

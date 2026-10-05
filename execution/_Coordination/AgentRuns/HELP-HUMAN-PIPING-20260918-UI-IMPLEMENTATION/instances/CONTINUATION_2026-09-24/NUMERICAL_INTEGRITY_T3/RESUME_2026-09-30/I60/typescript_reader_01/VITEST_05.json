@@ -1,0 +1,104 @@
+{
+  "command": [
+    "npm",
+    "test",
+    "--",
+    "src/features/results/retainedPrecision.test.ts",
+    "--maxWorkers=2"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/apps/desktop",
+  "start_utc": "2026-10-03T19:15:42.401147+00:00",
+  "before": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts",
+      "sha256": "f2e2d1868c973d22568dfbe615cf999e24a79f6b5291935db6c4801686e7760c",
+      "bytes": 80752
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts",
+      "sha256": "77cee1aab77deaa9c51c289156fbc65f346937a59a70073b3f4c43fe2cf5ca06",
+      "bytes": 13427
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.ts",
+      "sha256": "ef7ab4c9505825dff5085ee8f836d4e506da458fe67036dfb7ed6036fcd10e42",
+      "bytes": 33005
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+      "bytes": 8346
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+      "bytes": 52328
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/fixtures/results/retained_precision_cases.json",
+      "sha256": "67d5cbcc00e26691f67e0c44e7ffa60262ee29487533779a3ff96f93a86aaed8",
+      "bytes": 433981
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/schemas/retained_precision_mp_v2.schema.json",
+      "sha256": "5652929173237c547ac58669f14d4b347f6c075634579e1abd5660c774e8dcd0",
+      "bytes": 173167
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586",
+      "bytes": 131530
+    }
+  ],
+  "shared_snapshot": "I58_SHARED_SNAPSHOT_03",
+  "wall_seconds": 1200,
+  "exit_code": 0,
+  "end_utc": "2026-10-03T19:15:43.771659+00:00",
+  "after": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts",
+      "sha256": "f2e2d1868c973d22568dfbe615cf999e24a79f6b5291935db6c4801686e7760c",
+      "bytes": 80752
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts",
+      "sha256": "77cee1aab77deaa9c51c289156fbc65f346937a59a70073b3f4c43fe2cf5ca06",
+      "bytes": 13427
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.ts",
+      "sha256": "ef7ab4c9505825dff5085ee8f836d4e506da458fe67036dfb7ed6036fcd10e42",
+      "bytes": 33005
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+      "bytes": 8346
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+      "bytes": 52328
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/fixtures/results/retained_precision_cases.json",
+      "sha256": "67d5cbcc00e26691f67e0c44e7ffa60262ee29487533779a3ff96f93a86aaed8",
+      "bytes": 433981
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/schemas/retained_precision_mp_v2.schema.json",
+      "sha256": "5652929173237c547ac58669f14d4b347f6c075634579e1abd5660c774e8dcd0",
+      "bytes": 173167
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586",
+      "bytes": 131530
+    }
+  ],
+  "log": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i60_typescript_reader_01/vitest_05.log",
+    "sha256": "d54f97af2ed2ef1c1b72661166a8a94b779bac8586a17580860b0712b7f83a0c",
+    "bytes": 438
+  }
+}

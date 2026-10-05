@@ -1,0 +1,52 @@
+== pass_pr_pp start 2026-10-04T22:27:53Z
+== pass_pr_pp exit=101 2026-10-04T22:29:36Z
+pass_pr_pp: 705 passed, 1 failed, 10 ignored
+== challenge exit=0
+I65_G5_CHALLENGE milestone SparseInteractive permitted=true peak_bytes=3541898 bound_bytes=3508669422 ratio=0.001009
+I65_G5_CHALLENGE milestone DenseScrutiny permitted=true peak_bytes=2252863 bound_bytes=3528379870 ratio=0.000638
+I65_G5_CHALLENGE cap_maximal SparseInteractive permitted=false peak_bytes=13221606 bound_bytes=1856156348 ratio=0.007123
+I65_G5_CHALLENGE cap_maximal DenseScrutiny permitted=false peak_bytes=13229826 bound_bytes=1875866796 ratio=0.007053
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.69s
+== pass_pr_runner start 2026-10-04T22:29:38Z
+== pass_pr_runner exit=101 2026-10-04T22:30:53Z
+pass_pr_runner: 85 passed, 2 failed, 0 ignored
+== witness_w1_milestone exit=0
+I65_G5_WITNESS W1 SparseInteractive stack=4194304 ran=Successor
+I65_G5_WITNESS W1 DenseScrutiny stack=4194304 ran=Successor
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 552 filtered out; finished in 1.50s
+== witness_w2_cap_maximal exit=0
+I65_G5_WITNESS W2 DenseScrutiny stack=4194304 ran=Fallback("Preparation")
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 552 filtered out; finished in 0.04s
+== witness_w2_deep_milestone_publishes exit=0
+I65_G5_WITNESS W2-deep SparseInteractive stack=4194304 ran=Successor
+I65_G5_WITNESS W2-deep SparseInteractive stack=1048576 ran=Successor
+I65_G5_WITNESS W2-deep DenseScrutiny stack=4194304 ran=Successor
+I65_G5_WITNESS W2-deep DenseScrutiny stack=1048576 ran=Successor
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 552 filtered out; finished in 2.87s
+== witness_w2b_cap_maximal_solvable exit=0
+I65_G5_WITNESS W2b SparseInteractive stack=4194304 ran=Fallback("Candidate")
+I65_G5_WITNESS W2b DenseScrutiny stack=4194304 ran=Fallback("Candidate")
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 552 filtered out; finished in 42.74s
+== witness_w3_exact_selected exit=0
+I65_G5_WITNESS W3 DenseScrutiny stack=4194304 ran=ExactSelected
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 552 filtered out; finished in 0.10s
+== witness_w4_preparation_refusal exit=0
+I65_G5_WITNESS W4 DenseScrutiny stack=4194304 ran=Fallback("Preparation")
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 552 filtered out; finished in 0.01s
+== witness_w6_force_scaled exit=0
+I65_G5_WITNESS W6 SparseInteractive stack=4194304 ran=Fallback("Native")
+I65_G5_WITNESS_OUTCOME W6 SparseInteractive Fallback("Native")
+I65_G5_WITNESS W6 DenseScrutiny stack=4194304 ran=Fallback("Native")
+I65_G5_WITNESS_OUTCOME W6 DenseScrutiny Fallback("Native")
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 552 filtered out; finished in 0.14s
+== witness_w7_fault_fallbacks exit=0
+I65_G5_WITNESS W7 serializer stack=4194304 ran=Fallback("Serializer(ReceiptFailure { check: Encoding, field_path: \"cases[].run.invocation_after\" })")
+I65_G5_WITNESS W7 staging stack=4194304 ran=Fallback("Staging(StagingFault(\"pipe_stress_extrema[]\"))")
+I65_G5_WITNESS W7 precommit binding stack=4194304 ran=Fallback("Precommit { gate: \"G8\", code: \"RETAINED_PRECISION_INVOCATION_MISMATCH\" }")
+I65_G5_WITNESS W7 precommit corruption stack=4194304 ran=Fallback("Precommit { gate: \"G1\", code: \"RETAINED_PRECISION_RECEIPT_MISMATCH\" }")
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 552 filtered out; finished in 2.64s
+== witness_headroom_w1_at_one_mebibyte exit=0
+I65_G5_WITNESS W1@1MiB SparseInteractive stack=1048576 ran=Successor
+I65_G5_WITNESS W1@1MiB DenseScrutiny stack=1048576 ran=Successor
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 552 filtered out; finished in 1.35s
+== done 2026-10-04T22:31:46Z

@@ -1,0 +1,21 @@
+   Compiling rv51-checked-work-controls v0.0.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV51/checked_work_a/controls)
+error[E0583]: file not found for module `tests`
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs:321:1
+    |
+321 | mod tests;
+    | ^^^^^^^^^^
+    |
+    = help: to create the module `tests`, create file "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/tests.rs" or "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/tests/mod.rs"
+    = note: if there is a `mod tests` elsewhere in the crate already, import it with `use crate::...` instead
+
+error[E0583]: file not found for module `multi`
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs:126:1
+    |
+126 | pub(crate) mod multi;
+    | ^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: to create the module `multi`, create file "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/multi.rs" or "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/multi/mod.rs"
+    = note: if there is a `mod multi` elsewhere in the crate already, import it with `use crate::...` instead
+
+For more information about this error, try `rustc --explain E0583`.
+error: could not compile `rv51-checked-work-controls` (lib test) due to 2 previous errors

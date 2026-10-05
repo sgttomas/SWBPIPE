@@ -1,0 +1,45 @@
+{
+  "argv": [
+    "/Users/ryan/.cargo/bin/cargo",
+    "test",
+    "--manifest-path",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+    "--locked",
+    "--offline",
+    "--lib",
+    "retained_product_tests",
+    "--",
+    "--nocapture"
+  ],
+  "start": "2026-10-03T02:52:26.420369+00:00",
+  "before": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "340114879759399d4a053fee1dd67239e6da2d9e713c6995b8676aa7edfc3fbd",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs": "ca59f5acd00d77f14f6f4953116276a88440198ad66feffeb91ccdd53a4c09b9",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs": "461e66e0d0993a97595000bf5e5e30d2cf27244f3482311dd8f7fcc6834a5983",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "27b13d6b201b317444131e71818665dfb192269e47787f203470893c6ddbb05d",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs": "cb9862a16ba56c77b650f441d4d0a086463fd8a8f5396b872f472c97043db8f3",
+    "projects/chirality-piping/core/product_physics/src/retained_product.rs": "98f447aee7f561b7a3e67e3b3b5fce381b0106093fd2a0bab18551cb05d59005",
+    "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs": "7a69f3b442cc5b03812d0af6e0579da3feac17aec6e4fc57589c64e4207c2698",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "2c75314293a09bbcac0d3d9d05d8bfd77cbcdc19ae8b3965e3a7ad7a22f3a147",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs": "65ec3071eddd539faa5a39499beba11e98a226f20ccdc3c8a24f7b1c2f4cc723",
+    "projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs": "cc6f9e9992853b6d144a823e8865e9f914057d9ba255d1244ad40f0d3f7de075"
+  },
+  "target": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i45-product-vertical/product_physics",
+  "jobs": 4,
+  "threads": 2,
+  "wall_seconds": 1200,
+  "exit": 0,
+  "after": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "340114879759399d4a053fee1dd67239e6da2d9e713c6995b8676aa7edfc3fbd",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs": "ca59f5acd00d77f14f6f4953116276a88440198ad66feffeb91ccdd53a4c09b9",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs": "461e66e0d0993a97595000bf5e5e30d2cf27244f3482311dd8f7fcc6834a5983",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "27b13d6b201b317444131e71818665dfb192269e47787f203470893c6ddbb05d",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs": "cb9862a16ba56c77b650f441d4d0a086463fd8a8f5396b872f472c97043db8f3",
+    "projects/chirality-piping/core/product_physics/src/retained_product.rs": "98f447aee7f561b7a3e67e3b3b5fce381b0106093fd2a0bab18551cb05d59005",
+    "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs": "7a69f3b442cc5b03812d0af6e0579da3feac17aec6e4fc57589c64e4207c2698",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "2c75314293a09bbcac0d3d9d05d8bfd77cbcdc19ae8b3965e3a7ad7a22f3a147",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs": "65ec3071eddd539faa5a39499beba11e98a226f20ccdc3c8a24f7b1c2f4cc723",
+    "projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs": "cc6f9e9992853b6d144a823e8865e9f914057d9ba255d1244ad40f0d3f7de075"
+  },
+  "end": "2026-10-03T02:52:38.595028+00:00"
+}

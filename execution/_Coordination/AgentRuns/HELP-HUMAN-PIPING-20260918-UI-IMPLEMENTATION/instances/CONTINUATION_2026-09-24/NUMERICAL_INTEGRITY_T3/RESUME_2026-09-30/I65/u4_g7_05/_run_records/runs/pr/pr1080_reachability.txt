@@ -1,0 +1,9 @@
+# PR1080 (5b4f31766c), source_blocks.rs:1055-1058 at 6b9bb19a5f: reachability of validate_in on the run's lexical D1 graph, and its live callers after edge_zero
+validate_in: lexically reached True ; live after edge_zero False
+ caller physics_source.rs:1128:validate (not live)
+   <- load_reference_source.rs:83:validate (not live) 
+   <- semantic_contract.rs:437:for_source (live) edge_zero: G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)
+   <- semantic_contract.rs:731:numerical_use_standing_with_context (not live) 
+ caller source_blocks.rs:669:validate (not live)
+   <- semantic_contract.rs:437:for_source (live) edge_zero: G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)
+   <- semantic_contract.rs:731:numerical_use_standing_with_context (not live) 

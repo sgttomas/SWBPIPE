@@ -1,0 +1,20 @@
+{
+  "status": "informational, revisable; no acceptance",
+  "files": [
+    {
+      "path": "CONTRACT.md",
+      "bytes": 16006,
+      "sha256": "75304a6bc381d3cd5b4f398550b330902228e38e192f32e3efe5177210d250ed"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 1252,
+      "sha256": "7fa6350062fce1bd5a04127bca303928117319532defccd8e5c0cb6701e9a62f"
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "bytes": 5563,
+      "sha256": "2bbeb74894deb86b863a6f1d2504dc247a096ea8077d87fe46f11068f115ba15"
+    }
+  ]
+}

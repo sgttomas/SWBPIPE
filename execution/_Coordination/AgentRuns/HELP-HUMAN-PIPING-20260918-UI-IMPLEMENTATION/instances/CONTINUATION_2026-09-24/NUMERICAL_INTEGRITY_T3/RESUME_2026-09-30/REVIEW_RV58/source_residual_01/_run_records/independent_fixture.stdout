@@ -1,0 +1,24 @@
+{
+  "pi_method": "Machin 16 atan(1/5) - 4 atan(1/239), 400/130 alternating terms",
+  "pi_width_log2_upper": -1865,
+  "native_input_vectors_sha256": "105619a35db12c73651d346cac1082b930202f0f13303f9bdf952d7dc7673cbc",
+  "results": {
+    "reviewer_fixture.log": {
+      "rotated": {
+        "source_rows": 52,
+        "source_residual_components": 6,
+        "native_predicates": null,
+        "source_containment": true,
+        "inverse_perturbation_radius": "verified"
+      },
+      "arbitrary": {
+        "source_rows": 52,
+        "source_residual_components": 6,
+        "native_predicates": null,
+        "source_containment": true,
+        "inverse_perturbation_radius": "verified"
+      }
+    }
+  },
+  "K_only_counter_control": "1/64 exact nonzero source residual"
+}

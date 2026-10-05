@@ -1,0 +1,9 @@
+base:      1843 passed, 30 skipped in 779.57s (0:12:59)
+candidate: 1843 passed, 30 skipped in 794.74s (0:13:14)
+passing at base, not passing in candidate: 0 []
+failing in candidate, passing at base: 0 []
+failing at base, passing in candidate: 0 []
+tests added in candidate: 0 (files: [])
+tests removed: 0 []
+candidate non-passing: []
+base non-passing: []

@@ -1,0 +1,21 @@
+{
+  "role": "TASK Type 2 I47",
+  "parent": "ROOT HELP_HUMAN /root",
+  "mechanism": "delegated-harness-native",
+  "receipt_utc": "2026-10-03T04:24:03Z",
+  "checkpoint_utc": "2026-10-03T04:34:03Z",
+  "first_witness_deadline_utc": "2026-10-03T04:44:03Z",
+  "new_work_cutoff_utc": "2026-10-03T04:54:03Z",
+  "sealed_return_deadline_utc": "2026-10-03T05:09:03Z",
+  "dispatch_head": "0215e471d293cd2d6e7f3f177913a216ab73a988",
+  "host": "Mac.lan",
+  "git_writes": false,
+  "children": false,
+  "write_fence": [
+    "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I47/selected_material_01"
+  ],
+  "runtime_release_utc": "2026-10-03T04:33:07.814826Z",
+  "result": "blocked: actual modulus_basis_record ancillary binding",
+  "new_work_stopped_early": true
+}

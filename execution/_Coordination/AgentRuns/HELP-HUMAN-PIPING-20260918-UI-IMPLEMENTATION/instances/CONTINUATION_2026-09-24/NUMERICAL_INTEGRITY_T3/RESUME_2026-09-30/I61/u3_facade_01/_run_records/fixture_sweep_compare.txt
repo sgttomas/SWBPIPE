@@ -1,0 +1,6 @@
+# I61 U3 fixture sweep: zz_i61_u3_fixture_sweep.rs, identical file in the base archive (b54caba7ab) and the candidate archive.
+# 36 request-shaped fixtures (31 requests + 5 models wrapped as {model}) x routes typed_default, typed_mode, value_mode, retained_direct, retained_headless x 2 modes = 324 lines.
+faed25186725856b204ffc1352827493c8fb9ce77aa18a6bac4551f61e2fa2ea  sweep_base.tsv
+faed25186725856b204ffc1352827493c8fb9ce77aa18a6bac4551f61e2fa2ea  sweep_cand.tsv
+faed25186725856b204ffc1352827493c8fb9ce77aa18a6bac4551f61e2fa2ea  sweep_final.tsv
+base == final: byte-identical

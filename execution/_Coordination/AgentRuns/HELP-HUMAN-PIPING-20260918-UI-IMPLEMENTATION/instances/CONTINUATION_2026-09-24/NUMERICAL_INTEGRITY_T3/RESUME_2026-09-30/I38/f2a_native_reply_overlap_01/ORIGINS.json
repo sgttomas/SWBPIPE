@@ -1,0 +1,50 @@
+{
+  "status": "PAUSED_AT_STARTUP_BY_OWNER",
+  "agent": "/root/i38_native_reply_overlap",
+  "role": "TASK Type 2",
+  "parent": "/root HELP_HUMAN",
+  "mechanism": "delegated-harness-native child",
+  "basis_revision": "64a2be39f2456aeba200ee6217b3b51a634cb925",
+  "brief_declared_native_baseline": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "receipt_first_clock_utc": "2026-10-02 23:11:50 UTC",
+  "original_checkpoint_due_utc": "2026-10-02 23:21:50 UTC",
+  "original_investigation_cutoff_utc": "2026-10-02 23:31:50 UTC",
+  "original_return_due_utc": "2026-10-02 23:36:50 UTC",
+  "pause_checkpoint_clock_utc": "2026-10-02 23:12:15 UTC",
+  "pause_instruction": "Owner requested graceful pause for session reset; do not start new work. Parent directed stop at startup and minimal resumable checkpoint. Original timebox no longer authorizes work during the pause.",
+  "origins": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "read": true
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I38_F2A_NATIVE_REPLY_OVERLAP_01.md",
+      "sha256": "1829174c559351535c400332a60ba9bd08531ddf125d6b94dc067c02c07e8b24",
+      "read": true
+    }
+  ],
+  "execution_state": {
+    "running_commands": false,
+    "runtime_or_build_started": false,
+    "product_or_dependency_source_read": false,
+    "delegation": false,
+    "git_index_api_mutations": false,
+    "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I38/f2a_native_reply_overlap_01"
+  },
+  "read_notes": [
+    "Brief read with git show at pinned basis. Initial git show inadvertently omitted GIT_OPTIONAL_LOCKS=0; it was a read-only show, with no Git/index mutation requested. Subsequent git rev-parse used GIT_OPTIONAL_LOCKS=0.",
+    "git rev-parse confirmed repository root and HEAD 64a2be39f2456aeba200ee6217b3b51a634cb925.",
+    "rg --files listed I30/f2a_native_reply_03 and I29/f2a_memory_plan_02 file names only. Attempted R/RV41 path did not exist. No file bodies from those packets were read."
+  ]
+}

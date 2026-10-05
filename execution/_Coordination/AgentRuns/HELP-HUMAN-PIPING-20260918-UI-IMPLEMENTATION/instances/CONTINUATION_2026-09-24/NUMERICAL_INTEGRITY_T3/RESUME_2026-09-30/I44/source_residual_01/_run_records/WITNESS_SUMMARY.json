@@ -1,0 +1,25 @@
+{
+  "zero_rows": 52,
+  "loaded_rows": 52,
+  "full_predicate_passes": {
+    "zero": 52,
+    "loaded": 52
+  },
+  "p": 128,
+  "P": 256,
+  "beta_display": 13.803376215155234,
+  "alpha_display": 8.268392601290838e-14,
+  "omega_display": 7.179487209235991e-36,
+  "epsilon_display": 9.91011629809875e-35,
+  "exact_endpoints": "final_debug.log I44_BLOCK/I44_CENTER/I44_ROW",
+  "compiler_parity": "debug and release independently diagnosed",
+  "actual_failure_prefix": {
+    "cast_rounds": 2,
+    "factor_calls": 1,
+    "factor_mul": 15,
+    "factor_sub": 15,
+    "factor_div": 5
+  },
+  "wrong_center_full_predicates": 7,
+  "work_lost_numeric_retained": "I44_SIMULTANEOUS Exponent with actual collector overflow"
+}

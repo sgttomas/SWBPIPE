@@ -1,0 +1,5 @@
+# Staged outputs (not copied; the patch reproduces them from 07h byte for byte)
+1e53ea9cdf28783c29e5b3873d89c82482a38d188e97d16703994af1b26b72d1  P/fixtures/results/retained_precision_cases.json (07i)
+f20a7db0d76192ffb3350adbb3a22899ca5b9d9a9b350d3cd246ba992c173280  P/fixtures/results/retained_precision_carrier_cases.json (U7)
+d0a4ee213c7d4d87b016a5b9625727a4815c5682dd5f4767ae604746919eecb2  P/fixtures/results/retained_precision_cases.json (07h, the patch base)
+bbc05bd254964739fbf3c21a4c7a97cfda00deb72982a8508f1070197821f12f  P/fixtures/results/retained_precision_carrier_cases.json (the patch base)

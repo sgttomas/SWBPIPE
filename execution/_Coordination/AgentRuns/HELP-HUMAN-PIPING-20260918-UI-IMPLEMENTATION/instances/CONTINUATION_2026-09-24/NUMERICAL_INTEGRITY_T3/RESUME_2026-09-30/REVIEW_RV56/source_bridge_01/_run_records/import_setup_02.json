@@ -1,0 +1,9 @@
+{
+  "time": "2026-10-03T01:03:45.914280+00:00",
+  "approach": "Sparse symlink import overlay; no full tracked tree copied",
+  "copies": [
+    "src/structural/retained/adaptive.rs",
+    "tests/retained_k4/source_bridge_tests.rs"
+  ],
+  "import_failure": "Initial absolute-path entry model changed submodule resolution; build failed before tests. Preserved verbatim under imported_path_attempt and imported_prefix logs."
+}

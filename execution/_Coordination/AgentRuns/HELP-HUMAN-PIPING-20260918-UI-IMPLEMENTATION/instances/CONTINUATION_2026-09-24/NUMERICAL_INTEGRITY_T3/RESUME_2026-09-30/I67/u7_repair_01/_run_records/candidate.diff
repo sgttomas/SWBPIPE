@@ -1,0 +1,440 @@
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts
+index d73f4c1130..cab8eaa8bd 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts
+@@ -958,4 +958,16 @@ describe('07g round (I61 U6e): F5 and RV79-N1', () => {
+       }
+     }
+   });
++  it('RV94 N-3: an invalid enum value in a not_required case\'s quality is refused at G7 with TS\'s own code', async () => {
++    // The scope clause's class on 07j's not_required entry (TS's G7 contract check fires before the base validator);
++    // the shared corpus probe g7_not_required_quality_enum_invalid is accuracy_evidence.
++    const nr = corpus.must_pass.find((m: any) => m.id === 'not_required_second_case_checks_passed');
++    const accepted = await applyEntry(nr); expect((await validateRetainedPrecision(accepted.source, accepted.invocation)).numerical_eligible).toBe(true);
++    for (const [field, value] of [['accuracy_evidence', 'estimated'], ['structural_status', 'mechanism_detected'], ['model_matrix_fidelity', 'reduced']]) {
++      const { source, invocation } = await applyEntry({ ...structuredClone(nr), id: 'rv94_n3_' + field, edits: [...structuredClone(nr.edits), { path: ['numerical_quality', 'cases', 1, field], op: 'set', value }] });
++      expect(await firstFailure(source, invocation), field).toEqual({ gate: 'G7', code: 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED' });
++    }
++    const probe = corpus.mutations.find((m: any) => m.id === 'g7_not_required_quality_enum_invalid');
++    expect(probe.expected_by_reader.typescript).toEqual({ gate: 'G7', code: 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED' });
++  });
+ });
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts
+index 8cc578a4c5..a905176e50 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts
+@@ -1304,8 +1304,8 @@ function projection(source: Obj): Obj {
+   return p;
+ }
+ const defaultErrors: Record<string, string> = { G0: 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED', G1: 'RETAINED_PRECISION_RECEIPT_MISMATCH', G2: 'RETAINED_PRECISION_ENCODING_MISMATCH', G3: 'RETAINED_PRECISION_COVERAGE_MISMATCH', G4: 'RETAINED_PRECISION_DIAGNOSTIC_MISMATCH', G5: 'RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH', G5a: 'RETAINED_PRECISION_SCALE_MISMATCH', G5b: 'RETAINED_PRECISION_SCALE_MISMATCH', G5c: 'RETAINED_PRECISION_CLASSIFICATION_MISMATCH', G6: 'RETAINED_PRECISION_ROW_METHOD_MISMATCH', G7: 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID', G8: 'RETAINED_PRECISION_PREPARATION_MISMATCH' };
+-/** Ordered standalone reader; eligibility as in C1:160.
+- * No registration, mutable eligibility cache, or private proof replay. */
++/** The accepted ordered reader (G0-G8). D-U6-1: every gate runs; since U7 a valid invocation-bound statement of a solved model whose cases are selected or not_required reads eligible.
++ * Standing comes from the carriers (D2 4.9.4). Hashes bind the supplied statements; they do not establish producer origin (D-U7-6). No registration, mutable eligibility cache, or private proof replay. */
+ export async function validateRetainedPrecision(source: unknown, invocation?: unknown): Promise<RetainedPrecisionValidation> {
+   let gate = 'G0';
+   try {
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
+index 3e51016fb4..5625cbf674 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
+@@ -70,7 +70,7 @@ import {
+ } from "./numericalResultQuality";
+ import {
+   RETAINED_METHOD, RETAINED_PRECISION_ID, RETAINED_PRECISION_PROFILE, decodeBinary64, validateRetainedPrecision, validateRetainedPrecisionTransport,
+-  type RetainedPrecisionValidation,
++  type RetainedPrecisionValidation, type RowClassification,
+ } from "./retainedPrecision";
+ import {
+   RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE, RETAINED_PRECISION_VALIDATION_REQUIRED, classificationSummary, classificationSummaryFrom,
+@@ -632,6 +632,14 @@ describe("the downgrade guard (F-5)", () => {
+ // from the same forms; any other difference is a defect.
+ const DECLARED = ["D-U7-4:ts_requires_live_native_capture", "F-U6b-2:python_refuses_transport", "F5:refused_statement_binding", "I67-F1:unregistered_invalid_statement", "I67-F2:display_only_binding_precheck", "RV92-N2-N5:ts_refuses_token_rows_at_the_header"];
+ const NOTICES: Record<string, string> = { N_RP_UNVALIDATED };
++/** The shared 'summary' vocabulary, counted here from the reader's classes, not through the
++ * seam: per receipt case, interval_bindable 0; `withheld` is every quantity row, or when
++ * Current ('by_validated_class_current', U7 repair, RV94 S-1) only the absolute and not-covered rows. */
++const expectedSummary = (classes: readonly RowClassification[], source: Json, current: boolean) => (source.retained_precision.body.cases as Json[]).map(c => {
++  const n = (k: string) => classes.filter(r => r.basis_ref.ref_id === c.basis_ref.ref_id && r.class === k).length;
++  return { case_id: c.basis_ref.ref_id, relative_verified: n("relative_verified"), absolute_verified: n("absolute_verified"), interval_bindable: 0, not_covered: n("not_covered"), input_derived: n("input_derived"), non_quantity: n("non_quantity"),
++    withheld: current ? n("absolute_verified") + n("not_covered") : n("relative_verified") + n("absolute_verified") + n("not_covered") + n("input_derived") };
++});
+ const SUMMARY_KIND = "open_formula_stress_summary";
+ const declaredForms = (caseFile.declared_differences as Json[]).flatMap(e => (e.forms as Json[]).flatMap(form => (form.fixtures as string[]).map(f => [`${e.id} / ${form.label}`, f, form] as [string, string, Json])));
+ describe("the declared differences, with TypeScript's expectations", () => {
+@@ -659,7 +667,13 @@ describe("the declared differences, with TypeScript's expectations", () => {
+     expect(capture.forms.map((f: Json) => [f.label, f.subject, f.expected.typescript])).toStrictEqual([
+       ["invocation_without_native_capture", "standing", { standing: "needs_recompute", finding: RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED }],
+       ["stale_current_model_same_case_ids", "standing", { standing: "needs_recompute", finding: RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED }],
++      // U7 repair (RV94 S-1): the summary follows TS's standing, so TS's summary is not Current.
++      ["invocation_without_native_capture:summary", "summary", { summary: "by_validated_class" }],
++      ["stale_current_model_same_case_ids:summary", "summary", { summary: "by_validated_class" }],
+     ]);
++    // Each summary form reads the same inputs as its standing twin.
++    const inputs = (f: Json) => { const { label: _l, subject: _s, expected: _e, ...rest } = f; return rest; };
++    expect(capture.forms.slice(2).map(inputs)).toStrictEqual(capture.forms.slice(0, 2).map(inputs));
+   });
+   it("carry the N-4 scope: differences inherited from the base carriers are not U6's", () => {
+     expect(caseFile.scope).toMatch(/inherited from the base carriers are not U6 differences/);
+@@ -668,6 +682,8 @@ describe("the declared differences, with TypeScript's expectations", () => {
+     expect(caseFile.scope).toMatch(/no carrier authenticates producer origin/);
+     // I66 U7 slice F observation 3: a blocked envelope is refused at G7 with each language's own base code.
+     expect(caseFile.scope).toMatch(/a blocked envelope is refused at G7 with each language's own base code[^.]*TS SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID/);
++    // RV94 N-3 (U7 repair): an invalid enum value in a not_required case's quality, TS's G7 contract check first.
++    expect(caseFile.scope).toMatch(/An invalid enum value in a not_required case's quality is refused at G7 with each language's own code[^.]*TS SOURCE_PRODUCER_CONTRACT_UNSUPPORTED/);
+   });
+   it.each<[string, string, Json]>(declaredForms)("%s on %s", async (_id, fixtureId, form) => {
+     const expected = form.expected.typescript;
+@@ -684,8 +700,8 @@ describe("the declared differences, with TypeScript's expectations", () => {
+     } else if (form.subject === "summary") {
+       if (expected.summary === "empty") expect(classificationSummary(received, model)).toStrictEqual([]);
+       else {
+-        expect(expected.summary).toBe("by_validated_class");
+-        expect(classificationSummary(received, model)).toStrictEqual(classificationSummaryFrom(await validateRetainedPrecision(received), received, model.load_cases.map(c => ({ ref_type: "load_case", ref_id: c.id }))));
++        expect(["by_validated_class", "by_validated_class_current"]).toContain(expected.summary);
++        expect(classificationSummary(received, model)).toStrictEqual(expectedSummary((await validateRetainedPrecision(received)).classifications, received, expected.summary === "by_validated_class_current"));
+       }
+     } else {
+       expect(form.subject).toBe("binding");
+diff --git a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs
+index 384d0bd439..5cd6f906b0 100644
+--- a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs
++++ b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs
+@@ -772,7 +772,7 @@ fn u7_d_u7_4_forms_rust_side_standing_and_summary() {
+     let entry = cases["declared_differences"].as_array().unwrap().iter().find(|e| e["id"] == "D-U7-4:ts_requires_live_native_capture").unwrap();
+     let other = vec![json!({"ref_type":"load_case","ref_id":"other"})];
+     for form in entry["forms"].as_array().unwrap() {
+-        assert_eq!(form["expected"]["rust"]["standing"], "numerically_eligible");
++        assert_eq!(form["expected"]["rust"], if form["subject"] == "standing" { json!({"standing": "numerically_eligible"}) } else { json!({"summary": "by_validated_class_current"}) });
+         for fid in form["fixtures"].as_array().unwrap() {
+             let fixture = fixtures.iter().find(|f| fid == f.0.as_str()).unwrap();
+             let (source, invocation, requested) = apply_shared(form, fixture);
+@@ -819,7 +819,7 @@ fn expected_binding(source: &Value, expected: &str) -> Vec<Option<String>> {
+ #[test]
+ fn u6_declared_differences_rust() {
+     let cases: Value = serde_json::from_str(CASES).unwrap();
+-    assert!(["G7 parity compares the reader's (gate, code)", "parity there compares only accept against refuse", "no carrier authenticates producer origin", "a blocked envelope is refused at G7 with each language's own base code", "Rust SOURCE_PREVIEW_PHYSICS_BLOCKED_ENVELOPE"].iter().all(|p| cases["scope"].as_str().unwrap().contains(p)));
++    assert!(["G7 parity compares the reader's (gate, code)", "parity there compares only accept against refuse", "no carrier authenticates producer origin", "a blocked envelope is refused at G7 with each language's own base code", "Rust SOURCE_PREVIEW_PHYSICS_BLOCKED_ENVELOPE", "An invalid enum value in a not_required case's quality is refused at G7 with each language's own code", "Rust SOURCE_NUMERICAL_CASE_INVALID"].iter().all(|p| cases["scope"].as_str().unwrap().contains(p)));
+     let fixtures = shared_fixtures(&cases);
+     let entries = cases["declared_differences"].as_array().unwrap();
+     let mut ids: Vec<&str> = entries.iter().map(|e| e["id"].as_str().unwrap()).collect();
+@@ -883,7 +883,7 @@ fn u6_declared_differences_rust() {
+                     }
+                     "summary" => {
+                         let got = json!(s::classification_summary(&source, invocation.as_ref(), &requested));
+-                        let want = match expected["summary"].as_str().unwrap() { "by_validated_class" => expected_summary(&source), _ => json!([]) };
++                        let want = match expected["summary"].as_str().unwrap() { "by_validated_class" => expected_summary(&source), "by_validated_class_current" => { subjects.insert("summary:current".to_string()); expected_summary_with(&source, true) } _ => json!([]) };
+                         assert!(want.as_array().is_some_and(|w| !w.is_empty()), "{id} {label}");
+                         assert_eq!(got, want, "{id} {label}");
+                     }
+@@ -899,7 +899,7 @@ fn u6_declared_differences_rust() {
+     // Every subject, the v4 fields and D-U7-4's side (eligible with the actual invocation) are exercised.
+     assert_eq!(
+         subjects.into_iter().collect::<Vec<_>>(),
+-        ["binding", "capture", "current_model_edits", "standing", "standing:numerically_eligible", "summary", "transport"]
++        ["binding", "capture", "current_model_edits", "standing", "standing:numerically_eligible", "summary", "summary:current", "transport"]
+     );
+ }
+ 
+diff --git a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+index 032eb38e92..53049b53d4 100644
+--- a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
++++ b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+@@ -273,12 +273,12 @@ fn shared_rehashed_first_failure_mutations() {
+ 
+ /// Observe one slice of the shared mutations against this reader's own
+ /// expectation, print one outcome per mutation (visible with --nocapture) and
+-/// check the slice tally. Snapshot 07h holds 277 mutations in all.
++/// check the slice tally. 07h held 277 mutations; RV94 N-3's G7 probe makes 278.
+ fn slice_outcomes(tag: &str, range: std::ops::Range<usize>, want: &[(&str, usize)]) {
+     use std::collections::BTreeMap;
+     let shared = corpus();
+     let mutations = shared["mutations"].as_array().unwrap();
+-    assert_eq!(mutations.len(), 277);
++    assert_eq!(mutations.len(), 278);
+     let mut tally = BTreeMap::new();
+     let mut matched = 0;
+     for mutation in &mutations[range.clone()] {
+diff --git a/projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json b/projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json
+index 7cebc561a1..7336de4eab 100644
+--- a/projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json
++++ b/projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json
+@@ -1,7 +1,7 @@
+ {
+   "format": "I66-U6-CARRIER-CASES-v4",
+-  "note": "Shared carrier standing-parity scenarios for the Rust, Python and TypeScript carriers (I66 U6; D2 4.7 parity). Fixtures are byte-identical copies of PP's pinned milestone successor files (D-U6-5), producer test outputs, not native Current evidence. Edits apply literally, with no rehash. 'requested' is 'invocation' (the invocation model's load cases, in order) or an explicit list. 'expected_dispatch' is 'ok' or the raw dispatch's first error code. Since U7 the readers' eligibility is switched on: an unedited milestone case with its fixture invocation and the invocation's requested cases expects numerically_eligible, and every other case keeps its expectation. v2 (I66 U6 repairs): fixtures carry 'shape': 'milestone' ({id, invocation, source}) or 'raw' (the file is the source; its cases have no invocation). The F-5 guard cases (a W1 token on a non-first row only; a receipt member that is {} or null) on a legacy 0.1.0 source and on a preview-physics-1 source are refused in every language. 'declared_differences' lists the only ruled differences between the languages' carriers (and F5's shared semantics), each with its ruling and one expectation per language; any other difference is a defect. Their subjects: 'standing' (as the cases), 'binding' (every row of the edited source: 'by_validated_class' or 'every_row:<code>') and 'transport' (the header-only dispatch: 'ok' or the first error code). v3 (I66 post-U6f): 'declared_differences' entries carry 'forms'; each form names its fixtures, 'invocation' (null, 'fixture', or a literal object such as {}), 'requested', 'edits', one 'subject' and one expectation per language. Subjects: 'standing'; 'transport' ('ok' or the first error code); 'binding' over every row of the edited source ('by_validated_class', 'every_row:<code>', 'every_row:none', or 'source_blocks_summary:<code>': the open_formula_stress_summary rows and the max_open_formula_stress headline row refused, every other row bound); and 'summary' ('by_validated_class': one entry per receipt case counting the reader's classes, interval_bindable 0, the not-Current withheld count (these forms carry no invocation); or 'empty'). An optional 'finding' or 'notice' is TS's. v4 (I66 U7 slice F): a form may carry 'capture' ('none': TS registers the form's invocation without an IPC capture, so no live native capture exists; Rust and Python read the invocation argument exactly as for 'invocation': 'fixture') and 'current_model_edits' (edits, op 'set', applied only to TS's current model, which is otherwise the captured invocation's model; Rust and Python have no current-model input beyond 'requested', so these edits change nothing they read). Every consumer reads both fields explicitly; any other unknown field is a defect.",
+-  "scope": "Differences inherited from the base carriers are not U6 differences and are not listed here: the G7 dispatch text (each language forwards its own base validator's detail), Rust's header dispatch ignoring carrier_evidence, and the AnalysisRun builders' refusal codes. G7 parity compares the reader's (gate, code), not the dispatch text (ROOT_RULINGS_V1 \"RV92 (U6f) on the whole of U6: PASS; the post-U6f repair round; U7 preconditions\"; RV92 u6f_01 N-4). Rust's header dispatch checks only that a preview contract_evidence is an object, so TS's transport route, like Python's transport check, refuses evidence content that Rust's transport accepts (for example a successor's contract_evidence with a key added and its hashes made consistent, which TS refuses at the reader's G7). A transport refused by a header check before the reader runs carries each language's own code (TS SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED; Rust the reader's G0 code or its base header code; Python F-U6b-2's code), so parity there compares only accept against refuse (ROOT_RULINGS_V1 \"RV92 on the post-U6f round: one transport residue, declared by a scope sentence\"; RV92 u6f_02 N-9 (a), (b)). A numerically_eligible standing is a property of the supplied statement and its actual invocation, as the accepted reader checks them: no carrier authenticates producer origin, and none claims that a registered producer made the statement (ROOT_RULINGS_V1 \"RV93 on U3 grant 2: PASS; RV89 confirms the final basis re-qualified; U7 planned and ruled\", D-U7-6). A statement whose mechanics status is not MECHANICS_SOLVED (MODEL_INCOMPLETE, MECHANICS_FAILED or NOT_RUN on a milestone successor, made hash-consistent) is a blocked envelope that still carries preview evidence: a blocked envelope is refused at G7 with each language's own base code (Python SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID, Rust SOURCE_PREVIEW_PHYSICS_BLOCKED_ENVELOPE, TS SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID; the 06b settlement), so for this class G7 parity compares the gate and each language asserts its own code (I66 u7_slice_f_01 observation 3; I67 u7_slice_f_01).",
++  "note": "Shared carrier standing-parity scenarios for the Rust, Python and TypeScript carriers (I66 U6; D2 4.7 parity). Fixtures are byte-identical copies of PP's pinned milestone successor files (D-U6-5), producer test outputs, not native Current evidence. Edits apply literally, with no rehash. 'requested' is 'invocation' (the invocation model's load cases, in order) or an explicit list. 'expected_dispatch' is 'ok' or the raw dispatch's first error code. Since U7 the readers' eligibility is switched on: an unedited milestone case with its fixture invocation and the invocation's requested cases expects numerically_eligible, and every other case keeps its expectation. v2 (I66 U6 repairs): fixtures carry 'shape': 'milestone' ({id, invocation, source}) or 'raw' (the file is the source; its cases have no invocation). The F-5 guard cases (a W1 token on a non-first row only; a receipt member that is {} or null) on a legacy 0.1.0 source and on a preview-physics-1 source are refused in every language. 'declared_differences' lists the only ruled differences between the languages' carriers (and F5's shared semantics), each with its ruling and one expectation per language; any other difference is a defect. Their subjects: 'standing' (as the cases), 'binding' (every row of the edited source: 'by_validated_class' or 'every_row:<code>') and 'transport' (the header-only dispatch: 'ok' or the first error code). v3 (I66 post-U6f): 'declared_differences' entries carry 'forms'; each form names its fixtures, 'invocation' (null, 'fixture', or a literal object such as {}), 'requested', 'edits', one 'subject' and one expectation per language. Subjects: 'standing'; 'transport' ('ok' or the first error code); 'binding' over every row of the edited source ('by_validated_class', 'every_row:<code>', 'every_row:none', or 'source_blocks_summary:<code>': the open_formula_stress_summary rows and the max_open_formula_stress headline row refused, every other row bound); and 'summary' ('by_validated_class': one entry per receipt case counting the reader's classes, interval_bindable 0, the not-Current withheld count; or 'empty'; 'by_validated_class_current' is defined by the U7 repair below). An optional 'finding' or 'notice' is TS's. v4 (I66 U7 slice F): a form may carry 'capture' ('none': TS registers the form's invocation without an IPC capture, so no live native capture exists; Rust and Python read the invocation argument exactly as for 'invocation': 'fixture') and 'current_model_edits' (edits, op 'set', applied only to TS's current model, which is otherwise the captured invocation's model; Rust and Python have no current-model input beyond 'requested', so these edits change nothing they read). Every consumer reads both fields explicitly; any other unknown field is a defect. U7 repair (RV94 S-1; the format stays v4, since no field changes and every consumer refuses an unknown summary value): each language counts a summary Current only when its own standing for the form's requested refs is numerically_eligible; 'by_validated_class_current' is 'by_validated_class' with the Current withheld count (the absolute and not-covered rows only), and 'by_validated_class' is the not-Current count whether or not the form carries an invocation.",
++  "scope": "Differences inherited from the base carriers are not U6 differences and are not listed here: the G7 dispatch text (each language forwards its own base validator's detail), Rust's header dispatch ignoring carrier_evidence, and the AnalysisRun builders' refusal codes. G7 parity compares the reader's (gate, code), not the dispatch text (ROOT_RULINGS_V1 \"RV92 (U6f) on the whole of U6: PASS; the post-U6f repair round; U7 preconditions\"; RV92 u6f_01 N-4). Rust's header dispatch checks only that a preview contract_evidence is an object, so TS's transport route, like Python's transport check, refuses evidence content that Rust's transport accepts (for example a successor's contract_evidence with a key added and its hashes made consistent, which TS refuses at the reader's G7). A transport refused by a header check before the reader runs carries each language's own code (TS SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED; Rust the reader's G0 code or its base header code; Python F-U6b-2's code), so parity there compares only accept against refuse (ROOT_RULINGS_V1 \"RV92 on the post-U6f round: one transport residue, declared by a scope sentence\"; RV92 u6f_02 N-9 (a), (b)). A numerically_eligible standing is a property of the supplied statement and its actual invocation, as the accepted reader checks them: no carrier authenticates producer origin, and none claims that a registered producer made the statement (ROOT_RULINGS_V1 \"RV93 on U3 grant 2: PASS; RV89 confirms the final basis re-qualified; U7 planned and ruled\", D-U7-6). A statement whose mechanics status is not MECHANICS_SOLVED (MODEL_INCOMPLETE, MECHANICS_FAILED or NOT_RUN on a milestone successor, made hash-consistent) is a blocked envelope that still carries preview evidence: a blocked envelope is refused at G7 with each language's own base code (Python SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID, Rust SOURCE_PREVIEW_PHYSICS_BLOCKED_ENVELOPE, TS SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID; the 06b settlement), so for this class G7 parity compares the gate and each language asserts its own code (I66 u7_slice_f_01 observation 3; I67 u7_slice_f_01). An invalid enum value in a not_required case's quality is refused at G7 with each language's own code (Python SOURCE_NUMERICAL_CASE_INVALID, Rust SOURCE_NUMERICAL_CASE_INVALID, TS SOURCE_PRODUCER_CONTRACT_UNSUPPORTED, TS's G7 contract check firing first): a value outside the vocabulary of accuracy_evidence, structural_status or model_matrix_fidelity in the numerical_quality case of a not_required receipt case, made hash-consistent (observed for all three fields, RV94 u7_01 N-3; pinned by the shared corpus probe g7_not_required_quality_enum_invalid), so for this class G7 parity compares the gate and each language asserts its own code (ROOT_RULINGS_V1 \"RV94 on U7: PASS; the summary aligned across languages; the stale-comment repair; a public-activation checklist\"; I67 u7_repair_01).",
+   "fixtures": {
+     "milestone_sparse_interactive": {
+       "path": "fixtures/results/retained_precision_milestone_successor_sparse_interactive.json",
+@@ -783,8 +783,8 @@
+     {
+       "id": "D-U7-4:ts_requires_live_native_capture",
+       "kind": "language",
+-      "ruling": "ROOT_RULINGS_V1 \"RV93 on U3 grant 2: PASS; RV89 confirms the final basis re-qualified; U7 planned and ruled\" (D-U7-4); RV91 u6d_01 N-2; RV88 u6d_01 S-1; I61 u7_scoping_01 PLAN section 2 row 5; I67 u7_slice_t_01",
+-      "description": "A valid successor statement with its actual invocation, whose TS standing has no live native capture for these bytes and the current model: registered without an IPC capture, or read against a current model that differs from the captured one while keeping the same load-case ids. After U7, Rust and Python, given the invocation argument and requested refs equal to the receipt's case order, read numerically_eligible; TS binds standing to the live native capture (hasNativeMechanicsInvocation: an unchanged, not invalidated capture, unchanged bytes, and the current model equal to the captured one) and reads needs_recompute with RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED. Stricter; fails closed. Every TS consumer of eligible standing (session Current, the rule-check gate, the T6 panels) also requires hasNativeMechanicsInvocation.",
++      "ruling": "ROOT_RULINGS_V1 \"RV93 on U3 grant 2: PASS; RV89 confirms the final basis re-qualified; U7 planned and ruled\" (D-U7-4); RV91 u6d_01 N-2; RV88 u6d_01 S-1; I61 u7_scoping_01 PLAN section 2 row 5; I67 u7_slice_t_01; RV94 u7_01 S-1; ROOT_RULINGS_V1 \"RV94 on U7: PASS; the summary aligned across languages; the stale-comment repair; a public-activation checklist\"; I66 u7_repair_01; I67 u7_repair_01",
++      "description": "A valid successor statement with its actual invocation, whose TS standing has no live native capture for these bytes and the current model: registered without an IPC capture, or read against a current model that differs from the captured one while keeping the same load-case ids. After U7, Rust and Python, given the invocation argument and requested refs equal to the receipt's case order, read numerically_eligible; TS binds standing to the live native capture (hasNativeMechanicsInvocation: an unchanged, not invalidated capture, unchanged bytes, and the current model equal to the captured one) and reads needs_recompute with RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED. Stricter; fails closed. Every TS consumer of eligible standing (session Current, the rule-check gate, the T6 panels) also requires hasNativeMechanicsInvocation. The summary follows the same split (RV94 S-1): each language counts the per-case summary Current only when its own standing for the requested refs is numerically_eligible, so with the form's invocation and requested refs Rust and Python give the Current summary ('by_validated_class_current', 69 withheld on each milestone) and TS, without the live native capture, the not-Current one ('by_validated_class', 97 withheld).",
+       "forms": [
+         {
+           "label": "invocation_without_native_capture",
+@@ -844,6 +844,63 @@
+               "finding": "RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED"
+             }
+           }
++        },
++        {
++          "label": "invocation_without_native_capture:summary",
++          "fixtures": [
++            "milestone_sparse_interactive",
++            "milestone_dense_scrutiny"
++          ],
++          "invocation": "fixture",
++          "capture": "none",
++          "requested": "invocation",
++          "edits": [],
++          "subject": "summary",
++          "expected": {
++            "rust": {
++              "summary": "by_validated_class_current"
++            },
++            "python": {
++              "summary": "by_validated_class_current"
++            },
++            "typescript": {
++              "summary": "by_validated_class"
++            }
++          }
++        },
++        {
++          "label": "stale_current_model_same_case_ids:summary",
++          "fixtures": [
++            "milestone_sparse_interactive",
++            "milestone_dense_scrutiny"
++          ],
++          "invocation": "fixture",
++          "requested": "invocation",
++          "edits": [],
++          "current_model_edits": [
++            {
++              "path": [
++                "nodes",
++                0,
++                "position",
++                "x"
++              ],
++              "op": "set",
++              "value": 1.0
++            }
++          ],
++          "subject": "summary",
++          "expected": {
++            "rust": {
++              "summary": "by_validated_class_current"
++            },
++            "python": {
++              "summary": "by_validated_class_current"
++            },
++            "typescript": {
++              "summary": "by_validated_class"
++            }
++          }
+         }
+       ]
+     }
+diff --git a/projects/chirality-piping/fixtures/results/retained_precision_cases.json b/projects/chirality-piping/fixtures/results/retained_precision_cases.json
+index 4f0ff72151..022b14f8e4 100644
+--- a/projects/chirality-piping/fixtures/results/retained_precision_cases.json
++++ b/projects/chirality-piping/fixtures/results/retained_precision_cases.json
+@@ -131448,6 +131448,121 @@
+         "gate": "G5",
+         "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+       }
++    },
++    {
++      "id": "g7_not_required_quality_enum_invalid",
++      "base": "two_case_preparation_failure_synthetic",
++      "edits": [
++        {
++          "path": [
++            "retained_precision",
++            "body",
++            "cases",
++            1
++          ],
++          "op": "set",
++          "value": {
++            "basis_ref": {
++              "ref_type": "load_case",
++              "ref_id": "case:unavailable-row"
++            },
++            "ordinary": {
++              "attempt_ref": 1,
++              "quality_binding": {
++                "kind": "present",
++                "index": 1
++              }
++            },
++            "product_attempt_ref": null,
++            "status": "not_required"
++          }
++        },
++        {
++          "path": [
++            "retained_precision",
++            "body",
++            "product_attempts",
++            1
++          ],
++          "op": "remove"
++        },
++        {
++          "path": [
++            "diagnostics",
++            16
++          ],
++          "op": "remove"
++        },
++        {
++          "path": [
++            "diagnostics",
++            13,
++            "code"
++          ],
++          "op": "set",
++          "value": "NUMERICAL_INTEGRITY_CHECKS_PASSED"
++        },
++        {
++          "path": [
++            "diagnostics",
++            13,
++            "severity"
++          ],
++          "op": "set",
++          "value": "info"
++        },
++        {
++          "path": [
++            "numerical_quality",
++            "cases",
++            1,
++            "solve_quality"
++          ],
++          "op": "set",
++          "value": "checks_passed"
++        },
++        {
++          "path": [
++            "retained_precision",
++            "body",
++            "ordinary_attempts",
++            1,
++            "initial",
++            "outcome"
++          ],
++          "op": "set",
++          "value": "checks_passed"
++        },
++        {
++          "path": [
++            "numerical_quality",
++            "cases",
++            1,
++            "accuracy_evidence"
++          ],
++          "op": "set",
++          "value": "estimated"
++        }
++      ],
++      "rehash": "all",
++      "expected": {
++        "gate": "G7",
++        "code": "SOURCE_NUMERICAL_CASE_INVALID"
++      },
++      "expected_by_reader": {
++        "python": {
++          "gate": "G7",
++          "code": "SOURCE_NUMERICAL_CASE_INVALID"
++        },
++        "typescript": {
++          "gate": "G7",
++          "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
++        },
++        "rust": {
++          "gate": "G7",
++          "code": "SOURCE_NUMERICAL_CASE_INVALID"
++        }
++      }
+     }
+   ],
+   "must_pass": [
+diff --git a/projects/chirality-piping/tests/test_retained_precision_carriers.py b/projects/chirality-piping/tests/test_retained_precision_carriers.py
+index d196059a81..b6ddefab24 100644
+--- a/projects/chirality-piping/tests/test_retained_precision_carriers.py
++++ b/projects/chirality-piping/tests/test_retained_precision_carriers.py
+@@ -288,7 +288,7 @@ def test_declared_differences_python():
+     asserts its own from the same entries, and TS (I67) its own."""
+     cases, docs = shared_cases()
+     assert all(p in cases["scope"] for p in ("G7 parity compares the reader's (gate, code)", "parity there compares only accept against refuse",
+-                                              "no carrier authenticates producer origin", "a blocked envelope is refused at G7 with each language's own base code", "Python SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"))
++                                              "no carrier authenticates producer origin", "a blocked envelope is refused at G7 with each language's own base code", "Python SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", "An invalid enum value in a not_required case's quality is refused at G7 with each language's own code", "Python SOURCE_NUMERICAL_CASE_INVALID"))
+     entries = cases["declared_differences"]
+     assert {entry["id"] for entry in entries} == DECLARED and len(entries) == len(DECLARED)
+     seen = set()
+@@ -325,14 +325,14 @@ def test_declared_differences_python():
+                 elif form["subject"] == "transport":
+                     assert dispatch_transport(source) == expected["transport"], label
+                 elif form["subject"] == "summary":
+-                    want = expected_summary(source) if expected["summary"] == "by_validated_class" else []
++                    want = expected_summary(source, current=expected["summary"] == "by_validated_class_current") if expected["summary"] in ("by_validated_class", "by_validated_class_current") else []
+                     assert want and c.classification_summary(source, context, refs) == want, label
+                 else:
+                     assert form["subject"] == "binding", label
+                     assert [c.rule_binding_refusal(source, row) for row in source["results"]] == expected_binding(source, expected["binding"]), label
+     # Every subject, vocabulary and v4 field that Python consumes is exercised, D-U7-4's side included.
+     assert {subject for subject, _ in seen} == {"standing", "transport", "binding", "summary", "current_model_edits", "capture"}
+-    assert ("standing", "numerically_eligible") in seen
++    assert ("standing", "numerically_eligible") in seen and ("summary", "by_validated_class_current") in seen
+ 
+ 
+ def dispatch_transport(source):
+@@ -516,7 +516,7 @@ def test_d_u7_4_forms_python_side_standing_and_summary():
+     cases, docs = shared_cases()
+     entry = next(e for e in cases["declared_differences"] if e["id"] == "D-U7-4:ts_requires_live_native_capture")
+     for form in entry["forms"]:
+-        assert form["expected"]["python"]["standing"] == "numerically_eligible"
++        assert form["expected"]["python"] == ({"standing": "numerically_eligible"} if form["subject"] == "standing" else {"summary": "by_validated_class_current"}), form["label"]
+         for fid in form["fixtures"]:
+             source, context, refs = apply_case(form, docs[fid])
+             assert c.numerical_use_standing(source, refs, context) == "numerically_eligible", form["label"]
+diff --git a/projects/chirality-piping/tests/test_retained_precision_contract.py b/projects/chirality-piping/tests/test_retained_precision_contract.py
+index b9df1a7850..20a3b10d91 100644
+--- a/projects/chirality-piping/tests/test_retained_precision_contract.py
++++ b/projects/chirality-piping/tests/test_retained_precision_contract.py
+@@ -636,11 +636,11 @@ def test_rv79_surviving_mutants_m06_m09_m14():
+ 
+ 
+ def test_snapshot_07_counts_and_entry_format():
+-    """Snapshot 07j (U7 slice L, C04, on 07i: U7, D-U7-2; 07h: I61 U6e repair; RV90 S1, N1, N2, N4):
+-    15 cases, 277 mutations, 24 must-pass and the D37 table; only rehash "all" (D11); one expectation
+-    per entry except the per-reader G7 entry; each must-pass entry also states its eligibility."""
++    """Snapshot 07j plus RV94 N-3's G7 probe (U7 repair; 07j: U7 slice L, C04; 07i: D-U7-2; 07h: RV90 S1, N1, N2, N4):
++    15 cases, 278 mutations, 24 must-pass and the D37 table; only rehash "all" (D11); one expectation
++    per entry except the two per-reader G7 entries; each must-pass entry also states its eligibility."""
+     c = corpus()
+-    assert (len(c["cases"]), len(c["mutations"]), len(c["must_pass"])) == (15, 277, 24)
++    assert (len(c["cases"]), len(c["mutations"]), len(c["must_pass"])) == (15, 278, 24)
+     assert set(c) == {"version", "provenance", "arithmetic", "cases", "mutations", "must_pass", "d37"}
+     entries = c["mutations"] + c["must_pass"]
+     assert all(e["rehash"] == "all" for e in entries)
+@@ -651,7 +651,7 @@ def test_snapshot_07_counts_and_entry_format():
+     # 07j (C04): one must-pass entry has a not_required case that passes every gate, eligible.
+     statuses = lambda e: [x["status"] for x in apply_entry(next(f for f in c["cases"] if f["id"] == e["base"]), e)[0]["retained_precision"]["body"]["cases"]]
+     assert [e["id"] for e in c["must_pass"] if "not_required" in statuses(e)] == ["not_required_second_case_checks_passed"]
+-    assert [e["id"] for e in entries if "expected_by_reader" in e] == ["g7_maximum_off_enclosure"]
++    assert [e["id"] for e in entries if "expected_by_reader" in e] == ["g7_maximum_off_enclosure", "g7_not_required_quality_enum_invalid"]
+     assert len({e["id"] for e in entries}) == len(entries)
+ 
+ 

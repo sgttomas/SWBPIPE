@@ -1,0 +1,62 @@
+{
+  "candidate": "9994462204231fb92073e17eb09775756bec22f3",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV39/final_gates_02",
+  "files": [
+    {
+      "path": "RETURN.md",
+      "bytes": 9098,
+      "sha256": "c79721fda87bcdfd79cf0eadd901c85e9e1f1b038cba57c30af71031238d9ca5"
+    },
+    {
+      "path": "_run_records/BASIS.json",
+      "bytes": 2451,
+      "sha256": "3424e405f54d08f89477a4102b1bbb8f7800a3e8806e508438ea6f194c8119ff"
+    },
+    {
+      "path": "_run_records/CANDIDATE_BINDING.json",
+      "bytes": 13983,
+      "sha256": "933d3c76aaa55205b83222b9c8bbd46bf74b7fda058286c315cefc92e3c70bc0"
+    },
+    {
+      "path": "_run_records/FAILED_ATTEMPT_AND_CORRECTION.json",
+      "bytes": 32298,
+      "sha256": "1a9d2681cb552ecbdce58585fa7f715ede8abaffabe58e8b20753bf7ce3fc5e6"
+    },
+    {
+      "path": "_run_records/GATE_CUSTODY.json",
+      "bytes": 68196,
+      "sha256": "7635f75b8af2925fb34612f7a037b3bf524e48289e1db1ee07d6ac7ce7cc92c9"
+    },
+    {
+      "path": "_run_records/GEN8_BINDING.json",
+      "bytes": 1502,
+      "sha256": "d57d6393eca683c06f99dee5d95b4b59b36c72e01865d5cf995b4d4e3c4a05b9"
+    },
+    {
+      "path": "_run_records/HOSTED_CHECKS.json",
+      "bytes": 56519,
+      "sha256": "8700998c7ac77440169bad418f6d2036b2e99060ffc5ef2498100bd754f008ef"
+    },
+    {
+      "path": "_run_records/MAC_COMPARISON.json",
+      "bytes": 48109,
+      "sha256": "d1839cdee95824bf5218e7a579ca57cba6d70335f37915edd7aec52ca03c6b45"
+    },
+    {
+      "path": "_run_records/PR_SNAPSHOT.json",
+      "bytes": 6763,
+      "sha256": "4eecb8f67634a99f39a226ada40b47aa9f79cf69a48dbfad995f30c0cb0c9e2a"
+    },
+    {
+      "path": "_run_records/READ_ORIGINS.json",
+      "bytes": 11417,
+      "sha256": "c27e37e1c8d7c5e855c598f5d69bf7158021a36678e38c0d63e2e732efffbe80"
+    },
+    {
+      "path": "_run_records/SESSION.json",
+      "bytes": 1245,
+      "sha256": "323f39341b26ee98149566d939adb0f522650cf0bf1d689a05230dd2fb2b7e8a"
+    }
+  ],
+  "self_and_seal_excluded": true
+}

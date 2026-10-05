@@ -1,0 +1,178 @@
+[
+ {
+  "id": "M01_flag_true",
+  "target": "fail-closed hold",
+  "exit": 1,
+  "killed": true,
+  "tests": "21 failed | 250 passed (271)",
+  "failing": [
+   "shared synthetic prepared receipt controls, never solver execution evidence > candidate_failure_skip_synthetic",
+   "shared synthetic prepared receipt controls, never solver execution evidence > must pass: cancelled_all_stop_true",
+   "shared synthetic prepared receipt controls, never solver execution evidence > must pass: copy_flags_into_unloaded",
+   "shared synthetic prepared receipt controls, never solver execution evidence > must pass: loaded_all_stop_false",
+   "shared synthetic prepared receipt controls, never solver execution evidence > must pass: loaded_stop_without_force_moment",
+   "shared synthetic prepared receipt controls, never solver execution evidence > must pass: no_data_all_stop_true",
+   "shared synthetic prepared receipt controls, never solver execution evidence > must pass: no_data_attested_data_block",
+   "shared synthetic prepared receipt controls, never solver execution evidence > must pass: p512_charge_follows_stop_zero_floor_body",
+   "shared synthetic prepared receipt controls, never solver execution evidence > must pass: two_body_swap_stop_with_rosters",
+   "shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_cancelled_loads_synthetic",
+   "shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_dense_synthetic",
+   "shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_interpolated_material_synthetic"
+  ],
+  "log_sha256": "90982ed5fd493d41e3187a4caa6dd5bc0c69b6de1b5e13213b47a968adc45fca"
+ },
+ {
+  "id": "M02_n4_vref_dropped",
+  "target": "known diff 1 discriminator (continuation)",
+  "exit": 0,
+  "killed": false,
+  "tests": "271 passed (271)",
+  "failing": [],
+  "log_sha256": "3a6bd21cd2fb61d802a0659d5b08d2324b13458449186e6e32d3c0cd21673e7e"
+ },
+ {
+  "id": "M03_reason_locator_removed",
+  "target": "known diff 2",
+  "exit": 0,
+  "killed": false,
+  "tests": "271 passed (271)",
+  "failing": [],
+  "log_sha256": "e3bc65c2291969a10ea2656dc9df13024a23e5e7a2623b19897e32c667801a56"
+ },
+ {
+  "id": "M04_candidate_shape_lme",
+  "target": "known diff 3",
+  "exit": 0,
+  "killed": false,
+  "tests": "271 passed (271)",
+  "failing": [],
+  "log_sha256": "37466d24055f82f91e4a54f760e7d198e35bb8fa9582aff9302047228d708b5e"
+ },
+ {
+  "id": "M05_listed_refs_unchecked",
+  "target": "known diff 4 (every listed ref names the case)",
+  "exit": 0,
+  "killed": false,
+  "tests": "271 passed (271)",
+  "failing": [],
+  "log_sha256": "3e38b344381cc2900d85f492177f32d58a2affa02ab992a708d127d1603542ae"
+ },
+ {
+  "id": "M06_selected_quality_set",
+  "target": "known diff 4 (selected quality)",
+  "exit": 0,
+  "killed": false,
+  "tests": "271 passed (271)",
+  "failing": [],
+  "log_sha256": "64c91301e13dfb7ecb1a7741095a0b0c0ae2d3b4bc25b6a2e6908ea91da47ef5"
+ },
+ {
+  "id": "M07_budget_scope_swapped",
+  "target": "N17 precedence",
+  "exit": 0,
+  "killed": false,
+  "tests": "271 passed (271)",
+  "failing": [],
+  "log_sha256": "d7108105c7e18cd438bcdfcdefaf79a03465b9a0c2429d27fcda88cbdb320b41"
+ },
+ {
+  "id": "M08_r3_some",
+  "target": "R3 both-fault containment",
+  "exit": 0,
+  "killed": false,
+  "tests": "271 passed (271)",
+  "failing": [],
+  "log_sha256": "70dbc446a24e9e0764f63fd1d6f0ef3e94893cd088258f032b1fb838ed77e994"
+ },
+ {
+  "id": "M09_ceil_no_increment",
+  "target": "upward rounding",
+  "exit": 1,
+  "killed": true,
+  "tests": "5 failed | 266 passed (271)",
+  "failing": [
+   "synthetic prepared receipt arithmetic controls, not execution evidence > independently brackets every protected small-bound result with exact fractions",
+   "synthetic prepared receipt arithmetic controls, not execution evidence > independently brackets products, the normal boundary and distant-tail sums",
+   "synthetic prepared receipt arithmetic controls, not execution evidence > preserves finite exact-product controls and overflow refusal",
+   "synthetic prepared receipt arithmetic controls, not execution evidence > preserves the independently derived small-bound bits",
+   "synthetic prepared receipt arithmetic controls, not execution evidence > retains the distant low tail and canonicalizes bound zero"
+  ],
+  "log_sha256": "8a8d971f2c74f5fd24d35e3aa3c53b07bd180d20cf3f83dcfa5e2d14a8b5fda7"
+ },
+ {
+  "id": "M10_phi_le",
+  "target": "phi_512 next_up",
+  "exit": 1,
+  "killed": true,
+  "tests": "8 failed | 263 passed (271)",
+  "failing": [
+   "native p512 floor rounding, independent of any corpus case > phi512 is the least binary64 at or above 2^-438 * e_hat and equals the native transcription",
+   "shared synthetic prepared receipt controls, never solver execution evidence > must pass: p512_charge_follows_stop_zero_floor_body",
+   "shared synthetic prepared receipt controls, never solver execution evidence > p512_ladder_synthetic",
+   "shared synthetic prepared receipt controls, never solver execution evidence > p512_ladder_synthetic missing invocation and metadata transport remain needs-recompute",
+   "shared synthetic prepared receipt controls, never solver execution evidence > p512_ladder_synthetic snapshots all inputs before awaiting",
+   "shared synthetic prepared receipt controls, never solver execution evidence > verification_failure_skip_synthetic",
+   "shared synthetic prepared receipt controls, never solver execution evidence > verification_failure_skip_synthetic missing invocation and metadata transport remain needs-recompute",
+   "shared synthetic prepared receipt controls, never solver execution evidence > verification_failure_skip_synthetic snapshots all inputs before awaiting"
+  ],
+  "log_sha256": "253e2c35401a5e86a8b3f4157172f35dec389b457dcf019307a0322c4b3310cd"
+ },
+ {
+  "id": "M11_g8_member_sequence",
+  "target": "member index sequence (only check without a source)",
+  "exit": 0,
+  "killed": false,
+  "tests": "271 passed (271)",
+  "failing": [],
+  "log_sha256": "f2f3ff3a948c350f9de10de9b6a5d4d536874ffd09c98844f82ec4cf146d9d9b"
+ },
+ {
+  "id": "M12_empty_roster_g3",
+  "target": "parity rule: empty non-null roster",
+  "exit": 0,
+  "killed": false,
+  "tests": "271 passed (271)",
+  "failing": [],
+  "log_sha256": "e83402d0d0d3d7b43c9a39a22f4b50ca8ca6f4b493886a3256f8543c4b98711e"
+ },
+ {
+  "id": "M13_nodata_theta",
+  "target": "I57 s4 item 4 theta=+0 without data",
+  "exit": 0,
+  "killed": false,
+  "tests": "271 passed (271)",
+  "failing": [],
+  "log_sha256": "f2cf9ee0f55d27608c1c00e79688931973a359625da594757c202295782f680b"
+ },
+ {
+  "id": "M14_g5_order_products_first",
+  "target": "within-G5 order (C3:304)",
+  "exit": 0,
+  "killed": false,
+  "tests": "271 passed (271)",
+  "failing": [],
+  "log_sha256": "0fe7fb44c5688cd6970e88d67579aed87154c076db8f29fa9ccdb073d5ca6a93"
+ },
+ {
+  "id": "M15_floor_or_dropped",
+  "target": "positive floor forces force coverage",
+  "exit": 1,
+  "killed": true,
+  "tests": "3 failed | 268 passed (271)",
+  "failing": [
+   "native p512 floor rounding, independent of any corpus case > stopFeasible admits exactly the natively generated stop vectors, including L = 0",
+   "shared synthetic prepared receipt controls, never solver execution evidence > p512_positive_floor_forces_stop",
+   "shared synthetic prepared receipt controls, never solver execution evidence > p512_zero_floor_body_given_positive_floor"
+  ],
+  "log_sha256": "dff70d0cbe8938f8c33added51980976a29bc755d44e5c7b9431c1e934c280be"
+ },
+ {
+  "id": "M16_ceiling_threshold",
+  "target": "N8 verification-solve Ceiling threshold",
+  "exit": 0,
+  "killed": false,
+  "tests": "271 passed (271)",
+  "failing": [],
+  "log_sha256": "09c0988705a53c3547c3c56388d93c0629a85bf7389e31f646589f9be02715ce"
+ }
+]

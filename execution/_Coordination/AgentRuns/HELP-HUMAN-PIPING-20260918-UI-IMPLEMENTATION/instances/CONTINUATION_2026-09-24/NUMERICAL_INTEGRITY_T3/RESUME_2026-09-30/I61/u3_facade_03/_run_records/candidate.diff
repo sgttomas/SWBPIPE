@@ -1,0 +1,321 @@
+diff --git a/projects/chirality-piping/core/product_physics/src/lib.rs b/projects/chirality-piping/core/product_physics/src/lib.rs
+index 5c7804543f..a0b3bd3dbf 100644
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -2215,6 +2215,8 @@ pub(crate) enum W1Fallback {
+     Preparation,
+     Native,
+     Candidate,
++    /// The staging overlay's invariant did not hold (RV85 N6): the site.
++    Staging(retained_product::StagingFault),
+     /// The serializer refused typed.
+     Serializer(retained_wire::ReceiptFailure),
+     /// Precommit validation (decision 5): the accepted Rust reader's first failure.
+@@ -2283,7 +2285,7 @@ fn run_linear_static_preview_value_dispatch(
+     // installed. A refusal is private evidence only; the once-only ordinary route
+     // below is unchanged. No permit exists until U4 G5 (decision 7).
+     let admission = match retained_entry.map(|entry| retained_memory::admit(&capture, &request, entry)) {
+-        Some(Ok(permit)) => return permitted_dispatch(permit, request, capture, solver_mode),
++        Some(Ok((permit, report))) => return permitted_dispatch(permit, report, request, capture, solver_mode),
+         Some(Err(report)) => Some(report),
+         None => None,
+     };
+@@ -2917,6 +2919,7 @@ fn run_linear_static_preview_observed(
+ /// Unreachable until U4 G5 adds a registered profile.
+ fn permitted_dispatch(
+     permit: retained_memory::CapturePermit,
++    report: RetainedAdmissionReport,
+     request: LinearStaticPreviewRequest,
+     capture: source_receipt::CapturedInvocation,
+     solver_mode: PreviewSolverMode,
+@@ -2925,11 +2928,11 @@ fn permitted_dispatch(
+     let mut slot = Some(request);
+     let (pending, captured) = (&mut slot, &capture);
+     let ran = on_reserved_stack(bytes, carry_test_hooks(move || {
+-        pending.take().map(|request| permitted_run(permit, request, captured, solver_mode))
++        pending.take().map(|request| permitted_run(permit, report, request, captured, solver_mode))
+     }));
+     match (ran.flatten(), slot) {
+         (Some(result), _) => result,
+-        (None, Some(request)) => ordinary_dispatch(request, &capture, solver_mode, None, Some(Err(W1Fallback::StackReservation))),
++        (None, Some(request)) => ordinary_dispatch(request, &capture, solver_mode, Some(report), Some(Err(W1Fallback::StackReservation))),
+         (None, None) => Err("retained dispatch lost its request".into()),
+     }
+ }
+@@ -2967,6 +2970,7 @@ fn carry_test_hooks<T, F: FnOnce() -> T + Send>(work: F) -> impl FnOnce() -> T +
+ /// run with capture installed, G-C, then the W1 phases.
+ fn permitted_run(
+     permit: retained_memory::CapturePermit,
++    report: RetainedAdmissionReport,
+     request: LinearStaticPreviewRequest,
+     capture: &source_receipt::CapturedInvocation,
+     solver_mode: PreviewSolverMode,
+@@ -2974,7 +2978,7 @@ fn permitted_run(
+     // D1.3: load-state and exact-pressure models never reach W1; defensively, a
+     // permit for one takes the unchanged ordinary route (with its SF-1 logic).
+     if case_state::is_load_state(&request.model) || pressure_runtime::is_exact(&request.model) {
+-        return ordinary_dispatch(request, capture, solver_mode, None, Some(Err(W1Fallback::Domain)));
++        return ordinary_dispatch(request, capture, solver_mode, Some(report), Some(Err(W1Fallback::Domain)));
+     }
+     let mut budget = SourceRecoveryBudget::default();
+     // The permit moves into the observer, which checks G-B with it.
+@@ -2983,14 +2987,22 @@ fn permitted_run(
+     if source_finalization_failed(&ordinary) {
+         return Err("SOURCE_BLOCKS_FINALIZATION_FAILED".into());
+     }
+-    // G-C, with the observer's own permit.
+-    let complete = observer.permit().map(|permit| permit.check_complete(&retained_memory::CompleteFacts { ordinary: &ordinary }));
+-    let (envelope, retained) = match complete {
+-        Some(Ok(())) => retained_w1(observer, ordinary, capture),
+-        Some(Err(refusal)) => (ordinary, Err(W1Fallback::CompleteGate(refusal))),
+-        None => (ordinary, Err(W1Fallback::PermitUnbound)),
++    // RV85 N1 (I51 COMPOSITION §2): G-C follows only a settled ordinary run whose
++    // exact-block arbitration left W1 open and whose late capture G-B authorized;
++    // otherwise its true cause is recorded and G-C is never consulted.
++    let (envelope, retained) = if ordinary.source_block_recovery.is_some() {
++        (ordinary, Err(W1Fallback::Coexistence))
++    } else if let Some(refusal) = observer.late_refusal().cloned() {
++        (ordinary, Err(W1Fallback::LateGate(refusal)))
++    } else {
++        // G-C, with the observer's own permit.
++        match observer.permit().map(|permit| permit.check_complete(&retained_memory::CompleteFacts { ordinary: &ordinary })) {
++            Some(Ok(())) => retained_w1(observer, ordinary, capture),
++            Some(Err(refusal)) => (ordinary, Err(W1Fallback::CompleteGate(refusal))),
++            None => (ordinary, Err(W1Fallback::PermitUnbound)),
++        }
+     };
+-    Ok(RetainedPreviewOutput { envelope, admission: None, retained: Some(retained) })
++    Ok(RetainedPreviewOutput { envelope, admission: Some(report), retained: Some(retained) })
+ }
+ 
+ /// R-2 (ROOT, NUM efde9ca2d1, N1): the fixed product text of the base publication's
+@@ -3104,8 +3116,16 @@ fn retained_w1(
+         Ok(frozen) => frozen,
+         Err(refusal) => return notice.publish(refusal.ordinary, W1Fallback::Candidate),
+     };
+-    // Staging: the overlay applies to a copy; the ordinary owner stays intact.
+-    let staged = frozen.staged_envelope();
++    // Staging: the overlay applies to a copy; the ordinary owner stays intact. A
++    // broken overlay invariant falls back typed (RV85 N6).
++    #[cfg(test)]
++    let mut frozen = frozen;
++    #[cfg(test)]
++    retained_tests_hooks::before_staging(&mut frozen);
++    let staged = match frozen.staged_envelope() {
++        Ok(staged) => staged,
++        Err(fault) => return notice.publish(frozen.into_ordinary(), W1Fallback::Staging(fault)),
++    };
+     let serialized = retained_wire::serialize_frozen(&frozen, &staged, capture);
+     drop(staged);
+     #[cfg(test)]
+@@ -3146,6 +3166,7 @@ pub(crate) mod retained_tests_hooks {
+         withdraw: bool,
+         rebind: bool,
+         serializer: Option<ReceiptCheck>,
++        staging: bool,
+         /// lib.rs's dense-scrutiny ceiling override (F1b), read by the ordinary run.
+         ceiling: Option<u128>,
+     }
+@@ -3178,6 +3199,13 @@ pub(crate) mod retained_tests_hooks {
+     pub(crate) fn withdraw_next_native_source() { arm(|a| a.withdraw = true); }
+     /// Serializer-stage fault: the next serialization refuses with this check.
+     pub(crate) fn fail_next_serializer(check: ReceiptCheck) { arm(|a| a.serializer = Some(check)); }
++    /// Staging fault: the next frozen overlay names a maxima patch past the evidence.
++    pub(crate) fn break_next_staging() { arm(|a| a.staging = true); }
++    pub(crate) fn before_staging(frozen: &mut super::retained_product::FrozenCandidate) {
++        if consume(|a| std::mem::take(&mut a.staging)) {
++            frozen.test_break_overlay();
++        }
++    }
+     pub(crate) fn before_native(prepared: &mut super::retained_product::PreparedCase) {
+         if consume(|a| std::mem::take(&mut a.withdraw)) {
+             prepared.test_capture_mut().source = None;
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs b/projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs
+index 874e0a5146..c03692f315 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs
+@@ -113,6 +113,12 @@ fn u3_each_stage_fault_falls_back_to_the_ordinary_bytes() {
+         assert_eq!(retained.err(), Some(W1Fallback::Candidate), "{fault:?}");
+         check(&envelope, &noticed(None), "candidate");
+     }
++    // Staging (RV85 N6): a broken overlay invariant falls back typed, with the notice.
++    let (capture, observer, ordinary) = observed(mode, &raw);
++    retained_tests_hooks::break_next_staging();
++    let (envelope, retained) = retained_w1(observer, ordinary, &capture);
++    assert_eq!(retained.err(), Some(W1Fallback::Staging(rp::StagingFault("pipe_stress_extrema[]"))));
++    check(&envelope, &noticed(None), "staging");
+     // Serializer: an invocation other than the observed one (RV82-S2) refuses typed.
+     // An association refusal is not a receipt-encoding fallback: the plain notice.
+     let (_, observer, ordinary) = observed(mode, &raw);
+@@ -313,16 +319,29 @@ fn u3_n9_single_parse_custody() {
+     assert_eq!(lib.matches(PARSE).count(), 1, "lib.rs has one parse site");
+     let dispatch = section("fn run_linear_static_preview_value_dispatch(", "fn ordinary_dispatch(");
+     assert!(dispatch.contains("let (request, capture) = source_receipt::CapturedInvocation::parse(actual_request, solver_mode)"));
+-    assert!(dispatch.contains("Some(Ok(permit)) => return permitted_dispatch(permit, request, capture, solver_mode),"));
++    assert!(dispatch.contains("Some(Ok((permit, report))) => return permitted_dispatch(permit, report, request, capture, solver_mode),"));
+     assert!(dispatch.contains("ordinary_dispatch(request, &capture, solver_mode, admission, None)"));
++    // RV85 N7: exactly one call each of the permitted path's functions in lib.rs (the
++    // definition plus one call; `carry_test_hooks`' generic definitions do not match),
++    // and the dispatch's call sits in the permit arm.
++    for (function, calls) in [("permitted_dispatch(", 2), ("permitted_run(", 2), ("retained_w1(", 2), ("carry_test_hooks(", 1)] {
++        assert_eq!(lib.matches(function).count(), calls, "{function}");
++    }
++    assert_eq!(dispatch.matches("permitted_dispatch(").count(), 1, "the dispatch's one call");
+     // The permitted path: the parse's two halves, moved or borrowed, never re-derived.
+     let permitted = section("fn permitted_dispatch(", "pub(crate) mod retained_tests_hooks");
+-    for forbidden in ["parse(", "CapturedInvocation {", "capture.clone()", "request.clone()", "from_value("] {
++    for forbidden in ["parse(", "CapturedInvocation {", "capture.clone()", "request.clone()", "from_value(", "from_str(", "from_slice(",
++        "from_reader(", "deserialize(", "Deserialize", "LinearStaticPreviewRequest {"] {
+         assert!(!permitted.contains(forbidden), "{forbidden}");
+     }
++    // The raw custody is read in exactly two places: the attempted case's id and the
++    // precommit invocation.
++    assert_eq!(permitted.matches("borrowed_raw()").count(), 2, "borrowed_raw() reads");
++    assert!(permitted.contains("let model = &capture.borrowed_raw()[\"model\"];"));
++    assert!(permitted.contains("serde_json::json!({\"request\": capture.borrowed_raw(), \"solver_mode\": capture.mode().as_str()})"));
+     for required in [
+-        "pending.take().map(|request| permitted_run(permit, request, captured, solver_mode))",
+-        "(None, Some(request)) => ordinary_dispatch(request, &capture, solver_mode, None, Some(Err(W1Fallback::StackReservation))),",
++        "pending.take().map(|request| permitted_run(permit, report, request, captured, solver_mode))",
++        "(None, Some(request)) => ordinary_dispatch(request, &capture, solver_mode, Some(report), Some(Err(W1Fallback::StackReservation))),",
+         "run_linear_static_preview_observed(request, solver_mode, Some(capture), &mut budget, Some(&mut observer))",
+         "Some(Ok(())) => retained_w1(observer, ordinary, capture),",
+         "retained_wire::serialize_frozen(&frozen, &staged, capture)",
+@@ -352,6 +371,25 @@ fn u3_n9_single_parse_custody() {
+     assert!(!block.contains("-> Self"));
+ }
+ 
++/// RV85 S3 and N1 (structural; the permitted path needs a permit, so its behaviour
++/// is in the stub evidence). S3: `admit` yields the report with the permit and every
++/// permitted output carries it. N1: G-C is consulted only after coexistence and G-B's
++/// outcome, in I51 COMPOSITION §2's order, each recorded as its own cause.
++#[test]
++fn u3_permitted_outputs_keep_the_report_and_gate_order() {
++    let lib = include_str!("lib.rs");
++    let permitted = &lib[lib.find("fn permitted_dispatch(").unwrap()..lib.find("pub(crate) const RETAINED_UNAVAILABLE_NOTICE").unwrap()];
++    assert!(!permitted.contains("admission: None"), "S3: no permitted output drops the report");
++    assert_eq!(permitted.matches("Some(report)").count(), 3, "S3: StackReservation, Domain and the W1 output");
++    assert!(include_str!("retained_memory.rs").contains(") -> Result<(CapturePermit, RetainedAdmissionReport), RetainedAdmissionReport> {"));
++    assert!(include_str!("retained_memory.rs").contains("admission(report).map(|permit| (permit, report))"));
++    let run = &permitted[permitted.find("fn permitted_run(").unwrap()..];
++    let at = |text: &str| run.find(text).unwrap_or_else(|| panic!("{text}"));
++    let (exact, late, complete) = (at("if ordinary.source_block_recovery.is_some() {"), at("observer.late_refusal().cloned()"), at("permit.check_complete("));
++    assert!(exact < late && late < complete, "N1: exact selection, then G-B's outcome, then G-C");
++    assert!(run[exact..late].contains("Err(W1Fallback::Coexistence)") && run[late..complete].contains("Err(W1Fallback::LateGate(refusal))"));
++}
++
+ /// U3 grant 1b (ROOT's flag): the capture permit is linear. It derives neither
+ /// `Clone` nor `Copy` and has no `Clone`/`Copy` impl; the facade moves it onto the
+ /// reserved-stack thread and into the observer, which alone uses it (G-B, then
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_memory.rs b/projects/chirality-piping/core/product_physics/src/retained_memory.rs
+index 32ead97b1f..f1e25cb31a 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_memory.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_memory.rs
+@@ -367,16 +367,17 @@ pub(super) fn assess(
+ ) -> RetainedAdmissionReport {
+     match admit(capture, request, entry) {
+         Err(report) => report,
+-        Ok(permit) => match *permit._profile {},
++        Ok((permit, _)) => match *permit._profile {},
+     }
+ }
+ /// G-A (API.md §2): the census, then the admission decision. U4 G5 adds the D1
+-/// predicate and the registered profile; until then every call refuses.
++/// predicate and the registered profile; until then every call refuses. A permit
++/// comes with the same report (RV85 S3), so a permitted output keeps every fact.
+ pub(super) fn admit(
+     capture: &CapturedInvocation,
+     request: &LinearStaticPreviewRequest,
+     entry: Entry<'_>,
+-) -> Result<CapturePermit, RetainedAdmissionReport> {
++) -> Result<(CapturePermit, RetainedAdmissionReport), RetainedAdmissionReport> {
+     let (caller, headless) = match entry {
+         Entry::Direct => (RetainedCaller::Direct, None),
+         Entry::Headless(c) => (
+@@ -399,7 +400,7 @@ pub(super) fn admit(
+         profile: ProfileStatus::Missing,
+         allowance: AllowanceStatus::Unselected,
+     };
+-    admission(report)
++    admission(report).map(|permit| (permit, report))
+ }
+ 
+ #[cfg(test)]
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_product.rs b/projects/chirality-piping/core/product_physics/src/retained_product.rs
+index 24bc088d0e..ddcf1d75ef 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_product.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_product.rs
+@@ -3764,17 +3764,26 @@ impl PreparedCase {
+ 
+ /// The frozen overlay (values, maxima patches and summary aliases) applied to one
+ /// envelope. Shared by the private commit and the facade's staging copy, so both
+-/// produce the same rows.
+-fn apply_prepared_overlay(envelope:&mut MechanicsEnvelope,payload:&PreparedPayload) {
+-    for (i,row) in envelope.results.iter_mut().enumerate(){row.value=*payload.values.value(i).expect("checked frozen index");}
+-    let cases=envelope.contract_evidence.as_mut().unwrap().as_object_mut().unwrap().get_mut("preview_cases").unwrap().as_array_mut().unwrap();
+-    let extrema=cases[0].as_object_mut().unwrap().get_mut("pipe_stress_extrema").unwrap().as_array_mut().unwrap();
++/// produce the same rows. Typed (RV85 N6): a broken invariant names its site and the
++/// facade falls back with the untouched ordinary owner; nothing here panics.
++fn apply_prepared_overlay(envelope:&mut MechanicsEnvelope,payload:&PreparedPayload)->Result<(),StagingFault> {
++    for (i,row) in envelope.results.iter_mut().enumerate(){row.value=*payload.values.value(i).ok_or(StagingFault("values"))?;}
++    let cases=envelope.contract_evidence.as_mut().and_then(|e|e.as_object_mut()).and_then(|e|e.get_mut("preview_cases"))
++        .and_then(|c|c.as_array_mut()).ok_or(StagingFault("preview_cases"))?;
++    let extrema=cases.get_mut(0).and_then(|c|c.as_object_mut()).and_then(|c|c.get_mut("pipe_stress_extrema"))
++        .and_then(|x|x.as_array_mut()).ok_or(StagingFault("pipe_stress_extrema"))?;
+     for patch in &payload.maxima {
+-        let object=extrema[patch.evidence_index].as_object_mut().unwrap();
+-        for (key,number) in PREPARED_MAX_KEYS.into_iter().zip(patch.numbers.iter()){*object.get_mut(key).unwrap()=serde_json::Value::Number(number.clone());}
++        let object=extrema.get_mut(patch.evidence_index).and_then(|x|x.as_object_mut()).ok_or(StagingFault("pipe_stress_extrema[]"))?;
++        for (key,number) in PREPARED_MAX_KEYS.into_iter().zip(patch.numbers.iter()){
++            *object.get_mut(key).ok_or(StagingFault("pipe_stress_extrema[].key"))?=serde_json::Value::Number(number.clone());
++        }
+     }
+     envelope.summary.max_displacement=Some(payload.displacement.clone());envelope.summary.max_open_formula_stress=Some(payload.stress.clone());
++    Ok(())
+ }
++/// RV85 N6: the overlay site whose invariant did not hold.
++#[derive(Debug,Clone,Copy,PartialEq,Eq)]
++pub(super) struct StagingFault(pub(super) &'static str);
+ 
+ /// U3 (I51 frozen-candidate split): a certified, private-gate-passed candidate whose
+ /// ordinary envelope is still intact. The facade stages its successor from a copy
+@@ -3786,11 +3795,11 @@ impl FrozenCandidate {
+     pub(super) fn capture(&self)->&ProductCapture{&self.prepared.capture}
+     pub(super) fn certificate(&self)->&k::CertifiedProductProof{&self.certificate}
+     /// The staging copy: the ordinary envelope cloned, with the frozen overlay
+-    /// applied. The ordinary owner is not touched.
+-    pub(super) fn staged_envelope(&self)->MechanicsEnvelope {
++    /// applied. The ordinary owner is not touched; on a fault the copy drops.
++    pub(super) fn staged_envelope(&self)->Result<MechanicsEnvelope,StagingFault> {
+         let mut staged=self.ordinary.clone();
+-        apply_prepared_overlay(&mut staged,&self.payload);
+-        staged
++        apply_prepared_overlay(&mut staged,&self.payload)?;
++        Ok(staged)
+     }
+     /// The fallback: the untouched ordinary envelope; every W1 owner drops here.
+     pub(super) fn into_ordinary(self)->MechanicsEnvelope {self.ordinary}
+@@ -3798,7 +3807,9 @@ impl FrozenCandidate {
+     /// owned ordinary envelope.
+     fn commit_private(mut self)->PrivatePreparedCandidate {
+         let mut envelope=self.ordinary;
+-        apply_prepared_overlay(&mut envelope,&self.payload);
++        // The private driver only (tests): its bytes are unchanged and a broken
++        // invariant still stops it here, as before the facade existed.
++        apply_prepared_overlay(&mut envelope,&self.payload).expect("frozen overlay invariant");
+         self.prepared.trace.costs.record::<bool>();self.prepared.trace.private_committed=true;self.prepared.trace.freeze(&self.prepared.capture);
+         PrivatePreparedCandidate{envelope,prepared:self.prepared,certificate:self.certificate}
+     }
+@@ -3807,6 +3818,12 @@ impl FrozenCandidate {
+         trace::project(&p.trace,&p.capture,&p.preparation_work,&p.old_operational,&p.overlay_work,
+             trace::ResultRef::Ready,Some(self.certificate.work()),None,None,costs)
+     }
++    /// Test-only staging fault (RV85 N6): the first maxima patch names an evidence
++    /// index past the envelope's extrema.
++    #[cfg(test)]
++    pub(super) fn test_break_overlay(&mut self) {
++        self.payload.maxima.first_mut().expect("the milestone has maxima patches").evidence_index=usize::MAX;
++    }
+ }
+ 
+ #[cfg(test)]

@@ -1,0 +1,14 @@
+[
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+    "base_sha256": "ed563862bc1af6aaaeb510f06e22b6291a878db1b42c805bc7857ec56fbc4dcf",
+    "sha256": "1c91363565207758827ea7c19e08909c9ef984d73004a8580ae8e50bf3207691",
+    "bytes": 84724
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+    "base_sha256": "46557b119144772b2f001691ec693b068437de65a8dfeba2f8c99450c4f227b9",
+    "sha256": "55ca1c4c1f5157a573003348c6127f82c5cc3e9d4bdc7aaeb67b25bbbe2b0917",
+    "bytes": 27144
+  }
+]

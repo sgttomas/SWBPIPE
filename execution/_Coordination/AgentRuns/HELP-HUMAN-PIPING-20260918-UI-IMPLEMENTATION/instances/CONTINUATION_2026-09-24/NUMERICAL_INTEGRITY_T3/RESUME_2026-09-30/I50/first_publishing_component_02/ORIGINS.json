@@ -1,0 +1,110 @@
+{
+  "mechanism": "delegated-harness-native",
+  "task": "/root/i50_named_case_component",
+  "parent": "/root",
+  "role": "TASK Type 2",
+  "descendants": [],
+  "source_pin": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4",
+  "record_pins": {
+    "d7b1711dc6ceeaf9bde28f2f6ffa669ec871eb1a": "d7b1711dc6ceeaf9bde28f2f6ffa669ec871eb1a",
+    "9a6ee7dfa8": "9a6ee7dfa8f17d7c7e97309763a8ef4fb1f684b5",
+    "c1331b5764d829f9bf704b6fedcc61e603f105c1": "c1331b5764d829f9bf704b6fedcc61e603f105c1",
+    "d0acf8ce78": "d0acf8ce78f002f6c0081aad97a10f90b8b67d38",
+    "848981f43349e62173b0a91850f369c3a040a1a0": "848981f43349e62173b0a91850f369c3a040a1a0"
+  },
+  "selected_skills": [],
+  "selected_workflows": [],
+  "instructions_and_grants": [
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/AGENTS.md",
+      "revision": "d7b1711dc6ceeaf9bde28f2f6ffa669ec871eb1a",
+      "read_scope": "active instruction continued from checkpoint 0; unchanged bytes",
+      "bytes": 14200,
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/agents/AGENT_TASK.md",
+      "revision": "d7b1711dc6ceeaf9bde28f2f6ffa669ec871eb1a",
+      "read_scope": "active instruction continued from checkpoint 0; unchanged bytes",
+      "bytes": 1499,
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/AGENTS.md",
+      "revision": "d7b1711dc6ceeaf9bde28f2f6ffa669ec871eb1a",
+      "read_scope": "active instruction continued from checkpoint 0; unchanged bytes",
+      "bytes": 9016,
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I50_NAMED_SUPPORT_IMPLEMENTATION.md",
+      "revision": "d7b1711dc6ceeaf9bde28f2f6ffa669ec871eb1a",
+      "read_scope": "full selected A/B/D brief",
+      "bytes": 9118,
+      "sha256": "8d8f9fbc20ecea2b0da9ffb79b1746f13ee847b6237f919353352954dd26c091"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+      "revision": "d7b1711dc6ceeaf9bde28f2f6ffa669ec871eb1a",
+      "read_scope": "only selected support-component ruling at 6356\u20136390 consulted; full blob hash for recovery",
+      "bytes": 557821,
+      "sha256": "e26bbd2b6a6008054285bdeee3075aa3f71bde7d7626a0bbaa649c96224bc784"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/named_support_component_01/REVIEW.md",
+      "revision": "c1331b5764d829f9bf704b6fedcc61e603f105c1",
+      "read_scope": "full adopted RV65-1/2 contract",
+      "bytes": 13417,
+      "sha256": "0804929d02514fe42a4cdbc827434903e63bbbdeb4bfc2b1c358016db142d0a8"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I50_DENSE_OBSERVATION_ADDENDUM.md",
+      "revision": "9a6ee7dfa8f17d7c7e97309763a8ef4fb1f684b5",
+      "read_scope": "full seventh-path addendum",
+      "bytes": 2899,
+      "sha256": "7294bf2e718f2a30c4726515ec5be0c194cf3930924ddd34bc46141ae561a13f"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/dense_observation_02/REVIEW.md",
+      "revision": "d0acf8ce78f002f6c0081aad97a10f90b8b67d38",
+      "read_scope": "full adopted dense contract",
+      "bytes": 14125,
+      "sha256": "dc755a35a5e50520633c715bc8f45d339db32fb3bd59e5d8b67185de62244276"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/first_publishing_component_01/RETURN.md",
+      "revision": "848981f43349e62173b0a91850f369c3a040a1a0",
+      "read_scope": "continued checkpoint 0 proposal, corrected by both selected RV65 reviews",
+      "bytes": 15993,
+      "sha256": "5a21abd41ca53c5b2ae89501b91cbaa1bcca5955914a81ce430711b50d1728ba"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I47/selected_material_02/_run_records/independent_oracle_first.py",
+      "revision": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4",
+      "read_scope": "read interval/predicate/G5a examples; new named-case laws are independently derived",
+      "bytes": 18841,
+      "sha256": "8f58a1c9de52c69ff90587be7ad50cd27c5f80e36c39ec568bed6a5f3028ecab"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I47/selected_material_02/_run_records/pp_debug.log",
+      "revision": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4",
+      "read_scope": "read actual accepted semantic capture reference",
+      "bytes": 834196,
+      "sha256": "b443aabe00d24804e98dfe3f662db32d2a3277de976790998653354674f002c5"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I47/selected_material_02/_run_records/pp_optimized.log",
+      "revision": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4",
+      "read_scope": "accepted optimized comparison reference",
+      "bytes": 836351,
+      "sha256": "f7ec0b1a131b1e9828c4ec507e70a8abb267fff9e4b1aadc6188909ccf79b04d"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I47/source_truth_coverage_03/_run_records/full_truth_cover.py",
+      "read_scope": "existing corrected complete cover method; targeted first140 lines",
+      "bytes": 11866,
+      "sha256": "0daa533a63d611181e05a48ad89a9f25750456805853d156e7d7499b1d734b41"
+    }
+  ],
+  "source_read_origins": "Baseline inventory and FIRST_RUN snapshots; complete inspected source origins continue from preserved checkpoint 0. Final changed source hashes are separate."
+}

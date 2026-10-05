@@ -1,0 +1,95 @@
+{
+  "mechanism": "delegated-harness-native child /root/rv55_member_coefficients of /root; TASK Type2; no descendants",
+  "actual_receipt_utc": "2026-10-03T00:14:00Z approximate before first tool",
+  "paths": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/92ea/chirality/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/92ea/chirality/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV55_MEMBER_COEFFICIENT_SOURCE_REVIEW.md",
+      "sha256": "12e3c81172d011df11b9c37b7fc3d1ebdea29cc17c1a8964cb3535d750faf971"
+    }
+  ],
+  "candidate": "60375c47472dac26b1ab77536b8e7b9fb0c44ab0",
+  "base": "8a6ed501655fe64eb637a0e717d30bf765051749",
+  "runtime_lane": "HELD pending ROOT handoff",
+  "additional_basis": [
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I41_MEMBER_COEFFICIENT_IMPLEMENTATION.md",
+      "sha256": "2976493619e3b34eece5991acf1d86c6485a9ca875360aab1105b48b640b07d4",
+      "consultation": "selected sections; source/code/math/count and qualification basis, not other role instructions"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I35/f2a_certificate_arithmetic_01/ARITHMETIC_DESIGN.md",
+      "sha256": "2e5cf547adf071283da810b96356e1cf33e704b897194a8406f2dcd8e9fe142c",
+      "consultation": "selected sections; source/code/math/count and qualification basis, not other role instructions"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I35/f2a_certificate_arithmetic_01/SCHEDULE_AND_COUNTS.md",
+      "sha256": "a5e861949a1152b5a324cc0e7ad5cff5839f96a58cabe133dc9b829a5927ce17",
+      "consultation": "selected sections; source/code/math/count and qualification basis, not other role instructions"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I35/f2a_certificate_integration_02/INTEGRATION.md",
+      "sha256": "c89823df47facb5906a612a5f030fdf368faf60ad67ce4168f1b88ccb853c486",
+      "consultation": "selected sections; source/code/math/count and qualification basis, not other role instructions"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I35/f2a_certificate_integration_02/LOOPS_AND_STORAGE.md",
+      "sha256": "42ad49fb4d81b3e6f60beaf3a6c6ff16643183b1f2e573a957938d6d051ac22a",
+      "consultation": "selected sections; source/code/math/count and qualification basis, not other role instructions"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_source_geometry_b1c/RETURN.md",
+      "sha256": "b0a249dda0a1545d1b2f71c93549ae9a7cce4c7fa89201d7f9ce1dcae39415e7",
+      "consultation": "selected sections; source/code/math/count and qualification basis, not other role instructions"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/RETURN.md",
+      "sha256": "74670d4f43e58f13e6fd03c69cbde7cd514c117d66d29691ff6d225f2f2e5d3a",
+      "consultation": "selected sections; source/code/math/count and qualification basis, not other role instructions"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV50/f2a_certificate_arithmetic_01/REVIEW.md",
+      "sha256": "967b2e36f94f54f6964bd52c497700b0f1a8b9e6ce64ae922e47ba056ff6c540",
+      "consultation": "selected sections; source/code/math/count and qualification basis, not other role instructions"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV50/f2a_certificate_integration_02/REVIEW.md",
+      "sha256": "ffea97a2b07a97d5943cee3cc04a75951292dc8d1d2a24d2040ed99d8d628c9d",
+      "consultation": "selected sections; source/code/math/count and qualification basis, not other role instructions"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV50/f2a_certificate_integration_03/REVIEW.md",
+      "sha256": "0180cda9165bda7c693910f5fb6716c4c18ed4245d70534d63efddcfc32f988e",
+      "consultation": "selected sections; source/code/math/count and qualification basis, not other role instructions"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV53/certificate_helpers_01/RETURN.md",
+      "sha256": "9a11255055e0c75e03d698062f6861cf3aad02d970e28330cac0c4d663dfa0af",
+      "consultation": "selected sections; source/code/math/count and qualification basis, not other role instructions"
+    }
+  ],
+  "instruction_correspondence": {
+    "AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+  },
+  "disclosures": [
+    "Initial exploratory git rev-parse/status/diff reads did not set GIT_OPTIONAL_LOCKS=0; later Git reads do. No explicit Git/index mutation command.",
+    "One read-only section-extraction attempt failed because its heading search used ### instead of ##; corrected by reading the needed prefix. No source or evidence removed."
+  ]
+}

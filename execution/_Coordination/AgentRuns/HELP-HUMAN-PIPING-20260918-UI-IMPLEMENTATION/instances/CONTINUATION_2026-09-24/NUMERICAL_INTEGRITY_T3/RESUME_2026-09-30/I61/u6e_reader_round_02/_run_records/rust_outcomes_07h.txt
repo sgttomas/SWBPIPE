@@ -1,0 +1,3 @@
+I61_OUTCOME_07H {"base":"ordinary_prepared_synthetic","expected":{"code":"RETAINED_PRECISION_ATTEMPT_MISMATCH","gate":"G5"},"id":"f5_affected_refs_string_names_no_case","match":true,"observed":{"code":"RETAINED_PRECISION_ATTEMPT_MISMATCH","gate":"G5"}}
+I61_OUTCOME_07H {"base":"two_case_synthetic","expected":{"code":"RETAINED_PRECISION_ATTEMPT_MISMATCH","gate":"G5"},"id":"f5_ordinary_refs_second_case_relaxed_d6a_form","match":true,"observed":{"code":"RETAINED_PRECISION_ATTEMPT_MISMATCH","gate":"G5"}}
+I61_OUTCOME_07H {"base":"ordinary_prepared_synthetic","expected":{"code":"RETAINED_PRECISION_ATTEMPT_MISMATCH","gate":"G5"},"id":"f5_ordinary_refs_strict_prefix","match":true,"observed":{"code":"RETAINED_PRECISION_ATTEMPT_MISMATCH","gate":"G5"}}

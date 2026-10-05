@@ -1,0 +1,80 @@
+{
+  "task": "I54_DIRECT_ORDINARY_BOUND",
+  "status": "partial source derivation, sealed for independent review",
+  "sealed_utc": "2026-10-03T16:54:39.684994+00:00",
+  "ordinary_source": "24af17c47011608d187811024b51807395e4e526",
+  "entry_num_revision": "e7bebb64aec3d592e684c58b1281611c2155e7b0",
+  "accepted_container_packet": "f3f6fd1f2ec3c519097b3b4cdb952db718ae2a9b",
+  "rv73_review_manifest_sha256": "2f7bd352f7c2a81646d9205aed3f818e84051191a95891d329be1ff9a21d2d48",
+  "conditional_trace_source": "7018513af3d6574be382d5c3aaee01e36cb0b28e",
+  "payloads": [
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I54/direct_ordinary_bound_02/CHECKPOINT_A.md",
+      "bytes": 9659,
+      "sha256": "92f2677349fe5a84b320eba4c50f21e14a18745889c94523244271c262574087"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I54/direct_ordinary_bound_02/BOUND.md",
+      "bytes": 27269,
+      "sha256": "a5c99ced52e9816c254c853646b2dc731f4c7f34a8d61bd6306964c60b5760b3"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I54/direct_ordinary_bound_02/REQUIRED_FACTS.md",
+      "bytes": 11695,
+      "sha256": "c18a115a561d704f0501eaf56feba65641de7417bca24856c63eb13de341d5bd"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I54/direct_ordinary_bound_02/W2_RETURN.md",
+      "bytes": 10056,
+      "sha256": "c7a4903f967acf4e37e51c1f680beba93d592d30bc87562a96bd7b58f825d7f9"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I54/direct_ordinary_bound_02/RETURN.md",
+      "bytes": 6122,
+      "sha256": "b63b28647ead0ba070f1efc844f01d052548bcbcb03b049a566c489b2b9fab0f"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I54/direct_ordinary_bound_02/EXECUTION.json",
+      "bytes": 7115,
+      "sha256": "aaa88e30abf06798201998fc0c00b5aa99c47eee53d1facf953bd49c76d3847a"
+    }
+  ],
+  "external_bulk_index": {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_02/BULK_MANIFEST.json",
+    "bytes": 24210,
+    "sha256": "7ed4b6d93995e091014d5da5bb6ce930c08a2eafc910b016b1171c14a1bee6c9"
+  },
+  "source_input_index": {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_02/INPUTS.json",
+    "bytes": 30094,
+    "sha256": "4df0b8d4cab1bd51b061bd6c037573e8a4300aa3620a500d39be36927684146a"
+  },
+  "key_evidence": [
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_02/FIRST_CASE_FACTS.json",
+      "bytes": 1431,
+      "sha256": "74b34d27fd1b49f730cc128040bd39a0babec337b7fce5545b58309316ae59ac"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_02/FIXTURE_BASIS_CHECK.json",
+      "bytes": 311,
+      "sha256": "696739e37aca9d81990eb6850ebf1cc7e04c2836e8928e2d699d25d0e0ed0c27"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_02/calculate.py",
+      "bytes": 10853,
+      "sha256": "3cdd02169e1a939253954d693a61e9ef9da0f5cd7d8d700f1c09daee353d718c"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_02/ARITHMETIC.json",
+      "bytes": 15192,
+      "sha256": "57a44c9dd0871db8fdb8ede91b62ad5ffa0406a3373fbc69b9caca5894702fe5"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_02/AUDIT.json",
+      "bytes": 19434,
+      "sha256": "2805bde3253af8c24e043332394e4656ec599ea0cf1e66742d1e1a9f00721fd5"
+    }
+  ],
+  "qualification": "46 evaluated component expressions and W2-specific composition; no complete ordinary/DirectPp total, chosen M, fit, production/native/headless qualification or activation. Final consumer layouts and listed residual source facts remain required."
+}

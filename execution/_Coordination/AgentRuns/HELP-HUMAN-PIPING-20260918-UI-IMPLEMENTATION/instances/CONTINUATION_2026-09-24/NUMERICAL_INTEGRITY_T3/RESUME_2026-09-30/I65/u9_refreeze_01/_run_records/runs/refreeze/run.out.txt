@@ -1,0 +1,13 @@
+== gate tree: code 0 {"check": "tree", "code": 0, "result": "listed 2950, mismatched 0, extra 0"} (2026-10-05T00:34:10Z)
+== gate entry: code 0 {"check": "entry", "code": 0, "equal": true, "threshold": "4_026_531_840", "diff": []} (2026-10-05T00:34:10Z)
+== gate statics: code 0 {"check": "statics", "code": 0, "added": [], "removed": []} (2026-10-05T00:34:14Z)
+== linemap: exit 0 (2026-10-05T00:34:14Z)
+== gate premise: code 0 {"check": "premise", "code": 0, "pins": 3, "bad": []} (2026-10-05T00:34:14Z)
+== TEXT chain exit 0 (2026-10-05T00:34:34Z)
+== D from the run: 14734 (2026-10-05T00:34:34Z)
+== delta: exit 0 {"files": 36, "hunks_and_files": 87, "classes": {"not-d1": 22, "no-code": 35, "item": 4, "cfg-test-stmt": 3, "test": 12, "generated": 1, "qualification-test": 4, "unreachable": 6}, "verdict": "PASS: every hunk classified; every live, item, cfg(test)-statement or qualification-test hunk has a reviewed entry"} (2026-10-05T00:34:41Z)
+== gate text: code 0 {"check": "text", "code": 0, "issues": [], "D": 14734} (2026-10-05T00:34:41Z)
+== gate forms: code 0 {"check": "forms", "code": 0, "equal": true, "diff": []} (2026-10-05T00:34:41Z)
+== gate noncand: code 0 {"check": "noncand", "code": 0, "run_rows": 410, "new": 0, "absent": 0} (2026-10-05T00:34:44Z)
+== gate controls: code 0 {"check": "controls", "code": 0, "passed": 12, "of": 12, "failing": []} (2026-10-05T00:35:15Z)
+NOBUILD GATES tree:0 entry:0 statics:0 linemap:0 premise:0 text_run:0 delta:0 text:0 forms:0 noncand_run:0 noncand:0 controls_run:0 controls:0 

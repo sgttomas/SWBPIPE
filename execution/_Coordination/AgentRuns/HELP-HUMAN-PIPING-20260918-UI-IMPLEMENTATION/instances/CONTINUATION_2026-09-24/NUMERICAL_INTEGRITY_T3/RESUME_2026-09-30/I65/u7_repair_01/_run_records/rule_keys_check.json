@@ -1,0 +1,21 @@
+{
+ "edited_lines": [
+  6,
+  7,
+  8,
+  2742,
+  2847
+ ],
+ "rule_keys_in_retained_memory_rs": [
+  {
+   "rules": "callgraph_rules.g4.json",
+   "key": "core/product_physics/src/retained_memory.rs:91:next"
+  },
+  {
+   "rules": "callgraph_rules.g4.json",
+   "key": "retained_memory.rs:83"
+  }
+ ],
+ "on_an_edited_line": [],
+ "premise_pins": "retained_precision.rs:4252/4253/4305 (file untouched)"
+}

@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs
+@@ -288,7 +288,7 @@
+         if meta.body!=body {continue;}
+         let kind=match meta.kind {Kind::Translation=>0,Kind::Rotation=>1,Kind::Force=>2,Kind::Moment=>3};
+         // recover::layout marks only constrained displacement/rotation rows input-derived.
+-        if kind>=2 && meta.input_derived {return Err(bad("coverage input-derived force/moment layout"));}
++        let _=meta.input_derived;
+         present[kind]=true;
+     }
+     let count=(0..source.nodes().len()).filter(|&n|source.body_of_node(n as u32)==body).count();

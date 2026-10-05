@@ -1,0 +1,25 @@
+# Printed lines from the U1 test run before the conservation test was added (bytes identical to final; pinned hashes)
+I61_U1_LOAD_ROW sparse_interactive initial=report(sensitive) finding_ref=Some("diagnostic:numerical-integrity:case") d5=None legacy=declined_without_attempt
+I61_U1_LOAD_ROW dense_scrutiny initial=report(sensitive) finding_ref=Some("diagnostic:numerical-integrity:case") d5=None legacy=declined_without_attempt
+I61_U1_SUCCESSOR sparse_interactive file_sha256=ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc receipt_sha256=efc1a39bbe83840df6bd0761c932b8020285d3b8c005ba8fd0b45ba10d667494 rows=98 classes=98
+I61_U1_SUCCESSOR dense_scrutiny file_sha256=6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5 receipt_sha256=3e26499f17caff8f5fc0d46406bbe54acf43e8cb16e761784aa5074413b0ac4a rows=99 classes=99
+I61_U1_SEED sparse_interactive finding=None
+I61_U1_SEED dense_scrutiny finding=None
+I61_FOREIGN_OWNER serializer_refused=true
+# Final candidate: U1/U2 test outcomes (suite_final_pp)
+unittests :: test retained_wire_tests::u1_checked_record_work_honours_the_latch ... ok
+unittests :: test retained_wire_tests::u1_conservation_checked_before_emission ... ok
+unittests :: test retained_wire_tests::u1_constants_bound_to_in_tree_fixtures ... ok
+unittests :: test retained_wire_tests::u1_d39_legacy_dispositions ... ok
+unittests :: test retained_wire_tests::u1_d39_route_capture ... ok
+unittests :: test retained_wire_tests::u1_exact_or_abandon_counts_and_legacy_rejected ... ok
+unittests :: test retained_wire_tests::u1_load_row_case_capture ... ok
+unittests :: test retained_wire_tests::u1_milestone_successor_both_modes ... ok
+unittests :: test retained_wire_tests::u1_ordinary_bytes_unchanged_under_capture ... ok
+unittests :: test retained_wire_tests::u1_receipt_check_wire_vocabulary ... ok
+unittests :: test retained_wire_tests::u1_refusals_are_typed ... ok
+unittests :: test retained_wire_tests::u1_serializer_reads_no_legacy_work_field ... ok
+unittests :: test retained_wire_tests::u1_stage_slots_require_an_exact_status ... ok
+unittests :: test retained_wire_tests::u1_typed_ordinary_capture_milestone ... ok
+unittests :: test retained_wire_tests::u2_foreign_owner_refused ... ok
+unittests :: test s11g_tests::u1_already_sensitive_finding_is_captured_undisclosed ... ok

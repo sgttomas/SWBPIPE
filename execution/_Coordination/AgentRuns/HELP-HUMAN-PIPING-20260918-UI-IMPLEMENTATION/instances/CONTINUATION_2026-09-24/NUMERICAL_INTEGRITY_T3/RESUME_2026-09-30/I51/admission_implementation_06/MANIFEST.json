@@ -1,0 +1,54 @@
+{
+  "root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/admission_implementation_06",
+  "created_utc": "2026-10-03T15:10:48.747538+00:00",
+  "files": [
+    {
+      "path": "AUDIT.json",
+      "bytes": 4061,
+      "sha256": "015d7696414686d4d8934a9b51c0f996c48c433168ddd9d5643a7535a6977682"
+    },
+    {
+      "path": "BULK_MANIFEST.json",
+      "bytes": 2132,
+      "sha256": "8ec0598fc70436a1071e1ce483f3d87ea3470bb33c5a9934cca096b09333ef7a"
+    },
+    {
+      "path": "CANDIDATE.json",
+      "bytes": 2040,
+      "sha256": "17d0d4a3feac87a1cfae42c25abe19c508cd8e0b261f6df9bad85e32d8af0217"
+    },
+    {
+      "path": "EXECUTION.json",
+      "bytes": 2207,
+      "sha256": "196b56d6af8e147081f01ead7dc37ab11dcf58602d5bf2bfa7245c90c85bfa70"
+    },
+    {
+      "path": "FIRST_BOUNDARY.json",
+      "bytes": 1861,
+      "sha256": "3703dfe5f5e7a78eb4c84bbc14b944a0813d6f414aefebcf861ed85c18b0f944"
+    },
+    {
+      "path": "ORIGINS.json",
+      "bytes": 7446,
+      "sha256": "c1168f207ad0fd580024206bf959c5dae230c13a5b12f35b8b2342a8fa2c38d1"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 4691,
+      "sha256": "719663c1791907f38dd97c198271961f58a0443c514c1d7d77f33a697900ed54"
+    },
+    {
+      "path": "SCOPE.json",
+      "bytes": 1217,
+      "sha256": "2af50fc33f01437ff9ac1f7ae7a03b45d603a21b45e4b68fcd2bc00a2f860a5d"
+    },
+    {
+      "path": "VALIDATION.json",
+      "bytes": 6583,
+      "sha256": "6fb5b8d7e1ce43066f4854fbe47360dbcd817663390e38aa5309ecc0e7eb1c61"
+    }
+  ],
+  "source_manifest": "CANDIDATE.json",
+  "bulk_manifest": "BULK_MANIFEST.json",
+  "scope": "exact six maintained paths; evidence only otherwise"
+}

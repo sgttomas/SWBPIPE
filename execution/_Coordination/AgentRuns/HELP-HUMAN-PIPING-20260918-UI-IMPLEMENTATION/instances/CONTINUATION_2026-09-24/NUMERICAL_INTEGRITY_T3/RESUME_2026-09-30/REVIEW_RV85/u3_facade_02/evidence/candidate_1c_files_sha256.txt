@@ -1,0 +1,4 @@
+5940efea83820116b951674d1ca71af57ea71d45c3e2523d3299dcbb71d1eb05  P/core/product_physics/src/lib.rs
+d1ee86dfa092a0daf22f5308950635ee55d65fe1c49fdc1270a2ec030b82b0b9  P/core/product_physics/src/retained_facade_tests.rs
+1f745ba322276c66451ef1824eb23e06ccb75102fc96ba1fe0a72f4e4727be89  P/core/product_physics/src/retained_memory.rs
+019d90c2af6dc10a3f676728adc8ff29df2de5b6f27b1575ac3bc7519e4cf17d  P/core/product_physics/src/retained_product.rs

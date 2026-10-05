@@ -1,0 +1,98 @@
+{
+  "role": "TASK Type 2",
+  "mechanism": "delegated-harness-native",
+  "task": "/root/i50_named_case_component",
+  "parent": "/root",
+  "descendants": [],
+  "host": "Mac.lan",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "received_utc": "2026-10-03T06:18:21Z",
+  "checkpoint10_due_utc": "2026-10-03T06:28:21Z",
+  "analysis_cutoff20_utc": "2026-10-03T06:38:21Z",
+  "sealed_return30_due_utc": "2026-10-03T06:48:21Z",
+  "ready_to_seal_utc": "2026-10-03T06:26:24.534234+00:00",
+  "useful_checkpoints": [
+    "early source findings: missing spring capture and attributed components",
+    "06:24\u201306:25 UTC census/private recipe/source fence sent to ROOT before checkpoint10"
+  ],
+  "checkpoint_executed": "0 only",
+  "source_pin": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4",
+  "records_pin": "fa1439c4250e40a1942de5fdb18c83426af7eed1",
+  "allowed_writes": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/first_publishing_component_01",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing"
+  ],
+  "actual_writes": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/first_publishing_component_01"
+  ],
+  "scratch_used": false,
+  "external_bulk": [],
+  "host_enforcement": "unrestricted filesystem; narrower brief limits were agent-observed",
+  "operations": [
+    {
+      "kind": "host-clock",
+      "outcome": "Mac.lan; initial UTC clock recorded"
+    },
+    {
+      "kind": "source-inspection",
+      "outcome": "targeted filesystem reads/searches at listed origins, no model execution"
+    },
+    {
+      "kind": "read-only-git",
+      "outcome": "explicit cwd and GIT_OPTIONAL_LOCKS=0; CODE HEAD frozen, NUM records HEAD verified; status, maintained-source/fixture comparison, active instruction/brief/current pin comparison"
+    },
+    {
+      "kind": "exact-source-check",
+      "command": "python3 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/first_publishing_component_01/source_check.py",
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "exit": 0,
+      "outcome": "exact request extraction, bit checks, static expected census, input collinearity/cross-product identities and focused NUM/CODE hash equality passed"
+    },
+    {
+      "kind": "final-preservation",
+      "outcome": "37 origin records identify all read inputs, including initial/current ROOT_CURRENT; initial blob verified at dispatch pin, other filesystem origins unchanged; CODE clean; NUM status only new I50 directory"
+    }
+  ],
+  "incidental_command_failures": [
+    {
+      "command_fragment": "retained/product*.rs shell glob",
+      "outcome": "zsh no matches; corrected to actual structural/retained paths, no source action"
+    },
+    {
+      "command_fragment": "REVIEW_RV64/full_truth_addendum_02/REVIEW.md",
+      "outcome": "missing filename in a targeted search; actual review is RETURN.md and was read"
+    },
+    {
+      "command_fragment": "mkdir new nested output path without parent",
+      "outcome": "missing I50 parent; used mkdir -p only for the granted new output path"
+    }
+  ],
+  "tool_blockers": [],
+  "not_executed": [
+    "Cargo/compiler",
+    "model/solver/native or existing numerical oracle",
+    "maintained source write",
+    "Git/index/API write",
+    "installation/tooling/memory guard change",
+    "delegation"
+  ],
+  "claims": [
+    "source-derived expected census only; fresh runtime counts/verdicts outstanding at B",
+    "new private recipe/manifest are proposed for ROOT selection; no authority to execute A",
+    "no public activation, publication, acceptance, availability or resource qualification"
+  ],
+  "self_audit": "Pass with disclosed concurrent parent state update: instructions/brief/source unchanged; both ROOT_CURRENT origins pinned; exact request/hash/census and scoped output verified; no runtime claim",
+  "observed_records_head_at_final_audit": "ecd01e4a6a6e6dbf3333cffb9368f374e40b5021",
+  "pin_audit": {
+    "initial_combined_command": "diff --quiet followed by status obscured the diff exit; corrected with a standalone diff",
+    "standalone_diff_exit": 1,
+    "changed_active_input": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/ROOT_CURRENT.md",
+    "scope": "parent execution-state update only: running receipt/deadlines and next checkpoint",
+    "initial_read_sha256": "55fd52d9d49f16182724c4ac5a2cca2004ab21c59878ae7a2ff2a0430f5067d0",
+    "current_sha256": "7c97aaf2e58f4938e6522fd802a70660fd5462b6872fb4a91139c0e0c512451f",
+    "instructions_and_brief_unchanged": true,
+    "maintained_source_unchanged": true,
+    "resolution": "record both immutable origins; no scope/design change; notify ROOT; reseal before return"
+  }
+}

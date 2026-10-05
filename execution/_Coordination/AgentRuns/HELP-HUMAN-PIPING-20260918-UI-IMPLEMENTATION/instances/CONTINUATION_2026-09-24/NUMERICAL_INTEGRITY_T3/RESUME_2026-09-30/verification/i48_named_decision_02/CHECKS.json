@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-03T08:02:00.425928+00:00",
+  "actor": "ROOT",
+  "full_review_or_memo_read": true,
+  "packet": "I48/named_case_decision_02",
+  "payloads_excluding_seal": 4,
+  "payload_bytes": 37834,
+  "external_verified": 0,
+  "external_bytes": 0,
+  "seal_sha256": "4e22fc7e443f256d3b8e8175070ad333b10d014c5c6538280da2755d9ec327d1",
+  "acceptance": "RV65 finding requires repair; I48 provides bounded authority/planning evidence, not a replacement design selection"
+}

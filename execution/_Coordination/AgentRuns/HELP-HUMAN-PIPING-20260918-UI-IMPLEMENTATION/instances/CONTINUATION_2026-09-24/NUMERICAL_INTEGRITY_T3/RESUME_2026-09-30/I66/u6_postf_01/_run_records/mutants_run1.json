@@ -1,0 +1,104 @@
+[
+ {
+  "id": "S1a_ne_comparison",
+  "lang": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[dense_scrutiny]"
+  ],
+  "summary": [
+   "1 failed, 7 passed in 29.44s"
+  ],
+  "seconds": 29.5
+ },
+ {
+  "id": "S1b_sorted_json_text",
+  "lang": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[dense_scrutiny]"
+  ],
+  "summary": [
+   "1 failed, 7 passed in 30.55s"
+  ],
+  "seconds": 30.7
+ },
+ {
+  "id": "S1c_unsafe_copy_equals",
+  "lang": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[dense_scrutiny]"
+  ],
+  "summary": [
+   "1 failed, 7 passed in 31.08s"
+  ],
+  "seconds": 31.2
+ },
+ {
+  "id": "S1d_missing_copy_unguarded",
+  "lang": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[dense_scrutiny]"
+  ],
+  "summary": [
+   "1 failed, 7 passed in 29.13s"
+  ],
+  "seconds": 29.3
+ },
+ {
+  "id": "G1_seam_named_deep_in_tauri",
+  "lang": "rs",
+  "file": "apps/desktop/src-tauri/src/lib.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6_doc_hidden_seams_have_no_product_callers"
+  ],
+  "summary": [
+   "error: test failed, to rerun pass `--test retained_precision_carriers`"
+  ],
+  "seconds": 33.5
+ },
+ {
+  "id": "G2_seam_named_deep_in_runner",
+  "lang": "rs",
+  "file": "core/runner/headless/src/lib.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6_doc_hidden_seams_have_no_product_callers"
+  ],
+  "summary": [
+   "error: test failed, to rerun pass `--test retained_precision_carriers`"
+  ],
+  "seconds": 32.8
+ },
+ {
+  "id": "G3_seam_alias_import_deep_in_pp",
+  "lang": "rs",
+  "file": "core/product_physics/src/lib.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6_doc_hidden_seams_have_no_product_callers"
+  ],
+  "summary": [
+   "error: test failed, to rerun pass `--test retained_precision_carriers`"
+  ],
+  "seconds": 32.4
+ },
+ {
+  "id": "G4_control_seam_in_test_module",
+  "lang": "rs",
+  "file": "apps/desktop/src-tauri/src/lib.rs",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "summary": [
+   "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 32.65s"
+  ],
+  "seconds": 32.7
+ }
+]

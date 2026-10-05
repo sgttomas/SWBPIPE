@@ -1,0 +1,71 @@
+--- cand/projects/chirality-piping/core/product_physics/src/lib.rs	2026-10-04 09:49:37
++++ probe/projects/chirality-piping/core/product_physics/src/lib.rs	2026-10-04 10:03:08
+@@ -2376,7 +2376,7 @@
+     source_budget: &mut SourceRecoveryBudget,
+     mut product: Option<&mut retained_product::ProductCapture>,
+ ) -> MechanicsEnvelope {
+-    #[cfg(test)] retained_tests_hooks::ordinary_run_entered(); if let Some(observer)=product.as_deref_mut(){observer.invocation(capture,solver_mode);}
++    #[cfg(test)] crate::zz_rv93::hit_run(); #[cfg(test)] retained_tests_hooks::ordinary_run_entered(); if let Some(observer)=product.as_deref_mut(){observer.invocation(capture,solver_mode);}
+     let mut model = request.model;
+     let request_materials_supplied = !request.materials.is_empty();
+     let mut materials = if request.materials.is_empty() {
+@@ -3892,6 +3892,7 @@
+     diagnostics: &mut Vec<Diagnostic>,
+     mut product: Option<&mut retained_product::ProductCapture>,
+ ) -> Result<LoadCaseSolve, FrameKernelError> {
++    #[cfg(test)] crate::zz_rv93::hit(&crate::zz_rv93::SOLVES);
+     // A resolved case supplies the complete ordinary-source ledger: only its
+     // declared, factored primitives are applied, exactly once.
+     let load_case = load_state.map_or(load_case, |state| &state.effective_case);
+@@ -24331,3 +24332,8 @@
+         assert!(!metadata.sign_convention.contains("1.08"));
+     }
+ }
++
++#[cfg(test)]
++mod zz_rv93;
++#[cfg(test)]
++mod zz_rv93_sweep;
+--- cand/projects/chirality-piping/core/product_physics/src/retained_memory.rs	2026-10-04 09:49:37
++++ probe/projects/chirality-piping/core/product_physics/src/retained_memory.rs	2026-10-04 10:10:36
+@@ -2829,10 +2829,12 @@
+     }
+     /// G-B, immediately before the late old-source capture.
+     pub(super) fn check_late(&self, facts: &LateFacts<'_>) -> Result<(), PhaseRefusal> {
++        #[cfg(test)] crate::zz_rv93::hit(&crate::zz_rv93::GB);
+         check_phase(PhaseGate::Late, &late_observations(facts), &phase_caps().late)
+     }
+     /// G-C, after the complete ordinary owner returns.
+     pub(super) fn check_complete(&self, facts: &CompleteFacts<'_>) -> Result<(), PhaseRefusal> {
++        #[cfg(test)] crate::zz_rv93::hit(&crate::zz_rv93::GC);
+         check_phase(PhaseGate::Complete, &complete_observations(facts), &phase_caps().complete)
+     }
+     /// The budgets U3 meets (TRANSFER_COMPLETION.md §3).
+@@ -2846,7 +2848,7 @@
+     // traversal and overflow. A permit exists only for a registered profile that
+     // the whole law selected; with none registered (until G6), never.
+     match (report.law.refusal, report.law.registered.and_then(|index| REGISTERED_PROFILES.get(index))) {
+-        (None, Some(profile)) => Ok(CapturePermit { _profile: profile }),
++        (None, Some(profile)) => { rv93_permit_log(&report); Ok(CapturePermit { _profile: profile }) }
+         _ => Err(report),
+     }
+ }
+@@ -3071,6 +3073,18 @@
+                 assert_eq!(refusal.allowance, AllowanceStatus::Unselected);
+                 assert_eq!(refusal.required_unknown_terms().len(), 7);
+             }
++        }
++    }
++}
++
++/// RV93 probe only (never committed): record each permit `admission` grants, unconditionally
++/// (production and test builds), when RV93_PERMIT_LOG names a file.
++fn rv93_permit_log(report: &RetainedAdmissionReport) {
++    if let Some(path) = std::env::var_os("RV93_PERMIT_LOG") {
++        use std::io::Write;
++        if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(path) {
++            let _ = writeln!(f, "PERMIT caller={:?} profile={:?} exe={:?} thread={:?}", report.caller, report.profile,
++                std::env::current_exe().ok().and_then(|p| p.file_name().map(|n| n.to_owned())), std::thread::current().name());
+         }
+     }
+ }

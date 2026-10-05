@@ -1,0 +1,103 @@
+{
+  "root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV74/prepared_trace_01",
+  "utc": "2026-10-03T16:55:11.824053+00:00",
+  "files": [
+    {
+      "path": "AUDIT.json",
+      "bytes": 692,
+      "sha256": "f9c92c5a8c2fbc58e10cf106740ed9c3bbab7ed864a9e211052f3069f3775a3a"
+    },
+    {
+      "path": "AUTHOR_SEAL_CHECKS.json",
+      "bytes": 8387,
+      "sha256": "e3b682bb531483a86b133c3b2455c250d93f3139d211e315b28a308b426f7918"
+    },
+    {
+      "path": "AUTHOR_VALIDATION_CHECKS.json",
+      "bytes": 3448,
+      "sha256": "7d8c211052bb7e21a6215065866ab4a26ff767bc32c790b75ad0af87e56148ea"
+    },
+    {
+      "path": "BULK_MANIFEST.json",
+      "bytes": 3320,
+      "sha256": "3f0535af73486b67c333600ccdf6b06760bc48cc1868bb68151d07e455cbf03e"
+    },
+    {
+      "path": "COVERAGE.md",
+      "bytes": 7681,
+      "sha256": "ac2d91b4a8b4ae5c1085d5725369bb2ff3f0a7f9371a449819c4b72759ce4bbd"
+    },
+    {
+      "path": "DECISIVE_OUTPUTS.json",
+      "bytes": 2253,
+      "sha256": "d13963cfcb8ff9ba6644eb0be44c91afbbd904f04e173debbb7e41942f07d8dd"
+    },
+    {
+      "path": "EXECUTION.json",
+      "bytes": 2507,
+      "sha256": "075230e4707949a832828cbf8f2c4f8bca0f29451977a21b4e146b39803f31ca"
+    },
+    {
+      "path": "FINDINGS.json",
+      "bytes": 2336,
+      "sha256": "bc1501a26ac36324918c64ca49013d40c8ad3016cc3bf6ea794ebff127482128"
+    },
+    {
+      "path": "INITIAL_ASSESSMENT.md",
+      "bytes": 3320,
+      "sha256": "eb14ff4b3ca866306ff833529bf4d995b3229f41274523359a4f7da4de70147b"
+    },
+    {
+      "path": "NUMERICAL_PARITY_CHECK.json",
+      "bytes": 606,
+      "sha256": "468e86cc2b8a5d0bbd102c8efc9638295b65f600ff466028c9475d7dab241a0b"
+    },
+    {
+      "path": "ORIGINS.json",
+      "bytes": 14292,
+      "sha256": "3f623fb4b71c3ccc7cc5c9d45d6f295e38577981359b5e4b80095ce5c38aa23d"
+    },
+    {
+      "path": "REPAIR_RUNTIME_CHECK.json",
+      "bytes": 1232,
+      "sha256": "0fb3a1ce966f9811c8873ea6ed7a426b5923e60226f55dfa2782109ca5fcd8fd"
+    },
+    {
+      "path": "REPAIR_SEAL_CHECKS.json",
+      "bytes": 2384,
+      "sha256": "033c8e70a1d14082f9fb795c5a2329b39a474a5c5b3b59122ca8072f52376fd8"
+    },
+    {
+      "path": "REPAIR_SOURCE_CHECKS.json",
+      "bytes": 3390,
+      "sha256": "577106de3600c32a7d1d5117988859d3907209900352c502d4085800dbf9361d"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 722,
+      "sha256": "145efcbbd86d21e7a41213200429b9e89873dd253f96868f069527c2c64e7d2e"
+    },
+    {
+      "path": "REVIEW.md",
+      "bytes": 8975,
+      "sha256": "365f09d320cfcb72d73175a596818e8a94f6ce70d2d906a72427cdfa07d96216"
+    },
+    {
+      "path": "RUNTIME_CHECKS.json",
+      "bytes": 2859,
+      "sha256": "d6f302b7fabf4d4cefc463f8501689bbdc79d21947edf22593bd758e36a3ece6"
+    },
+    {
+      "path": "SCOPE_CHECK.json",
+      "bytes": 2528,
+      "sha256": "d6e5d91acfd4867ca21dcd25c72c727b14e305af7b42a8a420d32ee6a19bca3c"
+    },
+    {
+      "path": "SOURCE_CHECKS.json",
+      "bytes": 5220,
+      "sha256": "cfc7a39b694bf25e497f5b5a519115cf341ce892e19ba7c5d52d3a8e783d71a3"
+    }
+  ],
+  "bulk_manifest": "BULK_MANIFEST.json",
+  "source": "fc23cff95fca3cce2bc10055b96aef5afd7c8478"
+}

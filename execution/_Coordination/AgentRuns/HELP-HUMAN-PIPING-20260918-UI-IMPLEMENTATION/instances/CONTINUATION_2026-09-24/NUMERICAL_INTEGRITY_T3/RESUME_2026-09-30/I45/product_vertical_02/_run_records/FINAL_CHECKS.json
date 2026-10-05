@@ -1,0 +1,82 @@
+{
+  "final_fk_certificates": {
+    "exit": 0,
+    "before_after_equal": true,
+    "candidate_matches_final": true,
+    "summary": [
+      "test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 446 filtered out; finished in 0.02s"
+    ]
+  },
+  "final_fk_residual": {
+    "exit": 0,
+    "before_after_equal": true,
+    "candidate_matches_final": true,
+    "summary": [
+      "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 452 filtered out; finished in 1.01s"
+    ]
+  },
+  "final_fk_bridge": {
+    "exit": 0,
+    "before_after_equal": true,
+    "candidate_matches_final": true,
+    "summary": [
+      "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 449 filtered out; finished in 0.25s"
+    ]
+  },
+  "final_fk_s11": {
+    "exit": 0,
+    "before_after_equal": true,
+    "candidate_matches_final": true,
+    "summary": [
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s"
+    ]
+  },
+  "final_pp_debug": {
+    "exit": 0,
+    "before_after_equal": true,
+    "candidate_matches_final": true,
+    "summary": [
+      "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 414 filtered out; finished in 1.13s"
+    ]
+  },
+  "final_pp_release": {
+    "exit": 0,
+    "before_after_equal": true,
+    "candidate_matches_final": true,
+    "summary": [
+      "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 414 filtered out; finished in 0.05s"
+    ]
+  },
+  "final_pp_s11": {
+    "exit": 0,
+    "before_after_equal": true,
+    "candidate_matches_final": true,
+    "summary": [
+      "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.37s"
+    ]
+  },
+  "final_pp_preview": {
+    "exit": 0,
+    "before_after_equal": true,
+    "candidate_matches_final": true,
+    "summary": [
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 418 filtered out; finished in 0.00s"
+    ]
+  },
+  "final_pp_material": {
+    "exit": 0,
+    "before_after_equal": true,
+    "candidate_matches_final": true,
+    "summary": [
+      "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 415 filtered out; finished in 0.06s"
+    ]
+  },
+  "final_pp_units": {
+    "exit": 0,
+    "before_after_equal": true,
+    "candidate_matches_final": true,
+    "summary": [
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 420 filtered out; finished in 0.11s"
+    ]
+  }
+}

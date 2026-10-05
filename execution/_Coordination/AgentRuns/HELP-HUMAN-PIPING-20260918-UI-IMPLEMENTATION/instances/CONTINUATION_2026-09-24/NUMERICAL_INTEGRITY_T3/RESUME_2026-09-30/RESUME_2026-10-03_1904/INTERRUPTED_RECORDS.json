@@ -1,0 +1,31 @@
+{
+  "utc": "2026-10-03T19:09:38.373859+00:00",
+  "status": "unsealed interrupted drafts; not accepted",
+  "files": [
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/interrupted_records/i52/LANGUAGE_HANDOFF.json",
+      "sha256": "e3a7958c8f0c21bd42280aae8a7930f7c3bfd0e238e1a02e0a14fb175b2d3fde",
+      "bytes": 6586
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/interrupted_records/i52/SHARED_SNAPSHOT_01.json",
+      "sha256": "b2c1d663ce6a0c8ff48aa87b382c7249f71fc07f0bb400ebcc956be7921a7ac3",
+      "bytes": 2335
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/interrupted_records/i55/RECEIPT.json",
+      "sha256": "398a6c24317e50abe30d3eefb5af34e1c44fd8d053c44eeadc254b78c4f814a0",
+      "bytes": 2862
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/interrupted_records/i56/RECEIPT.json",
+      "sha256": "30a42a740e087bfe188c5a37d179dcc7c14e4d3044d7a549a5998a3c7a1f75fd",
+      "bytes": 3633
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/usage_resume_20261003_1904/interrupted_records/rv73/REVIEW.md",
+      "sha256": "19e57897560823b37ca2d07b3ce43a52fea420301180d473bbdf9991d8569984",
+      "bytes": 9284
+    }
+  ]
+}

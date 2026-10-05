@@ -1,0 +1,237 @@
+{
+  "records_pin": "fa1439c4250e40a1942de5fdb18c83426af7eed1",
+  "source_pin": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4",
+  "mechanism": "delegated-harness-native",
+  "parent": "/root",
+  "task": "/root/i50_named_case_component",
+  "selected_role": "TASK Type 2",
+  "selected_workflow": null,
+  "selected_skills": [],
+  "inputs": [
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/AGENTS.md",
+      "scope_read": "full active instruction",
+      "bytes": 14200,
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/agents/AGENT_TASK.md",
+      "scope_read": "full active instruction",
+      "bytes": 1499,
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/AGENTS.md",
+      "scope_read": "full active instruction",
+      "bytes": 9016,
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I50_FIRST_PUBLISHING_COMPONENT.md",
+      "scope_read": "full active bounded brief",
+      "bytes": 5990,
+      "sha256": "3e6a149add77a943df2fd84e6cafcac0103dd21d6007b4529f5cfedf33994a7d"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/ROOT_CURRENT.md",
+      "scope_read": "initial full ROOT_CURRENT read at dispatch pin; hash recovered from immutable Git blob",
+      "bytes": 3455,
+      "sha256": "55fd52d9d49f16182724c4ac5a2cca2004ab21c59878ae7a2ff2a0430f5067d0",
+      "revision": "fa1439c4250e40a1942de5fdb18c83426af7eed1"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I48/product_availability_01/RETURN.md",
+      "scope_read": "full protected input/entry/availability limits",
+      "bytes": 9450,
+      "sha256": "b49c73886168d258bfd3b6ff9e9901f9e1c7b461eb01f84dd46618a0e7f98120"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_checkpoint0_01/PLAN.md",
+      "scope_read": "sections 2\u20133, support-law passages at 188\u2013198; targeted search",
+      "bytes": 24416,
+      "sha256": "0f94d190c317319e1040b3d34f8cc1ea2b07b882266a82e0048eea28c8b07263"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_routing_02/RETURN.md",
+      "scope_read": "full route/custody summary",
+      "bytes": 2141,
+      "sha256": "b72927c851dac20087d74e5324f01d44f31fe88a393d9605e46455ccc7283880"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_certificate_b1/SOURCE_OPERANDS.md",
+      "scope_read": "operand and row table; especially support rows 40\u201341",
+      "bytes": 11013,
+      "sha256": "f5a4da9ca434fae8a940825e9ce27d03fb846e372bb3e4c5d8f2c8b962d40dde"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_certificate_b1/RETURN.md",
+      "scope_read": "targeted source association, support identity/sum law 145\u2013159 and count passages",
+      "bytes": 19804,
+      "sha256": "8c146c911a0f5c66b8a984cd556b4277d007ef6f0628e2d1598a84bc018dfe29"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/RETURN.md",
+      "scope_read": "full summary and limits",
+      "bytes": 3564,
+      "sha256": "1e97c22596caeb02a3149e8148b012ecba1e06887afff55d809836d2152420fc"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/CONTRACT_DELTA.md",
+      "scope_read": "map table 93\u2013104; quantity and count definitions; targeted source searches",
+      "bytes": 53986,
+      "sha256": "923da0b97eb5becad7e7c1373c5a6f362568dc28ac8eab029c9170677c890869"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I33/f2a_source_action_bridge_01/RETURN.md",
+      "scope_read": "sections 1\u20134 and unchanged predicates in section 5; selected passages",
+      "bytes": 17504,
+      "sha256": "918cbc00dc94a6135b8de4f69c2c64087d1a189028146b2ecda11f9c25d417d9"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_preview_truth_01/RETURN.md",
+      "scope_read": "ordinary source-law/material section 2 at 66\u2013104",
+      "bytes": 18757,
+      "sha256": "0f3ea0bed9b3ce93e7c7e75ee3dc6acac2f23d6f29f775058c24be7c69d9211c"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/RETURN.md",
+      "scope_read": "material hull 90\u2013114 and positive coefficient cover 146\u2013170",
+      "bytes": 16704,
+      "sha256": "74670d4f43e58f13e6fd03c69cbde7cd514c117d66d29691ff6d225f2f2e5d3a"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I47/source_truth_coverage_03/RETURN.md",
+      "scope_read": "full corrected finite-cover outcome/limits",
+      "bytes": 7606,
+      "sha256": "9cd02aa6cb7aebf5173c637db4c27751e50c175c3170922ec1057a4a061bb83b"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV62/source_truth_coverage_02/REVIEW.md",
+      "scope_read": "targeted full-cover/scope passages",
+      "bytes": 8342,
+      "sha256": "009f8c367df5821910c41834376f7b0f0ec396f499ac9662ac0c4b7019e4890e"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I49/full_truth_addendum_02/RETURN.md",
+      "scope_read": "full corrected UX/UZ finding and limits",
+      "bytes": 7948,
+      "sha256": "edfd6c25fa515158b932311d89898c828db9aad1700e0bcf6324d29406106fa0"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV64/full_truth_addendum_02/RETURN.md",
+      "scope_read": "full corrected review",
+      "bytes": 12155,
+      "sha256": "3bc1dedcdfa8f6b03a28ee619d737bda9e54d5338ca0fce551b2cb9e5bd9b806"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I45/product_vertical_repair_03/RETURN.md",
+      "scope_read": "first 90 / 72 lines: actual maintained implementation and original result limitations; corrected cover is separate",
+      "bytes": 3749,
+      "sha256": "7336d6477d53509523fed61c76d13366e4523e0842d10ee2c019692fa95aa109"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I47/selected_material_02/RETURN.md",
+      "scope_read": "first 90 / 72 lines: actual maintained implementation and original result limitations; corrected cover is separate",
+      "bytes": 14175,
+      "sha256": "330b8c7826c5716ff02590ba278c6c88a486e8d8a973adca151f320d9d94765e"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/tests/formation_check_runtime.rs",
+      "scope_read": "exact named constant line20, helpers and named test 29\u2013100; targeted test searches",
+      "bytes": 44559,
+      "sha256": "faaf940d8973349501b468505c8e1e9bbdfe3e3adf4df84fe179ed791cc0a0a5"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "scope_read": "targeted source/binding/coverage/metadata/accounting sections: 1\u2013230,438\u2013922,967\u20131085,1214\u20131395,1525\u20131595,2190\u20132345",
+      "bytes": 92699,
+      "sha256": "9f870e5ca79d18cf50e343799fc538a349c2ad4844ae6739a70af9e3219abe27"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+      "scope_read": "base capture 1\u2013155; test inventory; selected controls; prefixes 1220\u20131348",
+      "bytes": 57876,
+      "sha256": "5853f21fe2689cda02ec6ef23a008f8c6cc12cd9173a7ceb5484472133773b55"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "scope_read": "source/support call sites, support recovery 4055\u20134165, build 6440\u20136795",
+      "bytes": 988228,
+      "sha256": "90b2d6b19824630aa9469386e6c90ad03739c8b8ad6184bae993ef6338de80f1"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/preview_physics.rs",
+      "scope_read": "attribution 195\u2013252 and render 430\u2013575; relevant searches",
+      "bytes": 57331,
+      "sha256": "2b8265403dd506130eded40cadb05401423a78e0d24d1f8f028cbc6106c6aafa"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/linear_supports/src/lib.rs",
+      "scope_read": "types 100\u2013150,210\u2013285; prepare 384\u2013458,545\u2013596",
+      "bytes": 32573,
+      "sha256": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "scope_read": "spring/group types, counts 360\u2013445, support checks 628\u2013667; targeted symbols",
+      "bytes": 29168,
+      "sha256": "9956c08421eebb44ee2663a790cf3ac882452f5119f6470cf6c5dcc386c3f2b8"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+      "scope_read": "spring/reaction/group recovery 385\u2013477; quantity/layout symbols",
+      "bytes": 17973,
+      "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+      "scope_read": "recipe/module/source helper symbol searches",
+      "bytes": 18923,
+      "sha256": "ca59f5acd00d77f14f6f4953116276a88440198ad66feffeb91ccdd53a4c09b9"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+      "scope_read": "types/recipes 30\u2013225, work 258\u2013294, recipe/gate 440\u2013655, source/coverage/verdict 800\u20131084",
+      "bytes": 41444,
+      "sha256": "46eabbe3cca8bcd7fbd096b2166f8a4ecc830c17fb2df6580c26c9011f345a7a"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/bridge.rs",
+      "scope_read": "global spring and support-error transfer 602\u2013677; targeted native source symbols",
+      "bytes": 25082,
+      "sha256": "0cbc204925748ecb1bee480b762f7de4b425965c68ec972f5e8963e985c0a8df"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+      "scope_read": "work 1\u2013150; residual/radius 680\u2013827; spring/reaction/group source recovery 998\u20131082; targeted symbols",
+      "bytes": 36264,
+      "sha256": "764aa537c93990c4e825a81f9b00b2786ccfd2ccaf80a9cfaa7f7f49f7581695"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "scope_read": "retained_api re-export searches",
+      "bytes": 118117,
+      "sha256": "ef61032e4e95a647466ffad5cf30a46d2aa069d1253cb2cb9b8d2c2079cc871e"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs",
+      "scope_read": "existing focused controls 1\u2013210",
+      "bytes": 7131,
+      "sha256": "3b06b945bd21461fe440f625e16a58fb9b2670b90745580bfc59a7e9600704fc"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_tests.rs",
+      "scope_read": "targeted support/spring test-location searches only",
+      "bytes": 23350,
+      "sha256": "e6ffcfc563b602ab6602456c9815a55798a5a03f2f4e6356c2766a832bce127b"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/ROOT_CURRENT.md",
+      "revision": "ecd01e4a6a6e6dbf3333cffb9368f374e40b5021",
+      "scope_read": "later parent execution-state update inspected during final pin audit; only dispatch/running/next text differs",
+      "bytes": 3593,
+      "sha256": "7c97aaf2e58f4938e6522fd802a70660fd5462b6872fb4a91139c0e0c512451f"
+    }
+  ],
+  "observed_records_head_at_final_audit": "ecd01e4a6a6e6dbf3333cffb9368f374e40b5021"
+}

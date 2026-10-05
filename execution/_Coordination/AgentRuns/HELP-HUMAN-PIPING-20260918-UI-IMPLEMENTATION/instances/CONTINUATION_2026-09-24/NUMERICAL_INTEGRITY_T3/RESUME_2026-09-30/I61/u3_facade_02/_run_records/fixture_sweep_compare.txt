@@ -1,0 +1,4 @@
+# Fixture sweep (zz_i61_u3_fixture_sweep.rs, archive-only): 36 inputs x 5 routes x 2 modes = 324 outputs incl. the admission report.
+faed25186725856b204ffc1352827493c8fb9ce77aa18a6bac4551f61e2fa2ea  base (b54caba7ab, R/I61/u3_facade_01)
+faed25186725856b204ffc1352827493c8fb9ce77aa18a6bac4551f61e2fa2ea  grant 1b candidate
+byte-identical

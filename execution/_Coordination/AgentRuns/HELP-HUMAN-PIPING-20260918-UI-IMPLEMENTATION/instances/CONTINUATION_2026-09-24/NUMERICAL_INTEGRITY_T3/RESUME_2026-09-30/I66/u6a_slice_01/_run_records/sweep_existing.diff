@@ -1,0 +1,4 @@
+40c40
+< existing	fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.raw.json#	openpipestress.result_semantics/0.3.0/source-blocks-1	err:SOURCE_BLOCKS_STRESS_OUTPUT_RANGE	ok:openpipestress.result_semantics/0.3.0/source-blocks-1|0.3.0	None	unsupported	true	f14cb58c03beea70633b106535bc9f737d599fcddc50e7040e6fa07dde5128ff	err:SOURCE_BLOCKS_SUMMARY_INPUT_RANGE
+---
+> existing	fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.raw.json#	openpipestress.result_semantics/0.3.0/source-blocks-1	err:SOURCE_BLOCKS_STRESS_OUTPUT_RANGE	ok:openpipestress.result_semantics/0.3.0/source-blocks-1|0.3.0	None	unsupported	true	f14cb58c03beea70633b106535bc9f737d599fcddc50e7040e6fa07dde5128ff	err:SOURCE_BLOCKS_STRESS_OUTPUT_RANGE

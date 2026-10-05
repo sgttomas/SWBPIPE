@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-03T02:06:59.541833+00:00",
+  "verdict": "CLEAR for conditional component fan-in",
+  "candidate": "6ba653451f9fd27cdb852b7974753a3921f1c483",
+  "base": "157a64b0b8bb4ad4b3170a7f9b249d218c17d529",
+  "return_sha256": "c607b8a0a9c202871dc7f8f974a865aaefc55d45cde55795ea983301613820b3",
+  "review_sha256": "756fe73915423ab5339d415e1251a51d90d5b1ee2ec66385b1131c46357a5913",
+  "inventory_sha256": "0946b6dedeca7a33ccfa76add70b33b9183826365163678ae5c2bf7679aa2c2b",
+  "payload_entries": 159,
+  "regular_files": 55,
+  "symlinks": 104,
+  "cargo_lane_released": "2026-10-03T02:01:30.815397+00:00",
+  "procedural_note": "Initial separate-checkout status query omitted optional-lock disabling; no candidate mutation observed. See RETURN.md."
+}

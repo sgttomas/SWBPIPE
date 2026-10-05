@@ -1,0 +1,98 @@
+{
+  "task": "I54_ORDINARY_BOUND_CORRECTION",
+  "role": "TASK Type 2",
+  "parent": "/root HELP_HUMAN",
+  "child": "/root/i54_direct_container_profile",
+  "mechanism": "delegated-harness-native continuation",
+  "descendants": [],
+  "entry_revision": "6c3e2dc295626637a71694569a5facbd25edc749",
+  "first_tool": {
+    "utc": "2026-10-03T17:09:01Z",
+    "host": "Mac.lan",
+    "cwd": "/Users/ryan/.codex/worktrees/92ea/chirality"
+  },
+  "clock": {
+    "receipt": "2026-10-03T17:09:01Z",
+    "draft_deadline": "2026-10-03T17:24:01Z",
+    "investigation_cutoff": "2026-10-03T17:44:01Z",
+    "seal_deadline": "2026-10-03T17:54:01Z",
+    "setup_complete": "2026-10-03T17:09:26.465903+00:00",
+    "draft_source_matrix_and_arithmetic_complete": "2026-10-03T17:16:50.913591+00:00",
+    "final_source_investigation_stopped": "2026-10-03T17:26:49.089386+00:00",
+    "previous_task_clock_reset": false,
+    "draft_source_pause": "2026-10-03T17:24:18.568387+00:00",
+    "last_source_QA_confirmation": "MechanicsSolved is explicitly allowed at SR/lib.rs:1099\u20131108; no status finding invalidates the four-channel finding bound.",
+    "sealed_utc": "2026-10-03T17:26:49.089386+00:00",
+    "elapsed_seconds": 1068.089386,
+    "within_original_correction_deadlines": true
+  },
+  "ordinary_source": "24af17c47011608d187811024b51807395e4e526",
+  "original_packet_revision": "71615e34b845f3fbc09bf6c546cb99fdc6d22987",
+  "original_manifest_sha256": "19c97f0d17953e0bb90162d1ca95b892ab279742fa59cd1c8b673091a977da31",
+  "brief": {
+    "origin": "git:6c3e2dc295626637a71694569a5facbd25edc749:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I54_ORDINARY_BOUND_CORRECTION.md",
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_correction_03/BRIEF.md",
+    "bytes": 3947,
+    "sha256": "05186dc0e61f31b39a11d656da87a81626be101305d4948dd59dd43b40fd2889"
+  },
+  "instructions_reused_from_same_task": [
+    {
+      "origin": "git:e7bebb64ae:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I54_DIRECT_ORDINARY_BOUND.md",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_02/basis/BRIEFS__I54_DIRECT_ORDINARY_BOUND.md",
+      "bytes": 4664,
+      "sha256": "c2626325681f8d96525750786f70e6bee4f206299317db246514878f71a2b068"
+    },
+    {
+      "origin": "git:e7bebb64ae:AGENTS.md",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_02/instructions/AGENTS.md",
+      "bytes": 14200,
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "git:e7bebb64ae:agents/AGENT_TASK.md",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_02/instructions/agents__AGENT_TASK.md",
+      "bytes": 1499,
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "git:e7bebb64ae:projects/chirality-piping/AGENTS.md",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_02/instructions/projects__chirality-piping__AGENTS.md",
+      "bytes": 9016,
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    }
+  ],
+  "skills_selected": [],
+  "workflows_selected": [],
+  "review_feedback_basis": "ROOT correction message plus immutable correction brief; no claim to have read a separate RV73 review record in this correction.",
+  "write_scopes": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I54/direct_ordinary_bound_correction_03",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_correction_03"
+  ],
+  "host_boundary": "Actual host danger-full-access. Scope restrictions are brief/role constraints, not a claim of host enforcement.",
+  "performed": [
+    "read-only immutable source snapshots with verified origins",
+    "read-only installed alloc/str.rs rustdoc source for join and ASCII replacement",
+    "one owned source-count/string-length arithmetic script",
+    "owned evidence and hash/size verification"
+  ],
+  "not_performed": [
+    "solver/model/native execution",
+    "Rust/Cargo/probe/compiler run",
+    "maintained source changes",
+    "Git/index/API writes",
+    "tool installation or new tooling",
+    "mutable CODE reads",
+    "descendants",
+    "total/M/fit/activation/profile selection"
+  ],
+  "changes_to_unsealed_draft": [
+    "Initial entity-ID byte sum assertion caught 46 versus the correct 47 (rigid:N0 has 8 bytes); corrected before successful arithmetic and before seal.",
+    "Recovery finding/formatted ID and original bounds-error owners folded into the same correction; separate moving coefficients retained."
+  ],
+  "status": "Sealed corrective source packet for independent review; no total/fit/profile claim.",
+  "final_audit": {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_ordinary_bound_correction_03/AUDIT.json",
+    "bytes": 751,
+    "sha256": "b99787befeceb5bdb581bea8b8424610dbbb4465a71e4a744dfa460795511038"
+  }
+}

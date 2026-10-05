@@ -1,0 +1,60 @@
+{
+  "role": "TASK Type 2",
+  "mechanism": "delegated-harness-native",
+  "parent": "/root",
+  "task": "/root/rv65_named_support_component",
+  "descendants": [],
+  "received_utc": "2026-10-03T06:29:57Z",
+  "checkpoint8_due_utc": "2026-10-03T06:37:57Z",
+  "analysis_cutoff18_utc": "2026-10-03T06:47:57Z",
+  "sealed_return25_due_utc": "2026-10-03T06:54:57Z",
+  "analysis_complete_utc": "2026-10-03T06:36:51.136486+00:00",
+  "basis_records": "f58de3f5cccc44200a2fc021a7c6d447618791e7",
+  "subject": "848981f43349e62173b0a91850f369c3a040a1a0",
+  "source": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4",
+  "allowed_writes": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/named_support_component_01",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv65_named_support (optional; unused)"
+  ],
+  "actual_writes": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/named_support_component_01"
+  ],
+  "external_bulk": [],
+  "effective_enforcement": "Host filesystem unrestricted; task read/write and no-runtime boundaries were agent-observed, not host-enforced.",
+  "read_scope": "Pinned brief, Root/TASK/Piping instructions and selected software-code-review skill; I50 subject, selected B1/I33/I36 warrants, narrow ROOT selections and owning source/callers/tests. No other role body or workflow loaded.",
+  "source_git_reads": "All Git reads used GIT_OPTIONAL_LOCKS=0 and explicit NUM or CODE cwd; rev-parse, status and immutable show only.",
+  "checks": [
+    {
+      "command": "python3 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/named_support_component_01/static_check.py",
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "exit": 0,
+      "scope": "Pure source/literal/seal/hash/integer-rational checks; run twice before seal, same assertions pass."
+    },
+    {
+      "command": "GIT_OPTIONAL_LOCKS=0 git status --short",
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a",
+      "exit": 0,
+      "result": "empty after inspection; no source writes"
+    }
+  ],
+  "coordination": [
+    "Receipt/deadlines sent immediately.",
+    "Useful early source checkpoint sent before checkpoint8: G5a Native-only loop and direct Native coverage disposition.",
+    "ROOT confirmed both points and requested exact helper/caller and G5a/coverage dispositions.",
+    "Reviewer made both actionable implementation-plan corrections; same six-file grant can select them; no unconditional clearance."
+  ],
+  "verdict": "FINDINGS: RV65-1 and RV65-2 must be selected explicitly before implementation reliance; no new mathematical redesign or seventh path.",
+  "not_executed": [
+    "compiler/Cargo",
+    "product/model/solver/native runtime",
+    "numerical oracle",
+    "maintained source or instruction edits",
+    "Git/index/API writes",
+    "tool installation/host tooling changes",
+    "descendants"
+  ],
+  "incidental_failures": [],
+  "later_ROOT_CURRENT_changes_adopted": false,
+  "source_census_is_observed_runtime": false,
+  "subject_seal_history": "Final nine bytes independently verified. Overwritten preliminary bytes not claimed preserved."
+}

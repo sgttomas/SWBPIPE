@@ -1,0 +1,49 @@
+RV93: I65's G7 tools, read-only, on Pass A's tree ba1faa1c (passa) and on it plus the grant's five files (passa_g2).
+Tools from R/I65/u4_g7_01/_run_records (chain/, g7_linemap.py, statics_list.py, noncand_compare.py, text_row_diff.py), run by text_chain.sh.
+
+## g7_linemap.py 0c7827b6ad -> 664f8df7b7
+{
+ "old": "0c7827b6ad",
+ "new": "664f8df7b7",
+ "changed_production_rs": [
+  "core/product_physics/src/lib.rs",
+  "core/product_physics/src/retained_product.rs",
+  "core/product_physics/src/retained_tests_hooks/grant2.rs"
+ ],
+ "hunks": {
+  "core/product_physics/src/lib.rs": 10,
+  "core/product_physics/src/retained_product.rs": 1,
+  "core/product_physics/src/retained_tests_hooks/grant2.rs": 1
+ },
+ "remapped": 0,
+ "unmapped": []
+}
+
+## TEXT summary: passa == passa_g2: yes; passa == I65 Pass A sens_g7.summary.json: yes
+{"caps": {"l": 128}, "eps": 2, "text_complete": true, "D": 14734, "D_env": 9361, "TAV": 2150800830, "sparse": {"admission_phase": "W3", "E_mov_plus_R": 3504983749, "fraction_of_M": 0.8705, "X1": 0.8176, "W4": 0.8639, "margin_rule": true, "fits_M": true, "TAV_X": 1440401002, "TAV_W": 1570041862, "T25": 1348846906, "T16": 1268331449, "T17": 1149523110}, "dense": {"admission_phase": "W3", "E_mov_plus_R": 3524694197, "fraction_of_M": 0.8754, "X1": 0.8225, "W4": 0.8688, "margin_rule": true, "fits_M": true, "TAV_X": 1440401002, "TAV_W": 1570041862, "T25": 1348846906, "T16": 1268331449, "T17": 1149523110}}
+
+## Outputs Pass B compares (passa_g2 vs I65 Pass A)
+composite_text.caps.json identical
+g4_caps.caps.eps2.out.json identical
+ordinary_caps.caps.out.json identical
+producer_caps.caps.out.json identical
+profile_tree.json identical
+t07_repair.caps.out.json identical
+t08_closure.caps.log identical
+t25_g4.caps.eps2.out.json identical
+
+## text_row_diff passa -> passa_g2
+text_budget: {"rows": [2814, 2814], "changed": 0, "unmatched_positive_in_first": 0, "only_in_second": 0, "tav": [2150800830, 2150800830], "max_site": [2599962, 2599962], "D": [14734, 14734], "reachable_fns": [2770, 2772], "complete": [true, true]}
+text_budget_W: {"rows": [2814, 2814], "changed": 0, "unmatched_positive_in_first": 0, "only_in_second": 0, "tav": [1570041862, 1570041862], "max_site": [2599962, 2599962], "D": [9400, 9400], "reachable_fns": [2770, 2772], "complete": [true, true]}
+text_budget_X: {"rows": [2814, 2814], "changed": 0, "unmatched_positive_in_first": 0, "only_in_second": 0, "tav": [1440401002, 1440401002], "max_site": [2599962, 2599962], "D": [14723, 14723], "reachable_fns": [2770, 2772], "complete": [true, true]}
+text_budget_env: {"rows": [2814, 2814], "changed": 0, "unmatched_positive_in_first": 0, "only_in_second": 0, "tav": [642949448, 642949448], "max_site": [2599962, 2599962], "D": [9361, 9361], "reachable_fns": [2770, 2772], "complete": [true, true]}
+
+## identifier audit / non-candidates
+passa: text exit 0, noncand: carried: every non-candidate is one RV87 read
+passa_g2: text exit 0, noncand: carried: every non-candidate is one RV87 read
+
+## grant2.rs in the tools' production view
+edges (passa_g2) naming grant2.rs: ['core/product_physics/src/retained_tests_hooks/grant2.rs:23:tally', 'core/product_physics/src/retained_tests_hooks/grant2.rs:29:counted', 'core/product_physics/src/retained_tests_hooks/grant2.rs:39:take', 'core/product_physics/src/retained_tests_hooks/grant2.rs:41:install', 'core/product_physics/src/retained_tests_hooks/grant2.rs:43:hand_back', 'core/product_physics/src/retained_tests_hooks/grant2.rs:46:merge', 'core/product_physics/src/retained_tests_hooks/grant2.rs:53:names', 'core/product_physics/src/retained_tests_hooks/grant2.rs:57:ordinary_run_entered', 'core/product_physics/src/retained_tests_hooks/grant2.rs:62:fail_next_late_gate', 'core/product_physics/src/retained_tests_hooks/grant2.rs:65:fail_next_complete_gate', 'core/product_physics/src/retained_tests_hooks/grant2.rs:68:fail_next_preparation', 'core/product_physics/src/retained_tests_hooks/grant2.rs:70:fault_next_candidate', 'core/product_physics/src/retained_tests_hooks/grant2.rs:71:exceed_every_bound', 'core/product_physics/src/retained_tests_hooks/grant2.rs:78:before_late_gate', 'core/product_physics/src/retained_tests_hooks/grant2.rs:84:at_complete_gate']
+statics_list (passa_g2 vs Pass A): added [['core/product_physics/src/retained_tests_hooks/grant2.rs', 'thread_local! {']] removed []
+statics_list (passa vs Pass A): added [] removed []
+template inventory lists grant2.rs: 1

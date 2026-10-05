@@ -1,0 +1,51 @@
+[
+  {
+    "commit": "430bc4f798a1ff5d158733cbfce5b6e7e096dbe0",
+    "path": "AGENTS.md",
+    "bytes": 14200,
+    "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "read_scope": "complete except ruling selected continuation tail"
+  },
+  {
+    "commit": "430bc4f798a1ff5d158733cbfce5b6e7e096dbe0",
+    "path": "agents/AGENT_TASK.md",
+    "bytes": 1499,
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "read_scope": "complete except ruling selected continuation tail"
+  },
+  {
+    "commit": "430bc4f798a1ff5d158733cbfce5b6e7e096dbe0",
+    "path": "projects/chirality-piping/AGENTS.md",
+    "bytes": 9016,
+    "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "read_scope": "complete except ruling selected continuation tail"
+  },
+  {
+    "commit": "d165509daca35ec466d15af73108890c89baff15",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I51_C2_SEED_AND_SUPPORT_NORM.md",
+    "bytes": 6074,
+    "sha256": "515d62d4f0b11c3cdbaa37f1d20dd887cf3234f885177af44ed5ff352dcb4d40",
+    "read_scope": "complete except ruling selected continuation tail"
+  },
+  {
+    "commit": "d165509daca35ec466d15af73108890c89baff15",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+    "bytes": 584441,
+    "sha256": "66bb2c0626aa7a40dba10e3361c8a497b646983071a4788d50ae651d12130f95",
+    "read_scope": "complete except ruling selected continuation tail"
+  },
+  {
+    "commit": "73383ae6d7db867db87135d5ae2904d199498f60",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV67/prepared_c2_amendment_05/REVIEW.md",
+    "bytes": 11810,
+    "sha256": "c0ca163bd50d5efd547d10a845c2f6ee61429931c36b0f463790af5ab4b8f609",
+    "read_scope": "complete except ruling selected continuation tail"
+  },
+  {
+    "commit": "2c9528ca982bf6c584e7e9860af6354e407c1206",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+    "bytes": 587768,
+    "sha256": "00dc839b76763716c8b9872133d5def4f4f939d352df9aa5083bbebca5ad05ce",
+    "read_scope": "complete Failed source-view capacity prefix granted section plus preceding implementation-review context"
+  }
+]

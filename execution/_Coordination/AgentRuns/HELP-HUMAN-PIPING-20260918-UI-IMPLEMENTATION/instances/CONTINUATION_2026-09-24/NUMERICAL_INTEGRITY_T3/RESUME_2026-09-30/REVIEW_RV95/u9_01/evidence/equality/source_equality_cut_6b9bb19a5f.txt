@@ -1,0 +1,11 @@
+PR 6b9bb19a5f66143101b6364757ecdfa12da455ef
+INT 2e03d7cc25210476950111b9582c348fec0e6ac7
+MAIN 5fdc5ab6012ddb50ecf286621a291b4da577405e
+B 381be775ae9b8d94e7d650713a0c97cba304950b
+|S| = 136
+[PASS] check 1: PR non-execution paths equal S
+[PASS] check 2: 135 paths identical in blob and mode
+[PASS] check 3: {"projects/chirality-piping/core/analysis_runs/compatibility.py": {"rule": "decision 3: one _same_canonical, main's two call-site lines", "conflicts": 1, "main_helper_inside_int_side": true, "expected_blob": "767da34027c566303173f92f222d548d9a1aa71c", "pr_blob": "767da34027c566303173f92f222d548d9a1aa71c", "equal": true}}
+[PASS] check 4: {"execution_files": 10, "outside_package": [], "sha256_mismatch": []}
+[PASS] check 5: 136 rows; 135 equal; 1 known resolution(s); unexplained []
+RESULT PASS

@@ -1,0 +1,512 @@
+[
+ {
+  "fn": "core/product_physics/src/lib.rs:9493:append_combination_modulus_basis_records",
+  "mine": {
+   "format": 1,
+   "write": 0,
+   "to_string": 8,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 1,
+   "write": 0,
+   "to_string": 8,
+   "diag": 0
+  },
+  "M": 2,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/case_state/material.rs:78:normalized",
+  "mine": {
+   "format": 0,
+   "write": 0,
+   "to_string": 2,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 0,
+   "write": 0,
+   "to_string": 2,
+   "diag": 0
+  },
+  "M": null,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/source_recovery.rs:502:prepare_sources",
+  "mine": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": 4,
+  "match": true
+ },
+ {
+  "fn": "core/loads/load_case_algebra/src/lib.rs:179:new",
+  "mine": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": null,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/validation.rs:29:validate_connected_input_contracts",
+  "mine": {
+   "format": 7,
+   "write": 0,
+   "to_string": 0,
+   "diag": 6
+  },
+  "theirs": {
+   "format": 7,
+   "write": 0,
+   "to_string": 0,
+   "diag": 6
+  },
+  "M": 2,
+  "match": true
+ },
+ {
+  "fn": "core/solver/nonlinear_supports/src/lib.rs:453:evaluate_active_set_iteration_with_resolved_friction_states",
+  "mine": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": null,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/preview_physics.rs:192:final_id",
+  "mine": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": 4230,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/lib.rs:2277:run_linear_static_preview_observed",
+  "mine": {
+   "format": 5,
+   "write": 0,
+   "to_string": 11,
+   "diag": 8
+  },
+  "theirs": {
+   "format": 5,
+   "write": 0,
+   "to_string": 11,
+   "diag": 8
+  },
+  "M": 2,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/source_receipt/rows.rs:336:derived_for",
+  "mine": {
+   "format": 3,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 3,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": 1,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/validation.rs:1400:detect_empty_ids",
+  "mine": {
+   "format": 2,
+   "write": 0,
+   "to_string": 1,
+   "diag": 1
+  },
+  "theirs": {
+   "format": 2,
+   "write": 0,
+   "to_string": 1,
+   "diag": 1
+  },
+  "M": 16,
+  "match": true
+ },
+ {
+  "fn": "core/solver/frame_kernel/src/load_ledger.rs:373:force_scaled_term",
+  "mine": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": 249024,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/retained_product.rs:3028:prepared_case_seen",
+  "mine": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": 1,
+  "match": true
+ },
+ {
+  "fn": "core/solver/nonlinear_integration/src/lib.rs:1933:prescribed_displacement_for_state",
+  "mine": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": 64,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/lib.rs:13165:solver_blocked",
+  "mine": {
+   "format": 0,
+   "write": 0,
+   "to_string": 2,
+   "diag": 1
+  },
+  "theirs": {
+   "format": 0,
+   "write": 0,
+   "to_string": 2,
+   "diag": 1
+  },
+  "M": 14,
+  "match": true
+ },
+ {
+  "fn": "core/solver/diagnostics/src/lib.rs:77:solver_generated",
+  "mine": {
+   "format": 0,
+   "write": 0,
+   "to_string": 5,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 0,
+   "write": 0,
+   "to_string": 5,
+   "diag": 0
+  },
+  "M": null,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/lib.rs:8328:normalize_dimensionless_quantity",
+  "mine": {
+   "format": 0,
+   "write": 0,
+   "to_string": 1,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 0,
+   "write": 0,
+   "to_string": 1,
+   "diag": 0
+  },
+  "M": 144,
+  "match": true
+ },
+ {
+  "fn": "core/serialization/canonical_json/src/binary64.rs:52:error",
+  "mine": {
+   "format": 1,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 1,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": 66,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/source_receipt/source.rs:26:functional_id",
+  "mine": {
+   "format": 1,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 1,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": 1760,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/self_weight.rs:420:area",
+  "mine": {
+   "format": 1,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 1,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": null,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/preview_physics.rs:497:render_members",
+  "mine": {
+   "format": 2,
+   "write": 0,
+   "to_string": 2,
+   "diag": 1
+  },
+  "theirs": {
+   "format": 2,
+   "write": 0,
+   "to_string": 2,
+   "diag": 1
+  },
+  "M": 2,
+  "match": true
+ },
+ {
+  "fn": "core/solver/nonlinear_integration/src/lib.rs:1817:friction_normal_map",
+  "mine": {
+   "format": 1,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 1,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": 3,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/lib.rs:5614:append_sparse_live_path_evidence",
+  "mine": {
+   "format": 7,
+   "write": 0,
+   "to_string": 15,
+   "diag": 4
+  },
+  "theirs": {
+   "format": 7,
+   "write": 0,
+   "to_string": 15,
+   "diag": 4
+  },
+  "M": 1,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/lib.rs:12309:append_endpoint_stress_results",
+  "mine": {
+   "format": 3,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 3,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": 224,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/source_recovery.rs:1257:close_load_state",
+  "mine": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": 4,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/case_state/resolve.rs:26:block",
+  "mine": {
+   "format": 1,
+   "write": 0,
+   "to_string": 2,
+   "diag": 1
+  },
+  "theirs": {
+   "format": 1,
+   "write": 0,
+   "to_string": 2,
+   "diag": 1
+  },
+  "M": null,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/validation.rs:1962:combination_shape_diag",
+  "mine": {
+   "format": 1,
+   "write": 0,
+   "to_string": 0,
+   "diag": 1
+  },
+  "theirs": {
+   "format": 1,
+   "write": 0,
+   "to_string": 0,
+   "diag": 1
+  },
+  "M": null,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/case_state/resolve.rs:409:selection",
+  "mine": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": null,
+  "match": true
+ },
+ {
+  "fn": "core/serialization/canonical_json/src/lib.rs:125:write_canonical",
+  "mine": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 0,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": null,
+  "match": true
+ },
+ {
+  "fn": "core/product_physics/src/lib.rs:984:mechanics_producer_for_model",
+  "mine": {
+   "format": 0,
+   "write": 0,
+   "to_string": 2,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 0,
+   "write": 0,
+   "to_string": 2,
+   "diag": 0
+  },
+  "M": 3,
+  "match": true
+ },
+ {
+  "fn": "core/serialization/canonical_json/src/lib.rs:45:checked_parse",
+  "mine": {
+   "format": 3,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "theirs": {
+   "format": 2,
+   "write": 0,
+   "to_string": 0,
+   "diag": 0
+  },
+  "M": null,
+  "match": false
+ }
+]

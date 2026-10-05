@@ -1,0 +1,17 @@
+{
+  "sealed_utc": "2026-10-03T13:34:32Z",
+  "files": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I53/first_party_profile_correction_03/ADDENDUM.md",
+      "sha256": "1234487f0e802e9515dec5969f5606b94a3bf4c0d00086543dc40434b42a05d7"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I53/first_party_profile_correction_03/MANIFEST.json",
+      "sha256": "bc0880605bff721be0ae66fd2eb759436e9442c97010fc1551f3cba6d96987a6"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i53_first_party_profile_correction_03/SOURCE_ORIGINS.json",
+      "sha256": "d797a649277d2f0290367999ff1066c17f4233df94a8549c7d28bef31034111f"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "audited_utc": "2026-10-03T12:57:07.862730+00:00",
+  "actor": "/root/rv69_public_formation_contract",
+  "owned_output": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV69/public_formation_contract_01",
+  "external_output": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract",
+  "all_output_paths_owned": true,
+  "git_reads": "Every Git invocation used explicit cwd and GIT_OPTIONAL_LOCKS=0; immutable git show for CODE source",
+  "no_git_index_api_mutations": true,
+  "no_source_edits_runtime_build_solver_or_descendants": true,
+  "scope": "I52 bounded reconciliation, G7/G8, final immutable prepared-source contract seams and authority; no complete source or numerical replay claim",
+  "finding_count": {
+    "blocking": 0,
+    "nonblocking": 1
+  },
+  "disposition": "CLEAR for concrete C3 realization, not implementation/public activation",
+  "manual_final_checks": [
+    "Reviewed exact seal and six payload hashes",
+    "Read actual governing D2 and ROOT clauses",
+    "Compared actual source semantics for native/proof precision, preparation association, dual lanes, projection and final transaction",
+    "Independently traced Rust/Python/TypeScript G7 and narrow G8 helpers",
+    "Distinguished typed source availability from prospective fields and Debug",
+    "Preserved complete invocation/combinations/typed/exact/availability/carrier/resource gates",
+    "Recorded later ROOT private acceptance notice without relabeling initial review basis"
+  ],
+  "bulk_files": 45,
+  "bulk_bytes": 438133
+}

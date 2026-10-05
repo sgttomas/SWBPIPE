@@ -1,0 +1,21 @@
+{
+  "updated_utc": "2026-10-03T16:33:41.733090+00:00",
+  "findings": [
+    {
+      "id": "RS-F1",
+      "severity": "P2",
+      "blocking": false,
+      "location": "reader_contract_seams_06/ADDENDUM.md:72-78,95-99",
+      "trigger": "recovery_method=null/wrong type/forbidden alternate location, or G1 enum/minLength on wrong/empty direct strings",
+      "impact": "Promised G6 first failure contradicts earlier G1 closed shape/type validation; independent rehash does not bypass shape; cross-reader outcomes would depend on invented schema choices",
+      "repair": "Pin optional direct string without G1 enum/minLength; shape/type/closed-key defects G1, selected presence/token value/unselected string presence G6. Keep G4 diagnostics only and G7 exact authorized removal. Provide first-failure matrix and compound controls.",
+      "status": "CLOSED after same-reviewer confirmation of corrections07 and08",
+      "originally_blocking": true,
+      "correction_commits": [
+        "a82b89774f14aa7aad051e8343e615276a6b30bf",
+        "55e6722a40c6a54ad5d6783323af81118cf4a5aa"
+      ],
+      "closed_utc": "2026-10-03T16:33:41.733090+00:00"
+    }
+  ]
+}

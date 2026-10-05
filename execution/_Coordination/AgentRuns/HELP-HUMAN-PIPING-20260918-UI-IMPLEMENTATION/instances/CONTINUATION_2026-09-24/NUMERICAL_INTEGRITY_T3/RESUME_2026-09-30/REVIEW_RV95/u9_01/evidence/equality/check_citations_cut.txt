@@ -1,0 +1,3 @@
+COUNTS resolved 368; ambiguous 0; unresolved 0
+RESULT PASS
+  records/RR: occurrences 65, distinct 41, unresolved 0; documents: 289 citations (289 resolved, 0 ambiguous, 0 unresolved); verification failures 0; unused index entries 0; code lines: 14 (14 pinned in code_anchors, 0 unresolved)

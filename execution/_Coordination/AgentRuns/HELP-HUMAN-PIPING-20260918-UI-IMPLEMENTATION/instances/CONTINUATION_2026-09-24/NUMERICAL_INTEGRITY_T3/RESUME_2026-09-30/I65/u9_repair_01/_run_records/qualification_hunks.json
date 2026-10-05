@@ -1,0 +1,58 @@
+[
+ {
+  "file": "core/product_physics/src/retained_memory_law_tests.rs",
+  "new_lines": "2-4",
+  "fingerprint": "9b81ac2ee4bdcda07f7d36d27cef2a6e84344c2634a8316c55ff48533ef9e0ee",
+  "minus": [
+   "//! census. No profile and no permit is constructed here (decision 7): the",
+   "//! registered-identity list stays empty, and every check that needs a matched",
+   "//! build passes its inputs to the pure function directly."
+  ],
+  "plus": [
+   "//! census. The tests construct no profile (decision 7): the one registered entry",
+   "//! is the production one, a permit comes only from `admit` in the registered build,",
+   "//! and a check that needs another matched build passes its inputs to the pure function."
+  ]
+ },
+ {
+  "file": "core/product_physics/src/retained_memory_law_tests.rs",
+  "new_lines": "1238-1238",
+  "fingerprint": "71e1fff29b187e9207ea7aeff829a79fc2794e8a52f6cfc4b71b3d463f4e45cf",
+  "minus": [
+   "/// load-application findings, PP/lib.rs:3918), no supports (validation) and a lone spring"
+  ],
+  "plus": [
+   "/// load-application findings, lib.rs `solve_load_case_observed`), no supports (validation) and a lone spring"
+  ]
+ },
+ {
+  "file": "core/product_physics/src/retained_memory_witness_tests.rs",
+  "new_lines": "6-6",
+  "fingerprint": "4198b681db65c62a5012f76ea92e27b1d49af1f08736ed087ee06394cd9a6a47",
+  "minus": [
+   "//! W1 phases (`retained_w1`). No permit exists (decision 7), so the private driver"
+  ],
+  "plus": [
+   "//! W1 phases (`retained_w1`). The witnesses mint no permit (decision 7): the private driver"
+  ]
+ },
+ {
+  "file": "core/product_physics/tests/retained_memory_challenge.rs",
+  "new_lines": "6-10",
+  "fingerprint": "eb06a586f6d1f50e94c94b3526de473da8f88962e051c8adf41bd16d38f84220",
+  "minus": [
+   "//! Direct entry (no permit exists, so the ordinary span runs: G-A's census and",
+   "//! law, the parse, the ordinary run), it measures the peak on the milestone and on",
+   "//! a cap-maximal D1 input, in both modes, and challenges the cap-priced profile:",
+   "//! each measured peak must stay at or below the profile's in-build W1 phase (the",
+   "//! ordinary span, requested plus moving, without R). The bounds below are the"
+  ],
+  "plus": [
+   "//! Direct entry (G-A's census and law, the parse, the ordinary run, and the W1",
+   "//! phases when the registered build permits the call), it measures the peak on the",
+   "//! milestone and on a cap-maximal D1 input, in both modes, against the cap-priced",
+   "//! profile: a permitted run's peak (the milestone, registered build) at or below E_mov,max,",
+   "//! any other's at or below the in-build W1 phase, without R. The bounds below are the"
+  ]
+ }
+]

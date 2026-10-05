@@ -1,0 +1,456 @@
+diff --git a/projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx b/projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx
+index a9850f4ce9..249d5ce94b 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx
+@@ -2,7 +2,7 @@ import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
+ import { checkedJsonText } from "../../services/hashService";
+ import { hasNativeMechanicsInvocation } from "../../services/previewService";
+ import { hasCurrentSourceContract, numericalResultStanding } from "../results/numericalResultQuality";
+-import { isLoadReferenceRoute } from "../results/loadReferenceOutputAvailability";
++import { loadReferenceOutputRefusal } from "../results/loadReferenceOutputAvailability";
+ import { useEffect, useState } from "react";
+ import { buildCurrentResultExport, type JsonObject } from "./resultExportAdapter";
+ import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
+@@ -11,7 +11,9 @@ import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, Previ
+ 
+ function liveResultBinding(model: PreviewModel, result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null, inputManifest?: CurrentSessionInputManifestEvidence | null): string | null {
+   try {
+-    if (!result || !analysisRun || !inputManifest || !hasCurrentSourceContract(result) || isLoadReferenceRoute(result)
++    // U7 slice T (RV91 N-5): an explicit gate on the shared output refusal, which
++    // covers load/reference-state and retained-precision successor results.
++    if (!result || !analysisRun || !inputManifest || !hasCurrentSourceContract(result) || loadReferenceOutputRefusal(result) !== null
+       || !hasNativeMechanicsInvocation(result, model, inputManifest.manifest.solver_basis.solver_mode)
+       || !numericalResultStanding(result, model).eligible) return null;
+     return checkedJsonText({ model, result, analysisRun, inputManifest });
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts b/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts
+index ccfdc04efc..ffba239340 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts
+@@ -136,6 +136,10 @@ export async function sourceContractTransport(source: MechanicsResult): Promise<
+   if (route === "retained_preview_physics") await validateRetainedPrecisionTransport(source);
+   return route;
+ }
++/** TS's standing status for each carrier token of the successor (RV92 N-8: carriers
++ * compare the token; this mapping is pinned separately). TS has no `unsupported`
++ * status: a refused statement reads `needs_recompute` with the reader's code. */
++export const RETAINED_STANDING_STATUS = Object.freeze({ numerically_eligible: "integrity_checked", needs_recompute: "needs_recompute", unsupported: "needs_recompute" } as const);
+ export function numericalResultStanding(source: MechanicsResult, model?: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | null) {
+   const contract = sourceContract(source);
+   const findings: string[] = [];
+@@ -155,7 +159,7 @@ export function numericalResultStanding(source: MechanicsResult, model?: (Pick<P
+     // U6d (D2 4.9.4; plan 3): standing reads only the registered accepted-reader
+     // validation of these exact bytes. numerical_quality never contributes.
+     const standing = retainedPrecisionStanding(source, model);
+-    return { contract, status: standing.eligible ? "integrity_checked" as const : "needs_recompute" as const, eligible: standing.eligible, findings: standing.findings };
++    return { contract, status: RETAINED_STANDING_STATUS[standing.standing], eligible: standing.eligible, findings: standing.findings };
+   }
+   else {
+     const q = source.numerical_quality!;
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
+index cc5d1f8b79..5c1bac377e 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
+@@ -39,20 +39,38 @@ vi.mock("./retainedPrecision", async (importOriginal) => {
+     },
+   };
+ });
++// U7 slice T (RV91 N-5): test-only stand-ins for the two T6 panels' refusal points,
++// off by default. `throwless` makes the shared refusal stop throwing inside builders
++// while the panels' gate still reads it; `noRefusal` removes it entirely (the
++// positive control: what a panel would do without its gate); `builderDoc` makes the
++// result-export builder return a document instead of refusing.
++const t6 = vi.hoisted(() => ({ throwless: false, noRefusal: false, builderDoc: null as unknown }));
++vi.mock("./loadReferenceOutputAvailability", async (importOriginal) => {
++  const actual = await importOriginal<typeof import("./loadReferenceOutputAvailability")>();
++  return {
++    ...actual,
++    loadReferenceOutputRefusal: (source: Parameters<typeof actual.loadReferenceOutputRefusal>[0]) => t6.noRefusal ? null : actual.loadReferenceOutputRefusal(source),
++    refuseLoadReferenceOutput: (source: Parameters<typeof actual.refuseLoadReferenceOutput>[0]) => t6.noRefusal || t6.throwless ? undefined : actual.refuseLoadReferenceOutput(source),
++  };
++});
++vi.mock("../result-export/resultExportAdapter", async (importOriginal) => {
++  const actual = await importOriginal<typeof import("../result-export/resultExportAdapter")>();
++  return { ...actual, buildCurrentResultExport: async (args: Parameters<typeof actual.buildCurrentResultExport>[0]) => t6.builderDoc ?? actual.buildCurrentResultExport(args) };
++});
+ import type { LocalProjectEnvelope, MechanicsResult, PreviewModel } from "../../types";
+ // Import order matters for the wrapper above: the carriers load first, so their
+ // import of the reader resolves to the wrapped module, not through the cycle.
+ import {
+   PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, PREVIEW_PHYSICS_RETAINED_PROFILE,
+   RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, currentSemanticContract, hasCurrentSourceContract, numericalResultStanding,
+-  ordinaryCaseEligible, retainedPrecisionDowngrade, sourceContract, sourceContractTransport, sourceSemanticBinding,
++  RETAINED_STANDING_STATUS, ordinaryCaseEligible, retainedPrecisionDowngrade, sourceContract, sourceContractTransport, sourceSemanticBinding,
+ } from "./numericalResultQuality";
+ import {
+   RETAINED_METHOD, RETAINED_PRECISION_ID, RETAINED_PRECISION_PROFILE, decodeBinary64, validateRetainedPrecision, validateRetainedPrecisionTransport,
+   type RetainedPrecisionValidation,
+ } from "./retainedPrecision";
+ import {
+-  RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE, RETAINED_PRECISION_VALIDATION_REQUIRED, classificationSummary, classificationSummaryFrom,
++  RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE, RETAINED_PRECISION_VALIDATION_REQUIRED, classificationSummary, classificationSummaryFrom,
+   registerRetainedPrecision, retainedPrecisionInvocation, retainedPrecisionRegistration, retainedPrecisionStanding, retainedPrecisionStandingText, retainedRowClasses, retainedStandingFrom,
+ } from "./retainedPrecisionStanding";
+ import {
+@@ -66,6 +84,11 @@ import { hasNativeMechanicsInvocation, pollPreviewMechanicsJob, runPreviewMechan
+ import { ruleBindingPrecheck, runRuleChecks, type RuleCheckBindingPlan } from "../../services/ruleCheckService";
+ import { ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
+ import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
++import { cancelPreviewMechanicsJob } from "../../services/previewService";
++import { ResultExportPanel } from "../result-export/ResultExportPanel";
++import { StressNeutralExportPanel, liveStressBinding } from "../stress-neutral/StressNeutralExportPanel";
++import { RETAINED_PRECISION_OUTPUT_REFUSAL } from "./loadReferenceOutputAvailability";
++import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
+ import type { RulePackDocument } from "../../services/rulePackService";
+ 
+ type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
+@@ -109,7 +132,10 @@ async function applyShared(c: Json, fixtureId: string) {
+   const received = await deliverDirect(source, captured ? invocation.request.model : null, solveMode);
+   if (literal) await registerRetainedPrecision(received, invocation).catch(() => undefined);
+   const requestedIds: string[] = c.requested === "invocation" ? caseIds(doc.model!) : c.requested.map((r: Json) => r.ref_id);
+-  const model = { load_cases: requestedIds.map(id => ({ id })) } as unknown as PreviewModel;
++  // The session's current model is the captured one when a capture exists and the
++  // requested refs are its cases (U7 slice T binds standing to that model);
++  // otherwise a model carrying just the requested load cases.
++  const model = captured && c.requested === "invocation" ? invocation.request.model as PreviewModel : { load_cases: requestedIds.map(id => ({ id })) } as unknown as PreviewModel;
+   return { received, model };
+ }
+ const OTHER: Record<PreviewSolverMode, PreviewSolverMode> = { sparse_interactive: "dense_scrutiny", dense_scrutiny: "sparse_interactive" };
+@@ -148,12 +174,12 @@ function setPath(target: Json, path: (string | number)[], value: unknown) {
+ const caseIds = (model: PreviewModel) => model.load_cases.map(c => c.id);
+ const withLoadCases = (model: PreviewModel, ids: string[]) => ({ ...model, load_cases: ids.map(id => ({ ...model.load_cases[0], id })) }) as PreviewModel;
+ 
+-beforeEach(() => { u7.simulate = false; u7.notCovered = null; u7.noAbsolute = false; });
++beforeEach(() => { u7.simulate = false; u7.notCovered = null; u7.noAbsolute = false; t6.throwless = false; t6.noRefusal = false; t6.builderDoc = null; });
+ afterEach(() => {
+   cleanup();
+   invokeMock.mockReset();
+   delete (window as Json).__TAURI_INTERNALS__;
+-  u7.simulate = false; u7.notCovered = null; u7.noAbsolute = false;
++  u7.simulate = false; u7.notCovered = null; u7.noAbsolute = false; t6.throwless = false; t6.noRefusal = false; t6.builderDoc = null;
+ });
+ 
+ describe("the inputs and the pinned identity", () => {
+@@ -327,7 +353,8 @@ describe.each(MODES)("%s: registration through mocked IPC", (mode) => {
+     u7.simulate = true;
+     const { source, invocation, model } = milestone(mode);
+     const own = structuredClone(source), callers = structuredClone(invocation);
+-    await registerRetainedPrecision(own, callers);
++    // A live-capture predicate stands in for previewService's native capture (U7 slice T).
++    await registerRetainedPrecision(own, callers, () => true);
+     callers.solver_mode = OTHER[mode];
+     const first = retainedPrecisionInvocation(own, model) as Json;
+     expect(first).toStrictEqual(invocation);
+@@ -588,7 +615,8 @@ describe("the declared differences, with TypeScript's expectations", () => {
+       const standing = retainedPrecisionStanding(received, model);
+       expect(standing.standing).toBe(expected.standing);
+       expect(standing.findings[0]).toBe(expected.finding);
+-      expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: expected.standing, eligible: false, findings: [expected.finding] });
++      // The token is compared; TS's status follows the pinned mapping (RV92 N-8).
++      expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: RETAINED_STANDING_STATUS[expected.standing as keyof typeof RETAINED_STANDING_STATUS], eligible: false, findings: [expected.finding] });
+     } else if (form.subject === "transport") {
+       // TS's carrier transport route (RV88 and RV92 N-1).
+       expect(await sourceContractTransport(received).then(() => "ok", (error: Error) => error.message)).toBe(expected.transport);
+@@ -682,6 +710,164 @@ describe("the carrier transport route on other identities is the header route",
+   });
+ });
+ 
++// U7 slice T (RV91 N-2 = RV88 U6d S-1; D-U7-4): a successor's standing is bound to
++// the live native capture of these bytes and to the current model, as
++// hasNativeMechanicsInvocation is. Eligibility is forced through the test-only
++// reader wrapper (u7.simulate); the flags are untouched.
++describe.each(MODES)("%s: standing is bound to the live native capture and the current model (U7 slice T)", (mode) => {
++  const movedNode = (model: PreviewModel) => { const m = structuredClone(model) as Json; m.nodes[0].position.x += 1; return m as PreviewModel; };
++  it("eligible only for the captured model; another model with the same case ids reads needs_recompute", async () => {
++    u7.simulate = true;
++    const { source, model } = milestone(mode);
++    const received = await deliverDirect(source, model, mode);
++    expect(retainedPrecisionStanding(received, model)).toStrictEqual({ standing: "numerically_eligible", eligible: true, findings: [] });
++    const other = movedNode(model);
++    expect(caseIds(other)).toStrictEqual(caseIds(model));
++    expect(hasNativeMechanicsInvocation(received, other)).toBe(false);
++    expect(retainedPrecisionStanding(received, other)).toStrictEqual({ standing: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED] });
++    expect(numericalResultStanding(received, other)).toStrictEqual({ contract: "retained_preview_physics", status: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED] });
++    expect(retainedPrecisionInvocation(received, other)).toBeNull();
++    // A model carrying only the case ids (no captured model) is not the current model either.
++    expect(retainedPrecisionStanding(received, { load_cases: model.load_cases } as PreviewModel).findings).toStrictEqual([RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED]);
++    expect(retainedPrecisionStanding(received, null).findings).toStrictEqual([RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE]);
++  });
++  it("an edit of the caller's model object after the capture voids the binding", async () => {
++    u7.simulate = true;
++    const { source, model } = milestone(mode);
++    const callerModel = structuredClone(model);
++    const received = await deliverDirect(source, callerModel, mode);
++    expect(retainedPrecisionStanding(received, callerModel).eligible).toBe(true);
++    (callerModel as Json).nodes[0].position.x += 1;
++    expect(retainedPrecisionStanding(received, callerModel).findings).toStrictEqual([RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED]);
++    expect(retainedPrecisionStanding(received, model).findings).toStrictEqual([RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED]);
++  });
++  it("a job cancelled while the reader validates keeps no live capture", async () => {
++    u7.simulate = true;
++    const { source, model } = milestone(mode);
++    (window as Json).__TAURI_INTERNALS__ = {};
++    const jobId = `unit-transport-replay:retained:cancel:${++jobSequence}`;
++    invokeMock.mockImplementation(async (command: string) => {
++      if (command === "start_preview_mechanics_job_with_solver_mode") return { job_id: jobId, backend_cancellation_token: "t", state: "queued", cancellation_scope: "unit" };
++      if (command === "poll_preview_mechanics_job") return { job_id: jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "unit", result: structuredClone(source), error_message: null };
++      expect(command).toBe("cancel_preview_mechanics_job");
++      return { job_id: jobId, accepted: true, cancellation_status: "accepted", job_state: "completed", cancellation_scope: "unit", cancellation_success_claimed: false };
++    });
++    await startPreviewMechanicsJob(model, mode);
++    const polling = pollPreviewMechanicsJob(jobId);
++    await cancelPreviewMechanicsJob(jobId, "t"); // accepted while the reader awaits
++    const received = (await polling).result!;
++    // The reader's own validation is recorded, but the capture was invalidated.
++    expect(retainedPrecisionRegistration(received)?.validation?.numerical_eligible).toBe(true);
++    expect(hasNativeMechanicsInvocation(received, model)).toBe(false);
++    expect(retainedPrecisionStanding(received, model)).toStrictEqual({ standing: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED] });
++  });
++  it("a registration without a native capture is never eligible", async () => {
++    u7.simulate = true;
++    const { source, invocation, model } = milestone(mode);
++    const own = structuredClone(source);
++    expect((await registerRetainedPrecision(own, structuredClone(invocation))).numerical_eligible).toBe(true);
++    expect(retainedPrecisionStanding(own, model).findings).toStrictEqual([RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED]);
++    expect(retainedPrecisionInvocation(own, model)).toBeNull();
++  });
++  it("with eligibility held, every one of these reads exactly as before (NOT_NUMERICALLY_ELIGIBLE)", async () => {
++    const { source, invocation, model } = milestone(mode);
++    const received = await deliverDirect(source, model, mode);
++    for (const m of [model, movedNode(model), { load_cases: model.load_cases } as PreviewModel]) {
++      expect(retainedPrecisionStanding(received, m)).toStrictEqual({ standing: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE] });
++    }
++    const own = structuredClone(source);
++    await registerRetainedPrecision(own, structuredClone(invocation));
++    expect(retainedPrecisionStanding(own, model).findings).toStrictEqual([RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE]);
++  });
++});
++
++// U7 slice T (I61 slice A, §1.4): knownSemanticNotices calls classificationSummary
++// without the model, by design. The notices show only the absolute-verified and
++// not-covered counts, which are the reader's G5c classes and do not depend on standing;
++// the per-quantity refusals they state hold whether or not the envelope is Current
++// (S-I has not landed). The model-dependent field, `withheld`, is not shown.
++describe.each(MODES)("%s: the class notices do not depend on standing (U7 slice T)", (mode) => {
++  it("an eligible successor shows exactly the notices a held one does; only `withheld` would differ", async () => {
++    const { source, model } = milestone(mode);
++    const held = await deliverDirect(source, model, mode);
++    const heldNotices = knownSemanticNotices(held);
++    u7.simulate = true;
++    const eligible = await deliverDirect(source, model, mode);
++    expect(numericalResultStanding(eligible, model).eligible).toBe(true);
++    expect(knownSemanticNotices(eligible)).toStrictEqual(heldNotices);
++    const withModel = classificationSummary(eligible, model), withoutModel = classificationSummary(eligible);
++    expect(withModel.map(({ withheld: _w, ...counts }) => counts)).toStrictEqual(withoutModel.map(({ withheld: _w, ...counts }) => counts));
++    expect([withModel[0].withheld, withoutModel[0].withheld]).toStrictEqual([69, 97]);
++  });
++});
++
++// U7 slice T (RV91 N-5): the result-export and stress-neutral panels refuse a successor
++// by an explicit gate on the shared output refusal, not by a builder throwing. Each
++// test forces eligibility, registers through mocked IPC with the pinned model, and
++// lets the builders proceed (t6.*) so that only the gate can refuse; the positive
++// control removes the refusal and shows the packet the gate withholds.
++describe.each(MODES)("%s: the T6 panels refuse a successor by an explicit gate (U7 slice T)", (mode) => {
++  async function eligibleSuccessor() {
++    u7.simulate = true;
++    const { source, model } = milestone(mode);
++    const received = await deliverDirect(source, model, mode);
++    expect(numericalResultStanding(received, model).eligible).toBe(true);
++    expect(hasNativeMechanicsInvocation(received, model, mode)).toBe(true);
++    const manifest = { manifest_ref: { object_type: "InputManifest", ref: "manifest:invented-u7-gate" }, manifest_sha256: "1".repeat(64), manifest: { model_basis: { model_ref: received.model_ref, model_payload: model }, solver_basis: { solver_name: received.producer!.component_name, solver_version: received.producer!.component_version, solver_build_ref: "unit-transport-replay-not-native-witness", solver_mode: mode } } } as unknown as CurrentSessionInputManifestEvidence;
++    const analysisRun = await buildAnalysisRunV03(received, manifest as Json, undefined, modelLoadBasisRefs(model));
++    return { received, model, analysisRun, manifest };
++  }
++  const DOC = { export_format_status: { baseline_format: "invented", additional_formats: "none" }, result_envelope: { run_ref: { ref_id: "invented" }, model_ref: { ref_id: "invented" }, result_sets: [{ values: [{ unit: "N", dimension: "force" }] }], diagnostics: [], unit_preservation_witnesses: [], reproducibility: { deterministic_ordering: true, run_hashes: [] }, professional_boundary: { human_review_required: true } } };
++  it("result export: no packet is offered even when its builder would not refuse", async () => {
++    const { received, model, analysisRun, manifest } = await eligibleSuccessor();
++    t6.throwless = true; t6.builderDoc = DOC;
++    render(<ResultExportPanel model={model} result={received} analysisRun={analysisRun} inputManifest={manifest} />);
++    await new Promise(settle => setTimeout(settle, 50));
++    expect(screen.queryByTestId("result-export-summary")).toBeNull();
++    cleanup();
++    t6.noRefusal = true; // positive control: without the shared refusal the packet would be offered
++    render(<ResultExportPanel model={model} result={received} analysisRun={analysisRun} inputManifest={manifest} />);
++    expect((await screen.findByTestId("result-export-summary")).textContent).toContain("available");
++  });
++  it("stress-neutral: the live binding is closed by the gate, and the panel shows the shared refusal", async () => {
++    const { received, model, analysisRun } = await eligibleSuccessor();
++    t6.throwless = true;
++    // The packet builder itself still refuses a successor (its header cannot carry the
++    // receipt: SN-PRECISION-CONTRACT-MISMATCH), so the gate is tested on the binding.
++    expect(liveStressBinding(model, received, analysisRun)).toBeNull();
++    render(<StressNeutralExportPanel model={model} result={received} analysisRun={analysisRun} />);
++    await new Promise(settle => setTimeout(settle, 50));
++    expect(screen.getByTestId("stress-neutral-load-reference-output-unavailable").textContent).toBe(RETAINED_PRECISION_OUTPUT_REFUSAL);
++    expect(screen.queryByTestId("stress-neutral-empty")).toBeNull();
++    t6.noRefusal = true; // positive control: without the shared refusal the binding would be open
++    expect(liveStressBinding(model, received, analysisRun)).not.toBeNull();
++  });
++});
++
++// U7 slice T (RV92 N-8): carriers compare standing by the carrier TOKEN
++// (needs_recompute, numerically_eligible, unsupported), never by TS's status string;
++// TS's token-to-status mapping is pinned separately here.
++describe("standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T)", () => {
++  it("pins the mapping from each token to TS's status", () => {
++    expect(RETAINED_STANDING_STATUS).toStrictEqual({ numerically_eligible: "integrity_checked", needs_recompute: "needs_recompute", unsupported: "needs_recompute" });
++    expect(Object.isFrozen(RETAINED_STANDING_STATUS)).toBe(true);
++  });
++  // With eligibility forced, exactly the two capture-bound, requested-as-invoked,
++  // unedited milestone cases become numerically_eligible (written out, not derived).
++  const ELIGIBLE_AFTER_FLIP = new Set(["sparse_interactive:invocation", "dense_scrutiny:invocation"]);
++  it.each<[string, Json]>((caseFile.cases as Json[]).map(c => [c.id, c]))("%s: token and status with eligibility forced", async (_id, c) => {
++    u7.simulate = true;
++    const { received, model } = await applyShared(c, c.fixture);
++    const route = sourceContract(received);
++    const token = route === "unsupported" ? "unsupported" : retainedPrecisionStanding(received, model).standing;
++    const expected = ELIGIBLE_AFTER_FLIP.has(c.id) ? "numerically_eligible" : c.expected_standing;
++    expect(token).toBe(expected);
++    const standing = numericalResultStanding(received, model);
++    expect(standing.status).toBe(RETAINED_STANDING_STATUS[token as keyof typeof RETAINED_STANDING_STATUS]);
++    expect(standing.eligible).toBe(token === "numerically_eligible");
++  });
++});
++
+ describe("the 20 shared parity scenarios agree with Rust U6a and Python U6b", () => {
+   it("covers every case of the shared file", () => {
+     expect((caseFile.cases as Json[]).map(c => c.fixture).filter((f: string) => !Object.hasOwn(caseFile.fixtures, f))).toStrictEqual([]);
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
+index 41bab3e819..bf983b71a4 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
+@@ -158,8 +158,11 @@ describe.each(MODES)("%s: stress-neutral, result export and the report package k
+     // retained_precision member until T6), so the successor header reads unsupported.
+     await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0", producer: result.producer, numerical_quality: result.numerical_quality, formulation_basis: result.formulation_basis, contract_evidence: result.contract_evidence, retained_precision: result.retained_precision, export_profile: {} })).rejects.toThrow("SN-PRECISION-CONTRACT-MISMATCH");
+     render(<StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun} />);
+-    expect(screen.getByTestId("stress-neutral-empty")).toBeTruthy();
+-    expect(screen.queryByTestId("stress-neutral-load-reference-output-unavailable")).toBeNull();
++    // U7 slice T (RV91 N-5): the panel shows the shared refusal for a successor (it showed
++    // its generic empty text before); the load/reference text is never shown.
++    expect(screen.getByTestId("stress-neutral-load-reference-output-unavailable").textContent).toBe(RETAINED_PRECISION_OUTPUT_REFUSAL);
++    expect(screen.queryByTestId("stress-neutral-empty")).toBeNull();
++    expect(screen.queryByText(LOAD_REFERENCE_OUTPUT_REFUSAL)).toBeNull();
+     expect(document.querySelectorAll("a[download]")).toHaveLength(0);
+   });
+   it("result export build, document validation, derivation and panel all refuse", async () => {
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionStanding.ts b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionStanding.ts
+index 38222b00f6..8bd8249025 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionStanding.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionStanding.ts
+@@ -28,6 +28,9 @@ import type { MechanicsResult, PreviewModel } from "../../types";
+ export const RETAINED_PRECISION_VALIDATION_REQUIRED = "RETAINED_PRECISION_VALIDATION_REQUIRED";
+ /** The registered validation does not make the successor numerically eligible. */
+ export const RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE = "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE";
++/** U7 slice T (RV91 N-2 = RV88 U6d S-1; D-U7-4): a statement that would be
++ * eligible, but without the live native capture of these bytes for this model. */
++export const RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED = "RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED";
+ 
+ export type RetainedStandingToken = "numerically_eligible" | "needs_recompute" | "unsupported";
+ export type RetainedClassificationSummary = {
+@@ -43,7 +46,11 @@ export type RetainedClassificationSummary = {
+ type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
+ type Fingerprint = { text: string; negativeZeros: string };
+ type Outcome = { validation: RetainedPrecisionValidation; error: null } | { validation: null; error: string };
+-type Registration = { source: Fingerprint; invocation: unknown; outcome: Outcome };
++/** Whether the live native capture still holds for these bytes and a given model:
++ * previewService's `hasNativeMechanicsInvocation` (an unchanged, not invalidated
++ * capture; unchanged source bytes; that model equal to the captured one). */
++export type LiveNativeCapture = (model: unknown) => boolean;
++type Registration = { source: Fingerprint; invocation: unknown; outcome: Outcome; live: LiveNativeCapture | null };
+ const registrations = new WeakMap<object, Registration>();
+ 
+ function negativeZeroPaths(value: unknown): string {
+@@ -74,12 +81,14 @@ function receiptCases(source: MechanicsResult): Json[] {
+  * (`previewService.validateCapturedSource`). Runs the accepted reader with the
+  * captured invocation and records its outcome, validation or first code,
+  * against the exact bytes it validated. A refusal is rethrown after it is
+- * recorded, so the caller does not register the native invocation. */
+-export async function registerRetainedPrecision(source: MechanicsResult, invocation: unknown): Promise<RetainedPrecisionValidation> {
++ * recorded, so the caller does not register the native invocation.
++ * `live` is the native capture's liveness for these bytes; only previewService
++ * passes it. Without it the registration can never stand eligible (U7 slice T). */
++export async function registerRetainedPrecision(source: MechanicsResult, invocation: unknown, live: LiveNativeCapture | null = null): Promise<RetainedPrecisionValidation> {
+   // Captured before the reader's first await, as the reader snapshots its inputs.
+   // Bytes outside the checked JSON profile never register (the reader refuses them).
+   const sourcePrint = fingerprint(source), captured = structuredClone(invocation);
+-  const record = (outcome: Outcome) => { if (sourcePrint) registrations.set(source, { source: sourcePrint, invocation: captured, outcome }); };
++  const record = (outcome: Outcome) => { if (sourcePrint) registrations.set(source, { source: sourcePrint, invocation: captured, outcome, live }); };
+   try {
+     const validation = await validateRetainedPrecision(source, invocation);
+     record({ validation, error: null });
+@@ -146,13 +155,19 @@ function requestedRefs(model: Pick<PreviewModel, "load_cases"> | null | undefine
+  * - nothing registered for these bytes: `needs_recompute`, VALIDATION_REQUIRED;
+  * - the registered reader refused: `unsupported`, with the reader's first code;
+  * - otherwise D2 4.9.4 with the model's requested load cases; not eligible gives
+- *   `needs_recompute`, NOT_NUMERICALLY_ELIGIBLE. */
++ *   `needs_recompute`, NOT_NUMERICALLY_ELIGIBLE;
++ * - eligible by D2 4.9.4, but the live native capture does not hold for these
++ *   bytes and this model (a stale model, an invalidated or raced capture, or a
++ *   registration without a capture): `needs_recompute`, NATIVE_CAPTURE_REQUIRED
++ *   (U7 slice T; D-U7-4's declared difference: Rust and Python require the actual
++ *   invocation argument, TS the live capture). */
+ export function retainedPrecisionStanding(source: MechanicsResult, model?: Pick<PreviewModel, "load_cases"> | null): { standing: RetainedStandingToken; eligible: boolean; findings: string[] } {
+   const registration = registered(source);
+   if (!registration) return { standing: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_VALIDATION_REQUIRED] };
+   if (registration.outcome.error !== null) return { standing: "unsupported", eligible: false, findings: [registration.outcome.error] };
+-  if (retainedStandingFrom(registration.outcome.validation, source, requestedRefs(model)) === "numerically_eligible") return { standing: "numerically_eligible", eligible: true, findings: [] };
+-  return { standing: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE] };
++  if (retainedStandingFrom(registration.outcome.validation, source, requestedRefs(model)) !== "numerically_eligible") return { standing: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE] };
++  if (registration.live?.(model) !== true) return { standing: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED] };
++  return { standing: "numerically_eligible", eligible: true, findings: [] };
+ }
+ /** The registered invocation, for the rule-check backend's existing
+  * `sourceBlockInvocation` argument; null unless the standing is eligible. */
+diff --git a/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx b/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
+index bcfc74e099..2557c670c6 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx
+@@ -6,7 +6,7 @@ import { validateRetainedRecoverySource } from "../../services/analysisRunCompat
+ import { hasNativeMechanicsInvocation } from "../../services/previewService";
+ import { validatePreviewPhysicsTransportMetadata } from "../results/previewPhysicsEvidence";
+ import { sourceContract, numericalResultStanding, currentSemanticContract, hasCurrentSourceContract } from "../results/numericalResultQuality";
+-import { isLoadReferenceRoute, refuseLoadReferenceOutput, LOAD_REFERENCE_OUTPUT_REFUSAL } from "../results/loadReferenceOutputAvailability";
++import { loadReferenceOutputRefusal, refuseLoadReferenceOutput } from "../results/loadReferenceOutputAvailability";
+ import { verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRowSemantics, sourceBasisReference, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
+ import { semanticFamily, semanticDimension, semanticCategory, resultSemantics } from "../results/resultSemantics";
+ import { Download, FileJson } from "lucide-react";
+@@ -80,10 +80,12 @@ type StressNeutralUnitPreservationWitness = {
+ 
+ // Same small publication binding as the source-recovery reader: private live
+ // invocation plus immutable checked contents, never a serializable proof flag.
+-function liveStressBinding(model: PreviewModel, result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null): string | null {
++// Exported so that its explicit output gate is tested directly (U7 slice T).
++export function liveStressBinding(model: PreviewModel, result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null): string | null {
+   try {
+     if (!result || !analysisRun || !hasNativeMechanicsInvocation(result, model)
+-      || !hasCurrentSourceContract(result) || isLoadReferenceRoute(result) || !numericalResultStanding(result, model).eligible) return null;
++      // U7 slice T (RV91 N-5): an explicit gate on the shared output refusal.
++      || !hasCurrentSourceContract(result) || loadReferenceOutputRefusal(result) !== null || !numericalResultStanding(result, model).eligible) return null;
+     return checkedJsonText({ model, result, analysisRun });
+   } catch { return null; }
+ }
+@@ -204,8 +206,8 @@ export function StressNeutralExportPanel({
+             />
+           </div>
+         </>
+-      ) : isLoadReferenceRoute(result) ? (
+-        <p className="muted" role="status" data-testid="stress-neutral-load-reference-output-unavailable">{LOAD_REFERENCE_OUTPUT_REFUSAL}</p>
++      ) : loadReferenceOutputRefusal(result) ? (
++        <p className="muted" role="status" data-testid="stress-neutral-load-reference-output-unavailable">{loadReferenceOutputRefusal(result)}</p>
+       ) : (
+         <p className="muted" data-testid="stress-neutral-empty">
+           Run mechanics with the native backend to assemble a stress-neutral CSV/JSON package. Bundled references and restored history are unavailable for qualified export.
+diff --git a/projects/chirality-piping/apps/desktop/src/services/previewService.ts b/projects/chirality-piping/apps/desktop/src/services/previewService.ts
+index 16c66a50d4..df2a9e568d 100644
+--- a/projects/chirality-piping/apps/desktop/src/services/previewService.ts
++++ b/projects/chirality-piping/apps/desktop/src/services/previewService.ts
+@@ -128,7 +128,8 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
+     if (sourceContract(source) === "load_reference_source") await validateLoadReferenceSourceEvidence(source);
+     // U6d: a preview successor registers only after the accepted reader passes with
+     // this captured invocation; its outcome is recorded against the exact bytes.
+-    if (sourceContract(source) === "retained_preview_physics") await registerRetainedPrecision(source, capture.invocation);
++    // U7 slice T: its standing is bound to this live native capture and the current model.
++    if (sourceContract(source) === "retained_preview_physics") await registerRetainedPrecision(source, capture.invocation, model => hasNativeMechanicsInvocation(source, model as PreviewModel));
+     await canonicalSha256HexCheckedV1(source);
+     if (capture.invalidated || nativeContentFingerprint(source) !== sourceFingerprint || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return;
+     nativeSourceInvocations.set(source, { capture, sourceFingerprint });

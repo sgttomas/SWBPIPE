@@ -1,0 +1,63 @@
+{
+ "in": "text_args.g4.json",
+ "out": "text_args.g4.tmp.json",
+ "old": "3260d7809e",
+ "new": "b1f80234dc",
+ "remapped": [],
+ "hunks": {
+  "core/product_physics/src/lib.rs": 8,
+  "core/product_physics/src/retained_product.rs": 8,
+  "core/product_physics/src/retained_receipt.rs": 0,
+  "core/product_physics/src/retained_memory.rs": 5,
+  "core/product_physics/src/retained_wire.rs": 6,
+  "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": 0
+ }
+}
+{
+ "site_keys_remapped": [
+  [
+   "lib.rs:13512",
+   "lib.rs:13722"
+  ],
+  [
+   "lib.rs:13513",
+   "lib.rs:13723"
+  ],
+  [
+   "lib.rs:13514",
+   "lib.rs:13724"
+  ],
+  [
+   "lib.rs:13515",
+   "lib.rs:13725"
+  ],
+  [
+   "lib.rs:13516",
+   "lib.rs:13726"
+  ],
+  [
+   "lib.rs:13511",
+   "lib.rs:13721"
+  ],
+  [
+   "lib.rs:1270",
+   "lib.rs:1272"
+  ],
+  [
+   "lib.rs:1274",
+   "lib.rs:1276"
+  ],
+  [
+   "lib.rs:13357",
+   "lib.rs:13567"
+  ],
+  [
+   "lib.rs:8411",
+   "lib.rs:8621"
+  ],
+  [
+   "lib.rs:8432",
+   "lib.rs:8642"
+  ]
+ ]
+}

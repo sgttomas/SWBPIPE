@@ -1,0 +1,19 @@
+# R-2: runner/headless (lane archive of bee3dc07ca, probe module only)
+I61_R2_RUNNER_DOC exportable sparse_interactive plain carries_notice=true base_doc_diagnostic_count=37 noticed_doc_diagnostic_count=38
+I61_R2_RUNNER_DOC exportable sparse_interactive receipt carries_notice=true base_doc_diagnostic_count=37 noticed_doc_diagnostic_count=38
+I61_R2_RUNNER_DOC exportable dense_scrutiny plain carries_notice=true base_doc_diagnostic_count=37 noticed_doc_diagnostic_count=38
+I61_R2_RUNNER_DOC exportable dense_scrutiny receipt carries_notice=true base_doc_diagnostic_count=37 noticed_doc_diagnostic_count=38
+I61_R2_RUNNER milestone sparse_interactive plain runner_blocking=false export=Some("result-envelope production failed structurally: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE") (base Some("result-envelope production failed structurally: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE")) qualified_evidence=false (base false) for_source=ok standing=needs_recompute
+I61_R2_RUNNER milestone sparse_interactive receipt runner_blocking=false export=Some("result-envelope production failed structurally: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE") (base Some("result-envelope production failed structurally: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE")) qualified_evidence=false (base false) for_source=ok standing=needs_recompute
+I61_R2_RUNNER milestone dense_scrutiny plain runner_blocking=false export=Some("result-envelope production failed structurally: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE") (base Some("result-envelope production failed structurally: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE")) qualified_evidence=false (base false) for_source=ok standing=needs_recompute
+I61_R2_RUNNER milestone dense_scrutiny receipt runner_blocking=false export=Some("result-envelope production failed structurally: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE") (base Some("result-envelope production failed structurally: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE")) qualified_evidence=false (base false) for_source=ok standing=needs_recompute
+I61_R2_RUNNER exportable sparse_interactive plain export_document=minted validate_document=ok payload_blocking=false
+I61_R2_RUNNER exportable sparse_interactive plain runner_blocking=false export=None (base None) qualified_evidence=true (base true) for_source=ok standing=needs_recompute
+I61_R2_RUNNER exportable sparse_interactive receipt export_document=minted validate_document=ok payload_blocking=false
+I61_R2_RUNNER exportable sparse_interactive receipt runner_blocking=false export=None (base None) qualified_evidence=true (base true) for_source=ok standing=needs_recompute
+I61_R2_RUNNER exportable dense_scrutiny plain export_document=minted validate_document=ok payload_blocking=false
+I61_R2_RUNNER exportable dense_scrutiny plain runner_blocking=false export=None (base None) qualified_evidence=true (base true) for_source=ok standing=needs_recompute
+I61_R2_RUNNER exportable dense_scrutiny receipt export_document=minted validate_document=ok payload_blocking=false
+I61_R2_RUNNER exportable dense_scrutiny receipt runner_blocking=false export=None (base None) qualified_evidence=true (base true) for_source=ok standing=needs_recompute
+test i61_r2_probe::i61_r2_runner_carries_the_unavailable_notice ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 51 filtered out; finished in 11.33s

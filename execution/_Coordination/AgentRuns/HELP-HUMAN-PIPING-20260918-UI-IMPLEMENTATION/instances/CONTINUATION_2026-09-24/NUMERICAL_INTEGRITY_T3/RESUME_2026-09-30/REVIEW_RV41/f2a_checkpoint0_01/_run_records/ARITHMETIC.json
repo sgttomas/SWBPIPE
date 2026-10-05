@@ -1,0 +1,22 @@
+{
+  "kind": "standard-library exact arithmetic; no product execution",
+  "coordinate_witness": {
+    "x": "exact_decode(binary64(0.1)) m",
+    "y": "100 mm",
+    "a_U": "1/1000",
+    "n": "exact_decode(binary64(100/1000)) m",
+    "n_equals_x": true,
+    "e_pub_SI": "1/180143985094819840",
+    "e_norm_SI": "1/180143985094819840",
+    "tight_center_offset": "0",
+    "raw_error_if_truth_is_x": "25/4503599627370496 mm"
+  },
+  "cardinality_arithmetic": {
+    "member_upper_tags": 78,
+    "member_symmetric_positions": 144,
+    "directional_upper_tags": 6,
+    "directional_symmetric_positions": 9
+  },
+  "provisional_3_75_GiB_bytes": 4026531840,
+  "no_new_policy_selected": true
+}

@@ -1,0 +1,4416 @@
+{
+"core/loads/load_case_algebra/src/lib.rs:246": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:1242": {
+"load_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:1243": {
+"message": {
+"bytes": 2173,
+"source": "NOTID"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:1656": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:1659": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:2426": {
+"load.category|?": {
+"bytes": 770,
+"source": "IN128"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:2441": {
+"load.load_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:2469": {
+"load.category|?": {
+"bytes": 770,
+"source": "IN128"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:2499": {
+"load.load_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:2544": {
+"load.load_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:271": {
+"field": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:273": {
+"field": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:275": {
+"field": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:277": {
+"load_id": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:283": {
+"load_id": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:291": {
+"alias": {
+"bytes": 512,
+"source": "FMTSTATIC"
+},
+"replacement": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:299": {
+"actual.schema_ref()": {
+"bytes": 512,
+"source": "FMTSTATIC"
+},
+"expected.schema_ref()": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:907": {
+"load_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/loads/primitive_loads/src/lib.rs:924": {
+"load_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/loads/stress_recovery/src/lib.rs:1011": {
+"subject": {
+"bytes": 327,
+"source": "STATIC"
+}
+},
+"core/loads/stress_recovery/src/lib.rs:1019": {
+"subject": {
+"bytes": 327,
+"source": "STATIC"
+}
+},
+"core/loads/stress_recovery/src/lib.rs:1037": {
+"subject": {
+"bytes": 327,
+"source": "STATIC"
+}
+},
+"core/loads/stress_recovery/src/lib.rs:470": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/loads/stress_recovery/src/lib.rs:473": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/loads/stress_recovery/src/lib.rs:56": {
+"subject_id": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/loads/stress_recovery/src/lib.rs:57": {
+"message": {
+"bytes": 2173,
+"source": "NOTID"
+}
+},
+"core/loads/stress_recovery/src/lib.rs:976": {
+"subject": {
+"bytes": 327,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/formation_guard.rs:450": {
+"record.member": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/formation_guard.rs:456": {
+"record.member": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/formation_guard.rs:465": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:10003": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:10009": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:10010": {
+"basis_record": {
+"bytes": 600,
+"source": "COMP"
+}
+},
+"core/product_physics/src/lib.rs:10101": {
+"pipe_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(pipe_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:10113": {
+"stable_suffix(pipe_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:10117": {
+"pipe_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1061": {
+"dof": {
+"bytes": 128,
+"source": "STATIC"
+},
+"node.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:10652": {
+"load.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1070": {
+"dof": {
+"bytes": 128,
+"source": "NUM"
+}
+},
+"core/product_physics/src/lib.rs:1071": {
+"name": {
+"bytes": 128,
+"source": "STATIC"
+},
+"node.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1079": {
+"part": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:1084": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1123": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1125": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11375": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11376": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11383": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11384": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11391": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11392": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11399": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11400": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11407": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11408": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11415": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11416": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1149": {
+"check.global_dof.map_or_else(||\"none\".to_string(),|dof|integrity_dof_label(model,dof))": {
+"bytes": 131,
+"source": "TPLLABEL"
+}
+},
+"core/product_physics/src/lib.rs:11515": {
+"id_tail": {
+"bytes": 128,
+"source": "STATIC"
+},
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11516": {
+"kind": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:11518": {
+"unit": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:11519": {
+"node_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11523": {
+"component": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:11546": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11553": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11560": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11567": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11574": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11581": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11617": {
+"id": {
+"bytes": 158,
+"source": "TPLSITE"
+}
+},
+"core/product_physics/src/lib.rs:11618": {
+"kind": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:11620": {
+"unit": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:11621": {
+"pipe_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11625": {
+"component": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:11627": {
+"location": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:11629": {
+"sign_convention": {
+"bytes": 2173,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:11649": {
+"id": {
+"bytes": 173,
+"source": "TPLSITE"
+}
+},
+"core/product_physics/src/lib.rs:11650": {
+"kind": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:11652": {
+"unit": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:11653": {
+"pipe_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11657": {
+"component": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:11658": {
+"coordinate_system": {
+"bytes": 2173,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:11659": {
+"location": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:11660": {
+"basis": {
+"bytes": 2173,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:11661": {
+"sign_convention": {
+"bytes": 2173,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:11675": {
+"case.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"case.id.len()": {
+"bytes": 20,
+"source": "NUM"
+},
+"component": {
+"bytes": 128,
+"source": "STATIC"
+},
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"support.id.len()": {
+"bytes": 20,
+"source": "NUM"
+}
+},
+"core/product_physics/src/lib.rs:11676": {
+"kind": {
+"bytes": 128,
+"source": "STATIC"
+},
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"unit": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:11677": {
+"case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:11678": {
+"component": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:1208": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1213": {
+"node.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1218": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1263": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:12881": {
+"id_location": {
+"bytes": 600,
+"source": "COMP"
+},
+"id_tail": {
+"bytes": 128,
+"source": "STATIC"
+},
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:12898": {
+"id_location": {
+"bytes": 600,
+"source": "COMP"
+},
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1291": {
+"stable_suffix(case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:12913": {
+"id_location": {
+"bytes": 600,
+"source": "COMP"
+},
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1294": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:12985": {
+"id_tail": {
+"bytes": 128,
+"source": "STATIC"
+},
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:13002": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:13017": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:13044": {
+"id": {
+"bytes": 872,
+"source": "TPLSITE"
+}
+},
+"core/product_physics/src/lib.rs:13045": {
+"kind": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:13048": {
+"pipe_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:13052": {
+"component": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:13053": {
+"coordinate_system": {
+"bytes": 2173,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:13054": {
+"location": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:13055": {
+"basis": {
+"bytes": 2173,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:13056": {
+"sign_convention": {
+"bytes": 2173,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:13074": {
+"id": {
+"bytes": 292,
+"source": "TPLSITE"
+}
+},
+"core/product_physics/src/lib.rs:13075": {
+"kind": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:13078": {
+"pipe_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:13082": {
+"component": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:13083": {
+"coordinate_system": {
+"bytes": 2173,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:13084": {
+"location": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:13085": {
+"basis": {
+"bytes": 2173,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:13086": {
+"sign_convention": {
+"bytes": 2173,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:1327": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:13617": {
+"result_tail(base_id)": {
+"bytes": 600,
+"source": "COMP"
+},
+"stable_suffix(load_case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:13778": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"support.node": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:13834": {
+"value": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:13899": {
+"value": {
+"bytes": 327,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:13921": {
+"value": {
+"bytes": 327,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:14032": {
+"id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1632": {
+"integrity_dof_label(model,dof)": {
+"bytes": 131,
+"source": "TPLLABEL"
+}
+},
+"core/product_physics/src/lib.rs:1644": {
+"integrity_dof_label(model,dof)": {
+"bytes": 131,
+"source": "TPLLABEL"
+}
+},
+"core/product_physics/src/lib.rs:1660": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1671": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1708": {
+"integrity_dof_label(model,record.global_dof)": {
+"bytes": 131,
+"source": "TPLLABEL"
+}
+},
+"core/product_physics/src/lib.rs:1721": {
+"integrity_dof_label(model,*dof)": {
+"bytes": 131,
+"source": "TPLLABEL"
+}
+},
+"core/product_physics/src/lib.rs:1739": {
+"integrity_dof_label(model,*dof)": {
+"bytes": 131,
+"source": "TPLLABEL"
+}
+},
+"core/product_physics/src/lib.rs:1753": {
+"member": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1763": {
+"entry": {
+"bytes": 8352,
+"source": "TPL_ENTRY"
+}
+},
+"core/product_physics/src/lib.rs:1812": {
+"family": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:1817": {
+"quantity": {
+"bytes": 145,
+"source": "TPL145"
+}
+},
+"core/product_physics/src/lib.rs:1833": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1837": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1910": {
+"case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:1916": {
+"d.id": {
+"bytes": 2330,
+"source": "DIAG"
+}
+},
+"core/product_physics/src/lib.rs:2516": {
+"finding.support_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:2520": {
+"finding.support_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:2587": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:2674": {
+"basis_key": {
+"bytes": 600,
+"source": "COMP"
+}
+},
+"core/product_physics/src/lib.rs:2752": {
+"solve.load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:2753": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:2759": {
+"row.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/lib.rs:2761": {
+"row.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/lib.rs:2769": {
+"result.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/lib.rs:2772": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:2785": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:2816": {
+"maximum.location_ref": {
+"bytes": 128,
+"source": "IN128"
+},
+"maximum.result_ref": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/lib.rs:3042": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:3058": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:3584": {
+"stable_suffix(load_case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:3590": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:3599": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:3910": {
+"finding.load_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:3914": {
+"finding.load_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:3924": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:3949": {
+"stable_suffix(&load_case.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(&pipe_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:3952": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:3960": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4070": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4246": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4249": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4272": {
+"stable_suffix(&load_case.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4275": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4357": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4388": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4482": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4485": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4508": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4516": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4565": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4569": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4576": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4580": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4609": {
+"stable_suffix(&node.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4623": {
+"node.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4624": {
+"result_id": {
+"bytes": 140,
+"source": "TPLSITE"
+}
+},
+"core/product_physics/src/lib.rs:4632": {
+"node.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4724": {
+"exact_source_identity(&[&load_case.id,&support.id])": {
+"bytes": 600,
+"source": "COMP"
+},
+"name": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:4728": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4739": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4747": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4758": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4760": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4767": {
+"stable_suffix(&support.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4771": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4815": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4844": {
+"stable_suffix(&pipe.element_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4848": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4863": {
+"stable_suffix(&pipe.element_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4867": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4882": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4926": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4946": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4968": {
+"stable_suffix(&load_case.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(&pipe.element_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4975": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4980": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4981": {
+"bend.component_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:4982": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5007": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5037": {
+"stable_suffix(&pipe.element_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5043": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5048": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5049": {
+"bend.component_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5050": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5073": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5111": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5157": {
+"location.replace('_',\"-\")": {
+"bytes": 600,
+"source": "STATIC"
+},
+"stable_suffix(&pipe.element_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5160": {
+"location": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:5166": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5173": {
+"location.replace('_',\"-\")": {
+"bytes": 600,
+"source": "STATIC"
+},
+"stable_suffix(&pipe.element_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5176": {
+"location": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:5182": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5264": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5275": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"load_case.id.len()": {
+"bytes": 20,
+"source": "NUM"
+},
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"pipe.element_id.len()": {
+"bytes": 20,
+"source": "NUM"
+}
+},
+"core/product_physics/src/lib.rs:5276": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"result_id": {
+"bytes": 322,
+"source": "TPLSITE"
+}
+},
+"core/product_physics/src/lib.rs:5281": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"result_id": {
+"bytes": 322,
+"source": "TPLSITE"
+}
+},
+"core/product_physics/src/lib.rs:5286": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5287": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5307": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"load_case.id.len()": {
+"bytes": 20,
+"source": "NUM"
+},
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"pipe.element_id.len()": {
+"bytes": 20,
+"source": "NUM"
+}
+},
+"core/product_physics/src/lib.rs:5314": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"result_id": {
+"bytes": 322,
+"source": "TPLSITE"
+}
+},
+"core/product_physics/src/lib.rs:5328": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5329": {
+"result_id": {
+"bytes": 322,
+"source": "TPLSITE"
+}
+},
+"core/product_physics/src/lib.rs:5340": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5341": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(&pipe.element_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5349": {
+"stable_suffix(&pipe.element_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5358": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5359": {
+"result_id": {
+"bytes": 142,
+"source": "TPLSITE"
+}
+},
+"core/product_physics/src/lib.rs:5367": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5504": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5516": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5523": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5529": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5546": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5559": {
+"row.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/lib.rs:5562": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:5591": {
+"entity": {
+"bytes": 128,
+"source": "IN128"
+},
+"kind": {
+"bytes": 128,
+"source": "STATIC"
+},
+"location": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:5592": {
+"matched[0].id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/lib.rs:6118": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:6162": {
+"stable_suffix(load_case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:6165": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:6168": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:6175": {
+"stable_suffix(load_case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:6178": {
+"direct_system.dimension": {
+"bytes": 128,
+"source": "NUM"
+}
+},
+"core/product_physics/src/lib.rs:6183": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:6196": {
+"stable_suffix(load_case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:6199": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:6202": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:6234": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7092": {
+"stable_suffix(&node.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7096": {
+"node.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7113": {
+"stable_suffix(&pipe.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7117": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7123": {
+"stable_suffix(&pipe.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7127": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7132": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"pipe.material": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(&pipe.material)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7145": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(&pipe.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7154": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7158": {
+"stable_suffix(&pipe.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7162": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7169": {
+"stable_suffix(&pipe.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7170": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7196": {
+"stable_suffix(&pipe.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7200": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7211": {
+"stable_suffix(&pipe.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7215": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7227": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7257": {
+"stable_suffix(&support.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7261": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"support.node": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7272": {
+"stable_suffix(&support.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7276": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7340": {
+"stable_suffix(&support.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7343": {
+"family|?": {
+"bytes": 770,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:7346": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7367": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:7979": {
+"model.project.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8027": {
+"stable_suffix(&node.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8032": {
+"node.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8051": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8055": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8062": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8066": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8074": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8079": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8086": {
+"point.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8091": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(&point_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8096": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"point_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8104": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(&point_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8109": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"point_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8117": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(&point_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8122": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"point_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8130": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(&point_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8135": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"point_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8146": {
+"stable_suffix(&pipe.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8150": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8156": {
+"stable_suffix(&pipe.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8160": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8167": {
+"stable_suffix(&pipe.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8171": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8179": {
+"stable_suffix(&pipe.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8183": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8191": {
+"stable_suffix(&pipe.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8195": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8203": {
+"stable_suffix(&pipe.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8207": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8215": {
+"stable_suffix(&pipe.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8219": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8239": {
+"stable_suffix(&support.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8243": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8261": {
+"stable_suffix(&support.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8265": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8279": {
+"stable_suffix(&support.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(field)": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:8284": {
+"field": {
+"bytes": 128,
+"source": "STATIC"
+},
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8297": {
+"stable_suffix(&support.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(field)": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:8302": {
+"field": {
+"bytes": 128,
+"source": "STATIC"
+},
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8313": {
+"stable_suffix(&support.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8317": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8324": {
+"stable_suffix(&support.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8329": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8339": {
+"stable_suffix(&support.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8343": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8745": {
+"stable_suffix(&load.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8749": {
+"load.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8759": {
+"stable_suffix(&load_case.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8764": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8773": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8779": {
+"stable_suffix(&case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8783": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8795": {
+"label": {
+"bytes": 327,
+"source": "STATIC"
+},
+"stable_suffix(&case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8799": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"label": {
+"bytes": 327,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:8810": {
+"stable_suffix(&case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8814": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8821": {
+"stable_suffix(&case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8825": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:8897": {
+"dimension.as_str()": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:8967": {
+"message": {
+"bytes": 8192,
+"source": "NOTID"
+}
+},
+"core/product_physics/src/lib.rs:9002": {
+"stable_suffix(&load.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9008": {
+"load.category": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9012": {
+"load.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9017": {
+"stable_suffix(&load.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9021": {
+"load.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9029": {
+"stable_suffix(&load.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9033": {
+"load.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"node": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9044": {
+"stable_suffix(&load.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9048": {
+"load.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9060": {
+"stable_suffix(&load.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9064": {
+"load.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9580": {
+"stable_suffix(&load_case.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9587": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9591": {
+"basis_ref": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9598": {
+"stable_suffix(&load_case.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9606": {
+"load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9648": {
+"material": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9660": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(load_case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9667": {
+"basis_ref": {
+"bytes": 128,
+"source": "IN128"
+},
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9671": {
+"basis_ref": {
+"bytes": 128,
+"source": "IN128"
+},
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9678": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(load_case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9685": {
+"basis_ref": {
+"bytes": 128,
+"source": "IN128"
+},
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9689": {
+"basis_ref": {
+"bytes": 128,
+"source": "IN128"
+},
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9696": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(load_case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9703": {
+"basis_ref": {
+"bytes": 128,
+"source": "IN128"
+},
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9708": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9709": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9710": {
+"basis_ref": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9723": {
+"basis_ref": {
+"bytes": 128,
+"source": "IN128"
+},
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"point.thermal_expansion_coefficient.as_ref().map(|_|basis_ref).unwrap_or(\"absent_on_selected_point\")": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9747": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(load_case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9754": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9758": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9768": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(load_case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9775": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9779": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9803": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(load_case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9810": {
+"lower.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"upper.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9815": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9816": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9817": {
+"lower.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9818": {
+"upper.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9829": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(load_case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9836": {
+"lower.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"upper.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:984": {
+"solver_component_name()": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:9841": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9842": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9843": {
+"lower.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9844": {
+"upper.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:985": {
+"solver_component_version()": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/lib.rs:9864": {
+"lower_e.unit": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9868": {
+"lower_g.unit": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9872": {
+"lower_alpha.unit": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9874": {
+"lower.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"upper.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9888": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(load_case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9895": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9899": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9906": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(load_case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9913": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9917": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9927": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(load_case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9934": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9938": {
+"load_case_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9949": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9952": {
+"material.constitutive_basis": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9956": {
+"material.provenance": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9963": {
+"basis_ref": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9968": {
+"load_case.modulus_basis_temperature.as_ref().map(|temperature|format!(\"solve_temperature_kelvin={}\",temperature.value)).unwrap_or_default()": {
+"bytes": 327,
+"source": "IN128"
+}
+},
+"core/product_physics/src/lib.rs:9996": {
+"stable_suffix(&load_case.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/pressure_runtime.rs:92": {
+"code": {
+"bytes": 2173,
+"source": "STATIC"
+},
+"stable_suffix(&refs.join(\":\"))": {
+"bytes": 148,
+"source": "TPL148"
+}
+},
+"core/product_physics/src/pressure_runtime.rs:94": {
+"refs": {
+"bytes": 608,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:1028": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:1029": {
+"load.get(\"\").and_then(|v|v.as_str()).unwrap_or(\"\")": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:1030": {
+"load.pointer(\"\").and_then(|v|v.as_str()).unwrap_or(\"\")": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:1054": {
+"identity(&[&case_id,&load_id])": {
+"bytes": 600,
+"source": "COMP"
+}
+},
+"core/product_physics/src/preview_physics.rs:1057": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"load_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"support_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:194": {
+"row.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/preview_physics.rs:224": {
+"id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:265": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:272": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"case_id.len()": {
+"bytes": 20,
+"source": "NUM"
+},
+"pipe_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"pipe_id.len()": {
+"bytes": 20,
+"source": "NUM"
+}
+},
+"core/product_physics/src/preview_physics.rs:282": {
+"pipe_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:285": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:501": {
+"member.pipe_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:503": {
+"member.pipe_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:505": {
+"identity(&[case_id,&member.pipe_id])": {
+"bytes": 600,
+"source": "COMP"
+}
+},
+"core/product_physics/src/preview_physics.rs:508": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"member.pipe_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:509": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"member.pipe_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:517": {
+"member.pipe_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"row.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/preview_physics.rs:519": {
+"member.pipe_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:544": {
+"solve.load_case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:563": {
+"support_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:568": {
+"support_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:690": {
+"row.entity_ref": {
+"bytes": 128,
+"source": "IN128"
+},
+"row.id": {
+"bytes": 1024,
+"source": "RES"
+},
+"row.unit": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/preview_physics.rs:713": {
+"identity(&[&support.id])": {
+"bytes": 600,
+"source": "COMP"
+}
+},
+"core/product_physics/src/preview_physics.rs:716": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:717": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"support.node": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:720": {
+"identity(&[&support.id])": {
+"bytes": 600,
+"source": "COMP"
+}
+},
+"core/product_physics/src/preview_physics.rs:723": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/preview_physics.rs:724": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/retained_product.rs:1490": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/retained_product.rs:1576": {
+"l.load_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/retained_product.rs:1583": {
+"l.load_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/retained_product.rs:1940": {
+"r.kind": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/retained_product.rs:220": {
+"case": {
+"bytes": 2173,
+"source": "IN128"
+}
+},
+"core/product_physics/src/retained_product.rs:2239": {
+"row.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/retained_product.rs:2280": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/retained_product.rs:2305": {
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/retained_product.rs:2332": {
+"[\"axial\",\"shear-y\",\"shear-z\",\"torsion\",\"bending-y\",\"bending-z\"][i]": {
+"bytes": 128,
+"source": "STATIC"
+},
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/retained_product.rs:2351": {
+"[\"axial\",\"shear-y\",\"shear-z\",\"torsion\",\"bending-y\",\"bending-z\"][i]": {
+"bytes": 128,
+"source": "STATIC"
+},
+"station_id_location(loc)": {
+"bytes": 600,
+"source": "COMP"
+},
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/retained_product.rs:2383": {
+"case": {
+"bytes": 2173,
+"source": "IN128"
+},
+"component": {
+"bytes": 128,
+"source": "STATIC"
+},
+"row.entity_ref": {
+"bytes": 128,
+"source": "IN128"
+},
+"row.entity_ref.len()": {
+"bytes": 20,
+"source": "NUM"
+}
+},
+"core/product_physics/src/retained_product.rs:2416": {
+"idloc": {
+"bytes": 128,
+"source": "STATIC"
+},
+"suffix": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/retained_product.rs:242": {
+"diagnostic_ref": {
+"bytes": 2330,
+"source": "DIAG"
+}
+},
+"core/product_physics/src/retained_product.rs:2421": {
+"case": {
+"bytes": 2173,
+"source": "IN128"
+},
+"row.entity_ref": {
+"bytes": 128,
+"source": "IN128"
+},
+"row.entity_ref.len()": {
+"bytes": 20,
+"source": "NUM"
+}
+},
+"core/product_physics/src/retained_product.rs:2434": {
+"row.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/retained_product.rs:250": {
+"diagnostic_ref": {
+"bytes": 2330,
+"source": "DIAG"
+}
+},
+"core/product_physics/src/retained_product.rs:274": {
+"diagnostic_ref": {
+"bytes": 2330,
+"source": "DIAG"
+}
+},
+"core/product_physics/src/retained_product.rs:280": {
+"record.id": {
+"bytes": 2330,
+"source": "DIAG"
+}
+},
+"core/product_physics/src/retained_product.rs:282": {
+"record.id": {
+"bytes": 2330,
+"source": "DIAG"
+}
+},
+"core/product_physics/src/retained_product.rs:287": {
+"record.id": {
+"bytes": 2330,
+"source": "DIAG"
+}
+},
+"core/product_physics/src/retained_product.rs:290": {
+"record.id": {
+"bytes": 2330,
+"source": "DIAG"
+}
+},
+"core/product_physics/src/retained_product.rs:3038": {
+"reason": {
+"bytes": 8192,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/retained_product.rs:3053": {
+"reason": {
+"bytes": 8192,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/retained_product.rs:3125": {
+"s": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/retained_product.rs:3152": {
+"s": {
+"bytes": 327,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/retained_product.rs:3267": {
+"text": {
+"bytes": 1024,
+"source": "IN128"
+}
+},
+"core/product_physics/src/retained_product.rs:524": {
+"case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/retained_product.rs:525": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/retained_product.rs:646": {
+"stable_suffix(&self.case_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/retained_product.rs:691": {
+"text": {
+"bytes": 1024,
+"source": "COMP"
+}
+},
+"core/product_physics/src/retained_wire.rs:1545": {
+"source": {
+"bytes": 128,
+"source": "NOTID"
+}
+},
+"core/product_physics/src/retained_wire.rs:763": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_receipt.rs:1016": {
+"r.result_id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt.rs:1077": {
+"r.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt.rs:221": {
+"pipe": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_receipt.rs:28": {
+"message": {
+"bytes": 2173,
+"source": "NOTID"
+}
+},
+"core/product_physics/src/source_receipt.rs:676": {
+"input.load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_receipt.rs:732": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_receipt.rs:739": {
+"r.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt.rs:774": {
+"case_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_receipt.rs:781": {
+"r.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:119": {
+"support.support_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:24": {
+"input.load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:29": {
+"case": {
+"bytes": 2173,
+"source": "IN128"
+},
+"component": {
+"bytes": 128,
+"source": "STATIC"
+},
+"support": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:292": {
+"id": {
+"bytes": 188,
+"source": "TPL_FID"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:294": {
+"row.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:308": {
+"actual.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:315": {
+"kind": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:317": {
+"unit": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:370": {
+"primary[&selected.published_nodal_functional_indices()[i*6+c]].id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:377": {
+"stable_suffix(&node.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:390": {
+"primary[&s.functional_indices[c]].id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:396": {
+"stable_suffix(&s.support_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:522": {
+"row.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:533": {
+"primary[&function].id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:548": {
+"stable_suffix(&m.member_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:590": {
+"binding.result_id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:592": {
+"binding.result_id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:608": {
+"row.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:610": {
+"row.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:612": {
+"projection.projection_id": {
+"bytes": 199,
+"source": "TPLSITE"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:625": {
+"d.row.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:631": {
+"row.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:633": {
+"row.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:642": {
+"r.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:643": {
+"r.id": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/rows.rs:651": {
+"r.source_result_refs": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/product_physics/src/source_receipt/source.rs:115": {
+"location": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/source_receipt/source.rs:27": {
+"case": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_receipt/source.rs:51": {
+"path": {
+"bytes": 87,
+"source": "NOTID_OVR87"
+}
+},
+"core/product_physics/src/source_recovery.rs:1101": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_recovery.rs:1126": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_recovery.rs:1136": {
+"pipe.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_recovery.rs:1144": {
+"input.load_case.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_recovery.rs:1146": {
+"authored.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_recovery.rs:1171": {
+"spring.support_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_recovery.rs:1192": {
+"id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_recovery.rs:1400": {
+"row.key": {
+"bytes": 320,
+"source": "NOTID"
+}
+},
+"core/product_physics/src/source_recovery.rs:1500": {
+"id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_recovery.rs:1517": {
+"id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_recovery.rs:1528": {
+"id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_recovery.rs:430": {
+"case": {
+"bytes": 2173,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_recovery.rs:475": {
+"name": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/source_recovery.rs:737": {
+"load.load_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_recovery.rs:817": {
+"support.support_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/source_recovery.rs:934": {
+"spring.support_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1023": {
+"stable_suffix(field_path)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(support_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1031": {
+"stiffness.dof": {
+"bytes": 128,
+"source": "IN128"
+},
+"support_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1040": {
+"stable_suffix(field_path)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(support_id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1045": {
+"field_path": {
+"bytes": 128,
+"source": "IN128"
+},
+"support_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1408": {
+"entity": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1411": {
+"entity": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1412": {
+"entity": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1428": {
+"entity": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1431": {
+"entity": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1432": {
+"id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1455": {
+"entity": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1458": {
+"entity": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1461": {
+"id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1478": {
+"dimension.as_str()": {
+"bytes": 128,
+"source": "STATIC"
+},
+"quantity.unit": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1904": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1911": {
+"load.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"pipe_input.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1917": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:1924": {
+"load.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"pipe_input.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:323": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:327": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:334": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:338": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:34": {
+"stable_suffix(&load.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:347": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:354": {
+"stable_suffix(&material.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:359": {
+"material.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:37": {
+"case.id": {
+"bytes": 128,
+"source": "IN128"
+},
+"load.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:370": {
+"stable_suffix(&pipe.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:374": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:380": {
+"stable_suffix(&pipe.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:384": {
+"pipe.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:411": {
+"stable_suffix(&support.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(field)": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/validation.rs:416": {
+"field": {
+"bytes": 128,
+"source": "STATIC"
+},
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:429": {
+"stable_suffix(&support.id)": {
+"bytes": 128,
+"source": "IN128"
+},
+"stable_suffix(field)": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/product_physics/src/validation.rs:434": {
+"field": {
+"bytes": 128,
+"source": "STATIC"
+},
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:46": {
+"stable_suffix(&support.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:49": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:58": {
+"stable_suffix(&support.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:61": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:69": {
+"stable_suffix(&support.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:72": {
+"support.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:808": {
+"stable_suffix(&load.id)": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/product_physics/src/validation.rs:809": {
+"load.id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/reporting/result_export/src/load_reference.rs:224": {
+"name": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/reporting/result_export/src/load_reference_source.rs:47": {
+"name": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/reporting/result_export/src/physics_evidence.rs:169": {
+"material_id": {
+"bytes": 128,
+"source": "IN128"
+},
+"point": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/reporting/result_export/src/physics_evidence.rs:179": {
+"material_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/reporting/result_export/src/physics_evidence.rs:38": {
+"code": {
+"bytes": 2173,
+"source": "STATIC"
+}
+},
+"core/reporting/result_export/src/physics_source.rs:19": {
+"detail": {
+"bytes": 8192,
+"source": "STATIC"
+}
+},
+"core/reporting/result_export/src/preview_physics_evidence.rs:385": {
+"identity(&[support])": {
+"bytes": 600,
+"source": "COMP"
+},
+"kind": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/reporting/result_export/src/preview_physics_evidence.rs:446": {
+"identity(&[case_id,pipe])": {
+"bytes": 600,
+"source": "COMP"
+}
+},
+"core/reporting/result_export/src/preview_physics_evidence.rs:530": {
+"identity(&[case_id,support])": {
+"bytes": 600,
+"source": "COMP"
+}
+},
+"core/reporting/result_export/src/preview_physics_evidence.rs:90": {
+"code": {
+"bytes": 2173,
+"source": "STATIC"
+}
+},
+"core/reporting/result_export/src/retained_precision.rs:211": {
+"suffix": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/reporting/result_export/src/retained_precision.rs:213": {
+"suffix": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/reporting/result_export/src/retained_precision.rs:2613": {
+"text(&d[\"\"][\"\"])": {
+"bytes": 128,
+"source": "IN128"
+},
+"text(&n[\"\"])": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/reporting/result_export/src/retained_precision.rs:2622": {
+"text(&r[\"\"])": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/reporting/result_export/src/retained_precision.rs:285": {
+"source": {
+"bytes": 128,
+"source": "NOTID"
+}
+},
+"core/reporting/result_export/src/retained_precision.rs:3233": {
+"text(&d[\"\"])": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/reporting/result_export/src/retained_precision.rs:3234": {
+"text(&d[\"\"])": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/reporting/result_export/src/retained_precision.rs:3250": {
+"text(&row[\"\"])": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/reporting/result_export/src/retained_precision.rs:3280": {
+"text(&row[\"\"])": {
+"bytes": 1024,
+"source": "RES"
+}
+},
+"core/reporting/result_export/src/retained_precision.rs:4238": {
+"source": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/reporting/result_export/src/retained_precision.rs:591": {
+"source": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/reporting/result_export/src/semantic_contract.rs:32": {
+"kind": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/reporting/result_export/src/semantic_contract.rs:51": {
+"kind": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/reporting/result_export/src/semantic_contract.rs:54": {
+"kind": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/serialization/canonical_json/src/binary64.rs:53": {
+"reason": {
+"bytes": 8192,
+"source": "STATIC"
+}
+},
+"core/solver/diagnostics/src/lib.rs:265": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/diagnostics/src/lib.rs:268": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/frame_kernel/src/lib.rs:380": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/frame_kernel/src/lib.rs:383": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/frame_kernel/src/lib.rs:404": {
+"dof": {
+"bytes": 128,
+"source": "NUM"
+}
+},
+"core/solver/frame_kernel/src/lib.rs:406": {
+"dof": {
+"bytes": 128,
+"source": "NUM"
+}
+},
+"core/solver/frame_kernel/src/lib.rs:411": {
+"dof": {
+"bytes": 128,
+"source": "NUM"
+}
+},
+"core/solver/frame_kernel/src/lib.rs:413": {
+"dof": {
+"bytes": 128,
+"source": "NUM"
+}
+},
+"core/solver/frame_kernel/src/lib.rs:418": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/frame_kernel/src/load_ledger.rs:133": {
+"source": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/solver/frame_kernel/src/load_ledger.rs:408": {
+"term.source": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/solver/frame_kernel/src/load_ledger.rs:63": {
+"dof": {
+"bytes": 128,
+"source": "NUM"
+}
+},
+"core/solver/frame_kernel/src/load_ledger.rs:65": {
+"dof": {
+"bytes": 128,
+"source": "NUM"
+}
+},
+"core/solver/frame_kernel/src/load_ledger.rs:670": {
+"source": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/solver/frame_kernel/src/structural.rs:1099": {
+"t.source": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/solver/frame_kernel/src/structural/formation_check.rs:109": {
+"detail": {
+"bytes": 2173,
+"source": "NOTID"
+}
+},
+"core/solver/frame_kernel/src/structural/formation_check.rs:167": {
+"family": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/solver/frame_kernel/src/structural/retained/adaptive.rs:4854": {
+"decision.summary": {
+"bytes": 600,
+"source": "NOTID"
+}
+},
+"core/solver/frame_kernel/src/structural/retained/adaptive.rs:4898": {
+"decision.estimate_summary": {
+"bytes": 600,
+"source": "NOTID"
+}
+},
+"core/solver/frame_kernel/src/structural/retained/adaptive.rs:4899": {
+"decision.charge_summary": {
+"bytes": 600,
+"source": "NOTID"
+}
+},
+"core/solver/frame_kernel/src/structural/retained/adaptive.rs:5055": {
+"source": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/solver/frame_kernel/src/structural/retained/wide.rs:180": {
+"field": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/linear_supports/src/lib.rs:190": {
+"support_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/solver/linear_supports/src/lib.rs:252": {
+"support_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/solver/linear_supports/src/lib.rs:253": {
+"message": {
+"bytes": 2173,
+"source": "NOTID"
+}
+},
+"core/solver/linear_supports/src/lib.rs:301": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/linear_supports/src/lib.rs:304": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/linear_supports/src/lib.rs:356": {
+"dof": {
+"bytes": 128,
+"source": "NUM"
+}
+},
+"core/solver/linear_supports/src/lib.rs:358": {
+"dof": {
+"bytes": 128,
+"source": "NUM"
+}
+},
+"core/solver/linear_supports/src/lib.rs:528": {
+"dof|?": {
+"bytes": 770,
+"source": "NUM"
+},
+"support.family|?": {
+"bytes": 770,
+"source": "IN128"
+}
+},
+"core/solver/linear_supports/src/lib.rs:587": {
+"support.support_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/solver/linear_supports/src/lib.rs:628": {
+"support.support_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/solver/nonlinear_integration/src/structural_adapter.rs:1448": {
+"slot.element_id": {
+"bytes": 128,
+"source": "IN128"
+}
+},
+"core/solver/nonlinear_supports/src/lib.rs:360": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/nonlinear_supports/src/lib.rs:363": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/nonlinear_supports/src/lib.rs:366": {
+"support_id": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/nonlinear_supports/src/lib.rs:372": {
+"support_id": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/nonlinear_supports/src/lib.rs:378": {
+"support_id": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/nonlinear_supports/src/lib.rs:381": {
+"support_id": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/sparse_direct/src/lib.rs:68": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/sparse_direct/src/lib.rs:74": {
+"dimension": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/straight_pipe/src/lib.rs:347": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/straight_pipe/src/lib.rs:349": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/straight_pipe/src/lib.rs:352": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/straight_pipe/src/lib.rs:355": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/solver/straight_pipe/src/lib.rs:435": {
+"element_id": {
+"bytes": 128,
+"source": "STATIC"
+}
+},
+"core/units/src/lib.rs:1088": {
+"alias": {
+"bytes": 512,
+"source": "FMTSTATIC"
+},
+"replacement": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/units/src/lib.rs:1091": {
+"dimension.as_str()": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/units/src/lib.rs:1106": {
+"dimension.as_str()": {
+"bytes": 512,
+"source": "FMTSTATIC"
+},
+"quantity_kind|?": {
+"bytes": 3074,
+"source": "FMTSTATIC"
+}
+},
+"core/units/src/lib.rs:1121": {
+"name": {
+"bytes": 512,
+"source": "FMTSTATIC"
+}
+},
+"core/units/src/lib.rs:888": {
+"symbol": {
+"bytes": 2173,
+"source": "IN128"
+}
+}
+}

@@ -1,0 +1,336 @@
+diff --git a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/CONTRACT_DELTA.md b/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/CONTRACT_DELTA.md
+index 26b760fbb4..0d483cd750 100644
+--- a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/CONTRACT_DELTA.md
++++ b/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/CONTRACT_DELTA.md
+@@ -75,11 +75,22 @@ Concrete proposed remaining outer codes are `source_unavailable`, `kernel_unreso
+ 
+ ## 3. Source registries and concrete maps
+ 
+-C2 replaces duplicated per-selected source_binding with a body-level `sources[]` and references. A source is registered after PrimitiveSource::new and map validation succeed, **regardless of final selected/unavailable outcome**. `SourceRef` is its array index. Failed source construction uses `source_decline:{input_owner:{case_index:U,case_id:Text,material_basis_ref:U},constructor_counts:{nodes:U,members:U,springs:U,directional_springs:0,constraints:U,nodal_terms:U,stations:U,supports:U,id_utf8_bytes:U},error:SourceError}` and no Run; it cannot claim a valid stiffness identity. The private InputMap is retained under admission and consists of the actual case/material/map descriptors below before validated body/layout completion. There is no public reference to an absent private registry.
++C2 replaces duplicated per-selected source_binding with a body-level `sources[]` and references. A **case** source is registered after PrimitiveSource::new and map validation succeed, **regardless of final selected/unavailable outcome**; a **combination** source is registered only after the existing operand checks and CasePrep::combination succeed, as specified below. `SourceRef` is its array index. Failed case-source construction uses `source_decline:{input_owner:{case_index:U,case_id:Text,material_basis_ref:U},constructor_counts:{nodes:U,members:U,springs:U,directional_springs:0,constraints:U,nodal_terms:U,stations:U,supports:U,id_utf8_bytes:U},error:SourceError}` and no Run; it cannot claim a valid stiffness identity. The private InputMap is retained under admission and consists of the actual case/material/map descriptors below before validated body/layout completion. There is no public reference to an absent private registry. Combination pre-source refusal instead uses the explicit Call result in §4; it does not masquerade as this case SourceError branch.
+ 
+ `body.material_bases[]` contains `{index:U,selector,materials:[Material],case_indices:[U]}` in first-use case order. Selector is `{kind:"base"}`, `{kind:"named",id:Text}`, or `{kind:"temperature",kelvin:B}`. It is derived from actual modulus_basis_ref / normalized modulus_basis_temperature, not a caller label. Material is `{input_index:U,id:Text,elastic_modulus:B,shear_modulus:B,shear_origin,selection}`. Include only materials used by admitted members, retaining their order and input_index in the actual chosen normalized material array (request-level overrides versus model materials); do not invent G for an unused material. Selection is `{kind:"base"}`, `{kind:"named_point",point_id:Text}`, or `{kind:"interpolated",lower_point_id:Text,upper_point_id:Text,target_kelvin:B}` bound to the actual resolved pipeline. shear_origin is `{kind:"explicit_g"}` on preview or `{kind:"derived_e_nu",poisson_ratio:B,constitutive_basis:"homogeneous_isotropic_E_nu_v1"}` on exact mode: pressure_material.rs deliberately derives G from the selected common E/nu pair and ignores redundant authored G. Record that actual result, with its exact point/interpolation provenance; never substitute base G. A basis sharing a selector does not excuse changed E/G bits. 0.4 member-pair inputs are outside this F2a contract.
+ 
+-`SourceBinding` exact members are `{index,owner,material_basis_ref,kernel_source_sha256,stiffness_sha256,id_maps,body_membership,layout,stations,supports,constraints,nodal_terms,section_terms}`. `owner={kind:"case",case_index,case_id}` or `{kind:"combination",combination_index,combination_id,terms:[{case_index,factor:B,source_ref}]}`. Source digest is C1 H(source domain, object **without index**): ordinal storage location is not physical truth. It still includes owner, so identical K4SRC bytes in different cases do not authorize a provenance swap. Kernel/stiffness digests continue to hash exact existing canonical bytes. A combination's kernel source digest is K4CMB, not its first operand's K4SRC; its map/material facts must equal the compatible operands, while its owner/ledger identity is its own.
++`SourceBinding` is a **closed union discriminated by owner.kind**, not a common case-shaped load object:
++
++- **CaseSource:** exact members `{index,owner,material_basis_ref,kernel_source_sha256,stiffness_sha256,id_maps,body_membership,layout,stations,supports,constraints,nodal_terms,section_terms}`, with `owner={kind:"case",case_index,case_id}`. The map table below specifies this branch.
++- **CombinationSource:** exact members `{index,owner,kernel_source_sha256,ledger_sha256,stiffness_sha256,representative_source_ref,operands}`, with `owner={kind:"combination",combination_index,combination_id}` and `operands:[{case_index:U,factor:B,source_ref:U,source_identity_sha256:H}]` in authored factor order. Each operand resolves to a **CaseSource** for the stated case; repeated cases, factors and source refs remain repeated. representative_source_ref is exactly operands[0].source_ref. This branch has **no nodal_terms or constraints value array** and no material/map copies that could be confused with combined load data.
++
++The representative first CaseSource supplies the immutable node/member/spring/support id maps, material/operational section descriptors, body membership, layout, station declarations and support groups used by CasePrep::with. Resolve these through representative_source_ref; compare every operand's full stiffness bytes, layout, stations and supports as the existing API does. The constrained **DOF set** comes from that common stiffness; the representative's constraint **values** are not the combination's prescriptions. Product common model/map/material/section association checks remain those already required by C1/B1, without turning different load inventories into OperandsDiffer.
++
++Combination load provenance is exactly the ordered expansion of references `(operand_index, term_index)` to each operand CaseSource.nodal_terms in its canonical source order. That resolves source_id, primitive_load_index, dof and original value bits within the referenced **operand's case**. The intended ledger adds each exact product `factor_i * value_ij` before netting/rounding as current RetainedLedger::combined does. Combination prescription provenance is `(operand_index, constrained_dof)` with that factor and that operand's actual constraint value, matching CasePrep::combination; W1a product operands have zero values, but the representation must not relabel first-source values as combined values. These provenance sequences are derivable and **not serialized as binary64 products/nets**. No combined PrimitiveSource is invented; factors multiplying to overflow/underflow in binary64 are never first formed in binary64 for the ledger.
++
++kernel_source_sha256 is raw SHA256 of the existing K4SRC bytes for CaseSource and existing K4CMB bytes for CombinationSource. K4CMB retains ordered factor bits and complete operand source encodings exactly; ledger_sha256 in CombinationSource is raw SHA256 of its separately prepared K4LED bytes and must equal selection.ledger_sha256 whenever selected. Its stiffness_sha256 equals the representative and every compatible operand's raw K4STF digest, backed by full-byte comparison at the producer. No native encoding changes follow.
++
++Source identity remains C1 H(`retained_precision_source_mp_v2`, exact union object **without its own index**), including owner.kind, representative_source_ref and each ordered operand's source_ref **and** source_identity_sha256. Referenced ordinals are deliberately bound to this registry; reindexing requires recomputing affected source/receipt hashes, while native K4CMB/K4LED hashes remain byte-defined. Every operand digest equals the recomputed CaseSource identity at its reference; every referenced source precedes the combination, so there is no hash cycle. The receipt hash binds the full registry. A different case owner with identical K4SRC bytes is still a different product association. C1's per-entry source_identity_sha256 resolves through the selected or unavailable Run.source_ref to this same recomputed union hash.
+ 
+ | Map/subshape | Concrete assignment/order and validation |
+ |---|---|
+@@ -90,12 +101,12 @@ C2 replaces duplicated per-selected source_binding with a body-level `sources[]`
+ | `stations:[{id,member,location,fraction:B}]` | Exactly three B1 interior stations per admitted straight member: id=3*kernel_member+j (checked), j=0/1/2, location quarter_1/midspan/quarter_3 and exact fractions .25/.5/.75. Endpoint action/stress operands use signed EndAction; no phantom endpoint station. If later B2 needs added stations, it must extend the explicit station contract and counts before implementation. |
+ | `supports:[{id,node,restrained:[bool;6],springs:[U],directional_springs:[]}]` | Resolved actual rigid DOFs and spring ids for that support, canonical sorted unique ids as Source::new retains. Every spring lives at this node. No duplicated attribution of a shared residual DOF; row binder preserves current ambiguity-withholding disposition. A group may exist without a publishable attributed row. |
+ | `constraints:[{dof:Dof,value:B,support_indices:[U]}]` | Ascending unique global DOFs from actual prepared boundary, all value=+0 for product W1a. support_indices preserve all original contributors for attribution, not extra kernel constraints. Constant-effort/hanger family rules come from current build path; nonlinear/nonzero motion is excluded. |
+-| `nodal_terms:[{constructor_ordinal,source_id:Text,primitive_load_index,dof:Dof,value:B}]` | Every actual normalized nodal force/moment contribution independently, including cancelling/zero values. primitive_load_index binds the actual case entry; source_id is exact ledger source identity. Preserve duplicate terms. Array order is kernel canonical (DOF,UTF-8 source_id,value bits), stable constructor_ordinal breaks indistinguishable duplicates for provenance only. Never use rounded force nets or generated element equivalents. |
++| CaseSource-only `nodal_terms:[{constructor_ordinal,source_id:Text,primitive_load_index,dof:Dof,value:B}]` | Every actual normalized nodal force/moment contribution independently, including cancelling/zero values. primitive_load_index binds that CaseSource owner's actual case entry; source_id is exact ledger source identity. Preserve duplicate terms. Array order is kernel canonical (DOF,UTF-8 source_id,value bits), stable constructor_ordinal breaks indistinguishable duplicates for provenance only. Never use rounded force nets or generated element equivalents. A CombinationSource accesses these through each ordered operand reference; it has no case-shaped combined nodal_terms field. |
+ | `body_membership:[{body,nodes:[U],members:[U]}]` | Body ids as Source::new: connected member components, lowest node root, allocated in ascending node traversal; nodes/members ascending. Ground springs/restraints do not connect bodies. Include isolated nodes. Compare source.body_of_node for every node. |
+ | `layout:[{index,quantity:QuantityId,kind:Kind,body,input_derived:bool}]` | Exact FK recover::layout order and count, one-to-one; full QuantityMeta equality to the retained owner. Direct ids resolve to the maps above, not equal-valued unrelated rows. |
+ | `section_terms:[{member,area:B,section_modulus:B,length:B,axial_stiffness:B,torsional_stiffness:B,geometry}]` | Actual product operands/operation-order values used for G5b. geometry={route:preview|exact,normalized_od:B,effective_wall:B,actual_radius:B,actual_second_moment:B,actual_polar_moment:B}. These are operational/observed bits; they assert no exact source-geometric denominator or q_K→q_G bridge. |
+ 
+-The source-binding hash includes nodal provenance and all operational map bits; private comparison also checks complete K4 source/ledger bytes once per owner. Readers rederive model ids/order, materials, constraints, pressure/family eligibility and source-map equalities within the accepted trust boundary. They do not reproduce a solve from these maps.
++The CaseSource hash includes nodal provenance and all operational map bits directly; the CombinationSource hash binds them through checked operand identities plus its own ordered factor/source/ledger identity. Private comparison also checks complete K4 source/ledger bytes once per owner. Readers rederive model ids/order, materials, constraints, pressure/family eligibility and source-map equalities within the accepted trust boundary. They do not reproduce a solve from these maps or equate the representative first operand's loads with the combined ledger.
+ 
+ B1 private binding is `BoundCase { owner:&RetainedSolve, invocation_identity, owner_ref, material_basis_ref, source_ref, selected_precision, policy }` with private construction after complete source/ledger equality and map checks. `BoundFinalRow` checks actual immutable final row id/basis/kind/unit/entity/component/location/body/recipe/sign **after** render replacements and qualification; operand views come only from that BoundCase owner. Same source bytes in two cases, same stiffness with different loads, and same lifetime never authorize a swap. A final row's id must be unique after current stable_suffix qualification; a collision is explicit encoding/association refusal, not renaming historical result ids. Combinations bind their own solve, never operand radii.
+ 
+@@ -105,7 +116,21 @@ RV42-1 remains explicit: exact-mode normalized OD/effective-wall source geometry
+ 
+ C2 adds closed body arrays `calls`, `groups`, `builds` and `ordinary_attempts`; `body.sources` above. All ids below are array indices assigned in actual execution order, not globally meaningful identities. Storage is admitted before entries/copies. `Run` gains `id:RunRef`, `origin:{call:U,position:U,group:null|U,source_ref:U,owner_ref:OwnerRef}`, `cache_before:[SlotOrigin]` and `cache_after:[SlotOrigin]`; these exist for selected **and unavailable** kernel outcomes. Assign run ids consecutively across recorded calls. C1 body.work.execution_order now enumerates every such nested Run by its OwnerRef in that order, including an actual exhausted-before-start kernel return with zero work; each nested run.id equals its execution-order position. A routing/pre-source decline has no Run and cannot invent an execution entry. C1 case/common uses a source_ref whenever a source was prepared; an unavailable schedule cannot lack this association. A valid source whose group preparation fails still has a source_ref and failed group; an invocation-exhausted source records group=null with no allocation/build lookup, matching solve_cases' early check.
+ 
+-`Call={id,kind:case_batch|mechanics_combination,owner_refs:[OwnerRef],source_refs:[U],run_refs:[U],invocation_before,invocation_after}`. case_batch follows the submitted source slice order (a stable subsequence of request cases), with explicit case indices; mechanics_combination is one run with authored operand order in its source binding. One actual invocation meter joins calls by before/after, no reset. Exhausted-before-start runs appear with empty attempts/zero increment, not omitted.
++`Call` now has an explicit result. CaseBatchCall exact members are `{id,kind:"case_batch",owner_refs:[OwnerRef],source_refs:[U],run_refs:[U],invocation_before,invocation_after,result:{kind:"runs"}}`; it follows the submitted valid case-source slice (a stable subsequence of request cases), and owner/source/run arrays correspond one-to-one in that order. A case-source rejection before this entry remains the declared no-call source_decline above.
++
++MechanicsCombinationCall exact members are `{id,kind:"mechanics_combination",owner_refs:[OwnerRef;1],requested_operands:[{source_ref:U,factor:B}],source_refs:[U],run_refs:[U],invocation_before,invocation_after,result}`. requested_operands preserves the **actual supplied** order and may reference an existing CombinationSource only to record a NestedCombination refusal; successful preparation permits CaseSources only. Nonfinite supplied factors cannot be encoded as B, so they preserve the native NoOperands result privately and take C1's whole-receipt encoding fallback; no invented finite factor enters a successor. Empty requested_operands is representable.
++
++Two closed combination Call results are permitted:
++
++| result | Required arrays, state and custody |
++|---|---|
++| `{kind:"pre_source_refusal",stage:"operand_validation",reason:CombinationReason}` | reason is exactly NoOperands, NestedCombination or OperandsDiffer as returned, preserving the existing order: empty/nonfinite → nested → stiffness/layout/stations/support mismatch. source_refs=[] and run_refs=[]; requested_operands still names supplied existing sources. No combined source, group, import, build, attempt or Run exists. |
++| `{kind:"pre_source_refusal",stage:"combined_preparation",reason:CombinationReason}` | reason is exactly LedgerUnavailable with its typed LedgerError from CasePrep::combination. Same empty source_refs/run_refs and unchanged meter. Partial preparation owners are dropped under their admitted cost/lifetime contract; no valid K4CMB/K4LED identity is fabricated after failed preparation. |
++| `{kind:"runs"}` | source_refs contains exactly the newly registered CombinationSource; run_refs contains exactly one recorded Run whose source_ref/owner/call agree. Requested finite factors and source refs equal CombinationSource.operands in order. Later group-preparation refusal and after-work terminal refusal use this branch and retain actual Run origins/evidence. |
++
++Every pre_source_refusal Call appears once in calls and owns exactly the attempted combination's `call_ref`, but consumes **no RunRef** and no body.work.execution_order entry. Its invocation_after equals invocation_before; this is the actual unchanged kernel meter at those four early return sites, not an inference from an empty attempts vector and not zero CPU/allocation cost. Later calls chain from that same meter value. All run_refs across calls concatenate exactly to consecutive recorded Run ids and execution_order, with no gaps introduced by refused calls. Calls with runs have after-before equal to the sum of their actual Run increments under C1's no-wrap prerequisite. The final body.work.charged is the final call's after (or zero with no calls). One actual invocation meter joins calls; no reset/refund.
++
++C1's attempted retained mechanics combination entries gain `call_ref:U`. `retained_selected` requires result=runs, non-null run/source_ref, its own selected source/hash/ledger and exact row coverage. For `retained_unavailable` caused by pre_source_refusal, `run:null`, `source_ref:null`, and `reason={code:"combination_unresolved",phase:"preparation",cause:Call.result.reason}`; this explicitly adds the four typed pre-source CombinationReason causes to §2's preparation wrapper, rather than mislabelling them as SourceError or post-work kernel failure. It has no own source_identity_sha256 or selected payload. Its operand provenance comes from requested_operands, not a fabricated operand_cases/source binding, and its effective cache_inputs/imports are empty because no cache merge occurred. For a later unavailable run, source_ref and run remain mandatory and resolve normally. Ordinary/base_withheld combination entries have no W1 call_ref, Run or new source. Existing diagnostics and the original ordinary fallback/availability rules are unchanged; this representation never authorizes silent row withholding.
+ 
+ `Group={id,call,first_source_ref,source_refs:[U],stiffness_sha256,preparation:{kind:"ready"}|{kind:"refused",reason:Refusal}}`. Case-batch groups are call-local, assigned at first full-stiffness-byte equality, preserving current linear search order. Groups from separate calls remain separate even with identical hashes. The producer compares **full K4STF bytes**, the reader can verify source/maps/record consistency, and implementation evidence warrants actual equality/cache use. Digest equality alone cannot create a group or authenticate a producer. Repeated source refs in different owner cases remain distinct provenance owners.
+ 
+@@ -115,7 +140,7 @@ C2 adds closed body arrays `calls`, `groups`, `builds` and `ordinary_attempts`;
+ 
+ Within a batch, update the live group's slot inventory at each actual successful/nonbudget-failed build. A selected solve snapshots this inventory at its finish; `selected_snapshot` is tied to that run, not to the batch's eventual final cache. Unresolved/refused runs retain origin and cache-after evidence even if no RetainedSolve survives; this preserves unavailable-build associations. These descriptive inventories are not actual factor clones.
+ 
+-For combination call, `Group` additionally has `imports:[{operand_index,selected_run,slot,build}]`. Prepared ordinary operands import none. For each slot take the first occupied selected-operand finish snapshot in authored term order, exactly GroupCache::merged; preserve its original build id/group. The new combination group's own newly built slots use its new group id. Imported builds can be reused only after the existing stiffness/layout/stations/support checks; their origin remains the actual earlier group, not rewritten as built here. `cache_before` is the chosen import set. New combination cache-after is private to this combination; it never backfills operand snapshots or later combinations' imports. A reader checks all references point backward except a current run's newly built slot, and that no non-import cross-group reuse exists.
++For a combination Call with result=runs, `Group` additionally has `imports:[{operand_index,selected_run,slot,build}]`. operand_index addresses that Call's requested_operands and the identical CombinationSource.operands position. Prepared ordinary operands import none. For each slot take the first occupied selected-operand finish snapshot in authored term order, exactly GroupCache::merged; preserve its original build id/group. The new combination group's own newly built slots use its new group id. Imported builds can be reused only after the existing stiffness/layout/stations/support checks; their origin remains the actual earlier group, not rewritten as built here. `cache_before` is the chosen import set. New combination cache-after is private to this combination; it never backfills operand snapshots or later combinations' imports. A reader checks all references point backward except a current run's newly built slot, and that no non-import cross-group reuse exists. C1 cache_inputs is now a **derived compatibility view** of these checked selected operand snapshots/build refs, not a second independently writable ledger; no duplicate cache_inputs payload is serialized. For pre_source_refusal its derived view is empty and there is no Group/import inventory. Individual Build stages reconcile with the physical record's aggregate shared_stages as solve-shared **plus** verification-shared, never as two additional work charges.
+ 
+ This closes the structural association hole for unavailable runs. It does not make serialized provenance self-authenticating, establish upstream no-wrap, or authorize an unbounded trace. G5 checks this graph plus C1's exact partition only after the admitted producer/source/build warrant. Replay and mutation controls verify actual implementation use.
+ 
+@@ -159,7 +184,7 @@ solve_cases_recorded(sources, case_limit, meter, admitted_origin_context)
+ 
+ One private schedule core returns ExecutionOutcome and moves attempts through every finish_terminal branch. Existing solve_cases/solve_case call that same numerical core and immediately erase the additional refusal attempts **before appending each legacy outcome**; they return the unchanged CaseOutcome type and produce the unchanged H/VR records. The recorded entry retains those owned attempts and origins for F2a. No double schedule, cloning refused attempts, report retention or new solve. Nonrecorded mode must not allocate origin inventories; only the fixed branch/owned-vector move is new. Admission reserves all recorded-mode inventory capacity upfront.
+ 
+-The source-combination recorded entry uses the same core and maps ExecutionOutcome::Refused into the recorded CombinationOutcome with attempts; existing RetainedCombination::solve retains its old result shape/empty-refusal observation through immediate erasure. C1's PreparedCaseSource/CombinationOperand API extends this same source-combination implementation. Keep old numerical refusal/reason/order/meter unchanged. Unavailable preparation before schedule creates an actual empty vector, never a synthetic post-work zero.
++The source-combination recorded entry returns the closed additive `RecordedCombination = PreSourceRefusal { stage, reason, requested_operands, meter_before, meter_after } | WithRun { source_ref, outcome:ExecutionOutcome, origins:RunOrigins }`. PreSourceRefusal is produced at the actual operand-validation/combined-ledger return before a valid combined prep exists; it moves the typed reason without constructing source/group/Run evidence. WithRun begins only after valid combined prep/source registration and retains later group/preparation or schedule outcomes. Its meter snapshots are represented by the containing Call/Run, as above. This uses the same checks and schedule core; existing RetainedCombination::solve projects PreSourceRefusal to its existing Unresolved{reason,attempts:[]} and erases additional post-work refusal evidence exactly as before. C1's PreparedCaseSource/CombinationOperand API extends this same implementation. Preserve old numerical reason/order/meter and H/VR observation bytes. Empty attempts alone do not select the PreSourceRefusal variant: group preparation, exhaustion and some later stops also have no attempts and require their actual phase/source association.
+ 
+ RunOrigins is filled at actual group creation/cache obtain/finish seams. It is not constructed by a caller claiming a matching digest. Public F2a context issues call/run ids, but private constructor checks source owner and actual local group/slot objects before stamping origins. Cross-call imports are possible only through checked retained operand snapshots, not arbitrary external build ids. No counter changes are authorized.
+ 
+@@ -171,6 +196,8 @@ For a future typed error not known until execution, reserve against the source-b
+ 
+ After validation, t=3m for B1 stations and d=0. Exact layout Q=7n+12m+6t+s+k+2g; supports contribute two magnitude rows each even when attribution later withholds product rows. Q is a content count, not capacity or byte bound. Count id-map duplicates across bases/sources, member/source text bytes, all material selection descriptors and actual string escaping expansion. Array capacities/allocation growth, scratch, actual storage sharing and target widths belong to P1–P5. Same name or digest never discounts a copy without actual shared ownership.
+ 
++For h ordered combination operands, count h factor/source/digest references (including repeats); load-term visits are exactly sum_i l_i over each referenced CaseSource inventory, including zero factors/values and duplicate terms; prescribed product-pair count is h*k for the common constrained-DOF count k. Products/nets are not new binary64 wire terms. Native CasePrep still owns its actual first-source clone, separate exact ledger, h*k prescribed pairs, identity bytes, layout and extents: wire references do not remove those memory/cost obligations. Failed combined preparation retains its actual admitted temporary/drop costs even with zero inherited LME. Count Call/requested-operands/reason storage for pre_source_refusal, but zero new source/group/build/Run records on that branch. These are reference/content counts only, not a completed allocation or no-wrap proof.
++
+ Each run has at most four physical precision records and at most seven slot requests/build opportunities (four solve slots, three verification slots); interrupted/skipped paths have fewer. This finite **record cardinality**, independent of operation-count proof, does not bound LME or unguarded arithmetic. Per-call grouping can be one per source; cache failure retries create distinct build entries per run. The whole invocation bound uses actual run count including combinations, not a fixed case guarantee. Retained selected snapshots require at most seven slot-origin refs each; recorded unavailable paths also retain seven before/after refs, not factor payload clones. Per-row binding storage/certificate scratch and no-wrap proof remain external obligations.
+ 
+ Exact proposed delta to C1 maintained set: adaptive.rs (single internal execution outcome/core, recorded entry and group/cache origin capture); combine.rs (recorded source-combination path/origins); structural.rs (narrow required reexports); existing adaptive_tests.rs/combine_tests.rs (new evidence/compatibility controls); PP lib.rs (I30 typed observer capture), retained_source.rs and retained_receipt.rs (new files already proposed by C1); the same three reader/schema/shared-fixture files for these concrete branches. **No H/VR source or observation update is required by the chosen API.** Existing H/VR consumers are read-only regression controls. Any implementation discovering a needed additional path returns its precise dependency before expansion.
+@@ -185,4 +212,12 @@ Add these finite controls to C1, not a new broad test campaign:
+ 6. Every Reason variant/payload branch above receives a JSON shape mutation and exact first-failure parity check. Preserve typed Text bytes and reject overflow/nonfinite encoding; no Debug-string parser or `other` variant. Directional-product quantities fail declared scope.
+ 7. Map/source counts match actual arrays, ordinals and UTF-8 bytes, 6n/3m/u32 checked boundaries; detached maps without an admission/no-wrap warrant cannot run W1. This does not substitute for the unproved warrant.
+ 
++Narrow RV43-C2-F1/F2 repair controls, **proposed reference-shape controls only; unrun**:
++
++8. Two compatible case sources with different load inventories form CombinationSource with representative_source_ref=first and two ordered operands. A second-operand term mutation is checked against its CaseSource/K4SRC identity, the ordered K4CMB and the combination product-source hash; it never changes the meaning of first-source map metadata. K4LED binds its canonical exact DOF nets: an altered provenance with identical nets can legitimately retain the same ledger bytes, so equal K4LED never substitutes for the source checks. Adding a combined nodal_terms or constraint-value array fails the closed branch. Source-local primitive_load_index resolves through the correct operand case.
++9. Repeated source refs, zero factors and cancelling factors remain in authored order; term-visit count is the sum over occurrences. Swapping factor order or replacing factor/term provenance with rounded binary64 products must fail the registered source/equality/hash checks. A source-registry reindex recomputes affected referenced-source/receipt hashes; it does not rewrite native identity bytes.
++10. Empty operands, a selected nested combination, changed station/support compatibility and a ledger-preparation refusal each produce their exact typed pre_source_refusal Call with source_refs=[], run_refs=[], unchanged before/after, no new source/group/build and run=null on the unavailable combination entry. None consumes an execution-order index. A nonfinite factor uses the stated receipt-encoding fallback instead of an invented finite B.
++11. Interleave a completed case Call, two pre-source refused combination Calls, and a completed combination Call. Call ids remain consecutive; only actual Run ids appear in the flattened run_refs/execution_order; the last call begins at the first call's after. Injecting a fake SourceRef/Run, meter increment, cache import or skipped typed reason in either refused call is rejected.
++12. Contrast a valid-combined-source group-preparation refusal and an after-work refusal with control10. Both keep their true source/Run/origin and actual meter delta; empty attempts cannot move them into the pre_source_refusal branch. Source selected/unavailable digests and C1's derived cache_inputs agree with the new union/import graph. Legacy CombinationOutcome and ordinary fallback observation bytes remain unchanged.
++
+ R/S/T reader controls, final-row certificates, native registration/retrieval, memory/cost and atomic implementation qualification remain separate. Stop for RV43 review of this finite mapping.
+diff --git a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/INVENTORY.json b/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/INVENTORY.json
+index 4f2e84113a..6105e8c1e3 100644
+--- a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/INVENTORY.json
++++ b/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/INVENTORY.json
+@@ -3,13 +3,13 @@
+   "files": [
+     {
+       "path": "CONTRACT_DELTA.md",
+-      "bytes": 41684,
+-      "sha256": "4baee6ad54b2a31e3f2431aeab57f35ff69e0e0936f5663536177e534c0f8293"
++      "bytes": 53986,
++      "sha256": "923da0b97eb5becad7e7c1373c5a6f362568dc28ac8eab029c9170677c890869"
+     },
+     {
+       "path": "RETURN.md",
+-      "bytes": 2653,
+-      "sha256": "ebe8d55414a74d5bf6e0e1680b3fd8283fa91a2f7d5698d38efdbdf2459c3b1c"
++      "bytes": 3564,
++      "sha256": "1e97c22596caeb02a3149e8148b012ecba1e06887afff55d809836d2152420fc"
+     },
+     {
+       "path": "_run_records/CHECK_ORIGINS.json",
+@@ -40,6 +40,11 @@
+       "path": "_run_records/source_checks.py",
+       "bytes": 6502,
+       "sha256": "d850193f5e159b0979a2649069fa518820d5cac63196f50a757752ac341cf6c6"
++    },
++    {
++      "path": "_run_records/CORRECTION.json",
++      "bytes": 7439,
++      "sha256": "822ef7dda025816183d420f6f7dba0b4938a8a0c3749cfa85c4a65562ffe4df1"
+     }
+   ]
+ }
+diff --git a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/RETURN.md b/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/RETURN.md
+index 129c36a0d8..62800ad4e6 100644
+--- a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/RETURN.md
++++ b/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/RETURN.md
+@@ -1,6 +1,8 @@
+ # I32 C2 return
+ 
+-**Finite mapping complete for RV43 review; no implementation reliance follows.** [CONTRACT_DELTA.md](CONTRACT_DELTA.md) fills C1's Reason payloads, product/source maps, unavailable-run/cache associations, failed ordinary references and terminal-evidence API choice. Corrected C1 charge algebra is unchanged.
++**Revised for RV43's narrow combination backcheck; no implementation reliance follows.** Original C2 remains at0440ea0777. [CONTRACT_DELTA.md](CONTRACT_DELTA.md) now repairs RV43-C2-F1/F2 from review2200f45465: a closed CaseSource/CombinationSource union and a typed pre-source refusal Call distinguish source provenance and actual execution. Corrected C1 charge algebra is unchanged. This repair is proposed pending the same reviewer's backcheck.
++
++CombinationSource binds ordered factors and operand CaseSource references/digests, inherits common maps through the first representative source, and binds its own exact K4CMB/K4LED bytes. It has no rounded combined nodal-term or constraint-value array. Pre-source NoOperands/NestedCombination/OperandsDiffer/ledger refusals keep a Call with typed cause and unchanged meter, but no combined source, group, build, Run or execution-order entry. Later source-valid/group/after-work refusals remain distinct. C1 entry/hash/cache_inputs references and the additive recorded API are reconciled; five finite shape controls are proposed, not executed.
+ 
+ - **Reasons:** explicit typed payloads for retained attempts/stops/refusals, SourceError, Structural/Formation and W2 errors; exact textual native fields remain bounded data, never Debug-string parsing or trigger authority. The static check covers **14 enum types, 119 variants: 116 mapped and 3 explicit product exclusions**. Eight ordinary unresolved literals are preserved with the admitted/excluded distinction.
+ - **Sources:** concrete case/material/node/member/spring/station/support/body/layout/term maps, ordering, uniqueness and UTF-8/count inputs. Exact-mode G is derived from its selected E/nu pair; no base-G substitution. B1 owner/case/basis/final-row association is preserved. Operational section bits do not settle RV42's geometric truth/action bridge.
+@@ -10,4 +12,4 @@
+ 
+ The upstream no-wrap admission proof remains an explicit **pre-execution implementation blocker**. This mapping, its source checks and its bounded record cardinalities are not that proof. Full memory/cost, final recipes/source-geometry bridge, native behavior and atomic producer/three-reader qualification remain separate.
+ 
+-Source checks and actual origins are under `_run_records`; all prospective controls are unrun. Only this new C2 directory was written. No maintained schema/source/fixture, Git/index/API, compiler/solver/model/probe, host-tool or delegation action occurred. Informational inventory is revisable. Stop for RV43/ROOT review.
++Original source checks and origins under `_run_records` are unchanged. This repair writes only CONTRACT_DELTA.md, this RETURN.md, INVENTORY.json and `_run_records/CORRECTION.json`; C1/raw evidence/reviews remain untouched. All prospective controls are unrun. No maintained schema/source/fixture, Git/index/API, compiler/solver/model/probe, host-tool or delegation action occurred. Informational inventory is revisable. Stop for RV43/ROOT backcheck.
+diff --git a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/_run_records/CORRECTION.json b/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/_run_records/CORRECTION.json
+new file mode 100644
+index 0000000000..dfcbbfee3e
+--- /dev/null
++++ b/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/_run_records/CORRECTION.json
+@@ -0,0 +1,169 @@
++{
++  "status": "narrow draft repair proposed for same-reviewer backcheck; no acceptance",
++  "task": "I32 C2 combination mapping repair",
++  "agent": "/root/i32_f2a_wire_c1 TASK Type2",
++  "parent": "/root HELP_HUMAN Agent0",
++  "mechanism": "native direct-child follow-up; no delegation",
++  "receipt_utc": "2026-10-02 20:48:16 UTC",
++  "new_analysis_cutoff_utc": "2026-10-02 21:03:16 UTC",
++  "maximum_return_utc": "2026-10-02 21:08:16 UTC",
++  "completed_utc": "2026-10-02 20:53:59 UTC",
++  "original_c2": "0440ea0777",
++  "review": "2200f45465",
++  "authorization_brief": "87ded04a30",
++  "actual_host_permissions": "shared unrestricted M5; four-file write fence is instructional",
++  "write_allowlist": [
++    "CONTRACT_DELTA.md",
++    "RETURN.md",
++    "INVENTORY.json",
++    "_run_records/CORRECTION.json"
++  ],
++  "findings": {
++    "RV43-C2-F1": "Closed case/combination source union; common map representative separated from ordered exact factor/operand provenance; no combined binary64 nodal terms; own K4CMB/K4LED and nested source/hash equality/count rules.",
++    "RV43-C2-F2": "Closed pre_source_refusal Call with exact typed early reason, unchanged meter, zero new source/group/build/Run; valid-source later refusals keep Run. Call/run/execution-order and unavailable-entry/API/cache compatibility reconciled."
++  },
++  "changes": [
++    {
++      "path": "CONTRACT_DELTA.md",
++      "original_sha256": "4baee6ad54b2a31e3f2431aeab57f35ff69e0e0936f5663536177e534c0f8293",
++      "revised_sha256": "923da0b97eb5becad7e7c1373c5a6f362568dc28ac8eab029c9170677c890869",
++      "original_bytes": 41684,
++      "revised_bytes": 53986
++    },
++    {
++      "path": "RETURN.md",
++      "original_sha256": "ebe8d55414a74d5bf6e0e1680b3fd8283fa91a2f7d5698d38efdbdf2459c3b1c",
++      "revised_sha256": "1e97c22596caeb02a3149e8148b012ecba1e06887afff55d809836d2152420fc",
++      "original_bytes": 2653,
++      "revised_bytes": 3564
++    }
++  ],
++  "origins": [
++    {
++      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I32_F2A_C2_COMBINATION_REPAIR.md",
++      "revision": "87ded04a30",
++      "sha256": "086b23e4e1df36469e64084a8879de1f9bc606c19a87a7eae6117054c97b02ac",
++      "bytes": 2083,
++      "read_extent": "full brief"
++    },
++    {
++      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV43/f2a_wire_c2_03/RETURN.md",
++      "revision": "2200f45465",
++      "sha256": "1b7f833ce4bca99de13a5835a94fb8f4afe7128094dc9e13ebbc7a7273451aac",
++      "bytes": 2119,
++      "read_extent": "full return"
++    },
++    {
++      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV43/f2a_wire_c2_03/REVIEW.md",
++      "revision": "2200f45465",
++      "sha256": "50e22802ecba254c15904bdf0c34318e7788e73f1dc957337d855b30f9605fcf",
++      "bytes": 10972,
++      "read_extent": "full review"
++    },
++    {
++      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
++      "revision": "49034a940f",
++      "sha256": "b40ab81311a80720cc19bbbe03fccad4f4f371cc78e2b51e4eec8ab2079a32f1",
++      "bytes": 6203,
++      "read_extent": "80-140"
++    },
++    {
++      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
++      "revision": "49034a940f",
++      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
++      "bytes": 160870,
++      "read_extent": "914-966"
++    },
++    {
++      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
++      "revision": "49034a940f",
++      "sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e",
++      "bytes": 8977,
++      "read_extent": "139-182 and211-242"
++    }
++  ],
++  "unchanged_original_raw_payloads": [
++    {
++      "path": "_run_records/CHECK_ORIGINS.json",
++      "sha256": "bbeb6497f567e24b2bfe0b1afaf25bf39ee358f01d7cbe4a205c2bd6bd129393",
++      "unchanged_from": "0440ea0777"
++    },
++    {
++      "path": "_run_records/COMMANDS.md",
++      "sha256": "e1e9b27999d288ea7c7943fe5924e756dc342f4a3de2267248298b468ca30464",
++      "unchanged_from": "0440ea0777"
++    },
++    {
++      "path": "_run_records/EXECUTION.json",
++      "sha256": "f30413e6bcc258fbb8ebd5a154660b608739abbe9e1a3b7e8e58f2487ab0d21e",
++      "unchanged_from": "0440ea0777"
++    },
++    {
++      "path": "_run_records/READ_ORIGINS.json",
++      "sha256": "a03f586dea6676bcdfd7e3c7202233b317ae8c6be5441cc6ee283725e7f40bba",
++      "unchanged_from": "0440ea0777"
++    },
++    {
++      "path": "_run_records/SOURCE_CHECKS.json",
++      "sha256": "4602951c13bd63f0465762541c8571f35798a4302c89fe8de047457ad003b6f0",
++      "unchanged_from": "0440ea0777"
++    },
++    {
++      "path": "_run_records/source_checks.py",
++      "sha256": "d850193f5e159b0979a2649069fa518820d5cac63196f50a757752ac341cf6c6",
++      "unchanged_from": "0440ea0777"
++    }
++  ],
++  "review_payload_checks": [
++    {
++      "path": "RETURN.md",
++      "sha256": "1b7f833ce4bca99de13a5835a94fb8f4afe7128094dc9e13ebbc7a7273451aac",
++      "verified": true
++    },
++    {
++      "path": "REVIEW.md",
++      "sha256": "50e22802ecba254c15904bdf0c34318e7788e73f1dc957337d855b30f9605fcf",
++      "verified": true
++    },
++    {
++      "path": "_run_records/CHECKS.json",
++      "sha256": "b36619813383f0f25f62cf07d41c499202c708b191518839310b2df6f4c8fb6f",
++      "verified": true
++    },
++    {
++      "path": "_run_records/CONSUMER_CHECKS.json",
++      "sha256": "604e2098daafb08e68bab1b637eb27f3646e0c95246c8fbac444db62600c1b65",
++      "verified": true
++    },
++    {
++      "path": "_run_records/ENUM_DECLARATIONS.json",
++      "sha256": "d0c4dcc9ec70ecc9722d59f78b71b4435a9aa4341df503a66cabd84d0d60ff7a",
++      "verified": true
++    },
++    {
++      "path": "_run_records/EXECUTION.json",
++      "sha256": "5c8af5a4b63e28b2d7826c3a92e1012e532d0bbde5d3f9ab13a74404ec1ab1d6",
++      "verified": true
++    },
++    {
++      "path": "_run_records/ORIGINS.json",
++      "sha256": "aa31b9231cb5d4caee1a15440d7690752105ef4d14688af77bcec64e7542f4fc",
++      "verified": true
++    }
++  ],
++  "proposed_controls": [
++    "Differing-load operands and ledger-net/source identity distinction",
++    "Factor order/repetition/zero/cancellation and source-local term ordinals",
++    "Four pre-source refusals and nonfinite receipt-encoding fallback",
++    "Interleaved refused Calls without Run-index gaps or meter increments",
++    "Valid-source/group/after-work refusal stays distinct; legacy observations unchanged"
++  ],
++  "control_execution": "All new controls are proposed and unrun. Only read-only source/hash/JSON checks were performed; no producer/schema/compiler/solver/model/native probe ran.",
++  "limits": [
++    "No no-wrap admission proof",
++    "No source-geometric action bridge",
++    "No memory/cost/caller or numerical recipe closure",
++    "No implementation grant, schema installation, new domain/numerical policy or identity reservation"
++  ],
++  "scope_check": "Existing C2 raw payloads byte-equal original0440; seven RV43 review payload seals verified. C1 and review files not written. Only the four allowed correction paths were written. No Git/index/API mutation or maintained edit."
++}

@@ -1,0 +1,48 @@
+[
+  {
+    "command": [
+      "git",
+      "--no-optional-locks",
+      "show",
+      "14ce35dbe60dd45dfa9d29843dbeaaaa9462973a:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I40_RECORDED_KERNEL_ORIGINS_B.md"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+    "exit": 0,
+    "commit_sha256": "ffb225bb1e661b5228f79aa4108a413bac391e55b09925032d9e1417c2885570",
+    "read_path_sha256": "ffb225bb1e661b5228f79aa4108a413bac391e55b09925032d9e1417c2885570",
+    "byte_identical": true,
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "--no-optional-locks",
+      "show",
+      "0a4afd6318ec33927d01bb7786a75e43c6ea334d:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/CONTRACT_DELTA.md"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+    "exit": 0,
+    "commit_sha256": "923da0b97eb5becad7e7c1373c5a6f362568dc28ac8eab029c9170677c890869",
+    "read_path_sha256": "923da0b97eb5becad7e7c1373c5a6f362568dc28ac8eab029c9170677c890869",
+    "byte_identical": true,
+    "stderr": ""
+  },
+  {
+    "instruction_path": "AGENTS.md",
+    "read_origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/AGENTS.md",
+    "source_checkout": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/AGENTS.md",
+    "byte_identical": true
+  },
+  {
+    "instruction_path": "agents/AGENT_TASK.md",
+    "read_origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/agents/AGENT_TASK.md",
+    "source_checkout": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/agents/AGENT_TASK.md",
+    "byte_identical": true
+  },
+  {
+    "instruction_path": "projects/chirality-piping/AGENTS.md",
+    "read_origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/AGENTS.md",
+    "source_checkout": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/AGENTS.md",
+    "byte_identical": true
+  }
+]

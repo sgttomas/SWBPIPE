@@ -1,0 +1,36 @@
+{
+ "which": "caps",
+ "static_literal_max_bytes": 2173,
+ "report_literal_max_bytes": 184,
+ "static_literals_with_escapes": 302,
+ "classes": {
+  "struct_report_debug": 2227765,
+  "dof_map_debug": 252288,
+  "message_int": 2549385,
+  "recovery_summary_debug": 783,
+  "sources_debug": 246912,
+  "evidence_line": 50576,
+  "joined_list": 320556,
+  "static": 2173,
+  "error_display": 8192,
+  "error_debug": 8192
+ },
+ "parts": {
+  "pivot": 239,
+  "residual_row": 882,
+  "contribution_rounding_fixed": 316,
+  "contribution_rounding_total": 1828160,
+  "formation_check_line": 8292,
+  "range_line": 7756,
+  "F_len": 8361,
+  "S_len": 50576,
+  "joined": {
+   "fired_join": 50176,
+   "support_contribution_summary": 8832,
+   "join_dofs": 17,
+   "provenance_join": 2648,
+   "missing_join": 400,
+   "load_fidelity_rows_join": 320556
+  }
+ }
+}

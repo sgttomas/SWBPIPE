@@ -1,0 +1,17 @@
+{
+  "status": "SEALED_ONCE",
+  "utc": "2026-10-03T16:36:59.877392+00:00",
+  "role": "TASK Type 2",
+  "parent": "/root HELP_HUMAN",
+  "mechanism": "native; no descendants",
+  "manifest_sha256": "54acb8d6fcd943d7c32f755eb25dbfe0ac6326e61aed02670c7f6dd097cc8746",
+  "root_source_commit": "7018513af3d6574be382d5c3aaee01e36cb0b28e",
+  "source_patch_sha256": "d607c0f89b7b924ca6de65a1856e189b2c583eff833836bce456131c6ec2d8f5",
+  "payload_files": 11,
+  "bulk_files": 19,
+  "source_edits_stopped_utc": "2026-10-03T16:25:53.838233+00:00",
+  "cargo_commands": 8,
+  "lane_released": true,
+  "public_activation": false,
+  "acceptance": "RV74 review and ROOT disposition pending"
+}

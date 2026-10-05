@@ -1,0 +1,11 @@
+--- /dev/fd/11	2026-10-03 19:48:26
++++ projects/chirality-piping/core/product_physics/src/lib.rs	2026-10-03 19:46:48
+@@ -121,6 +121,8 @@
+ };
+ #[cfg(test)]
+ mod retained_product_tests;
++#[cfg(test)]
++mod i61_receipt_probe;
+ pub use pressure_runtime::{PressureContractInput, PressureRegionInput, PressureTerminalInput};
+ 
+ const DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_POLICY_REF: &str =

@@ -1,0 +1,7 @@
+{
+  "fixture": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt",
+  "fixture_sha256": "5aa07e539fa5c62a1650cd11dae9054f221171fe58e80655e19a97d99a76cd9e",
+  "strategy": "public dependency path plus independent small fixture parser; no production source copies or private origin injection",
+  "controls_sha256": "5e7dfaf72c1262c02e023982b7cc2bf7778996321c7e2108eef398259346110c",
+  "setup_record_file_mtime_utc": "2026-10-03T00:18:24.840895+00:00"
+}

@@ -1,0 +1,21 @@
+{
+  "all_final_i47_tagged_lines": 133,
+  "debug_optimized_equal": true,
+  "oracle_objects_equal": true,
+  "blocker_preserved_capture_tags": [
+    "I47_REQUEST ",
+    "I47_SELECTION ",
+    "I47_INPUT ",
+    "I47_ROWS ",
+    "I47_ANCILLARY ",
+    "I47_NATIVE_ROWS ",
+    "I47_NATIVE_IDENTITY ",
+    "I47_TERM_MAP ",
+    "I47_NATIVE_WORK "
+  ],
+  "blocker_preserved_capture_lines": 36,
+  "original_base_equal_lines": 14,
+  "original_base_oracle_equal": true,
+  "old_packet_payloads_unchanged": 57,
+  "original_pre_i47_test_prefix_unchanged": true
+}

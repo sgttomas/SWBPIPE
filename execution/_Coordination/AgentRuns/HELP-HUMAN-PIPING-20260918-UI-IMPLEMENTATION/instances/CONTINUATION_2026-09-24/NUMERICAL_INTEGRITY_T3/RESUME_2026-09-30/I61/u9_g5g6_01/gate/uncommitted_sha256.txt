@@ -1,0 +1,31 @@
+Uncommitted gate part-1 files, kept in WT/scratch/u9_gate/ (too large to commit; indexed by part1/index_*.tsv):
+part1_base/runs.jsonl  bfa836be3f8c726eddbab1ab52168ea9af31fbbfb3d79ab87b044c26ee3abeaa  605711601 bytes, 884 records
+part1_base/full/  818 files; sha256 of the sorted per-file sha256 list: a8fb70b932978b729d5897d41ef64e8d5c2b15eba2d2dbedfb5a65fed8dceb5b
+part1_base/envelopes/  818 files; sha256 of the sorted per-file sha256 list: 32005949474219ce93cedae5020d4953bbfeba483ef33461fac15d9a44b6874f
+part1_base/stdout/  884 files; sha256 of the sorted per-file sha256 list: 483a35a5d99a08305172684d28a9deb9c99a4e612880e5672c6921e58eaf228f
+part1_base/stderr/  884 files; sha256 of the sorted per-file sha256 list: 2606975467d98d0c4ca6fbdb91d5330de34d636350fdf9f3cc0e322b3b5761f1
+part1_cand/runs.jsonl  48b0f5de5d257231f4e1c8b5e86f53fdc7e020d0e5f5cfb1d2cb13548813595f  605711635 bytes, 884 records
+part1_cand/full/  818 files; sha256 of the sorted per-file sha256 list: a8fb70b932978b729d5897d41ef64e8d5c2b15eba2d2dbedfb5a65fed8dceb5b
+part1_cand/envelopes/  818 files; sha256 of the sorted per-file sha256 list: 32005949474219ce93cedae5020d4953bbfeba483ef33461fac15d9a44b6874f
+part1_cand/stdout/  884 files; sha256 of the sorted per-file sha256 list: 255466c55afb7bb213ad2cd06459dde4012a5c566460506f16f10d98190f3853
+part1_cand/stderr/  884 files; sha256 of the sorted per-file sha256 list: 2606975467d98d0c4ca6fbdb91d5330de34d636350fdf9f3cc0e322b3b5761f1
+part1_cand92/runs.jsonl  8eeab107d7f6c01a152e1031a6a5b08948656e05f9c1cc25f2b68c76415e639f  605711634 bytes, 884 records
+part1_cand92/full/  818 files; sha256 of the sorted per-file sha256 list: a8fb70b932978b729d5897d41ef64e8d5c2b15eba2d2dbedfb5a65fed8dceb5b
+part1_cand92/envelopes/  818 files; sha256 of the sorted per-file sha256 list: 32005949474219ce93cedae5020d4953bbfeba483ef33461fac15d9a44b6874f
+part1_cand92/stdout/  884 files; sha256 of the sorted per-file sha256 list: f23f7f434d2c8de82a3e904d72865efad88788a2a5272234685e5ffed74d5b38
+part1_cand92/stderr/  884 files; sha256 of the sorted per-file sha256 list: 2606975467d98d0c4ca6fbdb91d5330de34d636350fdf9f3cc0e322b3b5761f1
+part2_run1/base/runs.jsonl  33a5e15182b4054252d4adbad2d285580ff68eb9dd7c5150701b09e899afc839  592704 bytes, 4 records
+part2_run1/base/full/RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__captured.json  68cf1929c6767787f831b4cb56cb2090b9e4597f062791542626809b361e1fc7  83364 bytes
+part2_run1/base/full/RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__typed.json  cb6112105d0a2521ae5ca5632193b70f9bb99ef63e18d3a50b4dd19363557150  82961 bytes
+part2_run1/base/full/RF-LARGE-TREE-n01000-AX__dense_scrutiny__captured.json  7a3d32b4570986266abf284f8fe1f64d884a46eb5b7d58207bca3316b8696f42  241603 bytes
+part2_run1/base/full/RF-LARGE-TREE-n01000-AX__dense_scrutiny__typed.json  9384c225dc88e5285ed194647ef5ae84dc163ca5f1ffda12d5e141cc883b68cb  241200 bytes
+part2_run1/cand/runs.jsonl  1ba37aab68ae307fc188c5c44a4da5c7388f9e3e095def136ec94025dfde2d47  592703 bytes, 4 records
+part2_run1/cand/full/RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__captured.json  68cf1929c6767787f831b4cb56cb2090b9e4597f062791542626809b361e1fc7  83364 bytes
+part2_run1/cand/full/RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__typed.json  cb6112105d0a2521ae5ca5632193b70f9bb99ef63e18d3a50b4dd19363557150  82961 bytes
+part2_run1/cand/full/RF-LARGE-TREE-n01000-AX__dense_scrutiny__captured.json  7a3d32b4570986266abf284f8fe1f64d884a46eb5b7d58207bca3316b8696f42  241603 bytes
+part2_run1/cand/full/RF-LARGE-TREE-n01000-AX__dense_scrutiny__typed.json  9384c225dc88e5285ed194647ef5ae84dc163ca5f1ffda12d5e141cc883b68cb  241200 bytes
+part2_run2/base/runs.jsonl  952c298addb5370cf457a3f4bcba50f0ce658ea057982bba429ad844cbde5d1e  592709 bytes, 4 records; full/ list sha256 5780a71265069fb91d7ed9ca4193bff06ea68b6e33353b96721b86fb36263001
+part2_run2/cand/runs.jsonl  514ea26f798784a49a9b9674d82d9f7af67924c0b56f11976b3e24b931ea5e35  592710 bytes, 4 records; full/ list sha256 5780a71265069fb91d7ed9ca4193bff06ea68b6e33353b96721b86fb36263001
+part2_run3/base/runs.jsonl  de5f8c648fe99352d629851b53471c5b2a2157ad78b37c02cf4668f9ca2eaa63  592711 bytes, 4 records; full/ list sha256 5780a71265069fb91d7ed9ca4193bff06ea68b6e33353b96721b86fb36263001
+part2_run3/cand/runs.jsonl  5c76f697309b1fdb0122ae4ff8558790945e6d7250f444e13668909849e46853  592709 bytes, 4 records; full/ list sha256 5780a71265069fb91d7ed9ca4193bff06ea68b6e33353b96721b86fb36263001
+part2_run1/{base,cand}/full/ list sha256 5780a71265069fb91d7ed9ca4193bff06ea68b6e33353b96721b86fb36263001 (both sides)

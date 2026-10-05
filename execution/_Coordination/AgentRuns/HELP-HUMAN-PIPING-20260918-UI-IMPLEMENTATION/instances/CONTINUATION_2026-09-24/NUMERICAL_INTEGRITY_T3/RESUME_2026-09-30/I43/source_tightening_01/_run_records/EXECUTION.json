@@ -1,0 +1,23 @@
+{
+  "role": "TASK Type 2 I43",
+  "agent": "/root/i43_source_tightness",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native",
+  "model": "inherited parent runtime; no override",
+  "delegation": false,
+  "receipt_utc": "2026-10-03T01:00:51Z",
+  "checkpoint_sent_utc": "2026-10-03T01:14:37Z",
+  "new_derivation_stopped_before_utc": "2026-10-03T01:18:10.163276+00:00",
+  "return_deadline_utc": "2026-10-03T01:40:51Z",
+  "cutoff_utc": "2026-10-03T01:30:51Z",
+  "owned_write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I43/source_tightening_01",
+  "execution_boundary": "File/source reads, read-only Git with GIT_OPTIONAL_LOCKS=0, standard-library exact algebra/reference controls, and owned evidence writes only. No compiler/solver/model/native/factor/host programme execution, source change, Git/index/API write or delegation.",
+  "actual_native_correction_witness": false,
+  "source_candidate_at_dispatch": "4afbac6e613203f93a499b780082b28be37f6c2c",
+  "source_standing": "Unreviewed at dispatch; RV56 independent review concurrent. Scope/hash freeze is not mathematical clearance.",
+  "basis_control": "Live source guard refused once; four exact inputs recovered from original frozen commit and original hashes kept. No adoption of RV56 repair bytes.",
+  "final_control": "CHECKS.json",
+  "handoff": "Conditional derivation, exact controls, source/API/work/storage consequences and smallest next manifest. Requires fresh independent design re-derivation and ROOT selection before implementation reliance.",
+  "completed_utc": "2026-10-03T01:18:10.163276+00:00",
+  "root_clarification": "No-data source enclosure narrowed explicitly to free motions; fully fixed source recovery retains all exact prescriptions and constrained ledger offsets. Reviewed in chat by ROOT before seal; not independent design review."
+}

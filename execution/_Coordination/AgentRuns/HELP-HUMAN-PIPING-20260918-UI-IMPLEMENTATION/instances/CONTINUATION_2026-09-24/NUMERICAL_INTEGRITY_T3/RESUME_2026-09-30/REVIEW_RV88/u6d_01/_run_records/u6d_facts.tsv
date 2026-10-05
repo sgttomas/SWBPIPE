@@ -1,0 +1,62 @@
+sparse_interactive/key_reorder_keeps_registration	["RETAINED_PRECISION_VALIDATION_REQUIRED"]
+sparse_interactive/refused_delivery_numericalResultStanding	{"contract":"retained_preview_physics","status":"needs_recompute","eligible":false,"findings":["RETAINED_PRECISION_RECEIPT_MISMATCH"]}
+sparse_interactive/refused_delivery_standing_text	"Retained precision: receipt refused by the retained-precision reader (RETAINED_PRECISION_RECEIPT_MISMATCH); unsupported, historical values only. Selected cases: 1 of 1. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness."
+sparse_interactive/u7sim/standing_same_model	{"standing":"numerically_eligible","eligible":true,"findings":[]}
+sparse_interactive/u7sim/standing_changed_model	{"standing":"numerically_eligible","eligible":true,"findings":[]}
+sparse_interactive/u7sim/hasNative_changed_model	false
+sparse_interactive/u7sim/numericalResultStanding_changed_model	{"contract":"retained_preview_physics","status":"integrity_checked","eligible":true,"findings":[]}
+sparse_interactive/u7sim/rule_gate_changed_model	"RULE_NATIVE_INVOCATION_REQUIRED"
+sparse_interactive/u7sim/raced_hasNative	false
+sparse_interactive/u7sim/raced_retained_standing	{"standing":"numerically_eligible","eligible":true,"findings":[]}
+sparse_interactive/u7sim/raced_rule_gate	"RULE_NATIVE_INVOCATION_REQUIRED"
+dense_scrutiny/key_reorder_keeps_registration	["RETAINED_PRECISION_VALIDATION_REQUIRED"]
+dense_scrutiny/refused_delivery_numericalResultStanding	{"contract":"retained_preview_physics","status":"needs_recompute","eligible":false,"findings":["RETAINED_PRECISION_RECEIPT_MISMATCH"]}
+dense_scrutiny/refused_delivery_standing_text	"Retained precision: receipt refused by the retained-precision reader (RETAINED_PRECISION_RECEIPT_MISMATCH); unsupported, historical values only. Selected cases: 1 of 1. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness."
+dense_scrutiny/u7sim/standing_same_model	{"standing":"numerically_eligible","eligible":true,"findings":[]}
+dense_scrutiny/u7sim/standing_changed_model	{"standing":"numerically_eligible","eligible":true,"findings":[]}
+dense_scrutiny/u7sim/hasNative_changed_model	false
+dense_scrutiny/u7sim/numericalResultStanding_changed_model	{"contract":"retained_preview_physics","status":"integrity_checked","eligible":true,"findings":[]}
+dense_scrutiny/u7sim/rule_gate_changed_model	"RULE_NATIVE_INVOCATION_REQUIRED"
+dense_scrutiny/u7sim/raced_hasNative	false
+dense_scrutiny/u7sim/raced_retained_standing	{"standing":"numerically_eligible","eligible":true,"findings":[]}
+dense_scrutiny/u7sim/raced_rule_gate	"RULE_NATIVE_INVOCATION_REQUIRED"
+case/sparse_interactive:invocation	{"standing":"needs_recompute","dispatch":"ok","findings":["RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"],"expected":["needs_recompute","ok"]}
+case/sparse_interactive:no_invocation	{"standing":"needs_recompute","dispatch":"ok","findings":["RETAINED_PRECISION_VALIDATION_REQUIRED"],"expected":["needs_recompute","ok"]}
+case/sparse_interactive:no_requested	{"standing":"needs_recompute","dispatch":"ok","findings":["RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"],"expected":["needs_recompute","ok"]}
+case/sparse_interactive:other_requested	{"standing":"needs_recompute","dispatch":"ok","findings":["RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"],"expected":["needs_recompute","ok"]}
+case/sparse_interactive:edited_row	{"standing":"unsupported","dispatch":"RETAINED_PRECISION_RECEIPT_MISMATCH","findings":["RETAINED_PRECISION_RECEIPT_MISMATCH"],"expected":["unsupported","RETAINED_PRECISION_RECEIPT_MISMATCH"]}
+case/sparse_interactive:foreign_mode	{"standing":"unsupported","dispatch":"ok","findings":["RETAINED_PRECISION_INVOCATION_MISMATCH"],"expected":["unsupported","ok"]}
+case/sparse_interactive:relabelled_base_with_receipt	{"standing":"unsupported","dispatch":"RETAINED_PRECISION_DOWNGRADE_FORBIDDEN","findings":["RETAINED_PRECISION_VALIDATION_REQUIRED"],"expected":["unsupported","RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"]}
+case/dense_scrutiny:invocation	{"standing":"needs_recompute","dispatch":"ok","findings":["RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"],"expected":["needs_recompute","ok"]}
+case/dense_scrutiny:no_invocation	{"standing":"needs_recompute","dispatch":"ok","findings":["RETAINED_PRECISION_VALIDATION_REQUIRED"],"expected":["needs_recompute","ok"]}
+case/dense_scrutiny:no_requested	{"standing":"needs_recompute","dispatch":"ok","findings":["RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"],"expected":["needs_recompute","ok"]}
+case/dense_scrutiny:other_requested	{"standing":"needs_recompute","dispatch":"ok","findings":["RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"],"expected":["needs_recompute","ok"]}
+case/dense_scrutiny:edited_row	{"standing":"unsupported","dispatch":"RETAINED_PRECISION_RECEIPT_MISMATCH","findings":["RETAINED_PRECISION_RECEIPT_MISMATCH"],"expected":["unsupported","RETAINED_PRECISION_RECEIPT_MISMATCH"]}
+case/dense_scrutiny:foreign_mode	{"standing":"unsupported","dispatch":"ok","findings":["RETAINED_PRECISION_INVOCATION_MISMATCH"],"expected":["unsupported","ok"]}
+case/dense_scrutiny:relabelled_base_with_receipt	{"standing":"unsupported","dispatch":"RETAINED_PRECISION_DOWNGRADE_FORBIDDEN","findings":["RETAINED_PRECISION_VALIDATION_REQUIRED"],"expected":["unsupported","RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"]}
+sparse_interactive/relabel_findings	{"RETAINED_PRECISION_DOWNGRADE_FORBIDDEN":96}
+sparse_interactive/reopen_plain_findings	["HISTORICAL_INPUT_MANIFEST_MISSING","RETAINED_PRECISION_VALIDATION_REQUIRED"]
+sparse_interactive/reopen_mutated_findings	["HISTORICAL_INPUT_MANIFEST_MISSING","RETAINED_PRECISION_VALIDATION_REQUIRED","RETAINED_PRECISION_RECEIPT_MISMATCH","HISTORICAL_RESULT_HASH_MISMATCH"]
+sparse_interactive/reopen_mutated_standing	{"contract":"retained_preview_physics","status":"needs_recompute","eligible":false,"findings":["RETAINED_PRECISION_VALIDATION_REQUIRED"]}
+dense_scrutiny/relabel_findings	{"RETAINED_PRECISION_DOWNGRADE_FORBIDDEN":96}
+dense_scrutiny/reopen_plain_findings	["HISTORICAL_INPUT_MANIFEST_MISSING","RETAINED_PRECISION_VALIDATION_REQUIRED"]
+dense_scrutiny/reopen_mutated_findings	["HISTORICAL_INPUT_MANIFEST_MISSING","RETAINED_PRECISION_VALIDATION_REQUIRED","RETAINED_PRECISION_RECEIPT_MISMATCH","HISTORICAL_RESULT_HASH_MISMATCH"]
+dense_scrutiny/reopen_mutated_standing	{"contract":"retained_preview_physics","status":"needs_recompute","eligible":false,"findings":["RETAINED_PRECISION_VALIDATION_REQUIRED"]}
+text/N_RP_UNVALIDATED	"Retained-precision accuracy classes are unavailable for these exact bytes (not validated in this session, or refused by the reader). No quantity of this result is shown as verified, and rule checks cannot bind to any of them."
+text/upwardBoundText	{"samples":20014,"least":20012,"oneAbove":2,"worse":0,"odd":[]}
+sparse_interactive/label_units	{"mm->m":2,"N->N":31,"N*m->N*m":20,"MPa->Pa":15,"Pa->Pa":1}
+sparse_interactive/notices_registered	[["headline-label","Stress headline: maximum elastic normal stress; nominal; no component intensification; not a code stress."],["retained-precision-absolute:case","case: 69 quantities verified only to an absolute bound, below the relative accuracy floor. Each is labelled and shown for inspection; rule checks cannot bind to them."]]
+sparse_interactive/notices_unregistered	[["headline-label","Stress headline: maximum elastic normal stress; nominal; no component intensification; not a code stress."],["retained-precision-unvalidated","Retained-precision accuracy classes are unavailable for these exact bytes (not validated in this session, or refused by the reader). No quantity of this result is shown as verified, and rule checks cannot bind to any of them."]]
+sparse_interactive/standing_text_registered	"Retained precision: receipt validated by the retained-precision reader against the actual invocation for these exact bytes. Selected cases: 1 of 1. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness."
+sparse_interactive/standing_text_unregistered	"Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute. Selected cases: 1 of 1. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness."
+sparse_interactive/output_refusal_text	"RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE: Output of retained-precision results (preview-physics-retained-1) is not yet available on the desktop; it is routed to T6. The result remains readable here; this is not a finding about the result."
+sparse_interactive/precheck_registered	{"refused":69,"reasons":["RULE_QUANTITY_BELOW_VERIFIED_FLOOR"]}
+sparse_interactive/precheck_unregistered	{"refused":98,"notices":["Retained-precision accuracy classes are unavailable for these exact bytes (not validated in this session, or refused by the reader). No quantity of this result is shown as verified, and rule checks cannot bind to any of them."]}
+dense_scrutiny/label_units	{"mm->m":2,"N->N":31,"N*m->N*m":20,"MPa->Pa":15,"Pa->Pa":1}
+dense_scrutiny/notices_registered	[["headline-label","Stress headline: maximum elastic normal stress; nominal; no component intensification; not a code stress."],["retained-precision-absolute:case","case: 69 quantities verified only to an absolute bound, below the relative accuracy floor. Each is labelled and shown for inspection; rule checks cannot bind to them."]]
+dense_scrutiny/notices_unregistered	[["headline-label","Stress headline: maximum elastic normal stress; nominal; no component intensification; not a code stress."],["retained-precision-unvalidated","Retained-precision accuracy classes are unavailable for these exact bytes (not validated in this session, or refused by the reader). No quantity of this result is shown as verified, and rule checks cannot bind to any of them."]]
+dense_scrutiny/standing_text_registered	"Retained precision: receipt validated by the retained-precision reader against the actual invocation for these exact bytes. Selected cases: 1 of 1. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness."
+dense_scrutiny/standing_text_unregistered	"Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute. Selected cases: 1 of 1. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness."
+dense_scrutiny/output_refusal_text	"RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE: Output of retained-precision results (preview-physics-retained-1) is not yet available on the desktop; it is routed to T6. The result remains readable here; this is not a finding about the result."
+dense_scrutiny/precheck_registered	{"refused":69,"reasons":["RULE_QUANTITY_BELOW_VERIFIED_FLOOR"]}
+dense_scrutiny/precheck_unregistered	{"refused":99,"notices":["Retained-precision accuracy classes are unavailable for these exact bytes (not validated in this session, or refused by the reader). No quantity of this result is shown as verified, and rule checks cannot bind to any of them."]}

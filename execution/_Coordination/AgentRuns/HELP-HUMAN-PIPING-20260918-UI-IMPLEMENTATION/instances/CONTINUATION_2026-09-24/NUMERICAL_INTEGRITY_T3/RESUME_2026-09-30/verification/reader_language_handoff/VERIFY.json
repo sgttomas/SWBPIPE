@@ -1,0 +1,51 @@
+{
+  "utc": "2026-10-03T17:20:44.423532+00:00",
+  "handoff_sha256": "e3a7958c8f0c21bd42280aae8a7930f7c3bfd0e238e1a02e0a14fb175b2d3fde",
+  "read_scope": "complete new Rust/TS modules/tests and lib export delta",
+  "inputs": [
+    {
+      "source": "projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/reader_language_handoff/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs",
+      "sha256": "5e1867ceaf0f4f57ab408eb93e1b949b39dda80361f12f530f1586126552e71f",
+      "bytes": 5244
+    },
+    {
+      "source": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/reader_language_handoff/projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "sha256": "375b07313518a0cdd09e317b83b9ca7536acef5c80fd4cd0a94920fd8bf2486d",
+      "bytes": 66051
+    },
+    {
+      "source": "projects/chirality-piping/core/reporting/result_export/src/physics_source.rs",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/reader_language_handoff/projects/chirality-piping/core/reporting/result_export/src/physics_source.rs",
+      "sha256": "c4e380ee7c01eb1581930013e8fc77f8be37c68e1978dedbb78ab5d3cd656f37",
+      "bytes": 51284
+    },
+    {
+      "source": "projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/reader_language_handoff/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs",
+      "sha256": "fd6a3e0c417a0dc8176af17aab44d71a96e28429478cc69e5a10f380be389b57",
+      "bytes": 1351
+    },
+    {
+      "source": "projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/reader_language_handoff/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts",
+      "sha256": "e177f8e0298ea9212cbe27ca703ac0d994761ad8a58843240f5531915b1887d5",
+      "bytes": 3785
+    },
+    {
+      "source": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.ts",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/reader_language_handoff/projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.ts",
+      "sha256": "ef7ab4c9505825dff5085ee8f836d4e506da458fe67036dfb7ed6036fcd10e42",
+      "bytes": 33005
+    },
+    {
+      "source": "projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/reader_language_handoff/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts",
+      "sha256": "390054c72e2d80088e64b05e8e15987c6966f1935d4504d02666fc66f8075ecb",
+      "bytes": 1329
+    }
+  ],
+  "status": "unaccepted helper/WIP baseline; standalone validators still absent",
+  "shared_inputs": "I52 owns mutable shared drafts; final snapshot required before acceptance"
+}

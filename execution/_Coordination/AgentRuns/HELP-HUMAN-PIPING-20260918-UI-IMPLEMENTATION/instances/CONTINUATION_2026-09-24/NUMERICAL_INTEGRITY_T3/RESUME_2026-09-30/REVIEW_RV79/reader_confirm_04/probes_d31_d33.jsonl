@@ -1,0 +1,7 @@
+{"id": "D31_model_schema_version_0.1.0", "python": "PASS", "ruled": "PASS", "basis": "D31", "agrees": true}
+{"id": "D31_model_schema_version_0.2.0", "python": "PASS", "ruled": "PASS", "basis": "D31", "agrees": true}
+{"id": "D31_model_schema_version_0.3.0", "python": "PASS", "ruled": "PASS", "basis": "D31", "agrees": true}
+{"id": "D31_model_schema_version_0.4.0", "python": "G8 RETAINED_PRECISION_INVOCATION_MISMATCH", "ruled": "G8 RETAINED_PRECISION_INVOCATION_MISMATCH", "basis": "D31", "agrees": true}
+{"id": "D31_model_schema_version_0.1", "python": "G8 RETAINED_PRECISION_INVOCATION_MISMATCH", "ruled": "G8 RETAINED_PRECISION_INVOCATION_MISMATCH", "basis": "D31", "agrees": true}
+{"id": "D33_verification_estimate_translation_row", "python": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH", "ruled": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH", "basis": "D33/D28", "agrees": true}
+{"id": "D33_verification_estimate_force_row", "python": "PASS", "ruled": "not G5 ATTEMPT at the D33/D28 checks (a force row is admitted)", "basis": "D33/D28", "agrees": true}

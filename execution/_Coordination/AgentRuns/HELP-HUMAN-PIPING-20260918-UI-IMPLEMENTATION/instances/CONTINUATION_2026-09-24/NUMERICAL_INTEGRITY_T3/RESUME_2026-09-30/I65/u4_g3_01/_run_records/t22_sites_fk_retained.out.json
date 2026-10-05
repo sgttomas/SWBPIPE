@@ -1,0 +1,761 @@
+{
+ "summary": {
+  "CountRange": 60,
+  "checked_mul(64)": 5,
+  "u32::try_from": 9,
+  "checked_mul": 30,
+  "ceil_sqrt": 3
+ },
+ "CountRange_with_literal_label": 36,
+ "rows": [
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 154,
+   "kind": "CountRange",
+   "label": null,
+   "text": "CountRange(&'static str),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 200,
+   "kind": "CountRange",
+   "label": null,
+   "text": "SumRefusal::CountRange(field) => Self::CountRange(field),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 200,
+   "kind": "CountRange",
+   "label": null,
+   "text": "SumRefusal::CountRange(field) => Self::CountRange(field),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 213,
+   "kind": "CountRange",
+   "label": null,
+   "text": "WideError::CountRange(field) => Self::CountRange(field),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 213,
+   "kind": "CountRange",
+   "label": null,
+   "text": "WideError::CountRange(field) => Self::CountRange(field),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 720,
+   "kind": "CountRange",
+   "label": "\"tracker sequence\"",
+   "text": ".ok_or(AttemptStop::CountRange(\"tracker sequence\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 876,
+   "kind": "CountRange",
+   "label": "\"tracker capacity\"",
+   "text": ".ok_or(AttemptStop::CountRange(\"tracker capacity\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 939,
+   "kind": "CountRange",
+   "label": null,
+   "text": "CountRange(&'static str),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 964,
+   "kind": "CountRange",
+   "label": "\"combination encoding\"",
+   "text": "let fail = || CombinationPreparationError::CountRange(\"combination encoding\");"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1552,
+   "kind": "CountRange",
+   "label": "\"pivot multiplier\"",
+   "text": ".ok_or(AttemptStop::CountRange(\"pivot multiplier\"))?,"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1652,
+   "kind": "CountRange",
+   "label": "\"residual row\"",
+   "text": ".ok_or(AttemptStop::CountRange(\"residual row\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1660,
+   "kind": "CountRange",
+   "label": "\"residual operations\"",
+   "text": ".ok_or(AttemptStop::CountRange(\"residual operations\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1672,
+   "kind": "CountRange",
+   "label": "\"residual multiplier\"",
+   "text": ".ok_or(AttemptStop::CountRange(\"residual multiplier\"))?,"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1723,
+   "kind": "CountRange",
+   "label": "\"residual multiplier\"",
+   "text": ".ok_or(AttemptStop::CountRange(\"residual multiplier\"))?,"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1826,
+   "kind": "CountRange",
+   "label": "\"residual row\"",
+   "text": ".ok_or(AttemptStop::CountRange(\"residual row\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1837,
+   "kind": "CountRange",
+   "label": "\"residual operations\"",
+   "text": ".ok_or(AttemptStop::CountRange(\"residual operations\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 2879,
+   "kind": "CountRange",
+   "label": null,
+   "text": "CountRange(&'static str),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 4351,
+   "kind": "CountRange",
+   "label": null,
+   "text": "AttemptStop::CountRange(field) => Ok(UnresolvedReason::CountRange(field)),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 4351,
+   "kind": "CountRange",
+   "label": null,
+   "text": "AttemptStop::CountRange(field) => Ok(UnresolvedReason::CountRange(field)),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1551,
+   "kind": "checked_mul(64)",
+   "label": null,
+   "text": ".checked_mul(64)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1671,
+   "kind": "checked_mul(64)",
+   "label": null,
+   "text": "m.checked_mul(64)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1722,
+   "kind": "checked_mul(64)",
+   "label": null,
+   "text": "m.checked_mul(64)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 965,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "u32::try_from(operands.len()).map_err(|_| fail())?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 969,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "u32::try_from(prep.identity.len()).map_err(|_| fail())?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 984,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(first.prescribed.len())"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1551,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(64)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1658,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(2)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1671,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "m.checked_mul(64)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1722,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "m.checked_mul(64)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+   "line": 1835,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(2)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/assemble.rs",
+   "line": 399,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "return u32::try_from(k).map_err(|_| AttemptStop::Exponent);"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/bound.rs",
+   "line": 996,
+   "kind": "ceil_sqrt",
+   "label": null,
+   "text": "pub(crate) fn ceil_sqrt(n: usize) -> u64 {"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/bound.rs",
+   "line": 1044,
+   "kind": "ceil_sqrt",
+   "label": null,
+   "text": "sum.add_wide_scaled(est, true, 2 * ceil_sqrt(n_c), 0)?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/bound.rs",
+   "line": 1156,
+   "kind": "ceil_sqrt",
+   "label": null,
+   "text": "let root = Wide::<L>::from_f64(ceil_sqrt(n_c) as f64)?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/combine.rs",
+   "line": 47,
+   "kind": "CountRange",
+   "label": null,
+   "text": "CountRange(&'static str),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/combine.rs",
+   "line": 208,
+   "kind": "CountRange",
+   "label": null,
+   "text": "Err(CombinationPreparationError::CountRange(field)) => {"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/combine.rs",
+   "line": 209,
+   "kind": "CountRange",
+   "label": null,
+   "text": "return Err(CombinationReason::CountRange(field))"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/factor.rs",
+   "line": 461,
+   "kind": "CountRange",
+   "label": "\"pivot multiplier\"",
+   "text": ".ok_or(AttemptStop::CountRange(\"pivot multiplier\"))?,"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/factor.rs",
+   "line": 590,
+   "kind": "CountRange",
+   "label": "\"factor operations\"",
+   "text": ".ok_or(AttemptStop::CountRange(\"factor operations\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/factor.rs",
+   "line": 815,
+   "kind": "CountRange",
+   "label": "\"condition multiplier\"",
+   "text": ".ok_or(AttemptStop::CountRange(\"condition multiplier\"))?,"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/factor.rs",
+   "line": 460,
+   "kind": "checked_mul(64)",
+   "label": null,
+   "text": "m.checked_mul(64)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/factor.rs",
+   "line": 460,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "m.checked_mul(64)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/factor.rs",
+   "line": 588,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".and_then(|n| n.checked_mul(2))"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/factor.rs",
+   "line": 814,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "n.checked_mul(3)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/ledger.rs",
+   "line": 187,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "let Ok(count) = u32::try_from(self.entries.len()) else {"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/ledger.rs",
+   "line": 196,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "let Ok(limbs) = u32::try_from(net.magnitude.len()) else {"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/origins.rs",
+   "line": 18,
+   "kind": "CountRange",
+   "label": null,
+   "text": "CountRange(&'static str),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/origins.rs",
+   "line": 43,
+   "kind": "CountRange",
+   "label": "\"case runs\"",
+   "text": ".ok_or(OriginError::CountRange(\"case runs\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/origins.rs",
+   "line": 49,
+   "kind": "CountRange",
+   "label": "\"operands\"",
+   "text": ".ok_or(OriginError::CountRange(\"operands\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/origins.rs",
+   "line": 55,
+   "kind": "CountRange",
+   "label": "\"calls\"",
+   "text": ".ok_or(OriginError::CountRange(\"calls\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/origins.rs",
+   "line": 58,
+   "kind": "CountRange",
+   "label": "\"runs\"",
+   "text": ".ok_or(OriginError::CountRange(\"runs\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/origins.rs",
+   "line": 61,
+   "kind": "CountRange",
+   "label": "\"physical records\"",
+   "text": ".ok_or(OriginError::CountRange(\"physical records\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/origins.rs",
+   "line": 64,
+   "kind": "CountRange",
+   "label": "\"builds\"",
+   "text": ".ok_or(OriginError::CountRange(\"builds\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/origins.rs",
+   "line": 80,
+   "kind": "CountRange",
+   "label": "\"record allocation\"",
+   "text": ".ok_or(OriginError::CountRange(\"record allocation\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/origins.rs",
+   "line": 354,
+   "kind": "CountRange",
+   "label": "\"case ordinal\"",
+   "text": ".ok_or(OriginError::CountRange(\"case ordinal\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/origins.rs",
+   "line": 421,
+   "kind": "CountRange",
+   "label": "\"operand ordinal\"",
+   "text": ".ok_or(OriginError::CountRange(\"operand ordinal\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/origins.rs",
+   "line": 450,
+   "kind": "CountRange",
+   "label": "\"combination ordinal\"",
+   "text": ".ok_or(OriginError::CountRange(\"combination ordinal\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/origins.rs",
+   "line": 60,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "runs.checked_mul(4)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/origins.rs",
+   "line": 63,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(7)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/origins.rs",
+   "line": 78,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(std::mem::size_of::<T>())"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 191,
+   "kind": "CountRange",
+   "label": null,
+   "text": "CountRange(&'static str),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 359,
+   "kind": "CountRange",
+   "label": "\"free profile\"",
+   "text": ".ok_or(SourceError::CountRange(\"free profile\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 361,
+   "kind": "CountRange",
+   "label": "\"free block sentinel\"",
+   "text": "return Err(SourceError::CountRange(\"free block sentinel\"));"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 364,
+   "kind": "CountRange",
+   "label": "\"profile layout\"",
+   "text": ".map_err(|_| SourceError::CountRange(\"profile layout\"))?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 378,
+   "kind": "CountRange",
+   "label": "\"source representation\"",
+   "text": "let fail = || SourceError::CountRange(\"source representation\");"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 389,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "u32::try_from(len).map_err(|_| fail())?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 411,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "u32::try_from(load.source_id.len()).map_err(|_| fail())?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 416,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "u32::try_from(children.len()).map_err(|_| fail())?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 440,
+   "kind": "u32::try_from",
+   "label": null,
+   "text": "u32::try_from(q).map_err(|_| fail())?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 358,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".and_then(|n| free.checked_mul(n))"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 391,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "let n = nodes.len().checked_mul(DOF_PER_NODE).ok_or_else(fail)?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 406,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(stride)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 419,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(4)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 436,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(stride)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 445,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(144)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 449,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(9)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 454,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "let z = n.checked_mul(n).ok_or_else(fail)?.min(p);"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/source.rs",
+   "line": 456,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "count.checked_mul(2).ok_or_else(fail)?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide.rs",
+   "line": 151,
+   "kind": "CountRange",
+   "label": null,
+   "text": "CountRange(&'static str),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide.rs",
+   "line": 180,
+   "kind": "CountRange",
+   "label": null,
+   "text": "Self::CountRange(field) => write!(f, \"retained count cannot be represented: {field}\"),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+   "line": 55,
+   "kind": "CountRange",
+   "label": null,
+   "text": "CountRange(&'static str),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+   "line": 71,
+   "kind": "CountRange",
+   "label": null,
+   "text": "WideError::CountRange(field) => Self::CountRange(field),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+   "line": 71,
+   "kind": "CountRange",
+   "label": null,
+   "text": "WideError::CountRange(field) => Self::CountRange(field),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/work.rs",
+   "line": 91,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "match self.amount.checked_mul(factor) {"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+   "line": 159,
+   "kind": "CountRange",
+   "label": "\"integer magnitude bits\"",
+   "text": ".ok_or(WideError::CountRange(\"integer magnitude bits\"))"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+   "line": 158,
+   "kind": "checked_mul(64)",
+   "label": null,
+   "text": ".checked_mul(64)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+   "line": 158,
+   "kind": "checked_mul",
+   "label": null,
+   "text": ".checked_mul(64)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/bridge.rs",
+   "line": 143,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "a.checked_mul(b).ok_or(BridgeError::CountRange)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 170,
+   "kind": "CountRange",
+   "label": null,
+   "text": "CountRange(&'static str),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 185,
+   "kind": "CountRange",
+   "label": null,
+   "text": "Accounting(WorkFault),CountRange(&'static str),Storage,G5a(&'static str),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 194,
+   "kind": "CountRange",
+   "label": null,
+   "text": "Cause::CountRange(s)=>ProductFailureView::CountRange(s),Cause::Storage=>ProductFailureView::Storage,Cause::G5a(s)=>ProductFailureView::G5a(s),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 194,
+   "kind": "CountRange",
+   "label": null,
+   "text": "Cause::CountRange(s)=>ProductFailureView::CountRange(s),Cause::Storage=>ProductFailureView::Storage,Cause::G5a(s)=>ProductFailureView::G5a(s),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 209,
+   "kind": "CountRange",
+   "label": null,
+   "text": "Cause::CountRange(_) => \"count_range\","
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 445,
+   "kind": "CountRange",
+   "label": "\"prepared capacity bytes\"",
+   "text": ".ok_or(ProductFailure{cause:Cause::CountRange(\"prepared capacity bytes\")})?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 535,
+   "kind": "CountRange",
+   "label": "\"array layout\"",
+   "text": "cause: Cause::CountRange(\"array layout\"),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 1116,
+   "kind": "CountRange",
+   "label": "\"derivative rows\"",
+   "text": "cause: Cause::CountRange(\"derivative rows\"),"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 1133,
+   "kind": "CountRange",
+   "label": "\"support rows\"",
+   "text": ".ok_or_else(|| ProductFailure { cause: Cause::CountRange(\"support rows\") })?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 1138,
+   "kind": "CountRange",
+   "label": "\"support capacity bytes\"",
+   "text": ".ok_or_else(|| ProductFailure { cause: Cause::CountRange(\"support capacity bytes\") })?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 1181,
+   "kind": "CountRange",
+   "label": "\"support slot\"",
+   "text": ".ok_or_else(|| ProductFailure { cause: Cause::CountRange(\"support slot\") })?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 1623,
+   "kind": "CountRange",
+   "label": "\"proof anchor layout\"",
+   "text": ".ok_or(ProductFailure{cause:Cause::CountRange(\"proof anchor layout\")})?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 1673,
+   "kind": "CountRange",
+   "label": "\"proof anchor layout\"",
+   "text": ".ok_or(ProductFailure{cause:Cause::CountRange(\"proof anchor layout\")})?;"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 444,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "self.prepared_capacities[slot]=v.capacity().checked_mul(std::mem::size_of::<T>())"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 1115,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "let derivative_count = facts.len().checked_mul(21).ok_or_else(|| ProductFailure {"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 1132,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "let support_count = source.supports().len().checked_mul(6)"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 1137,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "support_coverage.capacity().checked_mul(std::mem::size_of::<bool>())"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+   "line": 1180,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "let j = si.checked_mul(6).and_then(|v| v.checked_add(component.index()))"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+   "line": 42,
+   "kind": "checked_mul",
+   "label": null,
+   "text": "a.checked_mul(b).ok_or(Error::CountRange)"
+  }
+ ]
+}

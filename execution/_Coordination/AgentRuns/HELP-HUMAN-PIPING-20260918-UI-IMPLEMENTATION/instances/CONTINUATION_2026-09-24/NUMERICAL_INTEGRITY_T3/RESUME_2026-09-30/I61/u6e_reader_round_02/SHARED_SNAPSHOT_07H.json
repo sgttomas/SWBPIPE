@@ -1,0 +1,58 @@
+{
+ "version": "I61_SHARED_SNAPSHOT_07H",
+ "freeze_utc": "2026-10-04T10:40:57.692138+00:00",
+ "status": "Frozen delta from SHARED_SNAPSHOT_07G (U6e repair round: RV90 S1, N1, N2, N4); completeness flags unchanged (false); no acceptance, eligibility or reader approval.",
+ "basis": {
+  "ruling": "RV90 on U6e PASS (0B/1S/4N); 07h repair round granted (NUM a45a3201f8)",
+  "previous_snapshot": "SHARED_SNAPSHOT_07G (corpus aa8e930ebc)",
+  "reader_head_at_start": "5e1e2625ac"
+ },
+ "files": [
+  {
+   "path": "P/fixtures/results/retained_precision_cases.json",
+   "sha256": "d0a4ee213c7d4d87b016a5b9625727a4815c5682dd5f4767ae604746919eecb2",
+   "bytes": 4894269,
+   "snapshot": "WT/scratch/i61_u6e_07h/stage/retained_precision_cases_07h.json",
+   "changed_from_snapshot_07g": true
+  }
+ ],
+ "format_rule": {
+  "unchanged": "07e's rehash indexing, preparation-hash and order rules and 07g's d37 layout apply unchanged"
+ },
+ "delta": {
+  "mutations_added": [
+   "f5_affected_refs_string_names_no_case",
+   "f5_ordinary_refs_second_case_relaxed_d6a_form",
+   "f5_ordinary_refs_strict_prefix"
+  ],
+  "must_pass_added": [
+   "f5_envelope_reordered_exact_list"
+  ],
+  "d37_basis": "appended: the facade-order premise (PP/core/product_physics/src/lib.rs:2962-2974); every other d37 key unchanged",
+  "s1": "f5_affected_refs_string_names_no_case: a case-naming diagnostic's affected_refs is the case id as a string, still listed; a non-array names no case, so F5 refuses (G5 ATTEMPT)",
+  "n1": "f5_ordinary_refs_second_case_relaxed_d6a_form: case 1 of two_case_synthetic listing only its integrity diagnostic (07f's relaxed form); F5 refuses on a case after the first",
+  "n2": "f5_ordinary_refs_strict_prefix: the first load diagnostic moved to the end of the envelope, the list without its last element (a strict prefix that still lists the integrity diagnostic); the must-pass f5_envelope_reordered_exact_list admits the exact list over the same envelope"
+ },
+ "unchanged": {
+  "mutations_0_274_byte_identical": true,
+  "must_pass_0_22_byte_identical": true,
+  "cases_identical": true,
+  "arithmetic_identical": true,
+  "provenance_identical": true,
+  "version_identical": true,
+  "d37_except_basis_identical": true,
+  "d37_basis_is_a_suffix_extension": true
+ },
+ "counts": {
+  "cases": 15,
+  "mutations": 277,
+  "must_pass": 23,
+  "d37_records": 25,
+  "d37_kinds": 9
+ },
+ "python": {
+  "reader_sha256": "adec9197e5d09836a78c651079deaf999b4b372e407ab512341d63119e3eae52",
+  "outcomes": "_run_records/PYTHON_OUTCOMES_07H.json",
+  "delta": "_run_records/OUTCOME_DELTA_07G_07H.json"
+ }
+}

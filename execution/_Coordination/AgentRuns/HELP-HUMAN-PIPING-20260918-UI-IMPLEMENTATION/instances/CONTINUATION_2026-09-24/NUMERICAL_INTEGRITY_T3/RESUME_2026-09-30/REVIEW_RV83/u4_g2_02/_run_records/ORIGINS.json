@@ -1,0 +1,32 @@
+{
+ "reviewed_revision": "NUM 3260d7809e (G3 packet); G3 source basis 5ae5fe4f0f",
+ "g3_files_sha256": {
+  "G2_AMENDMENTS.md": "927390e31178662f265139a843022dee9b9baf21ebb51832fc5a2b47c826d1c6",
+  "RESIDUALS_G3.md": "7ecb77f341fd149acc5455d1aca52685b3a6bbf6574161b2a18fbb84a3b33097",
+  "TEXT.md": "8dc18d983f888376fd3d742bf8f6feea69c0d0a20fd83d0379dae37abc434376",
+  "ORDINARY.md": "bce4d5ff5f76a39b0e6b972d26e9568b6be8ab8491357d2f0082c0ea5996abc6",
+  "RETURN.md": "d8e6506cf21889cb31dbe7659697429107d0f35cb2ceba38520a377ca4c8d5ec",
+  "SHA256SUMS": "dc48d5ef4702612cd8d9dfaef18b596580ddc90c7567aa920e0d719c380147a8",
+  "_run_records/callgraph.py": "e6cd155efb3c106046a7a1ef7e51440b84464368c3d272d77e8dceb9ef27e8b1",
+  "_run_records/callgraph_edges.json": "cef471916350696f8b9a921beb47bc657dcdb3db1bffbf7f86332f270e90f76b",
+  "_run_records/text_budget.caps.out.json": "1f22ffc32ed00a83efe1cf77b1c5b85416c93616c7231c19efddf75e1f89d7b7",
+  "_run_records/loop_bounds.json": "6e3212c2f05e255e2d1d6eba599a1b31dc603ee995f3bf0719af743dbb71d176",
+  "_run_records/text_args.json": "a2d292342ea4a4ff6c2729307c1b7573022814b9049ef12ec3a4475bdfdc7e21",
+  "_run_records/t07_repair.caps.out.json": "fcd3db0149df13f36df582d540e0a868a041d7e903e1edd9dfa0ca0efad582e3",
+  "_run_records/ordinary_caps.py": "5a948a112504e3a61147c02e48d1f90415367dc54b94b688850cad90b821af15",
+  "_run_records/ordinary_caps.caps.out.json": "e6667128e528b97e9a7e19345435f6ef7be579c6e82e1418e7e696d6bb7ca223"
+ },
+ "source_git_blobs_at_5ae5fe4f0f": {
+  "core/product_physics/src/pressure_runtime.rs": "9872d1f0b896f179f484fbab19f8fd61279152fd",
+  "core/product_physics/src/self_weight.rs": "e191a74a6b665c6471ce4dca11a5a8b3a8b6c35d",
+  "core/product_physics/src/lib.rs": "1467a2fc89c75009c2bd71ae7dc4865d81168154",
+  "core/product_physics/src/source_receipt.rs": "8b80a90f4b05970fc4a98f2e912efefd08ae4c29",
+  "core/product_physics/src/case_state/resolve.rs": "f3c568cbf7dfee2c3dba30939d1258df5fd23141",
+  "core/product_physics/src/pressure_material.rs": "9a9c3e5d1421d2d9dfba47124ef2036bed12c43d",
+  "core/solver/frame_kernel/src/structural.rs": "b76a921fc9ede2d89271ca4616a5e44b80b810e9",
+  "core/solver/frame_kernel/src/structural/formation_check.rs": "41353f60541ac82d07bd2d3594873c4c71d13558",
+  "core/solver/frame_kernel/src/structural/retained/adaptive.rs": "347385684092def9b8bb8a6c9c1b53562a8ff61b",
+  "core/solver/frame_kernel/src/structural/retained/source.rs": "47e1df6011b53fc8f2c5219b6189bce87d2c9c74"
+ },
+ "core_drift_5ae5fe4f0f_to_3260d7809e": "U1 merge only: PP lib.rs, retained_product.rs, retained_wire.rs (new), retained_receipt.rs, Cargo.toml/lock, FK final_case.rs; none of the files above except lib.rs; the lib.rs hunks are observer hooks (G4)"
+}

@@ -1,0 +1,12 @@
+   Compiling rv54_origins_controls v0.0.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV54/kernel_origins_01/controls)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.60s
+     Running unittests lib.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV54/kernel_origins_01/_scratch/review/debug/deps/rv54_origins_controls-801976c34ec42eac)
+
+running 4 tests
+test aggregate_shapes_empty_calls_and_rejection_are_atomic ... ok
+test clone_drop_foreign_and_legacy_cannot_mint_association ... ok
+test real_failure_reuse_and_budget_retry_discriminate_builds ... ok
+test actual_snapshot_union_unavailable_combined_source_and_no_backfill ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.11s
+

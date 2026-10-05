@@ -1,0 +1,16 @@
+{
+  "sealed_utc": "2026-10-03T14:30:18.827016+00:00",
+  "status": "SEALED_ONCE",
+  "role": "TASK Type 2",
+  "parent": "/root HELP_HUMAN",
+  "mechanism": "native delegation; no descendants",
+  "manifest_sha256": "9a29e7c0eaaa49c40dbbbf4d13bbb9a7e1b5da09857fb76d5eb5e2dc3deabdc7",
+  "payload_files": 9,
+  "new_derivation_stopped_utc": "2026-10-03T14:29:12.480302+00:00",
+  "cutoff": "2026-10-03T14:35:25Z",
+  "seal_deadline": "2026-10-03T14:50:25Z",
+  "runtime_commands": 0,
+  "maintained_source_writes": 0,
+  "git_index_api_writes": 0,
+  "remaining": "Independent design review and ROOT disposition; all unqualified terms retained in RETURN/COMPOSITION"
+}

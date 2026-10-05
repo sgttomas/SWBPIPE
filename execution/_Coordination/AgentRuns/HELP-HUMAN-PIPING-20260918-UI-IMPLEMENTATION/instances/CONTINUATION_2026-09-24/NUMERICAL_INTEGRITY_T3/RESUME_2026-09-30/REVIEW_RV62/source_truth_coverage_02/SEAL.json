@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-03T06:15:50.525081+00:00",
+  "verdict": "CLEAR for records-only correction; no false PASS or new implementation defect established",
+  "source_pin": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4",
+  "payloads": 10,
+  "inventory_shape": "relative path -> sha256, bytes, absolute_location",
+  "inventory_sha256": "8e1afc34f230c9bfb386cae8f6e032373c7ce292b8bbbacf1bb3888f1f64a04c",
+  "review_sha256": "009f8c367df5821910c41834376f7b0f0ec396f499ac9662ac0c4b7019e4890e",
+  "return_sha256": "dfd93e53f04ad8e2247451f62e99ff1ce5c63c5d6bea2326b9701d7c4d27fc1b",
+  "bulk_manifest_sha256": "022a8e028e183af03856a2daf4de590d5d4db1b5af438dc2a603e0b23f062973",
+  "runtime_lane": "unused"
+}

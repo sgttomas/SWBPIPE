@@ -1,0 +1,519 @@
+{
+ "whole": {
+  "g6": 2149902046,
+  "g6r": 2150800830,
+  "delta": 898784,
+  "complete": true,
+  "D": [
+   14734,
+   14734
+  ],
+  "changed": [
+   {
+    "site": "product_physics/src/lib.rs:1149",
+    "kind": "format",
+    "g6": [
+     2,
+     175,
+     700
+    ],
+    "g6r": [
+     2,
+     286,
+     1144
+    ],
+    "delta": 444
+   },
+   {
+    "site": "product_physics/src/lib.rs:1632",
+    "kind": "format",
+    "g6": [
+     1,
+     29,
+     58
+    ],
+    "g6r": [
+     1,
+     140,
+     280
+    ],
+    "delta": 222
+   },
+   {
+    "site": "product_physics/src/lib.rs:1644",
+    "kind": "format",
+    "g6": [
+     32,
+     34,
+     2176
+    ],
+    "g6r": [
+     32,
+     145,
+     9280
+    ],
+    "delta": 7104
+   },
+   {
+    "site": "product_physics/src/lib.rs:1708",
+    "kind": "format",
+    "g6": [
+     2304,
+     8241,
+     37974528
+    ],
+    "g6r": [
+     2304,
+     8352,
+     38486016
+    ],
+    "delta": 511488
+   },
+   {
+    "site": "product_physics/src/lib.rs:1721",
+    "kind": "format",
+    "g6": [
+     384,
+     83,
+     63744
+    ],
+    "g6r": [
+     384,
+     194,
+     148992
+    ],
+    "delta": 85248
+   },
+   {
+    "site": "product_physics/src/lib.rs:1739",
+    "kind": "format",
+    "g6": [
+     64,
+     88,
+     11264
+    ],
+    "g6r": [
+     64,
+     199,
+     25472
+    ],
+    "delta": 14208
+   },
+   {
+    "site": "product_physics/src/lib.rs:1763",
+    "kind": "format",
+    "g6": [
+     12,
+     8243,
+     197832
+    ],
+    "g6r": [
+     12,
+     8354,
+     200496
+    ],
+    "delta": 2664
+   },
+   {
+    "site": "product_physics/src/retained_product.rs:3125",
+    "kind": "push_str",
+    "g6": [
+     199,
+     327,
+     130146
+    ],
+    "g6r": [
+     199,
+     1024,
+     407552
+    ],
+    "delta": 277406
+   }
+  ]
+ },
+ "_W": {
+  "g6": 1569180716,
+  "g6r": 1570041862,
+  "delta": 861146,
+  "complete": true,
+  "D": [
+   9400,
+   9400
+  ],
+  "changed": [
+   {
+    "site": "product_physics/src/lib.rs:1149",
+    "kind": "format",
+    "g6": [
+     2,
+     175,
+     700
+    ],
+    "g6r": [
+     2,
+     286,
+     1144
+    ],
+    "delta": 444
+   },
+   {
+    "site": "product_physics/src/lib.rs:1632",
+    "kind": "format",
+    "g6": [
+     1,
+     29,
+     58
+    ],
+    "g6r": [
+     1,
+     140,
+     280
+    ],
+    "delta": 222
+   },
+   {
+    "site": "product_physics/src/lib.rs:1644",
+    "kind": "format",
+    "g6": [
+     32,
+     34,
+     2176
+    ],
+    "g6r": [
+     32,
+     145,
+     9280
+    ],
+    "delta": 7104
+   },
+   {
+    "site": "product_physics/src/lib.rs:1708",
+    "kind": "format",
+    "g6": [
+     2304,
+     8241,
+     37974528
+    ],
+    "g6r": [
+     2304,
+     8352,
+     38486016
+    ],
+    "delta": 511488
+   },
+   {
+    "site": "product_physics/src/lib.rs:1721",
+    "kind": "format",
+    "g6": [
+     384,
+     83,
+     63744
+    ],
+    "g6r": [
+     384,
+     194,
+     148992
+    ],
+    "delta": 85248
+   },
+   {
+    "site": "product_physics/src/lib.rs:1739",
+    "kind": "format",
+    "g6": [
+     64,
+     88,
+     11264
+    ],
+    "g6r": [
+     64,
+     199,
+     25472
+    ],
+    "delta": 14208
+   },
+   {
+    "site": "product_physics/src/lib.rs:1763",
+    "kind": "format",
+    "g6": [
+     12,
+     8243,
+     197832
+    ],
+    "g6r": [
+     12,
+     8354,
+     200496
+    ],
+    "delta": 2664
+   },
+   {
+    "site": "product_physics/src/retained_product.rs:3125",
+    "kind": "push_str",
+    "g6": [
+     172,
+     327,
+     112488
+    ],
+    "g6r": [
+     172,
+     1024,
+     352256
+    ],
+    "delta": 239768
+   }
+  ]
+ },
+ "_X": {
+  "g6": 1439555190,
+  "g6r": 1440401002,
+  "delta": 845812,
+  "complete": true,
+  "D": [
+   14723,
+   14723
+  ],
+  "changed": [
+   {
+    "site": "product_physics/src/lib.rs:1149",
+    "kind": "format",
+    "g6": [
+     2,
+     175,
+     700
+    ],
+    "g6r": [
+     2,
+     286,
+     1144
+    ],
+    "delta": 444
+   },
+   {
+    "site": "product_physics/src/lib.rs:1632",
+    "kind": "format",
+    "g6": [
+     1,
+     29,
+     58
+    ],
+    "g6r": [
+     1,
+     140,
+     280
+    ],
+    "delta": 222
+   },
+   {
+    "site": "product_physics/src/lib.rs:1644",
+    "kind": "format",
+    "g6": [
+     32,
+     34,
+     2176
+    ],
+    "g6r": [
+     32,
+     145,
+     9280
+    ],
+    "delta": 7104
+   },
+   {
+    "site": "product_physics/src/lib.rs:1708",
+    "kind": "format",
+    "g6": [
+     2304,
+     8241,
+     37974528
+    ],
+    "g6r": [
+     2304,
+     8352,
+     38486016
+    ],
+    "delta": 511488
+   },
+   {
+    "site": "product_physics/src/lib.rs:1721",
+    "kind": "format",
+    "g6": [
+     384,
+     83,
+     63744
+    ],
+    "g6r": [
+     384,
+     194,
+     148992
+    ],
+    "delta": 85248
+   },
+   {
+    "site": "product_physics/src/lib.rs:1739",
+    "kind": "format",
+    "g6": [
+     64,
+     88,
+     11264
+    ],
+    "g6r": [
+     64,
+     199,
+     25472
+    ],
+    "delta": 14208
+   },
+   {
+    "site": "product_physics/src/lib.rs:1763",
+    "kind": "format",
+    "g6": [
+     12,
+     8243,
+     197832
+    ],
+    "g6r": [
+     12,
+     8354,
+     200496
+    ],
+    "delta": 2664
+   },
+   {
+    "site": "product_physics/src/retained_product.rs:3125",
+    "kind": "push_str",
+    "g6": [
+     161,
+     327,
+     105294
+    ],
+    "g6r": [
+     161,
+     1024,
+     329728
+    ],
+    "delta": 224434
+   }
+  ]
+ },
+ "text_args_changes": {
+  "args": {
+   "g6_len": 61,
+   "g6r_len": 62,
+   "added": [
+    {
+     "re": "integrity_dof_label\\(",
+     "max": 131,
+     "why": "G6 repair (RV87 SF-1): integrity_dof_label(model, dof) returns format!(\"{}:{name}\", node.id) with name one of UX..RZ (PP/lib.rs:1067-1072): <= 128 + 1 + 2 = 131 B. Ahead of the int rule, whose `_dof` substring would otherwise price it at 20 B"
+    }
+   ],
+   "removed": []
+  },
+  "id_audit": {
+   "removed": [],
+   "added": [
+    "core/loads/primitive_loads/src/lib.rs:1243",
+    "core/loads/stress_recovery/src/lib.rs:1011",
+    "core/loads/stress_recovery/src/lib.rs:1019",
+    "core/loads/stress_recovery/src/lib.rs:1037",
+    "core/loads/stress_recovery/src/lib.rs:57",
+    "core/loads/stress_recovery/src/lib.rs:976",
+    "core/product_physics/src/lib.rs:1149",
+    "core/product_physics/src/lib.rs:11629",
+    "core/product_physics/src/lib.rs:11658",
+    "core/product_physics/src/lib.rs:11660",
+    "core/product_physics/src/lib.rs:11661",
+    "core/product_physics/src/lib.rs:13053",
+    "core/product_physics/src/lib.rs:13055",
+    "core/product_physics/src/lib.rs:13056",
+    "core/product_physics/src/lib.rs:13083",
+    "core/product_physics/src/lib.rs:13085",
+    "core/product_physics/src/lib.rs:13086",
+    "core/product_physics/src/lib.rs:13834",
+    "core/product_physics/src/lib.rs:13899",
+    "core/product_physics/src/lib.rs:13921",
+    "core/product_physics/src/lib.rs:1632",
+    "core/product_physics/src/lib.rs:1644",
+    "core/product_physics/src/lib.rs:1708",
+    "core/product_physics/src/lib.rs:1721",
+    "core/product_physics/src/lib.rs:1739",
+    "core/product_physics/src/lib.rs:8967",
+    "core/product_physics/src/retained_product.rs:220",
+    "core/product_physics/src/retained_product.rs:3038",
+    "core/product_physics/src/retained_product.rs:3053",
+    "core/product_physics/src/retained_product.rs:3125",
+    "core/product_physics/src/retained_product.rs:3152",
+    "core/product_physics/src/source_receipt.rs:28",
+    "core/product_physics/src/source_receipt/source.rs:27",
+    "core/product_physics/src/source_receipt/source.rs:51",
+    "core/product_physics/src/source_recovery.rs:430",
+    "core/reporting/result_export/src/physics_evidence.rs:38",
+    "core/reporting/result_export/src/physics_source.rs:19",
+    "core/reporting/result_export/src/preview_physics_evidence.rs:90",
+    "core/serialization/canonical_json/src/binary64.rs:53",
+    "core/solver/frame_kernel/src/structural/formation_check.rs:109",
+    "core/solver/linear_supports/src/lib.rs:253",
+    "core/units/src/lib.rs:888"
+   ],
+   "changed": [
+    "core/product_physics/src/lib.rs:11375",
+    "core/product_physics/src/lib.rs:11376",
+    "core/product_physics/src/lib.rs:11383",
+    "core/product_physics/src/lib.rs:11384",
+    "core/product_physics/src/lib.rs:11391",
+    "core/product_physics/src/lib.rs:11392",
+    "core/product_physics/src/lib.rs:11399",
+    "core/product_physics/src/lib.rs:11400",
+    "core/product_physics/src/lib.rs:11407",
+    "core/product_physics/src/lib.rs:11408",
+    "core/product_physics/src/lib.rs:11415",
+    "core/product_physics/src/lib.rs:11416",
+    "core/product_physics/src/lib.rs:11515",
+    "core/product_physics/src/lib.rs:11546",
+    "core/product_physics/src/lib.rs:11553",
+    "core/product_physics/src/lib.rs:11560",
+    "core/product_physics/src/lib.rs:11567",
+    "core/product_physics/src/lib.rs:11574",
+    "core/product_physics/src/lib.rs:11581",
+    "core/product_physics/src/lib.rs:12881",
+    "core/product_physics/src/lib.rs:12898",
+    "core/product_physics/src/lib.rs:12913",
+    "core/product_physics/src/lib.rs:12985",
+    "core/product_physics/src/lib.rs:13002",
+    "core/product_physics/src/lib.rs:13017",
+    "core/product_physics/src/lib.rs:1763",
+    "core/product_physics/src/lib.rs:8795",
+    "core/product_physics/src/lib.rs:8799",
+    "core/product_physics/src/pressure_runtime.rs:92",
+    "core/product_physics/src/retained_product.rs:2383",
+    "core/product_physics/src/retained_product.rs:2421",
+    "core/product_physics/src/source_receipt/rows.rs:29"
+   ]
+  },
+  "lex_site_size": {
+   "removed": [
+    "retained_product.rs:2963"
+   ],
+   "added": [
+    "retained_product.rs:3125"
+   ],
+   "changed": []
+  },
+  "site_zero": {
+   "removed": [
+    "retained_product.rs:529",
+    "structural/formation_check.rs:524",
+    "structural/retained/assemble.rs:15"
+   ],
+   "added": [],
+   "changed": []
+  },
+  "site_zero_removed_g6": {
+   "g6": "None",
+   "g6r": "{'retained_product.rs:529': \"G6 repair (RV87 SF-2): stale; observation_copy's push_str is now :691 and stays priced (audited COMP, 1,024 B) rather than zeroed\", 'structural/formation_check.rs:524': 'G"
+  }
+ },
+ "id_audit_entries": [
+  735,
+  783
+ ]
+}

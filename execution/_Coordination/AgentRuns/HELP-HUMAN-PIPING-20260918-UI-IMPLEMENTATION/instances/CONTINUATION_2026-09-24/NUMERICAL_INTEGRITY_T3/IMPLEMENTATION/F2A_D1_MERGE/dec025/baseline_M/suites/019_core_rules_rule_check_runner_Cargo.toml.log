@@ -1,0 +1,53 @@
+   Compiling open_pipe_stress_rule_pack_lifecycle v0.1.0 (<BASELINE_WORKTREE>/projects/chirality-piping/core/rules/rule_pack_lifecycle)
+   Compiling open_pipe_stress_expression_evaluator v0.1.0 (<BASELINE_WORKTREE>/projects/chirality-piping/core/rules/expression_evaluator)
+   Compiling open_pipe_stress_completeness_checker v0.1.0 (<BASELINE_WORKTREE>/projects/chirality-piping/core/rules/completeness_checker)
+   Compiling serde_json v1.0.150
+   Compiling open_pipe_stress_canonical_json v0.1.0 (<BASELINE_WORKTREE>/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_rule_pack_document v0.1.0 (<BASELINE_WORKTREE>/projects/chirality-piping/core/rules/rule_pack_document)
+   Compiling open_pipe_stress_rule_check_runner v0.1.0 (<BASELINE_WORKTREE>/projects/chirality-piping/core/rules/rule_check_runner)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.88s
+     Running unittests src/lib.rs (<BASELINE_TARGET>/debug/deps/open_pipe_stress_rule_check_runner-d0ac6d36321ee3cc)
+
+running 14 tests
+test tests::compatible_rule_check_units_normalize_to_declared_units ... ok
+test tests::failing_check_yields_user_rule_failed ... ok
+test tests::emits_only_the_automatic_status_vocabulary ... ok
+test tests::aggregate_is_worst_of_across_checks ... ok
+test tests::incompatible_rule_check_units_block_before_evaluation ... ok
+test tests::missing_solver_input_blocks_without_evaluating ... ok
+test tests::missing_limit_slot_blocks_as_incomplete ... ok
+test tests::passing_check_yields_user_rule_checked ... ok
+test tests::private_library_value_is_unsupplied_not_silently_passed ... ok
+test tests::private_library_value_resolves_from_library_binding_and_passes ... ok
+test tests::private_library_value_with_failing_library_value_reports_failure ... ok
+test tests::status_outside_declared_result_statuses_is_downgraded ... ok
+test tests::unit_mismatch_between_ratio_and_limit_blocks ... ok
+test tests::refused_solver_input_reports_incomplete_with_reason_never_a_pass ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/acceptability_relation_run.rs (<BASELINE_TARGET>/debug/deps/acceptability_relation_run-e6d7e5a819fb2a7f)
+
+running 4 tests
+test unrecognized_relation_blocks_rather_than_defaulting ... ok
+test less_than_relation_is_strict_at_the_boundary ... ok
+test explicit_less_than_or_equal_matches_the_absent_default ... ok
+test greater_than_or_equal_relation_flips_the_acceptance ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/invented_demo_run.rs (<BASELINE_TARGET>/debug/deps/invented_demo_run-67bacb75b741c017)
+
+running 3 tests
+test example_pack_missing_solver_input_is_rule_inputs_incomplete ... ok
+test example_pack_passing_run_is_user_rule_checked ... ok
+test example_pack_failing_run_is_user_rule_failed ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests open_pipe_stress_rule_check_runner
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

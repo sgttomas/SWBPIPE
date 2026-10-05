@@ -1,0 +1,58 @@
+[
+  {
+    "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_01.json",
+    "sha256": "b1e39995bee4a719a82edc4a6112713688f6f6736fe1a2dcb6e85bf51e35466c",
+    "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_01.log",
+    "exit": 0,
+    "start": "2026-10-03T16:40:52.744692+00:00",
+    "finish": "2026-10-03T16:40:53.185896+00:00",
+    "reaped": true,
+    "source_stable": true,
+    "process_group_alive_after_wait": false,
+    "summaries": [
+      "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 447 filtered out; finished in 0.33s"
+    ]
+  },
+  {
+    "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_02.json",
+    "sha256": "28c32cb195090aef38f58b9b1d106a79bf9e9a62e613693fe6894c30abb373c4",
+    "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_02.log",
+    "exit": 0,
+    "start": "2026-10-03T16:40:53.194954+00:00",
+    "finish": "2026-10-03T16:41:08.793761+00:00",
+    "reaped": true,
+    "source_stable": true,
+    "process_group_alive_after_wait": false,
+    "summaries": [
+      "test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 419 filtered out; finished in 15.31s"
+    ]
+  },
+  {
+    "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_03.json",
+    "sha256": "a9bb7c234616c27af494bde9ab608915516ce3fa7f867b662b38e82478cec64e",
+    "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_03.log",
+    "exit": 0,
+    "start": "2026-10-03T16:41:08.806247+00:00",
+    "finish": "2026-10-03T16:41:09.181791+00:00",
+    "reaped": true,
+    "source_stable": true,
+    "process_group_alive_after_wait": false,
+    "summaries": [
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s"
+    ]
+  },
+  {
+    "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_04.json",
+    "sha256": "29fa0bece40eea3c4a751af42520b76b055aa1b634ab2e45d815141a395faaca",
+    "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_04.log",
+    "exit": 0,
+    "start": "2026-10-03T16:41:09.188419+00:00",
+    "finish": "2026-10-03T16:41:10.747199+00:00",
+    "reaped": true,
+    "source_stable": true,
+    "process_group_alive_after_wait": false,
+    "summaries": [
+      "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.40s"
+    ]
+  }
+]

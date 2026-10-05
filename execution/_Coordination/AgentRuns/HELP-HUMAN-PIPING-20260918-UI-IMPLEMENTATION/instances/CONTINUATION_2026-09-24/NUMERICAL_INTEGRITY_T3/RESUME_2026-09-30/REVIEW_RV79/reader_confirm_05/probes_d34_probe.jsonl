@@ -1,0 +1,13 @@
+{"id": "quantity_kind_-0.0", "field": "G5aError.quantity_kind (enum [0,1])", "value": "-0.0", "python": "G2 RETAINED_PRECISION_ENCODING_MISMATCH", "raise_lines": [1611, 128]}
+{"id": "quantity_kind_0", "field": "G5aError.quantity_kind (enum [0,1])", "value": "0", "python": "PASS", "raise_lines": null}
+{"id": "quantity_kind_0.0", "field": "G5aError.quantity_kind (enum [0,1])", "value": "0.0", "python": "PASS", "raise_lines": null}
+{"id": "quantity_kind_1", "field": "G5aError.quantity_kind (enum [0,1])", "value": "1", "python": "PASS", "raise_lines": null}
+{"id": "directional_springs_-0.0", "field": "constructor_counts.directional_springs (const 0)", "value": "-0.0", "python": "G2 RETAINED_PRECISION_ENCODING_MISMATCH", "raise_lines": [1611, 128]}
+{"id": "directional_springs_0", "field": "constructor_counts.directional_springs (const 0)", "value": "0", "python": "PASS", "raise_lines": null}
+{"id": "directional_springs_0.0", "field": "constructor_counts.directional_springs (const 0)", "value": "0.0", "python": "PASS", "raise_lines": null}
+{"id": "U_corrections_-0.0", "field": "PhysicalRecord.corrections (U)", "value": "-0.0", "python": "G2 RETAINED_PRECISION_ENCODING_MISMATCH", "raise_lines": [1611, 180, 168, 180, 182, 168, 170, 180, 168, 180, 182, 168, 180, 168, 173, 128]}
+{"id": "U_corrections_0.0", "field": "PhysicalRecord.corrections (U)", "value": "0.0", "python": "PASS", "raise_lines": null}
+{"id": "U_corrections_0", "field": "PhysicalRecord.corrections (U)", "value": "0", "python": "PASS", "raise_lines": null}
+{"id": "list_item_-0.0", "field": "AdapterTrace.counts[0] (U in a list)", "value": "-0.0", "base_value": 0, "python": "G2 RETAINED_PRECISION_ENCODING_MISMATCH", "raise_lines": [1611, 180, 168, 180, 182, 168, 180, 180, 182, 168, 173, 128]}
+{"id": "list_item_0.0", "field": "AdapterTrace.counts[0] (U in a list)", "value": "0.0", "base_value": 0, "python": "PASS", "raise_lines": null}
+{"id": "results_row_value_negative_zero", "field": "results[1].value (outside the receipt)", "value": "-0.0", "python": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH", "raise_lines": [1664, 1005, 931, 128]}

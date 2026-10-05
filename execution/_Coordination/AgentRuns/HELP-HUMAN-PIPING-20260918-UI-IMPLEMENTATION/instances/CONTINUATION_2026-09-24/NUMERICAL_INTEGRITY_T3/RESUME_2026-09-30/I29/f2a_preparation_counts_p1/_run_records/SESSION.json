@@ -1,0 +1,44 @@
+{
+  "agent": "/root/i29_w1_limits",
+  "role": "TASK Type2",
+  "parent": "/root HELP_HUMAN Agent0",
+  "mechanism": "existing native descendant follow-up; no delegation",
+  "receipt_UTC": "2026-10-02 21:04:33 UTC",
+  "new_analysis_cutoff_UTC": "2026-10-02 21:34:33 UTC",
+  "hard_deadline_UTC": "2026-10-02 21:44:33 UTC",
+  "completed_UTC": "2026-10-02T21:31:30.719770+00:00",
+  "write_scope": "NUM:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_preparation_counts_p1",
+  "host_boundary": "Unrestricted shared host; instruction-based write fence. No build/runtime lane used.",
+  "actions": [
+    "bounded source/control inspection",
+    "optional-locks-zero Git reads",
+    "standard-library exact count/encoding/layout arithmetic",
+    "owned packet writes"
+  ],
+  "not_performed": [
+    "maintained/source/instruction changes",
+    "Git/index/API writes",
+    "compiler/build/test/solver/model/runtime probes",
+    "host tools/resource setting changes",
+    "delegation",
+    "numeric allowance/domain/code selection"
+  ],
+  "selected_skill": "proposal-format; recorded origin reused",
+  "workflow": "none; bounded component derivation",
+  "scope": "Symbolic source-preparation and count component; actual profile coefficients and independent review outstanding. No full aggregate/numeric/caller/suffix memory or work-exactness proof.",
+  "metadata_notes": [
+    "Long C2 output was truncated; source-map/Call/count sections were reread with bounded ranges.",
+    "Native reply contract is a reviewed scope dependency; its caller/reply coefficients were not derived here.",
+    "Ordinary unseeded constructor scope is explicit; test/mutation-controls caller_order copies require their own owner additions, not a byte-stride substitution."
+  ],
+  "author_self_checks": {
+    "16_scalar_checks_pass": true,
+    "C2_case_combination_distinction": true,
+    "no_fake_source_run": true,
+    "symbolic_coefficients_unbound": true,
+    "ordinary_suffix_separate": true,
+    "census_own_allocation_counted": true,
+    "actual_branch_order": true,
+    "no_numeric_allowance": true
+  }
+}

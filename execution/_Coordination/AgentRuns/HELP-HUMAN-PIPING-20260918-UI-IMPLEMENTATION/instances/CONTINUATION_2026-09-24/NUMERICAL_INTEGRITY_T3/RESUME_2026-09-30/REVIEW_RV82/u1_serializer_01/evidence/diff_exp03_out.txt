@@ -1,0 +1,38 @@
+== sparse_interactive: 6 differing leaves (experiment 03 -> U1)
+  /id
+     exp03: "milestone_sparse_interactive"
+     u1:    "u1_milestone_sparse_interactive"
+  /source/diagnostics[5]/id
+     exp03: "diagnostic:retained-precision:case"
+     u1:    "diagnostic:retained-precision:case:selected"
+  /source/diagnostics[5]/message
+     exp03: "I61 disposable experiment: prepared private producer statement; not a public publication."
+     u1:    "Retained-precision recovery (contribution_preserving_multiprecision_v1) is selected for this load case. Its published rows carry recovery_method; the retained_precision receipt binds their certified classes, the native attempts and work, a
+  /source/retained_precision/body/ordinary_attempts[0]/formation/d5_diagnostic_ref
+     exp03: null
+     u1:    "diagnostic:numerical-integrity:case"
+  /source/retained_precision/body/publication_sha256
+     exp03: "c9c2f5cd75fa3eb2af58e25c9f135d8cb24159919f2e7ff469c0c8a27b354ed9"
+     u1:    "26ef44356d6088dae5320fe390f3ced0b39ec0778af52b129bb13796ad994d2f"
+  /source/retained_precision/receipt_sha256
+     exp03: "2c8cee1a841564250f15b6238db81a9ed68f6aa9d43273beea7d0d80c708e961"
+     u1:    "efc1a39bbe83840df6bd0761c932b8020285d3b8c005ba8fd0b45ba10d667494"
+== dense_scrutiny: 6 differing leaves (experiment 03 -> U1)
+  /id
+     exp03: "milestone_dense_scrutiny"
+     u1:    "u1_milestone_dense_scrutiny"
+  /source/diagnostics[5]/id
+     exp03: "diagnostic:retained-precision:case"
+     u1:    "diagnostic:retained-precision:case:selected"
+  /source/diagnostics[5]/message
+     exp03: "I61 disposable experiment: prepared private producer statement; not a public publication."
+     u1:    "Retained-precision recovery (contribution_preserving_multiprecision_v1) is selected for this load case. Its published rows carry recovery_method; the retained_precision receipt binds their certified classes, the native attempts and work, a
+  /source/retained_precision/body/ordinary_attempts[0]/formation/d5_diagnostic_ref
+     exp03: null
+     u1:    "diagnostic:numerical-integrity:case"
+  /source/retained_precision/body/publication_sha256
+     exp03: "8c8b98119f565a47ad77b5bb09631cb0e7486bf3105b725ce2eabcc55665e1d6"
+     u1:    "487c4cf2e1c9c39ec9b1d3695fee620945bce4fe399f68d74170f6c61d59af66"
+  /source/retained_precision/receipt_sha256
+     exp03: "dbcc7dd03e87a2501028880019afeb5d77ede09eb0e49c988fd8ff003a382c70"
+     u1:    "3e26499f17caff8f5fc0d46406bbe54acf43e8cb16e761784aa5074413b0ac4a"

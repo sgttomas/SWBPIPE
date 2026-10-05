@@ -1,0 +1,6 @@
+{
+ "extra:preview_physics_1+carrier_evidence": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: unsupported source namespace",
+ "extra:projected_base+carrier_evidence": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: unsupported source namespace",
+ "extra:projected_base+model_incomplete": "ok",
+ "extra:projected_base+contract_evidence_edit": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: transport evidence shape"
+}

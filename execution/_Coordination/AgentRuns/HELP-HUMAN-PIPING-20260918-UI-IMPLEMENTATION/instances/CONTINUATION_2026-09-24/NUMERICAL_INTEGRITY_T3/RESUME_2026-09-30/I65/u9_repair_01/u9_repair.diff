@@ -1,0 +1,86 @@
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -2173,7 +2173,7 @@
+         .map(|outcome| outcome.envelope)
+ }
+ 
+-/// Ordinary result plus non-wire admission facts. No production permit exists.
++/// Ordinary result plus non-wire admission facts. A production permit exists only for a D1 Direct call in the one registered (dev/test) build; any other build is Stale and keeps the ordinary route.
+ pub struct RetainedPreviewOutput {
+     envelope: MechanicsEnvelope,
+     admission: Option<RetainedAdmissionReport>,
+--- a/projects/chirality-piping/core/product_physics/src/retained_memory.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_memory.rs
+@@ -2754,7 +2754,7 @@
+ }
+ 
+ /// Borrowed actual caller roots, never a qualified label or caller byte total.
+-/// Cross-crate visibility is not authentication. No production profile exists;
++/// Cross-crate visibility is not authentication. Headless is refused at D1.0 (D-2), even in the registered build;
+ /// these roots only supply facts and cannot authorize an observer or solve.
+ pub struct RetainedHeadlessContext<'a> {
+     payload: &'a Value,
+--- a/projects/chirality-piping/core/product_physics/src/retained_wire.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_wire.rs
+@@ -3,15 +3,15 @@
+ //! Maps one completed, certified, one-case prepared attempt and its typed
+ //! ordinary capture (G-b, G-l) to the successor envelope carrying
+ //! `retained_precision {body, receipt_sha256}` (C1 §3-4, C2 §5, C3), or to a
+-//! typed [`ReceiptFailure`]. Production-unreachable: no public entrypoint calls
+-//! it; U3 installs it behind the capture permit. It never reads diagnostic text
++//! typed [`ReceiptFailure`]. In production it is reached only behind the capture permit
++//! (U3, `retained_w1`): D1 Direct calls in the registered build. It never reads diagnostic text
+ //! or Debug output: a variant this grant does not translate refuses typed
+ //! (`ReceiptCheck::Untranslated`, closed in grant 2 with G-i and D38).
+ //!
+ //! The experiments' emitter (R/I61/receipt_experiment_02-03) is the reference;
+ //! the differences are the closed gaps G-a (fixed product text), G-b, G-c (D6a,
+ //! decision 2), G-d, G-e, G-j, G-l, A1 (decision 1), D39 and U2.
+-// Production-unreachable until U3 installs it behind the capture permit.
++// In production, reached only behind the capture permit (U3): D1 Direct calls in the registered build (G6).
+ #![allow(dead_code)]
+ use super::retained_product as rp;
+ use super::retained_receipt as rr;
+--- a/projects/chirality-piping/core/product_physics/src/retained_memory_law_tests.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_memory_law_tests.rs
+@@ -1,7 +1,7 @@
+ //! U4 G5: the admission law's tests, through pure functions and the actual G-A
+-//! census. No profile and no permit is constructed here (decision 7): the
+-//! registered-identity list stays empty, and every check that needs a matched
+-//! build passes its inputs to the pure function directly.
++//! census. The tests construct no profile (decision 7): the one registered entry
++//! is the production one, a permit comes only from `admit` in the registered build,
++//! and a check that needs another matched build passes its inputs to the pure function.
+ use super::*;
+ use crate::source_receipt::CapturedInvocation;
+ use crate::PreviewSolverMode;
+--- a/projects/chirality-piping/core/product_physics/src/retained_memory_witness_tests.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_memory_witness_tests.rs
+@@ -3,7 +3,7 @@
+ //! Each witness runs, on one thread with R/k = 4 MiB of reserved stack (the
+ //! `on_reserved_stack` the permitted dispatch uses), the work the permitted path
+ //! runs there: the single observed ordinary run with capture installed, then the
+-//! W1 phases (`retained_w1`). No permit exists (decision 7), so the private driver
++//! W1 phases (`retained_w1`). The witnesses mint no permit (decision 7): the private driver
+ //! enters `retained_w1` directly, as the facade tests do; G-B and G-C are not
+ //! consulted. The witness is measured evidence for this build and these inputs,
+ //! not a proof (D-3 = S1). A stack overflow aborts the test process, so the
+--- a/projects/chirality-piping/core/product_physics/tests/retained_memory_challenge.rs
++++ b/projects/chirality-piping/core/product_physics/tests/retained_memory_challenge.rs
+@@ -3,11 +3,11 @@
+ //!
+ //! This binary's own global allocator records the peak of live requested heap
+ //! bytes (the f1b_sparse_pattern_memory.rs pattern). Through the public retained
+-//! Direct entry (no permit exists, so the ordinary span runs: G-A's census and
+-//! law, the parse, the ordinary run), it measures the peak on the milestone and on
+-//! a cap-maximal D1 input, in both modes, and challenges the cap-priced profile:
+-//! each measured peak must stay at or below the profile's in-build W1 phase (the
+-//! ordinary span, requested plus moving, without R). The bounds below are the
++//! Direct entry (G-A's census and law, the parse, the ordinary run, and the W1
++//! phases when the registered build permits the call), it measures the peak on the
++//! milestone and on a cap-maximal D1 input, in both modes, against the cap-priced
++//! profile: a permitted run's peak (the milestone, registered build) at or below E_mov,max,
++//! any other's at or below the in-build W1 phase, without R. The bounds below are the
+ //! generated profile's values; a lib test (`challenge_bounds_are_the_profile`)
+ //! reads this file and checks they equal the in-build evaluation.
+ use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_retained_direct, PreviewSolverMode};

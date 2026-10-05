@@ -1,0 +1,61 @@
+{
+  "checks": [
+    {
+      "detail": {
+        "CK_delta": "2^-104",
+        "negative_endpoint_positive_selection": true,
+        "zero_exact_E_positive_rounded_E": "2^-50"
+      },
+      "name": "exact_K_and_source_positivity_are_not_rounded_results",
+      "passed": true
+    },
+    {
+      "detail": {
+        "at_point_duplicate_and_extrapolation_refuse": true,
+        "unsorted_adjacent_pair": true
+      },
+      "name": "selection_scan_preserves_strict_resolver_rules",
+      "passed": true
+    },
+    {
+      "detail": {
+        "SI_zero_not_raw_zero": true,
+        "hull_distance_equivalence": true,
+        "separate_branch_hull_needed": true
+      },
+      "name": "dual_readout_and_raw_SI_composition",
+      "passed": true
+    },
+    {
+      "detail": {
+        "endpoint_norm_does_not_prove_station_sign": true,
+        "ordered_midpoint_survives_naive_sum_overflow": true,
+        "source_cover_does_not_prove_guard": true
+      },
+      "name": "observable_and_source_checks_are_independent",
+      "passed": true
+    },
+    {
+      "detail": {
+        "incomplete_case_suppresses_headline": true,
+        "no_winner_radius_aggregate_inference": true,
+        "tie_uses_actual_ids": true
+      },
+      "name": "headline_alias_and_coverage",
+      "passed": true
+    },
+    {
+      "detail": {
+        "R4_five_live_seven_lifetime": true,
+        "logical_endpoint_limb_bytes": 29795,
+        "numeric_cause_and_status_both_retained": true,
+        "rejected_event_not_executed": true
+      },
+      "name": "visit_exhaustion_and_seven_insert_scope",
+      "passed": true
+    }
+  ],
+  "groups_passed": 6,
+  "kind": "exact_abstract_integration_controls",
+  "product_or_solver_executed": false
+}

@@ -1,0 +1,19 @@
+{
+  "prepared_utc": "2026-10-03T12:25:59.258329+00:00",
+  "status": "unapplied; awaiting ROOT exact scope grant",
+  "paths": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_tests.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_tests.rs"
+  ],
+  "new_scope": [
+    "adaptive.rs: two SourceBridgeViewWork capacity fields and immediate post-allocation assignments",
+    "source_bridge_tests.rs: two Default tails in existing work literals; all injected values/assertions unchanged"
+  ],
+  "patch": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_completion/implementation_04/VIEW_PREFIX_PROPOSAL.patch",
+    "bytes": 4042,
+    "sha256": "6cecd0943055688b3bf9fa921bb78124c828469cb2f317f429290234de3800f3"
+  }
+}

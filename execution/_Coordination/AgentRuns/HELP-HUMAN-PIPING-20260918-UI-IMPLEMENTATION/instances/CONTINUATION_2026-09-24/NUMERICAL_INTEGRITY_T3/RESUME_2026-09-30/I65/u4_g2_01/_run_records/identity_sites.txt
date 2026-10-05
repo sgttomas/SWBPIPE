@@ -1,0 +1,75 @@
+# identity.* call sites in prepare_sources (P/core/product_physics/src/source_recovery.rs:502-1248), with enclosing loops; produced by awk, read-only
+629:     identity.name(&input.model.project.id, budget)?;
+630:     identity.name(&input.load_case.id, budget)?;
+640:     identity.name(
+645:         identity.indices([1]);
+646:         identity.scalars([t.value]);
+647:         identity.name(&t.unit, budget)?;
+649:         identity.indices([0]);
+652:     for (index, (authored, built)) in input.model.nodes.iter().zip(&input.built.nodes).enumerate() {
+669:         identity.name(&authored.id, budget)?;
+670:         identity.scalars(built.coordinates);
+675:     for load in &input.load_case.primitive_loads {
+695:         identity.name(&load.id, budget)?;
+696:         identity.name(&load.category, budget)?;
+697:         identity.name(&load.direction, budget)?;
+698:         identity.name(&load.dimension, budget)?;
+699:         identity.name(&load.magnitude.unit, budget)?;
+700:         identity.scalars([load.magnitude.value]);
+706:     for load in &input.load_application.nodal_loads {
+733:         identity.name(&load.load_id, budget)?;
+734:         identity.indices([load.node_index, load.global_dof]);
+735:         identity.scalars([load.value]);
+771:     for support in &input.model.supports {
+790:         identity.name(&support.id, budget)?;
+791:         identity.name(&support.node, budget)?;
+792:         identity.name(support.family.as_deref().unwrap_or(""), budget)?;
+793:         for dof in &support.restraints {
+794:             identity.name(dof, budget)?;
+802:     for support in &input.built.supports {
+818:         identity.name(&support.support_id, budget)?;
+819:         identity.indices([
+824:         for &dof in &support.restrained_dofs {
+826:             identity.indices([global]);
+839:                 identity.name(&authored_stiffness.dof, budget)?;
+840:                 identity.name(&authored_stiffness.value.unit, budget)?;
+870:                 identity.scalars([imposed]);
+878:         for (&dof, &value) in &state.prescribed {
+887:             identity.indices([dof]);
+888:             identity.scalars([value]);
+892:     for &(dof, value) in input.prescribed {
+904:     for &dof in input.free {
+919:     for (spring, expected) in input.spring_entries.iter().zip(expected_springs) {
+931:         identity.name(&spring.support_id, budget)?;
+932:         identity.indices([dof]);
+933:         identity.scalars([k, 0.0]);
+951:     for term in &assembly.contributions {
+967:     for (index, ((pipe, frame), authored)) in input
+991:         identity.name(&authored.id, budget)?;
+992:         identity.name(&authored.from, budget)?;
+993:         identity.name(&authored.to, budget)?;
+994:         identity.name(&authored.material, budget)?;
+995:         identity.name(authored.section_ref.as_deref().unwrap_or(""), budget)?;
+996:         identity.quantity(&authored.section.outside_diameter, budget)?;
+997:         identity.quantity(&authored.section.wall_thickness, budget)?;
+998:         for quantity in [
+1005:             identity.indices([usize::from(quantity.is_some())]);
+1007:                 identity.quantity(quantity, budget)?;
+1010:         identity.scalars([
+1018:         identity.scalars(frame.y_reference);
+1054:         identity.indices([index, index * 144, 144]);
+1055:         identity.indices(map);
+1056:         identity.scalars(local.iter().flatten().copied());
+1057:         identity.scalars(transform.iter().flatten().copied());
+1058:         identity.scalars([length]);
+1061:         for a in 0..12 {
+1062:             for b in 0..12 {
+1077:         for row in 0..12 {
+1113:         for fraction in STATIONS {
+1114:             for component in 0..6 {
+1139:     for (node, authored) in input.model.nodes.iter().enumerate() {
+1140:         for component in 0..6 {
+1165:     for spring in input.spring_entries {
+1185:     for (owner, (id, node)) in support_ids.iter().enumerate() {
+1186:         for component in 0..6 {
+1220:             for spring in input

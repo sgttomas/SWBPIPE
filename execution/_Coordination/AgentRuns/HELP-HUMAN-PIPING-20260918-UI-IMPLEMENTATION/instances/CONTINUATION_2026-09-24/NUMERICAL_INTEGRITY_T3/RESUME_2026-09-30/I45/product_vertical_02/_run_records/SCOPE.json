@@ -1,0 +1,25 @@
+{
+  "utc": "2026-10-03T03:35:13.667105+00:00",
+  "head": "0fdd06a73389908fba87dfb0baef46dd443c4b8c",
+  "changed_existing": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs"
+  ],
+  "new_source": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs",
+    "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+    "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs"
+  ],
+  "all_source_changes_owned": true,
+  "exact_ten_paths": true,
+  "diff_check_exit": 0,
+  "all_untouched_baseline_files_match": true,
+  "baseline_file_count": 115,
+  "preserved_pp09_sha256": "bfab7d30ef79b41e72887b657aac6a9fc1f99b82d68a8187febcf832682ee528",
+  "preserved_oracle09_sha256": "9216e414822d37c9738ef145b91365ced47574b93f662862dc4eebe886aa865e"
+}

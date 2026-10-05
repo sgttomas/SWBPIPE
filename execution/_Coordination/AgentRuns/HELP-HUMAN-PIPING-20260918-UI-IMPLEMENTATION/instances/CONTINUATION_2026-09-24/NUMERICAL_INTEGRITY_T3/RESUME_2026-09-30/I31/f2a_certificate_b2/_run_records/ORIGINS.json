@@ -1,0 +1,165 @@
+{
+  "status": "minimal read/supplied origins; no acceptance",
+  "source_pin": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "inspected_HEAD": "d85405edcdbb894544a64051faa768db8951060c",
+  "read_scope": "Prior B1/B1C instructions and coordinate basis retained in this same agent context. B2 brief, ROOT disposition, I33 RETURN/interface, RV45 REVIEW and RV42 B1C backcheck read; source and D1/D2 consulted selectively. No copied source tree or unselected workflow/skill.",
+  "entries": [
+    {
+      "category": "root_instruction",
+      "path": "AGENTS.md",
+      "bytes": 14200,
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "category": "role",
+      "path": "agents/AGENT_TASK.md",
+      "bytes": 1499,
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "category": "project_instruction",
+      "path": "projects/chirality-piping/AGENTS.md",
+      "bytes": 9016,
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "category": "brief",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I31_F2A_CERTIFICATE_B2.md",
+      "bytes": 2172,
+      "sha256": "d1260ced9b9a52d92dbc923b9160aed586b9c1ffe312238f5afa87135d339d44"
+    },
+    {
+      "category": "root_disposition",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+      "bytes": 482382,
+      "sha256": "b133c003533ce793be4f1e016364384269ea9928fcc520e0cfc9199fade87590"
+    },
+    {
+      "category": "retained_prior_basis",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_certificate_b1/RETURN.md",
+      "bytes": 19804,
+      "sha256": "8c146c911a0f5c66b8a984cd556b4277d007ef6f0628e2d1598a84bc018dfe29"
+    },
+    {
+      "category": "retained_prior_basis",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_source_geometry_b1c/RETURN.md",
+      "bytes": 19179,
+      "sha256": "b0a249dda0a1545d1b2f71c93549ae9a7cce4c7fa89201d7f9ce1dcae39415e7"
+    },
+    {
+      "category": "reviewed_prior_basis",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV42/f2a_certificate_b1_01/REVIEW.md",
+      "bytes": 11463,
+      "sha256": "6c2b9a7dea84e2841eb5bff4ab4494e0228e90fa2710faf04ea639c95f9ce74a"
+    },
+    {
+      "category": "reviewed_prior_basis",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV42/f2a_source_geometry_b1c_02/REVIEW.md",
+      "bytes": 7752,
+      "sha256": "392c4837d04e7da424d42e4e4f2a00b93194929ffce7fd3ee35dcfb4506223a0"
+    },
+    {
+      "category": "selected_bridge",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I33/f2a_source_action_bridge_01/RETURN.md",
+      "bytes": 17504,
+      "sha256": "918cbc00dc94a6135b8de4f69c2c64087d1a189028146b2ecda11f9c25d417d9"
+    },
+    {
+      "category": "selected_bridge_interface",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I33/f2a_source_action_bridge_01/INTERFACE_AND_COST.md",
+      "bytes": 10569,
+      "sha256": "bfb4491c97d3b68e7ee52800a4f9c5df8cbc2658952df33deca8aa2a0392582e"
+    },
+    {
+      "category": "bridge_independent_review",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV45/f2a_source_bridge_01/REVIEW.md",
+      "bytes": 8640,
+      "sha256": "d347d751c0cb06fc32ab0c955cd583b4e961319bf4bd04b80cda67cd45691fed"
+    },
+    {
+      "category": "selective_authority",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_NUMERICS/DESIGN.md",
+      "bytes": 224200,
+      "sha256": "fb62ef4a8282e53fd5875430e8903da80f1e0821c2dfba075dce5a97e5f27a74"
+    },
+    {
+      "category": "selective_authority",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_STANDING/DESIGN.md",
+      "bytes": 149372,
+      "sha256": "edc78f9c20db9848b2f4bad1250359e6ba06c2c3af053039099a147201f7b992"
+    },
+    {
+      "category": "retained_coordinate_basis",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_a1/addendum_01/CORRECTION.md",
+      "bytes": 19648,
+      "sha256": "30c907589e80a60407acc139a5805d9941b5df1a5b9dd5a2f1dc845159bae80a"
+    },
+    {
+      "category": "planning_scope",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_checkpoint0_01/PLAN.md",
+      "bytes": 24416,
+      "sha256": "0f94d190c317319e1040b3d34f8cc1ea2b07b882266a82e0048eea28c8b07263"
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "bytes": 984833,
+      "sha256": "b6c8d32de08535825cc5b591ce25f1a3761374abe8aa591c8e5c059dd34a956f",
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/product_physics/src/preview_physics.rs",
+      "bytes": 57331,
+      "sha256": "2b8265403dd506130eded40cadb05401423a78e0d24d1f8f028cbc6106c6aafa",
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+      "bytes": 17973,
+      "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/loads/stress_recovery/src/elastic_extrema.rs",
+      "bytes": 18135,
+      "sha256": "71ac0defce0607ddd78588e8968d704ec9342b75c5780163cc97d033bed9771d",
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "selected_revision",
+      "git_revision": "d85405edcd",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I31_F2A_CERTIFICATE_B2.md",
+      "sha256": "d1260ced9b9a52d92dbc923b9160aed586b9c1ffe312238f5afa87135d339d44",
+      "bytes": 2172,
+      "matches_current": true
+    },
+    {
+      "category": "selected_revision",
+      "git_revision": "d85405edcd",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+      "sha256": "24df9d8ca993b28fcfc40b4ddd16b69808c9db4849f5a20b22cb4cbafc1a9bc2",
+      "bytes": 481283,
+      "matches_current": false
+    },
+    {
+      "category": "selected_revision",
+      "git_revision": "9f1ef2693d",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I33/f2a_source_action_bridge_01/RETURN.md",
+      "sha256": "918cbc00dc94a6135b8de4f69c2c64087d1a189028146b2ecda11f9c25d417d9",
+      "bytes": 17504,
+      "matches_current": true
+    },
+    {
+      "category": "selected_revision",
+      "git_revision": "d05bb825ff",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV45/f2a_source_bridge_01/REVIEW.md",
+      "sha256": "d347d751c0cb06fc32ab0c955cd583b4e961319bf4bd04b80cda67cd45691fed",
+      "bytes": 8640,
+      "matches_current": true
+    }
+  ],
+  "prior_B1_and_B1C_payload_hashes_unchanged": true
+}

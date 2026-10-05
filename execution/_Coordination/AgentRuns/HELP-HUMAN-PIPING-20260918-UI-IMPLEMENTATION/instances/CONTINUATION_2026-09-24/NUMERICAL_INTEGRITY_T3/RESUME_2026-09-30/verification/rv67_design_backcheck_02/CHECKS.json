@@ -1,0 +1,44 @@
+{
+  "actor": "ROOT /root",
+  "utc": "2026-10-03T09:59:01.280472+00:00",
+  "seal_sha256": "be42c7c83ff674032645e37c2871b6fff8cfa1fe80bf781ea2361ab9014929e1",
+  "checked": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV67/prepared_producer_completion_02/AUDIT.json",
+      "bytes": 1774,
+      "sha256": "542ff3f5dffff4685eecba928188a39e4dbf16d5796abc82661431d4bde3b18a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV67/prepared_producer_completion_02/BACKCHECK.md",
+      "bytes": 12896,
+      "sha256": "34fb75b06b651ac30527cdc1f7af5d80a6907a931e52396b0b889acd168bb506"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV67/prepared_producer_completion_02/BULK_MANIFEST.json",
+      "bytes": 561,
+      "sha256": "9dd4f177a83528c3f0fee7b25691f6477e78f655c86f83be72e4a2805af28dc8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV67/prepared_producer_completion_02/EXECUTION.json",
+      "bytes": 4269,
+      "sha256": "73d1babf39435ca0aa6bb2ee0b8fff34582d2f72aff739b951ed08d767d6f21d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV67/prepared_producer_completion_02/ORIGINS.json",
+      "bytes": 18777,
+      "sha256": "39b5b579a945d9c73285e5de46e9782d61b9ad80240454610cb2c32b0f7d6c2a"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv67_prepared_producer_completion/BASIS_AUDIT.json",
+      "bytes": 358,
+      "sha256": "3e8d1d7fb114a4f06ec182867fec1ddf1549afc77c533dd93349144b11e5298c"
+    }
+  ],
+  "origin_count": 43,
+  "root_read": [
+    "BACKCHECK.md",
+    "AUDIT.json"
+  ],
+  "verification_correction": "First ROOT origin loop assumed every entry was a Git object and stopped on the external audit entry; no verification record or commit was made. This corrected pass verifies both explicit origin kinds.",
+  "disposition": "all three design-readiness findings CLOSED; private design selectable; no implementation or runtime acceptance"
+}

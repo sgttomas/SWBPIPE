@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "rustfmt",
+    "--edition",
+    "2021",
+    "--config",
+    "skip_children=true",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic",
+  "exit": 0,
+  "utc": "2026-10-03T00:08:04.720934+00:00",
+  "root_lane": "granted before this command; memguard 5387",
+  "c_square": "one exact DM <=106 significant bits"
+}

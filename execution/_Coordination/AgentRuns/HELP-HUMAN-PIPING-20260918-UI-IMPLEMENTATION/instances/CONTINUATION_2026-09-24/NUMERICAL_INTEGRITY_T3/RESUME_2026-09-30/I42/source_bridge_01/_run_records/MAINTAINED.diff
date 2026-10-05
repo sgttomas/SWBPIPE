@@ -1,0 +1,2466 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -3722,13 +3722,36 @@
+         source_identity: &[u8],
+         precision: u32,
+     ) -> Result<Option<SiRadius>, CertificateIssue> {
++        self.validate_publication_owner(source_identity, precision)?;
++        self.publication_radius_checked(index, expected)
++    }
++
++    fn validate_publication_owner(
++        &self,
++        source_identity: &[u8],
++        precision: u32,
++    ) -> Result<(), CertificateIssue> {
++        self.validate_publication_owner_spent(source_identity, precision, &mut WorkTotal::zero())
++    }
++
++    fn validate_publication_owner_spent(
++        &self,
++        source_identity: &[u8],
++        precision: u32,
++        compared_bytes: &mut WorkTotal,
++    ) -> Result<(), CertificateIssue> {
+         if precision != self.selected
+             || self.evidence.selected_precision != precision
+             || self.evidence.policy != POLICY
+         {
+             return Err(CertificateIssue::Precision);
+         }
+-        if self.prep.identity != source_identity || self.evidence.source_encoding != source_identity
++        if !bridge_bytes_equal(&self.prep.identity, source_identity, compared_bytes)
++            || !bridge_bytes_equal(
++                &self.evidence.source_encoding,
++                source_identity,
++                compared_bytes,
++            )
+         {
+             return Err(CertificateIssue::PairIdentity);
+         }
+@@ -3737,6 +3760,16 @@
+         {
+             return Err(CertificateIssue::Shape);
+         }
++        Ok(())
++    }
++
++    // The checked case borrow establishes the common checks once. Every row
++    // still passes the original metadata, class, absence and ceiling checks.
++    fn publication_radius_checked(
++        &self,
++        index: usize,
++        expected: QuantityMeta,
++    ) -> Result<Option<SiRadius>, CertificateIssue> {
+         let row = self
+             .publication
+             .rows
+@@ -5151,3 +5184,349 @@
+ #[cfg(test)]
+ #[path = "../../../tests/retained_k4/publication_tests.rs"]
+ mod publication_tests;
++
++// A byte is booked immediately before its actual comparison. Length or earlier
++// precision refusal therefore does not fabricate a full-byte spent prefix.
++fn bridge_bytes_equal(a: &[u8], b: &[u8], spent: &mut WorkTotal) -> bool {
++    if a.len() != b.len() {
++        return false;
++    }
++    for (&x, &y) in a.iter().zip(b) {
++        *spent = spent.add(WorkTotal::exact_count(1));
++        if x != y {
++            return false;
++        }
++    }
++    true
++}
++
++// I42's native borrow is not a PP invocation/material/final-row binding.
++#[derive(Debug, Clone, PartialEq, Eq)]
++pub(crate) enum SourceBridgeViewIssue {
++    Certificate(CertificateIssue),
++    ForeignOwner,
++    UnsupportedCombination,
++    VerificationCache,
++    Ordering,
++    BodyBound,
++    CountRange,
++    Work(WorkFault),
++}
++impl From<CertificateIssue> for SourceBridgeViewIssue {
++    fn from(e: CertificateIssue) -> Self {
++        Self::Certificate(e)
++    }
++}
++#[derive(Debug, Default)]
++pub(crate) struct SourceBridgeViewWork {
++    /// Named loop events and explicit source/ledger byte or key comparisons.
++    /// Constraint/pattern library lookups and body-bound/theta scans remain
++    /// unqualified auxiliary costs; this is not a complete facade visit ledger.
++    pub(crate) visits: WorkTotal,
++    pub(crate) f64_operations: WorkTotal,
++}
++impl SourceBridgeViewWork {
++    fn visit(&mut self, count: usize) -> Result<(), SourceBridgeViewIssue> {
++        let n = u64::try_from(count).map_err(|_| SourceBridgeViewIssue::CountRange)?;
++        self.visits = self.visits.add(WorkTotal::exact_count(n));
++        match self.visits.status().fault() {
++            Some(f) => Err(SourceBridgeViewIssue::Work(f)),
++            None => Ok(()),
++        }
++    }
++}
++#[derive(Debug)]
++pub(crate) struct SourceBridgeViewSpent<'a> {
++    pub(crate) result: Result<SourceBridgeView<'a>, SourceBridgeViewIssue>,
++    pub(crate) work: SourceBridgeViewWork,
++}
++/// Rows, private radii, scales and maps always remain attached to this owner.
++/// The only new persistent owner is the checked data flag buffer.
++#[derive(Debug)]
++pub(crate) struct SourceBridgeView<'a> {
++    owner: &'a RetainedSolve,
++    scales: &'a [i64],
++    data: Vec<bool>,
++}
++impl<'a> SourceBridgeView<'a> {
++    pub(crate) fn owner(&self) -> &'a RetainedSolve {
++        self.owner
++    }
++    pub(crate) fn source(&self) -> &'a PrimitiveSource {
++        self.owner.source()
++    }
++    pub(crate) fn group(&self) -> &'a GroupPrep {
++        &self.owner.group
++    }
++    pub(crate) fn scales(&self) -> &'a [i64] {
++        self.scales
++    }
++    pub(crate) fn data(&self) -> &[bool] {
++        &self.data
++    }
++    pub(crate) fn data_capacity(&self) -> usize {
++        self.data.capacity()
++    }
++    pub(crate) fn row(&self, index: usize) -> (&'a PublishedRow, Option<f64>) {
++        let row = &self.owner.publication.rows[index];
++        let bits = self.owner.publication_radius_bits[index];
++        (
++            row,
++            (bits != ABSENT_RADIUS_BITS).then(|| f64::from_bits(bits)),
++        )
++    }
++    pub(crate) fn bound(&self, body: u32) -> Option<f64> {
++        self.owner
++            .evidence
++            .certified_bound
++            .iter()
++            .find(|v| v.0 == body)
++            .map(|v| f64::from_bits(v.1))
++    }
++}
++impl RetainedSolve {
++    pub(crate) fn source_bridge_view<'a>(
++        &'a self,
++        source: &'a PrimitiveSource,
++        identity: &[u8],
++        precision: u32,
++    ) -> SourceBridgeViewSpent<'a> {
++        let mut work = SourceBridgeViewWork::default();
++        let result = self.build_source_bridge_view(source, identity, precision, &mut work);
++        SourceBridgeViewSpent { result, work }
++    }
++    fn build_source_bridge_view<'a>(
++        &'a self,
++        source: &'a PrimitiveSource,
++        identity: &[u8],
++        precision: u32,
++        work: &mut SourceBridgeViewWork,
++    ) -> Result<SourceBridgeView<'a>, SourceBridgeViewIssue> {
++        if !std::ptr::eq(source, self.source()) {
++            return Err(SourceBridgeViewIssue::ForeignOwner);
++        }
++        self.validate_publication_owner_spent(identity, precision, &mut work.visits)?;
++        work.visit(0)?;
++        if !self.prep.factors.is_empty() {
++            return Err(SourceBridgeViewIssue::UnsupportedCombination);
++        }
++        let p = precision
++            .checked_mul(2)
++            .ok_or(SourceBridgeViewIssue::CountRange)?;
++        if self.evidence.method != METHOD_TOKEN
++            || self.evidence.verification_precision != p
++            || !matches!(precision, 128 | 256 | 512)
++            || self.state(precision).is_none()
++        {
++            return Err(SourceBridgeViewIssue::VerificationCache);
++        }
++        let (ledger_matches, spent) = self
++            .prep
++            .ledger
++            .encoding_matches(&self.evidence.ledger_encoding);
++        work.visits = work.visits.add(spent);
++        work.visit(0)?;
++        if !ledger_matches {
++            return Err(CertificateIssue::PairIdentity.into());
++        }
++        let n = source.dof_count();
++        let ordering = &self.group.ordering;
++        let blocks = &self.group.blocks;
++        let nf = ordering.free.len();
++        if self.group.structure.pattern.dimension() != n
++            || ordering.position.len() != n
++            || ordering.order.len() != nf
++            || ordering.rank.len() != nf
++            || ordering.first.len() != nf
++            || blocks.of.len() != nf
++            || blocks.body.len() != blocks.len()
++        {
++            return Err(SourceBridgeViewIssue::Ordering);
++        }
++        for (g, &a) in ordering.position.iter().enumerate() {
++            work.visit(1)?;
++            if source.constraint(g).is_some() != (a == usize::MAX)
++                || (a != usize::MAX && ordering.free.get(a) != Some(&g))
++            {
++                return Err(SourceBridgeViewIssue::Ordering);
++            }
++        }
++        for (a, &g) in ordering.free.iter().enumerate() {
++            work.visit(1)?;
++            if g >= n
++                || ordering.position[g] != a
++                || (a > 0 && ordering.free[a - 1] >= g)
++                || ordering.rank[a] >= nf
++                || ordering.order[ordering.rank[a]] != a
++                || blocks.of[a] as usize >= blocks.len()
++                || blocks.body[blocks.of[a] as usize] != source.body_of_node((g / 6) as u32)
++            {
++                return Err(SourceBridgeViewIssue::Ordering);
++            }
++            for index in self.group.structure.pattern.row_range(g) {
++                work.visit(1)?;
++                let c = self.group.structure.pattern.column(index);
++                if c >= n {
++                    return Err(SourceBridgeViewIssue::Ordering);
++                }
++                let b = ordering.position[c];
++                if b != usize::MAX && blocks.of[a] != blocks.of[b] {
++                    return Err(SourceBridgeViewIssue::Ordering);
++                }
++            }
++        }
++        let mut positions = 0usize;
++        for (b, list) in blocks.positions.iter().enumerate() {
++            if list.is_empty() {
++                return Err(SourceBridgeViewIssue::Ordering);
++            }
++            for (i, &a) in list.iter().enumerate() {
++                work.visit(1)?;
++                positions = positions
++                    .checked_add(1)
++                    .ok_or(SourceBridgeViewIssue::CountRange)?;
++                if a >= nf || blocks.of[a] as usize != b || (i > 0 && list[i - 1] >= a) {
++                    return Err(SourceBridgeViewIssue::Ordering);
++                }
++            }
++        }
++        if positions != nf {
++            return Err(SourceBridgeViewIssue::Ordering);
++        }
++        // Check all potential member entries, including numerical zeros.
++        for m in source.members() {
++            for a in 0..12 {
++                let g = if a < 6 { m.node_i } else { m.node_j } as usize * 6 + a % 6;
++                for b in 0..12 {
++                    work.visit(1)?;
++                    let h = if b < 6 { m.node_i } else { m.node_j } as usize * 6 + b % 6;
++                    if self.group.structure.pattern.find(g, h).is_none() {
++                        return Err(SourceBridgeViewIssue::Ordering);
++                    }
++                }
++            }
++        }
++        for (index, meta) in self.prep.layout.iter().copied().enumerate() {
++            work.visit(1)?;
++            self.publication_radius_checked(index, meta)?;
++            if self.publication.rows[index]
++                .value
++                .value()
++                .is_some_and(|x| !x.is_finite())
++            {
++                return Err(CertificateIssue::NonFinite.into());
++            }
++            if matches!(
++                self.publication.rows[index].class,
++                RowClass::RelativeVerified
++            ) {
++                // The existing helper performs all five operations after its
++                // finite input checks; those inputs cannot overflow this formula.
++                work.f64_operations = work.f64_operations.add(WorkTotal::exact_count(5));
++            }
++        }
++        std::alloc::Layout::array::<bool>(n).map_err(|_| SourceBridgeViewIssue::CountRange)?;
++        std::alloc::Layout::array::<bool>(blocks.len())
++            .map_err(|_| SourceBridgeViewIssue::CountRange)?;
++        let mut prescribed = vec![false; n];
++        if self.prep.prescribed.len() != source.constraints().len() {
++            return Err(CertificateIssue::PairIdentity.into());
++        }
++        for ((g, terms), c) in self.prep.prescribed.iter().zip(source.constraints()) {
++            work.visit(1)?;
++            if *g != c.dof.global()
++                || terms.len() != 1
++                || terms[0].0.to_bits() != 1f64.to_bits()
++                || terms[0].1.to_bits() != c.value.to_bits()
++            {
++                return Err(CertificateIssue::PairIdentity.into());
++            }
++            prescribed[*g] = c.value != 0.0;
++        }
++        let mut data = vec![false; blocks.len()];
++        macro_rules! checked_slot {
++            ($shared:expr, $verify:expr, $state:expr) => {{
++                let shared = $shared
++                    .as_ref()
++                    .and_then(|s| s.as_ref().ok())
++                    .ok_or(SourceBridgeViewIssue::VerificationCache)?;
++                let verify = $verify
++                    .as_ref()
++                    .and_then(|s| s.as_ref().ok())
++                    .ok_or(SourceBridgeViewIssue::VerificationCache)?;
++                let state = $state;
++                if shared.p != p
++                    || state.p != p
++                    || state.u.len() != n
++                    || shared.factor.scale().len() != nf
++                    || shared.factor.first() != ordering.first
++                    || verify.uc.len() != blocks.len()
++                    || verify.abar.len() != self.group.structure.pattern.entry_count()
++                {
++                    return Err(SourceBridgeViewIssue::VerificationCache);
++                }
++                work.visits = work.visits.add(super::bound::fill_data_blocks(
++                    blocks,
++                    ordering,
++                    &self.group.structure,
++                    &self.prep.ledger,
++                    &prescribed,
++                    &state.u,
++                    &mut data,
++                ));
++                shared.factor.scale()
++            }};
++        }
++        let scales = match (p, self.state(p)) {
++            (256, Some(PrecisionState::P256(s))) => {
++                checked_slot!(self.cache.s256, self.cache.v256, s)
++            }
++            (512, Some(PrecisionState::P512(s))) => {
++                checked_slot!(self.cache.s512, self.cache.v512, s)
++            }
++            (1024, Some(PrecisionState::P1024(s))) => {
++                checked_slot!(self.cache.s1024, self.cache.v1024, s)
++            }
++            _ => return Err(SourceBridgeViewIssue::VerificationCache),
++        };
++        for (i, &(body, bits)) in self.evidence.certified_bound.iter().enumerate() {
++            work.visit(1)?;
++            let bound = f64::from_bits(bits);
++            if body >= source.body_count()
++                || !bound.is_finite()
++                || bound <= 0.0
++                || (i > 0 && self.evidence.certified_bound[i - 1].0 >= body)
++            {
++                return Err(SourceBridgeViewIssue::BodyBound);
++            }
++        }
++        for (b, &has_data) in data.iter().enumerate() {
++            work.visit(1)?;
++            if has_data {
++                let body = blocks.body[b];
++                if !self.evidence.certified_bound.iter().any(|v| v.0 == body)
++                    || !self
++                        .evidence
++                        .theta
++                        .iter()
++                        .any(|v| v.0 == body && v.1.is_finite() && v.1 >= 0.0 && v.1 <= 0.5)
++                {
++                    return Err(SourceBridgeViewIssue::BodyBound);
++                }
++            }
++        }
++        work.visit(0)?;
++        if let Some(f) = work.f64_operations.status().fault() {
++            return Err(SourceBridgeViewIssue::Work(f));
++        }
++        Ok(SourceBridgeView {
++            owner: self,
++            scales,
++            data,
++        })
++    }
++}
++
++#[cfg(test)]
++#[path = "../../../tests/retained_k4/source_bridge_tests.rs"]
++mod source_bridge_tests;
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
+@@ -154,6 +154,48 @@
+         }
+     }
+     data
++}
++
++/// Borrowed bridge fill of exactly the R7 predicate above. The caller validates
++/// dimensions and owns the output; no new report or hidden data allocation.
++/// Visits include each free position, ledger comparison and inspected adjacency.
++pub(crate) fn fill_data_blocks<const L: usize>(
++    blocks: &FreeBlocks,
++    ordering: &Ordering,
++    structure: &Structure,
++    ledger: &RetainedLedger,
++    prescribed_nonzero: &[bool],
++    u: &[Wide<L>],
++    data: &mut [bool],
++) -> super::work::WorkTotal
++where
++    Wide<L>: SupportedWidth,
++{
++    use super::work::WorkTotal;
++    data.fill(false);
++    let mut visits = WorkTotal::zero();
++    for (a, &g) in ordering.free.iter().enumerate() {
++        visits = visits.add(WorkTotal::exact_count(1));
++        let b = blocks.of[a] as usize;
++        if data[b] {
++            continue;
++        }
++        let (nonzero, spent) = ledger.nonzero_term_spent(g);
++        visits = visits.add(spent);
++        if nonzero || !u[g].is_zero() {
++            data[b] = true;
++            continue;
++        }
++        for index in structure.pattern.row_range(g) {
++            visits = visits.add(WorkTotal::exact_count(1));
++            let c = structure.pattern.column(index);
++            if ordering.position[c] == usize::MAX && prescribed_nonzero[c] {
++                data[b] = true;
++                break;
++            }
++        }
++    }
++    visits
+ }
+ 
+ // ------------------------------------------------------------ est_c (7c)
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs
+@@ -146,6 +146,64 @@
+             .is_ok_and(|k| self.nonzero[k])
+     }
+ 
++    /// The same individual-term predicate with an explicit finite comparison
++    /// prefix for the private bridge. A cancelled nonzero ledger remains data.
++    pub(crate) fn nonzero_term_spent(&self, dof: usize) -> (bool, super::work::WorkTotal) {
++        use super::work::WorkTotal;
++        let (mut lo, mut hi) = (0, self.entries.len());
++        let mut visits = WorkTotal::zero();
++        while lo < hi {
++            visits = visits.add(WorkTotal::exact_count(1));
++            let mid = lo + (hi - lo) / 2;
++            match self.entries[mid].0.cmp(&dof) {
++                std::cmp::Ordering::Less => lo = mid + 1,
++                std::cmp::Ordering::Greater => hi = mid,
++                std::cmp::Ordering::Equal => return (self.nonzero[mid], visits),
++            }
++        }
++        (false, visits)
++    }
++
++    /// Compare the actual net encoding without allocating a duplicate ledger.
++    /// Individual nonzero facts are intentionally obtained separately above.
++    pub(crate) fn encoding_matches(&self, expected: &[u8]) -> (bool, super::work::WorkTotal) {
++        use super::work::WorkTotal;
++        let mut at = 0usize;
++        let mut visits = WorkTotal::zero();
++        let mut equal = true;
++        let mut bytes = |part: &[u8]| {
++            for byte in part {
++                visits = visits.add(WorkTotal::exact_count(1));
++                equal &= expected.get(at) == Some(byte);
++                if let Some(next) = at.checked_add(1) {
++                    at = next;
++                } else {
++                    equal = false;
++                    visits = visits.add(WorkTotal::exact_count(u64::MAX));
++                }
++            }
++        };
++        bytes(b"K4LED\x01");
++        let Ok(count) = u32::try_from(self.entries.len()) else {
++            return (false, visits);
++        };
++        bytes(&count.to_le_bytes());
++        for (dof, net) in &self.entries {
++            let d = Dof::from_global(*dof);
++            bytes(&d.node.to_le_bytes());
++            bytes(&[d.component.index() as u8, u8::from(net.negative)]);
++            bytes(&net.exponent.to_le_bytes());
++            let Ok(limbs) = u32::try_from(net.magnitude.len()) else {
++                return (false, visits);
++            };
++            bytes(&limbs.to_le_bytes());
++            for limb in &net.magnitude {
++                bytes(&limb.to_le_bytes());
++            }
++        }
++        (equal && at == expected.len(), visits)
++    }
++
+     /// The ledger of a combination Σ cᵢ·(case i): per DOF, the exact products
+     /// cᵢ·v of every load term of every operand (`add_product`, exact).
+     pub(crate) fn combined(operands: &[(f64, &PrimitiveSource)]) -> Result<Self, LedgerRefusal> {
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs
+@@ -18,6 +18,9 @@
+     hi: Endpoint,
+ }
+ impl Enclosure {
++    pub(crate) fn endpoints(&self) -> (&Endpoint, &Endpoint) {
++        (&self.lo, &self.hi)
++    }
+     fn point(x: Endpoint) -> Self {
+         Self { lo: x, hi: x }
+     }
+@@ -586,3 +589,5 @@
+ #[cfg(test)]
+ #[path = "../../../tests/retained_k4/product_certificate_tests.rs"]
+ mod tests;
++
++pub(crate) mod bridge;
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/bridge.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/bridge.rs
+@@ -0,0 +1,721 @@
++//! I33/RV45's conditional native source-law bridge. This constructs the source
++//! problem by replacing only member constitutive coefficients in the actual
++//! owner's common frame/load/constraint/spring law. Proposed D/t/material facts
++//! are NOT PP provenance, eligibility or a final product row certificate.
++use super::super::adaptive::{
++    RetainedSolve, SourceBridgeView, SourceBridgeViewIssue, SourceBridgeViewWork,
++};
++use super::super::recover::{End, QuantityId};
++use super::super::source::{Component, Dof, PrimitiveSource, StraightMember};
++use super::*;
++
++#[derive(Debug, Clone, Copy)]
++pub(crate) struct ProposedMemberLaw<'a> {
++    pub(crate) member: &'a StraightMember,
++    pub(crate) diameter: f64,
++    pub(crate) effective_wall: f64,
++    pub(crate) material: MaterialOperands,
++    pub(crate) represented_z: f64,
++}
++#[derive(Debug, Clone, PartialEq)]
++pub(crate) enum BridgeError {
++    View(SourceBridgeViewIssue),
++    Numeric(NumericError),
++    MemberOwner,
++    UnsupportedDirectionalSpring,
++    MissingRadius(usize),
++    MissingUniquenessWarrant(u32),
++    RowIdentity(usize),
++    CountRange,
++    Storage,
++    Alpha { block: usize, alpha_hi: Endpoint },
++}
++impl From<NumericError> for BridgeError {
++    fn from(e: NumericError) -> Self {
++        Self::Numeric(e)
++    }
++}
++#[derive(Debug)]
++pub(crate) struct BridgeWork {
++    pub(crate) numeric: NumericWork,
++    pub(crate) view: SourceBridgeViewWork,
++    /// Actual named loop/entry events only. Native constraint/pattern lookups,
++    /// comparisons, vector initialization, allocation and fixed scalar bit work
++    /// are auxiliary costs, not a qualified complete facade visit ledger.
++    pub(crate) visits: WorkTotal,
++    pub(crate) member_builds: WorkTotal,
++    pub(crate) b_products: WorkTotal,
++    pub(crate) d_products: WorkTotal,
++    pub(crate) h_products: WorkTotal,
++    /// Actual requested/capacity endpoint slots, not bytes or an M1 permit.
++    pub(crate) endpoint_capacity_peak: usize,
++    pub(crate) data_capacity: usize,
++}
++impl BridgeWork {
++    fn new() -> Self {
++        Self {
++            numeric: NumericWork::new(),
++            view: SourceBridgeViewWork::default(),
++            visits: WorkTotal::zero(),
++            member_builds: WorkTotal::zero(),
++            b_products: WorkTotal::zero(),
++            d_products: WorkTotal::zero(),
++            h_products: WorkTotal::zero(),
++            endpoint_capacity_peak: 0,
++            data_capacity: 0,
++        }
++    }
++    pub(crate) fn status(&self) -> WorkStatus {
++        self.numeric
++            .status()
++            .join(self.view.visits.status())
++            .join(self.view.f64_operations.status())
++            .join(self.visits.status())
++            .join(self.member_builds.status())
++            .join(self.b_products.status())
++            .join(self.d_products.status())
++            .join(self.h_products.status())
++    }
++    fn visit(&mut self) -> Result<(), BridgeError> {
++        self.visits = self.visits.add(WorkTotal::exact_count(1));
++        self.check()
++    }
++    fn check(&self) -> Result<(), BridgeError> {
++        match self.status().fault() {
++            Some(f) => Err(NumericError::Arithmetic(AttemptStop::WorkAccounting(f)).into()),
++            None => Ok(()),
++        }
++    }
++    fn add(&mut self, a: Endpoint, b: Endpoint) -> Result<Endpoint, BridgeError> {
++        Ok(self.numeric.scalar(Entry::Add, &a, &b, Toward::Up)?)
++    }
++    fn mul(&mut self, a: Endpoint, b: Endpoint) -> Result<Endpoint, BridgeError> {
++        Ok(self.numeric.scalar(Entry::Mul, &a, &b, Toward::Up)?)
++    }
++    fn div(&mut self, a: Endpoint, b: Endpoint) -> Result<Endpoint, BridgeError> {
++        Ok(self.numeric.scalar(Entry::Div, &a, &b, Toward::Up)?)
++    }
++}
++#[derive(Debug)]
++pub(crate) struct NativeSourceError {
++    /// |q_G - q_K|, separate from the existing private |x - q_K| radius.
++    pub(crate) source_error: Endpoint,
++    pub(crate) source: Enclosure,
++}
++#[derive(Debug)]
++pub(crate) struct ConditionalNativeSource<'a> {
++    pub(crate) view: SourceBridgeView<'a>,
++    /// The exact proposed operands of this conditional mathematical problem.
++    /// This borrow records no normalized PP/material-selection provenance.
++    pub(crate) proposed_laws: &'a [ProposedMemberLaw<'a>],
++    pub(crate) rows: Vec<NativeSourceError>,
++    pub(crate) alpha: Vec<Endpoint>,
++    pub(crate) tau: Vec<Endpoint>,
++}
++#[derive(Debug)]
++pub(crate) struct BridgeSpent<'a> {
++    result: Result<ConditionalNativeSource<'a>, BridgeError>,
++    pub(crate) work: BridgeWork,
++}
++impl<'a> BridgeSpent<'a> {
++    pub(crate) fn result(&self) -> Result<&ConditionalNativeSource<'a>, BridgeError> {
++        match &self.result {
++            Err(e) => Err(e.clone()),
++            Ok(v) => {
++                self.work.check()?;
++                Ok(v)
++            }
++        }
++    }
++}
++fn buffer<T: Clone>(len: usize, value: T) -> Result<Vec<T>, BridgeError> {
++    std::alloc::Layout::array::<T>(len).map_err(|_| BridgeError::CountRange)?;
++    let mut out = Vec::new();
++    out.try_reserve_exact(len)
++        .map_err(|_| BridgeError::Storage)?;
++    out.resize(len, value);
++    Ok(out)
++}
++fn add_count(a: usize, b: usize) -> Result<usize, BridgeError> {
++    a.checked_add(b).ok_or(BridgeError::CountRange)
++}
++fn mul_count(a: usize, b: usize) -> Result<usize, BridgeError> {
++    a.checked_mul(b).ok_or(BridgeError::CountRange)
++}
++fn dofs(m: &StraightMember) -> [usize; 12] {
++    std::array::from_fn(|k| (if k < 6 { m.node_i } else { m.node_j }) as usize * 6 + k % 6)
++}
++fn scaled(view: &SourceBridgeView<'_>, g: usize, value: Endpoint) -> Result<Endpoint, BridgeError> {
++    let a = view.group().ordering.position[g];
++    if a == usize::MAX {
++        Ok(Endpoint::ZERO)
++    } else {
++        Ok(shift(&value, view.scales()[a])?)
++    }
++}
++fn motion(
++    view: &SourceBridgeView<'_>,
++    g: usize,
++    work: &mut BridgeWork,
++) -> Result<Endpoint, BridgeError> {
++    work.visit()?;
++    if let Some(value) = view.source().constraint(g) {
++        return Ok(lift(value)?.abs());
++    }
++    let (row, radius) = view.row(g);
++    if row.id != QuantityId::Displacement(Dof::from_global(g)) {
++        return Err(BridgeError::RowIdentity(g));
++    }
++    let x = row.value.value().ok_or(BridgeError::MissingRadius(g))?;
++    work.add(
++        lift(x)?.abs(),
++        lift(radius.ok_or(BridgeError::MissingRadius(g))?)?,
++    )
++}
++fn correction(
++    view: &SourceBridgeView<'_>,
++    tau: &[Endpoint],
++    g: usize,
++) -> Result<Endpoint, BridgeError> {
++    let a = view.group().ordering.position[g];
++    if a == usize::MAX {
++        Ok(Endpoint::ZERO)
++    } else {
++        scaled(view, g, tau[view.group().blocks.of[a] as usize])
++    }
++}
++
++/// Fixed member scratch only; rebuilt in each of three passes, never cached.
++struct Majorants {
++    inv: Endpoint,
++    dg: [Endpoint; 4],
++    dd: [Endpoint; 4],
++}
++fn majorants(
++    view: &SourceBridgeView<'_>,
++    law: &ProposedMemberLaw<'_>,
++    index: usize,
++    work: &mut BridgeWork,
++) -> Result<Majorants, BridgeError> {
++    work.member_builds = work.member_builds.add(WorkTotal::exact_count(1));
++    work.check()?;
++    let m = &view.source().members()[index];
++    if !std::ptr::eq(m, law.member) {
++        return Err(BridgeError::MemberOwner);
++    }
++    let input = MemberOperands {
++        diameter: law.diameter,
++        effective_wall: law.effective_wall,
++        material: law.material,
++        admitted: AdmittedOperands {
++            e: m.elastic_modulus,
++            g: m.shear_modulus,
++            a: m.area,
++            j: m.torsion_constant,
++            iy: m.second_moment_y,
++            iz: m.second_moment_z,
++            z_hat: law.represented_z,
++        },
++    };
++    let c = build_member(&input, &mut work.numeric)?;
++    let mut ell = Endpoint::ZERO;
++    for k in 0..3 {
++        work.visit()?;
++        let xj = lift(view.source().nodes()[m.node_j as usize][k])?;
++        let xi = lift(view.source().nodes()[m.node_i as usize][k])?;
++        let d = work.numeric.sub_pair(&xj, &xi)?;
++        // A lower bound for |exact difference|, including a crossing interval.
++        let lower = if d.lo.cmp_value(&Endpoint::ZERO) != Ordering::Greater
++            && d.hi.cmp_value(&Endpoint::ZERO) != Ordering::Less
++        {
++            Endpoint::ZERO
++        } else {
++            min(d.lo.abs(), d.hi.abs())
++        };
++        ell = max(ell, lower);
++    }
++    if !positive(&ell) {
++        return Err(NumericError::InvalidGeometry.into());
++    }
++    let inv = work.div(Endpoint::ONE, ell)?;
++    let mut dg = [Endpoint::ZERO; 4];
++    let mut dd = [Endpoint::ZERO; 4];
++    for k in 0..4 {
++        dg[k] = work.div(c.coefficients[k].hi, ell)?;
++        dd[k] = work.div(c.coefficient_differences[k], ell)?;
++    }
++    Ok(Majorants { inv, dg, dd })
++}
++// The exact structural patterns from I33/RV45: 48 Bbar and 16 Hbar entries.
++fn b_entry(r: usize, j: usize, inv: Endpoint) -> Option<Endpoint> {
++    match r {
++        0 if j % 6 < 3 => Some(Endpoint::ONE),
++        1 if j % 6 >= 3 => Some(Endpoint::ONE),
++        2..=5 if j % 6 < 3 => Some(inv),
++        2 | 4 if (3..6).contains(&j) => Some(Endpoint::ONE),
++        3 | 5 if (9..12).contains(&j) => Some(Endpoint::ONE),
++        _ => None,
++    }
++}
++fn h_entry(r: usize, j: usize, inv: Endpoint) -> Option<Endpoint> {
++    match (r, j) {
++        (0, 0 | 6) | (1, 3 | 9) | (2, 5) | (3, 11) | (4, 4) | (5, 10) => Some(Endpoint::ONE),
++        (2 | 3, 1 | 7) | (4 | 5, 2 | 8) => Some(inv),
++        _ => None,
++    }
++}
++fn b_forward(
++    inv: Endpoint,
++    x: &[Endpoint; 12],
++    work: &mut BridgeWork,
++) -> Result<[Endpoint; 6], BridgeError> {
++    let mut out = [Endpoint::ZERO; 6];
++    for (r, value) in out.iter_mut().enumerate() {
++        for (j, &xj) in x.iter().enumerate() {
++            work.visit()?;
++            if let Some(b) = b_entry(r, j, inv) {
++                work.b_products = work.b_products.add(WorkTotal::exact_count(1));
++                work.check()?;
++                let term = work.mul(b, xj)?;
++                *value = work.add(*value, term)?;
++            }
++        }
++    }
++    Ok(out)
++}
++fn d_apply(
++    d: &[Endpoint; 4],
++    x: &[Endpoint; 6],
++    work: &mut BridgeWork,
++) -> Result<[Endpoint; 6], BridgeError> {
++    let mut out = [Endpoint::ZERO; 6];
++    for (r, c, property, power) in [
++        (0, 0, 0, 0),
++        (1, 1, 1, 0),
++        (2, 2, 2, 2),
++        (2, 3, 2, 1),
++        (3, 2, 2, 1),
++        (3, 3, 2, 2),
++        (4, 4, 3, 2),
++        (4, 5, 3, 1),
++        (5, 4, 3, 1),
++        (5, 5, 3, 2),
++    ] {
++        work.visit()?;
++        work.d_products = work.d_products.add(WorkTotal::exact_count(1));
++        work.check()?;
++        let term = work.mul(shift(&d[property], power)?, x[c])?;
++        out[r] = work.add(out[r], term)?;
++    }
++    Ok(out)
++}
++fn transpose(
++    inv: Endpoint,
++    x: &[Endpoint; 6],
++    local: bool,
++    work: &mut BridgeWork,
++) -> Result<[Endpoint; 12], BridgeError> {
++    let mut out = [Endpoint::ZERO; 12];
++    for (j, value) in out.iter_mut().enumerate() {
++        for (r, &xr) in x.iter().enumerate() {
++            work.visit()?;
++            let entry = if local {
++                h_entry(r, j, inv)
++            } else {
++                b_entry(r, j, inv)
++            };
++            if let Some(b) = entry {
++                if local {
++                    work.h_products = work.h_products.add(WorkTotal::exact_count(1));
++                } else {
++                    work.b_products = work.b_products.add(WorkTotal::exact_count(1));
++                }
++                work.check()?;
++                let term = work.mul(b, xr)?;
++                *value = work.add(*value, term)?;
++            }
++        }
++    }
++    Ok(out)
++}
++fn product(
++    inv: Endpoint,
++    d: &[Endpoint; 4],
++    x: &[Endpoint; 12],
++    work: &mut BridgeWork,
++) -> Result<[Endpoint; 6], BridgeError> {
++    let bx = b_forward(inv, x, work)?;
++    d_apply(d, &bx, work)
++}
++fn set_error(
++    view: &SourceBridgeView<'_>,
++    errors: &mut [Endpoint],
++    index: usize,
++    expected: QuantityId,
++    value: Endpoint,
++    work: &mut BridgeWork,
++) -> Result<(), BridgeError> {
++    work.visit()?;
++    if index >= errors.len() || view.row(index).0.id != expected {
++        return Err(BridgeError::RowIdentity(index));
++    }
++    errors[index] = value;
++    Ok(())
++}
++// A sufficient certificate warrant only. Each body is a connected member
++// graph, each positive member energy has exactly its rigid-motion nullspace,
++// and fixing all six motions at one node removes that nullspace throughout the
++// connected graph. Additional positive springs preserve uniqueness. Failure of
++// this recognizer says nothing about uniqueness under other valid supports.
++fn anchored(
++    view: &SourceBridgeView<'_>,
++    body: u32,
++    work: &mut BridgeWork,
++) -> Result<bool, BridgeError> {
++    for node in 0..view.source().node_count() {
++        work.visit()?;
++        if view.source().body_of_node(node as u32) != body {
++            continue;
++        }
++        let mut fixed = true;
++        for c in 0..6 {
++            work.visit()?;
++            fixed &= view.source().constraint(node * 6 + c).is_some();
++        }
++        if fixed {
++            return Ok(true);
++        }
++    }
++    Ok(false)
++}
++
++pub(crate) fn source_bridge<'a>(
++    owner: &'a RetainedSolve,
++    source: &'a PrimitiveSource,
++    source_identity: &[u8],
++    precision: u32,
++    laws: &'a [ProposedMemberLaw<'a>],
++) -> BridgeSpent<'a> {
++    let mut work = BridgeWork::new();
++    let spent = owner.source_bridge_view(source, source_identity, precision);
++    work.view = spent.work;
++    let result = match spent.result {
++        Err(e) => Err(BridgeError::View(e)),
++        Ok(view) => run(view, laws, &mut work),
++    };
++    let result = match result {
++        Err(e) => Err(e),
++        Ok(v) => work.check().map(|()| v),
++    };
++    BridgeSpent { result, work }
++}
++fn run<'a>(
++    view: SourceBridgeView<'a>,
++    laws: &'a [ProposedMemberLaw<'a>],
++    work: &mut BridgeWork,
++) -> Result<ConditionalNativeSource<'a>, BridgeError> {
++    let source = view.source();
++    if !source.directional_springs().is_empty() {
++        return Err(BridgeError::UnsupportedDirectionalSpring);
++    }
++    if laws.len() != source.members().len() {
++        return Err(BridgeError::MemberOwner);
++    }
++    let n = source.dof_count();
++    let q = view.owner().publish().rows.len();
++    let nb = view.group().blocks.len();
++    // Checked row layout and explicit source-sized owner/capacity accounting.
++    let ends = add_count(n, source.node_count())?;
++    let stations = add_count(ends, mul_count(laws.len(), 12)?)?;
++    let springs = add_count(stations, mul_count(source.stations().len(), 6)?)?;
++    let reactions = add_count(springs, source.springs().len())?;
++    let supports = add_count(reactions, source.constraints().len())?;
++    if add_count(supports, mul_count(source.supports().len(), 2)?)? != q {
++        return Err(BridgeError::CountRange);
++    }
++    let mut eta_rows = buffer(n, Endpoint::ZERO)?;
++    let mut v_rows = buffer(n, Endpoint::ZERO)?;
++    let mut tau = buffer(nb, Endpoint::ZERO)?;
++    let mut alpha = buffer(nb, Endpoint::ZERO)?;
++    let mut errors = buffer(q, Endpoint::ZERO)?;
++    let capacity = add_count(
++        add_count(eta_rows.capacity(), v_rows.capacity())?,
++        add_count(
++            add_count(tau.capacity(), alpha.capacity())?,
++            errors.capacity(),
++        )?,
++    )?;
++    work.endpoint_capacity_peak = capacity;
++    work.data_capacity = view.data_capacity();
++    // F1. Validate every source law before using any member's perturbation.
++    for (i, law) in laws.iter().enumerate() {
++        work.visit()?;
++        majorants(&view, law, i, work)?;
++    }
++    // F2. All constrained columns contribute to v; eta uses free columns only.
++    for (i, law) in laws.iter().enumerate() {
++        work.visit()?;
++        let m = majorants(&view, law, i, work)?;
++        let globals = dofs(law.member);
++        let mut s = [Endpoint::ZERO; 12];
++        let mut mag = [Endpoint::ZERO; 12];
++        for k in 0..12 {
++            s[k] = scaled(&view, globals[k], Endpoint::ONE)?;
++            mag[k] = motion(&view, globals[k], work)?;
++        }
++        let de = product(m.inv, &m.dd, &s, work)?;
++        let dv = product(m.inv, &m.dd, &mag, work)?;
++        let e = transpose(m.inv, &de, false, work)?;
++        let v = transpose(m.inv, &dv, false, work)?;
++        for k in 0..12 {
++            work.visit()?;
++            let g = globals[k];
++            if view.group().ordering.position[g] != usize::MAX {
++                eta_rows[g] = work.add(eta_rows[g], scaled(&view, g, e[k])?)?;
++                v_rows[g] = work.add(v_rows[g], scaled(&view, g, v[k])?)?;
++            }
++        }
++    }
++    for b in 0..nb {
++        work.visit()?;
++        let body = view.group().blocks.body[b];
++        if !view.data()[b] {
++            if !anchored(&view, body, work)? {
++                return Err(BridgeError::MissingUniquenessWarrant(body));
++            }
++            continue; // actual ledger/prescription/state zero, proved uniqueness
++        }
++        let beta = shift(
++            &pos_lift(
++                view.bound(body)
++                    .ok_or(BridgeError::View(SourceBridgeViewIssue::BodyBound))?,
++            )?,
++            1,
++        )?;
++        let mut eta = Endpoint::ZERO;
++        let mut v = Endpoint::ZERO;
++        for &a in &view.group().blocks.positions[b] {
++            work.visit()?;
++            let g = view.group().ordering.free[a];
++            eta = max(eta, eta_rows[g]);
++            v = max(v, v_rows[g]);
++        }
++        alpha[b] = work.mul(beta, eta)?;
++        if alpha[b].cmp_value(&Endpoint::ONE) != Ordering::Less {
++            return Err(BridgeError::Alpha {
++                block: b,
++                alpha_hi: alpha[b],
++            });
++        }
++        let denominator =
++            work.numeric
++                .scalar(Entry::Sub, &Endpoint::ONE, &alpha[b], Toward::Down)?;
++        if !positive(&denominator) {
++            return Err(BridgeError::Alpha {
++                block: b,
++                alpha_hi: alpha[b],
++            });
++        }
++        let numerator = work.mul(beta, v)?;
++        tau[b] = work.div(numerator, denominator)?;
++    }
++    eta_rows.fill(Endpoint::ZERO); // reuse for complete global reaction errors
++    drop(v_rows);
++    // F3. Both a_G*(u_G-u_K) and (a_G-a_K)*u_K, in fixed patterns.
++    for (i, law) in laws.iter().enumerate() {
++        work.visit()?;
++        let m = majorants(&view, law, i, work)?;
++        let globals = dofs(law.member);
++        let mut t = [Endpoint::ZERO; 12];
++        let mut mag = [Endpoint::ZERO; 12];
++        for k in 0..12 {
++            t[k] = correction(&view, &tau, globals[k])?;
++            mag[k] = motion(&view, globals[k], work)?;
++        }
++        let response = product(m.inv, &m.dg, &t, work)?;
++        let coefficient = product(m.inv, &m.dd, &mag, work)?;
++        let mut basic = [Endpoint::ZERO; 6];
++        for k in 0..6 {
++            basic[k] = work.add(response[k], coefficient[k])?;
++        }
++        let local = transpose(m.inv, &basic, true, work)?;
++        let global = transpose(m.inv, &basic, false, work)?;
++        for k in 0..12 {
++            eta_rows[globals[k]] = work.add(eta_rows[globals[k]], global[k])?;
++            set_error(
++                &view,
++                &mut errors,
++                ends + i * 12 + k,
++                QuantityId::EndAction {
++                    member: law.member.id,
++                    end: if k < 6 { End::I } else { End::J },
++                    component: Component::from_index(k % 6),
++                },
++                local[k],
++                work,
++            )?;
++        }
++        for (si, station) in source.stations().iter().enumerate() {
++            work.visit()?; // explicit bounded M*S scan, no uncounted callback
++            if station.member != law.member.id {
++                continue;
++            }
++            let t = lift(station.fraction)?;
++            let one_minus_t = work
++                .numeric
++                .scalar(Entry::Sub, &Endpoint::ONE, &t, Toward::Up)?;
++            for c in 0..6 {
++                let error = if c < 4 {
++                    local[6 + c]
++                } else {
++                    let at_i = work.mul(one_minus_t, local[c])?;
++                    let at_j = work.mul(t, local[6 + c])?;
++                    work.add(at_i, at_j)?
++                };
++                set_error(
++                    &view,
++                    &mut errors,
++                    stations + si * 6 + c,
++                    QuantityId::StationAction {
++                        station: station.id,
++                        component: Component::from_index(c),
++                    },
++                    error,
++                    work,
++                )?;
++            }
++        }
++    }
++    // F4. Native components, existing native magnitude rows and actual support
++    // memberships. No new magnitude of the published components is substituted.
++    for g in 0..n {
++        let error = correction(&view, &tau, g)?;
++        set_error(
++            &view,
++            &mut errors,
++            g,
++            QuantityId::Displacement(Dof::from_global(g)),
++            error,
++            work,
++        )?;
++    }
++    for node in 0..source.node_count() {
++        let mut error = Endpoint::ZERO;
++        for c in 0..3 {
++            error = work.add(error, errors[node * 6 + c])?;
++        }
++        set_error(
++            &view,
++            &mut errors,
++            n + node,
++            QuantityId::DisplacementMagnitude(node as u32),
++            error,
++            work,
++        )?;
++    }
++    for (i, spring) in source.springs().iter().enumerate() {
++        let error = work.mul(pos_lift(spring.stiffness)?, errors[spring.dof.global()])?;
++        set_error(
++            &view,
++            &mut errors,
++            springs + i,
++            QuantityId::SpringAction {
++                spring: spring.id,
++                component: spring.dof.component,
++            },
++            error,
++            work,
++        )?;
++    }
++    for (i, constraint) in source.constraints().iter().enumerate() {
++        set_error(
++            &view,
++            &mut errors,
++            reactions + i,
++            QuantityId::Reaction(constraint.dof),
++            eta_rows[constraint.dof.global()],
++            work,
++        )?;
++    }
++    for (i, support) in source.supports().iter().enumerate() {
++        let mut bounds = [Endpoint::ZERO; 2];
++        for (ci, c) in source.constraints().iter().enumerate() {
++            work.visit()?;
++            if c.dof.node == support.node && support.restrained[c.dof.component.index()] {
++                let k = c.dof.component.index() / 3;
++                bounds[k] = work.add(bounds[k], errors[reactions + ci])?;
++            }
++        }
++        for &id in &support.springs {
++            for (si, spring) in source.springs().iter().enumerate() {
++                work.visit()?;
++                if spring.id == id {
++                    let k = spring.dof.component.index() / 3;
++                    bounds[k] = work.add(bounds[k], errors[springs + si])?;
++                }
++            }
++        }
++        set_error(
++            &view,
++            &mut errors,
++            supports + i * 2,
++            QuantityId::SupportForceMagnitude(support.id),
++            bounds[0],
++            work,
++        )?;
++        set_error(
++            &view,
++            &mut errors,
++            supports + i * 2 + 1,
++            QuantityId::SupportMomentMagnitude(support.id),
++            bounds[1],
++            work,
++        )?;
++    }
++    drop(eta_rows);
++    std::alloc::Layout::array::<NativeSourceError>(q).map_err(|_| BridgeError::CountRange)?;
++    let mut rows = Vec::new();
++    rows.try_reserve_exact(q)
++        .map_err(|_| BridgeError::Storage)?;
++    work.endpoint_capacity_peak = work.endpoint_capacity_peak.max(add_count(
++        add_count(errors.capacity(), mul_count(rows.capacity(), 3)?)?,
++        add_count(tau.capacity(), alpha.capacity())?,
++    )?);
++    for (i, error) in errors.into_iter().enumerate() {
++        work.visit()?;
++        let (row, radius) = view.row(i);
++        let x = lift(row.value.value().ok_or(BridgeError::MissingRadius(i))?)?;
++        let interval = if let Some(r) = radius {
++            let radius = work.add(lift(r)?, error)?;
++            Enclosure {
++                lo: work.numeric.scalar(Entry::Sub, &x, &radius, Toward::Down)?,
++                hi: work.numeric.scalar(Entry::Add, &x, &radius, Toward::Up)?,
++            }
++        } else {
++            let QuantityId::Displacement(dof) = row.id else {
++                return Err(BridgeError::MissingRadius(i));
++            };
++            let expected = lift(
++                source
++                    .constraint(dof.global())
++                    .ok_or(BridgeError::MissingRadius(i))?,
++            )?;
++            if x.cmp_value(&expected) != Ordering::Equal {
++                return Err(BridgeError::RowIdentity(i));
++            }
++            Enclosure::point(expected) // exact prescription, never an absent solve radius
++        };
++        rows.push(NativeSourceError {
++            source_error: error,
++            source: interval,
++        });
++    }
++    work.check()?;
++    Ok(ConditionalNativeSource {
++        view,
++        proposed_laws: laws,
++        rows,
++        alpha,
++        tau,
++    })
++}
+--- a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_tests.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_tests.rs
+@@ -0,0 +1,478 @@
++//! Actual native owner -> checked view -> conditional source bridge witnesses.
++//! The exact oracle is generated independently from closed cantilever equations.
++use super::super::product_certificate::{bridge::*, MaterialOperands};
++use super::super::recover::End;
++use super::super::source::{
++    Component, Constraint, NodalLoad, SourceParts, Station, StraightMember, SupportGroup,
++};
++use super::*;
++use std::cmp::Ordering as Cmp;
++#[path = "source_bridge_vectors.rs"]
++mod oracle;
++
++fn source(loaded: bool, cancelled: bool) -> PrimitiveSource {
++    let mut loads = Vec::new();
++    for c in [Component::Ux, Component::Uy, Component::Rx] {
++        loads.push(NodalLoad {
++            dof: Dof {
++                node: 1,
++                component: c,
++            },
++            value: if loaded { 1.0 } else { 0.0 },
++            source_id: format!("tip-{c:?}"),
++        });
++    }
++    if cancelled {
++        for value in [1.0, -1.0] {
++            loads.push(NodalLoad {
++                dof: Dof {
++                    node: 1,
++                    component: Component::Ux,
++                },
++                value,
++                source_id: format!("cancel-{value}"),
++            });
++        }
++    }
++    PrimitiveSource::new(SourceParts {
++        nodes: vec![[0.0; 3], [1.0, 0.0, 0.0]],
++        members: vec![StraightMember {
++            id: 7,
++            node_i: 0,
++            node_j: 1,
++            elastic_modulus: f64::from_bits(oracle::E),
++            shear_modulus: f64::from_bits(oracle::G),
++            area: f64::from_bits(oracle::A),
++            second_moment_y: f64::from_bits(oracle::I),
++            second_moment_z: f64::from_bits(oracle::I),
++            torsion_constant: f64::from_bits(oracle::J),
++            y_reference: [0.0, 1.0, 0.0],
++        }],
++        constraints: Component::ALL
++            .iter()
++            .map(|&c| Constraint {
++                dof: Dof {
++                    node: 0,
++                    component: c,
++                },
++                value: 0.0,
++            })
++            .collect(),
++        loads,
++        stations: [0.0, 0.25, 1.0]
++            .iter()
++            .enumerate()
++            .map(|(i, &fraction)| Station {
++                id: 17 + i as u32,
++                member: 7,
++                fraction,
++            })
++            .collect(),
++        supports: vec![SupportGroup {
++            id: 3,
++            node: 0,
++            restrained: [true; 6],
++            springs: vec![],
++            directional_springs: vec![],
++        }],
++        ..SourceParts::default()
++    })
++    .unwrap()
++}
++fn solved(source: PrimitiveSource) -> Box<RetainedSolve> {
++    match solve_case(
++        source,
++        CaseLimit::new(u64::MAX),
++        &mut InvocationMeter::new(u64::MAX),
++    ) {
++        CaseOutcome::Selected(s) => s,
++        other => panic!("small native source did not select: {other:?}"),
++    }
++}
++fn laws(owner: &RetainedSolve) -> [ProposedMemberLaw<'_>; 1] {
++    [ProposedMemberLaw {
++        member: &owner.source().members()[0],
++        diameter: f64::from_bits(oracle::D),
++        effective_wall: f64::from_bits(oracle::T),
++        material: MaterialOperands::Ordinary {
++            e: f64::from_bits(oracle::E),
++            g: f64::from_bits(oracle::G),
++        },
++        represented_z: f64::from_bits(oracle::Z),
++    }]
++}
++fn run<'a>(s: &'a RetainedSolve, law: &'a [ProposedMemberLaw<'a>]) -> BridgeSpent<'a> {
++    source_bridge(
++        s,
++        s.source(),
++        &s.evidence().source_encoding,
++        s.selected_precision(),
++        law,
++    )
++}
++fn endpoint(b: oracle::Bits) -> Wide<16> {
++    Wide::<16>::from_parts(b.0, b.1, b.2).unwrap()
++}
++fn pair(p: (oracle::Bits, oracle::Bits)) -> (Wide<16>, Wide<16>) {
++    (endpoint(p.0), endpoint(p.1))
++}
++fn point(x: f64) -> (Wide<16>, Wide<16>) {
++    let v = Wide::<16>::from_f64(x).unwrap();
++    (v, v)
++}
++fn exact(id: QuantityId, geometric: bool, loaded: bool) -> (Wide<16>, Wide<16>) {
++    if !loaded {
++        return point(0.0);
++    }
++    match id {
++        QuantityId::Displacement(d) => {
++            if d.node == 0 {
++                point(0.0)
++            } else {
++                pair(
++                    (if geometric {
++                        oracle::G_MOTION
++                    } else {
++                        oracle::K_MOTION
++                    })[d.component.index()],
++                )
++            }
++        }
++        QuantityId::DisplacementMagnitude(node) => {
++            if node == 0 {
++                point(0.0)
++            } else {
++                pair(if geometric {
++                    oracle::G_MAG
++                } else {
++                    oracle::K_MAG
++                })
++            }
++        }
++        QuantityId::EndAction { end, component, .. } => point(match (end, component) {
++            (End::I, Component::Ux | Component::Uy | Component::Rx | Component::Rz) => -1.0,
++            (End::J, Component::Ux | Component::Uy | Component::Rx) => 1.0,
++            _ => 0.0,
++        }),
++        QuantityId::StationAction { station, component } => point(match component {
++            Component::Ux | Component::Uy | Component::Rx => 1.0,
++            Component::Rz => match station {
++                17 => 1.0,
++                18 => 0.75,
++                19 => 0.0,
++                _ => panic!(),
++            },
++            _ => 0.0,
++        }),
++        QuantityId::Reaction(d) => point(match d.component {
++            Component::Ux | Component::Uy | Component::Rx | Component::Rz => -1.0,
++            _ => 0.0,
++        }),
++        QuantityId::SupportForceMagnitude(_) | QuantityId::SupportMomentMagnitude(_) => {
++            pair(oracle::ROOT_TWO)
++        }
++        _ => panic!("not in closed native oracle"),
++    }
++}
++fn encoded(w: &Wide<16>) -> String {
++    let (neg, e, limbs) = w.parts();
++    let hex = limbs
++        .iter()
++        .rev()
++        .map(|v| format!("{v:016x}"))
++        .collect::<String>();
++    format!("[{neg},{e},\"{hex}\"]")
++}
++fn check_rows(label: &str, s: &RetainedSolve, native: &ConditionalNativeSource<'_>, loaded: bool) {
++    assert_eq!(native.rows.len(), s.publish().rows.len());
++    for (i, row) in s.publish().rows.iter().enumerate() {
++        let (glo, ghi) = exact(row.id, true, loaded);
++        let (klo, khi) = exact(row.id, false, loaded);
++        let (lo, hi) = native.rows[i].source.endpoints();
++        assert_ne!(
++            lo.cmp_value(&glo),
++            Cmp::Greater,
++            "{label} {:?} lower",
++            row.id
++        );
++        assert_ne!(hi.cmp_value(&ghi), Cmp::Less, "{label} {:?} upper", row.id);
++        let (_, radius) = native.view.row(i);
++        let scale =
++            f64::from_bits(s.publish().body_scales[row.body as usize * 4 + row.kind.index()].2);
++        let x = row.value.value().unwrap();
++        let (class, bound) = match row.class {
++            RowClass::InputDerived => ("input", 0),
++            RowClass::AbsoluteVerified { bound_bits } => ("absolute", bound_bits),
++            RowClass::RelativeVerified => ("relative", 0),
++            _ => panic!(),
++        };
++        println!("I42_ROW {{\"witness\":\"{label}\",\"index\":{i},\"id\":\"{:?}\",\"x\":\"{:016x}\",\"radius\":\"{}\",\"class\":\"{class}\",\"bound\":\"{bound:016x}\",\"scale\":\"{:016x}\",\"sharper\":\"{:016x}\",\"error\":{},\"lo\":{},\"hi\":{},\"klo\":{},\"khi\":{},\"glo\":{},\"ghi\":{}}}",row.id,x.to_bits(),radius.map(|r|format!("{:016x}",r.to_bits())).unwrap_or("absent".into()),scale.to_bits(),sharper_binary64(x,scale).unwrap().to_bits(),encoded(&native.rows[i].source_error),encoded(lo),encoded(hi),encoded(&klo),encoded(&khi),encoded(&glo),encoded(&ghi));
++    }
++}
++#[test]
++fn source_bridge_zero_native_retained_source_oracle() {
++    let s = solved(source(false, false));
++    let input = laws(&s);
++    let spent = run(&s, &input);
++    let native = spent.result().unwrap();
++    assert_eq!(native.view.data(), &[false]);
++    println!(
++        "I42_ZERO_STATE {{\"p\":{},\"P\":{},\"data\":{:?},\"body_bounds\":[]}}",
++        s.selected_precision(),
++        s.evidence().verification_precision,
++        native.view.data()
++    );
++    assert!(s.evidence().certified_bound.is_empty());
++    assert!(native.rows.iter().all(|v| v.source_error.is_zero()));
++    assert!(native.tau.iter().all(Wide::<16>::is_zero));
++    assert_eq!(spent.work.member_builds.exact(), Ok(3));
++    assert_eq!(spent.work.b_products.exact(), Ok(336));
++    assert_eq!(spent.work.d_products.exact(), Ok(40));
++    assert_eq!(spent.work.h_products.exact(), Ok(16));
++    check_rows("zero", &s, native, false);
++}
++#[test]
++fn source_bridge_loaded_native_retained_source_oracle() {
++    let s = solved(source(true, false));
++    let original = s.publish().clone();
++    let input = laws(&s);
++    let spent = run(&s, &input);
++    let native = spent.result().unwrap();
++    assert_eq!(native.view.data(), &[true]);
++    assert_eq!(
++        s.evidence().verification_precision,
++        2 * s.selected_precision()
++    );
++    assert!(native
++        .alpha
++        .iter()
++        .all(|a| !a.is_zero() && a.cmp_value(&Wide::<16>::ONE) == Cmp::Less));
++    assert!(native.tau.iter().all(|t| !t.is_zero()));
++    assert_eq!(s.publish(), &original);
++    assert_eq!(spent.work.member_builds.exact(), Ok(3));
++    assert_eq!(spent.work.b_products.exact(), Ok(336));
++    assert_eq!(spent.work.d_products.exact(), Ok(40));
++    assert_eq!(spent.work.h_products.exact(), Ok(16));
++    println!(
++        "I42_BLOCK {{\"scales\":{:?},\"bound\":\"{:016x}\",\"alpha\":{},\"tau\":{}}}",
++        native.view.scales(),
++        s.evidence().certified_bound[0].1,
++        encoded(&native.alpha[0]),
++        encoded(&native.tau[0])
++    );
++    println!(
++        "I42_SELECTED_STATE {{\"p\":{},\"P\":{},\"data\":{:?}}}",
++        s.selected_precision(),
++        s.evidence().verification_precision,
++        native.view.data()
++    );
++    println!("I42_WORK {:?}", spent.work);
++    check_rows("loaded", &s, native, true);
++}
++#[test]
++fn source_bridge_cancelled_individual_terms_are_data() {
++    let s = solved(source(false, true));
++    let input = laws(&s);
++    let spent = run(&s, &input);
++    let native = spent.result().unwrap();
++    assert_eq!(native.view.data(), &[true]);
++    assert_eq!(s.evidence().certified_bound.len(), 1);
++    assert!(!native.alpha[0].is_zero());
++    assert!(native.tau[0].is_zero());
++    assert!(native.rows.iter().all(|v| v.source_error.is_zero()));
++}
++#[test]
++fn source_bridge_actual_alpha_refusal_keeps_work_and_publication() {
++    let s = solved(source(true, false));
++    let original = s.publish().clone();
++    let mut input = laws(&s);
++    input[0].diameter = 0.2;
++    let spent = run(&s, &input);
++    assert!(
++        matches!(spent.result(), Err(BridgeError::Alpha { block: 0, .. })),
++        "{:?}",
++        spent.result()
++    );
++    if let Err(BridgeError::Alpha { alpha_hi, .. }) = spent.result() {
++        assert_ne!(alpha_hi.cmp_value(&Wide::<16>::ONE), Cmp::Less);
++        println!("I42_ALPHA_REFUSAL {}", encoded(&alpha_hi));
++    }
++    assert_eq!(spent.work.member_builds.exact(), Ok(2));
++    assert!(spent.work.status().fault().is_none());
++    assert_eq!(s.publish(), &original);
++}
++#[test]
++fn source_bridge_owner_source_radius_precision_and_absence_discrimination() {
++    let s = solved(source(true, false));
++    let source_clone = s.source().clone();
++    assert!(matches!(
++        s.source_bridge_view(&source_clone, &s.prep.identity, s.selected)
++            .result,
++        Err(SourceBridgeViewIssue::ForeignOwner)
++    ));
++    let mut foreign_laws = laws(&s);
++    foreign_laws[0].member = &source_clone.members()[0];
++    assert!(matches!(
++        run(&s, &foreign_laws).result(),
++        Err(BridgeError::MemberOwner)
++    ));
++    let wrong_precision = s.source_bridge_view(s.source(), &s.prep.identity, 512);
++    assert!(matches!(
++        wrong_precision.result,
++        Err(SourceBridgeViewIssue::Certificate(
++            CertificateIssue::Precision
++        ))
++    ));
++    assert_eq!(wrong_precision.work.visits.exact(), Ok(0));
++    let mut id = s.prep.identity.clone();
++    id[0] ^= 1;
++    let wrong_source = s.source_bridge_view(s.source(), &id, s.selected);
++    assert!(matches!(
++        wrong_source.result,
++        Err(SourceBridgeViewIssue::Certificate(
++            CertificateIssue::PairIdentity
++        ))
++    ));
++    assert_eq!(wrong_source.work.visits.exact(), Ok(1));
++    for fault in 0..9 {
++        let mut changed = (*s).clone();
++        match fault {
++            0 => changed.publication_radius_bits[6] = ABSENT_RADIUS_BITS,
++            1 => changed.publication_radius_bits[0] = 0,
++            2 => changed.publication_radius_bits[6] = (-0f64).to_bits(),
++            3 => changed.evidence.certified_bound.clear(),
++            4 => changed.evidence.verification_precision = 128,
++            5 => changed.cache.s256 = None,
++            6 => changed.evidence.ledger_encoding[0] ^= 1,
++            7 => changed.publication.rows.swap(0, 1),
++            8 => changed.publication.rows[8].value = Binary64Outcome::Normal(f64::NAN),
++            _ => unreachable!(),
++        }
++        assert!(
++            changed
++                .source_bridge_view(changed.source(), &changed.prep.identity, changed.selected)
++                .result
++                .is_err(),
++            "fault {fault}"
++        );
++    }
++    let mut changed = (*s).clone();
++    let old = &changed.group;
++    let mut group = GroupPrep {
++        structure: old.structure.clone(),
++        ordering: old.ordering.clone(),
++        geometry: old.geometry.clone(),
++        blocks: old.blocks.clone(),
++    };
++    group.ordering.position[6] = usize::MAX;
++    changed.group = Arc::new(group);
++    assert!(matches!(
++        changed
++            .source_bridge_view(changed.source(), &changed.prep.identity, changed.selected)
++            .result,
++        Err(SourceBridgeViewIssue::Ordering)
++    ));
++}
++#[test]
++fn source_bridge_numeric_refusal_prefix_is_retained() {
++    let s = solved(source(true, false));
++    let mut input = laws(&s);
++    input[0].material = MaterialOperands::ExactENu {
++        e: f64::from_bits(oracle::E),
++        nu: 0.5,
++    };
++    let spent = run(&s, &input);
++    assert!(matches!(
++        spent.result(),
++        Err(BridgeError::Numeric(
++            super::super::product_certificate::NumericError::InvalidMaterial
++        ))
++    ));
++    assert_eq!(spent.work.member_builds.exact(), Ok(1));
++    assert!(spent.work.status().fault().is_none());
++}
++
++fn parts_from(s: &PrimitiveSource) -> SourceParts {
++    SourceParts {
++        nodes: s.nodes().to_vec(),
++        members: s.members().to_vec(),
++        springs: s.springs().to_vec(),
++        directional_springs: s.directional_springs().to_vec(),
++        constraints: s.constraints().to_vec(),
++        loads: s.loads().to_vec(),
++        stations: s.stations().to_vec(),
++        supports: s.supports().to_vec(),
++    }
++}
++#[test]
++fn source_bridge_prescribed_coupling_is_data_and_enters_residual_majorant() {
++    let mut parts = parts_from(&source(false, false));
++    parts.constraints[0].value = 0.0001;
++    let s = solved(PrimitiveSource::new(parts).unwrap());
++    let input = laws(&s);
++    let spent = run(&s, &input);
++    let native = spent.result().unwrap();
++    assert_eq!(native.view.data(), &[true]);
++    assert!(!native.tau[0].is_zero()); // all actual ledger terms zero; prescribed columns remain
++                                       // Exact common rigid translation is a source solution: all actions zero,
++                                       // node Ux and the native displacement magnitude equal the prescription.
++    for (i, row) in s.publish().rows.iter().enumerate() {
++        let truth = match row.id {
++            QuantityId::Displacement(d) if d.component == Component::Ux => 0.0001,
++            QuantityId::DisplacementMagnitude(_) => 0.0001,
++            _ => 0.0,
++        };
++        let v = Wide::<16>::from_f64(truth).unwrap();
++        let (lo, hi) = native.rows[i].source.endpoints();
++        assert_ne!(lo.cmp_value(&v), Cmp::Greater, "{:?}", row.id);
++        assert_ne!(hi.cmp_value(&v), Cmp::Less, "{:?}", row.id);
++    }
++}
++#[test]
++fn source_bridge_missing_anchor_is_missing_warrant_not_singularity() {
++    let mut parts = parts_from(&source(false, false));
++    let dof = parts.constraints.remove(0).dof;
++    parts.springs.push(super::super::source::Spring {
++        id: 9,
++        dof,
++        stiffness: 1e9,
++    });
++    parts.supports[0].restrained[0] = false;
++    parts.supports[0].springs.push(9);
++    let s = solved(PrimitiveSource::new(parts).unwrap()); // actual native source is selected
++    let input = laws(&s);
++    let spent = run(&s, &input);
++    assert!(matches!(
++        spent.result(),
++        Err(BridgeError::MissingUniquenessWarrant(0))
++    ));
++    assert!(s.evidence().certified_bound.is_empty());
++    assert_eq!(spent.work.member_builds.exact(), Ok(2));
++}
++#[test]
++fn source_bridge_joined_work_fault_blocks_success_and_keeps_numeric_reason() {
++    let s = solved(source(false, false));
++    let input = laws(&s);
++    let mut spent = run(&s, &input);
++    assert!(spent.result().is_ok());
++    spent.work.visits = WorkTotal::exact_count(u64::MAX).add(WorkTotal::exact_count(1));
++    assert!(matches!(
++        spent.result(),
++        Err(BridgeError::Numeric(
++            super::super::product_certificate::NumericError::Arithmetic(
++                AttemptStop::WorkAccounting(_)
++            )
++        ))
++    ));
++    let mut input = laws(&s);
++    input[0].effective_wall = 0.1;
++    let mut refused = run(&s, &input);
++    refused.work.visits = WorkTotal::exact_count(u64::MAX).add(WorkTotal::exact_count(1));
++    assert!(matches!(
++        refused.result(),
++        Err(BridgeError::Numeric(
++            super::super::product_certificate::NumericError::InvalidGeometry
++        ))
++    ));
++    assert!(refused.work.status().fault().is_some()); // simultaneous cause retained separately
++}
+--- a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_vectors.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_vectors.rs
+@@ -0,0 +1,525 @@
++// Generated by source_bridge_vectors.py; independent exact source and K oracle.
++pub type Bits = (bool, i64, [u64; 16]);
++pub const ZERO: Bits = (false, 0, [0; 16]);
++pub const D: u64 = 0x3fb999999999999a;
++pub const T: u64 = 0x3f747ae147ae147b;
++pub const E: u64 = 0x4248727cda000000;
++pub const G: u64 = 0x4232a05f20000000;
++pub const A: u64 = 0x3f5872fa3a37ac13;
++pub const I: u64 = 0x3ebc52664442210a;
++pub const J: u64 = 0x3ecc52664442210a;
++pub const Z: u64 = 0x3f01b37feaa954a6;
++pub const K_MOTION: [(Bits, Bits); 6] = [
++    (
++        (
++            false,
++            -29,
++            [
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x30a39d91a4d276c0,
++                0x45ba1f0cd5e74be0,
++                0x76a813b2fe287645,
++                0xc9813cecbd647dd5,
++                0xcf72ff200b597089,
++                0x71e77197498e7c28,
++                0x5b775960ea08ce76,
++                0xdb4a032d0e1d9aa0,
++            ],
++        ),
++        (
++            false,
++            -29,
++            [
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x30a39d91a4d276c1,
++                0x45ba1f0cd5e74be0,
++                0x76a813b2fe287645,
++                0xc9813cecbd647dd5,
++                0xcf72ff200b597089,
++                0x71e77197498e7c28,
++                0x5b775960ea08ce76,
++                0xdb4a032d0e1d9aa0,
++            ],
++        ),
++    ),
++    (
++        (
++            false,
++            -21,
++            [
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0xb38821037d0f2ff7,
++                0x1195c3e40e153639,
++                0x738802a1148d71a3,
++                0x8f013613416f59bb,
++                0xe02df90dbd932206,
++                0xe3df360c7893094c,
++                0xe5402c92eaa7f305,
++                0xfc67937308b42c52,
++            ],
++        ),
++        (
++            false,
++            -21,
++            [
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0xb38821037d0f2ff8,
++                0x1195c3e40e153639,
++                0x738802a1148d71a3,
++                0x8f013613416f59bb,
++                0xe02df90dbd932206,
++                0xe3df360c7893094c,
++                0xe5402c92eaa7f305,
++                0xfc67937308b42c52,
++            ],
++        ),
++    ),
++    (ZERO, ZERO),
++    (
++        (
++            false,
++            -19,
++            [
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0xccba007f6f1af337,
++                0x854f6cd47ddce160,
++                0x85b9e296903b3bdc,
++                0x74c5313af4699c54,
++                0xacad4129869cd57e,
++                0xcc4fb93446b0bd27,
++                0x99ab2be09efd5339,
++                0xf875f5253c915ba1,
++            ],
++        ),
++        (
++            false,
++            -19,
++            [
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0xccba007f6f1af338,
++                0x854f6cd47ddce160,
++                0x85b9e296903b3bdc,
++                0x74c5313af4699c54,
++                0xacad4129869cd57e,
++                0xcc4fb93446b0bd27,
++                0x99ab2be09efd5339,
++                0xf875f5253c915ba1,
++            ],
++        ),
++    ),
++    (ZERO, ZERO),
++    (
++        (
++            false,
++            -20,
++            [
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x46a618c29dcb63f9,
++                0x4d3052eb0a8fe8ab,
++                0x96a601f8cf6a153a,
++                0xeb40e88e7113834c,
++                0xa8227aca4e2e5984,
++                0x6ae768895a6e46f9,
++                0x2bf0216e2ffdf644,
++                0xbd4dae964687213e,
++            ],
++        ),
++        (
++            false,
++            -20,
++            [
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x46a618c29dcb63fa,
++                0x4d3052eb0a8fe8ab,
++                0x96a601f8cf6a153a,
++                0xeb40e88e7113834c,
++                0xa8227aca4e2e5984,
++                0x6ae768895a6e46f9,
++                0x2bf0216e2ffdf644,
++                0xbd4dae964687213e,
++            ],
++        ),
++    ),
++];
++pub const G_MOTION: [(Bits, Bits); 6] = [
++    (
++        (
++            false,
++            -29,
++            [
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0xbfd2ab9c80116966,
++                0x6f60e73994eadc77,
++                0xf6a66d3daadf7c8d,
++                0xf4b3f49b206810a8,
++                0xc2504a2de17b63f6,
++                0x5829254444dfc2f3,
++                0xa39b3130f7efea39,
++                0xdb4a032d0e1d987d,
++            ],
++        ),
++        (
++            false,
++            -29,
++            [
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0xbfd2ab9c80116967,
++                0x6f60e73994eadc77,
++                0xf6a66d3daadf7c8d,
++                0xf4b3f49b206810a8,
++                0xc2504a2de17b63f6,
++                0x5829254444dfc2f3,
++                0xa39b3130f7efea39,
++                0xdb4a032d0e1d987d,
++            ],
++        ),
++    ),
++    (
++        (
++            false,
++            -21,
++            [
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0xfa7fcf5e5ef04d3b,
++                0x5b04acfbb86866b4,
++                0x996cd6bba12d73ce,
++                0xa9fc48948d063a2f,
++                0x8904c10425f622bd,
++                0x977ddc353e981325,
++                0x431104ed44ab9175,
++                0xfc67937308b42f2a,
++            ],
++        ),
++        (
++            false,
++            -21,
++            [
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0xfa7fcf5e5ef04d3c,
++                0x5b04acfbb86866b4,
++                0x996cd6bba12d73ce,
++                0xa9fc48948d063a2f,
++                0x8904c10425f622bd,
++                0x977ddc353e981325,
++                0x431104ed44ab9175,
++                0xfc67937308b42f2a,
++            ],
++        ),
++    ),
++    (ZERO, ZERO),
++    (
++        (
++            false,
++            -19,
++            [
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x2695d020e5748c06,
++                0x21989a47c986c51a,
++                0xdb072360b2a8bdff,
++                0xb35457723ad22146,
++                0xf2e0ae00155e4a32,
++                0xc11fe4c4699db2d8,
++                0x9a04c0d98f98e32f,
++                0xf875f5253c915e6d,
++            ],
++        ),
++        (
++            false,
++            -19,
++            [
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x2695d020e5748c07,
++                0x21989a47c986c51a,
++                0xdb072360b2a8bdff,
++                0xb35457723ad22146,
++                0xf2e0ae00155e4a32,
++                0xc11fe4c4699db2d8,
++                0x9a04c0d98f98e32f,
++                0xf875f5253c915e6d,
++            ],
++        ),
++    ),
++    (ZERO, ZERO),
++    (
++        (
++            false,
++            -20,
++            [
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0xbbdfdb86c73439ec,
++                0xc44381bcca4e4d07,
++                0xb311a10cb8e216da,
++                0x3f7d366f69c4aba3,
++                0x26c390c31c789a0e,
++                0x319e6527eef20e5c,
++                0xb24cc3b1f380ad18,
++                0xbd4dae964687235f,
++            ],
++        ),
++        (
++            false,
++            -20,
++            [
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0x0000000000000000,
++                0xbbdfdb86c73439ed,
++                0xc44381bcca4e4d07,
++                0xb311a10cb8e216da,
++                0x3f7d366f69c4aba3,
++                0x26c390c31c789a0e,
++                0x319e6527eef20e5c,
++                0xb24cc3b1f380ad18,
++                0xbd4dae964687235f,
++            ],
++        ),
++    ),
++];
++pub const K_MAG: (Bits, Bits) = (
++    (
++        false,
++        -21,
++        [
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x20a1dd7f87b42b34,
++            0xa0dbf94308a70a2f,
++            0x31e61871dca70c3d,
++            0x6a9381801c87ad1b,
++            0xab3ac618b9db7eef,
++            0xe2ec1c56549f9b65,
++            0xde6dfdbc496b4fd2,
++            0xfc67f2b550fdb40c,
++        ],
++    ),
++    (
++        false,
++        -21,
++        [
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x20a1dd7f87b42b35,
++            0xa0dbf94308a70a2f,
++            0x31e61871dca70c3d,
++            0x6a9381801c87ad1b,
++            0xab3ac618b9db7eef,
++            0xe2ec1c56549f9b65,
++            0xde6dfdbc496b4fd2,
++            0xfc67f2b550fdb40c,
++        ],
++    ),
++);
++pub const G_MAG: (Bits, Bits) = (
++    (
++        false,
++        -21,
++        [
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0xf8b430d5775c3c64,
++            0x0ae1ec0dc6e67f82,
++            0x7b99388145bee7e7,
++            0xd2a12c2d35a7cbf6,
++            0x24360ea5ad87d1ff,
++            0xed0d0f8bd8350eba,
++            0x395156f173dbd476,
++            0xfc67f2b550fdb6e4,
++        ],
++    ),
++    (
++        false,
++        -21,
++        [
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0xf8b430d5775c3c65,
++            0x0ae1ec0dc6e67f82,
++            0x7b99388145bee7e7,
++            0xd2a12c2d35a7cbf6,
++            0x24360ea5ad87d1ff,
++            0xed0d0f8bd8350eba,
++            0x395156f173dbd476,
++            0xfc67f2b550fdb6e4,
++        ],
++    ),
++);
++pub const ROOT_TWO: (Bits, Bits) = (
++    (
++        false,
++        0,
++        [
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x780487363dfa2768,
++            0x0f74a85e439c7b4a,
++            0xa8b1fe6fdc83db39,
++            0x4afc83043ab8a2c3,
++            0xed17ac8583339915,
++            0x1d6f60ba893ba84c,
++            0x597d89b3754abe9f,
++            0xb504f333f9de6484,
++        ],
++    ),
++    (
++        false,
++        0,
++        [
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x0000000000000000,
++            0x780487363dfa2769,
++            0x0f74a85e439c7b4a,
++            0xa8b1fe6fdc83db39,
++            0x4afc83043ab8a2c3,
++            0xed17ac8583339915,
++            0x1d6f60ba893ba84c,
++            0x597d89b3754abe9f,
++            0xb504f333f9de6484,
++        ],
++    ),
++);
+--- a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_vectors.py
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_vectors.py
+@@ -0,0 +1,150 @@
++#!/usr/bin/env python3
++"""Independent exact cantilever oracle: rational annulus difference of powers,
++atan(1/2)+atan(1/3) pi enclosure, closed mechanics, integer sqrt. No evaluator
++imports. Generation is deterministic; --diagnose LOG checks actual emitted rows.
++"""
++from fractions import Fraction as F
++from pathlib import Path
++import json, math, struct, sys
++
++def bits(x): return struct.unpack('>Q', struct.pack('>d', x))[0]
++def real(bits): return F(struct.unpack('>d', struct.pack('>Q', bits))[0])
++def atan(q, count=400):
++    value=sum(((-1 if k % 2 else 1)*F(1, (2*k+1)*q**(2*k+1)) for k in range(count)), F(0))
++    other=value+F(1, (2*count+1)*q**(2*count+1))
++    return value, other
++p2,p3=atan(2),atan(3)
++PI=(4*(p2[0]+p3[0]),4*(p2[1]+p3[1]))
++D,T,E,G=map(F,[0.1,0.005,210e9,80e9])
++DI=D-2*T
++AG=tuple(p*(D*D-DI*DI)/4 for p in PI)
++IG=tuple(p*(D**4-DI**4)/64 for p in PI)
++JG=tuple(2*i for i in IG)
++# Fixed native K primitive bits. They are proposed test data, not a PP build.
++A=F(float((AG[0]+AG[1])/2)); I=F(float((IG[0]+IG[1])/2)); J=F(float((JG[0]+JG[1])/2))
++Z=F(float(I/(D/2)))
++K=[(F(1)/(E*A),)*2,(F(1)/(3*E*I),)*2,(F(0),)*2,(F(1)/(G*J),)*2,(F(0),)*2,(F(1)/(2*E*I),)*2]
++Q=[(1/(E*AG[1]),1/(E*AG[0])),(1/(3*E*IG[1]),1/(3*E*IG[0])),(F(0),)*2,(1/(G*JG[1]),1/(G*JG[0])),(F(0),)*2,(1/(2*E*IG[1]),1/(2*E*IG[0]))]
++
++def floorlog(x):
++    e=x.numerator.bit_length()-x.denominator.bit_length()
++    if x < F(2)**e: e-=1
++    return e
++
++def dyadic(x, up):
++    if x==0: return F(0)
++    quantum=F(2)**(floorlog(abs(x))-511)
++    f=x/quantum
++    n=f.numerator//f.denominator
++    if up and n*f.denominator!=f.numerator: n+=1
++    return n*quantum
++
++def sqrt_bound(x,up):
++    if x==0:return F(0)
++    e=floorlog(x)//2-511
++    scaled=x/F(2)**(2*e)
++    n=math.isqrt(scaled.numerator//scaled.denominator)
++    if up and n*n*scaled.denominator!=scaled.numerator:n+=1
++    return n*F(2)**e
++
++def magnitude(u):
++    return (sqrt_bound(sum(v[0]**2 for v in u[:3]),False),sqrt_bound(sum(v[1]**2 for v in u[:3]),True))
++
++def lit(x):
++    if x==0:return 'ZERO'
++    neg=x<0;x=abs(x);e=floorlog(x);m=x/F(2)**(e-1023)
++    assert m.denominator==1
++    limbs=[(m.numerator>>(64*k)) & (2**64-1) for k in range(16)]
++    return '('+str(neg).lower()+', '+str(e)+', ['+', '.join(f'0x{v:016x}' for v in limbs)+'])'
++
++def pair(v):return '('+lit(dyadic(v[0],False))+', '+lit(dyadic(v[1],True))+')'
++
++def generate():
++    lines=['// Generated by source_bridge_vectors.py; independent exact source and K oracle.', 'pub type Bits = (bool, i64, [u64; 16]);','pub const ZERO: Bits = (false, 0, [0; 16]);']
++    for name,value in [('D',D),('T',T),('E',E),('G',G),('A',A),('I',I),('J',J),('Z',Z)]:lines.append(f'pub const {name}: u64 = 0x{bits(float(value)):016x};')
++    for name,value in [('K_MOTION',K),('G_MOTION',Q)]:
++        lines.append(f'pub const {name}: [(Bits, Bits); 6] = [\n'+',\n'.join(pair(v) for v in value)+'\n];')
++    for name,value in [('K_MAG',magnitude(K)),('G_MAG',magnitude(Q)),('ROOT_TWO',(sqrt_bound(F(2),False),sqrt_bound(F(2),True)))]:lines.append(f'pub const {name}: (Bits, Bits) = '+pair(value)+';')
++    target=Path(__file__).with_suffix('.rs');target.write_text('\n'.join(lines)+'\n')
++    print(json.dumps({'oracle':'rational closed cantilever; 400-term atan1/2+atan1/3; integer isqrt','file':str(target),'pi_width_log2_upper':floorlog(PI[1]-PI[0])+1,'native_bits':{n:hex(bits(float(v))) for n,v in [('A',A),('I',I),('J',J)]}}))
++
++def wide(value):
++    sign,exponent,mantissa=value
++    return (-1 if sign else 1)*int(mantissa,16)*F(2)**(exponent-1023)
++
++def contraction_check(raw,block):
++    # Direct dense 12x12 matrix oracle; does not use the streaming contractions.
++    rows={d['index']:d for d in raw if d['witness']=='loaded'}
++    if not rows:return None
++    scales=[F(0)]*6+[F(2)**s for s in block['scales']]
++    motion=[F(0)]*6+[abs(real(int(rows[i]['x'],16)))+real(int(rows[i]['radius'],16)) for i in range(6,12)]
++    b=[[F(0) for _ in range(12)] for _ in range(6)]
++    h=[[F(0) for _ in range(12)] for _ in range(6)]
++    for r in range(6):
++        for j in range(12):
++            if (r==0 and j%6<3) or (r==1 and j%6>=3) or (r>=2 and j%6<3) or (r in (2,4) and 3<=j<6) or (r in (3,5) and 9<=j<12):b[r][j]=F(1)
++    for r,cols in enumerate([[0,6],[3,9],[1,7,5],[1,7,11],[2,8,4],[2,8,10]]):
++        for j in cols:h[r][j]=F(1)
++    ck=[E*A,G*J,E*I,E*I]
++    cg=[tuple(E*a for a in AG),tuple(G*j for j in JG),tuple(E*i for i in IG),tuple(E*i for i in IG)]
++    dc=[max(abs(lo-k),abs(hi-k)) for k,(lo,hi) in zip(ck,cg)]
++    def matrix(c):
++        return [[c[0],0,0,0,0,0],[0,c[1],0,0,0,0],[0,0,4*c[2],2*c[2],0,0],[0,0,2*c[2],4*c[2],0,0],[0,0,0,0,4*c[3],2*c[3]],[0,0,0,0,2*c[3],4*c[3]]]
++    dg,dd=matrix([hi for lo,hi in cg]),matrix(dc)
++    def dense(left,d):return [[sum(left[r][i]*d[r][s]*b[s][j] for r in range(6) for s in range(6)) for j in range(12)] for i in range(12)]
++    perturbation=dense(b,dd)
++    eta=max(scales[i]*sum(perturbation[i][j]*scales[j] for j in range(12)) for i in range(6,12))
++    v=max(scales[i]*sum(perturbation[i][j]*motion[j] for j in range(12)) for i in range(6,12))
++    beta=2*real(int(block['bound'],16)); alpha=beta*eta
++    assert alpha<1
++    tau=beta*v/(1-alpha)
++    assert wide(block['alpha'])>=alpha and wide(block['tau'])>=tau
++    corrections=[s*wide(block['tau']) for s in scales]
++    ag,da=dense(h,dg),dense(h,dd)
++    rg=dense(b,dg)
++    response=[sum(ag[i][j]*corrections[j] for j in range(12)) for i in range(12)]
++    coefficient=[sum(da[i][j]*motion[j] for j in range(12)) for i in range(12)]
++    local=[a+b for a,b in zip(response,coefficient)]
++    reaction=[sum(rg[i][j]*corrections[j]+perturbation[i][j]*motion[j] for j in range(12)) for i in range(6)]
++    for i in range(12):assert wide(rows[14+i]['error'])>=local[i],('both end terms',i)
++    for i in range(6):assert wide(rows[44+i]['error'])>=reaction[i],('both reaction terms',i)
++    for si,t in enumerate([F(0),F(1,4),F(1)]):
++        for c in range(6):
++            expected=local[6+c] if c<4 else (1-t)*local[c]+t*local[6+c]
++            assert wide(rows[26+6*si+c]['error'])>=expected,('station',si,c)
++    # The two omitted-term mutants are discriminated: each true contribution is
++    # nonzero and the production bound's rounding slack is far smaller than it.
++    for i in range(12):
++        actual=wide(rows[14+i]['error']); slack=actual-local[i]
++        assert response[i]>slack and coefficient[i]>slack,('omitted-term discriminator',i)
++    return {'dense_perturbation_entries':144,'local_rows':12,'reaction_rows':6,'station_rows':18,'both_terms_discriminated':12,'beta':float(beta),'alpha_lower':float(alpha),'tau_lower':float(tau),'actual_alpha':float(wide(block['alpha'])),'actual_tau':float(wide(block['tau']))}
++
++def diagnose(path):
++    reports=[]
++    raw=[]
++    block=None
++    for line in Path(path).read_text().splitlines():
++        if 'I42_BLOCK ' in line:block=json.loads(line.split('I42_BLOCK ',1)[1])
++        at=line.find('I42_ROW ')
++        if at<0:continue
++        d=json.loads(line[at+8:]); raw.append(d); x=real(int(d['x'],16)); r=None if d['radius']=='absent' else real(int(d['radius'],16))
++        lo,hi=wide(d['lo']),wide(d['hi']); k0,k1=wide(d['klo']),wide(d['khi']); g0,g1=wide(d['glo']),wide(d['ghi'])
++        assert lo<=g0<=g1<=hi,(d['id'],'source enclosure')
++        if r is not None: assert x-r<=k0<=k1<=x+r,(d['id'],'native K radius')
++        h=max(abs(x-lo),abs(x-hi)); actual_lower=F(0) if g0<=x<=g1 else min(abs(x-g0),abs(x-g1)); actual_upper=max(abs(x-g0),abs(x-g1))
++        if d['class']=='input':
++            verdict=h==0; oracle_out=actual_lower>0; allowance=F(0)
++        elif d['class']=='absolute':
++            allowance=real(int(d['bound'],16));verdict=h<=allowance;oracle_out=actual_lower>allowance
++        else:
++            scale=real(int(d['scale'],16)); allowance=F(2)**-64*max(abs(x),scale)*(1+F(2)**-21)+F(2)**-53*abs(x)+F(2)**-1074
++            f64_allowance=real(int(d['sharper'],16)); allowance=min(allowance,f64_allowance,abs(x)/10**9)
++            verdict=h<=allowance; oracle_out=actual_lower>allowance
++            # Native raw units here equal SI, so the second decimal test is identical.
++        reports.append({'witness':d['witness'],'id':d['id'],'predicate_pass':verdict,'oracle_proves_actual_failure':oracle_out,'oracle_proves_actual_pass':actual_upper<=allowance,'enclosure_H':float(h),'allowance':float(allowance),'actual_error_lower':float(actual_lower),'actual_error_upper':float(actual_upper)})
++    assert reports,'no diagnostic rows'
++    summary={w:{'rows':sum(r['witness']==w for r in reports),'predicate_pass':sum(r['witness']==w and r['predicate_pass'] for r in reports),'oracle_proves_actual_failure':sum(r['witness']==w and r['oracle_proves_actual_failure'] for r in reports),'oracle_proves_actual_pass':sum(r['witness']==w and r['oracle_proves_actual_pass'] for r in reports)} for w in sorted({r['witness'] for r in reports})}
++    print(json.dumps({'summary':summary,'contractions':contraction_check(raw,block),'rows':reports},indent=2))
++if __name__=='__main__':
++    if len(sys.argv)==3 and sys.argv[1]=='--diagnose':diagnose(sys.argv[2])
++    else:generate()
+--- a/projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs
+@@ -128,6 +128,19 @@
+         name: "FK/structural/retained/combine.rs",
+         text: include_str!("../src/structural/retained/combine.rs"),
+     },
++    // I42: new private numerical entries participate in the same source scan.
++    Source {
++        name: "FK/structural/retained/product_certificate.rs",
++        text: include_str!("../src/structural/retained/product_certificate.rs"),
++    },
++    Source {
++        name: "FK/structural/retained/product_certificate/bridge.rs",
++        text: include_str!("../src/structural/retained/product_certificate/bridge.rs"),
++    },
++    Source {
++        name: "FK/structural/retained/directed/certificate.rs",
++        text: include_str!("../src/structural/retained/directed/certificate.rs"),
++    },
+     // K4, D1 revision 5a.3 (ROOT's A3-0 rulings): directed rounding, the
+     // certified bounds and the verification.
+     Source {
+@@ -146,6 +159,14 @@
+ 
+ /// (file, function, exact match count, disposition of each match).
+ const TABLE: &[(&str, &str, usize, &str)] = &[
++    ("FK/structural/retained/directed/certificate.rs", "compare_owned", 1, "integer: comparison counter increment after the explicit 64-comparison guard; each comparison uses one exact sum"),
++    ("FK/structural/retained/product_certificate.rs", "status", 1, "integer: joins checked entry/work status; no floating reduction"),
++    ("FK/structural/retained/product_certificate.rs", "scalar_owned", 0, "fixed directed arithmetic; each actual context and exact sum collected on all exits"),
++    ("FK/structural/retained/product_certificate.rs", "r4_owned", 0, "four separate products in one exact sum with sign before lower rounding"),
++    ("FK/structural/retained/product_certificate/bridge.rs", "b_forward", 0, "I33 nonnegative majorant: each product and accumulation directed upward with actual owner work"),
++    ("FK/structural/retained/product_certificate/bridge.rs", "d_apply", 0, "I33 ten-entry nonnegative constitutive contraction, directed upward"),
++    ("FK/structural/retained/product_certificate/bridge.rs", "transpose", 0, "I33 full Bbar/Hbar nonnegative contractions, directed upward"),
++
+     ("FK/structural/retained/wide_sum.rs", "checked_lme", 1, "integer: checked sum of raw work components"),
+     ("FK/structural/retained/wide_sum.rs", "charge", 1, "integer: actual component increment after prospective checked reservation"),
+     ("FK/structural/retained/adaptive.rs", "checked_total", 1, "integer: checked sum of stage totals"),

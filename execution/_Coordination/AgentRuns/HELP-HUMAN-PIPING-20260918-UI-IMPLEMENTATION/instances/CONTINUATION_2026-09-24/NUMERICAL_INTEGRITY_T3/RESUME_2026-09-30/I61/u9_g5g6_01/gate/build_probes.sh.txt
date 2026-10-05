@@ -1,0 +1,12 @@
+#!/bin/bash
+# I61 U9 G6: build the full-envelope t3_p1_probe (main.rs cd1052f7..., the calibration's 6 GiB heap cap) --release --offline
+# from the base M and candidate C trees (shared with u9_t9, verified blob-identical). One cargo job at a time.
+set -u
+WT=WT; G=$WT/scratch/u9_gate
+pgrep -f memguard.sh >/dev/null || { echo "MEMGUARD NOT RUNNING"; exit 9; }
+for n in base cand; do
+  echo "== probe $n start $(date -u +%FT%TZ)"
+  ( cd $G/probe_$n && env -u RUSTFLAGS CARGO_BUILD_JOBS=4 cargo build --release --offline --target-dir $WT/targets/i61-u9g6/$n > $G/logs/build_probe_$n.log 2>&1 ); echo "== probe $n exit=$? $(date -u +%FT%TZ)"
+  diff $G/probe_${n}_Cargo.lock.before $G/probe_$n/Cargo.lock > $G/lock_diff_probe_$n.txt; echo "lock diff lines $(wc -l < $G/lock_diff_probe_$n.txt)"
+  shasum -a 256 $WT/targets/i61-u9g6/$n/release/t3_p1_probe
+done

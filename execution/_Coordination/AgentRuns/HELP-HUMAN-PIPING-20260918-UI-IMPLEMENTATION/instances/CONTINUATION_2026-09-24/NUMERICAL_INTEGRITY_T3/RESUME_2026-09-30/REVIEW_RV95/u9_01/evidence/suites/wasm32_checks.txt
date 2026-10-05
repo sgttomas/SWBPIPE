@@ -1,0 +1,49 @@
+== wasm_check_control_pre_fix.log
+   1 error: could not compile `open_pipe_stress_result_export` (lib) due to 1 previous error; 1 warning emitted
+   1 error: literal out of range for `usize`
+   1 warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+   1 warning: function `derived` is never used
+error: could not compile `open_pipe_stress_result_export` (lib) due to 1 previous error; 1 warning emitted
+== wasm_check_operation_applier.log
+   1 warning: `open_pipe_stress_product_physics` (lib) generated 10 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics` to apply 2 suggestions)
+   1 warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+   1 warning: field `springs` is never read
+   1 warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   2 warning: function `derived` is never used
+   1 warning: function `expected_primary` is never used
+   1 warning: function `is_exact_pressure_result_kind` is never used
+   1 warning: function `solve_load_case` is never used
+   1 warning: method `spring_actions` is never used
+   1 warning: multiple fields are never read
+   2 warning: unnecessary parentheses around function argument
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.87s
+== wasm_check_product_physics.log
+   1 warning: `open_pipe_stress_product_physics` (lib) generated 10 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics` to apply 2 suggestions)
+   1 warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+   1 warning: field `springs` is never read
+   1 warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   2 warning: function `derived` is never used
+   1 warning: function `expected_primary` is never used
+   1 warning: function `is_exact_pressure_result_kind` is never used
+   1 warning: function `solve_load_case` is never used
+   1 warning: method `spring_actions` is never used
+   1 warning: multiple fields are never read
+   2 warning: unnecessary parentheses around function argument
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.46s
+== wasm_check_result_export.log
+   1 warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+   1 warning: function `derived` is never used
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.23s
+== wasm_check_self_weight_wasm.log
+   1 warning: `open_pipe_stress_product_physics` (lib) generated 10 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics` to apply 2 suggestions)
+   1 warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+   1 warning: field `springs` is never read
+   1 warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   2 warning: function `derived` is never used
+   1 warning: function `expected_primary` is never used
+   1 warning: function `is_exact_pressure_result_kind` is never used
+   1 warning: function `solve_load_case` is never used
+   1 warning: method `spring_actions` is never used
+   1 warning: multiple fields are never read
+   2 warning: unnecessary parentheses around function argument
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.28s

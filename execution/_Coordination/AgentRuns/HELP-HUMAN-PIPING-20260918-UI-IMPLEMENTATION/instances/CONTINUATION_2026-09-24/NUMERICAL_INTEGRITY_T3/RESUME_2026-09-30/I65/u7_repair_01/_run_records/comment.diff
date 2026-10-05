@@ -1,0 +1,16 @@
+6,8c6,8
+< //! allocates. No production profile is registered (`REGISTERED_PROFILES` is
+< //! empty until G6, decision 7), so no capture permit can be constructed and every
+< //! call refuses, keeping every fact and the first failing clause.
+---
+> //! allocates. One production profile is registered (`REGISTERED_PROFILES`: the
+> //! dev/test identity, M = 4,026,531,840 B under D-7; G6/G7). Every other build is
+> //! Stale and keeps the ordinary route; a refusal keeps every fact and the first failing clause.
+2742c2742
+< /// D-6's build status. `Missing` while no profile is registered (until G6);
+---
+> /// D-6's build status. `Missing` when no profile is registered (none since G6);
+2847c2847
+<     // the whole law selected; with none registered (until G6), never.
+---
+>     // the whole law selected: the one registered dev/test profile; any other build is Stale.

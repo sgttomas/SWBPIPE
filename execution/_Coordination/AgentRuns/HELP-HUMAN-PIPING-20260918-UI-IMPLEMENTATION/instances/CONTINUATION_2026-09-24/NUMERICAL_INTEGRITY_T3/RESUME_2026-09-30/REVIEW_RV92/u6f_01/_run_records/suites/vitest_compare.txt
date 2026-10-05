@@ -1,0 +1,7 @@
+base: files 135 tests 3258 passed 3258 failed 0
+cand: files 138 tests 3466 passed 3466 failed 0
+base tests absent in cand (renamed or ruled flips): 2
+    ('src/features/results/knownSemanticLimitations.test.ts', "static fresh-identity set and standing reasons > admits only preview-physics-1, source-blocks-1, physics-1, physics-source-1 and T1's load-reference-1 and load-reference-source-1")
+    ('src/features/results/retainedPrecision.test.ts', 'review repair 07: decisions without a probe (reader-local) > D6a (checkpoint A): untyped diagnostic_refs are unique and resolve, without naming the case; typed references stay strict')
+base tests whose outcome changed: 0
+new tests 210 {'src/services/retainedPrecisionAnalysisRun.test.ts': 32, 'src/features/results/knownSemanticLimitations.test.ts': 1, 'src/features/results/retainedPrecision.test.ts': 13, 'src/features/results/retainedPrecisionIntegration.test.tsx': 100, 'src/features/results/retainedPrecisionOutputRefusal.test.tsx': 64}

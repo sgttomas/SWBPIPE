@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-03T19:18:55.071644+00:00",
+  "seal_sha256": "6d5e385e08f58d066bb19b30cc9bb6ee875d456c9b9f641651941e680b217ee4",
+  "manifest_sha256": "88a11fc8b3088a7f36fdf2484470d7e78e956f435205cbfdf2f46e54de854320",
+  "payloads": 6,
+  "source_files": 9,
+  "root_read": "complete I57 ADDENDUM/RETURN, complete RV76 REVIEW",
+  "disposition": "select design only; no implementation in this run"
+}

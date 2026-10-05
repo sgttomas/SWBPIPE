@@ -1,0 +1,71 @@
+{
+ "basis": "Python outcomes: 07f reader on 07f, F5 reader on 07g, 07f reader on 07g (the new entries' pre-F5 outcome), F5 reader on 07f (why the bases are repaired)",
+ "readers": {
+  "07f": "d01abdb020246011786e31d8a361346e5a7adb8799eb9cdbc7e43ed2947bbd82",
+  "07g": "00f54b19ea7e396c69d28e2e9256931610ce0ecc334c3e74b0d2da019d680dee"
+ },
+ "corpora": {
+  "07f": "2cae6d68231f945e21f883e4b7d4dd7ed0c53e533b7ca7740c2cf402c50fdabe",
+  "07g": "aa8e930ebc6268a5613cdc5ac5799174e3e59fbb75db37b40c08a4ecee90654c"
+ },
+ "cases": {
+  "07f_entries_changed": [],
+  "new_entries": {}
+ },
+ "mutations": {
+  "07f_entries_changed": [],
+  "new_entries": {
+   "f5_ordinary_refs_omit_naming_diagnostic": {
+    "07f_reader": "pass",
+    "07g_reader": [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   },
+   "f5_ordinary_refs_out_of_envelope_order": {
+    "07f_reader": "pass",
+    "07g_reader": [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   },
+   "f5_ordinary_refs_list_retained_precision_m09": {
+    "07f_reader": "pass",
+    "07g_reader": [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   },
+   "f5_ordinary_refs_list_invocation_level_m10": {
+    "07f_reader": "pass",
+    "07g_reader": [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   },
+   "f5_ordinary_refs_list_other_case": {
+    "07f_reader": "pass",
+    "07g_reader": [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   },
+   "f5_ordinary_refs_relaxed_d6a_form": {
+    "07f_reader": "pass",
+    "07g_reader": [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   }
+  }
+ },
+ "must_pass": {
+  "07f_entries_changed": [],
+  "new_entries": {}
+ },
+ "unrepaired_07f_corpus_under_f5": {
+  "cases_refused": 15,
+  "mutations_off_expectation": 136,
+  "must_pass_refused": 22
+ }
+}

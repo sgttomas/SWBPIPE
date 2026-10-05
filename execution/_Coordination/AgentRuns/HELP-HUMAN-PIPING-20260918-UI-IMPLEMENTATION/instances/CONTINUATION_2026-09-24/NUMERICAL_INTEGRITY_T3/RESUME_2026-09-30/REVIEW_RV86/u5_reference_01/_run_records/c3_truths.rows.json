@@ -1,0 +1,1964 @@
+{
+ "sparse_interactive": {
+  "rows": {
+   "result:disp:N0": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:disp:N1": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 4.6067459340388454e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.4147239471996357
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.4147239471996357
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.4147239471996357
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:disp:N0:ux": {
+    "class": "input_derived",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:disp:N0:uy": {
+    "class": "input_derived",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:disp:N0:uz": {
+    "class": "input_derived",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:disp:N0:rx": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 6.776263578034404e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.6100536548198833
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.6100536548198833
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.6100536548198833
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:disp:N0:ry": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 8.095340928185631e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.2705022415279856
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.2705022415279856
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.2705022415279856
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:disp:N0:rz": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 8.095340928185631e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.2705022415279856
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.2705022415279856
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.2705022415279856
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:disp:N1:ux": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:disp:N1:uy": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 2.305345788497726e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.20749507759306018
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.20749507759306018
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.20749507759306018
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:disp:N1:uz": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 2.305345788497726e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.20749507759306018
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.20749507759306018
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.20749507759306018
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:disp:N1:rx": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 1.208340367012002e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.10878450707181757
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.10886426885416454
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.10927201181453239
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.00048750474271481
+   },
+   "result:disp:N1:ry": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 1.1839086045119652e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.053296483930017055
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.21679579243030325
+    ],
+    "sharper_i50_represented": [
+     "fail",
+     1.0526057518417484
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.9993092679117315
+   },
+   "result:disp:N1:rz": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 1.1839086045119652e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.053296483930017055
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.21679579243030325
+    ],
+    "sharper_i50_represented": [
+     "fail",
+     1.0526057518417484
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.9993092679117315
+   },
+   "result:support-action:4:case:8:rigid:N0:Fx": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:8:rigid:N0:Fy": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:8:rigid:N0:Fz": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:8:rigid:N0:Mx": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:8:rigid:N0:My": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:8:rigid:N0:Mz": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:8:rigid:N0:force_magnitude": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:8:rigid:N0:moment_magnitude": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:0:Fx": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:0:Fy": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:0:Fz": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:0:Mx": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 0.0,
+    "sharper_exact_annulus": [
+     "pass",
+     0.0
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.0
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.0
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:support-action:4:case:11:spring:N0:0:My": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:0:Mz": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:0:force_magnitude": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:0:moment_magnitude": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 0.0,
+    "sharper_exact_annulus": [
+     "pass",
+     0.0
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.0
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.0
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:support-action:4:case:11:spring:N0:1:Fx": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:1:Fy": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:1:Fz": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:1:Mx": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:1:My": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 0.0,
+    "sharper_exact_annulus": [
+     "pass",
+     0.0
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.0
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.0
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:support-action:4:case:11:spring:N0:1:Mz": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:1:force_magnitude": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:1:moment_magnitude": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 0.0,
+    "sharper_exact_annulus": [
+     "pass",
+     0.0
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.0
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.0
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:support-action:4:case:11:spring:N0:2:Fx": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:2:Fy": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:2:Fz": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:2:Mx": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:2:My": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:2:Mz": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 0.0,
+    "sharper_exact_annulus": [
+     "pass",
+     0.0
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.0
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.0
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:support-action:4:case:11:spring:N0:2:force_magnitude": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:2:moment_magnitude": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 0.0,
+    "sharper_exact_annulus": [
+     "pass",
+     0.0
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.0
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.0
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:force:M1:axial": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:axial:end-j": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:shear-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:shear-y:end-j": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:shear-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:shear-z:end-j": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:torsion": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 6.023345402697248e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.5422699418509208
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:moment:M1:torsion:end-j": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 6.023345402697248e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.5422699418509208
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:moment:M1:bending-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:bending-y:end-j": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:bending-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:bending-z:end-j": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:quarter-1:axial": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:quarter-1:shear-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:quarter-1:shear-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:quarter-1:torsion": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 6.023345402697248e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.5422699418509208
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:moment:M1:quarter-1:bending-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:quarter-1:bending-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:midspan:axial": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:midspan:shear-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:midspan:shear-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:midspan:torsion": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 6.023345402697248e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.5422699418509208
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:moment:M1:midspan:bending-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:midspan:bending-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:quarter-3:axial": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:quarter-3:shear-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:quarter-3:shear-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:quarter-3:torsion": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 6.023345402697248e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.5422699418509208
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:moment:M1:quarter-3:bending-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:quarter-3:bending-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:end-i:axial-normal": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:end-i:bending-normal-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:end-i:bending-normal-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:end-i:torsional-shear": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 5.786642789664908e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5206982817725296
+    ],
+    "sharper_receipt_kt": [
+     "unproved",
+     1.1774940406145484
+    ],
+    "sharper_i50_represented": [
+     "fail",
+     4.354162933136558
+    ],
+    "annulus_vs_i50_separation_over_sharper": 4.874861214909088
+   },
+   "result:stress:M1:end-j:axial-normal": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:end-j:bending-normal-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:end-j:bending-normal-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:end-j:torsional-shear": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 5.786642789664908e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5206982817725296
+    ],
+    "sharper_receipt_kt": [
+     "unproved",
+     1.1774940406145484
+    ],
+    "sharper_i50_represented": [
+     "fail",
+     4.354162933136558
+    ],
+    "annulus_vs_i50_separation_over_sharper": 4.874861214909088
+   },
+   "result:stress:M1:quarter-1:axial-normal": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:quarter-1:bending-normal-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:quarter-1:bending-normal-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:quarter-1:torsional-shear": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 5.786642789664908e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5206982817725296
+    ],
+    "sharper_receipt_kt": [
+     "unproved",
+     1.1774940406145484
+    ],
+    "sharper_i50_represented": [
+     "fail",
+     4.354162933136558
+    ],
+    "annulus_vs_i50_separation_over_sharper": 4.874861214909088
+   },
+   "result:stress:M1:midspan:axial-normal": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:midspan:bending-normal-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:midspan:bending-normal-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:midspan:torsional-shear": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 5.786642789664908e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5206982817725296
+    ],
+    "sharper_receipt_kt": [
+     "unproved",
+     1.1774940406145484
+    ],
+    "sharper_i50_represented": [
+     "fail",
+     4.354162933136558
+    ],
+    "annulus_vs_i50_separation_over_sharper": 4.874861214909088
+   },
+   "result:stress:M1:quarter-3:axial-normal": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:quarter-3:bending-normal-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:quarter-3:bending-normal-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:quarter-3:torsional-shear": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 5.786642789664908e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5206982817725296
+    ],
+    "sharper_receipt_kt": [
+     "unproved",
+     1.1774940406145484
+    ],
+    "sharper_i50_represented": [
+     "fail",
+     4.354162933136558
+    ],
+    "annulus_vs_i50_separation_over_sharper": 4.874861214909088
+   },
+   "result:elastic-maximum:4:case:2:M1": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   }
+  },
+  "tally": {
+   "absolute_verified:pass": 69,
+   "relative_verified:pass": 25,
+   "info_sharper_exact_annulus:pass": 25,
+   "info_sharper_receipt_kt:pass": 20,
+   "info_sharper_i50_represented:pass": 18,
+   "input_derived:pass": 3,
+   "info_sharper_i50_represented:fail": 7,
+   "info_sharper_receipt_kt:unproved": 5
+  },
+  "oracle_overlap_all": true,
+  "sharper_misses_vs_i50_represented": {
+   "result:disp:N1:ry": 1.0526057518417484,
+   "result:disp:N1:rz": 1.0526057518417484,
+   "result:stress:M1:end-i:torsional-shear": 4.354162933136558,
+   "result:stress:M1:end-j:torsional-shear": 4.354162933136558,
+   "result:stress:M1:quarter-1:torsional-shear": 4.354162933136558,
+   "result:stress:M1:midspan:torsional-shear": 4.354162933136558,
+   "result:stress:M1:quarter-3:torsional-shear": 4.354162933136558
+  },
+  "J": {
+   "exact_annulus": [
+    5.401968567847651e-05,
+    5.401968567847651e-05
+   ],
+   "receipt_kt": [
+    5.40196856784765e-05,
+    5.401968567847651e-05
+   ],
+   "i50_represented": [
+    5.4019685678476534e-05,
+    5.4019685678476534e-05
+   ]
+  },
+  "J_ulps_i50_minus_exact": 4.3188144715019074,
+  "J_dependent_rows_relative_weight": {
+   "result:disp:N1:rx": 9.995356661047093e-05,
+   "result:disp:N1:ry": 0.40974791075816824,
+   "result:disp:N1:rz": 0.40974791075816824,
+   "result:stress:M1:end-i:torsional-shear": 1.0,
+   "result:stress:M1:end-j:torsional-shear": 1.0,
+   "result:stress:M1:quarter-1:torsional-shear": 1.0,
+   "result:stress:M1:midspan:torsional-shear": 1.0,
+   "result:stress:M1:quarter-3:torsional-shear": 1.0
+  }
+ },
+ "dense_scrutiny": {
+  "rows": {
+   "result:disp:N0": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:disp:N1": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 4.6067459340388454e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.4147239471996357
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.4147239471996357
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.4147239471996357
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:disp:N0:ux": {
+    "class": "input_derived",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:disp:N0:uy": {
+    "class": "input_derived",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:disp:N0:uz": {
+    "class": "input_derived",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:disp:N0:rx": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 6.776263578034404e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.6100536548198833
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.6100536548198833
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.6100536548198833
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:disp:N0:ry": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 8.095340928185631e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.2705022415279856
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.2705022415279856
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.2705022415279856
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:disp:N0:rz": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 8.095340928185631e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.2705022415279856
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.2705022415279856
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.2705022415279856
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:disp:N1:ux": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:disp:N1:uy": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 2.305345788497726e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.20749507759306018
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.20749507759306018
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.20749507759306018
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:disp:N1:uz": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 2.305345788497726e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.20749507759306018
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.20749507759306018
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.20749507759306018
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:disp:N1:rx": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 1.208340367012002e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.10878450707181757
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.10886426885416454
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.10927201181453239
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.00048750474271481
+   },
+   "result:disp:N1:ry": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 1.1839086045119652e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.053296483930017055
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.21679579243030325
+    ],
+    "sharper_i50_represented": [
+     "fail",
+     1.0526057518417484
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.9993092679117315
+   },
+   "result:disp:N1:rz": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 1.1839086045119652e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.053296483930017055
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.21679579243030325
+    ],
+    "sharper_i50_represented": [
+     "fail",
+     1.0526057518417484
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.9993092679117315
+   },
+   "result:support-action:4:case:8:rigid:N0:Fx": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:8:rigid:N0:Fy": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:8:rigid:N0:Fz": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:8:rigid:N0:Mx": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:8:rigid:N0:My": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:8:rigid:N0:Mz": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:8:rigid:N0:force_magnitude": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:8:rigid:N0:moment_magnitude": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:0:Fx": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:0:Fy": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:0:Fz": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:0:Mx": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 0.0,
+    "sharper_exact_annulus": [
+     "pass",
+     0.0
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.0
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.0
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:support-action:4:case:11:spring:N0:0:My": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:0:Mz": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:0:force_magnitude": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:0:moment_magnitude": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 0.0,
+    "sharper_exact_annulus": [
+     "pass",
+     0.0
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.0
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.0
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:support-action:4:case:11:spring:N0:1:Fx": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:1:Fy": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:1:Fz": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:1:Mx": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:1:My": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 0.0,
+    "sharper_exact_annulus": [
+     "pass",
+     0.0
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.0
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.0
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:support-action:4:case:11:spring:N0:1:Mz": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:1:force_magnitude": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:1:moment_magnitude": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 0.0,
+    "sharper_exact_annulus": [
+     "pass",
+     0.0
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.0
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.0
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:support-action:4:case:11:spring:N0:2:Fx": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:2:Fy": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:2:Fz": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:2:Mx": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:2:My": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:2:Mz": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 0.0,
+    "sharper_exact_annulus": [
+     "pass",
+     0.0
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.0
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.0
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:support-action:4:case:11:spring:N0:2:force_magnitude": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:support-action:4:case:11:spring:N0:2:moment_magnitude": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 0.0,
+    "sharper_exact_annulus": [
+     "pass",
+     0.0
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.0
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.0
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:force:M1:axial": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:axial:end-j": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:shear-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:shear-y:end-j": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:shear-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:shear-z:end-j": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:torsion": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 6.023345402697248e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.5422699418509208
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:moment:M1:torsion:end-j": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 6.023345402697248e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.5422699418509208
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:moment:M1:bending-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:bending-y:end-j": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:bending-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:bending-z:end-j": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:quarter-1:axial": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:quarter-1:shear-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:quarter-1:shear-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:quarter-1:torsion": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 6.023345402697248e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.5422699418509208
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:moment:M1:quarter-1:bending-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:quarter-1:bending-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:midspan:axial": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:midspan:shear-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:midspan:shear-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:midspan:torsion": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 6.023345402697248e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.5422699418509208
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:moment:M1:midspan:bending-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:midspan:bending-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:quarter-3:axial": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:quarter-3:shear-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:force:M1:quarter-3:shear-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:quarter-3:torsion": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 6.023345402697248e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_receipt_kt": [
+     "pass",
+     0.5422699418509208
+    ],
+    "sharper_i50_represented": [
+     "pass",
+     0.5422699418509208
+    ],
+    "annulus_vs_i50_separation_over_sharper": 0.0
+   },
+   "result:moment:M1:quarter-3:bending-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:moment:M1:quarter-3:bending-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:end-i:axial-normal": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:end-i:bending-normal-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:end-i:bending-normal-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:end-i:torsional-shear": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 5.786642789664908e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5206982817725296
+    ],
+    "sharper_receipt_kt": [
+     "unproved",
+     1.1774940406145484
+    ],
+    "sharper_i50_represented": [
+     "fail",
+     4.354162933136558
+    ],
+    "annulus_vs_i50_separation_over_sharper": 4.874861214909088
+   },
+   "result:stress:M1:end-j:axial-normal": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:end-j:bending-normal-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:end-j:bending-normal-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:end-j:torsional-shear": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 5.786642789664908e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5206982817725296
+    ],
+    "sharper_receipt_kt": [
+     "unproved",
+     1.1774940406145484
+    ],
+    "sharper_i50_represented": [
+     "fail",
+     4.354162933136558
+    ],
+    "annulus_vs_i50_separation_over_sharper": 4.874861214909088
+   },
+   "result:stress:M1:quarter-1:axial-normal": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:quarter-1:bending-normal-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:quarter-1:bending-normal-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:quarter-1:torsional-shear": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 5.786642789664908e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5206982817725296
+    ],
+    "sharper_receipt_kt": [
+     "unproved",
+     1.1774940406145484
+    ],
+    "sharper_i50_represented": [
+     "fail",
+     4.354162933136558
+    ],
+    "annulus_vs_i50_separation_over_sharper": 4.874861214909088
+   },
+   "result:stress:M1:midspan:axial-normal": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:midspan:bending-normal-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:midspan:bending-normal-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:midspan:torsional-shear": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 5.786642789664908e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5206982817725296
+    ],
+    "sharper_receipt_kt": [
+     "unproved",
+     1.1774940406145484
+    ],
+    "sharper_i50_represented": [
+     "fail",
+     4.354162933136558
+    ],
+    "annulus_vs_i50_separation_over_sharper": 4.874861214909088
+   },
+   "result:stress:M1:quarter-3:axial-normal": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:quarter-3:bending-normal-y": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:quarter-3:bending-normal-z": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   },
+   "result:stress:M1:quarter-3:torsional-shear": {
+    "class": "relative_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass",
+    "rel_error_upper": 5.786642789664908e-17,
+    "sharper_exact_annulus": [
+     "pass",
+     0.5206982817725296
+    ],
+    "sharper_receipt_kt": [
+     "unproved",
+     1.1774940406145484
+    ],
+    "sharper_i50_represented": [
+     "fail",
+     4.354162933136558
+    ],
+    "annulus_vs_i50_separation_over_sharper": 4.874861214909088
+   },
+   "result:elastic-maximum:4:case:2:M1": {
+    "class": "absolute_verified",
+    "oracle_source_annulus_overlaps": true,
+    "oracle_represented_overlaps": true,
+    "class_claim": "pass"
+   }
+  },
+  "tally": {
+   "absolute_verified:pass": 69,
+   "relative_verified:pass": 25,
+   "info_sharper_exact_annulus:pass": 25,
+   "info_sharper_receipt_kt:pass": 20,
+   "info_sharper_i50_represented:pass": 18,
+   "input_derived:pass": 3,
+   "info_sharper_i50_represented:fail": 7,
+   "info_sharper_receipt_kt:unproved": 5
+  },
+  "oracle_overlap_all": true,
+  "sharper_misses_vs_i50_represented": {
+   "result:disp:N1:ry": 1.0526057518417484,
+   "result:disp:N1:rz": 1.0526057518417484,
+   "result:stress:M1:end-i:torsional-shear": 4.354162933136558,
+   "result:stress:M1:end-j:torsional-shear": 4.354162933136558,
+   "result:stress:M1:quarter-1:torsional-shear": 4.354162933136558,
+   "result:stress:M1:midspan:torsional-shear": 4.354162933136558,
+   "result:stress:M1:quarter-3:torsional-shear": 4.354162933136558
+  },
+  "J": {
+   "exact_annulus": [
+    5.401968567847651e-05,
+    5.401968567847651e-05
+   ],
+   "receipt_kt": [
+    5.40196856784765e-05,
+    5.401968567847651e-05
+   ],
+   "i50_represented": [
+    5.4019685678476534e-05,
+    5.4019685678476534e-05
+   ]
+  },
+  "J_ulps_i50_minus_exact": 4.3188144715019074,
+  "J_dependent_rows_relative_weight": {
+   "result:disp:N1:rx": 9.995356661047093e-05,
+   "result:disp:N1:ry": 0.40974791075816824,
+   "result:disp:N1:rz": 0.40974791075816824,
+   "result:stress:M1:end-i:torsional-shear": 1.0,
+   "result:stress:M1:end-j:torsional-shear": 1.0,
+   "result:stress:M1:quarter-1:torsional-shear": 1.0,
+   "result:stress:M1:midspan:torsional-shear": 1.0,
+   "result:stress:M1:quarter-3:torsional-shear": 1.0
+  }
+ }
+}

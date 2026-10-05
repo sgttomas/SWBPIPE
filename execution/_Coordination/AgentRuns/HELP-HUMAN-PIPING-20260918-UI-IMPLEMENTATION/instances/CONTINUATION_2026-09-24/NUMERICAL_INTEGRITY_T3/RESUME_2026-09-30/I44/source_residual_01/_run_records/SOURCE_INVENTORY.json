@@ -1,0 +1,54 @@
+{
+  "source_head": "157a64b0b8bb4ad4b3170a7f9b249d218c17d529",
+  "baseline": "157a64b0b8bb4ad4b3170a7f9b249d218c17d529",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "sha256": "473948b1beba7721c231b304e72e841120efb71762b2d6216c70f5257c9380d3",
+      "baseline_sha256": "575d267a8b5dd9016af53836c0e33360ede3151fb327d033b3dd938d6b954941",
+      "kind": "modified"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs",
+      "sha256": "031457491dcb9c2ae939de8ed617e7b59d5006debd5ad485a0fc9f8fd49c6b01",
+      "baseline_sha256": "ab7544d78557b04a034754b1b88a4b214c0dd70c054856f1f0052514d3070679",
+      "kind": "modified"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+      "sha256": "06a2ff8f9ba429fbccb0515cc23515d7891dbc9c39d0db211ef3f679df1189f6",
+      "baseline_sha256": "6bdcc659913e6caa6687190b5f12a36d1e53e272a9880ee3c8cd12bddf300bba",
+      "kind": "modified"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+      "sha256": "764aa537c93990c4e825a81f9b00b2786ccfd2ccaf80a9cfaa7f7f49f7581695",
+      "baseline_sha256": null,
+      "kind": "new"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_tests.rs",
+      "sha256": "864b46c7a679b6d04b7b534bb1d07f382abab4a0696a476dba08cb70083c2b74",
+      "baseline_sha256": null,
+      "kind": "new"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_vectors.py",
+      "sha256": "5242da1e85cff9205d0171f12514d77b632483549bd3cfcfa1d6c0cfcc54ca8a",
+      "baseline_sha256": null,
+      "kind": "new"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_vectors.rs",
+      "sha256": "105619a35db12c73651d346cac1082b930202f0f13303f9bdf952d7dc7673cbc",
+      "baseline_sha256": null,
+      "kind": "new"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+      "sha256": "714e0b1fdec69701103851e751c7b14882b4cbeb9908f03227ee6b5acdafc46a",
+      "baseline_sha256": "f5af5e2f7267233d109889bd5ba25868de5c93f0bb8772c382db48cffbc54b67",
+      "kind": "modified"
+    }
+  ]
+}

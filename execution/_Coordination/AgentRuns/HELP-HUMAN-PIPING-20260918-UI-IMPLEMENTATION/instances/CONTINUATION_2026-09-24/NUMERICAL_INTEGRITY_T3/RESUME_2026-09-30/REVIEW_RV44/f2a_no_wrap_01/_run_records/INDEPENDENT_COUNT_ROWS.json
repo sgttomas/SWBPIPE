@@ -1,0 +1,1603 @@
+{
+  "H": [
+    {
+      "id": "RF-LARGE-CHAIN-n00010-AX",
+      "family": "CHAIN",
+      "count_fields": {
+        "F": 60,
+        "H": 534,
+        "E": 474,
+        "W": 11,
+        "Z": 1116,
+        "B": 1
+      },
+      "local_upper": 31708768
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00010-ROT",
+      "family": "CHAIN",
+      "count_fields": {
+        "F": 60,
+        "H": 534,
+        "E": 474,
+        "W": 11,
+        "Z": 1116,
+        "B": 1
+      },
+      "local_upper": 31708768
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-AX",
+      "family": "CHAIN",
+      "count_fields": {
+        "F": 600,
+        "H": 5664,
+        "E": 5064,
+        "W": 11,
+        "Z": 10836,
+        "B": 1
+      },
+      "local_upper": 321799468
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-ROT",
+      "family": "CHAIN",
+      "count_fields": {
+        "F": 600,
+        "H": 5664,
+        "E": 5064,
+        "W": 11,
+        "Z": 10836,
+        "B": 1
+      },
+      "local_upper": 321799468
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n01000-AX",
+      "family": "CHAIN",
+      "count_fields": {
+        "F": 6000,
+        "H": 56964,
+        "E": 50964,
+        "W": 11,
+        "Z": 108036,
+        "B": 1
+      },
+      "local_upper": 3222706468
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n01000-ROT",
+      "family": "CHAIN",
+      "count_fields": {
+        "F": 6000,
+        "H": 56964,
+        "E": 50964,
+        "W": 11,
+        "Z": 108036,
+        "B": 1
+      },
+      "local_upper": 3222706468
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-AX",
+      "family": "CHAIN",
+      "count_fields": {
+        "F": 60000,
+        "H": 569964,
+        "E": 509964,
+        "W": 11,
+        "Z": 1080036,
+        "B": 1
+      },
+      "local_upper": 32231776468
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-ROT",
+      "family": "CHAIN",
+      "count_fields": {
+        "F": 60000,
+        "H": 569964,
+        "E": 509964,
+        "W": 11,
+        "Z": 1080036,
+        "B": 1
+      },
+      "local_upper": 32231776468
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-AX",
+      "family": "TREE",
+      "count_fields": {
+        "F": 60,
+        "H": 534,
+        "E": 474,
+        "W": 17,
+        "Z": 1116,
+        "B": 1
+      },
+      "local_upper": 32118304
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-ROT",
+      "family": "TREE",
+      "count_fields": {
+        "F": 60,
+        "H": 534,
+        "E": 474,
+        "W": 17,
+        "Z": 1116,
+        "B": 1
+      },
+      "local_upper": 32118304
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-AX",
+      "family": "TREE",
+      "count_fields": {
+        "F": 600,
+        "H": 5664,
+        "E": 5064,
+        "W": 17,
+        "Z": 10836,
+        "B": 1
+      },
+      "local_upper": 326174764
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-ROT",
+      "family": "TREE",
+      "count_fields": {
+        "F": 600,
+        "H": 5664,
+        "E": 5064,
+        "W": 17,
+        "Z": 10836,
+        "B": 1
+      },
+      "local_upper": 326174764
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-AX",
+      "family": "TREE",
+      "count_fields": {
+        "F": 6000,
+        "H": 56964,
+        "E": 50964,
+        "W": 17,
+        "Z": 108036,
+        "B": 1
+      },
+      "local_upper": 3266739364
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-ROT",
+      "family": "TREE",
+      "count_fields": {
+        "F": 6000,
+        "H": 56964,
+        "E": 50964,
+        "W": 17,
+        "Z": 108036,
+        "B": 1
+      },
+      "local_upper": 3266739364
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-AX",
+      "family": "TREE",
+      "count_fields": {
+        "F": 60000,
+        "H": 569964,
+        "E": 509964,
+        "W": 17,
+        "Z": 1080036,
+        "B": 1
+      },
+      "local_upper": 32672385364
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-ROT",
+      "family": "TREE",
+      "count_fields": {
+        "F": 60000,
+        "H": 569964,
+        "E": 509964,
+        "W": 17,
+        "Z": 1080036,
+        "B": 1
+      },
+      "local_upper": 32672385364
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-AX",
+      "family": "CONT",
+      "count_fields": {
+        "F": 45,
+        "H": 297,
+        "E": 252,
+        "W": 8,
+        "Z": 1116,
+        "B": 1
+      },
+      "local_upper": 22160968
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-ROT",
+      "family": "CONT",
+      "count_fields": {
+        "F": 45,
+        "H": 297,
+        "E": 252,
+        "W": 8,
+        "Z": 1116,
+        "B": 1
+      },
+      "local_upper": 22160968
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-AX",
+      "family": "CONT",
+      "count_fields": {
+        "F": 450,
+        "H": 3132,
+        "E": 2682,
+        "W": 8,
+        "Z": 10836,
+        "B": 1
+      },
+      "local_upper": 222114328
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-ROT",
+      "family": "CONT",
+      "count_fields": {
+        "F": 450,
+        "H": 3132,
+        "E": 2682,
+        "W": 8,
+        "Z": 10836,
+        "B": 1
+      },
+      "local_upper": 222114328
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-AX",
+      "family": "CONT",
+      "count_fields": {
+        "F": 4500,
+        "H": 31482,
+        "E": 26982,
+        "W": 8,
+        "Z": 108036,
+        "B": 1
+      },
+      "local_upper": 2221647928
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-ROT",
+      "family": "CONT",
+      "count_fields": {
+        "F": 4500,
+        "H": 31482,
+        "E": 26982,
+        "W": 8,
+        "Z": 108036,
+        "B": 1
+      },
+      "local_upper": 2221647928
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-AX",
+      "family": "CONT",
+      "count_fields": {
+        "F": 45000,
+        "H": 314982,
+        "E": 269982,
+        "W": 8,
+        "Z": 1080036,
+        "B": 1
+      },
+      "local_upper": 22216983928
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-ROT",
+      "family": "CONT",
+      "count_fields": {
+        "F": 45000,
+        "H": 314982,
+        "E": 269982,
+        "W": 8,
+        "Z": 1080036,
+        "B": 1
+      },
+      "local_upper": 22216983928
+    },
+    {
+      "id": "DEC053:invented-cantilever-chain-8",
+      "family": "DEC053",
+      "count_fields": {
+        "F": 48,
+        "H": 420,
+        "E": 372,
+        "W": 11,
+        "Z": 900,
+        "B": 1
+      },
+      "local_upper": 25262308
+    },
+    {
+      "id": "DEC053:invented-cantilever-chain-24",
+      "family": "DEC053",
+      "count_fields": {
+        "F": 144,
+        "H": 1332,
+        "E": 1188,
+        "W": 11,
+        "Z": 2628,
+        "B": 1
+      },
+      "local_upper": 76833988
+    },
+    {
+      "id": "DEC053:invented-cantilever-chain-48",
+      "family": "DEC053",
+      "count_fields": {
+        "F": 288,
+        "H": 2700,
+        "E": 2412,
+        "W": 11,
+        "Z": 5220,
+        "B": 1
+      },
+      "local_upper": 154191508
+    },
+    {
+      "id": "DEC053:invented-grid-frame-4x3",
+      "family": "DEC053",
+      "count_fields": {
+        "F": 48,
+        "H": 636,
+        "E": 588,
+        "W": 17,
+        "Z": 1656,
+        "B": 1
+      },
+      "local_upper": 34177492
+    },
+    {
+      "id": "DEC053:invented-grid-frame-6x8",
+      "family": "DEC053",
+      "count_fields": {
+        "F": 252,
+        "H": 7758,
+        "E": 7506,
+        "W": 41,
+        "Z": 7632,
+        "B": 1
+      },
+      "local_upper": 316884688
+    },
+    {
+      "id": "DEC053:invented-grid-frame-7x8",
+      "family": "DEC053",
+      "count_fields": {
+        "F": 294,
+        "H": 9849,
+        "E": 9555,
+        "W": 47,
+        "Z": 9000,
+        "B": 1
+      },
+      "local_upper": 402105082
+    },
+    {
+      "id": "DEC053:invented-grid-frame-5x5",
+      "family": "DEC053",
+      "count_fields": {
+        "F": 120,
+        "H": 2760,
+        "E": 2640,
+        "W": 35,
+        "Z": 3780,
+        "B": 1
+      },
+      "local_upper": 121413052
+    },
+    {
+      "id": "DEC053:invented-cantilever-chain-32",
+      "family": "DEC053",
+      "count_fields": {
+        "F": 192,
+        "H": 1788,
+        "E": 1596,
+        "W": 11,
+        "Z": 3492,
+        "B": 1
+      },
+      "local_upper": 102619828
+    },
+    {
+      "id": "DEC053:invented-grid-frame-5x6",
+      "family": "DEC053",
+      "count_fields": {
+        "F": 150,
+        "H": 3765,
+        "E": 3615,
+        "W": 35,
+        "Z": 4608,
+        "B": 1
+      },
+      "local_upper": 160387474
+    }
+  ],
+  "VR": [
+    {
+      "id": "RF-CANCEL-F-G1e5-GnG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e5-GGn",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e5-nGG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e6-GnG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e6-GGn",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e6-nGG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e7-GnG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e7-GGn",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e7-nGG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-GnG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-GGn",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-nGG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-GnG-ORTHO",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-GnG-INPLANE",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-GnG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-GGn",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-nGG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-GnG-ORTHO",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-GnG-INPLANE",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e5-GnG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e5-GGn",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e5-nGG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e6-GnG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e6-GGn",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e6-nGG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e7-GnG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e7-GGn",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e7-nGG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-GnG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-GGn",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-nGG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-GnG-ORTHO",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-GnG-INPLANE",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-GnG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-GGn",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-nGG",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-GnG-ORTHO",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-GnG-INPLANE",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-04",
+      "H": 142,
+      "Z": 360,
+      "local_upper": 71967470
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-06",
+      "H": 142,
+      "Z": 360,
+      "local_upper": 71967470
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-08",
+      "H": 142,
+      "Z": 360,
+      "local_upper": 71967470
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-10",
+      "H": 142,
+      "Z": 360,
+      "local_upper": 71967470
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-12",
+      "H": 142,
+      "Z": 360,
+      "local_upper": 71967470
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-04",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-06",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-08",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-10",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-12",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-04",
+      "H": 541,
+      "Z": 1116,
+      "local_upper": 304131794
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-06",
+      "H": 541,
+      "Z": 1116,
+      "local_upper": 304131794
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-08",
+      "H": 541,
+      "Z": 1116,
+      "local_upper": 304131794
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-10",
+      "H": 541,
+      "Z": 1116,
+      "local_upper": 304131794
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-12",
+      "H": 541,
+      "Z": 1116,
+      "local_upper": 304131794
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-04",
+      "H": 142,
+      "Z": 360,
+      "local_upper": 71967470
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-06",
+      "H": 142,
+      "Z": 360,
+      "local_upper": 71967470
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-08",
+      "H": 142,
+      "Z": 360,
+      "local_upper": 71967470
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-10",
+      "H": 142,
+      "Z": 360,
+      "local_upper": 71967470
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-12",
+      "H": 142,
+      "Z": 360,
+      "local_upper": 71967470
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-04",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-06",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-08",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-10",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-12",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-04",
+      "H": 541,
+      "Z": 1116,
+      "local_upper": 304131794
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-06",
+      "H": 541,
+      "Z": 1116,
+      "local_upper": 304131794
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-08",
+      "H": 541,
+      "Z": 1116,
+      "local_upper": 304131794
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-10",
+      "H": 541,
+      "Z": 1116,
+      "local_upper": 304131794
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-12",
+      "H": 541,
+      "Z": 1116,
+      "local_upper": 304131794
+    },
+    {
+      "id": "RF-FINITE-THIRDS-O0",
+      "H": 534,
+      "Z": 1116,
+      "local_upper": 299714318
+    },
+    {
+      "id": "RF-FINITE-THIRDS-O1e3",
+      "H": 534,
+      "Z": 1116,
+      "local_upper": 299714318
+    },
+    {
+      "id": "RF-FINITE-THIRDS-O1e6",
+      "H": 534,
+      "Z": 1116,
+      "local_upper": 299714318
+    },
+    {
+      "id": "RF-FINITE-TENTHS-O1e6",
+      "H": 534,
+      "Z": 1116,
+      "local_upper": 299714318
+    },
+    {
+      "id": "RF-FINITE-THIRTIETHS-O1e6",
+      "H": 534,
+      "Z": 1116,
+      "local_upper": 299714318
+    },
+    {
+      "id": "RF-FINITE-ROT-Q9-NONMULT",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-BASE",
+      "H": 81,
+      "Z": 576,
+      "local_upper": 41782274
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-ROT-Q3",
+      "H": 81,
+      "Z": 576,
+      "local_upper": 41782274
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-ROT-Q9",
+      "H": 81,
+      "Z": 576,
+      "local_upper": 41782274
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-OFF-1e3",
+      "H": 81,
+      "Z": 576,
+      "local_upper": 41782274
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-OFF-1e6",
+      "H": 81,
+      "Z": 576,
+      "local_upper": 41782274
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-RELABEL",
+      "H": 81,
+      "Z": 576,
+      "local_upper": 41782274
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-UNITS-mm",
+      "H": 81,
+      "Z": 576,
+      "local_upper": 41782274
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-BASE",
+      "H": 102,
+      "Z": 252,
+      "local_upper": 51098318
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-ROT-Q3",
+      "H": 102,
+      "Z": 252,
+      "local_upper": 51098318
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-ROT-Q9",
+      "H": 102,
+      "Z": 252,
+      "local_upper": 51098318
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-OFF-1e3",
+      "H": 102,
+      "Z": 252,
+      "local_upper": 51098318
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-OFF-1e6",
+      "H": 102,
+      "Z": 252,
+      "local_upper": 51098318
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-RELABEL",
+      "H": 102,
+      "Z": 252,
+      "local_upper": 51098318
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-UNITS-mm",
+      "H": 102,
+      "Z": 252,
+      "local_upper": 51098318
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-BASE",
+      "H": 234,
+      "Z": 900,
+      "local_upper": 122830334
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-ROT-Q3",
+      "H": 234,
+      "Z": 900,
+      "local_upper": 122830334
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-ROT-Q9",
+      "H": 234,
+      "Z": 900,
+      "local_upper": 122830334
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-OFF-1e3",
+      "H": 234,
+      "Z": 900,
+      "local_upper": 122830334
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-OFF-1e6",
+      "H": 234,
+      "Z": 900,
+      "local_upper": 122830334
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-RELABEL",
+      "H": 234,
+      "Z": 900,
+      "local_upper": 122830334
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-UNITS-mm",
+      "H": 234,
+      "Z": 900,
+      "local_upper": 122830334
+    },
+    {
+      "id": "RF-INVARIANCE-TREE100-BASE",
+      "H": 5664,
+      "Z": 10836,
+      "local_upper": 7358724998
+    },
+    {
+      "id": "RF-INVARIANCE-TREE100-OFF-1e3",
+      "H": 5664,
+      "Z": 10836,
+      "local_upper": 7358724998
+    },
+    {
+      "id": "RF-INVARIANCE-TREE100-OFF-1e6",
+      "H": 5664,
+      "Z": 10836,
+      "local_upper": 7358724998
+    },
+    {
+      "id": "RF-INVARIANCE-TREE100-RELABEL",
+      "H": 5664,
+      "Z": 10836,
+      "local_upper": 7358724998
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00010-AX",
+      "H": 534,
+      "Z": 1116,
+      "local_upper": 299714318
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00010-ROT",
+      "H": 534,
+      "Z": 1116,
+      "local_upper": 299714318
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-AX",
+      "H": 534,
+      "Z": 1116,
+      "local_upper": 299714318
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-ROT",
+      "H": 534,
+      "Z": 1116,
+      "local_upper": 299714318
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-AX",
+      "H": 297,
+      "Z": 1116,
+      "local_upper": 158478434
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-ROT",
+      "H": 297,
+      "Z": 1116,
+      "local_upper": 158478434
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-AX",
+      "H": 5664,
+      "Z": 10836,
+      "local_upper": 7358724998
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-ROT",
+      "H": 5664,
+      "Z": 10836,
+      "local_upper": 7358724998
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-AX",
+      "H": 5664,
+      "Z": 10836,
+      "local_upper": 7358724998
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-ROT",
+      "H": 5664,
+      "Z": 10836,
+      "local_upper": 7358724998
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-AX",
+      "H": 3132,
+      "Z": 10836,
+      "local_upper": 2945722454
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-ROT",
+      "H": 3132,
+      "Z": 10836,
+      "local_upper": 2945722454
+    },
+    {
+      "id": "RF-MECH-LINE345-RX-COMPANION",
+      "H": 15,
+      "Z": 144,
+      "local_upper": 7784234
+    },
+    {
+      "id": "RF-RANGE-CHAIN-L-240",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-RANGE-CHAIN-L+240",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-RANGE-CHAIN-E-1000",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-RANGE-CHAIN-E+960",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-RANGE-CHAIN-F-960",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-RANGE-CHAIN-F+960",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-RANGE-CHAIN-LEF-small",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-RANGE-CHAIN-LEF-large",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-RANGE-CHAIN-SIM-a",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-RANGE-CHAIN-SIM-b",
+      "H": 256,
+      "Z": 576,
+      "local_upper": 133621574
+    },
+    {
+      "id": "RF-RANGE-SKEW-L-240",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-RANGE-SKEW-L+240",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-RANGE-SKEW-E-1000",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-RANGE-SKEW-E+960",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-RANGE-SKEW-F-960",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-RANGE-SKEW-F+960",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-RANGE-SKEW-LEF-small",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-RANGE-SKEW-LEF-large",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-RANGE-SKEW-SIM-a",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-RANGE-SKEW-SIM-b",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-RANGE-CONT-L-240",
+      "H": 297,
+      "Z": 1116,
+      "local_upper": 158478434
+    },
+    {
+      "id": "RF-RANGE-CONT-L+240",
+      "H": 297,
+      "Z": 1116,
+      "local_upper": 158478434
+    },
+    {
+      "id": "RF-RANGE-CONT-E-1000",
+      "H": 297,
+      "Z": 1116,
+      "local_upper": 158478434
+    },
+    {
+      "id": "RF-RANGE-CONT-E+960",
+      "H": 297,
+      "Z": 1116,
+      "local_upper": 158478434
+    },
+    {
+      "id": "RF-RANGE-CONT-F-960",
+      "H": 297,
+      "Z": 1116,
+      "local_upper": 158478434
+    },
+    {
+      "id": "RF-RANGE-CONT-F+960",
+      "H": 297,
+      "Z": 1116,
+      "local_upper": 158478434
+    },
+    {
+      "id": "RF-RANGE-CONT-LEF-small",
+      "H": 297,
+      "Z": 1116,
+      "local_upper": 158478434
+    },
+    {
+      "id": "RF-RANGE-CONT-LEF-large",
+      "H": 297,
+      "Z": 1116,
+      "local_upper": 158478434
+    },
+    {
+      "id": "RF-RANGE-CONT-SIM-a",
+      "H": 297,
+      "Z": 1116,
+      "local_upper": 158478434
+    },
+    {
+      "id": "RF-RANGE-CONT-SIM-b",
+      "H": 297,
+      "Z": 1116,
+      "local_upper": 158478434
+    },
+    {
+      "id": "RF-RANGE-THIN-A",
+      "H": 21,
+      "Z": 144,
+      "local_upper": 10672946
+    },
+    {
+      "id": "RF-RANGE-THIN-B",
+      "H": 21,
+      "Z": 144,
+      "local_upper": 10672946
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-04",
+      "H": 21,
+      "Z": 144,
+      "local_upper": 10672946
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-08",
+      "H": 21,
+      "Z": 144,
+      "local_upper": 10672946
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-12",
+      "H": 21,
+      "Z": 144,
+      "local_upper": 10672946
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-04",
+      "H": 21,
+      "Z": 144,
+      "local_upper": 10672946
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-08",
+      "H": 21,
+      "Z": 144,
+      "local_upper": 10672946
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-12",
+      "H": 21,
+      "Z": 144,
+      "local_upper": 10672946
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-04",
+      "H": 21,
+      "Z": 144,
+      "local_upper": 10672946
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-08",
+      "H": 21,
+      "Z": 144,
+      "local_upper": 10672946
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-12",
+      "H": 21,
+      "Z": 144,
+      "local_upper": 10672946
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-04",
+      "H": 21,
+      "Z": 144,
+      "local_upper": 10672946
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-08",
+      "H": 21,
+      "Z": 144,
+      "local_upper": 10672946
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-12",
+      "H": 21,
+      "Z": 144,
+      "local_upper": 10672946
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-04",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-08",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-12",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-04",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-08",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-12",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-04",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-08",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-12",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-04",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-08",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-12",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-04",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-08",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-12",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-04",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-08",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-12",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-04",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-08",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-12",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-04",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-08",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-12",
+      "H": 45,
+      "Z": 144,
+      "local_upper": 22331474
+    },
+    {
+      "id": "RF-WEAK-W-AX-rho1e-04",
+      "H": 192,
+      "Z": 576,
+      "local_upper": 99011654
+    },
+    {
+      "id": "RF-WEAK-W-AX-rho1e-08",
+      "H": 192,
+      "Z": 576,
+      "local_upper": 99011654
+    },
+    {
+      "id": "RF-WEAK-W-AX-rho1e-12",
+      "H": 192,
+      "Z": 576,
+      "local_upper": 99011654
+    },
+    {
+      "id": "RF-WEAK-W-L-r1e-04",
+      "H": 85,
+      "Z": 252,
+      "local_upper": 42543986
+    },
+    {
+      "id": "RF-WEAK-W-L-r1e-08",
+      "H": 85,
+      "Z": 252,
+      "local_upper": 42543986
+    },
+    {
+      "id": "RF-WEAK-W-L-r1e-12",
+      "H": 85,
+      "Z": 252,
+      "local_upper": 42543986
+    },
+    {
+      "id": "RF-WEAK-W-3D-rho1e-04",
+      "H": 192,
+      "Z": 576,
+      "local_upper": 99011654
+    },
+    {
+      "id": "RF-WEAK-W-3D-rho1e-08",
+      "H": 192,
+      "Z": 576,
+      "local_upper": 99011654
+    },
+    {
+      "id": "RF-WEAK-W-3D-rho1e-12",
+      "H": 192,
+      "Z": 576,
+      "local_upper": 99011654
+    },
+    {
+      "id": "RF-ZERO-SYM",
+      "H": 135,
+      "Z": 468,
+      "local_upper": 68767370
+    },
+    {
+      "id": "RF-ZERO-TORSION",
+      "H": 21,
+      "Z": 144,
+      "local_upper": 10672946
+    },
+    {
+      "id": "RF-ZERO-PLANAR",
+      "H": 78,
+      "Z": 252,
+      "local_upper": 39045806
+    },
+    {
+      "id": "RF-ZERO-TINY",
+      "H": 21,
+      "Z": 144,
+      "local_upper": 10672946
+    }
+  ],
+  "VR_missing": [
+    "RF-MECH-LINE122-TORQUE",
+    "RF-MECH-LINE122-PERP",
+    "RF-MECH-LINE122-UNLOADED",
+    "RF-MECH-LINE345-RZ",
+    "RF-MECH-K0",
+    "RF-MECH-DISC-CHAIN100",
+    "RF-MECH-DISC-CHAIN100-SPRING",
+    "RF-MECH-LINE-IN-CHAIN1000"
+  ]
+}

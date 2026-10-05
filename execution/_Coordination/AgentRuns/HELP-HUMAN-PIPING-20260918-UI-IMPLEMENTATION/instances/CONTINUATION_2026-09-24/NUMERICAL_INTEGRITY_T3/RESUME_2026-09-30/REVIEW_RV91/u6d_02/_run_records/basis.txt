@@ -1,0 +1,11 @@
+RV91 round 2 basis (placeholders: WT, REPO_ROOT; P = projects/chirality-piping)
+Candidate: 968adb44fe1bdffce3dfdc22fb9789e175779c2c on codex/piping-f2a-carriers-ts-20261004; parent 9555b6ffc2549a349a2e3f666de57b0114100e92 (9555b6ffc2)
+Fence (4 files, all U6d's):
+  projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
+  projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionStanding.ts
+  projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts
+  projects/chirality-piping/apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts
+Lanes: WT/rv91/cand2 = git archive 968adb44fe; WT/rv91/cand (round 1) = 9555b6ffc2, the comparison base; WT/rv91/mut2 = APFS clone of cand2 (mutants, committed tests only); WT/rv91/merge = carriers tip 924c6284cb + U6d's files at 968adb44fe (no overlap)
+Sweep inputs: the same fixed tree as round 1 (WT/rv91/cand/P; the repair round changes no fixture). Shared case file at 968adb44fe: sha256 952e39bf... (unchanged; no declared_differences section on 968adb44fe or the carriers tip 924c6284cb)
+Runtime: as round 1 (u6d_01/_run_records/runtime.txt): node_modules linked to REPO_ROOT's, WASM copied from WT/f2a-readers (same hashes), node v24.18.0, vitest 4.1.10, tsc 5.9.3; TMPDIR=WT/scratch/rv91_u6d/tmp; memory guard PID 5387 running; no install, build, Cargo, native, solver or DEC-025 job; Git reads only (GIT_OPTIONAL_LOCKS=0).
+NUM HEAD at report: 17fb078ee9 (records(T3): U6d repair round verified (968adb44fe); RV91 to confirm)

@@ -1,0 +1,9 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i39-frame-kernel/debug/deps/open_pipe_stress_frame_kernel-df02854d48d3f9db)
+
+running 2 tests
+test structural::retained::directed::tests::a_directed_result_is_never_on_the_wrong_side_and_exact_values_do_not_move ... ok
+test structural::retained::directed::tests::directed_operations_equal_the_fraction_oracle_in_both_directions ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 414 filtered out; finished in 0.07s
+

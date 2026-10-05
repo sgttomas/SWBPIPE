@@ -1,0 +1,25 @@
+{
+  "transport": "native collaboration messages from ROOT; source/design feedback, not independent acceptance",
+  "facts": [
+    {
+      "source": "RV71 via ROOT",
+      "fact": "pre-observer ordinary-active overlap at PP lib 2233/2296 and late source 4958; resolved explicitly in G-A/G-B"
+    },
+    {
+      "source": "RV71 via ROOT",
+      "fact": "canonical parent key vectors persist across child serialization; current full clone/parse/render path chosen as primary"
+    },
+    {
+      "source": "RV71 via ROOT",
+      "fact": "serde_json 1.0.151 json! macros 278\u2013280 borrows via to_value; all six original derivative arrays remain live. Dependency macro bytes not independently read here; actual derivative and locked version independently read."
+    },
+    {
+      "source": "RV71 via ROOT",
+      "fact": "single C3 adapter snapshot and native/shared-wrapper barrier; explicit corrected proposal supplied"
+    },
+    {
+      "source": "ROOT",
+      "fact": "scope limited by 0fa18256fa to first generic eligible captured ordinary single-case publication; native source investigation concluded"
+    }
+  ]
+}

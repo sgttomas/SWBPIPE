@@ -1,0 +1,4 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.20s
+     Running unittests src/lib.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/i41-target/frame_kernel/debug/deps/open_pipe_stress_frame_kernel-df02854d48d3f9db)
+error: test failed, to rerun pass `--lib`

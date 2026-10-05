@@ -1,0 +1,77 @@
+[
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/MEASUREMENTS/W1_T1/_run_records/records.tar.gz",
+    "sha256": "e6581461260d146158904412f58c6990af176be988e7062110c51c665cf31f42",
+    "bytes": 279967
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/MEASUREMENTS/W1_T2/_run_records/delta_records.tar.gz",
+    "sha256": "3d4bbe3c50af6b6c7d179b2caea9ab2841cb6c0d3d47aca18d816299fe8dfdd6",
+    "bytes": 277383
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/MEASUREMENTS/W1_T3/_run_records/delta_records.tar.gz",
+    "sha256": "18cdeb3be2c17f6922ae1e4b89c89f2edb382aa1b841032491a4894c81747199",
+    "bytes": 1457460
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/MEASUREMENTS/W1_T4/_run_records/delta_records.tar.gz",
+    "sha256": "97e0fa638b6e2c997f6c3d2ca7f907935daf030348230d8d0c0dd13f043f5720",
+    "bytes": 10068248
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_cancel.json",
+    "sha256": "6d6216fa75dadf38dec1bd5bed2668056b06d7dfaf6c98387dc083673b553ab2",
+    "bytes": 163663
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_chain.json",
+    "sha256": "8feb6901d48639b184d5d93a9814ea27d8b97ae862ea2293f90ed962288e2572",
+    "bytes": 129674
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_finite.json",
+    "sha256": "b09de0e89254035fef5f1b2670be57f3da34e2e6352ff389b72d126388cd9ba9",
+    "bytes": 26044
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_invariance.json",
+    "sha256": "bc7fa0dda49b5b3c5d6d39b180a593941304d7f93e2d5fce0e98ee2a6086a8a1",
+    "bytes": 108599
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+    "sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+    "bytes": 52417
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+    "sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+    "bytes": 8538
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+    "sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+    "bytes": 145883
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_skew.json",
+    "sha256": "dfcc0eb54a0347268b018d02f3aa1596bb8de05fd46881cea6286a22e142c0fe",
+    "bytes": 155293
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_weak.json",
+    "sha256": "6001e4248410dc926b12ee2ab4e3504cfd43970412638bd7681090e11b67c88f",
+    "bytes": 38838
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_zero.json",
+    "sha256": "8599b0e051c22bf3a102b49b52d43074e5386801a23774590d1f1007b9f8fd93",
+    "bytes": 17186
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV34/t4_measurements_07/_run_records/ADMISSIONS_AND_RSS_MISSES.json",
+    "sha256": "ab746e4b37aaa8974092c7d2bc2df6d6636b25ef64d2e79a34a0bb9926aba25c",
+    "bytes": 27850
+  }
+]

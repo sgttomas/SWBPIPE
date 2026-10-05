@@ -1,0 +1,24 @@
+g2u_abandoned_dense_scrutiny.json: error=abandoned code/phase=('facade_certificate', 'facade') D4d-expected=('facade_certificate', 'facade') MATCH; schema_violations=0; python_first=G3 RETAINED_PRECISION_COVERAGE_MISMATCH
+    run_ref=0 run.id=0 terminal=selected
+    unavailable_diag=1 ref_ok=True legacy_kept=1 legacy_source={'diagnostic_ref': 'diagnostic:source-recovery:case', 'disposition': 'unavailable', 'work_ref': 0} method_tokens=0
+g2u_abandoned_sparse_interactive.json: error=abandoned code/phase=('facade_certificate', 'facade') D4d-expected=('facade_certificate', 'facade') MATCH; schema_violations=0; python_first=G3 RETAINED_PRECISION_COVERAGE_MISMATCH
+    run_ref=0 run.id=0 terminal=selected
+    unavailable_diag=1 ref_ok=True legacy_kept=1 legacy_source={'diagnostic_ref': 'diagnostic:source-recovery:case', 'disposition': 'unavailable', 'work_ref': 0} method_tokens=0
+g2u_d38_dense_scrutiny.json: error=capture code/phase=('source_unavailable', 'preparation') D4d-expected=('source_unavailable', 'preparation') MATCH; schema_violations=0; python_first=G3 RETAINED_PRECISION_COVERAGE_MISMATCH
+    D38-shape True
+    unavailable_diag=1 ref_ok=True legacy_kept=1 legacy_source={'diagnostic_ref': 'diagnostic:source-recovery:case', 'disposition': 'unavailable', 'work_ref': 0} method_tokens=0
+g2u_d38_sparse_interactive.json: error=capture code/phase=('source_unavailable', 'preparation') D4d-expected=('source_unavailable', 'preparation') MATCH; schema_violations=0; python_first=G3 RETAINED_PRECISION_COVERAGE_MISMATCH
+    D38-shape True
+    unavailable_diag=1 ref_ok=True legacy_kept=1 legacy_source={'diagnostic_ref': 'diagnostic:source-recovery:case', 'disposition': 'unavailable', 'work_ref': 0} method_tokens=0
+g2u_preparation_dense_scrutiny.json: error=preparation code/phase=('source_unavailable', 'preparation') D4d-expected=('source_unavailable', 'preparation') MATCH; schema_violations=0; python_first=G3 RETAINED_PRECISION_COVERAGE_MISMATCH
+    D38-shape True
+    unavailable_diag=1 ref_ok=True legacy_kept=1 legacy_source={'diagnostic_ref': 'diagnostic:source-recovery:case', 'disposition': 'unavailable', 'work_ref': 0} method_tokens=0
+g2u_preparation_sparse_interactive.json: error=preparation code/phase=('source_unavailable', 'preparation') D4d-expected=('source_unavailable', 'preparation') MATCH; schema_violations=0; python_first=G3 RETAINED_PRECISION_COVERAGE_MISMATCH
+    D38-shape True
+    unavailable_diag=1 ref_ok=True legacy_kept=1 legacy_source={'diagnostic_ref': 'diagnostic:source-recovery:case', 'disposition': 'unavailable', 'work_ref': 0} method_tokens=0
+g2u_values_dense_scrutiny.json: error=values code/phase=('facade_certificate', 'facade') D4d-expected=('facade_certificate', 'facade') MATCH; schema_violations=0; python_first=G3 RETAINED_PRECISION_COVERAGE_MISMATCH
+    run_ref=0 run.id=0 terminal=selected
+    unavailable_diag=1 ref_ok=True legacy_kept=1 legacy_source={'diagnostic_ref': 'diagnostic:source-recovery:case', 'disposition': 'unavailable', 'work_ref': 0} method_tokens=0
+g2u_values_sparse_interactive.json: error=values code/phase=('facade_certificate', 'facade') D4d-expected=('facade_certificate', 'facade') MATCH; schema_violations=0; python_first=G3 RETAINED_PRECISION_COVERAGE_MISMATCH
+    run_ref=0 run.id=0 terminal=selected
+    unavailable_diag=1 ref_ok=True legacy_kept=1 legacy_source={'diagnostic_ref': 'diagnostic:source-recovery:case', 'disposition': 'unavailable', 'work_ref': 0} method_tokens=0

@@ -1,0 +1,39 @@
+{
+  "candidate": "60375c47472dac26b1ab77536b8e7b9fb0c44ab0",
+  "base": "8a6ed501655fe64eb637a0e717d30bf765051749",
+  "source_read": "ROOT read full numerical component, B64U diff, tests, oracle and return; single exact c-square correspondence corrected before final source",
+  "scope_status": "PASS",
+  "source_hashes": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs": "404e6a7ad192d4ca946028d876ba21e52c773e70c21df8008dcf29165c59eb76",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs": "ab7544d78557b04a034754b1b88a4b214c0dd70c054856f1f0052514d3070679",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs": "b5ab75205cf85627bdffc7f017f0b0985070d64926bd7f2063b093a9cf3b034d",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs": "7d473352d032bcfa3fade1bdb1b8cb84107c21ca6870dd9ceee36debdfc0ac3e",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_vectors.rs": "8cbe5d32ea21a3ced7d5dc5cf9ccde256d01a6d546e94406a43a5d46b3a39a37",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_vectors.py": "88fc0765939e9dff16041c6221dac068fa7a6ea0f60b1f5bdd29498e229323b7"
+  },
+  "packet_files": 39,
+  "final_checks": [
+    {
+      "record": "debug_02",
+      "exit": 0,
+      "results": [
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 416 filtered out; finished in 0.02s"
+      ]
+    },
+    {
+      "record": "optimized",
+      "exit": 0,
+      "results": [
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 416 filtered out; finished in 0.00s"
+      ]
+    },
+    {
+      "record": "compatibility",
+      "exit": 0,
+      "results": [
+        "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 415 filtered out; finished in 0.09s"
+      ]
+    }
+  ],
+  "limits": "Fresh RV55 required; no source provenance/profile/receipt/product acceptance"
+}

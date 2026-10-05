@@ -1,0 +1,24 @@
+{
+ "D_env": 9361,
+ "s(&Value)": 8,
+ "F5_terms": {
+  "s(&Value)": 25745
+ },
+ "F5_requested_bytes": 205960,
+ "F5_moving_bytes_last_growth": 65536,
+ "T17_stages_in_build": {
+  "T17_V1": 321428243,
+  "T17_V2_clone": 172256082,
+  "T17_V2_hash": 1148998726,
+  "T17_V3": 32598012,
+  "T17_V4": 17172765,
+  "T17_V5": 180109775,
+  "T17_V6": 200409127
+ },
+ "T17_argmax": "T17_V2_hash",
+ "V4_plus_F5": 17378725,
+ "headroom_to_argmax": 1131620001,
+ "T17_changes": false,
+ "moving_max_in_W4": 189303281,
+ "moving_changes": false
+}

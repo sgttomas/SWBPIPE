@@ -1,0 +1,82 @@
+{
+  "utc": "2026-10-03T16:25:53.838233+00:00",
+  "status": "source frozen after final required author checks; independent review pending",
+  "baseline": "24af17c47011608d187811024b51807395e4e526",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "bytes": 991084,
+      "sha256": "4fff1a331c754f666a0ddff2438418e02c90f19ec21d1a234cb65ed55985f594",
+      "baseline_sha256": "d2f0f2dc73a717412cf5a37f3df8bcb808703466378ecf56052866b073b35f61"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "bytes": 169832,
+      "sha256": "7b1241f31242fdf07a6e3aa8f47b65dea8c5f11014ff3bf1cc1de3def1a8f58d",
+      "baseline_sha256": "e9949ff88fef71a32cf07d552cf2b065d445d85cbb7bee9e53f8678562d6d982"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+      "bytes": 135525,
+      "sha256": "3a698b70228e13184378e9bc03e8f33a841669e86daf8a8744434fb0af258866",
+      "baseline_sha256": "fcd864d63539a3415f616d4a298bd98ccbcfc72a2d16ec75816c3c99ce0d2078"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_receipt.rs",
+      "bytes": 9444,
+      "sha256": "84810876aaae59e168165227bccf7f8ecaed233ac8be3981d4663d9fc9b8eace",
+      "baseline_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "bytes": 118924,
+      "sha256": "d850b06a5d3d0ed67d2f261308ddaaf7855ba278c759ef4a314ae9b67726ce5a",
+      "baseline_sha256": "731f5517fedeaf1ef1a1c490449b244865f74513be341002629e13aa99b007b0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs",
+      "bytes": 27882,
+      "sha256": "c4bde5de1961f736c4b422d835ecc4bdecca847234337f7d6650410e1fbc991c",
+      "baseline_sha256": "1a56dc4fc4f1c5a5dc50da09bc3aad784aa5203424c2321cbc2a793c8d699b5e"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+      "bytes": 28937,
+      "sha256": "64e09224aacdc328440e9b1c9d602d894c9072873ae3ca8b0bffda6c484823ef",
+      "baseline_sha256": "65355259ae404a6c2552d3eddb717b7271463eb27c9d604396eba78795de3bdf"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+      "bytes": 77194,
+      "sha256": "3bc84bf1138b227f759049d2f255a97e257978ff2cd1bbd95b22613515015634",
+      "baseline_sha256": "053fabc7a94e6ee0a0e4e8780985aee7654e0f7ced7944d7512f59ed6ef86083"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+      "bytes": 44298,
+      "sha256": "3f66c03f568418c5a73b9eca6a43a1c494daf6f86a565f52f74709152852d2ae",
+      "baseline_sha256": "524e2b0a954852309847e2d8eec4ec370633937e3f73a6f13b58b9dbe679d5c1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs",
+      "bytes": 19578,
+      "sha256": "94ff617d7055c767ffe8ab9712aeb345b83d499d432a0547c9cf19241159782c",
+      "baseline_sha256": "51ae661629510b64b2b6013d79025c233818ee75b33176546fb1bff2e8e77468"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs",
+      "bytes": 26499,
+      "sha256": "c5895e36165e9571917782c0070625b7b3908b32124b3b67a497638f5a0239a6",
+      "baseline_sha256": "6be7679d813a6ab2323ca0204e64f197da049f5deda9067b1597d4f03fa51bed"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+      "bytes": 40683,
+      "sha256": "2ee1079dd7ad1fc4cb87cf19214c03664188a4c8d532f8570a129311adcecc28",
+      "baseline_sha256": "65ec3071eddd539faa5a39499beba11e98a226f20ccdc3c8a24f7b1c2f4cc723"
+    }
+  ],
+  "patch": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/candidate.patch",
+  "patch_sha256": "d607c0f89b7b924ca6de65a1856e189b2c583eff833836bce456131c6ec2d8f5",
+  "runtime_lane_released": true
+}

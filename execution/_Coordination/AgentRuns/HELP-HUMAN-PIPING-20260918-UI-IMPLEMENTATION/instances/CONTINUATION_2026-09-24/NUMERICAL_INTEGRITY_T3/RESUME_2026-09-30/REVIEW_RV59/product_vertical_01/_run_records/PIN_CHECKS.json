@@ -1,0 +1,47 @@
+{
+  "subject_pin": "24f24e98ba8bb7f0de2483a07716ff4b45a92630",
+  "packet_payloads": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I45/product_vertical_01/CHECKPOINT.md",
+      "sha256": "39283583a4aa8a89c7399735655245a2f34116e39fb363bd51565992ba2849c8",
+      "pinned_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I45/product_vertical_01/CUTOFF.md",
+      "sha256": "f91c20f949e09fb24329959b8ab7e20adbb4789855e21203da75210dd8d2cfd7",
+      "pinned_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I45/product_vertical_01/RECEIPT.md",
+      "sha256": "89b3b2c24cf5041bd0f42ca5618412c8a5ca9e38130d4dd152a07cda13a9945f",
+      "pinned_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I45/product_vertical_01/RETURN.md",
+      "sha256": "c0d42f241da1d99db1c1819645e3bb0e84d3086a1f739b1553e09cd4672c6d35",
+      "pinned_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I45/product_vertical_01/_run_records/CHECKS.json",
+      "sha256": "41f5df995e3298d5a07fffc0d88ca97a8930dd393a9f47bfbc3111b669b391a2",
+      "pinned_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I45/product_vertical_01/_run_records/EXECUTION.json",
+      "sha256": "a90d493c63de923c74c96915b7fe0a7ef1a0709eb482952526b533e2359e367e",
+      "pinned_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I45/product_vertical_01/_run_records/ORIGINS.json",
+      "sha256": "74ef3ded470ac4832dd5c384a8d1e23fcca5eb8247b0438af0dcc010d7f9ed40",
+      "pinned_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I45/product_vertical_01/_run_records/READ_SCOPES.json",
+      "sha256": "28b8047709304952a8d161ada218cbeda65a6f9dfb9852f17f51af761d86e305",
+      "pinned_equal": true
+    }
+  ],
+  "seal_sha256": "4737491ba2b0b5743e85ce2f86d7644f6701c2aa8c4d3807096e963df560bb4d",
+  "checked_utc": "2026-10-03T02:15:58.403204+00:00"
+}

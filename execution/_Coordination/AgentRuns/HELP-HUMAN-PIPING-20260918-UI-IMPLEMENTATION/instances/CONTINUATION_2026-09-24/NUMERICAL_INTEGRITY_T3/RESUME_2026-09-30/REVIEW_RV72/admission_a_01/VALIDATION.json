@@ -1,0 +1,99 @@
+{
+  "independent_commands": [
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv72_admission_a/cargo_01.json",
+      "record_sha256": "a58cf5b1fdb96297ea1b6c00dec275c31b49f6e7480815b17b1bdcc96c712d02",
+      "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv72_admission_a/cargo_01.log",
+      "log_sha256": "e3b506690092055124e789e3098eedc375f04391990d279ad69ede241e57e8c0",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--test",
+        "retained_precision_admission",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T15:15:57.784487+00:00",
+      "finish": "2026-10-03T15:15:58.588966+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_stable": true,
+      "summary": [
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv72_admission_a/cargo_02.json",
+      "record_sha256": "ae2827f52d37eaea5822eb88ce2a10ee71949fb8310a3c812901d424e58df964",
+      "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv72_admission_a/cargo_02.log",
+      "log_sha256": "26ce450484dc82bc765dff6fb09dfab2ff008ee13d56ca75b0b3ced716442329",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "retained_memory::tests",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T15:16:12.710803+00:00",
+      "finish": "2026-10-03T15:16:12.913884+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_stable": true,
+      "summary": [
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 442 filtered out; finished in 0.05s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv72_admission_a/cargo_03.json",
+      "record_sha256": "d3fba83abd3f0e55913bf8ec607ec4e5eb546fffaccbc55a9fd403e804d19610",
+      "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv72_admission_a/cargo_03.log",
+      "log_sha256": "19b61580ad7609eab2ff5088d7a3cb87d2e39cff843c9cdfdcf5ab3492e2b81c",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/runner/headless/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--test",
+        "retained_precision_admission",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T15:16:26.140301+00:00",
+      "finish": "2026-10-03T15:16:26.460110+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_stable": true,
+      "summary": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s"
+      ]
+    }
+  ],
+  "runtime_commands_used": 3,
+  "runtime_commands_limit": 3,
+  "ordinary_dispatch_control": "Counter is at the actual PP dispatch boundary under cfg(test); both modes assert exactly one dispatch. Existing internal load-state fallback remains unchanged and is not recast as one kernel solve.",
+  "author_private_regression": {
+    "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_05.json",
+    "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_05.log",
+    "log_sha256": "2d9f7d6af613860027784e9388510f93828bc47a0cce8aa7ed5435890af58110",
+    "summary": [
+      "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 419 filtered out; finished in 13.13s"
+    ],
+    "independently_rerun": false
+  },
+  "limits": [
+    "No broad sweep, new model/scale, native UI or product qualification execution.",
+    "No profile invalidation lifecycle exists: stale-state control proves current unconditional refusal only.",
+    "Zero-allocation control covers borrowed value/request census on the calling test thread, not ordinary capture/parsing/solve or complete entry allocation."
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "actor": "ROOT /root",
+  "utc": "2026-10-03T10:53:15.073071+00:00",
+  "boundary_sha256": "43c70d2194805f6d89a879c8586efb3b140211245c04ce0b469ed76a6d7ee035",
+  "patch": {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/c0_applied_01/SOURCE.patch",
+    "bytes": 32998,
+    "sha256": "800a8d463960a5f39c544ed098c79986d1dc4e863d27f787603036babdd9dc65"
+  },
+  "all_five_evidence_hashes_verified": true,
+  "root_read": [
+    "complete C0_APPLIED_RETURN.md",
+    "complete C0_HELPER_LAYOUT.md",
+    "complete three-file SOURCE.patch including all isolated controls",
+    "C0 measurement/command JSON and raw isolated test results"
+  ],
+  "scope": "frozen C0 boundary for same-reviewer backcheck; solver/product hold remains; no final source or public acceptance"
+}

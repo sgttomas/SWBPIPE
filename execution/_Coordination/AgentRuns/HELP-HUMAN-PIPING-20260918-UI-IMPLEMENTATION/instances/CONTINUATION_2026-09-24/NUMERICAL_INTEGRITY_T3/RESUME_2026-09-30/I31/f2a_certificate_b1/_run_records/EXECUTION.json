@@ -1,0 +1,79 @@
+{
+  "status": "revisable finite derivation returned for fresh independent review; not implementation or acceptance",
+  "agent": "/root/i31_f2a_certificate_b1",
+  "parent": "/root",
+  "role": "TASK Type 2",
+  "parent_role": "HELP_HUMAN Agent 0",
+  "delegation": {
+    "mechanism": "Codex native collaboration child",
+    "direct_child": true,
+    "child_delegation": false,
+    "model": "inherited host setting; no model/toolchain probe"
+  },
+  "receipt_utc": "2026-10-02 19:49:05 UTC",
+  "new_analysis_cutoff_utc": "2026-10-02 20:39:05 UTC",
+  "return_deadline_utc": "2026-10-02 20:49:05 UTC",
+  "host_permissions": "Parent describes shared M5, unrestricted host; actual session danger-full-access/approval never. Write scope is instructional, not a filesystem sandbox.",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_certificate_b1",
+  "basis": [
+    "main49034a940f3f8cd3f3da4d4cbc839943b808063d",
+    "NUM6a964324bcdb33cccc722ce00f6d8f4be390d592",
+    "brief originally NUM2fab387d per parent; actual current brief bytes hashed in ORIGINS.json"
+  ],
+  "instructions": "Root AGENTS and full TASK loaded from initial 92ea workspace; hashes checked equal NUM counterparts. NUM project AGENTS and exact B1 brief loaded. No other role/workflow/skill body activated.",
+  "scope": "Identity/unit, axial N/A, bending M/Z, torsion T*radius/J; source-truth and finite arithmetic/resource interface. No SIF/hypot/span proof.",
+  "authorized_operations": [
+    "read-only source and authority inspection",
+    "read-only Git source-pin comparison",
+    "finite Python standard-library exact design arithmetic",
+    "owned packet file creation"
+  ],
+  "not_performed": [
+    "delegation",
+    "Git/index/API writes",
+    "maintained edits",
+    "compiler",
+    "solver/model/product runtime",
+    "host tooling development",
+    "implementation",
+    "acceptance"
+  ],
+  "git_note": "Initial read-only rev-parse used core.preloadIndex=false without GIT_OPTIONAL_LOCKS prefix; later rev-parse and every git-show comparison used GIT_OPTIONAL_LOCKS=0. No index operation or Git write was requested.",
+  "source_check": {
+    "method": "SHA256 of actual files; read-only git show of each of 16 inspected maintained paths at main pin compared byte-for-byte",
+    "all_equal": true
+  },
+  "arithmetic": {
+    "command": "python3 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_certificate_b1/_run_records/exact_checks.py > projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_certificate_b1/_run_records/arithmetic.json",
+    "final_exit_code": 0,
+    "scope": "integer/Fraction exact design witnesses independent of product code; no solver reach or availability claim",
+    "control_groups": 17,
+    "result": "all assertions passed"
+  },
+  "failed_or_corrected_operations": [
+    {
+      "operation": "source discovery read",
+      "detail": "sed core/solver/stress_recovery/src/lib.rs failed: path absent. Corrected to core/loads/stress_recovery/src/lib.rs; no data was inferred from failed path."
+    },
+    {
+      "operation": "initial exact arithmetic",
+      "exit_code": 1,
+      "raw_terminal_tail": "  File \"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_certificate_b1/_run_records/exact_checks.py\", line 227, in <module>\n    assert set(directions)=={\"exact_larger\",\"f64_larger\"}\nAssertionError",
+      "recovery": "Initial vector loop: for b in range(0x3ff0000000000000,0x3ff0000000000100). Replaced by final deterministic 1024-point mantissa-spread loop; no predicate or arithmetic change. This reconstructs the initial run from final source."
+    },
+    {
+      "operation": "documentation tool orchestration",
+      "detail": "A functions JavaScript template failed with ReferenceError: root is not defined before any apply_patch call. Retried with correctly delimited source; no partial document was created by the failed call."
+    }
+  ],
+  "open_cells": [
+    "T-Z intended stress modulus versus operational rounded Z field",
+    "T-G intended torsional radius/J geometry warrant",
+    "T-A when a row promises area other than exact admitted K area",
+    "actual PP source/case/basis/row bijections and immutable verdict implementation",
+    "arithmetic schedule/scratch/type/caller M1 composition and new-cost admission",
+    "fresh independent math/source review"
+  ],
+  "return_contract": "ROOT has commissioned RV42 independently; no reviewer work is claimed here. B2 dependencies only enumerated.",
+  "completed_utc": "2026-10-02 20:04:40 UTC"
+}

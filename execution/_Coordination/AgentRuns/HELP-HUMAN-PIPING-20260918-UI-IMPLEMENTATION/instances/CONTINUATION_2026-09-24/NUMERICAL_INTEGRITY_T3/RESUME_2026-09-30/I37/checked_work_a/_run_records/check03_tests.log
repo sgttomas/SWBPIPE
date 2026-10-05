@@ -1,0 +1,108 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel)
+error[E0369]: binary operation `<=` cannot be applied to type `Result<i8, wide_sum::SumRefusal>`
+   --> src/structural/retained/../../../tests/retained_k4/models.rs:429:21
+    |
+429 |     if num.signum() <= 0 {
+    |        ------------ ^^ - {integer}
+    |        |
+    |        Result<i8, wide_sum::SumRefusal>
+    |
+note: `Result<i8, wide_sum::SumRefusal>` does not implement `PartialOrd<{integer}>`
+   --> /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/result.rs:557:0
+    |
+    = note: `Result<i8, wide_sum::SumRefusal>` is defined in another crate
+
+error[E0369]: binary operation `<=` cannot be applied to type `Result<i8, wide_sum::SumRefusal>`
+   --> src/structural/retained/../../../tests/retained_k4/models.rs:453:24
+    |
+453 |             s.signum() <= 0
+    |             ---------- ^^ - {integer}
+    |             |
+    |             Result<i8, wide_sum::SumRefusal>
+    |
+note: `Result<i8, wide_sum::SumRefusal>` does not implement `PartialOrd<{integer}>`
+   --> /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/result.rs:557:0
+    |
+    = note: `Result<i8, wide_sum::SumRefusal>` is defined in another crate
+
+error[E0369]: binary operation `>=` cannot be applied to type `Result<i8, wide_sum::SumRefusal>`
+   --> src/structural/retained/../../../tests/retained_k4/models.rs:461:24
+    |
+461 |             s.signum() >= 0
+    |             ---------- ^^ - {integer}
+    |             |
+    |             Result<i8, wide_sum::SumRefusal>
+    |
+note: `Result<i8, wide_sum::SumRefusal>` does not implement `PartialOrd<{integer}>`
+   --> /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/result.rs:557:0
+    |
+    = note: `Result<i8, wide_sum::SumRefusal>` is defined in another crate
+
+error[E0599]: no method named `unwrap` found for type `bool` in the current scope
+   --> src/structural/retained/../../../tests/retained_k4/method_tests.rs:884:22
+    |
+884 |     if num.is_zero().unwrap() {
+    |                      ^^^^^^ method not found in `bool`
+
+error[E0599]: no method named `unwrap` found for type `bool` in the current scope
+   --> src/structural/retained/../../../tests/retained_k4/method_tests.rs:887:22
+    |
+887 |     if den.is_zero().unwrap() {
+    |                      ^^^^^^ method not found in `bool`
+
+error[E0063]: missing field `invocation_increment` in initializer of `adaptive::CaseBudget`
+   --> src/structural/retained/../../../tests/retained_k4/publication_tests.rs:816:22
+    |
+816 |     let mut budget = CaseBudget {
+    |                      ^^^^^^^^^^ missing `invocation_increment`
+
+error[E0308]: mismatched types
+    --> src/structural/retained/../../../tests/retained_k4/publication_tests.rs:1027:9
+     |
+1027 |     let CaseOutcome::Selected(mut solve) = out else {
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   --- this expression has type `ExecutionOutcome`
+     |         |
+     |         expected `ExecutionOutcome`, found `CaseOutcome`
+
+error[E0063]: missing field `invocation_increment` in initializer of `adaptive::CaseBudget`
+    --> src/structural/retained/../../../tests/retained_k4/publication_tests.rs:1444:30
+     |
+1444 |             let mut budget = CaseBudget {
+     |                              ^^^^^^^^^^ missing `invocation_increment`
+
+error[E0308]: mismatched types
+    --> src/structural/retained/../../../tests/retained_k4/publication_tests.rs:1704:9
+     |
+1704 |     let CaseOutcome::Selected(solve) = out else {
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^   --- this expression has type `ExecutionOutcome`
+     |         |
+     |         expected `ExecutionOutcome`, found `CaseOutcome`
+
+error[E0308]: mismatched types
+   --> src/structural/retained/../../../tests/retained_k4/assemble_tests.rs:208:30
+    |
+208 |                 let lhs = if scaled.is_zero() {
+    |                              ^^^^^^^^^^^^^^^^ expected `bool`, found `Result<bool, SumRefusal>`
+    |
+    = note: expected type `bool`
+               found enum `Result<bool, wide_sum::SumRefusal>`
+help: consider using `Result::expect` to unwrap the `Result<bool, wide_sum::SumRefusal>` value, panicking if the value is a `Result::Err`
+    |
+208 |                 let lhs = if scaled.is_zero().expect("REASON") {
+    |                                              +++++++++++++++++
+
+error[E0308]: mismatched types
+   --> src/structural/retained/../../../tests/retained_k4/publication_tests.rs:818:15
+    |
+818 |         used: 0,
+    |               ^ expected `WorkTotal`, found integer
+
+error[E0308]: mismatched types
+    --> src/structural/retained/../../../tests/retained_k4/publication_tests.rs:1446:23
+     |
+1446 |                 used: 0,
+     |                       ^ expected `WorkTotal`, found integer
+
+Some errors have detailed explanations: E0063, E0308, E0369, E0599.
+For more information about an error, try `rustc --explain E0063`.
+error: could not compile `open_pipe_stress_frame_kernel` (lib test) due to 42 previous errors

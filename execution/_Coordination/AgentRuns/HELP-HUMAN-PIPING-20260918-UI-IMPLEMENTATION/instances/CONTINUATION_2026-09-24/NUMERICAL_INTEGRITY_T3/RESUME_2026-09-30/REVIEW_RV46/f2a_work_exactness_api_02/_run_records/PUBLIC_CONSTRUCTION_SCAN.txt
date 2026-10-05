@@ -1,0 +1,28 @@
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs:88:pub struct InvocationMeter {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs:93:impl InvocationMeter {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs:1064:pub struct StageWork {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs:1114:impl StageWork {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs:2539:pub struct AttemptRecord {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs:2756:fn sum_work_delta(after: SumWork, before: SumWork) -> SumWork {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs:2757:    SumWork {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs:3669:    let mut record = AttemptRecord {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs:1001:pub struct WidthWork {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs:1012:impl WidthWork {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs:1148:    pub(crate) fn work(&self) -> WidthWork {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs:77:pub struct SumWork {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs:91:impl SumWork {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs:212:    pub(crate) fn work(&self) -> SumWork {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs:230:    let before = SumWork {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs:237:    let after = SumWork {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs:2410:    let saturated = WidthWork {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs:2443:    let one_each = WidthWork {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs:46:pub struct W1Solve {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs:73:) -> W1Solve {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs:83:    W1Solve {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/core/solver/performance_harness/tests/k6b_w1.rs:52:fn run(id: &str, limits: W1Limits) -> W1Solve {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs:21:pub struct CaseRun {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs:181:pub fn run_case_with(case: &Case, model: &Model) -> CaseRun {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs:185:pub fn run_case(case: &Case) -> CaseRun {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs:191:pub fn run_parts(case: &Case, model: &Model, parts: SourceParts) -> CaseRun {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs:213:            return CaseRun {
+49034a940f3f8cd3f3da4d4cbc839943b808063d:projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs:325:    CaseRun {

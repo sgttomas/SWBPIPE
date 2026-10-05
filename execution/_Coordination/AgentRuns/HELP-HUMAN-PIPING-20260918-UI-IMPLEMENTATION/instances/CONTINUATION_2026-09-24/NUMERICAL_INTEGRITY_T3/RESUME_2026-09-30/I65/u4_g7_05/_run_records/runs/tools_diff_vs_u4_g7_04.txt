@@ -1,0 +1,7 @@
+# u4_g7_05's tools against u4_g7_04's (excluding runs/, SHA256SUMS, delta_reviewed.json): only REC differs.
+diff -r -x runs -x SHA256SUMS -x __pycache__ -x delta_reviewed.json R/I65/u4_g7_04/_run_records/g7_pass.sh R/I65/u4_g7_05/_run_records/g7_pass.sh
+20c20
+< REC=$R0/I65/u4_g7_04/_run_records; REC_A=$R0/I65/u4_g7_01/_run_records
+---
+> REC=$R0/I65/u4_g7_05/_run_records; REC_A=$R0/I65/u4_g7_01/_run_records
+

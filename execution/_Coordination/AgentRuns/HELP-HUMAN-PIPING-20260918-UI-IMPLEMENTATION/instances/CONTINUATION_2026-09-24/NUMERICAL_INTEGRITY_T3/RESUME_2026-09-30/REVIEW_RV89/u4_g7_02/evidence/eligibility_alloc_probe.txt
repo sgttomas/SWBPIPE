@@ -1,0 +1,32 @@
+### IMPLEMENTATION_COMPLETE = true (RV89's copy of cfda60403f; 'false' differs from the commit by that token only)
+RV89_U7_READER SparseInteractive round=0 invocation_bound=true numerical_eligible=true allocations=75446 bytes=6643320 classifications=98
+RV89_U7_READER_NO_INVOCATION SparseInteractive round=0 numerical_eligible=false allocations=71766 bytes=6237548
+RV89_U7_READER SparseInteractive round=1 invocation_bound=true numerical_eligible=true allocations=75446 bytes=6643320 classifications=98
+RV89_U7_READER_NO_INVOCATION SparseInteractive round=1 numerical_eligible=false allocations=71766 bytes=6237548
+RV89_U7_DIRECT SparseInteractive round=0 successor_len=Some(113733) allocations=150408 bytes=16113738
+RV89_U7_DIRECT SparseInteractive round=1 successor_len=Some(113733) allocations=150408 bytes=16113738
+RV89_U7_READER DenseScrutiny round=0 invocation_bound=true numerical_eligible=true allocations=75658 bytes=6663353 classifications=99
+RV89_U7_READER_NO_INVOCATION DenseScrutiny round=0 numerical_eligible=false allocations=71978 bytes=6257589
+RV89_U7_READER DenseScrutiny round=1 invocation_bound=true numerical_eligible=true allocations=75658 bytes=6663353 classifications=99
+RV89_U7_READER_NO_INVOCATION DenseScrutiny round=1 numerical_eligible=false allocations=71978 bytes=6257589
+RV89_U7_DIRECT DenseScrutiny round=0 successor_len=Some(114894) allocations=151077 bytes=16169786
+RV89_U7_DIRECT DenseScrutiny round=1 successor_len=Some(114894) allocations=151077 bytes=16169786
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 553 filtered out; finished in 4.26s
+
+### IMPLEMENTATION_COMPLETE = false (RV89's copy of cfda60403f; 'false' differs from the commit by that token only)
+RV89_U7_READER SparseInteractive round=0 invocation_bound=true numerical_eligible=false allocations=75446 bytes=6643320 classifications=98
+RV89_U7_READER_NO_INVOCATION SparseInteractive round=0 numerical_eligible=false allocations=71766 bytes=6237548
+RV89_U7_READER SparseInteractive round=1 invocation_bound=true numerical_eligible=false allocations=75446 bytes=6643320 classifications=98
+RV89_U7_READER_NO_INVOCATION SparseInteractive round=1 numerical_eligible=false allocations=71766 bytes=6237548
+RV89_U7_DIRECT SparseInteractive round=0 successor_len=Some(113733) allocations=150408 bytes=16113738
+RV89_U7_DIRECT SparseInteractive round=1 successor_len=Some(113733) allocations=150408 bytes=16113738
+RV89_U7_READER DenseScrutiny round=0 invocation_bound=true numerical_eligible=false allocations=75658 bytes=6663353 classifications=99
+RV89_U7_READER_NO_INVOCATION DenseScrutiny round=0 numerical_eligible=false allocations=71978 bytes=6257589
+RV89_U7_READER DenseScrutiny round=1 invocation_bound=true numerical_eligible=false allocations=75658 bytes=6663353 classifications=99
+RV89_U7_READER_NO_INVOCATION DenseScrutiny round=1 numerical_eligible=false allocations=71978 bytes=6257589
+RV89_U7_DIRECT DenseScrutiny round=0 successor_len=Some(114894) allocations=151077 bytes=16169786
+RV89_U7_DIRECT DenseScrutiny round=1 successor_len=Some(114894) allocations=151077 bytes=16169786
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 553 filtered out; finished in 4.29s
+
+### comparison: every line equal apart from numerical_eligible
+identical allocation counts and bytes in all 12 pairs (3 measurements: the reader with and without the invocation, and the whole Direct entry; x 2 modes x 2 rounds)

@@ -1,0 +1,28 @@
+{
+  "head": "9994462204231fb92073e17eb09775756bec22f3",
+  "target_base": "3a0251874d6ab38008173a22ef09d651a0f20d9e",
+  "utc": "2026-10-02T16:32:27.960970+00:00",
+  "host": "Apple M5 Max\n18\n137438953472\n",
+  "guard_pid": 5387,
+  "guard_sha256": "ee11ea1f43f0892dd0396bfe5c68e133084c90c87abbf757ce0be723e0ca7b79",
+  "driver_sha256": "9e34865b8a3fc49bbbb45bcbd457d1a4be76bd2aec7cac764662831e11afd133",
+  "suite_driver_sha256": "260708f9578860d5d1c50855dca4fc42a9c40c6530f19d6159336db17e2b22a8",
+  "baseline": "<wt>/scratch/a1_final_cb13dcd9_20261002/dec025",
+  "baseline_source": "cb13dcd9fcc8c252fa9610b1c6fef0c5b2c3c20c; relevant product/core/benchmark/test/app/tool paths byte-equal to main3a025187",
+  "candidate_status": "",
+  "sweep_status": "",
+  "fresh_target_exists": false,
+  "gen8": "1 passed,10 deselected; exact head",
+  "memory_available_percent": 95,
+  "swap_observation": "1024 MiB dynamic allocation;98.75 MiB used; Swapins409686/Swapouts454787 unchanged across two checks. Later OPERATING_NOTES \u00a74 already records dynamic swap; older no-swap shorthand is not asserted.",
+  "guard_kills": "none logged",
+  "scope": "Existing driver only; no timing comparison or new host tooling; prior evidence/target preserved",
+  "driver_environment": {
+    "CARGO_TARGET_DIR": "<wt>/sweep-skewpin-target",
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "RUSTUP_AUTO_INSTALL": "0",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_BUILD_JOBS": "8 (existing driver)",
+    "RUST_TEST_THREADS": "4 (existing driver)"
+  }
+}

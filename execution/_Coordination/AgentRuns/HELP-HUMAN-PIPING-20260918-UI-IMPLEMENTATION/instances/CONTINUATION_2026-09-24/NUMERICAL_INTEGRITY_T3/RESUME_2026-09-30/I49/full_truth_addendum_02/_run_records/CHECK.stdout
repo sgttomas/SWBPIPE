@@ -1,0 +1,20 @@
+{
+  "UX": {
+    "error_lower": "9.640635795660434757026299312E-25",
+    "allowance": "7.127015421632068363913576179E-25",
+    "ratio": "1.352689060612801892182263785",
+    "ROOT_exact_match": true
+  },
+  "UZ": {
+    "row_by_identity": 12,
+    "native_ordinal": 8,
+    "truth": "0 over full positive cover",
+    "diagonal": "3848902.604591453076456715118",
+    "exponent": 21,
+    "radix_exponent": -10,
+    "actual_bound": "3.211280210517748202754188059E-25",
+    "forced_radius_lower": "1.427202667052958388998292251E-21",
+    "ratio": "4444.341737536673557038451155",
+    "native_projection_unchanged": true
+  }
+}

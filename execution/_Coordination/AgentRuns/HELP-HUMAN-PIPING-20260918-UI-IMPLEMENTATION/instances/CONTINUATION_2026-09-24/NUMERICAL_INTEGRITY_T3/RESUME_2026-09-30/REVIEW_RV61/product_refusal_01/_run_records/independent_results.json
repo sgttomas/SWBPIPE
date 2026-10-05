@@ -1,0 +1,5754 @@
+{
+  "method": "atan(1/2)+atan(1/3), exact interval + metadata-derived cantilever truth and native associations, integer RN64, scalar lower-bound proof",
+  "cases": {
+    "zero": {
+      "g5a_arithmetic": {
+        "lower_bound_bits": [
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "resolution_guard_bits": [
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "sanity": true,
+        "lower_bound": true,
+        "summary_scalar_bounds": true,
+        "scope": "Captured attestation only; unpublished origins not independently replayed."
+      },
+      "failures": {
+        "ordinary": {
+          "source": [],
+          "represented": []
+        },
+        "native": {
+          "source": [],
+          "represented": []
+        },
+        "projected": {
+          "source": [],
+          "represented": []
+        }
+      },
+      "ordinary_scales": {
+        "tr": "0000000000000000",
+        "ro": "0000000000000000",
+        "fo": "0000000000000000",
+        "mo": "0000000000000000",
+        "input": "0000000000000000",
+        "stress": "0000000000000000",
+        "maximum": "0000000000000000"
+      },
+      "projected_scales": {
+        "tr": "0000000000000000",
+        "ro": "0000000000000000",
+        "fo": "0000000000000000",
+        "mo": "0000000000000000",
+        "input": "0000000000000000",
+        "stress": "0000000000000000",
+        "maximum": "0000000000000000"
+      },
+      "zero_sign_failures": [
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52
+      ],
+      "checks": {
+        "ordinary": {
+          "source": {
+            "1": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "2": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "3": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "4": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "5": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "6": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "7": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "8": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "9": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "10": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "11": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "12": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "13": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "14": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "15": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "16": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "17": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "18": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "19": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "20": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "21": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "22": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "23": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "24": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "25": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "26": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "27": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "28": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "29": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "30": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "31": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "32": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "33": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "34": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "35": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "36": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "37": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "38": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "39": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "40": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "41": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "42": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "43": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "44": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "45": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "46": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "47": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "48": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "49": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "50": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "51": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "52": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "53": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "54": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "55": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "56": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "57": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "58": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "59": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "60": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "61": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "62": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "63": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "64": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "65": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "66": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "67": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "68": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "69": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "70": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "71": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "72": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "73": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            }
+          },
+          "represented": {
+            "1": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "2": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "3": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "4": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "5": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "6": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "7": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "8": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "9": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "10": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "11": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "12": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "13": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "14": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "15": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "16": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "17": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "18": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "19": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "20": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "21": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "22": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "23": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "24": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "25": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "26": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "27": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "28": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "29": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "30": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "31": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "32": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "33": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "34": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "35": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "36": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "37": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "38": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "39": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "40": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "41": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "42": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "43": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "44": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "45": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "46": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "47": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "48": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "49": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "50": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "51": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "52": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "53": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "54": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "55": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "56": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "57": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "58": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "59": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "60": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "61": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "62": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "63": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "64": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "65": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "66": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "67": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "68": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "69": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "70": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "71": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "72": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "73": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            }
+          }
+        },
+        "native": {
+          "source": {
+            "1": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "2": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "3": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "4": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "5": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "6": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "7": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "8": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "9": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "10": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "11": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "12": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "13": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "14": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "15": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "16": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "17": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "18": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "19": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "20": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "21": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "22": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "23": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "24": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "25": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "26": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "27": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "28": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "29": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "30": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "31": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "32": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "33": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "34": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "35": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "36": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "37": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "38": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "39": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "40": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "41": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "42": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "43": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "44": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "45": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "46": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "47": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "48": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "49": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "50": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "51": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "52": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            }
+          },
+          "represented": {
+            "1": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "2": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "3": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "4": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "5": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "6": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "7": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "8": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "9": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "10": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "11": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "12": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "13": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "14": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "15": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "16": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "17": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "18": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "19": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "20": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "21": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "22": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "23": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "24": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "25": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "26": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "27": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "28": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "29": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "30": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "31": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "32": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "33": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "34": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "35": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "36": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "37": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "38": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "39": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "40": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "41": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "42": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "43": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "44": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "45": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "46": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "47": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "48": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "49": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "50": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "51": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "52": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            }
+          }
+        },
+        "projected": {
+          "source": {
+            "1": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "2": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "3": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "4": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "5": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "6": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "7": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "8": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "9": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "10": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "11": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "12": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "13": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "14": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "15": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "16": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "17": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "18": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "19": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "20": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "21": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "22": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "23": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "24": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "25": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "26": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "27": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "28": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "29": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "30": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "31": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "32": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "33": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "34": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "35": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "36": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "37": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "38": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "39": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "40": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "41": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "42": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "43": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "44": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "45": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "46": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "47": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "48": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "49": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "50": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "51": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "52": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            }
+          },
+          "represented": {
+            "1": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "2": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "3": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "4": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "5": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "6": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "7": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "8": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "9": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "10": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "11": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "12": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "13": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "14": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "15": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "16": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "17": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "18": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "19": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "20": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "21": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "22": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "23": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "24": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "25": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "26": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "27": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "28": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "29": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "30": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "31": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "32": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "33": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "34": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "35": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "36": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "37": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "38": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "39": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "40": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "41": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "42": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "43": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "44": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "45": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "46": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "47": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "48": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "49": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "50": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "51": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "52": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            }
+          }
+        }
+      }
+    },
+    "loaded": {
+      "g5a_arithmetic": {
+        "lower_bound_bits": [
+          "40727a8c7e59938c",
+          "3ff6186186186185"
+        ],
+        "resolution_guard_bits": [
+          "408e82798cc86deb",
+          "408e82798cc86deb"
+        ],
+        "sanity": true,
+        "lower_bound": true,
+        "summary_scalar_bounds": true,
+        "scope": "Captured attestation only; unpublished origins not independently replayed."
+      },
+      "failures": {
+        "ordinary": {
+          "source": [
+            2,
+            9,
+            10,
+            12,
+            14,
+            20,
+            22,
+            33,
+            34,
+            40,
+            46,
+            52,
+            53,
+            55,
+            56,
+            57,
+            59,
+            60,
+            61,
+            63,
+            64,
+            65,
+            67,
+            68,
+            69,
+            71,
+            72,
+            73
+          ],
+          "represented": [
+            2,
+            10,
+            14,
+            20,
+            22,
+            33,
+            34,
+            40,
+            46,
+            52,
+            55,
+            59,
+            63,
+            67,
+            71,
+            73
+          ]
+        },
+        "native": {
+          "source": [
+            2,
+            9,
+            10,
+            12,
+            14
+          ],
+          "represented": []
+        },
+        "projected": {
+          "source": [
+            2,
+            9,
+            10,
+            12,
+            14
+          ],
+          "represented": []
+        }
+      },
+      "ordinary_scales": {
+        "tr": "3ecf0ebea4a79227",
+        "ro": "3ecf0ebea4a79227",
+        "fo": "3ff6a09e667f3bcd",
+        "mo": "3ff6a09e667f3bcd",
+        "input": "0000000000000000",
+        "stress": "40e4ea61c624e70a",
+        "maximum": "40fd27f079f052fe"
+      },
+      "projected_scales": {
+        "tr": "3ecf0ebea4a79227",
+        "ro": "3ecf0ebea4a79227",
+        "fo": "3ff6a09e667f3bcd",
+        "mo": "3ff6a09e667f3bcd",
+        "input": "0000000000000000",
+        "stress": "40e4ea61c624e70a",
+        "maximum": "40fd27f079f052fe"
+      },
+      "zero_sign_failures": [],
+      "checks": {
+        "ordinary": {
+          "source": {
+            "1": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "2": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "3": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "4": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "5": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "6": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "7": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "8": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "9": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "10": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "11": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "12": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "13": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "14": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "15": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "16": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "17": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "18": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "19": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "20": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "21": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "22": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "23": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "24": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "25": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "26": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "27": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "28": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "29": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "30": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "31": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "32": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "33": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "34": {
+              "class": "absolute",
+              "tests": [
+                false
+              ]
+            },
+            "35": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "36": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "37": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "38": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "39": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "40": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "41": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "42": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "43": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "44": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "45": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "46": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "47": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "48": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "49": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "50": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "51": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "52": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "53": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "54": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "55": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "56": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "57": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "58": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "59": {
+              "class": "absolute",
+              "tests": [
+                false
+              ]
+            },
+            "60": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "61": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "62": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "63": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "64": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "65": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "66": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "67": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "68": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "69": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "70": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "71": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "72": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "73": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            }
+          },
+          "represented": {
+            "1": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "2": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "3": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "4": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "5": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "6": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "7": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "8": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "9": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "10": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "11": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "12": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "13": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "14": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "15": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "16": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "17": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "18": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "19": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "20": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "21": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "22": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "23": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "24": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "25": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "26": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "27": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "28": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "29": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "30": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "31": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "32": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "33": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "34": {
+              "class": "absolute",
+              "tests": [
+                false
+              ]
+            },
+            "35": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "36": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "37": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "38": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "39": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "40": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "41": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "42": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "43": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "44": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "45": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "46": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "47": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "48": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "49": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "50": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "51": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "52": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "53": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "54": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "55": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "56": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "57": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "58": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "59": {
+              "class": "absolute",
+              "tests": [
+                false
+              ]
+            },
+            "60": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "61": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "62": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "63": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "64": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "65": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "66": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "67": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "68": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "69": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "70": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "71": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "72": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "73": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            }
+          }
+        },
+        "native": {
+          "source": {
+            "1": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "2": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "3": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "4": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "5": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "6": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "7": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "8": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "9": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "10": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "11": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "12": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "13": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "14": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "15": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "16": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "17": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "18": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "19": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "20": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "21": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "22": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "23": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "24": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "25": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "26": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "27": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "28": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "29": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "30": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "31": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "32": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "33": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "34": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "35": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "36": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "37": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "38": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "39": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "40": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "41": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "42": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "43": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "44": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "45": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "46": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "47": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "48": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "49": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "50": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "51": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "52": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            }
+          },
+          "represented": {
+            "1": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "2": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "3": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "4": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "5": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "6": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "7": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "8": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "9": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "10": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "11": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "12": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "13": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "14": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "15": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "16": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "17": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "18": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "19": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "20": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "21": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "22": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "23": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "24": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "25": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "26": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "27": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "28": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "29": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "30": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "31": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "32": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "33": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "34": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "35": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "36": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "37": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "38": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "39": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "40": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "41": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "42": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "43": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "44": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "45": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "46": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "47": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "48": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "49": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "50": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "51": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "52": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            }
+          }
+        },
+        "projected": {
+          "source": {
+            "1": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "2": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "3": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "4": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "5": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "6": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "7": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "8": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "9": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "10": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "11": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "12": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "13": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "14": {
+              "class": "relative",
+              "tests": [
+                false,
+                false,
+                true,
+                true
+              ]
+            },
+            "15": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "16": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "17": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "18": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "19": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "20": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "21": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "22": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "23": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "24": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "25": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "26": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "27": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "28": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "29": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "30": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "31": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "32": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "33": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "34": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "35": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "36": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "37": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "38": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "39": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "40": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "41": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "42": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "43": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "44": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "45": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "46": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "47": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "48": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "49": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "50": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "51": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "52": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            }
+          },
+          "represented": {
+            "1": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "2": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "3": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "4": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "5": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "6": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "7": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "8": {
+              "class": "input",
+              "tests": [
+                true
+              ]
+            },
+            "9": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "10": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "11": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "12": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "13": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "14": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "15": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "16": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "17": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "18": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "19": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "20": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "21": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "22": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "23": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "24": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "25": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "26": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "27": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "28": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "29": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "30": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "31": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "32": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "33": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "34": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "35": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "36": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "37": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "38": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "39": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "40": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "41": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "42": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "43": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "44": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "45": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "46": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "47": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "48": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "49": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "50": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            "51": {
+              "class": "absolute",
+              "tests": [
+                true
+              ]
+            },
+            "52": {
+              "class": "relative",
+              "tests": [
+                true,
+                true,
+                true,
+                true
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "source_decodes": {
+    "zero": {
+      "member": [
+        0,
+        0,
+        1
+      ],
+      "E_G_A_Iy_Iz_J_bits": [
+        "4248727cda000000",
+        "4232a05f20000000",
+        "3f5872fa3a37ac15",
+        "3ebc52664442210e",
+        "3ebc52664442210e",
+        "3ecc52664442210e"
+      ],
+      "constraints": [
+        [
+          [
+            0,
+            0
+          ],
+          0.0
+        ],
+        [
+          [
+            0,
+            1
+          ],
+          0.0
+        ],
+        [
+          [
+            0,
+            2
+          ],
+          0.0
+        ],
+        [
+          [
+            0,
+            3
+          ],
+          0.0
+        ],
+        [
+          [
+            0,
+            4
+          ],
+          0.0
+        ],
+        [
+          [
+            0,
+            5
+          ],
+          0.0
+        ]
+      ],
+      "loads": [
+        [
+          [
+            1,
+            0
+          ],
+          "i45:UX",
+          0.0
+        ],
+        [
+          [
+            1,
+            1
+          ],
+          "i45:UY",
+          0.0
+        ],
+        [
+          [
+            1,
+            3
+          ],
+          "i45:RX",
+          0.0
+        ]
+      ],
+      "stations": [
+        [
+          0,
+          0,
+          0.25
+        ],
+        [
+          1,
+          0,
+          0.5
+        ],
+        [
+          2,
+          0,
+          0.75
+        ]
+      ],
+      "bytes_consumed": 387
+    },
+    "loaded": {
+      "member": [
+        0,
+        0,
+        1
+      ],
+      "E_G_A_Iy_Iz_J_bits": [
+        "4248727cda000000",
+        "4232a05f20000000",
+        "3f5872fa3a37ac15",
+        "3ebc52664442210e",
+        "3ebc52664442210e",
+        "3ecc52664442210e"
+      ],
+      "constraints": [
+        [
+          [
+            0,
+            0
+          ],
+          0.0
+        ],
+        [
+          [
+            0,
+            1
+          ],
+          0.0
+        ],
+        [
+          [
+            0,
+            2
+          ],
+          0.0
+        ],
+        [
+          [
+            0,
+            3
+          ],
+          0.0
+        ],
+        [
+          [
+            0,
+            4
+          ],
+          0.0
+        ],
+        [
+          [
+            0,
+            5
+          ],
+          0.0
+        ]
+      ],
+      "loads": [
+        [
+          [
+            1,
+            0
+          ],
+          "i45:UX",
+          1.0
+        ],
+        [
+          [
+            1,
+            1
+          ],
+          "i45:UY",
+          1.0
+        ],
+        [
+          [
+            1,
+            3
+          ],
+          "i45:RX",
+          1.0
+        ]
+      ],
+      "stations": [
+        [
+          0,
+          0,
+          0.25
+        ],
+        [
+          1,
+          0,
+          0.5
+        ],
+        [
+          2,
+          0,
+          0.75
+        ]
+      ],
+      "bytes_consumed": 387
+    }
+  },
+  "associations": [
+    {
+      "row": 1,
+      "id": "result:disp:node-N-DEC092-ANCHOR",
+      "unit": "mm",
+      "native_quantity": "DisplacementMagnitude(0)",
+      "native_ordinal": 12,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 2,
+      "id": "result:disp:node-N-DEC092-TIP",
+      "unit": "mm",
+      "native_quantity": "DisplacementMagnitude(1)",
+      "native_ordinal": 13,
+      "native_bits": "3eaf8cfe56aa1fb2"
+    },
+    {
+      "row": 3,
+      "id": "result:disp:node-N-DEC092-ANCHOR:ux",
+      "unit": "mm",
+      "native_quantity": "Displacement(Dof { node: 0, component: Ux })",
+      "native_ordinal": 0,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 4,
+      "id": "result:disp:node-N-DEC092-ANCHOR:uy",
+      "unit": "mm",
+      "native_quantity": "Displacement(Dof { node: 0, component: Uy })",
+      "native_ordinal": 1,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 5,
+      "id": "result:disp:node-N-DEC092-ANCHOR:uz",
+      "unit": "mm",
+      "native_quantity": "Displacement(Dof { node: 0, component: Uz })",
+      "native_ordinal": 2,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 6,
+      "id": "result:disp:node-N-DEC092-ANCHOR:rx",
+      "unit": "rad",
+      "native_quantity": "Displacement(Dof { node: 0, component: Rx })",
+      "native_ordinal": 3,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 7,
+      "id": "result:disp:node-N-DEC092-ANCHOR:ry",
+      "unit": "rad",
+      "native_quantity": "Displacement(Dof { node: 0, component: Ry })",
+      "native_ordinal": 4,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 8,
+      "id": "result:disp:node-N-DEC092-ANCHOR:rz",
+      "unit": "rad",
+      "native_quantity": "Displacement(Dof { node: 0, component: Rz })",
+      "native_ordinal": 5,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 9,
+      "id": "result:disp:node-N-DEC092-TIP:ux",
+      "unit": "mm",
+      "native_quantity": "Displacement(Dof { node: 1, component: Ux })",
+      "native_ordinal": 6,
+      "native_bits": "3e2b694065a1c3b1"
+    },
+    {
+      "row": 10,
+      "id": "result:disp:node-N-DEC092-TIP:uy",
+      "unit": "mm",
+      "native_quantity": "Displacement(Dof { node: 1, component: Uy })",
+      "native_ordinal": 7,
+      "native_bits": "3eaf8cf26e611681"
+    },
+    {
+      "row": 11,
+      "id": "result:disp:node-N-DEC092-TIP:uz",
+      "unit": "mm",
+      "native_quantity": "Displacement(Dof { node: 1, component: Uz })",
+      "native_ordinal": 8,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 12,
+      "id": "result:disp:node-N-DEC092-TIP:rx",
+      "unit": "rad",
+      "native_quantity": "Displacement(Dof { node: 1, component: Rx })",
+      "native_ordinal": 9,
+      "native_bits": "3ecf0ebea4a79227"
+    },
+    {
+      "row": 13,
+      "id": "result:disp:node-N-DEC092-TIP:ry",
+      "unit": "rad",
+      "native_quantity": "Displacement(Dof { node: 1, component: Ry })",
+      "native_ordinal": 10,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 14,
+      "id": "result:disp:node-N-DEC092-TIP:rz",
+      "unit": "rad",
+      "native_quantity": "Displacement(Dof { node: 1, component: Rz })",
+      "native_ordinal": 11,
+      "native_bits": "3eb7a9b5d2c8d0e1"
+    },
+    {
+      "row": 15,
+      "id": "result:support-action:15:case:i45-loaded:23:support:S-DEC092-ANCHOR:Fx",
+      "unit": "N",
+      "native_quantity": "Reaction(Dof { node: 0, component: Ux })",
+      "native_ordinal": 44,
+      "native_bits": "bff0000000000000"
+    },
+    {
+      "row": 16,
+      "id": "result:support-action:15:case:i45-loaded:23:support:S-DEC092-ANCHOR:Fy",
+      "unit": "N",
+      "native_quantity": "Reaction(Dof { node: 0, component: Uy })",
+      "native_ordinal": 45,
+      "native_bits": "bff0000000000000"
+    },
+    {
+      "row": 17,
+      "id": "result:support-action:15:case:i45-loaded:23:support:S-DEC092-ANCHOR:Fz",
+      "unit": "N",
+      "native_quantity": "Reaction(Dof { node: 0, component: Uz })",
+      "native_ordinal": 46,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 18,
+      "id": "result:support-action:15:case:i45-loaded:23:support:S-DEC092-ANCHOR:Mx",
+      "unit": "N*m",
+      "native_quantity": "Reaction(Dof { node: 0, component: Rx })",
+      "native_ordinal": 47,
+      "native_bits": "bff0000000000000"
+    },
+    {
+      "row": 19,
+      "id": "result:support-action:15:case:i45-loaded:23:support:S-DEC092-ANCHOR:My",
+      "unit": "N*m",
+      "native_quantity": "Reaction(Dof { node: 0, component: Ry })",
+      "native_ordinal": 48,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 20,
+      "id": "result:support-action:15:case:i45-loaded:23:support:S-DEC092-ANCHOR:Mz",
+      "unit": "N*m",
+      "native_quantity": "Reaction(Dof { node: 0, component: Rz })",
+      "native_ordinal": 49,
+      "native_bits": "bff0000000000000"
+    },
+    {
+      "row": 21,
+      "id": "result:support-action:15:case:i45-loaded:23:support:S-DEC092-ANCHOR:force_magnitude",
+      "unit": "N",
+      "native_quantity": "SupportForceMagnitude(0)",
+      "native_ordinal": 50,
+      "native_bits": "3ff6a09e667f3bcd"
+    },
+    {
+      "row": 22,
+      "id": "result:support-action:15:case:i45-loaded:23:support:S-DEC092-ANCHOR:moment_magnitude",
+      "unit": "N*m",
+      "native_quantity": "SupportMomentMagnitude(0)",
+      "native_ordinal": 51,
+      "native_bits": "3ff6a09e667f3bcd"
+    },
+    {
+      "row": 23,
+      "id": "result:force:pipe-P-DEC092:axial",
+      "unit": "N",
+      "native_quantity": "EndAction { member: 0, end: I, component: Ux }",
+      "native_ordinal": 14,
+      "native_bits": "bff0000000000000"
+    },
+    {
+      "row": 24,
+      "id": "result:force:pipe-P-DEC092:axial:end-j",
+      "unit": "N",
+      "native_quantity": "EndAction { member: 0, end: J, component: Ux }",
+      "native_ordinal": 20,
+      "native_bits": "3ff0000000000000"
+    },
+    {
+      "row": 25,
+      "id": "result:force:pipe-P-DEC092:shear-y",
+      "unit": "N",
+      "native_quantity": "EndAction { member: 0, end: I, component: Uy }",
+      "native_ordinal": 15,
+      "native_bits": "bff0000000000000"
+    },
+    {
+      "row": 26,
+      "id": "result:force:pipe-P-DEC092:shear-y:end-j",
+      "unit": "N",
+      "native_quantity": "EndAction { member: 0, end: J, component: Uy }",
+      "native_ordinal": 21,
+      "native_bits": "3ff0000000000000"
+    },
+    {
+      "row": 27,
+      "id": "result:force:pipe-P-DEC092:shear-z",
+      "unit": "N",
+      "native_quantity": "EndAction { member: 0, end: I, component: Uz }",
+      "native_ordinal": 16,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 28,
+      "id": "result:force:pipe-P-DEC092:shear-z:end-j",
+      "unit": "N",
+      "native_quantity": "EndAction { member: 0, end: J, component: Uz }",
+      "native_ordinal": 22,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 29,
+      "id": "result:moment:pipe-P-DEC092:torsion",
+      "unit": "N*m",
+      "native_quantity": "EndAction { member: 0, end: I, component: Rx }",
+      "native_ordinal": 17,
+      "native_bits": "bff0000000000000"
+    },
+    {
+      "row": 30,
+      "id": "result:moment:pipe-P-DEC092:torsion:end-j",
+      "unit": "N*m",
+      "native_quantity": "EndAction { member: 0, end: J, component: Rx }",
+      "native_ordinal": 23,
+      "native_bits": "3ff0000000000000"
+    },
+    {
+      "row": 31,
+      "id": "result:moment:pipe-P-DEC092:bending-y",
+      "unit": "N*m",
+      "native_quantity": "EndAction { member: 0, end: I, component: Ry }",
+      "native_ordinal": 18,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 32,
+      "id": "result:moment:pipe-P-DEC092:bending-y:end-j",
+      "unit": "N*m",
+      "native_quantity": "EndAction { member: 0, end: J, component: Ry }",
+      "native_ordinal": 24,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 33,
+      "id": "result:moment:pipe-P-DEC092:bending-z",
+      "unit": "N*m",
+      "native_quantity": "EndAction { member: 0, end: I, component: Rz }",
+      "native_ordinal": 19,
+      "native_bits": "bff0000000000000"
+    },
+    {
+      "row": 34,
+      "id": "result:moment:pipe-P-DEC092:bending-z:end-j",
+      "unit": "N*m",
+      "native_quantity": "EndAction { member: 0, end: J, component: Rz }",
+      "native_ordinal": 25,
+      "native_bits": "b7f5a320bfc26592"
+    },
+    {
+      "row": 35,
+      "id": "result:force:pipe-P-DEC092:quarter-1:axial",
+      "unit": "N",
+      "native_quantity": "StationAction { station: 0, component: Ux }",
+      "native_ordinal": 26,
+      "native_bits": "3ff0000000000000"
+    },
+    {
+      "row": 36,
+      "id": "result:force:pipe-P-DEC092:quarter-1:shear-y",
+      "unit": "N",
+      "native_quantity": "StationAction { station: 0, component: Uy }",
+      "native_ordinal": 27,
+      "native_bits": "3ff0000000000000"
+    },
+    {
+      "row": 37,
+      "id": "result:force:pipe-P-DEC092:quarter-1:shear-z",
+      "unit": "N",
+      "native_quantity": "StationAction { station: 0, component: Uz }",
+      "native_ordinal": 28,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 38,
+      "id": "result:moment:pipe-P-DEC092:quarter-1:torsion",
+      "unit": "N*m",
+      "native_quantity": "StationAction { station: 0, component: Rx }",
+      "native_ordinal": 29,
+      "native_bits": "3ff0000000000000"
+    },
+    {
+      "row": 39,
+      "id": "result:moment:pipe-P-DEC092:quarter-1:bending-y",
+      "unit": "N*m",
+      "native_quantity": "StationAction { station: 0, component: Ry }",
+      "native_ordinal": 30,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 40,
+      "id": "result:moment:pipe-P-DEC092:quarter-1:bending-z",
+      "unit": "N*m",
+      "native_quantity": "StationAction { station: 0, component: Rz }",
+      "native_ordinal": 31,
+      "native_bits": "3fe8000000000000"
+    },
+    {
+      "row": 41,
+      "id": "result:force:pipe-P-DEC092:midspan:axial",
+      "unit": "N",
+      "native_quantity": "StationAction { station: 1, component: Ux }",
+      "native_ordinal": 32,
+      "native_bits": "3ff0000000000000"
+    },
+    {
+      "row": 42,
+      "id": "result:force:pipe-P-DEC092:midspan:shear-y",
+      "unit": "N",
+      "native_quantity": "StationAction { station: 1, component: Uy }",
+      "native_ordinal": 33,
+      "native_bits": "3ff0000000000000"
+    },
+    {
+      "row": 43,
+      "id": "result:force:pipe-P-DEC092:midspan:shear-z",
+      "unit": "N",
+      "native_quantity": "StationAction { station: 1, component: Uz }",
+      "native_ordinal": 34,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 44,
+      "id": "result:moment:pipe-P-DEC092:midspan:torsion",
+      "unit": "N*m",
+      "native_quantity": "StationAction { station: 1, component: Rx }",
+      "native_ordinal": 35,
+      "native_bits": "3ff0000000000000"
+    },
+    {
+      "row": 45,
+      "id": "result:moment:pipe-P-DEC092:midspan:bending-y",
+      "unit": "N*m",
+      "native_quantity": "StationAction { station: 1, component: Ry }",
+      "native_ordinal": 36,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 46,
+      "id": "result:moment:pipe-P-DEC092:midspan:bending-z",
+      "unit": "N*m",
+      "native_quantity": "StationAction { station: 1, component: Rz }",
+      "native_ordinal": 37,
+      "native_bits": "3fe0000000000000"
+    },
+    {
+      "row": 47,
+      "id": "result:force:pipe-P-DEC092:quarter-3:axial",
+      "unit": "N",
+      "native_quantity": "StationAction { station: 2, component: Ux }",
+      "native_ordinal": 38,
+      "native_bits": "3ff0000000000000"
+    },
+    {
+      "row": 48,
+      "id": "result:force:pipe-P-DEC092:quarter-3:shear-y",
+      "unit": "N",
+      "native_quantity": "StationAction { station: 2, component: Uy }",
+      "native_ordinal": 39,
+      "native_bits": "3ff0000000000000"
+    },
+    {
+      "row": 49,
+      "id": "result:force:pipe-P-DEC092:quarter-3:shear-z",
+      "unit": "N",
+      "native_quantity": "StationAction { station: 2, component: Uz }",
+      "native_ordinal": 40,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 50,
+      "id": "result:moment:pipe-P-DEC092:quarter-3:torsion",
+      "unit": "N*m",
+      "native_quantity": "StationAction { station: 2, component: Rx }",
+      "native_ordinal": 41,
+      "native_bits": "3ff0000000000000"
+    },
+    {
+      "row": 51,
+      "id": "result:moment:pipe-P-DEC092:quarter-3:bending-y",
+      "unit": "N*m",
+      "native_quantity": "StationAction { station: 2, component: Ry }",
+      "native_ordinal": 42,
+      "native_bits": "0000000000000000"
+    },
+    {
+      "row": 52,
+      "id": "result:moment:pipe-P-DEC092:quarter-3:bending-z",
+      "unit": "N*m",
+      "native_quantity": "StationAction { station: 2, component: Rz }",
+      "native_ordinal": 43,
+      "native_bits": "3fd0000000000000"
+    }
+  ],
+  "scalar": {
+    "D_bits": "3fb999999999999a",
+    "t_bits": "3f747ae147ae147b",
+    "G_bits": "4232a05f20000000",
+    "JK_bits": "3ecc52664442210e",
+    "n_bits": "3ecf0ebea4a79227",
+    "pi_lower": "27672933714966834532183627148982492901210204930209901037839912671833074283105851765127620837693522094335057739039586043733960891511740013614559906501292872930414337445096869514239815153459058401218331803880032629966943423867475377091402639079071679309862109951980052961167138578026710678662279283728326664344842777281264027204301128056052123982045833288831841696018572491839885777933714676883980667145751129745653706793133970578141466891235454698554705746347658868931239663028503261123291759584326606663923872217830680283018345044305901318827997691922450722659957929817686644119154315146814746209601028933733009071882450530424785827441972435156106003185283332273054830492616991715230871839767882038627338100052938573688338392760236440436586663430921647501249287629643970741127976544824426993187742907878981430023088318980172258809785706004333859615937392398557411011380449144725402394856193768766143449699787752453028405/8808568381182676664614116071951956535634614899218346184424897976924778320986650071451517180819452072809182069661638831296439640729042898830504843740143777111016061506148872848972717163726219665252700771009715048789599568850541854734658983343375844299797649968400029420300409197876095026271337876960029836826734018251744165476606518753240124560281040909594177912890877814297820620201543626538817108217531172431457893167063358196881461869863665311740279734798813932879758580014192837637857038818379060733080039387749334697261038109525984600402104838270872738454224301535204778274073240288170692475179995746733766272334194094225153863508678159137290991662096071925414727642867117073012686677914600576745735546709704260584466822690795383298538870895792661259344626963759432177051627172026248199190594935090534253327853004866248921957267451531460996088867900731103787820621121401021622309516402710453822231647755084649988096",
+    "pi_upper": "766097496965141847188971533992431333477103313287930900331560142407026828453502400265793055270707465659571738447571900034730973320611010536905476451581791894205590517830061735632215042708360572779328297658614823328004861746347188339398799168820631012487235000154997985682007618673992395191586707924364594513635912531578442910317488379339903751786551295967511796475722504926900704195952420137115622386393969138927489373991733205093587024880253399553815492266411578683237113397922855919989676393444585930642848989057184371330244283924959029227517119771179815363116859256048790805391547727016990165279616525505973445165168836341144002987874899352458960361248799491122316200667315048881732728827768471744344466570969286084138055777416518940548003379680612264334496079449964284392571303409721774576000943553010848182885624692620863359147587697035210380635504908247735449118056642126999540600999276663614603656162504693617266838925/243856407064661220783177189335917964732508678869960695769618875593185563038194420578063801633805711183649396416512809405610635013942823611223696094102140325541368646736225395950960701960596665212855768144632951410691274464058400706474299294878016873595598141725186414471596528234001814707295717785761466002711304561281285477054374865164699608326820336541205221340471061411020866049659533757100612823894132977592480314436982008322466390405305710490217904178170364917843236529112914517166434262648005917334587810410452581758974579024117357677531870342690840891366745563700609081739443584137717450482883002252577585483299829304529159557374246157556763813173467655183181320065133269049283217991387802366628942875111452750020379519371979391236750101879124034303696652864716120389497246630374655146392430183046350269128282586717235155464992128196966215724218963839877262026075124865882592016652092636203614660936451763450270449664",
+    "source_J_lower": "35030400340446245485434086023363614695429794485129003179398290088964260183234618077993648780749205536113165263888391652504981022674386682531543162049157933803435263877363193123445028842712491298540840905235847612705859227433390012195617490512716792807704374646308451026243437509745063857212496587461147467564385112109025237995219309143986544789652043193394127350080146809094287226604250656797994780827339761268533581118971608372088342111064252070243478620480276679859857917914142202529990414189521667933996302603473188651876307886925168736299006938757235577089931169959003635833667603098814617139296615112010606243167082635331829496696745569348502997211831415029045372322356317284166692379593679374731392141805043142051336658996861294189884375872237726702032853667984134203234248225536223610622933331202797656004057848430224797711440194472534538672170975896709711157406984659256380938235060230542008334455451340309996035611749145253667662050390093772209403701758407911106166240358586825/10375595459461531137673515732373396551151306047011851685707995876969766909135042719200020988138592537859027887329753472018450370347482277430933983609978397555628709179666351200703138477091419169479879981460627339510517099964457993898414838339441826102476373825441807604878937857337140818091929844035302834533817028830634638442913252427755517439168009348363269994668681432705839926517571247046816859464778261960184931786187453534637260484062336684488163509097059625108822347824408060920337915932758112112235844965029735296092278406157340234030302806079351053516140195225831465428841984165269854336067161901835657943634190031670326555814215840638203601440593866905800676418044610705549613061301547330259089554334826737539065149792040999696558739504597263734006740663201850684846065441843741649078383005798544510037655332254873092027918087517660617335070936566297116901165355129861151906049001778690638200702333120677880670603925899667081821815045353274870702180628115415485759215282567369457664",
+    "source_J_upper": "969781603024913860018757237470798309228278430526311324018462262822886578912667166871176172846261006061756867165486234507947894631717720919203240898168888239414301845180922638429452178481652609108804639620549205310149006852265969097623991727020254578615677326032957120470708049503972083746686853277033715537638714296357578126087327283219166781237075447678945603158834731358987933335592031368483715375410791862465897866060335340486789120696839494755202681235590232738381916385597901286749309318590270894091139484317591798333180058146677638295127421790579760883692527242957606801286979612080508034533043674054361196123628910438222010039765625286432874084092555847260720469908514072959101497205161808468734340374481275884900705229876928604682876299940729587359727189510014308587043220719307052316413953165415978851817638783897162870493627462700666750583355517364514673797952624712477113648448246799088711332237441337478167581959540758473189881594996534130794860152948256594909336175820594922625/287237984699733028015353609535025110122072756605476102067140157858031027112494522638333381035628795818089328032836895119358780052699699368397976402258641957930025184929883266640265685599798848287880997406756007267009155395416055103083716384589107513820955932983531001733468515642521406408056985802273323671234190626147289330653610480209983744785927170800088766532407776783028472525712442403244077937422921404105759651568813463652897919240781728773370318585842998661512637877170912758518634864682475575715137132011883191937018635396059807038894902883500754565540825164631918288932061489631330647439683310090418354511568916836761320371160751332228028502281400611420185925957147002772435487989072036290892635222205343402031479606842863035599532144445270649212242608520080034359278475692002143813085955132526906215882450218143906679700884334838916530304103807901369384291861691415076129367060565241271627948243390112846448484999084606383493155127715560061520519168508747162307758115882595056065970176",
+    "qK": "144115188075855872/38925285806761318359375",
+    "qS_lower": "35063230554166629396405469913943494887948334546566906990617695051029178114318179032999680302200780739512857425883410048749851080651818770556393603791338129630130027457261140947298057324194195347641723316254395418336078539479498913950648972728162538308222159788028686735042543413393726368171018774691567830961204910418370279620802060572507781345938375341807710758350558689334530337611382129302255607595571460462128863716896174762316640532321988375655556467998412922547929428365589936342606795005185006801164200685044334953249345141120581913927600449646088203801370259354482213004402037308512041923789466563771771790963002543549965865620208902859866760532397535573753164789690796236869566404916020055040604885523113208255795850444685429150333513726229327296416334047861332319247860802246355445933344132388538356430963161394519858361924357280141178015637671862960129918440147877816910323127510405428665521025804457134576231078989820115172504288051215827822329000062102925086396254380199591804928/9470523467040174414245676147175764738557406548108509023617795535379751747194015301476329812951767637321844405912951508866678658512868368351594149396180549213030291456844947640912618930484888760828170308794425833106923895041659854468984294209182173619293723887040596879596758295937227380338738801533532378297253069300366973887571555500187175598018314918739703155847995423427616536480390931332848782962996014281893533848245462309441300006805073190968776183941310866585760902203104504753411223814358114200108784026538982405597461505338648811475853728423630477379809836357007878918818160274223711274736754629437121055894813578498261816794586184437821035977466365695905473338950332743741225558644158285827483792719543709813483449510516880905106213866608687376559835835058733482295343952336982932777480011381015418474781628748995731157164330690436198736165581224262838611308131100707784312973127410147350696603881263061310230292573640219464744937451138028621043556181135318309661486091997997291259765625",
+    "qS_upper": "1266552180110050187704286588424486883685462163941876426478026840450410999650273769433596312028636784406619615152557796877252242474057895194205808546139941107864832663533490136804582333629323629086899411799392985780092419429255126208302592570732644787899947976738501904892448468913225197520987529789465678043678836527177079888050934134247499687398438641157625731771079276453349600404976958868019636165134065180686637180931085636552399961433390708555684022106574661268166790505909187124064687003510511732450664668582731359386264453876628446536902198007733282899919457425028255057231687520174542765633198474345173088822532962850381659645290019609155713066478743518774496633062086267767286750647161539338267767863138029484749163792973754845771330505932283170655119709863507163677498222881316119272263550512517640385455973175643687991689219667683180827035026436315566027974286514875628894781372287437822045984171523520249105298330798299204323952031903475936365012283705495054413966709297774592/342093753324670366068692246321910299760056586768837921673811426650041603351900567167906726374503960313605129530160074731493955299554557446597101191886307947299172498802374932846142859792114172837312899465193824342830656517904199337847827055788249929762738033655355967053158569431104139230590786986925268237933448360439699589797063565859243601461445734310489524903126433682561398697307135320292917781516989856138023253114957113008675215928361836623471470903127701951756424979630294946581937638569547538417932642612042857928479569208253600940419989636301128682518859081630894881188160186511861495500943506953228576593428541360662397428679155950668974582146791162393021214085510910978190355269469525143861251384814874434095084560516223576073089608127321549824539586601407560578459455327502183697489583312527320859414627426076414040150783149145845104220419686491305773021552584563050595099951760063886800141166516995214805035270987746617848262210840759494232458024984452256896154691001824462890625",
+    "n": "8741936247050791/2361183241434822606848",
+    "rn_midpoint_lower": "17483872494101581/4722366482869645213696",
+    "rn_midpoint_upper": "17483872494101583/4722366482869645213696",
+    "A_exact": "83236828044359527600878504073955101997811210143206273999168400793691718745652898601501463305866136210009278736654479453306060369058695712906361676627617171594549657947231012622556169534867475747944984474320134681999698274905968447133455133541189878176578057684054582623636409957854188216981670011600897/202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784",
+    "A_f64": "1093275596580539/2658455991569831745807614120560689152",
+    "source_error_lower": "45491815011691154550954049450016103577798654519192257881843683266210894879213612523866451870523662331609239435904152116266570718923380941381877313215380302232775171368075005720179939111702559751435722644192793387239423897973807113429844497994400527795825164218551794158410788253987448891937722093856994553567404036516890533947042589732687659304940913862335596113873081886751444209349825045789379317030024831592893010661209400457140005163668710927675209531895947063163020453035460554700586121366877460764877288431492195243715382597951208828705615239171013217068362147730409680065441098540154432789829443446845601146263133974603142881602909636900060364417902236598486004755744111187840493038793174225092857893783382020932948100779217994021011322024709552717918469686981072523959596126060841068082093323737222571585230017626334379096250179791509093376855822289144675568720089712296554047768082436821816542908849494091361029199866180378090150407882167169648715681501186863307644368028144479806322087569/22361641297990473402787449820971761511867833794284960450210299024723313450911857173693456915142716838805612972201108609336179992264170974568891912068432250868935254556529951326099905590639956126949006041473794592413637042917757076355021149260046350236634638449833866567909280345486856503751758418145614138129723912384862972923973342144182340015890698242657120968717704950225504728561933986019220814715760383054357758319030207972838970801699521283686888944490637536627103877562180827648949706367212750181162154448664932284893693043243343881924035844973149247965539815231671106255337093070704647560452600393770420273398239296793666906931190922440160588757910708550963226886235937762929075809502021280783160554818750016333346436073281825816596043253866479766343535793651139777136501796549709197385173765674931075322161995775298683949015619593021881297916150624436998111815523034123413334623549717050753771222273971592446462507657169230831805711885739594491700927015208467754806752131229527696634219506318704640000000000000",
+    "source_error_upper": "1643252962422018297607067239200119331664450748417579030553521285443248623002948003318395169430850394871017173670862307335160046197203472813967537682971402334661724149981036184083945207040260069044781196510359535733254729884429875184925919538454815222502390510036478532607096213868677311268084550503635422062100305728765205323598900784538414624682045553073514299423984014741830467954218712434742669686270418070319464585417288490787625563270393001326721296791273479572917149484537501415615558075421364551799238073740874304181317165395045901772019005021162117702150876841067206351227886892844817964163498943686941116657901297578158074633375543312697921660407827056933516561541377981951786120025364476035576801822451449177803384305298744933881586319855568895035375353244492109618648691173623554034065805973001876950043803990450176007288368290935617029558491107211775277969282471508582628941868342531102632084924727931486194531690572150886872998900065218049133002570660220530250517624469299486871641/807746037349749797817781022286221698882669910211131355664293419474184129855218074472383214677890364066089184084709890526520011279590051096983525215591397589543969605422986249317291778306601507258669485676701148403902508413443038446575972594002815409205315713287507133223405610247704407429344706917737460467624779169389023598923782773864101199709727611309796373467090934764736339116789579647374964534389677949791451929371245546282913995560256515048260450556899207532785229415283125045732051533445409891899006100005144962285911938828589632842662381189024434500173539916045074014091674943588536658782118211852566365231670406276234423247928128406732688269890196311893430399486163090155573734067591473681755293228259354952865326368087770856939528521745986700051270086210945499095947019714108541738794518993367763417157944100022591237690353050174524192767500486494886418337808361183213657493100438551981361244463891580002074163876067627991025226301448886456517742895923611373866304178750024390169647407693824000000000000",
+    "represented_error": "2628636508545352195831/91909732514985583644021276467527680000000000",
+    "source_error_ratio": 4.946857599755607,
+    "gap_lower": "75715793767471348104315950979703618957119929666168608537104903878952363325553618531160928498070873052737496907274924765296905572136730620097850244319171694488824781801342444542278948087393074615132623449001497541709247630725642089252410233393056450606974691218818480921879849996819130822694749606120151877665934800149327450034745934987735521415341836084791806278442586937041927081088583849635201451119592966308618634994960050126498293902149101402777062475058888520130440388902111272309803622073941627446071069853967596166376558828578556703919673535276261886887287146497160026768969664225207742303208494208218801014582639696593375273038811330947309748570506078376846449352832838846739283594300914289283492727465962139139751398727064668293677057417052070272721799269806030649950238555668467478747430644478643617361727175517738563364275540344909861413341154530531970528557772822581918579823110992710312142792383960520104144220486960643387069618335472453749346061221014701823720393146706430001152/37749026067883918678727786946642015432449980648834980147436907255978568164239812250672325550305759355314891394137702445221179363775322801033935890891014045069250692803719205971326200288545557795967490991154112536487027607694687945786130554091390488815748968821293219510174881970263393572078123378735152811429442555035772465361510427931268765592073332066934266744434726850394589967208188290801820718460399216174276324642206198373925957686557641521485419073447597850967454775139552143955343849985296589160804305264199996317685500705577098241481621193080075551651048555944618640514421107259360930482696249070913518994024563169088672219043824382504189382309901304655407326891950627758737390918042755816447655349968393541811918419077267732383128135487817855374964772445055660302765481198520030632868046324426514935893505893264142836242138771492595431949514146357193462106728472049880000815479869572309224788723250738472038551799935737795453680747461791281199376986982579696082595403581654623738376652631579320068359375",
+    "two_allowance_upper": "44834834283588364571376218271193032955142199589138512058515348660210876412346856572273131124127594090902764804682892368288446648382757565632451401875055991393887612832192233070607462759044318368448167660490731700668225154830118321804444769646289250465635733820989340590230352089231542967278885000139881035511827164794843741401/54511156238121524321498831511976572088103161527705025222765918056855171016807303836178507432452209647738800779387622849923833510698013402341381418394883203843726906919223241175347349485210015828534767110577019441171455405312228261310278804872982294518953618073422694287802767805102094938662036309397505124155369966636301217847359577036997032673280",
+    "dual_gap_ratio": 2.4386560618049797,
+    "ymin": "73786976294838206464/19929746352991541333061795",
+    "ymax": "73786976294838206464/19929746313132048666938205",
+    "other_tr_ro_max": "6660522854895841/4722366482869645213696",
+    "source_J_relative_difference": 5.417548220793653e-16
+  }
+}

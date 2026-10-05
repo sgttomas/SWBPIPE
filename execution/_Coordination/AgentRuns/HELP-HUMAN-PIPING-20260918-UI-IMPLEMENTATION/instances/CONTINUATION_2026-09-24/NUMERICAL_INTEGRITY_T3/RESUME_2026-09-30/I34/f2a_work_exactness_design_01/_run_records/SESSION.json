@@ -1,0 +1,68 @@
+{
+  "role": "TASK",
+  "mechanism": "delegated-harness-native child",
+  "agent": "/root/i34_f2a_work_exactness",
+  "parent": "/root (ROOT HELP_HUMAN)",
+  "delegated_descendants": [],
+  "receipt_utc": "2026-10-02 20:52:37 UTC",
+  "new_analysis_cutoff_utc": "2026-10-02 21:27:37 UTC",
+  "deadline_utc": "2026-10-02 21:37:37 UTC",
+  "completed_utc": "2026-10-02 21:09:42 UTC",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "write_boundary": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I34/f2a_work_exactness_design_01",
+  "initial_observed_source_head": "0a4afd6318ec33927d01bb7786a75e43c6ea334d",
+  "final_observed_head": "1dead12a96cc665e9aeade2688df98ff312183d3",
+  "authorization": "Parent I34 brief and ROOT disposition; design packet only. Native host permissions are broader than the brief; no path sandbox is asserted.",
+  "selected_workflow": null,
+  "selected_skills": [],
+  "actual_operations": [
+    "Clock reads; read-only sed/cat/rg/wc and SHA256 file reads",
+    "Git rev-parse/status/show/diff reads with GIT_OPTIONAL_LOCKS=0",
+    "Writes only to assigned I34 packet",
+    "Standard-library Python exact integer/state controls and evidence hashing; no product code imports"
+  ],
+  "not_performed": [
+    "compiler",
+    "solver",
+    "model execution",
+    "product runtime",
+    "host/platform probe",
+    "Git/index/API write",
+    "maintained edit",
+    "delegation"
+  ],
+  "initial_unrelated_state": "I32 C2 two modified files and untracked I33 present; left untouched. Later status showed parent changes committed and unrelated REVIEW_RV45 untracked.",
+  "read_issues": [
+    "First attempted wide/multi.rs path omitted structural/retained; corrected and read actual source.",
+    "One attempted retained_api.rs path did not exist; found actual re-exports in frame_kernel/src/structural.rs.",
+    "Several broad combined outputs truncated; relied-on sections were narrowed or searched and read coverage is explicit in ORIGINS."
+  ],
+  "control_attempts": [
+    {
+      "exit_code": 1,
+      "result": "TypeError evaluating int | None annotation under available python3; no CONTROLS.json produced.",
+      "repair": "Added from __future__ import annotations; no arithmetic/control logic changed."
+    },
+    {
+      "exit_code": 0,
+      "passed_controls": 15,
+      "stdout": {
+        "passed": 15,
+        "clean_price_vectors": 19683,
+        "headroom_cases": 56
+      }
+    }
+  ],
+  "source_diff_check": {
+    "command": "GIT_OPTIONAL_LOCKS=0 git diff --name-only 49034a940f -- projects/chirality-piping/core/solver/frame_kernel projects/chirality-piping/core/solver/performance_harness projects/chirality-piping/validation/benchmarks/numerical_robustness",
+    "output": "",
+    "result": "no maintained changes in covered source/consumer trees"
+  },
+  "return_status": "bounded design complete; independent review required; no implementation/admission/qualification claim",
+  "close_checks": {
+    "origin_hashes_rechecked": 38,
+    "controls_json_passed": 15,
+    "packet_review": "Author reread summary and state ownership; corrected naming/spacing and added explicit legacy-layout compatibility caveat. Independent review not performed.",
+    "initial_metadata_check": "One inline check command had an unmatched parenthesis SyntaxError before execution; corrected rerun succeeded. No packet bytes were written by that failed command."
+  }
+}

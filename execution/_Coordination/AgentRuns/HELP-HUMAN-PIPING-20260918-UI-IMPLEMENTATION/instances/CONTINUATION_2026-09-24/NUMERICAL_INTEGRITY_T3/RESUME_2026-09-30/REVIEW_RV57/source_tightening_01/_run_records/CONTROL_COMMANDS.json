@@ -1,0 +1,44 @@
+{
+  "commands": [
+    {
+      "executed_argv": [
+        "python3",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV57/source_tightening_01/_run_records/independent_controls.py"
+      ],
+      "executed_script_preserved_as": "independent_controls_01.py",
+      "stdout": "independent_controls_01.stdout",
+      "stderr": "independent_controls_01.stderr",
+      "exit_code": 1,
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "note": "Actual script bytes at execution preserved under executed_script_preserved_as; python3 resolved to Xcode command-line Python."
+    },
+    {
+      "executed_argv": [
+        "python3",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV57/source_tightening_01/_run_records/independent_controls.py"
+      ],
+      "executed_script_preserved_as": "independent_controls_02.py",
+      "stdout": "independent_controls_02.stdout",
+      "stderr": "independent_controls_02.stderr",
+      "exit_code": 0,
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "note": "Actual script bytes at execution preserved under executed_script_preserved_as; python3 resolved to Xcode command-line Python."
+    },
+    {
+      "executed_argv": [
+        "python3",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV57/source_tightening_01/_run_records/independent_controls.py"
+      ],
+      "executed_script_preserved_as": "independent_controls.py",
+      "stdout": "independent_controls_03.stdout",
+      "stderr": "independent_controls_03.stderr",
+      "exit_code": 0,
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "note": "Actual script bytes at execution preserved under executed_script_preserved_as; python3 resolved to Xcode command-line Python."
+    }
+  ],
+  "python": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+  "version": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "author_replay_command": "AUTHOR_REPLAY.json",
+  "only_execution": "Python standard-library exact algebra and evidence bookkeeping; no compiler/solver/native/model execution"
+}

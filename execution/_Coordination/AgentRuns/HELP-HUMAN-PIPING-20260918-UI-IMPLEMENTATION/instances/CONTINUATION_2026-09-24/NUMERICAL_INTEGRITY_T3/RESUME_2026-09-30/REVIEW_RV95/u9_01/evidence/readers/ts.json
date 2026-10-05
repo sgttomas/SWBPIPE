@@ -1,0 +1,104 @@
+[
+ {
+  "file": "u3g2_successor_dense_scrutiny.json",
+  "case": "with_invocation",
+  "ok": true,
+  "invocation_bound": true,
+  "numerical_eligible": true,
+  "standing": "eligible",
+  "publication_sha256": "487c4cf2e1c9c39ec9b1d3695fee620945bce4fe399f68d74170f6c61d59af66",
+  "n_classifications": 99
+ },
+ {
+  "file": "u3g2_successor_dense_scrutiny.json",
+  "case": "without_invocation",
+  "ok": true,
+  "invocation_bound": false,
+  "numerical_eligible": false,
+  "standing": "needs_recompute",
+  "publication_sha256": "487c4cf2e1c9c39ec9b1d3695fee620945bce4fe399f68d74170f6c61d59af66",
+  "n_classifications": 99
+ },
+ {
+  "file": "u3g2_successor_dense_scrutiny.json",
+  "case": "mode_swapped",
+  "ok": false,
+  "error": "G8:RETAINED_PRECISION_INVOCATION_MISMATCH"
+ },
+ {
+  "file": "u3g2_successor_dense_scrutiny.json",
+  "case": "standing_no_live_capture",
+  "standing": "needs_recompute",
+  "eligible": false,
+  "findings": [
+   "RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED"
+  ]
+ },
+ {
+  "file": "u3g2_successor_dense_scrutiny.json",
+  "case": "standing_live_capture",
+  "standing": "numerically_eligible",
+  "eligible": true,
+  "findings": []
+ },
+ {
+  "file": "u3g2_successor_dense_scrutiny.json",
+  "case": "standing_live_capture_other_model",
+  "standing": "needs_recompute",
+  "eligible": false,
+  "findings": [
+   "RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED"
+  ]
+ },
+ {
+  "file": "u3g2_successor_sparse_interactive.json",
+  "case": "with_invocation",
+  "ok": true,
+  "invocation_bound": true,
+  "numerical_eligible": true,
+  "standing": "eligible",
+  "publication_sha256": "26ef44356d6088dae5320fe390f3ced0b39ec0778af52b129bb13796ad994d2f",
+  "n_classifications": 98
+ },
+ {
+  "file": "u3g2_successor_sparse_interactive.json",
+  "case": "without_invocation",
+  "ok": true,
+  "invocation_bound": false,
+  "numerical_eligible": false,
+  "standing": "needs_recompute",
+  "publication_sha256": "26ef44356d6088dae5320fe390f3ced0b39ec0778af52b129bb13796ad994d2f",
+  "n_classifications": 98
+ },
+ {
+  "file": "u3g2_successor_sparse_interactive.json",
+  "case": "mode_swapped",
+  "ok": false,
+  "error": "G8:RETAINED_PRECISION_INVOCATION_MISMATCH"
+ },
+ {
+  "file": "u3g2_successor_sparse_interactive.json",
+  "case": "standing_no_live_capture",
+  "standing": "needs_recompute",
+  "eligible": false,
+  "findings": [
+   "RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED"
+  ]
+ },
+ {
+  "file": "u3g2_successor_sparse_interactive.json",
+  "case": "standing_live_capture",
+  "standing": "numerically_eligible",
+  "eligible": true,
+  "findings": []
+ },
+ {
+  "file": "u3g2_successor_sparse_interactive.json",
+  "case": "standing_live_capture_other_model",
+  "standing": "needs_recompute",
+  "eligible": false,
+  "findings": [
+   "RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED"
+  ]
+ }
+]

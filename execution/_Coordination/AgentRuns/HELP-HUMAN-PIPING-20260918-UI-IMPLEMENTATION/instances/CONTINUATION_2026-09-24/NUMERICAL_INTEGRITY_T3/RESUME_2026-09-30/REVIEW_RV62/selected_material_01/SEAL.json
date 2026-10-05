@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-03T05:15:07.594199+00:00",
+  "verdict": "CLEAR for bounded manager fan-in; no actionable findings",
+  "candidate": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4",
+  "base": "28ac57891cd5786e8f84d28f54aa7f1581f69402",
+  "payloads": 59,
+  "inventory_sha256": "be64836ba1a622c6473867166dac3b21650413634c8d36288e80d527d9be68bd",
+  "review_sha256": "8c34491b5776fcd91bf35e951dffa8a7f0f2784e339dd82a17ac3287c0d3bc9f",
+  "return_sha256": "ad678dc3d9ac8f12d7562af0e604d36253e23d98df7dd815be6d0d2fde88c4a3",
+  "runtime_released": true
+}

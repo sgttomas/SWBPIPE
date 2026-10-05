@@ -1,0 +1,70 @@
+{
+  "checks": [
+    {
+      "name": "adjacent_side_tests_exhaustive",
+      "passed": true,
+      "rational_cases": 5502
+    },
+    {
+      "iterations": 1025,
+      "max_trial_bits": 1025,
+      "name": "source_division_finite_loop",
+      "pairs": 80,
+      "passed": true
+    },
+    {
+      "cases": 24,
+      "iterations": 1026,
+      "max_active_bits": 1028,
+      "name": "source_sqrt_exact_midpoint_oracle",
+      "passed": true
+    },
+    {
+      "name": "two_product_residual_and_side",
+      "pairs": 80,
+      "passed": true
+    },
+    {
+      "live_magnitude_bits_at_most": 8131,
+      "name": "carry_span_and_symbolic_exponent_fences",
+      "passed": true,
+      "terms_at_most": 5
+    },
+    {
+      "cases": 134,
+      "double_rounding_discriminator": true,
+      "max_comparisons": 64,
+      "name": "closed_RU64_vs_quantum_oracle",
+      "passed": true
+    },
+    {
+      "name": "outward_geometry_extremes",
+      "pairs": 5,
+      "passed": true
+    },
+    {
+      "alpha_rounded_to_one_refuses": true,
+      "material_cases": 3,
+      "name": "material_and_strict_bridge",
+      "passed": true,
+      "tau_cases": 2
+    },
+    {
+      "allowance_cases": 5,
+      "name": "final_exact_comparisons_and_raw_SI",
+      "passed": true
+    },
+    {
+      "comparator_SumWork_upper": 2218,
+      "constant_logical_bytes": 27458,
+      "directed_SumWork_upper": 2922,
+      "member_calls": 1182,
+      "microstep_reservation": 2097152,
+      "name": "counts_and_logical_payload",
+      "passed": true
+    }
+  ],
+  "groups_passed": 10,
+  "kind": "independent exact abstract review controls",
+  "source_executed": false
+}

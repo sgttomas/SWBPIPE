@@ -1,0 +1,320 @@
+[
+  {
+    "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I37/checked_work_a/_run_records/finalb01_kernel_debug.json",
+    "record_sha256": "5f7fafc91737d0fef95314cc82f1102476f677b2fcac8d1a69a0cb72815a69d9",
+    "log_sha256": "051ee0f5e5790f080a79c72e4580fe63762d06ac8dca6e51318c94d3eecff99c",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "-j",
+      "4",
+      "--lib",
+      "checked_work",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "summaries": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.37s",
+      "test structural::retained::adaptive::tests::checked_work_cached_numerical_prior_is_terminal_before_escalation ... ok",
+      "test structural::retained::adaptive::tests::checked_work_stage_merge_max_and_stopped_underflow ... ok",
+      "test structural::retained::adaptive::tests::checked_work_tracker_collapse_cannot_turn_loss_into_prunable_refusal ... ok",
+      "test structural::retained::bound::tests::checked_work_a2_keeps_prior_and_never_resets_accounting_loss ... ok",
+      "test structural::retained::bound::tests::checked_work_ceil_sqrt_never_wraps_at_scalar_limit ... ok",
+      "test structural::retained::adaptive::tests::checked_work_run_increment_is_actual_and_bad_meter_stops_before_preparation ... ok",
+      "test structural::retained::source::checked_count_tests::checked_work_profile_scalar_overflow_refuses_without_allocating ... ok",
+      "test structural::retained::wide::multi::tests::checked_work_context_refuses_before_numerical_operation ... ok",
+      "test structural::retained::wide::multi::tests::checked_work_raw_magnitude_bits_have_a_distinct_scalar_refusal ... ok",
+      "test structural::retained::wide_sum::tests::checked_work_base_reservation_and_observation_are_transactional ... ok",
+      "test structural::retained::wide_sum::tests::checked_work_carry_reservation_poison_and_full_reset ... ok",
+      "test structural::retained::wide_sum::tests::checked_work_compound_span_poison_rejects_zero_donor_shortcut ... ok",
+      "test structural::retained::wide_sum::tests::checked_work_persistent_clone_delta_preserves_later_loss ... ok",
+      "test structural::retained::work::tests::checked_work_foreign_snapshots_and_reverse_deltas_refuse ... ok",
+      "test structural::retained::work::tests::checked_work_max_is_exact_and_overflow_is_sticky ... ok",
+      "test structural::retained::work::tests::checked_work_status_union_and_room_preserve_unavailability ... ok",
+      "test structural::retained::combine::tests::checked_work_recorded_combination_keeps_early_and_run_custody_distinct ... ok",
+      "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 391 filtered out; finished in 0.06s"
+    ]
+  },
+  {
+    "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I37/checked_work_a/_run_records/finalb02_kernel_release.json",
+    "record_sha256": "a64c59d6e672085f82d10fabd524d77d91bea31b98e56c9078cd8a5f620af590",
+    "log_sha256": "8dfe80875e7b9c10d4ae57640b0bbed66de69c620b35b110cb9c4616037138d3",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "-j",
+      "4",
+      "--lib",
+      "--release",
+      "checked_work",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "summaries": [
+      "    Finished `release` profile [optimized] target(s) in 29.76s",
+      "test structural::retained::adaptive::tests::checked_work_cached_numerical_prior_is_terminal_before_escalation ... ok",
+      "test structural::retained::adaptive::tests::checked_work_stage_merge_max_and_stopped_underflow ... ok",
+      "test structural::retained::adaptive::tests::checked_work_run_increment_is_actual_and_bad_meter_stops_before_preparation ... ok",
+      "test structural::retained::adaptive::tests::checked_work_tracker_collapse_cannot_turn_loss_into_prunable_refusal ... ok",
+      "test structural::retained::bound::tests::checked_work_a2_keeps_prior_and_never_resets_accounting_loss ... ok",
+      "test structural::retained::bound::tests::checked_work_ceil_sqrt_never_wraps_at_scalar_limit ... ok",
+      "test structural::retained::source::checked_count_tests::checked_work_profile_scalar_overflow_refuses_without_allocating ... ok",
+      "test structural::retained::wide::multi::tests::checked_work_context_refuses_before_numerical_operation ... ok",
+      "test structural::retained::wide::multi::tests::checked_work_raw_magnitude_bits_have_a_distinct_scalar_refusal ... ok",
+      "test structural::retained::wide_sum::tests::checked_work_base_reservation_and_observation_are_transactional ... ok",
+      "test structural::retained::wide_sum::tests::checked_work_carry_reservation_poison_and_full_reset ... ok",
+      "test structural::retained::wide_sum::tests::checked_work_compound_span_poison_rejects_zero_donor_shortcut ... ok",
+      "test structural::retained::wide_sum::tests::checked_work_persistent_clone_delta_preserves_later_loss ... ok",
+      "test structural::retained::work::tests::checked_work_foreign_snapshots_and_reverse_deltas_refuse ... ok",
+      "test structural::retained::work::tests::checked_work_max_is_exact_and_overflow_is_sticky ... ok",
+      "test structural::retained::work::tests::checked_work_status_union_and_room_preserve_unavailability ... ok",
+      "test structural::retained::combine::tests::checked_work_recorded_combination_keeps_early_and_run_custody_distinct ... ok",
+      "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 391 filtered out; finished in 0.01s"
+    ]
+  },
+  {
+    "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I37/checked_work_a/_run_records/finalb03_golden_prices.json",
+    "record_sha256": "c5d866e79a6707d5c01cb06bf5372d090c3c6eeecc2842c419e28a18bfb14f7a",
+    "log_sha256": "cb5b387574aedf1940ccccc4d3377f6b23cd869d372409ab75b578eaa52a64da",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "-j",
+      "4",
+      "--lib",
+      "golden_work_counts",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "summaries": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s",
+      "test structural::retained::adaptive::tests::golden_work_counts ... ok",
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 407 filtered out; finished in 0.75s"
+    ]
+  },
+  {
+    "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I37/checked_work_a/_run_records/finalb04_certificate_prices.json",
+    "record_sha256": "3cd3f74c32b6c0a1d7ca470a46178c29026f8a3ea580ab8f1bfa40795d16c606",
+    "log_sha256": "3d0bc717dd97539ace4fbc498d64ff6253a86723fcfb2a5d882f79d2db939980",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "-j",
+      "4",
+      "--lib",
+      "pc4",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "summaries": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s",
+      "test structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection ... ok",
+      "test structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence ... ok",
+      "test structural::retained::adaptive::publication_tests::pc41_independent_successful_checkpoints_and_both_budget_scopes ... ok",
+      "test structural::retained::adaptive::publication_tests::pc44_46_replay_and_fresh_combination_keep_owned_radii_and_policy ... ok",
+      "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 404 filtered out; finished in 0.01s"
+    ]
+  },
+  {
+    "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I37/checked_work_a/_run_records/finalb05_raw_oracle.json",
+    "record_sha256": "bf9bec96959e8dff40077a885fea58664e9f0985ec98fd95368b3a32e57b8f92",
+    "log_sha256": "9c378615f6ed9e48d126a30e145d630b76c1b286321b3dd4effa1c5b3821d292",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "-j",
+      "4",
+      "--lib",
+      "targeted_sums_match_the_fraction_oracle",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "summaries": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s",
+      "test structural::retained::wide_sum::tests::targeted_sums_match_the_fraction_oracle ... ok",
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 407 filtered out; finished in 0.01s"
+    ]
+  },
+  {
+    "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I37/checked_work_a/_run_records/finalb06_inventory.json",
+    "record_sha256": "91cadc538c4aabac961656dc690f463458b3ba33aa262dcab3584d76d2eebeed",
+    "log_sha256": "a72748bbd549fb224fc20d6553f2c147d493d3e467199437ffcfdd9f0dcfff1c",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "-j",
+      "4",
+      "--test",
+      "s11_site_table",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "summaries": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.06s",
+      "test scanner_counts_what_it_claims ... ok",
+      "test scanner_counts_self_assignment_folds ... ok",
+      "test site_table_is_exactly_the_accumulations_of_the_scanned_files ... ok",
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s"
+    ]
+  },
+  {
+    "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I37/checked_work_a/_run_records/finalb07_h_public.json",
+    "record_sha256": "0754a1aa9b6af7c77213e74dbd21c4cba25fb7007a2b942b6a66e54ed86a0808",
+    "log_sha256": "519a233fa25e31b003b46d337cd4ea630d04ad7ea430cd81e135b3ea8794a18f",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+      "-j",
+      "4",
+      "--test",
+      "k6b_export",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "summaries": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.66s",
+      "test a_source_built_outside_fk_is_solved_and_read_through_the_public_path ... ok",
+      "test checked_work_public_consumers_refuse_unavailable_stage_records ... ok",
+      "test publication_failure_reasons_are_typed_at_the_public_boundary ... ok",
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s"
+    ]
+  },
+  {
+    "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I37/checked_work_a/_run_records/finalb08_h_writer.json",
+    "record_sha256": "3ec1ae4f44efab339f58d9a10e31e78f57d1424adb3f66bdefc9694d1f06f0cf",
+    "log_sha256": "40212bfa906e9ac1153c6edff6030e8a5132131129e0ff73a8006c8185d838b9",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+      "-j",
+      "4",
+      "--bin",
+      "k6_observe",
+      "checked_work",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "summaries": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.34s",
+      "test w1::checked_work_tests::checked_work_explicit_terminal_cannot_emit_with_an_exact_empty_view ... ok",
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+    ]
+  },
+  {
+    "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I37/checked_work_a/_run_records/finalb09_h_partial.json",
+    "record_sha256": "b9a0d9ac98c7293a2a8a80383e59b5dec45e18ff3620f38e126ad82c773164e8",
+    "log_sha256": "3f4576ee40d0f1576176c3abed8a845b5b21ebcd41b353b494196525a5eb06c4",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+      "-j",
+      "4",
+      "--test",
+      "k6b_w1",
+      "a_build_that_stops_partway_is_checked_against_its_charged_total",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "summaries": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s",
+      "test a_build_that_stops_partway_is_checked_against_its_charged_total ... ok",
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.50s"
+    ]
+  },
+  {
+    "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I37/checked_work_a/_run_records/finalb10_vr_bytes.json",
+    "record_sha256": "4cfc970e33954418682ba01c5285bb5b24c613385dbc23442dbaf8c6512a483f",
+    "log_sha256": "47ad5e4416b5fa791c98bcb499b5ea1784806203734ee09789ce114207f83e4f",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+      "-j",
+      "4",
+      "--test",
+      "lane",
+      "checked_work_one_clean_record_keeps_bytes_and_nonexact_attempt_is_refused",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "summaries": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.97s",
+      "test checked_work_one_clean_record_keeps_bytes_and_nonexact_attempt_is_refused ... ok",
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.18s"
+    ]
+  },
+  {
+    "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I37/checked_work_a/_run_records/finalb11_vr_examples.json",
+    "record_sha256": "fcced9d6eaf6a2e717c78674feb3b2c5a25cafc27a068585f536ccdad0f4f35c",
+    "log_sha256": "b217edcbc767d17669fe4834548619c6a59c768e3ecf3861f83e229fded625a4",
+    "argv": [
+      "cargo",
+      "check",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+      "--lib",
+      "--example",
+      "vk_records",
+      "--example",
+      "vk_scale",
+      "-j",
+      "4"
+    ],
+    "exit": 0,
+    "summaries": [
+      "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.18s"
+    ]
+  },
+  {
+    "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I37/checked_work_a/_run_records/finalb12_shared_error_compatibility.json",
+    "record_sha256": "b650d666d09a5b71a164149c01cac1ab6a6d7ca9392ebb435663e3b9ba855e03",
+    "log_sha256": "14a894818dc4115c949343bd9324471173f8a91e094085256d2fdbe342544b37",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "--lib",
+      "-j",
+      "4",
+      "kd5_unavailable_family_and_wide_error_fail_closed_and_never_err",
+      "--",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "summaries": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s",
+      "test structural::formation_check::tests::kd5_unavailable_family_and_wide_error_fail_closed_and_never_err ... ok",
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 407 filtered out; finished in 0.01s"
+    ]
+  }
+]

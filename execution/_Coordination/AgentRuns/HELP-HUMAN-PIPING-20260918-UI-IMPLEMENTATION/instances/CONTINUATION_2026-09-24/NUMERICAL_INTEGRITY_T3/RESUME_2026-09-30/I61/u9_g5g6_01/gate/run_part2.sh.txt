@@ -1,0 +1,18 @@
+#!/bin/bash
+# I61 U9 G6 part 2 (candidate C2 = 92a5a9da1c): the four dense 1,000-member runs, base and candidate interleaved, one at a time, TIMEOUT_LARGE 1800 s,
+# with I13's gate_part2.py (F1b gate 2, e43c662b...) unchanged. Before starting, wait until no foreign
+# cargo/solver/test job has been seen for QUIET_POLLS (default 8) consecutive 15 s polls; during the run, a watcher records foreign jobs every 5 s.
+set -u
+WT=WT; G=$WT/scratch/u9_gate; PY=REPO_ROOT/projects/chirality-piping/.venv/bin/python
+OUT=$G/${1:-part2}
+pgrep -f memguard.sh >/dev/null || { echo "MEMGUARD NOT RUNNING"; exit 9; }
+quiet=0; echo "== waiting for a quiet host $(date -u +%FT%TZ)"
+while [ $quiet -lt ${QUIET_POLLS:-8} ]; do n=$($G/foreign_jobs.sh | wc -l); if [ $n -eq 0 ]; then quiet=$((quiet+1)); else quiet=0; fi; sleep 15; done
+echo "== quiet since $(date -u +%FT%TZ)"
+mkdir -p $OUT
+( while true; do n=$($G/foreign_jobs.sh | wc -l | tr -d " "); j=$($G/foreign_jobs.sh | head -3 | cut -c1-120 | tr "\t\n" "  "); printf "%s\t%s\t%s\t%s\n" "$(date -u +%FT%TZ)" "$n" "$(sysctl -n vm.loadavg)" "$j"; sleep 5; done ) > $OUT/host_watch.tsv 2>/dev/null &
+W=$!
+cd $G && $PY -B scripts/gate_part2.py scripts $WT/targets/i61-u9g6/base/release/t3_p1_probe $WT/targets/i61-u9g6/cand92/release/t3_p1_probe gen_out $OUT > $OUT/driver.log 2>&1; echo "== part2 exit=$? $(date -u +%FT%TZ)"
+kill $W
+echo "foreign-job samples during the run: $(awk -F"\t" "\$2>0" $OUT/host_watch.tsv | wc -l | tr -d " ") of $(wc -l < $OUT/host_watch.tsv | tr -d " ")"
+echo PART2-DONE $(date -u +%FT%TZ)

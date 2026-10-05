@@ -1,0 +1,189 @@
+{
+  "created": "2026-10-03T01:02:59.028326+00:00",
+  "files": [
+    {
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "627404d6c0de08e6c681dcc876b39efc68fa04b5c155636785e2abb0f4faff0b",
+      "imported": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/lib.rs",
+      "changes": [
+        [
+          "pub mod exact_sum;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs\"] pub mod exact_sum;"
+        ],
+        [
+          "pub mod load_ledger;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/load_ledger.rs\"] pub mod load_ledger;"
+        ],
+        [
+          "pub mod rigid_body;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs\"] pub mod rigid_body;"
+        ],
+        [
+          "pub mod structural;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/structural.rs\"] pub mod structural;"
+        ]
+      ]
+    },
+    {
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "sha256": "65042658c8cf01273d7765ceb41c74a8acae682716bcbd25a850f14e9764a78a",
+      "imported": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/structural.rs",
+      "changes": [
+        [
+          "pub mod exact_boundary;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs\"] pub mod exact_boundary;"
+        ],
+        [
+          "mod formation_check;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check.rs\"] mod formation_check;"
+        ],
+        [
+          "mod sparse;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs\"] mod sparse;"
+        ],
+        [
+          "mod kf2_witness_tests;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/kf2_witness_tests.rs\"] mod kf2_witness_tests;"
+        ],
+        [
+          "mod s11f_tests;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_tests.rs\"] mod s11f_tests;"
+        ],
+        [
+          "mod s11k_tests;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs\"] mod s11k_tests;"
+        ],
+        [
+          "mod retained;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/retained.rs\"] mod retained;"
+        ]
+      ]
+    },
+    {
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs",
+      "sha256": "b9fadf96900fb45131a6492ba34cf6f23cfb00803fad08c58778600aebc84a24",
+      "imported": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/retained.rs",
+      "changes": [
+        [
+          "pub(crate) mod wide;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs\"] pub(crate) mod wide;"
+        ],
+        [
+          "pub(crate) mod adaptive;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/adaptive.rs\"] pub(crate) mod adaptive;"
+        ],
+        [
+          "pub(crate) mod assemble;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs\"] pub(crate) mod assemble;"
+        ],
+        [
+          "pub(crate) mod bound;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs\"] pub(crate) mod bound;"
+        ],
+        [
+          "pub(crate) mod combine;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs\"] pub(crate) mod combine;"
+        ],
+        [
+          "pub(crate) mod directed;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs\"] pub(crate) mod directed;"
+        ],
+        [
+          "pub(crate) mod factor;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs\"] pub(crate) mod factor;"
+        ],
+        [
+          "pub(crate) mod ledger;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs\"] pub(crate) mod ledger;"
+        ],
+        [
+          "pub(crate) mod recover;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs\"] pub(crate) mod recover;"
+        ],
+        [
+          "mod product_certificate;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs\"] mod product_certificate;"
+        ],
+        [
+          "pub(crate) mod seeded;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs\"] pub(crate) mod seeded;"
+        ],
+        [
+          "pub(crate) mod source;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs\"] pub(crate) mod source;"
+        ],
+        [
+          "pub(crate) mod verify;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs\"] pub(crate) mod verify;"
+        ],
+        [
+          "pub(crate) mod wide_sum;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs\"] pub(crate) mod wide_sum;"
+        ],
+        [
+          "pub(crate) mod work;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/work.rs\"] pub(crate) mod work;"
+        ],
+        [
+          "pub(crate) mod origins;",
+          "#[path=\"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs\"] pub(crate) mod origins;"
+        ]
+      ]
+    },
+    {
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "sha256": "cbd78d3e79fe11a5ae3cdd5422d641850980b88aa0dbb7fa318d6a5e7ce8d8bb",
+      "imported": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/adaptive.rs",
+      "changes": [
+        [
+          "#[path = \"../../../tests/retained_k4/adaptive_tests.rs\"]",
+          "#[path = \"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs\"]"
+        ],
+        [
+          "#[path = \"../../../tests/retained_k4/kf1_tracker_tests.rs\"]",
+          "#[path = \"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs\"]"
+        ],
+        [
+          "#[path = \"../../../tests/retained_k4/references_tests.rs\"]",
+          "#[path = \"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/references_tests.rs\"]"
+        ],
+        [
+          "#[path = \"../../../tests/retained_k4/classification_tests.rs\"]",
+          "#[path = \"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs\"]"
+        ],
+        [
+          "#[path = \"../../../tests/retained_k4/kf3_tests.rs\"]",
+          "#[path = \"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3_tests.rs\"]"
+        ],
+        [
+          "#[path = \"../../../tests/retained_k4/method_tests.rs\"]",
+          "#[path = \"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs\"]"
+        ],
+        [
+          "#[path = \"../../../tests/retained_k4/scale_tests.rs\"]",
+          "#[path = \"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs\"]"
+        ],
+        [
+          "#[path = \"../../../tests/retained_k4/publication_tests.rs\"]",
+          "#[path = \"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs\"]"
+        ],
+        [
+          "#[path = \"../../../tests/retained_k4/source_bridge_tests.rs\"]",
+          "#[path = \"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/source_bridge_tests.rs\"]"
+        ]
+      ]
+    },
+    {
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_tests.rs",
+      "sha256": "12bb7ec09844892532de15dd6a051d0aa5c87ceb031f9d6f093e999720681313",
+      "imported": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/source_bridge_tests.rs",
+      "changes": [
+        [
+          "#[path = \"source_bridge_vectors.rs\"]",
+          "#[path = \"/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_vectors.rs\"]"
+        ]
+      ]
+    }
+  ],
+  "scope": "Five source files copied solely for private append-only tests; all other module bodies imported by absolute source path. No full tree copy."
+}

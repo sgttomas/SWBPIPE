@@ -1,0 +1,61 @@
+{
+ "identity_equal": true,
+ "reviewed_inputs_equal": true,
+ "reviewed_inputs_count": 14,
+ "unavailable_inputs": 0,
+ "layouts_compiled": [
+  [
+   "Validation",
+   56,
+   8
+  ],
+  [
+   "ValidationError",
+   64,
+   8
+  ],
+  [
+   "RowClassification",
+   96,
+   8
+  ],
+  [
+   "AccuracyClass",
+   16,
+   8
+  ]
+ ],
+ "layouts_entry": [
+  [
+   56,
+   8
+  ],
+  [
+   64,
+   8
+  ],
+  [
+   96,
+   8
+  ],
+  [
+   16,
+   8
+  ]
+ ],
+ "layouts_equal": true,
+ "threshold_bytes": 4026531840,
+ "registered_tests": {
+  "the_registered_profile_is_the_only_permit_source": "ok",
+  "admit_grants_a_permit_for_the_milestone_in_the_registered_build": "ok",
+  "registered_g_c_declines_only_unattempted_solves": "ok",
+  "bindings_need_witnesses_inputs_and_reader_layouts": "ok",
+  "reviewed_inputs_bind_the_lock_and_the_reader_statics": "ok",
+  "profile_in_build_record": "ok",
+  "challenge_bounds_are_the_profile": "ok"
+ },
+ "summary": [
+  "test result: ok. 42 passed; 0 failed; 9 ignored; 0 measured; 496 filtered out; finished in 3.50s"
+ ],
+ "registered": true
+}

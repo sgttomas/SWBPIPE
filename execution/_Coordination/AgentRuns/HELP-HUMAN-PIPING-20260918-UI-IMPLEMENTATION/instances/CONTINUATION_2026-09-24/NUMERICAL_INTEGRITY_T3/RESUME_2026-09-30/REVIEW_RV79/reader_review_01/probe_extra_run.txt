@@ -1,0 +1,19 @@
+== 1. M06 isolation
+shared entry, reviewed reader: G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH lines=[1445, 822, 651, 765, 128]
+shared entry, M06 reader: G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH
+isolating variant (observables completed+passed), reviewed reader: G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH lines=[1445, 822, 651, 765, 128]
+isolating variant, M06 reader: G5 RETAINED_PRECISION_WORK_MISMATCH
+== 2. malformed top-level inputs
+producer_list UNTYPED AttributeError
+formulation_basis_str UNTYPED AttributeError
+retained_precision_list G1 RETAINED_PRECISION_RECEIPT_MISMATCH lines=[1389, 128]
+source_is_list G0 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED lines=[1374, 128]
+body_product_attempts_dict G1 RETAINED_PRECISION_RECEIPT_MISMATCH lines=[1389, 128]
+results_not_list G1 RETAINED_PRECISION_RECEIPT_MISMATCH lines=[1389, 128]
+numerical_quality_missing G1 RETAINED_PRECISION_RECEIPT_MISMATCH lines=[1392, 128]
+diagnostics_missing G1 RETAINED_PRECISION_RECEIPT_MISMATCH lines=[1392, 128]
+no_invocation_base PASS (eligible=False)
+== 3. unsafe or non-integral U without rehash
+charged_2^53 G1 RETAINED_PRECISION_RECEIPT_MISMATCH lines=[1475]
+charged_1.5 G1 RETAINED_PRECISION_RECEIPT_MISMATCH lines=[1391, 128]
+charged_integral_float PASS (eligible=False)

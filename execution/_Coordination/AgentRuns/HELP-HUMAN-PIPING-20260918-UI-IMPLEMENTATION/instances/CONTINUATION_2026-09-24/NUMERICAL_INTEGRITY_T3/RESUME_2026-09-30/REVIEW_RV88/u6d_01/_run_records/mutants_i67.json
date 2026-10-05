@@ -1,0 +1,479 @@
+{
+ "control": {
+  "exit": 0,
+  "i67_failed": 0,
+  "rv88_failed": 0,
+  "load_errors": [],
+  "first_i67": [],
+  "first_rv88": [],
+  "passed": 311
+ },
+ "mutants": [
+  {
+   "exit": 1,
+   "i67_failed": 123,
+   "rv88_failed": 9,
+   "load_errors": [],
+   "first_i67": [
+    "sparse_interactive: the AnalysisRun copies the receipt and validates its equality builds through the product path with the complete receipt, byte-equal, and validates",
+    "sparse_interactive: the AnalysisRun copies the receipt and validates its equality row interpretation equals the base preview-physics-1 projection's except the contract binding"
+   ],
+   "first_rv88": [
+    "sparse_interactive: registration is bound to the exact bytes and the captured invocation registers only a direct delivery with a captured model; copies, edits and model-less deliveries never stand",
+    "sparse_interactive: registration is bound to the exact bytes and the captured invocation standing never reads numerical_quality (seam), and a foreign mode is refused"
+   ],
+   "passed": 179,
+   "id": "N01",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "guard: the successor itself is not exempt",
+   "i67_suite": "KILLED",
+   "rv88_suite": "KILLED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 1,
+   "rv88_failed": 0,
+   "load_errors": [],
+   "first_i67": [
+    "the downgrade guard (F-5) with neither the receipt nor a token row it is the base identity again, and the guard ignores other method strings"
+   ],
+   "first_rv88": [],
+   "passed": 310,
+   "id": "N05",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "guard: any method string",
+   "i67_suite": "KILLED",
+   "rv88_suite": "SURVIVED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 1,
+   "rv88_failed": 0,
+   "load_errors": [],
+   "first_i67": [
+    "the downgrade guard (F-5) the successor's own header requires its profile, its contract evidence and a receipt object, and no other receipt"
+   ],
+   "first_rv88": [],
+   "passed": 310,
+   "id": "N09",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "dispatch: null receipt admitted",
+   "i67_suite": "KILLED",
+   "rv88_suite": "SURVIVED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 123,
+   "rv88_failed": 9,
+   "load_errors": [],
+   "first_i67": [
+    "sparse_interactive: the AnalysisRun copies the receipt and validates its equality builds through the product path with the complete receipt, byte-equal, and validates",
+    "sparse_interactive: the AnalysisRun copies the receipt and validates its equality row interpretation equals the base preview-physics-1 projection's except the contract binding"
+   ],
+   "first_rv88": [
+    "sparse_interactive: registration is bound to the exact bytes and the captured invocation registers only a direct delivery with a captured model; copies, edits and model-less deliveries never stand",
+    "sparse_interactive: registration is bound to the exact bytes and the captured invocation standing never reads numerical_quality (seam), and a foreign mode is refused"
+   ],
+   "passed": 179,
+   "id": "N13",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "dispatch: routed as preview-physics-1",
+   "i67_suite": "KILLED",
+   "rv88_suite": "KILLED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 2,
+   "rv88_failed": 0,
+   "load_errors": [],
+   "first_i67": [
+    "sparse_interactive: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation",
+    "dense_scrutiny: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+   ],
+   "first_rv88": [],
+   "passed": 309,
+   "id": "N17",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "standing: eligible status never shown",
+   "i67_suite": "KILLED",
+   "rv88_suite": "SURVIVED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 1,
+   "rv88_failed": 0,
+   "load_errors": [],
+   "first_i67": [
+    "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+   ],
+   "first_rv88": [],
+   "passed": 310,
+   "id": "N21",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "predicate: accuracy evidence dropped",
+   "i67_suite": "KILLED",
+   "rv88_suite": "SURVIVED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 15,
+   "rv88_failed": 5,
+   "load_errors": [],
+   "first_i67": [
+    "sparse_interactive: registration through mocked IPC a delivery with an edited covered row records the reader's first code: unsupported, never registered natively",
+    "sparse_interactive: registration through mocked IPC a delivery with a hash-consistent-looking quality claim of checks_passed records the reader's first code: unsupported, never registered natively"
+   ],
+   "first_rv88": [
+    "sparse_interactive: registration is bound to the exact bytes and the captured invocation registers only a direct delivery with a captured model; copies, edits and model-less deliveries never stand",
+    "sparse_interactive: registration is bound to the exact bytes and the captured invocation standing never reads numerical_quality (seam), and a foreign mode is refused"
+   ],
+   "passed": 291,
+   "id": "S02",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "register: refusal not recorded",
+   "i67_suite": "KILLED",
+   "rv88_suite": "KILLED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 2,
+   "rv88_failed": 2,
+   "load_errors": [],
+   "first_i67": [
+    "sparse_interactive: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero",
+    "dense_scrutiny: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+   ],
+   "first_rv88": [
+    "sparse_interactive: registration is bound to the exact bytes and the captured invocation registers only a direct delivery with a captured model; copies, edits and model-less deliveries never stand",
+    "dense_scrutiny: registration is bound to the exact bytes and the captured invocation registers only a direct delivery with a captured model; copies, edits and model-less deliveries never stand"
+   ],
+   "passed": 307,
+   "id": "S06",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "registered: zero signs not compared",
+   "i67_suite": "KILLED",
+   "rv88_suite": "KILLED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 13,
+   "rv88_failed": 7,
+   "load_errors": [],
+   "first_i67": [
+    "sparse_interactive: registration through mocked IPC direct IPC registers only after the accepted reader passes with the captured invocation",
+    "sparse_interactive: registration through mocked IPC job IPC registers only after the accepted reader passes with the captured invocation"
+   ],
+   "first_rv88": [
+    "sparse_interactive: registration is bound to the exact bytes and the captured invocation registers only a direct delivery with a captured model; copies, edits and model-less deliveries never stand",
+    "sparse_interactive: registration is bound to the exact bytes and the captured invocation standing never reads numerical_quality (seam), and a foreign mode is refused"
+   ],
+   "passed": 291,
+   "id": "S10",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "seam: reader eligibility not required",
+   "i67_suite": "KILLED",
+   "rv88_suite": "KILLED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 1,
+   "rv88_failed": 0,
+   "load_errors": [],
+   "first_i67": [
+    "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+   ],
+   "first_rv88": [],
+   "passed": 310,
+   "id": "S14",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "seam: not_required conjunct dropped",
+   "i67_suite": "KILLED",
+   "rv88_suite": "SURVIVED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 1,
+   "rv88_failed": 0,
+   "load_errors": [],
+   "first_i67": [
+    "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+   ],
+   "first_rv88": [],
+   "passed": 310,
+   "id": "S18",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "not_required: missing quality case admitted",
+   "i67_suite": "KILLED",
+   "rv88_suite": "SURVIVED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 6,
+   "rv88_failed": 0,
+   "load_errors": [],
+   "first_i67": [
+    "sparse_interactive: registration through mocked IPC direct IPC registers only after the accepted reader passes with the captured invocation",
+    "sparse_interactive: registration through mocked IPC job IPC registers only after the accepted reader passes with the captured invocation"
+   ],
+   "first_rv88": [],
+   "passed": 305,
+   "id": "S22",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "invocation: returned without eligible standing",
+   "i67_suite": "KILLED",
+   "rv88_suite": "SURVIVED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 1,
+   "rv88_failed": 0,
+   "load_errors": [],
+   "first_i67": [
+    "the post-U7 standing rules (seams; the reader's flag is untouched) counts withheld rows by standing (Rust classification_summary_from)"
+   ],
+   "first_rv88": [],
+   "passed": 310,
+   "id": "S26",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "summary: not_covered not withheld when current",
+   "i67_suite": "KILLED",
+   "rv88_suite": "SURVIVED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 2,
+   "rv88_failed": 0,
+   "load_errors": [],
+   "first_i67": [
+    "sparse_interactive: registration through mocked IPC a registration without an invocation is never eligible, even with the post-U7 reader, and says so",
+    "dense_scrutiny: registration through mocked IPC a registration without an invocation is never eligible, even with the post-U7 reader, and says so"
+   ],
+   "first_rv88": [],
+   "passed": 309,
+   "id": "S30",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "text: invocation binding not stated",
+   "i67_suite": "KILLED",
+   "rv88_suite": "SURVIVED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 6,
+   "rv88_failed": 4,
+   "load_errors": [],
+   "first_i67": [
+    "sparse_interactive: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero",
+    "dense_scrutiny: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+   ],
+   "first_rv88": [
+    "sparse_interactive: registration is bound to the exact bytes and the captured invocation registers only a direct delivery with a captured model; copies, edits and model-less deliveries never stand",
+    "dense_scrutiny: registration is bound to the exact bytes and the captured invocation registers only a direct delivery with a captured model; copies, edits and model-less deliveries never stand"
+   ],
+   "passed": 301,
+   "id": "K02",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "binding: successor not class-refused",
+   "i67_suite": "KILLED",
+   "rv88_suite": "KILLED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 5,
+   "rv88_failed": 0,
+   "load_errors": [],
+   "first_i67": [
+    "sparse_interactive: the simulated post-U7 path through the real carriers without absolute rows there is no absolute summary notice",
+    "dense_scrutiny: the simulated post-U7 path through the real carriers without absolute rows there is no absolute summary notice"
+   ],
+   "first_rv88": [],
+   "passed": 306,
+   "id": "K06",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "notices: preview notices not reused",
+   "i67_suite": "KILLED",
+   "rv88_suite": "SURVIVED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 3,
+   "rv88_failed": 0,
+   "load_errors": [],
+   "first_i67": [
+    "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case",
+    "notices, labels and the results-panel standing text dense_scrutiny: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+   ],
+   "first_rv88": [],
+   "passed": 308,
+   "id": "K10",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "notices: absolute summary absent",
+   "i67_suite": "KILLED",
+   "rv88_suite": "SURVIVED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 3,
+   "rv88_failed": 1,
+   "load_errors": [],
+   "first_i67": [
+    "notices, labels and the results-panel standing text the bound is printed upward with three significant digits",
+    "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+   ],
+   "first_rv88": [
+    "F6: new product text claims nothing beyond the receipt's bound upwardBoundText is never below b, and is the least 3-significant-digit decimal >= b or one step above it"
+   ],
+   "passed": 307,
+   "id": "K14",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "bound text: nearest, not upward",
+   "i67_suite": "KILLED",
+   "rv88_suite": "KILLED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 3,
+   "rv88_failed": 2,
+   "load_errors": [],
+   "first_i67": [
+    "notices, labels and the results-panel standing text the bound is printed upward with three significant digits",
+    "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+   ],
+   "first_rv88": [
+    "F6: new product text claims nothing beyond the receipt's bound sparse_interactive: every absolute row's label prints the receipt's bound upward in the reader's SI unit",
+    "F6: new product text claims nothing beyond the receipt's bound dense_scrutiny: every absolute row's label prints the receipt's bound upward in the reader's SI unit"
+   ],
+   "passed": 306,
+   "id": "K18",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "units: mm not normalized",
+   "i67_suite": "KILLED",
+   "rv88_suite": "KILLED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 2,
+   "rv88_failed": 0,
+   "load_errors": [],
+   "first_i67": [
+    "sparse_interactive: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)",
+    "dense_scrutiny: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+   ],
+   "first_rv88": [],
+   "passed": 309,
+   "id": "K22",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "label: not_covered rows unlabelled",
+   "i67_suite": "KILLED",
+   "rv88_suite": "SURVIVED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 41,
+   "rv88_failed": 2,
+   "load_errors": [],
+   "first_i67": [
+    "the shared refusal names the desktop route only, routes it to T6, never calls the result invalid or unsupported, and is distinct from load-reference",
+    "PCF export refuses sparse_interactive successor output with its own reason and keeps its display"
+   ],
+   "first_rv88": [
+    "sparse_interactive: downgrade guards and refusal codes AnalysisRun copies the receipt whole and refuses every mismatch; reopen revalidates; outputs refuse",
+    "dense_scrutiny: downgrade guards and refusal codes AnalysisRun copies the receipt whole and refuses every mismatch; reopen revalidates; outputs refuse"
+   ],
+   "passed": 268,
+   "id": "L01",
+   "file": "src/features/results/loadReferenceOutputAvailability.ts",
+   "desc": "refusal: successor not refused",
+   "i67_suite": "KILLED",
+   "rv88_suite": "KILLED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 2,
+   "rv88_failed": 0,
+   "load_errors": [],
+   "first_i67": [
+    "sparse_interactive: the AnalysisRun copies the receipt and validates its equality an edited source is refused by the reader at build and at validation, with its own code",
+    "dense_scrutiny: the AnalysisRun copies the receipt and validates its equality an edited source is refused by the reader at build and at validation, with its own code"
+   ],
+   "first_rv88": [],
+   "passed": 309,
+   "id": "A01",
+   "file": "src/services/analysisRunCompatibility.ts",
+   "desc": "build: recorded before the reader",
+   "i67_suite": "KILLED",
+   "rv88_suite": "SURVIVED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 1,
+   "rv88_failed": 2,
+   "load_errors": [],
+   "first_i67": [
+    "no other identity's record carries a receipt a preview-physics-1 record given the successor's receipt is ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+   ],
+   "first_rv88": [
+    "sparse_interactive: downgrade guards and refusal codes AnalysisRun copies the receipt whole and refuses every mismatch; reopen revalidates; outputs refuse",
+    "dense_scrutiny: downgrade guards and refusal codes AnalysisRun copies the receipt whole and refuses every mismatch; reopen revalidates; outputs refuse"
+   ],
+   "passed": 308,
+   "id": "A05",
+   "file": "src/services/analysisRunCompatibility.ts",
+   "desc": "validate: receipt on another identity admitted",
+   "i67_suite": "KILLED",
+   "rv88_suite": "KILLED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 2,
+   "rv88_failed": 0,
+   "load_errors": [],
+   "first_i67": [
+    "sparse_interactive: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation",
+    "dense_scrutiny: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+   ],
+   "first_rv88": [],
+   "passed": 309,
+   "id": "C02",
+   "file": "src/services/ruleCheckService.ts",
+   "desc": "gate: invocation not passed",
+   "i67_suite": "KILLED",
+   "rv88_suite": "SURVIVED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 1,
+   "rv88_failed": 0,
+   "load_errors": [],
+   "first_i67": [
+    "notices, labels and the results-panel standing text the standing text comes from the registered receipt, never from numerical_quality"
+   ],
+   "first_rv88": [],
+   "passed": 310,
+   "id": "RP1",
+   "file": "src/features/results/ResultsPanel.tsx",
+   "desc": "panel: generic numerical_quality text for the successor",
+   "i67_suite": "KILLED",
+   "rv88_suite": "SURVIVED"
+  },
+  {
+   "exit": 1,
+   "i67_failed": 4,
+   "rv88_failed": 2,
+   "load_errors": [],
+   "first_i67": [
+    "sparse_interactive: reopen revalidates the saved statement and never mints standing an altered AnalysisRun receipt copy is reported",
+    "sparse_interactive: reopen revalidates the saved statement and never mints standing an dropped AnalysisRun receipt copy is reported"
+   ],
+   "first_rv88": [
+    "sparse_interactive: downgrade guards and refusal codes AnalysisRun copies the receipt whole and refuses every mismatch; reopen revalidates; outputs refuse",
+    "dense_scrutiny: downgrade guards and refusal codes AnalysisRun copies the receipt whole and refuses every mismatch; reopen revalidates; outputs refuse"
+   ],
+   "passed": 305,
+   "id": "H03",
+   "file": "src/features/results/HistoricalRunContext.tsx",
+   "desc": "reopen: copy not compared",
+   "i67_suite": "KILLED",
+   "rv88_suite": "KILLED"
+  }
+ ]
+}

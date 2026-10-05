@@ -1,0 +1,41 @@
+{
+  "utc": "2026-10-03T15:02:48.275234+00:00",
+  "status": "first six-file source boundary, not yet compiled",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "bytes": 991062,
+      "sha256": "d2f0f2dc73a717412cf5a37f3df8bcb808703466378ecf56052866b073b35f61"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+      "bytes": 44848,
+      "sha256": "c2fce1458f646b866886b9e1ffae07569d34ea517c7a7309d6b8140522f305fa"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_memory.rs",
+      "bytes": 16129,
+      "sha256": "002ef8584f6db37572ddbbff760665539e3245d27b83b87b9f79d9a2fa3ffd99"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/tests/retained_precision_admission.rs",
+      "bytes": 8034,
+      "sha256": "047a83ace4377716783b6ef28f606e405a9e3d373bd58e6b905e4d1f66cc60d3"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "bytes": 69436,
+      "sha256": "782f496dd297a60e1c3cd8c19948f3988555b1fe79b5ed0325c2b140b9669693"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/tests/retained_precision_admission.rs",
+      "bytes": 5472,
+      "sha256": "5640c8eaa15cf307ddb5d64549f686367c1699c716f627561e707fa710b9ed7e"
+    }
+  ],
+  "qualified": false,
+  "facts": "Bounded raw iterator stack and value work limit, actual String/key/array capacity, typed top-level Vec capacity, checked DOF upper; all missing terms retained",
+  "permit": "No registered profile type value; only refusal",
+  "ordinary_invocation_control": "cfg(test) thread-local counter on actual selected ordinary dispatch; no production counter",
+  "headless": "explicit borrowed actual payload/invocation/request-id context; no complete caller qualification"
+}

@@ -1,0 +1,3 @@
+label: serializer EMITTED; reader(with the foreign invocation)=PASS bound=true; reader(with the candidate's own invocation)=FIRST G8 RETAINED_PRECISION_INVOCATION_MISMATCH
+project_id: serializer EMITTED; reader(with the foreign invocation)=FIRST G8 RETAINED_PRECISION_INVOCATION_MISMATCH; reader(with the candidate's own invocation)=FIRST G8 RETAINED_PRECISION_INVOCATION_MISMATCH
+load_magnitude: serializer EMITTED; reader(with the foreign invocation)=FIRST G8 RETAINED_PRECISION_PREPARATION_MISMATCH; reader(with the candidate's own invocation)=FIRST G8 RETAINED_PRECISION_INVOCATION_MISMATCH

@@ -1,0 +1,8 @@
+{
+  "sealed_utc": "2026-10-03T05:18:11.060866+00:00",
+  "return_sha256": "7c5da65a02762ae34e3e2847e61571e5ae4f7fa7516165460d118f7da7bf353c",
+  "inventory_sha256": "067326ba5ba19e01626fb33fb76a49ded06735ae5bfacf9ba606fde25a800870",
+  "payload_count": 25,
+  "status": "completed bounded diagnosis; no implementation or acceptance",
+  "result": "geometric lower bound forces both sharper refusals; direct native projection leaves row and scale unchanged"
+}

@@ -1,0 +1,9 @@
+{
+  "sealed_utc": "2026-10-03T19:18:02.193839+00:00",
+  "manifest_sha256": "88a11fc8b3088a7f36fdf2484470d7e78e956f435205cbfdf2f46e54de854320",
+  "manifest_bytes": 1163,
+  "disposition": "CLEAR for ROOT design disposition only",
+  "source_revision": "fc23cff95fca3cce2bc10055b96aef5afd7c8478",
+  "reviewed_proposal_manifest": "f57f795d953bc1372cc66d9f68cb4f5a5f3a17f6ffed4d5eb27bdc9ba8e48b78",
+  "remaining_findings": 0
+}

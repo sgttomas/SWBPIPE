@@ -1,0 +1,91 @@
+// RV81 confirmation round 05 probes (review-only; copied into WT/rv81 as rv81_confirm05_probes.test.ts to run,
+// never into READER). Own edit, rehash and outcome code. D34 (G1 mapping and G2 walk) and the D33 kind set.
+import { describe, expect, it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import corpusText from '../../../../../fixtures/results/retained_precision_cases.json?raw';
+import { validateRetainedPrecision, validateRetainedPrecisionTransport } from './retainedPrecision';
+import { canonicalSha256HexCheckedV1 } from '../../services/hashService';
+const SCRATCH = process.env.RV81_SCRATCH!, OUT = process.env.RV81_OUT ?? 'probe_results.json';
+const corpus = JSON.parse(corpusText);
+async function rehash(source: any) {
+  const body = source.retained_precision.body;
+  for (const s of body.sources) if (s.preparation) {
+    const a = body.product_attempts[s.preparation.attempt_ref];
+    if (a && a.preparation.members.every((m: any) => m.result.kind === 'prepared')) s.preparation.sha256 = await canonicalSha256HexCheckedV1({ domain: 'retained_precision_preparation_v1', payload: {
+      definition_id: a.definition_id, definition_sha256: 'a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349', owner_ref: a.owner_ref, ordinary_attempt_ref: a.ordinary_attempt_ref, material_basis_ref: a.material_basis_ref,
+      members: a.preparation.members.map((m: any) => ({ member: m.member, old_source: m.old_source, old_facts: m.old_facts, section: m.result.section })) } });
+  }
+  for (const c of body.cases) if (c.status === 'selected' && body.sources[c.source_ref]) { const { index: _, ...s } = body.sources[c.source_ref]; c.source_identity_sha256 = await canonicalSha256HexCheckedV1({ domain: 'retained_precision_source_mp_v2', payload: s }); }
+  const { retained_precision: _, ...publication } = source;
+  body.publication_sha256 = await canonicalSha256HexCheckedV1({ domain: 'retained_precision_publication_mp_v2', payload: publication });
+  source.retained_precision.receipt_sha256 = await canonicalSha256HexCheckedV1({ domain: 'retained_precision_receipt_mp_v2', payload: body });
+}
+async function outcome(source: any, invocation?: any): Promise<string> {
+  try { await validateRetainedPrecision(source, invocation); return 'pass'; } catch (e: any) { return e.gate + ' ' + String(e.code).replace('RETAINED_PRECISION_', ''); }
+}
+async function transport(source: any): Promise<string> {
+  const t = structuredClone(source); delete t.results;
+  try { await validateRetainedPrecisionTransport(t); return 'pass'; } catch (e: any) { return e.gate + ' ' + String(e.code).replace('RETAINED_PRECISION_', ''); }
+}
+const base = (id: string) => structuredClone(corpus.cases.find((c: any) => c.id === id));
+const label = (x: unknown) => Object.is(x, -0) ? '-0' : typeof x === 'string' ? JSON.stringify(x) : String(x);
+describe('RV81 confirmation 05 probes', () => {
+  it('records probe outcomes', async () => {
+    const r: Record<string, unknown> = {};
+    // A. D34 sweep: every numeric 0 in every base receipt, one at a time, written as -0 (no rehash: canonical JSON writes 0).
+    const sweep: Record<string, Record<string, number>> = {}; let positions = 0;
+    for (const c of corpus.cases) {
+      const zeros: (string | number)[][] = [];
+      const walk = (v: any, path: (string | number)[]) => { if (typeof v === 'number') { if (v === 0) zeros.push(path); } else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) walk(x, [...path, Array.isArray(v) ? Number(k) : k]); };
+      walk(c.source.retained_precision, []);
+      const counts: Record<string, number> = {};
+      for (const path of zeros) {
+        const s = structuredClone(c.source); let v = s.retained_precision; for (const k of path.slice(0, -1)) v = v[k]; v[path.at(-1)!] = -0;
+        const o = await outcome(s, c.invocation); counts[o] = (counts[o] ?? 0) + 1; positions++;
+      }
+      sweep[c.id] = counts;
+    }
+    r.A_sweep_positions = positions; r.A_sweep = sweep;
+    // A2. The transport entry runs the same G2 walk.
+    { const c = base('ordinary_prepared_synthetic'); c.source.retained_precision.body.cases[0].source_ref = -0; r.A2_transport_neg_zero_source_ref = await transport(c.source); r.A2_transport_control = await transport(base('ordinary_prepared_synthetic').source); }
+    // B1. G5aError.quantity_kind (enum [0, 1]) in a g5a error on the facade base's unavailable attempt, rehashed.
+    const qk: Record<string, string> = {};
+    for (const value of [-0, 0, 1, 2, -1, 0.5, 1e-310, true, '0', null]) {
+      const c = base('two_case_facade_after_certificate_synthetic');
+      c.source.retained_precision.body.product_attempts[1].result.error = { kind: 'g5a', cause: { kind: 'sanity', body: 0, quantity_kind: value } };
+      await rehash(c.source); qk[label(value)] = await outcome(c.source, c.invocation);
+    }
+    r.B1_quantity_kind = qk;
+    // B2. source_decline.constructor_counts.directional_springs (const 0) on P' case 1 (source_ref null), rehashed.
+    const ds: Record<string, string> = {};
+    for (const value of [-0, 0, 1, 1e-310, 0.5, true, '0', null]) {
+      const c = base('two_case_preparation_failure_synthetic'), b = c.source.retained_precision.body;
+      b.cases[1].source_decline = { input_owner: { case_index: 1, case_id: b.cases[1].basis_ref.ref_id, material_basis_ref: b.ordinary_attempts[1].material_basis_ref },
+        constructor_counts: { nodes: 2, members: 1, springs: 0, constraints: 6, nodal_terms: 6, stations: 3, supports: 1, id_utf8_bytes: 0, directional_springs: value }, error: { tag: 'no_nodes' } };
+      await rehash(c.source); ds[label(value)] = await outcome(c.source, c.invocation);
+    }
+    r.B2_directional_springs = ds;
+    // B3. A numeric enum where 0 is not a member (record precision): -0 and 0 stay G1; 128 written as 128.0 is the same value.
+    const pr: Record<string, string> = {};
+    for (const value of [-0, 0, 128.0, 129, true]) { const c = base('ordinary_prepared_synthetic'); c.source.retained_precision.body.cases[0].run.records[0].precision = value; await rehash(c.source); pr[label(value)] = await outcome(c.source, c.invocation); }
+    r.B3_record_precision = pr;
+    // B4. G0 constants: receipt_version and case_limit.
+    const g0: Record<string, string> = {};
+    for (const [key, value] of [['receipt_version', -0], ['receipt_version', 1.0], ['receipt_version', 1e-310], ['case_limit', -0], ['case_limit', 2e10]] as const) {
+      const c = base('ordinary_prepared_synthetic'), b = c.source.retained_precision.body; if (key === 'receipt_version') b.receipt_version = value; else b.work.case_limit = value;
+      await rehash(c.source); g0[key + '=' + label(value)] = await outcome(c.source, c.invocation);
+    }
+    r.B4_g0_constants = g0;
+    // D. D33 kind set with RV81's own edits (a real layout row of each kind on body 0 of p512_ladder_synthetic).
+    const d33: Record<string, string> = {};
+    for (const kind of ['translation', 'rotation', 'force', 'moment']) {
+      const c = base('p512_ladder_synthetic'), b = c.source.retained_precision.body, run = b.cases[0].run, src = b.sources[b.cases[0].source_ref];
+      const row = src.layout.find((x: any) => x.body === 0 && x.kind === kind), reason = { space: 'attempt', tag: 'verification_estimate', quantity: row.quantity, body: row.body, kind: row.kind };
+      run.records[0].outcome.reason = structuredClone(reason); run.attempts[0].outcome.reason = structuredClone(reason); await rehash(c.source);
+      d33[kind] = await outcome(c.source, c.invocation);
+    }
+    r.D_d33_verification_estimate = d33;
+    writeFileSync(SCRATCH + '/' + OUT, JSON.stringify(r, null, 1));
+    expect(true).toBe(true);
+  }, 600000);
+});

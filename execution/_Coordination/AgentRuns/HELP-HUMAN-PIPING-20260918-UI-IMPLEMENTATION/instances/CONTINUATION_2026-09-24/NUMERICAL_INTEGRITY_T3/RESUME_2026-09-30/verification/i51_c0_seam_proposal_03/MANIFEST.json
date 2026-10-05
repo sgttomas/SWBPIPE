@@ -1,0 +1,34 @@
+{
+  "actor": "ROOT /root",
+  "utc": "2026-10-03T10:27:49.372714+00:00",
+  "state": "unapplied proposal; no source grant or C0 closure",
+  "proposal_sha256": "ba04305530f1e44b535f29fbd9f242930fbd7afa3945438315f1a22f06429a88",
+  "qualification_snapshot": {
+    "actual_origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_implementation_03/C0_QUALIFICATION.md",
+    "sha256": "0adcae8d19622d5c39e643ae7d248877e5e142a2b0b152b58225e8e0f2d23f54",
+    "bytes": 5009
+  },
+  "patches": [
+    {
+      "file": "C0_PROPOSED_LIB_HOOK.patch",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/C0_PROPOSED_LIB_HOOK.patch",
+      "bytes": 555,
+      "sha256": "70f6d68e68a9b76ae289025a9c9ada062842fb2fe00a1ff00a29bbe01da8b9bf"
+    },
+    {
+      "file": "C0_PROPOSED_CALLBACK.patch",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/C0_PROPOSED_CALLBACK.patch",
+      "bytes": 8118,
+      "sha256": "90c7f1c5bf2bf5656467efb230a5d58dbf48031686a368f182d920f1a8a8d185"
+    },
+    {
+      "file": "C0_PROPOSED_TEST_ADJUST.patch",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/C0_PROPOSED_TEST_ADJUST.patch",
+      "bytes": 973,
+      "sha256": "605e524990585190c3ca64ddccf71e1e67fe72c7b0f32393822e87fba6b027aa"
+    }
+  ],
+  "source_basis": "CODE 8bbc04e8a36643cd8e96ee7118a141e119b55b3f plus immutable C1_SOURCE.patch (FIRST_NATIVE hashes), not changing CODE. Base hashes are in C0_SEAM_PROPOSAL.json.",
+  "parent_native_manifest": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/FIRST_NATIVE.json",
+  "root_read": "All three proposed patches and complete qualification snapshot; immutable NUM lib.rs/retained_product source around late return, normalized and case scope guards."
+}

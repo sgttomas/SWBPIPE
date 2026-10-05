@@ -1,0 +1,29 @@
+{
+  "role": "TASK Type 2",
+  "reviewer": "/root/rv72_admission_implementation",
+  "parent": "/root HELP_HUMAN",
+  "mechanism": "delegated-harness-native descendant",
+  "host": "Mac.lan",
+  "actual_receipt_utc": "2026-10-03T15:14:19Z",
+  "initial_due_utc": "2026-10-03T15:29:19Z",
+  "full_assessment_due_utc": "2026-10-03T15:49:19Z",
+  "investigation_cutoff_utc": "2026-10-03T15:59:19Z",
+  "seal_due_utc": "2026-10-03T16:14:19Z",
+  "setup_complete_by_utc": "2026-10-03T15:15:57.784487+00:00",
+  "initial_assessment_by_utc": "2026-10-03T15:15:57.784487+00:00",
+  "full_assessment_by_utc": "2026-10-03T15:19:36.445302+00:00",
+  "cargo_lane_released_utc": "2026-10-03T15:16:26.460110+00:00",
+  "investigation_completed_utc": "2026-10-03T15:19:36.445302+00:00",
+  "runtime_command_count": 3,
+  "processes_reaped": true,
+  "writes": [
+    "NUM/R/REVIEW_RV72/admission_a_01",
+    "WT/scratch/rv72_admission_a",
+    "Existing authorized Cargo build-output targets only"
+  ],
+  "no_descendants": true,
+  "no_git_index_api_writes": true,
+  "limits": "Checkpoint-A caller/census implementation only. No numeric profile, M, public W1, main PR or release acceptance.",
+  "seal_utc": "2026-10-03T15:20:05.461693+00:00",
+  "running_commands": 0
+}

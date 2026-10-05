@@ -1,0 +1,137 @@
+[
+ {
+  "id": "R1",
+  "what": "PP: precommit validation result ignored (W1 publishes an unvalidated successor)",
+  "file": "core/product_physics/src/lib.rs",
+  "status": "KILLED",
+  "rc": 101,
+  "seconds": 9,
+  "first_failures": [
+   "test retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice ... FAILED",
+   "test result: FAILED. 5 passed; 1 failed; 1 ignored; 0 measured; 547 filtered out; finished in 4.75s"
+  ]
+ },
+ {
+  "id": "R2",
+  "what": "PP: D1.3 pressure-contract clause removed from admission",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "status": "KILLED",
+  "rc": 101,
+  "seconds": 44,
+  "first_failures": [
+   "test retained_memory::law_tests::every_family_clause_refuses_with_its_fact ... FAILED",
+   "test result: FAILED. 132 passed; 1 failed; 9 ignored; 0 measured; 412 filtered out; finished in 40.73s"
+  ]
+ },
+ {
+  "id": "R3",
+  "what": "PP: the N1 notice is not appended after a W1 fallback",
+  "file": "core/product_physics/src/lib.rs",
+  "status": "KILLED",
+  "rc": 101,
+  "seconds": 5,
+  "first_failures": [
+   "test retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice ... FAILED",
+   "test result: FAILED. 5 passed; 1 failed; 1 ignored; 0 measured; 547 filtered out; finished in 1.69s"
+  ]
+ },
+ {
+  "id": "R4",
+  "what": "Rust reader: G8 invocation binding skipped",
+  "file": "core/reporting/result_export/src/retained_precision.rs",
+  "status": "KILLED",
+  "rc": 101,
+  "seconds": 70,
+  "first_failures": [
+   "test u6a_shared_carrier_cases_rust ... FAILED",
+   "test u6a_standing_is_eligible_only_with_the_invocation_and_comes_only_from_the_receipt ... FAILED",
+   "test result: FAILED. 14 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 34.34s"
+  ]
+ },
+ {
+  "id": "P1",
+  "what": "Python carrier: main's contract_evidence call site reverted to plain != (PR1078 interplay)",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "rc": 1,
+  "seconds": 4,
+  "first_failures": [
+   "FAILED tests/test_analysis_run_compatibility.py::test_copy_checks_refuse_a_boolean_for_an_integer[contract_evidence-path2-1-^ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH$]"
+  ]
+ },
+ {
+  "id": "P2",
+  "what": "Python carrier: retained_precision copy compared with plain != instead of canonical bytes",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "rc": 1,
+  "seconds": 31,
+  "first_failures": [
+   "FAILED tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[dense_scrutiny]"
+  ]
+ },
+ {
+  "id": "T1",
+  "what": "TS standing: the live native capture conjunct removed (D-U7-4)",
+  "file": "apps/desktop/src/features/results/retainedPrecisionStanding.ts",
+  "status": "KILLED",
+  "rc": 1,
+  "seconds": 44,
+  "first_failures": [
+   "\u00d7 sparse_interactive: a registered successor is fresh and numerically eligible for its captured model only (U7) 35ms",
+   "\u00d7 dense_scrutiny: a registered successor is fresh and numerically eligible for its captured model only (U7) 29ms",
+   "\u00d7 D-U7-4:ts_requires_live_native_capture / invocation_without_native_capture on milestone_sparse_interactive 19ms",
+   "\u00d7 D-U7-4:ts_requires_live_native_capture / invocation_without_native_capture on milestone_dense_scrutiny 15ms"
+  ]
+ },
+ {
+  "id": "C1",
+  "what": "CI policy: NUMERICAL_APP_INPUTS emptied",
+  "file": "tools/ci/e2e_plan.py",
+  "status": "KILLED",
+  "rc": 1,
+  "seconds": 0,
+  "first_failures": [
+   "FAILED tests/test_ci_numerical.py::NumericalTests::test_real_rust_literal_includes_require_numerical"
+  ]
+ },
+ {
+  "id": "C2",
+  "what": "CI policy pin only: test_ci_e2e_plan alone with NUMERICAL_APP_INPUTS emptied",
+  "file": "tools/ci/e2e_plan.py",
+  "status": "SURVIVED",
+  "rc": 0,
+  "seconds": 6,
+  "first_failures": []
+ },
+ {
+  "id": "S1",
+  "what": "source_blocks integer: the 2^53-1 bound removed",
+  "file": "core/reporting/result_export/src/source_blocks.rs",
+  "status": "SURVIVED",
+  "rc": 0,
+  "seconds": 96,
+  "first_failures": []
+ },
+ {
+  "id": "G1",
+  "what": "U1 pin: the dense ordinary digest altered (the gate must be active on this Mac)",
+  "file": "core/product_physics/src/retained_wire_tests.rs",
+  "status": "KILLED",
+  "rc": 101,
+  "seconds": 5,
+  "first_failures": [
+   "test retained_wire_tests::u1_ordinary_bytes_unchanged_under_capture ... FAILED",
+   "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 553 filtered out; finished in 1.30s"
+  ]
+ },
+ {
+  "id": "G2",
+  "what": "U1 pin gate forced off (the other-target path, run on this Mac: equalities only)",
+  "file": "core/product_physics/src/retained_wire_tests.rs",
+  "status": "SURVIVED",
+  "rc": 0,
+  "seconds": 5,
+  "first_failures": []
+ }
+]

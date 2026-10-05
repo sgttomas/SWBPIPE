@@ -1,0 +1,23 @@
+{
+  "utc": "2026-10-03T02:01:30.815397+00:00",
+  "process_query": [
+    "ps",
+    "-axo",
+    "pid,ppid,comm"
+  ],
+  "cargo_rustc": [],
+  "existing_guard": [
+    {
+      "pid": 5387,
+      "ppid": 1,
+      "comm": "/bin/bash"
+    }
+  ],
+  "reviewer_sessions": "all seven Cargo commands completed with exit 0; no test/compiler subprocess remains",
+  "runtime_released": true,
+  "targets_retained": [
+    "WT/targets/rv58-source-residual/frame_kernel",
+    "WT/targets/rv58-source-residual/reviewer-fixture"
+  ],
+  "no_pruning": true
+}

@@ -1,0 +1,77 @@
+{
+  "utc": "2026-10-03T12:48:00.351511+00:00",
+  "head": "922db9dce33c2623385841ad3a4a002a79089e3a",
+  "clean": true,
+  "all_589_committed_input_hashes_match_reviewed_working_source": true,
+  "all_13_maintained_component_paths_match": true,
+  "runtime_head": "430bc4f798a1ff5d158733cbfce5b6e7e096dbe0",
+  "runtime_source_frozen_final_boundary": "e4385531d3e42fbb47be1c82c41d6ae8ff6a63f187f33c8af3fc89ba24898806",
+  "author_seal": "a9cd40eb8c554a7f8f5d0c6cfc33717f8477b33c46fb98c5b7d3a33ba2a8e85b",
+  "maintained_files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "bytes": 988626,
+      "sha256": "97708a3c27bffe918b78f100c5aa984a19ffb32e4a5adb8768791ab2c267e152"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "bytes": 161582,
+      "sha256": "e9949ff88fef71a32cf07d552cf2b065d445d85cbb7bee9e53f8678562d6d982"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+      "bytes": 124508,
+      "sha256": "fcd864d63539a3415f616d4a298bd98ccbcfc72a2d16ec75816c3c99ce0d2078"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "bytes": 118680,
+      "sha256": "731f5517fedeaf1ef1a1c490449b244865f74513be341002629e13aa99b007b0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "bytes": 207733,
+      "sha256": "6a2fc382bf8cae0502c41030da8ac9bc0cfe1f1b80b7aceac60ff7e40f345eda"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs",
+      "bytes": 27477,
+      "sha256": "1a56dc4fc4f1c5a5dc50da09bc3aad784aa5203424c2321cbc2a793c8d699b5e"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+      "bytes": 26117,
+      "sha256": "65355259ae404a6c2552d3eddb717b7271463eb27c9d604396eba78795de3bdf"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+      "bytes": 72837,
+      "sha256": "053fabc7a94e6ee0a0e4e8780985aee7654e0f7ced7944d7512f59ed6ef86083"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+      "bytes": 40869,
+      "sha256": "524e2b0a954852309847e2d8eec4ec370633937e3f73a6f13b58b9dbe679d5c1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs",
+      "bytes": 16880,
+      "sha256": "51ae661629510b64b2b6013d79025c233818ee75b33176546fb1bff2e8e77468"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs",
+      "bytes": 22914,
+      "sha256": "6be7679d813a6ab2323ca0204e64f197da049f5deda9067b1597d4f03fa51bed"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_tests.rs",
+      "bytes": 23434,
+      "sha256": "85a79deac6cc1ccc7e3111b35d4e6c70931a516523f070384d369639ae22f132"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_tests.rs",
+      "bytes": 32326,
+      "sha256": "eadf3bcae34974960a5b6dd7fedb9508941fcededcdc3e9df73a7c8ef869babf"
+    }
+  ]
+}

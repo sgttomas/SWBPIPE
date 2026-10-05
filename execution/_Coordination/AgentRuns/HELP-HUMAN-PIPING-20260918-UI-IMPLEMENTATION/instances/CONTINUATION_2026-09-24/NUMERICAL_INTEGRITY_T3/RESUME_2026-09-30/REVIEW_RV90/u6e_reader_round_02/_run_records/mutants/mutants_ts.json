@@ -1,0 +1,38 @@
+[
+ {
+  "id": "RV90:TS01_f5_length_check_dropped",
+  "lang": "ts",
+  "killed": true,
+  "compile_or_collect_error": false,
+  "failing_count": 2,
+  "failing": [
+   "\u00d7 f5_ordinary_refs_strict_prefix 12ms",
+   "FAIL  src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > f5_ordinary_refs_strict_pre"
+  ],
+  "seconds": 8.9
+ },
+ {
+  "id": "RV90:TS02_f5_first_case_only",
+  "lang": "ts",
+  "killed": true,
+  "compile_or_collect_error": false,
+  "failing_count": 2,
+  "failing": [
+   "\u00d7 f5_ordinary_refs_second_case_relaxed_d6a_form 19ms",
+   "FAIL  src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > f5_ordinary_refs_second_cas"
+  ],
+  "seconds": 7.8
+ },
+ {
+  "id": "RV90:TS04_f5_isArray_guard_dropped",
+  "lang": "ts",
+  "killed": true,
+  "compile_or_collect_error": false,
+  "failing_count": 2,
+  "failing": [
+   "\u00d7 f5_affected_refs_string_names_no_case 12ms",
+   "FAIL  src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > f5_affected_refs_string_nam"
+  ],
+  "seconds": 8.2
+ }
+]

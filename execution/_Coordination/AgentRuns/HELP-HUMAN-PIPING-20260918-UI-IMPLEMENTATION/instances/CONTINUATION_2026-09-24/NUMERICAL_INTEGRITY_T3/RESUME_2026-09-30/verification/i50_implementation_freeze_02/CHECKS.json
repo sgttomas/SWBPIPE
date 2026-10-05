@@ -1,0 +1,76 @@
+{
+  "utc": "2026-10-03T07:34:24.701557+00:00",
+  "actor": "ROOT HELP_HUMAN /root",
+  "full_core_and_test_diff_read": true,
+  "full_RETURN_read": true,
+  "base_source_pin": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4",
+  "final_source_digest": "54f3e27582702dfa9e9f878bcc0e6e429a84e5434472414ad034e434a5ddba54",
+  "source_files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "bytes": 988359,
+      "sha256": "802cc1694f47c984ad01e1eb5380b6445219e0bb3694f17fbad97a50383780b5",
+      "baseline_sha256": "90b2d6b19824630aa9469386e6c90ad03739c8b8ad6184bae993ef6338de80f1"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "bytes": 119624,
+      "sha256": "08749d6e33173a83170814ea41e84d9b2c9cdde94d0989183e286e78529e7570",
+      "baseline_sha256": "9f870e5ca79d18cf50e343799fc538a349c2ad4844ae6739a70af9e3219abe27"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+      "bytes": 93503,
+      "sha256": "b1285f49f6ddcf0bf5caeb333abfd17776a30d41908af671c7ce192c09e3318f",
+      "baseline_sha256": "5853f21fe2689cda02ec6ef23a008f8c6cc12cd9173a7ceb5484472133773b55"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/tests/formation_check_runtime.rs",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/tests/formation_check_runtime.rs",
+      "bytes": 41899,
+      "sha256": "2e14cce9379c92e6ceec9887d181f7a21fb02babf80b67b080ed947b76c3a2f9",
+      "baseline_sha256": "faaf940d8973349501b468505c8e1e9bbdfe3e3adf4df84fe179ed791cc0a0a5"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+      "bytes": 47303,
+      "sha256": "87a44e3d0b9ca654a4cc5c35c805722588f235e0c730cf31cc0ddb9bf61eb273",
+      "baseline_sha256": "46eabbe3cca8bcd7fbd096b2166f8a4ecc830c17fb2df6580c26c9011f345a7a"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs",
+      "bytes": 10761,
+      "sha256": "4dd5eeec36dff1865fedf37ac7e025bd0f378fac3160a6e5b17c2e66312d3d89",
+      "baseline_sha256": "3b06b945bd21461fe440f625e16a58fb9b2670b90745580bfc59a7e9600704fc"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json",
+      "bytes": 2747,
+      "sha256": "2aa51bee095186b95463567f190198f82a69557a569bf8a6a7b318aad37ab0b1",
+      "baseline_sha256": null
+    }
+  ],
+  "source_write_count": 7,
+  "other_baseline_files_unchanged": 950,
+  "packet_files": 10,
+  "packet_bytes": 89070,
+  "external_files": 73,
+  "external_bytes": 12147592,
+  "seal_sha256": "713c7e6a841333180ce437f4731598a3022613631b6fa2e9e31a18bafd2940a8",
+  "final_source_manifest_sha256": "1f26482f997fd8b97a143e1adc015e8ba375b9c11e10d1a879ebd531d019519d",
+  "return_sha256": "b1918b4d7f52e8ad3a832bd7e474ca74b45d19df9aa07306a48516bd50c59a09",
+  "fixture_exact_original_literal": true,
+  "formation_test_only_literal_storage_changed": true,
+  "lib_only_reviewed_three_line_hook": true,
+  "decision": "Unaccepted candidate preserved for same RV65 frozen-code review",
+  "ROOT_review_questions": [
+    "Check new bitmap resize/fill library work against the declared entered-work accounting contract.",
+    "Check inferred integer type and bound of rigid-boundary hits counter against checked count/range requirements; do not allocate an enormous test merely to investigate."
+  ]
+}

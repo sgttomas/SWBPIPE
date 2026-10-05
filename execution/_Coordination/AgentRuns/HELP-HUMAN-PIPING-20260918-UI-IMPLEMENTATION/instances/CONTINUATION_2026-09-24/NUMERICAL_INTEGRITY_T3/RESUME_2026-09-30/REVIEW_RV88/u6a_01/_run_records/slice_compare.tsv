@@ -1,0 +1,153 @@
+sparse_interactive	receipt_equal_python_canonical	True
+sparse_interactive	receipt_in_document_equal	True
+sparse_interactive	receipt_sha256	efc1a39bbe83840df6bd0761c932b8020285d3b8c005ba8fd0b45ba10d667494
+sparse_interactive	abs	result:disp:N0	displacement_magnitude	mm	base_disposition=exported_quantity	b=5.4215527659630466e-24
+sparse_interactive	abs	result:disp:N1:ux	global_nodal_displacement_x	mm	base_disposition=exported_quantity	b=5.4215527659630466e-24
+sparse_interactive	abs	result:support-action:4:case:8:rigid:N0:Fx	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:support-action:4:case:8:rigid:N0:Fy	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:support-action:4:case:8:rigid:N0:Fz	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:support-action:4:case:8:rigid:N0:Mx	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:support-action:4:case:8:rigid:N0:My	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:support-action:4:case:8:rigid:N0:Mz	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:support-action:4:case:8:rigid:N0:force_magnitude	support_reaction_force_magnitude_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:support-action:4:case:8:rigid:N0:moment_magnitude	support_reaction_moment_magnitude_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:0:Fx	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:0:Fy	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:0:Fz	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:0:My	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:0:Mz	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:0:force_magnitude	support_reaction_force_magnitude_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:1:Fx	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:1:Fy	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:1:Fz	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:1:Mx	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:1:Mz	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:1:force_magnitude	support_reaction_force_magnitude_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:2:Fx	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:2:Fy	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:2:Fz	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:2:Mx	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:2:My	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:support-action:4:case:11:spring:N0:2:force_magnitude	support_reaction_force_magnitude_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:force:M1:axial	element_local_axial_force	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:force:M1:axial:end-j	element_local_axial_force	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:force:M1:shear-y	element_local_shear_force_y	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:force:M1:shear-y:end-j	element_local_shear_force_y	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:force:M1:shear-z	element_local_shear_force_z	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:force:M1:shear-z:end-j	element_local_shear_force_z	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:moment:M1:bending-y	element_local_bending_moment_y	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:moment:M1:bending-y:end-j	element_local_bending_moment_y	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:moment:M1:bending-z	element_local_bending_moment_z	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:moment:M1:bending-z:end-j	element_local_bending_moment_z	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:force:M1:quarter-1:axial	element_local_axial_force	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:force:M1:quarter-1:shear-y	element_local_shear_force_y	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:force:M1:quarter-1:shear-z	element_local_shear_force_z	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:moment:M1:quarter-1:bending-y	element_local_bending_moment_y	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:moment:M1:quarter-1:bending-z	element_local_bending_moment_z	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:force:M1:midspan:axial	element_local_axial_force	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:force:M1:midspan:shear-y	element_local_shear_force_y	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:force:M1:midspan:shear-z	element_local_shear_force_z	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:moment:M1:midspan:bending-y	element_local_bending_moment_y	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:moment:M1:midspan:bending-z	element_local_bending_moment_z	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:force:M1:quarter-3:axial	element_local_axial_force	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:force:M1:quarter-3:shear-y	element_local_shear_force_y	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:force:M1:quarter-3:shear-z	element_local_shear_force_z	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+sparse_interactive	abs	result:moment:M1:quarter-3:bending-y	element_local_bending_moment_y	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:moment:M1:quarter-3:bending-z	element_local_bending_moment_z	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+sparse_interactive	abs	result:stress:M1:end-i:axial-normal	element_local_axial_normal_stress	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+sparse_interactive	abs	result:stress:M1:end-i:bending-normal-y	element_local_bending_normal_stress_y	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+sparse_interactive	abs	result:stress:M1:end-i:bending-normal-z	element_local_bending_normal_stress_z	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+sparse_interactive	abs	result:stress:M1:end-j:axial-normal	element_local_axial_normal_stress	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+sparse_interactive	abs	result:stress:M1:end-j:bending-normal-y	element_local_bending_normal_stress_y	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+sparse_interactive	abs	result:stress:M1:end-j:bending-normal-z	element_local_bending_normal_stress_z	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+sparse_interactive	abs	result:stress:M1:quarter-1:axial-normal	element_local_axial_normal_stress	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+sparse_interactive	abs	result:stress:M1:quarter-1:bending-normal-y	element_local_bending_normal_stress_y	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+sparse_interactive	abs	result:stress:M1:quarter-1:bending-normal-z	element_local_bending_normal_stress_z	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+sparse_interactive	abs	result:stress:M1:midspan:axial-normal	element_local_axial_normal_stress	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+sparse_interactive	abs	result:stress:M1:midspan:bending-normal-y	element_local_bending_normal_stress_y	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+sparse_interactive	abs	result:stress:M1:midspan:bending-normal-z	element_local_bending_normal_stress_z	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+sparse_interactive	abs	result:stress:M1:quarter-3:axial-normal	element_local_axial_normal_stress	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+sparse_interactive	abs	result:stress:M1:quarter-3:bending-normal-y	element_local_bending_normal_stress_y	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+sparse_interactive	abs	result:stress:M1:quarter-3:bending-normal-z	element_local_bending_normal_stress_z	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+sparse_interactive	abs	result:elastic-maximum:4:case:2:M1	pipe_elastic_normal_stress_maximum_v2	Pa	base_disposition=exported_quantity	b=8.218177976187931e-18
+sparse_interactive	absolute_rows_disclosed	69	not_covered	0	rows_identical_to_base	29	rows	98
+sparse_interactive	envelope_keys_differing_from_base_projection	['formulation_basis', 'producer', 'reproducibility', 'result_sets', 'retained_precision', 'row_accounting', 'row_disclosures', 'semantic_contract_ref', 'unit_preservation_witnesses']
+sparse_interactive	quantity_values	succ=28	base=97
+sparse_interactive	disclosures	succ=70	base=1
+dense_scrutiny	receipt_equal_python_canonical	True
+dense_scrutiny	receipt_in_document_equal	True
+dense_scrutiny	receipt_sha256	3e26499f17caff8f5fc0d46406bbe54acf43e8cb16e761784aa5074413b0ac4a
+dense_scrutiny	abs	result:disp:N0	displacement_magnitude	mm	base_disposition=exported_quantity	b=5.4215527659630466e-24
+dense_scrutiny	abs	result:disp:N1:ux	global_nodal_displacement_x	mm	base_disposition=exported_quantity	b=5.4215527659630466e-24
+dense_scrutiny	abs	result:support-action:4:case:8:rigid:N0:Fx	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:support-action:4:case:8:rigid:N0:Fy	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:support-action:4:case:8:rigid:N0:Fz	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:support-action:4:case:8:rigid:N0:Mx	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:support-action:4:case:8:rigid:N0:My	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:support-action:4:case:8:rigid:N0:Mz	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:support-action:4:case:8:rigid:N0:force_magnitude	support_reaction_force_magnitude_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:support-action:4:case:8:rigid:N0:moment_magnitude	support_reaction_moment_magnitude_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:0:Fx	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:0:Fy	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:0:Fz	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:0:My	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:0:Mz	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:0:force_magnitude	support_reaction_force_magnitude_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:1:Fx	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:1:Fy	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:1:Fz	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:1:Mx	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:1:Mz	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:1:force_magnitude	support_reaction_force_magnitude_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:2:Fx	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:2:Fy	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:2:Fz	support_reaction_component_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:2:Mx	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:2:My	support_reaction_component_v2	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:support-action:4:case:11:spring:N0:2:force_magnitude	support_reaction_force_magnitude_v2	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:force:M1:axial	element_local_axial_force	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:force:M1:axial:end-j	element_local_axial_force	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:force:M1:shear-y	element_local_shear_force_y	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:force:M1:shear-y:end-j	element_local_shear_force_y	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:force:M1:shear-z	element_local_shear_force_z	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:force:M1:shear-z:end-j	element_local_shear_force_z	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:moment:M1:bending-y	element_local_bending_moment_y	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:moment:M1:bending-y:end-j	element_local_bending_moment_y	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:moment:M1:bending-z	element_local_bending_moment_z	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:moment:M1:bending-z:end-j	element_local_bending_moment_z	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:force:M1:quarter-1:axial	element_local_axial_force	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:force:M1:quarter-1:shear-y	element_local_shear_force_y	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:force:M1:quarter-1:shear-z	element_local_shear_force_z	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:moment:M1:quarter-1:bending-y	element_local_bending_moment_y	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:moment:M1:quarter-1:bending-z	element_local_bending_moment_z	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:force:M1:midspan:axial	element_local_axial_force	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:force:M1:midspan:shear-y	element_local_shear_force_y	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:force:M1:midspan:shear-z	element_local_shear_force_z	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:moment:M1:midspan:bending-y	element_local_bending_moment_y	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:moment:M1:midspan:bending-z	element_local_bending_moment_z	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:force:M1:quarter-3:axial	element_local_axial_force	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:force:M1:quarter-3:shear-y	element_local_shear_force_y	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:force:M1:quarter-3:shear-z	element_local_shear_force_z	N	base_disposition=exported_quantity	b=2.6020852139652104e-22
+dense_scrutiny	abs	result:moment:M1:quarter-3:bending-y	element_local_bending_moment_y	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:moment:M1:quarter-3:bending-z	element_local_bending_moment_z	N*m	base_disposition=exported_quantity	b=7.806255641895631e-22
+dense_scrutiny	abs	result:stress:M1:end-i:axial-normal	element_local_axial_normal_stress	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+dense_scrutiny	abs	result:stress:M1:end-i:bending-normal-y	element_local_bending_normal_stress_y	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+dense_scrutiny	abs	result:stress:M1:end-i:bending-normal-z	element_local_bending_normal_stress_z	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+dense_scrutiny	abs	result:stress:M1:end-j:axial-normal	element_local_axial_normal_stress	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+dense_scrutiny	abs	result:stress:M1:end-j:bending-normal-y	element_local_bending_normal_stress_y	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+dense_scrutiny	abs	result:stress:M1:end-j:bending-normal-z	element_local_bending_normal_stress_z	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+dense_scrutiny	abs	result:stress:M1:quarter-1:axial-normal	element_local_axial_normal_stress	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+dense_scrutiny	abs	result:stress:M1:quarter-1:bending-normal-y	element_local_bending_normal_stress_y	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+dense_scrutiny	abs	result:stress:M1:quarter-1:bending-normal-z	element_local_bending_normal_stress_z	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+dense_scrutiny	abs	result:stress:M1:midspan:axial-normal	element_local_axial_normal_stress	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+dense_scrutiny	abs	result:stress:M1:midspan:bending-normal-y	element_local_bending_normal_stress_y	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+dense_scrutiny	abs	result:stress:M1:midspan:bending-normal-z	element_local_bending_normal_stress_z	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+dense_scrutiny	abs	result:stress:M1:quarter-3:axial-normal	element_local_axial_normal_stress	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+dense_scrutiny	abs	result:stress:M1:quarter-3:bending-normal-y	element_local_bending_normal_stress_y	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+dense_scrutiny	abs	result:stress:M1:quarter-3:bending-normal-z	element_local_bending_normal_stress_z	MPa	base_disposition=exported_quantity	b=2.9337453183237533e-18
+dense_scrutiny	abs	result:elastic-maximum:4:case:2:M1	pipe_elastic_normal_stress_maximum_v2	Pa	base_disposition=exported_quantity	b=8.218177976187931e-18
+dense_scrutiny	absolute_rows_disclosed	69	not_covered	0	rows_identical_to_base	30	rows	99
+dense_scrutiny	envelope_keys_differing_from_base_projection	['formulation_basis', 'producer', 'reproducibility', 'result_sets', 'retained_precision', 'row_accounting', 'row_disclosures', 'semantic_contract_ref', 'unit_preservation_witnesses']
+dense_scrutiny	quantity_values	succ=28	base=97
+dense_scrutiny	disclosures	succ=71	base=2
+retained_table_keys	accuracy_classification,canonical_metadata_vocabulary,combination_policy,contract_evidence_policy,formation_warrant,formulation_profile_id,hash_vectors,inherited_semantic_contract_sha256,metadata_policy,product_formation_definitions,receipt_policy,receipt_schema,reserved_inactive_successors,retired_source_kinds,rows,schema_version,semantic_contract_id,source_basis_signature_policy,source_kind_count,source_producer,source_schema_version,source_signature_count,supported_profile_limitations

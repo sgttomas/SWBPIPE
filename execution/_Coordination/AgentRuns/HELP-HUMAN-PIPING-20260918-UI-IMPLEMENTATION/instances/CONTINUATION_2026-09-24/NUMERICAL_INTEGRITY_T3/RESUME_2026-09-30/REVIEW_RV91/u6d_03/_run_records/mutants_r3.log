@@ -1,0 +1,6 @@
+control 333
+RV08 KILLED ('features/results/retainedPrecisionIntegration.test.tsx', "the downgrade guard (F-5) the successor's own header requires its profile, its contract evidence and a receipt object, and no other receipt")
+RV09 KILLED ('features/results/retainedPrecisionIntegration.test.tsx', "sparse_interactive: registration through mocked IPC registration binds the bytes captured before the reader's await: an edit made while it awaits never registers (RV91 N-3, RV09)")
+RVb1 KILLED ('services/retainedPrecisionAnalysisRun.test.ts', "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.2.0 legacy-shaped source carrying a retained_precision object is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN")
+RVb2 KILLED ('services/retainedPrecisionAnalysisRun.test.ts', "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a 0.1.0 legacy-shaped source carrying a W1 token on the last row only is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN")
+RVc1 KILLED ('features/results/retainedPrecisionIntegration.test.tsx', 'notices, labels and the results-panel standing text the bound is printed upward with three significant digits')

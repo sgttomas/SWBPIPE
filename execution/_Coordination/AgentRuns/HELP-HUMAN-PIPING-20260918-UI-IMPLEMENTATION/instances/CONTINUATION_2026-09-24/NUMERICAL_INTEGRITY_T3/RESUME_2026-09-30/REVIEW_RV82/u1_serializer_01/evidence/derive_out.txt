@@ -1,0 +1,89 @@
+sparse_interactive: receipt_sha256=efc1a39bbe83840df6bd0761c932b8020285d3b8c005ba8fd0b45ba10d667494 publication_sha256=26ef44356d6088dae5320fe390f3ced0b39ec0778af52b129bb13796ad994d2f
+dense_scrutiny: receipt_sha256=3e26499f17caff8f5fc0d46406bbe54acf43e8cb16e761784aa5074413b0ac4a publication_sha256=487c4cf2e1c9c39ec9b1d3695fee620945bce4fe399f68d74170f6c61d59af66
+PASS sparse_interactive: plain bytes are the protected ordinary bytes
+PASS sparse_interactive: control B (captured ordinary run = plain)
+PASS sparse_interactive: T1(a)+G-a: diagnostics = plain minus the legacy disclosure plus one selected
+PASS sparse_interactive: T1(a): the omitted disclosure was SOURCE_BLOCK_RECOVERY_UNAVAILABLE naming the case
+PASS sparse_interactive: G4: no legacy-unavailable diagnostic names the selected case
+PASS sparse_interactive: G-a: identity and profile from the semantic table
+PASS sparse_interactive: G-a: method token in the schema
+PASS sparse_interactive: G-a: every row of the case carries recovery_method, none other
+PASS sparse_interactive: envelope keys unchanged
+PASS sparse_interactive: G-b initial = report(integrity id, outcome from the code) and equal to numerical_quality
+PASS sparse_interactive: G-b w2 = not_triggered (no range_scaling line, no W2 diagnostic)
+PASS sparse_interactive: F1/G-b: d5_diagnostic_ref names the integrity diagnostic iff K-D5's line is in it
+PASS sparse_interactive: G-b: load_row_finding null (no S11-G finding captured; native seed)
+PASS sparse_interactive: D39 row derived = unavailable
+PASS sparse_interactive: T1(a): legacy_source = {unavailable, null, 0}
+PASS sparse_interactive: T1(a): legacy_source_work[0] = the actual WorkReport
+PASS sparse_interactive: decision 2: exact diagnostic_refs
+PASS sparse_interactive: decision 2: no invocation-level diagnostic attributed
+PASS sparse_interactive: G-c: ordinary member fields
+PASS sparse_interactive: G-j: case indices
+PASS sparse_interactive: G-j: one call/run/source in the native invocation
+PASS sparse_interactive: G-j: work frame
+PASS sparse_interactive: G-j: calls
+PASS sparse_interactive: A1: K4RST magic
+PASS sparse_interactive: A1: retained_state_sha256 = sha256(K4RST bytes)
+PASS sparse_interactive: ledger_sha256 = sha256(K4LED bytes)
+PASS sparse_interactive: G-d: constraint dofs = kernel constraints
+PASS sparse_interactive: G-d: support_indices of {'component': 'UX', 'node': 0}
+PASS sparse_interactive: G-d: support_indices of {'component': 'UY', 'node': 0}
+PASS sparse_interactive: G-d: support_indices of {'component': 'UZ', 'node': 0}
+PASS sparse_interactive: G-e: not_covered from verdicts
+PASS sparse_interactive: G-e: absolute_verified from verdicts
+PASS sparse_interactive: verdict rows = envelope rows
+PASS sparse_interactive: definition hash (own JCS) = table entry
+PASS sparse_interactive: definition hash (reader canonicalizer) agrees
+PASS sparse_interactive: product attempt binds the definition
+PASS sparse_interactive: policies from the table
+PASS sparse_interactive: sources[].preparation.sha256 recomputed
+PASS sparse_interactive: source_identity_sha256 recomputed
+PASS sparse_interactive: publication_sha256 recomputed (reader canonicalizer)
+PASS sparse_interactive: receipt_sha256 recomputed (own JCS)
+PASS sparse_interactive: receipt_sha256 recomputed (reader canonicalizer)
+PASS sparse_interactive: material basis: base selector, explicit G, model materials (request materials empty)
+PASS dense_scrutiny: plain bytes are the protected ordinary bytes
+PASS dense_scrutiny: control B (captured ordinary run = plain)
+PASS dense_scrutiny: T1(a)+G-a: diagnostics = plain minus the legacy disclosure plus one selected
+PASS dense_scrutiny: T1(a): the omitted disclosure was SOURCE_BLOCK_RECOVERY_UNAVAILABLE naming the case
+PASS dense_scrutiny: G4: no legacy-unavailable diagnostic names the selected case
+PASS dense_scrutiny: G-a: identity and profile from the semantic table
+PASS dense_scrutiny: G-a: method token in the schema
+PASS dense_scrutiny: G-a: every row of the case carries recovery_method, none other
+PASS dense_scrutiny: envelope keys unchanged
+PASS dense_scrutiny: G-b initial = report(integrity id, outcome from the code) and equal to numerical_quality
+PASS dense_scrutiny: G-b w2 = not_triggered (no range_scaling line, no W2 diagnostic)
+PASS dense_scrutiny: F1/G-b: d5_diagnostic_ref names the integrity diagnostic iff K-D5's line is in it
+PASS dense_scrutiny: G-b: load_row_finding null (no S11-G finding captured; native seed)
+PASS dense_scrutiny: D39 row derived = unavailable
+PASS dense_scrutiny: T1(a): legacy_source = {unavailable, null, 0}
+PASS dense_scrutiny: T1(a): legacy_source_work[0] = the actual WorkReport
+PASS dense_scrutiny: decision 2: exact diagnostic_refs
+PASS dense_scrutiny: decision 2: no invocation-level diagnostic attributed
+PASS dense_scrutiny: G-c: ordinary member fields
+PASS dense_scrutiny: G-j: case indices
+PASS dense_scrutiny: G-j: one call/run/source in the native invocation
+PASS dense_scrutiny: G-j: work frame
+PASS dense_scrutiny: G-j: calls
+PASS dense_scrutiny: A1: K4RST magic
+PASS dense_scrutiny: A1: retained_state_sha256 = sha256(K4RST bytes)
+PASS dense_scrutiny: ledger_sha256 = sha256(K4LED bytes)
+PASS dense_scrutiny: G-d: constraint dofs = kernel constraints
+PASS dense_scrutiny: G-d: support_indices of {'component': 'UX', 'node': 0}
+PASS dense_scrutiny: G-d: support_indices of {'component': 'UY', 'node': 0}
+PASS dense_scrutiny: G-d: support_indices of {'component': 'UZ', 'node': 0}
+PASS dense_scrutiny: G-e: not_covered from verdicts
+PASS dense_scrutiny: G-e: absolute_verified from verdicts
+PASS dense_scrutiny: verdict rows = envelope rows
+PASS dense_scrutiny: definition hash (own JCS) = table entry
+PASS dense_scrutiny: definition hash (reader canonicalizer) agrees
+PASS dense_scrutiny: product attempt binds the definition
+PASS dense_scrutiny: policies from the table
+PASS dense_scrutiny: sources[].preparation.sha256 recomputed
+PASS dense_scrutiny: source_identity_sha256 recomputed
+PASS dense_scrutiny: publication_sha256 recomputed (reader canonicalizer)
+PASS dense_scrutiny: receipt_sha256 recomputed (own JCS)
+PASS dense_scrutiny: receipt_sha256 recomputed (reader canonicalizer)
+PASS dense_scrutiny: material basis: base selector, explicit G, model materials (request materials empty)
+TOTAL 86 checks, 0 failed

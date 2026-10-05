@@ -1,0 +1,2533 @@
+{
+ "reader_sha256": "240ccf4532104f559f51029d08332b0f827d9ad4f1713a44334fce1f1cb02ade",
+ "test_sha256": "03aa2d347d7dfd8f976242f59f1bca015f283cb1e99ef007234f7f671a813fdd",
+ "corpus_sha256": "d02701ed6afb82fdd8d925900119185412c3169276ed281423dff7dd726afdf4",
+ "corpus_06d": {
+  "cases": 15,
+  "mutations_total": 178,
+  "mutations_matched": 178,
+  "must_pass_total": 18,
+  "note": "outcomes unchanged from 06d (probe_05 on the final reader; raise sites moved only by line shifts, the nativeRuns/nativeClass split and the deferred native WORK need)",
+  "mutations": [
+   {
+    "id": "method_null",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "method_number",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "method_alternate_metadata",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "method_alternate_container",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "method_empty",
+    "expected_typescript": {
+     "gate": "G6",
+     "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+    },
+    "observed": {
+     "gate": "G6",
+     "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "method_wrong",
+    "expected_typescript": {
+     "gate": "G6",
+     "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+    },
+    "observed": {
+     "gate": "G6",
+     "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "method_missing",
+    "expected_typescript": {
+     "gate": "G6",
+     "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+    },
+    "observed": {
+     "gate": "G6",
+     "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "nonfinite_then_method",
+    "expected_typescript": {
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "observed": {
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "shape_then_encoding",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "negative_zero_counter",
+    "expected_typescript": {
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "observed": {
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_then_method",
+    "expected_typescript": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "member_prefix_coverage",
+    "expected_typescript": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "diagnostic_then_method",
+    "expected_typescript": {
+     "gate": "G4",
+     "code": "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+    },
+    "observed": {
+     "gate": "G4",
+     "code": "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "native_work",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "product_new_not_ready",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "body_scale",
+    "expected_typescript": {
+     "gate": "G5b",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5b",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "section_echo",
+    "expected_typescript": {
+     "gate": "G5b",
+     "code": "RETAINED_PRECISION_SECTION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5b",
+     "code": "RETAINED_PRECISION_SECTION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "absolute_bound",
+    "expected_typescript": {
+     "gate": "G5c",
+     "code": "RETAINED_PRECISION_CLASSIFICATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5c",
+     "code": "RETAINED_PRECISION_CLASSIFICATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "input_dof",
+    "expected_typescript": {
+     "gate": "G5c",
+     "code": "RETAINED_PRECISION_INPUT_DOF_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5c",
+     "code": "RETAINED_PRECISION_INPUT_DOF_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "old_inputs_must_bind_old_J",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "new_stiffness_must_bind_C2",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "bad_invocation_digest",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_INVOCATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_INVOCATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "v1_relabel",
+    "expected_typescript": {
+     "gate": "G0",
+     "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+    },
+    "observed": {
+     "gate": "G0",
+     "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+    },
+    "match": true
+   },
+   {
+    "id": "native_source_digest_rehashed",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "native_stiffness_digest_rehashed",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "physical_residual_basis",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "physical_stop_stage_partition",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "negative_zero_scale_with_wrong_method",
+    "expected_typescript": {
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "observed": {
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "shared_stage_projection_preserves_total",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "verification_own_stage_projection_preserves_total",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_member_missing",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_object_not_array",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_entry_null",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_stop_three",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_stop_five",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_stop_numeric_flag",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_stop_null_flag",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_has_data_numeric",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_has_data_null",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_has_data_missing",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_unknown_field",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_body_string",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_shape_then_duplicate",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_defect_with_null_method",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_body_negative_zero",
+    "expected_typescript": {
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "observed": {
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_body_fraction",
+    "expected_typescript": {
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "observed": {
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_body_negative",
+    "expected_typescript": {
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "observed": {
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_encoding_then_duplicate",
+    "expected_typescript": {
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "observed": {
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_empty_array",
+    "expected_typescript": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_duplicate_body",
+    "expected_typescript": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_foreign_body",
+    "expected_typescript": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_extra_body",
+    "expected_typescript": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_duplicate_then_flag_and_method",
+    "expected_typescript": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "attempt_owner_only",
+    "expected_typescript": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_null_on_ready",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_null_then_method",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_has_data_false",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "certified_bound_unbound_drop_existing_g5",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_drop_certified_bound",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_no_data_claim_with_free_loads",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_stop_forbidden_entry",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_stop_uncoupled_consistent_roster",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "stop_rule_drop_required_zero",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "stop_rule_duplicate_zero",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "estimate_drop_required_zero",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "estimate_forbidden_translation_zero",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "charge_drop_required_zero",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "charge_follows_stop_below_p512",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "certified_bound_duplicate",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_flag_defect_then_method",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "nodata_forbidden_stop_zero",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "nodata_forbidden_estimate_zero",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "nodata_forbidden_charge_zero",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "nodata_forbidden_certified_bound",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "nodata_has_data_without_bound",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "nodata_estimate_coupling_L_nonzero",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_flag_defect_then_body_scale",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "layout_force_row_input_derived",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "layout_constrained_displacement_not_input_derived",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "layout_nonzero_prescription",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "coverage_null_and_product_work",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "product_work_only",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "native_work_then_coverage_null",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "layout_row_relabelled",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "layout_row_dropped",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "layout_rows_reordered",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "layout_row_foreign_body",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "nodata_empty_coverage",
+    "expected_typescript": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "verification_bound_duplicate_entry",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "verification_bound_missing_entry",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "nodata_verification_bound_nonnull",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "schedule_fresh_first_p256",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "cancelled_no_data_claim",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "cancelled_drop_B_only",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "unavailable_certificate_passed_coverage_null",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "unavailable_empty_coverage",
+    "expected_typescript": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "unavailable_no_data_claim_with_free_loads",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "unavailable_stop_uncoupled",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "unavailable_layout_relabelled",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "unavailable_verification_bound_duplicate",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "cert_failed_before_summary_g5a_passed",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "lane_k_failed_with_coverage",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "maxima_abandoned_with_coverage",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "prefix_captured_with_members",
+    "expected_typescript": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "two_body_swap_has_data",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "two_body_swap_has_data_with_rosters",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "two_body_swap_stop_only",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "two_body_body_order_swapped",
+    "expected_typescript": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "two_body_missing_body",
+    "expected_typescript": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "two_body_resolution_order_swapped",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "p512_floor_not_phi",
+    "expected_typescript": {
+     "gate": "G5b",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5b",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "p512_positive_floor_forces_stop",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "p512_charge_follows_estimate",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "p512_floor_null",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "p512_zero_floor_body_given_positive_floor",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "copy_flags_into_loaded",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "rebind_source_run_only",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "cross_case_gate_order_selected",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "cross_case_gate_order_unavailable",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "unavailable_record_resolution_duplicate",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "unavailable_record_theta_duplicate",
+    "expected_typescript": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5a",
+     "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "skip_after_failed_candidate_reused",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "skip_after_failed_candidate_wrong_slot",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "failed_build_reason_mismatch",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "failed_slot_not_cached",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "failed_verification_reused_as_candidate",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "failed_verification_one_slot",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "cached_failed_slot_rebuilt",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "corrections_above_three",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "group_sources_out_of_order",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "w2_published_without_initial_failure",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "legacy_source_dangling_diagnostic",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "formation_d5_dangling_diagnostic",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "native_stage_disagrees_with_run",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "conversion_subnormal_kind_normal_bits",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "conversion_normal_kind_subnormal_bits",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "conversion_ready_underflow_nonzero_row",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "conversion_ready_overflow",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "conversion_subnormal_metadata_negative_zero",
+    "expected_typescript": {
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "observed": {
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "g7_maximum_off_enclosure",
+    "expected_typescript": {
+     "gate": "G7",
+     "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+    },
+    "observed": {
+     "gate": "G7",
+     "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+    },
+    "match": true
+   },
+   {
+    "id": "row_index_foreign_support_norm",
+    "expected_typescript": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "row_index_missing_row",
+    "expected_typescript": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "row_index_unsorted",
+    "expected_typescript": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "observed": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "row_index_ready_subset",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "maps_extra_support_id",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "maps_member_ends_swapped",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "maxima_abandoned_separate_failure",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "certificate_check_wrong_wrapper",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "certificate_stage_check_disagree",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "stage_entered_after_failure",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "ceiling_before_last_slot",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "escalating_end_not_a_terminal_translation",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "terminal_stop_wrong_translation",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "terminal_refusal_wrong_kind",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "idle_budget_below_invocation_limit",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "idle_ready_group_not_ledger_refusal",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "work_accounting_prior_not_on_wire",
+    "expected_typescript": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "refused_member_conversion_kind_bits",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "prefix_attached_old_input_unbound",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "report_reference_unrelated_diagnostic",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "distinct_stiffness_merged_group",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "named_point_value_mismatch",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "interpolation_target_mismatch",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "work_accounting_after_escalating_stop",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "idle_work_accounting_run",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "work_accounting_at_last_slot",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "mm_unnormalized_coordinate",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "interpolation_missing_alpha",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "interpolation_duplicate_temperature",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "interpolation_target_below_range",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "interpolation_target_at_lower_point",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "interpolation_target_at_upper_point",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "interpolation_target_above_range",
+    "expected_typescript": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "observed": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "adapter_fault_present",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "accounting_cause_without_fault",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "scalar_trace_lost_unavailable",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "work_accounting_cause_exact_status",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "match": true
+   },
+   {
+    "id": "idle_budget_not_exhausted_no_group",
+    "expected_typescript": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "observed": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "match": true
+   }
+  ]
+ },
+ "reader_local_relations": {
+  "count": 44,
+  "final_run": "vitest_12_final: 315 passed (all 06d entries plus every reader-local relation)",
+  "pre_repair_run": "vitest_09_new_tests_on_before: pre-repair reader (7c802881a2, with nativeRuns exported for this run only) on the 43 repair tests that existed then: 9 failed, 34 passed. A pass there means the reader already complied, and the test now pins it.",
+  "tests": [
+   {
+    "test": "R1a_execution_order_swapped",
+    "source": "RV78 PROBES.json",
+    "decision": "D1 run ids/execution order (G3)",
+    "expected": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "R1b_run_id_not_position",
+    "source": "RV78 PROBES.json",
+    "decision": "D1 run ids/execution order (G3)",
+    "expected": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "R2_old_members_reordered",
+    "source": "RV78 PROBES.json",
+    "decision": "D1 member ids (G3)",
+    "expected": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "R3_complete_old_short_of_source",
+    "source": "RV78 PROBES.json",
+    "decision": "D1 sourced complete = source map (G3)",
+    "expected": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "R4_unavailable_source_backref_foreign",
+    "source": "RV78 PROBES.json",
+    "decision": "D4a",
+    "expected": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "R5_attempt_and_source_basis_not_ordinary",
+    "source": "RV78 PROBES.json",
+    "decision": "D4b",
+    "expected": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "R6a_native_error_with_selected_run",
+    "source": "RV78 PROBES.json",
+    "decision": "D4d",
+    "expected": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "R8_group_call_out_of_range",
+    "source": "RV78 PROBES.json",
+    "decision": "D5e",
+    "expected": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "T1_escalating_failed_verification_pass_entered",
+    "source": "RV78 PROBES.json",
+    "decision": "D5b",
+    "expected": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "T2_stop_rule_quantity_other_body",
+    "source": "RV78 PROBES.json",
+    "decision": "D5d",
+    "expected": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "T3_candidate_record_with_verification",
+    "source": "RV78 PROBES.json",
+    "decision": "D5a",
+    "expected": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "T4a_ordinary_diagnostic_ref_duplicate",
+    "source": "RV78 PROBES.json",
+    "decision": "D6a (unique)",
+    "expected": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "T4b_ordinary_diagnostic_ref_dangling",
+    "source": "RV78 PROBES.json",
+    "decision": "D6a (resolve)",
+    "expected": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "T4c_source_identity_stale_receipt_rehashed",
+    "source": "RV78 PROBES.json",
+    "decision": "source identity at G1",
+    "expected": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "T4d_ordinary_dangling_plus_adapter_fault",
+    "source": "RV78 PROBES.json",
+    "decision": "D3 class 2 before class 4 (RV81-M14)",
+    "expected": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "R2b_unsourced_old_member_noncontiguous",
+    "source": "RV78 PROBES.json",
+    "decision": "D1 member ids 0..len-1, RV81-B1 (G3)",
+    "expected": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "fail"
+   },
+   {
+    "test": "R3b_complete_old_longer_than_source",
+    "source": "RV78 PROBES.json",
+    "decision": "D1 sourced complete = source map (G3)",
+    "expected": {
+     "gate": "G3",
+     "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "B_interpolation_target_at_lower_point_equal_point_E",
+    "source": "RV78 PROBES.json",
+    "decision": "D13 strict bracket",
+    "expected": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "B_interpolation_target_below_range_equal_point_E",
+    "source": "RV78 PROBES.json",
+    "decision": "D13 strict bracket",
+    "expected": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "B_interpolation_target_at_upper_point_equal_point_E",
+    "source": "RV78 PROBES.json",
+    "decision": "D13 strict bracket",
+    "expected": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "B_interpolation_target_above_range_equal_point_E",
+    "source": "RV78 PROBES.json",
+    "decision": "D13 strict bracket",
+    "expected": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "B_control_equal_point_E_bracketed",
+    "source": "RV78 PROBES.json",
+    "decision": "D13 strict bracket (positive control)",
+    "expected": "pass",
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "T4e_selected_case_ordinary_checks_passed",
+    "source": "RV78 PROBES.json",
+    "decision": "D6b checks_passed",
+    "expected": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "D1/RV81-B1: unsourced old ids must be 0..len-1 at G3, with or without the invocation",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "fail"
+   },
+   {
+    "test": "D1: unsourced complete old coverage is non-empty and matches the CaseSource member count",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "fail"
+   },
+   {
+    "test": "D1/RV81-S1: a captured prefix with a Run is a G5 association defect, not G3",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "fail"
+   },
+   {
+    "test": "D2: G0 owns the producer component/schema versions, receipt constants and thresholds; body shape waits for G1",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "fail"
+   },
+   {
+    "test": "D3: a native class with an ATTEMPT defect reports ATTEMPT even when an earlier-coded WORK defect exists",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "fail"
+   },
+   {
+    "test": "D4c/RV81-B2: a prepared_product_failure cause must name the case's own attempt",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "fail"
+   },
+   {
+    "test": "D4e: run_ref is null exactly when no native call happened",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "D5c: rejected(verification_failed) requires a failed verification phase",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "fail"
+   },
+   {
+    "test": "D5a/RV81-M04: a candidate record carrying verification work alone is an ATTEMPT defect",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "D6c: a published W2 needs a nonzero exponent and the initial failure's trigger",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "D6d/RV81-N2: legacy_source.work_ref is a reference check reported as ATTEMPT",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "fail"
+   },
+   {
+    "test": "D7: a RETAINED_PRECISION_UNAVAILABLE diagnostic naming no requested case fails G4",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "D13/RV81-M13: a no-data body needs theta = +0 in its verification record",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "D13/RV81-M16: a p128 verification-solve failure continues at p512, so it never ends in the Ceiling",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "D13/RV81-M08: R3 needs every fault of every work_accounting cause, including both",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "D13: the absolute bound switches at S = 2^-988 on both sides",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "RV81-M07 (N17): the case scope wins when both budget limits are exceeded",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "D12/N11: a refused group preparation gives a Run with its group index, no attempts and the refusal",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "RV81-M12: a non-null empty roster fails G3 even against an empty body inventory",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   },
+   {
+    "test": "D11/RV78-N5: the harness admits only rehash \"all\" and splices array removals",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "n/a (added after the pre-repair run; harness-only)"
+   },
+   {
+    "test": "D14: no non-test module imports the @internal reader exports",
+    "source": "I64 reader-local",
+    "final": "pass",
+    "pre_repair_reader": "pass"
+   }
+  ]
+ }
+}

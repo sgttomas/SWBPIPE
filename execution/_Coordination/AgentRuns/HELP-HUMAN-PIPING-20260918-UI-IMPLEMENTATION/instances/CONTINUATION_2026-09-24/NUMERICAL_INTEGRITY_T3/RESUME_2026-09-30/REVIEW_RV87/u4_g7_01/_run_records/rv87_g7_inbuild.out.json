@@ -1,0 +1,71 @@
+{
+ "g7_phases_equal_record": true,
+ "g7_minus_g6r": {
+  "dense/W1": 0,
+  "dense/W2": 0,
+  "dense/W3": 0,
+  "dense/W4": 0,
+  "dense/W5": 0,
+  "dense/X1": 0,
+  "dense/X2": 0,
+  "sparse/W1": 0,
+  "sparse/W2": 0,
+  "sparse/W3": 0,
+  "sparse/W4": 0,
+  "sparse/W5": 0,
+  "sparse/X1": 0,
+  "sparse/X2": 0
+ },
+ "forms_changed": {
+  "T17_V4": {
+   "g6r": {
+    "1": 6920061,
+    "Node(&str,())": 4189,
+    "Node((String,String),())": 39,
+    "Node(String,Value)": 8037,
+    "s(&Value)": 57880,
+    "s(&str)": 1024,
+    "s((&str,&Value))": 12288,
+    "s(RowClassification)": 4096,
+    "s(String)": 51309,
+    "s(Value)": 8460,
+    "s(Vec)": 8192
+   },
+   "g7": {
+    "1": 6920061,
+    "Node(&str,())": 4189,
+    "Node((String,String),())": 39,
+    "Node(String,Value)": 8037,
+    "s(&Value)": 83625,
+    "s(&str)": 1024,
+    "s((&str,&Value))": 12288,
+    "s(RowClassification)": 4096,
+    "s(String)": 51309,
+    "s(Value)": 8460,
+    "s(Vec)": 8192
+   }
+  }
+ },
+ "atoms_changed": {},
+ "T17_stages_g7": {
+  "T17_V1": 321428243,
+  "T17_V2_clone": 172256082,
+  "T17_V2_hash": 1148998726,
+  "T17_V3": 32598012,
+  "T17_V4": 17172765,
+  "T17_V5": 180109775,
+  "T17_V6": 200409127
+ },
+ "W3": {
+  "sparse": [
+   3575778286,
+   0.8881,
+   48100370
+  ],
+  "dense": [
+   3595488734,
+   0.8929,
+   28389922
+  ]
+ }
+}

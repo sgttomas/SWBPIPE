@@ -1,0 +1,140 @@
+[
+ {
+  "id": "R01_py_summary_from_invocation_cases",
+  "lang": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_classification_summary_counts_validated_classes[dense_scrutiny]"
+  ],
+  "seconds": 63.2
+ },
+ {
+  "id": "R02_py_summary_reader_flag_only",
+  "lang": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_classification_summary_counts_validated_classes[dense_scrutiny]"
+  ],
+  "seconds": 60.4
+ },
+ {
+  "id": "R03_py_no_refs_means_receipt_order",
+  "lang": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_classification_summary_counts_validated_classes[dense_scrutiny]"
+  ],
+  "seconds": 50.5
+ },
+ {
+  "id": "R21_d74_summary_ts_side_current",
+  "lang": "py",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 148.3
+ },
+ {
+  "id": "R22_d74_summary_python_side_not_current",
+  "lang": "py",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_declared_differences_python"
+  ],
+  "seconds": 30.7
+ },
+ {
+  "id": "R23_d74_summary_rust_side_not_current",
+  "lang": "py",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 141.5
+ },
+ {
+  "id": "R24_d74_summary_forms_removed",
+  "lang": "py",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_declared_differences_python"
+  ],
+  "seconds": 30.9
+ },
+ {
+  "id": "R25_d74_summary_unknown_value",
+  "lang": "py",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_declared_differences_python"
+  ],
+  "seconds": 29.9
+ },
+ {
+  "id": "R26_n3_clause_removed",
+  "lang": "py",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_declared_differences_python"
+  ],
+  "seconds": 3.0
+ },
+ {
+  "id": "R27_n3_clause_ts_code_misstated",
+  "lang": "py",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 151.1
+ },
+ {
+  "id": "R31_probe_removed",
+  "lang": "py",
+  "file": "fixtures/results/retained_precision_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_contract.py::test_snapshot_07_counts_and_entry_format"
+  ],
+  "seconds": 152.4
+ },
+ {
+  "id": "R32_probe_ts_code",
+  "lang": "py",
+  "file": "fixtures/results/retained_precision_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 143.3
+ },
+ {
+  "id": "R33_probe_rust_code",
+  "lang": "py",
+  "file": "fixtures/results/retained_precision_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 153.2
+ },
+ {
+  "id": "R34_probe_python_code",
+  "lang": "py",
+  "file": "fixtures/results/retained_precision_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 136.9
+ },
+ {
+  "id": "R35_probe_expected_code",
+  "lang": "py",
+  "file": "fixtures/results/retained_precision_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_contract.py::test_shared_draft_first_failure_controls[g7_not_required_quality_enum_invalid]"
+  ],
+  "seconds": 124.6
+ }
+]

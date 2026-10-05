@@ -1,0 +1,61 @@
+{
+ "in": "text_args.json",
+ "out": "text_args.head.json",
+ "old": "5ae5fe4f0f",
+ "new": "HEAD",
+ "remapped": [],
+ "hunks": {
+  "core/product_physics/src/lib.rs": 14,
+  "core/product_physics/src/retained_product.rs": 11,
+  "core/product_physics/src/retained_receipt.rs": 1,
+  "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": 7
+ }
+}
+{
+ "site_keys_remapped": [
+  [
+   "lib.rs:13463",
+   "lib.rs:13512"
+  ],
+  [
+   "lib.rs:13464",
+   "lib.rs:13513"
+  ],
+  [
+   "lib.rs:13465",
+   "lib.rs:13514"
+  ],
+  [
+   "lib.rs:13466",
+   "lib.rs:13515"
+  ],
+  [
+   "lib.rs:13467",
+   "lib.rs:13516"
+  ],
+  [
+   "lib.rs:13462",
+   "lib.rs:13511"
+  ],
+  [
+   "lib.rs:1266",
+   "lib.rs:1270"
+  ],
+  [
+   "lib.rs:1270",
+   "lib.rs:1274"
+  ],
+  [
+   "lib.rs:13308",
+   "lib.rs:13357"
+  ],
+  [
+   "lib.rs:8362",
+   "lib.rs:8411"
+  ],
+  [
+   "lib.rs:8383",
+   "lib.rs:8432"
+  ]
+ ]
+}

@@ -1,0 +1,94 @@
+   Compiling rv51-checked-work-controls v0.0.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV51/checked_work_a_02/controls)
+error[E0583]: file not found for module `k1_reference`
+ --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs:7:1
+  |
+7 | mod k1_reference;
+  | ^^^^^^^^^^^^^^^^^
+  |
+  = help: to create the module `k1_reference`, create file "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/k1_reference.rs" or "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/k1_reference/mod.rs"
+  = note: if there is a `mod k1_reference` elsewhere in the crate already, import it with `use crate::...` instead
+
+error[E0425]: cannot find value `RANDOM_SUMS` in this scope
+  --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs:16:13
+   |
+16 |     assert!(RANDOM_SUMS.len() >= 150);
+   |             ^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `RANDOM_SUMS` in this scope
+  --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs:18:31
+   |
+18 |     for (values, expected) in RANDOM_SUMS {
+   |                               ^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `RANDOM_DOTS` in this scope
+  --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs:33:13
+   |
+33 |     assert!(RANDOM_DOTS.len() >= 150);
+   |             ^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `RANDOM_DOTS` in this scope
+  --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs:35:30
+   |
+35 |     for (pairs, expected) in RANDOM_DOTS {
+   |                              ^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `PROBE_D` in this scope
+  --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs:54:62
+   |
+54 |     assert_eq!(exact_rounded_sum(values).unwrap().to_bits(), PROBE_D);
+   |                                                              ^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `PROBE_D` in this scope
+  --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs:55:18
+   |
+55 |     assert_eq!(f(PROBE_D), 1.0000000000000002);
+   |                  ^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `THERMAL` in this scope
+  --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs:69:63
+   |
+69 |     assert_eq!(exact_rounded_sum(thermal).unwrap().to_bits(), THERMAL);
+   |                                                               ^^^^^^^
+   |
+help: a local variable with a similar name exists
+   |
+69 -     assert_eq!(exact_rounded_sum(thermal).unwrap().to_bits(), THERMAL);
+69 +     assert_eq!(exact_rounded_sum(thermal).unwrap().to_bits(), thermal);
+   |
+
+error[E0425]: cannot find value `THREE_2M1076` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs:135:9
+    |
+135 |         THREE_2M1076
+    |         ^^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `TIE_2M1075` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs:139:31
+    |
+139 |     assert_eq!(tie.to_bits(), TIE_2M1075);
+    |                               ^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `NEG_2M1080` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs:149:46
+    |
+149 |     assert_eq!(negative_underflow.to_bits(), NEG_2M1080);
+    |                                              ^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `PROBE_X_PRODUCTS` in this scope
+   --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs:155:48
+    |
+155 |     assert_eq!(acc.round().unwrap().to_bits(), PROBE_X_PRODUCTS);
+    |                                                ^^^^^^^^^^^^^^^^ not found in this scope
+
+warning: unused import: `k1_reference::*`
+ --> /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs:8:5
+  |
+8 | use k1_reference::*;
+  |     ^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+Some errors have detailed explanations: E0425, E0583.
+For more information about an error, try `rustc --explain E0425`.
+warning: `rv51-checked-work-controls` (lib test) generated 1 warning
+error: could not compile `rv51-checked-work-controls` (lib test) due to 12 previous errors; 1 warning emitted

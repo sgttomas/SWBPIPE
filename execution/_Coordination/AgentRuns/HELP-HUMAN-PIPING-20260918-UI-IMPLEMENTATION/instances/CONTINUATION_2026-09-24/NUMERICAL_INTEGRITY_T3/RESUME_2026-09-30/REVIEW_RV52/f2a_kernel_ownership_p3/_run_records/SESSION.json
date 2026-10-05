@@ -1,0 +1,46 @@
+{
+  "agent": "/root/rv52_kernel_ownership_p3",
+  "parent": "/root",
+  "role": "TASK Type2 independent reviewer",
+  "mechanism": "delegated-harness-native collaboration agent; parent assignment received in this execution",
+  "delegation": false,
+  "actual_receipt_utc": "2026-10-02 23:34:57 UTC",
+  "checkpoint_deadline_utc": "2026-10-02 23:49:57 UTC",
+  "expansion_cutoff_utc": "2026-10-03 00:04:57 UTC",
+  "hard_return_deadline_utc": "2026-10-03 00:14:57 UTC",
+  "status": "complete; sealed bounded return; RV52-1 remains open",
+  "candidate_revision_supplied": "2fc3e8f71df2e140a0a0d50b72305be5d1c5a618",
+  "brief_revision_supplied": "52a57416b40f9b669303c3ed7ca052ee0ba729be",
+  "source_revision_supplied": "fdae294643b798c1849da8b2e643085562593686",
+  "source_binding": "Actual retained-source bytes match I29 recorded source hashes. Initial RV51 qualification resolved during review: read RV51 resumed CLEAR return; ROOT reports bounded prerequisite acceptance ea526f71b7 and local NUM merge9562aa6 on unchanged fdae294 source. P3/profile/product acceptance remains separate.",
+  "owned_scope": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV52/f2a_kernel_ownership_p3",
+  "permissions": "read-only source and selected basis; small Python standard-library checks; writes only owned review; no Git/index/API/build/solver/model/runtime/host-tool work",
+  "actual_host_boundary": "Host unrestricted filesystem; task scope enforced by agent discipline, not a sandbox. No independent external process audit.",
+  "checkpoint_observed_clock_utc": "2026-10-02 23:41:49 UTC",
+  "checkpoint_delivery": "dispatched after observed clock23:41:49 UTC; exact send instant not separately sampled; before checkpoint deadline",
+  "check_command": "python3 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV52/f2a_kernel_ownership_p3/_run_records/review_checks.py",
+  "check_cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "check_result": {
+    "status": "checks_pass_with_document_finding",
+    "checks": 11,
+    "author_controls_replayed": 12,
+    "independent_schedule_paths": 37
+  },
+  "read_errors": [
+    "wrong F2A cwd glob for NUM P3 packet returned no matches; rerun in NUM succeeded",
+    "wrong path src/structural/rigid_body.rs not found; rg --files located src/rigid_body.rs and read succeeded",
+    "exploratory ROOT_ACCEPT* glob matched no file; read exact RV51 resumed return and ROOT_VERIFICATION paths discovered with rg --files"
+  ],
+  "parent_scope_update": {
+    "message": "ROOT inspected actual rule hats allocation and agrees it needs its own lifetime/source mapping, not silent reuse of earlier resolution_hats. RV51 now CLEAR on unchanged fdae294 at4d9358b550; ROOT acceptance ea526f71b7; local NUM merged9562aa6. Resolves unreviewed-code qualification only; P3/profile premises remain.",
+    "source": "direct collaboration message from parent /root received during this review"
+  },
+  "analysis_complete": true,
+  "final_observed_clock_utc": "2026-10-02 23:43:50 UTC",
+  "clock_relation": "Observed after final input hash check, before final session/inventory write. Completed early; no deadline estimated.",
+  "final_input_drift_check": {
+    "entries": 42,
+    "changed": 0
+  },
+  "process_state": "All owned exec calls returned synchronously; no background/build/solver/measurement process started; no external host-process audit."
+}

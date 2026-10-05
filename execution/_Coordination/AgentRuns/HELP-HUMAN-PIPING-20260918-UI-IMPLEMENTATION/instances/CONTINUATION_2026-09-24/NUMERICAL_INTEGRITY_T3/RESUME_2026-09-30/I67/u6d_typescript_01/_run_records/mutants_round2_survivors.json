@@ -1,0 +1,161 @@
+{
+ "lane": "WT/scratch/i67_u6d/lanes/mut",
+ "files": [
+  "src/features/results/retainedPrecisionIntegration.test.tsx",
+  "src/services/retainedPrecisionAnalysisRun.test.ts",
+  "src/features/results/retainedPrecisionOutputRefusal.test.tsx",
+  "src/features/results/numericalResultQuality.test.ts",
+  "src/features/results/knownSemanticLimitations.test.ts",
+  "src/features/results/resultSemantics.test.ts",
+  "src/services/analysisRunCompatibility.test.ts",
+  "src/services/previewService.test.ts",
+  "src/services/ruleCheckService.test.ts",
+  "src/features/results/HistoricalRunContext.test.tsx",
+  "src/features/results/ResultsPanel.test.tsx"
+ ],
+ "mutants": [
+  {
+   "id": "N23",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "predicate: unresolved refs admitted",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 295,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+    ]
+   ]
+  },
+  {
+   "id": "S04",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "register: unchecked bytes recorded",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 294,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC bytes outside the checked profile never register, even when registration is called directly"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC bytes outside the checked profile never register, even when registration is called directly"
+    ]
+   ]
+  },
+  {
+   "id": "S27",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "summary: rows not filtered by case",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 295,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) counts withheld rows by standing (Rust classification_summary_from)"
+    ]
+   ]
+  },
+  {
+   "id": "K08",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "notices: empty absolute notice",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 2,
+   "passed": 294,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers without absolute rows there is no absolute summary notice"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers without absolute rows there is no absolute summary notice"
+    ]
+   ]
+  },
+  {
+   "id": "K15",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "bound text: mantissa overflow not carried",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 295,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ]
+   ]
+  },
+  {
+   "id": "K16",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "bound text: exponent sign",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 1,
+   "passed": 295,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ]
+   ]
+  },
+  {
+   "id": "K24",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "label: class label never shown",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 5,
+   "passed": 291,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ]
+   ]
+  }
+ ],
+ "control": {
+  "exit": 0,
+  "failed": 0,
+  "passed": 296,
+  "load_errors": [],
+  "first": []
+ },
+ "seconds": 39
+}

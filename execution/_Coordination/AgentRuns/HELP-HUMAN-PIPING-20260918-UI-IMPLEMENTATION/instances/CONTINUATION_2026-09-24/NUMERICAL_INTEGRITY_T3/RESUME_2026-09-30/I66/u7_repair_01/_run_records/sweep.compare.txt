@@ -1,0 +1,9 @@
+base:      1846 passed, 30 skipped in 861.05s (0:14:21)
+candidate: 1848 passed, 30 skipped in 866.98s (0:14:26)
+passing at base, not passing in candidate: 0 []
+failing in candidate, passing at base: 0 []
+failing at base, passing in candidate: 0 []
+tests added in candidate: 2 (files: ['tests/test_retained_precision_carriers.py'])
+tests removed: 0 []
+candidate non-passing: []
+base non-passing: []

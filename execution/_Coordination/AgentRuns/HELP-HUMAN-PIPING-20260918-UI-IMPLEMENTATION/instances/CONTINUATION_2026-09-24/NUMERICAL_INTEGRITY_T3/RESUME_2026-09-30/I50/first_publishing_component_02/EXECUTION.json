@@ -1,0 +1,169 @@
+{
+  "role": "TASK Type 2",
+  "task": "/root/i50_named_case_component",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native",
+  "descendants": [],
+  "receipt_utc": "2026-10-03T06:40:47Z",
+  "checkpoint15_due_utc": "2026-10-03T06:55:47Z",
+  "first_actual_result_utc": "2026-10-03T06:46:09.040233Z",
+  "first_complete_both_modes_utc": "2026-10-03T07:06:53.265304Z",
+  "first_result35_due_utc": "2026-10-03T07:15:47Z",
+  "new_work_cutoff50_utc": "2026-10-03T07:30:47Z",
+  "return60_due_utc": "2026-10-03T07:40:47Z",
+  "runtime_released_utc": "2026-10-03T07:25:35.775626+00:00",
+  "host": "Mac.lan",
+  "environment_record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/ENVIRONMENT.json",
+  "actual_lane": "sole focused compiler lane, one Cargo build/test at a time, four build jobs/two test threads, locked/offline absolute manifests, twenty-minute walls; matched released I47 target caches",
+  "write_scope": {
+    "maintained": [
+      {
+        "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+        "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/lib.rs",
+        "bytes": 988359,
+        "sha256": "802cc1694f47c984ad01e1eb5380b6445219e0bb3694f17fbad97a50383780b5",
+        "baseline_sha256": "90b2d6b19824630aa9469386e6c90ad03739c8b8ad6184bae993ef6338de80f1"
+      },
+      {
+        "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+        "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/retained_product.rs",
+        "bytes": 119624,
+        "sha256": "08749d6e33173a83170814ea41e84d9b2c9cdde94d0989183e286e78529e7570",
+        "baseline_sha256": "9f870e5ca79d18cf50e343799fc538a349c2ad4844ae6739a70af9e3219abe27"
+      },
+      {
+        "path": "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+        "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+        "bytes": 93503,
+        "sha256": "b1285f49f6ddcf0bf5caeb333abfd17776a30d41908af671c7ce192c09e3318f",
+        "baseline_sha256": "5853f21fe2689cda02ec6ef23a008f8c6cc12cd9173a7ceb5484472133773b55"
+      },
+      {
+        "path": "projects/chirality-piping/core/product_physics/tests/formation_check_runtime.rs",
+        "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/tests/formation_check_runtime.rs",
+        "bytes": 41899,
+        "sha256": "2e14cce9379c92e6ceec9887d181f7a21fb02babf80b67b080ed947b76c3a2f9",
+        "baseline_sha256": "faaf940d8973349501b468505c8e1e9bbdfe3e3adf4df84fe179ed791cc0a0a5"
+      },
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+        "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+        "bytes": 47303,
+        "sha256": "87a44e3d0b9ca654a4cc5c35c805722588f235e0c730cf31cc0ddb9bf61eb273",
+        "baseline_sha256": "46eabbe3cca8bcd7fbd096b2166f8a4ecc830c17fb2df6580c26c9011f345a7a"
+      },
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs",
+        "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs",
+        "bytes": 10761,
+        "sha256": "4dd5eeec36dff1865fedf37ac7e025bd0f378fac3160a6e5b17c2e66312d3d89",
+        "baseline_sha256": "3b06b945bd21461fe440f625e16a58fb9b2670b90745580bfc59a7e9600704fc"
+      },
+      {
+        "path": "projects/chirality-piping/fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json",
+        "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json",
+        "bytes": 2747,
+        "sha256": "2aa51bee095186b95463567f190198f82a69557a569bf8a6a7b318aad37ab0b1",
+        "baseline_sha256": null
+      }
+    ],
+    "records": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/first_publishing_component_02",
+    "bulk": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02"
+  },
+  "git_reads": "GIT_OPTIONAL_LOCKS=0 with explicit intended cwd; no Git/index/API writes",
+  "host_enforcement": "unrestricted filesystem; brief limits were agent-observed",
+  "final_checks": [
+    {
+      "name": "pp_debug_final",
+      "result": "test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 414 filtered out; finished in 9.05s",
+      "exit": 0,
+      "source_digest": "54f3e27582702dfa9e9f878bcc0e6e429a84e5434472414ad034e434a5ddba54",
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_debug_final.json"
+    },
+    {
+      "name": "pp_optimized_final",
+      "result": "test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 414 filtered out; finished in 0.39s",
+      "exit": 0,
+      "source_digest": "54f3e27582702dfa9e9f878bcc0e6e429a84e5434472414ad034e434a5ddba54",
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_optimized_final.json"
+    },
+    {
+      "name": "fk_certificate_final",
+      "result": "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 446 filtered out; finished in 0.02s",
+      "exit": 0,
+      "source_digest": "54f3e27582702dfa9e9f878bcc0e6e429a84e5434472414ad034e434a5ddba54",
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/fk_certificate_final.json"
+    },
+    {
+      "name": "pp_formation_final",
+      "result": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.03s",
+      "exit": 0,
+      "source_digest": "54f3e27582702dfa9e9f878bcc0e6e429a84e5434472414ad034e434a5ddba54",
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_formation_final.json"
+    },
+    {
+      "name": "pp_s11_final",
+      "result": "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.37s",
+      "exit": 0,
+      "source_digest": "54f3e27582702dfa9e9f878bcc0e6e429a84e5434472414ad034e434a5ddba54",
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_s11_final.json"
+    },
+    {
+      "name": "fk_s11_final",
+      "result": "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s",
+      "exit": 0,
+      "source_digest": "54f3e27582702dfa9e9f878bcc0e6e429a84e5434472414ad034e434a5ddba54",
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/fk_s11_final.json"
+    }
+  ],
+  "cargo_command_count": 22,
+  "failed_cargo_commands": [
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_named_first.json",
+      "exit": 101
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_named_second.json",
+      "exit": 101
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_support_controls.json",
+      "exit": 101
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_debug_support_scope.json",
+      "exit": 101
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_debug_complete.json",
+      "exit": 101
+    }
+  ],
+  "non_cargo_failures": [
+    {
+      "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/compatibility_debug.log",
+      "cause": "Initial comparison included the explicitly extended support capacity summary; exact extension is now checked separately before semantic equality."
+    }
+  ],
+  "preserved_initial_failures": [
+    "stale local identifier compile error",
+    "dense mode2/99-row source binding blocker before reviewed seventh-path selection",
+    "test-only mutable/immutable borrow conflict",
+    "zero-k control initially stopped at public validation rather than the intended capture seam",
+    "old PP missing-mode unwrap now fails earlier as required by completed observation presence"
+  ],
+  "claim_limits": [
+    "Complete private verdicts are numerical refusals, not F2a publication",
+    "No retained-value projection, numerical refinement, new source contract or tolerance/availability exception",
+    "Point/full-cover oracle does not reconstruct every private interval implementation operation",
+    "No whole resource/RSS/admission/caller-cost qualification",
+    "Injected allocator-refusal control is not real host OOM",
+    "Synthetic absence and signed-zero controls are not natural runtime availability witnesses",
+    "Same reviewer still owns independent frozen-code acceptance"
+  ],
+  "first_run_preservation": "FIRST_RUN SHA-256 1773eb7d47e432b8cb1440a95815938951591fd4352b2751909d56886ede7d0e and all 12 referenced payloads verified unchanged",
+  "final_audit": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/FINAL_AUDIT.json",
+  "new_work_complete": true,
+  "source_frozen": true,
+  "final_seal_policy": "No seal written until all final checks, source/payload audits, process release and packet text are complete; later corrections require addenda"
+}

@@ -1,0 +1,122 @@
+[
+  {
+    "origin": "git",
+    "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs",
+    "blob": "ed1f6133432ff8ec103896c4daaa76cfe670d659",
+    "sha256": "8aaace7bc8fb65a8a1f60e5e6e630ee54b62bd43ed7c108a2fe193b372b74af4",
+    "bytes": 6085
+  },
+  {
+    "origin": "git",
+    "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+    "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/counts.rs",
+    "blob": "97cbcf4eba3415352034216ce51be76330e9f89b",
+    "sha256": "f973a69f95a1a3becf01434e3a481bfc164f9fee2baca94dae1fc0e50ffac708",
+    "bytes": 18382
+  },
+  {
+    "origin": "git",
+    "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+    "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs",
+    "blob": "a5e08cb1247b3676f494a41670c1dd9744f502f7",
+    "sha256": "fd3e00c06aff970c44cd147f255fe371b16729fe0a80b62b32a09bc0afddc337",
+    "bytes": 12815
+  },
+  {
+    "origin": "git",
+    "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+    "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/envelope.rs",
+    "blob": "f61f4066a8f543511a21a0c6de63582fab630398",
+    "sha256": "3781079224cf7a47511cb2bfc9f09ebee6e51d2595ce3ad609d79f8d57b10092",
+    "bytes": 38830
+  },
+  {
+    "origin": "git",
+    "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+    "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/h_envelope.rs",
+    "blob": "f3b96b01545e2811dc4b459dbbb7af7a9c08af51",
+    "sha256": "eb7410a4eef9f1d9b0ff9607986fbac133329e65377010be16c25f802fd2979f",
+    "bytes": 20797
+  },
+  {
+    "origin": "git",
+    "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/records.rs",
+    "blob": "aa1b1c5760ff7fd68877ad57300a506227da5e1b",
+    "sha256": "6f52fcb93d7d0c355139ca584a9abd0b3c1c59dd5a6f140340a0ec0282b5841c",
+    "bytes": 5852
+  },
+  {
+    "origin": "git",
+    "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/envelope.rs",
+    "blob": "20981ec438463ffdf04e70bcf0b798184ab44732",
+    "sha256": "681c22ef07fb5ac6d668e79189551f5bce7a87ec8785c8269fb253cbcb72024d",
+    "bytes": 56044
+  },
+  {
+    "origin": "git",
+    "revision": "49d7dee436f9b595fa274084fa7b2bdab397a006",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I34/f2a_work_exactness_design_01/DESIGN.md",
+    "blob": "44bdfc58a2dd594aa70138d4f2dce0c5a41eb356",
+    "sha256": "e3789925cc7ea509775a968f9b1c83f1a765ad0bac92ce643f396a10a32fd397",
+    "bytes": 20415
+  },
+  {
+    "origin": "git",
+    "revision": "49d7dee436f9b595fa274084fa7b2bdab397a006",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I34/f2a_work_exactness_design_01/RETURN.md",
+    "blob": "e2a23b962f83c8ef01f1c0cece768edf1a57c7d1",
+    "sha256": "1180113ce75d7de38d5ddb7271ce8c1dcd26d5f06868e59df7e4c3ad98977b1c",
+    "bytes": 4329
+  },
+  {
+    "origin": "git",
+    "revision": "49d7dee436f9b595fa274084fa7b2bdab397a006",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I34/f2a_work_exactness_design_01/SOURCE_MANIFEST.md",
+    "blob": "0921bd507d6411e574311801e814877808fdc8e5",
+    "sha256": "36300009ed1335d63b305ca8483d5043c725c8704e811900b9938ddfc16084bf",
+    "bytes": 13787
+  },
+  {
+    "origin": "git",
+    "revision": "49d7dee436f9b595fa274084fa7b2bdab397a006",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I34/f2a_work_exactness_design_01/WRITE_INVENTORY.json",
+    "blob": "a25725be2e73355d52ba6626c26ec699675eff27",
+    "sha256": "61f48ceecbd0dd1907f8ff164abb562702fa1f06480d9271937fd3113d726489",
+    "bytes": 1519
+  },
+  {
+    "origin": "git",
+    "revision": "49d7dee436f9b595fa274084fa7b2bdab397a006",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I34/f2a_work_exactness_design_01/_run_records/CONTROLS.json",
+    "blob": "4a1e063c03145e09be3d5b31414b8e548bf9acf3",
+    "sha256": "7155ca52c28a97fbbb1c3c9831293e60736fc3403492f63e64426e4f1f69acbc",
+    "bytes": 6530
+  },
+  {
+    "origin": "git",
+    "revision": "49d7dee436f9b595fa274084fa7b2bdab397a006",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I34/f2a_work_exactness_design_01/_run_records/ORIGINS.json",
+    "blob": "af18e82885d048a2a352209c4b99acc99f1fff98",
+    "sha256": "ac5a39dcc399ed814d8e2699993c6211ae52a3532979751c5de70e912624ef74",
+    "bytes": 17809
+  },
+  {
+    "origin": "git",
+    "revision": "49d7dee436f9b595fa274084fa7b2bdab397a006",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I34/f2a_work_exactness_design_01/_run_records/SESSION.json",
+    "blob": "121e722f55e11ce33709b299cfe5532a3b6bef43",
+    "sha256": "c110dab7e3dff682ba349c2417068ea917678b1e857094b443646265eca2591e",
+    "bytes": 3567
+  },
+  {
+    "origin": "git",
+    "revision": "49d7dee436f9b595fa274084fa7b2bdab397a006",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I34/f2a_work_exactness_design_01/_run_records/controls.py",
+    "blob": "575454da7093debdc71975994f8d52d9af3d7b1d",
+    "sha256": "0e1be652882c875aec5cd3f7c8b1ac38506203628b2de3ff1cf6fd02463c2544",
+    "bytes": 9377
+  }
+]

@@ -1,0 +1,152 @@
+[
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/ordinary_prepared_dense_synthetic_K4SRC.bin",
+    "bytes": 552,
+    "sha256": "b55e985194579acea8466493ddf0e77a89fe1e2ac48143d7aceac8bd44c37502"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/ordinary_prepared_dense_synthetic_K4STF.bin",
+    "bytes": 188,
+    "sha256": "14f743234959c121b79ab65424a5fb55621ce5da018cba8ec59bf67eef0e601e"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/ordinary_prepared_synthetic_K4SRC.bin",
+    "bytes": 552,
+    "sha256": "b55e985194579acea8466493ddf0e77a89fe1e2ac48143d7aceac8bd44c37502"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/ordinary_prepared_synthetic_K4STF.bin",
+    "bytes": 188,
+    "sha256": "14f743234959c121b79ab65424a5fb55621ce5da018cba8ec59bf67eef0e601e"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/python_schema_01.json",
+    "bytes": 903,
+    "sha256": "27885b5e6fd2c22fc4bba5084734f2707681e7af47a3dffa0df91ca51303bfa6"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/python_schema_01.log",
+    "bytes": 99,
+    "sha256": "6a5c92f26bddab27b23587fd2ecdca2151e4555ceaa23458f5e858ffb84ac45f"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/python_schema_02.json",
+    "bytes": 903,
+    "sha256": "8cfe68b79c21331ae5c0cdd41d64a62b1fd6640d3e24ac01d188ab07afe78a24"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/python_schema_02.log",
+    "bytes": 99,
+    "sha256": "c6d0d836c49a545eb3d375aaae003f1c554d92a7d00b4ed83d77b072814359d0"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/python_schema_03.json",
+    "bytes": 1549,
+    "sha256": "7b446dcc17e9f7b6aca10687d4f25f274f2a77893ee27014dcb1538c141ecbac"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/python_schema_03.log",
+    "bytes": 99,
+    "sha256": "f13df0884d1eb8497c0b53eb00f17675ad961e719a16a46ee3088c66b2c135e2"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/recovery_to_I58.diff",
+    "bytes": 30994,
+    "sha256": "18af72a87fd4324acc03bf48f450a3ee3bfefcae822f6dac28d29e93c1b9179c"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/shared_snapshot_02/fixtures/results/retained_precision_cases.json",
+    "bytes": 428642,
+    "sha256": "564b1763f866e303154cec022d157aa75c2eab6895fc558adbf02d7d13c0ec73"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/shared_snapshot_02/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+    "bytes": 8346,
+    "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/shared_snapshot_02/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+    "bytes": 52328,
+    "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/shared_snapshot_02/schemas/results.v0.3.schema.yaml",
+    "bytes": 131530,
+    "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/shared_snapshot_02/schemas/retained_precision_mp_v2.schema.json",
+    "bytes": 173167,
+    "sha256": "5652929173237c547ac58669f14d4b347f6c075634579e1abd5660c774e8dcd0"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/shared_snapshot_03/fixtures/results/retained_precision_cases.json",
+    "bytes": 433981,
+    "sha256": "67d5cbcc00e26691f67e0c44e7ffa60262ee29487533779a3ff96f93a86aaed8"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/shared_snapshot_03/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+    "bytes": 8346,
+    "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/shared_snapshot_03/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+    "bytes": 52328,
+    "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/shared_snapshot_03/schemas/results.v0.3.schema.yaml",
+    "bytes": 131530,
+    "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/shared_snapshot_03/schemas/retained_precision_mp_v2.schema.json",
+    "bytes": 173167,
+    "sha256": "5652929173237c547ac58669f14d4b347f6c075634579e1abd5660c774e8dcd0"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/core/analysis_runs/physics_source.py",
+    "bytes": 30230,
+    "sha256": "81487a87d5e170b98b1569a8d2e7c42943b9c1be565f3a71c5b5a18879c4aba1"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/core/analysis_runs/retained_precision.py",
+    "bytes": 63640,
+    "sha256": "a9819e6a7afb7aae109b7fb49b082f2644c565ac2b87003c7ccc3accf75f9a3b"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/fixtures/results/retained_precision_cases.json",
+    "bytes": 433981,
+    "sha256": "67d5cbcc00e26691f67e0c44e7ffa60262ee29487533779a3ff96f93a86aaed8"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+    "bytes": 8346,
+    "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+    "bytes": 52328,
+    "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+    "bytes": 131530,
+    "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/schemas/retained_precision_mp_v2.schema.json",
+    "bytes": 173167,
+    "sha256": "5652929173237c547ac58669f14d4b347f6c075634579e1abd5660c774e8dcd0"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/tests/test_retained_precision_contract.py",
+    "bytes": 10920,
+    "sha256": "ed910da85847f28dbd9faaadc18e498653ab6babd1fd16a8a01922053121a874"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/tests/test_retained_precision_schema.py",
+    "bytes": 3627,
+    "sha256": "90bbd5660c504d3344ce19756d2b2250f80c0bd5d93b3ec123e5abf10523e504"
+  }
+]

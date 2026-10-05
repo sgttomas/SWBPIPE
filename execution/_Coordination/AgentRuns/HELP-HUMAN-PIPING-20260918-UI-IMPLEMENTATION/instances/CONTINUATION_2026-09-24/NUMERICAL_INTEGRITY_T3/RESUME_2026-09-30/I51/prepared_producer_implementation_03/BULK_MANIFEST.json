@@ -1,0 +1,371 @@
+{
+  "created_utc": "2026-10-03T11:29:13.012389+00:00",
+  "files": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/ACTUAL_POINT_CONTROL.json",
+      "bytes": 79570,
+      "sha256": "75f03362c8a9282802caa1c59c9780d43028957b2413264a95f78aba2134d244"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/BASELINE.json",
+      "bytes": 119485,
+      "sha256": "021d8b7e5e577d8f1cbe5223737586e2fe04b276face8950a635632289dedfcb"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/C0_LAYOUT_MEASUREMENTS.json",
+      "bytes": 1571,
+      "sha256": "3ab87293ad2db6c10c3d7363ad6bf16e555e2ea4b1c9dc5bca542278fb4bf6ba"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/C0_PROPOSED_CALLBACK.patch",
+      "bytes": 8118,
+      "sha256": "90c7f1c5bf2bf5656467efb230a5d58dbf48031686a368f182d920f1a8a8d185"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/C0_PROPOSED_LIB_HOOK.patch",
+      "bytes": 555,
+      "sha256": "70f6d68e68a9b76ae289025a9c9ada062842fb2fe00a1ff00a29bbe01da8b9bf"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/C0_PROPOSED_TEST_ADJUST.patch",
+      "bytes": 973,
+      "sha256": "605e524990585190c3ca64ddccf71e1e67fe72c7b0f32393822e87fba6b027aa"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/C0_SEAM_PROPOSAL.json",
+      "bytes": 1489,
+      "sha256": "ba04305530f1e44b535f29fbd9f242930fbd7afa3945438315f1a22f06429a88"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/C1_SOURCE.patch",
+      "bytes": 23634,
+      "sha256": "4a906c15ca6c35b0ab6c4e1a8460d7847f219a6489ccd99159fb085bb932cfff"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/C2_DIAGNOSTICS_SOURCE.patch",
+      "bytes": 98997,
+      "sha256": "831e42b2038f9ff8b34ab98d9f7f26f258890ca98bfc9798d661dcd8363797b6"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/ENVIRONMENT.json",
+      "bytes": 315,
+      "sha256": "8ae52a1b7b08e0abaf5194e02443ad3eeac2b2512189e5727b8261fa4e1578b1"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/FINAL_C2_EQUIVALENCE.json",
+      "bytes": 4064,
+      "sha256": "cfc98eb549f1345dfaf70ebf79cb165acc52da740af31f220a3842e45f5576d6"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/FIRST_C2.json",
+      "bytes": 39967,
+      "sha256": "a773e085040d589827b4c817e5d5cc8d6411055780fcf46214963cceccaa129c"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/FIRST_C2_SOURCE.patch",
+      "bytes": 100749,
+      "sha256": "eb63c567970aa472d508a9dfb7432b28723185e50edc9c498e7f7f947d15eb91"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/FIRST_C2_WIDTHS.json",
+      "bytes": 2633,
+      "sha256": "37cbc3e9fdfdc52116159380fc98befd5a3527da5dc59c2ed12361534bdbe74b"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/FIRST_NATIVE.json",
+      "bytes": 5396,
+      "sha256": "910c917bc6a385d6c9a24edad01f2518a46f9c7e11dcbd856ff7420f7c53b5aa"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/PP_OVERLAY_FRAGMENT.rs",
+      "bytes": 15847,
+      "sha256": "6b32f8296414e7031d5fc9876cd9889f6ea8c27afbeb8bf1fde9180a06b570f5"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/PP_OVERLAY_STAGED.json",
+      "bytes": 257,
+      "sha256": "a2390a5970cf75d29a192b07a02c0dc0c409938def2a5188a45f5c003021b3ab"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/PP_OVERLAY_STAGED.patch",
+      "bytes": 22153,
+      "sha256": "f973fb57c14389c81820f69db8287ed8c17fc146f74f72a1abb4b9aa46f7c063"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/SOURCE_CURRENT.patch",
+      "bytes": 108431,
+      "sha256": "f6445bd4fe27748c3a314447466e73301f3a0b2525f6bd582e6c13b921f10ec2"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/actual_point_control.py",
+      "bytes": 4283,
+      "sha256": "e22efadb8b4a4e75ab0f3fcfdaf516413bed6ecc2fe72dc334e33fdbd798c097"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/c0_applied_01/BOUNDARY.json",
+      "bytes": 2936,
+      "sha256": "43c70d2194805f6d89a879c8586efb3b140211245c04ce0b469ed76a6d7ee035"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/c0_applied_01/SOURCE.patch",
+      "bytes": 32998,
+      "sha256": "800a8d463960a5f39c544ed098c79986d1dc4e863d27f787603036babdd9dc65"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_c0_layout_only_01.json",
+      "bytes": 2211,
+      "sha256": "b6517996d34e7fd8e8e6c41a045f8f233f9c9036015000919534b1c4b2714e7b"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_c0_layout_only_01.log",
+      "bytes": 1715,
+      "sha256": "8e1c4841b3012f03e0fc47381c91e01b5046e5d727c0c55380dcf70d96def7b8"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_certificate_controls_01.json",
+      "bytes": 2752,
+      "sha256": "8ccc97cd54b3e412393b67cd774878d0a8333abb4be0cd7be7c80362129a4a54"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_certificate_controls_01.log",
+      "bytes": 3671,
+      "sha256": "8149019267947ba1976c2053f9052fd2cf1df58c898799dec3c0e9f40a149fb8"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_origins_controls_01.json",
+      "bytes": 2747,
+      "sha256": "943a9b6dcf039eca72d159a6e39687a0a89013e92fb0ac50c2039f54e32a6d32"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_origins_controls_01.log",
+      "bytes": 1972,
+      "sha256": "4240e9aeb4175771703b8523ec24d731a534724cb8bdbd550278b6e4b401a83e"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_residual_controls_01.json",
+      "bytes": 2754,
+      "sha256": "c72ca1748dc8e4138f38672d318b50f402a7c7aced32dc56ed6fdf1049247929"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_residual_controls_01.log",
+      "bytes": 2056,
+      "sha256": "f14c9bda98f7598937250d7e712c23f54c3b7e11f3ae3efe5337baafd4c84be9"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_s11_final.json",
+      "bytes": 2748,
+      "sha256": "9bf164f8acc7aa68dbc3151d6f8d288242115c224efa5971d10113ec659cec9b"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_s11_final.log",
+      "bytes": 1221,
+      "sha256": "25225f1011dcdd99cd02471a2bdcc6e6763d596a9a136128f902fcdd3962c797"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_s11_unchanged_01.json",
+      "bytes": 2576,
+      "sha256": "00e7173bd449b3a9d191a362fb57cda02dcac812e0e90b59123a3b56841791e1"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_s11_unchanged_01.log",
+      "bytes": 1221,
+      "sha256": "329b915e701c5d22dab21642f14f0253b942fb04999aff24c83c238ec3c8937e"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c0_boundaries_01.json",
+      "bytes": 2911,
+      "sha256": "1f041da919b7930de3d57396b35286fefd835e486591abc3d59039f878341fc4"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c0_boundaries_01.log",
+      "bytes": 13322,
+      "sha256": "3e22de19ace41e40f547f8b13286ef124eadfcee37ed510c275796c8e277252c"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c0_isolated_01.json",
+      "bytes": 2925,
+      "sha256": "00df75d0b2ccb9dbd3c6de776185e1d2b4bdc85c9f0e145180b9199078141e1b"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c0_isolated_01.log",
+      "bytes": 14189,
+      "sha256": "6b504c9f47c0d7c1e6af5f324d9cd107d8f36af16ffd39b44da2d649a66e4d9d"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c0_isolated_final.json",
+      "bytes": 3025,
+      "sha256": "5994463605f118febec9292c5ad43785c8a2e3f547fc53066991c2a461cdb8cb"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c0_isolated_final.log",
+      "bytes": 21078,
+      "sha256": "5ecd8c48f814239416a7eafdefb651fb58cbc727d4134c74e1e0c8ba35887b58"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c1_compile_01.json",
+      "bytes": 1931,
+      "sha256": "e762ead188959dfcd2b95db4a485f7ed2e236b1a25f1a81b749390e73cecfd38"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c1_compile_01.log",
+      "bytes": 5737,
+      "sha256": "5397d539d1e9c870071aedd5ce86ad3ffbf6d5dccada0138495a5718f75cd7ec"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c1_native_01.json",
+      "bytes": 1946,
+      "sha256": "84cfe831857f061821ad599359d8e3da19c355087abf6ef40a1311479896c346"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c1_native_01.log",
+      "bytes": 753,
+      "sha256": "427c054b062d917063b93050ddd8696136b6d64b8fda2383eaad380e6cc28407"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c1_native_02.json",
+      "bytes": 1946,
+      "sha256": "735e3dd054a6e48775445ae2b530c68c2f554c75a1443e6bec2c9caa37005927"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c1_native_02.log",
+      "bytes": 4161,
+      "sha256": "e93cf484c1a1f589f21a49f7725d3f4c3b228eb111c1c021a4a801cb3b507fd6"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c1_native_03.json",
+      "bytes": 1944,
+      "sha256": "299655f5076b9ac72a5240240f60b75c1a441bf0c7b7bde3039e010f4c727306"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c1_native_03.log",
+      "bytes": 202191,
+      "sha256": "24182d8cb410fcdac427fd0c7fd5c16ee8ff6cd4d44f52d789f9b5c30cc5c02b"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c2_candidate_01.json",
+      "bytes": 2793,
+      "sha256": "32f54b4883398183b3f6136fa4a29f5d09f96fa0ac059d35bfa6d213c16f42b4"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c2_candidate_01.log",
+      "bytes": 402456,
+      "sha256": "ac247294266ebf44725c471cdfbdf393a030cf8eb33710c5a11a1c4a511efde9"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c2_diagnostics_02.json",
+      "bytes": 2793,
+      "sha256": "9d3a96c13b35c84bd18aeb051c29111c1d253529c848448d3c540a5756e402c4"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c2_diagnostics_02.log",
+      "bytes": 466528,
+      "sha256": "b2c09a63bb86da5c38d96fa4d6519f01ef3f95a7bcfd1408143fe3a374cafc01"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_exact_suppression_01.json",
+      "bytes": 2796,
+      "sha256": "0b7879d800af33cbac12a498ad1cedd6b9b3c2b5fd67477279f250d8bfc115c3"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_exact_suppression_01.log",
+      "bytes": 4398,
+      "sha256": "76c8484eab63897716dcc4decb87023574adbf9dfe23b1e61298de24fb57149a"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_formation_01.json",
+      "bytes": 2756,
+      "sha256": "a6f81046c73b027dc56022fb8ae96d68515e7814475705aaed43aba9c4e50be4"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_formation_01.log",
+      "bytes": 5506,
+      "sha256": "60f0d569083a62c27815eb3577cb09fe1de45899d331673f551cc23641add898"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_nonpressure_01.json",
+      "bytes": 2748,
+      "sha256": "a7e2ac19a56c578a0c5bd40c007779fed926f7cb215f7a5f8b3b5f2f53fb6d24"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_nonpressure_01.log",
+      "bytes": 4394,
+      "sha256": "81d359da7d7df883a1fe12f8edd99fe2c423b3b74678603110d242e591104b43"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_pressure_01.json",
+      "bytes": 2812,
+      "sha256": "ec8693348ffd28fbceb65fe56bd4fdd6dec3a580148a762a0a814d5b3e416f49"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_pressure_01.log",
+      "bytes": 5182,
+      "sha256": "5a8e9bc542a9e92a748b5391e2f078f71e012ff6aee908d8f17a3a5f10226e17"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_retained_debug_01.json",
+      "bytes": 2756,
+      "sha256": "7fbb2a5a74c9d349572e1c50644f505f6d4bde382d2e466747f09a8a3f72731a"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_retained_debug_01.log",
+      "bytes": 471029,
+      "sha256": "6f4739ded32ec9585b367fb950ffca3a4ccdb92c91e2c36502f7dd603667b092"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_retained_debug_final.json",
+      "bytes": 2756,
+      "sha256": "739135749a00d4495d2aa24d2d4a5539ab30da7d896776b031b1aa31e49b2956"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_retained_debug_final.log",
+      "bytes": 468777,
+      "sha256": "3dbc221623979560a5e994d711b4ca9259dcb130a6fda9e8e7f3e8424e94e81a"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_retained_release_01.json",
+      "bytes": 2773,
+      "sha256": "9f7c3d0d8894acfd702c030694ed6beb93c6e67823e635136bd54bdbbee6e2a3"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_retained_release_01.log",
+      "bytes": 471021,
+      "sha256": "ab1f1c7d7151f07699afe0b186219a75ddb6c6fc2b898b9bcaa65eff164883f6"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_retained_release_final.json",
+      "bytes": 2773,
+      "sha256": "24d1eb39527b5bae1067980398fa1fac5fee50e1ffaba293fcb2893241932bcd"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_retained_release_final.log",
+      "bytes": 468959,
+      "sha256": "cfe616ad5d9d068e5ca7297a8b9345c37ec65f7f12c5024401eabef4c80f00ec"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_s11_final.json",
+      "bytes": 2747,
+      "sha256": "9ab92a62f1c6a004ec509083dc732147885ab62258a0e0aec02d0aa6aaaad823"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_s11_final.log",
+      "bytes": 5854,
+      "sha256": "795783830f703ede26906236c69e75e7d60730e708d9b378fcee19ed5558d931"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_s11_unchanged_01.json",
+      "bytes": 2575,
+      "sha256": "66103c646e2d216fa86f39323efb7d535af5bb1a6f755aa4157115891085a5f3"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_s11_unchanged_01.log",
+      "bytes": 8017,
+      "sha256": "8d22fafa1b0ec2ca56417da2fdfb9b1105fcf19dc2a6236077e99ce6ee02508e"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_replacement_producer/control.py",
+      "bytes": 13460,
+      "sha256": "1ec5589fec4b0d82a1a73ea78743c362604cbe2cd4b3482b237741f39e0f7132",
+      "scope": "independent control dependency; earlier owned packet unchanged"
+    }
+  ]
+}

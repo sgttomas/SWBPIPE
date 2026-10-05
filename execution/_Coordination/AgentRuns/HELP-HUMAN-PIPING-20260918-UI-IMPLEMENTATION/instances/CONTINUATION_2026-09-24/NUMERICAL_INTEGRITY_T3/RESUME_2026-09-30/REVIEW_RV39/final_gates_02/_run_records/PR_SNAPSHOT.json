@@ -1,0 +1,174 @@
+{
+  "sampled_utc": "2026-10-02T17:30:54.967625+00:00",
+  "pr": {
+    "baseRefName": "main",
+    "baseRefOid": "3a0251874d6ab38008173a22ef09d651a0f20d9e",
+    "headRefOid": "9994462204231fb92073e17eb09775756bec22f3",
+    "mergeStateStatus": "CLEAN",
+    "number": 1071,
+    "state": "OPEN",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T16:34:11Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/37034799888/job/110930218945",
+        "name": "Select App coverage",
+        "startedAt": "2026-10-02T16:34:02Z",
+        "status": "COMPLETED",
+        "workflowName": "Harness Pre-merge Validation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T16:34:15Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/37034799895/job/110930219077",
+        "name": "Select source coverage",
+        "startedAt": "2026-10-02T16:34:02Z",
+        "status": "COMPLETED",
+        "workflowName": "Piping Desktop E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T16:37:18Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/37034799865/job/110930219177",
+        "name": "harness",
+        "startedAt": "2026-10-02T16:34:02Z",
+        "status": "COMPLETED",
+        "workflowName": "governance-harness"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T16:34:12Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/37034799973/job/110930219281",
+        "name": "Select PEC coverage",
+        "startedAt": "2026-10-02T16:34:02Z",
+        "status": "COMPLETED",
+        "workflowName": "pec-tests"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T16:34:11Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/37034799888/job/110930292341",
+        "name": "App instruction bundle",
+        "startedAt": "2026-10-02T16:34:11Z",
+        "status": "COMPLETED",
+        "workflowName": "Harness Pre-merge Validation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T16:34:15Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/37034799895/job/110930319172",
+        "name": "Accessibility barrier and selected coverage",
+        "startedAt": "2026-10-02T16:34:16Z",
+        "status": "COMPLETED",
+        "workflowName": "Piping Desktop E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T16:34:12Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/37034799973/job/110930302014",
+        "name": "PEC workspace tests",
+        "startedAt": "2026-10-02T16:34:13Z",
+        "status": "COMPLETED",
+        "workflowName": "pec-tests"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T16:34:11Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/37034799888/job/110930291629",
+        "name": "App Runtime integration",
+        "startedAt": "2026-10-02T16:34:11Z",
+        "status": "COMPLETED",
+        "workflowName": "Harness Pre-merge Validation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T16:43:30Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/37034799895/job/110930316922",
+        "name": "Source remainder (1/4)",
+        "startedAt": "2026-10-02T16:34:18Z",
+        "status": "COMPLETED",
+        "workflowName": "Piping Desktop E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T16:34:21Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/37034799973/job/110930300541",
+        "name": "pec",
+        "startedAt": "2026-10-02T16:34:15Z",
+        "status": "COMPLETED",
+        "workflowName": "pec-tests"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T16:42:22Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/37034799895/job/110930317134",
+        "name": "Source remainder (2/4)",
+        "startedAt": "2026-10-02T16:34:17Z",
+        "status": "COMPLETED",
+        "workflowName": "Piping Desktop E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T16:43:19Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/37034799895/job/110930317039",
+        "name": "Source remainder (3/4)",
+        "startedAt": "2026-10-02T16:34:18Z",
+        "status": "COMPLETED",
+        "workflowName": "Piping Desktop E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T16:42:11Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/37034799895/job/110930316959",
+        "name": "Source remainder (4/4)",
+        "startedAt": "2026-10-02T16:34:18Z",
+        "status": "COMPLETED",
+        "workflowName": "Piping Desktop E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T16:34:20Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/37034799888/job/110930290874",
+        "name": "Harness pre-merge",
+        "startedAt": "2026-10-02T16:34:14Z",
+        "status": "COMPLETED",
+        "workflowName": "Harness Pre-merge Validation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T16:49:50Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/37034799895/job/110930316866",
+        "name": "Numerical cargo suite",
+        "startedAt": "2026-10-02T16:34:17Z",
+        "status": "COMPLETED",
+        "workflowName": "Piping Desktop E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T16:49:58Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/sgttomas/chirality/actions/runs/37034799895/job/110936167454",
+        "name": "Desktop E2E (source mode)",
+        "startedAt": "2026-10-02T16:49:52Z",
+        "status": "COMPLETED",
+        "workflowName": "Piping Desktop E2E"
+      }
+    ],
+    "url": "https://github.com/sgttomas/chirality/pull/1071"
+  }
+}

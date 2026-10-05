@@ -1,0 +1,47 @@
+{
+ "sf1": {
+  "0.1.0:control": "built:without-receipt",
+  "0.1.0:member object": "ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN",
+  "0.1.0:member null": "ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN",
+  "0.1.0:member {}": "ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN",
+  "0.1.0:token first row": "ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN",
+  "0.1.0:token last row": "ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN",
+  "0.1.0:other method string": "built:without-receipt",
+  "0.2.0:control": "built:without-receipt",
+  "0.2.0:member object": "ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN",
+  "0.2.0:member null": "ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN",
+  "0.2.0:member {}": "ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN",
+  "0.2.0:token first row": "ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN",
+  "0.2.0:token last row": "ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN",
+  "0.2.0:other method string": "built:without-receipt",
+  "successor itself": "HISTORICAL_ANALYSIS_SOURCE_UNSUPPORTED"
+ },
+ "texts_sparse_interactive": {
+  "registered": "Retained precision: receipt validated by the retained-precision reader against the actual invocation for these exact bytes. Selected cases: 1 of 1. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "unregistered": "Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "refused_this_session": "Retained precision: receipt refused by the retained-precision reader (RETAINED_PRECISION_RECEIPT_MISMATCH); unsupported, values shown for inspection only. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "refused_foreign_mode": "Retained precision: receipt refused by the retained-precision reader (RETAINED_PRECISION_INVOCATION_MISMATCH); unsupported, values shown for inspection only. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "two_case_unregistered": "Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "two_case_registered": "Retained precision: receipt validated by the retained-precision reader against the actual invocation for these exact bytes. Selected cases: 1 of 2. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "panel_registered": "Retained precision: receipt validated by the retained-precision reader against the actual invocation for these exact bytes. Selected cases: 1 of 1. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "panel_unregistered": "Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "panel_refused": "Retained precision: receipt refused by the retained-precision reader (RETAINED_PRECISION_RECEIPT_MISMATCH); unsupported, values shown for inspection only. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "standing_refused": [
+   "RETAINED_PRECISION_RECEIPT_MISMATCH"
+  ]
+ },
+ "texts_dense_scrutiny": {
+  "registered": "Retained precision: receipt validated by the retained-precision reader against the actual invocation for these exact bytes. Selected cases: 1 of 1. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "unregistered": "Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "refused_this_session": "Retained precision: receipt refused by the retained-precision reader (RETAINED_PRECISION_RECEIPT_MISMATCH); unsupported, values shown for inspection only. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "refused_foreign_mode": "Retained precision: receipt refused by the retained-precision reader (RETAINED_PRECISION_INVOCATION_MISMATCH); unsupported, values shown for inspection only. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "two_case_unregistered": "Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "two_case_registered": "Retained precision: receipt validated by the retained-precision reader against the actual invocation for these exact bytes. Selected cases: 1 of 2. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "panel_registered": "Retained precision: receipt validated by the retained-precision reader against the actual invocation for these exact bytes. Selected cases: 1 of 1. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "panel_unregistered": "Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "panel_refused": "Retained precision: receipt refused by the retained-precision reader (RETAINED_PRECISION_RECEIPT_MISMATCH); unsupported, values shown for inspection only. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.",
+  "standing_refused": [
+   "RETAINED_PRECISION_RECEIPT_MISMATCH"
+  ]
+ }
+}

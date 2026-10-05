@@ -1,0 +1,330 @@
+{
+  "scope": "Corrected scalar/encoding/layout helper examples only; no model/source/profile/admission constructed",
+  "legacy_control_comparison": {
+    "original_relative_path": "../COUNT_CHECKS.json",
+    "original_controls": 16,
+    "equal": true
+  },
+  "checks": [
+    {
+      "check": "raw duplicates not silently treated as validated F",
+      "passed": true,
+      "result": {
+        "N": 12,
+        "t": 3,
+        "I": 12,
+        "Cs": 1,
+        "U": 79,
+        "P": 145,
+        "E_src_raw_upper": 493
+      }
+    },
+    {
+      "check": "validated counterpart",
+      "passed": true,
+      "result": {
+        "N": 12,
+        "F": 6,
+        "Q": 53,
+        "E_src": 402,
+        "E_stf": 205
+      }
+    },
+    {
+      "check": "invalid validated r",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "3m final valid count",
+      "passed": true,
+      "result": 4294967295
+    },
+    {
+      "check": "3m next member rejected before cast",
+      "passed": true,
+      "expected_rejection": "OverflowError"
+    },
+    {
+      "check": "6n target usize32 boundary",
+      "passed": true,
+      "result": 4294967292
+    },
+    {
+      "check": "6n target usize32 overflow",
+      "passed": true,
+      "expected_rejection": "OverflowError"
+    },
+    {
+      "check": "case encoding fits usize64 but not operand u32",
+      "passed": true,
+      "expected_rejection": "OverflowError"
+    },
+    {
+      "check": "repeated operands preserve visits and prescription pairs",
+      "passed": true,
+      "result": {
+        "h": 3,
+        "load_visits": 6,
+        "prescribed_pairs": 18,
+        "E_cmb": 369
+      }
+    },
+    {
+      "check": "empty operand arithmetic is not a valid combined source",
+      "passed": true,
+      "result": {
+        "h": 0,
+        "load_visits": 0,
+        "prescribed_pairs": 0,
+        "E_cmb": 10
+      }
+    },
+    {
+      "check": "bool count rejected",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "u8 layout target32 final byte",
+      "passed": true,
+      "result": 2147483647
+    },
+    {
+      "check": "u8 layout target32 first forbidden byte",
+      "passed": true,
+      "expected_rejection": "OverflowError"
+    },
+    {
+      "check": "abstract child-vector partition majorant",
+      "parameters": [
+        0,
+        1,
+        [
+          0,
+          1,
+          4
+        ]
+      ],
+      "passed": true,
+      "sum": 5,
+      "upper": 5,
+      "not_build_coefficients": true
+    },
+    {
+      "check": "abstract child-vector partition majorant",
+      "parameters": [
+        4,
+        2,
+        [
+          0,
+          1,
+          4
+        ]
+      ],
+      "passed": true,
+      "sum": 18,
+      "upper": 22,
+      "not_build_coefficients": true
+    },
+    {
+      "check": "abstract child-vector partition majorant",
+      "parameters": [
+        8,
+        3,
+        [
+          2,
+          2,
+          2,
+          0
+        ]
+      ],
+      "passed": true,
+      "sum": 42,
+      "upper": 50,
+      "not_build_coefficients": true
+    },
+    {
+      "check": "RV48 validated Boolean node rejected",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "RV48 validated negative k rejected",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "RV48 combo masked negative load rejected",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "validated individual n Boolean",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "validated individual n negative",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "validated individual m Boolean",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "validated individual m negative",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "validated individual s Boolean",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "validated individual s negative",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "validated individual k Boolean",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "validated individual k negative",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "validated individual l Boolean",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "validated individual l negative",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "validated individual g Boolean",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "validated individual g negative",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "validated individual I Boolean",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "validated individual I negative",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "validated individual Cs Boolean",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "validated individual Cs negative",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "combo k Boolean",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "combo encoding element Boolean",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "combo load element Boolean",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "raw id-length element Boolean",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "raw child-length element Boolean",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "bit width Boolean",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "combo k negative",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "combo encoding element negative",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "combo load element negative",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "raw id-length element negative",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "raw child-length element negative",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "bit width negative",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "combo negative k with zero operands cannot hide in zero product",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "masked encoding element sum rejected",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "zero bit width rejected",
+      "passed": true,
+      "expected_rejection": "ValueError"
+    },
+    {
+      "check": "layout count width cannot hide in zero-size product",
+      "passed": true,
+      "expected_rejection": "OverflowError"
+    }
+  ],
+  "sentinel_clarification": {
+    "F": 4294967296,
+    "reduced_triangle_fits_usize64": true,
+    "unreduced_product_fits_usize64": false,
+    "not_a_counterexample_to_unreduced_premise": true,
+    "valid_block_ids_when_count_is_U32": "0 through U32-1; U32 remains unvisited sentinel"
+  }
+}

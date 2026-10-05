@@ -1,0 +1,4 @@
+52052ece61 vs 76477534f6: envelopes=86 in 72 files; existing=69; successor=17; outcomes per envelope=25 (+ the guard probe)
+identities: {'load-reference-1': 6, 'source-blocks-1': 15, 'none': 7, 'precision-1': 4, 'preview-physics-1': 7, 'load-reference-source-1': 10, 'physics-source-1': 14, 'physics-1': 6, 'preview-physics-retained-1': 17}
+existing-identity differences: NONE
+successor differences: NONE

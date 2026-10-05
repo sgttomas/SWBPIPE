@@ -1,0 +1,49 @@
+[
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV64_FULL_TRUTH_BACKCHECK.md",
+    "revision": "4987f8290fbdd8b2ca228da24c138a1b90453eed",
+    "role": "active continuation brief",
+    "sha256": "0bdf45c1edddf8312f1c8197e5f2ac47ee4a1e6ee7119f518bd4b9b3d9d8b84c",
+    "bytes": 2490
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/material_truth_coverage_challenge_01/CHALLENGE.md",
+    "revision": "4987f8290fbdd8b2ca228da24c138a1b90453eed",
+    "role": "ROOT challenge",
+    "sha256": "302f3e338402fe36113b20d328cccc42590ba5edbd7bd3816b554b944406161a",
+    "bytes": 1819
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_preview_truth_01/RETURN.md",
+    "revision": "4987f8290fbdd8b2ca228da24c138a1b90453eed",
+    "role": "required preview truth warrant, especially section 2",
+    "sha256": "0f3ea0bed9b3ce93e7c7e75ee3dc6acac2f23d6f29f775058c24be7c69d9211c",
+    "bytes": 18757
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/RETURN.md",
+    "revision": "4987f8290fbdd8b2ca228da24c138a1b90453eed",
+    "role": "required coefficient cover, section 1 step 6 and section 2",
+    "sha256": "74670d4f43e58f13e6fd03c69cbde7cd514c117d66d29691ff6d225f2f2e5d3a",
+    "bytes": 16704
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I49/full_truth_addendum_02/RETURN.md",
+    "role": "new subject identity",
+    "sha256": "edfd6c25fa515158b932311d89898c828db9aad1700e0bcf6324d29406106fa0",
+    "bytes": 7948
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I49/full_truth_addendum_02/_run_records/INVENTORY.json",
+    "role": "new subject identity",
+    "sha256": "1c7bf58603167c45ec20f35fb90879dafdc921f12141fa6ae59890ce35c605c7",
+    "bytes": 4061
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/material_truth_coverage_challenge_01/ROOT_CHECK.json",
+    "revision": "4987f8290fbdd8b2ca228da24c138a1b90453eed",
+    "role": "post-derivation ROOT fraction comparison",
+    "sha256": "3c5d73b36cddcf371f1153ed473756f7d0934da913599316432ed361a9e71779",
+    "bytes": 9402
+  }
+]

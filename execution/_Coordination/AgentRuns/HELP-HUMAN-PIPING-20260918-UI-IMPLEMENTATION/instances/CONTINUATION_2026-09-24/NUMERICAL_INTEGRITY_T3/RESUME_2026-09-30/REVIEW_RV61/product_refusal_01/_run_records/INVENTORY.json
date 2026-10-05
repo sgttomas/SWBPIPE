@@ -1,0 +1,86 @@
+{
+  "sealed_utc": "2026-10-03T03:43:32.091304+00:00",
+  "root": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV61/product_refusal_01",
+  "files": [
+    {
+      "path": "RETURN.md",
+      "sha256": "2138bf50ad64bfb49099424bc0993b9eb150491175bebdba9c8a2cd459d101b3",
+      "bytes": 1459
+    },
+    {
+      "path": "REVIEW.md",
+      "sha256": "f2bcdee7d613fec8f8e74d6de3846df2cb5d3ad52a1eae102fddb8adb5312aaf",
+      "bytes": 14729
+    },
+    {
+      "path": "_run_records/CHECKPOINT.md",
+      "sha256": "0576483d26f48e89d4e552397b1cd257a308837471f12a703468c3b9928ee490",
+      "bytes": 491
+    },
+    {
+      "path": "_run_records/EXECUTION.json",
+      "sha256": "b002ea1e5359d7029e31295f49273f7dfe20fdf8a4dcb6371de54c2b48346f3c",
+      "bytes": 501
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "sha256": "51ca17596cc8aca9e5683de3210709851219c56536cc9d7700c0b706592f37b6",
+      "bytes": 14114
+    },
+    {
+      "path": "_run_records/i46_replay/analysis_results.json",
+      "sha256": "416fa3c4949436ad9ed600f47baeaf69a25598dc6fe9c53def163dbf7cf1eb95",
+      "bytes": 323744
+    },
+    {
+      "path": "_run_records/i46_replay/analyze.py",
+      "sha256": "aaa6ee62b368eaba2b8ab9a47810f8404f306a721448cffb80c422bd6c76d22d",
+      "bytes": 12560
+    },
+    {
+      "path": "_run_records/i46_replay/captured_records.json",
+      "sha256": "894f39c05f4559948e692ed2d63d30d235c9ed869fd6f87ad2b54f649afe3fcb",
+      "bytes": 210386
+    },
+    {
+      "path": "_run_records/i46_replay/rx_counterexample.json",
+      "sha256": "e6bf48ef285d8e07f4a16300d3d46de5db6e911d38ce4d23b4324c485a3971ab",
+      "bytes": 37866
+    },
+    {
+      "path": "_run_records/i46_replay.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "_run_records/i46_replay.stdout.log",
+      "sha256": "a7742095573a0f2099afbd09fd826663097cb388fccf5a4aed3cb2bc44edc99e",
+      "bytes": 2885
+    },
+    {
+      "path": "_run_records/independent_results.json",
+      "sha256": "39a98fda4264596b7d9ea6a0ab023bebe30bc499e445b95661e79d1d6e3205fd",
+      "bytes": 147787
+    },
+    {
+      "path": "_run_records/independent_review.py",
+      "sha256": "44715a875870a0c47ed8ba155f2268cba293073b39fc348c417b4a1f58620353",
+      "bytes": 16952
+    },
+    {
+      "path": "_run_records/independent_review.stdout.log",
+      "sha256": "65179dba031bf72272ef9bae5bbec3da1740034c17b997fcb967851d9c935d24",
+      "bytes": 3377
+    },
+    {
+      "path": "_run_records/integrity.json",
+      "sha256": "5a94f6059f280194307a3a92a5d08d7b7b8b9d9c51d4d636e4f72e7e20d39c89",
+      "bytes": 2139
+    },
+    {
+      "path": "_run_records/provenance.py",
+      "sha256": "b33460b03ea0157980b18298752d8fe15fb27ee21ab22db9012455828f025ab6",
+      "bytes": 4418
+    }
+  ]
+}

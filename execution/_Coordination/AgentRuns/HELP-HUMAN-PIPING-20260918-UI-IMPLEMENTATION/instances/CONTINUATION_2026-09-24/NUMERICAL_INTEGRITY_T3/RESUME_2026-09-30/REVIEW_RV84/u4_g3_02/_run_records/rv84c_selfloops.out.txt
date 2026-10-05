@@ -1,0 +1,55 @@
+components 22 reachable 19
+R core/serialization/canonical_json/src/lib.rs:125:write_canonical | self-calls: 2
+      :140 out.push(','); } write_canonical(item, out); } ou
+      :157 as JSON")); out.push(':'); write_canonical(&map[key.as_str()], out); }
+R core/serialization/canonical_json/src/lib.rs:94:validate_checked_value | self-calls: 2
+      :111 } Value::Array(values) => for item in values { validate_checked_value(item)?; }, Value::Object(values)
+      :112 Value::Object(values) => for item in values.values() { validate_checked_value(item)?; }, _ => {} } Ok(
+R core/reporting/result_export/src/derivative.rs:13:guard_json | self-calls: 2
+      :23 lue::Array(a) => { for x in a { guard_json(x)?; } } Val
+      :28 t(o) => { for x in o.values() { guard_json(x)?; } } _ =
+R core/solver/frame_kernel/src/structural/sparse.rs:592:assemble_sparse_stiffness | self-calls: 1
+      :605 mes, users, blocks, springs, *force_scale)?; return assemble_sparse_stiffness( node_count, &fr
+R core/product_physics/src/self_weight.rs:558:retained_basis | self-calls: 1
+      :751 return Err(fail()); } retained_basis(&legacy, case_id)?; } le
+R core/product_physics/src/retained_wire.rs:1310:safe_integers | self-calls: 0
+R core/reporting/result_export/src/retained_precision.rs:1722:located | self-calls: 2
+      :1732 n o { path.push(k.clone()); located(x, path, out); path.pop(
+      :1739 { path.push(i.to_string()); located(x, path, out); path.pop(
+R core/reporting/result_export/src/retained_precision.rs:1694:objects | self-calls: 2
+      :1699 .push(o); for x in o.values() { objects(x, out); } }
+      :1704 lue::Array(a) => { for x in a { objects(x, out); } }
+R core/reporting/result_export/src/retained_precision.rs:1886:exact_work | self-calls: 0
+R core/reporting/result_export/src/retained_precision.rs:252:floats | self-calls: 0
+R core/reporting/result_export/src/retained_precision.rs:260:normalize | self-calls: 0
+R core/reporting/result_export/src/retained_precision.rs:360:shape | self-calls: 4
+      :364 ter(r.trim_start_matches('#')) .is_some_and(|s| shape(v, s)); } if let Some(bs) = s["o
+      :367 s["oneOf"].as_array() { return bs.iter().filter(|s| shape(v, s)).count() == 1; } if let So
+R core/reporting/result_export/src/retained_precision.rs:400:encoding | self-calls: 4
+      :402 { if let Some(r) = s["$ref"].as_str() { return encoding( v, schema()
+      :410 if let Some(bs) = s["oneOf"].as_array() { return encoding( v, bs.iter()
+R core/reporting/result_export/src/retained_precision.rs:456:negative_zero | self-calls: 0
+R core/reporting/result_export/src/load_reference.rs:278:same | self-calls: 2
+      :282 x.len() == y.len() && x.iter().zip(y).all(|(p, q)| same(p, q)) } (Value::Object(
+      :285 = y.len() && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| same(v, w))) } _ => a == b,
+R core/reporting/result_export/src/load_reference.rs:306:finite_tree | self-calls: 2
+      :313 lue::Array(a) => { for x in a { finite_tree(x)?; } } Val
+      :318 t(o) => { for x in o.values() { finite_tree(x)?; } } _ =
+R core/reporting/result_export/src/source_blocks.rs:87:shape_in | self-calls: 7
+      :91 .trim_start_matches('#')) .is_some_and(|target| shape_in(v, target, root)); } if let Some
+      :94 s["anyOf"].as_array() { if !branches.iter().any(|s| shape_in(v, s, root)) { return false;
+R core/reporting/result_export/src/physics_evidence.rs:77:finite_tree | self-calls: 2
+      :84 lue::Array(a) => { for x in a { finite_tree(x)?; } } Val
+      :89 t(o) => { for x in o.values() { finite_tree(x)?; } } _ =
+R core/reporting/result_export/src/preview_physics_evidence.rs:126:finite_tree | self-calls: 2
+      :133 lue::Array(a) => { for x in a { finite_tree(x)?; } } Val
+      :138 t(o) => { for x in o.values() { finite_tree(x)?; } } _ =
+- core/serialization/canonical_json/src/binary64.rs:179:validate_value | self-calls: 2
+      :217 h_length, &index.to_string(), path_bytes)?; validate_value(item, depth + 1, nodes, bytes, child, pa
+      :226 path_length(path_length, key, path_bytes)?; validate_value(item, depth + 1, nodes, bytes, child, pa
+- core/serialization/canonical_json/src/binary64.rs:263:write_value | self-calls: 2
+      :274 output.push(','); } write_value(item, output); }
+      :288 tring")); output.push(':'); write_value(&items[*key], output); }
+- core/serialization/canonical_json/src/binary64.rs:320:value | self-calls: 2
+      :353 ms.len().to_string())?; items.push(self.value(depth + 1, &child)?);
+      :379 ointer(pointer, &key)?; let item = self.value(depth + 1, &child)?;

@@ -1,0 +1,28 @@
+pass_frozen files 97 pass_refreeze files 96 common 92 byte-identical 86
+differ: ['delta.out.txt', 'delta_inventory.json', 'linemap.out.json', 'rules/g7_linemap.out.json', 'tree_blobs.tsv', 'verdict.tsv']
+only in pass_frozen: ['VERDICT.txt', 'cargo_summary.txt', 'gate_law.json', 'gate_pp_outcomes.json', 'gate_runner_outcomes.json']
+only in pass_refreeze: ['F_to_Fprime_files.txt', 'GATES.txt', 'reviewed_inputs_blobs.txt', 'run.out']
+### the differing outputs, read
+tree_blobs.tsv:
+974c974
+< 73210fc6f22dee4da0b6de93d7b0fbb1d8e3a4be	projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs
+---
+> 0e3b884b05a2e96f9f7880f804ddddecc523ede1	projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs
+linemap.out.json:
+3c3
+<     "new": "20dd3d929d2a8b6e51671023b2f1eaa74f364a88",
+---
+>     "new": "5488136a193ef8921bd88c33a8124647c4cb352d",
+rules/g7_linemap.out.json:
+4c4
+<         "new": "20dd3d929d2a8b6e51671023b2f1eaa74f364a88",
+---
+>         "new": "5488136a193ef8921bd88c33a8124647c4cb352d",
+rules/*.json and premise pins identical:
+  identical callgraph_rules.g4.json
+  identical loop_bounds.g4.json
+  identical text_args.g4.json
+  identical sens.py
+  identical premise_pins.json
+delta_inventory.json: row diff
+  added [('core/solver/nonlinear_integration/src/s11k_tests.rs', None, 'test', None)] removed []

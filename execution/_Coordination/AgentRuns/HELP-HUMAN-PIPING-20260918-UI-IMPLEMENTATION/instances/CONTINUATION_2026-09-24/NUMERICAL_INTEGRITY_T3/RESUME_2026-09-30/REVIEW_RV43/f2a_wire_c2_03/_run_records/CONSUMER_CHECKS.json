@@ -1,0 +1,113 @@
+{
+  "consumers": [
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/records.rs",
+      "sha256": "6f52fcb93d7d0c355139ca584a9abd0b3c1c59dd5a6f140340a0ec0282b5841c",
+      "sites": [
+        {
+          "line": 79,
+          "excerpt_matches_frozen_source": true
+        },
+        {
+          "line": 116,
+          "excerpt_matches_frozen_source": true
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+      "sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+      "sites": [
+        {
+          "line": 248,
+          "excerpt_matches_frozen_source": true
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/references_tests.rs",
+      "sha256": "e57a84b56e64aa664a77d95b3fa4921fe9e79aa5d1eda9f95fee4cc6229d5c16",
+      "sites": [
+        {
+          "line": 257,
+          "excerpt_matches_frozen_source": true
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs",
+      "sha256": "fd3e00c06aff970c44cd147f255fe371b16729fe0a80b62b32a09bc0afddc337",
+      "sites": [
+        {
+          "line": 79,
+          "excerpt_matches_frozen_source": true
+        },
+        {
+          "line": 94,
+          "excerpt_matches_frozen_source": true
+        },
+        {
+          "line": 103,
+          "excerpt_matches_frozen_source": true
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/w1.rs",
+      "sha256": "fd9a8d678fd17a23d6a6588fb62a911bb6b30efc08107413ef0e57c1a7bd02d7",
+      "sites": [
+        {
+          "line": 104,
+          "excerpt_matches_frozen_source": true
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea",
+      "sites": [
+        {
+          "line": 156,
+          "excerpt_matches_frozen_source": true
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs",
+      "sha256": "1bce482dccc5c4dd06292d35d97ef6a4ec0c8ba7de0f9b9cb4440558cfd3ccac",
+      "sites": [
+        {
+          "line": 825,
+          "excerpt_matches_frozen_source": true
+        },
+        {
+          "line": 825,
+          "excerpt_matches_frozen_source": true
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+      "sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "sites": [
+        {
+          "line": 354,
+          "excerpt_matches_frozen_source": true
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs",
+      "sha256": "3512f36ebc9e2b947528af5babe32b92094f46894ab9be858c72330c8f8bb990",
+      "sites": [
+        {
+          "line": 240,
+          "excerpt_matches_frozen_source": true
+        }
+      ]
+    }
+  ],
+  "ordinary_literals_exact": true,
+  "scope": "Static source comparison; no H/VR run or fixture refresh.",
+  "check_repair": "First checker assumed one Refused occurrence per line and failed on the paired same-line kf1_tracker matches. Corrected checker permits an excerpt starting at either actual same-line occurrence; no source change."
+}

@@ -1,0 +1,192 @@
+[
+ {
+  "id": "g0_receipt_version_non_integral",
+  "base": "ordinary_prepared_synthetic",
+  "edits": [
+   {
+    "path": [
+     "retained_precision",
+     "body",
+     "receipt_version"
+    ],
+    "op": "set",
+    "value": 1.5
+   }
+  ],
+  "corpus_expected": "G0 UNSUPPORTED",
+  "rv78_expected": "G0 UNSUPPORTED",
+  "agree": true,
+  "basis": "RV79-S1; D2/D32: receipt_version is exactly 1",
+  "emittability": "correct rejection: not emittable"
+ },
+ {
+  "id": "g0_case_limit_non_integral",
+  "base": "ordinary_prepared_synthetic",
+  "edits": [
+   {
+    "path": [
+     "retained_precision",
+     "body",
+     "work",
+     "case_limit"
+    ],
+    "op": "set",
+    "value": 20000000000.5
+   }
+  ],
+  "corpus_expected": "G0 UNSUPPORTED",
+  "rv78_expected": "G0 UNSUPPORTED",
+  "agree": true,
+  "basis": "RV79-S1; D2: registered 20B threshold",
+  "emittability": "correct rejection: not emittable"
+ },
+ {
+  "id": "g0_invocation_limit_non_integral",
+  "base": "ordinary_prepared_synthetic",
+  "edits": [
+   {
+    "path": [
+     "retained_precision",
+     "body",
+     "work",
+     "invocation_limit"
+    ],
+    "op": "set",
+    "value": 60000000000.5
+   }
+  ],
+  "corpus_expected": "G0 UNSUPPORTED",
+  "rv78_expected": "G0 UNSUPPORTED",
+  "agree": true,
+  "basis": "RV79-S1; D2: registered 60B threshold",
+  "emittability": "correct rejection: not emittable"
+ },
+ {
+  "id": "verification_estimate_names_rotation_row",
+  "base": "p512_ladder_synthetic",
+  "edits": [
+   {
+    "path": [
+     "retained_precision",
+     "body",
+     "cases",
+     0,
+     "run",
+     "records",
+     0,
+     "outcome",
+     "reason"
+    ],
+    "op": "set",
+    "value": {
+     "space": "attempt",
+     "tag": "verification_estimate",
+     "quantity": {
+      "tag": "displacement",
+      "dof": {
+       "node": 0,
+       "component": "RX"
+      }
+     },
+     "body": 0,
+     "kind": "rotation"
+    }
+   },
+   {
+    "path": [
+     "retained_precision",
+     "body",
+     "cases",
+     0,
+     "run",
+     "attempts",
+     0,
+     "outcome",
+     "reason"
+    ],
+    "op": "set",
+    "value": {
+     "space": "attempt",
+     "tag": "verification_estimate",
+     "quantity": {
+      "tag": "displacement",
+      "dof": {
+       "node": 0,
+       "component": "RX"
+      }
+     },
+     "body": 0,
+     "kind": "rotation"
+    }
+   }
+  ],
+  "corpus_expected": "G5 ATTEMPT_MISMATCH",
+  "rv78_expected": "G5 ATTEMPT",
+  "agree": true,
+  "basis": "D33 (FK verify.rs:880: estimates only for force/moment rows)",
+  "emittability": "correct rejection: not emittable"
+ },
+ {
+  "id": "verification_estimate_names_moment_row",
+  "base": "p512_ladder_synthetic",
+  "edits": [
+   {
+    "path": [
+     "retained_precision",
+     "body",
+     "cases",
+     0,
+     "run",
+     "records",
+     0,
+     "outcome",
+     "reason"
+    ],
+    "op": "set",
+    "value": {
+     "space": "attempt",
+     "tag": "verification_estimate",
+     "quantity": {
+      "tag": "end_action",
+      "member": 0,
+      "end": "i",
+      "component": "RX"
+     },
+     "body": 0,
+     "kind": "moment"
+    }
+   },
+   {
+    "path": [
+     "retained_precision",
+     "body",
+     "cases",
+     0,
+     "run",
+     "attempts",
+     0,
+     "outcome",
+     "reason"
+    ],
+    "op": "set",
+    "value": {
+     "space": "attempt",
+     "tag": "verification_estimate",
+     "quantity": {
+      "tag": "end_action",
+      "member": 0,
+      "end": "i",
+      "component": "RX"
+     },
+     "body": 0,
+     "kind": "moment"
+    }
+   }
+  ],
+  "corpus_expected": "pass",
+  "rv78_expected": "pass",
+  "agree": true,
+  "basis": "D33 kind set (moment admitted)",
+  "emittability": "emittable (moment-row estimate rejection is a native shape)"
+ }
+]

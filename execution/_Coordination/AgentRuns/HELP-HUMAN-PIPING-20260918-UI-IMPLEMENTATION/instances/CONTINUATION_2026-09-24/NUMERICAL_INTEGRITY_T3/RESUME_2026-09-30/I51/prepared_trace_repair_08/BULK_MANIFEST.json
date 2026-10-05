@@ -1,0 +1,20 @@
+{
+  "root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_repair_08",
+  "files": [
+    {
+      "path": "cargo_01.json",
+      "bytes": 1605,
+      "sha256": "e3c03a312eed2297bfd621db10c1e6a70f5875d881bf73f5393d4e212af005b6"
+    },
+    {
+      "path": "cargo_01.log",
+      "bytes": 2570758,
+      "sha256": "b50e8212adcd8d1ba3a0f4c50c3ca25a4317c7d4b8d254a5a371021aacadb80a"
+    },
+    {
+      "path": "repair.patch",
+      "bytes": 6187,
+      "sha256": "481ebbf9ca90e2a9c6e3f1ac2b3f60c52d4b2f831a9052929349e63257190322"
+    }
+  ]
+}

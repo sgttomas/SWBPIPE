@@ -1,0 +1,18 @@
+{
+  "status": "complete; PASS for bounded conditional derivation fan-in; no actionable findings",
+  "completed_utc": "2026-10-02T21:43:11.506598+00:00",
+  "receipt_utc": "2026-10-02T21:36:46Z",
+  "new_analysis_cutoff_utc": "2026-10-02T22:11:46Z",
+  "deadline_utc": "2026-10-02T22:21:46Z",
+  "new_analysis_stopped_before_cutoff": true,
+  "no_implementation_or_availability_qualification": true,
+  "independent_groups": 9,
+  "author_groups": 14,
+  "author_replay_exact": true,
+  "owned_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV49/f2a_certificate_b2_01",
+  "writes": "Only owned review and _run_records files",
+  "prohibited_actions_performed": false,
+  "git_read_procedure_departure": "Some pure Git object reads (show/ls-tree/rev-parse) invoked through Python did not explicitly set GIT_OPTIONAL_LOCKS=0. No status/index/write-capable Git command was used. Later reads explicitly set it. This record does not claim every read had the requested environment variable.",
+  "failed_read": "One rg search included nonexistent core/analysis/product_preview/src/lib.rs (exit 2); corrected to core/product_physics/src/preview_physics.rs. No source inference or write followed from the failed path.",
+  "inspection_output_limit": "Initial broad listings/extractions were truncated; bounded source/contract ranges were subsequently read explicitly. Immutable full-file hashes identify origins; stored records contain no full source copies."
+}

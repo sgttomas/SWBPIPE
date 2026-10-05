@@ -1,0 +1,37 @@
+### 1. T17 stages, F5 and the new static (checks.py, pristine ba1faa1c source, RV89's own registered record)
+atoms 244 | atom 20 = ('s(&Value)', 8)
+  T17_V1            321,428,243  s(&Value) coefficient: none
+  T17_V2_clone      172,256,082  s(&Value) coefficient: none
+  T17_V2_hash     1,148,998,726  s(&Value) coefficient: none
+  T17_V3             32,598,012  s(&Value) coefficient: none
+  T17_V4             16,966,805  s(&Value) coefficient: [57880]
+  T17_V5            180,109,775  s(&Value) coefficient: [57880]
+  T17_V6            200,409,127  s(&Value) coefficient: [57880]
+D_env 9361; pushcap(D_env) 16384; F5 = 8 x (16384 + 9361) = 205,960 B; coefficient delta 25745
+V4 + F5 = 17,172,765; V2_hash - (V4 + F5) = 1,131,825,961; argmax T17_V2_hash
+F5 moving extra (last growth) = 65,536 B; T17_moving_publication = 189,303,281
+new static {'arr': 199, 'obj': 95, 'ent': 973, 'strb': 19934, 'keyb': 15990} bound = 32x6x199 + 736x(95+973//5) + 19934+15990 = 286836
+
+### 2. The proposal: g5_profile.py regeneration
+G7 tree (with F5) vs committed block:
+   2125c2125
+   <         Form { name: "T17_V4", constant: 6920061, terms: &[(2, 4189), (3, 39), (8, 8037), (20, 57880), (21, 1024), (23, 12288), (181, 4096), (208, 51309), (222, 8460), (223, 8192)] },
+   ---
+   >         Form { name: "T17_V4", constant: 6920061, terms: &[(2, 4189), (3, 39), (8, 8037), (20, 83625), (21, 1024), (23, 12288), (181, 4096), (208, 51309), (222, 8460), (223, 8192)] },
+proposal applied == G7-tree regeneration (byte-identical)
+G6 tree regenerates the committed block (byte-identical)
+G6 vs G7 profile_tree.json differences: [('DIFF', '/forms/T17_V4/s(&Value)', 57880, 83625)]
+With the proposal applied to my copy: PP outcomes, law outcomes, the printed record and the challenge lines are identical to the pristine runs (phase3.sh; outcomes/g7p_*)
+
+### 3. Pass B gates
+line map ba1faa1c -> ba1faa1c: exit 0, rules unchanged
+line map ba1faa1c -> 0c7827b6ad (rule lines deleted): exit 1 -> g7_pass.sh exit 4
+   unmapped: 4
+    ['loop_bounds.g4.json/edge_zero/callee', 'semantic_contract.rs:138:preview_physics_retained_contract', 'line 138 of core/reporting/result_export/src/semantic_contract.rs lies in a changed hunk']
+    ['loop_bounds.g4.json/edge_zero/callee', 'semantic_contract.rs:152:retained_error', 'line 152 of core/reporting/result_export/src/semantic_contract.rs lies in a changed hunk']
+    ['loop_bounds.g4.json/edge_zero/callee', 'semantic_contract.rs:138:preview_physics_retained_contract', 'line 138 of core/reporting/result_export/src/semantic_contract.rs lies in a changed hunk']
+    ['loop_bounds.g4.json/edge_zero/callee', 'semantic_contract.rs:152:retained_error', 'line 152 of core/reporting/result_export/src/semantic_contract.rs lies in a changed hunk']
+identity gate on registered log: registered= True -> continue
+identity gate on stale_rustflags log: registered= False -> exit 3
+identity gate on empty_log log: no JSON ( JSONDecodeError ) -> exit 3
+entry threshold_bytes doubled (8,053,063,680), same log: registered= True -> continue (threshold not compared)

@@ -1,0 +1,210 @@
+[
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/i51_c0_applied_04/BOUNDARY.json",
+    "commit": "9754381f532b32be0b7e2e5e330f012dbc869145",
+    "bytes": 2936,
+    "sha256": "43c70d2194805f6d89a879c8586efb3b140211245c04ce0b469ed76a6d7ee035",
+    "scope": "complete frozen document/manifest"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/i51_c0_applied_04/C0_APPLIED_RETURN.md",
+    "commit": "9754381f532b32be0b7e2e5e330f012dbc869145",
+    "bytes": 3233,
+    "sha256": "303c48afe302c5ae6558b689e3d5173ecdb6c05f11e8db700f33de8cbde2c8b4",
+    "scope": "complete frozen document/manifest"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/i51_c0_applied_04/C0_HELPER_LAYOUT.md",
+    "commit": "9754381f532b32be0b7e2e5e330f012dbc869145",
+    "bytes": 7787,
+    "sha256": "c18698e0bb160eccb8213e120b129abd290635c6f84a501d1f69fd02f2811071",
+    "scope": "complete frozen document/manifest"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/i51_c0_applied_04/CHECKS.json",
+    "commit": "9754381f532b32be0b7e2e5e330f012dbc869145",
+    "bytes": 860,
+    "sha256": "9eb9b2ad5223d80d16dcfcc87b7c80d7c5f1a8a8bf5c0a306214cfe2a57a811f",
+    "scope": "complete frozen document/manifest"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/c0_applied_01/SOURCE.patch",
+    "bytes": 32998,
+    "sha256": "800a8d463960a5f39c544ed098c79986d1dc4e863d27f787603036babdd9dc65",
+    "scope": "three-file applied diff; reconstructed context checked"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_c0_layout_only_01.json",
+    "bytes": 2211,
+    "sha256": "b6517996d34e7fd8e8e6c41a045f8f233f9c9036015000919534b1c4b2714e7b",
+    "scope": "complete command/layout JSON and relevant raw test output"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c0_isolated_final.json",
+    "bytes": 3025,
+    "sha256": "5994463605f118febec9292c5ad43785c8a2e3f547fc53066991c2a461cdb8cb",
+    "scope": "complete command/layout JSON and relevant raw test output"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_c0_layout_only_01.log",
+    "bytes": 1715,
+    "sha256": "8e1c4841b3012f03e0fc47381c91e01b5046e5d727c0c55380dcf70d96def7b8",
+    "scope": "complete command/layout JSON and relevant raw test output"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c0_isolated_final.log",
+    "bytes": 21078,
+    "sha256": "5ecd8c48f814239416a7eafdefb651fb58cbc727d4134c74e1e0c8ba35887b58",
+    "scope": "complete command/layout JSON and relevant raw test output"
+  },
+  {
+    "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/C0_LAYOUT_MEASUREMENTS.json",
+    "bytes": 1571,
+    "sha256": "3ab87293ad2db6c10c3d7363ad6bf16e555e2ea4b1c9dc5bca542278fb4bf6ba",
+    "scope": "complete command/layout JSON and relevant raw test output"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "commit": "8bbc04e8a36643cd8e96ee7118a141e119b55b3f",
+    "bytes": 988359,
+    "sha256": "802cc1694f47c984ad01e1eb5380b6445219e0bb3694f17fbad97a50383780b5",
+    "scope": "frozen base for checked reconstruction"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+    "commit": "8bbc04e8a36643cd8e96ee7118a141e119b55b3f",
+    "bytes": 120741,
+    "sha256": "9c0e7094d28307a09418cf20c1f1eb56e5e3c8889c4e4d0c3749965abb6a0a92",
+    "scope": "frozen base for checked reconstruction"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+    "commit": "8bbc04e8a36643cd8e96ee7118a141e119b55b3f",
+    "bytes": 98238,
+    "sha256": "e0c18d22aa1d64fc645f6196c632ae61ec8914d83bc3e929c5c5cc0ce7eb61c0",
+    "scope": "frozen base for checked reconstruction"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+    "bytes": 26117,
+    "sha256": "65355259ae404a6c2552d3eddb717b7271463eb27c9d604396eba78795de3bdf",
+    "review_snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv67_prepared_late_observation_04/product_certificate.rs",
+    "access": "one exact current matching-file snapshot, hash verified before inspection per brief"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs",
+    "bytes": 16880,
+    "sha256": "51ae661629510b64b2b6013d79025c233818ee75b33176546fb1bff2e8e77468",
+    "review_snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv67_prepared_late_observation_04/product_certificate_tests.rs",
+    "access": "one exact current matching-file snapshot, hash verified before inspection per brief"
+  },
+  {
+    "path": "AGENTS.md",
+    "commit": "6c95c18ec1ffbbd9ddccb43866f4e0bdb5250a76",
+    "bytes": 14200,
+    "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "scope": "startup instructions/brief or retained same-reviewer findings"
+  },
+  {
+    "path": "agents/AGENT_TASK.md",
+    "commit": "6c95c18ec1ffbbd9ddccb43866f4e0bdb5250a76",
+    "bytes": 1499,
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "scope": "startup instructions/brief or retained same-reviewer findings"
+  },
+  {
+    "path": "projects/chirality-piping/AGENTS.md",
+    "commit": "6c95c18ec1ffbbd9ddccb43866f4e0bdb5250a76",
+    "bytes": 9016,
+    "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "scope": "startup instructions/brief or retained same-reviewer findings"
+  },
+  {
+    "path": ".agents/skills/software-code-review/SKILL.md",
+    "commit": "6c95c18ec1ffbbd9ddccb43866f4e0bdb5250a76",
+    "bytes": 1411,
+    "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+    "scope": "startup instructions/brief or retained same-reviewer findings"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV67_I51_C0_APPLIED_BACKCHECK.md",
+    "commit": "6c95c18ec1ffbbd9ddccb43866f4e0bdb5250a76",
+    "bytes": 2986,
+    "sha256": "a550cc60284f4d9c07f185654ea6b7800d0cbc2f99d8d1a5a26809f697e0749a",
+    "scope": "startup instructions/brief or retained same-reviewer findings"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV67/prepared_late_observation_03/REVIEW.md",
+    "commit": "6c95c18ec1ffbbd9ddccb43866f4e0bdb5250a76",
+    "bytes": 10270,
+    "sha256": "5173aed35f1dc84bf83418aa72ce60b4d0c2c8673532e7fbc1084fc2854a8425",
+    "scope": "startup instructions/brief or retained same-reviewer findings"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+    "commit": "8bbc04e8a36643cd8e96ee7118a141e119b55b3f",
+    "bytes": 28406,
+    "sha256": "dc4f210bf5d6bdc3190baef16410912c8792fcc8dd3ea56afe5e58c6f4c93341",
+    "scope": [
+      [
+        380,
+        421
+      ],
+      [
+        522,
+        563
+      ],
+      [
+        540,
+        581
+      ],
+      [
+        737,
+        778
+      ]
+    ],
+    "access": "selected helper frame/ownership statements from immutable Git source"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+    "commit": "8bbc04e8a36643cd8e96ee7118a141e119b55b3f",
+    "bytes": 44050,
+    "sha256": "510d6f640ad718de7edb3b1767c531bb1ea1984f5717a4eaecb72e98877c58fe",
+    "scope": [
+      [
+        403,
+        444
+      ],
+      [
+        533,
+        574
+      ],
+      [
+        631,
+        672
+      ]
+    ],
+    "access": "selected helper frame/ownership statements from immutable Git source"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs",
+    "commit": "8bbc04e8a36643cd8e96ee7118a141e119b55b3f",
+    "bytes": 7488,
+    "sha256": "031457491dcb9c2ae939de8ed617e7b59d5006debd5ad485a0fc9f8fd49c6b01",
+    "scope": [
+      [
+        34,
+        75
+      ],
+      [
+        65,
+        106
+      ],
+      [
+        141,
+        182
+      ]
+    ],
+    "access": "selected helper frame/ownership statements from immutable Git source"
+  }
+]

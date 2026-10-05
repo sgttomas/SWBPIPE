@@ -1,0 +1,2 @@
+1ecf4f51bf50e9d7564a643fd93bc29c52784de31c57a447dffc13861b01a2e1  WT/targets/i52-readers/canonical_json/release/openpipestress_jcs_ijson
+813a0dd5f6dcbe3454b0ea52a38463a5cd4e6b3554368d23f0133e8f3a31d8dc  WT/targets/i52-readers/units/release/openpipestress_units

@@ -1,0 +1,58 @@
+{
+  "receipt_utc": "2026-10-03T17:21:03Z",
+  "host": "Mac.lan",
+  "initial_cwd": "/Users/ryan/.codex/worktrees/92ea/chirality",
+  "actor": "/root/i55_rust_reader",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native",
+  "role": "TASK Type 2",
+  "handoff_verified": true,
+  "inputs": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs",
+      "bytes": 5244,
+      "sha256": "5e1867ceaf0f4f57ab408eb93e1b949b39dda80361f12f530f1586126552e71f"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "bytes": 66051,
+      "sha256": "375b07313518a0cdd09e317b83b9ca7536acef5c80fd4cd0a94920fd8bf2486d"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/reporting/result_export/src/physics_source.rs",
+      "bytes": 51284,
+      "sha256": "c4e380ee7c01eb1581930013e8fc77f8be37c68e1978dedbb78ab5d3cd656f37"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs",
+      "bytes": 1351,
+      "sha256": "fd6a3e0c417a0dc8176af17aab44d71a96e28429478cc69e5a10f380be389b57"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/AGENTS.md",
+      "bytes": 14200,
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/agents/AGENT_TASK.md",
+      "bytes": 1499,
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-readers/projects/chirality-piping/AGENTS.md",
+      "bytes": 9016,
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I55_RUST_READER.md",
+      "bytes": 6804,
+      "sha256": "cf333dcfd93b02a606383d19c365f548fd77bee692aa527a35ea2bfa5e1716cc"
+    }
+  ],
+  "deadlines": {
+    "plan": "17:36:03Z",
+    "control": "18:16:03Z",
+    "source_cutoff": "18:31:03Z",
+    "seal": "18:51:03Z"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "time_utc": "2026-10-02T22:01:16.969538+00:00",
+  "sha256": "ee6ac94386241e31be0693ddfbe7e8718deba9b94eb0e23f4e450f1efdf94a12",
+  "candidate_unopened": true,
+  "parent": "/root",
+  "child": "/root/rv50_f2a_certificate_arithmetic",
+  "mechanism": "delegated-harness-native TASK",
+  "started_utc": "2026-10-02T21:58:10Z",
+  "new_analysis_cutoff_utc": "2026-10-02T22:48:10Z",
+  "deadline_utc": "2026-10-02T22:58:10Z",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV50/f2a_certificate_arithmetic_01",
+  "enforcement": "host filesystem unrestricted; brief/role scope is procedural, not host isolation",
+  "stage1_authorized_revision": "2034c050d6"
+}

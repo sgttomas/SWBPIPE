@@ -1,0 +1,18 @@
+test s11k_tests::f1b_top_level_item_names_the_enclosing_item ... ok
+test s11k_tests::k12_typed_nonlinear_siblings_refuse_a_one_ulp_difference_in_any_entry ... ok
+test s11k_tests::k12_typed_nonlinear_siblings_treat_negative_zero_as_different_bits ... ok
+test s11k_tests::k12_typed_nonlinear_siblings_delegate_on_bit_equal_force ... ok
+test s11k_tests::k7_adapter_with_force_terms_flags_the_folded_force_in_both_modes ... ok
+test s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check ... ok
+test s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check ... ok
+test s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point ... ok
+test s11k_tests::option_c_active_set_loop_first_closed_gap_iteration_is_binary64 ... ok
+test s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path ... ok
+test s11k_tests::option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path ... ok
+test s11k_tests::option_c_product_equilibrium_uses_the_binary64_residual ... ok
+test s11k_tests::option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points ... ok
+test s11k_tests::zz_rv95_walker_probe ... ignored
+test s11k_tests::k2b_force_scaled_entries_are_reached_by_neither_the_loop_nor_the_product ... FAILED
+thread 's11k_tests::k2b_force_scaled_entries_are_reached_by_neither_the_loop_nor_the_product' (67628123) panicked at src/s11k_tests.rs:1688:5:
+test result: FAILED. 13 passed; 1 failed; 1 ignored; 0 measured; 116 filtered out; finished in 0.59s
+error: test failed, to rerun pass `--lib`

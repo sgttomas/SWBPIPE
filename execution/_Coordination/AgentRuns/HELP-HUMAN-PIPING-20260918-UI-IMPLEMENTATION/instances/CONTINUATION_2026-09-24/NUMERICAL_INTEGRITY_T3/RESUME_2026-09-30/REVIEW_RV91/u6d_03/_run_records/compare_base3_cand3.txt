@@ -1,0 +1,87 @@
+52052ece61 3449 passed 3442 failed 7 | 76477534f6 3466 passed 3466 failed 0 files 138
+base failures:
+   the inputs and the pinned identity > uses PP's byte-identical successors and the shared 14-case file
+   the 14 shared parity scenarios agree with Rust U6a > legacy_0_1:token_last_row_only
+   the 14 shared parity scenarios agree with Rust U6a > legacy_0_1:receipt_member_empty
+   the 14 shared parity scenarios agree with Rust U6a > legacy_0_1:receipt_member_null
+   the 14 shared parity scenarios agree with Rust U6a > preview_physics_1:token_last_row_only
+   the 14 shared parity scenarios agree with Rust U6a > preview_physics_1:receipt_member_empty
+   the 14 shared parity scenarios agree with Rust U6a > preview_physics_1:receipt_member_null
+base titles absent in candidate: 29 {'retainedPrecisionAnalysisRun.test.ts': 4, 'retainedPrecisionIntegration.test.tsx': 25}
+  - passed the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) > a legacy-shaped source without a receipt or token still builds (control)
+  - passed the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) > a legacy-shaped source carrying a retained_precision object is refused ANALYSIS_LEG
+  - passed the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) > a legacy-shaped source carrying a null retained_precision member is refused ANALYSI
+  - passed the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) > a legacy-shaped source carrying one W1 token row is refused ANALYSIS_LEGACY_SOURCE_
+  - failed the inputs and the pinned identity > uses PP's byte-identical successors and the shared 14-case file
+  - passed sparse_interactive: the declared parity difference F1 (pinned in TS only) > an unregistered successor with an edited covered row reads needs_recompute, not unsupported
+  - passed sparse_interactive: the declared parity difference F1 (pinned in TS only) > an unregistered successor with numerical_quality rewritten to checks_passed reads needs_recomp
+  - passed dense_scrutiny: the declared parity difference F1 (pinned in TS only) > an unregistered successor with an edited covered row reads needs_recompute, not unsupported
+  - passed dense_scrutiny: the declared parity difference F1 (pinned in TS only) > an unregistered successor with numerical_quality rewritten to checks_passed reads needs_recompute,
+  - passed the 14 shared parity scenarios agree with Rust U6a > sparse_interactive:invocation
+  - passed the 14 shared parity scenarios agree with Rust U6a > sparse_interactive:no_invocation
+  - passed the 14 shared parity scenarios agree with Rust U6a > sparse_interactive:no_requested
+  - passed the 14 shared parity scenarios agree with Rust U6a > sparse_interactive:other_requested
+  - passed the 14 shared parity scenarios agree with Rust U6a > sparse_interactive:edited_row
+  - passed the 14 shared parity scenarios agree with Rust U6a > sparse_interactive:foreign_mode
+  - passed the 14 shared parity scenarios agree with Rust U6a > sparse_interactive:relabelled_base_with_receipt
+  - passed the 14 shared parity scenarios agree with Rust U6a > dense_scrutiny:invocation
+  - passed the 14 shared parity scenarios agree with Rust U6a > dense_scrutiny:no_invocation
+  - passed the 14 shared parity scenarios agree with Rust U6a > dense_scrutiny:no_requested
+  - passed the 14 shared parity scenarios agree with Rust U6a > dense_scrutiny:other_requested
+  - passed the 14 shared parity scenarios agree with Rust U6a > dense_scrutiny:edited_row
+  - passed the 14 shared parity scenarios agree with Rust U6a > dense_scrutiny:foreign_mode
+  - passed the 14 shared parity scenarios agree with Rust U6a > dense_scrutiny:relabelled_base_with_receipt
+  - failed the 14 shared parity scenarios agree with Rust U6a > legacy_0_1:token_last_row_only
+  - failed the 14 shared parity scenarios agree with Rust U6a > legacy_0_1:receipt_member_empty
+  - failed the 14 shared parity scenarios agree with Rust U6a > legacy_0_1:receipt_member_null
+  - failed the 14 shared parity scenarios agree with Rust U6a > preview_physics_1:token_last_row_only
+  - failed the 14 shared parity scenarios agree with Rust U6a > preview_physics_1:receipt_member_empty
+  - failed the 14 shared parity scenarios agree with Rust U6a > preview_physics_1:receipt_member_null
+same title, outcome changed: 0
+new titles: 46 {'retainedPrecisionAnalysisRun.test.ts': 12, 'retainedPrecisionIntegration.test.tsx': 34}
+  + passed the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) > a 0.1.0 legacy-shaped source without a receipt or token still builds (control)
+  + passed the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) > a 0.2.0 legacy-shaped source without a receipt or token still builds (control)
+  + passed the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) > a 0.1.0 legacy-shaped source carrying a retained_precision object is refused ANALYS
+  + passed the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) > a 0.1.0 legacy-shaped source carrying an empty retained_precision object is refused
+  + passed the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) > a 0.1.0 legacy-shaped source carrying a null retained_precision member is refused A
+  + passed the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) > a 0.1.0 legacy-shaped source carrying a W1 token on the first row is refused ANALYS
+  + passed the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) > a 0.1.0 legacy-shaped source carrying a W1 token on the last row only is refused AN
+  + passed the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) > a 0.2.0 legacy-shaped source carrying a retained_precision object is refused ANALYS
+  + passed the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) > a 0.2.0 legacy-shaped source carrying an empty retained_precision object is refused
+  + passed the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) > a 0.2.0 legacy-shaped source carrying a null retained_precision member is refused A
+  + passed the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) > a 0.2.0 legacy-shaped source carrying a W1 token on the first row is refused ANALYS
+  + passed the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) > a 0.2.0 legacy-shaped source carrying a W1 token on the last row only is refused AN
+  + passed the inputs and the pinned identity > uses PP's byte-identical successors and the shared 20-case file (format v2)
+  + passed the inputs and the pinned identity > the raw fixtures' guard cases are refused only through their edit (as Rust asserts)
+  + passed the declared differences, with TypeScript's expectations > are exactly the four ruled entries, each with a ruling and one expectation per language
+  + passed the declared differences, with TypeScript's expectations > I67-F1:unregistered_invalid_statement on milestone_sparse_interactive
+  + passed the declared differences, with TypeScript's expectations > I67-F1:unregistered_invalid_statement on milestone_dense_scrutiny
+  + passed the declared differences, with TypeScript's expectations > I67-F2:display_only_binding_precheck on milestone_sparse_interactive
+  + passed the declared differences, with TypeScript's expectations > I67-F2:display_only_binding_precheck on milestone_dense_scrutiny
+  + passed the declared differences, with TypeScript's expectations > F-U6b-2:python_refuses_transport on milestone_sparse_interactive
+  + passed the declared differences, with TypeScript's expectations > F-U6b-2:python_refuses_transport on milestone_dense_scrutiny
+  + passed the declared differences, with TypeScript's expectations > F5:refused_statement_binding on milestone_sparse_interactive
+  + passed the declared differences, with TypeScript's expectations > F5:refused_statement_binding on milestone_dense_scrutiny
+  + passed the declared differences, with TypeScript's expectations > sparse_interactive: I67-F1 also holds for numerical_quality rewritten to checks_passed
+  + passed the declared differences, with TypeScript's expectations > dense_scrutiny: I67-F1 also holds for numerical_quality rewritten to checks_passed
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > covers every case of the shared file
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > sparse_interactive:invocation
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > sparse_interactive:no_invocation
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > sparse_interactive:no_requested
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > sparse_interactive:other_requested
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > sparse_interactive:edited_row
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > sparse_interactive:foreign_mode
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > sparse_interactive:relabelled_base_with_receipt
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > dense_scrutiny:invocation
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > dense_scrutiny:no_invocation
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > dense_scrutiny:no_requested
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > dense_scrutiny:other_requested
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > dense_scrutiny:edited_row
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > dense_scrutiny:foreign_mode
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > dense_scrutiny:relabelled_base_with_receipt
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > legacy_0_1:token_last_row_only
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > legacy_0_1:receipt_member_empty
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > legacy_0_1:receipt_member_null
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > preview_physics_1:token_last_row_only
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > preview_physics_1:receipt_member_empty
+  + passed the 20 shared parity scenarios agree with Rust U6a and Python U6b > preview_physics_1:receipt_member_null

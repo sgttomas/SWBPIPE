@@ -1,0 +1,6 @@
+worktree: WT/f2a-u7 at cfda60403f (codex/piping-f2a-u7-20261004), uncommitted follow-on
+lanes: cand7 (its 18 slice F files hash-equal to cfda60403f, lane_base_cand7_vs_cfda60403f.txt) is the base; cand8 = cand7 + the 2 follow-on files; mut7 = cand8
+no install, no build, no Cargo or Python; node_modules is the existing untracked symlink; WASM: the lanes' byte copies of the prebuilt ignored public/ files (as u7_slice_f_01/runtime.txt)
+TMPDIR=WT/scratch/i67_u6d/tmp
+v24.18.0
+vitest/4.1.10 darwin-arm64 node-v24.18.0

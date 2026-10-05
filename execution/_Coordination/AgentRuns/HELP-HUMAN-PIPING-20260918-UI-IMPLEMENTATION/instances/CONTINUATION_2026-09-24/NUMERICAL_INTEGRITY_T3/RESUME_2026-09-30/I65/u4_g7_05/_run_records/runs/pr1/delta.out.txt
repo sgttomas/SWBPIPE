@@ -1,0 +1,2 @@
+{"files": 30, "hunks_and_files": 75, "classes": {"not-d1": 20, "no-code": 31, "item": 3, "cfg-test-stmt": 3, "test": 11, "generated": 1, "qualification-test": 1, "unreachable": 5}, "verdict": "DELTAS TO READ: 1 unreviewed hunk(s) in the qualification's own test files"}
+UNREVIEWED core/product_physics/src/retained_memory_law_tests.rs 1238-1238 qualification-test 71e1fff29b187e92

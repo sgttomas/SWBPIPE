@@ -1,0 +1,55 @@
+{
+  "sealed_utc": "2026-10-03T16:34:04.623971+00:00",
+  "actor": "/root/rv69_public_formation_contract",
+  "parent": "/root",
+  "status": "sealed once after final audit; CLEAR for ROOT technical selection of06+07+08; RS-F1 closed; no unresolved blocking findings",
+  "brief_commit": "5e616949008e167ab5bf56061f8991a4840b9320",
+  "source_commit": "24af17c47011608d187811024b51807395e4e526",
+  "proposal_commit": "c5890453d7b180b77658eda8776b4313c5a0c310",
+  "correction_07_commit": "a82b89774f14aa7aad051e8343e615276a6b30bf",
+  "correction_08_commit": "55e6722a40c6a54ad5d6783323af81118cf4a5aa",
+  "payloads": [
+    {
+      "path": "AUDIT.json",
+      "bytes": 1574,
+      "sha256": "7aab802df7b282c0c649df7e712ccfd7dc8eb5bc88b14d9d445382ded63f6e0c"
+    },
+    {
+      "path": "BULK_MANIFEST.json",
+      "bytes": 6674,
+      "sha256": "a09ef85d2a79b7865367c60e900359e56d2bb721822e4436038e616069701e55"
+    },
+    {
+      "path": "CHECKS.json",
+      "bytes": 6769,
+      "sha256": "40df2682e5ef43b2f6b1930729d14a50d7b2093fd8a2a527b9125f94bee43d43"
+    },
+    {
+      "path": "EXECUTION.json",
+      "bytes": 2260,
+      "sha256": "42ac882331fa1c6c68a040fbaa84f50b277ec2f3c8c5bc715517ce5d4544d2bd"
+    },
+    {
+      "path": "FINDINGS.json",
+      "bytes": 1156,
+      "sha256": "20bc6fb52f4d22b7e287e3d2e0938201f75f4f24cee07306bd7b5fb3a703d0a0"
+    },
+    {
+      "path": "ORIGINS.json",
+      "bytes": 15164,
+      "sha256": "0d4b3e414c8ee4ce9134592796d1dcbcc6950f5dc9e96bdc99574ef89a07f627"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 787,
+      "sha256": "c6e44d0843633ad8c4a599893bd88e1ee8f8b125c9fc30ba4a14d30f72a6b08f"
+    },
+    {
+      "path": "REVIEW.md",
+      "bytes": 11885,
+      "sha256": "a0614622c766ab21cddccd02c205593b96255a59d478373f55717676171d5c40"
+    }
+  ],
+  "external_manifest": "BULK_MANIFEST.json",
+  "corrections": "addenda only"
+}

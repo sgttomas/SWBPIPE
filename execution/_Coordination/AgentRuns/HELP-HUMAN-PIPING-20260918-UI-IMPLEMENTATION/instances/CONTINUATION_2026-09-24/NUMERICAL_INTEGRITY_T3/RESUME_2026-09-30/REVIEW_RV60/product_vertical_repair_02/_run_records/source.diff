@@ -1,0 +1,265 @@
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_product.rs b/projects/chirality-piping/core/product_physics/src/retained_product.rs
+index a437289558..704b4cd8e0 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_product.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_product.rs
+@@ -1008,13 +1008,58 @@ impl ProductCapture {
+         self.adapter.require()?;
+         self.adapter.enter(AdapterEvent::LibraryBoundary, 1); // Closed evidence inspection; serde/number internals remain unqualified.
+         let evidence = e.contract_evidence.as_ref().ok_or("preview evidence")?;
++        // Existing preview-physics reader's closed namespace; this private scope has no combinations.
++        self.adapter.closed_keys(
++            evidence,
++            &["preview_cases", "combination_gates"],
++            "evidence shape",
++        )?;
++        self.adapter.enter(AdapterEvent::ValidationEntry, 1);
++        self.adapter.require()?;
++        let gates = evidence["combination_gates"]
++            .as_array()
++            .ok_or("combination gates")?;
++        if !gates.is_empty() {
++            return Err("excluded combination gates".into());
++        }
+         let cases = evidence["preview_cases"]
+             .as_array()
+             .ok_or("preview cases")?;
+-        if cases.len() != 1 || cases[0]["load_case_id"] != self.case_id {
++        if cases.len() != 1 {
+             return Err("evidence case".into());
+         }
+         let c = &cases[0];
++        self.adapter.closed_keys(
++            c,
++            &[
++                "load_case_id",
++                "pipe_stress_extrema",
++                "stress_maximum_coverage",
++                "support_attribution",
++                "intensified_measures",
++            ],
++            "case shape",
++        )?;
++        let case_id = c["load_case_id"].as_str().ok_or("evidence case")?;
++        let case_matches = self.adapter.same(case_id, &self.case_id);
++        self.adapter.require()?;
++        if !case_matches {
++            return Err("evidence case".into());
++        }
++        self.adapter.closed_keys(
++            &c["stress_maximum_coverage"],
++            &[
++                "complete",
++                "unavailable_pipe_ids",
++                "outside_domain_pipe_ids",
++            ],
++            "stress coverage shape",
++        )?;
++        self.adapter.closed_keys(
++            &c["support_attribution"],
++            &["attributed_support_ids", "withheld"],
++            "support attribution shape",
++        )?;
+         if c["stress_maximum_coverage"]["complete"] != true
+             || c["stress_maximum_coverage"]["unavailable_pipe_ids"]
+                 .as_array()
+@@ -1240,6 +1285,16 @@ fn validate_final_metadata(
+             {
+                 return Err("ordinary sparse mode record".into());
+             }
++            work.enter(AdapterEvent::ValidationEntry, 1);
++            work.require()?;
++            let sign_matches = work.same(
++                &m.sign_convention,
++                "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure",
++            );
++            work.require()?;
++            if !sign_matches {
++                return Err("ordinary sparse mode sign".into());
++            }
+             "result:solver-mode:linear-solve-basis".to_string()
+         }
+         k::ProductRecipe::Native(k::QuantityId::DisplacementMagnitude(_)) => {
+@@ -1982,6 +2037,38 @@ pub(super) struct AdapterWork {
+     pub fault: std::cell::Cell<Option<AdapterFault>>,
+ }
+ impl AdapterWork {
++    /// Closed borrowed key decoder. Charge each entered group, key visit and actual comparison.
++    fn closed_keys(
++        &self,
++        value: &serde_json::Value,
++        expected: &[&str],
++        reason: &'static str,
++    ) -> Result<(), CaptureError> {
++        self.enter(AdapterEvent::ValidationEntry, 1);
++        self.enter(AdapterEvent::LibraryBoundary, 1);
++        self.require()?;
++        let object = value.as_object().ok_or(reason)?;
++        if object.len() != expected.len() {
++            return Err(reason.into());
++        }
++        for key in object.keys() {
++            self.enter(AdapterEvent::RowVisit, 1);
++            self.require()?;
++            let mut matched = false;
++            for allowed in expected {
++                let equal = self.same(key, allowed);
++                self.require()?;
++                if equal {
++                    matched = true;
++                    break;
++                }
++            }
++            if !matched {
++                return Err(reason.into());
++            }
++        }
++        Ok(())
++    }
+     fn enter(&self, event: AdapterEvent, amount: u64) -> bool {
+         if self.fault.get().is_some() {
+             return false;
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs b/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs
+index f9c8407dec..7341da2673 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs
+@@ -520,3 +520,140 @@ fn actual_sparse_zero_and_cancelled_summary_coverage_is_not_inferred_from_net()
+         Err(G5aFailure::Shape("estimate"))
+     );
+ }
++
++#[test]
++fn rv60_closed_evidence_shapes_and_empty_combination_gates_refuse_mutations() {
++    use super::retained_product::{AdapterEvent, AdapterFault, CaptureError};
++    let (e, o) = observed(specimen(true));
++    o.observables(&e).unwrap();
++    let original_rows = serde_json::to_string(&e.results).unwrap();
++    let paths = [
++        "",
++        "/preview_cases/0",
++        "/preview_cases/0/stress_maximum_coverage",
++        "/preview_cases/0/support_attribution",
++    ];
++    for path in paths {
++        // An additional key and a coherent same-length replacement both violate the closed shape.
++        let mut changed = e.clone();
++        let object = changed
++            .contract_evidence
++            .as_mut()
++            .unwrap()
++            .pointer_mut(path)
++            .unwrap()
++            .as_object_mut()
++            .unwrap();
++        object.insert("foreign".into(), serde_json::json!(true));
++        assert!(
++            matches!(o.observables(&changed), Err(CaptureError::Association(_))),
++            "{path}"
++        );
++        let mut changed = e.clone();
++        let object = changed
++            .contract_evidence
++            .as_mut()
++            .unwrap()
++            .pointer_mut(path)
++            .unwrap()
++            .as_object_mut()
++            .unwrap();
++        let key = object.keys().next().unwrap().clone();
++        let value = object.remove(&key).unwrap();
++        object.insert("foreign".into(), value);
++        assert!(
++            matches!(o.observables(&changed), Err(CaptureError::Association(_))),
++            "{path}"
++        );
++    }
++    let mut missing = e.clone();
++    missing
++        .contract_evidence
++        .as_mut()
++        .unwrap()
++        .as_object_mut()
++        .unwrap()
++        .remove("combination_gates");
++    assert!(o.observables(&missing).is_err());
++    for value in [
++        serde_json::Value::Null,
++        serde_json::json!({}),
++        serde_json::json!([{"foreign":"entry"}]),
++    ] {
++        let mut changed = e.clone();
++        changed.contract_evidence.as_mut().unwrap()["combination_gates"] = value;
++        assert!(o.observables(&changed).is_err());
++        assert_eq!(
++            serde_json::to_string(&changed.results).unwrap(),
++            original_rows
++        );
++    }
++    for path in paths {
++        let mut changed = e.clone();
++        *changed
++            .contract_evidence
++            .as_mut()
++            .unwrap()
++            .pointer_mut(path)
++            .unwrap() = serde_json::json!([]);
++        assert!(o.observables(&changed).is_err(), "{path}");
++    }
++    println!("RV60_MISSING_COMBINATION_GATES_ACCEPTED false");
++    println!("RV60_FOREIGN_COMBINATION_GATES_ACCEPTED false");
++    println!("RV60_EXTRA_CASE_KEY_ACCEPTED false");
++    println!("RV60_EXTRA_COVERAGE_ACCEPTED false");
++    println!("RV60_EXTRA_ATTRIBUTION_ACCEPTED false");
++    // Synthetic near-overflow seed: new closed-key comparison cannot masquerade as a shape mismatch.
++    let mut counts = o.adapter.counts.get();
++    counts[AdapterEvent::KeyProbe as usize] = u64::MAX;
++    o.adapter.counts.set(counts);
++    assert!(matches!(
++        o.observables(&e),
++        Err(CaptureError::Accounting(AdapterFault::Overflow(
++            AdapterEvent::KeyProbe
++        )))
++    ));
++    assert_eq!(
++        o.adapter.counts.get()[AdapterEvent::KeyProbe as usize],
++        u64::MAX
++    );
++}
++
++#[test]
++fn rv60_fixed_mode_sign_refuses_in_isolated_synthetic_zero_snapshot() {
++    use super::retained_product::CaptureError;
++    let (actual, o) = observed(specimen(false));
++    let actual_bytes = serde_json::to_string(&actual).unwrap();
++    assert!(actual.results[35].value.is_sign_negative());
++    let (invocation, case) = o.native.as_ref().unwrap();
++    let k::ExecutionOutcome::Selected(owner) = &case.outcome else {
++        panic!()
++    };
++    o.bind_rows(&actual, owner).unwrap();
++    // Explicit synthetic snapshot only: remove the known -0 obstruction to numeric comparison.
++    // This never replaces the actual ordinary output or claims actual W0 availability.
++    let mut synthetic = actual.clone();
++    for row in &mut synthetic.results {
++        if row.value == 0.0 {
++            row.value = 0.0;
++        }
++    }
++    let rows = o.bind_rows(&synthetic, owner).unwrap();
++    assert!(invocation
++        .certify_product_case(case.run, owner, &o.facts, &rows)
++        .passed());
++    o.observables(&synthetic).unwrap();
++    let mut changed = synthetic.clone();
++    let mode = changed
++        .results
++        .iter_mut()
++        .find(|r| r.kind == "linear_solver_mode_basis")
++        .unwrap();
++    mode.metadata.as_mut().unwrap().sign_convention = "mode_code 1=dense_scrutiny".into();
++    let error = o.bind_rows(&changed, owner).unwrap_err();
++    assert!(matches!(error, CaptureError::Association(_)));
++    assert_eq!(error.to_string(), "ordinary sparse mode sign");
++    assert_eq!(serde_json::to_string(&actual).unwrap(), actual_bytes);
++    assert!(actual.results[35].value.is_sign_negative());
++    println!("RV60_SYNTHETIC_FULL_GATES_ACCEPT_WRONG_MODE_SIGN false");
++}

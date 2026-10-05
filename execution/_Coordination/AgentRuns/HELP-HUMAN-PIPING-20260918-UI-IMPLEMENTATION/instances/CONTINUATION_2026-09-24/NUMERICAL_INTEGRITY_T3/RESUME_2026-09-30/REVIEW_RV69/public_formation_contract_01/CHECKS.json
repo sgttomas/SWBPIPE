@@ -1,0 +1,90 @@
+{
+  "checked_utc": "2026-10-03T12:55:07.174727+00:00",
+  "I52_seal_sha256": "989dcb84824fc43aeca4d267553a8daec2a28b69025d86fbdbf5b24df896d6bf",
+  "I52_seal_matches_brief": true,
+  "I52_payloads": [
+    {
+      "path": "AUDIT.json",
+      "bytes": 911,
+      "sha256": "cb389ea75ca9ba64e89d1f3ce3826a2410d709d5de5eaeb3ba2a8335a07e2816",
+      "bytes_match": true,
+      "sha256_match": true
+    },
+    {
+      "path": "BULK_MANIFEST.json",
+      "bytes": 2439,
+      "sha256": "c2856d812d6adf3d7f4750b91a9d45dd8e7fd8aed633759d94a5387d65445d22",
+      "bytes_match": true,
+      "sha256_match": true
+    },
+    {
+      "path": "CHECKS.json",
+      "bytes": 1572,
+      "sha256": "7cdf7d9c57960754b55579f827f7b24c61a8067cdc37fd55f089eed8de5c5d43",
+      "bytes_match": true,
+      "sha256_match": true
+    },
+    {
+      "path": "EXECUTION.json",
+      "bytes": 3756,
+      "sha256": "a978d3619b1afbe91142bb616f39d407bf64cd369c2ed10db45ecdb20b240253",
+      "bytes_match": true,
+      "sha256_match": true
+    },
+    {
+      "path": "ORIGINS.json",
+      "bytes": 29518,
+      "sha256": "dcc22bf9726c560e590a05e6faf9a14c3f63998c987a5ce7e0504963e2e6da05",
+      "bytes_match": true,
+      "sha256_match": true
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 18854,
+      "sha256": "328aba9e1cb349cd4cd9349f8203c2eadb27771c0b39fe9c5530e9ff0bbcc727",
+      "bytes_match": true,
+      "sha256_match": true
+    }
+  ],
+  "instructions": [
+    {
+      "path": "AGENTS.md",
+      "working_equals_brief_commit": true,
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "working_equals_brief_commit": true,
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "working_equals_brief_commit": true,
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "working_equals_brief_commit": true,
+      "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV69_PUBLIC_FORMATION_CONTRACT.md",
+      "working_equals_brief_commit": true,
+      "sha256": "110517fdbf6b80e76ac2214cc2eec4b8d4d8cf545a43dcbd05bf2dcd73c52f89"
+    }
+  ],
+  "code_commit": "922db9dce33c2623385841ad3a4a002a79089e3a",
+  "public_tree_diff": {
+    "base": "381be775ae",
+    "candidate": "922db9dce33c2623385841ad3a4a002a79089e3a",
+    "paths": [
+      "core/reporting/result_export",
+      "core/analysis_runs",
+      "apps/desktop/src",
+      "schemas"
+    ],
+    "output_bytes": 0,
+    "empty": true
+  },
+  "execution": "static immutable source and authority inspection; no runtime/build/solver, tests, Git/index/API writes"
+}

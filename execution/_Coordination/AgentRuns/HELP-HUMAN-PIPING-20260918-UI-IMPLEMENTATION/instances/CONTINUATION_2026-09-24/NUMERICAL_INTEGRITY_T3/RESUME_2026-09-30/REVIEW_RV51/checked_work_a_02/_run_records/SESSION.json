@@ -1,0 +1,14 @@
+{
+  "receipt_utc": "2026-10-02 23:34:54 UTC",
+  "child": "/root/rv51_checked_work_source",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native",
+  "role": "TASK Type2",
+  "candidate": "fdae294643b798c1849da8b2e643085562593686",
+  "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a",
+  "base": "14ff4e86dd549aa6c22804de5913e25c8ab4d20a",
+  "write_boundary": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV51/checked_work_a_02",
+  "limits": "50min total,20min checkpoint,40min cutoff; one focused Cargo lane 4jobs/2threads,20min wall, per-manifest target; no source/Git/index/API/delegation",
+  "control_import_repair": "Only two source imports copied (exact_sum.rs and wide.rs) with module-path attributes made absolute. All executable source bytes unchanged; other modules use direct frozen source paths. Original failed packet unchanged. The exact_sum import disables only its unrelated cfg(test) child module to avoid nested reference-fixture module resolution. All production statements and reviewed tests remain unchanged; no exact_sum test coverage is claimed.",
+  "sealed_imports": "The two full import fixtures used by tests were removed from the packet after successful verification. controls/prepare_imports.py and import_recipe.json reproduce their exact recorded bytes from the pinned source. Only module/test import setup changes are made; no maintained source edits."
+}

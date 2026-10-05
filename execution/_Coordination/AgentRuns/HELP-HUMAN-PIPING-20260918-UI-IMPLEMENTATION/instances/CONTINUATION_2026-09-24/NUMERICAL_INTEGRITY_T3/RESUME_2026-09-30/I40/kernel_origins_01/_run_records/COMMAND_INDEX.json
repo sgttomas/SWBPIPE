@@ -1,0 +1,159 @@
+[
+  {
+    "record": "test01_origins.json",
+    "command": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "-j",
+      "4",
+      "--lib",
+      "origins::tests",
+      "--",
+      "--nocapture"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a",
+    "environment": {
+      "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i40-frame-kernel",
+      "RUST_TEST_THREADS": "2"
+    },
+    "wall_limit_seconds": 1200,
+    "source_hashes": "test01_source_hashes.json",
+    "start": "2026-10-03T00:02:54.183314+00:00",
+    "pid": 6953,
+    "exit": 101,
+    "end": "2026-10-03T00:03:06.655589+00:00"
+  },
+  {
+    "record": "test02_origins.json",
+    "command": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "-j",
+      "4",
+      "--lib",
+      "origins::tests",
+      "--",
+      "--nocapture"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a",
+    "environment": {
+      "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i40-frame-kernel",
+      "RUST_TEST_THREADS": "2"
+    },
+    "wall_limit_seconds": 1200,
+    "source_hashes": "candidate02_hashes.json",
+    "start": "2026-10-03T00:06:01.883116+00:00",
+    "pid": 8267,
+    "exit": 0,
+    "end": "2026-10-03T00:06:07.852415+00:00"
+  },
+  {
+    "record": "test03_origins_release.json",
+    "command": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "-j",
+      "4",
+      "--release",
+      "--lib",
+      "origins::tests",
+      "--",
+      "--nocapture"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a",
+    "environment": {
+      "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i40-frame-kernel",
+      "RUST_TEST_THREADS": "2"
+    },
+    "wall_limit_seconds": 1200,
+    "source_hashes": "candidate02_hashes.json",
+    "start": "2026-10-03T00:06:07.853125+00:00",
+    "pid": 8315,
+    "exit": 0,
+    "end": "2026-10-03T00:06:33.553512+00:00"
+  },
+  {
+    "record": "test04_checked.json",
+    "command": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "-j",
+      "4",
+      "--lib",
+      "checked_work",
+      "--",
+      "--nocapture"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a",
+    "environment": {
+      "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i40-frame-kernel",
+      "RUST_TEST_THREADS": "2"
+    },
+    "wall_limit_seconds": 1200,
+    "source_hashes": "candidate02_hashes.json",
+    "start": "2026-10-03T00:06:33.553957+00:00",
+    "pid": 8488,
+    "exit": 0,
+    "end": "2026-10-03T00:06:33.645500+00:00"
+  },
+  {
+    "record": "test05_legacy_prices.json",
+    "command": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "-j",
+      "4",
+      "--lib",
+      "golden_work_counts",
+      "--",
+      "--nocapture"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a",
+    "environment": {
+      "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i40-frame-kernel",
+      "RUST_TEST_THREADS": "2"
+    },
+    "wall_limit_seconds": 1200,
+    "source_hashes": "candidate02_hashes.json",
+    "start": "2026-10-03T00:06:33.645891+00:00",
+    "pid": 8492,
+    "exit": 0,
+    "end": "2026-10-03T00:06:34.452459+00:00"
+  },
+  {
+    "record": "test06_site_inventory.json",
+    "command": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "-j",
+      "4",
+      "--test",
+      "s11_site_table",
+      "--",
+      "--nocapture"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a",
+    "environment": {
+      "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i40-frame-kernel",
+      "RUST_TEST_THREADS": "2"
+    },
+    "wall_limit_seconds": 1200,
+    "source_hashes": "candidate02_hashes.json",
+    "start": "2026-10-03T00:06:34.453041+00:00",
+    "pid": 8503,
+    "exit": 0,
+    "end": "2026-10-03T00:06:38.794005+00:00"
+  }
+]

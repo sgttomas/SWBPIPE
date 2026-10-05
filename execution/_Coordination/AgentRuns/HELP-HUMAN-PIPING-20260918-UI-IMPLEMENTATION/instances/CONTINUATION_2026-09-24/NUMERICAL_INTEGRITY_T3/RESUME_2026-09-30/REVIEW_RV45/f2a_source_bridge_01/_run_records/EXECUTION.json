@@ -1,0 +1,59 @@
+{
+  "status": "complete; PASS conditional derivation only; stopping early",
+  "native_task": "/root/rv45_f2a_source_bridge",
+  "parent": "/root",
+  "role": "fresh TASK Type 2",
+  "mechanism": "delegated-harness-native subagent",
+  "receipt_utc": "2026-10-02T20:56:02Z",
+  "new_analysis_cutoff_utc": "2026-10-02T21:46:02Z",
+  "hard_stop_utc": "2026-10-02T21:56:02Z",
+  "completed_utc": "2026-10-02T21:04:48.428357+00:00",
+  "owned_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV45/f2a_source_bridge_01",
+  "explicit_cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "enforcement": "Shared unrestricted filesystem; instructions bound writes to owned_scope; no OS isolation claimed",
+  "candidate": "9f1ef2693d",
+  "source_pin": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "brief_pin": "dabcf73ead",
+  "stage0_freeze": {
+    "frozen_at_utc": "2026-10-02T21:00:02.528527+00:00",
+    "path": "SOURCE_DERIVATION.md",
+    "sha256": "3ab84b43f54ac26f095043c3435f8f72156503f7851524fd7a3b13a059128a01",
+    "author_exposure_before_freeze": false,
+    "native_parent": "/root",
+    "native_child": "/root/rv45_f2a_source_bridge",
+    "mechanism": "delegated-harness-native spawn_agent TASK",
+    "enforcement": "brief-bounded; host filesystem unrestricted; no isolation claimed"
+  },
+  "stage0_notification": "collaboration.send_message to /root completed before opening I33; candidate first listed/read afterward",
+  "selected_skill": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+  "selected_workflow": null,
+  "model": "Native inherited model; no override; exact model identifier not exposed",
+  "python_arithmetic_runtime": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "commands": [
+    "git show <pinned revision>:<path>, GIT_OPTIONAL_LOCKS=0; inputs identified in ORIGINS_STAGE0/STAGE1/ADDITIONAL",
+    "python3 owned/_run_records/independent_controls.py > owned/_run_records/independent_arithmetic.json",
+    "python3 owned/_run_records/author/_run_records/exact_bridge_controls.py > owned/_run_records/author_replay.json"
+  ],
+  "checks": {
+    "author_payload_hashes": 6,
+    "all_hashes_match": true,
+    "author_replay_byte_identical": true,
+    "author_groups": 12,
+    "independent_groups": 14
+  },
+  "findings": {
+    "blocking": 0,
+    "nonblocking": 0
+  },
+  "limits": [
+    "Exact abstract controls and source inspection only; no product/solver/model/compiler/runtime/host probes",
+    "No delegation or Git/index/API writes",
+    "No maintained/source changes",
+    "No practical availability, allocation qualification or acceptance claims"
+  ],
+  "discovery_notes": [
+    "Initial broad filename search and combined source output were truncated; required passages were reread in bounded segments.",
+    "An incorrect guessed core/result_export path failed read-only git show; rg located core/reporting/result_export and the source read then succeeded."
+  ],
+  "return_boundary": "Suitable only as a conditional derivation basis; private association, concrete arithmetic format, cost/storage proof, implementation checks and availability qualification remain."
+}

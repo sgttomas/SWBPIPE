@@ -1,0 +1,43 @@
+{
+  "kind": "informational author write inventory; not an acceptance or independent-review seal",
+  "owned_root": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I34/f2a_work_exactness_design_01",
+  "payloads": [
+    {
+      "path": "DESIGN.md",
+      "bytes": 20415,
+      "sha256": "e3789925cc7ea509775a968f9b1c83f1a765ad0bac92ce643f396a10a32fd397"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 4329,
+      "sha256": "1180113ce75d7de38d5ddb7271ce8c1dcd26d5f06868e59df7e4c3ad98977b1c"
+    },
+    {
+      "path": "SOURCE_MANIFEST.md",
+      "bytes": 13787,
+      "sha256": "36300009ed1335d63b305ca8483d5043c725c8704e811900b9938ddfc16084bf"
+    },
+    {
+      "path": "_run_records/CONTROLS.json",
+      "bytes": 6530,
+      "sha256": "7155ca52c28a97fbbb1c3c9831293e60736fc3403492f63e64426e4f1f69acbc"
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "bytes": 17809,
+      "sha256": "ac5a39dcc399ed814d8e2699993c6211ae52a3532979751c5de70e912624ef74"
+    },
+    {
+      "path": "_run_records/SESSION.json",
+      "bytes": 3567,
+      "sha256": "c110dab7e3dff682ba349c2417068ea917678b1e857094b443646265eca2591e"
+    },
+    {
+      "path": "_run_records/controls.py",
+      "bytes": 9377,
+      "sha256": "0e1be652882c875aec5cd3f7c8b1ac38506203628b2de3ff1cf6fd02463c2544"
+    }
+  ],
+  "inventory_self_excluded": true,
+  "expected_total_files_including_inventory": 8
+}

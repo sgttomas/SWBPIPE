@@ -1,0 +1,14 @@
+cand core/product_physics :: ok 37 result_export :: 
+cand core/runner/headless :: ok 49 result_export :: 
+cand apps/desktop/src-tauri :: FAIL :: error: failed to download `android_system_properties v0.1.5`  Caused by:   attempting to make an HTTP request, but --offline was specified 
+cand core/loads/self_weight_wasm :: ok 39 result_export :: 
+cand core/model_operations/operation_applier :: ok 38 result_export :: 
+cand validation/benchmarks/numerical_integrity :: ok 38 result_export :: 
+cand validation/benchmarks/physics_audit_regression :: ok 39 result_export :: 
+base core/product_physics :: ok 37 result_export :: 
+base core/runner/headless :: ok 49 result_export :: 
+base apps/desktop/src-tauri :: FAIL :: error: failed to download `android_system_properties v0.1.5`  Caused by:   attempting to make an HTTP request, but --offline was specified 
+base core/loads/self_weight_wasm :: ok 38 no_rx :: 
+base core/model_operations/operation_applier :: ok 37 no_rx :: 
+base validation/benchmarks/numerical_integrity :: ok 37 no_rx :: 
+base validation/benchmarks/physics_audit_regression :: ok 38 no_rx :: 

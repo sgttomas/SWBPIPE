@@ -1,0 +1,88 @@
+{
+ "in": "loop_bounds.r4.json",
+ "out": "loop_bounds.r4.1e32.json",
+ "old": "b1f80234dc",
+ "new": "1e323058f3",
+ "remapped": [
+  [
+   "lib.rs:13685:is_temperature_change_dimension",
+   "lib.rs:13952:is_temperature_change_dimension"
+  ],
+  [
+   "lib.rs:9961:exact_section_evidence",
+   "lib.rs:10228:exact_section_evidence"
+  ],
+  [
+   "lib.rs:8606:normalize_quantity",
+   "lib.rs:8873:normalize_quantity"
+  ],
+  [
+   "lib.rs:8689:unit_conversion_diag",
+   "lib.rs:8956:unit_conversion_diag"
+  ],
+  [
+   "lib.rs:2294:run_linear_static_preview_captured",
+   "lib.rs:2325:run_linear_static_preview_captured"
+  ],
+  [
+   "lib.rs:2332:run_linear_static_preview_captured_once",
+   "lib.rs:2363:run_linear_static_preview_captured_once"
+  ],
+  [
+   "lib.rs:7616:resolve_shared_sections",
+   "lib.rs:7883:resolve_shared_sections"
+  ],
+  [
+   "lib.rs:10150:add_uniform_element_loads",
+   "lib.rs:10417:add_uniform_element_loads"
+  ],
+  [
+   "lib.rs:10301:build_thermal_element_loads",
+   "lib.rs:10568:build_thermal_element_loads"
+  ],
+  [
+   "lib.rs:11438:append_exact_pressure_results",
+   "lib.rs:11705:append_exact_pressure_results"
+  ],
+  [
+   "lib.rs:6547:build_nonlinear_supports",
+   "lib.rs:6814:build_nonlinear_supports"
+  ],
+  [
+   "lib.rs:13731:missing_nonlinear_field_diag",
+   "lib.rs:13998:missing_nonlinear_field_diag"
+  ],
+  [
+   "lib.rs:13745:invalid_nonlinear_field_diag",
+   "lib.rs:14012:invalid_nonlinear_field_diag"
+  ],
+  [
+   "lib.rs:8961:append_equivalent_static_generated_loads",
+   "lib.rs:9228:append_equivalent_static_generated_loads"
+  ],
+  [
+   "lib.rs:5338:append_nonlinear_support_loop_results",
+   "lib.rs:5605:append_nonlinear_support_loop_results"
+  ],
+  [
+   "lib.rs:3612:solve_load_case_observed",
+   "lib.rs:3879:solve_load_case_observed"
+  ],
+  [
+   "lib.rs:13369:blocked_envelope",
+   "lib.rs:13636:blocked_envelope"
+  ],
+  [
+   "lib.rs:2341:run_linear_static_preview_observed",
+   "lib.rs:2372:run_linear_static_preview_observed"
+  ]
+ ],
+ "hunks": {
+  "core/product_physics/src/lib.rs": 40,
+  "core/product_physics/src/retained_product.rs": 11,
+  "core/product_physics/src/retained_receipt.rs": 0,
+  "core/product_physics/src/retained_memory.rs": 22,
+  "core/product_physics/src/retained_wire.rs": 0,
+  "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": 0
+ }
+}

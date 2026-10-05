@@ -1,0 +1,19 @@
+diff --git a/projects/chirality-piping/core/analysis_runs/compatibility.py b/projects/chirality-piping/core/analysis_runs/compatibility.py
+index 322c58f1e2..767da34027 100644
+--- a/projects/chirality-piping/core/analysis_runs/compatibility.py
++++ b/projects/chirality-piping/core/analysis_runs/compatibility.py
+@@ -695,12 +695,12 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
+         raise ValueError("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH")
+     run = envelope.get("analysis_run", {})
+     if contract_id in {SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}:
+-        if run.get("source_block_recovery") != source["source_block_recovery"]:
++        if not _same_canonical(run.get("source_block_recovery"), source["source_block_recovery"]):
+             raise ValueError("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH")
+     elif "source_block_recovery" in run:
+         raise ValueError("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
+     if contract_id in {PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}:
+-        if run.get("contract_evidence") != source["contract_evidence"]:
++        if not _same_canonical(run.get("contract_evidence"), source["contract_evidence"]):
+             raise ValueError("ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH")
+     elif "contract_evidence" in run:
+         raise ValueError("ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN")

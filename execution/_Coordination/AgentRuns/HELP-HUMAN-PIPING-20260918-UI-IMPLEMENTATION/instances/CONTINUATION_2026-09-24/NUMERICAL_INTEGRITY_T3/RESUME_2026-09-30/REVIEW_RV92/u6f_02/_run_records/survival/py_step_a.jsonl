@@ -1,0 +1,2 @@
+{"mode": "sparse_interactive", "built": "0.3.0", "verify": "match", "receipt_byte_equal": true}
+{"mode": "dense_scrutiny", "built": "0.3.0", "verify": "match", "receipt_byte_equal": true}

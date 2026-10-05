@@ -1,0 +1,63 @@
+{
+  "recovered_utc": "2026-10-03T11:28:22.656898+00:00",
+  "note": "Exact diagnostic source recovered by reversing later local C4/test-only edits, and every resulting file verified against the actual producing command hashes before patch creation. Original command/diagnosis unchanged.",
+  "baseline": "8bbc04e8a36643cd8e96ee7118a141e119b55b3f",
+  "command": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c2_diagnostics_02.json",
+  "patch": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/C2_DIAGNOSTICS_SOURCE.patch",
+    "bytes": 98997,
+    "sha256": "831e42b2038f9ff8b34ab98d9f7f26f258890ca98bfc9798d661dcd8363797b6"
+  },
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "bytes": 988626,
+      "sha256": "97708a3c27bffe918b78f100c5aa984a19ffb32e4a5adb8768791ab2c267e152"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "bytes": 153724,
+      "sha256": "a5562b41a04744f6e672ad066e569264dcbcc0db200417b11dda10d4f1a60395"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+      "bytes": 114602,
+      "sha256": "28bf313e2cda64489c99736a056d9e6591e5767d94e66fc18aa767cb9f213ac4"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "bytes": 118680,
+      "sha256": "731f5517fedeaf1ef1a1c490449b244865f74513be341002629e13aa99b007b0"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "bytes": 207553,
+      "sha256": "02f183f4d82c2dbea8623d067be88f5565aec67bdee9ddebdb4c8a30cca918cc"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs",
+      "bytes": 27477,
+      "sha256": "1a56dc4fc4f1c5a5dc50da09bc3aad784aa5203424c2321cbc2a793c8d699b5e"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+      "bytes": 26117,
+      "sha256": "65355259ae404a6c2552d3eddb717b7271463eb27c9d604396eba78795de3bdf"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+      "bytes": 65910,
+      "sha256": "0cc6e071b6c93550f29115344676654234c968d81b745dc511834482af5957a1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+      "bytes": 37873,
+      "sha256": "60c3336fe3e6905882ecd412baae875f0d26fd4b3a64891ded12849c5f3413b5"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs",
+      "bytes": 16880,
+      "sha256": "51ae661629510b64b2b6013d79025c233818ee75b33176546fb1bff2e8e77468"
+    }
+  ]
+}

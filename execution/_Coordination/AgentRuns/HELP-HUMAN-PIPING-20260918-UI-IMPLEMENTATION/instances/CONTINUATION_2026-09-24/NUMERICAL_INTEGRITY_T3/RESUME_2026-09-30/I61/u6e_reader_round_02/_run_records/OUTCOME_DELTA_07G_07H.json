@@ -1,0 +1,105 @@
+{
+ "readers": {
+  "07g_old": "00f54b19ea7e396c69d28e2e9256931610ce0ecc334c3e74b0d2da019d680dee",
+  "07h_old": "00f54b19ea7e396c69d28e2e9256931610ce0ecc334c3e74b0d2da019d680dee",
+  "07g_new": "adec9197e5d09836a78c651079deaf999b4b372e407ab512341d63119e3eae52",
+  "07h_new": "adec9197e5d09836a78c651079deaf999b4b372e407ab512341d63119e3eae52"
+ },
+ "corpora": {
+  "07g_old": "aa8e930ebc6268a5613cdc5ac5799174e3e59fbb75db37b40c08a4ecee90654c",
+  "07h_old": "d0a4ee213c7d4d87b016a5b9625727a4815c5682dd5f4767ae604746919eecb2",
+  "07g_new": "aa8e930ebc6268a5613cdc5ac5799174e3e59fbb75db37b40c08a4ecee90654c",
+  "07h_new": "d0a4ee213c7d4d87b016a5b9625727a4815c5682dd5f4767ae604746919eecb2"
+ },
+ "07g_reader_on_07g__vs__07h_reader_on_07h": [
+  {
+   "kind": "mutations",
+   "id": "f5_affected_refs_string_names_no_case",
+   "a": null,
+   "b": [
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   ]
+  },
+  {
+   "kind": "mutations",
+   "id": "f5_ordinary_refs_second_case_relaxed_d6a_form",
+   "a": null,
+   "b": [
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   ]
+  },
+  {
+   "kind": "mutations",
+   "id": "f5_ordinary_refs_strict_prefix",
+   "a": null,
+   "b": [
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   ]
+  },
+  {
+   "kind": "must_pass",
+   "id": "f5_envelope_reordered_exact_list",
+   "a": null,
+   "b": "pass"
+  }
+ ],
+ "07g_reader__vs__07h_reader__on_07h": [
+  {
+   "kind": "mutations",
+   "id": "f5_affected_refs_string_names_no_case",
+   "a": [
+    "G7",
+    "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+   ],
+   "b": [
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   ]
+  }
+ ],
+ "07g_reader__vs__07h_reader__on_07g": [],
+ "07h_reader_on_07h_mismatches": [],
+ "07h_new_entries": {
+  "f5_affected_refs_string_names_no_case": {
+   "observed": [
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   ],
+   "expected": [
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   ],
+   "match": true
+  },
+  "f5_ordinary_refs_second_case_relaxed_d6a_form": {
+   "observed": [
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   ],
+   "expected": [
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   ],
+   "match": true
+  },
+  "f5_ordinary_refs_strict_prefix": {
+   "observed": [
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   ],
+   "expected": [
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   ],
+   "match": true
+  },
+  "f5_envelope_reordered_exact_list": {
+   "observed": "pass",
+   "expected": "pass",
+   "match": true
+  }
+ }
+}

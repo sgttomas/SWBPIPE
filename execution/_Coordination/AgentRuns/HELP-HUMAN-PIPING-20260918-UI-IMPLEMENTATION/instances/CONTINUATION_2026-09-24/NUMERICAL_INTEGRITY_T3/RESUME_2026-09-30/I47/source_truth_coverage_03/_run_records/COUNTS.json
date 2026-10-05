@@ -1,0 +1,6 @@
+{
+  "predicates": 562,
+  "candidate_pass_predicates": 390,
+  "full_cover_conservative_predicates": 71,
+  "unchanged_candidate_numeric_pass_rows": 195
+}

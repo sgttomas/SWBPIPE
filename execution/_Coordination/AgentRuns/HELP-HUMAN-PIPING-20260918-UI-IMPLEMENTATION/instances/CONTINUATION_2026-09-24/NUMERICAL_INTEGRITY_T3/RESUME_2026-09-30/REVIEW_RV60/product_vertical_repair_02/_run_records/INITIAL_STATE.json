@@ -1,0 +1,12 @@
+{
+  "receipt": "2026-10-03T04:16:32Z",
+  "checkpoint": "2026-10-03T04:26:32Z",
+  "cutoff": "2026-10-03T04:36:32Z",
+  "return": "2026-10-03T04:41:32Z",
+  "candidate": "28ac57891cd5786e8f84d28f54aa7f1581f69402",
+  "code_status": "",
+  "mechanism": "delegated-harness-native",
+  "parent": "/root HELP_HUMAN",
+  "child": "/root/rv60_product_vertical TASK Type2",
+  "original_review": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV60/product_vertical_01"
+}

@@ -1,0 +1,8 @@
+worktree: WT/f2a-carriers at 52052ece61 (codex/piping-f2a-carriers-20261004), uncommitted
+node_modules: the existing symlink P/node_modules -> REPO_ROOT/projects/chirality-piping/node_modules (I66's setup); no install
+WASM: the existing copies in apps/desktop/public (hashes equal WT/f2a-readers'); nothing built
+base lane: WT/scratch/i67_u6d/lanes/base3 = git archive 52052ece61; mutant and sweep lane: lanes/mut3 (the candidate)
+Python: REPO_ROOT/projects/chirality-piping/.venv with the I52 checked-JSON and units CLIs (WT/targets/i52-readers), PYTHONDONTWRITEBYTECODE=1, -p no:cacheprovider
+TMPDIR=WT/scratch/i67_u6d/tmp
+v24.18.0
+vitest/4.1.10 darwin-arm64 node-v24.18.0

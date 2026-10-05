@@ -1,0 +1,23 @@
+{
+  "utc": "2026-10-03T03:34:13.003279+00:00",
+  "actor": "ROOT",
+  "method": "same-worktree byte-preserving move of complete original10-file sealed packet",
+  "from": ".",
+  "to": "_run_records/original",
+  "original_files": [
+    "CHECKPOINT.md",
+    "INVENTORY.json",
+    "RETURN.md",
+    "analysis_results.json",
+    "analyze.py",
+    "basis.json",
+    "captured_records.json",
+    "exact_check.stdout.log",
+    "rx_counterexample.json",
+    "source_origins.json"
+  ],
+  "original_inventory_sha256": "8aaf0bd04fd935371382b1153c390284315d2b62c8f530112b8c20de6f20ece1",
+  "original_return_sha256": "959e4346fddba1c275bc61358c20ad8ec26ceb09019f9d83e384e64282c68eec",
+  "content_changes": false,
+  "standing": "unreviewed diagnosis, not acceptance"
+}

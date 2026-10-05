@@ -1,0 +1,38 @@
+{
+  "at": "2026-10-03T17:31:56.507917+00:00",
+  "status": "frozen shared draft inputs; not acceptance; summary coverage wire dependency remains open",
+  "files": [
+    {
+      "path": "fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+      "bytes": 8346,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i52_reader_implementation_05/shared_snapshot_01/fixtures/results/retained_precision_prepared_ordinary_v1.json"
+    },
+    {
+      "path": "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+      "bytes": 52328,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i52_reader_implementation_05/shared_snapshot_01/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"
+    },
+    {
+      "path": "fixtures/results/retained_precision_cases.json",
+      "sha256": "9d621a11ee6a055c19fb80c3c7f95cc12e441ecd63828885fbcf49d5757da6cf",
+      "bytes": 428642,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i52_reader_implementation_05/shared_snapshot_01/fixtures/results/retained_precision_cases.json"
+    },
+    {
+      "path": "schemas/retained_precision_mp_v2.schema.json",
+      "sha256": "5652929173237c547ac58669f14d4b347f6c075634579e1abd5660c774e8dcd0",
+      "bytes": 173167,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i52_reader_implementation_05/shared_snapshot_01/schemas/retained_precision_mp_v2.schema.json"
+    },
+    {
+      "path": "schemas/results.v0.3.schema.yaml",
+      "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586",
+      "bytes": 131530,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i52_reader_implementation_05/shared_snapshot_01/schemas/results.v0.3.schema.yaml"
+    }
+  ],
+  "corpus": "two complete synthetic records sparse/dense, 23 mutations, 18 SMALL and 6 product helpers",
+  "python_public_api": "disabled; no numerical eligibility"
+}

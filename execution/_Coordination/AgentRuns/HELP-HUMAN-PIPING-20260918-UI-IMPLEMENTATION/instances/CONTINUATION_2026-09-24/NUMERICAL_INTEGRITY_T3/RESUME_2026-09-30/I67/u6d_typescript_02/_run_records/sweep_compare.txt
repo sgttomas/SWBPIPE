@@ -1,0 +1,21 @@
+envelopes: 80; by producer identity: {"None": 1, "openpipestress.result_semantics/0.3.0/load-reference-1": 6, "openpipestress.result_semantics/0.3.0/load-reference-source-1": 10, "openpipestress.result_semantics/0.3.0/physics-1": 6, "openpipestress.result_semantics/0.3.0/physics-source-1": 14, "openpipestress.result_semantics/0.3.0/precision-1": 4, "openpipestress.result_semantics/0.3.0/preview-physics-1": 7, "openpipestress.result_semantics/0.3.0/preview-physics-retained-1": 17, "openpipestress.result_semantics/0.3.0/source-blocks-1": 15}
+existing identities: 63 identical, 0 different
+
+successor identity: 17 identical, 0 different (expected to change)
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['f2ee6c3d362d70c604dd6d8f3ab8382b8bdf600649829325c568470813
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['bb81f5be5fd9928fe0a42d2b9618dff8e8c1bbf8dfc404fadf2c730f79
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['111c67f9d67a9753a386206ddb306ed566b3a9223e6622708f3ec2f460
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['140ecdd3dc8407eeab86552f0c3686b116125035100ae0c7253cb87969
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['7c3a69bce568375cc50387386bd4f98a9dd02507b8e303bb91b3c76f6e
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['ad8a4e7f85f44c80f179e641a0f6e544753b5cbdca266164c477226974
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['42d80c0d392332fb5d846f3130145a49523034df4691652025ee362f25
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['10782b8a34677181377ff6449728a2e5a3d44d7afcd966cd78074ff105
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['ba8a055637d716d7b98238d69ac85bae83dd65689e531b43cc90e411e6
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['65351ac708978c6528d019c1375454b8f56eb129ecb5fd80e0be7aeb36
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['c7662e6048a137fbabbb2c8b7da4c459a7a3453f06527b20fac148a57b
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['70c47a860883e6868d9ec86c30693019da2824986ef0a31472cf8f9184
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['690a320ce948c45a643b3ee0729dbc7dcfa43b8416f77e358e7d5d1355
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['31fd83271f1276156b554a0f5649ddc0877852c3a55502f91e1c7ab9dc
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['c0dd9b3b349f069127bf5b31fda89392d926dad6f743b7f54125634a7c
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['7a0346325ec4affa915a956cc124bd9a4c44f57fd4e969602febc6cd9d
+  cand successor: 1 x route=retained_preview_physics findings=["RETAINED_PRECISION_VALIDATION_REQUIRED"] refused_output=True v03=['da2d396eb5fb970472eca8f4e391c1dc9efdc84a3d2e7ca1362f8dfb75

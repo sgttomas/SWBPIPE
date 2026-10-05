@@ -1,0 +1,94 @@
+{
+ "A_sweep_positions": 9114,
+ "A_sweep": {
+  "ordinary_prepared_synthetic": {
+   "G2 ENCODING_MISMATCH": 469
+  },
+  "ordinary_prepared_dense_synthetic": {
+   "G2 ENCODING_MISMATCH": 469
+  },
+  "ordinary_prepared_no_data_synthetic": {
+   "G2 ENCODING_MISMATCH": 461
+  },
+  "ordinary_prepared_cancelled_loads_synthetic": {
+   "G2 ENCODING_MISMATCH": 461
+  },
+  "two_case_facade_after_certificate_synthetic": {
+   "G2 ENCODING_MISMATCH": 830
+  },
+  "two_case_preparation_failure_synthetic": {
+   "G2 ENCODING_MISMATCH": 514
+  },
+  "two_body_synthetic": {
+   "G2 ENCODING_MISMATCH": 490
+  },
+  "p512_ladder_synthetic": {
+   "G2 ENCODING_MISMATCH": 663
+  },
+  "two_case_synthetic": {
+   "G2 ENCODING_MISMATCH": 835
+  },
+  "candidate_failure_skip_synthetic": {
+   "G2 ENCODING_MISMATCH": 535
+  },
+  "verification_failure_skip_synthetic": {
+   "G2 ENCODING_MISMATCH": 598
+  },
+  "two_case_shared_failed_cache_synthetic": {
+   "G2 ENCODING_MISMATCH": 955
+  },
+  "two_case_two_groups_synthetic": {
+   "G2 ENCODING_MISMATCH": 896
+  },
+  "ordinary_prepared_interpolated_material_synthetic": {
+   "G2 ENCODING_MISMATCH": 469
+  },
+  "ordinary_prepared_mm_units_synthetic": {
+   "G2 ENCODING_MISMATCH": 469
+  }
+ },
+ "A2_transport_neg_zero_source_ref": "G2 ENCODING_MISMATCH",
+ "A2_transport_control": "pass",
+ "B1_quantity_kind": {
+  "0": "G5 PRODUCT_ATTEMPT_MISMATCH",
+  "1": "G5 PRODUCT_ATTEMPT_MISMATCH",
+  "2": "G1 RECEIPT_MISMATCH",
+  "-0": "G1 RECEIPT_MISMATCH",
+  "-1": "G1 RECEIPT_MISMATCH",
+  "0.5": "G1 RECEIPT_MISMATCH",
+  "1e-310": "G1 RECEIPT_MISMATCH",
+  "true": "G1 RECEIPT_MISMATCH",
+  "\"0\"": "G1 RECEIPT_MISMATCH",
+  "null": "G1 RECEIPT_MISMATCH"
+ },
+ "B2_directional_springs": {
+  "0": "pass",
+  "1": "G1 RECEIPT_MISMATCH",
+  "-0": "G1 RECEIPT_MISMATCH",
+  "1e-310": "G1 RECEIPT_MISMATCH",
+  "0.5": "G1 RECEIPT_MISMATCH",
+  "true": "G1 RECEIPT_MISMATCH",
+  "\"0\"": "G1 RECEIPT_MISMATCH",
+  "null": "G1 RECEIPT_MISMATCH"
+ },
+ "B3_record_precision": {
+  "0": "G1 RECEIPT_MISMATCH",
+  "128": "pass",
+  "129": "G1 RECEIPT_MISMATCH",
+  "-0": "G1 RECEIPT_MISMATCH",
+  "true": "G1 RECEIPT_MISMATCH"
+ },
+ "B4_g0_constants": {
+  "receipt_version=-0": "G0 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+  "receipt_version=1": "pass",
+  "receipt_version=1e-310": "G0 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+  "case_limit=-0": "G0 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+  "case_limit=20000000000": "pass"
+ },
+ "D_d33_verification_estimate": {
+  "translation": "G5 ATTEMPT_MISMATCH",
+  "rotation": "G5 ATTEMPT_MISMATCH",
+  "force": "pass",
+  "moment": "pass"
+ }
+}

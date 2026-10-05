@@ -1,0 +1,19 @@
+### delta_inventory2.py (u4_g7_06), ba1faa1c..20dd3d929d, on RV89's archive extract of F, with I65's frozen edges
+empty reviewed table:
+{"files": 35, "hunks_and_files": 86, "classes": {"not-d1": 22, "no-code": 35, "item": 4, "cfg-test-stmt": 3, "test": 11, "generated": 1, "qualification-test": 4, "unreachable": 6}, "verdict": "STOP: 7 hunk(s) need a reviewed entry"}
+UNREVIEWED core/product_physics/src/lib.rs 2235-2235 item 09a2779c35c4b96f
+UNREVIEWED core/product_physics/src/lib.rs 2254-2254 item 38a7b43fd37f6845
+UNREVIEWED core/product_physics/src/lib.rs 2379-2379 cfg-test-stmt 44ce5c671ad34b3e
+UNREVIEWED core/product_physics/src/lib.rs 3005-3005 cfg-test-stmt c5e1d6c96bd07c60
+UNREVIEWED core/product_physics/src/retained_product.rs 3244-3244 cfg-test-stmt 2a8be2da9031008a
+UNREVIEWED core/reporting/result_export/src/retained_precision.rs 4267-4269 item 1ea4bbe3d178aa2d
+UNREVIEWED core/reporting/result_export/src/source_blocks.rs after 55 item 2718103130462590
+UNREVIEWED core/product_physics/src/retained_memory_law_tests.rs 2-4 qualification-test 9b81ac2ee4bdcda0
+UNREVIEWED core/product_physics/src/retained_memory_law_tests.rs 1238-1238 qualification-test 71e1fff29b187e92
+UNREVIEWED core/product_physics/src/retained_memory_witness_tests.rs 6-6 qualification-test 4198b681db65c62a
+UNREVIEWED core/product_physics/tests/retained_memory_challenge.rs 6-10 qualification-test eb06a586f6d1f50e
+
+I65's reviewed table (11 entries):
+{"files": 35, "hunks_and_files": 86, "classes": {"not-d1": 22, "no-code": 35, "item": 4, "cfg-test-stmt": 3, "test": 11, "generated": 1, "qualification-test": 4, "unreachable": 6}, "verdict": "PASS: every hunk classified; every live, item, cfg(test)-statement or qualification-test hunk has a reviewed entry"}
+
+row-for-row equal to I65's runs/frozen/delta_inventory.json (file, lines, class, fingerprint): yes (86 rows)

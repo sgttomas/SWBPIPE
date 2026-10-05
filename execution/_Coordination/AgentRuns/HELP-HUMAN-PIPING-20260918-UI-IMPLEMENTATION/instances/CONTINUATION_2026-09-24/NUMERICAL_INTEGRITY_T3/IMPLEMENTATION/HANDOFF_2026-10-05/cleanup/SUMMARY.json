@@ -1,0 +1,33 @@
+{
+ "note": "planned_bytes sums file sizes per path, so Cargo hard links are counted more than once; the measured result is in CLEANUP.md (df and du)",
+ "by_class_and_outcome": {
+  "cache: removed": {
+   "paths": 509,
+   "planned_bytes": 775136844688
+  },
+  "cache: skipped: modified within 2.0 h": {
+   "paths": 11,
+   "planned_bytes": 11145480165
+  },
+  "treecopy: error (contents removed; an empty directory in a read-only parent remained)": {
+   "paths": 59,
+   "planned_bytes": 1354893389
+  },
+  "treecopy: removed": {
+   "paths": 398,
+   "planned_bytes": 133594664073
+  },
+  "treecopy: skipped: modified within 2.0 h": {
+   "paths": 1,
+   "planned_bytes": 129318371
+  },
+  "worktree: removed": {
+   "paths": 25,
+   "planned_bytes": 68157042003
+  },
+  "worktree: skipped: modified within 2.0 h": {
+   "paths": 3,
+   "planned_bytes": 9528003372
+  }
+ }
+}

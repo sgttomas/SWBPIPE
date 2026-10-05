@@ -1,0 +1,171 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel)
+error[E0034]: multiple applicable items in scope
+   --> src/structural/retained/../../../tests/retained_k4/source_bridge_tests.rs:114:11
+    |
+114 |     Wide::from_parts(b.0, b.1, b.2).unwrap()
+    |           ^^^^^^^^^^ multiple `from_parts` found
+    |
+note: candidate #1 is defined in an impl for the type `wide::Wide<L>`
+   --> src/structural/retained/wide/multi.rs:809:5
+    |
+809 | /     pub(crate) fn from_parts(
+810 | |         negative: bool,
+811 | |         exponent: i64,
+812 | |         significand: [u64; L],
+813 | |     ) -> Result<Self, WideError> {
+    | |________________________________^
+note: candidate #2 is defined in an impl for the type `wide::Wide<2>`
+   --> src/structural/retained/wide.rs:279:5
+    |
+279 | /     pub(crate) fn from_parts(
+280 | |         negative: bool,
+281 | |         exponent: i64,
+282 | |         significand: [u64; 2],
+283 | |     ) -> Result<Self, WideError> {
+    | |________________________________^
+
+error[E0034]: multiple applicable items in scope
+   --> src/structural/retained/../../../tests/retained_k4/source_bridge_tests.rs:221:41
+    |
+221 |     assert!(native.tau.iter().all(Wide::is_zero));
+    |                                         ^^^^^^^ multiple `is_zero` found
+    |
+note: candidate #1 is defined in an impl for the type `wide::Wide<L>`
+   --> src/structural/retained/wide/multi.rs:872:5
+    |
+872 |     pub(crate) fn is_zero(&self) -> bool {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+note: candidate #2 is defined in an impl for the type `wide::Wide<2>`
+   --> src/structural/retained/wide.rs:336:5
+    |
+336 |     pub(crate) fn is_zero(&self) -> bool {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0308]: mismatched types
+   --> src/structural/retained/../../../tests/retained_k4/source_bridge_tests.rs:222:50
+    |
+222 |     assert_eq!(spent.work.member_builds.exact(), Some(3));
+    |                                                  ^^^^^^^ expected `Result<u64, WorkFault>`, found `Option<{integer}>`
+    |
+    = note: expected enum `Result<u64, work::WorkFault>`
+               found enum `Option<{integer}>`
+
+error[E0308]: mismatched types
+   --> src/structural/retained/../../../tests/retained_k4/source_bridge_tests.rs:223:47
+    |
+223 |     assert_eq!(spent.work.b_products.exact(), Some(336));
+    |                                               ^^^^^^^^^ expected `Result<u64, WorkFault>`, found `Option<{integer}>`
+    |
+    = note: expected enum `Result<u64, work::WorkFault>`
+               found enum `Option<{integer}>`
+
+error[E0308]: mismatched types
+   --> src/structural/retained/../../../tests/retained_k4/source_bridge_tests.rs:224:47
+    |
+224 |     assert_eq!(spent.work.d_products.exact(), Some(40));
+    |                                               ^^^^^^^^ expected `Result<u64, WorkFault>`, found `Option<{integer}>`
+    |
+    = note: expected enum `Result<u64, work::WorkFault>`
+               found enum `Option<{integer}>`
+
+error[E0308]: mismatched types
+   --> src/structural/retained/../../../tests/retained_k4/source_bridge_tests.rs:225:47
+    |
+225 |     assert_eq!(spent.work.h_products.exact(), Some(16));
+    |                                               ^^^^^^^^ expected `Result<u64, WorkFault>`, found `Option<{integer}>`
+    |
+    = note: expected enum `Result<u64, work::WorkFault>`
+               found enum `Option<{integer}>`
+
+error[E0034]: multiple applicable items in scope
+   --> src/structural/retained/../../../tests/retained_k4/source_bridge_tests.rs:243:53
+    |
+243 |         .all(|a| !a.is_zero() && a.cmp_value(&Wide::ONE) == Cmp::Less));
+    |                                                     ^^^ multiple `ONE` found
+    |
+note: candidate #1 is defined in an impl for the type `wide::Wide<L>`
+   --> src/structural/retained/wide/multi.rs:797:5
+    |
+797 |     pub(crate) const ONE: Self = {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+note: candidate #2 is defined in an impl for the type `wide::Wide<2>`
+   --> src/structural/retained/wide.rs:252:5
+    |
+252 |     pub(crate) const ONE: Self = Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0308]: mismatched types
+   --> src/structural/retained/../../../tests/retained_k4/source_bridge_tests.rs:246:50
+    |
+246 |     assert_eq!(spent.work.member_builds.exact(), Some(3));
+    |                                                  ^^^^^^^ expected `Result<u64, WorkFault>`, found `Option<{integer}>`
+    |
+    = note: expected enum `Result<u64, work::WorkFault>`
+               found enum `Option<{integer}>`
+
+error[E0308]: mismatched types
+   --> src/structural/retained/../../../tests/retained_k4/source_bridge_tests.rs:247:47
+    |
+247 |     assert_eq!(spent.work.b_products.exact(), Some(336));
+    |                                               ^^^^^^^^^ expected `Result<u64, WorkFault>`, found `Option<{integer}>`
+    |
+    = note: expected enum `Result<u64, work::WorkFault>`
+               found enum `Option<{integer}>`
+
+error[E0308]: mismatched types
+   --> src/structural/retained/../../../tests/retained_k4/source_bridge_tests.rs:248:47
+    |
+248 |     assert_eq!(spent.work.d_products.exact(), Some(40));
+    |                                               ^^^^^^^^ expected `Result<u64, WorkFault>`, found `Option<{integer}>`
+    |
+    = note: expected enum `Result<u64, work::WorkFault>`
+               found enum `Option<{integer}>`
+
+error[E0308]: mismatched types
+   --> src/structural/retained/../../../tests/retained_k4/source_bridge_tests.rs:249:47
+    |
+249 |     assert_eq!(spent.work.h_products.exact(), Some(16));
+    |                                               ^^^^^^^^ expected `Result<u64, WorkFault>`, found `Option<{integer}>`
+    |
+    = note: expected enum `Result<u64, work::WorkFault>`
+               found enum `Option<{integer}>`
+
+error[E0308]: mismatched types
+   --> src/structural/retained/../../../tests/retained_k4/source_bridge_tests.rs:284:50
+    |
+284 |     assert_eq!(spent.work.member_builds.exact(), Some(2));
+    |                                                  ^^^^^^^ expected `Result<u64, WorkFault>`, found `Option<{integer}>`
+    |
+    = note: expected enum `Result<u64, work::WorkFault>`
+               found enum `Option<{integer}>`
+
+error[E0308]: mismatched types
+   --> src/structural/retained/../../../tests/retained_k4/source_bridge_tests.rs:310:53
+    |
+310 |     assert_eq!(wrong_precision.work.visits.exact(), Some(0));
+    |                                                     ^^^^^^^ expected `Result<u64, WorkFault>`, found `Option<{integer}>`
+    |
+    = note: expected enum `Result<u64, work::WorkFault>`
+               found enum `Option<{integer}>`
+
+error[E0308]: mismatched types
+   --> src/structural/retained/../../../tests/retained_k4/source_bridge_tests.rs:320:50
+    |
+320 |     assert_eq!(wrong_source.work.visits.exact(), Some(1));
+    |                                                  ^^^^^^^ expected `Result<u64, WorkFault>`, found `Option<{integer}>`
+    |
+    = note: expected enum `Result<u64, work::WorkFault>`
+               found enum `Option<{integer}>`
+
+error[E0308]: mismatched types
+   --> src/structural/retained/../../../tests/retained_k4/source_bridge_tests.rs:373:50
+    |
+373 |     assert_eq!(spent.work.member_builds.exact(), Some(1));
+    |                                                  ^^^^^^^ expected `Result<u64, WorkFault>`, found `Option<{integer}>`
+    |
+    = note: expected enum `Result<u64, work::WorkFault>`
+               found enum `Option<{integer}>`
+
+Some errors have detailed explanations: E0034, E0308.
+For more information about an error, try `rustc --explain E0034`.
+error: could not compile `open_pipe_stress_frame_kernel` (lib test) due to 15 previous errors

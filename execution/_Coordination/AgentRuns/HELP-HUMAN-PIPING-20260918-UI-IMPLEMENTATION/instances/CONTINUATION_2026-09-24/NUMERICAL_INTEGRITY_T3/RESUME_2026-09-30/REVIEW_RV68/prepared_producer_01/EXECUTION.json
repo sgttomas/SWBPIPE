@@ -1,0 +1,87 @@
+{
+  "actor": "/root/rv68_prepared_producer_implementation",
+  "role": "TASK Type 2",
+  "parent": "/root HELP_HUMAN",
+  "mechanism": "delegated-harness-native",
+  "started_utc": "2026-10-03T11:52:41Z",
+  "host": "Mac.lan",
+  "dispatch": "79ebfa64ae27680a4368b6f93b7ec5950e11362f",
+  "accepted_source": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+  "wip": "430bc4f798a1ff5d158733cbfce5b6e7e096dbe0",
+  "frozen_patch_sha256": "dd6c65aafbf7804425935fdfaae43d5b09a735b39039d9e8028eb83772716925",
+  "runtime": {
+    "grant": "Explicit ROOT follow-up after author sealed/reaped; up to three focused commands, no source edits",
+    "limits": "4 jobs; 2 test threads; locked/offline absolute manifests; per-manifest released caches; 1200-second walls",
+    "cache_write_targets": [
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i47-selected-material/product_physics",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i47-selected-material/frame_kernel"
+    ],
+    "results": {
+      "PP": 28,
+      "FK_proof": 24,
+      "FK_failed_view": 1
+    },
+    "all_passed": true,
+    "all_reaped": true,
+    "released_utc": "2026-10-03T12:44:34.985163Z"
+  },
+  "source_paths": [
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+    "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs"
+  ],
+  "write_fence": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV68/prepared_producer_01",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv68_prepared_producer"
+  ],
+  "no_descendants": true,
+  "arithmetic_runtime": {
+    "executable": "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+    "version": "3.13.14",
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv68_prepared_producer",
+    "command": [
+      "python3",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv68_prepared_producer/check_first_amended.py"
+    ],
+    "exit": 0,
+    "native_calls": 0,
+    "script_sha256": "ac6860a58ae21a1f40d701fcdc0f16c77f70f7a66b849e9fbd33912db96cc2ea",
+    "result_sha256": "751da3b2560b2158c316e18262eb3767a459981e97efa537275f1144535c82ee"
+  },
+  "last_progress_utc": "2026-10-03T12:18:50.231323+00:00",
+  "progress": [
+    "Initial full frozen source read and exact check complete before minute15",
+    "RV68-1 closed at frozen REENTRY boundary",
+    "RV68-2 and RV68-3 closed at frozen CUSTODY boundary",
+    "Final handoff and concrete local account pending"
+  ],
+  "status": "complete; bounded CLEAR; sealed",
+  "completed_utc": "2026-10-03T12:53:15.308003+00:00",
+  "final_commit": "922db9dce33c2623385841ad3a4a002a79089e3a",
+  "scope_grant": "2c9528ca982bf6c584e7e9860af6354e407c1206",
+  "enforcement_limits": "Host permits unrestricted filesystem access with approval disabled. Maintained-source/Git/index/API write prohibitions and disjoint review write scope were instruction boundaries, not OS sandbox enforcement.",
+  "git_index_api_writes": false,
+  "maintained_source_edits": false,
+  "findings": {
+    "RV68-1": "closed",
+    "RV68-2": "closed",
+    "RV68-3": "closed",
+    "local_prefix_provenance_notes": "closed"
+  },
+  "qualifications": [
+    "Author final edit at12:29:00.115977Z,14.115977 seconds beyond original new-edit cutoff; no retrospective extension",
+    "Retained library/global profile and public integration obligations remain outside bounded clearance",
+    "Original C0/C1/C2/source-recovery/clock and continuation failed-run history remains preserved"
+  ],
+  "deadline": "2026-10-03T13:22:41Z",
+  "new_investigation_cutoff": "2026-10-03T13:07:41Z",
+  "prose_revision": "Owner readability: spaced words/numbers and ten-character Git abbreviations; full Git identities retained here and in COMMITTED_SOURCE_CONFIRMATION.json"
+}

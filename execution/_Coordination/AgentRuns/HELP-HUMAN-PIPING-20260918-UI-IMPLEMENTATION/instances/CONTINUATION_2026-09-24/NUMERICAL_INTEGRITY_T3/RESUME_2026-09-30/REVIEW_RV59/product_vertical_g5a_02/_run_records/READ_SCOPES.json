@@ -1,0 +1,9 @@
+{
+  "FK_lib": "24,429-610,713-770,812-865,1832-1900; symbol discovery",
+  "SP_lib": "1-70,380-492; symbol discovery",
+  "D1": "DESIGN.md governing operational/section terms 491-512,868 via exact match search",
+  "R7": "6.3 at817-855; bounded textual discovery",
+  "retained_basis": "Root/TASK/Piping/software-code-review instructions and prior I45/RV59 bounded context retained; no new workflow or wider role",
+  "search_only": "retained verify.rs/adaptive.rs resolution fields/helpers; no claim of complete re-review",
+  "discovery_limits": "Initial broad filename search was truncated; two guessed review directories and two guessed source paths did not exist. Correct sources were located with rg and read directly. No reliance on missing or undisplayed files."
+}

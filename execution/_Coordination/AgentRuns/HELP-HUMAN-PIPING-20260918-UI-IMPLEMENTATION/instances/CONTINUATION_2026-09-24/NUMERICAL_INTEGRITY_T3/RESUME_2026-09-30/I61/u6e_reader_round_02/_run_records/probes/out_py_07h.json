@@ -1,0 +1,79 @@
+{
+"milestone:dense_scrutiny:unmodified": {
+"classes": [
+25,
+69,
+3,
+2
+],
+"eligible": false,
+"pass": true,
+"standing": "needs_recompute"
+},
+"milestone:sparse_interactive:unmodified": {
+"classes": [
+25,
+69,
+3,
+1
+],
+"eligible": false,
+"pass": true,
+"standing": "needs_recompute"
+},
+"n1:second_case_relaxed_form": [
+"G5",
+"RETAINED_PRECISION_ATTEMPT_MISMATCH"
+],
+"n1:second_case_swapped": [
+"G5",
+"RETAINED_PRECISION_ATTEMPT_MISMATCH"
+],
+"n2:corpus_base_truncated_last": [
+"G5",
+"RETAINED_PRECISION_ATTEMPT_MISMATCH"
+],
+"n2:envelope_reordered_exact": {
+"classes": [
+66,
+1,
+6,
+1
+],
+"eligible": false,
+"pass": true,
+"standing": "needs_recompute"
+},
+"n2:envelope_reordered_strict_prefix": [
+"G5",
+"RETAINED_PRECISION_ATTEMPT_MISMATCH"
+],
+"s1:affected_refs_number_listed": [
+"G5",
+"RETAINED_PRECISION_ATTEMPT_MISMATCH"
+],
+"s1:affected_refs_number_unlisted": [
+"G7",
+"SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+],
+"s1:affected_refs_object_listed": [
+"G5",
+"RETAINED_PRECISION_ATTEMPT_MISMATCH"
+],
+"s1:affected_refs_object_unlisted": [
+"G7",
+"SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+],
+"s1:affected_refs_string_listed": [
+"G5",
+"RETAINED_PRECISION_ATTEMPT_MISMATCH"
+],
+"s1:affected_refs_string_unlisted": [
+"G7",
+"SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+],
+"s1:typed_integrity_affected_refs_string": [
+"G5",
+"RETAINED_PRECISION_ATTEMPT_MISMATCH"
+]
+}

@@ -1,0 +1,29 @@
+{
+  "audited_utc": "2026-10-03T13:21:44.153049+00:00",
+  "actor": "/root/rv69_public_formation_contract",
+  "brief_commit": "5978a6c5319f05a30d531363082e8bdc2b37c674",
+  "proposal_commit": "77bb95e4ac98a4cff6a57f94c7dee956e059430e",
+  "correction_commit": "7b4709bcecced03229af19e82adf6de2e6de9fc3",
+  "code_commit": "922db9dce33c2623385841ad3a4a002a79089e3a",
+  "owned_scopes": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV69/prepared_public_contract_02",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_prepared_public_contract"
+  ],
+  "prior_seal_unchanged": true,
+  "current_brief_matches_commit": true,
+  "payload_hashes_and_canonical_definition": true,
+  "collision_matches": 19,
+  "findings": {
+    "originally_blocking": 1,
+    "closed": 1,
+    "unresolved": 0
+  },
+  "N1": "closed by original C3 definition and cross-reference",
+  "F1": "closed by frozen correction and independent source-prefix backcheck",
+  "remaining": "actual prospective typed capture/accessors and completeness observation; public integration/resource/caller/availability/exact/combination/native/PR gates",
+  "runtime_parity_build_solver_tests": false,
+  "scope_audit": "Only new owned review/evidence paths written; no maintained source or Git/index/API writes; immutable CODE reads; no descendants",
+  "bulk_files": 26,
+  "bulk_bytes": 148051,
+  "final_disposition": "CLEAR for ROOT technical selection/reservation of definition plus corrected C3 delta; no public activation or merge readiness"
+}

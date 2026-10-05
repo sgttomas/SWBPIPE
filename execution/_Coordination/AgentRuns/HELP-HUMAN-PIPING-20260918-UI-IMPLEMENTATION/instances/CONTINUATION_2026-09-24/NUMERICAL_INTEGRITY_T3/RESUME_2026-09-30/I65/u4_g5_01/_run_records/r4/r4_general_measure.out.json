@@ -1,0 +1,26 @@
+{
+ "general_rule": {
+  "edges": 13309,
+  "edges_beyond_precise": 191,
+  "multi_node_cycles": [],
+  "text_l128_tav": 3264180836,
+  "text_complete": false,
+  "unmapped": [
+   [
+    "for term in assembly .contributions .iter() .filter(|t| t.row == dof && t.value != 0.0)",
+    1
+   ]
+  ]
+ },
+ "dropped_true_targets_under_precise_rule": [
+  "core/solver/frame_kernel/src/load_ledger.rs:261:values",
+  "core/solver/frame_kernel/src/load_ledger.rs:753:values",
+  "core/solver/frame_kernel/src/structural/retained/wide.rs:341:is_sign_negative",
+  "core/solver/frame_kernel/src/structural/retained/wide/multi.rs:877:is_sign_negative",
+  "core/solver/frame_kernel/src/structural/retained/wide/multi.rs:893:abs",
+  "core/solver/frame_kernel/src/structural/retained/wide/multi.rs:908:mul_pow2",
+  "core/solver/frame_kernel/src/structural/retained/wide/multi.rs:918:cmp_value"
+ ],
+ "functions_below_them": 12,
+ "text_sites_below_them": []
+}

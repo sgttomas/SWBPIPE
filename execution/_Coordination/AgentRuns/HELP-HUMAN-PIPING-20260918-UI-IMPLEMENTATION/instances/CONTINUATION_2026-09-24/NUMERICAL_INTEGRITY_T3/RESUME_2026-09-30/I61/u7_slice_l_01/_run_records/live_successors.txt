@@ -1,0 +1,6 @@
+# live successors from PP's actual Direct entry (registered build of e5e1693ceb; committed u3g2_direct_entry_publishes_the_pinned_successor with I61_U3G2_OUT)
+6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5  u3g2_successor_dense_scrutiny.json
+ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc  u3g2_successor_sparse_interactive.json
+sparse_interactive: byte-identical to P/fixtures/results/retained_precision_milestone_successor_sparse_interactive.json (U6's carrier fixture, U1's pinned file)
+dense_scrutiny: byte-identical to P/fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json (U6's carrier fixture, U1's pinned file)
+OPS_RETAINED_BUILD_IDENTITY=v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0

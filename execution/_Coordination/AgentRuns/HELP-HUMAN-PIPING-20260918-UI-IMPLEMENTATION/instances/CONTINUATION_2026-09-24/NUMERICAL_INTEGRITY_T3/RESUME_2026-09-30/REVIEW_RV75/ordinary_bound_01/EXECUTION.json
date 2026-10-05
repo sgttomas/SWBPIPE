@@ -1,0 +1,140 @@
+{
+  "reviewer": "RV75",
+  "role": "TASK Type 2",
+  "parent": "/root ROOT HELP_HUMAN",
+  "child": "/root/rv75_ordinary_bound",
+  "mechanism": "delegated-harness-native fresh child",
+  "descendants": [],
+  "engine": "Codex, inherited parent model; exact model ID not independently exposed",
+  "host": "Ryans-MacBook-Pro.local",
+  "initial_cwd": "/Users/ryan/.codex/worktrees/92ea/chirality",
+  "entry_num_head": "c929c1168306da3002637ed813a739292417d46a",
+  "supplied_expected_entry_prefix": "9a6cd1d43b",
+  "basis": {
+    "ordinary_source": "24af17c47011608d187811024b51807395e4e526",
+    "original_revision": "71615e34b845f3fbc09bf6c546cb99fdc6d22987",
+    "correction_revision": "e21e248f421889ae56972c550bad93dc4105d3c1",
+    "original_manifest_sha256": "19c97f0d17953e0bb90162d1ca95b892ab279742fa59cd1c8b673091a977da31",
+    "correction_manifest_sha256": "d55e3e1148d8cfaed8044a32df859b358b74cae9d92f16703dcaf3dbd7a73aed"
+  },
+  "clock": {
+    "receipt_utc": "2026-10-03T19:06:29Z",
+    "findings_due_utc": "2026-10-03T19:26:29Z",
+    "assessment_due_utc": "2026-10-03T19:51:29Z",
+    "investigation_cutoff_utc": "2026-10-03T19:56:29Z",
+    "seal_due_utc": "2026-10-03T20:06:29Z",
+    "assessment_complete_utc": "2026-10-03T19:14:46.400383+00:00",
+    "source_investigation_stopped_utc": "2026-10-03T19:16:02.485214+00:00",
+    "sealed_utc": "2026-10-03T19:16:02.485214+00:00",
+    "elapsed_seconds": 573.485214,
+    "within_deadlines": true
+  },
+  "assessment": {
+    "source_investigation_stopped_utc": "2026-10-03T19:16:02.485214+00:00",
+    "disposition": "No actionable findings in the bounded combined partial-source packet; suitable for ROOT fan-in with retained qualifications",
+    "RV73_findings_independently_confirmed": [
+      "RV73-O1",
+      "RV73-O2",
+      "RV73-O3",
+      "RV73-O4"
+    ],
+    "same_reviewer_closure": false,
+    "full_profile_qualification": false,
+    "initial_assessment_written_utc": "2026-10-03T19:14:46.400383+00:00",
+    "final_qa_note": "After initial assessment, checked named raw.clone constructor anchors during final claim QA; no new closure scope, runtime or clock reset."
+  },
+  "instruction_origins": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+      "bytes": 1411
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/USAGE_RECOVERY_2026-10-03.md",
+      "sha256": "9c37881e80a3af7c83be27ee0bb75396468bb25d9fa554e2d5e0fb062d7cb081",
+      "bytes": 7752
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV73_DIRECT_ORDINARY_BOUND.md",
+      "sha256": "94fada659b6879190c02f85e110a5eb3b888dd33f49d5f4c29f430bafb9a12d7",
+      "bytes": 3791
+    }
+  ],
+  "skill": ".agents/skills/software-code-review/SKILL.md at NUM; exact hash in receipt",
+  "workflows_selected": [],
+  "other_role_bodies_loaded": [],
+  "navigation_and_accepted_container_basis": [
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV73/direct_ordinary_02/REVIEW.md",
+      "bytes": 9284,
+      "sha256": "19e57897560823b37ca2d07b3ce43a52fea420301180d473bbdf9991d8569984"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv73_direct_ordinary_02/FINDINGS_OPEN.json",
+      "bytes": 4406,
+      "sha256": "cf4c1bc2101429d2151b8f2ca458a5d6812892f55b2105ffc2007235ef424f7f"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV73/direct_container_01/REVIEW.md",
+      "bytes": 16563,
+      "sha256": "9853a4026fd5586fe3a9cfe556264fc12c79dd0a37abf043ea4e63b57cea8515"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV73/direct_container_01/MANIFEST.json",
+      "bytes": 2054,
+      "sha256": "2f7bd352f7c2a81646d9205aed3f818e84051191a95891d329be1ff9a21d2d48"
+    }
+  ],
+  "scope_enforcement": "Host danger-full-access, approval never; assignment restrictions are agent-observed, not host containment",
+  "writes": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV75/ordinary_bound_01",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv75_ordinary_bound_01"
+  ],
+  "performed": [
+    "Explicit-cwd GIT_OPTIONAL_LOCKS=0 Git object reads",
+    "Immutable source and packet reads",
+    "Hash/size/origin checks",
+    "Small independent source-structure, integer and string arithmetic",
+    "Owned evidence writes"
+  ],
+  "not_performed": [
+    "Maintained-source/index/Git/API writes",
+    "Cargo/Rust/compiler/model/native run",
+    "Installs or host tooling project",
+    "Descendants",
+    "M or whole-profile selection/qualification",
+    "Protected oracle or public activation change"
+  ],
+  "review_result": "Suitable for ROOT fan-in as combined partial source derivation; no actionable findings in bounded scope; four RV73 corrections independently confirmed",
+  "source_review_clock_reset": false,
+  "prior_unsealed_review_reliance": "Navigation only; fresh RV75 conclusions",
+  "validation_notes": [
+    "No claim that same-model review creates model diversity",
+    "One read-only final-QA lookup used a nonexistent source snapshot path for retained_product_tests.rs; corrected using the verified input index",
+    "Arithmetic shell inputs and raw tool results remain in native task transcript; detailed numerical comparisons are in owned external JSON"
+  ],
+  "remaining_qualifications": [
+    "Final consumer/build/allocator/layout binding",
+    "Nested typed capacities or exact construction proof",
+    "H_formation128",
+    "Report/row/diagnostic/error formatting",
+    "Generic deep legacy-exact ownership",
+    "Stack and whole caller/publication/trace/native/proof/receipt composition"
+  ],
+  "root_closeout_steering": "Finish already underway review and seal; no new work follows."
+}

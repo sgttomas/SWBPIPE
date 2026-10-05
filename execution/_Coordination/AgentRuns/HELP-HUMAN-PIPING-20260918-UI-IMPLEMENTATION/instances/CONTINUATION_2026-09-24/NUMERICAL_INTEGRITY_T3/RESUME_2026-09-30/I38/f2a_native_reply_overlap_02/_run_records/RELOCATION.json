@@ -1,0 +1,24 @@
+{
+  "purpose": "byte-preserving placement of original source/provenance packet under raw evidence root",
+  "moves": [
+    {
+      "from": "SOURCE_LEDGER.md",
+      "to": "_run_records/original/SOURCE_LEDGER.md",
+      "bytes": 7836,
+      "sha256": "8c29e8374a67b1178eee4c5842045bebfa74ff255aab4674e73a2c7374c28397"
+    },
+    {
+      "from": "RETURN.md",
+      "to": "_run_records/original/RETURN.md",
+      "bytes": 10051,
+      "sha256": "aacd3262be836888a6a4cf9c7721c325fde5cf550f8b22e98b90c234cf931b6e"
+    },
+    {
+      "from": "ORIGINS.json",
+      "to": "_run_records/original/ORIGINS.json",
+      "bytes": 21560,
+      "sha256": "6483d08998de528e9a33f7e84219d7cd0690978eb9c87f1b003eb42081712988"
+    }
+  ],
+  "status": "source result preserved, no independent native qualification or accepted H"
+}

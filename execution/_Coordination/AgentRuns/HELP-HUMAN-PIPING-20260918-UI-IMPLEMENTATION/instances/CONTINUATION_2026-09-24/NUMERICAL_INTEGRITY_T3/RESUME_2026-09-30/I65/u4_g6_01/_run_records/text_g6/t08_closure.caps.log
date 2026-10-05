@@ -1,0 +1,14 @@
+{
+ "Text(row)": 11474,
+ "Text(diag_total)": 94906464,
+ "Text(err)": 16384,
+ "Text(sym)": 368,
+ "Text(audit_error)": 16384,
+ "Text(formation_detail)": 16426,
+ "Text(recovery_finding)": 10466306,
+ "D": 14734,
+ "D_env": 9361,
+ "Text(diag_env)": 68720236,
+ "TAV_text_requested": 2149902046,
+ "TAV_text_moving": 2152502008
+}

@@ -1,0 +1,138 @@
+[
+ {
+  "id": "M45",
+  "what": "D32 normalization disabled",
+  "old": "if !floats(&source[\"retained_precision\"]) {",
+  "new": "if true || !floats(&source[\"retained_precision\"]) {",
+  "mutant_sha256": "a56ac32d47a1747c6e891f52d30b1fc7d248a1900f4907f45b2fd28949fb76cf",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d32_forged_source_identity_under_float_ref",
+   "d32_integers_by_value",
+   "shared_must_pass_entries_validate"
+  ],
+  "summary": [
+   "test result: FAILED. 53 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 22.46s"
+  ]
+ },
+ {
+  "id": "M46",
+  "what": "D32 normalization also converts -0",
+  "old": "                    && x.abs() <= SAFE as f64\n                    && !(*x == 0.0 && x.is_sign_negative())",
+  "new": "                    && x.abs() <= SAFE as f64",
+  "mutant_sha256": "485ebfdae5162ab4c8a2374120cf7689b37be00210e7c0dc80862eb45cbb2909",
+  "exit": 0,
+  "verdict": "SURVIVED",
+  "failed_tests": [],
+  "summary": [
+   "test result: ok. 56 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 22.72s"
+  ]
+ },
+ {
+  "id": "M47",
+  "what": "D32 normalization range guard dropped",
+  "old": "                    && x.abs() <= SAFE as f64\n",
+  "new": "\n",
+  "mutant_sha256": "78289a89e996ee1ca23a64c27e0f7434bfff200e8e59cf355b8aea1404aca890",
+  "exit": 0,
+  "verdict": "SURVIVED",
+  "failed_tests": [],
+  "summary": [
+   "test result: ok. 56 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 23.12s"
+  ]
+ },
+ {
+  "id": "M48",
+  "what": "D32 at G0: receipt_version back to the host type test",
+  "old": "unsupported(uint(&b[\"receipt_version\"]) == Some(1))?;",
+  "new": "unsupported(b[\"receipt_version\"].as_u64() == Some(1) && b[\"receipt_version\"].is_u64())?;",
+  "mutant_sha256": "35f63c7012018ffa7865e65128557308196d313da8cc6794aa97ccd1d90d950f",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d32_integers_by_value",
+   "shared_must_pass_entries_validate"
+  ],
+  "summary": [
+   "test result: FAILED. 54 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 22.63s"
+  ]
+ },
+ {
+  "id": "M49",
+  "what": "D32 at G0: limits back to as_u64",
+  "old": "unsupported(uint(&b[\"work\"][key]) == Some(want))?;",
+  "new": "unsupported(b[\"work\"][key].as_u64() == Some(want))?;",
+  "mutant_sha256": "97dc7a5e8f45d36d0a0dd4ce897c3311032a67c7fafccf06998f1617dcefd1c4",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d32_integers_by_value",
+   "shared_must_pass_entries_validate"
+  ],
+  "summary": [
+   "test result: FAILED. 54 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 22.87s"
+  ]
+ },
+ {
+  "id": "M50",
+  "what": "D32 normalization widened to the whole statement",
+  "old": "    if let Some(r) = owned.get_mut(\"retained_precision\") {\n        normalize(r);\n    }",
+  "new": "    normalize(&mut owned);",
+  "mutant_sha256": "a74e97f129bd51e0cb47b83aa38cbbb223bc7c66ae7b07dd6b0a884fec38f71b",
+  "exit": 0,
+  "verdict": "SURVIVED",
+  "failed_tests": [],
+  "summary": [
+   "test result: ok. 56 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 23.55s"
+  ]
+ },
+ {
+  "id": "M53",
+  "what": "D34 -0 scan dropped",
+  "old": "need(!negative_zero(r), \"G2\", \"ENCODING_MISMATCH\")",
+  "new": "need(true || !negative_zero(r), \"G2\", \"ENCODING_MISMATCH\")",
+  "mutant_sha256": "02073b2f5fff8497219629c31e33f116aba4f8e0963886b4f585f09ad03453f3",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d34_negative_zero_anywhere_in_receipt_fails_g2"
+  ],
+  "summary": [
+   "test result: FAILED. 55 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.06s"
+  ]
+ },
+ {
+  "id": "M55",
+  "what": "g2: the encoding walk dropped",
+  "old": "    encoding(r, schema())?;\n    need(!negative_zero(r)",
+  "new": "    need(!negative_zero(r)",
+  "mutant_sha256": "2518a29b24e14d5b8a390264b267b2ada6abea904aa8cb26c8025d73aa081e38",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d32_integers_by_value",
+   "negative_zero_wire_scale_remains_g2",
+   "snapshot_03_mutation_outcomes",
+   "snapshot_04_coverage_mutation_outcomes",
+   "snapshot_06a_mutation_outcomes",
+   "shared_rehashed_first_failure_mutations"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 21.50s"
+  ]
+ },
+ {
+  "id": "M56",
+  "what": "transport path back to the encoding walk only (no D34 scan)",
+  "old": "    g1(source, false)?;\n    g2(source)?;",
+  "new": "    g1(source, false)?;\n    encoding(&source[\"retained_precision\"], schema())?;",
+  "mutant_sha256": "ec5d2bc532b0a13d3a9742157efe2b4a503e18af67b7e735f6d9720035084c2e",
+  "exit": 0,
+  "verdict": "SURVIVED",
+  "failed_tests": [],
+  "summary": [
+   "test result: ok. 56 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 23.94s"
+  ]
+ }
+]

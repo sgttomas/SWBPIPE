@@ -1,0 +1,1144 @@
+{
+ "what": "I63 Rust reader on snapshot 06c: observed first failure for every mutation after snapshot 03 (expected = this reader's own expectation: expected_by_reader.rust when present), and the 23 must_pass verdicts. The 30 snapshot-03 mutations are covered by shared_rehashed_first_failure_mutations (all 173 pass).",
+ "corpus_sha256": "d4235f59b6c9c1fdc6e346ff085f9c119d5da011f34a68751b8dde186d3338d0",
+ "reader_src_sha256": "e131a6b9a20f26dec770977ae2ee891a55ab6d8b42eabe631582b6797e8bd381",
+ "reader_test_sha256": "10818998018c8b5aa7b7700e9d656904f8b5aba3499e07760bf00c24cb3d425f",
+ "source_log": "WT/scratch/i63_reader_align_06c/run4_outcomes.log",
+ "slices": {
+  "I63_OUTCOME": {
+   "matched": 47,
+   "total": 47,
+   "outcomes": [
+    {
+     "id": "coverage_member_missing",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "observed": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_object_not_array",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "observed": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_entry_null",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "observed": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_stop_three",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "observed": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_stop_five",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "observed": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_stop_numeric_flag",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "observed": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_stop_null_flag",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "observed": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_has_data_numeric",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "observed": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_has_data_null",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "observed": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_has_data_missing",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "observed": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_unknown_field",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "observed": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_body_string",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "observed": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_shape_then_duplicate",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "observed": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_defect_with_null_method",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "observed": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_body_negative_zero",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G2 RETAINED_PRECISION_ENCODING_MISMATCH",
+     "observed": "G2 RETAINED_PRECISION_ENCODING_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_body_fraction",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G2 RETAINED_PRECISION_ENCODING_MISMATCH",
+     "observed": "G2 RETAINED_PRECISION_ENCODING_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_body_negative",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G2 RETAINED_PRECISION_ENCODING_MISMATCH",
+     "observed": "G2 RETAINED_PRECISION_ENCODING_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_encoding_then_duplicate",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G2 RETAINED_PRECISION_ENCODING_MISMATCH",
+     "observed": "G2 RETAINED_PRECISION_ENCODING_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_empty_array",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "observed": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_duplicate_body",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "observed": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_foreign_body",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "observed": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_extra_body",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "observed": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_duplicate_then_flag_and_method",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "observed": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "attempt_owner_only",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "observed": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_null_on_ready",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_null_then_method",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_has_data_false",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "certified_bound_unbound_drop_existing_g5",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_drop_certified_bound",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_no_data_claim_with_free_loads",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_stop_forbidden_entry",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_stop_uncoupled_consistent_roster",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "stop_rule_drop_required_zero",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "stop_rule_duplicate_zero",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "estimate_drop_required_zero",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "estimate_forbidden_translation_zero",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "charge_drop_required_zero",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "charge_follows_stop_below_p512",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "certified_bound_duplicate",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_flag_defect_then_method",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "nodata_forbidden_stop_zero",
+     "base": "ordinary_prepared_no_data_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "nodata_forbidden_estimate_zero",
+     "base": "ordinary_prepared_no_data_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "nodata_forbidden_charge_zero",
+     "base": "ordinary_prepared_no_data_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "nodata_forbidden_certified_bound",
+     "base": "ordinary_prepared_no_data_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "nodata_has_data_without_bound",
+     "base": "ordinary_prepared_no_data_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "nodata_estimate_coupling_L_nonzero",
+     "base": "ordinary_prepared_no_data_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_flag_defect_then_body_scale",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    }
+   ]
+  },
+  "I63_OUTCOME_05A": {
+   "matched": 27,
+   "total": 27,
+   "outcomes": [
+    {
+     "id": "layout_force_row_input_derived",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "layout_constrained_displacement_not_input_derived",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "layout_nonzero_prescription",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "coverage_null_and_product_work",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "product_work_only",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_WORK_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_WORK_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "native_work_then_coverage_null",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_WORK_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_WORK_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "layout_row_relabelled",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "layout_row_dropped",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "layout_rows_reordered",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "layout_row_foreign_body",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "nodata_empty_coverage",
+     "base": "ordinary_prepared_no_data_synthetic",
+     "expected": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "observed": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "verification_bound_duplicate_entry",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "verification_bound_missing_entry",
+     "base": "ordinary_prepared_no_data_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "nodata_verification_bound_nonnull",
+     "base": "ordinary_prepared_no_data_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "schedule_fresh_first_p256",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "cancelled_no_data_claim",
+     "base": "ordinary_prepared_cancelled_loads_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "cancelled_drop_B_only",
+     "base": "ordinary_prepared_cancelled_loads_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "unavailable_certificate_passed_coverage_null",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "unavailable_empty_coverage",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "observed": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "unavailable_no_data_claim_with_free_loads",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "unavailable_stop_uncoupled",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "unavailable_layout_relabelled",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "unavailable_verification_bound_duplicate",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "cert_failed_before_summary_g5a_passed",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "lane_k_failed_with_coverage",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "maxima_abandoned_with_coverage",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "prefix_captured_with_members",
+     "base": "two_case_preparation_failure_synthetic",
+     "expected": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "observed": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "match": true
+    }
+   ]
+  },
+  "I63_OUTCOME_05B": {
+   "matched": 17,
+   "total": 17,
+   "outcomes": [
+    {
+     "id": "two_body_swap_has_data",
+     "base": "two_body_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "two_body_swap_has_data_with_rosters",
+     "base": "two_body_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "two_body_swap_stop_only",
+     "base": "two_body_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "two_body_body_order_swapped",
+     "base": "two_body_synthetic",
+     "expected": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "observed": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "two_body_missing_body",
+     "base": "two_body_synthetic",
+     "expected": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "observed": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "two_body_resolution_order_swapped",
+     "base": "two_body_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "p512_floor_not_phi",
+     "base": "p512_ladder_synthetic",
+     "expected": "G5b RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5b RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "p512_positive_floor_forces_stop",
+     "base": "p512_ladder_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "p512_charge_follows_estimate",
+     "base": "p512_ladder_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "p512_floor_null",
+     "base": "p512_ladder_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "p512_zero_floor_body_given_positive_floor",
+     "base": "p512_ladder_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "copy_flags_into_loaded",
+     "base": "two_case_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "rebind_source_run_only",
+     "base": "two_case_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "cross_case_gate_order_selected",
+     "base": "two_case_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "cross_case_gate_order_unavailable",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "unavailable_record_resolution_duplicate",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "unavailable_record_theta_duplicate",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "observed": "G5a RETAINED_PRECISION_SCALE_MISMATCH",
+     "match": true
+    }
+   ]
+  },
+  "I63_OUTCOME_06A": {
+   "matched": 29,
+   "total": 29,
+   "outcomes": [
+    {
+     "id": "skip_after_failed_candidate_reused",
+     "base": "candidate_failure_skip_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "skip_after_failed_candidate_wrong_slot",
+     "base": "candidate_failure_skip_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "failed_build_reason_mismatch",
+     "base": "candidate_failure_skip_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "failed_slot_not_cached",
+     "base": "candidate_failure_skip_synthetic",
+     "expected": "G5 RETAINED_PRECISION_WORK_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_WORK_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "failed_verification_reused_as_candidate",
+     "base": "verification_failure_skip_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "failed_verification_one_slot",
+     "base": "verification_failure_skip_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "cached_failed_slot_rebuilt",
+     "base": "two_case_shared_failed_cache_synthetic",
+     "expected": "G5 RETAINED_PRECISION_WORK_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_WORK_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "corrections_above_three",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "group_sources_out_of_order",
+     "base": "two_case_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "w2_published_without_initial_failure",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "legacy_source_dangling_diagnostic",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "formation_d5_dangling_diagnostic",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "native_stage_disagrees_with_run",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "conversion_subnormal_kind_normal_bits",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "conversion_normal_kind_subnormal_bits",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "conversion_ready_underflow_nonzero_row",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "conversion_ready_overflow",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "conversion_subnormal_metadata_negative_zero",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G2 RETAINED_PRECISION_ENCODING_MISMATCH",
+     "observed": "G2 RETAINED_PRECISION_ENCODING_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "g7_maximum_off_enclosure",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G7 SOURCE_PREVIEW_PHYSICS_EXTREMA_BOUNDS",
+     "observed": "G7 SOURCE_PREVIEW_PHYSICS_EXTREMA_BOUNDS",
+     "match": true
+    },
+    {
+     "id": "row_index_foreign_support_norm",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "observed": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "row_index_missing_row",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "observed": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "row_index_unsorted",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "observed": "G3 RETAINED_PRECISION_COVERAGE_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "row_index_ready_subset",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "maps_extra_support_id",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "observed": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "maps_member_ends_swapped",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "observed": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "maxima_abandoned_separate_failure",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "certificate_check_wrong_wrapper",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "certificate_stage_check_disagree",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "stage_entered_after_failure",
+     "base": "two_case_preparation_failure_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    }
+   ]
+  },
+  "I63_OUTCOME_06B": {
+   "matched": 13,
+   "total": 13,
+   "outcomes": [
+    {
+     "id": "ceiling_before_last_slot",
+     "base": "candidate_failure_skip_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "escalating_end_not_a_terminal_translation",
+     "base": "candidate_failure_skip_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "terminal_stop_wrong_translation",
+     "base": "candidate_failure_skip_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "terminal_refusal_wrong_kind",
+     "base": "candidate_failure_skip_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "idle_budget_below_invocation_limit",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "idle_ready_group_not_ledger_refusal",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "work_accounting_prior_not_on_wire",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "observed": "G1 RETAINED_PRECISION_RECEIPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "refused_member_conversion_kind_bits",
+     "base": "two_case_preparation_failure_synthetic",
+     "expected": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "prefix_attached_old_input_unbound",
+     "base": "two_case_preparation_failure_synthetic",
+     "expected": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "observed": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "report_reference_unrelated_diagnostic",
+     "base": "ordinary_prepared_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "distinct_stiffness_merged_group",
+     "base": "two_case_two_groups_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "named_point_value_mismatch",
+     "base": "two_case_two_groups_synthetic",
+     "expected": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "observed": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "interpolation_target_mismatch",
+     "base": "ordinary_prepared_interpolated_material_synthetic",
+     "expected": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "observed": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "match": true
+    }
+   ]
+  },
+  "I63_OUTCOME_06C": {
+   "matched": 10,
+   "total": 10,
+   "outcomes": [
+    {
+     "id": "work_accounting_after_escalating_stop",
+     "base": "candidate_failure_skip_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "idle_work_accounting_run",
+     "base": "two_case_facade_after_certificate_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "work_accounting_at_last_slot",
+     "base": "p512_ladder_synthetic",
+     "expected": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "observed": "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "mm_unnormalized_coordinate",
+     "base": "ordinary_prepared_mm_units_synthetic",
+     "expected": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "observed": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "interpolation_missing_alpha",
+     "base": "ordinary_prepared_interpolated_material_synthetic",
+     "expected": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "observed": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "interpolation_duplicate_temperature",
+     "base": "ordinary_prepared_interpolated_material_synthetic",
+     "expected": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "observed": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "interpolation_target_below_range",
+     "base": "ordinary_prepared_interpolated_material_synthetic",
+     "expected": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "observed": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "interpolation_target_at_lower_point",
+     "base": "ordinary_prepared_interpolated_material_synthetic",
+     "expected": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "observed": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "interpolation_target_at_upper_point",
+     "base": "ordinary_prepared_interpolated_material_synthetic",
+     "expected": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "observed": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "match": true
+    },
+    {
+     "id": "interpolation_target_above_range",
+     "base": "ordinary_prepared_interpolated_material_synthetic",
+     "expected": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "observed": "G8 RETAINED_PRECISION_PREPARATION_MISMATCH",
+     "match": true
+    }
+   ]
+  }
+ },
+ "must_pass": {
+  "passed": 23,
+  "total": 23,
+  "entries": [
+   {
+    "id": "\"loaded_stop_without_force_moment\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"loaded_all_stop_false\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"no_data_all_stop_true\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"no_data_attested_data_block\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"cancelled_all_stop_true\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"cert_failed_before_summary\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"lane_k_failed\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"lane_source_failed\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"maxima_abandoned\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"prefix_captured\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"prefix_helper_refused\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"prefix_unequal_helper_new\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"cert_failed_after_summary_accounting\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"two_body_swap_stop_with_rosters\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"p512_charge_follows_stop_zero_floor_body\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"copy_flags_into_unloaded\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"prefix_unattached_old_operand_attested\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"prefix_after_new_evaluator\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"observables_failed_after_certificate\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"g5a_failed_after_certificate\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"values_failed_separate_completion\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"aliases_abandoned\"",
+    "validated_with_base_classifications": true
+   },
+   {
+    "id": "\"bind_rows_abandoned\"",
+    "validated_with_base_classifications": true
+   }
+  ]
+ }
+}

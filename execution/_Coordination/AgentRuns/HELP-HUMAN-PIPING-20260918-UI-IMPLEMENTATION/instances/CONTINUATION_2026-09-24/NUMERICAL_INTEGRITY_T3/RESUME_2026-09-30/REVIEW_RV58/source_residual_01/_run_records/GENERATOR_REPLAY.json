@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "python3",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV58/source_residual_01/_run_records/vector_replay/source_residual_vectors.py"
+  ],
+  "exit_code": 0,
+  "byte_identical": true,
+  "sha256": "105619a35db12c73651d346cac1082b930202f0f13303f9bdf952d7dc7673cbc"
+}

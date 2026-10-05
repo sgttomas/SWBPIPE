@@ -1,0 +1,20 @@
+{
+  "source_pin": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "bytes": 120741,
+      "baseline_sha256": "08749d6e33173a83170814ea41e84d9b2c9cdde94d0989183e286e78529e7570",
+      "sha256": "9c0e7094d28307a09418cf20c1f1eb56e5e3c8889c4e4d0c3749965abb6a0a92"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+      "bytes": 98238,
+      "baseline_sha256": "b1285f49f6ddcf0bf5caeb333abfd17776a30d41908af671c7ce192c09e3318f",
+      "sha256": "e0c18d22aa1d64fc645f6196c632ae61ec8914d83bc3e929c5c5cc0ce7eb61c0"
+    }
+  ],
+  "unchanged_baseline_files": 955
+}

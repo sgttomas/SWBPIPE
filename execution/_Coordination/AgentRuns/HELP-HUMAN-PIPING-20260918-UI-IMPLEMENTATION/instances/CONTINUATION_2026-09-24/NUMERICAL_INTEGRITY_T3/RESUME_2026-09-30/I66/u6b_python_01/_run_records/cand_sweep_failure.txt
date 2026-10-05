@@ -1,0 +1,17 @@
+# candidate failure in the 24-file sweep (the only one)
+_______________________ test_table_identity_and_registry _______________________
+
+    def test_table_identity_and_registry():
+        table = PROJECT / "fixtures/results/semantic_contract_v0_3_preview_physics_1.json"
+        assert hashlib.sha256(table.read_bytes()).hexdigest() == PREVIEW_PHYSICS_CONTRACT_SHA256
+        assert json.loads(table.read_text())["semantic_contract_id"] == PREVIEW_PHYSICS_CONTRACT_ID
+        # T1 activation (DESIGN 10.3): T0R's four plus T1's two 0.4.0 exact-route identities.
+>       assert FRESH_CONTRACT_IDS == {PREVIEW_PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID,
+                                      LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}
+E       AssertionError: assert frozenset({'o...ined-1', ...}) == {'openpipestr...rce-blocks-1'}
+E         
+E         Extra items in the left set:
+E         'openpipestress.result_semantics/0.3.0/preview-physics-retained-1'
+E         Use -v to get more diff
+
+tests/test_preview_physics_consumer_contract.py:161: AssertionError

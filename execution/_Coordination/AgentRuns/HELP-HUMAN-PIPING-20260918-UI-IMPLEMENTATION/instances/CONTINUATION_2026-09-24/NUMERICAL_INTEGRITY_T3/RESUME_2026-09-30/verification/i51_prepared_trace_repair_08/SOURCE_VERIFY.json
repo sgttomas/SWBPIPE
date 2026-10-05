@@ -1,0 +1,24 @@
+{
+  "utc": "2026-10-03T16:50:59.913284+00:00",
+  "source_commit": "fc23cff95fca3cce2bc10055b96aef5afd7c8478",
+  "baseline": "7018513af3d6574be382d5c3aaee01e36cb0b28e",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "bytes": 170169,
+      "sha256": "d07383fc026e61e494a2b0a307271eaf2eb0329c333da95533f4b39c5d52af1a",
+      "baseline_sha256": "7b1241f31242fdf07a6e3aa8f47b65dea8c5f11014ff3bf1cc1de3def1a8f58d"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+      "bytes": 140243,
+      "sha256": "9bb2ac0319f339d8a515bb543804bdf31040d835afc1b00c5b61167cc859962a",
+      "baseline_sha256": "3a698b70228e13184378e9bc03e8f33a841669e86daf8a8744434fb0af258866"
+    }
+  ],
+  "patch_sha256": "481ebbf9ca90e2a9c6e3f1ac2b3f60c52d4b2f831a9052929349e63257190322",
+  "complete_diff_read": true,
+  "exact_delta_reconstructed": true,
+  "source_and_committed_blobs_verified": true,
+  "status": "same-reviewer RV74-F1 backcheck pending"
+}

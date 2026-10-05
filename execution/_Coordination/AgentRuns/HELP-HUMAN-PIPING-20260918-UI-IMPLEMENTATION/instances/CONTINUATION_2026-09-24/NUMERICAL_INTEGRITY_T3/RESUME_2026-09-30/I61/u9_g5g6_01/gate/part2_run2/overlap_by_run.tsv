@@ -1,0 +1,9 @@
+run	start	end	wall_s	samples	foreign_samples
+base RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__captured	23:02:17	23:03:03	45.932	9	0
+cand RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__captured	23:03:02	23:03:49	46.0269	10	0
+base RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__typed	23:03:49	23:04:35	45.3763	9	1
+cand RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__typed	23:04:34	23:05:21	46.0372	10	1
+base RF-LARGE-TREE-n01000-AX__dense_scrutiny__captured	23:05:21	23:06:08	46.5092	9	1
+cand RF-LARGE-TREE-n01000-AX__dense_scrutiny__captured	23:06:07	23:06:55	47.8252	9	3
+base RF-LARGE-TREE-n01000-AX__dense_scrutiny__typed	23:06:55	23:07:43	47.2695	10	3
+cand RF-LARGE-TREE-n01000-AX__dense_scrutiny__typed	23:07:42	23:08:29	46.4468	10	0

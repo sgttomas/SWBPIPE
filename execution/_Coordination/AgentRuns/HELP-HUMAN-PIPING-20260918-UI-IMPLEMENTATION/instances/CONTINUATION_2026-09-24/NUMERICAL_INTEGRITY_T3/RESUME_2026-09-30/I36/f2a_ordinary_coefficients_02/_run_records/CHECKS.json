@@ -1,0 +1,33 @@
+{
+  "status": "PASS for finite abstract checks and source metadata only",
+  "groups": 17,
+  "checker_command": "python3 -B projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/_run_records/exact_controls.py",
+  "all_origins_match": true,
+  "origin_count": 19,
+  "source_mismatches": [],
+  "history": [
+    {
+      "step": "initial deterministic checker",
+      "result": "17 groups PASS",
+      "checker_sha256": "1264b15a08bdf6ab6eaef3f93a919af918611082f06c7a0938af8452518439ba"
+    },
+    {
+      "step": "nonsemantic simplification of closed scalar balance assertion and JSON expression",
+      "result": "17 groups PASS, output byte-identical",
+      "checker_sha256": "69c2671a89d8b574cb72d8b2327335ef555f4e4f316b34971dbae31044984dfd"
+    }
+  ],
+  "exploration": "One bounded standard-library exact scalar scan over small integer pairs located the Ehat-positive/source-zero control; final checker uses the fixed 7/18/25 example. No product import or invocation.",
+  "not_run": [
+    "compiler",
+    "solver",
+    "model/product/runtime tests",
+    "host probes",
+    "reference generators"
+  ],
+  "no_product_source_edits": true,
+  "no_git_index_api_writes": true,
+  "no_delegation": true,
+  "no_full_source_copies": true,
+  "limits": "No fixed-format global fit, implementing source association, actual layout/capacity, aggregate memory/work or protected availability is qualified."
+}

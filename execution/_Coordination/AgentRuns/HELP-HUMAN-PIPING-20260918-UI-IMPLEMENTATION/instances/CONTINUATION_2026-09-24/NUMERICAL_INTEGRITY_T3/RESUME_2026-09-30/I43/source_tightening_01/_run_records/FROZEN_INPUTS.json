@@ -1,0 +1,27 @@
+{
+  "commit": "4afbac6e613203f93a499b780082b28be37f6c2c",
+  "read_method": "GIT_OPTIONAL_LOCKS=0 git show <commit>:<path>; no Git/index mutation",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I42/source_bridge_01/_run_records/debug_final.stdout",
+      "local": "frozen_inputs/native_debug.stdout",
+      "sha256": "07725ec8180d3ad8f326b42a471375ecaa667681e3939e7dbeb627e013db7599"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_vectors.rs",
+      "local": "frozen_inputs/source_bridge_vectors.rs",
+      "sha256": "fc7dc63470bc78500b32430a5e48c6dd17542fc04bbc88ef5c2f2ab0f412af9c"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_tests.rs",
+      "local": "frozen_inputs/source_bridge_tests.rs",
+      "sha256": "12bb7ec09844892532de15dd6a051d0aa5c87ceb031f9d6f093e999720681313"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+      "local": "frozen_inputs/product_certificate.rs",
+      "sha256": "6bdcc659913e6caa6687190b5f12a36d1e53e272a9880ee3c8cd12bddf300bba"
+    }
+  ],
+  "reason": "Live I42 test file changed during separately owned RV56 repair; exact_controls_06.stderr records successful frozen-input rejection. Original expected hashes retained unchanged."
+}

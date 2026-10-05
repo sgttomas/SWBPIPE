@@ -1,0 +1,86 @@
+[
+  {
+    "enum": "AttemptReason",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "line": 2477,
+    "declaration": "enum AttemptReason {\n    Stop(AttemptStop),\n    StopRule {\n        quantity: QuantityId,\n        body: u32,\n        kind: Kind,\n    },\n    VerificationFailed,\n    /// Exact H did not fit this row's published promise (escalates).\n    PublicationEnclosure {\n        quantity: QuantityId,\n        body: u32,\n        kind: Kind,\n        predicate: PublicationPredicate,\n    },\n    /// D1 revision 5a.3 (R7 \u00a74.1.6.3 item 13): `verification_estimate`.\n    VerificationEstimate {\n        quantity: QuantityId,\n        body: u32,\n        kind: Kind,\n    },\n    /// `uc`: a block with data of this body has neither Uc_c nor S_c.\n    Uc {\n        body: u32,\n    },\n    /// `theta`: \u03b8_c > 1/2 on a block with data of this body.\n    Theta {\n        body: u32,\n    },\n    /// `g_validity`: a member in scope with g > 2^(P\u221216).\n    GValidity {\n        member: u32,\n    },\n    /// `charge`: C_q above its allowance.\n    Charge {\n        quantity: QuantityId,\n        body: u32,\n        kind: Kind,\n    },\n}"
+  },
+  {
+    "enum": "AttemptStop",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "line": 145,
+    "declaration": "enum AttemptStop {\n    Budget(BudgetScope),\n    /// An exact sum exceeded the span limit (terminal: ROOT's ruling O4).\n    Span,\n    /// An exponent outside the `Wide` range (terminal).\n    Exponent,\n    /// Another `Wide` refusal (terminal; not expected for a valid source).\n    Arithmetic(WideError),\n    /// The sparse structure could not be built (terminal; internal).\n    Structure,\n    /// The pivot screen failed (escalates).\n    Pivot {\n        global_dof: usize,\n    },\n    /// A free DOF with an exactly zero diagonal (terminal).\n    ZeroDiagonal {\n        global_dof: usize,\n    },\n    /// A negative-energy pattern pair witnessed at p (terminal; a refusal).\n    NegativeEnergy {\n        i: usize,\n        j: usize,\n    },\n    /// rcond \u2264 2^-(p\u22121) (escalates).\n    Condition,\n    /// The residual gate failed after bounded refinement (escalates).\n    ResidualGate {\n        global_dof: usize,\n    },\n    /// A body's formation scale E rounds to +\u221e in binary64 (D1 revision\n    /// 5a.3, R7 \u00a74.1.6.2 item 4; ROOT's A3-0 ruling Q8): terminal.\n    ResolutionScale {\n        body: u32,\n        kind: Kind,\n    },\n    /// The new publication certificate cannot be interpreted (terminal).\n    PublicationCertificate {\n        index: Option<usize>,\n        issue: CertificateIssue,\n    },\n}"
+  },
+  {
+    "enum": "UnresolvedReason",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "line": 2605,
+    "declaration": "enum UnresolvedReason {\n    /// \"At the ceiling \u2026 the case is unresolved.\"\n    Ceiling,\n    Budget(BudgetScope),\n    ExactSumSpan,\n    ExponentRange,\n    ZeroDiagonal {\n        global_dof: usize,\n    },\n    Arithmetic(WideError),\n    /// D1 revision 5a.3 (ROOT's A3-0 ruling Q8): a body's E rounds to +\u221e;\n    /// F2a maps it to `receipt_encoding`.\n    ResolutionScaleUnencodable {\n        body: u32,\n        kind: Kind,\n    },\n    /// A selected pair's B_b not below 2^1024 (R7 \u00a74.1.6.3 item 14: derived\n    /// impossible at a selected p; kept as a guard).\n    CertifiedBoundUnencodable {\n        body: u32,\n    },\n    PublicationCertificate {\n        index: Option<usize>,\n        issue: CertificateIssue,\n    },\n}"
+  },
+  {
+    "enum": "Refusal",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "line": 2587,
+    "declaration": "enum Refusal {\n    MechanismWitnessed {\n        body: u32,\n        rigid_parameters: [f64; 6],\n    },\n    GeometryUnavailable {\n        body: u32,\n        error: StructuralError,\n    },\n    NegativeEnergy {\n        i: usize,\n        j: usize,\n    },\n    LedgerUnavailable(LedgerRefusal),\n    Structure,\n}"
+  },
+  {
+    "enum": "CombinationReason",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
+    "line": 45,
+    "declaration": "enum CombinationReason {\n    /// \"At the ceiling \u2026 `combination_unresolved`\".\n    CombinationUnresolved,\n    /// No operand, or a non-finite factor.\n    NoOperands,\n    /// An operand is itself a combination.\n    NestedCombination,\n    /// The operands differ in stiffness identity, published layout, stations\n    /// or support groups.\n    OperandsDiffer,\n    LedgerUnavailable(LedgerRefusal),\n    /// Another terminal reason of the schedule (budget, span, exponent).\n    Unresolved(UnresolvedReason),\n    /// A terminal refusal of the schedule (not expected: the operands' factor\n    /// passed).\n    Refused(Refusal),\n}"
+  },
+  {
+    "enum": "WideError",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs",
+    "line": 150,
+    "declaration": "enum WideError {\n    /// Precision outside [MIN_PRECISION, MAX_PRECISION] (or below\n    /// ATAN_MIN_PRECISION for the arctangent).\n    InvalidPrecision(u32),\n    /// Lift of a NaN or infinity.\n    NonFinite,\n    /// A result exponent outside \u00b1EXPONENT_LIMIT.\n    ExponentRange,\n    DivisionByZero,\n    NegativeSqrt,\n    /// `from_parts` with a significand that is neither zero nor normalized,\n    /// or a zero with a nonzero exponent.\n    NotNormalized,\n    /// Arctangent argument outside its domain (t \u2264 0, s \u2264 0 or 1 + c \u2264 0).\n    AngleDomain,\n    /// Internal limit of the arctangent reached (unreachable by the proof).\n    ArctangentLimit,\n    /// Split of a value of magnitude 2^1024 or more.\n    SplitOverflow,\n    Accumulator(SumError),\n    /// TwoSum or TwoProduct operand with more significant bits than the\n    /// working precision (slice K3, `multi`).\n    OperandPrecision,\n}"
+  },
+  {
+    "enum": "SumError",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs",
+    "line": 25,
+    "declaration": "enum SumError {\n    NonFinite,\n    AccumulatorOverflow,\n    NonRepresentable,\n}"
+  },
+  {
+    "enum": "SourceError",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+    "line": 190,
+    "declaration": "enum SourceError {\n    NoNodes,\n    NonFiniteCoordinate {\n        node: u32,\n    },\n    NodeOutOfRange {\n        node: u32,\n    },\n    DuplicateMemberId {\n        id: u32,\n    },\n    RepeatedMemberNode {\n        member: u32,\n    },\n    NonFiniteProperty {\n        member: u32,\n        property: MemberProperty,\n    },\n    NonPositiveProperty {\n        member: u32,\n        property: MemberProperty,\n    },\n    SubnormalDerivedPrimitive {\n        member: u32,\n        property: MemberProperty,\n    },\n    ZeroLength {\n        member: u32,\n    },\n    DegenerateAxis {\n        member: u32,\n    },\n    DuplicateSpringId {\n        id: u32,\n    },\n    NonPositiveSpring {\n        id: u32,\n    },\n    ZeroDirection {\n        id: u32,\n    },\n    NonFiniteDirection {\n        id: u32,\n    },\n    DuplicateConstraint {\n        dof: Dof,\n    },\n    NonFiniteValue {\n        dof: Dof,\n    },\n    EmptyLoadSource {\n        dof: Dof,\n    },\n    DuplicateStationId {\n        id: u32,\n    },\n    UnknownMember {\n        station: u32,\n        member: u32,\n    },\n    StationOutOfRange {\n        id: u32,\n    },\n    DuplicateSupportId {\n        id: u32,\n    },\n    SupportMismatch {\n        id: u32,\n    },\n}"
+  },
+  {
+    "enum": "QuantityId",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+    "line": 53,
+    "declaration": "enum QuantityId {\n    Displacement(Dof),\n    DisplacementMagnitude(u32),\n    EndAction {\n        member: u32,\n        end: End,\n        component: Component,\n    },\n    StationAction {\n        station: u32,\n        component: Component,\n    },\n    SpringAction {\n        spring: u32,\n        component: Component,\n    },\n    DirectionalSpringAction {\n        spring: u32,\n        component: Component,\n    },\n    Reaction(Dof),\n    SupportForceMagnitude(u32),\n    SupportMomentMagnitude(u32),\n}"
+  },
+  {
+    "enum": "StructuralError",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+    "line": 255,
+    "declaration": "enum StructuralError {\n    InvalidInput(&'static str),\n    Range(&'static str),\n    Asymmetric {\n        row: usize,\n        col: usize,\n        relative_skew: f64,\n    },\n    NumericallyUnresolved {\n        reason: &'static str,\n        global_dof: Option<usize>,\n    },\n    NegativeEnergy {\n        direction: Vec<f64>,\n        energy: f64,\n        allowance: f64,\n    },\n    Mechanism {\n        direction: Vec<f64>,\n    },\n}"
+  },
+  {
+    "enum": "FrameKernelError",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+    "line": 319,
+    "declaration": "enum FrameKernelError {\n    NonFiniteInput {\n        name: &'static str,\n        value: f64,\n    },\n    NonPositiveInput {\n        name: &'static str,\n        value: f64,\n    },\n    DegenerateAxis {\n        detail: &'static str,\n    },\n    InvalidOrientation {\n        detail: &'static str,\n    },\n    InvalidNodeIndex {\n        node_index: usize,\n        node_count: usize,\n    },\n    RepeatedElementNodeIndex {\n        node_index: usize,\n    },\n    InvalidMatrixDimensions {\n        rows: usize,\n        cols: usize,\n    },\n    InvalidVectorLength {\n        expected: usize,\n        actual: usize,\n    },\n    RepeatedRestrainedDof {\n        dof: usize,\n    },\n    RestrainedDofOutOfRange {\n        dof: usize,\n        total_dofs: usize,\n    },\n    RepeatedPrescribedDof {\n        dof: usize,\n    },\n    PrescribedDofOutOfRange {\n        dof: usize,\n        total_dofs: usize,\n    },\n    SingularSystem {\n        pivot: usize,\n    },\n    /// K2a (T3 D1 revision 5a.2 section 4.7, formation range, step 1): an\n    /// intermediate product or quotient of `local_stiffness`, formed from\n    /// nonzero finite operands, is zero, subnormal or non-finite in binary64.\n    /// `name` names the coefficient and the intermediate. The formation is\n    /// refused; it is never published as a zero or imprecise coefficient.\n    NumericalRange {\n        name: &'static str,\n    },\n}"
+  },
+  {
+    "enum": "ForceScaleReason",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+    "line": 2277,
+    "declaration": "enum ForceScaleReason {\n    /// Step 2: a nonzero census input is subnormal; its bits were lost before\n    /// the kernel.\n    SubnormalAtFormation,\n    /// Step 3: no (even) b fits the exponent span.\n    InfeasibleWindow { e_min: i32, e_max: i32 },\n    /// Step 4: the one evaluation at the chosen b also left the normal range.\n    ScaledEvaluation,\n    /// Step 5: a published action or reaction would underflow to zero or\n    /// overflow after unscaling; it is never flushed. (A residual record's\n    /// field carries its outcome instead: ROOT's K2b checkpoint-A ruling B.)\n    PublicationOutsideBinary64 { global_dof: Option<usize> },\n}"
+  },
+  {
+    "enum": "ForceScalingFailure",
+    "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "line": 1377,
+    "declaration": "enum ForceScalingFailure {\n    /// The orchestrator's named refusal (\u00a74.7 steps 2-4), with its trigger.\n    Refused(ForceScalingRefusal),\n    /// A non-range failure at the chosen b, or of the census (RV11-N2). The\n    /// orchestrator carries neither b nor the trigger (ROOT OQ1: c2).\n    Failed(ForceScaledError),\n    /// ROOT Q3: a family not admitted at b != 0.\n    NotAdmitted { family: &'static str, b: i32 },\n    /// \u00a74.7 step 5: a published value that would underflow or overflow.\n    Publication { quantity: String, b: i32 },\n    /// Defensive: the orchestrator's step 1 did not reproduce the trigger.\n    NotEngaged,\n}"
+  },
+  {
+    "enum": "ForceScaledError",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+    "line": 2337,
+    "declaration": "enum ForceScaledError {\n    Formation(crate::FrameKernelError),\n    Structural(StructuralError),\n    Refused(ForceScalingRefusal),\n}"
+  }
+]

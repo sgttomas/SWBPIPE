@@ -1,0 +1,27 @@
+{
+  "sealed_utc": "2026-10-03T07:48:50Z",
+  "payload_count": 4,
+  "files": [
+    {
+      "path": "RETURN.md",
+      "bytes": 7086,
+      "sha256": "629cad06b4b5e6c9e274fabdd5d463d58d9b90cbc2533899227945a26ddb12d9"
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "bytes": 1364,
+      "sha256": "ac5a400e97dbffa049c84ef348b9316f25d84de2023706c01aa44cb68277653a"
+    },
+    {
+      "path": "_run_records/EXECUTION.json",
+      "bytes": 3212,
+      "sha256": "113429aa40601b23ba2870ab8fd1a41e0966cc380fd404fe02e3cb0dc6f9e73e"
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "bytes": 26172,
+      "sha256": "98b87d2ba94f2af107aab3299a91998c1d16ee32c9405f6ed58793645551ba3a"
+    }
+  ],
+  "policy": "First and only seal after audit; preserve originals; corrections in new addenda."
+}

@@ -1,0 +1,128 @@
+--- P/apps/desktop/src-tauri/Cargo.lock
++++ P/apps/desktop/src-tauri/Cargo.lock
+@@ -2204,6 +2204,7 @@
+  "open_pipe_stress_nonlinear_integration",
+  "open_pipe_stress_nonlinear_supports",
+  "open_pipe_stress_primitive_loads",
++ "open_pipe_stress_result_export",
+  "open_pipe_stress_solver_diagnostics",
+  "open_pipe_stress_sparse_direct",
+  "open_pipe_stress_straight_pipe",
+--- P/core/loads/self_weight_wasm/Cargo.lock
++++ P/core/loads/self_weight_wasm/Cargo.lock
+@@ -172,6 +172,7 @@
+  "open_pipe_stress_nonlinear_integration",
+  "open_pipe_stress_nonlinear_supports",
+  "open_pipe_stress_primitive_loads",
++ "open_pipe_stress_result_export",
+  "open_pipe_stress_solver_diagnostics",
+  "open_pipe_stress_sparse_direct",
+  "open_pipe_stress_straight_pipe",
+@@ -183,6 +184,16 @@
+ ]
+ 
+ [[package]]
++name = "open_pipe_stress_result_export"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_canonical_json",
++ "open_pipe_stress_units",
++ "serde_json",
++ "sha2",
++]
++
++[[package]]
+ name = "open_pipe_stress_self_weight_wasm"
+ version = "0.1.0"
+ dependencies = [
+--- P/core/model_operations/operation_applier/Cargo.lock
++++ P/core/model_operations/operation_applier/Cargo.lock
+@@ -173,6 +173,7 @@
+  "open_pipe_stress_nonlinear_integration",
+  "open_pipe_stress_nonlinear_supports",
+  "open_pipe_stress_primitive_loads",
++ "open_pipe_stress_result_export",
+  "open_pipe_stress_solver_diagnostics",
+  "open_pipe_stress_sparse_direct",
+  "open_pipe_stress_straight_pipe",
+@@ -184,6 +185,16 @@
+ ]
+ 
+ [[package]]
++name = "open_pipe_stress_result_export"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_canonical_json",
++ "open_pipe_stress_units",
++ "serde_json",
++ "sha2",
++]
++
++[[package]]
+ name = "open_pipe_stress_solver_diagnostics"
+ version = "0.1.0"
+ dependencies = [
+--- P/core/runner/headless/Cargo.lock
++++ P/core/runner/headless/Cargo.lock
+@@ -206,6 +206,7 @@
+  "open_pipe_stress_nonlinear_integration",
+  "open_pipe_stress_nonlinear_supports",
+  "open_pipe_stress_primitive_loads",
++ "open_pipe_stress_result_export",
+  "open_pipe_stress_solver_diagnostics",
+  "open_pipe_stress_sparse_direct",
+  "open_pipe_stress_straight_pipe",
+--- P/validation/benchmarks/numerical_integrity/Cargo.lock
++++ P/validation/benchmarks/numerical_integrity/Cargo.lock
+@@ -148,6 +148,7 @@
+  "open_pipe_stress_nonlinear_integration",
+  "open_pipe_stress_nonlinear_supports",
+  "open_pipe_stress_primitive_loads",
++ "open_pipe_stress_result_export",
+  "open_pipe_stress_solver_diagnostics",
+  "open_pipe_stress_sparse_direct",
+  "open_pipe_stress_straight_pipe",
+@@ -159,6 +160,16 @@
+ ]
+ 
+ [[package]]
++name = "open_pipe_stress_result_export"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_canonical_json",
++ "open_pipe_stress_units",
++ "serde_json",
++ "sha2",
++]
++
++[[package]]
+ name = "open_pipe_stress_solver_diagnostics"
+ version = "0.1.0"
+ dependencies = [
+--- P/validation/benchmarks/physics_audit_regression/Cargo.lock
++++ P/validation/benchmarks/physics_audit_regression/Cargo.lock
+@@ -169,6 +169,7 @@
+  "open_pipe_stress_nonlinear_integration",
+  "open_pipe_stress_nonlinear_supports",
+  "open_pipe_stress_primitive_loads",
++ "open_pipe_stress_result_export",
+  "open_pipe_stress_solver_diagnostics",
+  "open_pipe_stress_sparse_direct",
+  "open_pipe_stress_straight_pipe",
+@@ -180,6 +181,16 @@
+ ]
+ 
+ [[package]]
++name = "open_pipe_stress_result_export"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_canonical_json",
++ "open_pipe_stress_units",
++ "serde_json",
++ "sha2",
++]
++
++[[package]]
+ name = "open_pipe_stress_solver_diagnostics"
+ version = "0.1.0"
+ dependencies = [

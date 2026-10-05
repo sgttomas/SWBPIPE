@@ -1,0 +1,498 @@
+{
+ "py": {
+  "delta_07f_base__07g_cand_changed": [],
+  "new_in_07g": {
+   "mutations:f5_ordinary_refs_list_invocation_level_m10": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_list_other_case": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_list_retained_precision_m09": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_omit_naming_diagnostic": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_out_of_envelope_order": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_relaxed_d6a_form": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ]
+  },
+  "07g_base_vs_cand_changed": {
+   "mutations:f5_ordinary_refs_list_invocation_level_m10": [
+    {
+     "classes": [
+      66,
+      1,
+      6,
+      1
+     ],
+     "eligible": false,
+     "pass": true,
+     "standing": "needs_recompute"
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_list_other_case": [
+    {
+     "classes": [
+      66,
+      68,
+      12,
+      2
+     ],
+     "eligible": false,
+     "pass": true,
+     "standing": "needs_recompute"
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_list_retained_precision_m09": [
+    {
+     "classes": [
+      66,
+      1,
+      6,
+      1
+     ],
+     "eligible": false,
+     "pass": true,
+     "standing": "needs_recompute"
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_omit_naming_diagnostic": [
+    {
+     "classes": [
+      66,
+      1,
+      6,
+      1
+     ],
+     "eligible": false,
+     "pass": true,
+     "standing": "needs_recompute"
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_out_of_envelope_order": [
+    {
+     "classes": [
+      66,
+      1,
+      6,
+      1
+     ],
+     "eligible": false,
+     "pass": true,
+     "standing": "needs_recompute"
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_relaxed_d6a_form": [
+    {
+     "classes": [
+      66,
+      1,
+      6,
+      1
+     ],
+     "eligible": false,
+     "pass": true,
+     "standing": "needs_recompute"
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ]
+  },
+  "07f_unrepaired_under_cand": {
+   "changed": 173,
+   "cases_refused": 15,
+   "must_pass_refused": 22,
+   "mutations_changed": 136
+  },
+  "07g_cand_vs_expected_misses": [],
+  "07f_base_vs_expected_misses": [],
+  "eligible_any": false
+ },
+ "rs": {
+  "delta_07f_base__07g_cand_changed": [],
+  "new_in_07g": {
+   "mutations:f5_ordinary_refs_list_invocation_level_m10": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_list_other_case": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_list_retained_precision_m09": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_omit_naming_diagnostic": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_out_of_envelope_order": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_relaxed_d6a_form": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ]
+  },
+  "07g_base_vs_cand_changed": {
+   "mutations:f5_ordinary_refs_list_invocation_level_m10": [
+    {
+     "classes": [
+      66,
+      1,
+      6,
+      1
+     ],
+     "eligible": false,
+     "not_covered": 0,
+     "pass": true
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_list_other_case": [
+    {
+     "classes": [
+      66,
+      68,
+      12,
+      2
+     ],
+     "eligible": false,
+     "not_covered": 0,
+     "pass": true
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_list_retained_precision_m09": [
+    {
+     "classes": [
+      66,
+      1,
+      6,
+      1
+     ],
+     "eligible": false,
+     "not_covered": 0,
+     "pass": true
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_omit_naming_diagnostic": [
+    {
+     "classes": [
+      66,
+      1,
+      6,
+      1
+     ],
+     "eligible": false,
+     "not_covered": 0,
+     "pass": true
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_out_of_envelope_order": [
+    {
+     "classes": [
+      66,
+      1,
+      6,
+      1
+     ],
+     "eligible": false,
+     "not_covered": 0,
+     "pass": true
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_relaxed_d6a_form": [
+    {
+     "classes": [
+      66,
+      1,
+      6,
+      1
+     ],
+     "eligible": false,
+     "not_covered": 0,
+     "pass": true
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ]
+  },
+  "07f_unrepaired_under_cand": {
+   "changed": 173,
+   "cases_refused": 15,
+   "must_pass_refused": 22,
+   "mutations_changed": 136
+  },
+  "07g_cand_vs_expected_misses": [],
+  "07f_base_vs_expected_misses": [],
+  "eligible_any": false
+ },
+ "ts": {
+  "delta_07f_base__07g_cand_changed": [],
+  "new_in_07g": {
+   "mutations:f5_ordinary_refs_omit_naming_diagnostic": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_out_of_envelope_order": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_list_retained_precision_m09": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_list_invocation_level_m10": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_list_other_case": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_relaxed_d6a_form": [
+    null,
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ]
+  },
+  "07g_base_vs_cand_changed": {
+   "mutations:f5_ordinary_refs_omit_naming_diagnostic": [
+    {
+     "pass": true,
+     "eligible": false,
+     "standing": "needs_recompute",
+     "classes": [
+      66,
+      1,
+      6,
+      1
+     ]
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_out_of_envelope_order": [
+    {
+     "pass": true,
+     "eligible": false,
+     "standing": "needs_recompute",
+     "classes": [
+      66,
+      1,
+      6,
+      1
+     ]
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_list_retained_precision_m09": [
+    {
+     "pass": true,
+     "eligible": false,
+     "standing": "needs_recompute",
+     "classes": [
+      66,
+      1,
+      6,
+      1
+     ]
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_list_invocation_level_m10": [
+    {
+     "pass": true,
+     "eligible": false,
+     "standing": "needs_recompute",
+     "classes": [
+      66,
+      1,
+      6,
+      1
+     ]
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_list_other_case": [
+    {
+     "pass": true,
+     "eligible": false,
+     "standing": "needs_recompute",
+     "classes": [
+      66,
+      68,
+      12,
+      2
+     ]
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ],
+   "mutations:f5_ordinary_refs_relaxed_d6a_form": [
+    {
+     "pass": true,
+     "eligible": false,
+     "standing": "needs_recompute",
+     "classes": [
+      66,
+      1,
+      6,
+      1
+     ]
+    },
+    [
+     "G5",
+     "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    ]
+   ]
+  },
+  "07f_unrepaired_under_cand": {
+   "changed": 173,
+   "cases_refused": 15,
+   "must_pass_refused": 22,
+   "mutations_changed": 136
+  },
+  "07g_cand_vs_expected_misses": [],
+  "07f_base_vs_expected_misses": [],
+  "eligible_any": false
+ },
+ "parity_07g_cand_diffs": {
+  "mutations:g7_maximum_off_enclosure": [
+   [
+    "G7",
+    "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+   ],
+   [
+    "G7",
+    "SOURCE_PREVIEW_PHYSICS_EXTREMA_BOUNDS"
+   ],
+   [
+    "G7",
+    "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+   ]
+  ]
+ }
+}

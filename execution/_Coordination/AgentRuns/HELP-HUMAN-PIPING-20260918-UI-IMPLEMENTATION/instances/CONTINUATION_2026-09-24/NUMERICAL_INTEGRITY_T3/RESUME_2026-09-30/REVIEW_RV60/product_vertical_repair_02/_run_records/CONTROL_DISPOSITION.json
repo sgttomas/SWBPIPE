@@ -1,0 +1,13 @@
+{
+  "exit": 101,
+  "expected": true,
+  "passed": 7,
+  "failed": 1,
+  "failed_test": "rv60_g5a_join_mutation_controls",
+  "failure_site": "old unchanged unwrap of invalid final mode binding",
+  "observed_refusal": "Association(\"ordinary sparse mode sign\")",
+  "interpretation": "The original test encoded pre-repair acceptance at this line; its unchanged failure is the expected F2 discriminator reversal, not an implementation regression. Numeric/G5a prefix before the invalid binding completed successfully. No old test or original control byte was altered.",
+  "F1_labels_all_false": true,
+  "F2_mode_metadata_label_false": true,
+  "new_accounting_controls_passed": 2
+}

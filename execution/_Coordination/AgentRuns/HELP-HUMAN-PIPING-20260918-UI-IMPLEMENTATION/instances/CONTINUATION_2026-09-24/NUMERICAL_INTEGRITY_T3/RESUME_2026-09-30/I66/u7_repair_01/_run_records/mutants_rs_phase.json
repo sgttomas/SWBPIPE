@@ -1,0 +1,41 @@
+[
+ {
+  "id": "R1_rs_condition_removed_own_cases",
+  "status": "KILLED",
+  "killed_by": [
+   "u6a_classification_summary_counts_validated_classes",
+   "u7_d_u7_4_forms_rust_side_standing_and_summary"
+  ],
+  "seconds": 34.4
+ },
+ {
+  "id": "R2_rs_always_current",
+  "status": "KILLED",
+  "killed_by": [
+   "u6_doc_hidden_seams_have_no_product_callers",
+   "u6_declared_differences_rust",
+   "u6a_classification_summary_counts_validated_classes",
+   "u7_d_u7_4_forms_rust_side_standing_and_summary"
+  ],
+  "seconds": 15.2
+ },
+ {
+  "id": "R3_rs_never_current",
+  "status": "KILLED",
+  "killed_by": [
+   "u6_doc_hidden_seams_have_no_product_callers",
+   "u6a_classification_summary_counts_validated_classes",
+   "u7_d_u7_4_forms_rust_side_standing_and_summary"
+  ],
+  "seconds": 34.3
+ },
+ {
+  "id": "R4_rs_refs_dropped_at_entry",
+  "status": "KILLED",
+  "killed_by": [
+   "u6a_classification_summary_counts_validated_classes",
+   "u7_d_u7_4_forms_rust_side_standing_and_summary"
+  ],
+  "seconds": 34.7
+ }
+]

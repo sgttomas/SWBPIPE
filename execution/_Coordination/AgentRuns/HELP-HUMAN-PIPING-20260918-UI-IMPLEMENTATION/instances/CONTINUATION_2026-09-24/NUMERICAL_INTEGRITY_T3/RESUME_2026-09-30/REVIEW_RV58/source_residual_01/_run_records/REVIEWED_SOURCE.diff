@@ -1,0 +1,2388 @@
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+index 1710873473..8ac7168579 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -5575,3 +5575,192 @@ impl RetainedSolve {
+ #[cfg(test)]
+ #[path = "../../../tests/retained_k4/source_bridge_tests.rs"]
+ mod source_bridge_tests;
++
++/// Private trial correction only. The source residual, not factor accuracy,
++/// establishes its usefulness. All arithmetic owners are collected on failure.
++#[derive(Debug, Clone, PartialEq)]
++pub(crate) enum SourceCorrectionError {
++    Arithmetic(AttemptStop),
++    Storage,
++    CountRange,
++    Identity,
++}
++impl From<AttemptStop> for SourceCorrectionError {
++    fn from(e: AttemptStop) -> Self {
++        Self::Arithmetic(e)
++    }
++}
++impl From<WideError> for SourceCorrectionError {
++    fn from(e: WideError) -> Self {
++        Self::Arithmetic(e.into())
++    }
++}
++#[derive(Debug, Default)]
++pub(crate) struct SourceCorrectionWork {
++    pub(crate) cast: AttemptWork,
++    pub(crate) factor: AttemptWork,
++    /// Entered cast elements and exact widening copy limbs. Core round/factor
++    /// internal visits and allocation remain unqualified auxiliary work, not
++    /// invented spent counts reconstructed from their safety upper bounds.
++    pub(crate) visits: WorkTotal,
++    pub(crate) calls: WorkTotal,
++    pub(crate) rhs_capacity: usize,
++    pub(crate) output_capacity: usize,
++    pub(crate) converted_capacity: usize,
++    #[cfg(all(test))]
++    pub(crate) actual_rhs: Vec<Wide<16>>,
++}
++impl SourceCorrectionWork {
++    pub(crate) fn status(&self) -> WorkStatus {
++        self.cast
++            .checked_lme()
++            .status()
++            .join(self.factor.checked_lme().status())
++            .join(self.visits.status())
++            .join(self.calls.status())
++    }
++    fn visit(&mut self, n: usize) -> Result<(), SourceCorrectionError> {
++        let n = u64::try_from(n).map_err(|_| SourceCorrectionError::CountRange)?;
++        self.visits = self.visits.add(WorkTotal::exact_count(n));
++        self.status().fault().map_or(Ok(()), |f| {
++            Err(SourceCorrectionError::Arithmetic(
++                AttemptStop::WorkAccounting(f),
++            ))
++        })
++    }
++}
++#[derive(Debug)]
++pub(crate) struct SourceCorrectionSpent {
++    result: Result<Vec<Wide<16>>, SourceCorrectionError>,
++    pub(crate) work: SourceCorrectionWork,
++}
++impl SourceCorrectionSpent {
++    pub(crate) fn into_parts(
++        self,
++    ) -> (
++        Result<Vec<Wide<16>>, SourceCorrectionError>,
++        SourceCorrectionWork,
++    ) {
++        let result = match self.result {
++            Err(e) => Err(e),
++            Ok(v) => match self.work.status().fault() {
++                Some(f) => Err(SourceCorrectionError::Arithmetic(
++                    AttemptStop::WorkAccounting(f),
++                )),
++                None => Ok(v),
++            },
++        };
++        (result, self.work)
++    }
++}
++fn source_correction_at<const L: usize>(
++    factor: &RetainedFactor<L>,
++    p: u32,
++    midpoint: Vec<Wide<16>>,
++    work: &mut SourceCorrectionWork,
++) -> Result<Vec<Wide<16>>, SourceCorrectionError>
++where
++    Wide<L>: SupportedWidth,
++{
++    let n = midpoint.len();
++    // These preflights do not qualify factor.rs's existing collect/vec allocations.
++    std::alloc::Layout::array::<Wide<L>>(n).map_err(|_| SourceCorrectionError::CountRange)?;
++    std::alloc::Layout::array::<Wide<16>>(n).map_err(|_| SourceCorrectionError::CountRange)?;
++    let mut rhs = Vec::new();
++    rhs.try_reserve_exact(n)
++        .map_err(|_| SourceCorrectionError::Storage)?;
++    work.rhs_capacity = rhs.capacity();
++    let mut cast = WideContext::<L>::new(p)?;
++    let cast_result = (|| -> Result<(), SourceCorrectionError> {
++        for value in &midpoint {
++            work.visit(1)?;
++            rhs.push(cast.round(value)?); // explicit RN-even to matching P
++        }
++        Ok(())
++    })();
++    work.cast.record(&cast);
++    drop(cast);
++    drop(midpoint);
++    cast_result?;
++    work.visit(0)?;
++    #[cfg(test)]
++    {
++        work.actual_rhs = rhs.iter().map(Wide::<L>::widen::<16>).collect();
++    }
++    let mut context = WideContext::<L>::new(p)?;
++    let result = source_factor_once(factor, &rhs, &mut context, work);
++    drop(context);
++    drop(rhs); // RHS no longer overlaps conversion of the retained P output.
++    let output = result?;
++    let mut converted = Vec::new();
++    converted
++        .try_reserve_exact(output.len())
++        .map_err(|_| SourceCorrectionError::Storage)?;
++    work.converted_capacity = converted.capacity();
++    for value in &output {
++        work.visit(L)?; // actual copied source limbs; widening is exact
++        converted.push(value.widen::<16>());
++    }
++    Ok(converted)
++}
++fn source_factor_once<const L: usize>(
++    factor: &RetainedFactor<L>,
++    rhs: &[Wide<L>],
++    context: &mut WideContext<L>,
++    work: &mut SourceCorrectionWork,
++) -> Result<Vec<Wide<L>>, SourceCorrectionError>
++where
++    Wide<L>: SupportedWidth,
++{
++    work.visit(0)?;
++    work.calls = work.calls.add(WorkTotal::exact_count(1));
++    work.visit(0)?;
++    let result = factor.solve_scaled(context, rhs);
++    work.factor.record(context); // same producing context, before any failure exit
++    let output = result?;
++    work.output_capacity = output.capacity();
++    work.visit(0)?;
++    Ok(output)
++}
++impl SourceBridgeView<'_> {
++    pub(crate) fn source_correction(&self, midpoint: Vec<Wide<16>>) -> SourceCorrectionSpent {
++        let mut work = SourceCorrectionWork::default();
++        let result = (|| {
++            let nf = self.group().ordering.free.len();
++            if midpoint.len() != nf {
++                return Err(SourceCorrectionError::Identity);
++            }
++            let p = self.owner.evidence.verification_precision;
++            macro_rules! apply {
++                ($slot:expr) => {{
++                    let shared = $slot
++                        .as_ref()
++                        .and_then(|v| v.as_ref().ok())
++                        .ok_or(SourceCorrectionError::Identity)?;
++                    if shared.p != p
++                        || shared.factor.first() != self.group().ordering.first
++                        || !std::ptr::eq(shared.factor.scale(), self.scales)
++                    {
++                        return Err(SourceCorrectionError::Identity);
++                    }
++                    source_correction_at(&shared.factor, p, midpoint, &mut work)
++                }};
++            }
++            match p {
++                256 => apply!(self.owner.cache.s256),
++                512 => apply!(self.owner.cache.s512),
++                1024 => apply!(self.owner.cache.s1024),
++                _ => Err(SourceCorrectionError::Identity),
++            }
++        })();
++        let result = match result {
++            Err(e) => Err(e),
++            Ok(v) => work.visit(0).map(|()| v),
++        };
++        SourceCorrectionSpent { result, work }
++    }
++}
++
++#[cfg(test)]
++#[path = "../../../tests/retained_k4/source_residual_tests.rs"]
++mod source_residual_tests;
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs
+index 3489a84253..8703ae750a 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs
+@@ -18,7 +18,7 @@ use super::wide::multi::{Binary64Outcome, SupportedWidth, WideContext};
+ use super::wide::Wide;
+ use super::wide_sum::ExactWideSum;
+ 
+-mod certificate;
++pub(super) mod certificate;
+ 
+ /// The direction of a bound's rounding.
+ #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs
+index 98c572852d..971fb0bb62 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs
+@@ -126,12 +126,13 @@ enum Entry {
+     Div = 3,
+     R4 = 4,
+     B64U = 5,
++    Sqrt = 6,
+ }
+ #[derive(Debug)]
+ pub(super) struct NumericWork {
+     wide: AttemptWork,
+     sums: SumWork,
+-    entries: [WorkTotal; 6],
++    entries: [WorkTotal; 7],
+     // No rounded binary64 arithmetic is performed by this component. Conversion
+     // entries are counted separately; abs/successor are bit operations.
+     f64_arithmetic: WorkTotal,
+@@ -142,7 +143,7 @@ impl NumericWork {
+         Self {
+             wide: AttemptWork::default(),
+             sums: SumWork::default(),
+-            entries: [WorkTotal::zero(); 6],
++            entries: [WorkTotal::zero(); 7],
+             f64_arithmetic: WorkTotal::zero(),
+             status: WorkStatus::default(),
+         }
+@@ -591,3 +592,5 @@ fn build_member(
+ mod tests;
+ 
+ pub(crate) mod bridge;
++
++pub(crate) mod source_residual;
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs
+new file mode 100644
+index 0000000000..e7cc9e58a6
+--- /dev/null
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs
+@@ -0,0 +1,1081 @@
++//! Conditional exact-source enclosure about an arbitrary private finite center.
++//! One owner-bound verification-factor application; no publication replacement,
++//! PP provenance, resource admission, retry, or factor accuracy assumption.
++use super::super::adaptive::{
++    RetainedSolve, SourceBridgeView, SourceBridgeViewWork, SourceCorrectionError,
++    SourceCorrectionWork,
++};
++use super::super::recover::{End, QuantityId};
++use super::super::source::{Component, Dof, PrimitiveSource, StraightMember};
++use super::bridge::{BridgeError, ProposedMemberLaw};
++use super::*;
++
++type Error = BridgeError;
++const ZERO: Enclosure = Enclosure {
++    lo: Endpoint::ZERO,
++    hi: Endpoint::ZERO,
++};
++const ONE: Enclosure = Enclosure {
++    lo: Endpoint::ONE,
++    hi: Endpoint::ONE,
++};
++fn neg(x: Enclosure) -> Enclosure {
++    Enclosure {
++        lo: x.hi.neg(),
++        hi: x.lo.neg(),
++    }
++}
++fn point(x: f64) -> Result<Enclosure, Error> {
++    Ok(Enclosure::point(lift(x)?))
++}
++fn buffer<T: Clone>(n: usize, value: T) -> Result<Vec<T>, Error> {
++    std::alloc::Layout::array::<T>(n).map_err(|_| Error::CountRange)?;
++    let mut v = Vec::new();
++    v.try_reserve_exact(n).map_err(|_| Error::Storage)?;
++    v.resize(n, value);
++    Ok(v)
++}
++fn count_add(a: usize, b: usize) -> Result<usize, Error> {
++    a.checked_add(b).ok_or(Error::CountRange)
++}
++fn count_mul(a: usize, b: usize) -> Result<usize, Error> {
++    a.checked_mul(b).ok_or(Error::CountRange)
++}
++#[derive(Debug)]
++pub(crate) struct ResidualWork {
++    pub(crate) numeric: NumericWork,
++    pub(crate) point: AttemptWork,
++    pub(crate) view: SourceBridgeViewWork,
++    pub(crate) correction: SourceCorrectionWork,
++    /// Named entered loop events only, not a complete facade visit ledger.
++    /// Library searches, checks, initialization and scalar bit operations remain
++    /// explicit auxiliary work; no selected price makes those operations free.
++    pub(crate) visits: WorkTotal,
++    pub(crate) member_builds: WorkTotal,
++    pub(crate) frame_builds: WorkTotal,
++    pub(crate) b_products: WorkTotal,
++    pub(crate) d_products: WorkTotal,
++    pub(crate) h_products: WorkTotal,
++    /// Actual vector capacities, recorded by owner. No total byte/profile claim.
++    pub(crate) capacities: [(&'static str, usize); 9],
++    capacity_entries: usize,
++}
++impl ResidualWork {
++    fn new() -> Self {
++        Self {
++            numeric: NumericWork::new(),
++            point: AttemptWork::default(),
++            view: SourceBridgeViewWork::default(),
++            correction: SourceCorrectionWork::default(),
++            visits: WorkTotal::zero(),
++            member_builds: WorkTotal::zero(),
++            frame_builds: WorkTotal::zero(),
++            b_products: WorkTotal::zero(),
++            d_products: WorkTotal::zero(),
++            h_products: WorkTotal::zero(),
++            capacities: [("", 0); 9],
++            capacity_entries: 0,
++        }
++    }
++    pub(crate) fn status(&self) -> WorkStatus {
++        self.numeric
++            .status()
++            .join(self.point.checked_lme().status())
++            .join(self.correction.status())
++            .join(self.view.visits.status())
++            .join(self.view.f64_operations.status())
++            .join(self.visits.status())
++            .join(self.member_builds.status())
++            .join(self.frame_builds.status())
++            .join(self.b_products.status())
++            .join(self.d_products.status())
++            .join(self.h_products.status())
++    }
++    fn capacity(&mut self, name: &'static str, n: usize) -> Result<(), Error> {
++        let at = self.capacity_entries;
++        if at >= self.capacities.len() {
++            return Err(Error::CountRange);
++        }
++        self.capacities[at] = (name, n);
++        self.capacity_entries = count_add(at, 1)?;
++        Ok(())
++    }
++    fn check(&self) -> Result<(), Error> {
++        self.status().fault().map_or(Ok(()), |f| {
++            Err(NumericError::Arithmetic(AttemptStop::WorkAccounting(f)).into())
++        })
++    }
++    fn visit(&mut self) -> Result<(), Error> {
++        self.visits = self.visits.add(WorkTotal::exact_count(1));
++        self.check()
++    }
++    fn add(&mut self, a: Enclosure, b: Enclosure) -> Result<Enclosure, Error> {
++        Ok(self.numeric.add(a, b)?)
++    }
++    fn sub(&mut self, a: Enclosure, b: Enclosure) -> Result<Enclosure, Error> {
++        Ok(Enclosure {
++            lo: self
++                .numeric
++                .scalar(Entry::Sub, &a.lo, &b.hi, Toward::Down)?,
++            hi: self.numeric.scalar(Entry::Sub, &a.hi, &b.lo, Toward::Up)?,
++        })
++    }
++    fn corners(&mut self, a: Enclosure, b: Enclosure, entry: Entry) -> Result<Enclosure, Error> {
++        if matches!(entry, Entry::Div) && !positive(&b.lo) {
++            return Err(NumericError::NonpositiveDenominator.into());
++        }
++        let mut lo = None;
++        let mut hi = None;
++        for av in [a.lo, a.hi] {
++            for bv in [b.lo, b.hi] {
++                let l = self.numeric.scalar(entry, &av, &bv, Toward::Down)?;
++                let h = self.numeric.scalar(entry, &av, &bv, Toward::Up)?;
++                lo = Some(lo.map_or(l, |v| min(v, l)));
++                hi = Some(hi.map_or(h, |v| max(v, h)));
++            }
++        }
++        Ok(Enclosure {
++            lo: lo.unwrap(),
++            hi: hi.unwrap(),
++        })
++    }
++    fn mul(&mut self, a: Enclosure, b: Enclosure) -> Result<Enclosure, Error> {
++        self.corners(a, b, Entry::Mul)
++    }
++    fn div(&mut self, a: Enclosure, b: Enclosure) -> Result<Enclosure, Error> {
++        self.corners(a, b, Entry::Div)
++    }
++    fn square(&mut self, a: Enclosure) -> Result<Enclosure, Error> {
++        let upper = max(a.lo.abs(), a.hi.abs());
++        let lower = if a.lo.cmp_value(&Endpoint::ZERO) != Ordering::Greater
++            && a.hi.cmp_value(&Endpoint::ZERO) != Ordering::Less
++        {
++            Endpoint::ZERO
++        } else {
++            min(a.lo.abs(), a.hi.abs())
++        };
++        Ok(Enclosure {
++            lo: self
++                .numeric
++                .scalar(Entry::Mul, &lower, &lower, Toward::Down)?,
++            hi: self
++                .numeric
++                .scalar(Entry::Mul, &upper, &upper, Toward::Up)?,
++        })
++    }
++    fn sqrt_one(&mut self, a: Endpoint, t: Toward) -> Result<Endpoint, Error> {
++        self.numeric.begin(Entry::Sqrt)?;
++        let spent = directed::certificate::sqrt_endpoint(&a, t);
++        self.numeric.wide.merge(&spent.work());
++        self.numeric.sums.merge(&spent.sum_work());
++        self.numeric.status = self.numeric.status.join(spent.status());
++        let result = spent.result().copied().map_err(|e| match e {
++            directed::certificate::HelperError::Arithmetic(e) => NumericError::Arithmetic(e),
++            _ => NumericError::Arithmetic(AttemptStop::WorkAccounting(WorkFault::Inconsistent)),
++        });
++        Ok(self.numeric.checked(result)?)
++    }
++    fn norm(&mut self, x: &[Enclosure; 3]) -> Result<Enclosure, Error> {
++        let mut v = self.square(x[0])?;
++        for xi in &x[1..] {
++            let t = self.square(*xi)?;
++            v = self.add(v, t)?;
++        }
++        Ok(Enclosure {
++            lo: self.sqrt_one(v.lo, Toward::Down)?,
++            hi: self.sqrt_one(v.hi, Toward::Up)?,
++        })
++    }
++    fn normalize(&mut self, x: [Enclosure; 3]) -> Result<([Enclosure; 3], Enclosure), Error> {
++        let length = self.norm(&x)?;
++        if !positive(&length.lo) {
++            // Fixed-width certificate insufficiency, not physical singularity.
++            return Err(NumericError::NonpositiveDenominator.into());
++        }
++        let mut out = [ZERO; 3];
++        for k in 0..3 {
++            out[k] = self.div(x[k], length)?;
++        }
++        Ok((out, length))
++    }
++    fn nearest_add(&mut self, a: Endpoint, b: Endpoint) -> Result<Endpoint, Error> {
++        self.check()?;
++        let mut ctx = WideContext::<16>::new(1024)
++            .map_err(AttemptStop::from)
++            .map_err(NumericError::from)?;
++        let result = ctx.add(&a, &b).map_err(AttemptStop::from);
++        self.point.record(&ctx);
++        let value = result.map_err(NumericError::from)?;
++        self.check()?;
++        Ok(value)
++    }
++}
++struct Member {
++    ex: [Enclosure; 3],
++    ey: [Enclosure; 3],
++    ez: [Enclosure; 3],
++    iy: [Enclosure; 3],
++    iz: [Enclosure; 3],
++    inv: Enclosure,
++    d: [Enclosure; 4],
++    dd: [Endpoint; 4],
++    lower_length: Endpoint,
++}
++fn coefficients(
++    view: &SourceBridgeView<'_>,
++    law: &ProposedMemberLaw<'_>,
++    i: usize,
++    w: &mut ResidualWork,
++) -> Result<MemberEnclosures, Error> {
++    w.member_builds = w.member_builds.add(WorkTotal::exact_count(1));
++    w.check()?;
++    let m = &view.source().members()[i];
++    if !std::ptr::eq(m, law.member) {
++        return Err(Error::MemberOwner);
++    }
++    Ok(build_member(
++        &MemberOperands {
++            diameter: law.diameter,
++            effective_wall: law.effective_wall,
++            material: law.material,
++            admitted: AdmittedOperands {
++                e: m.elastic_modulus,
++                g: m.shear_modulus,
++                a: m.area,
++                j: m.torsion_constant,
++                iy: m.second_moment_y,
++                iz: m.second_moment_z,
++                z_hat: law.represented_z,
++            },
++        },
++        &mut w.numeric,
++    )?)
++}
++fn member(
++    view: &SourceBridgeView<'_>,
++    law: &ProposedMemberLaw<'_>,
++    i: usize,
++    w: &mut ResidualWork,
++) -> Result<Member, Error> {
++    let c = coefficients(view, law, i, w)?;
++    let source = view.source();
++    let m = law.member;
++    let (mut member, length) = frame(
++        source.nodes()[m.node_i as usize],
++        source.nodes()[m.node_j as usize],
++        m.y_reference,
++        w,
++    )?;
++    for k in 0..4 {
++        member.d[k] = w.div(c.coefficients[k], length)?;
++    }
++    member.dd = c.coefficient_differences;
++    Ok(member)
++}
++fn frame(
++    xi: [f64; 3],
++    xj: [f64; 3],
++    y_reference: [f64; 3],
++    w: &mut ResidualWork,
++) -> Result<(Member, Enclosure), Error> {
++    w.frame_builds = w.frame_builds.add(WorkTotal::exact_count(1));
++    w.check()?;
++    let mut chord = [ZERO; 3];
++    let mut yr = [ZERO; 3];
++    let mut lower_length = Endpoint::ZERO;
++    for k in 0..3 {
++        w.visit()?;
++        chord[k] = w.sub(point(xj[k])?, point(xi[k])?)?;
++        yr[k] = point(y_reference[k])?;
++        let v = chord[k];
++        let lower = if v.lo.cmp_value(&Endpoint::ZERO) != Ordering::Greater
++            && v.hi.cmp_value(&Endpoint::ZERO) != Ordering::Less
++        {
++            Endpoint::ZERO
++        } else {
++            min(v.lo.abs(), v.hi.abs())
++        };
++        lower_length = max(lower_length, lower);
++    }
++    let (ex, length) = w.normalize(chord)?;
++    let mut projection = w.mul(yr[0], ex[0])?;
++    for k in 1..3 {
++        let t = w.mul(yr[k], ex[k])?;
++        projection = w.add(projection, t)?;
++    }
++    let mut yc = [ZERO; 3];
++    for k in 0..3 {
++        let p = w.mul(projection, ex[k])?;
++        yc[k] = w.sub(yr[k], p)?;
++    }
++    let (ey, _) = w.normalize(yc)?;
++    let mut zc = [ZERO; 3];
++    for (k, (p, q)) in [(1, 2), (2, 0), (0, 1)].into_iter().enumerate() {
++        let a = w.mul(ex[p], ey[q])?;
++        let b = w.mul(ex[q], ey[p])?;
++        zc[k] = w.sub(a, b)?;
++    }
++    let (ez, _) = w.normalize(zc)?;
++    let inv = w.div(ONE, length)?;
++    let mut iy = [ZERO; 3];
++    let mut iz = [ZERO; 3];
++    for k in 0..3 {
++        iy[k] = w.mul(inv, ey[k])?;
++        iz[k] = w.mul(inv, ez[k])?;
++    }
++    Ok((
++        Member {
++            ex,
++            ey,
++            ez,
++            iy,
++            iz,
++            inv,
++            d: [ZERO; 4],
++            dd: [Endpoint::ZERO; 4],
++            lower_length,
++        },
++        length,
++    ))
++}
++fn b(m: &Member, r: usize, j: usize) -> Option<Enclosure> {
++    let k = j % 3;
++    let at_j = j >= 6;
++    let rotation = j % 6 >= 3;
++    match r {
++        0 if !rotation => Some(if at_j { m.ex[k] } else { neg(m.ex[k]) }),
++        1 if rotation => Some(if at_j { m.ex[k] } else { neg(m.ex[k]) }),
++        2 | 3 if !rotation => Some(if at_j { neg(m.iy[k]) } else { m.iy[k] }),
++        4 | 5 if !rotation => Some(if at_j { m.iz[k] } else { neg(m.iz[k]) }),
++        2 if rotation && !at_j => Some(m.ez[k]),
++        3 if rotation && at_j => Some(m.ez[k]),
++        4 if rotation && !at_j => Some(m.ey[k]),
++        5 if rotation && at_j => Some(m.ey[k]),
++        _ => None,
++    }
++}
++fn h(m: &Member, r: usize, j: usize) -> Option<Enclosure> {
++    match (r, j) {
++        (0, 0) | (1, 3) => Some(neg(ONE)),
++        (0, 6) | (1, 9) | (2, 5) | (3, 11) | (4, 4) | (5, 10) => Some(ONE),
++        (2 | 3, 1) | (4 | 5, 8) => Some(m.inv),
++        (2 | 3, 7) | (4 | 5, 2) => Some(neg(m.inv)),
++        _ => None,
++    }
++}
++const D_PATTERN: [(usize, usize, usize, i64); 10] = [
++    (0, 0, 0, 0),
++    (1, 1, 1, 0),
++    (2, 2, 2, 2),
++    (2, 3, 2, 1),
++    (3, 2, 2, 1),
++    (3, 3, 2, 2),
++    (4, 4, 3, 2),
++    (4, 5, 3, 1),
++    (5, 4, 3, 1),
++    (5, 5, 3, 2),
++];
++fn apply(m: &Member, x: &[Enclosure; 12], w: &mut ResidualWork) -> Result<[Enclosure; 6], Error> {
++    let mut bx = [ZERO; 6];
++    for r in 0..6 {
++        for j in 0..12 {
++            w.visit()?;
++            if let Some(v) = b(m, r, j) {
++                w.b_products = w.b_products.add(WorkTotal::exact_count(1));
++                w.check()?;
++                let t = w.mul(v, x[j])?;
++                bx[r] = w.add(bx[r], t)?;
++            }
++        }
++    }
++    let mut q = [ZERO; 6];
++    for (r, c, p, k) in D_PATTERN {
++        w.visit()?;
++        w.d_products = w.d_products.add(WorkTotal::exact_count(1));
++        w.check()?;
++        let t = w.mul(shift_interval(m.d[p], k)?, bx[c])?;
++        q[r] = w.add(q[r], t)?;
++    }
++    Ok(q)
++}
++fn transpose(
++    m: &Member,
++    q: &[Enclosure; 6],
++    local: bool,
++    w: &mut ResidualWork,
++) -> Result<[Enclosure; 12], Error> {
++    let mut out = [ZERO; 12];
++    for j in 0..12 {
++        for r in 0..6 {
++            w.visit()?;
++            if let Some(v) = if local { h(m, r, j) } else { b(m, r, j) } {
++                if local {
++                    w.h_products = w.h_products.add(WorkTotal::exact_count(1));
++                } else {
++                    w.b_products = w.b_products.add(WorkTotal::exact_count(1));
++                }
++                w.check()?;
++                let t = w.mul(v, q[r])?;
++                out[j] = w.add(out[j], t)?;
++            }
++        }
++    }
++    Ok(out)
++}
++fn dofs(m: &StraightMember) -> [usize; 12] {
++    std::array::from_fn(|k| (if k < 6 { m.node_i } else { m.node_j }) as usize * 6 + k % 6)
++}
++fn gather(
++    view: &SourceBridgeView<'_>,
++    center: &[Endpoint],
++    epsilon: Option<&[Endpoint]>,
++    g: usize,
++    w: &mut ResidualWork,
++) -> Result<Enclosure, Error> {
++    w.visit()?;
++    if let Some(c) = view.source().constraint(g) {
++        return point(c);
++    }
++    let a = view.group().ordering.position[g];
++    let y = center[a];
++    if let Some(eps) = epsilon {
++        let e = shift(&eps[view.group().blocks.of[a] as usize], view.scales()[a])?;
++        Ok(Enclosure {
++            lo: w.numeric.scalar(Entry::Sub, &y, &e, Toward::Down)?,
++            hi: w.numeric.scalar(Entry::Add, &y, &e, Toward::Up)?,
++        })
++    } else {
++        Ok(Enclosure::point(y))
++    }
++}
++// Same 48-entry conservative Bbar and original lower-length bound as I42.
++fn bbar(r: usize, j: usize, inv: Endpoint) -> Option<Endpoint> {
++    match r {
++        0 if j % 6 < 3 => Some(Endpoint::ONE),
++        1 if j % 6 >= 3 => Some(Endpoint::ONE),
++        2..=5 if j % 6 < 3 => Some(inv),
++        2 | 4 if (3..6).contains(&j) => Some(Endpoint::ONE),
++        3 | 5 if (9..12).contains(&j) => Some(Endpoint::ONE),
++        _ => None,
++    }
++}
++fn eta_member(
++    view: &SourceBridgeView<'_>,
++    m: &Member,
++    globals: [usize; 12],
++    eta: &mut [Endpoint],
++    w: &mut ResidualWork,
++) -> Result<(), Error> {
++    let inv = w
++        .numeric
++        .scalar(Entry::Div, &Endpoint::ONE, &m.lower_length, Toward::Up)?;
++    let mut ds = [Endpoint::ZERO; 4];
++    for k in 0..4 {
++        ds[k] = w
++            .numeric
++            .scalar(Entry::Div, &m.dd[k], &m.lower_length, Toward::Up)?;
++    }
++    let mut bx = [Endpoint::ZERO; 6];
++    for r in 0..6 {
++        for j in 0..12 {
++            w.visit()?;
++            let a = view.group().ordering.position[globals[j]];
++            if let Some(v) = bbar(r, j, inv) {
++                w.b_products = w.b_products.add(WorkTotal::exact_count(1));
++                w.check()?;
++                let s = if a == usize::MAX {
++                    Endpoint::ZERO
++                } else {
++                    shift(&Endpoint::ONE, view.scales()[a])?
++                };
++                let t = w.numeric.scalar(Entry::Mul, &v, &s, Toward::Up)?;
++                bx[r] = w.numeric.scalar(Entry::Add, &bx[r], &t, Toward::Up)?;
++            }
++        }
++    }
++    let mut q = [Endpoint::ZERO; 6];
++    for (r, c, p, k) in D_PATTERN {
++        w.visit()?;
++        w.d_products = w.d_products.add(WorkTotal::exact_count(1));
++        w.check()?;
++        let t = w
++            .numeric
++            .scalar(Entry::Mul, &shift(&ds[p], k)?, &bx[c], Toward::Up)?;
++        q[r] = w.numeric.scalar(Entry::Add, &q[r], &t, Toward::Up)?;
++    }
++    for j in 0..12 {
++        let a = view.group().ordering.position[globals[j]];
++        if a == usize::MAX {
++            continue;
++        }
++        let mut v = Endpoint::ZERO;
++        for r in 0..6 {
++            w.visit()?;
++            if let Some(c) = bbar(r, j, inv) {
++                w.b_products = w.b_products.add(WorkTotal::exact_count(1));
++                w.check()?;
++                let t = w.numeric.scalar(Entry::Mul, &c, &q[r], Toward::Up)?;
++                v = w.numeric.scalar(Entry::Add, &v, &t, Toward::Up)?;
++            }
++        }
++        eta[a] = w.numeric.scalar(
++            Entry::Add,
++            &eta[a],
++            &shift(&v, view.scales()[a])?,
++            Toward::Up,
++        )?;
++    }
++    Ok(())
++}
++fn residual(
++    view: &SourceBridgeView<'_>,
++    laws: &[ProposedMemberLaw<'_>],
++    center: &[Endpoint],
++    mut eta: Option<&mut [Endpoint]>,
++    w: &mut ResidualWork,
++) -> Result<Vec<Enclosure>, Error> {
++    let mut out = buffer(center.len(), ZERO)?;
++    w.capacity("residual", out.capacity())?;
++    for (i, law) in laws.iter().enumerate() {
++        w.visit()?;
++        let m = member(view, law, i, w)?;
++        let globals = dofs(law.member);
++        let mut x = [ZERO; 12];
++        for j in 0..12 {
++            x[j] = gather(view, center, None, globals[j], w)?;
++        }
++        let q = apply(&m, &x, w)?;
++        let action = transpose(&m, &q, false, w)?;
++        for j in 0..12 {
++            w.visit()?;
++            let a = view.group().ordering.position[globals[j]];
++            if a != usize::MAX {
++                out[a] = w.sub(out[a], action[j])?;
++            }
++        }
++        if let Some(rows) = eta.as_deref_mut() {
++            eta_member(view, &m, globals, rows, w)?;
++        }
++    }
++    // Actual individual terms, including cancelling terms; no pre-rounded net.
++    for load in view.source().loads() {
++        w.visit()?;
++        let a = view.group().ordering.position[load.dof.global()];
++        if a != usize::MAX {
++            out[a] = w.add(out[a], point(load.value)?)?;
++        }
++    }
++    for spring in view.source().springs() {
++        w.visit()?;
++        let a = view.group().ordering.position[spring.dof.global()];
++        if a != usize::MAX {
++            let t = w.mul(point(spring.stiffness)?, Enclosure::point(center[a]))?;
++            out[a] = w.sub(out[a], t)?;
++        }
++    }
++    for (a, v) in out.iter_mut().enumerate() {
++        w.visit()?;
++        *v = shift_interval(*v, view.scales()[a])?;
++    }
++    Ok(out)
++}
++fn anchored(view: &SourceBridgeView<'_>, body: u32, w: &mut ResidualWork) -> Result<bool, Error> {
++    for node in 0..view.source().node_count() {
++        w.visit()?;
++        if view.source().body_of_node(node as u32) != body {
++            continue;
++        }
++        let mut fixed = true;
++        for c in 0..6 {
++            w.visit()?;
++            fixed &= view.source().constraint(node * 6 + c).is_some();
++        }
++        if fixed {
++            return Ok(true);
++        }
++    }
++    Ok(false)
++}
++#[derive(Debug)]
++pub(crate) struct ConditionalSourceResidual<'a> {
++    pub(crate) view: SourceBridgeView<'a>,
++    pub(crate) proposed_laws: &'a [ProposedMemberLaw<'a>],
++    pub(crate) rows: Vec<Enclosure>,
++    pub(crate) alpha: Vec<Endpoint>,
++    pub(crate) epsilon: Vec<Endpoint>,
++    #[cfg(all(test))]
++    pub(crate) center: Vec<Endpoint>,
++    #[cfg(all(test))]
++    pub(crate) rho: Vec<Enclosure>,
++    #[cfg(all(test))]
++    pub(crate) initial: Vec<Enclosure>,
++    #[cfg(all(test))]
++    pub(crate) correction: Vec<Endpoint>,
++}
++#[derive(Debug)]
++pub(crate) struct ResidualSpent<'a> {
++    result: Result<ConditionalSourceResidual<'a>, Error>,
++    pub(crate) work: ResidualWork,
++}
++impl<'a> ResidualSpent<'a> {
++    pub(crate) fn result(&self) -> Result<&ConditionalSourceResidual<'a>, Error> {
++        match &self.result {
++            Err(e) => Err(e.clone()),
++            Ok(v) => {
++                self.work.check()?;
++                Ok(v)
++            }
++        }
++    }
++}
++pub(crate) fn source_residual<'a>(
++    owner: &'a RetainedSolve,
++    source: &'a PrimitiveSource,
++    identity: &[u8],
++    precision: u32,
++    laws: &'a [ProposedMemberLaw<'a>],
++) -> ResidualSpent<'a> {
++    let mut work = ResidualWork::new();
++    let view = owner.source_bridge_view(source, identity, precision);
++    work.view = view.work;
++    let result = match view.result {
++        Err(e) => Err(Error::View(e)),
++        Ok(view) => run(view, laws, &mut work),
++    };
++    let result = match result {
++        Err(e) => Err(e),
++        Ok(v) => work.check().map(|()| v),
++    };
++    ResidualSpent { result, work }
++}
++fn run<'a>(
++    view: SourceBridgeView<'a>,
++    laws: &'a [ProposedMemberLaw<'a>],
++    w: &mut ResidualWork,
++) -> Result<ConditionalSourceResidual<'a>, Error> {
++    if !view.source().directional_springs().is_empty() {
++        return Err(Error::UnsupportedDirectionalSpring);
++    }
++    if laws.len() != view.source().members().len() {
++        return Err(Error::MemberOwner);
++    }
++    let nf = view.group().ordering.free.len();
++    let nb = view.data().len();
++    for (i, law) in laws.iter().enumerate() {
++        w.visit()?;
++        coefficients(&view, law, i, w)?;
++    }
++    let mut center = buffer(nf, Endpoint::ZERO)?;
++    w.capacity("center", center.capacity())?;
++    for (a, &g) in view.group().ordering.free.iter().enumerate() {
++        w.visit()?;
++        let (row, _) = view.row(g);
++        if row.id != QuantityId::Displacement(Dof::from_global(g)) {
++            return Err(Error::RowIdentity(g));
++        }
++        center[a] = lift(row.value.value().ok_or(Error::MissingRadius(g))?)?;
++    }
++    let mut eta = buffer(nf, Endpoint::ZERO)?;
++    w.capacity("eta", eta.capacity())?;
++    let initial = residual(&view, laws, &center, Some(&mut eta), w)?;
++    let mut alpha = buffer(nb, Endpoint::ZERO)?;
++    let mut epsilon = buffer(nb, Endpoint::ZERO)?;
++    w.capacity("alpha", alpha.capacity())?;
++    w.capacity("epsilon", epsilon.capacity())?;
++    for b in 0..nb {
++        w.visit()?;
++        let body = view.group().blocks.body[b];
++        if !view.data()[b] {
++            if !anchored(&view, body, w)? {
++                return Err(Error::MissingUniquenessWarrant(body));
++            }
++            for &a in &view.group().blocks.positions[b] {
++                center[a] = Endpoint::ZERO;
++            }
++            continue;
++        }
++        let beta = shift(
++            &pos_lift(view.bound(body).ok_or(Error::View(
++                super::super::adaptive::SourceBridgeViewIssue::BodyBound,
++            ))?)?,
++            1,
++        )?;
++        let mut e = Endpoint::ZERO;
++        for &a in &view.group().blocks.positions[b] {
++            w.visit()?;
++            e = max(e, eta[a]);
++        }
++        alpha[b] = w.numeric.scalar(Entry::Mul, &beta, &e, Toward::Up)?;
++        if alpha[b].cmp_value(&Endpoint::ONE) != Ordering::Less {
++            return Err(Error::Alpha {
++                block: b,
++                alpha_hi: alpha[b],
++            });
++        }
++    }
++    drop(eta);
++    #[cfg(test)]
++    let initial_trace = initial.clone();
++    #[cfg(test)]
++    let mut correction_trace = Vec::new();
++    if view.data().iter().any(|v| *v) {
++        let mut midpoint = buffer(nf, Endpoint::ZERO)?;
++        w.capacity("midpoint", midpoint.capacity())?;
++        for (a, r) in initial.iter().enumerate() {
++            w.visit()?;
++            midpoint[a] = shift(&w.nearest_add(r.lo, r.hi)?, -1)?;
++        }
++        drop(initial);
++        let (result, spent_work) = view.source_correction(midpoint).into_parts();
++        w.correction = spent_work;
++        let correction = result.map_err(|e| match e {
++            SourceCorrectionError::Arithmetic(e) => Error::Numeric(NumericError::Arithmetic(e)),
++            SourceCorrectionError::Storage => Error::Storage,
++            SourceCorrectionError::CountRange => Error::CountRange,
++            SourceCorrectionError::Identity => {
++                Error::View(super::super::adaptive::SourceBridgeViewIssue::VerificationCache)
++            }
++        })?;
++        w.check()?;
++        for a in 0..nf {
++            w.visit()?;
++            if view.data()[view.group().blocks.of[a] as usize] {
++                center[a] = w.nearest_add(center[a], shift(&correction[a], view.scales()[a])?)?;
++            }
++        }
++        #[cfg(test)]
++        {
++            correction_trace = correction;
++        }
++    } else {
++        drop(initial);
++    }
++    let rho = residual(&view, laws, &center, None, w)?;
++    radius(&view, &alpha, &rho, &mut epsilon, w)?;
++    #[cfg(not(test))]
++    drop(rho);
++    let rows = recover(&view, laws, &center, &epsilon, w)?;
++    Ok(ConditionalSourceResidual {
++        view,
++        proposed_laws: laws,
++        rows,
++        alpha,
++        epsilon,
++        #[cfg(all(test))]
++        center,
++        #[cfg(all(test))]
++        rho,
++        #[cfg(all(test))]
++        initial: initial_trace,
++        #[cfg(all(test))]
++        correction: correction_trace,
++    })
++}
++fn radius(
++    view: &SourceBridgeView<'_>,
++    alpha: &[Endpoint],
++    rho: &[Enclosure],
++    epsilon: &mut [Endpoint],
++    w: &mut ResidualWork,
++) -> Result<(), Error> {
++    for b in 0..view.data().len() {
++        w.visit()?;
++        if !view.data()[b] {
++            continue;
++        }
++        let body = view.group().blocks.body[b];
++        let beta = shift(
++            &pos_lift(view.bound(body).ok_or(Error::View(
++                super::super::adaptive::SourceBridgeViewIssue::BodyBound,
++            ))?)?,
++            1,
++        )?;
++        let mut omega = Endpoint::ZERO;
++        for &a in &view.group().blocks.positions[b] {
++            w.visit()?;
++            omega = max(omega, max(rho[a].lo.abs(), rho[a].hi.abs()));
++        }
++        let denominator = w
++            .numeric
++            .scalar(Entry::Sub, &Endpoint::ONE, &alpha[b], Toward::Down)?;
++        if !positive(&denominator) {
++            return Err(Error::Alpha {
++                block: b,
++                alpha_hi: alpha[b],
++            });
++        }
++        let numerator = w.numeric.scalar(Entry::Mul, &beta, &omega, Toward::Up)?;
++        epsilon[b] = w
++            .numeric
++            .scalar(Entry::Div, &numerator, &denominator, Toward::Up)?;
++    }
++    Ok(())
++}
++#[cfg(test)]
++pub(crate) fn test_at_center(
++    native: &ConditionalSourceResidual<'_>,
++    center: &[Endpoint],
++) -> Result<(Vec<Enclosure>, Vec<Endpoint>, Vec<Enclosure>, ResidualWork), Error> {
++    let mut w = ResidualWork::new();
++    let rho = residual(&native.view, native.proposed_laws, center, None, &mut w)?;
++    let mut epsilon = buffer(native.alpha.len(), Endpoint::ZERO)?;
++    radius(&native.view, &native.alpha, &rho, &mut epsilon, &mut w)?;
++    let rows = recover(&native.view, native.proposed_laws, center, &epsilon, &mut w)?;
++    Ok((rho, epsilon, rows, w))
++}
++#[cfg(test)]
++pub(crate) fn test_arithmetic_controls() {
++    let mut w = ResidualWork::new();
++    let a = Enclosure {
++        lo: lift(-3.).unwrap(),
++        hi: lift(2.).unwrap(),
++    };
++    let b = Enclosure {
++        lo: lift(-5.).unwrap(),
++        hi: lift(7.).unwrap(),
++    };
++    let m = w.mul(a, b).unwrap();
++    assert_eq!(m.lo, lift(-21.).unwrap());
++    assert_eq!(m.hi, lift(15.).unwrap());
++    let q = w.square(a).unwrap();
++    assert!(q.lo.is_zero());
++    assert_eq!(q.hi, lift(9.).unwrap());
++    let div = w
++        .div(
++            a,
++            Enclosure {
++                lo: lift(2.).unwrap(),
++                hi: lift(4.).unwrap(),
++            },
++        )
++        .unwrap();
++    assert_eq!(div.lo, lift(-1.5).unwrap());
++    assert_eq!(div.hi, lift(1.).unwrap());
++    let before = w.numeric.entries[Entry::Sqrt as usize];
++    assert!(w.sqrt_one(lift(-1.).unwrap(), Toward::Down).is_err());
++    assert_eq!(
++        w.numeric.entries[Entry::Sqrt as usize].exact(),
++        Ok(before.exact().unwrap() + 1)
++    );
++    assert_eq!(w.numeric.wide.width::<16>().sqrt, 1);
++    // Exact positive source cross product is (0,0,2^-1074). The chord
++    // difference 1+2^-1074 cannot be resolved at fixed p1024. This is
++    // certificate insufficiency for a nonparallel exact source frame.
++    let mut near = ResidualWork::new();
++    let outcome = frame(
++        [-f64::from_bits(1), 0., 0.],
++        [1., 1., 0.],
++        [1., 1., 0.],
++        &mut near,
++    );
++    assert!(matches!(
++        outcome,
++        Err(Error::Numeric(NumericError::NonpositiveDenominator))
++    ));
++    assert!(near.numeric.wide.checked_lme().exact().unwrap() > 0);
++    let huge = shift(&Endpoint::ONE, 9000).unwrap();
++    let mut failed = ResidualWork::new();
++    let error = failed.add(Enclosure::point(huge), ONE).unwrap_err();
++    assert!(failed.numeric.sums.checked_lme().exact().unwrap() > 0);
++    failed.visits = WorkTotal::exact_count(u64::MAX).add(WorkTotal::exact_count(1));
++    assert!(failed.status().fault().is_some());
++    assert!(matches!(error, Error::Numeric(NumericError::Arithmetic(_))));
++}
++fn set(
++    view: &SourceBridgeView<'_>,
++    rows: &mut [Enclosure],
++    at: usize,
++    id: QuantityId,
++    value: Enclosure,
++    w: &mut ResidualWork,
++) -> Result<(), Error> {
++    w.visit()?;
++    if at >= rows.len() || view.row(at).0.id != id {
++        return Err(Error::RowIdentity(at));
++    }
++    rows[at] = value;
++    Ok(())
++}
++fn recover(
++    view: &SourceBridgeView<'_>,
++    laws: &[ProposedMemberLaw<'_>],
++    center: &[Endpoint],
++    epsilon: &[Endpoint],
++    w: &mut ResidualWork,
++) -> Result<Vec<Enclosure>, Error> {
++    let source = view.source();
++    let n = source.dof_count();
++    let q = view.owner().publish().rows.len();
++    let ends = count_add(n, source.node_count())?;
++    let stations = count_add(ends, count_mul(laws.len(), 12)?)?;
++    let springs = count_add(stations, count_mul(source.stations().len(), 6)?)?;
++    let reactions = count_add(springs, source.springs().len())?;
++    let supports = count_add(reactions, source.constraints().len())?;
++    if count_add(supports, count_mul(source.supports().len(), 2)?)? != q {
++        return Err(Error::CountRange);
++    }
++    let mut rows = buffer(q, ZERO)?;
++    w.capacity("rows", rows.capacity())?;
++    let mut reaction = buffer(source.constraints().len(), ZERO)?;
++    w.capacity("reaction", reaction.capacity())?;
++    for (i, law) in laws.iter().enumerate() {
++        w.visit()?;
++        let m = member(view, law, i, w)?;
++        let globals = dofs(law.member);
++        let mut x = [ZERO; 12];
++        for j in 0..12 {
++            x[j] = gather(view, center, Some(epsilon), globals[j], w)?;
++        }
++        let basic = apply(&m, &x, w)?;
++        let local = transpose(&m, &basic, true, w)?;
++        let global = transpose(&m, &basic, false, w)?;
++        for j in 0..12 {
++            set(
++                view,
++                &mut rows,
++                ends + i * 12 + j,
++                QuantityId::EndAction {
++                    member: law.member.id,
++                    end: if j < 6 { End::I } else { End::J },
++                    component: Component::from_index(j % 6),
++                },
++                local[j],
++                w,
++            )?;
++            if let Ok(ci) = source
++                .constraints()
++                .binary_search_by_key(&globals[j], |c| c.dof.global())
++            {
++                reaction[ci] = w.add(reaction[ci], global[j])?;
++            }
++        }
++        for (si, station) in source.stations().iter().enumerate() {
++            w.visit()?;
++            if station.member != law.member.id {
++                continue;
++            }
++            let t = point(station.fraction)?;
++            let tm1 = w.sub(t, ONE)?;
++            for c in 0..6 {
++                let v = if c < 4 {
++                    local[6 + c]
++                } else {
++                    let a = w.mul(t, local[6 + c])?;
++                    let b = w.mul(tm1, local[c])?;
++                    w.add(a, b)?
++                };
++                set(
++                    view,
++                    &mut rows,
++                    stations + si * 6 + c,
++                    QuantityId::StationAction {
++                        station: station.id,
++                        component: Component::from_index(c),
++                    },
++                    v,
++                    w,
++                )?;
++            }
++        }
++    }
++    for g in 0..n {
++        let v = gather(view, center, Some(epsilon), g, w)?;
++        set(
++            view,
++            &mut rows,
++            g,
++            QuantityId::Displacement(Dof::from_global(g)),
++            v,
++            w,
++        )?;
++    }
++    for node in 0..source.node_count() {
++        let v = w.norm(&[rows[node * 6], rows[node * 6 + 1], rows[node * 6 + 2]])?;
++        set(
++            view,
++            &mut rows,
++            n + node,
++            QuantityId::DisplacementMagnitude(node as u32),
++            v,
++            w,
++        )?;
++    }
++    for (si, spring) in source.springs().iter().enumerate() {
++        w.visit()?;
++        let action = neg(w.mul(point(spring.stiffness)?, rows[spring.dof.global()])?);
++        set(
++            view,
++            &mut rows,
++            springs + si,
++            QuantityId::SpringAction {
++                spring: spring.id,
++                component: spring.dof.component,
++            },
++            action,
++            w,
++        )?;
++        if let Ok(ci) = source
++            .constraints()
++            .binary_search_by_key(&spring.dof.global(), |c| c.dof.global())
++        {
++            reaction[ci] = w.sub(reaction[ci], action)?;
++        }
++    }
++    for load in source.loads() {
++        w.visit()?;
++        if let Ok(ci) = source
++            .constraints()
++            .binary_search_by_key(&load.dof.global(), |c| c.dof.global())
++        {
++            reaction[ci] = w.sub(reaction[ci], point(load.value)?)?;
++        }
++    }
++    for (ci, c) in source.constraints().iter().enumerate() {
++        set(
++            view,
++            &mut rows,
++            reactions + ci,
++            QuantityId::Reaction(c.dof),
++            reaction[ci],
++            w,
++        )?;
++    }
++    for (si, support) in source.supports().iter().enumerate() {
++        let mut components = [ZERO; 6];
++        for (ci, c) in source.constraints().iter().enumerate() {
++            w.visit()?;
++            if c.dof.node == support.node && support.restrained[c.dof.component.index()] {
++                let k = c.dof.component.index();
++                components[k] = w.add(components[k], reaction[ci])?;
++            }
++        }
++        for id in &support.springs {
++            for (ki, spring) in source.springs().iter().enumerate() {
++                w.visit()?;
++                if spring.id == *id {
++                    let k = spring.dof.component.index();
++                    components[k] = w.add(components[k], rows[springs + ki])?;
++                }
++            }
++        }
++        let force = w.norm(&[components[0], components[1], components[2]])?;
++        let moment = w.norm(&[components[3], components[4], components[5]])?;
++        set(
++            view,
++            &mut rows,
++            supports + si * 2,
++            QuantityId::SupportForceMagnitude(support.id),
++            force,
++            w,
++        )?;
++        set(
++            view,
++            &mut rows,
++            supports + si * 2 + 1,
++            QuantityId::SupportMomentMagnitude(support.id),
++            moment,
++            w,
++        )?;
++    }
++    Ok(rows)
++}
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_tests.rs b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_tests.rs
+new file mode 100644
+index 0000000000..b41dd67b11
+--- /dev/null
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_tests.rs
+@@ -0,0 +1,823 @@
++//! Actual native owner -> checked view -> conditional source bridge witnesses.
++//! The exact oracle is generated independently from closed cantilever equations.
++use super::super::product_certificate::{bridge::*, source_residual::*, MaterialOperands};
++use super::super::recover::End;
++use super::super::source::{
++    Component, Constraint, NodalLoad, SourceParts, Station, StraightMember, SupportGroup,
++};
++use super::*;
++use std::cmp::Ordering as Cmp;
++#[path = "source_residual_vectors.rs"]
++mod oracle;
++
++fn source(loaded: bool, cancelled: bool) -> PrimitiveSource {
++    let mut loads = Vec::new();
++    for c in [Component::Ux, Component::Uy, Component::Rx] {
++        loads.push(NodalLoad {
++            dof: Dof {
++                node: 1,
++                component: c,
++            },
++            value: if loaded { 1.0 } else { 0.0 },
++            source_id: format!("tip-{c:?}"),
++        });
++    }
++    if cancelled {
++        for value in [1.0, -1.0] {
++            loads.push(NodalLoad {
++                dof: Dof {
++                    node: 1,
++                    component: Component::Ux,
++                },
++                value,
++                source_id: format!("cancel-{value}"),
++            });
++        }
++    }
++    PrimitiveSource::new(SourceParts {
++        nodes: vec![[0.0; 3], [1.0, 0.0, 0.0]],
++        members: vec![StraightMember {
++            id: 7,
++            node_i: 0,
++            node_j: 1,
++            elastic_modulus: f64::from_bits(oracle::E),
++            shear_modulus: f64::from_bits(oracle::G),
++            area: f64::from_bits(oracle::A),
++            second_moment_y: f64::from_bits(oracle::I),
++            second_moment_z: f64::from_bits(oracle::I),
++            torsion_constant: f64::from_bits(oracle::J),
++            y_reference: [0.0, 1.0, 0.0],
++        }],
++        constraints: Component::ALL
++            .iter()
++            .map(|&c| Constraint {
++                dof: Dof {
++                    node: 0,
++                    component: c,
++                },
++                value: 0.0,
++            })
++            .collect(),
++        loads,
++        stations: [0.0, 0.25, 1.0]
++            .iter()
++            .enumerate()
++            .map(|(i, &fraction)| Station {
++                id: 17 + i as u32,
++                member: 7,
++                fraction,
++            })
++            .collect(),
++        supports: vec![SupportGroup {
++            id: 3,
++            node: 0,
++            restrained: [true; 6],
++            springs: vec![],
++            directional_springs: vec![],
++        }],
++        ..SourceParts::default()
++    })
++    .unwrap()
++}
++fn solved(source: PrimitiveSource) -> Box<RetainedSolve> {
++    match solve_case(
++        source,
++        CaseLimit::new(u64::MAX),
++        &mut InvocationMeter::new(u64::MAX),
++    ) {
++        CaseOutcome::Selected(s) => s,
++        other => panic!("small native source did not select: {other:?}"),
++    }
++}
++fn laws(owner: &RetainedSolve) -> [ProposedMemberLaw<'_>; 1] {
++    [ProposedMemberLaw {
++        member: &owner.source().members()[0],
++        diameter: f64::from_bits(oracle::D),
++        effective_wall: f64::from_bits(oracle::T),
++        material: MaterialOperands::Ordinary {
++            e: f64::from_bits(oracle::E),
++            g: f64::from_bits(oracle::G),
++        },
++        represented_z: f64::from_bits(oracle::Z),
++    }]
++}
++fn endpoint(b: oracle::Bits) -> Wide<16> {
++    Wide::<16>::from_parts(b.0, b.1, b.2).unwrap()
++}
++fn pair(p: (oracle::Bits, oracle::Bits)) -> (Wide<16>, Wide<16>) {
++    (endpoint(p.0), endpoint(p.1))
++}
++fn point(x: f64) -> (Wide<16>, Wide<16>) {
++    let v = Wide::<16>::from_f64(x).unwrap();
++    (v, v)
++}
++fn exact(id: QuantityId, geometric: bool, loaded: bool) -> (Wide<16>, Wide<16>) {
++    if !loaded {
++        return point(0.0);
++    }
++    match id {
++        QuantityId::Displacement(d) => {
++            if d.node == 0 {
++                point(0.0)
++            } else {
++                pair(
++                    (if geometric {
++                        oracle::G_MOTION
++                    } else {
++                        oracle::K_MOTION
++                    })[d.component.index()],
++                )
++            }
++        }
++        QuantityId::DisplacementMagnitude(node) => {
++            if node == 0 {
++                point(0.0)
++            } else {
++                pair(if geometric {
++                    oracle::G_MAG
++                } else {
++                    oracle::K_MAG
++                })
++            }
++        }
++        QuantityId::EndAction { end, component, .. } => point(match (end, component) {
++            (End::I, Component::Ux | Component::Uy | Component::Rx | Component::Rz) => -1.0,
++            (End::J, Component::Ux | Component::Uy | Component::Rx) => 1.0,
++            _ => 0.0,
++        }),
++        QuantityId::StationAction { station, component } => point(match component {
++            Component::Ux | Component::Uy | Component::Rx => 1.0,
++            Component::Rz => match station {
++                17 => 1.0,
++                18 => 0.75,
++                19 => 0.0,
++                _ => panic!(),
++            },
++            _ => 0.0,
++        }),
++        QuantityId::Reaction(d) => point(match d.component {
++            Component::Ux | Component::Uy | Component::Rx | Component::Rz => -1.0,
++            _ => 0.0,
++        }),
++        QuantityId::SupportForceMagnitude(_) | QuantityId::SupportMomentMagnitude(_) => {
++            pair(oracle::ROOT_TWO)
++        }
++        _ => panic!("not in closed native oracle"),
++    }
++}
++fn encoded(w: &Wide<16>) -> String {
++    let (neg, e, limbs) = w.parts();
++    let hex = limbs
++        .iter()
++        .rev()
++        .map(|v| format!("{v:016x}"))
++        .collect::<String>();
++    format!("[{neg},{e},\"{hex}\"]")
++}
++
++fn run<'a>(s: &'a RetainedSolve, law: &'a [ProposedMemberLaw<'a>]) -> ResidualSpent<'a> {
++    source_residual(
++        s,
++        s.source(),
++        &s.evidence().source_encoding,
++        s.selected_precision(),
++        law,
++    )
++}
++#[test]
++fn source_residual_actual_zero_loaded_witness() {
++    for loaded in [false, true] {
++        let s = solved(source(loaded, false));
++        let original = s.publish().clone();
++        let input = laws(&s);
++        let spent = run(&s, &input);
++        let native = spent.result().unwrap();
++        let label = if loaded { "loaded" } else { "zero" };
++        assert_eq!(
++            spent.work.correction.calls.exact(),
++            Ok(if loaded { 1 } else { 0 })
++        );
++        assert_eq!(spent.work.member_builds.exact(), Ok(4));
++        assert_eq!(spent.work.frame_builds.exact(), Ok(3));
++        assert_eq!(s.publish(), &original);
++        let mut passed = 0;
++        for (i, row) in s.publish().rows.iter().enumerate() {
++            let (glo, ghi) = exact(row.id, true, loaded);
++            let (lo, hi) = native.rows[i].endpoints();
++            assert_ne!(
++                lo.cmp_value(&glo),
++                Cmp::Greater,
++                "{label} {:?} lower",
++                row.id
++            );
++            assert_ne!(hi.cmp_value(&ghi), Cmp::Less, "{label} {:?} upper", row.id);
++            let x = row.value.value().unwrap();
++            let scale =
++                f64::from_bits(s.publish().body_scales[row.body as usize * 4 + row.kind.index()].2);
++            let (class, bound) = match row.class {
++                RowClass::InputDerived => ("input", 0),
++                RowClass::AbsoluteVerified { bound_bits } => ("absolute", bound_bits),
++                RowClass::RelativeVerified => {
++                    ("relative", sharper_binary64(x, scale).unwrap().to_bits())
++                }
++                _ => panic!(),
++            };
++            let ok = native_predicate(row, scale, &native.rows[i]);
++            if ok {
++                passed += 1;
++            }
++            println!("I44_ROW {{\"witness\":\"{label}\",\"index\":{i},\"id\":\"{:?}\",\"x\":\"{:016x}\",\"class\":\"{class}\",\"bound\":\"{bound:016x}\",\"scale\":\"{:016x}\",\"lo\":{},\"hi\":{},\"glo\":{},\"ghi\":{},\"pass\":{ok}}}",row.id,x.to_bits(),scale.to_bits(),encoded(lo),encoded(hi),encoded(&glo),encoded(&ghi));
++        }
++        for a in 0..native.center.len() {
++            let r = native.rho[a];
++            let i = native.initial[a];
++            println!("I44_CENTER {{\"witness\":\"{label}\",\"a\":{a},\"s\":{},\"initial_lo\":{},\"initial_hi\":{},\"rhs\":{},\"correction\":{},\"center\":{},\"rho_lo\":{},\"rho_hi\":{}}}",native.view.scales()[a],encoded(i.endpoints().0),encoded(i.endpoints().1),encoded(spent.work.correction.actual_rhs.get(a).unwrap_or(&Wide::<16>::ZERO)),encoded(native.correction.get(a).unwrap_or(&Wide::<16>::ZERO)),encoded(&native.center[a]),encoded(r.endpoints().0),encoded(r.endpoints().1));
++        }
++        println!("I44_BLOCK {{\"witness\":\"{label}\",\"p\":{},\"P\":{},\"bound\":\"{:016x}\",\"alpha\":{},\"epsilon\":{},\"passed\":{passed},\"total\":{}}}",s.selected_precision(),s.evidence().verification_precision,s.evidence().certified_bound.first().map_or(0,|x|x.1),encoded(&native.alpha[0]),encoded(&native.epsilon[0]),native.rows.len());
++        println!("I44_WORK {label} {:?}", spent.work);
++        assert_eq!(passed, native.rows.len());
++    }
++}
++
++fn parts_from(s: &PrimitiveSource) -> SourceParts {
++    SourceParts {
++        nodes: s.nodes().to_vec(),
++        members: s.members().to_vec(),
++        springs: s.springs().to_vec(),
++        directional_springs: s.directional_springs().to_vec(),
++        constraints: s.constraints().to_vec(),
++        loads: s.loads().to_vec(),
++        stations: s.stations().to_vec(),
++        supports: s.supports().to_vec(),
++    }
++}
++fn contains(
++    interval: &super::super::product_certificate::Enclosure,
++    truth: (Wide<16>, Wide<16>),
++    label: &str,
++) {
++    let (lo, hi) = interval.endpoints();
++    assert_ne!(lo.cmp_value(&truth.0), Cmp::Greater, "{label} lower");
++    assert_ne!(hi.cmp_value(&truth.1), Cmp::Less, "{label} upper");
++}
++fn native_predicate(
++    row: &PublishedRow,
++    scale: f64,
++    interval: &super::super::product_certificate::Enclosure,
++) -> bool {
++    let x = row.value.value().unwrap();
++    let xv = Wide::<16>::from_f64(x).unwrap();
++    let ax = xv.abs();
++    let mut ctx = WideContext::<16>::new(1024).unwrap();
++    let mut sum = ExactWideSum::new();
++    let (lo, hi) = interval.endpoints();
++    let h0 = super::super::directed::sub_toward(
++        &mut ctx,
++        &mut sum,
++        &xv,
++        lo,
++        super::super::directed::Toward::Up,
++    )
++    .unwrap();
++    let h1 = super::super::directed::sub_toward(
++        &mut ctx,
++        &mut sum,
++        hi,
++        &xv,
++        super::super::directed::Toward::Up,
++    )
++    .unwrap();
++    let h = if h0.cmp_value(&h1) == Cmp::Greater {
++        h0
++    } else {
++        h1
++    };
++    match row.class {
++        RowClass::InputDerived => h.is_zero(),
++        RowClass::AbsoluteVerified { bound_bits } => {
++            h.cmp_value(&Wide::<16>::from_f64(f64::from_bits(bound_bits)).unwrap()) != Cmp::Greater
++        }
++        RowClass::RelativeVerified => {
++            let sv = Wide::<16>::from_f64(scale).unwrap();
++            let m = if ax.cmp_value(&sv) == Cmp::Greater {
++                ax
++            } else {
++                sv
++            };
++            let mut exact = ExactWideSum::new();
++            exact.add_wide_scaled(&m, false, 1, -64).unwrap();
++            exact.add_wide_scaled(&m, false, 1, -85).unwrap();
++            exact.add_wide_scaled(&ax, false, 1, -53).unwrap();
++            exact.add_binary64(f64::from_bits(1), false).unwrap();
++            exact.add_wide(&h, true).unwrap();
++            let exact_ok = exact.signum().unwrap() >= 0;
++            let binary64_ok = h
++                .cmp_value(&Wide::<16>::from_f64(sharper_binary64(x, scale).unwrap()).unwrap())
++                != Cmp::Greater;
++            let mut decimal = ExactWideSum::new();
++            decimal.add_wide(&ax, false).unwrap();
++            decimal.add_wide_scaled(&h, true, 1000000000, 0).unwrap();
++            // Raw and SI are identical for this native diagnostic, so both
++            // unchanged decimal comparisons have the same exact operands.
++            exact_ok && binary64_ok && decimal.signum().unwrap() >= 0
++        }
++        _ => false,
++    }
++}
++fn predicate_count(
++    s: &RetainedSolve,
++    rows: &[super::super::product_certificate::Enclosure],
++) -> usize {
++    s.publish()
++        .rows
++        .iter()
++        .zip(rows)
++        .filter(|(row, interval)| {
++            native_predicate(
++                row,
++                f64::from_bits(s.publish().body_scales[row.body as usize * 4 + row.kind.index()].2),
++                interval,
++            )
++        })
++        .count()
++}
++#[test]
++fn source_residual_wrong_center_recomputed_full_source_is_not_a_certificate() {
++    let s = solved(source(true, false));
++    let input = laws(&s);
++    let spent = run(&s, &input);
++    let native = spent.result().unwrap();
++    let center: Vec<_> = (6..12)
++        .map(|g| Wide::<16>::from_f64(s.publish().rows[g].value.value().unwrap()).unwrap())
++        .collect();
++    let (rho, epsilon, rows, work) = test_at_center(native, &center).unwrap();
++    assert_eq!(work.correction.calls.exact(), Ok(0));
++    assert!(rho.iter().any(|r| !r.endpoints().0.is_zero()));
++    assert!(epsilon[0].cmp_value(&native.epsilon[0]) == Cmp::Greater);
++    for (i, row) in s.publish().rows.iter().enumerate() {
++        contains(
++            &rows[i],
++            exact(row.id, true, true),
++            "wrong-center source containment",
++        );
++    }
++    assert_eq!(predicate_count(&s, &rows), 7);
++}
++#[test]
++fn source_residual_prescribed_columns_and_fully_fixed_loads() {
++    let mut p = parts_from(&source(false, false));
++    p.constraints[0].value = 0.0001;
++    let s = solved(PrimitiveSource::new(p).unwrap());
++    let input = laws(&s);
++    let spent = run(&s, &input);
++    let native = spent.result().unwrap();
++    assert_eq!(native.view.data(), &[true]);
++    for (i, row) in s.publish().rows.iter().enumerate() {
++        let v = match row.id {
++            QuantityId::Displacement(d) if d.component == Component::Ux => 0.0001,
++            QuantityId::DisplacementMagnitude(_) => 0.0001,
++            _ => 0.,
++        };
++        contains(&native.rows[i], point(v), "prescribed rigid translation");
++    }
++    for strain in [false, true] {
++        let mut p = parts_from(&source(false, false));
++        for component in Component::ALL {
++            p.constraints.push(Constraint {
++                dof: Dof { node: 1, component },
++                value: if strain && component == Component::Ux {
++                    0.0001
++                } else {
++                    0.
++                },
++            });
++        }
++        p.loads.push(NodalLoad {
++            dof: Dof {
++                node: 0,
++                component: Component::Ux,
++            },
++            value: 3.,
++            source_id: "constrained".into(),
++        });
++        let s = solved(PrimitiveSource::new(p).unwrap());
++        let input = laws(&s);
++        let spent = run(&s, &input);
++        let native = spent.result().unwrap();
++        assert!(native.view.data().is_empty());
++        assert_eq!(spent.work.correction.calls.exact(), Ok(0));
++        for (i, row) in s.publish().rows.iter().enumerate() {
++            if let QuantityId::Reaction(d) = row.id {
++                if d.node == 0 && d.component == Component::Ux {
++                    if strain {
++                        let (a, b) = pair(oracle::FIXED_AXIAL);
++                        let mut c = WideContext::<16>::new(1024).unwrap();
++                        let three = Wide::<16>::from_f64(3.).unwrap();
++                        contains(
++                            &native.rows[i],
++                            (
++                                c.sub(&b.neg(), &three).unwrap(),
++                                c.sub(&a.neg(), &three).unwrap(),
++                            ),
++                            "fixed prescribed action and load",
++                        );
++                    } else {
++                        contains(&native.rows[i], point(-3.), "fixed constrained load");
++                    }
++                }
++            }
++        }
++    }
++}
++#[test]
++fn source_residual_positive_spring_and_rotated_nonunit_frame() {
++    let mut p = parts_from(&source(false, false));
++    p.loads.clear();
++    p.loads.push(NodalLoad {
++        dof: Dof {
++            node: 1,
++            component: Component::Ux,
++        },
++        value: 1.,
++        source_id: "axial".into(),
++    });
++    p.members[0].y_reference = [0., 2., 0.];
++    p.springs.push(super::super::source::Spring {
++        id: 9,
++        dof: Dof {
++            node: 1,
++            component: Component::Ux,
++        },
++        stiffness: 100000000.,
++    });
++    p.supports.push(SupportGroup {
++        id: 4,
++        node: 1,
++        restrained: [false; 6],
++        springs: vec![9],
++        directional_springs: vec![],
++    });
++    let s = solved(PrimitiveSource::new(p).unwrap());
++    let input = laws(&s);
++    let spent = run(&s, &input);
++    let native = spent.result().unwrap();
++    for (i, row) in s.publish().rows.iter().enumerate() {
++        match row.id {
++            QuantityId::Displacement(d) if d.node == 1 && d.component == Component::Ux => contains(
++                &native.rows[i],
++                pair(oracle::SPRING_U),
++                "positive spring displacement",
++            ),
++            QuantityId::SpringAction { .. } => contains(
++                &native.rows[i],
++                pair(oracle::SPRING_ACTION),
++                "spring action",
++            ),
++            QuantityId::Reaction(d) if d.component == Component::Ux => contains(
++                &native.rows[i],
++                pair(oracle::SPRING_REACTION),
++                "spring root reaction",
++            ),
++            _ => {}
++        }
++    }
++    let mut p = parts_from(&source(false, false));
++    p.nodes[1] = [3., 4., 0.];
++    p.members[0].y_reference = [-8., 6., 0.];
++    p.loads.clear();
++    for (component, value) in [(Component::Ux, 3.), (Component::Uy, 4.)] {
++        p.loads.push(NodalLoad {
++            dof: Dof { node: 1, component },
++            value,
++            source_id: format!("rotated-{component:?}"),
++        });
++    }
++    let s = solved(PrimitiveSource::new(p).unwrap());
++    let input = laws(&s);
++    let spent = run(&s, &input);
++    let native = spent.result().unwrap();
++    for (i, row) in s.publish().rows.iter().enumerate() {
++        let expected = match row.id {
++            QuantityId::Displacement(d) if d.node == 1 && d.component == Component::Ux => {
++                pair(oracle::ROTATED_UX)
++            }
++            QuantityId::Displacement(d) if d.node == 1 && d.component == Component::Uy => {
++                pair(oracle::ROTATED_UY)
++            }
++            QuantityId::DisplacementMagnitude(1) => pair(oracle::ROTATED_MAG),
++            QuantityId::EndAction {
++                end,
++                component: Component::Ux,
++                ..
++            } => point(if end == End::I { -5. } else { 5. }),
++            QuantityId::StationAction {
++                component: Component::Ux,
++                ..
++            } => point(5.),
++            QuantityId::Reaction(d) if d.component == Component::Ux => point(-3.),
++            QuantityId::Reaction(d) if d.component == Component::Uy => point(-4.),
++            QuantityId::SupportForceMagnitude(_) => point(5.),
++            _ => point(0.),
++        };
++        contains(&native.rows[i], expected, "rotated exact source");
++    }
++}
++#[test]
++fn source_residual_cancelled_terms_mixed_no_data_and_identity_refusals() {
++    let s = solved(source(false, true));
++    let input = laws(&s);
++    let spent = run(&s, &input);
++    assert_eq!(spent.result().unwrap().view.data(), &[true]);
++    assert_eq!(spent.work.correction.calls.exact(), Ok(1));
++    let mut p = parts_from(&source(true, false));
++    let old = parts_from(&source(false, false));
++    p.nodes.extend([[2., 0., 0.], [3., 0., 0.]]);
++    let mut m = old.members[0].clone();
++    m.id = 8;
++    m.node_i = 2;
++    m.node_j = 3;
++    p.members.push(m);
++    for mut c in old.constraints {
++        c.dof.node = 2;
++        p.constraints.push(c);
++    }
++    let s = solved(PrimitiveSource::new(p).unwrap());
++    let input: Vec<_> = s
++        .source()
++        .members()
++        .iter()
++        .map(|m| ProposedMemberLaw {
++            member: m,
++            ..laws(&s)[0]
++        })
++        .collect();
++    let spent = run(&s, &input);
++    let native = spent.result().unwrap();
++    assert_eq!(native.view.data(), &[true, false]);
++    for (a, &g) in native.view.group().ordering.free.iter().enumerate() {
++        if g >= 12 {
++            assert!(native.center[a].is_zero());
++            assert!(native.epsilon[native.view.group().blocks.of[a] as usize].is_zero());
++        }
++    }
++    let s = solved(source(true, false));
++    let input = laws(&s);
++    let foreign = s.source().clone();
++    assert!(matches!(
++        source_residual(&s, &foreign, &s.prep.identity, s.selected, &input).result(),
++        Err(BridgeError::View(SourceBridgeViewIssue::ForeignOwner))
++    ));
++    let mut foreign_law = input;
++    foreign_law[0].member = &foreign.members()[0];
++    assert!(matches!(
++        run(&s, &foreign_law).result(),
++        Err(BridgeError::MemberOwner)
++    ));
++    for fault in 0..4 {
++        let mut changed = (*s).clone();
++        match fault {
++            0 => changed.evidence.verification_precision = 128,
++            1 => changed.cache.s256 = None,
++            2 => changed.evidence.ledger_encoding[0] ^= 1,
++            3 => changed.publication.rows.swap(0, 1),
++            _ => unreachable!(),
++        };
++        let input = laws(&changed);
++        let spent = run(&changed, &input);
++        assert!(spent.result().is_err());
++        assert_eq!(spent.work.correction.calls.exact(), Ok(0));
++    }
++}
++#[test]
++fn source_residual_arithmetic_and_factor_cast_prefixes() {
++    test_arithmetic_controls();
++    let s = solved(source(true, false));
++    let view = s
++        .source_bridge_view(s.source(), &s.prep.identity, s.selected)
++        .result
++        .unwrap();
++    let (result, work) = view.source_correction(vec![]).into_parts();
++    assert_eq!(result, Err(SourceCorrectionError::Identity));
++    assert!(work.status().is_exact());
++    assert_eq!(work.calls.exact(), Ok(0));
++    let huge =
++        Wide::<16>::from_parts(false, super::super::wide::EXPONENT_LIMIT, [u64::MAX; 16]).unwrap();
++    let mut rhs = vec![Wide::<16>::ONE; 6];
++    rhs[1] = huge;
++    let (result, work) = view.source_correction(rhs).into_parts();
++    assert!(matches!(
++        result,
++        Err(SourceCorrectionError::Arithmetic(AttemptStop::Exponent))
++    ));
++    assert_eq!(work.cast.width::<4>().round, 2);
++    assert_eq!(work.calls.exact(), Ok(0));
++    assert!(work.status().is_exact());
++    let huge = Wide::<16>::ONE
++        .mul_pow2(super::super::wide::EXPONENT_LIMIT)
++        .unwrap();
++    let mut observed_failure = false;
++    for sign in [false, true] {
++        let rhs = (0..6)
++            .map(|i| if sign && i % 2 == 0 { huge.neg() } else { huge })
++            .collect();
++        let spent = view.source_correction(rhs);
++        let (result, mut work) = spent.into_parts();
++        if let Err(e) = result {
++            assert!(matches!(e, SourceCorrectionError::Arithmetic(_)));
++            assert_eq!(work.calls.exact(), Ok(1));
++            assert!(work.factor.checked_lme().exact().unwrap() > 0);
++            assert!(work.status().is_exact());
++            println!("I44_FACTOR_FAILURE {e:?} {:?}", work.factor);
++            work.visits = WorkTotal::exact_count(u64::MAX).add(WorkTotal::exact_count(1));
++            let (result, work) = SourceCorrectionSpent {
++                result: Err(e.clone()),
++                work,
++            }
++            .into_parts();
++            assert_eq!(result, Err(e));
++            assert!(!work.status().is_exact());
++            observed_failure = true;
++        }
++    }
++    assert!(
++        observed_failure,
++        "range control must reach an actual partial factor refusal"
++    );
++    let input = laws(&s);
++    let mut success = run(&s, &input);
++    success.work.visits = WorkTotal::exact_count(u64::MAX).add(WorkTotal::exact_count(1));
++    assert!(success.result().is_err());
++    let mut bad = input;
++    bad[0].effective_wall = 0.1;
++    let mut failure = run(&s, &bad);
++    failure.work.visits = WorkTotal::exact_count(u64::MAX).add(WorkTotal::exact_count(1));
++    assert!(matches!(
++        failure.result(),
++        Err(BridgeError::Numeric(
++            super::super::product_certificate::NumericError::InvalidGeometry
++        ))
++    ));
++    assert!(!failure.work.status().is_exact());
++}
++
++#[test]
++fn source_residual_conservative_alpha_parity_and_unsupported_paths() {
++    let s = solved(source(true, false));
++    let input = laws(&s);
++    let original = source_bridge(&s, s.source(), &s.prep.identity, s.selected, &input);
++    let candidate = run(&s, &input);
++    assert_eq!(
++        original.result().unwrap().alpha,
++        candidate.result().unwrap().alpha
++    );
++    // Diagnostic baseline overlap only; production source_residual never calls
++    // the conservative bridge or retains its rows/work arrays.
++    let mut p = parts_from(&source(false, false));
++    p.directional_springs
++        .push(super::super::source::DirectionalSpring {
++            id: 10,
++            node: 1,
++            kind: super::super::source::SpringKind::Translation,
++            direction: [1., 2., 0.],
++            stiffness: 1e6,
++        });
++    let s = solved(PrimitiveSource::new(p).unwrap());
++    let input = laws(&s);
++    let spent = run(&s, &input);
++    assert!(matches!(
++        spent.result(),
++        Err(BridgeError::UnsupportedDirectionalSpring)
++    ));
++    assert_eq!(spent.work.member_builds.exact(), Ok(0));
++    let s = solved(source(true, false));
++    let other = solved(source(true, false));
++    let view = s
++        .source_bridge_view(s.source(), &s.prep.identity, s.selected)
++        .result
++        .unwrap();
++    let foreign_scales = other
++        .source_bridge_view(other.source(), &other.prep.identity, other.selected)
++        .result
++        .unwrap();
++    let bad = SourceBridgeView {
++        owner: &s,
++        scales: foreign_scales.scales(),
++        data: view.data().to_vec(),
++    };
++    let (result, work) = bad
++        .source_correction(vec![Wide::<16>::ZERO; 6])
++        .into_parts();
++    assert_eq!(result, Err(SourceCorrectionError::Identity));
++    assert_eq!(work.calls.exact(), Ok(0));
++    assert!(work.status().is_exact());
++    let mut changed = (*s).clone();
++    let old = &changed.group;
++    let mut group = GroupPrep {
++        structure: old.structure.clone(),
++        ordering: old.ordering.clone(),
++        geometry: old.geometry.clone(),
++        blocks: old.blocks.clone(),
++    };
++    group.ordering.order.swap(0, 1);
++    changed.group = Arc::new(group);
++    let input = laws(&changed);
++    let spent = run(&changed, &input);
++    assert!(matches!(
++        spent.result(),
++        Err(BridgeError::View(SourceBridgeViewIssue::Ordering))
++    ));
++    assert_eq!(spent.work.correction.calls.exact(), Ok(0));
++    let mut input = laws(&s);
++    input[0].diameter = 0.2;
++    let spent = run(&s, &input);
++    assert!(matches!(spent.result(), Err(BridgeError::Alpha { .. })));
++    assert_eq!(spent.work.correction.calls.exact(), Ok(0));
++}
++
++#[test]
++fn source_residual_collects_actual_failed_factor_with_simultaneous_accounting_loss() {
++    let s = solved(source(true, false));
++    let shared = s.cache.s256.as_ref().unwrap().as_ref().unwrap();
++    // Exact preloaded homogeneous Round work at (2^61-1)*8 LME. Every seed
++    // merge remains exact; only collection of the real failed factor overflows.
++    let mut one = WideContext::<4>::new(256).unwrap();
++    one.round(&Wide::<4>::ONE).unwrap();
++    let mut power = AttemptWork::default();
++    power.record(&one);
++    let mut accumulated = AttemptWork::default();
++    for bit in 0..61 {
++        accumulated.merge(&power);
++        if bit < 60 {
++            let copy = power;
++            power.merge(&copy);
++        }
++    }
++    assert_eq!(accumulated.checked_lme().exact(), Ok(u64::MAX - 7));
++    let mut work = SourceCorrectionWork {
++        factor: accumulated,
++        ..SourceCorrectionWork::default()
++    };
++    let huge = Wide::<4>::ONE
++        .mul_pow2(super::super::wide::EXPONENT_LIMIT)
++        .unwrap();
++    let mut ctx = WideContext::<4>::new(256).unwrap();
++    let result = source_factor_once(&shared.factor, &[huge; 6], &mut ctx, &mut work);
++    assert_eq!(
++        result,
++        Err(SourceCorrectionError::Arithmetic(AttemptStop::Exponent))
++    );
++    assert_eq!(ctx.work().mul, 15);
++    assert_eq!(ctx.work().sub, 15);
++    assert_eq!(ctx.work().div, 5);
++    assert_eq!(work.calls.exact(), Ok(1));
++    assert!(!work.status().is_exact());
++    let (result, work) = SourceCorrectionSpent {
++        result: Err(result.unwrap_err()),
++        work,
++    }
++    .into_parts();
++    assert_eq!(
++        result,
++        Err(SourceCorrectionError::Arithmetic(AttemptStop::Exponent))
++    );
++    assert!(!work.status().is_exact());
++    println!("I44_SIMULTANEOUS failed_factor=Exponent actual_prefix_mul=15 sub=15 div=5 collection_status={:?}",work.status());
++}
++#[test]
++fn source_residual_combination_and_missing_uniqueness_are_explicit_refusals() {
++    let s = solved(source(true, false));
++    let combined = match super::super::combine::RetainedCombination::solve(
++        &[(1., &s)],
++        CaseLimit::new(u64::MAX),
++        &mut InvocationMeter::new(u64::MAX),
++    ) {
++        super::super::combine::CombinationOutcome::Selected(s) => s,
++        other => panic!("{other:?}"),
++    };
++    let input = laws(&combined);
++    let spent = run(&combined, &input);
++    assert!(matches!(
++        spent.result(),
++        Err(BridgeError::View(
++            SourceBridgeViewIssue::UnsupportedCombination
++        ))
++    ));
++    assert_eq!(spent.work.correction.calls.exact(), Ok(0));
++    let mut p = parts_from(&source(false, false));
++    let dof = p.constraints.remove(0).dof;
++    p.springs.push(super::super::source::Spring {
++        id: 9,
++        dof,
++        stiffness: 1e9,
++    });
++    p.supports[0].restrained[0] = false;
++    p.supports[0].springs.push(9);
++    let s = solved(PrimitiveSource::new(p).unwrap());
++    let input = laws(&s);
++    let spent = run(&s, &input);
++    assert!(matches!(
++        spent.result(),
++        Err(BridgeError::MissingUniquenessWarrant(0))
++    ));
++    assert_eq!(spent.work.correction.calls.exact(), Ok(0));
++}
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_vectors.py b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_vectors.py
+new file mode 100644
+index 0000000000..ee502a3333
+--- /dev/null
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_vectors.py
+@@ -0,0 +1,153 @@
++#!/usr/bin/env python3
++"""Independent exact cantilever oracle: rational annulus difference of powers,
++atan(1/2)+atan(1/3) pi enclosure, closed mechanics, integer sqrt. No evaluator
++imports. Generation is deterministic; passing LOG checks actual emitted rows, casts,
++centers and full source residuals with independent rational mechanics.
++"""
++from fractions import Fraction as F
++from pathlib import Path
++import json, math, struct, sys
++
++def bits(x): return struct.unpack('>Q', struct.pack('>d', x))[0]
++def real(bits): return F(struct.unpack('>d', struct.pack('>Q', bits))[0])
++def atan(q, count=400):
++    value=sum(((-1 if k % 2 else 1)*F(1, (2*k+1)*q**(2*k+1)) for k in range(count)), F(0))
++    other=value+F(1, (2*count+1)*q**(2*count+1))
++    return value, other
++p2,p3=atan(2),atan(3)
++PI=(4*(p2[0]+p3[0]),4*(p2[1]+p3[1]))
++D,T,E,G=map(F,[0.1,0.005,210e9,80e9])
++DI=D-2*T
++AG=tuple(p*(D*D-DI*DI)/4 for p in PI)
++IG=tuple(p*(D**4-DI**4)/64 for p in PI)
++JG=tuple(2*i for i in IG)
++# Fixed native K primitive bits. They are proposed test data, not a PP build.
++A=F(float((AG[0]+AG[1])/2)); I=F(float((IG[0]+IG[1])/2)); J=F(float((JG[0]+JG[1])/2))
++Z=F(float(I/(D/2)))
++K=[(F(1)/(E*A),)*2,(F(1)/(3*E*I),)*2,(F(0),)*2,(F(1)/(G*J),)*2,(F(0),)*2,(F(1)/(2*E*I),)*2]
++Q=[(1/(E*AG[1]),1/(E*AG[0])),(1/(3*E*IG[1]),1/(3*E*IG[0])),(F(0),)*2,(1/(G*JG[1]),1/(G*JG[0])),(F(0),)*2,(1/(2*E*IG[1]),1/(2*E*IG[0]))]
++
++def floorlog(x):
++    e=x.numerator.bit_length()-x.denominator.bit_length()
++    if x < F(2)**e: e-=1
++    return e
++
++def dyadic(x, up):
++    if x==0: return F(0)
++    quantum=F(2)**(floorlog(abs(x))-767)
++    f=x/quantum
++    n=f.numerator//f.denominator
++    if up and n*f.denominator!=f.numerator: n+=1
++    return n*quantum
++
++def sqrt_bound(x,up):
++    if x==0:return F(0)
++    e=floorlog(x)//2-767
++    scaled=x/F(2)**(2*e)
++    n=math.isqrt(scaled.numerator//scaled.denominator)
++    if up and n*n*scaled.denominator!=scaled.numerator:n+=1
++    return n*F(2)**e
++
++def magnitude(u):
++    return (sqrt_bound(sum(v[0]**2 for v in u[:3]),False),sqrt_bound(sum(v[1]**2 for v in u[:3]),True))
++
++def lit(x):
++    if x==0:return 'ZERO'
++    neg=x<0;x=abs(x);e=floorlog(x);m=x/F(2)**(e-1023)
++    assert m.denominator==1
++    limbs=[(m.numerator>>(64*k)) & (2**64-1) for k in range(16)]
++    return '('+str(neg).lower()+', '+str(e)+', ['+', '.join(f'0x{v:016x}' for v in limbs)+'])'
++
++def pair(v):return '('+lit(dyadic(v[0],False))+', '+lit(dyadic(v[1],True))+')'
++
++def generate():
++    lines=['// Generated by source_residual_vectors.py; independent exact source and K oracle.', 'pub type Bits = (bool, i64, [u64; 16]);','pub const ZERO: Bits = (false, 0, [0; 16]);']
++    for name,value in [('D',D),('T',T),('E',E),('G',G),('A',A),('I',I),('J',J),('Z',Z)]:lines.append(f'pub const {name}: u64 = 0x{bits(float(value)):016x};')
++    for name,value in [('K_MOTION',K),('G_MOTION',Q)]:
++        lines.append(f'pub const {name}: [(Bits, Bits); 6] = [\n'+',\n'.join(pair(v) for v in value)+'\n];')
++    for name,value in [('K_MAG',magnitude(K)),('G_MAG',magnitude(Q)),('ROOT_TWO',(sqrt_bound(F(2),False),sqrt_bound(F(2),True)))]:lines.append(f'pub const {name}: (Bits, Bits) = '+pair(value)+';')
++    extras={
++      'FIXED_AXIAL':(E*AG[0]*F(0.0001),E*AG[1]*F(0.0001)),
++      'SPRING_U':(1/(E*AG[1]+F(100000000)),1/(E*AG[0]+F(100000000))),
++      'SPRING_ACTION':(-F(100000000)/(E*AG[0]+F(100000000)),-F(100000000)/(E*AG[1]+F(100000000))),
++      'SPRING_REACTION':(-E*AG[1]/(E*AG[1]+F(100000000)),-E*AG[0]/(E*AG[0]+F(100000000))),
++      'ROTATED_UX':(15/(E*AG[1]),15/(E*AG[0])),
++      'ROTATED_UY':(20/(E*AG[1]),20/(E*AG[0])),
++      'ROTATED_MAG':(25/(E*AG[1]),25/(E*AG[0])),
++    }
++    for name,value in extras.items():lines.append(f'pub const {name}: (Bits, Bits) = '+pair(value)+';')
++    target=Path(__file__).with_suffix('.rs');target.write_text('\n'.join(lines)+'\n')
++    print(json.dumps({'oracle':'rational closed cantilever; 400-term atan1/2+atan1/3; integer isqrt','file':str(target),'pi_width_log2_upper':floorlog(PI[1]-PI[0])+1,'native_bits':{n:hex(bits(float(v))) for n,v in [('A',A),('I',I),('J',J)]}}))
++
++def wide(value):
++    sign,exponent,mantissa=value
++    return (-1 if sign else 1)*int(mantissa,16)*F(2)**(exponent-1023)
++
++
++
++
++def diagnose(path):
++    rows=[]; centers={};blocks={}
++    for line in Path(path).read_text().splitlines():
++        for marker in ['I44_ROW ','I44_CENTER ','I44_BLOCK ']:
++            if marker not in line:continue
++            d=json.loads(line.split(marker,1)[1])
++            if marker=='I44_ROW ':rows.append(d)
++            elif marker=='I44_CENTER ':centers.setdefault(d['witness'],{})[d['a']]=d
++            else:blocks[d['witness']]=d
++    assert len(rows)==104 and set(blocks)=={'zero','loaded'}
++    def rn(x,p):
++        if not x:return x
++        step=F(2)**(floorlog(abs(x))-p+1);q=x/step;n=q.numerator//q.denominator;rem=q-n
++        if rem>F(1,2) or rem==F(1,2) and n%2:n+=1
++        return n*step
++    def actions(u,p):
++        ea=E*p*(D*D-DI*DI)/4;ei=E*p*(D**4-DI**4)/64;gj=G*p*(D**4-DI**4)/32
++        return [ea*u[0],ei*(12*u[1]-6*u[5]),ei*(12*u[2]+6*u[4]),gj*u[3],ei*(6*u[2]+4*u[4]),ei*(-6*u[1]+4*u[5])]
++    for label,cs in centers.items():
++        block=blocks[label]; rr={d['index']:d for d in rows if d['witness']==label}
++        x=[real(int(rr[6+a]['x'],16)) for a in range(6)]
++        y=[wide(cs[a]['center']) for a in range(6)]
++        scale=[F(2)**cs[a]['s'] for a in range(6)]
++        f=[F(int(label=='loaded')) if a in (0,1,3) else F(0) for a in range(6)]
++        for prefix,u in [('initial',x),('rho',y)]:
++            ends=[[scale[a]*(f[a]-v) for a,v in enumerate(actions(u,p))] for p in PI]
++            for a in range(6):
++                lo=min(ends[0][a],ends[1][a]);hi=max(ends[0][a],ends[1][a])
++                assert wide(cs[a][prefix+'_lo'])<=lo<=hi<=wide(cs[a][prefix+'_hi']),(label,prefix,a)
++        if label=='loaded':
++            for a in range(6):
++                midpoint=rn(wide(cs[a]['initial_lo'])+wide(cs[a]['initial_hi']),1024)/2
++                assert wide(cs[a]['rhs'])==rn(midpoint,block['P']),('actual cast',a)
++                assert y[a]==rn(x[a]+scale[a]*wide(cs[a]['correction']),1024),('actual center',a)
++            alpha=wide(block['alpha']);beta=2*real(int(block['bound'],16));eps=wide(block['epsilon'])
++            omega=max(max(abs(wide(c['rho_lo'])),abs(wide(c['rho_hi']))) for c in cs.values())
++            assert alpha<1 and eps>=beta*omega/(1-alpha)
++            for a in range(6):assert y[a]-scale[a]*eps<=Q[a][0]<=Q[a][1]<=y[a]+scale[a]*eps
++        else:assert all(v==0 for v in y) and wide(block['epsilon'])==0
++    passed={}
++    for d in rows:
++        lo,hi=wide(d['lo']),wide(d['hi']);x=real(int(d['x'],16));b=real(int(d['bound'],16))
++        assert lo<=wide(d['glo'])<=wide(d['ghi'])<=hi
++        h=max(abs(x-lo),abs(x-hi));actual=h<=b
++        if d['class']=='relative':
++            scale=real(int(d['scale'],16))
++            exact_allowance=F(2)**-64*max(abs(x),scale)+F(2)**-85*max(abs(x),scale)+F(2)**-53*abs(x)+F(2)**-1074
++            # Independently reproduce each of the five binary64 RN operations.
++            rn64=lambda z:F(float(z))
++            a0=rn64(F(2)**-64*max(abs(x),scale));a1=rn64(a0*(1+F(2)**-21))
++            u0=rn64(F(2)**-53*abs(x));u1=rn64(u0+F(2)**-1074)
++            assert b==rn64(a1+u1),('five-operation binary64 allowance',d['index'])
++            # Raw=SI; both decimal gates have identical exact operands.
++            actual=actual and h<=exact_allowance and 10**9*h<=abs(x)
++        assert actual==d['pass']
++        passed[d['witness']]=passed.get(d['witness'],0)+actual
++    assert passed=={'zero':52,'loaded':52}
++    # Exact counter-control: a K-only residual after K correction misses delta*c.
++    delta=F(1,8);x=F(1);correction=-delta;y=x+correction
++    assert -delta-correction==0 and 1-(1+delta)*y==delta**2
++    print(json.dumps({'source_rows':len(rows),'full_native_predicates':passed,'relative_gates':'H<=A_exact, H<=A_f64, 10^9 H<=abs(x) in SI and raw=SI','initial_and_recomputed_source_residual_components':24,'actual_cast_checks':6,'actual_center_checks':6,'wrong_K_only_residual':str(delta**2),'note':'actual factor output observed, never used as an expected source solution'}))
++
++if __name__=='__main__':
++    if len(sys.argv)>1:diagnose(sys.argv[1])
++    else:generate()
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_vectors.rs b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_vectors.rs
+new file mode 100644
+index 0000000000..061f0670cc
+--- /dev/null
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_vectors.rs
+@@ -0,0 +1,37 @@
++// Generated by source_residual_vectors.py; independent exact source and K oracle.
++pub type Bits = (bool, i64, [u64; 16]);
++pub const ZERO: Bits = (false, 0, [0; 16]);
++pub const D: u64 = 0x3fb999999999999a;
++pub const T: u64 = 0x3f747ae147ae147b;
++pub const E: u64 = 0x4248727cda000000;
++pub const G: u64 = 0x4232a05f20000000;
++pub const A: u64 = 0x3f5872fa3a37ac13;
++pub const I: u64 = 0x3ebc52664442210a;
++pub const J: u64 = 0x3ecc52664442210a;
++pub const Z: u64 = 0x3f01b37feaa954a6;
++pub const K_MOTION: [(Bits, Bits); 6] = [
++((false, -29, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x8d4181715a56ddfc, 0x286991edecfb0776, 0xc3fb343bc1991a62, 0xe34f5d230a6e0f96, 0x30a39d91a4d276c0, 0x45ba1f0cd5e74be0, 0x76a813b2fe287645, 0xc9813cecbd647dd5, 0xcf72ff200b597089, 0x71e77197498e7c28, 0x5b775960ea08ce76, 0xdb4a032d0e1d9aa0]), (false, -29, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x8d4181715a56ddfd, 0x286991edecfb0776, 0xc3fb343bc1991a62, 0xe34f5d230a6e0f96, 0x30a39d91a4d276c0, 0x45ba1f0cd5e74be0, 0x76a813b2fe287645, 0xc9813cecbd647dd5, 0xcf72ff200b597089, 0x71e77197498e7c28, 0x5b775960ea08ce76, 0xdb4a032d0e1d9aa0])),
++((false, -21, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x9d20b6d2f3093c8a, 0xf4d20c4eb6cb383d, 0xb6fac405080db1dd, 0x95482a72a707cd92, 0xb38821037d0f2ff7, 0x1195c3e40e153639, 0x738802a1148d71a3, 0x8f013613416f59bb, 0xe02df90dbd932206, 0xe3df360c7893094c, 0xe5402c92eaa7f305, 0xfc67937308b42c52]), (false, -21, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x9d20b6d2f3093c8b, 0xf4d20c4eb6cb383d, 0xb6fac405080db1dd, 0x95482a72a707cd92, 0xb38821037d0f2ff7, 0x1195c3e40e153639, 0x738802a1148d71a3, 0x8f013613416f59bb, 0xe02df90dbd932206, 0xe3df360c7893094c, 0xe5402c92eaa7f305, 0xfc67937308b42c52])),
++(ZERO, ZERO),
++((false, -19, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0xa6ac33f7a73d1798, 0x7cfec41d7bf00b5c, 0x6c1ed8f4f3ed7b16, 0xb6f309c8dc6bae5c, 0xccba007f6f1af337, 0x854f6cd47ddce160, 0x85b9e296903b3bdc, 0x74c5313af4699c54, 0xacad4129869cd57e, 0xcc4fb93446b0bd27, 0x99ab2be09efd5339, 0xf875f5253c915ba1]), (false, -19, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0xa6ac33f7a73d1799, 0x7cfec41d7bf00b5c, 0x6c1ed8f4f3ed7b16, 0xb6f309c8dc6bae5c, 0xccba007f6f1af337, 0x854f6cd47ddce160, 0x85b9e296903b3bdc, 0x74c5313af4699c54, 0xacad4129869cd57e, 0xcc4fb93446b0bd27, 0x99ab2be09efd5339, 0xf875f5253c915ba1])),
++(ZERO, ZERO),
++((false, -20, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x35d8891e3646ed68, 0x779d893b09186a2e, 0x093c1303c60a4566, 0xaff61fd5fd45da2e, 0x46a618c29dcb63f9, 0x4d3052eb0a8fe8ab, 0x96a601f8cf6a153a, 0xeb40e88e7113834c, 0xa8227aca4e2e5984, 0x6ae768895a6e46f9, 0x2bf0216e2ffdf644, 0xbd4dae964687213e]), (false, -20, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x35d8891e3646ed69, 0x779d893b09186a2e, 0x093c1303c60a4566, 0xaff61fd5fd45da2e, 0x46a618c29dcb63f9, 0x4d3052eb0a8fe8ab, 0x96a601f8cf6a153a, 0xeb40e88e7113834c, 0xa8227aca4e2e5984, 0x6ae768895a6e46f9, 0x2bf0216e2ffdf644, 0xbd4dae964687213e]))
++];
++pub const G_MOTION: [(Bits, Bits); 6] = [
++((false, -29, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x97a9b34f43b415fd, 0xe3bbc10cb93fcda0, 0x30207894c6e870ff, 0x4ae65775decf6efa, 0xbfd2ab9c80116966, 0x6f60e73994eadc77, 0xf6a66d3daadf7c8d, 0xf4b3f49b206810a8, 0xc2504a2de17b63f6, 0x5829254444dfc2f3, 0xa39b3130f7efea39, 0xdb4a032d0e1d987d]), (false, -29, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x97a9b34f43b415fe, 0xe3bbc10cb93fcda0, 0x30207894c6e870ff, 0x4ae65775decf6efa, 0xbfd2ab9c80116966, 0x6f60e73994eadc77, 0xf6a66d3daadf7c8d, 0xf4b3f49b206810a8, 0xc2504a2de17b63f6, 0x5829254444dfc2f3, 0xa39b3130f7efea39, 0xdb4a032d0e1d987d])),
++((false, -21, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0xe7cae3ff6918cddb, 0xb197284fa4a54621, 0x4ded302d9dce5257, 0x5428915c471d90ab, 0xfa7fcf5e5ef04d3b, 0x5b04acfbb86866b4, 0x996cd6bba12d73ce, 0xa9fc48948d063a2f, 0x8904c10425f622bd, 0x977ddc353e981325, 0x431104ed44ab9175, 0xfc67937308b42f2a]), (false, -21, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0xe7cae3ff6918cddc, 0xb197284fa4a54621, 0x4ded302d9dce5257, 0x5428915c471d90ab, 0xfa7fcf5e5ef04d3b, 0x5b04acfbb86866b4, 0x996cd6bba12d73ce, 0xa9fc48948d063a2f, 0x8904c10425f622bd, 0x977ddc353e981325, 0x431104ed44ab9175, 0xfc67937308b42f2a])),
++(ZERO, ZERO),
++((false, -19, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x602bb86f6b746aa3, 0x52d0cbae6612b109, 0xa0b57b6ce757190e, 0x66d7ef16d6011a68, 0x2695d020e5748c06, 0x21989a47c986c51a, 0xdb072360b2a8bdff, 0xb35457723ad22146, 0xf2e0ae00155e4a32, 0xc11fe4c4699db2d8, 0x9a04c0d98f98e32f, 0xf875f5253c915e6d]), (false, -19, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x602bb86f6b746aa4, 0x52d0cbae6612b109, 0xa0b57b6ce757190e, 0x66d7ef16d6011a68, 0x2695d020e5748c06, 0x21989a47c986c51a, 0xdb072360b2a8bdff, 0xb35457723ad22146, 0xf2e0ae00155e4a32, 0xc11fe4c4699db2d8, 0x9a04c0d98f98e32f, 0xf875f5253c915e6d])),
++(ZERO, ZERO),
++((false, -20, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x6dd82aff8ed29a64, 0xc5315e3bbb7bf499, 0x7a71e422365abdc1, 0x7f1e6d0535562c80, 0xbbdfdb86c73439ec, 0xc44381bcca4e4d07, 0xb311a10cb8e216da, 0x3f7d366f69c4aba3, 0x26c390c31c789a0e, 0x319e6527eef20e5c, 0xb24cc3b1f380ad18, 0xbd4dae964687235f]), (false, -20, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x6dd82aff8ed29a65, 0xc5315e3bbb7bf499, 0x7a71e422365abdc1, 0x7f1e6d0535562c80, 0xbbdfdb86c73439ec, 0xc44381bcca4e4d07, 0xb311a10cb8e216da, 0x3f7d366f69c4aba3, 0x26c390c31c789a0e, 0x319e6527eef20e5c, 0xb24cc3b1f380ad18, 0xbd4dae964687235f]))
++];
++pub const K_MAG: (Bits, Bits) = ((false, -21, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x2f5545df07da6de6, 0xb2fd6890a02af9ec, 0xa0288857765a177b, 0x09446a9752f48f47, 0x20a1dd7f87b42b34, 0xa0dbf94308a70a2f, 0x31e61871dca70c3d, 0x6a9381801c87ad1b, 0xab3ac618b9db7eef, 0xe2ec1c56549f9b65, 0xde6dfdbc496b4fd2, 0xfc67f2b550fdb40c]), (false, -21, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x2f5545df07da6de7, 0xb2fd6890a02af9ec, 0xa0288857765a177b, 0x09446a9752f48f47, 0x20a1dd7f87b42b34, 0xa0dbf94308a70a2f, 0x31e61871dca70c3d, 0x6a9381801c87ad1b, 0xab3ac618b9db7eef, 0xe2ec1c56549f9b65, 0xde6dfdbc496b4fd2, 0xfc67f2b550fdb40c]));
++pub const G_MAG: (Bits, Bits) = ((false, -21, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x04d269c76d89873b, 0x4e49c872492c8ee3, 0x152836f6472095a9, 0xc908ab9227d422c0, 0xf8b430d5775c3c64, 0x0ae1ec0dc6e67f82, 0x7b99388145bee7e7, 0xd2a12c2d35a7cbf6, 0x24360ea5ad87d1ff, 0xed0d0f8bd8350eba, 0x395156f173dbd476, 0xfc67f2b550fdb6e4]), (false, -21, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x04d269c76d89873c, 0x4e49c872492c8ee3, 0x152836f6472095a9, 0xc908ab9227d422c0, 0xf8b430d5775c3c64, 0x0ae1ec0dc6e67f82, 0x7b99388145bee7e7, 0xd2a12c2d35a7cbf6, 0x24360ea5ad87d1ff, 0xed0d0f8bd8350eba, 0x395156f173dbd476, 0xfc67f2b550fdb6e4]));
++pub const ROOT_TWO: (Bits, Bits) = ((false, 0, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x460abc722f7c4e33, 0xcab1bc911688458a, 0x53059c6011bc337b, 0xd2202e8742af1f4e, 0x780487363dfa2768, 0x0f74a85e439c7b4a, 0xa8b1fe6fdc83db39, 0x4afc83043ab8a2c3, 0xed17ac8583339915, 0x1d6f60ba893ba84c, 0x597d89b3754abe9f, 0xb504f333f9de6484]), (false, 0, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x460abc722f7c4e34, 0xcab1bc911688458a, 0x53059c6011bc337b, 0xd2202e8742af1f4e, 0x780487363dfa2768, 0x0f74a85e439c7b4a, 0xa8b1fe6fdc83db39, 0x4afc83043ab8a2c3, 0xed17ac8583339915, 0x1d6f60ba893ba84c, 0x597d89b3754abe9f, 0xb504f333f9de6484]));
++pub const FIXED_AXIAL: (Bits, Bits) = ((false, 14, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x208b2f012ae7908e, 0xe938f3af9ab87b6c, 0xaffd44edd4a1d738, 0xe15dc0c9c4763bec, 0x40ed0c459a967608, 0x999bce1093aad051, 0x99ccc7cfb2003570, 0x5a50b1a31e6589d5, 0x83bdbd08d70b4318, 0x2fd20bfaa29ffbc7, 0xd6bd6ca2fb4af972, 0xf4d2c6001b1e4fe9]), (false, 14, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x208b2f012ae7908f, 0xe938f3af9ab87b6c, 0xaffd44edd4a1d738, 0xe15dc0c9c4763bec, 0x40ed0c459a967608, 0x999bce1093aad051, 0x99ccc7cfb2003570, 0x5a50b1a31e6589d5, 0x83bdbd08d70b4318, 0x2fd20bfaa29ffbc7, 0xd6bd6ca2fb4af972, 0xf4d2c6001b1e4fe9]));
++pub const SPRING_U: (Bits, Bits) = ((false, -29, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x9bf5d54e88d214d2, 0x22d77a4dc0ecf6d3, 0xfda52b6db8599e57, 0x2cf6a62184a99158, 0x002883e028f4aad8, 0x8595dc1340eb7780, 0x62bc65516e6dc0f7, 0x9dd4145c92ac2268, 0x3f5e1118ce9f5489, 0x5c6a0e47fb18f41f, 0x3168b022227ee73d, 0xa63d9126264a5aa1]), (false, -29, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x9bf5d54e88d214d3, 0x22d77a4dc0ecf6d3, 0xfda52b6db8599e57, 0x2cf6a62184a99158, 0x002883e028f4aad8, 0x8595dc1340eb7780, 0x62bc65516e6dc0f7, 0x9dd4145c92ac2268, 0x3f5e1118ce9f5489, 0x5c6a0e47fb18f41f, 0x3168b022227ee73d, 0xa63d9126264a5aa1]));
++pub const SPRING_ACTION: (Bits, Bits) = ((true, -3, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0xe002e0af53c46dab, 0x4f48cebceb268aa7, 0xf78bf677f1a738c0, 0xfaf6341b6baeedf7, 0x621c5f4c8eff5f30, 0x4614882d47a9af74, 0x847ac3c8c8d9773e, 0x4589052c56c61490, 0x2cfc8361736a2f28, 0x711c80125603d5cb, 0xf8c0438f895f9242, 0xf7b7b7713528254e]), (true, -3, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0xe002e0af53c46daa, 0x4f48cebceb268aa7, 0xf78bf677f1a738c0, 0xfaf6341b6baeedf7, 0x621c5f4c8eff5f30, 0x4614882d47a9af74, 0x847ac3c8c8d9773e, 0x4589052c56c61490, 0x2cfc8361736a2f28, 0x711c80125603d5cb, 0xf8c0438f895f9242, 0xf7b7b7713528254e]));
++pub const SPRING_REACTION: (Bits, Bits) = ((true, -1, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x07ff47d42b0ee496, 0xec2dcc50c5365d56, 0x021d0262039631cf, 0xc14272f925144482, 0xe778e82cdc402833, 0x6e7addf4ae159422, 0xdee14f0dcdc9a230, 0xee9dbeb4ea4e7adb, 0x34c0df27a3257435, 0x63b8dffb6a7f0a8d, 0x41cfef1c1da81b6f, 0xc2121223b2b5f6ac]), (true, -1, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x07ff47d42b0ee495, 0xec2dcc50c5365d56, 0x021d0262039631cf, 0xc14272f925144482, 0xe778e82cdc402833, 0x6e7addf4ae159422, 0xdee14f0dcdc9a230, 0xee9dbeb4ea4e7adb, 0x34c0df27a3257435, 0x63b8dffb6a7f0a8d, 0x41cfef1c1da81b6f, 0xc2121223b2b5f6ac]));
++pub const ROTATED_UX: (Bits, Bits) = ((false, -25, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x8e2f181a4f78d49d, 0xe58004fbedabd0c6, 0x8d1e710b7a79e9ef, 0xe637f1fe80e2780a, 0x43d580e2b81052cf, 0x986ad8c5fb9c2eb0, 0x673c0669d03184c4, 0x8568b5516e618f9e, 0x862b458b0363adb7, 0xc2a692f00091c6c4, 0xc9617e1de870eb95, 0xcd9562fa3d3bbef5]), (false, -25, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x8e2f181a4f78d49e, 0xe58004fbedabd0c6, 0x8d1e710b7a79e9ef, 0xe637f1fe80e2780a, 0x43d580e2b81052cf, 0x986ad8c5fb9c2eb0, 0x673c0669d03184c4, 0x8568b5516e618f9e, 0x862b458b0363adb7, 0xc2a692f00091c6c4, 0xc9617e1de870eb95, 0xcd9562fa3d3bbef5]));
++pub const ROTATED_UY: (Bits, Bits) = ((false, -24, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x5eca10118a508dbe, 0xee5558a7f3c7e084, 0x5e144b5cfc51469f, 0xeecff6a9ab41a55c, 0xd7e3ab41d00ae1df, 0x659c9083fd12c9ca, 0x9a2804468acbadd8, 0x58f078e0f4410a69, 0x59722e5caced1e7a, 0xd719b74aab0bd9d8, 0x8640febe9af5f263, 0x890e41fc28d27f4e]), (false, -24, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x5eca10118a508dbf, 0xee5558a7f3c7e084, 0x5e144b5cfc51469f, 0xeecff6a9ab41a55c, 0xd7e3ab41d00ae1df, 0x659c9083fd12c9ca, 0x9a2804468acbadd8, 0x58f078e0f4410a69, 0x59722e5caced1e7a, 0xd719b74aab0bd9d8, 0x8640febe9af5f263, 0x890e41fc28d27f4e]));
++pub const ROTATED_MAG: (Bits, Bits) = ((false, -24, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x767c9415ece4b12e, 0xe9eaaed1f0b9d8a5, 0x75995e343b659847, 0xea83f45416120eb3, 0x8ddc9612440d9a57, 0x7f03b4a4fc577c3d, 0x00b205582d7e994e, 0xef2c971931514d04, 0x6fceb9f3d8286618, 0xcce0251d55ced04e, 0x27d13e6e41b36efc, 0xab51d27b33071f22]), (false, -24, [0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x767c9415ece4b12f, 0xe9eaaed1f0b9d8a5, 0x75995e343b659847, 0xea83f45416120eb3, 0x8ddc9612440d9a57, 0x7f03b4a4fc577c3d, 0x00b205582d7e994e, 0xef2c971931514d04, 0x6fceb9f3d8286618, 0xcce0251d55ced04e, 0x27d13e6e41b36efc, 0xab51d27b33071f22]));
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs b/projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs
+index df3384d9c3..c0ad498aa3 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs
+@@ -141,6 +141,10 @@ const SOURCES: &[Source] = &[
+         name: "FK/structural/retained/directed/certificate.rs",
+         text: include_str!("../src/structural/retained/directed/certificate.rs"),
+     },
++    Source {
++        name: "FK/structural/retained/product_certificate/source_residual.rs",
++        text: include_str!("../src/structural/retained/product_certificate/source_residual.rs"),
++    },
+     // K4, D1 revision 5a.3 (ROOT's A3-0 rulings): directed rounding, the
+     // certified bounds and the verification.
+     Source {
+@@ -167,6 +171,10 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
+     ("FK/structural/retained/product_certificate/bridge.rs", "d_apply", 0, "I33 ten-entry nonnegative constitutive contraction, directed upward"),
+     ("FK/structural/retained/product_certificate/bridge.rs", "transpose", 0, "I33 full Bbar/Hbar nonnegative contractions, directed upward"),
+ 
++    ("FK/structural/retained/product_certificate/source_residual.rs", "apply", 0, "signed outward source B and D contractions, each arithmetic entry owns its actual work"),
++    ("FK/structural/retained/product_certificate/source_residual.rs", "transpose", 0, "signed outward source H/B transpose contraction"),
++    ("FK/structural/retained/product_certificate/source_residual.rs", "residual", 0, "full source residual: directed member, individual load and spring terms"),
++    ("FK/structural/retained/product_certificate/source_residual.rs", "recover", 0, "source actions, complete constrained ledger, stations and mapped magnitudes"),
+     ("FK/structural/retained/wide_sum.rs", "checked_lme", 1, "integer: checked sum of raw work components"),
+     ("FK/structural/retained/wide_sum.rs", "charge", 1, "integer: actual component increment after prospective checked reservation"),
+     ("FK/structural/retained/adaptive.rs", "checked_total", 1, "integer: checked sum of stage totals"),

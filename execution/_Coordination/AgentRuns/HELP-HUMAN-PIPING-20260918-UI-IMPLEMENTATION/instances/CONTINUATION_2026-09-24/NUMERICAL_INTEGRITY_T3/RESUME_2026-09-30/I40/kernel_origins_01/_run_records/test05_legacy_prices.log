@@ -1,0 +1,12 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i40-frame-kernel/debug/deps/open_pipe_stress_frame_kernel-df02854d48d3f9db)
+
+running 1 test
+A3B N05 [(128, 530316, 2789, 492883, 0, 0, [0, 0, 0, 0, 0, 0]), (256, 65838, 6875, 0, 31870, 133696, [0, 2016, 17519, 11413, 922, 0])]
+A3B N06 [(128, 547822, 2693, 492784, 0, 0, [0, 0, 0, 0, 0, 0]), (256, 83416, 7057, 0, 32101, 133602, [0, 2021, 17519, 11619, 942, 0])]
+A3B TWO-SPAN [(128, 576310, 4443, 527858, 0, 0, [0, 0, 0, 0, 0, 0]), (256, 81006, 13330, 0, 39853, 263172, [0, 4527, 16378, 18005, 943, 0])]
+A3B SKEW6-K1E-12 [(128, 163112, 4918, 2738, 0, 0, [0, 0, 0, 0, 0, 0]), (256, 1412296, 88114, 654194, 660264, 960241, [0, 11649, 106500, 86890, 2380, 452845]), (512, 2504272, 126220, 0, 2177595, 3006277, [0, 25733, 355447, 243205, 6827, 1546383])]
+test structural::retained::adaptive::tests::golden_work_counts ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 416 filtered out; finished in 0.73s
+

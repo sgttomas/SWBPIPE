@@ -1,0 +1,52 @@
+{
+ "candidate": {
+  "head": "5488136a193ef8921bd88c33a8124647c4cb352d",
+  "name": "F′",
+  "started": "2026-10-05T00:33:23Z",
+  "suites_done": "2026-10-05T00:46:15Z",
+  "all_done": "2026-10-05T01:05:26Z",
+  "driver": "dec025_mac.sh.txt (sha256 9e34865b8a3fc49bbbb45bcbd457d1a4be76bd2aec7cac764662831e11afd133, unchanged from M03_SKEW_PIN_MERGE)",
+  "target": "fresh"
+ },
+ "baseline": {
+  "head": "5fdc5ab6012ddb50ecf286621a291b4da577405e",
+  "name": "M",
+  "started": "2026-10-04T23:37:36Z",
+  "done": "2026-10-04T23:47:40Z",
+  "worktree": "clean base-m",
+  "target": "fresh"
+ },
+ "first_freeze": {
+  "head": "20dd3d929d2a8b6e51671023b2f1eaa74f364a88",
+  "name": "F",
+  "started": "2026-10-04T23:47:41Z",
+  "all_done": "2026-10-05T00:21:20Z",
+  "result": "nonlinear_integration 132 passed / 2 failed (s11k_tests k2b and kd5) against M's 134; every other manifest as on F′"
+ },
+ "suites_vs_M": {
+  "manifests": 40,
+  "identical": 34,
+  "differing_by_added_tests_only": [
+   "core/product_physics",
+   "core/reporting/result_export",
+   "core/runner/headless",
+   "core/solver/frame_kernel",
+   "core/solver/performance_harness",
+   "validation/benchmarks/numerical_robustness"
+  ],
+  "failing_set_equal_to_M": [
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+   "cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route",
+   "load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes"
+  ],
+  "added_not_ok": "9 ignored retained_memory::witness_tests::witness_* (U8's deferred witnesses)",
+  "renamed": "3 frame_kernel doc-tests in src/structural.rs, lines 90/96/1909 -> 112/118/1931 (a 22-line shift); ok on both"
+ },
+ "F_vs_Fprime": "only core/solver/nonlinear_integration differs: (101,132,2,0) -> (0,134,0,0)",
+ "evidence_sweep": "fail-fast; stopped at core/product_physics on the known Mac t13, as at earlier Mac DEC-025s",
+ "python_pytest": "3540 passed, 32 skipped, exit 0",
+ "desktop_vitest": "138 files, 3552 tests passed, exit 0",
+ "build_wasm_desktop": "exit 0",
+ "build_desktop": "exit 0",
+ "independent_comparison": "RV95 R/REVIEW_RV95/u9_01/ADDENDUM_03.md: identical reading"
+}

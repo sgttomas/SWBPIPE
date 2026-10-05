@@ -1,0 +1,232 @@
+{
+  "root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract",
+  "files": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/010_DESIGN.md.excerpt.txt",
+      "bytes": 34060,
+      "sha256": "5d1e2cae9471bc9a4aeae7bf69143dc15e3c2433d8231857f8a9018ece5451c5"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/011_DESIGN.md.excerpt.txt",
+      "bytes": 16388,
+      "sha256": "c72c329d3e7bb0bf1cd3421a9c825969fc85ead3f8f2d0590a7ac84e60b95efb"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/012_ROOT_RULINGS_V1.md.excerpt.txt",
+      "bytes": 6905,
+      "sha256": "b19725c8e23c9d81d886c48a09578fac390a706cf171c1762c810b5b797d99af"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/013_ROOT_CURRENT.md.excerpt.txt",
+      "bytes": 4198,
+      "sha256": "19e3b6f56d04cb25c25665d28ba964c2f94ca2709fe851f3658ef017d41f48e5"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/014_DESIGN.md.excerpt.txt",
+      "bytes": 15329,
+      "sha256": "3671c0e2e26fbd7dc25b7b473fa81ae23bc9a234ee7946023d3108c4c907e689"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/015_API.md.excerpt.txt",
+      "bytes": 14073,
+      "sha256": "cf9e9b40d1ca26cdb871fa8e60859e1a80265f02efc2b5a89e7283e9d3423c90"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/016_API.md.excerpt.txt",
+      "bytes": 8369,
+      "sha256": "2055b23fca49a00f902dff43e713c92c56d93305e205f37bc8e365347d480505"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/017_FENCE.md.excerpt.txt",
+      "bytes": 10040,
+      "sha256": "a2cf0260859843d1f7c3310ef9020e84d2bb96a529de51816cb7e00e743482c6"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/018_REVIEW.md.excerpt.txt",
+      "bytes": 7547,
+      "sha256": "24e059736f80ba71db6471a049aa42ccba90fd086c2d230e9a67c9508df096f0"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/019_retained_product.rs.excerpt.txt",
+      "bytes": 12210,
+      "sha256": "1982c74d02c4a6d5460a4f0b3e70ed08c9d754309f008605e998c860ca323fea"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/020_final_case.rs.excerpt.txt",
+      "bytes": 3111,
+      "sha256": "50057d4f76e4aed966e74298dfc5a755ccbf4917813c3db8bb73db479910d385"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/021_retained_product.rs.excerpt.txt",
+      "bytes": 29240,
+      "sha256": "7c19cc33bdb66a226bb6532585eaa464964a2468ce4e355e5cab2585beae65f4"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/022_product_certificate.rs.excerpt.txt",
+      "bytes": 8131,
+      "sha256": "6d0eb6359b23db391ed7a86e5f44b46779e13f902094fa35b1e955b20b490069"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/023_preview_physics_evidence.rs.excerpt.txt",
+      "bytes": 8728,
+      "sha256": "257dca89d98760f794d553fccf5e8c63c5f35031e921cc382b7231f2f32a6e9f"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/024_physics_evidence.rs.excerpt.txt",
+      "bytes": 6519,
+      "sha256": "538e31ce37e1c5377468f90b83f5da296756a4cc1f0ecb8448ff7e4ad472684b"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/025_physics_source.rs.excerpt.txt",
+      "bytes": 8941,
+      "sha256": "666808876fb790412f23e0686a3278bd289e1320f1093509a41530c7e99e8979"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/026_preview_physics_evidence.py.excerpt.txt",
+      "bytes": 5376,
+      "sha256": "7d509183f697b45fa4c18bfc30a6ddfc81b24ca9e9573ede8012468b1368ed9a"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/027_physics_evidence.py.excerpt.txt",
+      "bytes": 7499,
+      "sha256": "a7752b9cf25e2dffba0e36c1707eec7050344372639fe69d5ce40b04d77cce3b"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/028_physics_source.py.excerpt.txt",
+      "bytes": 11355,
+      "sha256": "aa195f8e1c2e469bbc96bee2d37bb6765b472b1364f37987f1526825bcaf785d"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/029_previewPhysicsEvidence.ts.excerpt.txt",
+      "bytes": 9118,
+      "sha256": "35f28256a9f4d43a9a48dcafa27b63f7abee07376c11488a6d1a714230649ee9"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/030_physicsResultEvidence.ts.excerpt.txt",
+      "bytes": 7416,
+      "sha256": "9d957049cd1cc4344aa8ad8ee8fb3bc193802062a847c6c0a7231ba21db1d75f"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/031_physicsSourceRecovery.ts.excerpt.txt",
+      "bytes": 10144,
+      "sha256": "cf100a96eb694f24835f1c15c9795fef35051a25e267e310bd0577a263e30e50"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/032_WIRE_CONTRACT.md.excerpt.txt",
+      "bytes": 19932,
+      "sha256": "d03a15ab542b8dd74b10258a91e7ccc7cef50667bdc8f0264a5eeeac9697495b"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/033_CONTRACT_DELTA.md.excerpt.txt",
+      "bytes": 26917,
+      "sha256": "024e79c9ba2dcefd42878805b6019e7aec77d1d254fb9056b529f213f904c100"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/034_CONTRACT_DELTA.md.excerpt.txt",
+      "bytes": 22156,
+      "sha256": "6006a0be9e9224d07b63fd3b09368dc7ec336999a4917074823a28a2599c72ce"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/035_ROUTING.md.excerpt.txt",
+      "bytes": 7014,
+      "sha256": "c856a18aca4319716838fe365e6800b2c5c4b9f8b2c8b128e12262f2e54ef235"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/036_final_case.rs.excerpt.txt",
+      "bytes": 22913,
+      "sha256": "bc260c168c8101c1a3bc4ea50d1de040784861a9be3571876d17cb4dd4060f59"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/037_source_residual.rs.excerpt.txt",
+      "bytes": 3017,
+      "sha256": "c3ac1609803f4ad9389ea4b289b5d77d19f679eaa919a1287a7a015a8f8b2e95"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/038_SOURCE_MAP.md.excerpt.txt",
+      "bytes": 15885,
+      "sha256": "8034b870180ce5ecb6aa86553b471cdae2279b5d8c50f6aa21f1c65f907193c2"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/039_ROUTING.md.excerpt.txt",
+      "bytes": 8466,
+      "sha256": "c271ffe6c9707cfa854a4792616874d9eea7c5bb3e909d48b890ca33d3eb24d3"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/040_final_case.rs.excerpt.txt",
+      "bytes": 11480,
+      "sha256": "9796945831b79940b46c41dcb153ac888efe799d978b39ab5be207eb2cc9ca61"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/041_source_residual.rs.excerpt.txt",
+      "bytes": 13529,
+      "sha256": "cc0cff143bae220460d09e5b34a43b586fe6df04e4b706817dfc7f5b671327bf"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/042_origins.rs.excerpt.txt",
+      "bytes": 722,
+      "sha256": "00c8dbe7334457a3d14075e7779d34934ce1085a597f6ecf929bec96ebe9d7a5"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/043_final_case.rs.excerpt.txt",
+      "bytes": 2100,
+      "sha256": "fc42714b7172045e4ead6a2b9ad0e897977407753beff146f7194f7403943048"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/044_origins.rs.excerpt.txt",
+      "bytes": 3923,
+      "sha256": "74624cd3dd1d1303d3eededf952b08f629a4cc95c6eddf9d7cca1cc8e6c3d548"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/045_preview_physics_evidence.rs.excerpt.txt",
+      "bytes": 163,
+      "sha256": "acbe19628c9d70827386d1feae07ef6513fae743919e924933816509ea4cc706"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/046_preview_physics_evidence.py.excerpt.txt",
+      "bytes": 1119,
+      "sha256": "fc45e779bd64fd81ed22aa84f614b2149ddb29e90488e5d036377a330f728dc2"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/047_previewPhysicsEvidence.ts.excerpt.txt",
+      "bytes": 1153,
+      "sha256": "1be64c06fa3fa0e6a0860fb7a847f4d9dd964d6ec25919f378f15cd6948c77cb"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/048_WIRE_CONTRACT.md.excerpt.txt",
+      "bytes": 6227,
+      "sha256": "8dbbb46350553db3f8829d5e08184b23d39d41063257a14add97a99cd0088fda"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/049_ROOT_RULINGS_V1.md.excerpt.txt",
+      "bytes": 8006,
+      "sha256": "d0bd25393f897cd6eab15acec0fd0bfdff7ebb72d1446d732a5e93b85d6a3cbf"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/050_semantic_contract.rs.excerpt.txt",
+      "bytes": 2321,
+      "sha256": "b0af11aabba0151d225f96b73fb7ed8ff41d9a6c612517ee69e3941659b1394a"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/051_final_case.rs.excerpt.txt",
+      "bytes": 13401,
+      "sha256": "0264a51fbf89a1192b53ccdaf478fec611fe0a6fa1cf63929267e2e8a20d50cf"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/052_source_residual.rs.excerpt.txt",
+      "bytes": 1394,
+      "sha256": "b550ff00c548c4bade50e0e096e97fea3a8cf8e38a0e1c86039e99bc47a143e1"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/PUBLIC_TREES_DIFF.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_public_formation_contract/read_evidence.py",
+      "bytes": 1598,
+      "sha256": "8585665c8f1784a4f6a86934398c2a7fa89681ce97557fa9e2a787a6d735bc6a"
+    }
+  ],
+  "total_bytes": 438133,
+  "purpose": "bounded immutable source/authority excerpts and reviewer read utility; no source tree copy"
+}

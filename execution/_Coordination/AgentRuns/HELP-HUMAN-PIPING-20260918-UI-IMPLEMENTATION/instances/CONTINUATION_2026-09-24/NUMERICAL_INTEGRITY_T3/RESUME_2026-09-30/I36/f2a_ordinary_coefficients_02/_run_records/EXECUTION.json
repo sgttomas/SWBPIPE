@@ -1,0 +1,32 @@
+{
+  "status": "bounded source/interval assignment complete; stopped for backcheck, not acceptance",
+  "task": "/root/i36_f2a_preview_truth",
+  "parent": "/root",
+  "role": "TASK",
+  "mechanism": "delegated-harness-native continuation",
+  "receipt_utc": "2026-10-02 21:54:06 UTC",
+  "analysis_cutoff_utc": "2026-10-02 22:14:06 UTC",
+  "deadline_utc": "2026-10-02 22:24:06 UTC",
+  "analysis_completed_by_utc": "2026-10-02 22:05:17 UTC",
+  "basis": "a2458ec6c7550d495a6f874d744c7cfd00042e7b",
+  "source_pin": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02",
+  "supplied_context": "Parent follow-up, new I36 brief, ROOT a2458ec6c7 disposition, RV47 review and retained prior I36 source investigation. Reused instruction bytes re-verified.",
+  "enforcement": "Actual host filesystem permissions are broader; this task followed the brief-only source/read and assigned-write restriction. No sandbox enforcement claim. Every Git read used GIT_OPTIONAL_LOCKS=0.",
+  "dependency_messages": [
+    "ROOT: receipt/cutoffs, exact positivity discriminator, finite work/scratch inputs",
+    "I35: existing round_toward four-term numerator and complete operation/storage deltas; no new turn or delegation launched"
+  ],
+  "checks": "17 exact standard-library abstract groups; no product import or invocation. 19 origins match immutable revisions.",
+  "not_done": [
+    "product code or maintained edits",
+    "new bridge/format/solver",
+    "compiler/solver/model/product/runtime/host probes",
+    "Git/index/API writes",
+    "delegation",
+    "full source copies"
+  ],
+  "prior_packets_untouched": true,
+  "skill_or_workflow_activated": null,
+  "return_path": "ROOT; RV47/appropriate math backcheck before reliance"
+}

@@ -1,0 +1,120 @@
+{
+  "kind": "static-source-and-exact-input-check-only",
+  "fresh_runtime": false,
+  "request_bytes": 2747,
+  "request_sha256": "2aa51bee095186b95463567f190198f82a69557a569bf8a6a7b318aad37ab0b1",
+  "source_derived_expected_census": {
+    "nodes": 2,
+    "members": 1,
+    "materials": 1,
+    "cases": 1,
+    "stations": 3,
+    "global_springs": 3,
+    "constraints": 3,
+    "individual_load_terms": 3,
+    "supports": 4,
+    "native_Q": 58,
+    "support_component_rows": 24,
+    "support_component_laws": {
+      "reaction": 3,
+      "spring_action": 3,
+      "empty": 18
+    },
+    "support_magnitude_rows": 8,
+    "final_rows": 98,
+    "mechanical_rows": 97
+  },
+  "bits": {
+    "outside_diameter": "3fc999999999999a",
+    "wall": "3f847ae147ae147b",
+    "E": "42474876e8000000",
+    "G": "4232a05f20000000",
+    "moments": [
+      "3f73a92a30553261",
+      "3f83a92a30553261",
+      "3f83a92a30553261"
+    ],
+    "springs": [
+      "4062000000000000",
+      "412e848000000000",
+      "412e848000000000"
+    ]
+  },
+  "exact_identity_checks": {
+    "moment_parallel_to_chord": true,
+    "alpha": "5534023222112865/1152921504606846976",
+    "length_squared": 9,
+    "root_rotation_law_M_over_k": [
+      "1844674407370955/55340232221128654848",
+      "1106804644422573/115292150460684697600000",
+      "1106804644422573/115292150460684697600000"
+    ],
+    "rigid_tip_cross_product": [
+      "0",
+      "-23055109678203669781/345876451382054092800000",
+      "23055109678203669781/345876451382054092800000"
+    ]
+  },
+  "code_num_comparison": [
+    {
+      "relative": "projects/chirality-piping/core/product_physics/tests/formation_check_runtime.rs",
+      "bytes": 44559,
+      "sha256": "faaf940d8973349501b468505c8e1e9bbdfe3e3adf4df84fe179ed791cc0a0a5",
+      "code_num_equal": true
+    },
+    {
+      "relative": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "bytes": 92699,
+      "sha256": "9f870e5ca79d18cf50e343799fc538a349c2ad4844ae6739a70af9e3219abe27",
+      "code_num_equal": true
+    },
+    {
+      "relative": "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+      "bytes": 57876,
+      "sha256": "5853f21fe2689cda02ec6ef23a008f8c6cc12cd9173a7ceb5484472133773b55",
+      "code_num_equal": true
+    },
+    {
+      "relative": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "bytes": 988228,
+      "sha256": "90b2d6b19824630aa9469386e6c90ad03739c8b8ad6184bae993ef6338de80f1",
+      "code_num_equal": true
+    },
+    {
+      "relative": "projects/chirality-piping/core/product_physics/src/preview_physics.rs",
+      "bytes": 57331,
+      "sha256": "2b8265403dd506130eded40cadb05401423a78e0d24d1f8f028cbc6106c6aafa",
+      "code_num_equal": true
+    },
+    {
+      "relative": "projects/chirality-piping/core/solver/linear_supports/src/lib.rs",
+      "bytes": 32573,
+      "sha256": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934",
+      "code_num_equal": true
+    },
+    {
+      "relative": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "bytes": 29168,
+      "sha256": "9956c08421eebb44ee2663a790cf3ac882452f5119f6470cf6c5dcc386c3f2b8",
+      "code_num_equal": true
+    },
+    {
+      "relative": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+      "bytes": 17973,
+      "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+      "code_num_equal": true
+    },
+    {
+      "relative": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+      "bytes": 41444,
+      "sha256": "46eabbe3cca8bcd7fbd096b2166f8a4ecc830c17fb2df6580c26c9011f345a7a",
+      "code_num_equal": true
+    },
+    {
+      "relative": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+      "bytes": 36264,
+      "sha256": "764aa537c93990c4e825a81f9b00b2786ccfd2ccaf80a9cfaa7f7f49f7581695",
+      "code_num_equal": true
+    }
+  ]
+}

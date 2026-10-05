@@ -1,0 +1,72 @@
+[
+  {
+    "command": [
+      "git",
+      "--no-optional-locks",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a",
+    "exit": 0,
+    "log": "final_read_0.log"
+  },
+  {
+    "command": [
+      "git",
+      "--no-optional-locks",
+      "diff",
+      "--check"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a",
+    "exit": 0,
+    "log": "final_read_1.log"
+  },
+  {
+    "command": [
+      "git",
+      "--no-optional-locks",
+      "diff",
+      "--stat"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a",
+    "exit": 0,
+    "log": "final_read_2.log"
+  },
+  {
+    "command": [
+      "git",
+      "--no-optional-locks",
+      "status",
+      "--short"
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a",
+    "exit": 0,
+    "log": "final_read_3.log"
+  },
+  {
+    "command": [
+      "ps",
+      "-p",
+      "5387",
+      "-o",
+      "pid=,comm="
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a",
+    "exit": 0,
+    "log": "final_read_4.log"
+  },
+  {
+    "command": [
+      "ps",
+      "-Ao",
+      "pid=,ppid=,comm="
+    ],
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a",
+    "exit": 0,
+    "log": "final_read_5.log"
+  },
+  {
+    "source_stable_since_tests": true,
+    "changed_since_tests": []
+  }
+]

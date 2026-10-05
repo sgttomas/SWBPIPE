@@ -1,0 +1,293 @@
+{
+ "tokens": [
+  {
+   "line": "core/loads/primitive_loads/src/lib.rs:1099",
+   "call": "has_valid_fractions",
+   "kind": "local = Self",
+   "caller": "core/loads/primitive_loads/src/lib.rs:1082:new",
+   "edge_now": true,
+   "targets_now": [
+    "core/loads/primitive_loads/src/lib.rs:1109:has_valid_fractions"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/product_physics/src/pressure_exact.rs:109",
+   "call": "add",
+   "kind": "param: Self",
+   "caller": "core/product_physics/src/pressure_exact.rs:107:fused_mul_add",
+   "edge_now": true,
+   "targets_now": [
+    "core/product_physics/src/pressure_exact.rs:66:add"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/product_physics/src/pressure_exact.rs:81",
+   "call": "neg",
+   "kind": "param: Self",
+   "caller": "core/product_physics/src/pressure_exact.rs:80:sub",
+   "edge_now": true,
+   "targets_now": [
+    "core/product_physics/src/pressure_exact.rs:59:neg"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/curved_bend/src/lib.rs:144",
+   "call": "geometry",
+   "kind": "local = Self",
+   "caller": "core/solver/curved_bend/src/lib.rs:102:new",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/curved_bend/src/lib.rs:150:geometry"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/curved_bend/src/lib.rs:145",
+   "call": "orientation",
+   "kind": "local = Self",
+   "caller": "core/solver/curved_bend/src/lib.rs:102:new",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/curved_bend/src/lib.rs:195:orientation"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/frame_kernel/src/lib.rs:581",
+   "call": "properties",
+   "kind": "local = Self",
+   "caller": "core/solver/frame_kernel/src/lib.rs:563:new",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/frame_kernel/src/lib.rs:599:properties"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/frame_kernel/src/lib.rs:582",
+   "call": "orientation",
+   "kind": "local = Self",
+   "caller": "core/solver/frame_kernel/src/lib.rs:563:new",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/frame_kernel/src/lib.rs:603:orientation"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/frame_kernel/src/lib.rs:663",
+   "call": "orientation",
+   "kind": "local = Self",
+   "caller": "core/solver/frame_kernel/src/lib.rs:634:new",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/frame_kernel/src/lib.rs:674:orientation"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/wide.rs:289",
+   "call": "sig",
+   "kind": "local = Self",
+   "caller": "core/solver/frame_kernel/src/structural/retained/wide.rs:279:from_parts",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/frame_kernel/src/structural/retained/wide.rs:273:sig"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:154",
+   "call": "checked_lme",
+   "kind": "local = Self",
+   "caller": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:136:delta_since",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:104:checked_lme"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:357",
+   "call": "ensure_valid",
+   "kind": "param: Self",
+   "caller": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:356:donor",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:344:ensure_valid"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:716",
+   "call": "net",
+   "kind": "param: Self",
+   "caller": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:703:add_product_of",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:737:net"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/sparse.rs:149",
+   "call": "row_range",
+   "kind": "local = Self",
+   "caller": "core/solver/frame_kernel/src/structural/sparse.rs:133:from_sorted_rows",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/frame_kernel/src/structural/sparse.rs:176:row_range"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/sparse.rs:153",
+   "call": "find",
+   "kind": "local = Self",
+   "caller": "core/solver/frame_kernel/src/structural/sparse.rs:133:from_sorted_rows",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/frame_kernel/src/structural/sparse.rs:184:find"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/sparse.rs:1679",
+   "call": "row_range",
+   "kind": "inside [..]",
+   "caller": "core/solver/frame_kernel/src/structural/sparse.rs:1678:column",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/frame_kernel/src/structural/sparse.rs:176:row_range",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1266:row_range"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/sparse.rs:181",
+   "call": "row_range",
+   "kind": "inside [..]",
+   "caller": "core/solver/frame_kernel/src/structural/sparse.rs:180:row",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/frame_kernel/src/structural/sparse.rs:176:row_range"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/nonlinear_integration/src/structural_adapter.rs:1123",
+   "call": "node",
+   "kind": "local = Self",
+   "caller": "core/solver/nonlinear_integration/src/structural_adapter.rs:1082:new",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/nonlinear_integration/src/structural_adapter.rs:1204:node"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/nonlinear_integration/src/structural_adapter.rs:1124",
+   "call": "node",
+   "kind": "local = Self",
+   "caller": "core/solver/nonlinear_integration/src/structural_adapter.rs:1082:new",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/nonlinear_integration/src/structural_adapter.rs:1204:node"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/nonlinear_integration/src/structural_adapter.rs:1125",
+   "call": "element",
+   "kind": "local = Self",
+   "caller": "core/solver/nonlinear_integration/src/structural_adapter.rs:1082:new",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/nonlinear_integration/src/structural_adapter.rs:1217:element"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/nonlinear_integration/src/structural_adapter.rs:1143",
+   "call": "node",
+   "kind": "local = Self",
+   "caller": "core/solver/nonlinear_integration/src/structural_adapter.rs:1082:new",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/nonlinear_integration/src/structural_adapter.rs:1204:node"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/nonlinear_integration/src/structural_adapter.rs:1144",
+   "call": "node",
+   "kind": "local = Self",
+   "caller": "core/solver/nonlinear_integration/src/structural_adapter.rs:1082:new",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/nonlinear_integration/src/structural_adapter.rs:1204:node"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/nonlinear_integration/src/structural_adapter.rs:1146",
+   "call": "element",
+   "kind": "local = Self",
+   "caller": "core/solver/nonlinear_integration/src/structural_adapter.rs:1082:new",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/nonlinear_integration/src/structural_adapter.rs:1217:element"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/nonlinear_integration/src/structural_adapter.rs:1166",
+   "call": "element",
+   "kind": "local = Self",
+   "caller": "core/solver/nonlinear_integration/src/structural_adapter.rs:1082:new",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/nonlinear_integration/src/structural_adapter.rs:1217:element"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/sparse_direct/src/lib.rs:271",
+   "call": "stored",
+   "kind": "local = Self",
+   "caller": "core/solver/sparse_direct/src/lib.rs:215:from_entries_with_order",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/sparse_direct/src/lib.rs:311:stored"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/sparse_direct/src/lib.rs:272",
+   "call": "set_stored",
+   "kind": "local = Self",
+   "caller": "core/solver/sparse_direct/src/lib.rs:215:from_entries_with_order",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/sparse_direct/src/lib.rs:315:set_stored"
+   ],
+   "audit_r4_labels": []
+  },
+  {
+   "line": "core/solver/straight_pipe/src/lib.rs:441",
+   "call": "frame_element",
+   "kind": "local = Self",
+   "caller": "core/solver/straight_pipe/src/lib.rs:427:new",
+   "edge_now": true,
+   "targets_now": [
+    "core/solver/straight_pipe/src/lib.rs:449:frame_element"
+   ],
+   "audit_r4_labels": []
+  }
+ ],
+ "count": 26,
+ "with_edge": 26
+}

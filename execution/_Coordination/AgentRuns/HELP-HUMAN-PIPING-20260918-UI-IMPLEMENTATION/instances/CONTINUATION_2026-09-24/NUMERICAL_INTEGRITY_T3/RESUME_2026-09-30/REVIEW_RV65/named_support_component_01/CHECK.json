@@ -1,0 +1,42 @@
+{
+  "kind": "independent static source/fixture/seal check",
+  "runtime_executed": false,
+  "request_bytes": 2747,
+  "request_sha256": "2aa51bee095186b95463567f190198f82a69557a569bf8a6a7b318aad37ab0b1",
+  "preserved_subject": "848981f43349e62173b0a91850f369c3a040a1a0",
+  "final_seals_verified": true,
+  "overwritten_preliminary_bytes_claimed_preserved": false,
+  "focused_source_files_equal_to_pin_and_NUM": 13,
+  "expected_census": {
+    "n": 2,
+    "m": 1,
+    "t": 3,
+    "s": 3,
+    "k": 3,
+    "g": 4,
+    "Q": 58,
+    "final": 98,
+    "mechanical": 97,
+    "support_components": 24,
+    "support_magnitudes": 8,
+    "reaction_components": 3,
+    "spring_components": 3,
+    "empty_components": 18
+  },
+  "exact_input_only": {
+    "chord": [
+      "1",
+      "2",
+      "2"
+    ],
+    "moment_parallel": true,
+    "length_squared": "9"
+  },
+  "census_warrant": "Review of recover::layout, source_counts, producer loops and PP complete coverage; source-derived, not executed counts",
+  "host": {
+    "node": "Mac.lan",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]"
+  },
+  "pass_all_assertions": true
+}

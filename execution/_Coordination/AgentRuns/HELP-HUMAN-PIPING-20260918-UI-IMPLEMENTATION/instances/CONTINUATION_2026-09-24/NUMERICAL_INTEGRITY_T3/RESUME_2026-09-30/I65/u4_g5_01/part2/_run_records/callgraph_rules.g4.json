@@ -1,0 +1,588 @@
+{
+ "about": "Manual receiver-type adjudications for name-resolved call edges that close cycles in callgraph.py's over-approximation. Each rule replaces the targets of calls named `name` inside `caller` with the listed real targets (empty list = the callee is a std/primitive method outside the scanned set). Evidence cites the call line and the receiver's actual type. All paths are relative to P. G4 appends adjudications for the cycles the R-1 repair (generic, trait and chained receivers) closed by name fan-out; each cites the receiver's actual type at NUM HEAD.",
+ "W": "core/solver/frame_kernel/src/structural/retained",
+ "rules": [
+  {
+   "caller": "W/adaptive.rs:1182:checked_total",
+   "name": "add",
+   "targets": [
+    "W/work.rs:80:add"
+   ],
+   "evidence": "adaptive.rs:1205-1207 fold(WorkTotal::zero()..., |t, n| t.add(WorkTotal::exact_count(n))): t is WorkTotal; inherent WorkTotal::add"
+  },
+  {
+   "caller": "W/wide_sum.rs:104:checked_lme",
+   "name": "add",
+   "targets": [
+    "W/work.rs:80:add"
+   ],
+   "evidence": "wide_sum.rs:112-114 same fold over WorkTotal"
+  },
+  {
+   "caller": "W/wide_sum.rs:119:merge",
+   "name": "add",
+   "targets": [
+    "W/work.rs:80:add"
+   ],
+   "evidence": "wide_sum.rs:124 WorkTotal::exact_count(..).add(WorkTotal::exact_count(..))"
+  },
+  {
+   "caller": "W/wide_sum.rs:119:merge",
+   "name": "status",
+   "targets": [
+    "W/work.rs:61:status"
+   ],
+   "evidence": "wide_sum.rs:125,134 t.status() and self.checked_lme().status(): WorkTotal"
+  },
+  {
+   "caller": "W/wide_sum.rs:158:reserve",
+   "name": "add",
+   "targets": [
+    "W/work.rs:80:add"
+   ],
+   "evidence": "wide_sum.rs:165-178 every .add receiver is a WorkTotal (exact_count / checked_lme())"
+  },
+  {
+   "caller": "W/wide_sum.rs:158:reserve",
+   "name": "status",
+   "targets": [
+    "W/work.rs:61:status"
+   ],
+   "evidence": "wide_sum.rs:179-181 t, term, total are WorkTotal"
+  },
+  {
+   "caller": "W/wide/multi.rs:1052:charge",
+   "name": "add",
+   "targets": [
+    "W/work.rs:80:add"
+   ],
+   "evidence": "multi.rs:1054 WorkTotal::exact_count(..).add(..)"
+  },
+  {
+   "caller": "W/wide/multi.rs:1052:charge",
+   "name": "status",
+   "targets": [
+    "W/work.rs:61:status"
+   ],
+   "evidence": "multi.rs:1055,1058 count/total are WorkTotal"
+  },
+  {
+   "caller": "W/wide/multi.rs:1052:charge",
+   "name": "checked_lme",
+   "targets": [
+    "W/wide/multi.rs:1075:checked_lme"
+   ],
+   "evidence": "multi.rs:1057 prospective: WidthWork (copy of *self); WidthWork::checked_lme(limbs)"
+  },
+  {
+   "caller": "W/wide/multi.rs:1064:merge",
+   "name": "add",
+   "targets": [
+    "W/work.rs:80:add"
+   ],
+   "evidence": "multi.rs:1067-1068 WorkTotal::exact_count(..).add(..)"
+  },
+  {
+   "caller": "W/wide/multi.rs:1064:merge",
+   "name": "status",
+   "targets": [
+    "W/work.rs:61:status"
+   ],
+   "evidence": "multi.rs:1069,1072 WorkTotal values"
+  },
+  {
+   "caller": "W/wide/multi.rs:1064:merge",
+   "name": "checked_lme",
+   "targets": [
+    "W/wide/multi.rs:1075:checked_lme"
+   ],
+   "evidence": "multi.rs:1072 self.checked_lme(limbs) on WidthWork"
+  },
+  {
+   "caller": "W/wide/multi.rs:1114:record",
+   "name": "merge",
+   "targets": [
+    "W/wide/multi.rs:1064:merge"
+   ],
+   "evidence": "multi.rs:1118 self.widths[..] is WidthWork; merge(&context.work, L) has the WidthWork 3-argument signature"
+  },
+  {
+   "caller": "W/wide/multi.rs:1123:merge",
+   "name": "merge",
+   "targets": [
+    "W/wide/multi.rs:1064:merge"
+   ],
+   "evidence": "multi.rs:1124-1125 mine: &mut WidthWork from self.widths.iter_mut(); merge(theirs, limbs)"
+  },
+  {
+   "caller": "W/wide/multi.rs:1142:checked_lme",
+   "name": "add",
+   "targets": [
+    "W/work.rs:80:add"
+   ],
+   "evidence": "multi.rs:1146-1148 fold(WorkTotal::zero(), |sum, ..| sum.add(..)): WorkTotal"
+  },
+  {
+   "caller": "W/wide/multi.rs:1142:checked_lme",
+   "name": "checked_lme",
+   "targets": [
+    "W/wide/multi.rs:1075:checked_lme"
+   ],
+   "evidence": "multi.rs:1147 work: &WidthWork from self.widths.iter(); checked_lme(limbs)"
+  },
+  {
+   "caller": "W/directed/certificate.rs:41:status",
+   "name": "add",
+   "targets": [
+    "W/work.rs:80:add"
+   ],
+   "evidence": "certificate.rs:44-46 self.work.checked_lme().add(..): WorkTotal"
+  },
+  {
+   "caller": "W/directed/certificate.rs:41:status",
+   "name": "status",
+   "targets": [
+    "W/work.rs:61:status"
+   ],
+   "evidence": "certificate.rs:46 .status() on the WorkTotal sum"
+  },
+  {
+   "caller": "W/product_certificate.rs:175:status",
+   "name": "add",
+   "targets": [
+    "W/work.rs:80:add"
+   ],
+   "evidence": "product_certificate.rs:177-180 WorkTotal chain"
+  },
+  {
+   "caller": "W/product_certificate.rs:175:status",
+   "name": "status",
+   "targets": [
+    "W/work.rs:61:status"
+   ],
+   "evidence": "product_certificate.rs:181,184 .status() on WorkTotal sum and on entries (WorkTotal array)"
+  },
+  {
+   "caller": "W/product_certificate.rs:186:begin",
+   "name": "add",
+   "targets": [
+    "W/work.rs:80:add"
+   ],
+   "evidence": "product_certificate.rs:191 self.entries[i] (WorkTotal).add(..)"
+  },
+  {
+   "caller": "W/product_certificate.rs:186:begin",
+   "name": "status",
+   "targets": [
+    "W/product_certificate.rs:175:status",
+    "W/work.rs:61:status"
+   ],
+   "evidence": "product_certificate.rs:187 self.status() (NumericWork::status, :175); :192-193 next.status() on WorkTotal"
+  },
+  {
+   "caller": "W/product_certificate.rs:199:checked",
+   "name": "status",
+   "targets": [
+    "W/product_certificate.rs:175:status"
+   ],
+   "evidence": "product_certificate.rs:205 self.status() on NumericWork"
+  },
+  {
+   "caller": "W/product_certificate.rs:672:status",
+   "name": "status",
+   "targets": [
+    "W/product_certificate.rs:175:status",
+    "W/work.rs:61:status"
+   ],
+   "evidence": "product_certificate.rs:673-674 self.numeric (NumericWork) and four WorkTotal fields"
+  },
+  {
+   "caller": "W/product_certificate/bridge.rs:68:status",
+   "name": "status",
+   "targets": [
+    "W/product_certificate.rs:175:status",
+    "W/work.rs:61:status"
+   ],
+   "evidence": "bridge.rs:69-75 self.numeric (NumericWork) then WorkTotal fields"
+  },
+  {
+   "caller": "W/product_certificate/source_residual.rs:134:status",
+   "name": "status",
+   "targets": [
+    "W/product_certificate.rs:175:status",
+    "W/work.rs:61:status",
+    "W/product_certificate/bridge.rs:68:status"
+   ],
+   "evidence": "source_residual.rs:135-140 numeric (NumericWork), point.checked_lme() (WorkTotal), correction (bridge work, conservative), WorkTotal fields"
+  },
+  {
+   "caller": "W/product_certificate/source_residual.rs:134:status",
+   "name": "checked_lme",
+   "targets": [
+    "W/wide/multi.rs:1142:checked_lme",
+    "W/wide_sum.rs:104:checked_lme"
+   ],
+   "evidence": "source_residual.rs:137 self.point is an attempt/sum work owner; both checked_lme candidates are leaves into WorkTotal"
+  },
+  {
+   "caller": "W/product_certificate/final_case.rs:389:status",
+   "name": "status",
+   "targets": [
+    "W/product_certificate.rs:175:status",
+    "W/work.rs:61:status",
+    "W/product_certificate/source_residual.rs:134:status"
+   ],
+   "evidence": "final_case.rs:381-388 numeric (NumericWork), comparisons.checked_lme() and WorkTotal fields, native/native_k: ResidualWork (final_case.rs:334-335) whose status is source_residual.rs:134"
+  },
+  {
+   "caller": "W/product_certificate/final_case.rs:377:typed_trace",
+   "name": "typed_trace",
+   "targets": [
+    "W/product_certificate/source_residual.rs:104:typed_trace"
+   ],
+   "evidence": "final_case.rs:372 work: &ResidualWork; ResidualWork::typed_trace"
+  },
+  {
+   "caller": "W/wide.rs:688:add_exact_operands",
+   "name": "sub",
+   "targets": [],
+   "evidence": "wide.rs:726,728 big_mag/diff are U256 (wide.rs:701); U256::sub at wide.rs:581 is not a scanned fn node (inside impl U256 private; still a leaf: integer limb arithmetic)"
+  },
+  {
+   "caller": "W/wide.rs:688:add_exact_operands",
+   "name": "is_zero",
+   "targets": [
+    "W/wide.rs:336:is_zero",
+    "W/wide.rs:515:is_zero"
+   ],
+   "evidence": "wide.rs:689 a,b: &Wide2 (Wide<2>::is_zero :336); :730 diff: U256 (:515)"
+  },
+  {
+   "caller": "core/product_physics/src/retained_receipt.rs:148:project",
+   "name": "typed_trace",
+   "targets": [
+    "W/product_certificate/final_case.rs:377:typed_trace"
+   ],
+   "evidence": "retained_receipt.rs:150,174 proof: Option<&k::ProductCertificateSpent>; ProductCertificateSpent::typed_trace (final_case.rs:368)"
+  },
+  {
+   "caller": "W/wide.rs:573:overflowing_add",
+   "name": "overflowing_add",
+   "targets": [],
+   "evidence": "wide.rs:574-575 self.lo/self.hi are u128: primitive overflowing_add"
+  },
+  {
+   "caller": "W/work.rs:134:add",
+   "name": "add",
+   "targets": [
+    "W/work.rs:80:add"
+   ],
+   "evidence": "work.rs:135 self.add(rhs) inside impl std::ops::Add: inherent methods take precedence, so this calls WorkTotal::add (:80), not itself"
+  },
+  {
+   "caller": "core/loads/stress_recovery/src/elastic_extrema.rs:132:cmp",
+   "name": "cmp",
+   "targets": [],
+   "evidence": "elastic_extrema.rs:135,137 rhs.span / rhs.depth are primitive fields; Ord::cmp on primitives"
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:468:view",
+   "name": "view",
+   "targets": [
+    "core/solver/frame_kernel/src/structural.rs:458:view"
+   ],
+   "evidence": "structural.rs:469 StructuralSystem::view(self): the impl at :458 for StructuralSystem, called from the other impl at :468"
+  },
+  {
+   "caller": "W/adaptive.rs:856:offer",
+   "name": "offer",
+   "targets": [
+    "W/adaptive.rs:708:offer"
+   ],
+   "evidence": "adaptive.rs:870 tracker: &mut Tracker (element of the TrackerSet); Tracker::offer at :708"
+  },
+  {
+   "caller": "W/product_certificate/source_residual.rs:28:point",
+   "name": "point",
+   "targets": [
+    "W/product_certificate.rs:24:point"
+   ],
+   "evidence": "source_residual.rs:29 Enclosure::point(..): associated fn at product_certificate.rs:24, not the free fn itself"
+  },
+  {
+   "caller": "W/assemble.rs:169:widen",
+   "name": "widen",
+   "targets": [
+    "W/wide/multi.rs:770:widen"
+   ],
+   "evidence": "assemble.rs:176 v: Wide<L>; Wide::widen (multi.rs:770)"
+  },
+  {
+   "caller": "W/assemble.rs:106:widen",
+   "name": "widen",
+   "targets": [
+    "W/wide/multi.rs:770:widen"
+   ],
+   "evidence": "assemble.rs:106-120 element widen on Wide values"
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1910:solve",
+   "name": "solve",
+   "targets": [
+    "core/solver/frame_kernel/src/structural.rs:1831:solve",
+    "core/solver/frame_kernel/src/structural.rs:2049:solve"
+   ],
+   "evidence": "structural.rs:1912-1913 f: the dense/profile factor types whose solve methods are :1831 and :2049"
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/lib.rs:1486:values",
+   "name": "values",
+   "targets": [
+    "core/solver/frame_kernel/src/load_ledger.rs:261:values",
+    "core/solver/frame_kernel/src/load_ledger.rs:753:values"
+   ],
+   "evidence": "lib.rs:1489 force: AssembledForce / ledger values accessors in load_ledger.rs"
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:1573:estimate_rcond",
+   "name": "estimate_rcond",
+   "targets": [
+    "core/solver/frame_kernel/src/structural.rs:1589:estimate_rcond"
+   ],
+   "evidence": "structural.rs:1577 ConditionMatrix::estimate_rcond(a, solve): trait method at :1589"
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural.rs:2374:fmt",
+   "name": "fmt",
+   "targets": [
+    "core/solver/frame_kernel/src/structural.rs:2347:fmt"
+   ],
+   "evidence": "structural.rs:2376-2377 inner error.fmt(f): Formation error Display (:2347) and StructuralError Display (external to this enum); no self-call"
+  },
+  {
+   "caller": "core/product_physics/src/retained_memory.rs:91:next",
+   "name": "next",
+   "targets": [],
+   "evidence": "retained_memory.rs:83-84 values: slice::Iter / map::Iter (std Iterator::next)"
+  },
+  {
+   "caller": "core/reporting/result_export/src/derivative.rs:35:digest",
+   "name": "digest",
+   "targets": [],
+   "evidence": "derivative.rs:39 Sha256::digest (sha2 crate)"
+  },
+  {
+   "caller": "core/reporting/result_export/src/retained_precision.rs:1685:reason_table",
+   "name": "reason_table",
+   "targets": [
+    "core/reporting/result_export/src/retained_precision.rs:1952:reason_table"
+   ],
+   "evidence": "retained_precision.rs:1686 super::reason_table: the module-level fn at :1952"
+  },
+  {
+   "caller": "W/adaptive.rs:1015:with",
+   "name": "collect",
+   "targets": [],
+   "evidence": "adaptive.rs:1029, :1032: `.iter().map(..).collect()` and `.map(..).collect()` end std iterator chains (Iterator::collect). The only scanned `collect` is CertificateMeter::collect (adaptive.rs:3067), a private method of CertificateMeter",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "W/adaptive.rs:948:new",
+   "name": "collect",
+   "targets": [],
+   "evidence": "adaptive.rs:951-954: `source.constraints().iter().map(..).collect()` (std Iterator::collect)",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "W/ledger.rs:122:netted",
+   "name": "collect",
+   "targets": [],
+   "evidence": "ledger.rs:125-128: `entries.iter().map(..).collect()` twice (std Iterator::collect)",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "W/source.rs:465:new",
+   "name": "collect",
+   "targets": [],
+   "evidence": "source.rs:661: `(0..node_count).collect()` (std Range: Iterator::collect)",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "W/source.rs:766:body_nodes",
+   "name": "collect",
+   "targets": [],
+   "evidence": "source.rs:767-769: `(0..n).filter(..).collect()` (std Iterator::collect)",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "W/adaptive.rs:1236:set",
+   "name": "status",
+   "targets": [
+    "W/work.rs:61:status"
+   ],
+   "evidence": "adaptive.rs:1237: `work.status()` with `work: WorkTotal` (parameter); :1239 `self.checked_total().status()` with checked_total -> WorkTotal (adaptive.rs:1182). WorkTotal::status is work.rs:61",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "W/adaptive.rs:231:lme",
+   "name": "checked_lme",
+   "targets": [
+    "W/wide/multi.rs:1075:checked_lme"
+   ],
+   "evidence": "adaptive.rs:235: `ctx.work().checked_lme(L)` with `ctx: &WideContext<L>`; WideContext::work -> WidthWork (multi.rs:1185); WidthWork::checked_lme(limbs) is multi.rs:1075",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "W/adaptive.rs:3051:total",
+   "name": "add",
+   "targets": [
+    "W/work.rs:80:add"
+   ],
+   "evidence": "adaptive.rs:3052: `lme(&self.ctx).add(..)`; lme returns WorkTotal (adaptive.rs:231); WorkTotal::add is work.rs:80",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "W/ledger.rs:88:from_source",
+   "name": "add",
+   "targets": [
+    "core/solver/frame_kernel/src/exact_sum.rs:213:add"
+   ],
+   "evidence": "ledger.rs:97 `accumulator.add(term)` with `accumulator = ExactAccumulator::new()`; :113-115 `entries[index].1.add(load.value)` with `entries: Vec<(usize, ExactAccumulator, bool)>` (:110). ExactAccumulator::add is exact_sum.rs:213",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "W/wide/multi.rs:1075:checked_lme",
+   "name": "mul",
+   "targets": [
+    "W/work.rs:90:mul"
+   ],
+   "evidence": "multi.rs:1082: `WorkTotal::exact_count(..).mul(..)`; exact_count returns WorkTotal; WorkTotal::mul is work.rs:90",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "W/product_certificate.rs:306:scalar",
+   "name": "new",
+   "targets": [
+    "W/wide/multi.rs:1169:new",
+    "W/wide_sum.rs:291:new"
+   ],
+   "evidence": "product_certificate.rs:314 `WideContext::<16>::new(1024)` (multi.rs:1169) and :315 `ExactWideSum::new()` (wide_sum.rs:291)",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "core/solver/straight_pipe/src/lib.rs:445:length",
+   "name": "length",
+   "targets": [
+    "core/solver/frame_kernel/src/lib.rs:586:length"
+   ],
+   "evidence": "straight_pipe lib.rs:446: `self.frame_element()?.length()`; frame_element returns FrameElement (:449-456); FrameElement::length is FK lib.rs:586",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "core/solver/straight_pipe/src/lib.rs:458:local_stiffness",
+   "name": "local_stiffness",
+   "targets": [
+    "core/solver/frame_kernel/src/lib.rs:607:local_stiffness"
+   ],
+   "evidence": "straight_pipe lib.rs:459: `self.frame_element()?.local_stiffness()` on FrameElement (FK lib.rs:607)",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "core/solver/straight_pipe/src/lib.rs:462:global_stiffness",
+   "name": "global_stiffness",
+   "targets": [
+    "core/solver/frame_kernel/src/lib.rs:611:global_stiffness"
+   ],
+   "evidence": "straight_pipe lib.rs:463: `self.frame_element()?.global_stiffness()` on FrameElement (FK lib.rs:611)",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "core/solver/nonlinear_integration/src/structural_adapter.rs:133:geometry",
+   "name": "geometry",
+   "targets": [
+    "core/solver/nonlinear_integration/src/structural_adapter.rs:1258:geometry"
+   ],
+   "evidence": "structural_adapter.rs:134-140: `BodyEvidence { .. }.geometry(prescribed)`; BodyEvidence::geometry is :1258",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "core/solver/nonlinear_integration/src/structural_adapter.rs:564:geometry",
+   "name": "geometry",
+   "targets": [
+    "core/solver/nonlinear_integration/src/structural_adapter.rs:1258:geometry"
+   ],
+   "evidence": "structural_adapter.rs:565-571: `BodyEvidence { .. }.geometry(prescribed)` (:1258)",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "core/product_physics/src/case_state/input.rs:58:deserialize",
+   "name": "deserialize",
+   "targets": [],
+   "evidence": "input.rs:60: `Option::<T>::deserialize(deserializer)` is serde's external `impl Deserialize for Option<T>`; no scanned fn is the explicit target (the generic T's own impl is an implicit call, STACK_INVENTORY_G4 section 3)",
+   "added": "G4 (R-1 repair adjudication)"
+  },
+  {
+   "caller": "core/product_physics/src/retained_wire.rs:1486:capture",
+   "name": "capture",
+   "targets": [
+    "core/product_physics/src/retained_product.rs:3526:capture"
+   ],
+   "added": "G4 (R-1 adjudication at b1f80234dc)",
+   "evidence": "retained_wire.rs:1485-1497 (U3): the SelectedCandidate impl for PrivatePreparedCandidate delegates with the path call `rp::PrivatePreparedCandidate::capture(self)`; an inherent method takes precedence over the trait method in path resolution, so the target is the inherent PrivatePreparedCandidate::capture, not this impl itself"
+  },
+  {
+   "caller": "core/product_physics/src/retained_wire.rs:1487:certificate",
+   "name": "certificate",
+   "targets": [
+    "core/product_physics/src/retained_product.rs:3525:certificate"
+   ],
+   "added": "G4 (R-1 adjudication at b1f80234dc)",
+   "evidence": "retained_wire.rs:1485-1497 (U3): the SelectedCandidate impl for PrivatePreparedCandidate delegates with the path call `rp::PrivatePreparedCandidate::certificate(self)`; an inherent method takes precedence over the trait method in path resolution, so the target is the inherent PrivatePreparedCandidate::certificate, not this impl itself"
+  },
+  {
+   "caller": "core/product_physics/src/retained_wire.rs:1488:typed_trace",
+   "name": "typed_trace",
+   "targets": [
+    "core/product_physics/src/retained_product.rs:3879:typed_trace"
+   ],
+   "added": "G4 (R-1 adjudication at b1f80234dc)",
+   "evidence": "retained_wire.rs:1485-1497 (U3): the SelectedCandidate impl for PrivatePreparedCandidate delegates with the path call `rp::PrivatePreparedCandidate::typed_trace(self)`; an inherent method takes precedence over the trait method in path resolution, so the target is the inherent PrivatePreparedCandidate::typed_trace, not this impl itself"
+  },
+  {
+   "caller": "core/product_physics/src/retained_wire.rs:1493:capture",
+   "name": "capture",
+   "targets": [
+    "core/product_physics/src/retained_product.rs:3795:capture"
+   ],
+   "added": "G4 (R-1 adjudication at b1f80234dc)",
+   "evidence": "retained_wire.rs:1485-1497 (U3): the SelectedCandidate impl for FrozenCandidate delegates with the path call `rp::FrozenCandidate::capture(self)`; an inherent method takes precedence over the trait method in path resolution, so the target is the inherent FrozenCandidate::capture, not this impl itself"
+  },
+  {
+   "caller": "core/product_physics/src/retained_wire.rs:1494:certificate",
+   "name": "certificate",
+   "targets": [
+    "core/product_physics/src/retained_product.rs:3796:certificate"
+   ],
+   "added": "G4 (R-1 adjudication at b1f80234dc)",
+   "evidence": "retained_wire.rs:1485-1497 (U3): the SelectedCandidate impl for FrozenCandidate delegates with the path call `rp::FrozenCandidate::certificate(self)`; an inherent method takes precedence over the trait method in path resolution, so the target is the inherent FrozenCandidate::certificate, not this impl itself"
+  },
+  {
+   "caller": "core/product_physics/src/retained_wire.rs:1495:typed_trace",
+   "name": "typed_trace",
+   "targets": [
+    "core/product_physics/src/retained_product.rs:3816:typed_trace"
+   ],
+   "added": "G4 (R-1 adjudication at b1f80234dc)",
+   "evidence": "retained_wire.rs:1485-1497 (U3): the SelectedCandidate impl for FrozenCandidate delegates with the path call `rp::FrozenCandidate::typed_trace(self)`; an inherent method takes precedence over the trait method in path resolution, so the target is the inherent FrozenCandidate::typed_trace, not this impl itself"
+  },
+  {
+   "caller": "W/adaptive.rs:5621:status",
+   "name": "status",
+   "targets": [
+    "W/work.rs:61:status"
+   ],
+   "added": "G4 (R-1 adjudication at b1f80234dc)",
+   "evidence": "adaptive.rs:5621-5628 SourceCorrectionWork::status: `self.cast.checked_lme().status()` and `self.factor...` with cast/factor: AttemptWork (checked_lme -> WorkTotal, multi.rs:1142), and `self.visits.status()`, `self.calls.status()` with visits/calls: WorkTotal (:5611-5612); every `status` is WorkTotal::status (work.rs:61). This item sat after adaptive.rs's first test module, so G3 never saw it (R1k)"
+  }
+ ]
+}

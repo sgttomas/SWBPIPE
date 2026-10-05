@@ -1,0 +1,7 @@
+
+running 1 test
+RV56_ROTATED_SPRING source_contains=55/55 p=128 P=256 data=[true] member_builds=Ok(3)
+test structural::retained::adaptive::source_bridge_tests::rv56_rotated_nonunit_length_axial_spring_source_enclosure ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 444 filtered out; finished in 0.07s
+

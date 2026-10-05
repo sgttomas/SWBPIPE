@@ -1,0 +1,4 @@
+41c41
+< MERGE_RULES = {P + "core/analysis_runs/compatibility.py": {"conflicts": 1, "main_side_contains": "def _same_canonical(",
+---
+> MERGE_RULES = {P + "core/analysis_runs/NO_SUCH.py": {"conflicts": 1, "main_side_contains": "def _same_canonical(",

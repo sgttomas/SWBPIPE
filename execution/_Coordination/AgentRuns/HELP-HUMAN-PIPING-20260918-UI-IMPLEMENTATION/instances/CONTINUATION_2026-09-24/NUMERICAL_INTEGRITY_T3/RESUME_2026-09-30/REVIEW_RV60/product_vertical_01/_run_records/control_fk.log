@@ -1,0 +1,12 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv60-product-vertical/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.92s
+     Running unittests src/lib.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/rv60-product-vertical/frame_kernel/debug/deps/open_pipe_stress_frame_kernel-df02854d48d3f9db)
+
+running 2 tests
+RV60_DUAL_HULL_AND_INPUT_EXACTNESS true
+test structural::retained::product_certificate::final_case::product_final_case_tests::rv60_dual_hull_and_input_exactness_are_mandatory ... ok
+RV60_ABSOLUTE_BOUNDARY_SIGN true
+test structural::retained::product_certificate::final_case::product_final_case_tests::rv60_exact_absolute_boundary_and_signed_quotients ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 461 filtered out; finished in 0.00s
+

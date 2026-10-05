@@ -1,0 +1,145 @@
+{
+  "actor": "/root/i58_python_shared",
+  "parent": "/root",
+  "role": "TASK Type2",
+  "mechanism": "native delegated child",
+  "receipt_utc": "2026-10-03T19:05:58Z",
+  "freeze_utc": "2026-10-03T19:14:11.569157+00:00",
+  "sealed_utc": "2026-10-03T19:15:47.280171+00:00",
+  "status": "partial; gracefully concluded for owner handoff; no eligibility or acceptance",
+  "source_files": [
+    {
+      "path": "projects/chirality-piping/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+      "bytes": 8346,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "changed_by_I58": false
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+      "bytes": 52328,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "changed_by_I58": false
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/retained_precision_cases.json",
+      "sha256": "67d5cbcc00e26691f67e0c44e7ffa60262ee29487533779a3ff96f93a86aaed8",
+      "bytes": 433981,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/fixtures/results/retained_precision_cases.json",
+      "changed_by_I58": true
+    },
+    {
+      "path": "projects/chirality-piping/schemas/retained_precision_mp_v2.schema.json",
+      "sha256": "5652929173237c547ac58669f14d4b347f6c075634579e1abd5660c774e8dcd0",
+      "bytes": 173167,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/schemas/retained_precision_mp_v2.schema.json",
+      "changed_by_I58": false
+    },
+    {
+      "path": "projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586",
+      "bytes": 131530,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+      "changed_by_I58": false
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/retained_precision.py",
+      "sha256": "a9819e6a7afb7aae109b7fb49b082f2644c565ac2b87003c7ccc3accf75f9a3b",
+      "bytes": 63640,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/core/analysis_runs/retained_precision.py",
+      "changed_by_I58": true
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/physics_source.py",
+      "sha256": "81487a87d5e170b98b1569a8d2e7c42943b9c1be565f3a71c5b5a18879c4aba1",
+      "bytes": 30230,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/core/analysis_runs/physics_source.py",
+      "changed_by_I58": false
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_retained_precision_contract.py",
+      "sha256": "ed910da85847f28dbd9faaadc18e498653ab6babd1fd16a8a01922053121a874",
+      "bytes": 10920,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/tests/test_retained_precision_contract.py",
+      "changed_by_I58": true
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_retained_precision_schema.py",
+      "sha256": "90bbd5660c504d3344ce19756d2b2250f80c0bd5d93b3ec123e5abf10523e504",
+      "bytes": 3627,
+      "snapshot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i58_python_shared_01/source_final/projects/chirality-piping/tests/test_retained_precision_schema.py",
+      "changed_by_I58": false
+    }
+  ],
+  "checks": {
+    "focused_invocations": 3,
+    "final_passed": 53,
+    "failed": 0,
+    "runtime_reaped": true,
+    "no_cargo_or_solve": true
+  },
+  "checkpoint": "snapshot02 and corrected snapshot03 both completed before15-minute deadline; source cutoff voluntarily early at owner direction",
+  "evidence_files": [
+    {
+      "path": "BULK_MANIFEST.json",
+      "bytes": 9038,
+      "sha256": "b4fcdbade5a164285de81c48e801340899f64b4cfbe5f90afd76415020c08901"
+    },
+    {
+      "path": "CHECKS.json",
+      "bytes": 4457,
+      "sha256": "293daf236f33b505a2df5ff848e7683b986aa82a5782201952b84b822f9ce8e3"
+    },
+    {
+      "path": "RECEIPT.json",
+      "bytes": 8266,
+      "sha256": "a2d4d06e2b90d87a1d92e8b0a308fa96fdb69ccef0eb53ef1abc4177d40b0db1"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 5747,
+      "sha256": "7f418873e6b40c4532293d92e4ce3e10c626f73d23d460f03dce8eea07c6ccb4"
+    },
+    {
+      "path": "RUNTIME.json",
+      "bytes": 1001,
+      "sha256": "24698f4493f7ca2b11b75863396597d62fbc341a11b208e03e2b115a26798320"
+    },
+    {
+      "path": "SHARED_SNAPSHOT_02.json",
+      "bytes": 4112,
+      "sha256": "702dbc12007833678992823f9e6ae341d6a0bd4ddd0537183f4dacfbe8988721"
+    },
+    {
+      "path": "SHARED_SNAPSHOT_03.json",
+      "bytes": 5016,
+      "sha256": "506bb5373e73b9ae074e8b472f4a96c61c3aa07b00d0c55ce4ecb5e62c0ef503"
+    },
+    {
+      "path": "SOURCE_FREEZE.json",
+      "bytes": 4336,
+      "sha256": "ee1c8060c2d5453bdfceb94153b4d5b6f6c716750cea0366b057d0c537950f3c"
+    },
+    {
+      "path": "SOURCE_ORIGINS.json",
+      "bytes": 9962,
+      "sha256": "eff7077ff452d2bbb9629ed812eb4faefe1bc770aabfe48f9797bf2f223417da"
+    },
+    {
+      "path": "python_schema_01.json",
+      "bytes": 903,
+      "sha256": "27885b5e6fd2c22fc4bba5084734f2707681e7af47a3dffa0df91ca51303bfa6"
+    },
+    {
+      "path": "python_schema_02.json",
+      "bytes": 903,
+      "sha256": "8cfe68b79c21331ae5c0cdd41d64a62b1fd6640d3e24ac01d188ab07afe78a24"
+    },
+    {
+      "path": "python_schema_03.json",
+      "bytes": 1549,
+      "sha256": "7b446dcc17e9f7b6aca10687d4f25f274f2a77893ee27014dcb1538c141ecbac"
+    }
+  ]
+}

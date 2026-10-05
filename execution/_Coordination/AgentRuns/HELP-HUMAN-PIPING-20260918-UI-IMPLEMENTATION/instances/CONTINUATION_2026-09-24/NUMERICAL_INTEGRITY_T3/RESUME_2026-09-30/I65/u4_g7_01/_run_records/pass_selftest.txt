@@ -1,0 +1,81 @@
+# I65 U4 G7: g7_pass.sh self-test on Pass A's own basis (I65_T=WT g7_pass.sh WT/scratch/i65_u4_g7_01/basis ba1faa1c858ce3630a22767677310b1902a14b83 selftest)
+== tree: listed 2949, mismatched 0, extra 0 (2026-10-04T15:35:13Z)
+== identity: Registered ['test result: ok. 42 passed; 0 failed; 9 ignored; 0 measured; 496 filtered out; finished in 3.38s'] (2026-10-04T15:35:32Z)
+== statics added since Pass A: [] removed [] (2026-10-04T15:35:32Z)
+== TEXT: {"caps": {"l": 128}, "eps": 2, "text_complete": true, "D": 14734, "D_env": 9361, "TAV": 2150800830, "sparse": {"admission_phase": "W3", "E_mov_plus_R": 3504983749, "fraction_of_M": 0.8705, "X1": 0.8176, "W4": 0.8639, "margin_rule": true, "fits_M": true, "TAV_X": 1440401002, "TAV_W": 1570041862, "T25 (2026-10-04T15:35:51Z)
+== rows: {"rows": [2814, 2814], "changed": 0, "unmatched_positive_in_first": 0, "only_in_second": 0, "tav": [2150800830, 2150800830], "max_site": [2599962, 2599962], "D": [14734, 14734], "reachable_fns": [2770, 2770], "complete": [true, true]} (2026-10-04T15:35:51Z)
+== rows_W: {"rows": [2814, 2814], "changed": 0, "unmatched_positive_in_first": 0, "only_in_second": 0, "tav": [1570041862, 1570041862], "max_site": [2599962, 2599962], "D": [9400, 9400], "reachable_fns": [2770, 2770], "complete": [true, true]} (2026-10-04T15:35:51Z)
+== rows_X: {"rows": [2814, 2814], "changed": 0, "unmatched_positive_in_first": 0, "only_in_second": 0, "tav": [1440401002, 1440401002], "max_site": [2599962, 2599962], "D": [14723, 14723], "reachable_fns": [2770, 2770], "complete": [true, true]} (2026-10-04T15:35:51Z)
+== rows_env: {"rows": [2814, 2814], "changed": 0, "unmatched_positive_in_first": 0, "only_in_second": 0, "tav": [642949448, 642949448], "max_site": [2599962, 2599962], "D": [9361, 9361], "reachable_fns": [2770, 2770], "complete": [true, true]} (2026-10-04T15:35:51Z)
+   identical composite_text.caps.json
+   identical g4_caps.caps.eps2.out.json
+   identical ordinary_caps.caps.out.json
+   identical producer_caps.caps.out.json
+   identical profile_tree.json
+   identical t07_repair.caps.out.json
+   identical t08_closure.caps.log
+   identical t25_g4.caps.eps2.out.json
+== summary identical (2026-10-04T15:35:51Z)
+== profile block vs transcription: 2 changed lines (Pass A: the T17_V4 line only, if the F5 term is not applied) (2026-10-04T15:35:51Z)
+test retained_memory::law_tests::profile_in_build_record ... I65_G5_PROFILE mode=sparse max_without_R=3508669422 E_mov_plus_R=3575778286 fraction_of_M=0.8881 phase=W3 publication (T16) with the staged copy
+I65_G5_PROFILE mode=dense max_without_R=3528379870 E_mov_plus_R=3595488734 fraction_of_M=0.8929 phase=W3 publication (T16) with the staged copy
+== section 11 sweep: carried: every non-candidate is one RV87 read (2026-10-04T15:35:54Z)
+== controls: 11/11 pass (2026-10-04T15:36:21Z)
+== pass_selftest_pp start 2026-10-04T15:36:21Z
+== pass_selftest_pp exit=101 2026-10-04T15:37:50Z
+pass_selftest_pp: 699 passed, 1 failed, 10 ignored
+== challenge exit=0
+I65_G5_CHALLENGE milestone SparseInteractive permitted=true peak_bytes=3541898 bound_bytes=3508669422 ratio=0.001009
+I65_G5_CHALLENGE milestone DenseScrutiny permitted=true peak_bytes=2252863 bound_bytes=3528379870 ratio=0.000638
+I65_G5_CHALLENGE cap_maximal SparseInteractive permitted=false peak_bytes=13221606 bound_bytes=1856156348 ratio=0.007123
+I65_G5_CHALLENGE cap_maximal DenseScrutiny permitted=false peak_bytes=13229826 bound_bytes=1875866796 ratio=0.007053
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.57s
+== pass_selftest_runner start 2026-10-04T15:37:52Z
+== pass_selftest_runner exit=101 2026-10-04T15:38:53Z
+pass_selftest_runner: 85 passed, 2 failed, 0 ignored
+== witness_w1_milestone exit=0
+I65_G5_WITNESS W1 SparseInteractive stack=4194304 ran=Successor
+I65_G5_WITNESS W1 DenseScrutiny stack=4194304 ran=Successor
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 546 filtered out; finished in 1.31s
+== witness_w2_cap_maximal exit=0
+I65_G5_WITNESS W2 DenseScrutiny stack=4194304 ran=Fallback("Preparation")
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 546 filtered out; finished in 0.04s
+== witness_w2_deep_milestone_publishes exit=0
+I65_G5_WITNESS W2-deep SparseInteractive stack=4194304 ran=Successor
+I65_G5_WITNESS W2-deep SparseInteractive stack=1048576 ran=Successor
+I65_G5_WITNESS W2-deep DenseScrutiny stack=4194304 ran=Successor
+I65_G5_WITNESS W2-deep DenseScrutiny stack=1048576 ran=Successor
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 546 filtered out; finished in 2.61s
+== witness_w2b_cap_maximal_solvable exit=0
+I65_G5_WITNESS W2b SparseInteractive stack=4194304 ran=Fallback("Candidate")
+I65_G5_WITNESS W2b DenseScrutiny stack=4194304 ran=Fallback("Candidate")
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 546 filtered out; finished in 41.06s
+== witness_w3_exact_selected exit=0
+I65_G5_WITNESS W3 DenseScrutiny stack=4194304 ran=ExactSelected
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 546 filtered out; finished in 0.09s
+== witness_w4_preparation_refusal exit=0
+I65_G5_WITNESS W4 DenseScrutiny stack=4194304 ran=Fallback("Preparation")
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 546 filtered out; finished in 0.01s
+== witness_w6_force_scaled exit=0
+I65_G5_WITNESS W6 SparseInteractive stack=4194304 ran=Fallback("Native")
+I65_G5_WITNESS_OUTCOME W6 SparseInteractive Fallback("Native")
+I65_G5_WITNESS W6 DenseScrutiny stack=4194304 ran=Fallback("Native")
+I65_G5_WITNESS_OUTCOME W6 DenseScrutiny Fallback("Native")
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 546 filtered out; finished in 0.11s
+== witness_w7_fault_fallbacks exit=0
+I65_G5_WITNESS W7 serializer stack=4194304 ran=Fallback("Serializer(ReceiptFailure { check: Encoding, field_path: \"cases[].run.invocation_after\" })")
+I65_G5_WITNESS W7 staging stack=4194304 ran=Fallback("Staging(StagingFault(\"pipe_stress_extrema[]\"))")
+I65_G5_WITNESS W7 precommit binding stack=4194304 ran=Fallback("Precommit { gate: \"G8\", code: \"RETAINED_PRECISION_INVOCATION_MISMATCH\" }")
+I65_G5_WITNESS W7 precommit corruption stack=4194304 ran=Fallback("Precommit { gate: \"G1\", code: \"RETAINED_PRECISION_RECEIPT_MISMATCH\" }")
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 546 filtered out; finished in 2.54s
+== witness_headroom_w1_at_one_mebibyte exit=0
+I65_G5_WITNESS W1@1MiB SparseInteractive stack=1048576 ran=Successor
+I65_G5_WITNESS W1@1MiB DenseScrutiny stack=1048576 ran=Successor
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 546 filtered out; finished in 1.35s
+== done 2026-10-04T15:39:43Z
+== pp outcomes identical to Pass A (2026-10-04T15:39:43Z)
+== runner outcomes identical to Pass A (2026-10-04T15:39:43Z)
+== done (2026-10-04T15:39:43Z)
+== profile_block.diff (the committed block vs the chain's transcription with F5):
+-        Form { name: "T17_V4", constant: 6920061, terms: &[(2, 4189), (3, 39), (8, 8037), (20, 57880), (21, 1024), (23, 12288), (181, 4096), (208, 51309), (222, 8460), (223, 8192)] },
++        Form { name: "T17_V4", constant: 6920061, terms: &[(2, 4189), (3, 39), (8, 8037), (20, 83625), (21, 1024), (23, 12288), (181, 4096), (208, 51309), (222, 8460), (223, 8192)] },

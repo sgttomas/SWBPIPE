@@ -1,0 +1,6 @@
+# RV90 round 02 suite runs (07h = cc4dd61d67 archive under WT/rv90/h)
+python 07h (contract + schema): 391 passed in 90.55s (0:01:30)
+rust 07h result_export: 164 passed, 0 failed over 12 binaries; retained_precision_contract: 61 passed
+typescript 07h vitest (retainedPrecision.test.ts):  Tests 448 passed (448)
+tsc 07h: tsc exit 0
+N3 check (Rust F5 line removed, d6_d7 only): 1 failure at the F5 assertion, left: Null (admitted without F5)

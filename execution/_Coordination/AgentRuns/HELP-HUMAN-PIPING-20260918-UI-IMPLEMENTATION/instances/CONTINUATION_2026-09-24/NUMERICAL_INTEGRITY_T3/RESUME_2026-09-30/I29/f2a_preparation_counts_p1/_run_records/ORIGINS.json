@@ -1,0 +1,232 @@
+{
+  "source_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "NUM_HEAD": "d85405edcdbb894544a64051faa768db8951060c",
+  "origins": [
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "AGENTS.md",
+      "bytes": 14200,
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "read_scope": "previous full instruction read; current hash recorded"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "agents/AGENT_TASK.md",
+      "bytes": 1499,
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "read_scope": "previous full role read; current hash recorded"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/AGENTS.md",
+      "bytes": 9016,
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "read_scope": "previous full project instruction read; current hash recorded"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I29_F2A_PREPARATION_COUNTS_P1.md",
+      "bytes": 3117,
+      "sha256": "63a055bc16db5842c717b24f86f3c644cc50f27bf9e60ea80dea01c876f055ce",
+      "read_scope": "full brief",
+      "binding_revision": "1dead12a96cc665e9aeade2688df98ff312183d3",
+      "matches_binding": true
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+      "bytes": 481283,
+      "sha256": "24df9d8ca993b28fcfc40b4ddd16b69808c9db4849f5a20b22cb4cbafc1a9bc2",
+      "read_scope": "current appended disposition and relevant prior choices"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_routing_02/RETURN.md",
+      "bytes": 2141,
+      "sha256": "b72927c851dac20087d74e5324f01d44f31fe88a393d9605e46455ccc7283880",
+      "read_scope": "full return"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_routing_02/ROUTING.md",
+      "bytes": 17967,
+      "sha256": "5e741b01979f972d7fb62c9ad73023ffab8488a5d0e3ba2f5a3f7ae7ecdb412f",
+      "read_scope": "routing/pre-continuation and source ownership contract"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_native_reply_03/CONTRACT.md",
+      "bytes": 16006,
+      "sha256": "75304a6bc381d3cd5b4f398550b330902228e38e192f32e3efe5177210d250ed",
+      "read_scope": "native contract scope and ownership sections; caller proof not rederived"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/SOURCE_COMBINATIONS.md",
+      "bytes": 22497,
+      "sha256": "28bc4dd617d3d929da178be1716b74db80d77391aefac2bae8af47b0744a4054",
+      "read_scope": "mixed prepared-source API and prescribed/ledger ownership sections; C2 supersedes terminal wrapper",
+      "binding_revision": "0017eba9927d559db6588649a54d09a5b687fba8",
+      "matches_binding": true
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/WIRE_CONTRACT.md",
+      "bytes": 29991,
+      "sha256": "c8ab2318457bd3897e207888af80f54f1a889071bf630ff1815939d922a567e3",
+      "read_scope": "counter/encoding contract reused; no work proof inferred",
+      "binding_revision": "0017eba9927d559db6588649a54d09a5b687fba8",
+      "matches_binding": true
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/CONTRACT_DELTA.md",
+      "bytes": 53986,
+      "sha256": "923da0b97eb5becad7e7c1373c5a6f362568dc28ac8eab029c9170677c890869",
+      "read_scope": "corrected case/combination maps, calls, errors and ownership/count sections",
+      "binding_revision": "0a4afd6318ec33927d01bb7786a75e43c6ea334d",
+      "matches_binding": true
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV43/f2a_wire_c2_04/RETURN.md",
+      "bytes": 5520,
+      "sha256": "540d74ac5b081e854cc804986b5ab797a7da60d3a5dc443ed1e1ad7902f8e081",
+      "read_scope": "full confirmation",
+      "binding_revision": "f2d647046018066ba94d942dd97043d9ce74e81c",
+      "matches_binding": true
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "bytes": 984833,
+      "sha256": "b6c8d32de08535825cc5b591ce25f1a3761374abe8aa591c8e5c059dd34a956f",
+      "binding_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "matches_binding": true,
+      "read_scope": "source allocation/count excerpts, with unchanged previous I29 source reading reused where noted in packet; not numeric-phase proof"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+      "bytes": 44573,
+      "sha256": "16df0df35138734f85086d50b3544e552bd65db16998862ebf16c5d59303e32b",
+      "binding_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "matches_binding": true,
+      "read_scope": "source allocation/count excerpts, with unchanged previous I29 source reading reused where noted in packet; not numeric-phase proof"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "bytes": 24432,
+      "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9",
+      "binding_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "matches_binding": true,
+      "read_scope": "source allocation/count excerpts, with unchanged previous I29 source reading reused where noted in packet; not numeric-phase proof"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "bytes": 160870,
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "binding_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "matches_binding": true,
+      "read_scope": "source allocation/count excerpts, with unchanged previous I29 source reading reused where noted in packet; not numeric-phase proof"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
+      "bytes": 6203,
+      "sha256": "b40ab81311a80720cc19bbbe03fccad4f4f371cc78e2b51e4eec8ab2079a32f1",
+      "binding_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "matches_binding": true,
+      "read_scope": "source allocation/count excerpts, with unchanged previous I29 source reading reused where noted in packet; not numeric-phase proof"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+      "bytes": 8977,
+      "sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e",
+      "binding_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "matches_binding": true,
+      "read_scope": "source allocation/count excerpts, with unchanged previous I29 source reading reused where noted in packet; not numeric-phase proof"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+      "bytes": 17973,
+      "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+      "binding_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "matches_binding": true,
+      "read_scope": "source allocation/count excerpts, with unchanged previous I29 source reading reused where noted in packet; not numeric-phase proof"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+      "bytes": 29280,
+      "sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2",
+      "binding_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "matches_binding": true,
+      "read_scope": "source allocation/count excerpts, with unchanged previous I29 source reading reused where noted in packet; not numeric-phase proof"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "bytes": 29088,
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+      "binding_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "matches_binding": true,
+      "read_scope": "source allocation/count excerpts, with unchanged previous I29 source reading reused where noted in packet; not numeric-phase proof"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+      "bytes": 46099,
+      "sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100",
+      "binding_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "matches_binding": true,
+      "read_scope": "source allocation/count excerpts, with unchanged previous I29 source reading reused where noted in packet; not numeric-phase proof"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+      "bytes": 75482,
+      "sha256": "43c1f369a2fafef0dda00503f06b602bb3f0996c1c7f5fe398dce1145d735ee6",
+      "binding_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "matches_binding": true,
+      "read_scope": "source allocation/count excerpts, with unchanged previous I29 source reading reused where noted in packet; not numeric-phase proof"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs",
+      "bytes": 51441,
+      "sha256": "3e5b9be185428f1652775f60cbb98b9d30e08bff4ce2a9b2bb83ccf662d30a1b",
+      "binding_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "matches_binding": true,
+      "read_scope": "source allocation/count excerpts, with unchanged previous I29 source reading reused where noted in packet; not numeric-phase proof"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "bytes": 117294,
+      "sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d",
+      "binding_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "matches_binding": true,
+      "read_scope": "source allocation/count excerpts, with unchanged previous I29 source reading reused where noted in packet; not numeric-phase proof"
+    },
+    {
+      "origin_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs",
+      "bytes": 10875,
+      "sha256": "3a847f8dbaa74768603c4d9693b538f1f63c2d172026ed7ab400aea3b4800f67",
+      "binding_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+      "matches_binding": true,
+      "read_scope": "source allocation/count excerpts, with unchanged previous I29 source reading reused where noted in packet; not numeric-phase proof"
+    },
+    {
+      "absolute_origin": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/proposal-format/SKILL.md",
+      "bytes": 1688,
+      "sha256": "63e6d2545c31df939511a5a137c214d5444ca562f6abf9b048de3aa2f8dac59d",
+      "read_scope": "selected proposal-format skill reused"
+    }
+  ]
+}

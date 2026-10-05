@@ -1,0 +1,46 @@
+{
+  "commands": [
+    {
+      "name": "final_debug",
+      "final_candidate_hashes_match": true,
+      "exit_code": 0
+    },
+    {
+      "name": "final_release",
+      "final_candidate_hashes_match": true,
+      "exit_code": 0
+    },
+    {
+      "name": "compat_bridge",
+      "final_candidate_hashes_match": true,
+      "exit_code": 0
+    },
+    {
+      "name": "compat_member",
+      "final_candidate_hashes_match": true,
+      "exit_code": 0
+    },
+    {
+      "name": "compat_sqrt",
+      "final_candidate_hashes_match": true,
+      "exit_code": 0
+    },
+    {
+      "name": "s11",
+      "final_candidate_hashes_match": true,
+      "exit_code": 0
+    }
+  ],
+  "actual_emitted_trace_parity": [
+    {
+      "reviewer_log": "native_debug.log",
+      "author_final_log": "final_debug.log",
+      "records_equal": 118
+    },
+    {
+      "reviewer_log": "native_release.log",
+      "author_final_log": "final_release.log",
+      "records_equal": 118
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+[
+ {
+  "id": "C2",
+  "what": "CI policy pin only: test_ci_e2e_plan alone with NUMERICAL_APP_INPUTS emptied",
+  "file": "tools/ci/e2e_plan.py",
+  "status": "KILLED",
+  "rc": 1,
+  "seconds": 4,
+  "first_failures": [
+   "FAILED tests/test_ci_e2e_plan.py::PolicyTests::test_numerical_policy_is_independent_and_whole_pr"
+  ]
+ }
+]

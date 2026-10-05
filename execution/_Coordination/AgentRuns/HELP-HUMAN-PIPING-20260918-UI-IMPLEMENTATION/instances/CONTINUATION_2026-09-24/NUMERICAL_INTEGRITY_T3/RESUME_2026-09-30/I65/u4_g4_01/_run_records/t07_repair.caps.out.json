@@ -1,0 +1,171 @@
+{
+ "which": "caps",
+ "counts": {
+  "n": 32,
+  "m": 32,
+  "g": 32,
+  "s": 32,
+  "r": 192,
+  "l": 192,
+  "N": 192,
+  "F": 192,
+  "C": 4640,
+  "Z": 4640,
+  "Fn": 1760,
+  "ft": 192
+ },
+ "identity": {
+  "names": 1992,
+  "bits": 12456,
+  "escaped_json_upper": 1797413,
+  "capacity_J3": 3594826
+ },
+ "descriptor_units_#1": 41760,
+ "descriptor_unit_limit": 16384,
+ "descriptor_generations_live_at_once": 3,
+ "descriptors_#1_outer_capacity": 3072,
+ "rows": {
+  "A1 Sources.assembly (dense AssemblyEvidence)": {
+   "symbolic": "32*s((usize,f64)) + 32*s((usize,usize,bool)) + 32*s(FrameElement) + 32*s(Option<[f64;3]>) + 8192*s(StiffnessContribution) + 384*s(Vec) + 590080",
+   "assumed_bytes": 804608
+  },
+  "A2 Sources.force_terms": {
+   "symbolic": "256*s(ForceContribution) + 24576",
+   "assumed_bytes": 34816
+  },
+  "A3 descriptors #1 (construction law)": {
+   "symbolic": "16736*s(AffineTerm) + 3072*s(FunctionalDescriptor) + 12512*s(Vec) + 650496",
+   "assumed_bytes": 1879552
+  },
+  "A4 Sources.identity String (J3 capacity)": {
+   "symbolic": "3594826",
+   "assumed_bytes": 3594826
+  },
+  "A5 member/spring/support id vectors": {
+   "symbolic": "64*s((String,usize)) + 32*s(String) + 12288",
+   "assumed_bytes": 15104
+  },
+  "B1 AssemblyEvidence construction stores (magnitudes, scatter_counts)": {
+   "symbolic": "384*s(Vec) + 589824",
+   "assumed_bytes": 599040
+  },
+  "B2 folded_stiffness": {
+   "symbolic": "192*s(Vec) + 294912",
+   "assumed_bytes": 299520
+  },
+  "B3 folded_force ledger": {
+   "symbolic": "256*s(ForceTerm) + 256*s(Option<FormationRecord>) + 192*s(Vec<usize>) + 37376",
+   "assumed_bytes": 70656
+  },
+  "B4 hash maps and sets": {
+   "symbolic": "384*s(&str) + 320*s((&str,&T)) + 128*s((&str,usize)) + 993",
+   "assumed_bytes": 17889
+  },
+  "B5 boundary vectors": {
+   "symbolic": "32*s((&str,usize,u64)) + 32*s((usize,f64)) + 192*s(Option<f64>) + 192*s(Option<usize>) + 1984",
+   "assumed_bytes": 9664
+  },
+  "B6 identity builder (names Vec + strings, bits Vec)": {
+   "symbolic": "2048*s(String) + 454272",
+   "assumed_bytes": 503424
+  },
+  "B7 descriptor construction transients (one member's rows + one key clone)": {
+   "symbolic": "48*s(AffineTerm) + 16*s(FunctionalDescriptor) + 42*s(Vec) + 3664",
+   "assumed_bytes": 8256
+  },
+  "C1 Context Snapshot #1 (identity copy 1 = length)": {
+   "symbolic": "192*s(ForceContribution) + 4640*s(StiffnessContribution) + 192*s(Vec) + 2123045",
+   "assumed_bytes": 2246693
+  },
+  "C2 Context k": {
+   "symbolic": "36864*s(Expansion) + 192*s(Vec) + 222720",
+   "assumed_bytes": 1406976
+  },
+  "C3 Context f": {
+   "symbolic": "192*s(Expansion) + 9216",
+   "assumed_bytes": 15360
+  },
+  "C4 blocks": {
+   "symbolic": "256*s(Vec<usize>) + 6144",
+   "assumed_bytes": 12288
+  },
+  "C5 witnesses": {
+   "symbolic": "256*s(BlockWitness) + 1575936",
+   "assumed_bytes": 1606656
+  },
+  "C6 new_charged transients": {
+   "symbolic": "192*s(Vec) + 309120",
+   "assumed_bytes": 313728
+  },
+  "C7 source_preflight and attempt token": {
+   "symbolic": "16",
+   "assumed_bytes": 16
+  },
+  "D1 Response displacement and reactions": {
+   "symbolic": "384*s(Ratio) + 1572864",
+   "assumed_bytes": 1597440
+  },
+  "D2 solve temporaries (11 Expansions, block phase)": {
+   "symbolic": "22528",
+   "assumed_bytes": 22528
+  },
+  "E1 FunctionalPlan descriptors #2 (16,384-unit law)": {
+   "symbolic": "16384*s(AffineTerm) + 1760*s(FunctionalDescriptor) + 16384*s(Vec) + 581632",
+   "assumed_bytes": 1724416
+  },
+  "E2 descriptors_charge ordering vectors (plan, retain)": {
+   "symbolic": "28160",
+   "assumed_bytes": 28160
+  },
+  "F1 FunctionalSet values": {
+   "symbolic": "1760*s(Ratio) + 7208960",
+   "assumed_bytes": 7321600
+  },
+  "F2 evaluate transients": {
+   "symbolic": "192*s(Expansion) + 417792",
+   "assumed_bytes": 423936
+  },
+  "G1 projection vectors": {
+   "symbolic": "2048*s(QualifiedFunctionalProjection) + 512*s(QualifiedProjection)",
+   "assumed_bytes": 245760
+  },
+  "G2 project temporaries": {
+   "symbolic": "12288",
+   "assumed_bytes": 12288
+  },
+  "H1 retained Snapshot #2 (identity copy 2 = length)": {
+   "symbolic": "192*s(ForceContribution) + 4640*s(StiffnessContribution) + 192*s(Vec) + 2123045",
+   "assumed_bytes": 2246693
+  },
+  "H2 retained witnesses, displacement, reactions, projections": {
+   "symbolic": "192*s(BlockWitness) + 384*s(Ratio) + 384*s(RetainedProjection) + 3149376",
+   "assumed_bytes": 3224640
+  },
+  "H3 retained descriptors #3 (16,384-unit law)": {
+   "symbolic": "16384*s(AffineTerm) + 1760*s(FunctionalDescriptor) + 16384*s(Vec) + 581632",
+   "assumed_bytes": 1724416
+  },
+  "H4 retained values and projections": {
+   "symbolic": "1760*s(Ratio) + 1760*s(RetainedFunctionalProjection) + 7208960",
+   "assumed_bytes": 7448320
+  },
+  "I1 selected output": {
+   "symbolic": "32*s(MemberRecovery) + 32*s(SpringAction) + 32*s(SupportActions) + 18432",
+   "assumed_bytes": 46336
+  },
+  "J1 caller dense recovery stiffness (formed.to_dense)": {
+   "symbolic": "192*s(Vec) + 294912",
+   "assumed_bytes": 299520
+  }
+ },
+ "T07_requested": {
+  "symbolic": "384*s(&str) + 320*s((&str,&T)) + 128*s((&str,usize)) + 32*s((&str,usize,u64)) + 64*s((String,usize)) + 64*s((usize,f64)) + 32*s((usize,usize,bool)) + 49552*s(AffineTerm) + 448*s(BlockWitness) + 37248*s(Expansion) + 640*s(ForceContribution) + 256*s(ForceTerm) + 32*s(FrameElement) + 6608*s(FunctionalDescriptor) + 32*s(MemberRecovery) + 256*s(Option<FormationRecord>) + 32*s(Option<[f64;3]>) + 192*s(Option<f64>) + 192*s(Option<usize>) + 2048*s(QualifiedFunctionalProjection) + 512*s(QualifiedProjection) + 4288*s(Ratio) + 1760*s(RetainedFunctionalProjection) + 384*s(RetainedProjection) + 32*s(SpringAction) + 17472*s(StiffnessContribution) + 2080*s(String) + 32*s(SupportActions) + 47242*s(Vec) + 448*s(Vec<usize>) + 33722069",
+  "assumed_bytes": 39805125
+ },
+ "moving_extra": {
+  "largest_single_old_backing": "identity JSON old backing",
+  "symbolic": "1797413",
+  "assumed_bytes": 1797413
+ },
+ "T07_moving_assumed_bytes": 41602538
+}

@@ -1,0 +1,43 @@
+{
+  "status": "Sealed RV48 repair-backcheck evidence; not acceptance or authorization",
+  "sealed_UTC": "2026-10-02T22:23:23.997963+00:00",
+  "candidate_revision": "b1ebe245ecde6a5e27ca9f9bd94a7020e5959422",
+  "self_exclusion": "WRITE_INVENTORY.json is not self-hashed",
+  "files": [
+    {
+      "path": "RETURN.md",
+      "bytes": 5354,
+      "sha256": "5491674e2d1b7f3108b16141f8e8f7de54c03236fc4b3ce43d53c266fdcd34dc"
+    },
+    {
+      "path": "_run_records/BACKCHECK_CHECKS.json",
+      "bytes": 9390,
+      "sha256": "6d9fc5e81436b79e0d798ad75a661ba06294f1e4e6f385570f546f78c25a8fe5"
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "bytes": 9938,
+      "sha256": "bb73d1cab0530aa7718c8455e035a712b1d12f9c9158906f6b1882a2b740121a"
+    },
+    {
+      "path": "_run_records/SESSION.json",
+      "bytes": 3180,
+      "sha256": "ed6f6e616896c0c1383bfb6de390e4c6b4359b31fed992a23fb57d21dcfcc68e"
+    },
+    {
+      "path": "_run_records/backcheck.py",
+      "bytes": 6857,
+      "sha256": "eefa516a9136643bd72c0b9d4c428adbd515c362ef3b7d45152a293661c17174"
+    },
+    {
+      "path": "_run_records/replay/COUNT_CHECKS.json",
+      "bytes": 2995,
+      "sha256": "33f748e62cf744239284fe0fbdb504d4d3c04f463ca9a5b25b4c6a7012c7e27a"
+    },
+    {
+      "path": "_run_records/replay/correction_02/COUNT_CHECKS.json",
+      "bytes": 7815,
+      "sha256": "f472460d73ac92f3a3ce45923a7f9eac401d1316496c6312db246314df1123c8"
+    }
+  ]
+}

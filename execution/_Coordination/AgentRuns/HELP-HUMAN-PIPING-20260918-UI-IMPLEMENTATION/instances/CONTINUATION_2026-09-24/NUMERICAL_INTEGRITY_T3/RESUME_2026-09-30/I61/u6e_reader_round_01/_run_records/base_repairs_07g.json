@@ -1,0 +1,343 @@
+[
+ {
+  "id": "ordinary_prepared_synthetic",
+  "before": [
+   [
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ],
+  "after": [
+   [
+    "diagnostic:load:load-fixture-global_x:category-mapping",
+    "diagnostic:load:load-fixture-global_y:category-mapping",
+    "diagnostic:load:load-fixture-global_z:category-mapping",
+    "diagnostic:load:load-fixture-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ]
+ },
+ {
+  "id": "ordinary_prepared_dense_synthetic",
+  "before": [
+   [
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ],
+  "after": [
+   [
+    "diagnostic:load:load-fixture-global_x:category-mapping",
+    "diagnostic:load:load-fixture-global_y:category-mapping",
+    "diagnostic:load:load-fixture-global_z:category-mapping",
+    "diagnostic:load:load-fixture-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ]
+ },
+ {
+  "id": "ordinary_prepared_no_data_synthetic",
+  "before": [
+   [
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ],
+  "after": [
+   [
+    "diagnostic:load:load-fixture-global_x:category-mapping",
+    "diagnostic:load:load-fixture-global_y:category-mapping",
+    "diagnostic:load:load-fixture-global_z:category-mapping",
+    "diagnostic:load:load-fixture-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ]
+ },
+ {
+  "id": "ordinary_prepared_cancelled_loads_synthetic",
+  "before": [
+   [
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ],
+  "after": [
+   [
+    "diagnostic:load:load-fixture-cancel-plus:category-mapping",
+    "diagnostic:load:load-fixture-cancel-minus:category-mapping",
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ]
+ },
+ {
+  "id": "two_case_facade_after_certificate_synthetic",
+  "before": [
+   [
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ],
+   [
+    "diagnostic:numerical-integrity:case:unavailable-row"
+   ]
+  ],
+  "after": [
+   [
+    "diagnostic:load:load-fixture-global_x:category-mapping",
+    "diagnostic:load:load-fixture-global_y:category-mapping",
+    "diagnostic:load:load-fixture-global_z:category-mapping",
+    "diagnostic:load:load-fixture-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ],
+   [
+    "diagnostic:load:load-fixture-u-global_x:category-mapping",
+    "diagnostic:load:load-fixture-u-global_y:category-mapping",
+    "diagnostic:load:load-fixture-u-global_z:category-mapping",
+    "diagnostic:load:load-fixture-u-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-u-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-u-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:unavailable-row"
+   ]
+  ]
+ },
+ {
+  "id": "two_case_preparation_failure_synthetic",
+  "before": [
+   [
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ],
+   [
+    "diagnostic:numerical-integrity:case:unavailable-row"
+   ]
+  ],
+  "after": [
+   [
+    "diagnostic:load:load-fixture-global_x:category-mapping",
+    "diagnostic:load:load-fixture-global_y:category-mapping",
+    "diagnostic:load:load-fixture-global_z:category-mapping",
+    "diagnostic:load:load-fixture-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ],
+   [
+    "diagnostic:load:load-fixture-u-global_x:category-mapping",
+    "diagnostic:load:load-fixture-u-global_y:category-mapping",
+    "diagnostic:load:load-fixture-u-global_z:category-mapping",
+    "diagnostic:load:load-fixture-u-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-u-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-u-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:unavailable-row"
+   ]
+  ]
+ },
+ {
+  "id": "two_body_synthetic",
+  "before": [
+   [
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ],
+  "after": [
+   [
+    "diagnostic:load:load-fixture-global_x:category-mapping",
+    "diagnostic:load:load-fixture-global_y:category-mapping",
+    "diagnostic:load:load-fixture-global_z:category-mapping",
+    "diagnostic:load:load-fixture-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ]
+ },
+ {
+  "id": "p512_ladder_synthetic",
+  "before": [
+   [
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ],
+  "after": [
+   [
+    "diagnostic:load:load-fixture-global_x:category-mapping",
+    "diagnostic:load:load-fixture-global_y:category-mapping",
+    "diagnostic:load:load-fixture-global_z:category-mapping",
+    "diagnostic:load:load-fixture-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ]
+ },
+ {
+  "id": "two_case_synthetic",
+  "before": [
+   [
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ],
+   [
+    "diagnostic:numerical-integrity:case:zero-load"
+   ]
+  ],
+  "after": [
+   [
+    "diagnostic:load:load-fixture-global_x:category-mapping",
+    "diagnostic:load:load-fixture-global_y:category-mapping",
+    "diagnostic:load:load-fixture-global_z:category-mapping",
+    "diagnostic:load:load-fixture-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ],
+   [
+    "diagnostic:load:load-fixture-z-global_x:category-mapping",
+    "diagnostic:load:load-fixture-z-global_y:category-mapping",
+    "diagnostic:load:load-fixture-z-global_z:category-mapping",
+    "diagnostic:load:load-fixture-z-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-z-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-z-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:zero-load"
+   ]
+  ]
+ },
+ {
+  "id": "candidate_failure_skip_synthetic",
+  "before": [
+   [
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ],
+  "after": [
+   [
+    "diagnostic:load:load-fixture-global_x:category-mapping",
+    "diagnostic:load:load-fixture-global_y:category-mapping",
+    "diagnostic:load:load-fixture-global_z:category-mapping",
+    "diagnostic:load:load-fixture-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ]
+ },
+ {
+  "id": "verification_failure_skip_synthetic",
+  "before": [
+   [
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ],
+  "after": [
+   [
+    "diagnostic:load:load-fixture-global_x:category-mapping",
+    "diagnostic:load:load-fixture-global_y:category-mapping",
+    "diagnostic:load:load-fixture-global_z:category-mapping",
+    "diagnostic:load:load-fixture-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ]
+ },
+ {
+  "id": "two_case_shared_failed_cache_synthetic",
+  "before": [
+   [
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ],
+   [
+    "diagnostic:numerical-integrity:case:unavailable-row"
+   ]
+  ],
+  "after": [
+   [
+    "diagnostic:load:load-fixture-global_x:category-mapping",
+    "diagnostic:load:load-fixture-global_y:category-mapping",
+    "diagnostic:load:load-fixture-global_z:category-mapping",
+    "diagnostic:load:load-fixture-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ],
+   [
+    "diagnostic:load:load-fixture-u-global_x:category-mapping",
+    "diagnostic:load:load-fixture-u-global_y:category-mapping",
+    "diagnostic:load:load-fixture-u-global_z:category-mapping",
+    "diagnostic:load:load-fixture-u-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-u-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-u-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:unavailable-row"
+   ]
+  ]
+ },
+ {
+  "id": "two_case_two_groups_synthetic",
+  "before": [
+   [
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ],
+   [
+    "diagnostic:numerical-integrity:case:stiff-basis"
+   ]
+  ],
+  "after": [
+   [
+    "diagnostic:load:load-fixture-global_x:category-mapping",
+    "diagnostic:load:load-fixture-global_y:category-mapping",
+    "diagnostic:load:load-fixture-global_z:category-mapping",
+    "diagnostic:load:load-fixture-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ],
+   [
+    "diagnostic:load:load-fixture-s-global_x:category-mapping",
+    "diagnostic:load:load-fixture-s-global_y:category-mapping",
+    "diagnostic:load:load-fixture-s-global_z:category-mapping",
+    "diagnostic:load:load-fixture-s-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-s-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-s-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:stiff-basis"
+   ]
+  ]
+ },
+ {
+  "id": "ordinary_prepared_interpolated_material_synthetic",
+  "before": [
+   [
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ],
+  "after": [
+   [
+    "diagnostic:load:load-fixture-global_x:category-mapping",
+    "diagnostic:load:load-fixture-global_y:category-mapping",
+    "diagnostic:load:load-fixture-global_z:category-mapping",
+    "diagnostic:load:load-fixture-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ]
+ },
+ {
+  "id": "ordinary_prepared_mm_units_synthetic",
+  "before": [
+   [
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ],
+  "after": [
+   [
+    "diagnostic:load:load-fixture-global_x:category-mapping",
+    "diagnostic:load:load-fixture-global_y:category-mapping",
+    "diagnostic:load:load-fixture-global_z:category-mapping",
+    "diagnostic:load:load-fixture-rotation_x:category-mapping",
+    "diagnostic:load:load-fixture-rotation_y:category-mapping",
+    "diagnostic:load:load-fixture-rotation_z:category-mapping",
+    "diagnostic:numerical-integrity:case:six-component-load"
+   ]
+  ]
+ }
+]

@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-03T16:59:12.480066+00:00",
+  "manifest_sha256": "19c97f0d17953e0bb90162d1ca95b892ab279742fa59cd1c8b673091a977da31",
+  "payloads": 6,
+  "bulk_files": 79,
+  "bulk_bytes": 3888432,
+  "input_index_hash_checked": true,
+  "status": "preserved for independent source/arithmetic review; not accepted"
+}

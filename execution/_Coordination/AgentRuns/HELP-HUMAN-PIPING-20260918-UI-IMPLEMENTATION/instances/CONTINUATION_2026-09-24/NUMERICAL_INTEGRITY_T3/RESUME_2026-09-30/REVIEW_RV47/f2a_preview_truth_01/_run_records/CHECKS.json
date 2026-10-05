@@ -1,0 +1,61 @@
+{
+  "status": "source and metadata checks only",
+  "candidate_changed_files": [
+    "A\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_preview_truth_01/RETURN.md",
+    "A\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_preview_truth_01/_run_records/CHECKS.json",
+    "A\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_preview_truth_01/_run_records/EXECUTION.json",
+    "A\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_preview_truth_01/_run_records/INVENTORY.json",
+    "A\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_preview_truth_01/_run_records/ORIGINS.json"
+  ],
+  "exact_five_file_scope": true,
+  "author_payloads": [
+    {
+      "path": "RETURN.md",
+      "bytes": 18757,
+      "sha256": "0f3ea0bed9b3ce93e7c7e75ee3dc6acac2f23d6f29f775058c24be7c69d9211c",
+      "matches": true
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "bytes": 23683,
+      "sha256": "6fd7d45b6db071115921ad1bf8ed03d100d94d7f0f9973cac0b372ccab583721",
+      "matches": true
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "bytes": 1085,
+      "sha256": "13b23c35ed552f4398dc71411d73a1aeed683cb07927479ea9ae2261d88fcf6c",
+      "matches": true
+    },
+    {
+      "path": "_run_records/EXECUTION.json",
+      "bytes": 1935,
+      "sha256": "ffd9e5eef9fed52e1aaba38eb3c0b5492b1b88897bc3893f79fef41a7a95c518",
+      "matches": true
+    }
+  ],
+  "author_origin_hashes_verified": 42,
+  "T0R_frozen_copy_identical": true,
+  "T0R_frozen_sha256": "1d1bdeed37c78ff11bb9bd913dd7b23eaeab3beddbbfd5f3b56f4ed448cba33d",
+  "review_findings": {
+    "blocking": 0,
+    "non_blocking": 0
+  },
+  "analytic_checks": [
+    "Endpoint-distance bound over an interval hull equals maximum endpoint-distance bound of constituents for fixed y; same after positive unit factor.",
+    "Positive-endpoint convex interpolation is a conditional positivity argument; rounded resolved E positivity alone is not a source E positivity proof."
+  ],
+  "commands_not_run": [
+    "reference generators",
+    "tests",
+    "compiler",
+    "solver",
+    "model/product runtime",
+    "host probes"
+  ],
+  "lookup_notes": [
+    "An exploratory Git grep under a nonexistent guessed preview reader filename returned no matches; actual reader was then located and inspected.",
+    "Initial scoped status lookup reported the assigned review parent directory did not yet exist."
+  ],
+  "limits": "No ordinary implementing source map, arithmetic format/resource, actual product acceptance, or protected availability demonstrated."
+}

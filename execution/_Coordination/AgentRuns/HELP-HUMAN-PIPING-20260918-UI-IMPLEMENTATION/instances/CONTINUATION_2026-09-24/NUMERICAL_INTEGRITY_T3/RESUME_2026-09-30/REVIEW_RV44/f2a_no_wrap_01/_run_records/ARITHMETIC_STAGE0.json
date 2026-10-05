@@ -1,0 +1,16 @@
+{
+  "context_max_price": 18468,
+  "add_raw": 512,
+  "add_scaled": 1280,
+  "product_of": 164096,
+  "atom_price": 262144,
+  "max_atoms_strict_u64": 70368744177663,
+  "max_raw_terms_under_atom_cap": 18014398509481728,
+  "condition_atom_coefficients": {
+    "E": 44,
+    "F": 46,
+    "B": 33,
+    "A": 1,
+    "constant": 15
+  }
+}

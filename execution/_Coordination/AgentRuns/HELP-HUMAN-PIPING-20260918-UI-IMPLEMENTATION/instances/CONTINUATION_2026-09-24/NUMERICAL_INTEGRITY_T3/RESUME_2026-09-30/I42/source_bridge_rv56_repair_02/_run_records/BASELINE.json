@@ -1,0 +1,18 @@
+{
+  "recorded_utc": "2026-10-03T01:11:46.024583+00:00",
+  "first_grant_clock_witness": "2026-10-03 01:10:48 UTC",
+  "parent": "/root HELP_HUMAN",
+  "child": "/root/i42_source_bridge TASK Type2",
+  "mechanism": "delegated-harness-native",
+  "source_basis": "4afbac6e613203f93a499b780082b28be37f6c2c (ROOT supplied; no child Git read)",
+  "review_basis": "NUM f2b9a89356981c246da2bfbeeecd35193c09d20d",
+  "write_fence": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_tests.rs"
+  ],
+  "hashes": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "cbd78d3e79fe11a5ae3cdd5422d641850980b88aa0dbb7fa318d6a5e7ce8d8bb",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_tests.rs": "12bb7ec09844892532de15dd6a051d0aa5c87ceb031f9d6f093e999720681313"
+  },
+  "limits": "30 minutes; checkpoint 10; stop new code 20; 4 jobs/2 threads; isolated target; 1200 second command walls"
+}

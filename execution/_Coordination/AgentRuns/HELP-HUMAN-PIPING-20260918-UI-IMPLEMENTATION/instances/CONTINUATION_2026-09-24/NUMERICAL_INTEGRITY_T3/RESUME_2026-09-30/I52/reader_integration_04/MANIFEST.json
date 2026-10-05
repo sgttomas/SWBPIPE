@@ -1,0 +1,578 @@
+{
+  "status": "ready proposed bounded implementation scope; no maintained grant assumed",
+  "actor": "/root/i52_public_formation_contract",
+  "parent": "/root",
+  "mechanism": "same native delegated TASK Type2; no descendants",
+  "receipt_utc": "2026-10-03T15:49:02Z",
+  "host": "Mac.lan",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "scope_draft_witness_utc": "2026-10-03T16:00:06Z",
+  "deadlines": {
+    "setup": "2026-10-03T15:51:02Z",
+    "scope": "2026-10-03T16:04:02Z",
+    "finish": "2026-10-03T16:09:02Z"
+  },
+  "dispatch": "3a4e0d6c03b4e6eb21f6522e35b5ed8089e0c623",
+  "immutable_maintained_basis": "24af17c47011608d187811024b51807395e4e526",
+  "maintained_comparison": {
+    "paths": [
+      "projects/chirality-piping/core",
+      "projects/chirality-piping/apps",
+      "projects/chirality-piping/schemas",
+      "projects/chirality-piping/fixtures"
+    ],
+    "diff": ""
+  },
+  "instruction_hash_comparison": [
+    {
+      "path": "AGENTS.md",
+      "unchanged": true
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "unchanged": true
+    }
+  ],
+  "first_grant_paths": [
+    "projects/chirality-piping/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+    "projects/chirality-piping/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+    "projects/chirality-piping/fixtures/results/retained_precision_cases.json",
+    "projects/chirality-piping/schemas/retained_precision_mp_v2.schema.json",
+    "projects/chirality-piping/schemas/results.v0.3.schema.yaml",
+    "projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs",
+    "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+    "projects/chirality-piping/core/reporting/result_export/src/physics_source.rs",
+    "projects/chirality-piping/core/analysis_runs/retained_precision.py",
+    "projects/chirality-piping/core/analysis_runs/physics_source.py",
+    "projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts",
+    "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.ts",
+    "projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs",
+    "projects/chirality-piping/tests/test_retained_precision_contract.py",
+    "projects/chirality-piping/tests/test_retained_precision_schema.py",
+    "projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts"
+  ],
+  "conditional_helper_only_paths": [
+    "projects/chirality-piping/core/reporting/result_export/src/physics_source.rs",
+    "projects/chirality-piping/core/analysis_runs/physics_source.py",
+    "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.ts"
+  ],
+  "later_carrier_paths_after_validator_parity": [
+    "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+    "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+    "projects/chirality-piping/core/analysis_runs/compatibility.py",
+    "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+    "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+    "projects/chirality-piping/apps/desktop/src/features/results/knownSemanticLimitations.ts",
+    "projects/chirality-piping/apps/desktop/src/features/results/KnownSemanticNotices.tsx",
+    "projects/chirality-piping/apps/desktop/src/types.ts",
+    "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+    "projects/chirality-piping/apps/desktop/src/features/results/loadReferenceOutputAvailability.ts",
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+    "projects/chirality-piping/schemas/analysis_run.v0.3.schema.json",
+    "projects/chirality-piping/schemas/stress_neutral_export.v0.3.schema.json",
+    "projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts",
+    "projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx"
+  ],
+  "not_in_first_scope": [
+    "producer/FK source edits",
+    "retained_receipt.rs owned by I51",
+    "exact successor table installation",
+    "prepared combination operand semantics",
+    "UI/native Current widening",
+    "Cargo manifests/locks",
+    "dependency installs",
+    "WASM rebuilds",
+    "new test runner or host tooling"
+  ],
+  "helper_roster": {
+    "selected_RN_scaling": "separate RN divide and multiply-back for k53/k64, then next_up iff back<input",
+    "least_upward_product": "two nonnegative finite binary64 values; <=106 significand bits, e in[-2148,1942], checked u128",
+    "least_upward_sum": "exact b0+r+2^-1074 with ONE final RU64; <=2099 bits, fixed33 u64 limbs",
+    "ordinary_RN_roster": "SI divide/multiply; body bbox sub/square/left-associated add/sqrt; original maxima coupling; actual-p512 floors; stress division/multiply/add; threshold multiplication; G5a source-order zero/sanity/lower formulas",
+    "unreviewed_component_detail": "finite implementation of selected rules to be reviewed inside the complete reader diff before reliance, not an installed exact helper or new formation/tolerance"
+  },
+  "correction": {
+    "withdrawn_progress_phrase": "sequential RU additions",
+    "corrected_basis": "directed/certificate.rs168-220 exact three-term sum and one final upward rounding; source RN suboperations retained",
+    "parent_acknowledged": true
+  },
+  "cache_metadata": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/node_modules",
+      "exists": false,
+      "qualified_source_build_provenance": false
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/projects/chirality-piping/node_modules",
+      "exists": true,
+      "qualified_source_build_provenance": false
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/node_modules",
+      "exists": true,
+      "qualified_source_build_provenance": false
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js",
+      "exists": true,
+      "qualified_source_build_provenance": false
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "exists": true,
+      "qualified_source_build_provenance": false
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson",
+      "exists": false,
+      "qualified_source_build_provenance": false
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/projects/chirality-piping/core/units/target/units-authority/release/openpipestress_units",
+      "exists": false,
+      "qualified_source_build_provenance": false
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson",
+      "exists": false,
+      "qualified_source_build_provenance": false
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/core/units/target/units-authority/release/openpipestress_units",
+      "exists": false,
+      "qualified_source_build_provenance": false
+    }
+  ],
+  "test_dependencies": {
+    "python_hidden_cargo": "tests/conftest.py requires both OPENPIPESTRESS_CHECKED_JSON_BIN and OPENPIPESTRESS_UNITS_BIN set to exact-source/build-qualified existing binaries; otherwise hold",
+    "cargo": "I51 owns sole lane; no invocation here",
+    "typescript": "existing dependency/assets presence observed only; ROOT must bind runtime cwd/artifact provenance",
+    "no_test_or_solver_execution": true
+  },
+  "origins": [
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "3a4e0d6c03",
+      "path": "AGENTS.md",
+      "bytes": 14200,
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "read_scope": "previous full selective instruction reading retained; unchanged hash checked below"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "3a4e0d6c03",
+      "path": "agents/AGENT_TASK.md",
+      "bytes": 1499,
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "read_scope": "previous full TASK body retained"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "3a4e0d6c03",
+      "path": "projects/chirality-piping/AGENTS.md",
+      "bytes": 9016,
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "read_scope": "previous full applicable project instruction retained"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "3a4e0d6c03",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I52_READER_INTEGRATION.md",
+      "bytes": 2689,
+      "sha256": "4ce39dba03501b5a9d10a34080a577eb6e3f87d22af710b78f7174bd36690b34",
+      "read_scope": "complete"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "3a4e0d6c03",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I51_PREPARED_TRACE.md",
+      "bytes": 6366,
+      "sha256": "f39e23a68748d2b270d428d9a2a52ddbabd01a3281e22334803a9291721defa5",
+      "read_scope": "complete; selected only for disjoint API/lane dependency"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "3a4e0d6c03",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+      "bytes": 608261,
+      "sha256": "c8848803bb6a904b4e033f77fc4a237df8efee141d4c4ceff56b4bff1e94f34b",
+      "read_scope": "6948-6994,7035-7062,7120-7154 and bounded selection searches"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "3a4e0d6c03",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/WIRE_CONTRACT.md",
+      "bytes": 29991,
+      "sha256": "c8ab2318457bd3897e207888af80f54f1a889071bf630ff1815939d922a567e3",
+      "read_scope": "inherited complete prior read; checked-source override explicit"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "3a4e0d6c03",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/CONTRACT_DELTA.md",
+      "bytes": 53986,
+      "sha256": "923da0b97eb5becad7e7c1373c5a6f362568dc28ac8eab029c9170677c890869",
+      "read_scope": "inherited prior selected complete source/call/ordinary/error sections"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "44a42d080f",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+      "bytes": 598720,
+      "sha256": "9e2a46b0bc5e7a860a581349886530d7f05f8943182cad36e5f72fff0bee227e",
+      "read_scope": "selected corrected C3 reservation ruling"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "77bb95e4ac",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/prepared_public_contract_02/C3_DELTA.md",
+      "bytes": 32788,
+      "sha256": "fd00d2c1e8f4f7e2077f304560a63830e2b7b61cb5b1d47aff994c7874ed292e",
+      "read_scope": "author's earlier complete selected packet retained"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "77bb95e4ac",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/prepared_public_contract_02/DEFINITION.json",
+      "bytes": 8346,
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+      "read_scope": "exact canonical bytes"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "7b4709bcec",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/prepared_public_contract_correction_03/ADDENDUM.md",
+      "bytes": 11381,
+      "sha256": "6b8ebea5b83c3033211df144f69add8fcb753855cae570ec66afdd6684ddbf36",
+      "read_scope": "complete author's selected F1 correction retained"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "a387fceab1",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV69/prepared_public_contract_02/RETURN.md",
+      "bytes": 1167,
+      "sha256": "78deb4d507bddee8a5bfcdcba11b3cc514aa5572e4c96f469768970b6c196495",
+      "read_scope": "complete"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "a387fceab1",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV69/prepared_public_contract_02/REVIEW.md",
+      "bytes": 9278,
+      "sha256": "5e3d33ccf00c6b706b8d6a35964789abea5d3ce287ef756446064042742cec45",
+      "read_scope": "F1/N1/source/definition/backcheck selective complete sections inherited and rechecked"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/work.rs",
+      "bytes": 5131,
+      "sha256": "7289d6b04fb8d3bf400022537deadc194f78f1da3a0ff1caa9063474a632f0b0",
+      "read_scope": "1-85 checked/sticky source"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+      "bytes": 72837,
+      "sha256": "053fabc7a94e6ee0a0e4e8780985aee7654e0f7ced7944d7512f59ed6ef86083",
+      "read_scope": "337-385,705-770,817-856,1040-1125,1125-1222 and bounded scalar-operation roster"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed/certificate.rs",
+      "bytes": 7334,
+      "sha256": "3525a99225a7d19a3e798cfdfe40921f658bb61acc2151098b28c3f19292926e",
+      "read_scope": "130-223 exact small-bound operation roster"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_tests.rs",
+      "bytes": 11094,
+      "sha256": "4b704dacd360a46ae82a6e0e27668a23fab9a6c574f1e63e24a02ca042300b1e",
+      "read_scope": "1-24,120-182; current exact vectors and discriminator"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_vectors.rs",
+      "bytes": 11316,
+      "sha256": "24e9eb55045474ecabe754ecfed8850f92f6a481cae24de4f530468708880861",
+      "read_scope": "SMALL beginning and inventory source"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_vectors.py",
+      "bytes": 5592,
+      "sha256": "4c24add95da95062da72896f73a06124709afd419de065f11167470ce16e30e8",
+      "read_scope": "1-74,78-145 independent quantum oracle and cases"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "bytes": 161582,
+      "sha256": "e9949ff88fef71a32cf07d552cf2b065d445d85cbb7bee9e53f8678562d6d982",
+      "read_scope": "G5a2513-2747 inherited direct reading; final immutable bytes checked"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/reporting/result_export/Cargo.toml",
+      "bytes": 419,
+      "sha256": "d8c2a4ef608e49324381117fca4f665d563a01b312a773c994da72bf35837b58",
+      "read_scope": "complete"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "bytes": 66023,
+      "sha256": "1c837a4d2c9e438a8e05f2c3fd987fc037b1c81d660f50b42b6b14e809c4c0b9",
+      "read_scope": "1-55 and module boundary"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "bytes": 24574,
+      "sha256": "a61ba398fdf86983aff610b1d184db37681dc69463d3d19547bdbcc79559319a",
+      "read_scope": "1-90,290-365,425-475"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "bytes": 31066,
+      "sha256": "14001cd13cc0bf9062171ee75bf47446e4d8bcfe922d4ee548c14c30a64d9cc8",
+      "read_scope": "88-125,312-360 and receipt/validation symbol searches"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "bytes": 40976,
+      "sha256": "4874b0e25b4435eaec48b1cac998f5269efa32430be65511ab585e8b496289ba",
+      "read_scope": "1-35,200-217,260-325,408-456,515-560 and receipt-copy references"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/analysis_runs/source_blocks.py",
+      "bytes": 39766,
+      "sha256": "0a2b1b397fb4dfa7f02b84b8cccd2a0594d42e62539c5027dabc5ad9977fb98e",
+      "read_scope": "1-30 and bit/exact helper search"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/analysis_runs/physics_source.py",
+      "bytes": 30230,
+      "sha256": "81487a87d5e170b98b1569a8d2e7c42943b9c1be565f3a71c5b5a18879c4aba1",
+      "read_scope": "81-132 and numeric helper inventory; prior G8 exact helper read retained"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "bytes": 12917,
+      "sha256": "19682a56a72c433f52cc584e3b66fb78f1c9356fcb1fcc3abfdcc46cc994254a",
+      "read_scope": "1-105"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.ts",
+      "bytes": 33005,
+      "sha256": "ef7ab4c9505825dff5085ee8f836d4e506da458fe67036dfb7ed6036fcd10e42",
+      "read_scope": "1-34,40-72,116-143 and helper/transport searches; prior authored-fact source reads retained"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/sourceBlockRecovery.ts",
+      "bytes": 45298,
+      "sha256": "9c53c8cdbd34ba1d7154d305097f4cd0147d464aac9f7c5cd020e59d5b774d57",
+      "read_scope": "bit/helper inventory search only"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/loadReferenceSourceEvidence.ts",
+      "bytes": 51481,
+      "sha256": "295da88658cd88b724196d3144384a480c484768c1e20318a0698457b4c5ee62",
+      "read_scope": "bounded exact-helper inventory search only"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/core/analysis_runs/load_reference_source.py",
+      "bytes": 8570,
+      "sha256": "32cee248bc4911da6596bc9fe9b83e67ea94bffdc6a7db508b0dc4e0ca022fb4",
+      "read_scope": "bounded exact-helper inventory search only"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "bytes": 21816,
+      "sha256": "0f1d22df9adcee33680ba7895a3316fde3d5dc390e451ef3d1b5d55f3b4c042e",
+      "read_scope": "validator/receipt/carrier symbol search"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "bytes": 36046,
+      "sha256": "5d8a7443ca67166d63c7ac6cef8836dfaf8d8b504adb19a91e87622c84662ce2",
+      "read_scope": "native registration/direct-job fingerprint source search111-155,193-224"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "bytes": 8522,
+      "sha256": "3c736c3c5ca1fa524f4756220071f1a2aa72ac4f12f3014d30999a6b370a76fb",
+      "read_scope": "native invocation/standing reference search"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/loadReferenceOutputAvailability.ts",
+      "bytes": 2148,
+      "sha256": "4dcc9ad4e16b3171a1d3bb54d2667c713c97acf0799fc2921d0b37f009ff62b9",
+      "read_scope": "1-105"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.test.ts",
+      "bytes": 27926,
+      "sha256": "81b7e59899b216a4d1c2ce31b36db2253dfbcb8a4972d2ee86e369bcd0f408b7",
+      "read_scope": "1-50 imports/existing fixture distinction"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts",
+      "bytes": 8936,
+      "sha256": "fbd8f9b474484086395b6b7fd09de0ef3bc265736f58c2b1104781785a6e5073",
+      "read_scope": "asset paths/source qualification search"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/apps/desktop/vite.config.ts",
+      "bytes": 3317,
+      "sha256": "9e59361cfb4e89b53d2ce1acfe7a9b000b6d87c38fd7cae283019efc13d04bf9",
+      "read_scope": "WASM asset guard path/source search"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/apps/desktop/package.json",
+      "bytes": 1196,
+      "sha256": "c0e3ddd045e0ea7576a4cd01af86c4921bab7314e7b3d927b5eab11822e959fa",
+      "read_scope": "complete scripts/dependencies"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/package.json",
+      "bytes": 652,
+      "sha256": "ae2274d2078a378387a82d99af3fd49d58232d62aa4c383d2511cff02bff2a63",
+      "read_scope": "complete workspace scripts"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/software-workflow.json",
+      "bytes": 1101,
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+      "read_scope": "registered command/path searches"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/tests/test_physics_source_contract.py",
+      "bytes": 17040,
+      "sha256": "7bd15b17eb416ff8676fb79c90d44434a19742705781d05a160f7f0b6aac0ca9",
+      "read_scope": "1-90 existing independent/rehashed controls"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/tests/schema_validation.py",
+      "bytes": 4923,
+      "sha256": "a1d131f404256cf3ef20f31297b1a7bec6cbdf5c6ff105ba739a1a79f173b83c",
+      "read_scope": "1-80 local Draft202012 schema helper"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/tests/conftest.py",
+      "bytes": 969,
+      "sha256": "e60106277cb7f586c83ffc25e3fcadd9bc04dec291770b6173b7b8cd8658e75e",
+      "read_scope": "1-65 hidden Cargo triggers and environment"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/tools/serialization/build_checked_json.py",
+      "bytes": 1277,
+      "sha256": "120f0125c5aae4ccc42dce56665c1f6a02353a3bf61c496f735b526f492f49fb",
+      "read_scope": "1-160 existing target/build invocation"
+    },
+    {
+      "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+      "commit": "24af17c47011608d187811024b51807395e4e526",
+      "path": "projects/chirality-piping/tools/units/build_units_authority.py",
+      "bytes": 891,
+      "sha256": "eceeaacfa34aea55570e5f67af46320b19716df40b0c3f31f89ab4496546e755",
+      "read_scope": "1-145 existing target/build invocation"
+    }
+  ],
+  "writes": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/reader_integration_04",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i52_reader_integration_04"
+  ],
+  "bulk_files": [],
+  "source_lookup_qualifications": [
+    "A guessed physicsSourceRecovery.parity.test.ts did not exist; actual physicsSourceRecovery.test.ts was then read.",
+    "Initial guessed generated-WASM paths were absent; loadWasmEngine/vite source resolved the actual public/wasm-engine paths.",
+    "Some broad output truncated; decisive small-bound and operation-order sections reread in bounded excerpts."
+  ],
+  "checks": {
+    "exact_first_fence_count": 16,
+    "first_and_later_disjoint": true,
+    "old_records_unchanged": true,
+    "no_new_public_meaning_or_tolerance": true,
+    "scope_does_not_claim_execution_from_fixture": true,
+    "full_gate_order_retained": true,
+    "complete_helper_review_required": true,
+    "full_F2a_and_resource_native_gates_open": true
+  },
+  "audit_utc": "2026-10-03T16:03:06.230158+00:00",
+  "root_coordination": "ROOT read complete scope and current small_row_bound source/control, confirmed boundary concrete for a later implementation grant with corrected single-round sum, and requested this unsealed spacing cleanup.",
+  "root_reported_runtime_prerequisites": {
+    "parent_package_files_equal_NUM": [
+      "P/package.json",
+      "P/package-lock.json",
+      "P/apps/desktop/package.json"
+    ],
+    "wasm_bindgen_version": "0.2.123",
+    "wasm32_target_present": true,
+    "authority": "direct ROOT message; I52 did not independently execute these checks",
+    "future_grant": "ROOT will provide isolated reader worktree and ordinary existing-product build/test grant after seal; no new tooling required"
+  }
+}

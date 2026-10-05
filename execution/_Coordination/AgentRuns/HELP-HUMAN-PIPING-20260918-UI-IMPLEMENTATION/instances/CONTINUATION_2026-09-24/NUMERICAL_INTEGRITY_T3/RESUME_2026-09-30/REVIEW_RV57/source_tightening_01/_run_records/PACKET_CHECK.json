@@ -1,0 +1,119 @@
+{
+  "inventory_sha256": "4a86078507a24937bd7ff2487dc47b31e483dbb7efe570363ff772de68b00bef",
+  "payload_files": 28,
+  "all_payloads_match": true,
+  "checks": [
+    {
+      "path": "INTERFACE_AND_COST.md",
+      "verified": true
+    },
+    {
+      "path": "RETURN.md",
+      "verified": true
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "verified": true
+    },
+    {
+      "path": "_run_records/EXECUTION.json",
+      "verified": true
+    },
+    {
+      "path": "_run_records/FROZEN_INPUTS.json",
+      "verified": true
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls.py",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls.stderr",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls.stdout",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls_02.stderr",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls_02.stdout",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls_03.stderr",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls_03.stdout",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls_04.stderr",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls_04.stdout",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls_05.stderr",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls_05.stdout",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls_06.stderr",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls_06.stdout",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls_07.stderr",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls_07.stdout",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls_08.stderr",
+      "verified": true
+    },
+    {
+      "path": "_run_records/exact_controls_08.stdout",
+      "verified": true
+    },
+    {
+      "path": "_run_records/frozen_inputs/native_debug.stdout",
+      "verified": true
+    },
+    {
+      "path": "_run_records/frozen_inputs/product_certificate.rs",
+      "verified": true
+    },
+    {
+      "path": "_run_records/frozen_inputs/source_bridge_tests.rs",
+      "verified": true
+    },
+    {
+      "path": "_run_records/frozen_inputs/source_bridge_vectors.rs",
+      "verified": true
+    },
+    {
+      "path": "_run_records/inverse_bound_comparison.json",
+      "verified": true
+    }
+  ]
+}

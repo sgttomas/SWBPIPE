@@ -1,0 +1,311 @@
+{
+  "version": "I62_SHARED_SNAPSHOT_07F",
+  "freeze_utc": "2026-10-04T02:42:38.213164+00:00",
+  "status": "Frozen delta from SHARED_SNAPSHOT_07E (D37); the last round before reader acceptance; no acceptance, eligibility or reader approval.",
+  "basis": {
+    "ruling": "RV79 final check; X1 joined with D35 as D37 (NUM c8e97c6df1)",
+    "previous_snapshot": "SHARED_SNAPSHOT_07E d8d0355be0 (corpus bbca15d940)",
+    "reader_head_at_start": "63355a91d2",
+    "native": "PP/retained_product.rs at NUM c8e97c6df1 (sha256 d07383fc02, identical to 652ad0cc1f); PP/retained_receipt.rs:45-55 stage transitions"
+  },
+  "files": [
+    {
+      "path": "P/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+      "bytes": 8346,
+      "snapshot": "WT/scratch/i62_review_repair_07/shared_snapshot_07f/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "changed_from_snapshot_07e": false
+    },
+    {
+      "path": "P/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+      "bytes": 52328,
+      "snapshot": "WT/scratch/i62_review_repair_07/shared_snapshot_07f/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "changed_from_snapshot_07e": false
+    },
+    {
+      "path": "P/fixtures/results/retained_precision_cases.json",
+      "sha256": "2cae6d68231f945e21f883e4b7d4dd7ed0c53e533b7ca7740c2cf402c50fdabe",
+      "bytes": 4863085,
+      "snapshot": "WT/scratch/i62_review_repair_07/shared_snapshot_07f/fixtures/results/retained_precision_cases.json",
+      "changed_from_snapshot_07e": true
+    },
+    {
+      "path": "P/schemas/retained_precision_mp_v2.schema.json",
+      "sha256": "07951edacfedd410c153929ee75bb5bada15dbd222369ec63240c678b233b61c",
+      "bytes": 177115,
+      "snapshot": "WT/scratch/i62_review_repair_07/shared_snapshot_07f/schemas/retained_precision_mp_v2.schema.json",
+      "changed_from_snapshot_07e": false
+    },
+    {
+      "path": "P/schemas/results.v0.3.schema.yaml",
+      "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586",
+      "bytes": 131530,
+      "snapshot": "WT/scratch/i62_review_repair_07/shared_snapshot_07f/schemas/results.v0.3.schema.yaml",
+      "changed_from_snapshot_07e": false
+    }
+  ],
+  "delta": [
+    {
+      "id": "g5a_error_with_g5a_not_entered",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "edits": [
+        {
+          "path": [
+            "retained_precision",
+            "body",
+            "product_attempts",
+            1,
+            "result"
+          ],
+          "op": "set",
+          "value": {
+            "kind": "unavailable",
+            "error": {
+              "kind": "g5a",
+              "cause": {
+                "kind": "sanity",
+                "body": 0,
+                "quantity_kind": 0
+              }
+            }
+          }
+        }
+      ],
+      "expected": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      },
+      "source": "D37; RV79 X1 g5a_error_but_g5a_not_entered = RV78 Y1 (identical edits)",
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      }
+    },
+    {
+      "id": "observable_error_with_observables_not_entered",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "edits": [
+        {
+          "path": [
+            "retained_precision",
+            "body",
+            "product_attempts",
+            1,
+            "result"
+          ],
+          "op": "set",
+          "value": {
+            "kind": "unavailable",
+            "error": {
+              "kind": "observable",
+              "cause": {
+                "kind": "storage",
+                "detail": "x"
+              }
+            }
+          }
+        }
+      ],
+      "expected": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      },
+      "source": "D37; RV79 X1 observable_error_but_observables_not_entered = RV78 Y2 (identical edits)",
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      }
+    },
+    {
+      "id": "numeric_error_with_checks_not_entered",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "edits": [
+        {
+          "path": [
+            "retained_precision",
+            "body",
+            "product_attempts",
+            1,
+            "result"
+          ],
+          "op": "set",
+          "value": {
+            "kind": "unavailable",
+            "error": {
+              "kind": "numeric",
+              "cause": null
+            }
+          }
+        }
+      ],
+      "expected": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      },
+      "source": "D37; RV79 X1 numeric_error_null_cause = RV78 Y4 (identical edits)",
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      }
+    },
+    {
+      "id": "proof_error_with_certificate_passed",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "edits": [
+        {
+          "path": [
+            "retained_precision",
+            "body",
+            "product_attempts",
+            1,
+            "result"
+          ],
+          "op": "set",
+          "value": {
+            "kind": "unavailable",
+            "error": {
+              "kind": "proof",
+              "cause": {
+                "kind": "storage"
+              }
+            }
+          }
+        }
+      ],
+      "expected": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      },
+      "source": "D37; RV79 X1 proof_error_but_certificate_passed",
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      }
+    },
+    {
+      "id": "values_error_with_values_completed",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "edits": [
+        {
+          "path": [
+            "retained_precision",
+            "body",
+            "product_attempts",
+            1,
+            "result"
+          ],
+          "op": "set",
+          "value": {
+            "kind": "unavailable",
+            "error": {
+              "kind": "values",
+              "cause": {
+                "kind": "storage"
+              },
+              "proof": {
+                "kind": "association",
+                "detail": "PP abandoned prepared draft"
+              }
+            }
+          }
+        }
+      ],
+      "expected": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      },
+      "source": "D37; RV79 X1 values_error_but_values_completed",
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      }
+    }
+  ],
+  "y6": "RV78 Y6 (numeric error, all ten stages completed, all three checks passed) passes in Python under D37; RV78 recorded pass in Rust and TypeScript on 07e. Not added as an entry.",
+  "unchanged": "All 15 cases, all 22 must-pass entries and all 263 07e mutations byte-identical (asserted). Schema, definition, semantic fixture and results yaml unchanged.",
+  "counts": {
+    "cases": 15,
+    "mutations": 268,
+    "must_pass": 22
+  },
+  "python": {
+    "tests": "pytest_07f: 371 passed in 26.69s",
+    "reader_sha256": "d77008e24fe1775c9def1e6b838fb535fb3155f1df3f427a227d3d990433228e",
+    "tests_sha256": "0485b86198e6e78dc1686ea157e93a8b284c0b649c964ec1a540a6d042aa653b",
+    "all_entries": "15 bases pass with expected classifications; 268/268 mutations at expected first failure; 22/22 must_pass pass (PYTHON_OUTCOMES_07F.json)",
+    "mutants": "D37 dropped, and g5a/numeric/proof records widened: all killed (mutants_07f.txt)"
+  },
+  "bulk": [
+    {
+      "path": "WT/scratch/i62_review_repair_07/07f_pins_and_y6.txt",
+      "sha256": "ae6097287ac71a0f731ea30277ff4f5917fb135d4d9ef7c33f0b1cd21ae61dac",
+      "bytes": 910
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/before_07f/retained_precision.py",
+      "sha256": "3333142b4ca20108deef3ea371f101e21516049255cfac31d59c0dac741a8af5",
+      "bytes": 113383
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/before_07f/retained_precision_cases.json",
+      "sha256": "bbca15d94055227da364ce4b8a7223d1350ac5b85b1219c94b1405b43c56340a",
+      "bytes": 4859415
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/before_07f/test_retained_precision_contract.py",
+      "sha256": "e8f22d8bc7e0551cd722b928b13a8c76ee5339035752fd153079c1096fff180c",
+      "bytes": 72839
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/build_stage_07f.py",
+      "sha256": "85d086409aa611bc3b7fdcda683f0625a30b2d922c3da4145b19ff3cc4a98045",
+      "bytes": 2155
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/freeze_07f.py",
+      "sha256": "2af4b9150e0b46e25641c5c3ea35de2df199d40d89c5d0a5c6a0b14f38987f60",
+      "bytes": 5485
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/mutants_07f.txt",
+      "sha256": "684590b61fc89317963bf9d374a8db9fe53ea485b589b60f446a450acaddf0f7",
+      "bytes": 688
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/pytest_07f.log",
+      "sha256": "185431fca996fd3225e0805ec592a6ce1f6f2ce552ca7671c579c66a1637ca82",
+      "bytes": 45501
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/python_outcomes_07f.json",
+      "sha256": "2f9b7d194f02302ec342a7fc3ef184c0f43e227ba5229e0577b6ea834990be30",
+      "bytes": 114000
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/python_outcomes_07f_installed.json",
+      "sha256": "2f9b7d194f02302ec342a7fc3ef184c0f43e227ba5229e0577b6ea834990be30",
+      "bytes": 114000
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/source_final_07f/core/analysis_runs/retained_precision.py",
+      "sha256": "d77008e24fe1775c9def1e6b838fb535fb3155f1df3f427a227d3d990433228e",
+      "bytes": 115036
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/source_final_07f/tests/test_retained_precision_contract.py",
+      "sha256": "0485b86198e6e78dc1686ea157e93a8b284c0b649c964ec1a540a6d042aa653b",
+      "bytes": 74136
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/source_final_07f/tests/test_retained_precision_schema.py",
+      "sha256": "90bbd5660c504d3344ce19756d2b2250f80c0bd5d93b3ec123e5abf10523e504",
+      "bytes": 3627
+    },
+    {
+      "path": "WT/scratch/i62_review_repair_07/validate_stage_07.py",
+      "sha256": "9f6a9ac8ec6339b682869e736d2d013c135d01bc1d3e5865c1e670eedc3a08ed",
+      "bytes": 2605
+    }
+  ]
+}

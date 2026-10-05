@@ -1,0 +1,26 @@
+[
+ {
+  "id": "RV90:RS01_f5_first_case_only",
+  "lang": "rs",
+  "killed": true,
+  "compile_or_collect_error": false,
+  "failing_count": 2,
+  "failing": [
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07h_mutation_outcomes"
+  ],
+  "seconds": 79.1
+ },
+ {
+  "id": "RV90:RS02_f5_prefix_tolerant",
+  "lang": "rs",
+  "killed": true,
+  "compile_or_collect_error": false,
+  "failing_count": 2,
+  "failing": [
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07h_mutation_outcomes"
+  ],
+  "seconds": 72.1
+ }
+]

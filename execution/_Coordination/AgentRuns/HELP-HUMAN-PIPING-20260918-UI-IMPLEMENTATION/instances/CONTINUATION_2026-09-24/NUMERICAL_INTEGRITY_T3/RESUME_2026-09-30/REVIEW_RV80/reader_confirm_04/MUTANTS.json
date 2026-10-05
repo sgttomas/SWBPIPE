@@ -1,0 +1,839 @@
+[
+ {
+  "id": "M01",
+  "what": "fail-closed hold",
+  "old": "const IMPLEMENTATION_COMPLETE: bool = false;",
+  "new": "const IMPLEMENTATION_COMPLETE: bool = true;",
+  "mutant_sha256": "eea37add121b49e50703c3a91596879949ba8a088a353a31aba7aab42a619eb2",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "complete_synthetic_controls_keep_eligibility_held",
+   "publicly_consistent_coverage_attestations_are_not_rejected",
+   "shared_must_pass_entries_validate"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 20.01s"
+  ]
+ },
+ {
+  "id": "M02",
+  "what": "N17 case-before-invocation budget scope",
+  "old": "                        !case_over\n                            && (inv_over",
+  "new": "                        (inv_over",
+  "mutant_sha256": "f0aed3be48fbac7970c3223aa8dac10c99073499ef5e7d370920aab94f40f30f",
+  "exit": 0,
+  "verdict": "SURVIVED",
+  "failed_tests": [],
+  "summary": [
+   "test result: ok. 53 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 21.66s"
+  ]
+ },
+ {
+  "id": "M03",
+  "what": "I57 feasibility: positive force floor ORed into positive",
+  "old": "            positive[2] |= floor[0];",
+  "new": "            positive[2] |= false && floor[0];",
+  "mutant_sha256": "4117ad0c36d7663bd3155dde81151de7fd1cd8a7a3dc9811de22df0106e9ce87",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "snapshot_05b_mutation_outcomes",
+   "shared_rehashed_first_failure_mutations"
+  ],
+  "summary": [
+   "test result: FAILED. 51 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 20.96s"
+  ]
+ },
+ {
+  "id": "M04",
+  "what": "I57 p512 charge = force/moment stop",
+  "old": "let charge = if p == 512 { [stop[2], stop[3]] } else { estimate };",
+  "new": "let charge = estimate;",
+  "mutant_sha256": "a48fe6ae746b8c5d8f8d52d0466d8298c295989362be2cfd9ada032e8c61963f",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "shared_must_pass_entries_validate",
+   "snapshot_05b_mutation_outcomes",
+   "shared_rehashed_first_failure_mutations"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 20.88s"
+  ]
+ },
+ {
+  "id": "M05",
+  "what": "R3' fault containment in the owner's statuses",
+  "old": ".is_some_and(|f| f & !statuses(owner) == 0)",
+  "new": ".is_some()",
+  "mutant_sha256": "3b2fff413171e350b3024b96a9472945db82f03883fd6b66413852677fbc65fb",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d13_reader_local_pins_and_mutant_kills",
+   "snapshot_06d_mutation_outcomes",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 49 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 21.39s"
+  ]
+ },
+ {
+  "id": "M06",
+  "what": "G5c relative-class boundary >= to >",
+  "old": "n.abs() >= 2f64.powi(-34) * sc",
+  "new": "n.abs() > 2f64.powi(-34) * sc",
+  "mutant_sha256": "6abdacb972a6ac84b9467e53ee3a615ae1ff242b0f24ae6004985d2d6ac15eaf",
+  "exit": 0,
+  "verdict": "SURVIVED",
+  "failed_tests": [],
+  "summary": [
+   "test result: ok. 53 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 21.29s"
+  ]
+ },
+ {
+  "id": "M07",
+  "what": "G3 run-id contiguity dropped",
+  "old": "runs.keys().copied().eq(0..runs.len() as u64)",
+  "new": "true",
+  "mutant_sha256": "4daf05aba939005765520d3a4e930789a8f1bf5ccfc3ab23fadda4d7e325fb21",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d1_g3_coverage_relations",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 20.88s"
+  ]
+ },
+ {
+  "id": "M08",
+  "what": "N10 idle exhaustion >= to > (schedule replay)",
+  "old": "af(u(&r[\"invocation_before\"]) >= u(&b[\"work\"][\"invocation_limit\"])\n                    && *terminal",
+  "new": "af(u(&r[\"invocation_before\"]) > u(&b[\"work\"][\"invocation_limit\"])\n                    && *terminal",
+  "mutant_sha256": "7c80de5f726c2f8d849fe0adb836338bd13519c7e5bf60cae91e12e52531cd86",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d13_reader_local_pins_and_mutant_kills",
+   "d27_idle_rule_reads_recorded_invocation_before",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07b_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 49 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 20.10s"
+  ]
+ },
+ {
+  "id": "M09",
+  "what": "I57 data fact: nonzero free nodal term implies has_data",
+  "old": "&& f(&t[\"value\"]) != 0.0\n        }) {",
+  "new": "&& f(&t[\"value\"]) != 0.0 && false\n        }) {",
+  "mutant_sha256": "d4327bcf63c606df7f09aef7f1d306923f669693d8d6746c17dcd85740acafa5",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "snapshot_04_coverage_mutation_outcomes",
+   "snapshot_05a_mutation_outcomes",
+   "snapshot_05b_mutation_outcomes",
+   "shared_rehashed_first_failure_mutations"
+  ],
+  "summary": [
+   "test result: FAILED. 49 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 20.59s"
+  ]
+ },
+ {
+  "id": "M10",
+  "what": "A1 small bound: +2^-1074 term dropped",
+  "old": "limbs[0] = 1;",
+  "new": "limbs[0] = 0;",
+  "mutant_sha256": "6c5228111e041d4392c6f76de03c4347b16bf8fe830b4da707795422b13541b2",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "canonical_zero_and_invalid_helper_operands",
+   "d13_absolute_bound_small_scale_switch",
+   "fixed_small_bound_vectors",
+   "independent_rational_product_and_single_round_sum_controls"
+  ],
+  "summary": [
+   "test result: FAILED. 49 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 20.13s"
+  ]
+ },
+ {
+  "id": "M11",
+  "what": "I57 s3: Ready/certificate/G5a passed requires non-null coverage",
+  "old": "        pf(!coverage.is_null())?;\n    }\n    if coverage.is_null()",
+  "new": "        pf(true)?;\n    }\n    if coverage.is_null()",
+  "mutant_sha256": "8ba28a7a6e37ef23b54d9565dd2129adf3749984e9eb1eb6c0e9f9f4826619cd",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "snapshot_04_coverage_mutation_outcomes",
+   "snapshot_05a_mutation_outcomes",
+   "shared_rehashed_first_failure_mutations"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 20.34s"
+  ]
+ },
+ {
+  "id": "M12",
+  "what": "I57 item 4: verification bound non-null iff has_data",
+  "old": "x[\"value\"].is_null() != has_data[i]",
+  "new": "true",
+  "mutant_sha256": "e62128b99e3112ae9a0a96f6d4fabd3000a16107762a5bfd38afeddd3a70ea05",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d13_reader_local_pins_and_mutant_kills"
+  ],
+  "summary": [
+   "test result: FAILED. 52 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 20.49s"
+  ]
+ },
+ {
+  "id": "M13",
+  "what": "P8/D4d: native error run_ref equals the case Run",
+  "old": "\n                && e[\"run_ref\"] == run[\"id\"])?;",
+  "new": ")?;",
+  "mutant_sha256": "44d0185993ad1055f3be829905692aa5fa5c618ac405898d4efaac53ff8f9295",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d30_native_run_ref_on_nonselected_run"
+  ],
+  "summary": [
+   "test result: FAILED. 52 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.87s"
+  ]
+ },
+ {
+  "id": "M14",
+  "what": "C3:165 material basis agrees with the ordinary attempt",
+  "old": "\n            && a[\"material_basis_ref\"] == ordinary[\"material_basis_ref\"])?;",
+  "new": ")?;",
+  "mutant_sha256": "7c7fa894925e78ea6d8243bf08a86335e45641f543dd3c610a7c3e8e5602905c",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d4_association_relations",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.21s"
+  ]
+ },
+ {
+  "id": "M15",
+  "what": "C3:147 source preparation back-reference",
+  "old": "\n                && s[\"preparation\"][\"attempt_ref\"] == json!(ai))?;",
+  "new": ")?;",
+  "mutant_sha256": "3ac4aad89443c8f35df5bbc544ad65f8b0057b7109878b1d5fafd3a6c249434b",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d4_association_relations",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.23s"
+  ]
+ },
+ {
+  "id": "M16",
+  "what": "N5 terminal(): budget scope payload dropped",
+  "old": "\"budget\" => unresolved(\"budget\", &[\"scope\"]),",
+  "new": "\"budget\" => unresolved(\"budget\", &[]),",
+  "mutant_sha256": "fd15e62b5c15a9cc368def6fcb8bceefe19a4101a0047fa776f1d68bd202a4d7",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d13_reader_local_pins_and_mutant_kills"
+  ],
+  "summary": [
+   "test result: FAILED. 52 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.12s"
+  ]
+ },
+ {
+  "id": "M17",
+  "what": "G5b p512 floor equality removed",
+  "old": "sf(s[\"floor\"][bi][NAMES[j + 2]] == bits(phi))?;",
+  "new": "sf(true)?;",
+  "mutant_sha256": "aba3226951be60c9fac25bf9e52a4bb5801294d45a1ab22a1d8159598a5318fe",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "snapshot_05b_mutation_outcomes",
+   "shared_rehashed_first_failure_mutations"
+  ],
+  "summary": [
+   "test result: FAILED. 51 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.12s"
+  ]
+ },
+ {
+  "id": "M18",
+  "what": "G7 bare code: detail folded into code",
+  "old": "        detail: (code != text).then_some(text),\n        code,",
+  "new": "        detail: None,\n        code: text,",
+  "mutant_sha256": "c1ad074c4d71d1f7777305f0be1c51bc90e15a9f5010cea86f432e7ab98d7e49",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d13_reader_local_pins_and_mutant_kills"
+  ],
+  "summary": [
+   "test result: FAILED. 52 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.28s"
+  ]
+ },
+ {
+  "id": "M19",
+  "what": "D4d: native with a selected Run invalid",
+  "old": "\n                && run[\"kernel_terminal\"][\"kind\"] != \"selected\"\n                && e[\"run_ref\"]",
+  "new": "\n                && e[\"run_ref\"]",
+  "mutant_sha256": "cca7b13db4c62d6d877127555be397c873c8e620eb73a39c04a5976bf924bee9",
+  "exit": 0,
+  "verdict": "SURVIVED",
+  "failed_tests": [],
+  "summary": [
+   "test result: ok. 53 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.67s"
+  ]
+ },
+ {
+  "id": "M20",
+  "what": "D1: old member ids 0..len (G3)",
+  "old": "&& old.iter().map(|m| u(&m[\"member\"])).eq(0..old.len() as u64)",
+  "new": "",
+  "mutant_sha256": "c8948fbd77caa9e01b2d836c71703955a375bd1a77c8d7cf4372e9a1bb2d3ee9",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d1_g3_coverage_relations",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.17s"
+  ]
+ },
+ {
+  "id": "M21",
+  "what": "D3: native WORK deferred to the end of class 1",
+  "old": "    let wf = |ok: bool| -> VResult {\n        if !ok {\n            work_ok.set(false);\n        }\n        Ok(())\n    };",
+  "new": "    let wf = |ok: bool| -> VResult {\n        if !ok {\n            work_ok.set(false);\n        }\n        need(ok, \"G5\", \"WORK_MISMATCH\")\n    };",
+  "mutant_sha256": "5a3f59656dae6b090c010ec07a839305bc74e306ad05defca48817fb34a32daa",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d3_native_attempt_before_work",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.97s"
+  ]
+ },
+ {
+  "id": "M22",
+  "what": "D5d: stop-rule quantity resolves in the layout",
+  "old": "af(layout.iter().any(|row| {",
+  "new": "af(true || layout.iter().any(|row| {",
+  "mutant_sha256": "d4833403c9eec47084a64f5dadfefda0cbca020c546dba2c2a7883272515edc5",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d28_quantity_reasons_resolve_to_layout",
+   "d5_native_record_relations",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07_mutation_outcomes",
+   "snapshot_07b_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 48 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.26s"
+  ]
+ },
+ {
+  "id": "M23",
+  "what": "D5b: escalating failed verification has no pass",
+  "old": "af(record[\"verification\"].is_null()\n                            && u(&record[\"work\"][\"verification_lme\"]) == 0\n                            && record[\"verification_shared_build_ref\"].is_null())?;",
+  "new": "af(true)?;",
+  "mutant_sha256": "823fd9b35a0b47dc47da480035c1b5d95353778da214a704f2e46e54f5b643ea",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d21_last_slot_verification_shared_build",
+   "d5_native_record_relations",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07_mutation_outcomes",
+   "snapshot_07b_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 48 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.23s"
+  ]
+ },
+ {
+  "id": "M24",
+  "what": "D5a: candidate verification_lme = 0",
+  "old": "\n                        && u(&record[\"work\"][\"verification_lme\"]) == 0\n                        && matches!(",
+  "new": "\n                        && matches!(",
+  "mutant_sha256": "42fb77b9ccf59f158127347cb195de84e28b9fa975f636d404e3993f38f7bef4",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d5_native_record_relations"
+  ],
+  "summary": [
+   "test result: FAILED. 52 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.85s"
+  ]
+ },
+ {
+  "id": "M25",
+  "what": "D6b: selected quality excludes checks_passed",
+  "old": "\"sensitive\" | \"unresolved\" | \"failed\"",
+  "new": "\"sensitive\" | \"unresolved\" | \"failed\" | \"checks_passed\"",
+  "mutant_sha256": "215ac3882e6247282ddf9cf6769cac1ef7f9e081dd7ff6b51b95b79dfd992b3e",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d6_d7_ordinary_and_diagnostic_relations",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.71s"
+  ]
+ },
+ {
+  "id": "M26",
+  "what": "D4c: cause case has its own attempt",
+  "old": "pf(!c[\"product_attempt_ref\"].is_null()\n                && c[\"product_attempt_ref\"] == c[\"reason\"][\"cause\"][\"product_attempt_ref\"])?;",
+  "new": "pf(true)?;",
+  "mutant_sha256": "cc9e7b56c6cf41d7bbb632c70ba5b166c1b488adb05f843572441bf7da01d6e8",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d4_association_relations",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.10s"
+  ]
+ },
+ {
+  "id": "M27",
+  "what": "D1: captured_prefix null source/run/unavailable at G5",
+  "old": "pf(a[\"source_ref\"].is_null()\n                && a[\"run_ref\"].is_null()\n                && a[\"result\"][\"kind\"] == \"unavailable\")?;",
+  "new": "pf(true)?;",
+  "mutant_sha256": "54fbe4f4eed6ddac692adf5d48cb1908c86d6e1ccde2dff6d869954452a48114",
+  "exit": 0,
+  "verdict": "SURVIVED",
+  "failed_tests": [],
+  "summary": [
+   "test result: ok. 53 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.06s"
+  ]
+ },
+ {
+  "id": "M28",
+  "what": "D8 kernel scope: work_accounting anywhere in a Run/build/group",
+  "old": ".any(|o| o.get(\"tag\").is_some_and(|t| t == \"work_accounting\")))?;",
+  "new": ".any(|o| false && o.get(\"tag\").is_some_and(|t| t == \"work_accounting\")))?;",
+  "mutant_sha256": "875b0287b0d3b39d905a352cbe2ac356de2222ce4e5c828d60bb779dc0cd754d",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d8_kernel_scope_work_accounting_anywhere"
+  ],
+  "summary": [
+   "test result: FAILED. 52 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.92s"
+  ]
+ },
+ {
+  "id": "M29",
+  "what": "D8 R4: SectionError accounting needs non-exact member work",
+  "old": "r4 &= statuses(&m[\"work\"]) != 0;",
+  "new": "r4 &= true;",
+  "mutant_sha256": "db720e4ebe64ce08fc680aaf133e346f6eb6ffd9b366235df64a5d8162283ce5",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d13_reader_local_pins_and_mutant_kills"
+  ],
+  "summary": [
+   "test result: FAILED. 52 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.20s"
+  ]
+ },
+ {
+  "id": "M30",
+  "what": "D8 R2': OperationalError accounting",
+  "old": ".any(|e| e[\"kind\"] == \"accounting\" && e.get(\"event\").is_none());",
+  "new": ".any(|e| false && e[\"kind\"] == \"accounting\" && e.get(\"event\").is_none());",
+  "mutant_sha256": "11ab2dd198c7b03cce888ec3e24c4ee48bb2ec521639137945f3cbebc093a651",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d13_reader_local_pins_and_mutant_kills",
+   "d8_accounting_rules_on_shared_bases",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 49 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.22s"
+  ]
+ },
+ {
+  "id": "M31",
+  "what": "D2: receipt_version exactly 1 at G0",
+  "old": "unsupported(uint(&b[\"receipt_version\"]) == Some(1))?;",
+  "new": "unsupported(true)?;",
+  "mutant_sha256": "30c955780792720e6bf67d3095f014f9789b9ab4e9f24785cf846be2c48610e0",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d2_g0_union",
+   "d32_integers_by_value",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 49 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.69s"
+  ]
+ },
+ {
+  "id": "M32",
+  "what": "D1: unsourced complete old count = CaseSource member count",
+  "old": ".all(|s| list(&s[\"id_maps\"][\"members\"]).len() == old.len()),",
+  "new": ".all(|_| true),",
+  "mutant_sha256": "d32a29d45e6cf19b9c1c7c4024092bda1bdfdaf18a9b11f3acbf9696e73938cf",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d1_g3_coverage_relations"
+  ],
+  "summary": [
+   "test result: FAILED. 52 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.97s"
+  ]
+ },
+ {
+  "id": "M33",
+  "what": "D6a: untyped diagnostic_refs resolve",
+  "old": "fail(refs.insert(text(id)) && ds.iter().any(|d| d[\"id\"] == *id))?;",
+  "new": "fail(refs.insert(text(id)))?;",
+  "mutant_sha256": "5fc3a461bd4669f49bfb5d23c73d07391c4d1bd5ae3cf7192c67f46077f07943",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d6_d7_ordinary_and_diagnostic_relations",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.11s"
+  ]
+ },
+ {
+  "id": "M34",
+  "what": "D18: G5b echoed section terms positive",
+  "old": "section(left[k] == right[k] && f(&right[k]) > 0.0)?;",
+  "new": "section(left[k] == right[k])?;",
+  "mutant_sha256": "b4376ec9c3f51d7a1bd52974eed252a8006467b3c9085e1311410ec5172737e3",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 51 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.13s"
+  ]
+ },
+ {
+  "id": "M35",
+  "what": "D1: run origin owner is the case (class 1)",
+  "old": "\n                && *oi == json!({\"kind\":\"case\",\"index\":ci})",
+  "new": "",
+  "mutant_sha256": "b40c01a9c1a312d6bc87c8fd17c290a057ce869e9dbc291b928ab742ad5eb658",
+  "exit": 0,
+  "verdict": "SURVIVED",
+  "failed_tests": [],
+  "summary": [
+   "test result: ok. 53 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.57s"
+  ]
+ },
+ {
+  "id": "M36",
+  "what": "D27 reverted: idle rule reads the running meter",
+  "old": "&& u(&r[\"invocation_before\"]) >= u(&b[\"work\"][\"invocation_limit\"])\n                    && r[\"kernel_terminal\"][\"reason\"][\"tag\"] == \"budget\"",
+  "new": "&& current >= u(&b[\"work\"][\"invocation_limit\"])\n                    && r[\"kernel_terminal\"][\"reason\"][\"tag\"] == \"budget\"",
+  "mutant_sha256": "7d1dfe4b87b568a0e906d14a9e2f54df81b4b997fefdb555c56db44f276e6d3b",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d27_idle_rule_reads_recorded_invocation_before",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07b_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.13s"
+  ]
+ },
+ {
+  "id": "M37",
+  "what": "D28 narrowed back to stop_rule",
+  "old": "\"stop_rule\" | \"verification_estimate\" | \"charge\" | \"publication_enclosure\"",
+  "new": "\"stop_rule\"",
+  "mutant_sha256": "a77e2fa936462f73d589029cea04c08f8e76f98d8b978b949415551aa76760ed",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d28_quantity_reasons_resolve_to_layout",
+   "d33_verification_estimate_names_force_or_moment",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07d_mutation_outcomes",
+   "snapshot_07b_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 48 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.06s"
+  ]
+ },
+ {
+  "id": "M38",
+  "what": "D29 general empty body inventory check dropped",
+  "old": "fail(!list(&s[\"body_membership\"]).is_empty())?;",
+  "new": "fail(true)?;",
+  "mutant_sha256": "ab967578624920e2d1f6b7767cc7bfd70b9c796d6e0a19c68a75aa571de8649d",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d29_empty_body_inventory_without_roster"
+  ],
+  "summary": [
+   "test result: FAILED. 52 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.12s"
+  ]
+ },
+ {
+  "id": "M39",
+  "what": "D21 verification shared build as pass evidence dropped",
+  "old": "\n                            && record[\"verification_shared_build_ref\"].is_null())?;",
+  "new": ")?;",
+  "mutant_sha256": "688eaba4ff9fea5070ce2b66e1916bab099399b50c74fd5b78b86601c4cc9a09",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d21_last_slot_verification_shared_build"
+  ],
+  "summary": [
+   "test result: FAILED. 52 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.51s"
+  ]
+ },
+ {
+  "id": "M40",
+  "what": "D19 unavailable half dropped",
+  "old": "pf(c[\"status\"] == \"unavailable\"\n                && c[\"reason\"][\"cause\"][\"kind\"] == \"prepared_product_failure\"\n                && u(&c[\"reason\"][\"cause\"][\"product_attempt_ref\"]) == ai as u64)?;",
+  "new": "pf(true)?;",
+  "mutant_sha256": "8445ed718ee2d52c26eb54965ab0ff6f6225896fd27f2d70bd5678a8b0aa2ab9",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d19_converse_cause_binding",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07b_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.96s"
+  ]
+ },
+ {
+  "id": "M41",
+  "what": "D19 Ready half dropped",
+  "old": "pf(c[\"status\"] == \"selected\"\n                || (c[\"status\"] == \"unavailable\"\n                    && c[\"reason\"][\"cause\"][\"kind\"] == \"receipt_failure\"))?;",
+  "new": "pf(true)?;",
+  "mutant_sha256": "95797abaacd383451f02206ec6345369b904925c7923835a0dfec57e1a01edc8",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d19_converse_cause_binding",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07d_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.19s"
+  ]
+ },
+ {
+  "id": "M42",
+  "what": "D20 selected case without a C3 attempt",
+  "old": "        if c[\"status\"] == \"selected\" {\n            pf(!c[\"product_attempt_ref\"].is_null())?;\n        }\n",
+  "new": "",
+  "mutant_sha256": "0fd0fe0a10ead2329e8671c45461fabdacc393c1cb89f17a4859af914730df55",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d20_selected_without_c3_attempt",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07b_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.77s"
+  ]
+ },
+ {
+  "id": "M43",
+  "what": "D22 reverted: dangling attempt source_ref fails G3",
+  "old": "if let Ok(s) = at(&b[\"sources\"], &a[\"source_ref\"], \"G3\", \"COVERAGE_MISMATCH\") {",
+  "new": "if let Some(s) = (!a[\"source_ref\"].is_null()).then(|| at(&b[\"sources\"], &a[\"source_ref\"], \"G3\", \"COVERAGE_MISMATCH\")).transpose()? {",
+  "mutant_sha256": "c0ab9d188035cf4f8eb2b24558797313e6f9e49e35b373915d489b9099cd2e74",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d22_dangling_attempt_source_ref",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07b_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.90s"
+  ]
+ },
+ {
+  "id": "M44",
+  "what": "D5b escalating failed verification: report null dropped (D21 third indicator)",
+  "old": "af(record[\"verification\"].is_null()\n                            && u(&record[\"work\"][\"verification_lme\"]) == 0\n                            && record[\"verification_shared_build_ref\"].is_null())?;",
+  "new": "af(u(&record[\"work\"][\"verification_lme\"]) == 0\n                            && record[\"verification_shared_build_ref\"].is_null())?;",
+  "mutant_sha256": "3cdb7bf337cc6192784f27a5affd08a7c020e360cc9007f828ccd9e515884020",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07b_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 51 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.93s"
+  ]
+ },
+ {
+  "id": "M45",
+  "what": "D32 normalization disabled",
+  "old": "if !floats(&source[\"retained_precision\"]) {",
+  "new": "if true || !floats(&source[\"retained_precision\"]) {",
+  "mutant_sha256": "77bb652e603d3b168a01a453c4465eea8cb1584a327409f749947c7a18abcbd0",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d32_forged_source_identity_under_float_ref",
+   "d32_integers_by_value",
+   "shared_must_pass_entries_validate"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.79s"
+  ]
+ },
+ {
+  "id": "M46",
+  "what": "D32 normalization also converts -0",
+  "old": "                    && x.abs() <= SAFE as f64\n                    && !(*x == 0.0 && x.is_sign_negative())",
+  "new": "                    && x.abs() <= SAFE as f64",
+  "mutant_sha256": "d4dc10b78150d5dabc0b69eac1c4f9dcb754e587510b369f72b62d0d7ba31e99",
+  "exit": 0,
+  "verdict": "SURVIVED",
+  "failed_tests": [],
+  "summary": [
+   "test result: ok. 53 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.03s"
+  ]
+ },
+ {
+  "id": "M47",
+  "what": "D32 normalization range guard dropped",
+  "old": "                    && x.abs() <= SAFE as f64\n",
+  "new": "\n",
+  "mutant_sha256": "fb601a60c7020671b9a641697fdaa4f56f8236f492644586a03ef329841f586d",
+  "exit": 0,
+  "verdict": "SURVIVED",
+  "failed_tests": [],
+  "summary": [
+   "test result: ok. 53 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.51s"
+  ]
+ },
+ {
+  "id": "M48",
+  "what": "D32 at G0: receipt_version back to the host type test",
+  "old": "unsupported(uint(&b[\"receipt_version\"]) == Some(1))?;",
+  "new": "unsupported(b[\"receipt_version\"].as_u64() == Some(1) && b[\"receipt_version\"].is_u64())?;",
+  "mutant_sha256": "decf26c9d524af0054319fc253666cf8473035f322e01ab3bdf3fafea7df4e3f",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d32_integers_by_value",
+   "shared_must_pass_entries_validate"
+  ],
+  "summary": [
+   "test result: FAILED. 51 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.72s"
+  ]
+ },
+ {
+  "id": "M49",
+  "what": "D32 at G0: limits back to as_u64",
+  "old": "unsupported(uint(&b[\"work\"][key]) == Some(want))?;",
+  "new": "unsupported(b[\"work\"][key].as_u64() == Some(want))?;",
+  "mutant_sha256": "e72d8b8c8c6d6fb89f776ea57f116b2761860478e3c3be2c7d427df2c89e259d",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d32_integers_by_value",
+   "shared_must_pass_entries_validate"
+  ],
+  "summary": [
+   "test result: FAILED. 51 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.74s"
+  ]
+ },
+ {
+  "id": "M50",
+  "what": "D32 normalization widened to the whole statement",
+  "old": "    if let Some(r) = owned.get_mut(\"retained_precision\") {\n        normalize(r);\n    }",
+  "new": "    normalize(&mut owned);",
+  "mutant_sha256": "d127a8e9354d379a5e1e3b2960663a671cac5b9dcfd44fd9a990decb0af340c6",
+  "exit": 0,
+  "verdict": "SURVIVED",
+  "failed_tests": [],
+  "summary": [
+   "test result: ok. 53 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.16s"
+  ]
+ },
+ {
+  "id": "M51",
+  "what": "D33 dropped",
+  "old": "af(reason[\"tag\"] != \"verification_estimate\"\n                        || matches!(text(&reason[\"kind\"]), \"force\" | \"moment\"))?;",
+  "new": "af(true)?;",
+  "mutant_sha256": "e238b25d3c34f128f93749d7afba3481466e563ff8228c2412b090ebc9546cff",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d33_verification_estimate_names_force_or_moment",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07d_mutation_outcomes"
+  ],
+  "summary": [
+   "test result: FAILED. 50 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.20s"
+  ]
+ },
+ {
+  "id": "M52",
+  "what": "D31 back to 0.2.0/0.3.0",
+  "old": "matches!(text(&model[\"schema_version\"]), \"0.1.0\" | \"0.2.0\" | \"0.3.0\")",
+  "new": "matches!(text(&model[\"schema_version\"]), \"0.2.0\" | \"0.3.0\")",
+  "mutant_sha256": "627a8a0f93b275c70269e9082a06bc216fe54de8fe42590fc3746db22433cc73",
+  "exit": 101,
+  "verdict": "KILLED",
+  "failed_tests": [
+   "d31_model_schema_versions_at_g8",
+   "shared_must_pass_entries_validate"
+  ],
+  "summary": [
+   "test result: FAILED. 51 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.22s"
+  ]
+ }
+]

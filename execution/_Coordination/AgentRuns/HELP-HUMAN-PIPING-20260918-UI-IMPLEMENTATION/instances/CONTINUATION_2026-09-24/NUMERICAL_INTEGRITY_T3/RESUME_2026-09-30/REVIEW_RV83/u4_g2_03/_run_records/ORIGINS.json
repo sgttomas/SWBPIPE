@@ -1,0 +1,19 @@
+{
+ "reviewed": "NUM 406e4c8916 (G4 packet, SHA256SUMS 77/77 OK); G4 source basis b1f80234dc, read from a git-archive snapshot in WT/scratch",
+ "core_drift_b1f80234dc_to_406e4c8916": "PP lib.rs, retained_facade_tests.rs, retained_memory.rs, retained_product.rs (U3 grant 1d); not used",
+ "g4_files_sha256": {
+  "G3_REPAIRS.md": "c6e56284bcacdb5fe460be3e8af5921f944c5deb5763192edc7a59ec7b1df178",
+  "SHA256SUMS": "672610d1b7cc4c3565ef9162976f9f67be21de74136abfb62fb28a808cffb52f",
+  "_run_records/callgraph_g4.py": "18337192cb8f8891137fc8fd1bc2b0e6b319b38c7985e0197f90d76f01f68045",
+  "_run_records/callgraph_edges.json": "c6f222d2bea860e08db1cb6186dcfd1083ac77b6e01371498d7ba4214a688daf",
+  "_run_records/callgraph_audit.out.json": "ee90e6c78de23750f802b48941f6dd15db30fc0bc696e2505b68606cbe04b976",
+  "_run_records/callgraph.out.json": "a09743362c37a9e7b8470eabf98827857b824382220a8fe65fbe538d2b1b553e",
+  "_run_records/text_budget.caps.out.json": "3b40c2483cba6125416bac6e07864fe242ef926f04af64f41d675ad48ba37cac",
+  "_run_records/loop_bounds.g4.json": "cc532c61fed213954ad41161b9a327a63c024dc056ed1ecfa6f46f55169acac9",
+  "_run_records/ordinary_caps.py": "dbde3c4322434ab835a7682c2aec4e4e8558004b30b4f897fb93e88f50d2c74f",
+  "_run_records/ordinary_caps.caps.out.json": "0b4d5ea45934eede50b5b10ca6acdbb901b7e709c00db81be0e8ce84b7f93d50",
+  "_run_records/g3lib.py": "6b10b6044b6f69655b5e41d411d85e3413def1f869c1e8b1eda50d2f85bf6c78",
+  "_run_records/run_text_g4.sh": "263a03018d4180d105493a47bd30c3899ecc423bb9770858e73884661a9f5bb2"
+ },
+ "basis_tree": "eb9c9d831233b2711756386a170c9d67d3398a46"
+}

@@ -1,0 +1,12 @@
+{
+  "recorded_utc": "2026-10-03T00:00:41.227493+00:00",
+  "role": "TASK Type2",
+  "parent": "ROOT HELP_HUMAN",
+  "mechanism": "delegated-harness-native",
+  "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic",
+  "supplied_source_pin": "8a6ed501655fe64eb637a0e717d30bf765051749",
+  "test_lane": "HELD I40",
+  "scope": "I41 brief exact scope",
+  "failed_origin_record_attempt": "RV53 REVIEW.md absent; corrected to RETURN.md; no ORIGINS output from failed attempt",
+  "receipt_timestamp_limitation": "Timestamp was not persisted before initial read calls. First persisted timestamp is recorded_utc; parent dispatch record remains receipt authority."
+}

@@ -1,0 +1,5 @@
+{
+  "unchanged_scanner_and_assertions": true,
+  "scanner_tail_sha256": "00a523bd9ca2f0b71983fb2fc9392565245d0c703cb84e897b252e089c4f1ef1",
+  "change": "new private-module inventory and four zero-site dispositions only; semantically identical field cfg guards in new source"
+}

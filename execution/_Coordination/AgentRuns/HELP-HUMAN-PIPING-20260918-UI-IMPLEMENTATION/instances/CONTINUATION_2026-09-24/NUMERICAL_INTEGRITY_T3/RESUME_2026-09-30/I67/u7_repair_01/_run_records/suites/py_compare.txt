@@ -1,0 +1,3 @@
+Python retained suites, base vs candidate (outcome lines only in one side):
+211a212
+> PASSED tests/test_retained_precision_contract.py::test_shared_draft_first_failure_controls[g7_not_required_quality_enum_invalid]

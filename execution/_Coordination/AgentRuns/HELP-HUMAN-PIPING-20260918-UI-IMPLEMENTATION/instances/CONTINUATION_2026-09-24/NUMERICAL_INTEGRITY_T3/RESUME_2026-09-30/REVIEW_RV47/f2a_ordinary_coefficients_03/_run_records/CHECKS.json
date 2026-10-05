@@ -1,0 +1,82 @@
+{
+  "status": "RV47-C1 correction confirmed; no new finding",
+  "old_groups": 17,
+  "corrected_groups": 18,
+  "old_output_sha256": "02d3318f3d8c6e521e940297f95a878b6b7bc340f310e4884cb3182625407534",
+  "corrected_output_sha256": "85b90020323d0de7b729f3a98e862706d0105099c6f0ec4f23c551d5a1c127fc",
+  "corrected_script_sha256": "8592a613549894703ae8fa59cbb09e45e4099a726b5c5df8893522a9fe730c9f",
+  "products": [
+    {
+      "coefficient": "EA",
+      "exact_product_verified": true,
+      "both_delta_bounds_verified": true,
+      "CK_changed": true,
+      "delta_changed": true
+    },
+    {
+      "coefficient": "GJ",
+      "exact_product_verified": true,
+      "both_delta_bounds_verified": true,
+      "CK_changed": true,
+      "delta_changed": true
+    },
+    {
+      "coefficient": "EI_z",
+      "exact_product_verified": true,
+      "both_delta_bounds_verified": true,
+      "CK_changed": true,
+      "delta_changed": true
+    },
+    {
+      "coefficient": "EI_y",
+      "exact_product_verified": true,
+      "both_delta_bounds_verified": true,
+      "CK_changed": true,
+      "delta_changed": true
+    }
+  ],
+  "shared_constructor_mutation_rejected": true,
+  "required_delta": "2^-104",
+  "faulty_delta": "0",
+  "unaffected_group_statements_preserved": 16,
+  "unaffected_named_states_equal": 32,
+  "exact_five_file_author_scope": [
+    "M\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/RETURN.md",
+    "M\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/_run_records/INVENTORY.json",
+    "A\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/_run_records/correction_03/CORRECTION.json",
+    "A\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/_run_records/correction_03/exact_controls.json",
+    "A\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/_run_records/correction_03/exact_controls.py"
+  ],
+  "preserved_original_payloads": [
+    {
+      "path": "DEPENDENCIES.md",
+      "sha256": "0806abb33f0478b21b3d92c5113ae3f4939d25abe62e6713afedf60dda6b91a0"
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "sha256": "6d7b35b87b04d308d014fdec0378b8ee7b7f2dbc0db55be33becc8ebd925cb58"
+    },
+    {
+      "path": "_run_records/EXECUTION.json",
+      "sha256": "96ea2788114d6ae363b7ff0ec90bd87c723c24e6ea149264cf56f616711ece65"
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "sha256": "9e7232b07414e969bc0a462f8c1cb86b4374532c0c891a12606a15afc2565021"
+    },
+    {
+      "path": "_run_records/exact_controls.json",
+      "sha256": "02d3318f3d8c6e521e940297f95a878b6b7bc340f310e4884cb3182625407534"
+    },
+    {
+      "path": "_run_records/exact_controls.py",
+      "sha256": "69c2671a89d8b574cb72d8b2327335ef555f4e4f316b34971dbae31044984dfd"
+    }
+  ],
+  "theorem_sections_1_to_3_preserved": true,
+  "author_inventory_payloads_verified": 10,
+  "correction_origin_hashes_verified": 7,
+  "recorded_command_hashes_verified": 3,
+  "previous_review_files_preserved": 9,
+  "limits": "Exact abstract correction backcheck only; no product/source implementation, runtime, wider qualification or availability claim."
+}

@@ -1,0 +1,122 @@
+[
+ {
+  "id": "I61:RS01_f5_removed",
+  "lang": "rs",
+  "killed": true,
+  "compile_or_collect_error": false,
+  "failing_count": 4,
+  "failing": [
+   "d6_d7_ordinary_and_diagnostic_relations",
+   "f5_kills_u1_m09_m10_m20_on_the_real_milestone_receipts",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07g_mutation_outcomes"
+  ],
+  "seconds": 78.9
+ },
+ {
+  "id": "I61:RS02_f5_retained_included",
+  "lang": "rs",
+  "killed": true,
+  "compile_or_collect_error": false,
+  "failing_count": 48,
+  "failing": [
+   "audit_mutations_retain_native_and_product_first_failures",
+   "complete_synthetic_controls_keep_eligibility_held",
+   "coverage_layout_controls_fail_at_g5a",
+   "d13_reader_local_pins_and_mutant_kills",
+   "d19_converse_cause_binding",
+   "d1_g3_coverage_relations",
+   "d20_selected_without_c3_attempt",
+   "d21_last_slot_verification_shared_build",
+   "d22_dangling_attempt_source_ref",
+   "d24_after_rehash_edits"
+  ],
+  "seconds": 57.8
+ },
+ {
+  "id": "I61:RS03_d37_values_widened",
+  "lang": "rs",
+  "killed": true,
+  "compile_or_collect_error": false,
+  "failing_count": 1,
+  "failing": [
+   "retained_precision::u6e_reader_round_tests::d37_error_stages_matches_the_corpus_table_rv79_n1"
+  ],
+  "seconds": 73.9
+ },
+ {
+  "id": "I61:RS04_d37_abandoned_widened_after_certificate",
+  "lang": "rs",
+  "killed": true,
+  "compile_or_collect_error": false,
+  "failing_count": 2,
+  "failing": [
+   "d37_error_kind_agrees_with_stage_record",
+   "retained_precision::u6e_reader_round_tests::d37_error_stages_matches_the_corpus_table_rv79_n1"
+  ],
+  "seconds": 72.0
+ },
+ {
+  "id": "I61:RS05_m50_statement_normalized",
+  "lang": "rs",
+  "killed": true,
+  "compile_or_collect_error": false,
+  "failing_count": 1,
+  "failing": [
+   "retained_precision::u6e_reader_round_tests::rv80_n2_integral_receipt_touches_only_the_receipt"
+  ],
+  "seconds": 72.1
+ },
+ {
+  "id": "RV90:RS01_f5_first_case_only",
+  "lang": "rs",
+  "killed": false,
+  "compile_or_collect_error": false,
+  "failing_count": 0,
+  "failing": [],
+  "seconds": 71.8
+ },
+ {
+  "id": "RV90:RS02_f5_prefix_tolerant",
+  "lang": "rs",
+  "killed": false,
+  "compile_or_collect_error": false,
+  "failing_count": 0,
+  "failing": [],
+  "seconds": 72.8
+ },
+ {
+  "id": "RV90:RS03_d37_not_enforced_in_g5_products",
+  "lang": "rs",
+  "killed": true,
+  "compile_or_collect_error": false,
+  "failing_count": 4,
+  "failing": [
+   "d37_error_kind_agrees_with_stage_record",
+   "g5_audit_local_controls",
+   "shared_rehashed_first_failure_mutations",
+   "snapshot_07f_mutation_outcomes"
+  ],
+  "seconds": 73.1
+ },
+ {
+  "id": "RV90:RS04_f5_excludes_selected_code_only",
+  "lang": "rs",
+  "killed": true,
+  "compile_or_collect_error": false,
+  "failing_count": 24,
+  "failing": [
+   "complete_synthetic_controls_keep_eligibility_held",
+   "d13_reader_local_pins_and_mutant_kills",
+   "d19_converse_cause_binding",
+   "d1_g3_coverage_relations",
+   "d22_dangling_attempt_source_ref",
+   "d29_empty_body_inventory_without_roster",
+   "d32_integers_by_value",
+   "d34_negative_zero_anywhere_in_receipt_fails_g2",
+   "d37_error_kind_agrees_with_stage_record",
+   "d4_association_relations"
+  ],
+  "seconds": 78.7
+ }
+]

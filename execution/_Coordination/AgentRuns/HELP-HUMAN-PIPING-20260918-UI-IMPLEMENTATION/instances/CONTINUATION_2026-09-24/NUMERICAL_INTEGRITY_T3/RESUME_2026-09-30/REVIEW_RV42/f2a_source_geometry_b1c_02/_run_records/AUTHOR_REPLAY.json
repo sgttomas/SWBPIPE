@@ -1,0 +1,158 @@
+{
+  "scope": "finite standard-library exact design arithmetic; no runtime/product/solver execution",
+  "all_assertions_passed": true,
+  "pi_proof": {
+    "identity": "pi=16 atan(1/5)-4 atan(1/239)",
+    "terms_each": 128,
+    "series_width_less_than": "2^-600",
+    "constant_denominator_power": 512,
+    "lower_numerator_hex": "0x3243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e638d01377be5466cf34e90c6cc0ac29b7c97c50dd3f84d5b5b5470917",
+    "upper_numerator_hex": "0x3243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e638d01377be5466cf34e90c6cc0ac29b7c97c50dd3f84d5b5b5470918",
+    "constant_width": "2^-512",
+    "proof_fraction_max_bits": 2968,
+    "proof_denominator_max_bits": 2967
+  },
+  "geometry_symbolic_significand_bounds": {
+    "P": 2151,
+    "Q": 4200,
+    "G": 6351,
+    "A": 2665,
+    "I_J": 6865,
+    "Z_denominator": 53
+  },
+  "geometry_schedule": {
+    "subtractions": 2,
+    "additions": 1,
+    "multiplications": 8,
+    "power_of_two_exponent_adjustments": "fixed count, no numeric rounding",
+    "grade_school_u64_limb_product_ceiling": 5779,
+    "runtime_series_or_refinement_iterations": 0,
+    "counts_are_not_LME_prices": true
+  },
+  "control_groups": 12,
+  "controls": [
+    {
+      "name": "source_fixture_ordinary",
+      "D_bits": "3fbeb851eb851eb8",
+      "t_bits": "3f847ae147ae147b",
+      "positive": true,
+      "fixture_pi_error_warrant_contains_new_bracket": true,
+      "max_actual_integer_width": 733,
+      "property_interval_relative_width": "1/42121870893450636219446821484559388105255997313489254605594685088103805782276098919793885372247726346443771296916333485327292916625599161542353774203832599"
+    },
+    {
+      "name": "source_fixture_thin",
+      "D_bits": "3fbeb851eb851eb8",
+      "t_bits": "3d719799812dea11",
+      "positive": true,
+      "fixture_pi_error_warrant_contains_new_bracket": true,
+      "max_actual_integer_width": 832,
+      "property_interval_relative_width": "1/42121870893450636219446821484559388105255997313489254605594685088103805782276098919793885372247726346443771296916333485327292916625599161542353774203832599"
+    },
+    {
+      "name": "source_fixture_representable_range_control",
+      "D_bits": "4ffba2bfd0d5ff5b",
+      "t_bits": "4fdba2bfd0d5ff5b",
+      "positive": true,
+      "fixture_pi_error_warrant_contains_new_bracket": true,
+      "max_actual_integer_width": 729,
+      "property_interval_relative_width": "1/42121870893450636219446821484559388105255997313489254605594685088103805782276098919793885372247726346443771296916333485327292916625599161542353774203832599"
+    },
+    {
+      "name": "subnormal_dimensions",
+      "product_admission_claim": false,
+      "integer_widths": {
+        "D_minus_t": 2,
+        "ri": 1,
+        "P": 2,
+        "Q": 3,
+        "G": 4,
+        "A_lower": 516,
+        "A_upper": 513,
+        "I_lower": 518,
+        "I_upper": 515
+      }
+    },
+    {
+      "name": "near_solid",
+      "product_admission_claim": false,
+      "integer_widths": {
+        "D_minus_t": 54,
+        "ri": 1,
+        "P": 106,
+        "Q": 107,
+        "G": 212,
+        "A_lower": 620,
+        "A_upper": 617,
+        "I_lower": 726,
+        "I_upper": 723
+      }
+    },
+    {
+      "name": "max_span",
+      "product_admission_claim": false,
+      "integer_widths": {
+        "D_minus_t": 2098,
+        "ri": 2097,
+        "P": 2098,
+        "Q": 4195,
+        "G": 6293,
+        "A_lower": 2612,
+        "A_upper": 2609,
+        "I_lower": 6807,
+        "I_upper": 6804
+      }
+    },
+    {
+      "name": "tiny_wall",
+      "product_admission_claim": false,
+      "integer_widths": {
+        "D_minus_t": 1000,
+        "ri": 999,
+        "P": 1000,
+        "Q": 1999,
+        "G": 2999,
+        "A_lower": 1514,
+        "A_upper": 1511,
+        "I_lower": 3513,
+        "I_upper": 3510
+      }
+    },
+    {
+      "name": "effective_wall_is_actual_normalized_effective_bit",
+      "normalized_nominal": "1",
+      "normalized_tolerance": "1/36028797018963968",
+      "effective_bit": "3ff0000000000000",
+      "unrounded_subtraction": "36028797018963967/36028797018963968",
+      "area_truths_disjoint": true
+    },
+    {
+      "name": "rounded_area_is_not_source_area",
+      "rounded_reference_area_bits": "4022d97c7f3321d2",
+      "rounded_value_outside_source_interval": true,
+      "actual_SourceAnnulus_execution": false
+    },
+    {
+      "name": "action_bridge_not_given_by_denominator_enclosure",
+      "scope": "exact scalar coefficient identity only, no product model",
+      "q_K": "884279719003555/4126638688683257",
+      "q_G": "3/14",
+      "difference": "-1/57772941641565598",
+      "geometric_area_coefficients": [
+        3,
+        11
+      ],
+      "Ahat1_bits": "4022d97c7f3321d2",
+      "Ahat2_bits": "4041475cc9eedf01"
+    },
+    {
+      "name": "zero_action_geometry_uncertainty_does_not_create_stress",
+      "checks": 2
+    },
+    {
+      "name": "positive_annulus_preconditions",
+      "refused_pairs": 4
+    }
+  ],
+  "source_action_bridge_proved": false
+}

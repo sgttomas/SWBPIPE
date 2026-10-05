@@ -1,0 +1,18 @@
+{
+ "packet_byte_classes": {
+  "lowered_products path format (source.rs:51)": 72581120,
+  "bits() from dropped callers": 2670592,
+  "recipes formats (source.rs:175-181)": 1582020,
+  "function -> functional_id (source.rs:150)": 7860160,
+  "function -> bits x2 (source.rs:150)": 112640
+ },
+ "packet_total": 84806532,
+ "source_spelling": {
+  "lowered_products path format (source.rs:51)": 4227072,
+  "bits() from dropped callers": 2670592,
+  "recipes formats (source.rs:175-181)": 1582020,
+  "function -> functional_id (source.rs:150)": 549120,
+  "function -> bits x2 (source.rs:150)": 112640
+ },
+ "source_total": 9141444
+}

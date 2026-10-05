@@ -1,0 +1,34 @@
+{
+  "utc": "2026-10-03T16:50:15.721471+00:00",
+  "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_repair_08/cargo_01.json",
+  "record_sha256": "e3c03a312eed2297bfd621db10c1e6a70f5875d881bf73f5393d4e212af005b6",
+  "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_repair_08/cargo_01.log",
+  "log_sha256": "b50e8212adcd8d1ba3a0f4c50c3ca25a4317c7d4b8d254a5a371021aacadb80a",
+  "argv": [
+    "/Users/ryan/.cargo/bin/cargo",
+    "test",
+    "--manifest-path",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+    "--locked",
+    "--offline",
+    "--lib",
+    "retained_product_tests",
+    "--",
+    "--nocapture"
+  ],
+  "start": "2026-10-03T16:47:26.323554+00:00",
+  "finish": "2026-10-03T16:47:47.764193+00:00",
+  "source_stable": true,
+  "exit": 0,
+  "reaped": true,
+  "process_group_alive": false,
+  "summary": [
+    "test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 419 filtered out; finished in 15.33s"
+  ],
+  "direct_evidence": [
+    "I51_PRIOR_CAUSE sticky=false cause=Association(original capture cause: member identity) same_owner=true adapter_fault=None helper=0 new_evaluator=0 native=0 old_work=(23, 39, false) trace_costs=TraceCosts { events: 5, copy_bytes: 460, lost: false }",
+    "I51_PRIOR_CAUSE sticky=true cause=Association(original capture cause: member identity) same_owner=true adapter_fault=Some(Overflow(MapWrite)) helper=0 new_evaluator=0 native=0 old_work=(23, 39, false) trace_costs=TraceCosts { events: 5, copy_bytes: 460, lost: false }"
+  ],
+  "exact_two_file_scope": true,
+  "diff_check": "passed"
+}

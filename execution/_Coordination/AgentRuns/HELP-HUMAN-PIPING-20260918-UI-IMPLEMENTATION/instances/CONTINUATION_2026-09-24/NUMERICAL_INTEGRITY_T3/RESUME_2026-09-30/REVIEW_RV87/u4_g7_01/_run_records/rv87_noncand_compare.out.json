@@ -1,0 +1,26 @@
+{
+ "rv87_g6r": 410,
+ "g7_mine": 410,
+ "only_g6r": [
+  [
+   "product_physics/src/lib.rs",
+   "append_integrity_report",
+   "equilibrium.map(|e|format!(\"{} final same-state evaluated equilibrium and derived residual-work evidence: {:?}; residual units are N for global DOF%6<3 and N*m",
+   "",
+   "error_display",
+   2
+  ]
+ ],
+ "only_g7": [
+  [
+   "product_physics/src/lib.rs",
+   "append_integrity_report",
+   "equilibrium.map(|e|format!(\"{} final same-state evaluated equilibrium and derived residual-work evidence: {:?}; residual units are N for global DOF%6<3 and N*m ",
+   "",
+   "error_display",
+   2
+  ]
+ ],
+ "i65_g7": 410,
+ "mine_vs_i65_equal": true
+}

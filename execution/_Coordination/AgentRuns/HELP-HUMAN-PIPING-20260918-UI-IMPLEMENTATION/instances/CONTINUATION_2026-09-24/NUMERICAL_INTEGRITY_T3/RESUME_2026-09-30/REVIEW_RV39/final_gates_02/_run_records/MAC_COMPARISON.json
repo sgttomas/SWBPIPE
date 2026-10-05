@@ -1,0 +1,1196 @@
+{
+  "candidate": "9994462204231fb92073e17eb09775756bec22f3",
+  "base": "3a0251874d6ab38008173a22ef09d651a0f20d9e",
+  "baseline_source": "cb13dcd9fcc8c252fa9610b1c6fef0c5b2c3c20c",
+  "baseline_relevant_source_equal_main": true,
+  "baseline_paths_checked": [
+    "projects/chirality-piping/core",
+    "projects/chirality-piping/validation/benchmarks",
+    "projects/chirality-piping/tests",
+    "projects/chirality-piping/apps",
+    "projects/chirality-piping/tools"
+  ],
+  "source_delta_since_review": [],
+  "discovered_manifests": [
+    "core/gui/viewport_editor/Cargo.toml",
+    "core/library_import/library_import_document/Cargo.toml",
+    "core/loads/load_case_algebra/Cargo.toml",
+    "core/loads/primitive_loads/Cargo.toml",
+    "core/loads/self_weight_wasm/Cargo.toml",
+    "core/loads/stress_recovery/Cargo.toml",
+    "core/loads/user_loads/Cargo.toml",
+    "core/model_operations/operation_applier/Cargo.toml",
+    "core/product_physics/Cargo.toml",
+    "core/reporting/audit_manifest/Cargo.toml",
+    "core/reporting/pdf_emitter/Cargo.toml",
+    "core/reporting/protected_content_linter/Cargo.toml",
+    "core/reporting/report_generator/Cargo.toml",
+    "core/reporting/report_package/Cargo.toml",
+    "core/reporting/report_renderer/Cargo.toml",
+    "core/reporting/report_sections/Cargo.toml",
+    "core/reporting/result_export/Cargo.toml",
+    "core/rules/completeness_checker/Cargo.toml",
+    "core/rules/expression_evaluator/Cargo.toml",
+    "core/rules/rule_check_runner/Cargo.toml",
+    "core/rules/rule_pack_document/Cargo.toml",
+    "core/rules/rule_pack_lifecycle/Cargo.toml",
+    "core/runner/headless/Cargo.toml",
+    "core/serialization/canonical_json/Cargo.toml",
+    "core/solver/curved_bend/Cargo.toml",
+    "core/solver/diagnostics/Cargo.toml",
+    "core/solver/frame_kernel/Cargo.toml",
+    "core/solver/linear_supports/Cargo.toml",
+    "core/solver/nonlinear_integration/Cargo.toml",
+    "core/solver/nonlinear_supports/Cargo.toml",
+    "core/solver/performance_harness/Cargo.toml",
+    "core/solver/sparse_direct/Cargo.toml",
+    "core/solver/straight_pipe/Cargo.toml",
+    "core/units/Cargo.toml",
+    "validation/benchmarks/mechanics/Cargo.toml",
+    "validation/benchmarks/nonlinear/Cargo.toml",
+    "validation/benchmarks/numerical_integrity/Cargo.toml",
+    "validation/benchmarks/numerical_robustness/Cargo.toml",
+    "validation/benchmarks/physics_audit_regression/Cargo.toml",
+    "validation/benchmarks/stress/Cargo.toml"
+  ],
+  "count": 40,
+  "listed_manifest_order_equal": true,
+  "all_candidate_and_baseline_log_sets_equal": true,
+  "delta": [
+    {
+      "manifest_log": "core_solver_performance_harness_Cargo.toml.log",
+      "baseline": {
+        "summary": [
+          76,
+          0,
+          0
+        ],
+        "failures": [],
+        "compile_failure": false,
+        "summary_count": 11,
+        "sha256": "8308749108c058040c1c63d3b89307b6816e5bd519a240bbbf97a08f4007e397",
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/030_core_solver_performance_harness_Cargo.toml.log"
+      },
+      "candidate": {
+        "summary": [
+          92,
+          0,
+          0
+        ],
+        "failures": [],
+        "compile_failure": false,
+        "summary_count": 13,
+        "sha256": "5bded420b47af939abdb83b44d1263da1369264e62642d98e83e7a63ab72d3a3",
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/030_core_solver_performance_harness_Cargo.toml.log"
+      }
+    },
+    {
+      "manifest_log": "validation_benchmarks_numerical_robustness_Cargo.toml.log",
+      "baseline": {
+        "summary": [
+          47,
+          0,
+          0
+        ],
+        "failures": [],
+        "compile_failure": false,
+        "summary_count": 11,
+        "sha256": "ce61c5e2002387c665b1b6deaeb3b0d83d95cec99fcff9670d6e72d69dc883ff",
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/037_validation_benchmarks_numerical_robustness_Cargo.toml.log"
+      },
+      "candidate": {
+        "summary": [
+          60,
+          0,
+          0
+        ],
+        "failures": [],
+        "compile_failure": false,
+        "summary_count": 12,
+        "sha256": "44a5901cd04946eb8f5aa79f81d8e6e584a23001e5c5cd0384a593ee0cc2652a",
+        "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/037_validation_benchmarks_numerical_robustness_Cargo.toml.log"
+      }
+    }
+  ],
+  "candidate_failure_identities": [
+    {
+      "manifest_log": "core_runner_headless_Cargo.toml.log",
+      "tests": [
+        "cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route",
+        "load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes"
+      ]
+    },
+    {
+      "manifest_log": "core_product_physics_Cargo.toml.log",
+      "tests": [
+        "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+      ]
+    }
+  ],
+  "failure_identity_equals_baseline": true,
+  "candidate_compile_failures": [],
+  "baseline": {
+    "core_solver_straight_pipe_Cargo.toml.log": {
+      "summary": [
+        42,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "4e1130e0e52aa99ffe0eeab6599ea20db9e694102f1af1d88d3d63bb3a288144",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/032_core_solver_straight_pipe_Cargo.toml.log"
+    },
+    "validation_benchmarks_physics_audit_regression_Cargo.toml.log": {
+      "summary": [
+        15,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 3,
+      "sha256": "54f9052010e60775326d6309d07a6355fc0b1f1cfdf1434532370aa9058470ba",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/038_validation_benchmarks_physics_audit_regression_Cargo.toml.log"
+    },
+    "core_solver_performance_harness_Cargo.toml.log": {
+      "summary": [
+        76,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 11,
+      "sha256": "8308749108c058040c1c63d3b89307b6816e5bd519a240bbbf97a08f4007e397",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/030_core_solver_performance_harness_Cargo.toml.log"
+    },
+    "core_serialization_canonical_json_Cargo.toml.log": {
+      "summary": [
+        24,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 5,
+      "sha256": "802c767e23396d2060cea42ddd5dfe8835e96a978c2656d91de31026392c94e1",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/023_core_serialization_canonical_json_Cargo.toml.log"
+    },
+    "core_solver_sparse_direct_Cargo.toml.log": {
+      "summary": [
+        30,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "af1b26c271daf446d1baacad7c5ca68c3d0471a408eb777585e1f978f08329a5",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/031_core_solver_sparse_direct_Cargo.toml.log"
+    },
+    "core_solver_diagnostics_Cargo.toml.log": {
+      "summary": [
+        25,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "28f236cdd0d64e6868aab882af80db80394120c9203e9ce72d3ee00d676f7249",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/025_core_solver_diagnostics_Cargo.toml.log"
+    },
+    "core_gui_viewport_editor_Cargo.toml.log": {
+      "summary": [
+        6,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "53828e6ae01821501aeb7b0486c200857324bcef012dd1bea5d836fd62727440",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/000_core_gui_viewport_editor_Cargo.toml.log"
+    },
+    "core_rules_rule_pack_document_Cargo.toml.log": {
+      "summary": [
+        10,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 4,
+      "sha256": "4cd342204e2e8d0408a106fe68a9d13a0da4952cc44d527b53193ed19c9d10b7",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/020_core_rules_rule_pack_document_Cargo.toml.log"
+    },
+    "core_solver_curved_bend_Cargo.toml.log": {
+      "summary": [
+        25,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "a00c4aa975a3a250cc5f69dba0ebfcb4519aed2c530163d5e1a9362903d34bb2",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/024_core_solver_curved_bend_Cargo.toml.log"
+    },
+    "core_loads_primitive_loads_Cargo.toml.log": {
+      "summary": [
+        49,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "20d7c5d3bb6e304967a3b98a700c1838d5e2f6394181a6763487f40a649bc0a8",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/003_core_loads_primitive_loads_Cargo.toml.log"
+    },
+    "core_reporting_report_renderer_Cargo.toml.log": {
+      "summary": [
+        8,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 3,
+      "sha256": "1bd94dc83fea7f484087055a7a8eecc19703fd26f8a9428bb6e242cb68bda189",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/014_core_reporting_report_renderer_Cargo.toml.log"
+    },
+    "core_units_Cargo.toml.log": {
+      "summary": [
+        17,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "a8533b0c566c0e65192d57e0ea94e739893eef6b441e1b9fb0a4db80969d1dd5",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/033_core_units_Cargo.toml.log"
+    },
+    "core_loads_load_case_algebra_Cargo.toml.log": {
+      "summary": [
+        21,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "25753f0faa081974dd1a788c58c9e521fbfca64521a2be25ee6b97cb534c1f4e",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/002_core_loads_load_case_algebra_Cargo.toml.log"
+    },
+    "core_solver_nonlinear_integration_Cargo.toml.log": {
+      "summary": [
+        134,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "4241fc836f09af90b91c1c5f4bc64c148a70e74b6967aaca434470f714744bc8",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/028_core_solver_nonlinear_integration_Cargo.toml.log"
+    },
+    "validation_benchmarks_numerical_robustness_Cargo.toml.log": {
+      "summary": [
+        47,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 11,
+      "sha256": "ce61c5e2002387c665b1b6deaeb3b0d83d95cec99fcff9670d6e72d69dc883ff",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/037_validation_benchmarks_numerical_robustness_Cargo.toml.log"
+    },
+    "core_loads_user_loads_Cargo.toml.log": {
+      "summary": [
+        28,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "97e36f1926c3e3274197e5a1ef6109bca4aa15b6ed86ab0bb6b5c7b853e114e0",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/006_core_loads_user_loads_Cargo.toml.log"
+    },
+    "core_loads_self_weight_wasm_Cargo.toml.log": {
+      "summary": [
+        14,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 3,
+      "sha256": "47dffbbda51721711b821aca653eb8dfa0694dec93a2f48871855710fe451e0e",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/004_core_loads_self_weight_wasm_Cargo.toml.log"
+    },
+    "core_library_import_library_import_document_Cargo.toml.log": {
+      "summary": [
+        19,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 3,
+      "sha256": "b4dfe2b420f7af34afe65d7d04980d5ac0ed92daf63625afed8c4b7a998dfdb3",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/001_core_library_import_library_import_document_Cargo.toml.log"
+    },
+    "core_reporting_protected_content_linter_Cargo.toml.log": {
+      "summary": [
+        23,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 4,
+      "sha256": "20cb733803a269df14688a52cd01f1fdd5cf261bd6fcf542ed5a2acdf8eba647",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/011_core_reporting_protected_content_linter_Cargo.toml.log"
+    },
+    "core_reporting_audit_manifest_Cargo.toml.log": {
+      "summary": [
+        13,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "5244d4ea889918812c7c18e6f21e868b0ab74c50b140939e17fdc6e7be8e61b5",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/009_core_reporting_audit_manifest_Cargo.toml.log"
+    },
+    "core_solver_nonlinear_supports_Cargo.toml.log": {
+      "summary": [
+        22,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "372e1a3c6154de45ec28e502bfef763d5a013de93657c4dccc42a117a212b76f",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/029_core_solver_nonlinear_supports_Cargo.toml.log"
+    },
+    "core_runner_headless_Cargo.toml.log": {
+      "summary": [
+        82,
+        2,
+        0
+      ],
+      "failures": [
+        "cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route",
+        "load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes"
+      ],
+      "compile_failure": false,
+      "summary_count": 8,
+      "sha256": "2dc5dce49d302524edfdf9b962469c7504e47da6dabf6b6e5def30509a314f4d",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/022_core_runner_headless_Cargo.toml.log"
+    },
+    "core_solver_frame_kernel_Cargo.toml.log": {
+      "summary": [
+        456,
+        0,
+        1
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 9,
+      "sha256": "56274ab016693890094f65d7c9354e3aaf8fe75937646718864adf8fbf95c01b",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/026_core_solver_frame_kernel_Cargo.toml.log"
+    },
+    "core_rules_rule_check_runner_Cargo.toml.log": {
+      "summary": [
+        21,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 4,
+      "sha256": "d39cbb29df2fd38bd9f0669d377f1abec9043c927543ac93ed9aac0299ee57b9",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/019_core_rules_rule_check_runner_Cargo.toml.log"
+    },
+    "core_rules_rule_pack_lifecycle_Cargo.toml.log": {
+      "summary": [
+        12,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "ec13065d11e4cc294f6a15ae70ef8ac7b88fa44d8f2e267330532a87cf839c10",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/021_core_rules_rule_pack_lifecycle_Cargo.toml.log"
+    },
+    "core_reporting_report_package_Cargo.toml.log": {
+      "summary": [
+        20,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 3,
+      "sha256": "9275f9017fb2de5ec71ac250782d4de00272507b9b9081e0574ebc89e0cd04c1",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/013_core_reporting_report_package_Cargo.toml.log"
+    },
+    "core_reporting_result_export_Cargo.toml.log": {
+      "summary": [
+        91,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 10,
+      "sha256": "39c7d7d96e2f97c6b8a8b1cebae5f26d70ce2bc1267d03365299ebce33503365",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/016_core_reporting_result_export_Cargo.toml.log"
+    },
+    "core_solver_linear_supports_Cargo.toml.log": {
+      "summary": [
+        15,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "1c55e83317db6915d45e20ec22657868778c54ed43ee102237e96498c2b4f262",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/027_core_solver_linear_supports_Cargo.toml.log"
+    },
+    "core_loads_stress_recovery_Cargo.toml.log": {
+      "summary": [
+        48,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "4da79b06de6af40b5d693c3c110ae98f24fe2ee563cb2b6f65325291940a53c8",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/005_core_loads_stress_recovery_Cargo.toml.log"
+    },
+    "validation_benchmarks_numerical_integrity_Cargo.toml.log": {
+      "summary": [
+        0,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 1,
+      "sha256": "a0354803add6f357a7e4cc8bb9aa77695102f9a380a2c3b1dde0399280642192",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/036_validation_benchmarks_numerical_integrity_Cargo.toml.log"
+    },
+    "core_rules_expression_evaluator_Cargo.toml.log": {
+      "summary": [
+        32,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 3,
+      "sha256": "feb6921f8189d74baa5bae1d6eef1f5a35e9414323dbee19a8b49d12b8147b65",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/018_core_rules_expression_evaluator_Cargo.toml.log"
+    },
+    "validation_benchmarks_mechanics_Cargo.toml.log": {
+      "summary": [
+        41,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "6bc653eab5f311a891148362807fc60204d199278fd81cf84c8a2d8ee9547071",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/034_validation_benchmarks_mechanics_Cargo.toml.log"
+    },
+    "core_reporting_report_sections_Cargo.toml.log": {
+      "summary": [
+        13,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "5410c9163f93927a09bbf0d1373ac22a68111e9ce4087ec91b37d2e0ebf83b96",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/015_core_reporting_report_sections_Cargo.toml.log"
+    },
+    "validation_benchmarks_stress_Cargo.toml.log": {
+      "summary": [
+        23,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "af9d7c0a19516cc91889e093def6f6d27d153fcd4d2e94db11fadedc20588272",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/039_validation_benchmarks_stress_Cargo.toml.log"
+    },
+    "core_product_physics_Cargo.toml.log": {
+      "summary": [
+        569,
+        1,
+        1
+      ],
+      "failures": [
+        "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+      ],
+      "compile_failure": false,
+      "summary_count": 22,
+      "sha256": "7a2df958b6e1bff75217704e453de89e011c0ebe06a41629e066d132775afffb",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/008_core_product_physics_Cargo.toml.log"
+    },
+    "core_reporting_report_generator_Cargo.toml.log": {
+      "summary": [
+        10,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "fb7a24a873ab011b0285b7fab8f109b73616d62824c21dd9cb878ffd32ab2da3",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/012_core_reporting_report_generator_Cargo.toml.log"
+    },
+    "core_model_operations_operation_applier_Cargo.toml.log": {
+      "summary": [
+        194,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 10,
+      "sha256": "72e446dc01178159e5ca9b466465b2271749b96566c73c5082dfb813c427d1e2",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/007_core_model_operations_operation_applier_Cargo.toml.log"
+    },
+    "validation_benchmarks_nonlinear_Cargo.toml.log": {
+      "summary": [
+        19,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "bec4718151f39552906d41ffa139397e1a13eb9827f0a5d06422ca9f6648d1eb",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/035_validation_benchmarks_nonlinear_Cargo.toml.log"
+    },
+    "core_rules_completeness_checker_Cargo.toml.log": {
+      "summary": [
+        12,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "8314a77b0f2464577b739c8f3393ed6987245f940e5c864f68769f47830dca03",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/017_core_rules_completeness_checker_Cargo.toml.log"
+    },
+    "core_reporting_pdf_emitter_Cargo.toml.log": {
+      "summary": [
+        8,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 3,
+      "sha256": "d20f62591a2ab383be0080988cd7f8cb87c1535dc67adcf3bdae30009339c1d0",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/a1_final_cb13dcd9_20261002/dec025/suites/010_core_reporting_pdf_emitter_Cargo.toml.log"
+    }
+  },
+  "candidate_suites": {
+    "core_solver_straight_pipe_Cargo.toml.log": {
+      "summary": [
+        42,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "b79ece2737b04025a747a974bbfff41215c604904d08dab3d1f2e70f657089eb",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/032_core_solver_straight_pipe_Cargo.toml.log"
+    },
+    "validation_benchmarks_physics_audit_regression_Cargo.toml.log": {
+      "summary": [
+        15,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 3,
+      "sha256": "58e5ff988e6c4fe2100f09909bb9c1e5f952ac96dd056f6c7f5d574eaaa8f0a5",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/038_validation_benchmarks_physics_audit_regression_Cargo.toml.log"
+    },
+    "core_solver_performance_harness_Cargo.toml.log": {
+      "summary": [
+        92,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 13,
+      "sha256": "5bded420b47af939abdb83b44d1263da1369264e62642d98e83e7a63ab72d3a3",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/030_core_solver_performance_harness_Cargo.toml.log"
+    },
+    "core_serialization_canonical_json_Cargo.toml.log": {
+      "summary": [
+        24,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 5,
+      "sha256": "a007f9c7132d3963da5d83ba05a1ee026dc0b2d0c01068951c3143e7b39a7dbd",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/023_core_serialization_canonical_json_Cargo.toml.log"
+    },
+    "core_solver_sparse_direct_Cargo.toml.log": {
+      "summary": [
+        30,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "26cccf6152bee6bd06ac59fa60b3c6e2b98866d205dc610942485019d30027d2",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/031_core_solver_sparse_direct_Cargo.toml.log"
+    },
+    "core_solver_diagnostics_Cargo.toml.log": {
+      "summary": [
+        25,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "638facc080e4dd0e4d10af88a03e58f9960a894549ec66aee450a21be0cd60d3",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/025_core_solver_diagnostics_Cargo.toml.log"
+    },
+    "core_gui_viewport_editor_Cargo.toml.log": {
+      "summary": [
+        6,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "c4c44f71cff4cb782e022549212b5a002541f1b4f585449e14d4e260a5030e95",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/000_core_gui_viewport_editor_Cargo.toml.log"
+    },
+    "core_rules_rule_pack_document_Cargo.toml.log": {
+      "summary": [
+        10,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 4,
+      "sha256": "845f4673fec5fd49c0acaa6d07505beb8ea1740854038824845dfd5ec8698da2",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/020_core_rules_rule_pack_document_Cargo.toml.log"
+    },
+    "core_solver_curved_bend_Cargo.toml.log": {
+      "summary": [
+        25,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "efce3c7ca3c07f3be4f77fda66b58f65d1a731b41e2861d76c039a79a349a8cf",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/024_core_solver_curved_bend_Cargo.toml.log"
+    },
+    "core_loads_primitive_loads_Cargo.toml.log": {
+      "summary": [
+        49,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "58f0beda550cce267813aaf8e2ccfdfb98ee8ef7b85a0154672cdf084e63dd9a",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/003_core_loads_primitive_loads_Cargo.toml.log"
+    },
+    "core_reporting_report_renderer_Cargo.toml.log": {
+      "summary": [
+        8,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 3,
+      "sha256": "1cdcb87b1c1fe42830c0b596a96d88161e305b3c6144a004736e9a4999084964",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/014_core_reporting_report_renderer_Cargo.toml.log"
+    },
+    "core_units_Cargo.toml.log": {
+      "summary": [
+        17,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "1108749eae8f816e40a5fbba5fb5efc69d0335458cbc4cd0beebb6546db943cd",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/033_core_units_Cargo.toml.log"
+    },
+    "core_loads_load_case_algebra_Cargo.toml.log": {
+      "summary": [
+        21,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "e343ca9fea7628ac1895887734e317e1f988420e466e85b42abe5f4d497cd2f7",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/002_core_loads_load_case_algebra_Cargo.toml.log"
+    },
+    "core_solver_nonlinear_integration_Cargo.toml.log": {
+      "summary": [
+        134,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "cfa8ddb17ca6a6d861c5fbd5bf3dc3c55491eb0a68bbf3c131570b9e8f71145f",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/028_core_solver_nonlinear_integration_Cargo.toml.log"
+    },
+    "validation_benchmarks_numerical_robustness_Cargo.toml.log": {
+      "summary": [
+        60,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 12,
+      "sha256": "44a5901cd04946eb8f5aa79f81d8e6e584a23001e5c5cd0384a593ee0cc2652a",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/037_validation_benchmarks_numerical_robustness_Cargo.toml.log"
+    },
+    "core_loads_user_loads_Cargo.toml.log": {
+      "summary": [
+        28,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "f255ffae075c4d78d508451f1bfd9197424e1155bf7c7802a523f9c85f50f3ed",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/006_core_loads_user_loads_Cargo.toml.log"
+    },
+    "core_loads_self_weight_wasm_Cargo.toml.log": {
+      "summary": [
+        14,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 3,
+      "sha256": "ab9a415e4802dc32bbe95d948db0aa266fe3360ec66b6bb98e7338da38d947af",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/004_core_loads_self_weight_wasm_Cargo.toml.log"
+    },
+    "core_library_import_library_import_document_Cargo.toml.log": {
+      "summary": [
+        19,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 3,
+      "sha256": "cdf219f7e43d5691ad66446940f35a039cfacd9e854268760666ecbb77cabca3",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/001_core_library_import_library_import_document_Cargo.toml.log"
+    },
+    "core_reporting_protected_content_linter_Cargo.toml.log": {
+      "summary": [
+        23,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 4,
+      "sha256": "9c05213acf1b8a757d8c1451b585280b4a2097dfb092cdd8f00dc007aee35b23",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/011_core_reporting_protected_content_linter_Cargo.toml.log"
+    },
+    "core_reporting_audit_manifest_Cargo.toml.log": {
+      "summary": [
+        13,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "b50892ce465f142260b5b4bac1a25f4eb01c82470d21364391667a1172e92bcd",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/009_core_reporting_audit_manifest_Cargo.toml.log"
+    },
+    "core_solver_nonlinear_supports_Cargo.toml.log": {
+      "summary": [
+        22,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "7be5f91c1e09f5b4638fa6f36e7aebc7395c990f03ee67c235ab111c0ff42249",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/029_core_solver_nonlinear_supports_Cargo.toml.log"
+    },
+    "core_runner_headless_Cargo.toml.log": {
+      "summary": [
+        82,
+        2,
+        0
+      ],
+      "failures": [
+        "cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route",
+        "load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes"
+      ],
+      "compile_failure": false,
+      "summary_count": 8,
+      "sha256": "fb9f3aaa3852a264ffcb178187309b66d011ca2965cc546f8a9d72f813285dcb",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/022_core_runner_headless_Cargo.toml.log"
+    },
+    "core_solver_frame_kernel_Cargo.toml.log": {
+      "summary": [
+        456,
+        0,
+        1
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 9,
+      "sha256": "36ce597f23685dbf8d4906a7f9238a28d7e5ee806a24448e8d73c8c9b2217044",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/026_core_solver_frame_kernel_Cargo.toml.log"
+    },
+    "core_rules_rule_check_runner_Cargo.toml.log": {
+      "summary": [
+        21,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 4,
+      "sha256": "18dc10dac27cd328d18db3b38b0dba54c5f79fbbe70b6a76c8f45e36af734c09",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/019_core_rules_rule_check_runner_Cargo.toml.log"
+    },
+    "core_rules_rule_pack_lifecycle_Cargo.toml.log": {
+      "summary": [
+        12,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "60f6f86634fd69202bd7ed8c07ea4ea987db8790fef56f81942d97f0503b67a7",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/021_core_rules_rule_pack_lifecycle_Cargo.toml.log"
+    },
+    "core_reporting_report_package_Cargo.toml.log": {
+      "summary": [
+        20,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 3,
+      "sha256": "f28f6b87492561ab63b2ef0a6dccbfefbe9040c9ee8607ae1daa6406b03749ae",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/013_core_reporting_report_package_Cargo.toml.log"
+    },
+    "core_reporting_result_export_Cargo.toml.log": {
+      "summary": [
+        91,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 10,
+      "sha256": "15408ae255006cc35d8aa2211c4ffa207e80727cb60a784854d558ab3982a2e9",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/016_core_reporting_result_export_Cargo.toml.log"
+    },
+    "core_solver_linear_supports_Cargo.toml.log": {
+      "summary": [
+        15,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "09b9d648cf2d423a3fafcda8e3f3daac8b18ba90ff21d6fec145e735166dfac7",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/027_core_solver_linear_supports_Cargo.toml.log"
+    },
+    "core_loads_stress_recovery_Cargo.toml.log": {
+      "summary": [
+        48,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "7453d6770ddc79d82104d686f68f5f0903cf25a5fbb713ddd9f24c6f0e9f480c",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/005_core_loads_stress_recovery_Cargo.toml.log"
+    },
+    "validation_benchmarks_numerical_integrity_Cargo.toml.log": {
+      "summary": [
+        0,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 1,
+      "sha256": "5df9dda9f6d082255c28c7cce74c6c8f43203bd937735082f8d05e0a4a7361fc",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/036_validation_benchmarks_numerical_integrity_Cargo.toml.log"
+    },
+    "core_rules_expression_evaluator_Cargo.toml.log": {
+      "summary": [
+        32,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 3,
+      "sha256": "d802a0229245636d2909afea854a3d61643b1fefde73a49b131120837361d276",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/018_core_rules_expression_evaluator_Cargo.toml.log"
+    },
+    "validation_benchmarks_mechanics_Cargo.toml.log": {
+      "summary": [
+        41,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "47d692a67bb0fe820e1e533912c224e03a6a72dd747ae7c8c2acee5ee06aefaf",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/034_validation_benchmarks_mechanics_Cargo.toml.log"
+    },
+    "core_reporting_report_sections_Cargo.toml.log": {
+      "summary": [
+        13,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "4d9de61e02006bae7605cfa47eb9a4f9be52f2d5cd5c5e3f943d9a3a706fb99b",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/015_core_reporting_report_sections_Cargo.toml.log"
+    },
+    "validation_benchmarks_stress_Cargo.toml.log": {
+      "summary": [
+        23,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "7a8259bdc0a30d2310188650f565b5b3e0767079854e1dbf4ebc9830a143bf49",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/039_validation_benchmarks_stress_Cargo.toml.log"
+    },
+    "core_product_physics_Cargo.toml.log": {
+      "summary": [
+        569,
+        1,
+        1
+      ],
+      "failures": [
+        "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+      ],
+      "compile_failure": false,
+      "summary_count": 22,
+      "sha256": "89444b955403d3b7130b617f5a0425bcf2c6267cd24e81b1c7749ab53fcec4bd",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/008_core_product_physics_Cargo.toml.log"
+    },
+    "core_reporting_report_generator_Cargo.toml.log": {
+      "summary": [
+        10,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "ebd09b59cf90f2a7e1f73b0b3deff91ccc98f4c59732432f12f6d97efc11a543",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/012_core_reporting_report_generator_Cargo.toml.log"
+    },
+    "core_model_operations_operation_applier_Cargo.toml.log": {
+      "summary": [
+        194,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 10,
+      "sha256": "9a46e88c9dadff2ff4a863585974c90522bc408746929119d49506f02c81b592",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/007_core_model_operations_operation_applier_Cargo.toml.log"
+    },
+    "validation_benchmarks_nonlinear_Cargo.toml.log": {
+      "summary": [
+        19,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "59fd1e8cc96798d18629c493ff1a0dfb98720deef7dcbac6a75a74593db93e77",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/035_validation_benchmarks_nonlinear_Cargo.toml.log"
+    },
+    "core_rules_completeness_checker_Cargo.toml.log": {
+      "summary": [
+        12,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 2,
+      "sha256": "0567fd61e6c3e33c45bfbd5a30125ca01d836738d0d8a643b2cd0b8b3c9b825e",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/017_core_rules_completeness_checker_Cargo.toml.log"
+    },
+    "core_reporting_pdf_emitter_Cargo.toml.log": {
+      "summary": [
+        8,
+        0,
+        0
+      ],
+      "failures": [],
+      "compile_failure": false,
+      "summary_count": 3,
+      "sha256": "ed5e3ca9841a29e34f8490dfd7a903d0221bcb3b2aaadee70e1872df4136cd9e",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/k6c_final_20261002/dec025_corrected/suites/010_core_reporting_pdf_emitter_Cargo.toml.log"
+    }
+  },
+  "fail_fast": {
+    "artifact": "openpipestress.evidence_sweep_summary",
+    "schema_version": 3,
+    "decision_basis": [
+      "DEC-025",
+      "DEC-093"
+    ],
+    "boundary_note": "Commit-bound development evidence; the tool performs no network lookup. Not a release claim, professional approval, certification, sealing, authentication, or code-compliance determination.",
+    "git": {
+      "commit_hash": "9994462204231fb92073e17eb09775756bec22f3",
+      "branch": "HEAD",
+      "status_capture_failed": false,
+      "working_tree_dirty": false,
+      "dirty_paths": []
+    },
+    "runtime": {
+      "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+      "python": "3.13.14",
+      "node": "v24.18.0",
+      "npm": "11.16.0",
+      "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+      "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)"
+    },
+    "started_utc": "2026-10-02T16:43:29+00:00",
+    "finished_utc": "2026-10-02T16:43:36+00:00",
+    "duration_seconds": 7.389,
+    "surfaces": [
+      {
+        "order": 1,
+        "surface_id": "cargo_crate_sweep",
+        "description": "Rust crate tests across all discovered crate manifests.",
+        "execution_capability": "sandboxed",
+        "commands": [
+          {
+            "argv": [
+              "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python",
+              "tools/release/check_release_readiness.py",
+              "--profile",
+              "cargo",
+              "--execute"
+            ],
+            "exit_code": 101,
+            "duration_seconds": 7.388
+          }
+        ],
+        "status": "fail"
+      },
+      {
+        "order": 2,
+        "surface_id": "python_pytest",
+        "description": "Repository Python contract, governance, and validation tests.",
+        "execution_capability": "sandboxed",
+        "commands": [],
+        "status": "not_run"
+      },
+      {
+        "order": 3,
+        "surface_id": "desktop_vitest",
+        "description": "Desktop unit/contract tests; wasm engine built first.",
+        "execution_capability": "sandboxed",
+        "commands": [],
+        "status": "not_run"
+      },
+      {
+        "order": 4,
+        "surface_id": "desktop_production_build",
+        "description": "Desktop production build (tsc -b && vite build).",
+        "execution_capability": "sandboxed",
+        "commands": [],
+        "status": "not_run"
+      }
+    ],
+    "overall_status": "fail",
+    "surface_selection": {
+      "only_capability": "sandboxed",
+      "complete_dec025_sweep": false
+    }
+  },
+  "later_surfaces": {
+    "all_four_exit_zero": true,
+    "raw": "== python_pytest: /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python -m pytest -q tests (16:57:58Z)\n   exit 0 (17:16:27Z)\n== desktop_vitest_build_wasm: npm run build:wasm:desktop (17:16:27Z)\n   exit 0 (17:16:27Z)\n== desktop_vitest: npm run test:desktop (17:16:27Z)\n   exit 0 (17:18:30Z)\n== desktop_production_build: npm run build:desktop (17:18:30Z)\n   exit 0 (17:18:40Z)\n",
+    "python_summary": [
+      "3070 passed, 32 skipped, 130 subtests passed in 1108.17s (0:18:28)"
+    ],
+    "vitest_summary": [
+      " Test Files  134 passed (134)",
+      "      Tests  2822 passed (2822)"
+    ]
+  },
+  "driver_finished": true
+}

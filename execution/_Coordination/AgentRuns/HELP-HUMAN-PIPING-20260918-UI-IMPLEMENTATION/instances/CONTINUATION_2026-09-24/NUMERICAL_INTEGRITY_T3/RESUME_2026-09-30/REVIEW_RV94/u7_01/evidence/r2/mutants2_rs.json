@@ -1,0 +1,137 @@
+[
+ {
+  "id": "R11_rs_summary_reader_flag_only",
+  "lang": "rs",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6_doc_hidden_seams_have_no_product_callers",
+   "u6a_classification_summary_counts_validated_classes",
+   "u7_d_u7_4_forms_rust_side_standing_and_summary"
+  ],
+  "seconds": 40.0
+ },
+ {
+  "id": "R12_rs_summary_receipt_order",
+  "lang": "rs",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6a_classification_summary_counts_validated_classes",
+   "u7_d_u7_4_forms_rust_side_standing_and_summary"
+  ],
+  "seconds": 35.0
+ },
+ {
+  "id": "R21_d74_summary_ts_side_current",
+  "lang": "rs",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 58.8
+ },
+ {
+  "id": "R22_d74_summary_python_side_not_current",
+  "lang": "rs",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 57.9
+ },
+ {
+  "id": "R23_d74_summary_rust_side_not_current",
+  "lang": "rs",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "u7_d_u7_4_forms_rust_side_standing_and_summary",
+   "u6_declared_differences_rust"
+  ],
+  "seconds": 34.0
+ },
+ {
+  "id": "R24_d74_summary_forms_removed",
+  "lang": "rs",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "u6_declared_differences_rust"
+  ],
+  "seconds": 34.1
+ },
+ {
+  "id": "R25_d74_summary_unknown_value",
+  "lang": "rs",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "u7_d_u7_4_forms_rust_side_standing_and_summary",
+   "u6_declared_differences_rust"
+  ],
+  "seconds": 34.5
+ },
+ {
+  "id": "R26_n3_clause_removed",
+  "lang": "rs",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "u6_declared_differences_rust"
+  ],
+  "seconds": 13.4
+ },
+ {
+  "id": "R27_n3_clause_ts_code_misstated",
+  "lang": "rs",
+  "file": "fixtures/results/retained_precision_carrier_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 57.5
+ },
+ {
+  "id": "R31_probe_removed",
+  "lang": "rs",
+  "file": "fixtures/results/retained_precision_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "snapshot_03_mutation_outcomes",
+   "snapshot_04_coverage_mutation_outcomes",
+   "snapshot_05a_mutation_outcomes"
+  ],
+  "seconds": 66.4
+ },
+ {
+  "id": "R32_probe_ts_code",
+  "lang": "rs",
+  "file": "fixtures/results/retained_precision_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 62.7
+ },
+ {
+  "id": "R33_probe_rust_code",
+  "lang": "rs",
+  "file": "fixtures/results/retained_precision_cases.json",
+  "status": "KILLED",
+  "killed_by": [
+   "shared_rehashed_first_failure_mutations"
+  ],
+  "seconds": 58.1
+ },
+ {
+  "id": "R34_probe_python_code",
+  "lang": "rs",
+  "file": "fixtures/results/retained_precision_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 57.9
+ },
+ {
+  "id": "R35_probe_expected_code",
+  "lang": "rs",
+  "file": "fixtures/results/retained_precision_cases.json",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "seconds": 58.9
+ }
+]

@@ -1,0 +1,36 @@
+{
+  "status": "sealed informational review inventory; not acceptance",
+  "self_excluded": "_run_records/WRITE_INVENTORY.json",
+  "files": [
+    {
+      "path": "RETURN.md",
+      "bytes": 11063,
+      "sha256": "b462cec375bcce4fa930e4ddc3f309474f306d5d5012376802624a814666ba7b"
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "bytes": 2177,
+      "sha256": "99a0faee837d56415a677c8b5d5360a45bc9f8f4e574a1c5dd60f26de85739ce"
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "bytes": 21359,
+      "sha256": "61bf56fe240e880e9c8c6cb3314cf682d6c341f395b8aacceecdb42f66bd8c78"
+    },
+    {
+      "path": "_run_records/SESSION.json",
+      "bytes": 3782,
+      "sha256": "f4d12f5843f368b8127030b017681904968f0321c262f1599892b72fbc2ca6d4"
+    },
+    {
+      "path": "_run_records/author_replay/CHECKS.json",
+      "bytes": 2763,
+      "sha256": "69d4fba4e638fca0cca3bd017c03ad86cb3709d8e426c9752bab3118487c5e1e"
+    },
+    {
+      "path": "_run_records/review_checks.py",
+      "bytes": 8078,
+      "sha256": "757befd370b624c964dd8023b2a072ae42c3d2e534072ce6f537c64c0a198342"
+    }
+  ]
+}

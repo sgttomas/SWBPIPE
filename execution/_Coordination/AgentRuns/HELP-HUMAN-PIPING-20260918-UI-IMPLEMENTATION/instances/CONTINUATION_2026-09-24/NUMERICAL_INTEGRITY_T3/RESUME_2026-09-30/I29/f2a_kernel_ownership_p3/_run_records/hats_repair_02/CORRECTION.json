@@ -1,0 +1,165 @@
+{
+  "agent": "/root/i29_w1_limits",
+  "parent": "/root",
+  "task": "I29_P3_HATS_REPAIR_02",
+  "receipt_utc": "2026-10-02 23:46:34 UTC",
+  "new_analysis_cutoff_utc": "2026-10-02 23:56:34 UTC",
+  "return_deadline_utc": "2026-10-03 00:01:34 UTC",
+  "status": "narrow repair complete; pending same RV52 backcheck",
+  "brief": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I29_P3_HATS_REPAIR_02.md",
+    "bytes": 1150,
+    "sha256": "42c74840285eb3a67f87fb93b27e2be97d3504e68f579c0f990580ccaec51d5c"
+  },
+  "review_revision": "25287ebdfe2c",
+  "before_existing": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_kernel_ownership_p3/RETURN.md",
+      "bytes": 3096,
+      "sha256": "eddf0e96b683d9294e2120cb0024fdfdcf87a8e36cd43c43dc0861d83259e0eb"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_kernel_ownership_p3/ENVELOPE.md",
+      "bytes": 22015,
+      "sha256": "b8ee363d1f1e7df58ece6642491ba214b765a4c0d8389162673f294f78a4f173"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_kernel_ownership_p3/OWNER_LEDGER.md",
+      "bytes": 8426,
+      "sha256": "4032fdecc3dcbf51cad5d624466ac7626cc709cdd82bc1d3e6685b1a0175c430"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_kernel_ownership_p3/_run_records/WRITE_INVENTORY.json",
+      "bytes": 1222,
+      "sha256": "f0266acbec3936ad64b8f159400cc25d78169c4ff119e6e27e51428e0869400b"
+    }
+  ],
+  "preserved_original_raw": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_kernel_ownership_p3/_run_records/CHECKS.json",
+      "bytes": 2763,
+      "sha256": "69d4fba4e638fca0cca3bd017c03ad86cb3709d8e426c9752bab3118487c5e1e"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_kernel_ownership_p3/_run_records/ORIGINS.json",
+      "bytes": 11012,
+      "sha256": "a94db605ee6ce792ed417ad40c2ddd9420f1894864234343915820b5ebacd88f"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_kernel_ownership_p3/_run_records/SESSION.json",
+      "bytes": 2324,
+      "sha256": "7729ec92d9a4e5bdf2dc657952c02e11c8b67e6b7a162f35dd8d88ac493e21a1"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_kernel_ownership_p3/_run_records/owner_graph_checks.py",
+      "bytes": 5636,
+      "sha256": "155d5bf26fec78f4492153d09a599d612d6e968c8d7f4fa36d07837fed91c257"
+    }
+  ],
+  "preserved_review": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV52/f2a_kernel_ownership_p3/RETURN.md",
+      "bytes": 11063,
+      "sha256": "b462cec375bcce4fa930e4ddc3f309474f306d5d5012376802624a814666ba7b"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV52/f2a_kernel_ownership_p3/_run_records/CHECKS.json",
+      "bytes": 2177,
+      "sha256": "99a0faee837d56415a677c8b5d5360a45bc9f8f4e574a1c5dd60f26de85739ce"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV52/f2a_kernel_ownership_p3/_run_records/ORIGINS.json",
+      "bytes": 21359,
+      "sha256": "61bf56fe240e880e9c8c6cb3314cf682d6c341f395b8aacceecdb42f66bd8c78"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV52/f2a_kernel_ownership_p3/_run_records/SESSION.json",
+      "bytes": 3782,
+      "sha256": "f4d12f5843f368b8127030b017681904968f0321c262f1599892b72fbc2ca6d4"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV52/f2a_kernel_ownership_p3/_run_records/WRITE_INVENTORY.json",
+      "bytes": 1107,
+      "sha256": "2b03895b941b0fe2f8f6b63295c6897bccc950c8a3724cabb3cab46c41fc412f"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV52/f2a_kernel_ownership_p3/_run_records/author_replay/CHECKS.json",
+      "bytes": 2763,
+      "sha256": "69d4fba4e638fca0cca3bd017c03ad86cb3709d8e426c9752bab3118487c5e1e"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV52/f2a_kernel_ownership_p3/_run_records/review_checks.py",
+      "bytes": 8078,
+      "sha256": "757befd370b624c964dd8023b2a072ae42c3d2e534072ce6f537c64c0a198342"
+    }
+  ],
+  "source_origins": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "revision": "fdae294643b798c1849da8b2e643085562593686",
+      "sha256": "6334b102f466468333b4aa5cf7e639eec887dd4482271932505b6ec0a13261d4",
+      "matches_NUM": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+      "revision": "fdae294643b798c1849da8b2e643085562593686",
+      "sha256": "66022cc78bb5779d021a35e33fafc7cc7bc2d64723a5d0fdaf3a48cb6fea795e",
+      "matches_NUM": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+      "revision": "fdae294643b798c1849da8b2e643085562593686",
+      "sha256": "134c7a958ffe260cdc281fda898e5023d95dcf084d584912de2414b60e2e4982",
+      "matches_NUM": true
+    }
+  ],
+  "source_review_status": "ROOT reports RV51 CLEAR on unchanged fdae294; this corrects source-roster documentation only",
+  "changes": [
+    "distinct rule hats owner and lifetime, distinct from earlier dropped verification check",
+    "requested term and conditional old-backing moving term",
+    "explicit Uc a/c domination by existing four same-type buffer bound; two block-max vectors named",
+    "constructive independent lifetime graph and source anchors"
+  ],
+  "scope_limits": [
+    "no numeric coefficient/profile/allowance choice",
+    "no source/API/Git/index writes",
+    "no runtime/compiler/solver/model/host probe",
+    "no delegation"
+  ],
+  "completion_utc": "2026-10-02 23:49:14 UTC",
+  "analysis_stopped_utc": "2026-10-02 23:49:14 UTC",
+  "process_state": "All owned commands synchronous and completed; no background or production process started; no external host-process audit.",
+  "preservation_check": "all original raw and review hashes/lengths unchanged",
+  "controls": {
+    "passed": 8,
+    "path": "_run_records/hats_repair_02/checks.json",
+    "production_execution": false
+  },
+  "repaired_payloads": [
+    {
+      "path": "RETURN.md",
+      "bytes": 4233,
+      "sha256": "f02c60f1f831961d689480551aef3b51da16cc8ed89d4530d4baafcbf02a40f5"
+    },
+    {
+      "path": "ENVELOPE.md",
+      "bytes": 24798,
+      "sha256": "708b0e04dff8177b40819f74af63438062e26526256357fa54b736795e182d0b"
+    },
+    {
+      "path": "OWNER_LEDGER.md",
+      "bytes": 9600,
+      "sha256": "748a99e3953e2e66480f2fc79fee3c33dfd19f4df3e87925e28e174cabcf379c"
+    },
+    {
+      "path": "_run_records/hats_repair_02/checks.py",
+      "bytes": 6288,
+      "sha256": "3d73d9b50924f186f5e26b7e059a73a1c12de7c5ee0e5d7b98fd260a2506f916"
+    },
+    {
+      "path": "_run_records/hats_repair_02/checks.json",
+      "bytes": 1917,
+      "sha256": "1926da38028c26b1570a610eec59d27a86642fb7190e00ea7b5019a7cad5ee98"
+    }
+  ]
+}

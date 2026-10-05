@@ -1,0 +1,103 @@
+{
+ "lane": "WT/scratch/i67_u6d/lanes/mut7",
+ "files": [
+  "src/features/results/retainedPrecision.test.ts",
+  "src/features/results/retainedPrecisionIntegration.test.tsx",
+  "src/services/retainedPrecisionAnalysisRun.test.ts",
+  "src/features/results/retainedPrecisionOutputRefusal.test.tsx",
+  "src/features/results/numericalResultQuality.test.ts",
+  "src/features/results/knownSemanticLimitations.test.ts",
+  "src/features/results/resultSemantics.test.ts",
+  "src/services/analysisRunCompatibility.test.ts",
+  "src/services/previewService.test.ts",
+  "src/services/ruleCheckService.test.ts",
+  "src/features/results/HistoricalRunContext.test.tsx",
+  "src/features/results/ResultsPanel.test.tsx",
+  "src/features/results/previewPhysicsEvidence.test.ts"
+ ],
+ "mutants": [
+  {
+   "id": "W01",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "summary: the eligibility condition removed",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 4,
+   "passed": 902,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the declared differences, with TypeScript's expectations D-U7-4:ts_requires_live_native_capture / invocation_without_native_capture on milestone_sparse_interactive: the summary's withheld is the not-Current count"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the declared differences, with TypeScript's expectations D-U7-4:ts_requires_live_native_capture / invocation_without_native_capture on milestone_dense_scrutiny: the summary's withheld is the not-Current count"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the declared differences, with TypeScript's expectations D-U7-4:ts_requires_live_native_capture / stale_current_model_same_case_ids on milestone_sparse_interactive: the summary's withheld is the not-Current count"
+    ]
+   ]
+  },
+  {
+   "id": "W02",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "summary: D2 4.9.4 alone (no live capture)",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 4,
+   "passed": 902,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the declared differences, with TypeScript's expectations D-U7-4:ts_requires_live_native_capture / invocation_without_native_capture on milestone_sparse_interactive: the summary's withheld is the not-Current count"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the declared differences, with TypeScript's expectations D-U7-4:ts_requires_live_native_capture / invocation_without_native_capture on milestone_dense_scrutiny: the summary's withheld is the not-Current count"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the declared differences, with TypeScript's expectations D-U7-4:ts_requires_live_native_capture / stale_current_model_same_case_ids on milestone_sparse_interactive: the summary's withheld is the not-Current count"
+    ]
+   ]
+  },
+  {
+   "id": "W03",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "summary: never Current",
+   "killed": true,
+   "by_assertion": true,
+   "exit": 1,
+   "failed": 6,
+   "passed": 900,
+   "load_errors": [],
+   "first": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the rule-check gate and binding refusals summarizes classes per case over the registration only"
+    ]
+   ]
+  }
+ ],
+ "control": {
+  "exit": 0,
+  "failed": 0,
+  "passed": 906,
+  "load_errors": [],
+  "first": []
+ },
+ "seconds": 39
+}

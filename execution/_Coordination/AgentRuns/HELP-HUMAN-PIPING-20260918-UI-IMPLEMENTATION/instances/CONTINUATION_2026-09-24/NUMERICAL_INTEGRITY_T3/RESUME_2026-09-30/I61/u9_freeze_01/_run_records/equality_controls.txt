@@ -1,0 +1,19 @@
+== control A: the cut head 6b9bb19a5f against INT bb3d766379 (stale PR source)
+[FAIL] check 1: {"in_pr_not_S": [], "in_S_not_pr": ["projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs", "projects/chirality-piping/tests/test_ci_e2e_plan.py", "projects/chirality-piping/tools/ci/e2e_plan.py"]}
+[FAIL] check 2: {"differ": ["projects/chirality-piping/core/product_physics/src/lib.rs", "projects/chirality-piping/core/product_physics/src/retained_memory.rs", "projects/chirality-piping/core/product_physics/src/retained_memory_law_tests.rs", "projects/chira
+[FAIL] check 3: {"projects/chirality-piping/core/analysis_runs/compatibility.py": {"how": "U9 decision 3: one _same_canonical (main's is byte-identical to the integration side's), main's two call-site lines", "conflicts": 1, "rule_holds": true, "expected_blob"
+[PASS] check 4: {"execution_files": 10, "outside_package": [], "sha256_mismatch": []}
+[FAIL] check 5: 139 rows; 128 equal; 2 recorded three-way merge(s); unexplained ['projects/chirality-piping/core/product_physics/src/lib.rs', 'projects/chirality-piping/core/product_physics/src/retained_memory.rs', 'projects/chirality-piping/core/product_physi
+RESULT FAIL
+== control B: no recorded rule for compatibility.py's conflict
+[PASS] check 1: PR non-execution paths equal S
+[PASS] check 2: 137 paths identical in blob and mode
+[FAIL] check 3: {"projects/chirality-piping/core/analysis_runs/compatibility.py": {"how": "1 conflict(s) with no recorded rule: needs a ruling", "conflicts": 1, "rule_holds": false, "expected_blob": "767da34027c566303173f92f222d548d9a1aa71c", "pr_blob": "767da
+[PASS] check 4: {"execution_files": 10, "outside_package": [], "sha256_mismatch": []}
+[PASS] check 5: 139 rows; 137 equal; 2 recorded three-way merge(s); unexplained []
+RESULT FAIL
+== control C: PR == INT (no merge applied)
+[PASS] check 2: 137 paths identical in blob and mode
+[FAIL] check 3: {"projects/chirality-piping/core/analysis_runs/compatibility.py": {"how": "U9 decision 3: one _same_canonical (main's is byte-identical to the integration side's), main's two call-site
+[PASS] check 5: 139 rows; 139 equal; 2 recorded three-way merge(s); unexplained []
+RESULT FAIL

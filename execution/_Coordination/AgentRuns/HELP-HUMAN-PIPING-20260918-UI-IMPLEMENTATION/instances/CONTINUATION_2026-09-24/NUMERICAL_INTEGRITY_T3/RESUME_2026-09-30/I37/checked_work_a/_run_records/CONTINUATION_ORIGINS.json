@@ -1,0 +1,37 @@
+{
+  "consulted_source_files": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs",
+      "sha256": "3a847f8dbaa74768603c4d9693b538f1f63c2d172026ed7ab400aea3b4800f67"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+      "sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+      "sha256": "dc4f210bf5d6bdc3190baef16410912c8792fcc8dd3ea56afe5e58c6f4c93341"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+      "sha256": "510d6f640ad718de7edb3b1767c531bb1ea1984f5717a4eaecb72e98877c58fe"
+    }
+  ],
+  "clarifications": [
+    {
+      "revision": "247c3392ad9",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I37_F2A_CHECKED_WORK_IMPLEMENTATION_A.md",
+      "sha256": "fd142e77ae75c49a683384e520801562cfa3de4366cf14e1b1052a6ba325d4b3"
+    },
+    {
+      "revision": "62e93690941cc35a42a79ee658c2904601af7b9f",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I37_F2A_CHECKED_WORK_IMPLEMENTATION_A.md",
+      "sha256": "7e380e5462a127a0e1f860541c1a9aa57962e7bd8619929b285b0930a541fc1e"
+    },
+    {
+      "revision": "b2ba2e7199b2522e71bb65fffdf6a3f755839f85",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I37_F2A_CHECKED_WORK_IMPLEMENTATION_A.md",
+      "sha256": "6cbecd0665c644d95a04a95d91d0c3e4afde6c3ed51fa7cdd59df0445b3dd325"
+    }
+  ]
+}

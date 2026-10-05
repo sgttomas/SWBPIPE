@@ -1,0 +1,767 @@
+[
+ {
+  "id": "S01_meta_branch_off",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_dispatch_admits_the_successor_through_the_accepted_reader_only"
+  ],
+  "rv88_failed": [],
+  "seconds": 33
+ },
+ {
+  "id": "S02_raw_branch_off",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_dispatch_admits_the_successor_through_the_accepted_reader_only",
+   "u6a_receipt_binding_mismatches_are_refused",
+   "u6a_shared_carrier_cases_rust"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 20
+ },
+ {
+  "id": "S03_raw_skips_reader",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_dispatch_admits_the_successor_through_the_accepted_reader_only",
+   "u6a_shared_carrier_cases_rust"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 32
+ },
+ {
+  "id": "S04_meta_skips_reader",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_dispatch_admits_the_successor_through_the_accepted_reader_only"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 35
+ },
+ {
+  "id": "S05_member_guard_dropped",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_downgrades_to_a_base_identity_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 39
+ },
+ {
+  "id": "S06_member_guard_null",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_downgrades_to_a_base_identity_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 38
+ },
+ {
+  "id": "S07_row_guard_dropped",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_downgrades_to_a_base_identity_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 36
+ },
+ {
+  "id": "S08_row_guard_token",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_downgrades_to_a_base_identity_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 35
+ },
+ {
+  "id": "S09_error_text_code_only",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_dispatch_admits_the_successor_through_the_accepted_reader_only"
+  ],
+  "rv88_failed": [],
+  "seconds": 34
+ },
+ {
+  "id": "S10_fresh_set",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "precision_1_is_readable_but_never_fresh",
+   "u6a_dispatch_admits_the_successor_through_the_accepted_reader_only"
+  ],
+  "rv88_failed": [],
+  "seconds": 35
+ },
+ {
+  "id": "S11_standing_branch_off",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_shared_carrier_cases_rust",
+   "u6a_standing_is_needs_recompute_and_comes_only_from_the_receipt"
+  ],
+  "rv88_failed": [],
+  "seconds": 35
+ },
+ {
+  "id": "S12_standing_err_recompute",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_dispatch_admits_the_successor_through_the_accepted_reader_only",
+   "u6a_shared_carrier_cases_rust",
+   "u6a_standing_is_needs_recompute_and_comes_only_from_the_receipt"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 36
+ },
+ {
+  "id": "S13_standing_ignores_invocation",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_shared_carrier_cases_rust",
+   "u6a_standing_is_needs_recompute_and_comes_only_from_the_receipt"
+  ],
+  "rv88_failed": [],
+  "seconds": 32
+ },
+ {
+  "id": "S14_unbound_ok",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 31
+ },
+ {
+  "id": "S15_eligible_ignored",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_classification_summary_counts_validated_classes",
+   "u6a_shared_carrier_cases_rust",
+   "u6a_standing_is_needs_recompute_and_comes_only_from_the_receipt",
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 30
+ },
+ {
+  "id": "S16_len_check",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_classification_summary_counts_validated_classes",
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 31
+ },
+ {
+  "id": "S17_ref_equality",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_classification_summary_counts_validated_classes",
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 33
+ },
+ {
+  "id": "S18_mechanics",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 34
+ },
+ {
+  "id": "S19_not_required_conjunct",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 33
+ },
+ {
+  "id": "S20_nr_basis_ref",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 32
+ },
+ {
+  "id": "S21_nr_solve_quality",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 35
+ },
+ {
+  "id": "S22_nr_structural",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 36
+ },
+ {
+  "id": "S23_nr_fidelity",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 36
+ },
+ {
+  "id": "S24_nr_accuracy",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 32
+ },
+ {
+  "id": "S25_nr_refs_nonempty",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 34
+ },
+ {
+  "id": "S26_nr_refs_resolve",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 33
+ },
+ {
+  "id": "S27_nr_duplicate_ids",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 32
+ },
+ {
+  "id": "S28_nr_missing_quality",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 32
+ },
+ {
+  "id": "S29a_status_selected",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_classification_summary_counts_validated_classes",
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 33
+ },
+ {
+  "id": "S29b_status_other",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 34
+ },
+ {
+  "id": "S29c_status_not_required",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "rv88_failed": [],
+  "seconds": 35
+ },
+ {
+  "id": "S30_binding_branch_off",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_binding_refusal_follows_the_validated_class_only"
+  ],
+  "rv88_failed": [],
+  "seconds": 19
+ },
+ {
+  "id": "S31_binding_refused_none",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_binding_refusal_follows_the_validated_class_only"
+  ],
+  "rv88_failed": [],
+  "seconds": 27
+ },
+ {
+  "id": "S32_binding_absolute",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_binding_refusal_follows_the_validated_class_only",
+   "u6a_each_class_maps_to_its_refusal_and_disclosure"
+  ],
+  "rv88_failed": [],
+  "seconds": 25
+ },
+ {
+  "id": "S33_binding_not_covered",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_each_class_maps_to_its_refusal_and_disclosure"
+  ],
+  "rv88_failed": [],
+  "seconds": 35
+ },
+ {
+  "id": "S34_summary_withheld_current",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_classification_summary_counts_validated_classes"
+  ],
+  "rv88_failed": [],
+  "seconds": 36
+ },
+ {
+  "id": "S35_summary_withheld_held",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_classification_summary_counts_validated_classes"
+  ],
+  "rv88_failed": [],
+  "seconds": 36
+ },
+ {
+  "id": "S36_summary_requested",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_classification_summary_counts_validated_classes"
+  ],
+  "rv88_failed": [],
+  "seconds": 36
+ },
+ {
+  "id": "S37_summary_class_index",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_classification_summary_counts_validated_classes"
+  ],
+  "rv88_failed": [],
+  "seconds": 37
+ },
+ {
+  "id": "S38_summary_interval",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_classification_summary_counts_validated_classes"
+  ],
+  "rv88_failed": [],
+  "seconds": 37
+ },
+ {
+  "id": "S39_row_classes_none",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_receipt_binding_mismatches_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 24
+ },
+ {
+  "id": "S40_table_hash",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_dispatch_admits_the_successor_through_the_accepted_reader_only"
+  ],
+  "rv88_failed": [],
+  "seconds": 36
+ },
+ {
+  "id": "D01_derive_no_classes",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_receipt_binding_mismatches_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 24
+ },
+ {
+  "id": "D02_derive_no_evidence",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_receipt_binding_mismatches_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 24
+ },
+ {
+  "id": "D03_derive_no_receipt",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_receipt_binding_mismatches_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 22
+ },
+ {
+  "id": "D05_derive_no_override",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_receipt_binding_mismatches_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 21
+ },
+ {
+  "id": "D06_derive_reason",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_receipt_binding_mismatches_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 20
+ },
+ {
+  "id": "D07_derive_message",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_receipt_binding_mismatches_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 22
+ },
+ {
+  "id": "D08_disclosure_absolute",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_each_class_maps_to_its_refusal_and_disclosure",
+   "u6a_receipt_binding_mismatches_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 23
+ },
+ {
+  "id": "D09_disclosure_not_covered",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_each_class_maps_to_its_refusal_and_disclosure"
+  ],
+  "rv88_failed": [],
+  "seconds": 35
+ },
+ {
+  "id": "D10_disclosure_bound_text",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_each_class_maps_to_its_refusal_and_disclosure"
+  ],
+  "rv88_failed": [],
+  "seconds": 33
+ },
+ {
+  "id": "D11_validate_no_classes",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_receipt_binding_mismatches_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 23
+ },
+ {
+  "id": "D12_validate_receipt_equality",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_receipt_binding_mismatches_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 38
+ },
+ {
+  "id": "D13_validate_downgrade",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_downgrades_to_a_base_identity_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 38
+ },
+ {
+  "id": "D14_validate_override",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_receipt_binding_mismatches_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 23
+ },
+ {
+  "id": "D15_validate_consistency",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_receipt_binding_mismatches_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 36
+ },
+ {
+  "id": "D16_validate_claim",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_receipt_binding_mismatches_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 35
+ },
+ {
+  "id": "D17_validate_claim_not_covered",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "SURVIVED",
+  "i66_failed": [
+   "u6a_receipt_binding_mismatches_are_refused"
+  ],
+  "rv88_failed": [],
+  "seconds": 33
+ },
+ {
+  "id": "D18_validate_message",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "i66_suite": "KILLED",
+  "rv88_suite": "KILLED",
+  "i66_failed": [
+   "u6a_receipt_binding_mismatches_are_refused"
+  ],
+  "rv88_failed": [
+   "rv88_refusals"
+  ],
+  "seconds": 32
+ },
+ {
+  "id": "P01_public_entry_refuses",
+  "file": "core/analysis_runs/retained_precision.py",
+  "i66_suite": "KILLED",
+  "rv88_suite": "n/a",
+  "i66_failed": [
+   "tests/test_retained_precision_contract.py::test_complete_synthetic_draft_control_is_not_qualification",
+   "tests/test_retained_precision_contract.py::test_public_entry_equals_the_draft_on_every_corpus_entry",
+   "tests/test_retained_precision_contract.py::test_public_entry_on_the_real_milestone_receipts[dense_scrutiny]",
+   "tests/test_retained_precision_contract.py::test_public_entry_on_the_real_milestone_receipts[sparse_interactive]"
+  ],
+  "rv88_failed": [],
+  "seconds": 1
+ },
+ {
+  "id": "P02_public_entry_drops_invocation",
+  "file": "core/analysis_runs/retained_precision.py",
+  "i66_suite": "KILLED",
+  "rv88_suite": "n/a",
+  "i66_failed": [
+   "tests/test_retained_precision_contract.py::test_complete_synthetic_draft_control_is_not_qualification",
+   "tests/test_retained_precision_contract.py::test_public_entry_equals_the_draft_on_every_corpus_entry",
+   "tests/test_retained_precision_contract.py::test_public_entry_on_the_real_milestone_receipts[dense_scrutiny]",
+   "tests/test_retained_precision_contract.py::test_public_entry_on_the_real_milestone_receipts[sparse_interactive]"
+  ],
+  "rv88_failed": [],
+  "seconds": 1
+ },
+ {
+  "id": "P03_public_entry_eligible",
+  "file": "core/analysis_runs/retained_precision.py",
+  "i66_suite": "KILLED",
+  "rv88_suite": "n/a",
+  "i66_failed": [
+   "tests/test_retained_precision_contract.py::test_complete_synthetic_draft_control_is_not_qualification",
+   "tests/test_retained_precision_contract.py::test_public_entry_equals_the_draft_on_every_corpus_entry",
+   "tests/test_retained_precision_contract.py::test_public_entry_on_the_real_milestone_receipts[dense_scrutiny]",
+   "tests/test_retained_precision_contract.py::test_public_entry_on_the_real_milestone_receipts[sparse_interactive]"
+  ],
+  "rv88_failed": [],
+  "seconds": 1
+ }
+]

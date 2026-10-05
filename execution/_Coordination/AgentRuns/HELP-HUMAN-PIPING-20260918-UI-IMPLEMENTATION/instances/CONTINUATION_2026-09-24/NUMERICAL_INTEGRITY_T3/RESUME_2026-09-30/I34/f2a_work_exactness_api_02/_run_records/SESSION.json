@@ -1,0 +1,45 @@
+{
+  "role": "TASK",
+  "agent": "/root/i34_f2a_work_exactness",
+  "parent": "/root ROOT HELP_HUMAN",
+  "mechanism": "continued delegated-harness-native child",
+  "children": [],
+  "receipt_utc": "2026-10-02 21:30:57 UTC",
+  "new_analysis_cutoff_utc": "2026-10-02 21:50:57 UTC",
+  "deadline_utc": "2026-10-02 22:00:57 UTC",
+  "completed_utc": "2026-10-02 21:45:53 UTC",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "write_boundary": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I34/f2a_work_exactness_api_02",
+  "host_boundary": "actual filesystem permissions broader than brief; scope followed, no path sandbox claimed",
+  "selected_skills": [],
+  "selected_workflow": null,
+  "checks": {
+    "abstract_controls": 12,
+    "fresh_helper_bounds": 11,
+    "source_diff_empty": true,
+    "prior_design_review_diff_empty": true
+  },
+  "tools_used": "read-only source/search/Git with GIT_OPTIONAL_LOCKS=0; clock; own Markdown/JSON writes; standard-library Python exact integer/state controls and hashing",
+  "prohibited_work_not_done": [
+    "source/maintained edits",
+    "Git/index/API writes",
+    "compiler",
+    "solver/model/product runtime",
+    "host probe",
+    "delegation"
+  ],
+  "read_issues": [
+    "Combined RV46/C2 and source-search output was truncated; RV46 full review was visible and relied-on C2 API/origin sections were narrowed.",
+    "Attempted VR src/main.rs lookup was absent; discovered actual examples/vk_records.rs and examples/vk_scale.rs before fixing consumer manifest."
+  ],
+  "controls_execution": {
+    "command": "python3 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I34/f2a_work_exactness_api_02/_run_records/controls.py",
+    "exit": 0,
+    "stdout": {
+      "passed": 12,
+      "helper_bounds": 11,
+      "price_widths": 3
+    }
+  },
+  "return_status": "concrete API recommendation complete for same-reviewer backcheck; no implementation or qualification claim"
+}

@@ -1,0 +1,433 @@
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts
+index 72ff47a2a8..1a795e379d 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts
+@@ -100,7 +100,9 @@ describe('synthetic prepared receipt arithmetic controls, not execution evidence
+   });
+ });
+ 
+-import { validateRetainedPrecision, validateRetainedPrecisionTransport, RetainedPrecisionError, phi512, eHat, stopFeasible, nativeSchedule, ordinaryAttempts, accountingRules, nativeRuns, productAttempts } from './retainedPrecision';
++import { validateRetainedPrecision, validateRetainedPrecisionTransport, RetainedPrecisionError, phi512, eHat, stopFeasible, nativeSchedule, ordinaryAttempts, accountingRules, nativeRuns, productAttempts, errorStageRecordAgrees } from './retainedPrecision';
++import milestoneSparseText from '../../../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json?raw';
++import milestoneDenseText from '../../../../../fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json?raw';
+ import { canonicalSha256HexCheckedV1 } from '../../services/hashService';
+ /** Snapshot 07e format rule (RV78-N1): a rehash index is a strict integral value, a JSON number that is never a
+  * boolean, finite, integral, >= 0 and not -0 (0.0 is index 0; 0.5, true and -0 are not). A reference that is not
+@@ -371,12 +373,13 @@ describe('review repair 07: decisions without a probe (reader-local)', () => {
+     rejects(w => { w.trigger.tag = 'evaluation'; });
+     rejects(w => { w.trigger.error = { tag: 'other' }; });
+   });
+-  it('D6a (checkpoint A): untyped diagnostic_refs are unique and resolve, without naming the case; typed references stay strict', () => {
++  it('D6a as amended by F5 (D-U6-7; A2): the untyped list is exactly the diagnostics naming the case; typed references stay strict', () => {
+     const fixture = structuredClone(corpus.cases[0]), body = fixture.source.retained_precision.body, o = body.ordinary_attempts[0];
+     const other = { ...structuredClone(fixture.source.diagnostics[0]), id: 'diagnostic:i64:model-level', affected_refs: null };
+     fixture.source.diagnostics.push(other);
+     const run = (edit: (b: any) => void) => { const b = structuredClone(body); edit(b); let e: any; try { ordinaryAttempts(b, fixture.source); } catch (x) { e = x; } return e ? { gate: e.gate, code: e.code } : 'pass'; };
+-    expect(run(b => { b.ordinary_attempts[0].diagnostic_refs.push(other.id); })).toBe('pass');
++    expect(run(() => {})).toBe('pass'); // the repaired base's exact list (snapshot 07g)
++    expect(run(b => { b.ordinary_attempts[0].diagnostic_refs.push(other.id); })).toEqual(G('G5', 'ATTEMPT_MISMATCH')); // F5: a model-level diagnostic is not the case's
+     expect(run(b => { b.ordinary_attempts[0].diagnostic_refs.push('diagnostic:i64:absent'); })).toEqual(G('G5', 'ATTEMPT_MISMATCH'));
+     expect(run(b => { b.ordinary_attempts[0].diagnostic_refs.push(o.diagnostic_refs[0]); })).toEqual(G('G5', 'ATTEMPT_MISMATCH'));
+     expect(run(b => { b.ordinary_attempts[0].diagnostic_refs.push(other.id); b.ordinary_attempts[0].formation.d5_diagnostic_ref = other.id; })).toEqual(G('G5', 'ATTEMPT_MISMATCH'));
+@@ -903,3 +906,39 @@ describe('source-bound recovery controls', () => {
+     }, 'G5', 'RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH');
+   });
+ });
++
++describe('07g round (I61 U6e): F5 and RV79-N1', () => {
++  it('RV79-N1: D37 agrees with the corpus table (native source and C3, never this reader) on every well-formed record', () => {
++    const table = corpus.d37, order = ['preparation', 'native', 'proof_start', 'projection', 'maxima', 'values', 'aliases', 'certificate', 'observables', 'g5a'];
++    expect(table.stage_order).toEqual(order); expect(table.records).toHaveLength(25);
++    const misses: string[] = [];
++    for (const kind of [...Object.keys(table.kinds), ...table.unknown_kinds]) for (const record of table.records) {
++      const stages = Object.fromEntries(order.map((k, i) => [k, table.marks[record[i]]]));
++      if (errorStageRecordAgrees(kind, stages) !== (table.kinds[kind] ?? []).includes(record)) misses.push(`${kind} ${record}`);
++    }
++    expect(misses).toEqual([]);
++  });
++  it('F5: U1\'s M09, M10 and M20 are refused on the real milestone receipts (resealed like corpus entries)', async () => {
++    for (const [text, classes] of [[milestoneSparseText, [25, 69, 3, 1]], [milestoneDenseText, [25, 69, 3, 2]]] as const) {
++      const doc = JSON.parse(text), source = doc.source, cid = source.retained_precision.body.cases[0].basis_ref.ref_id;
++      const accepted = await validateRetainedPrecision(structuredClone(source), structuredClone(doc.invocation));
++      expect(['relative_verified', 'absolute_verified', 'input_derived', 'non_quantity'].map(k => accepted.classifications.filter((c: any) => c.class === k).length)).toEqual(classes);
++      expect(accepted.numerical_eligible).toBe(false); expect(accepted.standing).toBe('needs_recompute');
++      const names = (d: any) => Array.isArray(d.affected_refs) && d.affected_refs.includes(cid), retained = (d: any) => String(d.code).startsWith('RETAINED_PRECISION_');
++      const exact = source.diagnostics.filter((d: any) => names(d) && !retained(d)).map((d: any) => d.id);
++      expect(source.retained_precision.body.ordinary_attempts[0].diagnostic_refs).toEqual(exact);
++      const m09 = source.diagnostics.filter(names).map((d: any) => d.id), m10 = source.diagnostics.filter((d: any) => !retained(d)).map((d: any) => d.id);
++      expect(m09).not.toEqual(exact); expect(m10).not.toEqual(exact);
++      const refs = ['retained_precision', 'body', 'ordinary_attempts', 0, 'diagnostic_refs'];
++      for (const [edits, want] of [
++        [[{ path: refs, op: 'set', value: m09 }], G('G5', 'ATTEMPT_MISMATCH')],
++        [[{ path: refs, op: 'set', value: m10 }], G('G5', 'ATTEMPT_MISMATCH')],
++        [[{ path: ['results', 0, 'recovery_method'], op: 'set', value: 'other' }], G('G6', 'ROW_METHOD_MISMATCH')],
++      ] as const) {
++        const edited = structuredClone(source); applyEdits(edited, edits as any); await rehash(edited);
++        expect(await firstFailure(edited, structuredClone(doc.invocation))).toEqual(want);
++      }
++      const resealed = structuredClone(source); await rehash(resealed); expect(resealed).toEqual(source);
++    }
++  });
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts
+index 76c07977ba..672d9b2666 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts
+@@ -647,6 +647,12 @@ const NATIVE_STAGE_RECORDS: Record<string, string[]> = {
+   g5a: ['CCCCCCCCCF'],                                              // Observables passed, G5a failed
+ };
+ const stageRecordMatches = (pattern: string, record: string): boolean => [...pattern].every((m, i) => m === '?' ? 'CF'.includes(record[i]) : m === record[i]);
++/** D37: whether an unavailable error kind can leave this stage record.
++ * @internal Exported only for the RV79-N1 corpus-table test; not a public entry point. */
++export function errorStageRecordAgrees(kind: string, stages: Obj): boolean {
++  const record = STAGE_ORDER.map(k => STAGE_MARK[stages[k]]).join('');
++  return NATIVE_STAGE_RECORDS[kind]?.some(pattern => stageRecordMatches(pattern, record)) === true;
++}
+ /** @internal Exported only for the reader-logic D30 test (no faithful nonselected-Run base); not a public entry point. */
+ export function productAttempts(b: Obj, rows: Map<string, Obj[]>): void {
+   // A later product association/check defect precedes product work consistency.
+@@ -776,8 +782,7 @@ export function productAttempts(b: Obj, rows: Map<string, Obj[]>): void {
+     const first = pipeline.find(k => a.stages[k] === 'failed');
+     if (first) fail(allowed[first].includes(a.result.error.kind));
+     // D37 (D35 widened; RV79-X1): the error kind and the stage record agree in both directions.
+-    const record = STAGE_ORDER.map(k => STAGE_MARK[a.stages[k]]).join('');
+-    fail(NATIVE_STAGE_RECORDS[a.result.error.kind]?.some(pattern => stageRecordMatches(pattern, record)) === true);
++    fail(errorStageRecordAgrees(a.result.error.kind, a.stages));
+   }
+   // C3 work equations, deferred until every attempt's association and typed checks.
+   for (const ok of workChecks) need(ok, 'G5', 'WORK_MISMATCH');
+@@ -1252,8 +1257,13 @@ export function ordinaryAttempts(b: Obj, source: Obj): void {
+       const d = ds.find(d => d.id === ref); fail(d && d.affected_refs?.includes(cid) && a.diagnostic_refs.includes(ref));
+     };
+     fail(b.material_bases[a.material_basis_ref]?.case_indices.includes(ci));
+-    // D6a (checkpoint A): untyped diagnostic_refs are unique and resolve; they need not name the case.
++    // D6a (checkpoint A): untyped diagnostic_refs are unique and resolve.
+     fail(unique(a.diagnostic_refs) && a.diagnostic_refs.every((ref: string) => ds.some(d => d.id === ref)));
++    // F5 (D-U6-7; decision 2, A2, RR:8821, amending checkpoint A's D6a, RR:8117): the list is exactly the diagnostics
++    // whose affected_refs name the case, once each, in envelope order, excluding RETAINED_PRECISION_* (a T1 (a)-omitted
++    // disclosure is absent from the published envelope).
++    const exact = ds.filter(d => Array.isArray(d.affected_refs) && d.affected_refs.includes(cid) && !String(d.code).startsWith('RETAINED_PRECISION_')).map(d => d.id);
++    fail(a.diagnostic_refs.length === exact.length && a.diagnostic_refs.every((ref: string, i: number) => ref === exact[i]));
+     if (a.initial.kind === 'report') { diagnostic(a.initial.report_diagnostic_ref, cid, true); fail(a.diagnostic_refs.includes(a.initial.report_diagnostic_ref) && a.initial.outcome === q.solve_quality); }
+     if (a.initial.kind === 'structural_failure') diagnostic(a.initial.diagnostic_ref, cid);
+     if (a.w2.kind !== 'not_triggered') {
+diff --git a/projects/chirality-piping/core/analysis_runs/retained_precision.py b/projects/chirality-piping/core/analysis_runs/retained_precision.py
+index a19d82b7cf..043d040b5e 100644
+--- a/projects/chirality-piping/core/analysis_runs/retained_precision.py
++++ b/projects/chirality-piping/core/analysis_runs/retained_precision.py
+@@ -905,8 +905,13 @@ def _g5_ordinary(body, cases, diags, quality):
+     for i, c in enumerate(cases):
+         o = body["ordinary_attempts"][i]
+         refs = o["diagnostic_refs"]
+-        # D6a (C1:100, C1:148, C2:166): untyped refs are unique and resolve; they need not name the case.
++        # D6a (C1:100, C1:148, C2:166): untyped refs are unique and resolve.
+         fail(len(set(refs)) == len(refs) and all(x in by_id for x in refs))
++        # F5 (D-U6-7; decision 2, A2, RR:8821, amending checkpoint A's D6a, RR:8117): the list is
++        # exactly the diagnostics whose affected_refs name the case, once each, in envelope order,
++        # excluding RETAINED_PRECISION_* (a T1 (a)-omitted disclosure is absent from the envelope).
++        name = c["basis_ref"]["ref_id"]
++        fail(refs == [d["id"] for d in diags if name in (d.get("affected_refs") or []) and not str(d.get("code")).startswith("RETAINED_PRECISION_")])
+         fail(o["initial"]["kind"] != "not_attempted" if c["status"] in ("selected", "not_required") else True)
+         if o["initial"]["kind"] == "report":
+             fail(o["initial"]["report_diagnostic_ref"] in by_id and o["initial"]["outcome"] == quality[i]["solve_quality"])
+diff --git a/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs b/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs
+index 9e7e1dfc7a..1b47d6c60a 100644
+--- a/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs
++++ b/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs
+@@ -4128,12 +4128,21 @@ fn g5_ordinary(source: &Value) -> VResult {
+                 .ok_or_else(|| error("G5", "ATTEMPT_MISMATCH"))
+         };
+         // D6a (checkpoint-A ruling): the untyped diagnostic_refs are unique and
+-        // resolve; a listed diagnostic need not name the case. Typed references
+-        // below must be listed and name the case (C2:166).
++        // resolve. Typed references below must be listed and name the case (C2:166).
+         let mut refs = BTreeSet::new();
+         for id in list(&o["diagnostic_refs"]) {
+             fail(refs.insert(text(id)) && ds.iter().any(|d| d["id"] == *id))?;
+         }
++        // F5 (D-U6-7; decision 2, A2, RR:8821, amending checkpoint A's D6a,
++        // RR:8117): the list is exactly the diagnostics whose affected_refs name
++        // the case, once each, in envelope order, excluding RETAINED_PRECISION_*
++        // (a T1 (a)-omitted disclosure is absent from the published envelope).
++        let exact: Vec<&Value> = ds
++            .iter()
++            .filter(|d| list(&d["affected_refs"]).contains(cid) && !text(&d["code"]).starts_with("RETAINED_PRECISION_"))
++            .map(|d| &d["id"])
++            .collect();
++        fail(list(&o["diagnostic_refs"]).iter().collect::<Vec<_>>() == exact)?;
+         for path in [
+             &o["initial"]["diagnostic_ref"],
+             &o["initial"]["report_diagnostic_ref"],
+@@ -4333,3 +4342,61 @@ pub fn validate_transport_metadata(source: &Value) -> VResult<Validation> {
+         classifications: Vec::new(),
+     })
+ }
++
++/// I61 U6e (snapshot 07g): reader-local pins for RV79-N1 (D37's expected table is
++/// the corpus's, derived from native source, never this reader's) and RV80-N2
++/// (`integral_receipt` touches only the receipt).
++#[cfg(test)]
++mod u6e_reader_round_tests {
++    use super::*;
++    fn corpus() -> Value {
++        serde_json::from_str(include_str!("../../../../fixtures/results/retained_precision_cases.json")).unwrap()
++    }
++
++    #[test]
++    fn d37_error_stages_matches_the_corpus_table_rv79_n1() {
++        let table = corpus()["d37"].clone();
++        let order: Vec<String> = table["stage_order"].as_array().unwrap().iter().map(|s| s.as_str().unwrap().to_owned()).collect();
++        let pipeline: Vec<&str> = STAGE8.to_vec();
++        assert_eq!(order[..8], pipeline[..], "the pipeline order");
++        assert_eq!(order[8..], ["observables".to_owned(), "g5a".to_owned()]);
++        let records: Vec<String> = table["records"].as_array().unwrap().iter().map(|r| r.as_str().unwrap().to_owned()).collect();
++        assert_eq!(records.len(), 25);
++        let stages = |r: &str| -> Value {
++            Value::Object(order.iter().zip(r.chars()).map(|(k, m)| (k.clone(), table["marks"][m.to_string().as_str()].clone())).collect())
++        };
++        let mut kinds: Vec<String> = table["kinds"].as_object().unwrap().keys().cloned().collect();
++        kinds.extend(table["unknown_kinds"].as_array().unwrap().iter().map(|k| k.as_str().unwrap().to_owned()));
++        let mut misses = Vec::new();
++        for kind in &kinds {
++            let allowed = table["kinds"].get(kind.as_str()).and_then(Value::as_array).cloned().unwrap_or_default();
++            for r in &records {
++                let attempt = json!({"stages": stages(r), "result": {"kind": "unavailable", "error": {"kind": kind}}});
++                if error_stages(&attempt) != allowed.contains(&json!(r)) {
++                    misses.push(format!("{kind} {r}"));
++                }
++            }
++        }
++        assert!(misses.is_empty(), "{misses:?}");
++    }
++
++    #[test]
++    fn rv80_n2_integral_receipt_touches_only_the_receipt() {
++        let shared = corpus();
++        let mut source = shared["cases"][0]["source"].clone();
++        let charged = source["retained_precision"]["body"]["work"]["charged"].as_u64().unwrap();
++        source["retained_precision"]["body"]["work"]["charged"] = json!(charged as f64);
++        source["results"][1]["value"] = json!(17.0);
++        source["diagnostics"][0]["probe"] = json!(3.0);
++        let normalized = integral_receipt(&source);
++        assert!(matches!(normalized, std::borrow::Cow::Owned(_)), "the receipt's integral float is normalized");
++        assert!(normalized["retained_precision"]["body"]["work"]["charged"].is_u64());
++        assert_eq!(normalized["retained_precision"]["body"]["work"]["charged"], json!(charged));
++        for (key, value) in source.as_object().unwrap() {
++            if key != "retained_precision" {
++                assert_eq!(serde_json::to_string(&normalized[key.as_str()]).unwrap(), serde_json::to_string(value).unwrap(), "{key} is byte-identical");
++            }
++        }
++        assert!(normalized["results"][1]["value"].is_f64(), "a row's 17.0 stays 17.0");
++    }
++}
+diff --git a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+index 0b3a72b722..1f5db76168 100644
+--- a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
++++ b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+@@ -270,12 +270,12 @@ fn shared_rehashed_first_failure_mutations() {
+ 
+ /// Observe one slice of the shared mutations against this reader's own
+ /// expectation, print one outcome per mutation (visible with --nocapture) and
+-/// check the slice tally. Snapshot 07f holds 268 mutations in all.
++/// check the slice tally. Snapshot 07g holds 274 mutations in all.
+ fn slice_outcomes(tag: &str, range: std::ops::Range<usize>, want: &[(&str, usize)]) {
+     use std::collections::BTreeMap;
+     let shared = corpus();
+     let mutations = shared["mutations"].as_array().unwrap();
+-    assert_eq!(mutations.len(), 268);
++    assert_eq!(mutations.len(), 274);
+     let mut tally = BTreeMap::new();
+     let mut matched = 0;
+     for mutation in &mutations[range.clone()] {
+@@ -518,6 +518,58 @@ fn snapshot_07f_mutation_outcomes() {
+     );
+ }
+ 
++/// Snapshot-07g pins (I61 U6e; F5, D-U6-7): A2's exact ordinary list, the
++/// omission, order, RETAINED_PRECISION_* (U1 M09), invocation-level (U1 M10),
++/// another case and 07f's relaxed form, mutations 268..274.
++#[test]
++fn snapshot_07g_mutation_outcomes() {
++    slice_outcomes(
++        "I61_OUTCOME_07G",
++        268..274,
++        &[("G5 RETAINED_PRECISION_ATTEMPT_MISMATCH", 6)],
++    );
++}
++
++/// F5 (D-U6-7; A2) on the real milestone receipts: U1's producer mutants M09
++/// (RETAINED_PRECISION_* listed), M10 (diagnostics that do not name the case
++/// listed) and M20 (another row method token) are refused by this reader, each
++/// resealed as a corpus entry would be.
++#[test]
++fn f5_kills_u1_m09_m10_m20_on_the_real_milestone_receipts() {
++    use serde_json::json;
++    for (mode, text) in [
++        ("sparse_interactive", include_str!("../../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json")),
++        ("dense_scrutiny", include_str!("../../../../fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json")),
++    ] {
++        let doc: Value = serde_json::from_str(text).unwrap();
++        let (source, invocation) = (&doc["source"], &doc["invocation"]);
++        let case = source["retained_precision"]["body"]["cases"][0]["basis_ref"]["ref_id"].clone();
++        let names = |d: &Value| d["affected_refs"].as_array().is_some_and(|a| a.contains(&case));
++        let retained = |d: &Value| d["code"].as_str().unwrap().starts_with("RETAINED_PRECISION_");
++        let ds = source["diagnostics"].as_array().unwrap();
++        let exact: Vec<Value> = ds.iter().filter(|d| names(d) && !retained(d)).map(|d| d["id"].clone()).collect();
++        assert_eq!(source["retained_precision"]["body"]["ordinary_attempts"][0]["diagnostic_refs"], json!(exact), "{mode}");
++        let m09: Vec<Value> = ds.iter().filter(|d| names(d)).map(|d| d["id"].clone()).collect();
++        let m10: Vec<Value> = ds.iter().filter(|d| !retained(d)).map(|d| d["id"].clone()).collect();
++        assert!(m09 != exact && m10 != exact, "{mode}: the mutants differ from the exact list");
++        let refs = json!(["retained_precision", "body", "ordinary_attempts", 0, "diagnostic_refs"]);
++        for (edit_, want) in [
++            (set(refs.clone(), json!(m09)), ("G5", ATTEMPT)),
++            (set(refs.clone(), json!(m10)), ("G5", ATTEMPT)),
++            (set(json!(["results", 0, "recovery_method"]), json!("other")), ("G6", "RETAINED_PRECISION_ROW_METHOD_MISMATCH")),
++        ] {
++            let mut edited = source.clone();
++            edit(&mut edited, &edit_);
++            rehash(&mut edited);
++            let got = rp::validate(&edited, Some(invocation)).err().map(|e| (e.gate, e.code));
++            assert_eq!(got.as_ref().map(|(g, c)| (*g, c.as_str())), Some(want), "{mode} {edit_}");
++        }
++        let mut resealed = source.clone();
++        rehash(&mut resealed);
++        assert_eq!(resealed, *source, "{mode}: the receipt reseals to itself");
++    }
++}
++
+ fn observe(shared: &Value, mutation: &Value) -> Value {
+     let (source, invocation) = apply_entry(shared, mutation);
+     match rp::validate(&source, Some(&invocation)) {
+@@ -2360,8 +2412,10 @@ fn d6_d7_ordinary_and_diagnostic_relations() {
+         probe(&shared, ORD, vec![set(json!(["numerical_quality", "cases", 0, "solve_quality"]), json!("not_assessed"))]),
+         gate("G5", ATTEMPT)
+     );
+-    // D6a (checkpoint A): untyped diagnostic_refs are unique and resolve; a
+-    // listed diagnostic need not name the case.
++    // D6a as amended by F5 (D-U6-7; A2): the untyped list is exactly the
++    // diagnostics naming the case, in envelope order, excluding
++    // RETAINED_PRECISION_*. Checkpoint A's relaxed form (a listed diagnostic of
++    // another scope is admitted) is refused since snapshot 07g.
+     let other = base_source(&shared, ORD)["diagnostics"]
+         .as_array()
+         .unwrap()
+@@ -2376,9 +2430,10 @@ fn d6_d7_ordinary_and_diagnostic_relations() {
+         let other = other.expect("a diagnostic of another scope in the base");
+         assert_eq!(
+             probe(&shared, ORD, vec![set(rb(json!(["ordinary_attempts", 0, "diagnostic_refs"])), json!(["diagnostic:numerical-integrity:case:six-component-load", other]))]),
+-            Value::Null,
+-            "a listed diagnostic of another scope is admitted"
++            gate("G5", ATTEMPT),
++            "F5: a listed diagnostic of another scope is refused"
+         );
++        assert_eq!(probe(&shared, ORD, vec![]), Value::Null, "F5: the repaired base's exact list is admitted");
+     }
+     for (name, refs) in [
+         ("duplicate (RV78 T4a)", json!(["diagnostic:numerical-integrity:case:six-component-load", "diagnostic:numerical-integrity:case:six-component-load"])),
+diff --git a/projects/chirality-piping/tests/test_retained_precision_contract.py b/projects/chirality-piping/tests/test_retained_precision_contract.py
+index 782b968c23..9110cce4d2 100644
+--- a/projects/chirality-piping/tests/test_retained_precision_contract.py
++++ b/projects/chirality-piping/tests/test_retained_precision_contract.py
+@@ -621,10 +621,11 @@ def test_rv79_surviving_mutants_m06_m09_m14():
+ 
+ 
+ def test_snapshot_07_counts_and_entry_format():
+-    """Snapshot 07f (I62; D37): 15 cases, 268 mutations, 22 must-pass; only rehash "all" (D11);
+-    one expectation per entry except the per-reader G7 entry."""
++    """Snapshot 07g (I61 U6e; F5, RV79-N1): 15 cases, 274 mutations, 22 must-pass and the D37
++    table; only rehash "all" (D11); one expectation per entry except the per-reader G7 entry."""
+     c = corpus()
+-    assert (len(c["cases"]), len(c["mutations"]), len(c["must_pass"])) == (15, 268, 22)
++    assert (len(c["cases"]), len(c["mutations"]), len(c["must_pass"])) == (15, 274, 22)
++    assert set(c) == {"version", "provenance", "arithmetic", "cases", "mutations", "must_pass", "d37"}
+     entries = c["mutations"] + c["must_pass"]
+     assert all(e["rehash"] == "all" for e in entries)
+     assert all(set(e) <= {"id", "base", "edits", "invocation_edits", "after_rehash", "rehash", "expected", "expected_by_reader"} for e in entries)
+@@ -740,8 +741,33 @@ def test_rehash_index_rule_07e():
+ 
+ 
+ def test_error_kind_agrees_with_stage_record_d37():
+-    """D37 (D35 widened), G5 PRODUCT_ATTEMPT class 3: every error kind against every native stage
+-    record, in both directions (PP/retained_product.rs:3136-3290, 3456-3567)."""
++    """D37 (D35 widened), G5 PRODUCT_ATTEMPT class 3: every error kind against every well-formed stage
++    record, in both directions. RV79-N1 (snapshot 07g): the expected table is the corpus's `d37`,
++    derived from the native sequence and C3, never from this reader's own table."""
++    table = corpus()["d37"]
++    marks = table["marks"]
++    expected = {kind: {tuple(marks[m] for m in r) for r in records} for kind, records in table["kinds"].items()}
++    universe = [tuple(marks[m] for m in r) for r in table["records"]]
++    assert table["stage_order"] == list(rp.STAGE_ORDER) and len(universe) == len(set(universe)) == 25
++    assert all(record in universe for allowed in expected.values() for record in allowed)
++    fail_pa = lambda ok: rp._need(ok, "G5", "PRODUCT_ATTEMPT_MISMATCH")
++    base = deepcopy(_cases()[F_BASE]["source"]["retained_precision"]["body"]["product_attempts"][1])
++    misses = []
++    for kind in list(expected) + table["unknown_kinds"]:
++        for record in universe:
++            a = deepcopy(base); a["proof"] = None
++            a["stages"] = dict(zip(rp.STAGE_ORDER, record)); a["result"] = {"kind": "unavailable", "error": {"kind": kind}}
++            try:
++                rp._g5_typed(a, fail_pa); accepted = True
++            except rp.RetainedPrecisionError as error:
++                assert (error.gate, error.code) == ("G5", "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"); accepted = False
++            if accepted != (record in expected.get(kind, set())):
++                misses.append((kind, record, accepted))
++    assert not misses, misses
++
++
++def test_error_kind_agrees_with_stage_record_d37_reader_table_pins():
++    """07f's direct pins on the reader's own table, kept beside the corpus comparison."""
+     C, F, N = "completed", "failed", "not_entered"
+     records = rp.ERROR_STAGE_RECORDS
+     assert records["g5a"] == {tuple([C] * 9 + [F])}
+@@ -759,3 +785,51 @@ def test_error_kind_agrees_with_stage_record_d37():
+                 rp._g5_typed(a, fail_pa)
+             else:
+                 _raises(lambda: rp._g5_typed(a, fail_pa), "G5", "PRODUCT_ATTEMPT_MISMATCH")
++
++
++def _resealed(doc, edits):
++    """A real milestone receipt edited and resealed like a corpus entry (rehash "all")."""
++    return apply_entry({"source": doc["source"], "invocation": doc["invocation"]}, {"id": "u6e", "edits": edits, "rehash": "all"})
++
++
++@pytest.mark.parametrize("mode", sorted(MILESTONE_PINS))
++def test_f5_kills_u1_m09_m10_m20_on_the_real_milestone_receipts(mode):
++    """F5 (D-U6-7; A2): the readers enforce the exact ordinary list, so U1's producer mutants M09
++    (RETAINED_PRECISION_* listed), M10 (diagnostics that do not name the case listed) and M20
++    (another row method token) are refused on the real receipt, not only by PP's committed bytes."""
++    doc = _milestone(mode)
++    source = doc["source"]
++    case = source["retained_precision"]["body"]["cases"][0]["basis_ref"]["ref_id"]
++    refs = source["retained_precision"]["body"]["ordinary_attempts"][0]["diagnostic_refs"]
++    assert refs == [d["id"] for d in source["diagnostics"] if case in (d.get("affected_refs") or []) and not d["code"].startswith("RETAINED_PRECISION_")]
++    path = ["retained_precision", "body", "ordinary_attempts", 0, "diagnostic_refs"]
++    m09 = [d["id"] for d in source["diagnostics"] if case in (d.get("affected_refs") or [])]
++    m10 = [d["id"] for d in source["diagnostics"] if not d["code"].startswith("RETAINED_PRECISION_")]
++    assert m09 != refs and m10 != refs, "the mutants differ from the exact list on this receipt"
++    for edits, want in [([{"path": path, "op": "set", "value": m09}], ("G5", "RETAINED_PRECISION_ATTEMPT_MISMATCH")),
++                        ([{"path": path, "op": "set", "value": m10}], ("G5", "RETAINED_PRECISION_ATTEMPT_MISMATCH")),
++                        ([{"path": ["results", 0, "recovery_method"], "op": "set", "value": "other"}], ("G6", "RETAINED_PRECISION_ROW_METHOD_MISMATCH"))]:
++        edited, invocation = _resealed(doc, edits)
++        with pytest.raises(rp.RetainedPrecisionError) as error:
++            rp._validate_draft(edited, invocation)
++        assert (error.value.gate, error.value.code) == want, edits
++    resealed, invocation = _resealed(doc, [])
++    assert rp._validate_draft(resealed, invocation)["classifications"] == rp._validate_draft(deepcopy(source), deepcopy(doc["invocation"]))["classifications"]
++
++
++def test_rv80_n2_integral_normalization_touches_only_the_receipt(monkeypatch):
++    """RV80-N2 (07g): D32's normalization of integral floats runs on the receipt only, never on the
++    statement's rows, diagnostics or quality (Rust pins the same with `integral_receipt`)."""
++    calls = []
++    original = rp._normalize_integrals
++    def recording(value):
++        calls.append(value)
++        return original(value)
++    monkeypatch.setattr(rp, "_normalize_integrals", recording)
++    fixture = _cases()[O_BASE]
++    source = deepcopy(fixture["source"])
++    source["retained_precision"]["body"]["work"]["charged"] = float(source["retained_precision"]["body"]["work"]["charged"])
++    source["retained_precision"]["receipt_sha256"] = rp._hash("retained_precision_receipt_mp_v2", source["retained_precision"]["body"])
++    rp._validate_draft(source, deepcopy(fixture["invocation"]))
++    assert calls and set(calls[0]) == {"body", "receipt_sha256"}, "the outermost call is the receipt"
++    assert not any(isinstance(v, dict) and "results" in v for v in calls), "the statement is never normalized"

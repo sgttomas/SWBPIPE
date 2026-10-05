@@ -1,0 +1,24 @@
+{
+  "audited_utc": "2026-10-03T12:53:15.308003+00:00",
+  "disposition": "bounded CLEAR for private component fan-in; ROOT owns acceptance",
+  "maintained_paths": 13,
+  "baseline_inputs_verified": 589,
+  "unchanged_baseline": 581,
+  "author_payloads_verified": 10,
+  "author_bulk_dependencies_verified": 105,
+  "independent_tests": {
+    "PP": 28,
+    "FK_proof": 24,
+    "failed_view": 1
+  },
+  "mechanical_rows_rederived": 194,
+  "native_lane_truth_containments": 232,
+  "final_directed_error_rounding_checked": true,
+  "all_raised_findings_closed": true,
+  "committed_source_matches_tested_bytes": true,
+  "no_owned_runtime_processes": true,
+  "bulk_files": 96,
+  "bulk_bytes": 7604512,
+  "seal_count": 1,
+  "met_review_deadline": true
+}

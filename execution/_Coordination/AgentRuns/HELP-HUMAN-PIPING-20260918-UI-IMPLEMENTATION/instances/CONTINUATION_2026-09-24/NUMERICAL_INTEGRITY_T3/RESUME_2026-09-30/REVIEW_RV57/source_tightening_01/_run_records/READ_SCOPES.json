@@ -1,0 +1,32 @@
+{
+  "source_reads": {
+    "source_factor.rs": "590-710",
+    "source_assemble.rs": "50-373",
+    "source_recover.rs": "195-487",
+    "source_adaptive.rs": "3230-3265,3770-3838,4410-4425,5200-5530; symbol search",
+    "source_product_certificate.rs": "110-315 and symbol searches; original constants read by exact controls",
+    "source_directed_certificate.rs": "1-110",
+    "source_directed.rs": "full",
+    "source_wide_multi.rs": "precision/round symbol lookup and1156-1233",
+    "source_product_certificate_bridge.rs": "364-535 plus symbol search",
+    "source_bound.rs": "115-177",
+    "source_source.rs": "1-38,80-126",
+    "i35_counts.md": "1-28,44-88; headings/count search",
+    "i35_integration.md": "headings and bounded arithmetic/source/final-predicate lines",
+    "i41_return.md": "1-150 (full)",
+    "rv55_return.md": "1-105",
+    "i44_prepared_brief.md": "full per parent request; only manifest visibility completion adjudicated"
+  },
+  "subject_reads": {
+    "RETURN.md": "full",
+    "INTERFACE_AND_COST.md": "full",
+    "_run_records/exact_controls.py": "full",
+    "_run_records/ORIGINS.json": "full",
+    "INVENTORY.json": "full",
+    "frozen_inputs/source_bridge_tests.rs": "1-155 and hash guard",
+    "frozen_inputs/source_bridge_vectors.rs": "machine parsing of exact source bits",
+    "frozen_inputs/native_debug.stdout": "machine decoding original rows/block",
+    "exact_controls_08.stdout": "machine decoding full claimed control"
+  },
+  "failed_output": "One large source excerpt tool display was truncated; specifically reread the omitted numeric helper/DQ and count sections. Original preserved source bytes remain complete."
+}

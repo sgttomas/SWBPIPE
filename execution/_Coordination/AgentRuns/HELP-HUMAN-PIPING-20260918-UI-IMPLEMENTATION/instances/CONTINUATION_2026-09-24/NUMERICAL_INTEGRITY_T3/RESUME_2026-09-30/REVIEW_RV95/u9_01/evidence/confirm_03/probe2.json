@@ -1,0 +1,12 @@
+{
+ "rustc2_plain": 0,
+ "rustc2_cfg_test": 0,
+ "probe2_Fp": [
+  "RV95_WALKER_NON_TEST a.rs,a/inl/c.rs,a/inl/q.rs,b/m/d.rs,b/mod.rs,b/z.rs,c.rs,c/w/e.rs,c/x/y/deeper.rs,lib.rs,outer/inner/deep.rs,side.rs"
+ ],
+ "probe2_W3": [
+  "thread 's11k_tests::zz_rv95_walker_probe' (67632211) panicked at src/s11k_tests.rs:1081:63:",
+  "WT/scratch/rv95_u9_01/conf2/synth2/src/pp.rs: No such file or directory (os error 2)"
+ ],
+ "restored": true
+}

@@ -1,0 +1,8 @@
+# Test runs (counts; base = HEAD 844448112f in a git archive, candidate = WT/f2a-readers-round)
+python base: 374 passed in 86.51s (0:01:26)
+python 07g:  384 passed in 71.61s (0:01:11)
+rust base:   159 passed, 0 failed
+rust 07g:    163 passed, 0 failed
+ts base:     Tests  436 passed (436)
+ts 07g:      Tests  444 passed (444)
+tsc 07g:     0 errors; tsc base: 0 errors

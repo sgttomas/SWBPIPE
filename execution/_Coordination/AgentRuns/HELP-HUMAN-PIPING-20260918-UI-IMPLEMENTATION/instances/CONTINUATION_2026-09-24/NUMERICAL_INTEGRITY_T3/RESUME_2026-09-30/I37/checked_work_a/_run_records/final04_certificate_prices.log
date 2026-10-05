@@ -1,0 +1,11 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i37-frame-kernel/debug/deps/open_pipe_stress_frame_kernel-df02854d48d3f9db)
+
+running 4 tests
+test structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection ... ok
+test structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence ... ok
+test structural::retained::adaptive::publication_tests::pc41_independent_successful_checkpoints_and_both_budget_scopes ... ok
+test structural::retained::adaptive::publication_tests::pc44_46_replay_and_fresh_combination_keep_owned_radii_and_policy ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 403 filtered out; finished in 0.01s
+

@@ -1,0 +1,353 @@
+{
+ "old": "ba1faa1c858ce3630a22767677310b1902a14b83",
+ "new": "cfda60403f1047fea9bb6500ff789efb4bf02e1d",
+ "files": 26,
+ "hunks_and_files": 38,
+ "classes": {
+  "not-d1": 18,
+  "item": 3,
+  "cfg-test-stmt": 3,
+  "no-code": 2,
+  "test": 11,
+  "generated": 1
+ },
+ "unreviewed": [
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "2235-2235",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "09a2779c35c4b96f95eb72c7ef8b579f69ae46692b2197354612a560885f2c15",
+   "class": "item",
+   "reason": "outside any fn",
+   "reviewed": null
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "2254-2254",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "38a7b43fd37f68458a67d2ec6277e309778e76733898b9cb9a81aead34baa766",
+   "class": "item",
+   "reason": "outside any fn",
+   "reviewed": null
+  },
+  {
+   "file": "core/reporting/result_export/src/retained_precision.rs",
+   "new_lines": "4267-4269",
+   "removed": 3,
+   "added": 3,
+   "fingerprint": "1ea4bbe3d178aa2d0b90332e3de97ecea8e93c70cf85d7b5d9ff8f2f25811227",
+   "class": "item",
+   "reason": "outside any fn",
+   "reviewed": null
+  }
+ ],
+ "unreviewed_qualification_tests": [],
+ "verdict": "STOP: 3 hunk(s) need a reviewed entry",
+ "rows": [
+  {
+   "file": "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+   "class": "not-d1",
+   "reason": "not compiled into the D1 crates (apps, Python, documentation, other crates)"
+  },
+  {
+   "file": "apps/desktop/src/features/results/numericalResultQuality.ts",
+   "class": "not-d1",
+   "reason": "not compiled into the D1 crates (apps, Python, documentation, other crates)"
+  },
+  {
+   "file": "apps/desktop/src/features/results/retainedPrecision.test.ts",
+   "class": "not-d1",
+   "reason": "not compiled into the D1 crates (apps, Python, documentation, other crates)"
+  },
+  {
+   "file": "apps/desktop/src/features/results/retainedPrecision.ts",
+   "class": "not-d1",
+   "reason": "not compiled into the D1 crates (apps, Python, documentation, other crates)"
+  },
+  {
+   "file": "apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx",
+   "class": "not-d1",
+   "reason": "not compiled into the D1 crates (apps, Python, documentation, other crates)"
+  },
+  {
+   "file": "apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx",
+   "class": "not-d1",
+   "reason": "not compiled into the D1 crates (apps, Python, documentation, other crates)"
+  },
+  {
+   "file": "apps/desktop/src/features/results/retainedPrecisionStanding.ts",
+   "class": "not-d1",
+   "reason": "not compiled into the D1 crates (apps, Python, documentation, other crates)"
+  },
+  {
+   "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+   "class": "not-d1",
+   "reason": "not compiled into the D1 crates (apps, Python, documentation, other crates)"
+  },
+  {
+   "file": "apps/desktop/src/services/previewService.ts",
+   "class": "not-d1",
+   "reason": "not compiled into the D1 crates (apps, Python, documentation, other crates)"
+  },
+  {
+   "file": "apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts",
+   "class": "not-d1",
+   "reason": "not compiled into the D1 crates (apps, Python, documentation, other crates)"
+  },
+  {
+   "file": "core/analysis_runs/compatibility.py",
+   "class": "not-d1",
+   "reason": "not compiled into the D1 crates (apps, Python, documentation, other crates)"
+  },
+  {
+   "file": "core/analysis_runs/retained_precision.py",
+   "class": "not-d1",
+   "reason": "not compiled into the D1 crates (apps, Python, documentation, other crates)"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "2235-2235",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "09a2779c35c4b96f95eb72c7ef8b579f69ae46692b2197354612a560885f2c15",
+   "class": "item",
+   "reason": "outside any fn",
+   "reviewed": null
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "2254-2254",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "38a7b43fd37f68458a67d2ec6277e309778e76733898b9cb9a81aead34baa766",
+   "class": "item",
+   "reason": "outside any fn",
+   "reviewed": null
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "2379-2379",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "44ce5c671ad34b3e965db0dd5983257cde8ea0db0a5fd00db5cf2e4510008333",
+   "class": "cfg-test-stmt",
+   "reason": "only `#[cfg(test)] <statement>;` added to production lines: compiled into the lib test binary only",
+   "statements": [
+    "#[cfg(test)] retained_tests_hooks::ordinary_run_entered();"
+   ],
+   "reviewed": {
+    "fingerprint": "44ce5c671ad34b3e965db0dd5983257cde8ea0db0a5fd00db5cf2e4510008333",
+    "file": "core/product_physics/src/lib.rs",
+    "at_final_basis": "lib.rs:2379",
+    "class": "cfg-test-stmt",
+    "statements": [
+     "#[cfg(test)] retained_tests_hooks::ordinary_run_entered();"
+    ],
+    "evidence": "Absent from every production build (`#[cfg(test)]`), and so from the profile, the pinned record and admission; also absent from the challenge's binary (tests/retained_memory_challenge.rs is an integration test, which links the lib without cfg(test)). Present only in the lib test binary, where the law tests and the S1 witnesses run with nothing armed. `ordinary_run_entered` (retained_tests_hooks/grant2.rs:57) clones the thread-local `TALLY` (grant2.rs:21: a const-initialized `RefCell<Option<Arc<Tally>>>`; the clone is a reference-count increment) and, only inside a test's `counted`, adds 1 to an `AtomicUsize`. With no tally it does nothing. No allocation, no text, no production type changes.",
+    "reviewed_by": "I65 (qualifier), from the final basis 7f07a2f7b4's source; for RV89's confirmation"
+   }
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3005-3005",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "c5e1d6c96bd07c6021979792a95e0f5348a76bed99f5a18972daed8f33918145",
+   "class": "cfg-test-stmt",
+   "reason": "only `#[cfg(test)] <statement>;` added to production lines: compiled into the lib test binary only",
+   "statements": [
+    "#[cfg(test)] retained_tests_hooks::at_complete_gate(&mut observer);"
+   ],
+   "reviewed": {
+    "fingerprint": "c5e1d6c96bd07c6021979792a95e0f5348a76bed99f5a18972daed8f33918145",
+    "file": "core/product_physics/src/lib.rs",
+    "at_final_basis": "lib.rs:3005",
+    "class": "cfg-test-stmt",
+    "statements": [
+     "#[cfg(test)] retained_tests_hooks::at_complete_gate(&mut observer);"
+    ],
+    "evidence": "Absent from every production build (`#[cfg(test)]`), and so from the profile, the pinned record and admission; also absent from the challenge's binary (tests/retained_memory_challenge.rs is an integration test, which links the lib without cfg(test)). Present only in the lib test binary, where the law tests and the S1 witnesses run with nothing armed. `at_complete_gate` (grant2.rs:84) does the same tally increment, then three `consume` calls on the thread-local `ARMED` (lib.rs:3189: a `Cell<Armed>`, `Armed: Copy`, so a get and a set). With nothing armed each returns false/None and nothing changes. When a fault-injection test arms them, it raises an adapter count, zeroes a diameter, or sets `trace_fault`: assignments, no allocation.",
+    "reviewed_by": "I65 (qualifier), from the final basis 7f07a2f7b4's source; for RV89's confirmation"
+   }
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3156-3156",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "939441b5caebefaacf36fff99c4b82ac6a47684748e22c446ee801ab3c4b7829",
+   "class": "no-code",
+   "reason": "comments and blank lines only"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3184-3184",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "22017b2d2ca4bc03db94b4d3f971ba16606a874d72b14dced9d05e9f0250d3d3",
+   "class": "test",
+   "reason": "wholly inside #[cfg(test)] items"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3214-3214",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "c6ef24d605fb24141a27fc27008598766a48bd9a46f206ee6f2b374341732dac",
+   "class": "test",
+   "reason": "wholly inside #[cfg(test)] items"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3216-3216",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "abb71d63f92846b1e1c77ae39fd3c8bddeffacc59dde85252d4a5177560e7112",
+   "class": "test",
+   "reason": "wholly inside #[cfg(test)] items"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3219-3219",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "30156e6239a4c20e69e9066f622e5454c685deb311152bc0796616a61da71116",
+   "class": "test",
+   "reason": "wholly inside #[cfg(test)] items"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3232-3232",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "55081f31b8b4762e6f1208a3a16ce48499500daa4e9d70ba18deed6d35cb67d0",
+   "class": "test",
+   "reason": "wholly inside #[cfg(test)] items"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3247-3247",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "1100b27e0679023f09ecbc47abe5c4ccf5912b604e643182ae2a6deeda23198d",
+   "class": "test",
+   "reason": "wholly inside #[cfg(test)] items"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3255-3255",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "3823f8f72549336efe251e186f1190fc8a124d577b4420ff41618e215f34a011",
+   "class": "test",
+   "reason": "wholly inside #[cfg(test)] items"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3296-3296",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "f6ccadb211e05d6d4ac1896293b7f71037e1f5cfbdf6747fcf8c41a63e2d2532",
+   "class": "test",
+   "reason": "wholly inside #[cfg(test)] items"
+  },
+  {
+   "file": "core/product_physics/src/retained_facade_tests.rs",
+   "class": "test",
+   "reason": "a test file"
+  },
+  {
+   "file": "core/product_physics/src/retained_memory.rs",
+   "new_lines": "2125-2125",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "560cba35c98cc33ea67aaf48dda36eb2b3b8290aa9fb460914ca2ee0312e459d",
+   "class": "generated",
+   "reason": "inside the GENERATED PROFILE markers: gated by FORMS (equal to regeneration from G7's profile tree)"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "new_lines": "3244-3244",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "2a8be2da9031008a40c52eaea93db74089b899457f24e786a9f3f8ef4595952e",
+   "class": "cfg-test-stmt",
+   "reason": "only `#[cfg(test)] <statement>;` added to production lines: compiled into the lib test binary only",
+   "statements": [
+    "#[cfg(test)] crate::retained_tests_hooks::before_late_gate(&*self);"
+   ],
+   "reviewed": {
+    "fingerprint": "2a8be2da9031008a40c52eaea93db74089b899457f24e786a9f3f8ef4595952e",
+    "file": "core/product_physics/src/retained_product.rs",
+    "at_final_basis": "retained_product.rs:3244",
+    "class": "cfg-test-stmt",
+    "statements": [
+     "#[cfg(test)] crate::retained_tests_hooks::before_late_gate(&*self);"
+    ],
+    "evidence": "Absent from every production build (`#[cfg(test)]`), and so from the profile, the pinned record and admission; also absent from the challenge's binary (tests/retained_memory_challenge.rs is an integration test, which links the lib without cfg(test)). Present only in the lib test binary, where the law tests and the S1 witnesses run with nothing armed. `before_late_gate` (grant2.rs:78) makes one `consume` on `ARMED`. With nothing armed it does nothing. When armed (the G-B fault test) it raises one adapter count in place. No allocation.",
+    "reviewed_by": "I65 (qualifier), from the final basis 7f07a2f7b4's source; for RV89's confirmation"
+   }
+  },
+  {
+   "file": "core/product_physics/src/retained_tests_hooks/grant2.rs",
+   "class": "test",
+   "reason": "a module file declared only inside #[cfg(test)]"
+  },
+  {
+   "file": "core/product_physics/src/retained_wire_tests.rs",
+   "class": "test",
+   "reason": "a test file"
+  },
+  {
+   "file": "core/reporting/result_export/src/retained_precision.rs",
+   "new_lines": "4267-4269",
+   "removed": 3,
+   "added": 3,
+   "fingerprint": "1ea4bbe3d178aa2d0b90332e3de97ecea8e93c70cf85d7b5d9ff8f2f25811227",
+   "class": "item",
+   "reason": "outside any fn",
+   "reviewed": null
+  },
+  {
+   "file": "core/reporting/result_export/src/semantic_contract.rs",
+   "new_lines": "581-582",
+   "removed": 2,
+   "added": 2,
+   "fingerprint": "4da9b312b0d17453940cd768ec91d47ea80f45994f06b5f91c80a8fa3685c580",
+   "class": "no-code",
+   "reason": "comments and blank lines only"
+  },
+  {
+   "file": "core/reporting/result_export/tests/retained_precision_carriers.rs",
+   "class": "not-d1",
+   "reason": "not in a D1 crate's sources (crate_dirs.txt)"
+  },
+  {
+   "file": "core/reporting/result_export/tests/retained_precision_contract.rs",
+   "class": "not-d1",
+   "reason": "not in a D1 crate's sources (crate_dirs.txt)"
+  },
+  {
+   "file": "fixtures/results/retained_precision_carrier_cases.json",
+   "class": "not-d1",
+   "reason": "not embedded by D1 production code"
+  },
+  {
+   "file": "fixtures/results/retained_precision_cases.json",
+   "class": "not-d1",
+   "reason": "not embedded by D1 production code"
+  },
+  {
+   "file": "tests/test_retained_precision_carriers.py",
+   "class": "not-d1",
+   "reason": "not compiled into the D1 crates (apps, Python, documentation, other crates)"
+  },
+  {
+   "file": "tests/test_retained_precision_contract.py",
+   "class": "not-d1",
+   "reason": "not compiled into the D1 crates (apps, Python, documentation, other crates)"
+  }
+ ]
+}

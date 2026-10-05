@@ -1,0 +1,6 @@
+{
+  "stage": "0",
+  "source_derivation_sha256": "e431fc0bb02e724aa1315b366f80fe8df260b6579869d245c500fe69a21ca4b5",
+  "author_packet_read": false,
+  "limitations": "Partial source/count derivation only; no complete admission theorem."
+}

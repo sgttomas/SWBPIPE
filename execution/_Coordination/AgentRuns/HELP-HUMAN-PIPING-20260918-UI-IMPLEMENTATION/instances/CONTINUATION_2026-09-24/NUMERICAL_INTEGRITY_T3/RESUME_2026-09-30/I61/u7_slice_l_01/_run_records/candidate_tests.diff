@@ -1,0 +1,46 @@
+diff --git a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+index e497a05afa..f0436dbaaf 100644
+--- a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
++++ b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+@@ -831,8 +831,8 @@ fn shared_must_pass_entries_validate() {
+     let shared = corpus();
+     let entries = shared["must_pass"].as_array().unwrap();
+     // Snapshot 07: 06d's 18 plus the equal-E bracket control; 07h adds F5's
+-    // reordered-envelope exact-list control (RV90 N2).
+-    assert_eq!(entries.len(), 23);
++    // reordered-envelope exact-list control (RV90 N2); 07j adds C04's not_required case.
++    assert_eq!(entries.len(), 24);
+     let mut failures = Vec::new();
+     for entry in entries {
+         assert_eq!(entry["expected"], "pass");
+diff --git a/projects/chirality-piping/tests/test_retained_precision_contract.py b/projects/chirality-piping/tests/test_retained_precision_contract.py
+index d44a2a0e04..b9df1a7850 100644
+--- a/projects/chirality-piping/tests/test_retained_precision_contract.py
++++ b/projects/chirality-piping/tests/test_retained_precision_contract.py
+@@ -636,18 +636,21 @@ def test_rv79_surviving_mutants_m06_m09_m14():
+ 
+ 
+ def test_snapshot_07_counts_and_entry_format():
+-    """Snapshot 07i (U7, D-U7-2, on 07h: I61 U6e repair; RV90 S1, N1, N2, N4): 15 cases, 277 mutations,
+-    23 must-pass and the D37 table; only rehash "all" (D11); one expectation per entry except the
+-    per-reader G7 entry; each must-pass entry also states its eligibility."""
++    """Snapshot 07j (U7 slice L, C04, on 07i: U7, D-U7-2; 07h: I61 U6e repair; RV90 S1, N1, N2, N4):
++    15 cases, 277 mutations, 24 must-pass and the D37 table; only rehash "all" (D11); one expectation
++    per entry except the per-reader G7 entry; each must-pass entry also states its eligibility."""
+     c = corpus()
+-    assert (len(c["cases"]), len(c["mutations"]), len(c["must_pass"])) == (15, 277, 23)
++    assert (len(c["cases"]), len(c["mutations"]), len(c["must_pass"])) == (15, 277, 24)
+     assert set(c) == {"version", "provenance", "arithmetic", "cases", "mutations", "must_pass", "d37"}
+     entries = c["mutations"] + c["must_pass"]
+     assert all(e["rehash"] == "all" for e in entries)
+     assert all(set(e) <= {"id", "base", "edits", "invocation_edits", "after_rehash", "rehash", "expected", "expected_by_reader", "expected_eligibility"} for e in entries)
+     assert all(("expected_eligibility" in e) == (e in c["must_pass"]) for e in entries)
+     eligible = lambda items, key: sum(item[key]["numerical_eligible"] for item in items)
+-    assert (eligible(c["cases"], "expected"), eligible(c["must_pass"], "expected_eligibility")) == (13, 13)
++    assert (eligible(c["cases"], "expected"), eligible(c["must_pass"], "expected_eligibility")) == (13, 14)
++    # 07j (C04): one must-pass entry has a not_required case that passes every gate, eligible.
++    statuses = lambda e: [x["status"] for x in apply_entry(next(f for f in c["cases"] if f["id"] == e["base"]), e)[0]["retained_precision"]["body"]["cases"]]
++    assert [e["id"] for e in c["must_pass"] if "not_required" in statuses(e)] == ["not_required_second_case_checks_passed"]
+     assert [e["id"] for e in entries if "expected_by_reader" in e] == ["g7_maximum_off_enclosure"]
+     assert len({e["id"] for e in entries}) == len(entries)
+ 

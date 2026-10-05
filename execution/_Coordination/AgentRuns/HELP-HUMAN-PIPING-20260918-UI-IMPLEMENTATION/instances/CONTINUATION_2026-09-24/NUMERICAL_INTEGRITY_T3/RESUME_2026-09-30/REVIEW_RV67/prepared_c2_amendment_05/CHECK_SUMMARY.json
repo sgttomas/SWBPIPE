@@ -1,0 +1,227 @@
+{
+  "unchanged_lane_debug_first_vs_diagnostic": true,
+  "support_hypot_alone_fails_current_norm_enclosure": true,
+  "scope": "independent exact actual-point arithmetic on same checked dual-truth basis; no author PASS used as an oracle",
+  "prior_reviewer_script": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV67/prepared_producer_01/check.py",
+  "prior_sha256": "b926b26b02c8d4f55ad706828135e95e2073fa5c7f5aa0afc1a681533ba026cc",
+  "diagnostic_log_sha256": "b2c09a63bb86da5c38d96fa4d6519f01ef3f95a7bcfd1408143fe3a374cafc01",
+  "cases": [
+    {
+      "mode": "sparse_interactive",
+      "mechanical": 97,
+      "counts": {
+        "AbsoluteVerified": 69,
+        "RelativeVerified": 25,
+        "InputDerived": 3
+      },
+      "point_passes": 97,
+      "certificate_passes": 90,
+      "failed_ids": [
+        "result:support-action:4:case:8:rigid:N0:Fy",
+        "result:support-action:4:case:8:rigid:N0:Fz",
+        "result:force:M1:axial",
+        "result:force:M1:axial:end-j",
+        "result:force:M1:quarter-1:axial",
+        "result:force:M1:midspan:axial",
+        "result:force:M1:quarter-3:axial"
+      ],
+      "scales": {
+        "translation": "3f1a378ea78c5ce9",
+        "rotation": "3f017a5f1a5d9346",
+        "force": "3f73a92a30553261",
+        "moment": "3f8d7dbf487fcb92",
+        "stress": "404b0f1c3b53ceea",
+        "maximum": "4062f327f1759218"
+      },
+      "rigid_force_magnitude": 2.435667266071612e-22,
+      "component_norm_bounds": [
+        4.607409353606944e-31,
+        4.607409353606944e-31
+      ],
+      "observable_error_lower": 2.4356672614642027e-22,
+      "observable_tolerance": 3.461291365271694e-36,
+      "g5a_reported": "None",
+      "observable_reported": "Some(Association(\"support guard\"))",
+      "g5a_recomputed_lower": [
+        53050.36890729408,
+        96.11431291987076
+      ],
+      "g5a_actual_resolution": [
+        325026.48954024876,
+        4202.612560302635
+      ],
+      "g5a_recomputed_upper": [
+        325026.4895405444,
+        975079.4686216331
+      ]
+    },
+    {
+      "mode": "dense_scrutiny",
+      "mechanical": 97,
+      "counts": {
+        "AbsoluteVerified": 69,
+        "RelativeVerified": 25,
+        "InputDerived": 3
+      },
+      "point_passes": 97,
+      "certificate_passes": 90,
+      "failed_ids": [
+        "result:support-action:4:case:8:rigid:N0:Fy",
+        "result:support-action:4:case:8:rigid:N0:Fz",
+        "result:force:M1:axial",
+        "result:force:M1:axial:end-j",
+        "result:force:M1:quarter-1:axial",
+        "result:force:M1:midspan:axial",
+        "result:force:M1:quarter-3:axial"
+      ],
+      "scales": {
+        "translation": "3f1a378ea78c5ce9",
+        "rotation": "3f017a5f1a5d9346",
+        "force": "3f73a92a30553261",
+        "moment": "3f8d7dbf487fcb92",
+        "stress": "404b0f1c3b53ceea",
+        "maximum": "4062f327f1759218"
+      },
+      "rigid_force_magnitude": 2.435667266071612e-22,
+      "component_norm_bounds": [
+        4.607409353606944e-31,
+        4.607409353606944e-31
+      ],
+      "observable_error_lower": 2.4356672614642027e-22,
+      "observable_tolerance": 3.461291365271694e-36,
+      "g5a_reported": "None",
+      "observable_reported": "Some(Association(\"support guard\"))",
+      "g5a_recomputed_lower": [
+        53050.36890729408,
+        96.11431291987076
+      ],
+      "g5a_actual_resolution": [
+        325026.48954024876,
+        4202.612560302635
+      ],
+      "g5a_recomputed_upper": [
+        325026.4895405444,
+        975079.4686216331
+      ]
+    }
+  ],
+  "width_summary": [
+    {
+      "mode": "sparse_interactive",
+      "native_ordinal": 47,
+      "native_id": "Reaction(Dof { node: 0, component: Ux })",
+      "row": "result:support-action:4:case:8:rigid:N0:Fx",
+      "K_width": 3.911837194250529e-82,
+      "K_halfwidth": 1.9559185971252644e-82,
+      "source_width": 3.473082627184024e-22,
+      "source_halfwidth": 1.736541313592012e-22,
+      "actual_center_error_to_enclosure": 1.736541313592012e-22,
+      "absolute_bound": 2.6020852139652104e-22,
+      "certificate_pass_rederived": true
+    },
+    {
+      "mode": "sparse_interactive",
+      "native_ordinal": 48,
+      "native_id": "Reaction(Dof { node: 0, component: Uy })",
+      "row": "result:support-action:4:case:8:rigid:N0:Fy",
+      "K_width": 7.249633305408933e-82,
+      "K_halfwidth": 3.6248166527044667e-82,
+      "source_width": 6.436509045794898e-22,
+      "source_halfwidth": 3.218254522897449e-22,
+      "actual_center_error_to_enclosure": 3.218254522897449e-22,
+      "absolute_bound": 2.6020852139652104e-22,
+      "certificate_pass_rederived": false
+    },
+    {
+      "mode": "sparse_interactive",
+      "native_ordinal": 49,
+      "native_id": "Reaction(Dof { node: 0, component: Uz })",
+      "row": "result:support-action:4:case:8:rigid:N0:Fz",
+      "K_width": 7.249633305408933e-82,
+      "K_halfwidth": 3.6248166527044667e-82,
+      "source_width": 6.436509045794898e-22,
+      "source_halfwidth": 3.218254522897449e-22,
+      "actual_center_error_to_enclosure": 3.218254522897449e-22,
+      "absolute_bound": 2.6020852139652104e-22,
+      "certificate_pass_rederived": false
+    },
+    {
+      "mode": "sparse_interactive",
+      "native_ordinal": 14,
+      "native_id": "EndAction { member: 0, end: I, component: Ux }",
+      "row": "result:force:M1:axial",
+      "K_width": 1.0074169154037911e-81,
+      "K_halfwidth": 5.0370845770189556e-82,
+      "source_width": 8.944242854387425e-22,
+      "source_halfwidth": 4.472121427193713e-22,
+      "actual_center_error_to_enclosure": 4.472121427193713e-22,
+      "absolute_bound": 2.6020852139652104e-22,
+      "certificate_pass_rederived": false
+    },
+    {
+      "mode": "sparse_interactive",
+      "native_ordinal": 20,
+      "native_id": "EndAction { member: 0, end: J, component: Ux }",
+      "row": "result:force:M1:axial:end-j",
+      "K_width": 1.0074169154037911e-81,
+      "K_halfwidth": 5.0370845770189556e-82,
+      "source_width": 8.944242854387425e-22,
+      "source_halfwidth": 4.472121427193713e-22,
+      "actual_center_error_to_enclosure": 4.472121427193713e-22,
+      "absolute_bound": 2.6020852139652104e-22,
+      "certificate_pass_rederived": false
+    },
+    {
+      "mode": "sparse_interactive",
+      "native_ordinal": 26,
+      "native_id": "StationAction { station: 0, component: Ux }",
+      "row": "result:force:M1:quarter-1:axial",
+      "K_width": 1.0074169154037911e-81,
+      "K_halfwidth": 5.0370845770189556e-82,
+      "source_width": 8.944242854387425e-22,
+      "source_halfwidth": 4.472121427193713e-22,
+      "actual_center_error_to_enclosure": 4.472121427193713e-22,
+      "absolute_bound": 2.6020852139652104e-22,
+      "certificate_pass_rederived": false
+    },
+    {
+      "mode": "sparse_interactive",
+      "native_ordinal": 32,
+      "native_id": "StationAction { station: 1, component: Ux }",
+      "row": "result:force:M1:midspan:axial",
+      "K_width": 1.0074169154037911e-81,
+      "K_halfwidth": 5.0370845770189556e-82,
+      "source_width": 8.944242854387425e-22,
+      "source_halfwidth": 4.472121427193713e-22,
+      "actual_center_error_to_enclosure": 4.472121427193713e-22,
+      "absolute_bound": 2.6020852139652104e-22,
+      "certificate_pass_rederived": false
+    },
+    {
+      "mode": "sparse_interactive",
+      "native_ordinal": 38,
+      "native_id": "StationAction { station: 2, component: Ux }",
+      "row": "result:force:M1:quarter-3:axial",
+      "K_width": 1.0074169154037911e-81,
+      "K_halfwidth": 5.0370845770189556e-82,
+      "source_width": 8.944242854387425e-22,
+      "source_halfwidth": 4.472121427193713e-22,
+      "actual_center_error_to_enclosure": 4.472121427193713e-22,
+      "absolute_bound": 2.6020852139652104e-22,
+      "certificate_pass_rederived": false
+    },
+    {
+      "mode": "sparse_interactive",
+      "native_ordinal": 50,
+      "native_id": "SupportForceMagnitude(0)",
+      "row": "result:support-action:4:case:8:rigid:N0:force_magnitude",
+      "K_width": 5.486730304548016e-82,
+      "K_halfwidth": 2.743365152274008e-82,
+      "source_width": 4.871334532143224e-22,
+      "source_halfwidth": 2.435667266071612e-22,
+      "actual_center_error_to_enclosure": 2.435667266071612e-22,
+      "absolute_bound": 2.6020852139652104e-22,
+      "certificate_pass_rederived": true
+    }
+  ]
+}

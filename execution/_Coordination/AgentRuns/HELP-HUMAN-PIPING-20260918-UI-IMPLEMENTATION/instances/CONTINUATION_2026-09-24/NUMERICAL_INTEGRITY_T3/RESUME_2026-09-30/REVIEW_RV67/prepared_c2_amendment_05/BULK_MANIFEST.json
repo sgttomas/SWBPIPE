@@ -1,0 +1,37 @@
+{
+  "root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv67_prepared_c2_amendment_05",
+  "files": [
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv67_prepared_c2_amendment_05/DIAGNOSTIC_RECOVERY_CHECK.json",
+      "bytes": 2462,
+      "sha256": "09e6090c259903c2d72ac72d6e774fbbbae70aacdc497923a8a47a5136977553"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv67_prepared_c2_amendment_05/FINAL_CHECK.json",
+      "bytes": 162428,
+      "sha256": "6131551870b38d507c33137f3f1827e55963fb7ed7343d8f5bf334414475576f"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv67_prepared_c2_amendment_05/POINT_CHECK.json",
+      "bytes": 94809,
+      "sha256": "72945f241606a27d51b8fb4ded39bfd649124da5aa97e0aec9fe9a888c9e8369"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv67_prepared_c2_amendment_05/diagnostic_retained_product.rs",
+      "bytes": 153724,
+      "sha256": "a5562b41a04744f6e672ad066e569264dcbcc0db200417b11dda10d4f1a60395"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv67_prepared_c2_amendment_05/final_case.rs",
+      "bytes": 65910,
+      "sha256": "0cc6e071b6c93550f29115344676654234c968d81b745dc511834482af5957a1"
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv67_prepared_c2_amendment_05/source_residual.rs",
+      "bytes": 37873,
+      "sha256": "60c3336fe3e6905882ecd412baae875f0d26fd4b3a64891ded12849c5f3413b5"
+    }
+  ],
+  "purpose": "exact independent actual-point/interval results and frozen source recovery; no product run",
+  "replay": "Run packet check.py with a fresh output filepath. It reuses only the sealed prior reviewer checker prefix for independent truth/rounding, then checks hash-pinned actual logs. Prior script and its immutable original capture/reference dependencies remain at recorded paths; no author actual_point_control code is executed."
+}

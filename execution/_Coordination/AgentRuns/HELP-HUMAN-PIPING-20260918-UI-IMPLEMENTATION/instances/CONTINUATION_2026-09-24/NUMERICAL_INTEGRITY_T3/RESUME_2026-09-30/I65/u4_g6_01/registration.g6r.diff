@@ -1,0 +1,323 @@
+--- a/projects/chirality-piping/core/product_physics/src/retained_memory.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_memory.rs
+@@ -941,9 +941,24 @@
+     /// heap bytes plus R, selected by ROOT at G6.
+     threshold_bytes: u64,
+ }
+-/// The registered builds. Empty until G6 (decision 7): no profile, and so no
+-/// permit, can be constructed in maintained code or tests.
+-static REGISTERED_PROFILES: &[RegisteredProfile] = &[];
++/// The registered builds (G6, R/I65/u4_g6_01/QUALIFICATION.md): the qualified
++/// dev/test build only. Decision 7 still holds: this is the production profile,
++/// registered by reviewed change, not a test permit; every other build identity is
++/// `Stale` and keeps the ordinary route.
++static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
++    // aarch64-apple-darwin, rustc 1.97.1 (8bab26f4f68e), profile=debug, opt_level=0,
++    // debug_assertions=true, panic=unwind, no RUSTFLAGS.
++    identity: "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0",
++    reviewed_inputs: "v1;Cargo.lock=4f494db6d8a6eca87e7a16d8561197f20b1951a033bd3a6c424acfff5613475b;../../schemas/physics_source_recovery.schema.json=3bb969555d5616af6eefdb68788ee4a74a8a3681c42fe9aae577a5d25a51ac5c;../../schemas/retained_precision_mp_v2.schema.json=07951edacfedd410c153929ee75bb5bada15dbd222369ec63240c678b233b61c;../../fixtures/results/retained_precision_prepared_ordinary_v1.json=3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296;../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json=c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8;../../fixtures/results/semantic_contract_v0_2.json=4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da;../../fixtures/results/semantic_contract_v0_3_precision_1.json=d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e;../../fixtures/results/semantic_contract_v0_3_physics_1.json=9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc;../../fixtures/results/semantic_contract_v0_3_load_reference_1.json=44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d;../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json=d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337;../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json=ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a;../../fixtures/results/semantic_contract_v0_3_physics_source_1.json=ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1;../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json=5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f;../../schemas/source_block_recovery.schema.json=544e196d2f7bef27276acc160aa19ab738a4f7949e846d2e8871328d2208129c",
++    reader_layouts: [
++        TypeLayout { size: 56, align: 8 },
++        TypeLayout { size: 64, align: 8 },
++        TypeLayout { size: 96, align: 8 },
++        TypeLayout { size: 16, align: 8 },
++    ],
++    // M (D-7, proposed in QUALIFICATION.md §6): E_mov,max + R <= 0.8927 M in this build.
++    threshold_bytes: 4_026_531_840,
++}];
+ 
+ /// D-6 identity matching (G2_AMENDMENTS §1): `Missing` with nothing registered;
+ /// otherwise the index of the byte-equal registered identity, or `Stale` when the
+@@ -2955,10 +2970,15 @@
+     }
+     #[test]
+     fn actual_retained_entry_dispatches_ordinary_once() {
+-        let raw: Value = serde_json::from_str(include_str!(
++        // G6: the counted dispatch is the unpermitted one; the milestone is made out of D1
++        // (a second load case, D1.4) so no build admits it. The permitted path's single
++        // ordinary run (U3's B-1) is not counted by this hook (QUALIFICATION.md §7).
++        let mut raw: Value = serde_json::from_str(include_str!(
+             "../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json"
+         ))
+         .unwrap();
++        let case = raw["model"]["load_cases"][0].clone();
++        raw["model"]["load_cases"].as_array_mut().unwrap().push(case);
+         for mode in [
+             crate::PreviewSolverMode::SparseInteractive,
+             crate::PreviewSolverMode::DenseScrutiny,
+@@ -2967,7 +2987,10 @@
+             let result =
+                 crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode)
+                     .unwrap();
+-            assert_eq!(result.admission().unwrap().profile, ProfileStatus::Missing);
++            // G6: the qualified build admits the milestone (one dispatch, capture installed);
++            // any other build is Stale. Either way the ordinary run is dispatched once.
++            let expected = build_status().map_or_else(|status| status, |_| ProfileStatus::Registered);
++            assert_eq!(result.admission().unwrap().profile, expected);
+             DISPATCH_COUNT.with(|c| {
+                 assert_eq!(c.get(), Some(1));
+                 c.set(None);
+@@ -3038,6 +3061,8 @@
+                 let mut report = base;
+                 report.profile = profile;
+                 report.raw.status = status;
++                // G6: the law records D1.1's refusal for a Missing/Stale build (a profile now exists).
++                report.law.refusal = Some(AdmissionRefusal::Profile(profile));
+                 let refusal = match admission(report) {
+                     Err(r) => r,
+                     Ok(_) => panic!("no profile can authorize execution"),
+--- a/projects/chirality-piping/core/product_physics/src/retained_memory_law_tests.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_memory_law_tests.rs
+@@ -13,6 +13,14 @@
+ 
+ fn milestone() -> Value {
+     serde_json::from_str(MILESTONE).unwrap()
++}
++/// G6 registration: this build's D1.1 status (Registered in the qualified build, Stale in any
++/// other), and the refusal D1.1 then gives (none in the qualified build).
++fn build_profile() -> ProfileStatus {
++    build_status().map_or_else(|status| status, |_| ProfileStatus::Registered)
++}
++fn d1_1_refusal() -> Option<AdmissionRefusal> {
++    build_status().err().map(AdmissionRefusal::Profile)
+ }
+ /// The actual G-A over a raw request: parse once, as the dispatch does, then admit.
+ fn admitted(raw: Value) -> RetainedAdmissionReport {
+@@ -256,20 +264,68 @@
+ }
+ 
+ #[test]
+-fn no_profile_or_permit_is_constructible() {
+-    assert!(REGISTERED_PROFILES.is_empty(), "decision 7: nothing is registered until G6");
+-    assert_eq!(build_status(), Err(ProfileStatus::Missing));
++fn the_registered_profile_is_the_only_permit_source() {
++    // G6: exactly one production profile, registered by reviewed change (decision 7: no test permit).
++    assert_eq!(REGISTERED_PROFILES.len(), 1);
++    assert_eq!(REGISTERED_PROFILES[0].identity, super::law_tests::PINNED_RECORD_IDENTITY, "the qualified build is the pinned record's");
++    assert_eq!(REGISTERED_PROFILES[0].threshold_bytes, 4_026_531_840);
+     let source = include_str!("retained_memory.rs");
+     let production = &source[..source.find("#[cfg(test)]\n#[path = \"retained_memory_law_tests.rs\"]").unwrap()];
+-    assert!(production.contains("static REGISTERED_PROFILES: &[RegisteredProfile] = &[];"));
+-    assert_eq!(production.matches("RegisteredProfile {").count(), 1, "the definition only: no literal");
++    assert_eq!(production.matches("RegisteredProfile {").count(), 2, "the definition and the one registered entry: no other literal");
+     assert_eq!(production.matches("CapturePermit { _profile").count(), 1, "admission's one construction");
+     assert!(production.contains("(None, Some(profile)) => Ok(CapturePermit { _profile: profile }),"));
+-    // A forged registration index cannot mint a permit while the list is empty.
++    // A forged index past the list, or a refusal, never mints a permit.
+     let mut report = admitted(milestone());
+     report.law.refusal = None;
+-    report.law.registered = Some(0);
++    report.law.registered = Some(1);
+     assert!(admission(report).is_err());
++    let mut refused = admitted(milestone());
++    refused.law.refusal = Some(AdmissionRefusal::Bound(BoundRefusal::Unpriced));
++    refused.law.registered = Some(0);
++    assert!(admission(refused).is_err());
++    // This build is the registered one, or Stale: never Missing now.
++    match COMPILED_IDENTITY {
++        Some(id) if id == REGISTERED_PROFILES[0].identity => assert_eq!(build_status(), Ok(0)),
++        _ => assert_eq!(build_status(), Err(ProfileStatus::Stale)),
++    }
++}
++
++/// G6 (brief step 5): under the registered build, `admit` grants a permit for the in-domain
++/// milestone Direct invocation in both modes; Headless and out-of-domain requests stay refused.
++#[test]
++fn admit_grants_a_permit_for_the_milestone_in_the_registered_build() {
++    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
++    for mode in MODES {
++        let (request, capture) = CapturedInvocation::parse(milestone(), mode).unwrap();
++        let admitted = admit(&capture, &request, Entry::Direct);
++        if !registered {
++            let report = admitted.err().expect("an unregistered build is refused");
++            assert_eq!(report.law().refusal, Some(AdmissionRefusal::Profile(ProfileStatus::Stale)));
++            assert_eq!(report.law().required, None, "refused before the bound: nothing computed");
++            continue;
++        }
++        let (_permit, report) = admitted.unwrap_or_else(|r| panic!("{mode:?}: refused {:?}", r.law().refusal));
++        assert_eq!(report.law().refusal, None);
++        assert_eq!(report.law().registered, Some(0));
++        let required = cap_priced_maximum(mode).unwrap() + RESERVED_STACK_BYTES as u64;
++        // RV89 G6 S-3: admission's own bound is the mode's maximum plus R (64 MiB).
++        assert_eq!(report.law().required, Some(required), "{mode:?}: admit adds R before comparing with M");
++        assert!(required <= 3_623_878_656, "the 0.9 M margin holds at admission");
++        // Headless is refused at D1.0 even in the registered build.
++        let raw = milestone();
++        let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
++        let id = String::from("g6");
++        let headless = admit(&capture, &request, Entry::Headless(RetainedHeadlessContext::from_borrowed_roots(&raw, &invocation, &id)));
++        assert_eq!(headless.err().unwrap().law().refusal, Some(AdmissionRefusal::Caller(RetainedCaller::Headless)));
++        // An out-of-domain request (a second load case) is refused at its D1 clause.
++        // (G6: the blocked examples and the failed attempt are in
++        // `registered_g_c_declines_only_unattempted_solves`.)
++        let mut out = milestone();
++        let case = out["model"]["load_cases"][0].clone();
++        out["model"]["load_cases"].as_array_mut().unwrap().push(case);
++        let (request, capture) = CapturedInvocation::parse(out, mode).unwrap();
++        assert!(matches!(admit(&capture, &request, Entry::Direct).err().unwrap().law().refusal, Some(AdmissionRefusal::Family(..))));
++    }
+ }
+ 
+ // ---- The census --------------------------------------------------------------
+@@ -320,8 +376,8 @@
+             let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
+             let report = assess(&capture, &request, Entry::Direct);
+             assert_eq!(report.law().domain, None, "inside D1");
+-            assert_eq!(report.law().refusal, Some(AdmissionRefusal::Profile(ProfileStatus::Missing)), "D1.1 refuses: no profile");
+-            assert_eq!(report.profile, ProfileStatus::Missing);
++            assert_eq!(report.law().refusal, d1_1_refusal(), "D1.1: the qualified build admits; any other is Stale");
++            assert_eq!(report.profile, build_profile());
+             assert_eq!(report.law().raw_text.control_bytes, 0);
+             let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
+             let id = String::from("g5");
+@@ -605,7 +661,7 @@
+             assert_eq!(serde_json::to_vec(output.envelope()).unwrap(), plain, "ordinary bytes");
+             let report = output.admission().unwrap();
+             assert_eq!(report.law().domain, expected);
+-            assert_eq!(report.law().refusal, Some(AdmissionRefusal::Profile(ProfileStatus::Missing)));
++            assert_eq!(report.law().refusal, d1_1_refusal().or(expected), "D1.1 first, then the domain refusal");
+             assert!(output.successor().is_none());
+         }
+     }
+@@ -1307,4 +1363,38 @@
+     assert!(ordinary_solve_attempted(&empty));
+     empty.ordinary[0].initial = None;
+     assert!(!ordinary_solve_attempted(&empty), "a seed without an attempt outcome");
++}
++
++/// G6 (ROOT's ruling 2(a)), in the registered build: a D1 request whose ordinary route
++/// returns without attempting the case's solve takes G-C's CompleteGate fallback, and
++/// Direct publishes the value route's bytes exactly, with no notice. The milestone still
++/// publishes, and a solve that ran but failed still reaches W1.
++#[test]
++fn registered_g_c_declines_only_unattempted_solves() {
++    if COMPILED_IDENTITY != Some(REGISTERED_PROFILES[0].identity) {
++        return;
++    }
++    for mode in MODES {
++        for (label, raw) in not_attempted_examples() {
++            let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
++            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw, mode).unwrap();
++            assert_eq!(direct.admission().unwrap().law().refusal, None, "{label}: admitted");
++            match direct.retained() {
++                Some(Err(crate::W1Fallback::CompleteGate(refusal))) => assert_eq!(refusal.fact, PhaseFact::OrdinarySolveNotAttempted, "{label} {mode:?}"),
++                other => panic!("{label} {mode:?}: expected G-C's decline, got {other:?}"),
++            }
++            assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain, "{label} {mode:?}: the value route's bytes exactly, no notice");
++            assert!(direct.successor().is_none());
++        }
++        let milestone = crate::run_linear_static_preview_value_with_retained_direct(milestone(), mode).unwrap();
++        assert!(milestone.successor().is_some(), "{mode:?}: the milestone publishes");
++        for (label, raw) in attempted_examples().into_iter().skip(1) {
++            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw, mode).unwrap();
++            match direct.retained() {
++                Some(Err(crate::W1Fallback::CompleteGate(refusal))) => panic!("{label} {mode:?}: G-C declined a solve that ran ({refusal:?})"),
++                Some(_) => {}
++                None => panic!("{label} {mode:?}: no W1 result"),
++            }
++        }
++    }
+ }
+--- a/projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs
+@@ -205,12 +205,16 @@
+     assert_eq!(RETAINED_UNAVAILABLE_NOTICE.len() + RECEIPT_ENCODING_REASON.len() + RECEIPT_ENCODING_DETAIL_MAX + 1, 196, "the reserved message bytes");
+ }
+ 
+-/// Control 1: with no permit (always, until U4 G5) both retained entries and the
+-/// shared route are the unchanged ordinary route, with no W1 result.
++/// Control 1: with no permit both retained entries and the shared route are the
++/// unchanged ordinary route, with no W1 result. G6: a profile is registered, so the
++/// control uses the milestone made out of D1 (a second load case, D1.4), which no build
++/// admits.
+ #[test]
+ fn u3_no_permit_entries_are_the_ordinary_route() {
+     for mode in MODES {
+-        let raw = raw();
++        let mut raw = raw();
++        let case = raw["model"]["load_cases"][0].clone();
++        raw["model"]["load_cases"].as_array_mut().unwrap().push(case);
+         let plain = plain(mode, &raw);
+         let direct = run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
+         assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain);
+--- a/projects/chirality-piping/core/product_physics/tests/retained_precision_admission.rs
++++ b/projects/chirality-piping/core/product_physics/tests/retained_precision_admission.rs
+@@ -38,6 +38,15 @@
+     ))
+     .unwrap()
+ }
++/// G6: the registered build (QUALIFICATION.md) reports `Registered`; any other build `Stale`.
++const REGISTERED_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
++fn expected_profile() -> ProfileStatus {
++    if option_env!("OPS_RETAINED_BUILD_IDENTITY") == Some(REGISTERED_IDENTITY) {
++        ProfileStatus::Registered
++    } else {
++        ProfileStatus::Stale
++    }
++}
+ fn bytes(e: &MechanicsEnvelope) -> Vec<u8> {
+     serde_json::to_vec(e).unwrap()
+ }
+@@ -58,7 +67,7 @@
+             assert_eq!(bytes(actual.envelope()), bytes(&expected));
+             let report = actual.admission().unwrap();
+             assert_eq!(report.caller, RetainedCaller::Direct);
+-            assert_eq!(report.profile, ProfileStatus::Missing);
++            assert_eq!(report.profile, expected_profile());
+             assert_eq!(report.allowance, AllowanceStatus::Unselected);
+             assert!(report.census_complete());
+             assert_eq!(report.typed.nodes.length, 2);
+@@ -97,13 +106,17 @@
+         assert!(selected.source_block_recovery.is_some());
+         let refused = run_linear_static_preview_value_with_retained_direct(source, mode).unwrap();
+         assert_eq!(bytes(refused.envelope()), bytes(&selected));
+-        assert_eq!(refused.admission().unwrap().profile, ProfileStatus::Missing);
++        assert_eq!(refused.admission().unwrap().profile, expected_profile());
+         let mut invalid = ordinary();
+         invalid["model"]["document_kind"] = Value::String("invalid-kind".into());
+         let expected = run_linear_static_preview_value_with_mode(invalid.clone(), mode).unwrap();
+         let actual = run_linear_static_preview_value_with_retained_direct(invalid, mode).unwrap();
++        // G6 (ROOT): the invalid document's ordinary route returns before attempting the
++        // case's solve, so G-C declines W1 and the bytes are the value route's exactly,
++        // with no notice, registered or not.
+         assert_eq!(bytes(actual.envelope()), bytes(&expected));
+-        assert_eq!(actual.admission().unwrap().profile, ProfileStatus::Missing);
++        assert!(actual.successor().is_none());
++        assert_eq!(actual.admission().unwrap().profile, expected_profile());
+     }
+     let bad = serde_json::json!({"model": null});
+     assert_eq!(
+--- a/projects/chirality-piping/core/runner/headless/tests/retained_precision_admission.rs
++++ b/projects/chirality-piping/core/runner/headless/tests/retained_precision_admission.rs
+@@ -4,7 +4,8 @@
+     RunnerOperation, RunnerRequest, TbdDecisions,
+ };
+ use open_pipe_stress_product_physics::{
+-    MissingAdmissionTerm, PreviewSolverMode, ProfileStatus, RetainedCaller,
++    run_linear_static_preview_value_with_retained_direct, MissingAdmissionTerm,
++    PreviewSolverMode, ProfileStatus, RetainedCaller,
+ };
+ use serde_json::Value;
+ 
+@@ -79,7 +80,20 @@
+         );
+         let report = actual.admission().unwrap();
+         assert_eq!(report.caller, RetainedCaller::Headless);
+-        assert_eq!(report.profile, ProfileStatus::Missing);
++        // G6 registration (RV89 S-1): a profile is registered, so the report states this PP
++        // build's own status, the one the Direct entry reports for the same input:
++        // `Registered` in the qualified build, `Stale` in any other; never `Missing`.
++        // Headless itself stays refused (D1.0): its output is the ordinary run's (above).
++        let built = run_linear_static_preview_value_with_retained_direct(ordinary(), mode)
++            .unwrap()
++            .admission()
++            .unwrap()
++            .profile;
++        assert!(matches!(
++            built,
++            ProfileStatus::Registered | ProfileStatus::Stale
++        ));
++        assert_eq!(report.profile, built);
+         assert!(report.headless.is_some());
+         assert!(!report.headless.unwrap().payload_and_invocation_alias);
+         assert!(report

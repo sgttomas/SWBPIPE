@@ -1,0 +1,10 @@
+{
+  "verified_utc": "2026-10-03T15:46:10.452871+00:00",
+  "manifest_sha256": "2f7bd352f7c2a81646d9205aed3f818e84051191a95891d329be1ff9a21d2d48",
+  "payloads": 2,
+  "bulk_files": 12,
+  "bulk_bytes": 15046899,
+  "source_mutations": false,
+  "review_read": "complete",
+  "result": "all recorded payload and bulk hashes/sizes match"
+}

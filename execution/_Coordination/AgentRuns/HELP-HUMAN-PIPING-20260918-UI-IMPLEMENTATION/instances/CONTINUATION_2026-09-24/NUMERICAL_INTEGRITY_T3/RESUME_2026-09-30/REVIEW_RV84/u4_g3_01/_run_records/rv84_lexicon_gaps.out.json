@@ -1,0 +1,254 @@
+[
+ {
+  "file": "core/product_physics/src/case_state/resolve.rs",
+  "line": 1055,
+  "tok": ".to_ascii_uppercase(",
+  "fn": "core/product_physics/src/case_state/resolve.rs:632:resolve_case",
+  "M": null,
+  "listed": false,
+  "src": "support_evidence.push(json!({\"support_id\": support.id, \"node_id\": support.node, \"dof\": motion.dof.to_ascii_uppercase(),"
+ },
+ {
+  "file": "core/product_physics/src/case_state/resolve.rs",
+  "line": 1059,
+  "tok": ".to_ascii_uppercase(",
+  "fn": "core/product_physics/src/case_state/resolve.rs:632:resolve_case",
+  "M": null,
+  "listed": true,
+  "src": "contributions.push(json!({\"source_id\": format!(\"support_state:{}:{}\", support.id, motion.dof.to_ascii_uppercase()),"
+ },
+ {
+  "file": "core/product_physics/src/formation_guard.rs",
+  "line": 324,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/formation_guard.rs:297:load_row_finding",
+  "M": 1,
+  "listed": true,
+  "src": "if fired.len() > NAMED { format!(\"; and {} more\", fired.len() - NAMED) } else { String::new() }"
+ },
+ {
+  "file": "core/product_physics/src/formation_guard.rs",
+  "line": 469,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/formation_guard.rs:435:recovery_finding",
+  "M": 1,
+  "listed": true,
+  "src": "if fired.len() > NAMED { format!(\"; and {} more\", fired.len() - NAMED) } else { String::new() }"
+ },
+ {
+  "file": "core/product_physics/src/lib.rs",
+  "line": 1758,
+  "tok": "collect::<String>",
+  "fn": "core/product_physics/src/lib.rs:1680:range_scaling_evidence_line",
+  "M": 2,
+  "listed": false,
+  "src": ".collect::<String>();"
+ },
+ {
+  "file": "core/product_physics/src/lib.rs",
+  "line": 1762,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/lib.rs:1680:range_scaling_evidence_line",
+  "M": 2,
+  "listed": false,
+  "src": "String::new()"
+ },
+ {
+  "file": "core/product_physics/src/lib.rs",
+  "line": 1793,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/lib.rs:1776:append_force_scaling_refusal",
+  "M": 1,
+  "listed": false,
+  "src": "_ => String::new(),"
+ },
+ {
+  "file": "core/product_physics/src/lib.rs",
+  "line": 1802,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/lib.rs:1776:append_force_scaling_refusal",
+  "M": 1,
+  "listed": false,
+  "src": "String::new(),"
+ },
+ {
+  "file": "core/product_physics/src/lib.rs",
+  "line": 1820,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/lib.rs:1776:append_force_scaling_refusal",
+  "M": 1,
+  "listed": false,
+  "src": "String::new(),"
+ },
+ {
+  "file": "core/product_physics/src/lib.rs",
+  "line": 3751,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/lib.rs:3398:solve_load_case_observed",
+  "M": 1,
+  "listed": false,
+  "src": "_ => String::new(),"
+ },
+ {
+  "file": "core/product_physics/src/retained_product.rs",
+  "line": 513,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/retained_product.rs:503:observation_copy",
+  "M": 3,
+  "listed": false,
+  "src": "let mut value = String::new();"
+ },
+ {
+  "file": "core/product_physics/src/retained_product.rs",
+  "line": 2960,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/retained_product.rs:2953:copy",
+  "M": 228,
+  "listed": false,
+  "src": "let mut out = String::new();"
+ },
+ {
+  "file": "core/product_physics/src/retained_product.rs",
+  "line": 3096,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/retained_product.rs:3060:prepared_case_source",
+  "M": 1,
+  "listed": false,
+  "src": "let mut s=String::new();s.try_reserve_exact(text.len()).map_err(|_|CaptureError::Storage(\"prepared string\"))?;"
+ },
+ {
+  "file": "core/product_physics/src/self_weight.rs",
+  "line": 705,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/self_weight.rs:558:retained_basis",
+  "M": null,
+  "listed": false,
+  "src": "from: String::new(),"
+ },
+ {
+  "file": "core/product_physics/src/self_weight.rs",
+  "line": 706,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/self_weight.rs:558:retained_basis",
+  "M": null,
+  "listed": false,
+  "src": "to: String::new(),"
+ },
+ {
+  "file": "core/product_physics/src/self_weight.rs",
+  "line": 709,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/self_weight.rs:558:retained_basis",
+  "M": null,
+  "listed": false,
+  "src": "material: String::new(),"
+ },
+ {
+  "file": "core/product_physics/src/self_weight.rs",
+  "line": 942,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/self_weight.rs:938:old_dependencies_mass",
+  "M": null,
+  "listed": false,
+  "src": "id: String::new(),"
+ },
+ {
+  "file": "core/product_physics/src/self_weight.rs",
+  "line": 943,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/self_weight.rs:938:old_dependencies_mass",
+  "M": null,
+  "listed": false,
+  "src": "from: String::new(),"
+ },
+ {
+  "file": "core/product_physics/src/self_weight.rs",
+  "line": 944,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/self_weight.rs:938:old_dependencies_mass",
+  "M": null,
+  "listed": false,
+  "src": "to: String::new(),"
+ },
+ {
+  "file": "core/product_physics/src/self_weight.rs",
+  "line": 947,
+  "tok": "String::new()",
+  "fn": "core/product_physics/src/self_weight.rs:938:old_dependencies_mass",
+  "M": null,
+  "listed": false,
+  "src": "material: String::new(),"
+ },
+ {
+  "file": "core/product_physics/src/source_receipt.rs",
+  "line": 31,
+  "tok": "serde_json::to_string(",
+  "fn": "core/product_physics/src/source_receipt.rs:30:checked",
+  "M": 13,
+  "listed": true,
+  "src": "let text = serde_json::to_string(value).map_err(|e| bad(e.to_string()))?;"
+ },
+ {
+  "file": "core/product_physics/src/source_recovery.rs",
+  "line": 259,
+  "tok": "serde_json::to_string(",
+  "fn": "core/product_physics/src/source_recovery.rs:239:retained_identity_digest",
+  "M": null,
+  "listed": false,
+  "src": "let text=serde_json::to_string(&serde_json::json!({\"domain\":\"physics_source_retained_identity_v1\",\"payload\":self.retained.response().source_"
+ },
+ {
+  "file": "core/product_physics/src/source_recovery.rs",
+  "line": 497,
+  "tok": "serde_json::to_string(",
+  "fn": "core/product_physics/src/source_recovery.rs:489:finish",
+  "M": null,
+  "listed": false,
+  "src": "serde_json::to_string(&(self.names, self.bits))"
+ },
+ {
+  "file": "core/product_physics/src/source_recovery.rs",
+  "line": 1392,
+  "tok": "serde_json::to_string(",
+  "fn": "core/product_physics/src/source_recovery.rs:1257:close_load_state",
+  "M": 4,
+  "listed": false,
+  "src": "let evidence = serde_json::to_string(&state.evidence)"
+ },
+ {
+  "file": "core/serialization/canonical_json/src/lib.rs",
+  "line": 120,
+  "tok": "String::new()",
+  "fn": "core/serialization/canonical_json/src/lib.rs:119:canonical_json",
+  "M": null,
+  "listed": false,
+  "src": "let mut out = String::new();"
+ },
+ {
+  "file": "core/serialization/canonical_json/src/lib.rs",
+  "line": 132,
+  "tok": "serde_json::to_string(",
+  "fn": "core/serialization/canonical_json/src/lib.rs:125:write_canonical",
+  "M": null,
+  "listed": true,
+  "src": "out.push_str(&serde_json::to_string(text).expect(\"strings always encode as JSON\"))"
+ },
+ {
+  "file": "core/serialization/canonical_json/src/lib.rs",
+  "line": 155,
+  "tok": "serde_json::to_string(",
+  "fn": "core/serialization/canonical_json/src/lib.rs:125:write_canonical",
+  "M": null,
+  "listed": true,
+  "src": "out.push_str(&serde_json::to_string(key).expect(\"keys always encode as JSON\"));"
+ },
+ {
+  "file": "core/serialization/canonical_json/src/lib.rs",
+  "line": 208,
+  "tok": "String::new()",
+  "fn": "core/serialization/canonical_json/src/lib.rs:185:ecma_number_to_string",
+  "M": null,
+  "listed": false,
+  "src": "let mut rendered = String::new();"
+ }
+]

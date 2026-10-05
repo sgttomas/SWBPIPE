@@ -1,0 +1,387 @@
+[
+  {
+    "path": "AGENTS.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "actual_origin": "Git object via explicit NUM cwd",
+    "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "bytes": 14200,
+    "read_scope": "complete",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "agents/AGENT_TASK.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "actual_origin": "Git object via explicit NUM cwd",
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "bytes": 1499,
+    "read_scope": "complete",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/AGENTS.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "actual_origin": "Git object via explicit NUM cwd",
+    "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "bytes": 9016,
+    "read_scope": "complete",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I51_REPLACEMENT_PRODUCER_DESIGN.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "actual_origin": "Git object via explicit NUM cwd",
+    "sha256": "7c6078a83f76c64a5b6828bcad666adb3cf0ffb3cccc19bcaa42fbfdbe1bd616",
+    "bytes": 6259,
+    "read_scope": "complete",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/ROOT_CURRENT.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "actual_origin": "Git object via explicit NUM cwd",
+    "sha256": "65cd4c562247f22af1b9632be55a0f873c7ddfbc7957dc65cfeeb39b94f0ea79",
+    "bytes": 3726,
+    "read_scope": "complete",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV66/named_torsion_01/REVIEW.md",
+    "ref": "c0c7fa9e0f",
+    "actual_origin": "Git object via explicit NUM cwd",
+    "sha256": "acb350aa8f13b90f7bc061407999ac37955153be4cebd909dabda141909ca001",
+    "bytes": 12153,
+    "read_scope": "complete",
+    "full_commit": "c0c7fa9e0fdbcd218f6fa4cfffd710ad41f0beb5"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV66/named_torsion_01/MANIFEST.json",
+    "ref": "c0c7fa9e0f",
+    "actual_origin": "Git object via explicit NUM cwd",
+    "sha256": "e691fd5d80d662603fbbfc465fdd945ef44fced728db79e6ab91bee1ccf934f1",
+    "bytes": 2360,
+    "read_scope": "complete",
+    "full_commit": "c0c7fa9e0fdbcd218f6fa4cfffd710ad41f0beb5"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I48/named_case_decision_02/RETURN.md",
+    "ref": "0869aa6265",
+    "actual_origin": "Git object via explicit NUM cwd",
+    "sha256": "629cad06b4b5e6c9e274fabdd5d463d58d9b90cbc2533899227945a26ddb12d9",
+    "bytes": 7086,
+    "read_scope": "complete",
+    "full_commit": "0869aa6265de6ee120b8f97bc3c80904d94d6f37"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I48/named_case_decision_02/_run_records/ORIGINS.json",
+    "ref": "0869aa6265",
+    "actual_origin": "Git object via explicit NUM cwd",
+    "sha256": "98b87d2ba94f2af107aab3299a91998c1d16ee32c9405f6ed58793645551ba3a",
+    "bytes": 26172,
+    "read_scope": "complete",
+    "full_commit": "0869aa6265de6ee120b8f97bc3c80904d94d6f37"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/first_publishing_component_02/RETURN.md",
+    "ref": "8104a4fedd",
+    "actual_origin": "Git object via explicit NUM cwd",
+    "sha256": "b1918b4d7f52e8ad3a832bd7e474ca74b45d19df9aa07306a48516bd50c59a09",
+    "bytes": 14560,
+    "read_scope": "complete",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/OWNER_PHYSICS_AUTHORITY_2026-09-25.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "actual_origin": "Git object via explicit NUM cwd",
+    "sha256": "7a84fec1aed4e9c2f945c2ad9a51dedeca7cf824ababf514212645a326a758fa",
+    "bytes": 4248,
+    "read_scope": "complete",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "actual_origin": "Git object via explicit NUM cwd",
+    "sha256": "dd98701526a31248f36a5e6e03490975af682f748dd349aa52faa1bfafc912a0",
+    "bytes": 5041,
+    "read_scope": "complete",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/OWNER_DIRECTION.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "actual_origin": "Git object via explicit NUM cwd",
+    "sha256": "b26f47c5dc22677e73424dbf41ff3ca7d6a97fbaf5b99a843c4092e1aa7b0623",
+    "bytes": 3752,
+    "read_scope": "complete",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_certificate_b1/RETURN.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "sha256": "8c146c911a0f5c66b8a984cd556b4277d007ef6f0628e2d1598a84bc018dfe29",
+    "bytes": 19804,
+    "read_scope": "lines 1-312",
+    "actual_origin": "Git object via NUM",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_preview_truth_01/RETURN.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "sha256": "0f3ea0bed9b3ce93e7c7e75ee3dc6acac2f23d6f29f775058c24be7c69d9211c",
+    "bytes": 18757,
+    "read_scope": "lines 1-155",
+    "actual_origin": "Git object via NUM",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/RETURN.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "sha256": "74670d4f43e58f13e6fd03c69cbde7cd514c117d66d29691ff6d225f2f2e5d3a",
+    "bytes": 16704,
+    "read_scope": "lines 1-185",
+    "actual_origin": "Git object via NUM",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_a1/addendum_01/CORRECTION.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "sha256": "30c907589e80a60407acc139a5805d9941b5df1a5b9dd5a2f1dc845159bae80a",
+    "bytes": 19648,
+    "read_scope": "lines 1-73",
+    "actual_origin": "Git object via NUM",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_preview_truth_01/RETURN.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "sha256": "0f3ea0bed9b3ce93e7c7e75ee3dc6acac2f23d6f29f775058c24be7c69d9211c",
+    "bytes": 18757,
+    "read_scope": "[(1, 155)]",
+    "actual_origin": "Git object via NUM",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_source_geometry_b1c/RETURN.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "sha256": "b0a249dda0a1545d1b2f71c93549ae9a7cce4c7fa89201d7f9ce1dcae39415e7",
+    "bytes": 19179,
+    "read_scope": "[(1, 25), (26, 145)]",
+    "actual_origin": "Git object via NUM",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I33/f2a_source_action_bridge_01/RETURN.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "sha256": "918cbc00dc94a6135b8de4f69c2c64087d1a189028146b2ecda11f9c25d417d9",
+    "bytes": 17504,
+    "read_scope": "[(23, 42), (196, 230)]",
+    "actual_origin": "Git object via NUM",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_NUMERICS/DESIGN.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "sha256": "fb62ef4a8282e53fd5875430e8903da80f1e0821c2dfba075dce5a97e5f27a74",
+    "bytes": 224200,
+    "read_scope": "[(337, 378), (409, 516), (1010, 1049)]",
+    "actual_origin": "Git object via NUM",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_STANDING/DESIGN.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "sha256": "edc78f9c20db9848b2f4bad1250359e6ba06c2c3af053039099a147201f7b992",
+    "bytes": 149372,
+    "read_scope": "[(531, 605)]",
+    "actual_origin": "Git object via NUM",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DEFAULT_ROUTE_DESIGN/DESIGN.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "sha256": "5fdadc0d11754294d1a07eb5e14e6ffb52a300b1c22091ab17c3a30294cfd1eb",
+    "bytes": 66059,
+    "read_scope": "[(158, 182), (406, 415), (467, 518)]",
+    "actual_origin": "Git object via NUM",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "sha256": "a983bba63b1e812bb3d8ca0dfe713840f4c19a05d038f183ef958bb885ad30b9",
+    "bytes": 564756,
+    "read_scope": "[(5048, 5075), (5102, 5123), (5183, 5209), (5227, 5248), (5340, 5352)]",
+    "actual_origin": "Git object via NUM",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via explicit NUM cwd; changing CODE never read",
+    "bytes": 18923,
+    "sha256": "ca59f5acd00d77f14f6f4953116276a88440198ad66feffeb91ccdd53a4c09b9",
+    "read_scope": "types/work helpers 1-370; geometry 512-587; fixed pi constants; function inventory",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via explicit NUM cwd; changing CODE never read",
+    "bytes": 36264,
+    "sha256": "764aa537c93990c4e825a81f9b00b2786ccfd2ccaf80a9cfaa7f7f49f7581695",
+    "read_scope": "types/work 45-214; member/frame 213-341; eta 462-530; owner/run/radius 600-814; recovery function inventory",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/bridge.rs",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via explicit NUM cwd; changing CODE never read",
+    "bytes": 25082,
+    "sha256": "0cbc204925748ecb1bee480b762f7de4b425965c68ec972f5e8963e985c0a8df",
+    "read_scope": "1-155",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via explicit NUM cwd; changing CODE never read",
+    "bytes": 47303,
+    "sha256": "87a44e3d0b9ca654a4cc5c35c805722588f235e0c730cf31cc0ddb9bf61eb273",
+    "read_scope": "206-359; 438-625; 676-1020; function inventory",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via explicit NUM cwd; changing CODE never read",
+    "bytes": 48032,
+    "sha256": "66022cc78bb5779d021a35e33fafc7cc7bc2d64723a5d0fdaf3a48cb6fea795e",
+    "read_scope": "50-322; 737-800; function inventory",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via explicit NUM cwd; changing CODE never read",
+    "bytes": 207408,
+    "sha256": "473948b1beba7721c231b304e72e841120efb71762b2d6216c70f5257c9380d3",
+    "read_scope": "resolution_scale occurrence search only",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via explicit NUM cwd; changing CODE never read",
+    "bytes": 37516,
+    "sha256": "1c6b773dfd4c36680e1ec6ea9bdd4536d567b0a66b9a0e6e639d7cbd5978834e",
+    "read_scope": "binary64 conversion/type occurrence search only",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via explicit NUM cwd; changing CODE never read",
+    "bytes": 2759,
+    "sha256": "b9fadf96900fb45131a6492ba34cf6f23cfb00803fad08c58778600aebc84a24",
+    "read_scope": "module/export occurrence search only",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via explicit NUM cwd; changing CODE never read",
+    "bytes": 118117,
+    "sha256": "ef61032e4e95a647466ffad5cf30a46d2aa069d1253cb2cb9b8d2c2079cc871e",
+    "read_scope": "1-36 and export occurrence search",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via explicit NUM cwd; changing CODE never read",
+    "bytes": 25970,
+    "sha256": "1f2c80c372a776986f17211d6421ebbb24df40751fc0ffacc68c80ff17a12f2e",
+    "read_scope": "product owner/certificate symbol locations only",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via explicit NUM cwd; changing CODE never read",
+    "bytes": 119624,
+    "sha256": "08749d6e33173a83170814ea41e84d9b2c9cdde94d0989183e286e78529e7570",
+    "read_scope": "1063-1273;1435-1521;1650-1730;1740-1988;2410-2693; function/callsite inventory",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via explicit NUM cwd; changing CODE never read",
+    "bytes": 988359,
+    "sha256": "802cc1694f47c984ad01e1eb5380b6445219e0bb3694f17fbad97a50383780b5",
+    "read_scope": "selected capture-hook locations only",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I50/first_publishing_component_02/BULK_MANIFEST.json",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via NUM",
+    "bytes": 20988,
+    "sha256": "0d53218ce982045d4221736803f218c94e9a71ebad331b1baaeff58b66a893e1",
+    "read_scope": "selected pp_named_dense_completion log hash/location; other filenames inventory",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_SELECTION_DESIGNS.md",
+    "ref": "36acb1ef39fc8d831187ccf82bf68db7e15142b3",
+    "actual_origin": "Git object via NUM",
+    "bytes": 4120,
+    "sha256": "2ef5325ba68bceb98b2978dd5f6953fd9ac0c8820d34f5db47e481b2620004de",
+    "read_scope": "complete",
+    "full_commit": "36acb1ef39fc8d831187ccf82bf68db7e15142b3"
+  },
+  {
+    "path": "projects/chirality-piping/fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via NUM; request decoded and equal to both capture requests",
+    "bytes": 2747,
+    "sha256": "2aa51bee095186b95463567f190198f82a69557a569bf8a6a7b318aad37ab0b1",
+    "read_scope": "complete JSON",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_named_dense_completion.log",
+    "actual_origin": "immutable external scratch artifact pinned by I50 BULK_MANIFEST at 8104a4fedd",
+    "bytes": 222045,
+    "sha256": "d762d4dcc137e0bff9e739fb0a829fa086055ea9492f5b55f765ac5801c6dde7",
+    "read_scope": "two I50_RECORD objects, selected dictionary/source/facts/row metadata; no author oracle consumed"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/tests/fixtures/pressure_reference/SOURCE_ODWALL_EXPECTATIONS.json",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via NUM",
+    "bytes": 52182,
+    "sha256": "7e51ecb3c7eca573194ce60222f2e2e7422b817be7aacad9a2a5e79102801ab1",
+    "read_scope": "1-16"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/preview_physics.rs",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via NUM",
+    "bytes": 57331,
+    "sha256": "2b8265403dd506130eded40cadb05401423a78e0d24d1f8f028cbc6106c6aafa",
+    "read_scope": "73-85"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "ref": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "full_commit": "8104a4fedd0fd575f20b3d723cc0cdd722d73ba1",
+    "actual_origin": "Git object via NUM",
+    "bytes": 988359,
+    "sha256": "802cc1694f47c984ad01e1eb5380b6445219e0bb3694f17fbad97a50383780b5",
+    "read_scope": "1024-1038"
+  }
+]

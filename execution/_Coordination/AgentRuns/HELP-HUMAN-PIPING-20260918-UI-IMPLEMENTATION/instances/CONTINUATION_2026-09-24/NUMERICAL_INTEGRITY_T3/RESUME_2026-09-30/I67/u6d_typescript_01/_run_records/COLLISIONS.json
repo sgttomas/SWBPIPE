@@ -1,0 +1,463 @@
+{
+ "trees": {
+  "HEAD": "e5c64ef062dd6c9994b49bc95b5fc111fff6d62e",
+  "origin/main": "09106477e351c6e5bde85259c55a00cc8fc5f7f5",
+  "codex/piping-f2a-facade-20261004": "8abb5274a977d9fe0a7cfdab90b1d7689f66f5ae",
+  "844448112f": "844448112f7f427794b62048dd5d52d78b792e00"
+ },
+ "names": {
+  "PREVIEW_PHYSICS_RETAINED_CONTRACT_ID": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "PREVIEW_PHYSICS_RETAINED_PROFILE": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 0,
+    "files": [
+     "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs"
+    ]
+   }
+  },
+  "retainedPrecisionDowngrade": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "ordinaryCaseEligible": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "registerRetainedPrecision": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "retainedPrecisionRegistration": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "retainedStandingFrom": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "retainedPrecisionInvocation": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "retainedRowClasses": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "classificationSummaryFrom": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "retainedPrecisionStandingText": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "RetainedStandingToken": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "RetainedClassificationSummary": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "N_RP_UNVALIDATED": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "retained-precision-unvalidated": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "upwardBoundText": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "retainedAbsoluteNotice": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "classBindingRefusal": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "retainedRowClassLabel": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "RETAINED_PRECISION_OUTPUT_REFUSAL": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "N_RETAINED_PRECISION_OUTPUT": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "isRetainedPrecisionRoute": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  },
+  "sameSavedReceipt": {
+   "HEAD": {
+    "rc": 1,
+    "files": []
+   },
+   "origin/main": {
+    "rc": 1,
+    "files": []
+   },
+   "codex/piping-f2a-facade-20261004": {
+    "rc": 1,
+    "files": []
+   },
+   "844448112f": {
+    "rc": 1,
+    "files": []
+   }
+  }
+ },
+ "all_absent": false
+}

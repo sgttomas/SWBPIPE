@@ -1,0 +1,13 @@
+{
+  "head": "52842022cc49d0c9dd8d0760e727963d29015842",
+  "base": "52842022cc49d0c9dd8d0760e727963d29015842",
+  "changed_source": [
+    "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+    "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs"
+  ],
+  "exact_two_path_diff": true,
+  "untouched_core_files": 586,
+  "all_untouched_core_hashes_match": true,
+  "diff_check_exit": 0,
+  "prior_packets_edited": false
+}

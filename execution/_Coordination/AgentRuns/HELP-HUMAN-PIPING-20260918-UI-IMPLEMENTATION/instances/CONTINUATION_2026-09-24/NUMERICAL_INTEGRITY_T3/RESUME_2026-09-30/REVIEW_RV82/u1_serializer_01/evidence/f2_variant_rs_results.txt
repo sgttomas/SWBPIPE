@@ -1,0 +1,2 @@
+RS u1_milestone_f2variant_dense_scrutiny.json PASS invocation_bound=true eligible=false classes=99
+RS u1_milestone_f2variant_sparse_interactive.json PASS invocation_bound=true eligible=false classes=98

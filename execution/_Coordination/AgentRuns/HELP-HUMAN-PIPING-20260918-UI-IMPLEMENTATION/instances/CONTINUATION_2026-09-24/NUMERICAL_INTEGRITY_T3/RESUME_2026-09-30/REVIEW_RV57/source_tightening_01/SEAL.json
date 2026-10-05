@@ -1,0 +1,244 @@
+{
+  "task": "/root/rv57_source_residual_design",
+  "subject_revision": "401ec14c0a73099dc0859835af8c79e09da3a877",
+  "completed_utc": "2026-10-03T01:28:25.577946+00:00",
+  "files": [
+    {
+      "path": "DERIVATION.md",
+      "bytes": 8835,
+      "sha256": "c985d45e6847bad395ce4b38651381a4a5e3bd8e68d06a978d375e92b57813e6"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 1458,
+      "sha256": "eb31c2fd88bf01cd7add977cee8b6ec2b06115e862dc7d3925c1f75ee46532f5"
+    },
+    {
+      "path": "REVIEW.md",
+      "bytes": 9177,
+      "sha256": "a032105fc6c25ba86b93a9bedb997cc62cc959d3967c4c26c5025ec304fa7ac0"
+    },
+    {
+      "path": "_run_records/AUTHOR_REPLAY.json",
+      "bytes": 715,
+      "sha256": "0b9b38149c8234e270cbfd174c797fdd82804ecb08ef5ca33fe3a99244f2f0f4"
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "bytes": 3968,
+      "sha256": "d840ce21d74de83aaac04231da501b0ae10acf0b0031618700561800556b0137"
+    },
+    {
+      "path": "_run_records/CONTROL_COMMANDS.json",
+      "bytes": 2666,
+      "sha256": "f912ea4b070c90c9fe9d4602de539f0c4ae5368ee0ed8c5e98c629d6b73d2127"
+    },
+    {
+      "path": "_run_records/EXECUTION.json",
+      "bytes": 2919,
+      "sha256": "276bba6483db68d81adb6609a076ddac5540c255785fe3342214c8f2c80b5d77"
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "bytes": 14560,
+      "sha256": "aa0f488e1a70c60f63ecd0304d5700318851c5b3e5f0625592eaa8176eacf559"
+    },
+    {
+      "path": "_run_records/PACKET_CHECK.json",
+      "bytes": 2666,
+      "sha256": "3f377ed5729f95b8097e63956e413633bb2a99608a4a4f0e853a33b497b8a772"
+    },
+    {
+      "path": "_run_records/PIN_COMMANDS.json",
+      "bytes": 11157,
+      "sha256": "56c6eece2d243f12596c3867283b7083b51e4a4c4bd24c462be17d1e46508cca"
+    },
+    {
+      "path": "_run_records/READ_SCOPES.json",
+      "bytes": 1658,
+      "sha256": "511d06dc1f7b30ddc938412124e3b1f2d0bd6fe6db7ebdaf15d3e6f6851110d0"
+    },
+    {
+      "path": "_run_records/author_replay.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/author_replay.stdout",
+      "bytes": 87567,
+      "sha256": "0d0021a7cc9038e8a571cf606814cd6da5db801f393f5fdfc1af20d2bb994cb2"
+    },
+    {
+      "path": "_run_records/basis/brief.md",
+      "bytes": 2955,
+      "sha256": "71f3a4baf7578b6edb65da7e7b1ca96e204a12098cfbe189f099b0d3f54ef2d7"
+    },
+    {
+      "path": "_run_records/basis/i33_return.md",
+      "bytes": 17504,
+      "sha256": "918cbc00dc94a6135b8de4f69c2c64087d1a189028146b2ecda11f9c25d417d9"
+    },
+    {
+      "path": "_run_records/basis/i35_counts.md",
+      "bytes": 29239,
+      "sha256": "42ad49fb4d81b3e6f60beaf3a6c6ff16643183b1f2e573a957938d6d051ac22a"
+    },
+    {
+      "path": "_run_records/basis/i35_integration.md",
+      "bytes": 17005,
+      "sha256": "c89823df47facb5906a612a5f030fdf368faf60ad67ce4168f1b88ccb853c486"
+    },
+    {
+      "path": "_run_records/basis/i41_return.md",
+      "bytes": 8378,
+      "sha256": "a12592f535c32e38425d14c14897ae275844fdedc7834053c77cbbc434515e20"
+    },
+    {
+      "path": "_run_records/basis/i43_brief.md",
+      "bytes": 3050,
+      "sha256": "5b0ce62ebc7e217c6fcb8e974726ef541a6ec1a426630a8543d1b3c074172c9e"
+    },
+    {
+      "path": "_run_records/basis/i44_prepared_brief.md",
+      "bytes": 5691,
+      "sha256": "d90cf007582f2fd4e54a460ff1384fd330da79c75a5bee30c36451696c68c6f2"
+    },
+    {
+      "path": "_run_records/basis/piping_agents.md",
+      "bytes": 9016,
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "_run_records/basis/root_agents.md",
+      "bytes": 14200,
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "_run_records/basis/rv45_derivation.md",
+      "bytes": 8617,
+      "sha256": "3ab84b43f54ac26f095043c3435f8f72156503f7851524fd7a3b13a059128a01"
+    },
+    {
+      "path": "_run_records/basis/rv45_review.md",
+      "bytes": 8640,
+      "sha256": "d347d751c0cb06fc32ab0c955cd583b4e961319bf4bd04b80cda67cd45691fed"
+    },
+    {
+      "path": "_run_records/basis/rv55_return.md",
+      "bytes": 6930,
+      "sha256": "46bedfd891ae791b2995949bec063ada23108114e92d6f5418e29dfb2e6a9f9a"
+    },
+    {
+      "path": "_run_records/basis/rv56_return.md",
+      "bytes": 1089,
+      "sha256": "6713a987b627f0b6dbb6941083443996165094d5a4562f00d62e22890f86aa23"
+    },
+    {
+      "path": "_run_records/basis/source_adaptive.rs",
+      "bytes": 199104,
+      "sha256": "cbd78d3e79fe11a5ae3cdd5422d641850980b88aa0dbb7fa318d6a5e7ce8d8bb"
+    },
+    {
+      "path": "_run_records/basis/source_assemble.rs",
+      "bytes": 29281,
+      "sha256": "7f993858d4a17882c232dea728023f6c900ae4ffe4a94917c20f6ec4248f81b4"
+    },
+    {
+      "path": "_run_records/basis/source_bound.rs",
+      "bytes": 47879,
+      "sha256": "bdffbeb81c54ed99c3869928e9b4f1fd3fee2b77610e4ad2cc7c89390bcd2b78"
+    },
+    {
+      "path": "_run_records/basis/source_directed.rs",
+      "bytes": 7477,
+      "sha256": "ab7544d78557b04a034754b1b88a4b214c0dd70c054856f1f0052514d3070679"
+    },
+    {
+      "path": "_run_records/basis/source_directed_certificate.rs",
+      "bytes": 7334,
+      "sha256": "3525a99225a7d19a3e798cfdfe40921f658bb61acc2151098b28c3f19292926e"
+    },
+    {
+      "path": "_run_records/basis/source_factor.rs",
+      "bytes": 29535,
+      "sha256": "f2e034573db9c0bdd0af4ccf3cf392dde8c02da4f960ac3955a1e7ce6e20d29d"
+    },
+    {
+      "path": "_run_records/basis/source_product_certificate.rs",
+      "bytes": 18848,
+      "sha256": "6bdcc659913e6caa6687190b5f12a36d1e53e272a9880ee3c8cd12bddf300bba"
+    },
+    {
+      "path": "_run_records/basis/source_product_certificate_bridge.rs",
+      "bytes": 25082,
+      "sha256": "0cbc204925748ecb1bee480b762f7de4b425965c68ec972f5e8963e985c0a8df"
+    },
+    {
+      "path": "_run_records/basis/source_recover.rs",
+      "bytes": 17973,
+      "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388"
+    },
+    {
+      "path": "_run_records/basis/source_source.rs",
+      "bytes": 29168,
+      "sha256": "9956c08421eebb44ee2663a790cf3ac882452f5119f6470cf6c5dcc386c3f2b8"
+    },
+    {
+      "path": "_run_records/basis/source_wide_multi.rs",
+      "bytes": 44050,
+      "sha256": "510d6f640ad718de7edb3b1767c531bb1ea1984f5717a4eaecb72e98877c58fe"
+    },
+    {
+      "path": "_run_records/basis/task.md",
+      "bytes": 1499,
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "_run_records/independent_controls.py",
+      "bytes": 14803,
+      "sha256": "3f4520af1515dd3b2e211ec7febe5b6949a45881c188b5a0204cad473ad7dcd3"
+    },
+    {
+      "path": "_run_records/independent_controls_01.py",
+      "bytes": 12787,
+      "sha256": "e57233944c4dc2febb9e6452e6bc92141f7c2ad19701d206983cc21b5b7d9492"
+    },
+    {
+      "path": "_run_records/independent_controls_01.stderr",
+      "bytes": 591,
+      "sha256": "86acdca8645c2b834b4dd673a0902ba97c78b15763d736cc524b25a4afc93248"
+    },
+    {
+      "path": "_run_records/independent_controls_01.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/independent_controls_02.py",
+      "bytes": 12996,
+      "sha256": "390ea3aa82efad51a3fa206d019c82608a01a713d24cd2e7d8d5cf87c2b0d5eb"
+    },
+    {
+      "path": "_run_records/independent_controls_02.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/independent_controls_02.stdout",
+      "bytes": 2381,
+      "sha256": "cea80ab6a31c4b1b30a266db3adab12e314d33d95dbdf1829acbe039a471bec1"
+    },
+    {
+      "path": "_run_records/independent_controls_03.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/independent_controls_03.stdout",
+      "bytes": 2551,
+      "sha256": "fd8a74f91971ed2a453021b8509c5f05cf1411a35cf53342db00b72981192239"
+    }
+  ],
+  "total_files_excluding_seal": 47,
+  "note": "Owned review only; seal excludes itself. All subject evidence immutable; original and repaired independent-checker scripts/outputs retained."
+}

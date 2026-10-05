@@ -1,0 +1,9 @@
+entries 266 by def {'WideError': 15, 'Stop': 29, 'Quantity': 9, 'Reason': 12, 'Outcome': 27, 'Unresolved': 11, 'Refusal': 5, 'BlockRefusal': 11, 'NumericError': 10, 'ViewIssue': 8, 'BridgeError': 10, 'ProductError': 17, 'SourceError': 41, 'OriginError': 4, 'CaptureError': 19, 'OperationalError': 8, 'G5aError': 10, 'SectionError': 5, 'StructuralError': 7, 'PublicError': 8}
+schema-invalid 0
+entries with typed failures (no wire form):
+   wide_0 [('encoding', 'WideError.count_range')]
+   wide_1 [('encoding', 'WideError.work_accounting')]
+   source_10 [('association', 'SourceError.directional_spring')]
+   source_11 [('association', 'SourceError.directional_spring')]
+   g5a_7 [('encoding', 'G5aError.quantity_kind')]
+   section_4 [('encoding', 'SectionError.property')]

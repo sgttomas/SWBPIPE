@@ -1,0 +1,35 @@
+{
+  "actor": "ROOT /root",
+  "utc": "2026-10-03T10:36:46.280360+00:00",
+  "seal_sha256": "b43ca01c2057d0bb93d4db79293aed0fbd748574ddb94fbd49ef101ad6d5060b",
+  "payloads": [
+    {
+      "path": "AUDIT.json",
+      "bytes": 1010,
+      "sha256": "36e56e51e78eea8e6ed976eafbab0599f154a92f6937ba641a9b33d7697a6b39"
+    },
+    {
+      "path": "BULK_MANIFEST.json",
+      "bytes": 1620,
+      "sha256": "dbd31aad1daab39ccda00eb85a1f151dc6fbdb7986759c7f02724c684939afa8"
+    },
+    {
+      "path": "EXECUTION.json",
+      "bytes": 3565,
+      "sha256": "21224d19e25eaf55d3845635303699604fd89c4bdf225335a74277073a3eabbb"
+    },
+    {
+      "path": "ORIGINS.json",
+      "bytes": 7272,
+      "sha256": "6197f1294f271bd7dc64400526cce7dc0282f1b5a82c0182a4ea3890316a4d63"
+    },
+    {
+      "path": "REVIEW.md",
+      "bytes": 10270,
+      "sha256": "5173aed35f1dc84bf83418aa72ce60b4d0c2c8673532e7fbc1084fc2854a8425"
+    }
+  ],
+  "external_files_verified": 4,
+  "root_read": "Complete REVIEW.md and SEAL; earlier full proposed patch and source read",
+  "disposition": "Callsite and one-case coexistence proof verified; RV67-L1/L2 remain blocking before runtime reliance"
+}

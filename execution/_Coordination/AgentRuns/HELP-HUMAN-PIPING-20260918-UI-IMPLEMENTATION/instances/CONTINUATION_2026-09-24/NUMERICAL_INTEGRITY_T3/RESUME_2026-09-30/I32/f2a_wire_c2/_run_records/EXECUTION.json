@@ -1,0 +1,35 @@
+{
+  "task": "I32 F2A wire C2",
+  "agent": "/root/i32_f2a_wire_c1",
+  "role": "TASK Type2",
+  "parent": "/root HELP_HUMAN Agent0",
+  "mechanism": "native direct-child follow-up, no delegation",
+  "receipt_utc": "2026-10-02 20:18:59 UTC",
+  "new_analysis_cutoff_utc": "2026-10-02 20:48:59 UTC",
+  "maximum_return_utc": "2026-10-02 20:58:59 UTC",
+  "completed_utc": "2026-10-02 20:32:06 UTC",
+  "basis": {
+    "brief_commit": "84d5c5ecd4",
+    "current_disposition": "545c0795baeb9b4f025f9587d94c27cffa3ba07b",
+    "C1_correction": "0017eba992",
+    "RV43_backcheck": "16b1ba7e3f",
+    "I30_routing": "0339743803",
+    "source_main": "49034a940f3f8cd3f3da4d4cbc839943b808063d"
+  },
+  "workspace": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2",
+  "host": "shared M5 unrestricted host; write fence instructional",
+  "skills_loaded": [],
+  "workflow_selected": null,
+  "operations": "Read-only source/records, static enum/consumer text inventory, exact integer cardinality bookkeeping; wrote only this owned packet. Git reads use GIT_OPTIONAL_LOCKS=0. No compile, solver/model/probe/runtime, host tool, Git/index/API mutation, maintained edit or delegation.",
+  "maintained_diff": "Read-only diff --stat against source main over P/core,apps,schemas,fixtures,tests,validation was empty.",
+  "unproved": [
+    "Upstream no-wrap admission",
+    "Aggregate memory/cost and capacities",
+    "Source-geometric q_K-to-q_G action bridge",
+    "Final recipe closure/limits and native/atomic reader qualification"
+  ],
+  "status": "STOPPED_FOR_RV43_REVIEW",
+  "finish_num_head": "a4e21279b9462334e9dadf53b9211391576c98be",
+  "records_note": "Concurrent ROOT records advanced HEAD during this task; maintained source remains unchanged. ROOT disposition read is rebound to the actual545c0795ba snapshot."
+}

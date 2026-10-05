@@ -1,0 +1,213 @@
+{
+  "status": "revisable supplied/read basis, not acceptance",
+  "source_pin": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "inspected_NUM_HEAD": "6a964324bcdb33cccc722ce00f6d8f4be390d592",
+  "repository_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "read_scope": "Selective source/authority reads and searches; full file hashes preserve exact origin. No unselected workflow/skill activated.",
+  "entries": [
+    {
+      "category": "instruction",
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200
+    },
+    {
+      "category": "role",
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "category": "project_instruction",
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016
+    },
+    {
+      "category": "brief",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I31_F2A_CERTIFICATE_B1.md",
+      "sha256": "24c88506ca721668e0b769ac03a324b102aa8f7926ec92500441849e9d4b69f6",
+      "bytes": 2697
+    },
+    {
+      "category": "selected_design",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_a1/DESIGN_PROPOSAL.md",
+      "sha256": "926dea73178b0ecde07203fdf7fc85e5ce752b1a5f6ead7cf31a30673249b178",
+      "bytes": 33834
+    },
+    {
+      "category": "selected_correction",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_a1/addendum_01/CORRECTION.md",
+      "sha256": "30c907589e80a60407acc139a5805d9941b5df1a5b9dd5a2f1dc845159bae80a",
+      "bytes": 19648
+    },
+    {
+      "category": "planning",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_checkpoint0_01/PLAN.md",
+      "sha256": "0f94d190c317319e1040b3d34f8cc1ea2b07b882266a82e0048eea28c8b07263",
+      "bytes": 24416
+    },
+    {
+      "category": "planning",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_checkpoint0_01/SOURCE_MAP.md",
+      "sha256": "869bece8c64a7ac8cef2c2c44c3eba0dda0f38dd58005333b3499476e6dd8627",
+      "bytes": 15433
+    },
+    {
+      "category": "independent_review",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV41/f2a_checkpoint0_01/REVIEW.md",
+      "sha256": "913f2ad93e12658066106e9c6ae8ab3de3f45930f4d2edd246a22710654d5067",
+      "bytes": 17995
+    },
+    {
+      "category": "authority_selective",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+      "sha256": "6100cf7d74a4de8b9987a46af167e70c83f0694dd8dc8c7c3ff6871790a3baf6",
+      "bytes": 468753
+    },
+    {
+      "category": "authority_selective",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_NUMERICS/DESIGN.md",
+      "sha256": "fb62ef4a8282e53fd5875430e8903da80f1e0821c2dfba075dce5a97e5f27a74",
+      "bytes": 224200
+    },
+    {
+      "category": "authority_selective",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_STANDING/DESIGN.md",
+      "sha256": "edc78f9c20db9848b2f4bad1250359e6ba06c2c3af053039099a147201f7b992",
+      "bytes": 149372
+    },
+    {
+      "category": "work_policy",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/W1_RESOURCE_POLICY_V1.md",
+      "sha256": "f63c4c2d6e3071d412e04b6848495d7cd52009b5bb679d6d3d958a471fefbd30",
+      "bytes": 4226
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "bytes": 160870,
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9",
+      "bytes": 24432,
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+      "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+      "bytes": 17973,
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+      "sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188",
+      "bytes": 19741,
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs",
+      "sha256": "3a847f8dbaa74768603c4d9693b538f1f63c2d172026ed7ab400aea3b4800f67",
+      "bytes": 10875,
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "627404d6c0de08e6c681dcc876b39efc68fa04b5c155636785e2abb0f4faff0b",
+      "bytes": 92593,
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs",
+      "sha256": "b743d7ac67312253d39bd7fe772fbff3e2b320eeaca6a41dda6d256ed9af4856",
+      "bytes": 111097,
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/loads/stress_recovery/src/lib.rs",
+      "sha256": "38c66ecd2bcb96561d27217294094ded1d5683af19f6f63a00840d0ffd056a1a",
+      "bytes": 55962,
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "b6c8d32de08535825cc5b591ce25f1a3761374abe8aa591c8e5c059dd34a956f",
+      "bytes": 984833,
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/product_physics/src/preview_physics.rs",
+      "sha256": "2b8265403dd506130eded40cadb05401423a78e0d24d1f8f028cbc6106c6aafa",
+      "bytes": 57331,
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+      "sha256": "16df0df35138734f85086d50b3544e552bd65db16998862ebf16c5d59303e32b",
+      "bytes": 44573,
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "b85630992db2e3a8be9c87f395dee09b0d27c68cf80ea9765cddb57b69768fa0",
+      "bytes": 41139,
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact/source_geometry.rs",
+      "sha256": "a023170798a856506f90887df4b421c8979818ad8a8c029e6b334ac53d210143",
+      "bytes": 6914,
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_runtime.rs",
+      "sha256": "5a4f07f40ea3b08ee9e791952f26e10305973b7289bd02ceda027efaf8abbd3c",
+      "bytes": 66845,
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/product_physics/src/annulus_geometry.rs",
+      "sha256": "98a781f126af9d8e6d94de96bbe0d9c3815f83760f7deca7a391e612acf979c9",
+      "bytes": 5010,
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "maintained_source_selective",
+      "path": "projects/chirality-piping/core/reporting/result_export/src/physics_source.rs",
+      "sha256": "c4e380ee7c01eb1581930013e8fc77f8be37c68e1978dedbb78ab5d3cd656f37",
+      "bytes": 51284,
+      "matches_main_source_pin": true
+    },
+    {
+      "category": "actual_initial_instruction_origin",
+      "absolute_path": "/Users/ryan/.codex/worktrees/92ea/chirality/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200,
+      "matches_NUM_counterpart": true
+    },
+    {
+      "category": "actual_initial_instruction_origin",
+      "absolute_path": "/Users/ryan/.codex/worktrees/92ea/chirality/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499,
+      "matches_NUM_counterpart": true
+    }
+  ]
+}

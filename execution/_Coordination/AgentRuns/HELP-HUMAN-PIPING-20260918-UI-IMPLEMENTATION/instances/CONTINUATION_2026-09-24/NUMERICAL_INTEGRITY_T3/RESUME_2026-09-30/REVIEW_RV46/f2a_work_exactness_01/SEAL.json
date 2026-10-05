@@ -1,0 +1,10 @@
+{
+  "sealed_utc": "2026-10-02T21:21:26.632272+00:00",
+  "candidate": "49d7dee436f9b595fa274084fa7b2bdab397a006",
+  "source_basis": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "disposition": "CLEAR for bounded specification fan-in; no actionable finding; implementation/reliance prerequisites remain.",
+  "actionable_findings": [],
+  "inventory_sha256": "f3355ffe80790334f2ff46967f069d82b17935e5efa6fde45f06867542ebd485",
+  "source_derivation_sha256": "fd6a1c434210ea67fb92b9d92928ff6fbf68f726d4f3a0c69cc95f66b28f2937",
+  "payload_files": 14
+}

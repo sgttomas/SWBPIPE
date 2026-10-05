@@ -1,0 +1,669 @@
+{
+ "tokens": [
+  {
+   "line": "core/loads/primitive_loads/src/lib.rs:1099",
+   "call": "has_valid_fractions",
+   "receiver": "extent",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/loads/primitive_loads/src/lib.rs:1109:has_valid_fractions"
+   ],
+   "defs_reachable": [
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/product_physics/src/case_state/thermal.rs:254",
+   "call": "len",
+   "receiver": "points",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/product_physics/src/formation_guard.rs:105",
+   "call": "max",
+   "receiver": "ra",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/product_physics/src/pressure_exact.rs:109",
+   "call": "add",
+   "receiver": "addend",
+   "kind": "param: Self",
+   "same_file_defs": [
+    "core/product_physics/src/pressure_exact.rs:66:add"
+   ],
+   "defs_reachable": [
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/product_physics/src/pressure_exact.rs:81",
+   "call": "neg",
+   "receiver": "other",
+   "kind": "param: Self",
+   "same_file_defs": [
+    "core/product_physics/src/pressure_exact.rs:59:neg"
+   ],
+   "defs_reachable": [
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/product_physics/src/pressure_runtime.rs:843",
+   "call": "len",
+   "receiver": "assembled_loads",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/product_physics/src/source_receipt/composite.rs:261",
+   "call": "max",
+   "receiver": null,
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/product_physics/src/source_receipt/endpoint_maximum.rs:52",
+   "call": "max",
+   "receiver": null,
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/reporting/result_export/src/physics_source.rs:227",
+   "call": "max",
+   "receiver": null,
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/reporting/result_export/src/preview_physics_evidence.rs:751",
+   "call": "len",
+   "receiver": "hits",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/reporting/result_export/src/retained_precision.rs:1617",
+   "call": "len",
+   "receiver": "attempts",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/reporting/result_export/src/retained_precision.rs:181",
+   "call": "max",
+   "receiver": "fo",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/reporting/result_export/src/retained_precision.rs:181",
+   "call": "max",
+   "receiver": "mo",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/reporting/result_export/src/retained_precision.rs:3585",
+   "call": "max",
+   "receiver": "a",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/serialization/canonical_json/src/lib.rs:157",
+   "call": "as_str",
+   "receiver": "key",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/curved_bend/src/lib.rs:144",
+   "call": "geometry",
+   "receiver": "element",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/curved_bend/src/lib.rs:150:geometry"
+   ],
+   "defs_reachable": [
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/curved_bend/src/lib.rs:145",
+   "call": "orientation",
+   "receiver": "element",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/curved_bend/src/lib.rs:195:orientation"
+   ],
+   "defs_reachable": [
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/lib.rs:1431",
+   "call": "len",
+   "receiver": "restrained_dofs",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/lib.rs:581",
+   "call": "properties",
+   "receiver": "element",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/frame_kernel/src/lib.rs:599:properties"
+   ],
+   "defs_reachable": [
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/lib.rs:582",
+   "call": "orientation",
+   "receiver": "element",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/frame_kernel/src/lib.rs:603:orientation",
+    "core/solver/frame_kernel/src/lib.rs:674:orientation"
+   ],
+   "defs_reachable": [
+    true,
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/lib.rs:663",
+   "call": "orientation",
+   "receiver": "element",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/frame_kernel/src/lib.rs:603:orientation",
+    "core/solver/frame_kernel/src/lib.rs:674:orientation"
+   ],
+   "defs_reachable": [
+    true,
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/rigid_body.rs:727",
+   "call": "min",
+   "receiver": "a",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/rigid_body.rs:727",
+   "call": "max",
+   "receiver": "a",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/assemble.rs:637",
+   "call": "len",
+   "receiver": "tagged",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/factor.rs:227",
+   "call": "len",
+   "receiver": "neighbors",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/factor.rs:245",
+   "call": "len",
+   "receiver": "neighbors",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/verify.rs:333",
+   "call": "max",
+   "receiver": "fo",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/verify.rs:333",
+   "call": "max",
+   "receiver": "mo",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/wide.rs:289",
+   "call": "sig",
+   "receiver": "value",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/frame_kernel/src/structural/retained/wide.rs:273:sig"
+   ],
+   "defs_reachable": [
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/wide/multi.rs:353",
+   "call": "len",
+   "receiver": "b",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:154",
+   "call": "checked_lme",
+   "receiver": "out",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:104:checked_lme"
+   ],
+   "defs_reachable": [
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:357",
+   "call": "ensure_valid",
+   "receiver": "donor",
+   "kind": "param: Self",
+   "same_file_defs": [
+    "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:344:ensure_valid"
+   ],
+   "defs_reachable": [
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:433",
+   "call": "min",
+   "receiver": "k",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:716",
+   "call": "net",
+   "receiver": "b",
+   "kind": "param: Self",
+   "same_file_defs": [
+    "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:737:net"
+   ],
+   "defs_reachable": [
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/retained/wide_sum.rs:775",
+   "call": "max",
+   "receiver": "used",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/sparse.rs:149",
+   "call": "row_range",
+   "receiver": "pattern",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/frame_kernel/src/structural/sparse.rs:176:row_range",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1266:row_range"
+   ],
+   "defs_reachable": [
+    true,
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/sparse.rs:153",
+   "call": "find",
+   "receiver": "pattern",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/frame_kernel/src/structural/sparse.rs:184:find"
+   ],
+   "defs_reachable": [
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/sparse.rs:1679",
+   "call": "row_range",
+   "receiver": "self",
+   "kind": "inside [..]",
+   "same_file_defs": [
+    "core/solver/frame_kernel/src/structural/sparse.rs:176:row_range",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1266:row_range"
+   ],
+   "defs_reachable": [
+    true,
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/sparse.rs:181",
+   "call": "row_range",
+   "receiver": "self",
+   "kind": "inside [..]",
+   "same_file_defs": [
+    "core/solver/frame_kernel/src/structural/sparse.rs:176:row_range",
+    "core/solver/frame_kernel/src/structural/sparse.rs:1266:row_range"
+   ],
+   "defs_reachable": [
+    true,
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/frame_kernel/src/structural/sparse.rs:897",
+   "call": "len",
+   "receiver": "force",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/nonlinear_integration/src/structural_adapter.rs:1123",
+   "call": "node",
+   "receiver": "result",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/nonlinear_integration/src/structural_adapter.rs:1204:node"
+   ],
+   "defs_reachable": [
+    false
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/nonlinear_integration/src/structural_adapter.rs:1124",
+   "call": "node",
+   "receiver": "result",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/nonlinear_integration/src/structural_adapter.rs:1204:node"
+   ],
+   "defs_reachable": [
+    false
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/nonlinear_integration/src/structural_adapter.rs:1125",
+   "call": "element",
+   "receiver": "result",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/nonlinear_integration/src/structural_adapter.rs:1217:element"
+   ],
+   "defs_reachable": [
+    false
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/nonlinear_integration/src/structural_adapter.rs:1143",
+   "call": "node",
+   "receiver": "result",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/nonlinear_integration/src/structural_adapter.rs:1204:node"
+   ],
+   "defs_reachable": [
+    false
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/nonlinear_integration/src/structural_adapter.rs:1144",
+   "call": "node",
+   "receiver": "result",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/nonlinear_integration/src/structural_adapter.rs:1204:node"
+   ],
+   "defs_reachable": [
+    false
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/nonlinear_integration/src/structural_adapter.rs:1146",
+   "call": "element",
+   "receiver": "result",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/nonlinear_integration/src/structural_adapter.rs:1217:element"
+   ],
+   "defs_reachable": [
+    false
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/nonlinear_integration/src/structural_adapter.rs:1166",
+   "call": "element",
+   "receiver": "result",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/nonlinear_integration/src/structural_adapter.rs:1217:element"
+   ],
+   "defs_reachable": [
+    false
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/nonlinear_integration/src/structural_adapter.rs:1399",
+   "call": "len",
+   "receiver": "coordinates",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/sparse_direct/src/lib.rs:271",
+   "call": "stored",
+   "receiver": "matrix",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/sparse_direct/src/lib.rs:311:stored"
+   ],
+   "defs_reachable": [
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/sparse_direct/src/lib.rs:272",
+   "call": "set_stored",
+   "receiver": "matrix",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/sparse_direct/src/lib.rs:315:set_stored"
+   ],
+   "defs_reachable": [
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/sparse_direct/src/lib.rs:581",
+   "call": "len",
+   "receiver": "neighbors",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/sparse_direct/src/lib.rs:599",
+   "call": "len",
+   "receiver": "neighbors",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/straight_pipe/src/lib.rs:1846",
+   "call": "abs",
+   "receiver": "end_fraction",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/straight_pipe/src/lib.rs:1846",
+   "call": "abs",
+   "receiver": "start_fraction",
+   "kind": "inside [..]",
+   "same_file_defs": [],
+   "defs_reachable": [],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  },
+  {
+   "line": "core/solver/straight_pipe/src/lib.rs:441",
+   "call": "frame_element",
+   "receiver": "element",
+   "kind": "local = Self",
+   "same_file_defs": [
+    "core/solver/straight_pipe/src/lib.rs:449:frame_element"
+   ],
+   "defs_reachable": [
+    true
+   ],
+   "text_bytes_per_exec_below": 0,
+   "text_req_below": 0
+  }
+ ],
+ "cycles_closed_by_dropped_edges": []
+}

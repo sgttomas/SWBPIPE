@@ -1,0 +1,160 @@
+{
+  "actor": "ROOT",
+  "utc": "2026-10-02T17:16:56.100270+00:00",
+  "head": "9994462204231fb92073e17eb09775756bec22f3",
+  "base": "3a0251874d6ab38008173a22ef09d651a0f20d9e",
+  "runs": [
+    {
+      "id": 37034799536,
+      "name": "Piping Desktop E2E",
+      "event": "workflow_dispatch",
+      "head": "9994462204231fb92073e17eb09775756bec22f3",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "name": "Select source coverage",
+          "conclusion": "success"
+        },
+        {
+          "name": "Source remainder (4/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Source remainder (1/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Numerical cargo suite",
+          "conclusion": "success"
+        },
+        {
+          "name": "Source remainder (3/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Source remainder (2/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Accessibility barrier and selected coverage",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Desktop E2E (source mode)",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37034799865,
+      "name": "governance-harness",
+      "event": "pull_request",
+      "head": "9994462204231fb92073e17eb09775756bec22f3",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "name": "harness",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37034799888,
+      "name": "Harness Pre-merge Validation",
+      "event": "pull_request",
+      "head": "9994462204231fb92073e17eb09775756bec22f3",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "name": "Select App coverage",
+          "conclusion": "success"
+        },
+        {
+          "name": "Harness pre-merge",
+          "conclusion": "success"
+        },
+        {
+          "name": "App Runtime integration",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "App instruction bundle",
+          "conclusion": "skipped"
+        }
+      ]
+    },
+    {
+      "id": 37034799895,
+      "name": "Piping Desktop E2E",
+      "event": "pull_request",
+      "head": "9994462204231fb92073e17eb09775756bec22f3",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "name": "Select source coverage",
+          "conclusion": "success"
+        },
+        {
+          "name": "Numerical cargo suite",
+          "conclusion": "success"
+        },
+        {
+          "name": "Source remainder (1/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Source remainder (4/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Source remainder (3/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Source remainder (2/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Accessibility barrier and selected coverage",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Desktop E2E (source mode)",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37034799973,
+      "name": "pec-tests",
+      "event": "pull_request",
+      "head": "9994462204231fb92073e17eb09775756bec22f3",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "name": "Select PEC coverage",
+          "conclusion": "success"
+        },
+        {
+          "name": "pec",
+          "conclusion": "success"
+        },
+        {
+          "name": "PEC workspace tests",
+          "conclusion": "skipped"
+        }
+      ]
+    }
+  ],
+  "dispatch": 37034799536,
+  "full_selection_specs": 17,
+  "projects": [
+    "chromium-desktop",
+    "chromium-compact"
+  ],
+  "numerical_manifests": 40,
+  "successful_commands_with_verified_log_hashes": 82,
+  "manifest_lock_inputs_verified": 80,
+  "all_gate_run_bindings_verified": true,
+  "remaining": "Mac non-cargo surfaces and independent gate confirmation; immediate main/head check before merge"
+}

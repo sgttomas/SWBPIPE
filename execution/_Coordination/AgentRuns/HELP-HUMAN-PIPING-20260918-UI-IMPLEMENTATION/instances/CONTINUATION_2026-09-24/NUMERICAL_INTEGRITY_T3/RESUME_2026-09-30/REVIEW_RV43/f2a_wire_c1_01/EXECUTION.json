@@ -1,0 +1,29 @@
+{
+  "reviewer": "/root/rv43_f2a_wire_c1",
+  "parent": "/root HELP_HUMAN",
+  "role": "fresh native TASK Type 2",
+  "delegation": "delegated-harness-native direct child; no descendant",
+  "receipt_utc": "2026-10-02 20:03:17 UTC",
+  "stage0_freeze_utc": "2026-10-02 20:05:29 UTC",
+  "analysis_cutoff_utc": "2026-10-02 20:38:17 UTC",
+  "return_deadline_utc": "2026-10-02 20:48:17 UTC",
+  "completed_utc": "2026-10-02 20:11:28 UTC",
+  "source_revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "brief_revision": "090088926e",
+  "author_candidate": "885ed83a6a",
+  "workdir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "owned_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV43/f2a_wire_c1_01",
+  "enforcement": "Actual host unrestricted; assigned write boundary instructional. Explicit cwd used for every filesystem/Git command; GIT_OPTIONAL_LOCKS=0 for Git reads.",
+  "skill": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+  "workflow": null,
+  "tool_account": [
+    "Read instructions and frozen brief; used rg/ls for scoped discovery, cat/sed and git show for targeted source/evidence reads. Initial broad filename listing was truncated; no I32 content was opened before stage0.",
+    "Wrote stage0 SOURCE_DERIVATION and origins, reported frozen hash to ROOT, then read frozen885ed83a6a under ROOT authorization.",
+    "Read author prose and arithmetic, independently used Python standard library integer/JSON/archive/hash operations on original immutable records; no author script execution.",
+    "Checked author inventory and zero maintained diff from49034a940f to885ed83a6a. Inspected native source/reader excerpts and documented F1 plus dependencies.",
+    "Two guessed source-reference paths were absent (product_physics/preview_physics_evidence.rs and R/I30/SOURCE_MAP.md); actual result_export source was then read, and no I30 proof was assumed.",
+    "Wrote and sealed only this review directory; no status/git-index mutation or runtime tooling."
+  ],
+  "prohibited_actions_performed": [],
+  "review_result": "one blocking contract finding RV43-F1; source arithmetic checked, integration and qualification still open"
+}

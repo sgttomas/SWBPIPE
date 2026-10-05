@@ -1,0 +1,8 @@
+{
+  "pi_method": "Machin 16 atan(1/5) - 4 atan(1/239), 400/130 alternating terms",
+  "pi_width_log2_upper": -1865,
+  "native_input_vectors_sha256": "105619a35db12c73651d346cac1082b930202f0f13303f9bdf952d7dc7673cbc",
+  "results": {},
+  "K_only_counter_control": "1/64 exact nonzero source residual"
+}
+{"generated_vector_families_checked": 12, "result": "PASS", "all_references_enclose_independently_derived_source_or_K_truth": true, "reference_refinement": "768-bit generated endpoints validated against separate >1800-bit Machin bracket; no protected tolerance changed"}

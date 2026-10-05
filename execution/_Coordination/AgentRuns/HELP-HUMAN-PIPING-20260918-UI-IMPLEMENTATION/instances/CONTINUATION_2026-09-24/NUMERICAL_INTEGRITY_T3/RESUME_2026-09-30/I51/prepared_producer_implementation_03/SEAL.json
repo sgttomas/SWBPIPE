@@ -1,0 +1,86 @@
+{
+  "sealed_utc": "2026-10-03T11:29:13.138648+00:00",
+  "status": "bounded implementation refusal; unaccepted candidate; amendment awaiting ROOT selection",
+  "seal_count": 1,
+  "payloads": [
+    {
+      "path": "AUDIT.json",
+      "bytes": 5160,
+      "sha256": "cbb323afa85f7c94c944a4ed08ae143d436def9e2d562ff157c349ce230b8ff4"
+    },
+    {
+      "path": "BULK_MANIFEST.json",
+      "bytes": 21093,
+      "sha256": "164b3a8ce34d2d56e34519e48f317fa18b2258530fa7681b96205a32c180c46e"
+    },
+    {
+      "path": "C0_APPLIED_RETURN.md",
+      "bytes": 3233,
+      "sha256": "303c48afe302c5ae6558b689e3d5173ecdb6c05f11e8db700f33de8cbde2c8b4"
+    },
+    {
+      "path": "C0_HELPER_LAYOUT.md",
+      "bytes": 7787,
+      "sha256": "c18698e0bb160eccb8213e120b129abd290635c6f84a501d1f69fd02f2811071"
+    },
+    {
+      "path": "C0_QUALIFICATION.md",
+      "bytes": 5009,
+      "sha256": "0adcae8d19622d5c39e643ae7d248877e5e142a2b0b152b58225e8e0f2d23f54"
+    },
+    {
+      "path": "C2_AMENDMENT_PROPOSAL.md",
+      "bytes": 7015,
+      "sha256": "5aeb414754488595149f40f8d0761746788d4181395d14796a7137a51f6b15eb"
+    },
+    {
+      "path": "C2_FROZEN_DIAGNOSIS.json",
+      "bytes": 5594,
+      "sha256": "5730c66492f81a91c126e13dba4691de5b9b7c2cc47fdd2fc0661050ec2ffe6e"
+    },
+    {
+      "path": "C2_REFERENCE_DEPENDENCY.json",
+      "bytes": 392,
+      "sha256": "98305caa872c3f68738a6e42691745bac022513a4bcb56300a2e4e24432b6efc"
+    },
+    {
+      "path": "C2_SOURCE_RECOVERY.json",
+      "bytes": 3048,
+      "sha256": "23e22a6d292ae91334ea2f5b2a81526bad1cec347391e549f54ed2a1c34c28ce"
+    },
+    {
+      "path": "C4_LOCAL_ACCOUNTING.md",
+      "bytes": 6577,
+      "sha256": "a3d04ff21f35f0ae72d0f640d4ba6f7b6dad77f3f7d6cd5f4e3507cf0f70d0c1"
+    },
+    {
+      "path": "EXECUTION.json",
+      "bytes": 2115,
+      "sha256": "0b26790a6f44e99c683c20740e2ef51f2c40cebd3aed7f82842ebde507363d67"
+    },
+    {
+      "path": "ORIGINS.json",
+      "bytes": 6991,
+      "sha256": "dee4beb351efc454bbca00ea8c93cc9c9424180c3eff74554c4459f3d429ce78"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 4804,
+      "sha256": "f173796e4608ac3b185839b6cc5e94eebbae0e06fa1ffcfe704872bdd145d9a2"
+    },
+    {
+      "path": "SOURCE_CURRENT.json",
+      "bytes": 3962,
+      "sha256": "d622cb8d2875c83e68681c2c7b02e9672a567e73edd63e167ee3bf2feb0ffb91"
+    },
+    {
+      "path": "VALIDATION.json",
+      "bytes": 26702,
+      "sha256": "05a23d69ab53d017e66f5a595eef6611bf34c6643a67a01699d0476dff0f6d04"
+    }
+  ],
+  "bulk_files": 73,
+  "source_files": 11,
+  "runtime_released": true,
+  "memguard_preserved": true
+}

@@ -1,0 +1,32 @@
+{
+  "status": "complete bounded backcheck; RV47-C1 open for narrow correction; not acceptance",
+  "task": "/root/rv47_f2a_preview_truth",
+  "parent": "/root",
+  "role": "TASK",
+  "mechanism": "delegated-harness-native continuation",
+  "receipt_utc": "2026-10-02 22:15:17 UTC",
+  "new_check_cutoff_utc": "2026-10-02 22:35:17 UTC",
+  "return_deadline_utc": "2026-10-02 22:45:17 UTC",
+  "source_analysis_completed_by_utc": "2026-10-02 22:20:02 UTC",
+  "written_at_utc": "2026-10-02T22:22:08.698005+00:00",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+  "candidate": "f5ca39a1a2d4c63b0fda3fe2e3c61bbe8afde074",
+  "governing_basis": "a2458ec6c7550d495a6f874d744c7cfd00042e7b",
+  "source_pin": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV47/f2a_ordinary_coefficients_02",
+  "skill": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+  "permissions_used": "Source/authority/Git reads, exact abstract standard-library arithmetic, owned review-evidence writes. All Git reads used GIT_OPTIONAL_LOCKS=0. Actual host permissions are broader; no sandbox enforcement claim.",
+  "not_done": [
+    "maintained edits",
+    "compiler/solver/model/product/runtime/host probes",
+    "Git/index/API writes",
+    "delegation",
+    "full tracked-source copies"
+  ],
+  "parent_messages": [
+    "Receipt/cutoff acknowledgment",
+    "Early RV47-C1 evidence defect and exact discriminator/remediation"
+  ],
+  "independence": "Same RV47 reviewer continuing prior source warrant review; author packet read before own abstract checks; no author-blind or model-diversity claim.",
+  "return_path": "ROOT; narrow evidence repair/backcheck before crediting exact-K control"
+}

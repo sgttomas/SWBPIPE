@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-03T16:57:29.986597+00:00",
+  "baseline": "24af17c47011608d187811024b51807395e4e526",
+  "original_source": "7018513af3d6574be382d5c3aaee01e36cb0b28e",
+  "final_source": "fc23cff95fca3cce2bc10055b96aef5afd7c8478",
+  "source_records": "652ad0cc1fb18600225a02b830b3718b64104a87",
+  "review_records": "1fdb5f7068870471ab122743d6aa08658641c955",
+  "local_merge": "b56b9052512ef485f3634c2db430fb0ffade8c0a",
+  "author_original_seal": "66f23aa1896966f984281bd199e20e29a3df47584919b70eb196a050bd5a76d8",
+  "author_repair_seal": "11d8f97aa6eac6a7869d248882d7a9d48ce2278fe6e31a3e0f446f2fdd0a641b",
+  "review_seal": "f7ab63acde7427f1dd25ec47a46d71cfd1023ad0922657e70648dc383d96193f",
+  "maintained_core_equal_to_component": true,
+  "main_pr": null
+}

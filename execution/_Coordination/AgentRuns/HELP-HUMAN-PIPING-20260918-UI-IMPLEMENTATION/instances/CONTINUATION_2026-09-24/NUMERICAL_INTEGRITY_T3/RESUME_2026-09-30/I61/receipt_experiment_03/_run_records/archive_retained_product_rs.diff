@@ -1,0 +1,25 @@
+--- a/PP/retained_product.rs (NUM dca3b65b3d)
++++ b/PP/retained_product.rs (archive, experiment 03)
+@@ -131,7 +131,22 @@
+     pub source_correction_calls: Option<k::WorkTotal>,
+     pub work: String,
+     pub capacities: Vec<(&'static str, usize)>,
++    /// I61 experiment 03 (archive only): typed legacy RecoveryFailure (G-l).
++    #[cfg(test)]
++    pub legacy_failure: Option<LegacyCapture>,
+ }
++/// I61 experiment 03 (archive only): the actual legacy attempt outcome, typed.
++#[cfg(test)]
++#[derive(Debug, Clone)]
++pub(super) struct LegacyCapture {
++    pub case: String,
++    pub attempted: bool,
++    pub stage: &'static str,
++    pub helper_stage: &'static str,
++    pub charged: usize,
++    pub rejected: usize,
++    pub limit: usize,
++}
+ impl ProductCapture {
+     pub(super) fn invocation(
+         &mut self,

@@ -1,0 +1,34 @@
+{
+  "task": "I57",
+  "status": "sealed_proposed_not_selected",
+  "receipt_utc": "2026-10-03T19:05:51Z",
+  "sealed_utc": "2026-10-03T19:14:00Z",
+  "scope": "source/design only",
+  "files": [
+    {
+      "path": "ADDENDUM.md",
+      "sha256": "845d5258bf6ec61734242e8be958bbf544a13af3c6d6d8871d7f536f0b44ad59",
+      "bytes": 23857
+    },
+    {
+      "path": "BOOLEAN_CHECK.json",
+      "sha256": "1dcf8fdc17767239c97bbb5d54b053239bfbcec3c1f081c97824ac3d9d8ba950",
+      "bytes": 383
+    },
+    {
+      "path": "ORIGINS.json",
+      "sha256": "f1fe2c8055fb9e8201dc3ff70b086da6108147451c2ddf9471e1075e068bd03e",
+      "bytes": 9138
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "a673e7df67cc0da884c65eaa044acce3c85b8b106c2754e3277f9d5133b267dc",
+      "bytes": 1965
+    },
+    {
+      "path": "SOURCE_MANIFEST.json",
+      "sha256": "acedc0034d9d5a56b97b0051c39a8ab2a9dcff390c14f4ffbb3c8e9624625da1",
+      "bytes": 3422
+    }
+  ]
+}

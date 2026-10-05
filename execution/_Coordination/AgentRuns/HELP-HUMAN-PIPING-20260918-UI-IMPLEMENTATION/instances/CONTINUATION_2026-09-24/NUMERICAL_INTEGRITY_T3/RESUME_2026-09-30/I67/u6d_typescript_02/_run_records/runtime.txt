@@ -1,0 +1,6 @@
+base: lane WT/scratch/i67_u6d/lanes/base2 = git archive 9555b6ffc2 (apps, core, fixtures, schemas, examples, tests, package.json, package-lock.json)
+node_modules: symlink to REPO_ROOT/projects/chirality-piping/node_modules (worktree and lanes); no install
+WASM: copied from WT/f2a-readers public/ (unchanged hashes, see u6d_typescript_01/_run_records/runtime.txt); nothing built
+TMPDIR=WT/scratch/i67_u6d/tmp
+v24.18.0
+vitest/4.1.10 darwin-arm64 node-v24.18.0

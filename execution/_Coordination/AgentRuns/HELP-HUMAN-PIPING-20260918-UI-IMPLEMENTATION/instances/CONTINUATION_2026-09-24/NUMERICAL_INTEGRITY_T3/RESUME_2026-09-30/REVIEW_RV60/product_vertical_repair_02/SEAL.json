@@ -1,0 +1,150 @@
+{
+  "schema": "rv60-review-seal-v1",
+  "sealed_utc": "2026-10-03T04:20:46.023527+00:00",
+  "candidate": "28ac57891cd5786e8f84d28f54aa7f1581f69402",
+  "base": "52842022cc49d0c9dd8d0760e727963d29015842",
+  "verdict": "CLEAR bounded fan-in; RV60-F1/F2 closed; no new actionable findings",
+  "runtime_lane_released": true,
+  "payloads": [
+    {
+      "path": "RETURN.md",
+      "sha256": "616c4d43227dd9846013223cc27978d51c4648ef974b73177fee7634ecb9bfa5",
+      "bytes": 1842
+    },
+    {
+      "path": "REVIEW.md",
+      "sha256": "4f45376efc0d5b03b6b0292d4b766025f05c923a6772cd168bf49e4c021ec023",
+      "bytes": 8538
+    },
+    {
+      "path": "_run_records/ACTUAL_CORRESPONDENCE.json",
+      "sha256": "436db5d938c669b5745d5e1d7b0051ec68e332121317e80b2aea43ad66dc9ae5",
+      "bytes": 649
+    },
+    {
+      "path": "_run_records/AUTHOR_COMMAND_BINDING.json",
+      "sha256": "b3d6c68c3c461ce1a2dce691033437277ba371ffca864b606f2592aba47d8e65",
+      "bytes": 1461
+    },
+    {
+      "path": "_run_records/CANDIDATE_SOURCE.json",
+      "sha256": "07c9a8dcd8ebe32ccb9d62b54222089e23aa2d8579244f6dfc810dd2f752d77e",
+      "bytes": 575
+    },
+    {
+      "path": "_run_records/CONTROL_DISPOSITION.json",
+      "sha256": "93753cd5b5fe3ae40d894e03afb6a45347e0de7ee13624dae6aa314009ce4183",
+      "bytes": 674
+    },
+    {
+      "path": "_run_records/INITIAL_STATE.json",
+      "sha256": "2d89c0ab3db1df251e7307607d5e60cae4785edfb3c976b3890018d3043a79ee",
+      "bytes": 689
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "sha256": "7910f12fa980176474b046a7bbbeb840b911cf08ace160ffb8fe4b63cabaf2a5",
+      "bytes": 6899
+    },
+    {
+      "path": "_run_records/OVERLAY_INVENTORY.json",
+      "sha256": "7479d6ee0edfc3c3c3381ce6205d139a6e1502fa306b81e8c5a20fc0086cd237",
+      "bytes": 724
+    },
+    {
+      "path": "_run_records/RUNTIME_RELEASE.json",
+      "sha256": "fe3f2281ed506fcab7a3bc3e3effe27b9b42e6362b73e2142d55e6aafac8354a",
+      "bytes": 800
+    },
+    {
+      "path": "_run_records/SCOPE_SEAL_AUDIT.json",
+      "sha256": "14abd1a1a0446af27a8c3db36e90ab4155813206851668e474c9df13eeebe1ad",
+      "bytes": 113555
+    },
+    {
+      "path": "_run_records/SETUP.json",
+      "sha256": "713c159d5d4a9042038d59a578cdbdbe647c031c6c030a6a2de6769516af8120",
+      "bytes": 386
+    },
+    {
+      "path": "_run_records/baseline_pp.json",
+      "sha256": "f2c5bed82ff93b4a30dca7b3d012a177b94ba5fd5b865cbe58d50f013eb84a27",
+      "bytes": 1392
+    },
+    {
+      "path": "_run_records/baseline_pp.log",
+      "sha256": "f19654db7b6524403ff99321d04b278bc2df7e562d6684893b1bb26bd637342d",
+      "bytes": 150742
+    },
+    {
+      "path": "_run_records/control_pp_rebind.json",
+      "sha256": "95629db11e91f3ef3010fa3b36662f721e20e77802851a6a28269439a06722a3",
+      "bytes": 1443
+    },
+    {
+      "path": "_run_records/control_pp_rebind.log",
+      "sha256": "de0d72a788fa16d1ab39c63eff3a07cdb6329c3881cf82f152ccbaad1cb459ac",
+      "bytes": 8459
+    },
+    {
+      "path": "_run_records/exact_baseline_pp.json",
+      "sha256": "4ccb7ed01190d8d7438253a475bf387ade783a4748be89c08a19645bc5cc93bb",
+      "bytes": 72702
+    },
+    {
+      "path": "_run_records/exact_baseline_pp.log",
+      "sha256": "5949915dd00751e0312d6d07de6cc23cc856b5dae5c415e5bcf713089ad9d596",
+      "bytes": 482
+    },
+    {
+      "path": "_run_records/exact_baseline_pp_command.json",
+      "sha256": "bf7aaa7cd22f7c146ca933d74a9c49e5a50382436cc9a02f2cec1edd150de2fe",
+      "bytes": 1246
+    },
+    {
+      "path": "_run_records/repair_accounting_access.rs",
+      "sha256": "ba7eac2bbfaef28d0d0a8ac5d59ed7be34a4547f7f352bf4825f2391c9339925",
+      "bytes": 463
+    },
+    {
+      "path": "_run_records/repair_accounting_controls.rs",
+      "sha256": "8f9c5fffa52692c355a3544ee7fe9de36957377d39e094937e30aed39b89454c",
+      "bytes": 2490
+    },
+    {
+      "path": "_run_records/run.py",
+      "sha256": "d58aa916bed2986d46aad65d4d46b08cc034c5346f3b0ee7ae64475cb1adb8ea",
+      "bytes": 1722
+    },
+    {
+      "path": "_run_records/rv60_exact.py",
+      "sha256": "5128283c551e10395459f0255d380aa0588b1948b9a10206b7ac22a8d877756a",
+      "bytes": 11756
+    },
+    {
+      "path": "_run_records/rv60_g5a_access.rs",
+      "sha256": "e875e96b63f537dc9847d169b181d4d48aee5f7762c85169a708f28789c62a49",
+      "bytes": 268
+    },
+    {
+      "path": "_run_records/rv60_pp_controls.rs",
+      "sha256": "90411d43fbef03e4c6ef546b48a333a47d4556676723311a6e836aef6e789286",
+      "bytes": 3623
+    },
+    {
+      "path": "_run_records/rv60_pp_controls2.rs",
+      "sha256": "d35980420bf839d9caa973d39466df3b07f6ef5f460ea13443b682d04f02233b",
+      "bytes": 2400
+    },
+    {
+      "path": "_run_records/source.diff",
+      "sha256": "bce6eb51176e26a9cad676af20d808a14072d825f1af3eb97a92a3668bc19c37",
+      "bytes": 10521
+    },
+    {
+      "path": "SHA256SUMS",
+      "sha256": "16649ed433b895cd03ea77ea356763e1663b0c848a99de596eecb919183baa50",
+      "bytes": 2643
+    }
+  ]
+}

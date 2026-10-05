@@ -1,0 +1,31 @@
+# I65 G6 repair, RV89 G6r N-1: a scratch-only permit probe in the registered copy's PP lib.rs (never in the worktree):
+# at the admit -> permitted_dispatch branch, append one line to $I65_PERMIT_PROBE per permit granted. Then the whole
+# runner/headless suite (cargo test --locked --offline --no-fail-fast) with the variable set, twice:
+# (1) the S-1 test as in registration.g6r.diff (Direct on rf_skew_t_cant_off_122, inside D1): positive control
+# (2) the S-1 test as in registration.diff (Direct on the two-case variant, refused at D1.4)
+# The probe was then removed (lib.rs byte-identical to the worktree) and both suites re-run clean (r2_reg_*.outcomes).
+== (1) old S-1 test: permits granted in the runner workspace
+permit mode=SparseInteractive cases=1
+permit mode=DenseScrutiny cases=1
+== (1) explicit_headless_refusal: explicit_headless_refusal_preserves_output_and_completion_fields_both_modes ... ok
+== (2) new S-1 test: permits granted in the runner workspace
+(none: the probe file was never created)
+== (2) explicit_headless_refusal: explicit_headless_refusal_preserves_output_and_completion_fields_both_modes ... ok
+== the probe hunk
+@@ -2285,7 +2285,15 @@
+     // installed. A refusal is private evidence only; the once-only ordinary route
+     // below is unchanged. No permit exists until U4 G5 (decision 7).
+     let admission = match retained_entry.map(|entry| retained_memory::admit(&capture, &request, entry)) {
+-        Some(Ok((permit, report))) => return permitted_dispatch(permit, report, request, capture, solver_mode),
++        Some(Ok((permit, report))) => {
++            // I65 scratch probe (never in the worktree): record every permit grant.
++            if let Some(path) = std::env::var_os("I65_PERMIT_PROBE") {
++                use std::io::Write;
++                let _ = std::fs::OpenOptions::new().create(true).append(true).open(path)
++                    .and_then(|mut f| writeln!(f, "permit mode={solver_mode:?} cases={}", request.model.load_cases.len()));
++            }
++            return permitted_dispatch(permit, report, request, capture, solver_mode);
++        }
+         Some(Err(report)) => Some(report),
+         None => None,
+     };

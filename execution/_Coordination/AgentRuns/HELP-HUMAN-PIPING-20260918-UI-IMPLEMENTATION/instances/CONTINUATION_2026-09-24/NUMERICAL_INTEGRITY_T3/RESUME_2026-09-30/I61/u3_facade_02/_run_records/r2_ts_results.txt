@@ -1,0 +1,13 @@
+# R-2 base-reader acceptance: TypeScript desktop admission (vitest, lane archive of bee3dc07ca)
+I61_R2_TS milestone sparse_interactive plain contract=preview_physics reader=ok standing={"contract":"preview_physics","status":"needs_recompute","eligible":false,"findings":["NUMERICAL_INTEGRITY_NOT_QUALIFIED","NUMERICAL_CASE_EVIDENCE_INCOMPLETE"]} canonical_sha256=5163f26f3b71a7d6e05fecefba67b7d59ce749eda0afb11d8a956ad50eaa94cf
+I61_R2_TS milestone sparse_interactive receipt contract=preview_physics reader=ok standing={"contract":"preview_physics","status":"needs_recompute","eligible":false,"findings":["NUMERICAL_INTEGRITY_NOT_QUALIFIED","NUMERICAL_CASE_EVIDENCE_INCOMPLETE"]} canonical_sha256=b4392ea376135320d024d30cdc28d7b04c071fe27729fb59b3a1c87978dfe469
+I61_R2_TS milestone sparse_interactive negative_control=refused
+I61_R2_TS milestone dense_scrutiny plain contract=preview_physics reader=ok standing={"contract":"preview_physics","status":"needs_recompute","eligible":false,"findings":["NUMERICAL_INTEGRITY_NOT_QUALIFIED","NUMERICAL_CASE_EVIDENCE_INCOMPLETE"]} canonical_sha256=8b24ae4b30fe2a2a0abf08bd9dd2695a716885c99fe3015558b271e47487d569
+I61_R2_TS milestone dense_scrutiny receipt contract=preview_physics reader=ok standing={"contract":"preview_physics","status":"needs_recompute","eligible":false,"findings":["NUMERICAL_INTEGRITY_NOT_QUALIFIED","NUMERICAL_CASE_EVIDENCE_INCOMPLETE"]} canonical_sha256=2612a2af49e171bc2f34ab3e7b6db6f4fc8f3066d9a595d7d362aa0b22b90591
+I61_R2_TS milestone dense_scrutiny negative_control=refused
+I61_R2_TS exportable sparse_interactive plain contract=preview_physics reader=ok standing={"contract":"preview_physics","status":"integrity_checked","eligible":true,"findings":[]} canonical_sha256=3ba28813fd8ba1c3a9a92c2b7ca88834c67ca1fe84572ca4c00b8101c3a91588
+I61_R2_TS exportable sparse_interactive receipt contract=preview_physics reader=ok standing={"contract":"preview_physics","status":"integrity_checked","eligible":true,"findings":[]} canonical_sha256=06e2c2808e0a39f1c01b66f8d6af1d6448f194853451fea507bc6f90cd45778d
+I61_R2_TS exportable sparse_interactive negative_control=refused
+I61_R2_TS exportable dense_scrutiny plain contract=preview_physics reader=ok standing={"contract":"preview_physics","status":"integrity_checked","eligible":true,"findings":[]} canonical_sha256=91b898357b81746399903a9a288d4d5c64e8791a6e83eb4467246e523d1c096f
+I61_R2_TS exportable dense_scrutiny receipt contract=preview_physics reader=ok standing={"contract":"preview_physics","status":"integrity_checked","eligible":true,"findings":[]} canonical_sha256=efe7bdd764dcb39c156f44ae1a944410b5ae98e66e0d21f61db301bdd71c359b
+I61_R2_TS exportable dense_scrutiny negative_control=refused

@@ -1,0 +1,17 @@
+{
+ "types": 862,
+ "recursive_components": [
+  [
+   "NonlinearFrameSolveResult",
+   "ProductCompletion"
+  ]
+ ],
+ "where": {
+  "NonlinearFrameSolveResult": [
+   "core/solver/nonlinear_integration/src/lib.rs"
+  ],
+  "ProductCompletion": [
+   "core/solver/nonlinear_integration/src/lib.rs"
+  ]
+ }
+}

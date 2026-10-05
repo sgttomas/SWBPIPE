@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-03T16:35:00.062508+00:00",
+  "seal_sha256": "3e168ab329668e33fcf7b1a0505620b26e12424178217bf136eda94340852b42",
+  "payloads_verified": 8,
+  "bulk_files_verified": 23,
+  "bulk_bytes": 105467,
+  "read_scope": "complete 06/07/08 and complete independent REVIEW",
+  "disposition": "CLEAR; RS-F1 closed; select all three together"
+}

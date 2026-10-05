@@ -1,0 +1,146 @@
+[
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+    "revision": "49034a940f",
+    "sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188",
+    "read_extent": "targeted excerpts/search; whole hash identifies source bytes"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+    "revision": "49034a940f",
+    "sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+    "read_extent": "targeted excerpts/search; whole hash identifies source bytes"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+    "revision": "49034a940f",
+    "sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100",
+    "read_extent": "targeted excerpts/search; whole hash identifies source bytes"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+    "revision": "49034a940f",
+    "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+    "read_extent": "targeted excerpts/search; whole hash identifies source bytes"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs",
+    "revision": "49034a940f",
+    "sha256": "8aaace7bc8fb65a8a1f60e5e6e630ee54b62bd43ed7c108a2fe193b372b74af4",
+    "read_extent": "targeted excerpts/search; whole hash identifies source bytes"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+    "revision": "49034a940f",
+    "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+    "read_extent": "targeted excerpts/search; whole hash identifies source bytes"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+    "revision": "49034a940f",
+    "sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e",
+    "read_extent": "targeted excerpts/search; whole hash identifies source bytes"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "revision": "49034a940f",
+    "sha256": "b6c8d32de08535825cc5b591ce25f1a3761374abe8aa591c8e5c059dd34a956f",
+    "read_extent": "targeted excerpts/search; whole hash identifies source bytes"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+    "revision": "49034a940f",
+    "sha256": "16df0df35138734f85086d50b3544e552bd65db16998862ebf16c5d59303e32b",
+    "read_extent": "targeted excerpts/search; whole hash identifies source bytes"
+  },
+  {
+    "path": "projects/chirality-piping/core/reporting/result_export/src/preview_physics_evidence.rs",
+    "revision": "49034a940f",
+    "sha256": "49b4af41d9b114ea82436122ee103df90a1336b6510be504e912c57acbced28a",
+    "read_extent": "targeted excerpts/search; whole hash identifies source bytes"
+  },
+  {
+    "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+    "revision": "49034a940f",
+    "sha256": "a61ba398fdf86983aff610b1d184db37681dc69463d3d19547bdbcc79559319a",
+    "read_extent": "targeted excerpts/search; whole hash identifies source bytes"
+  },
+  {
+    "path": "projects/chirality-piping/core/reporting/result_export/src/physics_source.rs",
+    "revision": "49034a940f",
+    "sha256": "c4e380ee7c01eb1581930013e8fc77f8be37c68e1978dedbb78ab5d3cd656f37",
+    "read_extent": "targeted excerpts/search; whole hash identifies source bytes"
+  },
+  {
+    "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+    "revision": "49034a940f",
+    "sha256": "4874b0e25b4435eaec48b1cac998f5269efa32430be65511ab585e8b496289ba",
+    "read_extent": "targeted excerpts/search; whole hash identifies source bytes"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+    "revision": "49034a940f",
+    "sha256": "19682a56a72c433f52cc584e3b66fb78f1c9356fcb1fcc3abfdcc46cc994254a",
+    "read_extent": "targeted excerpts/search; whole hash identifies source bytes"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/INVENTORY.json",
+    "revision": "885ed83a6a",
+    "sha256": "cbe623357af4499f5f4a27db50523ba3f17c898408fd8634a80c62f7dd07ec7a",
+    "read_extent": "all prose/arithmetic/script/execution; origin catalog targeted; inventory full"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/RETURN.md",
+    "revision": "885ed83a6a",
+    "sha256": "b214f41a79579b73a064b796aeda0ec06dcdfcd9c149808b4ca8a12e0052b21f",
+    "read_extent": "all prose/arithmetic/script/execution; origin catalog targeted; inventory full"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/SOURCE_COMBINATIONS.md",
+    "revision": "885ed83a6a",
+    "sha256": "b6d849326d73517c7d415c75f103d1d229408b1b5cc5892c4f313f0c2e0e11e8",
+    "read_extent": "all prose/arithmetic/script/execution; origin catalog targeted; inventory full"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/WIRE_CONTRACT.md",
+    "revision": "885ed83a6a",
+    "sha256": "13f744e8520f8863420355ebe75725bd6ce88f0cb75a73a7ebb6d415e9d895b4",
+    "read_extent": "all prose/arithmetic/script/execution; origin catalog targeted; inventory full"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/_run_records/ARITHMETIC.json",
+    "revision": "885ed83a6a",
+    "sha256": "b3b281ad2d05612609cd8e4506b9b423428f3968d0fab699f24787f71f8a5101",
+    "read_extent": "all prose/arithmetic/script/execution; origin catalog targeted; inventory full"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/_run_records/ARITHMETIC_ORIGINS.json",
+    "revision": "885ed83a6a",
+    "sha256": "bd17fcb6f5d6c73ec493c4381c8ec82c87185c3f21bc9c30a865f6a383fca75b",
+    "read_extent": "all prose/arithmetic/script/execution; origin catalog targeted; inventory full"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/_run_records/COMMANDS.md",
+    "revision": "885ed83a6a",
+    "sha256": "0fe6486565973ca5c914ffc71995655b3e0f80d0ccd08535fbad5612af5022f4",
+    "read_extent": "all prose/arithmetic/script/execution; origin catalog targeted; inventory full"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/_run_records/EXECUTION.json",
+    "revision": "885ed83a6a",
+    "sha256": "92720c8d5805737dcb4919de9de3e89907d5fe1e96e24c65a1692a84dd14993e",
+    "read_extent": "all prose/arithmetic/script/execution; origin catalog targeted; inventory full"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/_run_records/READ_ORIGINS.json",
+    "revision": "885ed83a6a",
+    "sha256": "f689c06549b6182997952a4051683eb1fbf3f2a8eeaf268c4e912104ba31678e",
+    "read_extent": "all prose/arithmetic/script/execution; origin catalog targeted; inventory full"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/_run_records/arithmetic.py",
+    "revision": "885ed83a6a",
+    "sha256": "29fd6d5991840b8835d610c4ce23bbc13c292f9fa3f0c3006f320f515da61ac7",
+    "read_extent": "all prose/arithmetic/script/execution; origin catalog targeted; inventory full"
+  }
+]

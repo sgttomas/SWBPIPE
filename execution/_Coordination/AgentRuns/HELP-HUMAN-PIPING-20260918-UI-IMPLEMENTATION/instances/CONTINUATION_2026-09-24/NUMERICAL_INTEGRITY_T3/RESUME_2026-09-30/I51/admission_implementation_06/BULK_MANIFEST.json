@@ -1,0 +1,66 @@
+{
+  "root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation",
+  "files": [
+    {
+      "path": "candidate.patch",
+      "bytes": 40167,
+      "sha256": "2dbd59b73c7dddf449df84cfc89c0c2e8ca35ed5e3e844079f38b48cb09131d3"
+    },
+    {
+      "path": "cargo_01.json",
+      "bytes": 2768,
+      "sha256": "490fe238c7d67dfc4e0c38d50b8e6e8eaf9d8d58ff24a1b88a67deb64257db33"
+    },
+    {
+      "path": "cargo_01.log",
+      "bytes": 5334,
+      "sha256": "bbcf295bcaf052b65f1d6c4aa4921ccc729256fe938632059c1d354cd4a360df"
+    },
+    {
+      "path": "cargo_02.json",
+      "bytes": 2766,
+      "sha256": "6b58aa70405410dfee0c629f39192e1fb4504a9a1494e3711fcfe7ea06444a16"
+    },
+    {
+      "path": "cargo_02.log",
+      "bytes": 4916,
+      "sha256": "d0964a8e094dbc9aff6fe9e787075dc82b5a90716734ef6776ff535cb294791f"
+    },
+    {
+      "path": "cargo_03.json",
+      "bytes": 2759,
+      "sha256": "70cb20687cf0579bcc75613df4eddc15a0fe5aea2719bb5c2e1590b2f4bfd3a9"
+    },
+    {
+      "path": "cargo_03.log",
+      "bytes": 4111,
+      "sha256": "16884062fef15fddc6a1fbfd5173f6c5799ecb3e628e92ca15562c3456d74628"
+    },
+    {
+      "path": "cargo_04.json",
+      "bytes": 2751,
+      "sha256": "86992e4fb657ad254a71e2aeb2845ce263756aa8e05a958ae8abd31ee14effa8"
+    },
+    {
+      "path": "cargo_04.log",
+      "bytes": 13058,
+      "sha256": "9d6e9d8de1097f3d140eb5f0ba3279fd7b27072ae8338c76b9ca5820d1a6e152"
+    },
+    {
+      "path": "cargo_05.json",
+      "bytes": 2759,
+      "sha256": "6c67031eb62915a0372641b8e9078680a0ebcbd56f45c4c976ce45d64b66d142"
+    },
+    {
+      "path": "cargo_05.log",
+      "bytes": 2170238,
+      "sha256": "2d9f7d6af613860027784e9388510f93828bc47a0cce8aa7ed5435890af58110"
+    },
+    {
+      "path": "test_assumption_repair.patch",
+      "bytes": 1412,
+      "sha256": "1db51c838777d90932fa14eed6d0008fef7ad455dab534a1b62797982edc19de"
+    }
+  ],
+  "failed_source_recovery": "Apply inverse test_assumption_repair.patch to candidate new PP integration test; verified recovered SHA-256 equals FIRST_BOUNDARY and Cargo 1 source pin."
+}

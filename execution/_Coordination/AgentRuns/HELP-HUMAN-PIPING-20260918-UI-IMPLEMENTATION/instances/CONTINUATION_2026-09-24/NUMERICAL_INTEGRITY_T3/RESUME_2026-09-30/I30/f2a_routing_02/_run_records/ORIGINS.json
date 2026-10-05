@@ -1,0 +1,141 @@
+{
+  "status": "revisable source-only routing/caller derivation; no code, allowance or native qualification",
+  "execution": {
+    "task": "/root/i30_f2a_checkpoint0",
+    "role": "TASK Type 2",
+    "parent": "/root HELP_HUMAN",
+    "mechanism": "native followup_task in existing child",
+    "descendants": [],
+    "receipt_utc": "2026-10-02 19:49:03",
+    "analysis_cutoff_utc": "2026-10-02 20:24:03",
+    "return_deadline_utc": "2026-10-02 20:34:03",
+    "last_check_utc": "2026-10-02 20:05:53",
+    "owned_path": "R/I30/f2a_routing_02",
+    "fence": "shared M5 unrestricted host; restriction is instructional, not OS enforcement",
+    "runtime_or_probe": false,
+    "maintained_edit": false,
+    "git_index_api_mutation": false,
+    "skills": [],
+    "workflow": null
+  },
+  "roots": {
+    "NUM": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+    "P": "projects/chirality-piping",
+    "T3": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3",
+    "R": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30",
+    "local_dependency_cache": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f"
+  },
+  "git": {
+    "main": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+    "initial_record_head": "6a964324bcdb33cccc722ce00f6d8f4be390d592",
+    "closing_observed_head": "751ac56ce8de40f88445641aa98dd87eabb0695f",
+    "brief_commit": "2fab387d134450e0423e7b04d22760584309844f",
+    "maintained_diff_and_status": "empty"
+  },
+  "instructions": [
+    {
+      "path": "AGENTS.md",
+      "revision": "6a964324bcdb33cccc722ce00f6d8f4be390d592",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "revision": "6a964324bcdb33cccc722ce00f6d8f4be390d592",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "revision": "6a964324bcdb33cccc722ce00f6d8f4be390d592",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    }
+  ],
+  "instruction_note": "Continued under the same Root/TASK/project bodies read earlier in this child; origins/hashes retained. New brief and ROOT follow-up steering read this turn. No other full role or skill activated.",
+  "basis": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I30_F2A_ROUTING_DERIVATION_02.md",
+      "revision": "6a964324bcdb33cccc722ce00f6d8f4be390d592",
+      "sha256": "736372155fd6ca18bbfe58a93962c13a0143e18cc4983ecd321a5a2aa00de4f7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV41/f2a_checkpoint0_01/REVIEW.md",
+      "revision": "6a964324bcdb33cccc722ce00f6d8f4be390d592",
+      "sha256": "913f2ad93e12658066106e9c6ae8ab3de3f45930f4d2edd246a22710654d5067"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/W1_RESOURCE_POLICY_V1.md",
+      "revision": "6a964324bcdb33cccc722ce00f6d8f4be390d592",
+      "sha256": "f63c4c2d6e3071d412e04b6848495d7cd52009b5bb679d6d3d958a471fefbd30"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+      "revision": "6a964324bcdb33cccc722ce00f6d8f4be390d592",
+      "sha256": "6100cf7d74a4de8b9987a46af167e70c83f0694dd8dc8c7c3ff6871790a3baf6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_memory_plan_02/RETURN.md",
+      "revision": "6a964324bcdb33cccc722ce00f6d8f4be390d592",
+      "sha256": "bcb52af88340cd205e26960bffd77fe28bf10322b3fb49fa008f1f56cb15e69e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_memory_plan_02/OWNERSHIP_INTERFACES.md",
+      "revision": "6a964324bcdb33cccc722ce00f6d8f4be390d592",
+      "sha256": "65551a31e2a818de8cfe326731928faf419f21604cb668ef7d7e8ee916863b5b"
+    }
+  ],
+  "source": {
+    "revision": "49034a940f3f8cd3f3da4d4cbc839943b808063d",
+    "root": "P",
+    "selective_reads_sha256": {
+      "core/product_physics/src/lib.rs": "b6c8d32de08535825cc5b591ce25f1a3761374abe8aa591c8e5c059dd34a956f",
+      "core/product_physics/src/source_receipt.rs": "16df0df35138734f85086d50b3544e552bd65db16998862ebf16c5d59303e32b",
+      "core/solver/frame_kernel/src/structural.rs": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d",
+      "core/solver/frame_kernel/src/lib.rs": "627404d6c0de08e6c681dcc876b39efc68fa04b5c155636785e2abb0f4faff0b",
+      "core/solver/nonlinear_integration/src/structural_adapter.rs": "e8c9a8746934788322e3b9747d6acef587abd84106964fd1d5e4d6413f58f2d2",
+      "core/runner/headless/src/lib.rs": "83bf616c115ab255666297f280d95f0514f3afab31658dc093262e3c740fbc35",
+      "apps/desktop/src-tauri/src/lib.rs": "8f9281c3184a5c407bf371582d8a601b03617c7b71e68168b10a38a54ce7f6bd",
+      "apps/desktop/src-tauri/Cargo.lock": "d14a207dec43d26e3e7b00fb41f99ae8b2c5423ab1224f226145ff39074f6351",
+      "apps/desktop/src/services/previewService.ts": "5d8a7443ca67166d63c7ac6cef8836dfaf8d8b504adb19a91e87622c84662ce2",
+      "apps/desktop/src/features/workspace/workspaceSession.ts": "b1e59fa4c4a2409a4694cda56662db365fb302bb0e26296b9b50096cf62204f8",
+      "apps/desktop/src/features/workspace/solveJobAudit.ts": "df1e5ae7c5110bedf98a49dfee36bf1f98e07479e7dc96b5c4ac778ec0f6c755"
+    }
+  },
+  "dependency_source": {
+    "authority": "existing local Cargo cache, versions selected by native Cargo.lock; source read only, no package build/fetch",
+    "files": {
+      "tauri-2.11.1/src/ipc/mod.rs": "8c18c612897de97dc4e1b3c1aa62869b66d610e85093e2015b1b6abc3418364d",
+      "tauri-2.11.1/src/ipc/command.rs": "d611effb696608cf698d25c203fae99b05f862ef2321fef1d71ee75aa54e470b",
+      "tauri-macros-2.6.1/src/command/wrapper.rs": "1ff1fbc6f18e0eeed00b8d33eda8e5111b0b203f5ff77e1a0cfd5929975b21e3"
+    }
+  },
+  "unaccepted_peer_input": [
+    {
+      "path": "R/I32/f2a_wire_c1/RETURN.md",
+      "revision": "885ed83a6a",
+      "sha256": "b214f41a79579b73a064b796aeda0ec06dcdfcd9c149808b4ca8a12e0052b21f",
+      "read_scope": "RETURN in full; SOURCE_COMBINATIONS relevant interface/fallback sections; WIRE_CONTRACT terminal-trace anchors only"
+    },
+    {
+      "path": "R/I32/f2a_wire_c1/SOURCE_COMBINATIONS.md",
+      "revision": "885ed83a6a",
+      "sha256": "b6d849326d73517c7d415c75f103d1d229408b1b5cc5892c4f313f0c2e0e11e8",
+      "read_scope": "RETURN in full; SOURCE_COMBINATIONS relevant interface/fallback sections; WIRE_CONTRACT terminal-trace anchors only"
+    },
+    {
+      "path": "R/I32/f2a_wire_c1/WIRE_CONTRACT.md",
+      "revision": "885ed83a6a",
+      "sha256": "13f744e8520f8863420355ebe75725bd6ce88f0cb75a73a7ebb6d415e9d895b4",
+      "read_scope": "RETURN in full; SOURCE_COMBINATIONS relevant interface/fallback sections; WIRE_CONTRACT terminal-trace anchors only"
+    }
+  ],
+  "checks": [
+    "Read actual early return, error, source budget, source finalization, job/cancellation/poll and serializer paths.",
+    "Read-only optional-locks-disabled Git diff and maintained status empty.",
+    "Local metadata/inventory hashing only; all proposed behavioral/numeric/native tests unrun."
+  ],
+  "limits": [
+    "No complete byte/capacity/work proof.",
+    "K/reply-refusal policy and native serializer/container proof remain explicit owning dispositions/cells.",
+    "Application-owned Rust window ends at specified IpcResponse body transfer; later Tauri/WebView/TS copies excluded by name.",
+    "No schema/math adoption of I32 C1; independent RV43 pending."
+  ]
+}

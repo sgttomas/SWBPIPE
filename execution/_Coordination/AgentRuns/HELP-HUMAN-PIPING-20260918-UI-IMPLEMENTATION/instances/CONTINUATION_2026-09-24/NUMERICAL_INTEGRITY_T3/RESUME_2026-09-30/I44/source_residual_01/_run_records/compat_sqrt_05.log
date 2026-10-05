@@ -1,0 +1,15 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i44-source-residual/frame_kernel/debug/deps/open_pipe_stress_frame_kernel-df02854d48d3f9db)
+
+running 8 tests
+test structural::retained::directed::certificate::tests::certificate_failed_comparison_retains_partial_sum_and_counts ... ok
+test structural::retained::directed::certificate::tests::certificate_invalid_inputs_have_no_arithmetic_or_search_work ... ok
+test structural::retained::directed::certificate::tests::certificate_small_bound_double_rounding_discriminator ... ok
+test structural::retained::directed::certificate::tests::certificate_adjacent_step_failure_keeps_completed_side_work ... ok
+test structural::retained::directed::certificate::tests::certificate_small_bound_exact_quantum_vectors_and_existing_bits ... ok
+test structural::retained::directed::certificate::tests::certificate_sqrt_failure_custody_and_original_error_coexistence ... ok
+test structural::retained::directed::certificate::tests::certificate_sqrt_zero_negative_and_intermediate_range_prefixes ... ok
+test structural::retained::directed::certificate::tests::certificate_sqrt_exact_vectors_both_directions_and_adjacent_neighbors ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 445 filtered out; finished in 0.03s
+

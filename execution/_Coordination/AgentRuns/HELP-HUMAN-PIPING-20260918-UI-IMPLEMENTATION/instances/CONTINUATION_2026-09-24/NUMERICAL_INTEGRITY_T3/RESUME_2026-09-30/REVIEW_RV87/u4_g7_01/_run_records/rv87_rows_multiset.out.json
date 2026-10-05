@@ -1,0 +1,101 @@
+{
+ "tav": [
+  2150800830,
+  2150800830
+ ],
+ "rows": [
+  2807,
+  2814
+ ],
+ "positive_groups_differing": [],
+ "groups_with_extra_rows": [
+  {
+   "group": [
+    "reporting/result_export/src/derivative.rs",
+    "format",
+    "class_disclosure"
+   ],
+   "second_rows": [
+    [
+     51,
+     0
+    ]
+   ],
+   "first_rows": 0
+  },
+  {
+   "group": [
+    "reporting/result_export/src/derivative.rs",
+    "format",
+    "not_covered_message"
+   ],
+   "second_rows": [
+    [
+     39,
+     0
+    ]
+   ],
+   "first_rows": 0
+  },
+  {
+   "group": [
+    "reporting/result_export/src/retained_precision.rs",
+    "into_text",
+    "validate_transport_metadata"
+   ],
+   "second_rows": [
+    [
+     4341,
+     0
+    ]
+   ],
+   "first_rows": 0
+  },
+  {
+   "group": [
+    "reporting/result_export/src/semantic_contract.rs",
+    "format",
+    "verify_preview_physics_retained_table"
+   ],
+   "second_rows": [
+    [
+     126,
+     0
+    ]
+   ],
+   "first_rows": 0
+  },
+  {
+   "group": [
+    "reporting/result_export/src/semantic_contract.rs",
+    "into_text",
+    "verify_preview_physics_retained_table"
+   ],
+   "second_rows": [
+    [
+     127,
+     0
+    ],
+    [
+     134,
+     0
+    ]
+   ],
+   "first_rows": 0
+  },
+  {
+   "group": [
+    "reporting/result_export/src/semantic_contract.rs",
+    "to_string",
+    "verify_preview_physics_retained_table"
+   ],
+   "second_rows": [
+    [
+     130,
+     0
+    ]
+   ],
+   "first_rows": 0
+  }
+ ]
+}

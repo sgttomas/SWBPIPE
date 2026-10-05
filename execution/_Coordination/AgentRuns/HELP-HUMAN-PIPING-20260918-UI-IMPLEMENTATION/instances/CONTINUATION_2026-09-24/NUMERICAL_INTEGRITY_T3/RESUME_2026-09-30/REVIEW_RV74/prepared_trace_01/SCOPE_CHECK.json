@@ -1,0 +1,35 @@
+{
+  "allowed": [
+    "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+    "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+    "projects/chirality-piping/core/product_physics/src/retained_receipt.rs",
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_tests.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/origins_tests.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs"
+  ],
+  "paths": [
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+    "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+    "projects/chirality-piping/core/product_physics/src/retained_receipt.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

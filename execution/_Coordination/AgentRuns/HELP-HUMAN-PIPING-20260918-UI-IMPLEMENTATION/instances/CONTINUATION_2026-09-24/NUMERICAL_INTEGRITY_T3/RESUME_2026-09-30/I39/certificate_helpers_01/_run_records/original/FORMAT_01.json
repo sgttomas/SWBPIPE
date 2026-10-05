@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "rustfmt",
+    "--edition",
+    "2021",
+    "--check",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed/certificate.rs",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_tests.rs"
+  ],
+  "exit": 1,
+  "source_hashes": "SOURCE_03.json",
+  "cause": "Generated small-bound tuples needed standard Rust line breaks; oracle values unchanged."
+}

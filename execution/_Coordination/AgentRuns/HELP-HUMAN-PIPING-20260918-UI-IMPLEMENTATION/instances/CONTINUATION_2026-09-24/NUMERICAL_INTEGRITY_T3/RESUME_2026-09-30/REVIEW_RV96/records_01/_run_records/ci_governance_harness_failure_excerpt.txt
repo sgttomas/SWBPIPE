@@ -1,0 +1,4 @@
+harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-05T02:36:02.0862845Z =========================== short test summary info ============================
+harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-05T02:36:02.0863422Z FAILED tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants - AssertionError: assert [Finding(seve...veat=''), ...] == []
+harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-05T02:36:02.1534000Z 1 failed, 1155 passed, 48 subtests passed in 92.64s (0:01:32)
+harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-05T02:36:02.1544976Z ##[error]Process completed with exit code 1.

@@ -1,0 +1,17 @@
+{
+  "baseline": "90aae4e6e7c7a02780ca4f5f8df678d8d4d001ae",
+  "maintained_fence": [
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+    "projects/chirality-piping/core/product_physics/src/retained_memory.rs",
+    "projects/chirality-piping/core/product_physics/tests/retained_precision_admission.rs",
+    "projects/chirality-piping/core/runner/headless/src/lib.rs",
+    "projects/chirality-piping/core/runner/headless/tests/retained_precision_admission.rs"
+  ],
+  "write_roots": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/admission_implementation_06",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation"
+  ],
+  "runtime_limit": 8,
+  "unknown_lock_profiles": "Direct PP locks serde_json 1.0.149; linked headless resolves 1.0.151. I54 source coefficients remain unaccepted; census does not infer their heap law."
+}

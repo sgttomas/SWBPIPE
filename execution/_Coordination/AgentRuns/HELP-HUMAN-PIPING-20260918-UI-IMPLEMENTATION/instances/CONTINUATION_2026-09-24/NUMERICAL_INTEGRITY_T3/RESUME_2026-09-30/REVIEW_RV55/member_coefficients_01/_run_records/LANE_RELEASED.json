@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-03T00:22:26.301176+00:00",
+  "active_cargo_rustc_or_rv55_tests": [],
+  "guard_exit_code": 0,
+  "guard_stdout": " 5387     1 04-22:46:07 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n",
+  "all_three_commands_exited": true,
+  "release": "to ROOT; no further compiler planned"
+}

@@ -1,0 +1,4 @@
+keep worktree f2a-readers: not clean
+keep worktree numerics: kept
+keep worktree sweep-k1: not clean
+keep worktree sweep-skewpin: kept

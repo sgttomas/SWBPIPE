@@ -1,0 +1,50 @@
+    Checking open_pipe_stress_frame_kernel v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel)
+error[E0425]: cannot find value `total` in this scope
+    --> src/structural/retained/adaptive.rs:3421:9
+     |
+3421 |         total,
+     |         ^^^^^ not found in this scope
+
+error[E0277]: the `?` operator can only be applied to values that implement `Try`
+    --> src/structural/retained/adaptive.rs:1416:16
+     |
+1416 |             if den.is_zero()?? {
+     |                ^^^^^^^^^^^^^^^ the `?` operator cannot be applied to type `bool`
+     |
+     = help: the nightly-only, unstable trait `Try` is not implemented for `bool`
+
+error[E0277]: the `?` operator can only be applied to values that implement `Try`
+    --> src/structural/retained/adaptive.rs:1680:16
+     |
+1680 |             if den.is_zero()?? {
+     |                ^^^^^^^^^^^^^^^ the `?` operator cannot be applied to type `bool`
+     |
+     = help: the nightly-only, unstable trait `Try` is not implemented for `bool`
+
+error[E0600]: cannot apply unary operator `!` to type `Result<bool, SumRefusal>`
+    --> src/structural/retained/adaptive.rs:2278:16
+     |
+2278 |             if !allowance.is_zero() {
+     |                ^^^^^^^^^^^^^^^^^^^^ cannot apply unary operator `!`
+     |
+note: `Result<bool, SumRefusal>` does not implement `Not`
+    --> /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/result.rs:557:0
+     |
+     = note: `Result<bool, SumRefusal>` is defined in another crate
+
+error[E0502]: cannot borrow `*self` as mutable because it is also borrowed as immutable
+   --> src/structural/retained/wide_sum.rs:344:126
+    |
+343 | ...   for magnitude in [&self.positive, &self.negative] {
+    |                        --------------------------------
+    |                        ||
+    |                        |immutable borrow occurs here
+    |                        a temporary with access to the immutable borrow is created here ...
+344 | ...       if highest_bit(magnitude).is_some_and(|h| h.checked_add(shift).is_none_or(|v| v >= SUM_LIMBS * 64)) { return Err(self.inconsistent(false)); }
+    |                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^ mutable borrow occurs here
+345 | ...   }
+    |       - ... and the immutable borrow might be used here, when that temporary is dropped and runs the `Drop` code for type `std::array::IntoIter`
+
+Some errors have detailed explanations: E0277, E0425, E0502, E0600.
+For more information about an error, try `rustc --explain E0277`.
+error: could not compile `open_pipe_stress_frame_kernel` (lib) due to 5 previous errors

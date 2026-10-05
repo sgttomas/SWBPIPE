@@ -1,0 +1,38 @@
+{
+ "about": "Reviewed entries for production hunks that need one (class live, item or cfg-test-stmt), keyed by fingerprint (delta_inventory2.py). Each states its class and the evidence it is priced or allocation-free.",
+ "entries": [
+  {
+   "fingerprint": "44ce5c671ad34b3e965db0dd5983257cde8ea0db0a5fd00db5cf2e4510008333",
+   "file": "core/product_physics/src/lib.rs",
+   "at_final_basis": "lib.rs:2379",
+   "class": "cfg-test-stmt",
+   "statements": [
+    "#[cfg(test)] retained_tests_hooks::ordinary_run_entered();"
+   ],
+   "evidence": "Absent from every production build (`#[cfg(test)]`), and so from the profile, the pinned record and admission; also absent from the challenge's binary (tests/retained_memory_challenge.rs is an integration test, which links the lib without cfg(test)). Present only in the lib test binary, where the law tests and the S1 witnesses run with nothing armed. `ordinary_run_entered` (retained_tests_hooks/grant2.rs:57) clones the thread-local `TALLY` (grant2.rs:21: a const-initialized `RefCell<Option<Arc<Tally>>>`; the clone is a reference-count increment) and, only inside a test's `counted`, adds 1 to an `AtomicUsize`. With no tally it does nothing. No allocation, no text, no production type changes.",
+   "reviewed_by": "I65 (qualifier), from the final basis 7f07a2f7b4's source; for RV89's confirmation"
+  },
+  {
+   "fingerprint": "c5e1d6c96bd07c6021979792a95e0f5348a76bed99f5a18972daed8f33918145",
+   "file": "core/product_physics/src/lib.rs",
+   "at_final_basis": "lib.rs:3005",
+   "class": "cfg-test-stmt",
+   "statements": [
+    "#[cfg(test)] retained_tests_hooks::at_complete_gate(&mut observer);"
+   ],
+   "evidence": "Absent from every production build (`#[cfg(test)]`), and so from the profile, the pinned record and admission; also absent from the challenge's binary (tests/retained_memory_challenge.rs is an integration test, which links the lib without cfg(test)). Present only in the lib test binary, where the law tests and the S1 witnesses run with nothing armed. `at_complete_gate` (grant2.rs:84) does the same tally increment, then three `consume` calls on the thread-local `ARMED` (lib.rs:3189: a `Cell<Armed>`, `Armed: Copy`, so a get and a set). With nothing armed each returns false/None and nothing changes. When a fault-injection test arms them, it raises an adapter count, zeroes a diameter, or sets `trace_fault`: assignments, no allocation.",
+   "reviewed_by": "I65 (qualifier), from the final basis 7f07a2f7b4's source; for RV89's confirmation"
+  },
+  {
+   "fingerprint": "2a8be2da9031008a40c52eaea93db74089b899457f24e786a9f3f8ef4595952e",
+   "file": "core/product_physics/src/retained_product.rs",
+   "at_final_basis": "retained_product.rs:3244",
+   "class": "cfg-test-stmt",
+   "statements": [
+    "#[cfg(test)] crate::retained_tests_hooks::before_late_gate(&*self);"
+   ],
+   "evidence": "Absent from every production build (`#[cfg(test)]`), and so from the profile, the pinned record and admission; also absent from the challenge's binary (tests/retained_memory_challenge.rs is an integration test, which links the lib without cfg(test)). Present only in the lib test binary, where the law tests and the S1 witnesses run with nothing armed. `before_late_gate` (grant2.rs:78) makes one `consume` on `ARMED`. With nothing armed it does nothing. When armed (the G-B fault test) it raises one adapter count in place. No allocation.",
+   "reviewed_by": "I65 (qualifier), from the final basis 7f07a2f7b4's source; for RV89's confirmation"
+  }
+ ]
+}

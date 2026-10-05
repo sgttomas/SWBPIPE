@@ -1,0 +1,70 @@
+{
+  "agent": "/root/i29_w1_limits",
+  "role": "I29 TASK Type2",
+  "parent": "/root HELP_HUMAN Agent0",
+  "mechanism": "Existing native descendant resumed by collaboration.followup_task; no delegation",
+  "receipt_UTC": "2026-10-02 18:05:42 UTC",
+  "new_analysis_cutoff_UTC": "2026-10-02 18:55:42 UTC",
+  "hard_deadline_UTC": "2026-10-02 19:05:42 UTC",
+  "basis_brief_commit": "252e97404ba312b46fd85aef415729ba67cf652a",
+  "write_scope": "NUM:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_memory_plan_02",
+  "host": "Shared M5 Max, unrestricted; instruction-based write fence, not sandbox enforcement. No build lane used.",
+  "selected_skill": "project proposal-format, exact origin recorded",
+  "workflow": "none; run-specific checkpoint-zero design plan, not a reusable workflow",
+  "parent_steering": [
+    "Verify typed capture=None boundary; no typed reserialization or new custody API.",
+    "Include headless caller clones and post-PP publication/serialization; distinguish finite request-owned coverage from application/RSS, preserving ordinary behavior.",
+    "Prefer the smallest sufficient design: assess upfront complete caller reservation; distinguish late memory admission from semantic/export/IO failure. Do not assume a cross-crate publication rollback framework is necessary."
+  ],
+  "peer_basis": "No I30 packet or unfinished peer conclusion adopted; parent-relayed relevant source facts verified directly.",
+  "actions": [
+    "bounded source/control searches and reads",
+    "optional-locks-zero Git reads",
+    "standard-library origin hashing and artifact self-checks",
+    "writes only in owned packet"
+  ],
+  "not_performed": [
+    "Git/index/API mutation",
+    "source/instruction edit",
+    "build or test execution",
+    "probe/model/solver/comparator/runtime experiment",
+    "host tooling or resource-setting change",
+    "delegation",
+    "implementation or policy enactment"
+  ],
+  "metadata_exceptions": [
+    "Some long source displays were truncated; relied-on boundaries received bounded follow-up excerpts.",
+    "Initial sparse_pattern.rs lookup failed; actual source was located at structural/sparse.rs.",
+    "GUI caller search returned no match; no complete GUI-reach absence claim was inferred.",
+    "Origin check detected ROOT_CURRENT changed since supplied basis. Its actual active-planning delta was read; both original and later hashes are recorded. All selected maintained-source bytes still match supplied basis.",
+    "Initial artifact-presence self-check used exact substrings across Markdown line breaks; two false negatives were corrected by normalizing whitespace. No plan criterion or source evidence changed."
+  ],
+  "completed_UTC": "2026-10-02T18:43:46.166224+00:00",
+  "design_result": "M1 retains committed MechanicsEnvelope return with upfront complete qualified caller-completion reservation. No specific unprojectable late memory dependency found in inspected source; transitive/future-S-G1 proof remains P4. Pending cross-crate handoff is not recommended.",
+  "author_self_check": {
+    "two_mechanisms_only": true,
+    "recommended_M1": true,
+    "selected_work_policy_kept": true,
+    "memory_provisional": true,
+    "actual_captured_typed_split": true,
+    "preparation_prior_admission": true,
+    "count_acquisition_included": true,
+    "caller_upfront_completion": true,
+    "ordinary_preservation": true,
+    "work_charge_preservation": true,
+    "profile_features_separate": true,
+    "owner_decisions_retained": true,
+    "proof_cells_P1_through_P6": true,
+    "all_ownership_cells": true,
+    "no_proof_acceptance_claim": true,
+    "skill_fields_present": true,
+    "internal_table_link_resolves": true,
+    "one_ownership_table": true,
+    "current_origin_hashes_hold": true
+  },
+  "review_status": "Unreviewed checkpoint-zero plan; independent design derivation/ROOT disposition outstanding. No acceptance seal.",
+  "output_line_counts": {
+    "RETURN.md": 281,
+    "OWNERSHIP_INTERFACES.md": 55
+  }
+}

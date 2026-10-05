@@ -1,0 +1,78 @@
+--- a/P/tests/test_load_reference_schema.py	2026-10-04 02:31:53
++++ b/P/tests/test_load_reference_schema.py	2026-10-04 03:31:11
+@@ -606,7 +606,9 @@
+                    "openpipestress.result_semantics/0.3.0/source-blocks-1",
+                    "openpipestress.result_semantics/0.3.0/physics-source-1",
+                    "openpipestress.result_semantics/0.3.0/preview-physics-1", LR_ID,
+-                   "openpipestress.result_semantics/0.3.0/load-reference-source-1"]
++                   "openpipestress.result_semantics/0.3.0/load-reference-source-1",
++                   # T3's F2a preview successor follows T1's branches (C1:162; U6c).
++                   "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"]
+     lr = ids.index(LR_ID)
+     evidence = results["properties"]["contract_evidence"]["anyOf"]
+     assert evidence.count(LR_EVIDENCE_REF) == 1
+@@ -619,7 +621,8 @@
+     assert contracts[lr] == {"properties": {"id": {"const": LR_ID}, "sha256": {"const": LR_SHA}}}
+     assert len(run["AnalysisRun"]["oneOf"]) == len(ids)
+     assert run["AnalysisRun"]["oneOf"][lr]["not"] == {"anyOf": [{"required": ["source_block_recovery"]},
+-                                                               {"required": ["contract_evidence"]}]}
++                                                               {"required": ["contract_evidence"]},
++                                                               {"required": ["retained_precision"]}]}
+     package = schema("stress_neutral_export.v0.3.schema.json")
+     package_ids = [branch["properties"]["semantic_contract"]["properties"]["id"]["const"] for branch in package["oneOf"]]
+     assert package_ids == ids
+--- a/P/tests/test_load_reference_source_schema.py	2026-10-04 02:31:53
++++ b/P/tests/test_load_reference_source_schema.py	2026-10-04 03:31:11
+@@ -62,7 +62,11 @@
+ PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
+ # Carrier order: every branch main carries (T0R's preview-physics-1 included),
+ # then T1's appended identities. Positions are derived from this pinned order.
+-CARRIER_ORDER = [PRECISION_ID, PHYSICS_ID, SOURCE_BLOCKS_ID, PS_ID, PREVIEW_ID, LR_ID, LRS_ID]
++# T3's F2a preview successor follows T1's branches (C1:162; reader fan-in and U6c).
++SUCCESSOR_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
++SUCCESSOR_SHA = "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8"
++SUCCESSOR_PROFILE = "product_preview_retained_w1a_v2"
++CARRIER_ORDER = [PRECISION_ID, PHYSICS_ID, SOURCE_BLOCKS_ID, PS_ID, PREVIEW_ID, LR_ID, LRS_ID, SUCCESSOR_ID]
+ BRANCH_OF = {contract_id: index for index, contract_id in enumerate(CARRIER_ORDER)}
+ NEW_BRANCH = BRANCH_OF[LRS_ID]
+ PS_BRANCH = BRANCH_OF[PS_ID]
+@@ -298,12 +302,13 @@
+     assert props["source_block_recovery"]["oneOf"][-1] == LOCAL_RECOVERY
+     for key in ("producer", "semantic_contract_ref"):
+         field = "semantic_contract_id" if key == "producer" else "ref_id"
+-        assert props[key]["properties"][field]["enum"][-1] == LRS_ID
+-    assert props["formulation_basis"]["properties"]["profile_id"]["enum"][-1] == LRS_PROFILE
++        assert props[key]["properties"][field]["enum"][-2:] == [LRS_ID, SUCCESSOR_ID]
++    assert props["formulation_basis"]["properties"]["profile_id"]["enum"][-2:] == [LRS_PROFILE, SUCCESSOR_PROFILE]
+ 
+     run = schema(RUN)["$defs"]
+-    assert run["SemanticContract"]["oneOf"][-1] == {"properties": {"id": {"const": LRS_ID}, "sha256": {"const": LRS_SHA}}}
+-    assert run["SemanticContract"]["properties"]["sha256"]["enum"][-1] == LRS_SHA
++    assert run["SemanticContract"]["oneOf"][-2:] == [{"properties": {"id": {"const": LRS_ID}, "sha256": {"const": LRS_SHA}}},
++                                                     {"properties": {"id": {"const": SUCCESSOR_ID}, "sha256": {"const": SUCCESSOR_SHA}}}]
++    assert run["SemanticContract"]["properties"]["sha256"]["enum"][-2:] == [LRS_SHA, SUCCESSOR_SHA]
+     branch = run["AnalysisRun"]["oneOf"][NEW_BRANCH]
+     assert len(run["AnalysisRun"]["oneOf"]) == len(CARRIER_ORDER)
+     assert branch["required"] == ["source_block_recovery", "contract_evidence"]
+--- a/P/tests/test_source_block_schema_contract.py	2026-10-04 02:31:53
++++ b/P/tests/test_source_block_schema_contract.py	2026-10-04 03:31:11
+@@ -374,7 +374,7 @@
+     # Validate the exact branch wiring; canonical packet positives remain the
+     # separately supplied actual headless producer artifacts, never constructed here.
+     branches = results["$defs"]["ResultEnvelope"]["oneOf"]
+-    assert len(branches) == 7
++    assert len(branches) == 8
+     for branch in branches:
+         # Keyed by the branch's pinned producer identity, not by position: T0R
+         # appended preview-physics-1 and T1 appended load-reference-1 and
+@@ -383,7 +383,9 @@
+         identity = branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
+         target = {"openpipestress.result_semantics/0.3.0/physics-source-1": "PhysicsSourceResultSet",
+                   "openpipestress.result_semantics/0.3.0/load-reference-source-1": "PhysicsSourceResultSet",
+-                  "openpipestress.result_semantics/0.3.0/preview-physics-1": "PreviewPhysicsResultSet"}.get(identity, "ResultSet")
++                  "openpipestress.result_semantics/0.3.0/preview-physics-1": "PreviewPhysicsResultSet",
++                  # T3's F2a successor inherits the preview result sets (reader fan-in).
++                  "openpipestress.result_semantics/0.3.0/preview-physics-retained-1": "PreviewPhysicsResultSet"}.get(identity, "ResultSet")
+         assert branch["properties"]["result_sets"]["items"] == {"$ref": f"#/$defs/{target}"}
+     assert results["$defs"]["ResultSet"]["properties"]["values"]["items"] == {"$ref": "#/$defs/QuantityResult"}
+     assert results["$defs"]["QuantityResult"]["properties"]["metadata"] == {"$ref": "#/$defs/ResultMetadata"}

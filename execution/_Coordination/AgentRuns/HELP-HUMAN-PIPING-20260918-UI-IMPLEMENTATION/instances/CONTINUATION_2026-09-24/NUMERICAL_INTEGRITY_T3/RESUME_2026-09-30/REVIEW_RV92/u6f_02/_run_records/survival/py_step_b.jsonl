@@ -1,0 +1,14 @@
+{"mode": "sparse_interactive", "carrier": "rust_derivative", "receipt_byte_equal": true, "revalidated": true, "error": null, "standing": "needs_recompute", "standing_no_invocation": "needs_recompute"}
+{"mode": "sparse_interactive", "carrier": "python_analysis_run", "receipt_byte_equal": true, "revalidated": true, "error": null, "standing": "needs_recompute", "standing_no_invocation": "needs_recompute"}
+{"mode": "sparse_interactive", "carrier": "python_analysis_run_validate", "result": "ok"}
+{"mode": "sparse_interactive", "carrier": "ts_analysis_run", "receipt_byte_equal": true, "revalidated": true, "error": null, "standing": "needs_recompute", "standing_no_invocation": "needs_recompute"}
+{"mode": "dense_scrutiny", "carrier": "rust_derivative", "receipt_byte_equal": true, "revalidated": true, "error": null, "standing": "needs_recompute", "standing_no_invocation": "needs_recompute"}
+{"mode": "dense_scrutiny", "carrier": "python_analysis_run", "receipt_byte_equal": true, "revalidated": true, "error": null, "standing": "needs_recompute", "standing_no_invocation": "needs_recompute"}
+{"mode": "dense_scrutiny", "carrier": "python_analysis_run_validate", "result": "ok"}
+{"mode": "dense_scrutiny", "carrier": "ts_analysis_run", "receipt_byte_equal": true, "revalidated": true, "error": null, "standing": "needs_recompute", "standing_no_invocation": "needs_recompute"}
+{"mode": "sparse_interactive", "carrier": "rust_derivative_schema", "result": "valid"}
+{"mode": "sparse_interactive", "carrier": "python_analysis_run_schema", "result": "valid"}
+{"mode": "sparse_interactive", "carrier": "ts_analysis_run_schema", "result": "valid"}
+{"mode": "dense_scrutiny", "carrier": "rust_derivative_schema", "result": "valid"}
+{"mode": "dense_scrutiny", "carrier": "python_analysis_run_schema", "result": "valid"}
+{"mode": "dense_scrutiny", "carrier": "ts_analysis_run_schema", "result": "valid"}

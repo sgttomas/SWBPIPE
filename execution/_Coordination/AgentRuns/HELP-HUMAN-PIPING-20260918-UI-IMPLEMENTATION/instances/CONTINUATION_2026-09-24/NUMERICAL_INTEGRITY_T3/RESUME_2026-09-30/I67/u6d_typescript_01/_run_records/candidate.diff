@@ -1,0 +1,1803 @@
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx b/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx
+index 0c39b7e21d..88496145d3 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx
+@@ -1,8 +1,9 @@
+-import { numericalResultStanding } from "./numericalResultQuality";
++import { numericalResultStanding, sourceContract } from "./numericalResultQuality";
++import { validateRetainedPrecision } from "./retainedPrecision";
+ import { useState } from "react";
+ import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, ModelHashEvidence, ProjectEnvelopeHashEvidence, PreviewModel } from "../../types";
+ import { canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
+-import { verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
++import { verifyAnalysisRunRecord, ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH } from "../../services/analysisRunCompatibility";
+ import type { BundledMechanicsReference } from "../../services/previewService";
+ import { bindSourceResultDimensions } from "../../services/previewService";
+ import { ResultsPanel } from "./ResultsPanel";
+@@ -264,6 +265,11 @@ async function verifyLegacyDesktopAnalysis(record: AnalysisRunEnvelope, received
+   }
+ }
+ 
++async function sameSavedReceipt(copy: unknown, receipt: unknown): Promise<boolean> {
++  // An absent copy is refused by the checked profile, so it never matches.
++  try { return await canonicalSha256HexCheckedV1(copy) === await canonicalSha256HexCheckedV1(receipt); } catch { return false; }
++}
++
+ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): Promise<HistoricalRunContext | null> {
+   const rawMechanicsResult: unknown = opened.mechanics_result;
+   const rawAnalysisRun: unknown = opened.analysis_run;
+@@ -278,6 +284,13 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
+   if (hasReceivedMechanics && !mechanicsResult) findings.push("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
+   const record = analysisRun && typeof analysisRun === "object" && analysisRun.analysis_run && typeof analysisRun.analysis_run === "object" ? analysisRun.analysis_run : null;
+   if (analysisRun && (!record || !Array.isArray(record.hashes) || !Array.isArray(record.result_refs) || typeof record.run_id !== "string" || typeof record.model_state_ref?.ref !== "string")) findings.push("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
++  // U6d reopen: a saved successor is revalidated by the accepted reader without an
++  // invocation (its first code is a finding), and the AnalysisRun's copy must equal
++  // its receipt. Nothing registers here, so standing stays needs_recompute.
++  if (mechanicsResult && sourceContract(mechanicsResult) === "retained_preview_physics") {
++    try { await validateRetainedPrecision(mechanicsResult); } catch (error) { findings.push((error as Error).message); }
++    if (record && !(await sameSavedReceipt(record.retained_precision, mechanicsResult.retained_precision))) findings.push(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
++  }
+   if (evidenceResult && evidenceResult.model_ref !== opened.model.project.id) findings.push("HISTORICAL_MODEL_REF_MISMATCH");
+   const expectedStateRef = `state:${opened.model.project.id}:preview`;
+   if (record && record.model_state_ref?.ref !== expectedStateRef) findings.push("HISTORICAL_MODEL_STATE_REF_MISMATCH");
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx b/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx
+index 1ca2ea27db..2579db9f8b 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx
+@@ -2,6 +2,7 @@ import { PhysicsSourceEvidencePanel } from "./PhysicsSourceEvidencePanel";
+ import { sourceContract } from "./numericalResultQuality";
+ import { KnownSemanticNotices } from "./KnownSemanticNotices";
+ import { resultRowLabel } from "./knownSemanticLimitations";
++import { retainedPrecisionStandingText } from "./retainedPrecisionStanding";
+ import type { ReactNode } from "react";
+ import { QuantityReadout } from "../display-units";
+ import { semanticFamily, semanticDimension, semanticCategory } from "./resultSemantics";
+@@ -69,9 +70,9 @@ export function ResultsPanel({
+     [filteredResults, pageIndex, pageSize]
+   );
+   const groups = result ? groupResults(page.items, result) : [];
+-  // Dispatch once per render; the row labels apply to preview-physics-1 only.
++  // Dispatch once per render; the row labels apply to preview-physics-1 and its successor only.
+   const labelSource = useMemo(() => {
+-    try { return result && sourceContract(result) === "preview_physics" ? result : null; } catch { return null; }
++    try { return result && ["preview_physics", "retained_preview_physics"].includes(sourceContract(result)) ? result : null; } catch { return null; }
+   }, [result]);
+   const interpretation = result
+     ? buildResultInterpretation({ result, resultId: selectedResultId, knowledge, analysisRun })
+@@ -103,7 +104,7 @@ export function ResultsPanel({
+       <div className="panel-title">Results</div>
+       {result ? (
+         <>
+-          <p data-testid="numerical-result-standing">{sourceContract(result) === "legacy" ? "Historical precision: absolute rounding; integrity not assessed. Needs recompute." : sourceContract(result) === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : ["source_blocks", "physics_source"].includes(sourceContract(result)) ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}. Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`}</p>
++          <p data-testid="numerical-result-standing">{sourceContract(result) === "legacy" ? "Historical precision: absolute rounding; integrity not assessed. Needs recompute." : sourceContract(result) === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : sourceContract(result) === "retained_preview_physics" ? retainedPrecisionStandingText(result) : ["source_blocks", "physics_source"].includes(sourceContract(result)) ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}. Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`}</p>
+           <KnownSemanticNotices result={result} testIdPrefix="results" />
+           <PhysicsSourceEvidencePanel result={result} />
+           <ResultControls
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/knownSemanticLimitations.ts b/projects/chirality-piping/apps/desktop/src/features/results/knownSemanticLimitations.ts
+index 2cd429ac32..541f265331 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/knownSemanticLimitations.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/results/knownSemanticLimitations.ts
+@@ -1,12 +1,16 @@
+ /** Frozen T0R notices, gate reasons and standing reasons (S1_INTERFACE §10).
+  * Text only. N-A: these strings are UI labels and reasons; they are never
+  * written into an exported results or stress-neutral document or its manifest. */
+-import { sourceContract, currentSemanticContract, PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID } from "./numericalResultQuality";
++import { sourceContract, currentSemanticContract, PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID } from "./numericalResultQuality";
+ import { SOURCE_BLOCKS_CONTRACT_ID, sourceBlocksOrdinaryCaseLegacy } from "./sourceBlockRecovery";
++import { classificationSummary, retainedRowClasses } from "./retainedPrecisionStanding";
++import { decodeBinary64, type AccuracyClass } from "./retainedPrecision";
+ import type { MechanicsResult } from "../../types";
+ 
+ /** Static fresh-identity set: the same constant in each language, no route
+- * predicate. T1 added its load/reference-state identities on activation. */
++ * predicate. T1 added its load/reference-state identities on activation.
++ * U6d (D-U6-6; D2 4.7 S-1) adds the F2a preview successor: membership is not
++ * standing, which comes only from the accepted reader's registered validation. */
+ export const FRESH_SEMANTIC_CONTRACT_IDS: readonly string[] = Object.freeze([
+   PREVIEW_PHYSICS_CONTRACT_ID,
+   SOURCE_BLOCKS_CONTRACT_ID,
+@@ -14,6 +18,7 @@ export const FRESH_SEMANTIC_CONTRACT_IDS: readonly string[] = Object.freeze([
+   PHYSICS_SOURCE_CONTRACT_ID,
+   LOAD_REFERENCE_CONTRACT_ID,
+   LOAD_REFERENCE_SOURCE_CONTRACT_ID,
++  PREVIEW_PHYSICS_RETAINED_CONTRACT_ID,
+ ]);
+ 
+ export const N_HEADLINE = "maximum elastic normal stress; nominal; no component intensification; not a code stress";
+@@ -41,6 +46,42 @@ export const REPORT_PACKAGE_PRECISION_1_HISTORICAL = "REPORT-PACKAGE-PRECISION-1
+ export const PREVIEW_INTENSIFIED_KIND = "component_equal_factor_intensified_bending_stress_v1";
+ export const PREVIEW_MAXIMUM_KIND = "pipe_elastic_normal_stress_maximum_v2";
+ 
++/** D2 4.9.9 (revision 4, N-5): binding refusals for classified successor rows
++ * before S-I. They never demote the envelope's standing. */
++export const RULE_QUANTITY_BELOW_VERIFIED_FLOOR = "RULE_QUANTITY_BELOW_VERIFIED_FLOOR";
++export const RULE_QUANTITY_NOT_COVERED = "RULE_QUANTITY_NOT_COVERED";
++/** D2 4.9.9 notice texts (before S-I). `{b}` is the receipt's published absolute
++ * bound and `{unit}` the SI unit the reader classified the quantity in. */
++export const N_RP_ABSOLUTE = "Uncovered quantity: verified only to an absolute bound of ±{b} {unit}, below the relative accuracy floor for this body. It is shown for inspection; rule checks cannot bind to it.";
++export const N_RP_NOT_COVERED = "Uncovered quantity: no verified accuracy for this quantity kind. It is shown for inspection; rule checks cannot bind to it.";
++export const N_RP_UNVALIDATED = "Retained-precision accuracy classes are unavailable for these exact bytes (not validated in this session, or refused by the reader). No quantity of this result is shown as verified, and rule checks cannot bind to any of them.";
++/** The reader's normalization (mm, kN, kN*m and MPa to SI); other units as published. */
++const RETAINED_SI_UNIT: Readonly<Record<string, string>> = Object.freeze({ mm: "m", kN: "N", "kN*m": "N*m", MPa: "Pa" });
++/** b with three significant digits, rounded upward: the printed bound is never below b. */
++export function upwardBoundText(b: number): string {
++  if (b === 0) return "0";
++  const [mantissa, exponent] = b.toExponential(2).split("e");
++  if (Number(`${mantissa}e${exponent}`) > b) return `${mantissa}e${exponent}`;
++  let digits = Math.round(Number(mantissa) * 100) + 1, power = Number(exponent);
++  if (digits >= 1000) { digits = 100; power += 1; }
++  return `${(digits / 100).toFixed(2)}e${power < 0 ? "-" : "+"}${Math.abs(power)}`;
++}
++export function retainedAbsoluteNotice(boundBits: string, unit: string): string {
++  return N_RP_ABSOLUTE.replace("{b}", upwardBoundText(decodeBinary64(boundBits))).replace("{unit}", RETAINED_SI_UNIT[unit] ?? unit);
++}
++/** The binding refusal of one validated class (D2 4.9.9, before S-I). */
++export function classBindingRefusal(cls: AccuracyClass | null | undefined): string | null {
++  return cls === "absolute_verified" ? RULE_QUANTITY_BELOW_VERIFIED_FLOOR : cls === "not_covered" ? RULE_QUANTITY_NOT_COVERED : null;
++}
++/** The class label of a successor row from the registered validation, or null. */
++export function retainedRowClassLabel(row: { id?: string; unit?: string }, source: MechanicsResult | null | undefined): string | null {
++  const classified = retainedRowClasses(source)?.get(row.id!);
++  // G5c gives every absolute_verified row its published bound.
++  if (classified?.class === "absolute_verified") return retainedAbsoluteNotice(classified.bound_bits!, row.unit!);
++  if (classified?.class === "not_covered") return N_RP_NOT_COVERED;
++  return null;
++}
++
+ /** Readable identity, by dispatch, that belongs to the static fresh set. */
+ export function isFreshSemanticResult(source: MechanicsResult | null | undefined): boolean {
+   const binding = currentSemanticContract(source);
+@@ -61,8 +102,16 @@ export function standingReason(source: MechanicsResult | null | undefined): stri
+   return null;
+ }
+ 
+-/** Mirror of `result_export::semantic_contract::rule_binding_refusal`. */
++/** Mirror of `result_export::semantic_contract::rule_binding_refusal`. For the
++ * successor (selected by its producer identity, as in Rust) a row binds only when
++ * its validated class allows it; a headline binds the row its `result_ref` names
++ * and is refused exactly as that row. Without a valid registration no row has a
++ * validated class, so every row is refused (fail closed, as Rust F5). */
+ export function ruleBindingRefusal(source: MechanicsResult, row: Pick<MechanicsResult["results"][number], "id" | "kind">): string | null {
++  if (source.producer?.semantic_contract_id === PREVIEW_PHYSICS_RETAINED_CONTRACT_ID) {
++    const classes = retainedRowClasses(source);
++    return classes ? classBindingRefusal(classes.get(row.id)?.class) : RULE_QUANTITY_NOT_COVERED;
++  }
+   if (!isNonCompositeSourceBlocks(source) || source.producer?.semantic_contract_id !== SOURCE_BLOCKS_CONTRACT_ID) return null;
+   if (row.kind === "open_formula_stress_summary") return RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE;
+   if (row.id === source.summary.max_open_formula_stress?.result_ref) return RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE;
+@@ -97,7 +146,8 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined)
+       ? { id: "source-blocks-mixed", text: N_SB_MIXED }
+       : { id: "source-blocks-summary", text: N_SB });
+   }
+-  if (route === "preview_physics") {
++  // U6d: the successor reuses the preview notices (its rows and evidence are preview-physics-1's).
++  if (route === "preview_physics" || route === "retained_preview_physics") {
+     const solved = source.status.mechanics === "MECHANICS_SOLVED";
+     if (source.summary.max_open_formula_stress) notices.push({ id: "headline-label", text: `Stress headline: ${N_HEADLINE}.` });
+     else if (solved) notices.push({ id: "headline-withheld", text: N_HEADLINE_WITHHELD });
+@@ -106,6 +156,14 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined)
+       if (gate.withheld && gate.reason) notices.push({ id: `combination-gate:${gate.combination_id}`, text: `${gate.combination_id}: ${COMBINATION_GATE_REASONS[gate.reason] ?? gate.reason}` });
+     }
+   }
++  // D2 4.9.9 UI summary: per-case counts over the registered validated classes.
++  if (route === "retained_preview_physics") {
++    if (!retainedRowClasses(source)) notices.push({ id: "retained-precision-unvalidated", text: N_RP_UNVALIDATED });
++    for (const c of classificationSummary(source)) {
++      if (c.absolute_verified > 0) notices.push({ id: `retained-precision-absolute:${String(c.case_id)}`, text: `${String(c.case_id)}: ${c.absolute_verified} quantities verified only to an absolute bound, below the relative accuracy floor. Each is labelled and shown for inspection; rule checks cannot bind to them.` });
++      if (c.not_covered > 0) notices.push({ id: `retained-precision-not-covered:${String(c.case_id)}`, text: `${String(c.case_id)}: ${c.not_covered} quantities uncovered: no verified accuracy for their quantity kind. Each is labelled and shown for inspection; rule checks cannot bind to them.` });
++    }
++  }
+   return notices;
+ }
+ 
+@@ -117,11 +175,15 @@ export function previewCombinationGates(source: MechanicsResult): { combination_
+     && typeof (g as { withheld?: unknown }).withheld === "boolean");
+ }
+ 
+-/** Row-level label for a listed row of a new kind; null for other rows. */
+-export function resultRowLabel(row: Pick<MechanicsResult["results"][number], "kind">, source: MechanicsResult | null | undefined): string | null {
++/** Row-level label for a listed row of a new kind; null for other rows. A
++ * successor row also carries its validated class label (D2 4.9.9: never unlabelled). */
++export function resultRowLabel(row: Pick<MechanicsResult["results"][number], "kind"> & Partial<Pick<MechanicsResult["results"][number], "id" | "unit">>, source: MechanicsResult | null | undefined): string | null {
+   if (!source) return null;
+-  try { if (sourceContract(source) !== "preview_physics") return null; } catch { return null; }
+-  if (row.kind === PREVIEW_INTENSIFIED_KIND) return N_INTENSIFIED;
+-  if (row.kind === PREVIEW_MAXIMUM_KIND) return N_HEADLINE;
+-  return null;
++  let route: ReturnType<typeof sourceContract>;
++  try { route = sourceContract(source); } catch { return null; }
++  if (route !== "preview_physics" && route !== "retained_preview_physics") return null;
++  const kindLabel = row.kind === PREVIEW_INTENSIFIED_KIND ? N_INTENSIFIED : row.kind === PREVIEW_MAXIMUM_KIND ? N_HEADLINE : null;
++  // Only a registered successor has validated classes; any other source has none.
++  const classLabel = retainedRowClassLabel(row, source);
++  return classLabel && kindLabel ? `${classLabel} ${kindLabel}` : classLabel ?? kindLabel;
+ }
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/loadReferenceOutputAvailability.ts b/projects/chirality-piping/apps/desktop/src/features/results/loadReferenceOutputAvailability.ts
+index 99a16bb4c0..be8cabe26e 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/loadReferenceOutputAvailability.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/results/loadReferenceOutputAvailability.ts
+@@ -9,6 +9,11 @@
+  * desktop route only: the result stays readable, and nothing here is a
+  * finding about the result or its evidence. Text only; it never changes
+  * standing, rows or bytes.
++ *
++ * U6d (D-U6-8; D2 4.9.6): the F2a preview successor's desktop outputs are
++ * likewise T6's. The same shared function returns its own reason for it;
++ * `isLoadReferenceRoute` is unchanged, so the load-reference text is never
++ * shown for a successor.
+  */
+ import { sourceContract } from "./numericalResultQuality";
+ import type { MechanicsResult } from "../../types";
+@@ -16,6 +21,9 @@ import type { MechanicsResult } from "../../types";
+ export const LOAD_REFERENCE_OUTPUT_NOT_YET_AVAILABLE = "LOAD-REFERENCE-OUTPUT-NOT-YET-AVAILABLE";
+ export const N_LOAD_REFERENCE_OUTPUT = "Output of load/reference-state results (load-reference-1 and load-reference-source-1) is not yet available on the desktop; it is routed to T6. The result remains readable here; this is not a finding about the result.";
+ export const LOAD_REFERENCE_OUTPUT_REFUSAL = `${LOAD_REFERENCE_OUTPUT_NOT_YET_AVAILABLE}: ${N_LOAD_REFERENCE_OUTPUT}`;
++export const RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE = "RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE";
++export const N_RETAINED_PRECISION_OUTPUT = "Output of retained-precision results (preview-physics-retained-1) is not yet available on the desktop; it is routed to T6. The result remains readable here; this is not a finding about the result.";
++export const RETAINED_PRECISION_OUTPUT_REFUSAL = `${RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE}: ${N_RETAINED_PRECISION_OUTPUT}`;
+ 
+ /** Whether header dispatch selects a load/reference-state route. */
+ export function isLoadReferenceRoute(source: MechanicsResult | null | undefined): boolean {
+@@ -25,11 +33,15 @@ export function isLoadReferenceRoute(source: MechanicsResult | null | undefined)
+     return route === "load_reference" || route === "load_reference_source";
+   } catch { return false; }
+ }
+-/** The shared output refusal: the reason for a load/reference-state result, else null. */
+-export function loadReferenceOutputRefusal(source: MechanicsResult | null | undefined): string | null {
+-  return isLoadReferenceRoute(source) ? LOAD_REFERENCE_OUTPUT_REFUSAL : null;
++function isRetainedPrecisionRoute(source: MechanicsResult | null | undefined): boolean {
++  try { return sourceContract(source!) === "retained_preview_physics"; } catch { return false; }
+ }
+-/** Throws the shared refusal for a load/reference-state result. */
++/** The shared output refusal: the reason for a load/reference-state or
++ * retained-precision successor result, else null. */
++export function loadReferenceOutputRefusal(source: MechanicsResult | null | undefined): string | null {
++  return isLoadReferenceRoute(source) ? LOAD_REFERENCE_OUTPUT_REFUSAL : isRetainedPrecisionRoute(source) ? RETAINED_PRECISION_OUTPUT_REFUSAL : null;
++}
++/** Throws the shared refusal for a load/reference-state or successor result. */
+ export function refuseLoadReferenceOutput(source: MechanicsResult | null | undefined): void {
+   const refusal = loadReferenceOutputRefusal(source);
+   if (refusal) throw new Error(refusal);
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts b/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts
+index 9c37e07bef..16fc240fcf 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts
+@@ -4,6 +4,8 @@ import { validatePhysicsEvidence } from "./physicsResultEvidence";
+ import { validatePreviewPhysicsEvidence } from "./previewPhysicsEvidence";
+ import { validateLoadReferenceEvidence } from "./loadReferenceEvidence";
+ import { loadReferenceSourceReceiptShape, loadReferenceSourceStanding, LOAD_REFERENCE_SOURCE_PROFILE } from "./loadReferenceSourceEvidence";
++import { retainedPrecisionStanding } from "./retainedPrecisionStanding";
++import { RETAINED_METHOD } from "./retainedPrecision";
+ import type { MechanicsResult, PreviewModel } from "../../types";
+ export const PRECISION_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/precision-1";
+ export const PRECISION_CONTRACT_SHA256 = "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e";
+@@ -21,7 +23,20 @@ export const LOAD_REFERENCE_CONTRACT_SHA256 = "44bc41c06f589fab6ce931ac0eaa53447
+ export const LOAD_REFERENCE_PROFILE = "resolved_straight_load_state_v1";
+ export const LOAD_REFERENCE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-source-1";
+ export const LOAD_REFERENCE_SOURCE_CONTRACT_SHA256 = "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337";
+-export type SourceContract = "legacy" | "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics" | "load_reference" | "load_reference_source" | "unsupported";
++/** U6d (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor and its pinned
++ * table. Header dispatch only selects the route; the statement is checked only
++ * by the accepted reader (`retainedPrecision.ts`), and standing comes only from
++ * that reader's registered validation (`retainedPrecisionStanding.ts`). The
++ * literals equal the reader's constants (pinned by test); they are not imported
++ * so that this module's top level never reads a binding across the import cycle
++ * (the reader's G7 calls `sourceContract`). Imported bindings are read in functions only. */
++export const PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1";
++export const PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8";
++export const PREVIEW_PHYSICS_RETAINED_PROFILE = "product_preview_retained_w1a_v2";
++/** A receipt member, or a raw row with the W1 method token, offered under any
++ * other identity (I66 F-5: the base readers' closed lists do not name it). */
++export const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
++export type SourceContract = "legacy" | "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics" | "load_reference" | "load_reference_source" | "retained_preview_physics" | "unsupported";
+ export function sourceSemanticBinding(source: MechanicsResult) {
+   const route = sourceContract(source);
+   if (route === "physics_source") return { id: PHYSICS_SOURCE_CONTRACT_ID, sha256: PHYSICS_SOURCE_CONTRACT_SHA256 };
+@@ -31,6 +46,7 @@ export function sourceSemanticBinding(source: MechanicsResult) {
+   if (route === "precision") return { id: PRECISION_CONTRACT_ID, sha256: PRECISION_CONTRACT_SHA256 };
+   if (route === "load_reference") return { id: LOAD_REFERENCE_CONTRACT_ID, sha256: LOAD_REFERENCE_CONTRACT_SHA256 };
+   if (route === "load_reference_source") return { id: LOAD_REFERENCE_SOURCE_CONTRACT_ID, sha256: LOAD_REFERENCE_SOURCE_CONTRACT_SHA256 };
++  if (route === "retained_preview_physics") return { id: PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, sha256: PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 };
+   throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+ }
+ /** Exact known (readable) contract binding. This does not authenticate a
+@@ -49,9 +65,18 @@ function keys(value: unknown, expected: string[]): boolean {
+   return !!value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === expected.length && expected.every(k => Object.hasOwn(value, k));
+ }
+ const statuses = ["not_assessed", "checks_passed", "sensitive", "unresolved", "failed"];
++/** The downgrade guard (Rust `forbid_retained_member` and `forbid_retained_rows`):
++ * true when an identity other than the successor carries a `retained_precision`
++ * member or a raw row with the W1 method token. Such a source is unsupported. */
++export function retainedPrecisionDowngrade(source: MechanicsResult): boolean {
++  if (source.producer?.semantic_contract_id === PREVIEW_PHYSICS_RETAINED_CONTRACT_ID) return false;
++  return Object.hasOwn(source, "retained_precision")
++    || (Array.isArray(source.results) && source.results.some(row => (row as { recovery_method?: unknown } | null)?.recovery_method === RETAINED_METHOD));
++}
+ /** Dispatch is explicit. A header never authenticates its claimed producer. */
+ export function sourceContract(source: MechanicsResult): SourceContract {
+   if (Object.hasOwn(source, "carrier_evidence")) return "unsupported";
++  if (retainedPrecisionDowngrade(source)) return "unsupported";
+   if (source.schema_version === "0.1.0") return ["producer", "numerical_quality", "formulation_basis", "contract_evidence", "source_block_recovery"].some(key => Object.hasOwn(source, key)) ? "unsupported" : "legacy";
+   const p = source.producer, q = source.numerical_quality, f = source.formulation_basis;
+   const blocks = p?.semantic_contract_id === SOURCE_BLOCKS_CONTRACT_ID;
+@@ -60,6 +85,8 @@ export function sourceContract(source: MechanicsResult): SourceContract {
+   // T1: explicit load/reference-state dispatch, each bound to its one profile.
+   const loadReference = p?.semantic_contract_id === LOAD_REFERENCE_CONTRACT_ID;
+   const joined = p?.semantic_contract_id === LOAD_REFERENCE_SOURCE_CONTRACT_ID;
++  // U6d: the successor's header route; its receipt is checked only by the reader.
++  const retained = p?.semantic_contract_id === PREVIEW_PHYSICS_RETAINED_CONTRACT_ID;
+   if (composite ? !physicsSourceReceiptShape(source.source_block_recovery) : blocks ? !sourceBlockReceiptShape(source.source_block_recovery) : joined ? !loadReferenceSourceReceiptShape(source.source_block_recovery) : Object.hasOwn(source, "source_block_recovery")) return "unsupported";
+   const evidenceObject = !!source.contract_evidence && typeof source.contract_evidence === "object" && !Array.isArray(source.contract_evidence);
+   return source.schema_version === "0.2.0"
+@@ -67,7 +94,7 @@ export function sourceContract(source: MechanicsResult): SourceContract {
+     && keys(q, ["value_representation", "publication_quantization", "integrity_policy", "status", "cases"])
+     && keys(f, ["profile_id", "limitations"])
+     && p?.component_name === "open_pipe_stress_product_physics"
+-    && p.component_version === "0.2.0" && [PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID].includes(p.semantic_contract_id)
++    && p.component_version === "0.2.0" && [PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID].includes(p.semantic_contract_id)
+     && q?.value_representation === "finite_binary64" && q.publication_quantization === "none"
+     && q.integrity_policy === "M03-INTEGRITY-v1" && Array.isArray(q.cases)
+     && statuses.includes(q.status)
+@@ -81,15 +108,24 @@ export function sourceContract(source: MechanicsResult): SourceContract {
+       : preview ? f?.profile_id === "product_preview_mechanics_v1" && evidenceObject
+       : loadReference ? f?.profile_id === LOAD_REFERENCE_PROFILE && evidenceObject
+       : joined ? f?.profile_id === LOAD_REFERENCE_SOURCE_PROFILE && evidenceObject
++      : retained ? f?.profile_id === PREVIEW_PHYSICS_RETAINED_PROFILE && evidenceObject && !!source.retained_precision && typeof source.retained_precision === "object" && !Array.isArray(source.retained_precision)
+       : f?.profile_id === "product_preview_mechanics_v1" && source.contract_evidence == null) && Array.isArray(f.limitations)
+     && f.limitations.length > 0 && f.limitations.every(x => typeof x === "string" && x.length > 0)
+-    ? (composite ? "physics_source" : blocks ? "source_blocks" : preview ? "preview_physics" : loadReference ? "load_reference" : joined ? "load_reference_source" : p.semantic_contract_id === PHYSICS_CONTRACT_ID ? "physics" : "precision") : "unsupported";
++    ? (composite ? "physics_source" : blocks ? "source_blocks" : preview ? "preview_physics" : loadReference ? "load_reference" : joined ? "load_reference_source" : retained ? "retained_preview_physics" : p.semantic_contract_id === PHYSICS_CONTRACT_ID ? "physics" : "precision") : "unsupported";
++}
++/** The base ordinary-eligibility predicate for one `numerical_quality` case,
++ * shared by the generic standing below and the successor's `not_required`
++ * conjunct (plan F-7; Rust `not_required_cases_ordinarily_eligible`). */
++export function ordinaryCaseEligible(c: NonNullable<MechanicsResult["numerical_quality"]>["cases"][number] | null | undefined, emitted: ReadonlySet<string>): boolean {
++  return !!c && c.structural_status === "passive_model_basis" && c.solve_quality === "checks_passed"
++    && c.model_matrix_fidelity === "represented_equations_retained" && ["not_claimed", "reference_verified"].includes(c.accuracy_evidence)
++    && Array.isArray(c.evidence_refs) && !!c.evidence_refs.length && c.evidence_refs.every(id => emitted.has(id));
+ }
+ export function numericalResultStanding(source: MechanicsResult, model?: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | null) {
+   const contract = sourceContract(source);
+   const findings: string[] = [];
+   if (contract === "legacy") findings.push("LEGACY_ABSOLUTE_ROUNDING_INTEGRITY_NOT_ASSESSED");
+-  else if (contract === "unsupported") findings.push("SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED");
++  else if (contract === "unsupported") findings.push(retainedPrecisionDowngrade(source) ? RETAINED_PRECISION_DOWNGRADE_FORBIDDEN : "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED");
+   else if (contract === "physics_source") findings.push(...physicsSourceStanding(source, model).findings);
+   else if (contract === "source_blocks") findings.push(...sourceBlockStanding(source, model).findings);
+   else if (contract === "load_reference_source") {
+@@ -100,6 +136,12 @@ export function numericalResultStanding(source: MechanicsResult, model?: (Pick<P
+     // eligible in T1, as in Rust and Python.
+     return { contract, status: "needs_recompute" as const, eligible: false, findings: loadReferenceSourceStanding(source).findings };
+   }
++  else if (contract === "retained_preview_physics") {
++    // U6d (D2 4.9.4; plan 3): standing reads only the registered accepted-reader
++    // validation of these exact bytes. numerical_quality never contributes.
++    const standing = retainedPrecisionStanding(source, model);
++    return { contract, status: standing.eligible ? "integrity_checked" as const : "needs_recompute" as const, eligible: standing.eligible, findings: standing.findings };
++  }
+   else {
+     const q = source.numerical_quality!;
+     if (contract === "physics") {
+@@ -131,9 +173,7 @@ export function numericalResultStanding(source: MechanicsResult, model?: (Pick<P
+     if (!requested.length || new Set(requested).size !== requested.length) findings.push("REQUESTED_NUMERICAL_BASIS_UNAVAILABLE");
+     const cases = q.cases;
+     if (cases.length !== requested.length || requested.some(id => cases.filter(c => c?.basis_ref?.ref_type === "load_case" && c.basis_ref.ref_id === id).length !== 1)) findings.push("NUMERICAL_CASE_COVERAGE_INCOMPLETE");
+-    if (cases.some(c => !c || c.structural_status !== "passive_model_basis" || c.solve_quality !== "checks_passed"
+-      || c.model_matrix_fidelity !== "represented_equations_retained" || !["not_claimed", "reference_verified"].includes(c.accuracy_evidence)
+-      || !Array.isArray(c.evidence_refs) || !c.evidence_refs.length || c.evidence_refs.some(id => !emitted.has(id)))) findings.push("NUMERICAL_CASE_EVIDENCE_INCOMPLETE");
++    if (cases.some(c => !ordinaryCaseEligible(c, emitted))) findings.push("NUMERICAL_CASE_EVIDENCE_INCOMPLETE");
+     const aggregateOrder = ["checks_passed", "sensitive", "not_assessed", "unresolved", "failed"];
+     const aggregate = cases.length
+       ? aggregateOrder[cases.reduce((worst, c) => Math.max(worst, aggregateOrder.indexOf(c.solve_quality)), 0)]
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts b/projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts
+index 470b92ebf2..2357b2cc7d 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts
+@@ -6,6 +6,7 @@ import precisionContract from '../../../../../fixtures/results/semantic_contract
+ import previewPhysicsContract from '../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json';
+ import loadReferenceContract from '../../../../../fixtures/results/semantic_contract_v0_3_load_reference_1.json';
+ import loadReferenceSourceContract from '../../../../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json';
++import previewPhysicsRetainedContract from '../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json';
+ import { sourceContract } from './numericalResultQuality';
+ import type { MechanicsResult } from '../../types';
+ export type SourceRow = MechanicsResult['results'][number];
+@@ -27,6 +28,9 @@ export function semanticContractForSource(source?: MechanicsResult) {
+   // equal to physics-1 and physics-source-1 respectively).
+   if (sourceContract(source) === 'load_reference') return loadReferenceContract;
+   if (sourceContract(source) === 'load_reference_source') return loadReferenceSourceContract;
++  // U6d: the successor reads its own pinned table, whose rows equal preview-physics-1's
++  // (the reader's G0 binds these bytes by sha256).
++  if (sourceContract(source) === 'retained_preview_physics') return previewPhysicsRetainedContract;
+   throw new Error('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');
+ }
+ export function resultSemantics(row: SourceRow, source?: MechanicsResult): SemanticSignature | null {
+diff --git a/projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts b/projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts
+index 0766ee9ba5..9ba12778d8 100644
+--- a/projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts
++++ b/projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts
+@@ -3,6 +3,7 @@ import { validatePhysicsEvidence } from "../features/results/physicsResultEviden
+ import { validatePreviewPhysicsEvidence } from "../features/results/previewPhysicsEvidence";
+ import { validateLoadReferenceEvidence } from "../features/results/loadReferenceEvidence";
+ import { validateLoadReferenceSourceEvidence } from "../features/results/loadReferenceSourceEvidence";
++import { validateRetainedPrecision } from "../features/results/retainedPrecision";
+ import { semanticContractForSource, semanticSourceBasisMatches } from "../features/results/resultSemantics";
+ import { sourceContract, sourceSemanticBinding, hasCurrentSourceContract } from "../features/results/numericalResultQuality";
+ import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
+@@ -12,6 +13,10 @@ export const ANALYSIS_RUN_V02 = "0.2.0";
+ export const ANALYSIS_RUN_V03 = "0.3.0";
+ export const CHECKED_PROFILE_V1 = "openpipestress_jcs_ijson_v1";
+ export const SEMANTIC_CONTRACT_SHA256 = "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da";
++/** U6d (C1:162; D2 4.9.6): the record's receipt copy differs from the source's. */
++export const ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH = "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH";
++/** U6d: a record of any other identity carries a retained-precision receipt. */
++export const ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
+ type ManifestEvidence = { manifest_ref: ObjectRef; manifest_sha256: string; manifest: { model_basis: { model_ref: string }; solver_basis: { solver_name: string; solver_version: string; solver_build_ref: string } } };
+ const provenance = { source_name: "OpenPipeStress analysis record 0.2", source_location: "analysis_run.compatibility.v0.2", source_license: "project-governed", review_status: "pending", professional_claim: false };
+ 
+@@ -78,7 +83,7 @@ export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest
+   if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+   return buildAnalysisRecord(result, inputManifest, sourceContract(result) as V03Route, ruleCheckStatus, loadBasisRefs);
+ }
+-type V03Route = "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics" | "load_reference" | "load_reference_source";
++type V03Route = "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics" | "load_reference" | "load_reference_source" | "retained_preview_physics";
+ /** T1: the load/reference-state readers run before a record is built or
+  * validated, as Python `_source_contract` runs them (raw evidence). */
+ async function validateLoadReferenceRoute(source: MechanicsResult): Promise<void> {
+@@ -90,6 +95,8 @@ async function buildAnalysisRecord(result: MechanicsResult, inputManifest: Manif
+   await validateLoadReferenceRoute(result);
+   // Preview-evidence check: a preview-physics-1 source is recorded only after its closed reader checks pass.
+   if (sourceContract(result) === "preview_physics") validatePreviewPhysicsEvidence(result);
++  // U6d: a successor is recorded only after the accepted reader passes (G0-G7, no invocation).
++  if (route === "retained_preview_physics") await validateRetainedPrecision(result);
+   if (route === "source_blocks" || route === "physics_source") await validateRetainedRecoverySource(result);
+   if (route !== "legacy") { validateSourceRuleStatus(result); expectedLoadBasis(result, loadBasisRefs); }
+   if (inputManifest.manifest.model_basis.model_ref !== result.model_ref) throw new Error("ANALYSIS-RUN-INPUT-MANIFEST-MODEL-MISMATCH");
+@@ -140,6 +147,8 @@ async function buildAnalysisRecord(result: MechanicsResult, inputManifest: Manif
+   // namespace), load-reference-source-1 like physics-source-1 (both retained).
+   if (route === "physics_source" || route === "load_reference_source") record.analysis_run.contract_evidence = structuredClone(result.contract_evidence);
+   if (route === "source_blocks" || route === "physics_source" || route === "load_reference_source") record.analysis_run.source_block_recovery = structuredClone(result.source_block_recovery);
++  // U6d (C1:162; D2 4.9.6): the complete receipt is copied whole, never recomputed or repaired.
++  if (route === "retained_preview_physics") record.analysis_run.retained_precision = structuredClone(result.retained_precision);
+   record.analysis_run.hashes.unshift({ algorithm: "sha256", canonicalization: CHECKED_PROFILE_V1, payload_ref: runRef, payload_scope: "analysis_run_record", value: await canonicalSha256HexCheckedV1(analysisRecordProjection(record)) });
+   if (route !== "legacy") await validateAnalysisRunV03(record, result, loadBasisRefs);
+   return record;
+@@ -178,6 +187,12 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
+   if (sourceContract(source) === "physics_source" || sourceContract(source) === "load_reference_source") {
+     if (!same(run.contract_evidence, source.contract_evidence)) throw new Error("ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH");
+   } else if (Object.hasOwn(run, "contract_evidence")) throw new Error("ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN");
++  // U6d: the successor's record carries its complete receipt, equal to the source's
++  // (which the accepted reader verifies); no other record carries one.
++  if (sourceContract(source) === "retained_preview_physics") {
++    await validateRetainedPrecision(source);
++    if (!same(run.retained_precision, source.retained_precision)) throw new Error(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
++  } else if (Object.hasOwn(run, "retained_precision")) throw new Error(ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
+   if (!same(run.diagnostics, source.diagnostics.map(source_annotation => ({ source_annotation })))) throw new Error("ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH");
+   if (!["MECHANICS_SOLVED", "MODEL_INCOMPLETE"].includes(source.status.mechanics)) throw new Error("ANALYSIS_SOURCE_MECHANICS_STATUS_INVALID");
+   const statuses = run.analysis_status;
+diff --git a/projects/chirality-piping/apps/desktop/src/services/previewService.ts b/projects/chirality-piping/apps/desktop/src/services/previewService.ts
+index 976876f011..16c66a50d4 100644
+--- a/projects/chirality-piping/apps/desktop/src/services/previewService.ts
++++ b/projects/chirality-piping/apps/desktop/src/services/previewService.ts
+@@ -4,6 +4,7 @@ import { sourceContract, hasCurrentSourceContract } from '../features/results/nu
+ import { validatePreviewPhysicsEvidence } from '../features/results/previewPhysicsEvidence';
+ import { validateLoadReferenceEvidence } from '../features/results/loadReferenceEvidence';
+ import { validateLoadReferenceSourceEvidence } from '../features/results/loadReferenceSourceEvidence';
++import { registerRetainedPrecision } from '../features/results/retainedPrecisionStanding';
+ import { invoke } from "@tauri-apps/api/core";
+ import type {
+   AgentProposal,
+@@ -125,6 +126,9 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
+     // which stays needs_recompute (never numerically eligible in T1).
+     if (sourceContract(source) === "load_reference") validateLoadReferenceEvidence(source, capture.invocation.request.model);
+     if (sourceContract(source) === "load_reference_source") await validateLoadReferenceSourceEvidence(source);
++    // U6d: a preview successor registers only after the accepted reader passes with
++    // this captured invocation; its outcome is recorded against the exact bytes.
++    if (sourceContract(source) === "retained_preview_physics") await registerRetainedPrecision(source, capture.invocation);
+     await canonicalSha256HexCheckedV1(source);
+     if (capture.invalidated || nativeContentFingerprint(source) !== sourceFingerprint || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return;
+     nativeSourceInvocations.set(source, { capture, sourceFingerprint });
+diff --git a/projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts b/projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts
+index 0651e39b9b..103964d8b2 100644
+--- a/projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts
++++ b/projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts
+@@ -1,7 +1,8 @@
+ import { retainedPhysicsSourceInvocation } from "../features/results/physicsSourceRecovery";
+ import { retainedSourceBlockInvocation } from "../features/results/sourceBlockRecovery";
+ import { sourceContract, numericalResultStanding } from "../features/results/numericalResultQuality";
+-import { isFreshSemanticResult, isRetiredResultId, ruleBindingRefusal, standingReason, N_P1, N_RULE_RETIRED, N_SB, PRECISION_1_HISTORICAL_SEMANTICS, RULE_BINDS_RETIRED_RESULT } from "../features/results/knownSemanticLimitations";
++import { isFreshSemanticResult, isRetiredResultId, ruleBindingRefusal, standingReason, retainedRowClassLabel, N_P1, N_RP_UNVALIDATED, N_RULE_RETIRED, N_SB, PRECISION_1_HISTORICAL_SEMANTICS, RULE_BINDS_RETIRED_RESULT, RULE_QUANTITY_BELOW_VERIFIED_FLOOR, RULE_QUANTITY_NOT_COVERED } from "../features/results/knownSemanticLimitations";
++import { retainedPrecisionInvocation } from "../features/results/retainedPrecisionStanding";
+ import { invoke } from "@tauri-apps/api/core";
+ import type { MechanicsResult, PreviewModel } from "../types";
+ import type { RulePackDocument } from "./rulePackService";
+@@ -122,9 +123,16 @@ export async function runRuleChecks(args: {
+   // T0R: only the static fresh-identity set is rule-eligible; precision-1 is historical.
+   if (!isFreshSemanticResult(source)) throw new Error(standingReason(source) === PRECISION_1_HISTORICAL_SEMANTICS ? `${PRECISION_1_HISTORICAL_SEMANTICS}: ${N_P1}` : "RULE_SOURCE_IDENTITY_NOT_FRESH: the result is not a fresh supported publication.");
+   if (["source_blocks", "physics_source"].includes(sourceContract(source)) && !numericalResultStanding(source, args.model).eligible) throw new Error("SOURCE_BLOCKS_RULE_INPUT_UNQUALIFIED");
++  // U6d: a preview successor requires eligible standing, as the receipt routes do;
++  // standing comes only from its registered reader validation (never numerical_quality).
++  if (sourceContract(source) === "retained_preview_physics") {
++    const standing = numericalResultStanding(source, args.model);
++    if (!standing.eligible) throw new Error(`${standing.findings[0]}: the retained-precision result is not numerically eligible for rule checks.`);
++  }
+   const invokeArgs: Record<string, unknown> = { rulePackDocument: args.rulePackDocument, solvedEnvelope: source };
+   if (sourceContract(source) === "source_blocks") invokeArgs.sourceBlockInvocation = retainedSourceBlockInvocation(source, args.model);
+   if (sourceContract(source) === "physics_source") invokeArgs.sourceBlockInvocation = retainedPhysicsSourceInvocation(source, args.model);
++  if (sourceContract(source) === "retained_preview_physics") invokeArgs.sourceBlockInvocation = retainedPrecisionInvocation(source, args.model);
+   if (args.model) invokeArgs.model = args.model;
+   if (args.solverResultBindings && args.solverResultBindings.length > 0) {
+     invokeArgs.solverResultBindings = args.solverResultBindings;
+@@ -325,7 +333,10 @@ export function ruleBindingPrecheck(
+     const row = source.results.find((candidate) => candidate.id === binding.result_id);
+     if (row) {
+       const reason = ruleBindingRefusal(source, row);
+-      if (reason) findings.push({ ...binding, reason, notice: N_SB });
++      // U6d: a successor refusal shows its class notice (D2 4.9.9), never N-SB.
++      // Without a validated class (unregistered or refused) the row has no class label.
++      const notice = reason === RULE_QUANTITY_BELOW_VERIFIED_FLOOR || reason === RULE_QUANTITY_NOT_COVERED ? retainedRowClassLabel(row, source) ?? N_RP_UNVALIDATED : N_SB;
++      if (reason) findings.push({ ...binding, reason, notice });
+     } else if (route === "preview_physics" && isRetiredResultId(binding.result_id)) {
+       findings.push({ ...binding, reason: RULE_BINDS_RETIRED_RESULT, notice: N_RULE_RETIRED });
+     }
+diff --git a/projects/chirality-piping/apps/desktop/src/types.ts b/projects/chirality-piping/apps/desktop/src/types.ts
+index 9b9e464f42..89a0e8c1f2 100644
+--- a/projects/chirality-piping/apps/desktop/src/types.ts
++++ b/projects/chirality-piping/apps/desktop/src/types.ts
+@@ -505,6 +505,9 @@ export type MechanicsResult = {
+   contract_evidence?: Record<string, unknown>;
+   /** Preserved producer receipt; eligibility requires independently captured invocation. */
+   source_block_recovery?: unknown;
++  /** U6d: the F2a successor's retained-precision receipt (retained_precision_mp_v2),
++   * carried whole and checked only by the accepted reader; never present on another identity. */
++  retained_precision?: unknown;
+   producer?: { component_name: string; component_version: string; semantic_contract_id: string };
+   numerical_quality?: NumericalQuality;
+   formulation_basis?: { profile_id: string; limitations: string[] };
+@@ -540,6 +543,8 @@ export type MechanicsResult = {
+     entity_ref: string;
+     basis_ref?: ResultBasisRef;
+     source_result_refs?: string[];
++    /** U6d: the W1 method token on each row of a selected successor case (C1 G6). */
++    recovery_method?: string;
+     metadata?: {
+       component: string;
+       coordinate_system: string;
+@@ -658,6 +663,8 @@ export type AnalysisRunEnvelope = {
+   analysis_run: {
+     /** Retained method evidence, never a live invocation credential. */
+     source_block_recovery?: unknown;
++    /** U6d: the successor's complete receipt, copied whole and checked for equality (C1:162). */
++    retained_precision?: unknown;
+     contract_evidence?: Record<string, unknown>;
+     run_id: string;
+     run_name: string;
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionStanding.ts b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionStanding.ts
+new file mode 100644
+index 0000000000..502d95fab1
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionStanding.ts
+@@ -0,0 +1,199 @@
++/** U6d: TypeScript standing and carriers for the F2a preview successor
++ * `openpipestress.result_semantics/0.3.0/preview-physics-retained-1`.
++ *
++ * Peer of Rust `semantic_contract.rs` (U6a) and Python `compatibility.py`
++ * (U6b). The statement itself is checked only by the accepted reader
++ * (`retainedPrecision.ts`, read-only here). This module adds:
++ *
++ * - a private registration: only a completed reader validation, run with the
++ *   captured native invocation, is recorded against these exact source bytes
++ *   (T1's `loadReferenceSourceEvidence` pattern). A copy, a header, a hash or a
++ *   saved record never registers, and any later byte change voids it;
++ * - synchronous standing from that registration only (D2 4.9.4; plan 3).
++ *   `numerical_quality` never contributes. While the reader's eligibility is
++ *   held (until U7) the result is never better than `needs_recompute`;
++ * - validated row classes for binding refusals and the per-case summary
++ *   (D2 4.9.9). An unregistered or refused statement has no validated class.
++ *
++ * Nothing here claims the sharper stop-rule bound or truth enclosure by the
++ * extrema intervals (RV86 limits); the only bound named is the receipt's
++ * published absolute bound b of an `absolute_verified` row.
++ */
++import { validateRetainedPrecision, type AccuracyClass, type RetainedPrecisionError, type RetainedPrecisionValidation, type RowClassification } from "./retainedPrecision";
++import { ordinaryCaseEligible } from "./numericalResultQuality";
++import { checkedJsonText } from "../../services/hashService";
++import type { MechanicsResult, PreviewModel } from "../../types";
++
++/** No completed reader validation is registered for these exact bytes. */
++export const RETAINED_PRECISION_VALIDATION_REQUIRED = "RETAINED_PRECISION_VALIDATION_REQUIRED";
++/** The registered validation does not make the successor numerically eligible. */
++export const RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE = "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE";
++
++export type RetainedStandingToken = "numerically_eligible" | "needs_recompute" | "unsupported";
++export type RetainedClassificationSummary = {
++  case_id: unknown;
++  relative_verified: number;
++  absolute_verified: number;
++  interval_bindable: number;
++  not_covered: number;
++  input_derived: number;
++  non_quantity: number;
++  withheld: number;
++};
++type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
++type Fingerprint = { text: string; negativeZeros: string };
++type Outcome = { validation: RetainedPrecisionValidation; error: null } | { validation: null; error: string };
++type Registration = { source: Fingerprint; invocation: unknown; outcome: Outcome };
++const registrations = new WeakMap<object, Registration>();
++
++function negativeZeroPaths(value: unknown): string {
++  const paths: string[] = [];
++  const visit = (item: unknown, path: string) => {
++    if (Object.is(item, -0)) paths.push(path);
++    else if (item && typeof item === "object") for (const [key, child] of Object.entries(item)) visit(child, `${path}/${key.replaceAll("~", "~0").replaceAll("/", "~1")}`);
++  };
++  visit(value, "");
++  return JSON.stringify(paths);
++}
++function fingerprint(value: unknown): Fingerprint | null {
++  try { return { text: checkedJsonText(value), negativeZeros: negativeZeroPaths(value) }; } catch { return null; }
++}
++/** Key-order-insensitive JSON equality (serde_json `Value` equality, where an
++ * absent member reads as null). */
++function sameJson(a: unknown, b: unknown): boolean {
++  const order = (v: unknown): unknown => Array.isArray(v) ? v.map(order)
++    : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map(k => [k, order((v as Record<string, unknown>)[k])])) : v;
++  return JSON.stringify(order(a ?? null)) === JSON.stringify(order(b ?? null));
++}
++function receiptCases(source: MechanicsResult): Json[] {
++  const cases = (source as Json)?.retained_precision?.body?.cases;
++  return Array.isArray(cases) ? cases : [];
++}
++
++/** Registration after actual direct IPC or a completed known job only
++ * (`previewService.validateCapturedSource`). Runs the accepted reader with the
++ * captured invocation and records its outcome, validation or first code,
++ * against the exact bytes it validated. A refusal is rethrown after it is
++ * recorded, so the caller does not register the native invocation. */
++export async function registerRetainedPrecision(source: MechanicsResult, invocation: unknown): Promise<RetainedPrecisionValidation> {
++  // Captured before the reader's first await, as the reader snapshots its inputs.
++  // Bytes outside the checked JSON profile never register (the reader refuses them).
++  const sourcePrint = fingerprint(source), captured = structuredClone(invocation);
++  const record = (outcome: Outcome) => { if (sourcePrint) registrations.set(source, { source: sourcePrint, invocation: captured, outcome }); };
++  try {
++    const validation = await validateRetainedPrecision(source, invocation);
++    record({ validation, error: null });
++    return validation;
++  } catch (error) {
++    // The reader throws only RetainedPrecisionError, whose message is its code.
++    record({ validation: null, error: (error as RetainedPrecisionError).message });
++    throw error;
++  }
++}
++/** The registration of these exact bytes, or null (absent, or bytes changed). */
++function registered(source: MechanicsResult | null | undefined): Registration | null {
++  const registration = registrations.get(source as object);
++  if (!registration) return null;
++  const current = fingerprint(source);
++  return current && current.text === registration.source.text && current.negativeZeros === registration.source.negativeZeros ? registration : null;
++}
++/** The registered validation outcome for these exact bytes: a validation, the
++ * reader's first code, or null when nothing is registered. Query only. */
++export function retainedPrecisionRegistration(source: MechanicsResult | null | undefined): Readonly<Outcome> | null {
++  return registered(source)?.outcome ?? null;
++}
++
++/** Every case is `selected`, or `not_required` and ordinarily eligible by the
++ * base rules, by its receipt index (D2 4.9.4; I66 F-7). Mirrors Rust
++ * `not_required_cases_ordinarily_eligible`, including the requirement that every
++ * result and diagnostic id is a unique non-empty string. */
++function notRequiredCasesOrdinarilyEligible(source: MechanicsResult, cases: Json[]): boolean {
++  const quality: Json[] = Array.isArray(source.numerical_quality?.cases) ? source.numerical_quality!.cases : [];
++  const ids = new Set<string>();
++  for (const items of [source.results, source.diagnostics]) {
++    for (const item of Array.isArray(items) ? items : []) {
++      const id = (item as Json)?.id;
++      if (typeof id !== "string" || !id || ids.has(id)) return false;
++      ids.add(id);
++    }
++  }
++  return cases.every((c, index) => {
++    if (c?.status === "selected") return true;
++    if (c?.status !== "not_required") return false;
++    const q = quality[index];
++    return !!q && sameJson(q.basis_ref, c.basis_ref) && ordinaryCaseEligible(q, ids);
++  });
++}
++/** D2 4.9.4 over an accepted-reader validation (Rust `retained_standing_from`).
++ * `numerically_eligible` needs all of: an invocation-bound validation whose
++ * eligibility is set; requested refs equal to the receipt's case order;
++ * `MECHANICS_SOLVED`; and every case `selected` or an ordinarily eligible
++ * `not_required` case. `numerical_quality` never contributes for a selected case. */
++export function retainedStandingFrom(validation: Pick<RetainedPrecisionValidation, "invocation_bound" | "numerical_eligible">, source: MechanicsResult, requested: readonly unknown[]): "numerically_eligible" | "needs_recompute" {
++  const cases = receiptCases(source);
++  if (!validation.invocation_bound || !validation.numerical_eligible
++    || cases.length !== requested.length || cases.some((c, index) => !sameJson(c?.basis_ref, requested[index]))
++    || source.status?.mechanics !== "MECHANICS_SOLVED"
++    || !notRequiredCasesOrdinarilyEligible(source, cases)) return "needs_recompute";
++  return "numerically_eligible";
++}
++function requestedRefs(model: Pick<PreviewModel, "load_cases"> | null | undefined): Json[] {
++  return (model?.load_cases ?? []).map(c => ({ ref_type: "load_case", ref_id: c.id }));
++}
++/** Synchronous successor standing (plan 3, rule 1-3):
++ * - nothing registered for these bytes: `needs_recompute`, VALIDATION_REQUIRED;
++ * - the registered reader refused: `unsupported`, with the reader's first code;
++ * - otherwise D2 4.9.4 with the model's requested load cases; not eligible gives
++ *   `needs_recompute`, NOT_NUMERICALLY_ELIGIBLE. */
++export function retainedPrecisionStanding(source: MechanicsResult, model?: Pick<PreviewModel, "load_cases"> | null): { standing: RetainedStandingToken; eligible: boolean; findings: string[] } {
++  const registration = registered(source);
++  if (!registration) return { standing: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_VALIDATION_REQUIRED] };
++  if (registration.outcome.error !== null) return { standing: "unsupported", eligible: false, findings: [registration.outcome.error] };
++  if (retainedStandingFrom(registration.outcome.validation, source, requestedRefs(model)) === "numerically_eligible") return { standing: "numerically_eligible", eligible: true, findings: [] };
++  return { standing: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE] };
++}
++/** The registered invocation, for the rule-check backend's existing
++ * `sourceBlockInvocation` argument; null unless the standing is eligible. */
++export function retainedPrecisionInvocation(source: MechanicsResult, model: PreviewModel): unknown {
++  if (!retainedPrecisionStanding(source, model).eligible) return null;
++  return structuredClone(registered(source)!.invocation);
++}
++/** Validated G5c classes by result id from the registration; null when nothing
++ * valid is registered (no validated class exists for any row). */
++export function retainedRowClasses(source: MechanicsResult | null | undefined): ReadonlyMap<string, RowClassification> | null {
++  const validation = registered(source)?.outcome.validation;
++  return validation ? new Map(validation.classifications.map(row => [row.result_id, row])) : null;
++}
++const CLASS_INDEX: Record<AccuracyClass, number> = { relative_verified: 0, absolute_verified: 1, not_covered: 2, input_derived: 3, non_quantity: 4 };
++/** D2 4.9.9 per-case counts over a validated statement (Rust
++ * `classification_summary_from`). `withheld` counts the quantity rows that
++ * cannot bind under the standing for `requested`: every quantity row unless the
++ * standing is `numerically_eligible`; otherwise the absolute and not-covered
++ * rows, since S-I has not landed (`interval_bindable` is 0). */
++export function classificationSummaryFrom(validation: RetainedPrecisionValidation, source: MechanicsResult, requested: readonly unknown[]): RetainedClassificationSummary[] {
++  const current = retainedStandingFrom(validation, source, requested) === "numerically_eligible";
++  return receiptCases(source).map(c => {
++    const id = c?.basis_ref?.ref_id;
++    const n = [0, 0, 0, 0, 0];
++    for (const row of validation.classifications) if (sameJson(row.basis_ref?.ref_id, id)) n[CLASS_INDEX[row.class]] += 1;
++    const withheld = current ? n[1] + n[2] : n[0] + n[1] + n[2] + n[3];
++    return { case_id: id, relative_verified: n[0], absolute_verified: n[1], interval_bindable: 0, not_covered: n[2], input_derived: n[3], non_quantity: n[4], withheld };
++  });
++}
++/** The per-case summary over the registered validation; empty when nothing
++ * valid is registered for these bytes. */
++export function classificationSummary(source: MechanicsResult | null | undefined, model?: Pick<PreviewModel, "load_cases"> | null): RetainedClassificationSummary[] {
++  const validation = registered(source)?.outcome.validation;
++  return validation ? classificationSummaryFrom(validation, source!, requestedRefs(model)) : [];
++}
++/** Results-panel standing text from the registered receipt only, never from the
++ * ordinary `numerical_quality` (D2 4.9.2). Text only; it changes no standing. */
++export function retainedPrecisionStandingText(source: MechanicsResult): string {
++  const outcome = retainedPrecisionRegistration(source);
++  const cases = receiptCases(source);
++  const selected = cases.filter(c => c?.status === "selected").length;
++  const receipt = !outcome ? "not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute"
++    : outcome.error !== null ? `refused by the retained-precision reader (${outcome.error}); unsupported, historical values only`
++    : `validated by the retained-precision reader ${outcome.validation.invocation_bound ? "against the actual invocation" : "without an invocation"} for these exact bytes`;
++  return `Retained precision: receipt ${receipt}. Selected cases: ${selected} of ${cases.length}. Current use is checked separately against the actual invocation and the requested cases. Numerical checks do not establish engineering correctness.`;
++}
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
+new file mode 100644
+index 0000000000..f1c1e48ca8
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
+@@ -0,0 +1,625 @@
++/** U6d: TypeScript carriers and standing for the F2a preview successor
++ * (plan 1d and 3; D2 4.7, 4.9.4 and 4.9.9).
++ *
++ * Inputs are PP's pinned milestone successor bytes (D-U6-5; checked by sha256)
++ * with their invocation, delivered through mocked direct and job IPC. This is a
++ * unit transport replay, NOT a native witness: Tauri never delivers a successor
++ * in the milestone domain (plan F-1; D-U6-3 qualification limit).
++ *
++ * The reader's eligibility stays held until U7, so every real standing here is
++ * at best `needs_recompute`. The post-U7 rules are exercised two ways without
++ * touching the flag: the pure seams (`retainedStandingFrom`,
++ * `classificationSummaryFrom`) and a test-only wrapper of the accepted reader
++ * (`u7.simulate`) that sets `numerical_eligible` on an invocation-bound
++ * validation, and optionally marks one row `not_covered` (no available
++ * statement has one; U6a F3) or reclassifies the absolute rows, to reach the
++ * summary branches. With `u7.simulate` false the wrapper returns the reader's own
++ * frozen result unchanged.
++ */
++import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
++import { cleanup, render, screen } from "@testing-library/react";
++import { createHash } from "node:crypto";
++import { readFileSync } from "node:fs";
++import { resolve } from "node:path";
++const invokeMock = vi.hoisted(() => vi.fn());
++vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
++const u7 = vi.hoisted(() => ({ simulate: false, notCovered: null as string | null, noAbsolute: false }));
++vi.mock("./retainedPrecision", async (importOriginal) => {
++  const actual = await importOriginal<typeof import("./retainedPrecision")>();
++  return {
++    ...actual,
++    validateRetainedPrecision: async (source: unknown, invocation?: unknown) => {
++      const validation = await actual.validateRetainedPrecision(source, invocation);
++      if (!u7.simulate || !validation.invocation_bound) return validation;
++      return Object.freeze({
++        ...validation, numerical_eligible: true, standing: "eligible" as const,
++        classifications: validation.classifications.map(row => row.result_id === u7.notCovered ? { ...row, class: "not_covered" as const, scale_bits: null, bound_bits: null }
++          : u7.noAbsolute && row.class === "absolute_verified" ? { ...row, class: "relative_verified" as const, bound_bits: null } : row),
++      });
++    },
++  };
++});
++import type { LocalProjectEnvelope, MechanicsResult, PreviewModel } from "../../types";
++// Import order matters for the wrapper above: the carriers load first, so their
++// import of the reader resolves to the wrapped module, not through the cycle.
++import {
++  PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, PREVIEW_PHYSICS_RETAINED_PROFILE,
++  RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, currentSemanticContract, hasCurrentSourceContract, numericalResultStanding,
++  ordinaryCaseEligible, retainedPrecisionDowngrade, sourceContract, sourceSemanticBinding,
++} from "./numericalResultQuality";
++import {
++  RETAINED_METHOD, RETAINED_PRECISION_ID, RETAINED_PRECISION_PROFILE, decodeBinary64, validateRetainedPrecision,
++  type RetainedPrecisionValidation,
++} from "./retainedPrecision";
++import {
++  RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE, RETAINED_PRECISION_VALIDATION_REQUIRED, classificationSummary, classificationSummaryFrom,
++  registerRetainedPrecision, retainedPrecisionInvocation, retainedPrecisionRegistration, retainedPrecisionStanding, retainedPrecisionStandingText, retainedRowClasses, retainedStandingFrom,
++} from "./retainedPrecisionStanding";
++import {
++  FRESH_SEMANTIC_CONTRACT_IDS, N_HEADLINE, N_RP_ABSOLUTE, N_RP_NOT_COVERED, N_RP_UNVALIDATED, N_SB, RULE_QUANTITY_BELOW_VERIFIED_FLOOR, RULE_QUANTITY_NOT_COVERED,
++  classBindingRefusal, isFreshSemanticResult, knownSemanticNotices, resultRowLabel, retainedAbsoluteNotice, ruleBindingRefusal, standingReason, upwardBoundText,
++} from "./knownSemanticLimitations";
++import { semanticContractForSource, previewPhysicsSemanticContract } from "./resultSemantics";
++import { ResultsPanel } from "./ResultsPanel";
++import { buildHistoricalRunContext } from "./HistoricalRunContext";
++import { hasNativeMechanicsInvocation, pollPreviewMechanicsJob, runPreviewMechanics, startPreviewMechanicsJob, type PreviewSolverMode } from "../../services/previewService";
++import { ruleBindingPrecheck, runRuleChecks, type RuleCheckBindingPlan } from "../../services/ruleCheckService";
++import { ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
++import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
++import type { RulePackDocument } from "../../services/rulePackService";
++
++type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
++const root = resolve(__dirname, "../../../../../");
++const caseFile = JSON.parse(readFileSync(resolve(root, "fixtures/results/retained_precision_carrier_cases.json"), "utf8"));
++const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
++const sha256 = (bytes: Buffer | string) => createHash("sha256").update(bytes).digest("hex");
++/** The pinned successor and its invocation, checked by sha256 (D-U6-5). */
++function milestone(mode: PreviewSolverMode) {
++  const entry = caseFile.fixtures[`milestone_${mode}`];
++  const bytes = readFileSync(resolve(root, entry.path));
++  expect(sha256(bytes)).toBe(entry.sha256);
++  const doc = JSON.parse(bytes.toString("utf8"));
++  return { source: doc.source as MechanicsResult, invocation: doc.invocation as Json, model: doc.invocation.request.model as PreviewModel };
++}
++const OTHER: Record<PreviewSolverMode, PreviewSolverMode> = { sparse_interactive: "dense_scrutiny", dense_scrutiny: "sparse_interactive" };
++let jobSequence = 0;
++/** Mocked direct IPC: the native command returns these bytes for this mode. */
++async function deliverDirect(source: MechanicsResult, model: PreviewModel | null, mode: PreviewSolverMode): Promise<MechanicsResult> {
++  (window as Json).__TAURI_INTERNALS__ = {};
++  invokeMock.mockImplementation(async (command: string, args: Json) => {
++    expect(command).toBe("run_preview_mechanics_with_solver_mode");
++    expect(args.solverMode).toBe(mode);
++    return structuredClone(source);
++  });
++  return runPreviewMechanics(model, mode);
++}
++/** Mocked job IPC: start, then one completed poll delivering these bytes. */
++async function deliverJob(source: MechanicsResult, model: PreviewModel, mode: PreviewSolverMode): Promise<MechanicsResult> {
++  (window as Json).__TAURI_INTERNALS__ = {};
++  const jobId = `unit-transport-replay:retained:${++jobSequence}`;
++  invokeMock.mockImplementation(async (command: string, args: Json) => {
++    if (command === "start_preview_mechanics_job_with_solver_mode") {
++      expect(args.solverMode).toBe(mode);
++      return { job_id: jobId, backend_cancellation_token: `${jobId}:token`, state: "queued", cancellation_scope: "unit_transport_replay_not_native_ui_qualification" };
++    }
++    expect(command).toBe("poll_preview_mechanics_job");
++    expect(args.jobId).toBe(jobId);
++    return { job_id: jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "unit_transport_replay_not_native_ui_qualification", result: structuredClone(source), error_message: null };
++  });
++  await startPreviewMechanicsJob(model, mode);
++  return (await pollPreviewMechanicsJob(jobId)).result!;
++}
++function setPath(target: Json, path: (string | number)[], value: unknown) {
++  let at = target;
++  for (const key of path.slice(0, -1)) at = at[key];
++  at[path[path.length - 1]] = value;
++}
++const caseIds = (model: PreviewModel) => model.load_cases.map(c => c.id);
++const withLoadCases = (model: PreviewModel, ids: string[]) => ({ ...model, load_cases: ids.map(id => ({ ...model.load_cases[0], id })) }) as PreviewModel;
++
++beforeEach(() => { u7.simulate = false; u7.notCovered = null; u7.noAbsolute = false; });
++afterEach(() => {
++  cleanup();
++  invokeMock.mockReset();
++  delete (window as Json).__TAURI_INTERNALS__;
++  u7.simulate = false; u7.notCovered = null; u7.noAbsolute = false;
++});
++
++describe("the inputs and the pinned identity", () => {
++  it("uses PP's byte-identical successors and the shared 14-case file", () => {
++    expect(caseFile.format).toBe("I66-U6-CARRIER-CASES-v1");
++    expect(caseFile.cases).toHaveLength(14);
++    for (const mode of MODES) expect(milestone(mode).source.producer!.semantic_contract_id).toBe(RETAINED_PRECISION_ID);
++  });
++  it("dispatch constants equal the accepted reader's and the pinned table, whose rows are preview-physics-1's", () => {
++    expect(PREVIEW_PHYSICS_RETAINED_CONTRACT_ID).toBe(RETAINED_PRECISION_ID);
++    expect(PREVIEW_PHYSICS_RETAINED_PROFILE).toBe(RETAINED_PRECISION_PROFILE);
++    const bytes = readFileSync(resolve(root, "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"));
++    expect(sha256(bytes)).toBe(PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256);
++    const { source } = milestone("sparse_interactive");
++    const table = semanticContractForSource(source) as Json;
++    expect(table.semantic_contract_id).toBe(RETAINED_PRECISION_ID);
++    expect(table.rows).toStrictEqual(previewPhysicsSemanticContract.rows);
++    expect(sourceSemanticBinding(source)).toStrictEqual({ id: RETAINED_PRECISION_ID, sha256: PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 });
++    expect(FRESH_SEMANTIC_CONTRACT_IDS).toContain(RETAINED_PRECISION_ID);
++  });
++});
++
++describe.each(MODES)("%s: registration through mocked IPC", (mode) => {
++  it.each([["direct", deliverDirect], ["job", deliverJob]] as const)("%s IPC registers only after the accepted reader passes with the captured invocation", async (_route, deliver) => {
++    const { source, invocation, model } = milestone(mode);
++    const received = await deliver(source, model, mode);
++    expect(received).toStrictEqual(source);
++    expect(sourceContract(received)).toBe("retained_preview_physics");
++    expect(hasNativeMechanicsInvocation(received, model, mode)).toBe(true);
++    const outcome = retainedPrecisionRegistration(received)!;
++    expect(outcome.error).toBeNull();
++    expect(outcome.validation!.invocation_bound).toBe(true);
++    expect(outcome.validation!.numerical_eligible).toBe(false);
++    expect(outcome.validation!.classifications).toHaveLength(source.results.length);
++    // Synchronous standing reads only the registration: held eligibility gives needs_recompute.
++    expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE] });
++    expect(retainedPrecisionStanding(received, model).standing).toBe("needs_recompute");
++    expect(retainedPrecisionInvocation(received, model)).toBeNull();
++    // Fresh by membership (D-U6-6), never by standing.
++    expect(isFreshSemanticResult(received)).toBe(true);
++    expect(currentSemanticContract(received)).toStrictEqual({ id: RETAINED_PRECISION_ID, sha256: PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 });
++    expect(standingReason(received)).toBeNull();
++    // The registration binds the actual invocation, which the reader's G8 checked.
++    expect((await validateRetainedPrecision(received, invocation)).invocation_bound).toBe(true);
++  });
++
++  it("copies, saved bytes, headers and a model-less solve never register", async () => {
++    const { source, model } = milestone(mode);
++    const received = await deliverDirect(source, model, mode);
++    for (const copy of [structuredClone(received), JSON.parse(JSON.stringify(received)) as MechanicsResult, source]) {
++      expect(retainedPrecisionRegistration(copy)).toBeNull();
++      expect(numericalResultStanding(copy, model)).toStrictEqual({ contract: "retained_preview_physics", status: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_VALIDATION_REQUIRED] });
++      expect(hasNativeMechanicsInvocation(copy, model, mode)).toBe(false);
++    }
++    // No model, no captured invocation: delivered bytes are kept but nothing registers.
++    const uncaptured = await deliverDirect(source, null, mode);
++    expect(retainedPrecisionRegistration(uncaptured)).toBeNull();
++    expect(numericalResultStanding(uncaptured, model).findings).toStrictEqual([RETAINED_PRECISION_VALIDATION_REQUIRED]);
++    // Browser preview (no Tauri runtime) refuses before any delivery.
++    delete (window as Json).__TAURI_INTERNALS__;
++    await expect(runPreviewMechanics(model, mode)).rejects.toThrow();
++  });
++
++  it("a later edit of the received bytes voids the registration, including a sign of zero", async () => {
++    const { source, model } = milestone(mode);
++    const received = await deliverDirect(source, model, mode);
++    const original = received.results[3].value;
++    received.results[3].value = original + 1;
++    expect(retainedPrecisionRegistration(received)).toBeNull();
++    expect(numericalResultStanding(received, model).findings).toStrictEqual([RETAINED_PRECISION_VALIDATION_REQUIRED]);
++    expect(hasNativeMechanicsInvocation(received, model, mode)).toBe(false);
++    expect(ruleBindingRefusal(received, received.results[3])).toBe(RULE_QUANTITY_NOT_COVERED);
++    received.results[3].value = original;
++    expect(retainedPrecisionRegistration(received)!.error).toBeNull();
++    const zero = received.results.findIndex(row => Object.is(row.value, 0));
++    expect(zero).toBeGreaterThanOrEqual(0);
++    received.results[zero].value = -0;
++    expect(retainedPrecisionRegistration(received)).toBeNull();
++    // Bytes outside the checked profile void it, and so does a receipt edit.
++    received.results[zero].value = NaN;
++    expect(retainedPrecisionRegistration(received)).toBeNull();
++    received.results[zero].value = 0;
++    (received.retained_precision as Json).receipt_sha256 = "0".repeat(64);
++    expect(retainedPrecisionRegistration(received)).toBeNull();
++  });
++
++  it("bytes outside the checked profile never register, even when registration is called directly", async () => {
++    const { source, invocation } = milestone(mode);
++    const unchecked = structuredClone(source); unchecked.results[3].value = NaN;
++    await expect(registerRetainedPrecision(unchecked, invocation)).rejects.toThrow("RETAINED_PRECISION_RECEIPT_MISMATCH");
++    expect(retainedPrecisionRegistration(unchecked)).toBeNull();
++    unchecked.results[3].value = source.results[3].value;
++    expect(retainedPrecisionRegistration(unchecked)).toBeNull();
++  });
++
++  it("bytes outside the checked profile never register, even after a later repair", async () => {
++    const { source, model } = milestone(mode);
++    const unchecked = structuredClone(source); unchecked.results[3].value = NaN;
++    const received = await deliverDirect(unchecked, model, mode);
++    expect(retainedPrecisionRegistration(received)).toBeNull();
++    received.results[3].value = source.results[3].value;
++    expect(retainedPrecisionRegistration(received)).toBeNull();
++    expect(numericalResultStanding(received, model).findings).toStrictEqual([RETAINED_PRECISION_VALIDATION_REQUIRED]);
++    expect(hasNativeMechanicsInvocation(received, model, mode)).toBe(false);
++  });
++
++  it.each([
++    ["an edited covered row", (s: Json) => { s.results[0].value = 12345; }, "RETAINED_PRECISION_RECEIPT_MISMATCH"],
++    ["a hash-consistent-looking quality claim of checks_passed", (s: Json) => { s.numerical_quality.status = "checks_passed"; s.numerical_quality.cases[0].solve_quality = "checks_passed"; }, "RETAINED_PRECISION_RECEIPT_MISMATCH"],
++    ["an altered receipt", (s: Json) => { s.retained_precision.body.receipt_version = 1; s.retained_precision.receipt_sha256 = "f".repeat(64); }, "RETAINED_PRECISION_RECEIPT_MISMATCH"],
++  ] as const)("a delivery with %s records the reader's first code: unsupported, never registered natively", async (_label, edit, code) => {
++    const { source, model } = milestone(mode);
++    const edited = structuredClone(source); edit(edited);
++    const received = await deliverDirect(edited, model, mode);
++    expect(retainedPrecisionRegistration(received)).toStrictEqual({ validation: null, error: code });
++    expect(retainedPrecisionStanding(received, model)).toStrictEqual({ standing: "unsupported", eligible: false, findings: [code] });
++    expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: "needs_recompute", eligible: false, findings: [code] });
++    expect(hasNativeMechanicsInvocation(received, model, mode)).toBe(false);
++    expect(retainedRowClasses(received)).toBeNull();
++  });
++
++  it("numerical_quality never contributes, even with the post-U7 reader and a fully passing ordinary claim", async () => {
++    u7.simulate = true;
++    const { source, model } = milestone(mode);
++    const claimed = structuredClone(source) as Json;
++    claimed.numerical_quality.status = "checks_passed";
++    claimed.numerical_quality.cases[0].solve_quality = "checks_passed";
++    // The generic branch would accept this ordinary claim; the successor branch refuses it at G1.
++    expect(claimed.numerical_quality.cases.every((c: Json) => ordinaryCaseEligible(c, new Set([...claimed.results, ...claimed.diagnostics].map((x: Json) => x.id))))).toBe(true);
++    const received = await deliverDirect(claimed, model, mode);
++    expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: "needs_recompute", eligible: false, findings: ["RETAINED_PRECISION_RECEIPT_MISMATCH"] });
++  });
++
++  it("a registration without an invocation is never eligible, even with the post-U7 reader, and says so", async () => {
++    u7.simulate = true;
++    const { source, model } = milestone(mode);
++    const own = structuredClone(source);
++    const validation = await registerRetainedPrecision(own, undefined);
++    expect(validation.invocation_bound).toBe(false);
++    expect(retainedPrecisionStanding(own, model)).toStrictEqual({ standing: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE] });
++    expect(retainedPrecisionStandingText(own)).toContain("validated by the retained-precision reader without an invocation");
++    expect(retainedPrecisionInvocation(own, model)).toBeNull();
++  });
++
++  it("a foreign solver mode is refused at the reader's invocation binding", async () => {
++    const { source, model } = milestone(mode);
++    const received = await deliverDirect(source, model, OTHER[mode]);
++    expect(retainedPrecisionRegistration(received)).toStrictEqual({ validation: null, error: "RETAINED_PRECISION_INVOCATION_MISMATCH" });
++    expect(retainedPrecisionStanding(received, model).standing).toBe("unsupported");
++    expect(hasNativeMechanicsInvocation(received, model)).toBe(false);
++  });
++});
++
++describe("the post-U7 standing rules (seams; the reader's flag is untouched)", () => {
++  const { source } = milestone("sparse_interactive");
++  const requested = [{ ref_type: "load_case", ref_id: "case" }];
++  const bound = { invocation_bound: true, numerical_eligible: true };
++  /** A two-case statement: the milestone's selected case plus a not_required one. */
++  function twoCase(edit?: (s: Json) => void): MechanicsResult {
++    const s = structuredClone(source) as Json;
++    s.retained_precision.body.cases.push({ basis_ref: { ref_type: "load_case", ref_id: "second" }, status: "not_required" });
++    s.numerical_quality.cases.push({ basis_ref: { ref_type: "load_case", ref_id: "second" }, structural_status: "passive_model_basis", solve_quality: "checks_passed", model_matrix_fidelity: "represented_equations_retained", accuracy_evidence: "not_claimed", evidence_refs: [s.diagnostics[0].id] });
++    edit?.(s);
++    return s;
++  }
++  const two = [...requested, { ref_type: "load_case", ref_id: "second" }];
++  it("is numerically_eligible only with every conjunct", () => {
++    expect(retainedStandingFrom(bound, source, requested)).toBe("numerically_eligible");
++    expect(retainedStandingFrom({ ...bound, invocation_bound: false }, source, requested)).toBe("needs_recompute");
++    expect(retainedStandingFrom({ ...bound, numerical_eligible: false }, source, requested)).toBe("needs_recompute");
++    expect(retainedStandingFrom(bound, source, [])).toBe("needs_recompute");
++    expect(retainedStandingFrom(bound, source, [{ ref_type: "load_case", ref_id: "other" }])).toBe("needs_recompute");
++    expect(retainedStandingFrom(bound, source, [...requested, ...requested])).toBe("needs_recompute");
++    expect(retainedStandingFrom(bound, { ...source, status: { ...source.status, mechanics: "MODEL_INCOMPLETE" } }, requested)).toBe("needs_recompute");
++    // Key order is not significant (serde_json Value equality).
++    expect(retainedStandingFrom(bound, source, [{ ref_id: "case", ref_type: "load_case" }])).toBe("numerically_eligible");
++  });
++  it("applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses", () => {
++    expect(retainedStandingFrom(bound, twoCase(), two)).toBe("numerically_eligible");
++    expect(retainedStandingFrom(bound, twoCase(), [two[1], two[0]])).toBe("needs_recompute");
++    for (const [field, value] of [["solve_quality", "sensitive"], ["structural_status", "numerically_unresolved"], ["model_matrix_fidelity", "assembly_uncertainty"], ["accuracy_evidence", "unresolved"], ["evidence_refs", []], ["evidence_refs", ["missing"]], ["evidence_refs", [source.diagnostics[0].id!, "missing"]], ["basis_ref", { ref_type: "load_case", ref_id: "elsewhere" }]] as const) {
++      expect(retainedStandingFrom(bound, twoCase(s => { s.numerical_quality.cases[1][field] = value; }), two), field).toBe("needs_recompute");
++    }
++    expect(retainedStandingFrom(bound, twoCase(s => { s.numerical_quality.cases.pop(); }), two)).toBe("needs_recompute");
++    expect(retainedStandingFrom(bound, twoCase(s => { s.retained_precision.body.cases[1].status = "unavailable"; }), two)).toBe("needs_recompute");
++    expect(retainedStandingFrom(bound, twoCase(s => { s.diagnostics.push(structuredClone(s.diagnostics[0])); }), two)).toBe("needs_recompute");
++    expect(retainedStandingFrom(bound, twoCase(s => { delete s.diagnostics[1].id; }), two)).toBe("needs_recompute");
++    expect(retainedStandingFrom(bound, twoCase(s => { s.results[1].id = ""; }), two)).toBe("needs_recompute");
++  });
++  it("counts withheld rows by standing (Rust classification_summary_from)", async () => {
++    const validation = await validateRetainedPrecision(source);
++    const notCurrent = classificationSummaryFrom(validation, source, requested);
++    expect(notCurrent).toStrictEqual([{ case_id: "case", relative_verified: 25, absolute_verified: 69, interval_bindable: 0, not_covered: 0, input_derived: 3, non_quantity: 1, withheld: 97 }]);
++    const current = classificationSummaryFrom({ ...validation, invocation_bound: true, numerical_eligible: true }, source, requested);
++    expect(current[0].withheld).toBe(69);
++    const uncovered: RetainedPrecisionValidation = { ...validation, invocation_bound: true, numerical_eligible: true, classifications: validation.classifications.map((row, i) => i === 1 ? { ...row, class: "not_covered" } : row) };
++    expect(classificationSummaryFrom(uncovered, source, requested)[0]).toMatchObject({ not_covered: 1, withheld: 69 + 1 - (validation.classifications[1].class === "absolute_verified" ? 1 : 0) });
++    // Rows count only toward their own case.
++    const split: RetainedPrecisionValidation = { ...validation, classifications: validation.classifications.map((row, i) => i < 10 ? { ...row, basis_ref: { ref_type: "load_case", ref_id: "second" } } : row) };
++    const counts = classificationSummaryFrom(split, twoCase(), two).map(c => [c.case_id, c.relative_verified + c.absolute_verified + c.not_covered + c.input_derived + c.non_quantity]);
++    expect(counts).toStrictEqual([["case", validation.classifications.length - 10], ["second", 10]]);
++  });
++});
++
++describe.each(MODES)("%s: the simulated post-U7 path through the real carriers", (mode) => {
++  it("standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation", async () => {
++    u7.simulate = true;
++    const { source, invocation, model } = milestone(mode);
++    const received = await deliverDirect(source, model, mode);
++    expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: "integrity_checked", eligible: true, findings: [] });
++    expect(numericalResultStanding(received, withLoadCases(model, ["other"])).findings).toStrictEqual([RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE]);
++    expect(numericalResultStanding(received, null).eligible).toBe(false);
++    expect(retainedPrecisionInvocation(received, model)).toStrictEqual(invocation);
++    expect(classificationSummary(received, model)[0].withheld).toBe(69);
++    expect(classificationSummary(received, null)[0].withheld).toBe(97);
++    invokeMock.mockReset();
++    invokeMock.mockImplementation(async (command: string, args: Json) => {
++      expect(command).toBe("run_rule_checks");
++      expect(args.sourceBlockInvocation).toStrictEqual(invocation);
++      expect(args.solvedEnvelope).toBe(received);
++      return { document_kind: "rule_check_run", rule_pack_id: "invented", grammar_version: "1.0.0", aggregate_status: "RULE_INPUTS_INCOMPLETE", checks: [], professional_boundary_notice: "unit simulation" };
++    });
++    const route = await runRuleChecks({ rulePackDocument: {} as RulePackDocument, model, solvedEnvelope: received });
++    expect(route.route).toBe("tauri_backend");
++    expect(invokeMock).toHaveBeenCalledTimes(1);
++    // Saved or copied bytes still never register, even with the post-U7 reader.
++    expect(numericalResultStanding(structuredClone(received), model).findings).toStrictEqual([RETAINED_PRECISION_VALIDATION_REQUIRED]);
++  });
++  it("a not_covered row is labelled, refused and counted (fabricated class; no statement has one)", async () => {
++    u7.simulate = true;
++    const { source, model } = milestone(mode);
++    const target = source.results.find(row => row.kind === "global_nodal_rotation_x")!;
++    u7.notCovered = target.id;
++    const received = await deliverDirect(source, model, mode);
++    expect(ruleBindingRefusal(received, target)).toBe(RULE_QUANTITY_NOT_COVERED);
++    expect(resultRowLabel(target, received)).toBe(N_RP_NOT_COVERED);
++    expect(knownSemanticNotices(received).map(n => n.id)).toContain("retained-precision-not-covered:case");
++    expect(ruleBindingPrecheck(received, { solverInputs: [{ input_id: "x", name: "x", dimension: "angle", unit_ref: "rad", solver_result_ref: { result_id: target.id } }], valueInputs: [], valueSlots: [], libraryInputs: [] })).toStrictEqual([{ input_id: "x", result_id: target.id, reason: RULE_QUANTITY_NOT_COVERED, notice: N_RP_NOT_COVERED }]);
++    expect(classificationSummary(received, model)[0].not_covered).toBe(1);
++  });
++  it("without absolute rows there is no absolute summary notice", async () => {
++    u7.simulate = true; u7.noAbsolute = true;
++    const { source, model } = milestone(mode);
++    const received = await deliverDirect(source, model, mode);
++    expect(classificationSummary(received, model)[0]).toMatchObject({ absolute_verified: 0, not_covered: 0 });
++    expect(knownSemanticNotices(received).map(n => n.id)).toStrictEqual(["headline-label"]);
++    expect(ruleBindingRefusal(received, received.results[3])).toBeNull();
++  });
++});
++
++describe.each(MODES)("%s: the rule-check gate and binding refusals (eligibility held)", (mode) => {
++  const pack = {} as RulePackDocument;
++  it("refuses a registered successor before any rule backend call, and unregistered bytes as not native", async () => {
++    const { source, model } = milestone(mode);
++    const received = await deliverDirect(source, model, mode);
++    invokeMock.mockReset();
++    await expect(runRuleChecks({ rulePackDocument: pack, model, solvedEnvelope: received })).rejects.toThrow(`${RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE}: the retained-precision result is not numerically eligible for rule checks.`);
++    await expect(runRuleChecks({ rulePackDocument: pack, model, solvedEnvelope: structuredClone(received) })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
++    const edited = structuredClone(source); edited.results[0].value = 12345;
++    const refused = await deliverDirect(edited, model, mode);
++    invokeMock.mockReset();
++    await expect(runRuleChecks({ rulePackDocument: pack, model, solvedEnvelope: refused })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
++    expect(invokeMock).not.toHaveBeenCalled();
++  });
++  it("binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused", async () => {
++    const { source, model } = milestone(mode);
++    const received = await deliverDirect(source, model, mode);
++    const classes = retainedRowClasses(received)!;
++    const byClass = (cls: string) => received.results.filter(row => classes.get(row.id)!.class === cls);
++    expect(byClass("absolute_verified")).toHaveLength(69);
++    for (const row of byClass("absolute_verified")) expect(ruleBindingRefusal(received, row)).toBe(RULE_QUANTITY_BELOW_VERIFIED_FLOOR);
++    for (const cls of ["relative_verified", "input_derived", "non_quantity"]) {
++      expect(byClass(cls).length).toBeGreaterThan(0);
++      for (const row of byClass(cls)) expect(ruleBindingRefusal(received, row), cls).toBeNull();
++    }
++    expect(ruleBindingRefusal(received, { id: "result:absent", kind: "x" })).toBeNull();
++    const headline = received.summary.max_open_formula_stress!.result_ref;
++    expect(classes.get(headline)!.class).toBe("absolute_verified");
++    const plan: RuleCheckBindingPlan = { solverInputs: [{ input_id: "headline", name: "h", dimension: "stress", unit_ref: "Pa", solver_result_ref: { result_id: headline } }, { input_id: "relative", name: "r", dimension: "force", unit_ref: "N" }], valueInputs: [], valueSlots: [], libraryInputs: [] };
++    const relative = byClass("relative_verified")[0];
++    const findings = ruleBindingPrecheck(received, plan, [{ input_id: "relative", result_id: relative.id }]);
++    const label = retainedAbsoluteNotice(classes.get(headline)!.bound_bits!, "Pa");
++    expect(findings).toStrictEqual([{ input_id: "headline", result_id: headline, reason: RULE_QUANTITY_BELOW_VERIFIED_FLOOR, notice: label }]);
++    expect(label).not.toBe(N_SB);
++    const copy = structuredClone(received);
++    expect(ruleBindingRefusal(copy, relative)).toBe(RULE_QUANTITY_NOT_COVERED);
++    expect(ruleBindingPrecheck(copy, plan, [{ input_id: "relative", result_id: relative.id }]).map(f => [f.reason, f.notice])).toStrictEqual([[RULE_QUANTITY_NOT_COVERED, N_RP_UNVALIDATED], [RULE_QUANTITY_NOT_COVERED, N_RP_UNVALIDATED]]);
++    expect(classBindingRefusal("not_covered")).toBe(RULE_QUANTITY_NOT_COVERED);
++    expect(classBindingRefusal("absolute_verified")).toBe(RULE_QUANTITY_BELOW_VERIFIED_FLOOR);
++    expect(classBindingRefusal(undefined)).toBeNull();
++  });
++  it("summarizes classes per case over the registration only", async () => {
++    const { source, model } = milestone(mode);
++    const received = await deliverDirect(source, model, mode);
++    expect(classificationSummary(received, model)).toStrictEqual([{ case_id: "case", relative_verified: 25, absolute_verified: 69, interval_bindable: 0, not_covered: 0, input_derived: 3, non_quantity: mode === "sparse_interactive" ? 1 : 2, withheld: 97 }]);
++    expect(classificationSummary(structuredClone(received), model)).toStrictEqual([]);
++    expect(classificationSummary(null)).toStrictEqual([]);
++  });
++});
++
++describe("the downgrade guard (F-5)", () => {
++  const { source } = milestone("sparse_interactive");
++  const relabel = (s: Json) => { s.producer.semantic_contract_id = PREVIEW_PHYSICS_CONTRACT_ID; s.formulation_basis.profile_id = "product_preview_mechanics_v1"; return s; };
++  it.each([
++    ["the receipt and the token rows", (s: Json) => relabel(s)],
++    ["the token rows only", (s: Json) => { delete relabel(s).retained_precision; }],
++    ["a null receipt member only", (s: Json) => { relabel(s).retained_precision = null; for (const row of s.results) delete row.recovery_method; }],
++    ["one token row only", (s: Json) => { delete relabel(s).retained_precision; for (const row of s.results.slice(1)) delete row.recovery_method; }],
++  ] as const)("a successor relabelled as preview-physics-1 keeping %s is unsupported", (_label, edit) => {
++    const s = structuredClone(source) as Json; edit(s);
++    expect(retainedPrecisionDowngrade(s)).toBe(true);
++    expect(sourceContract(s)).toBe("unsupported");
++    expect(numericalResultStanding(s, null)).toStrictEqual({ contract: "unsupported", status: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_DOWNGRADE_FORBIDDEN] });
++    expect(hasCurrentSourceContract(s)).toBe(false);
++    expect(isFreshSemanticResult(s)).toBe(false);
++    expect(ruleBindingRefusal(s, s.results[0])).toBeNull();
++  });
++  it("with neither the receipt nor a token row it is the base identity again, and the guard ignores other method strings", () => {
++    const s = relabel(structuredClone(source));
++    delete s.retained_precision;
++    for (const row of s.results) delete row.recovery_method;
++    expect(retainedPrecisionDowngrade(s)).toBe(false);
++    expect(sourceContract(s)).toBe("preview_physics");
++    s.results[0].recovery_method = "some_other_method";
++    expect(retainedPrecisionDowngrade(s)).toBe(false);
++  });
++  it("applies to every other identity, including legacy 0.1.0 and an unparseable header", () => {
++    const legacy = JSON.parse(readFileSync(resolve(root, "fixtures/product_preview/invented_mechanics_result.json"), "utf8"));
++    expect(sourceContract(legacy)).toBe("legacy");
++    expect(sourceContract({ ...legacy, retained_precision: {} })).toBe("unsupported");
++    expect(numericalResultStanding({ ...legacy, retained_precision: {} }, null).findings).toStrictEqual([RETAINED_PRECISION_DOWNGRADE_FORBIDDEN]);
++    const preview = JSON.parse(readFileSync(resolve(root, "fixtures/results/preview_physics_connected_sparse.json"), "utf8"));
++    expect(sourceContract(preview)).toBe("preview_physics");
++    expect(sourceContract({ ...preview, retained_precision: structuredClone(source.retained_precision) })).toBe("unsupported");
++    expect(sourceContract({ ...preview, results: preview.results.map((row: Json, i: number) => i ? row : { ...row, recovery_method: RETAINED_METHOD }) })).toBe("unsupported");
++    expect(retainedPrecisionDowngrade({ ...legacy, results: [null, 3] })).toBe(false);
++    expect(retainedPrecisionDowngrade({ ...legacy, results: "rows" })).toBe(false);
++    expect(numericalResultStanding({ ...legacy, producer: { semantic_contract_id: "unknown" } } as MechanicsResult, null).findings).toStrictEqual(["SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"]);
++  });
++  it("the successor's own header requires its profile, its contract evidence and a receipt object, and no other receipt", () => {
++    expect(sourceContract(source)).toBe("retained_preview_physics");
++    for (const edit of [
++      (s: Json) => { s.formulation_basis.profile_id = "product_preview_mechanics_v1"; },
++      (s: Json) => { delete s.contract_evidence; },
++      (s: Json) => { s.retained_precision = null; },
++      (s: Json) => { s.retained_precision = [s.retained_precision]; },
++      (s: Json) => { s.retained_precision = "receipt"; },
++      (s: Json) => { delete s.retained_precision; },
++      (s: Json) => { s.source_block_recovery = {}; },
++      (s: Json) => { s.carrier_evidence = {}; },
++      (s: Json) => { s.producer.component_version = "0.1.0"; },
++    ]) {
++      const s = structuredClone(source) as Json; edit(s);
++      expect(sourceContract(s)).toBe("unsupported");
++      expect(numericalResultStanding(s, null).findings).toStrictEqual(["SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"]);
++    }
++  });
++});
++
++describe("the 14 shared parity scenarios agree with Rust U6a", () => {
++  it.each<[string, Json]>((caseFile.cases as Json[]).map(c => [c.id, c]))("%s", async (_id, c) => {
++    const mode = c.fixture.replace(/^milestone_/, "") as PreviewSolverMode;
++    const doc = milestone(mode);
++    const source = structuredClone(doc.source) as Json, invocation = structuredClone(doc.invocation);
++    for (const edit of c.edits) {
++      expect(edit.op).toBe("set");
++      setPath(edit.target === "source" ? source : invocation, edit.path, edit.value);
++    }
++    // TS has no synchronous reader: the invocation case is a capture of that
++    // invocation through mocked IPC; no invocation is a delivery without a capture.
++    const solveMode = invocation.solver_mode as PreviewSolverMode;
++    const received = await deliverDirect(source, c.invocation === null ? null : invocation.request.model, solveMode);
++    const requestedIds = c.requested === "invocation" ? caseIds(doc.model) : c.requested.map((r: Json) => r.ref_id);
++    const model = withLoadCases(doc.model, requestedIds);
++    const route = sourceContract(received);
++    const standing = route === "unsupported" ? "unsupported" : route === "retained_preview_physics" ? retainedPrecisionStanding(received, model).standing : "unexpected";
++    expect(standing).toBe(c.expected_standing);
++    // Raw dispatch: the header route, then the accepted reader without an invocation.
++    let dispatch: string;
++    if (route === "unsupported") dispatch = numericalResultStanding(received, model).findings[0];
++    else dispatch = await validateRetainedPrecision(received).then(() => "ok", (error: Json) => error.code);
++    expect(dispatch).toBe(c.expected_dispatch);
++    expect(numericalResultStanding(received, model).eligible).toBe(false);
++  });
++});
++
++describe("notices, labels and the results-panel standing text", () => {
++  it("the bound is printed upward with three significant digits", () => {
++    expect(upwardBoundText(0)).toBe("0");
++    // A printed value equal to b as a binary64 is stepped up too: never below b.
++    expect(upwardBoundText(1.25)).toBe("1.26e+0");
++    expect(upwardBoundText(1.2344e-20)).toBe("1.24e-20");
++    expect(upwardBoundText(9.9951e-5)).toBe("1.00e-4");
++    expect(upwardBoundText(9.996e3)).toBe("1.00e+4");
++    // A step up from 9.99 carries into the exponent.
++    expect(upwardBoundText(9.994e-5)).toBe("1.00e-4");
++    expect(upwardBoundText(9.993e3)).toBe("1.00e+4");
++    expect(upwardBoundText(1.2345e7)).toBe("1.24e+7");
++    expect(upwardBoundText(1.23e-20)).toBe("1.24e-20");
++    expect(N_RP_ABSOLUTE).toContain("±{b} {unit}");
++    // b is in the SI unit the reader classified the quantity in.
++    const one = "3ff0000000000000";
++    for (const [unit, si] of [["mm", "m"], ["kN", "N"], ["kN*m", "N*m"], ["MPa", "Pa"], ["N", "N"], ["rad", "rad"]]) expect(retainedAbsoluteNotice(one, unit)).toBe(N_RP_ABSOLUTE.replace("{b}", "1.01e+0").replace("{unit}", si));
++  });
++  it.each(MODES)("%s: registered rows carry their class label with an upward b in SI units; notices summarize per case", async (mode) => {
++    const { source, model } = milestone(mode);
++    const received = await deliverDirect(source, model, mode);
++    const classes = retainedRowClasses(received)!;
++    let checked = 0;
++    for (const row of received.results) {
++      const c = classes.get(row.id)!, label = resultRowLabel(row, received);
++      if (c.class !== "absolute_verified") { expect(label === null || !label.includes("Uncovered quantity"), row.id).toBe(true); continue; }
++      const match = /±(\S+) (\S+), below/.exec(label!)!;
++      expect(Number(match[1])).toBeGreaterThanOrEqual(decodeBinary64(c.bound_bits!));
++      expect(match[2]).toBe({ mm: "m", MPa: "Pa", kN: "N" }[row.unit] ?? row.unit);
++      checked += 1;
++    }
++    expect(checked).toBe(69);
++    const mm = received.results.find(row => row.unit === "mm" && classes.get(row.id)!.class === "absolute_verified");
++    if (mm) expect(resultRowLabel(mm, received)).toContain(" m, below");
++    const headline = received.results.find(row => row.id === received.summary.max_open_formula_stress!.result_ref)!;
++    expect(resultRowLabel(headline, received)).toBe(`${retainedAbsoluteNotice(classes.get(headline.id)!.bound_bits!, headline.unit)} ${N_HEADLINE}`);
++    const notices = knownSemanticNotices(received);
++    expect(notices.map(n => n.id)).toStrictEqual(["headline-label", "retained-precision-absolute:case"]);
++    expect(notices[1].text).toContain("69 quantities verified only to an absolute bound");
++    // Unregistered: no class is known, so no row is presented as verified.
++    const copy = structuredClone(received);
++    expect(knownSemanticNotices(copy).map(n => n.id)).toStrictEqual(["headline-label", "retained-precision-unvalidated"]);
++    expect(resultRowLabel(headline, copy)).toBe(N_HEADLINE);
++  });
++  it("the standing text comes from the registered receipt, never from numerical_quality", async () => {
++    const { source, model } = milestone("sparse_interactive");
++    const received = await deliverDirect(source, model, "sparse_interactive");
++    expect(source.numerical_quality!.status).toBe("sensitive");
++    render(<ResultsPanel result={received} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
++    const text = screen.getByTestId("numerical-result-standing").textContent!;
++    expect(text).toBe(retainedPrecisionStandingText(received));
++    expect(text).toContain("receipt validated by the retained-precision reader against the actual invocation");
++    expect(text).not.toMatch(/sensitive|Numerical integrity:/);
++    const absolute = received.results.find(row => retainedRowClasses(received)!.get(row.id)!.class === "absolute_verified" && row.unit === "N")!;
++    expect(screen.getByTestId(`result-row-label-${absolute.id}`).textContent).toContain("Uncovered quantity: verified only to an absolute bound");
++    expect(screen.getByTestId("results-notice-retained-precision-absolute:case")).toBeTruthy();
++    cleanup();
++    render(<ResultsPanel result={structuredClone(received)} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
++    expect(screen.getByTestId("numerical-result-standing").textContent).toContain("receipt not validated for these exact bytes");
++    cleanup();
++    const edited = structuredClone(source); edited.results[0].value = 12345;
++    const refused = await deliverDirect(edited, model, "sparse_interactive");
++    expect(retainedPrecisionStandingText(refused)).toContain("refused by the retained-precision reader (RETAINED_PRECISION_RECEIPT_MISMATCH); unsupported");
++    expect(retainedPrecisionStandingText(received)).toContain("Selected cases: 1 of 1.");
++    const twoCases = structuredClone(source) as Json;
++    twoCases.retained_precision.body.cases.push({ basis_ref: { ref_type: "load_case", ref_id: "second" }, status: "not_required" });
++    expect(retainedPrecisionStandingText(twoCases)).toContain("Selected cases: 1 of 2.");
++  });
++});
++
++describe.each(MODES)("%s: reopen revalidates the saved statement and never mints standing", (mode) => {
++  async function saved(edit?: (envelope: Json) => void): Promise<LocalProjectEnvelope> {
++    const { source, model } = milestone(mode);
++    const received = await deliverDirect(source, model, mode);
++    const manifest = { manifest_ref: { object_type: "InputManifest", ref: "manifest:invented-retained-reopen" }, manifest_sha256: "1".repeat(64), manifest: { model_basis: { model_ref: received.model_ref }, solver_basis: { solver_name: received.producer!.component_name, solver_version: received.producer!.component_version, solver_build_ref: "unit-transport-replay-not-native-witness" } } };
++    const analysis_run = await buildAnalysisRunV03(received, manifest, undefined, modelLoadBasisRefs(model));
++    // Persistence keeps JSON text (src-tauri mechanics_result_json, analysis_run_json).
++    const envelope: Json = JSON.parse(JSON.stringify({ model, mechanics_result: received, analysis_run, model_hash: await computeModelHash(model), editor_intents: [], proposal: null, selected_review_target: null }));
++    edit?.(envelope);
++    envelope.project_envelope_hash = await computeProjectEnvelopeHash(envelope);
++    return envelope as LocalProjectEnvelope;
++  }
++  it("a saved successor reads needs_recompute; its receipt revalidates and its AnalysisRun copy matches", async () => {
++    u7.simulate = true; // even the post-U7 reader cannot mint standing from saved bytes
++    const opened = await saved();
++    const context = (await buildHistoricalRunContext(opened))!;
++    expect(context.mechanicsResult).not.toBeNull();
++    expect(context.findings).toStrictEqual(["HISTORICAL_INPUT_MANIFEST_MISSING", RETAINED_PRECISION_VALIDATION_REQUIRED]);
++    expect(numericalResultStanding(context.mechanicsResult!, opened.model).eligible).toBe(false);
++    expect(hasNativeMechanicsInvocation(context.mechanicsResult, opened.model, mode)).toBe(false);
++    expect(retainedPrecisionRegistration(context.mechanicsResult)).toBeNull();
++  });
++  it("a saved successor without an AnalysisRun is revalidated and reports no copy mismatch", async () => {
++    const opened = await saved(envelope => { envelope.analysis_run = null; });
++    const findings = (await buildHistoricalRunContext(opened))!.findings;
++    expect(findings).toContain(RETAINED_PRECISION_VALIDATION_REQUIRED);
++    expect(findings).toContain("HISTORICAL_RUN_EVIDENCE_INCOMPLETE");
++    expect(findings).not.toContain(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
++  });
++  it("a mutated saved row reads unsupported: the reader's own code is a finding", async () => {
++    const opened = await saved(envelope => { envelope.mechanics_result.results[0].value = 12345; });
++    const findings = (await buildHistoricalRunContext(opened))!.findings;
++    expect(findings).toEqual(expect.arrayContaining([RETAINED_PRECISION_VALIDATION_REQUIRED, "RETAINED_PRECISION_RECEIPT_MISMATCH", "HISTORICAL_RESULT_HASH_MISMATCH"]));
++  });
++  it.each([
++    ["altered", (envelope: Json) => { envelope.analysis_run.analysis_run.retained_precision.body.receipt_version = 2; }],
++    ["dropped", (envelope: Json) => { delete envelope.analysis_run.analysis_run.retained_precision; }],
++  ] as const)("an %s AnalysisRun receipt copy is reported", async (_label, edit) => {
++    const findings = (await buildHistoricalRunContext(await saved(edit)))!.findings;
++    expect(findings).toContain(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
++    expect(findings).toContain("HISTORICAL_ANALYSIS_HASH_MISMATCH");
++    expect(findings).not.toContain("RETAINED_PRECISION_RECEIPT_MISMATCH");
++  });
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts b/projects/chirality-piping/apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts
+new file mode 100644
+index 0000000000..7d02bd488b
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts
+@@ -0,0 +1,173 @@
++/** U6d: the AnalysisRun carries the F2a successor's complete receipt (C1:162;
++ * D2 4.9.6; plan 1d and 4). The record copies the receipt whole, never
++ * recomputing or repairing it, and validation requires exact equality with the
++ * source's (ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH); a receipt on any
++ * other identity's record is refused (ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN).
++ * The codes are Python's (U6b). Inputs are PP's pinned milestone successor bytes
++ * (D-U6-5) delivered through mocked IPC: a unit transport replay, NOT a native
++ * witness (plan F-1; D-U6-3). */
++import { afterEach, describe, expect, it, vi } from "vitest";
++import { createHash } from "node:crypto";
++import { readFileSync } from "node:fs";
++import { resolve } from "node:path";
++const invokeMock = vi.hoisted(() => vi.fn());
++vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
++import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../types";
++import {
++  ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, analysisRecordProjection, buildAnalysisRunV02, buildAnalysisRunV03,
++  modelLoadBasisRefs, validateAnalysisRunV03, verifyAnalysisRunRecord,
++} from "./analysisRunCompatibility";
++import { bindSourceResultDimensions, buildAnalysisRunPreview, runPreviewMechanics, type PreviewSolverMode } from "./previewService";
++import { buildCurrentSessionInputManifest } from "./inputManifestService";
++import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
++import { validateRetainedPrecision } from "../features/results/retainedPrecision";
++import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 } from "../features/results/numericalResultQuality";
++
++type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
++const root = resolve(__dirname, "../../../../");
++const caseFile = JSON.parse(readFileSync(resolve(root, "fixtures/results/retained_precision_carrier_cases.json"), "utf8"));
++const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
++function milestone(mode: PreviewSolverMode) {
++  const entry = caseFile.fixtures[`milestone_${mode}`];
++  const bytes = readFileSync(resolve(root, entry.path));
++  expect(createHash("sha256").update(bytes).digest("hex")).toBe(entry.sha256);
++  const doc = JSON.parse(bytes.toString("utf8"));
++  return { source: doc.source as MechanicsResult, invocation: doc.invocation as Json, model: doc.invocation.request.model as PreviewModel };
++}
++async function delivered(mode: PreviewSolverMode, source?: MechanicsResult) {
++  const pinned = milestone(mode);
++  (window as Json).__TAURI_INTERNALS__ = {};
++  invokeMock.mockImplementation(async (command: string) => {
++    expect(command).toBe("run_preview_mechanics_with_solver_mode");
++    return structuredClone(source ?? pinned.source);
++  });
++  const received = await runPreviewMechanics(pinned.model, mode);
++  // The pinned request model has no desktop load-case status, which the input
++  // manifest requires; the manifest model adds an invented one. Delivery and
++  // registration use the exact pinned invocation.
++  const manifestModel = { ...pinned.model, load_cases: pinned.model.load_cases.map(c => ({ ...c, status: "invented_test_status" })) } as PreviewModel;
++  const inputManifest = await buildCurrentSessionInputManifest({ model: manifestModel, solver: { solver_name: received.producer!.component_name, solver_version: received.producer!.component_version, solver_build_ref: "unit-transport-replay-not-native-witness", solver_mode: mode, settings: {} }, active_rule_packs: [], external_assets: [] });
++  return { ...pinned, received, inputManifest };
++}
++const manifestFor = (source: MechanicsResult) => ({ manifest_ref: { object_type: "InputManifest", ref: "manifest:invented-retained" }, manifest_sha256: "1".repeat(64), manifest: { model_basis: { model_ref: source.model_ref }, solver_basis: { solver_name: source.producer!.component_name, solver_version: source.producer!.component_version, solver_build_ref: "test:invented" } } });
++/** The reader's own projection to the base identity (C1 G7). */
++function baseProjection(source: MechanicsResult): MechanicsResult {
++  const p = structuredClone(source) as Json;
++  delete p.retained_precision;
++  p.producer.semantic_contract_id = PREVIEW_PHYSICS_CONTRACT_ID;
++  p.formulation_basis.profile_id = "product_preview_mechanics_v1";
++  for (const row of p.results) delete row.recovery_method;
++  return p;
++}
++
++afterEach(() => { invokeMock.mockReset(); delete (window as Json).__TAURI_INTERNALS__; });
++
++describe.each(MODES)("%s: the AnalysisRun copies the receipt and validates its equality", (mode) => {
++  it("builds through the product path with the complete receipt, byte-equal, and validates", async () => {
++    const { received, inputManifest, invocation, model } = await delivered(mode);
++    const before = checkedJsonText(received);
++    const record = await buildAnalysisRunPreview(received, { inputManifest });
++    expect(checkedJsonText(received)).toBe(before);
++    const run = record.analysis_run;
++    expect(checkedJsonText(run.retained_precision)).toBe(checkedJsonText(received.retained_precision));
++    expect(run.retained_precision).not.toBe(received.retained_precision);
++    expect(Object.hasOwn(run, "source_block_recovery")).toBe(false);
++    expect(Object.hasOwn(run, "contract_evidence")).toBe(false);
++    expect(record.schema_version).toBe("0.3.0");
++    expect(run.reproducibility.semantic_contract).toStrictEqual({ id: PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, sha256: PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 });
++    // The received_result hash binds the whole raw document, receipt included.
++    expect(run.hashes.find(h => h.payload_scope === "received_result")!.value).toBe(await canonicalSha256HexCheckedV1(received));
++    expect(await verifyAnalysisRunRecord(record)).toBe("match");
++    await validateAnalysisRunV03(record, received, modelLoadBasisRefs(model));
++    // Reader revalidation from the record plus the source, with the invocation.
++    const { retained_precision: _omit, ...publication } = received;
++    const back = { ...structuredClone(publication), retained_precision: structuredClone(run.retained_precision) };
++    const original = await validateRetainedPrecision(received, invocation);
++    expect(await validateRetainedPrecision(back, invocation)).toStrictEqual(original);
++    expect(original.numerical_eligible).toBe(false);
++  });
++
++  it("row interpretation equals the base preview-physics-1 projection's except the contract binding", async () => {
++    const { received, model } = await delivered(mode);
++    const record = await buildAnalysisRunV03(received, manifestFor(received), undefined, modelLoadBasisRefs(model));
++    const base = await buildAnalysisRunV03(baseProjection(received), manifestFor(received), undefined, modelLoadBasisRefs(model));
++    expect(record.analysis_run.result_refs).toHaveLength(received.results.length);
++    record.analysis_run.result_refs.forEach((row, i) => {
++      const other = base.analysis_run.result_refs[i];
++      expect(row.semantic_contract).toStrictEqual({ id: PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, sha256: PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, signature_id: other.semantic_contract!.signature_id });
++      expect({ ...row, semantic_contract: null, hash_refs: null }).toStrictEqual({ ...other, semantic_contract: null, hash_refs: null });
++    });
++  });
++
++  it.each([
++    ["dropped", (run: Json) => { delete run.retained_precision; }],
++    ["altered", (run: Json) => { run.retained_precision.receipt_sha256 = "0".repeat(64); }],
++    ["altered in its body", (run: Json) => { run.retained_precision.body.cases[0].status = "not_required"; }],
++    ["replaced by null", (run: Json) => { run.retained_precision = null; }],
++  ] as const)("a %s copy fails with ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH", async (_label, edit) => {
++    const { received, model } = await delivered(mode);
++    const record = await buildAnalysisRunV03(received, manifestFor(received), undefined, modelLoadBasisRefs(model));
++    const changed = structuredClone(record); edit(changed.analysis_run);
++    await expect(validateAnalysisRunV03(changed, received, modelLoadBasisRefs(model))).rejects.toThrow(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
++    // The same copy with its keys reordered is the same receipt.
++    const reordered = structuredClone(record);
++    const receipt = reordered.analysis_run.retained_precision as Json;
++    reordered.analysis_run.retained_precision = { receipt_sha256: receipt.receipt_sha256, body: receipt.body };
++    await validateAnalysisRunV03(reordered, received, modelLoadBasisRefs(model));
++  });
++
++  it("an edited source is refused by the reader at build and at validation, with its own code", async () => {
++    const { received, model, source } = await delivered(mode);
++    const record = await buildAnalysisRunV03(received, manifestFor(received), undefined, modelLoadBasisRefs(model));
++    const edited = structuredClone(source); edited.results[0].value = 12345;
++    await expect(buildAnalysisRunV03(edited, manifestFor(edited), undefined, modelLoadBasisRefs(model))).rejects.toThrow("RETAINED_PRECISION_RECEIPT_MISMATCH");
++    await expect(validateAnalysisRunV03(record, edited, modelLoadBasisRefs(model))).rejects.toThrow("RETAINED_PRECISION_RECEIPT_MISMATCH");
++    // A source the checked profile refuses is recorded only after the reader: its own code first.
++    const surrogate = structuredClone(source) as Json; surrogate.results[0].metadata.basis = "\ud800";
++    await expect(buildAnalysisRunV03(surrogate, manifestFor(surrogate), undefined, modelLoadBasisRefs(model))).rejects.toThrow("RETAINED_PRECISION_RECEIPT_MISMATCH");
++    // The receipt is never repaired: a recomputed-looking copy is still refused.
++    const quality = structuredClone(source) as Json; quality.numerical_quality.status = "checks_passed";
++    await expect(buildAnalysisRunV03(quality, manifestFor(quality), undefined, modelLoadBasisRefs(model))).rejects.toThrow("RETAINED_PRECISION_RECEIPT_MISMATCH");
++  });
++
++  it("a relabelled successor is refused by every builder; the legacy builder refuses the successor", async () => {
++    const { received, model } = await delivered(mode);
++    const relabelled = structuredClone(received) as Json;
++    relabelled.producer.semantic_contract_id = PREVIEW_PHYSICS_CONTRACT_ID;
++    relabelled.formulation_basis.profile_id = "product_preview_mechanics_v1";
++    await expect(buildAnalysisRunV03(relabelled, manifestFor(relabelled), undefined, modelLoadBasisRefs(model))).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
++    const record = await buildAnalysisRunV03(received, manifestFor(received), undefined, modelLoadBasisRefs(model));
++    await expect(validateAnalysisRunV03(record, relabelled, modelLoadBasisRefs(model))).rejects.toThrow("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
++    await expect(buildAnalysisRunV02(received, manifestFor(received))).rejects.toThrow("HISTORICAL_ANALYSIS_SOURCE_UNSUPPORTED");
++  });
++
++  it("rule-check status composition changes only the record's status, never the raw document", async () => {
++    const { received, inputManifest } = await delivered(mode);
++    const before = checkedJsonText(received);
++    const plain = await buildAnalysisRunPreview(received, { inputManifest });
++    const checked = await buildAnalysisRunPreview(received, { inputManifest, ruleCheckAggregate: "USER_RULE_CHECKED" });
++    expect(checked.analysis_run.analysis_status).toContain("USER_RULE_CHECKED");
++    expect(plain.analysis_run.analysis_status).toContain("RULE_INPUTS_INCOMPLETE");
++    const received_result = (r: AnalysisRunEnvelope) => r.analysis_run.hashes.find(h => h.payload_scope === "received_result");
++    expect(received_result(checked)).toStrictEqual(received_result(plain));
++    expect(checkedJsonText(checked.analysis_run.retained_precision)).toBe(checkedJsonText(plain.analysis_run.retained_precision));
++    expect(checkedJsonText(received)).toBe(before);
++    // Legacy dimension binding is a no-op for the successor: the same object back.
++    expect(bindSourceResultDimensions(received)).toBe(received);
++  });
++});
++
++describe("no other identity's record carries a receipt", () => {
++  it("a preview-physics-1 record given the successor's receipt is ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN", async () => {
++    const preview = JSON.parse(readFileSync(resolve(root, "fixtures/results/preview_physics_connected_sparse.json"), "utf8")) as MechanicsResult;
++    const record = await buildAnalysisRunV03(preview, manifestFor(preview));
++    expect(Object.hasOwn(record.analysis_run, "retained_precision")).toBe(false);
++    await validateAnalysisRunV03(record, preview);
++    const injected = structuredClone(record);
++    injected.analysis_run.retained_precision = structuredClone(milestone("sparse_interactive").source.retained_precision);
++    injected.analysis_run.hashes = [...injected.analysis_run.hashes.filter(h => h.payload_scope !== "analysis_run_record"), { ...record.analysis_run.hashes.find(h => h.payload_scope === "analysis_run_record")!, value: await canonicalSha256HexCheckedV1(analysisRecordProjection(injected)) }];
++    await expect(validateAnalysisRunV03(injected, preview)).rejects.toThrow(ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
++    const nulled = structuredClone(record); (nulled.analysis_run as Json).retained_precision = null;
++    await expect(validateAnalysisRunV03(nulled, preview)).rejects.toThrow(ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
++  });
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
+new file mode 100644
+index 0000000000..41bab3e819
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
+@@ -0,0 +1,209 @@
++/** U6d (D-U6-8; D2 4.9.6; plan 1d and 4): every desktop output of the F2a
++ * preview successor is refused until T6. No T6 panel is edited: each refuses
++ * through the one shared function (`loadReferenceOutputRefusal` /
++ * `refuseLoadReferenceOutput`), which now returns the successor's own reason,
++ * or through the report package's fresh-result refusal. `isLoadReferenceRoute`
++ * is unchanged, so the load-reference text is never shown for a successor.
++ * Display stays. A preview-physics-1 result is the control: its outputs are
++ * unchanged. Inputs are PP's pinned milestone successor bytes (D-U6-5); unit
++ * rendering only, NOT a native witness (plan F-1). */
++import { cleanup, render, screen } from "@testing-library/react";
++import { afterEach, describe, expect, it, vi } from "vitest";
++import { createHash } from "node:crypto";
++import { readFileSync } from "node:fs";
++import { resolve } from "node:path";
++import type { ComponentType } from "react";
++const invokeMock = vi.hoisted(() => vi.fn());
++vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
++import type { MechanicsResult, PreviewModel } from "../../types";
++import { buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
++import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
++import { computeModelHash } from "../../services/hashService";
++import { hasNativeMechanicsInvocation, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
++import { initialSolveJob } from "../workspace/solveJobAudit";
++import {
++  LOAD_REFERENCE_OUTPUT_REFUSAL, RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE, RETAINED_PRECISION_OUTPUT_REFUSAL,
++  isLoadReferenceRoute, loadReferenceOutputRefusal, refuseLoadReferenceOutput,
++} from "./loadReferenceOutputAvailability";
++import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE, isFreshSemanticResult } from "./knownSemanticLimitations";
++import { currentSemanticContract, numericalResultStanding } from "./numericalResultQuality";
++import { RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE } from "./retainedPrecisionStanding";
++import { KnownSemanticNotices } from "./KnownSemanticNotices";
++import { reportPackageUnavailableReason } from "../report/reportPackageRequest";
++import { buildStressNeutralExportPacket, validateStressNeutralExportPacket, StressNeutralExportPanel } from "../stress-neutral/StressNeutralExportPanel";
++import { buildCurrentResultExport, deriveResultDocument, resultDigest, validateResultDocument } from "../result-export/resultExportAdapter";
++import { ResultExportPanel } from "../result-export/ResultExportPanel";
++import { PcfExportPanel } from "../pcf-export/PcfExportPanel";
++import { CaepipeMbfExportPanel } from "../caepipe-mbf/CaepipeMbfExportPanel";
++import { CaepipeExternalHarnessPanel } from "../caepipe-external/CaepipeExternalHarnessPanel";
++import { ExportAdapterSdkPanel } from "../export-adapter-sdk/ExportAdapterSdkPanel";
++import { AdapterFrameworkPanel } from "../adapter-framework/AdapterFrameworkPanel";
++import { ExternalProverBoundaryPanel } from "../external-prover/ExternalProverBoundaryPanel";
++import { MissingDataBlockingPanel } from "../missing-data/MissingDataBlockingPanel";
++import { DesignWorkspacePanel } from "../design-workspace/DesignWorkspacePanel";
++import { RuleCheckPanel } from "../rule-check/RuleCheckPanel";
++import { ReportLintPanel } from "../report-lint/ReportLintPanel";
++import { SolvePanel } from "../solve/SolvePanel";
++import { HeadlessRunnerPanel } from "../headless-runner/HeadlessRunnerPanel";
++import { LocalFeaHandoffPanel } from "../local-fea-handoff/LocalFeaHandoffPanel";
++import { NativePackagePanel } from "../native-package/NativePackagePanel";
++import { HandoffPanel } from "../handoff/HandoffPanel";
++import { ExportReviewPanel } from "../export-review/ExportReviewPanel";
++import { ReportPanel } from "../report/ReportPanel";
++import { RenderedReportPanel } from "../report/RenderedReportPanel";
++
++type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
++afterEach(() => { cleanup(); invokeMock.mockReset(); delete (window as Json).__TAURI_INTERNALS__; });
++const root = resolve(__dirname, "../../../../../");
++const caseFile = JSON.parse(readFileSync(resolve(root, "fixtures/results/retained_precision_carrier_cases.json"), "utf8"));
++const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
++const manifestFor = (source: MechanicsResult) => ({ manifest_ref: { object_type: "InputManifest", ref: "manifest:invented-retained-output-refusal" }, manifest_sha256: "1".repeat(64), manifest: { model_basis: { model_ref: source.model_ref }, solver_basis: { solver_name: source.producer!.component_name, solver_version: source.producer!.component_version, solver_build_ref: "test:invented" } } });
++async function scenario(result: MechanicsResult, model: PreviewModel) {
++  const analysisRun = await buildAnalysisRunV03(result, manifestFor(result), undefined, modelLoadBasisRefs(model));
++  const props = {
++    model, result, analysisRun, knowledge: null, comparison: null, editorIntents: [], proposal: null, selectedReviewTarget: null,
++    projectOperation: "", projectSummary: null, storageCapability: null, modelHash: await computeModelHash(model),
++    solveJob: initialSolveJob(), running: false, solverMode: "sparse_interactive", onCancel: () => {}, onRun: () => {}, onSolverModeChange: () => {},
++  };
++  return { result, model, analysisRun, props };
++}
++function milestone(mode: PreviewSolverMode) {
++  const entry = caseFile.fixtures[`milestone_${mode}`];
++  const bytes = readFileSync(resolve(root, entry.path));
++  expect(createHash("sha256").update(bytes).digest("hex")).toBe(entry.sha256);
++  const doc = JSON.parse(bytes.toString("utf8"));
++  return { source: doc.source as MechanicsResult, model: doc.invocation.request.model as PreviewModel };
++}
++/** The pinned request model plus the desktop fields the panels read (invented
++ * empty or label values only; no physics is read from them). */
++function desktopModel(model: PreviewModel): PreviewModel {
++  const desktop = structuredClone(model) as PreviewModel & Record<string, unknown>;
++  for (const loadCase of desktop.load_cases) Object.assign(loadCase, { status: (loadCase as Json).status ?? "invented_test_status" });
++  desktop.components ??= [];
++  desktop.data_boundary ??= { source: "invented" };
++  desktop.diagnostics ??= [];
++  return desktop;
++}
++const successor = (mode: PreviewSolverMode) => { const { source, model } = milestone(mode); return scenario(source, desktopModel(model)); };
++const preview = () => scenario(JSON.parse(readFileSync(resolve(root, "fixtures/results/preview_physics_connected_sparse.json"), "utf8")), JSON.parse(readFileSync(resolve(root, "fixtures/model_operations/precision_connected_ui_model.json"), "utf8")));
++
++/** Surfaces whose downloads or handoffs carry result data (T1's group a). */
++const GATED: [string, ComponentType<Json>, string][] = [
++  ["PCF export", PcfExportPanel, "pcf-export"],
++  ["CAEPIPE .mbf export", CaepipeMbfExportPanel, "caepipe-mbf"],
++  ["CAEPIPE external harness", CaepipeExternalHarnessPanel, "caepipe-external"],
++  ["Export adapter SDK", ExportAdapterSdkPanel, "export-adapter-sdk"],
++  ["Adapter framework", AdapterFrameworkPanel, "adapter-framework"],
++  ["External prover boundary", ExternalProverBoundaryPanel, "external-prover"],
++  ["Missing-data blocking", MissingDataBlockingPanel, "missing-data"],
++  ["Design workspace", DesignWorkspacePanel, "design-workspace"],
++  ["Rule-check completeness", RuleCheckPanel, "rule-check"],
++  ["Report lint", ReportLintPanel, "report-lint"],
++  ["Solve job", SolvePanel, "solve-job"],
++  ["Headless runner", HeadlessRunnerPanel, "headless-runner"],
++  ["Local FEA handoff", LocalFeaHandoffPanel, "local-fea"],
++  ["Native package", NativePackagePanel, "native-package"],
++  ["Handoff package", HandoffPanel, "handoff"],
++  ["Export safety review", ExportReviewPanel, "export-review"],
++  ["Report packet", ReportPanel, "report"],
++  ["Rendered report", RenderedReportPanel, "rendered-report"],
++];
++
++describe("the shared refusal", () => {
++  it("names the desktop route only, routes it to T6, never calls the result invalid or unsupported, and is distinct from load-reference", async () => {
++    expect(RETAINED_PRECISION_OUTPUT_REFUSAL.startsWith(`${RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE}: `)).toBe(true);
++    expect(RETAINED_PRECISION_OUTPUT_REFUSAL).toContain("not yet available on the desktop");
++    expect(RETAINED_PRECISION_OUTPUT_REFUSAL).toContain("routed to T6");
++    expect(RETAINED_PRECISION_OUTPUT_REFUSAL.toLowerCase()).not.toMatch(/invalid|unsupported/);
++    expect(RETAINED_PRECISION_OUTPUT_REFUSAL).not.toBe(LOAD_REFERENCE_OUTPUT_REFUSAL);
++    for (const mode of MODES) {
++      const { result } = await successor(mode);
++      expect(isLoadReferenceRoute(result)).toBe(false);
++      expect(loadReferenceOutputRefusal(result)).toBe(RETAINED_PRECISION_OUTPUT_REFUSAL);
++      expect(() => refuseLoadReferenceOutput(result)).toThrow(RETAINED_PRECISION_OUTPUT_REFUSAL);
++    }
++    const control = (await preview()).result;
++    expect(loadReferenceOutputRefusal(control)).toBeNull();
++    expect(() => refuseLoadReferenceOutput(control)).not.toThrow();
++    expect(loadReferenceOutputRefusal(null)).toBeNull();
++    // A relabelled successor is unsupported, not a successor route.
++    const relabelled = structuredClone((await successor("sparse_interactive")).result) as Json;
++    relabelled.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/preview-physics-1";
++    relabelled.formulation_basis.profile_id = "product_preview_mechanics_v1";
++    expect(loadReferenceOutputRefusal(relabelled)).toBeNull();
++  });
++});
++
++describe.each(GATED)("%s", (_label, Panel, prefix) => {
++  it.each(MODES)("refuses %s successor output with its own reason and keeps its display", async (mode) => {
++    const { props } = await successor(mode);
++    render(<Panel {...props} />);
++    expect(screen.getByTestId(`${prefix}-load-reference-output-unavailable`).textContent).toBe(RETAINED_PRECISION_OUTPUT_REFUSAL);
++    expect(screen.queryByText(LOAD_REFERENCE_OUTPUT_REFUSAL)).toBeNull();
++    expect(document.querySelectorAll("a[download]")).toHaveLength(0);
++  });
++  it("leaves a preview-physics-1 result's outputs unchanged", async () => {
++    const { props } = await preview();
++    render(<Panel {...props} />);
++    expect(screen.queryByTestId(`${prefix}-load-reference-output-unavailable`)).toBeNull();
++  });
++});
++
++describe.each(MODES)("%s: stress-neutral, result export and the report package keep their own refusal points", (mode) => {
++  it("stress-neutral packet build, packet validation and panel all refuse", async () => {
++    const { model, result, analysisRun } = await successor(mode);
++    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(RETAINED_PRECISION_OUTPUT_REFUSAL);
++    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0" }, result)).rejects.toThrow(RETAINED_PRECISION_OUTPUT_REFUSAL);
++    // A header-only packet cannot carry the receipt (the packet header has no
++    // retained_precision member until T6), so the successor header reads unsupported.
++    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0", producer: result.producer, numerical_quality: result.numerical_quality, formulation_basis: result.formulation_basis, contract_evidence: result.contract_evidence, retained_precision: result.retained_precision, export_profile: {} })).rejects.toThrow("SN-PRECISION-CONTRACT-MISMATCH");
++    render(<StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun} />);
++    expect(screen.getByTestId("stress-neutral-empty")).toBeTruthy();
++    expect(screen.queryByTestId("stress-neutral-load-reference-output-unavailable")).toBeNull();
++    expect(document.querySelectorAll("a[download]")).toHaveLength(0);
++  });
++  it("result export build, document validation, derivation and panel all refuse", async () => {
++    const { model, result, analysisRun } = await successor(mode);
++    await expect(buildCurrentResultExport({ model, result, analysisRun, inputManifest: null })).rejects.toThrow(RETAINED_PRECISION_OUTPUT_REFUSAL);
++    await expect(validateResultDocument({ schema_version: "0.3.0", result_envelope: { schema_version: "0.3.0" } }, result)).rejects.toThrow(RETAINED_PRECISION_OUTPUT_REFUSAL);
++    // A hash-consistent origin passes every earlier gate, so derivation reaches the refusal.
++    expect(model.project.id).toBe(result.model_ref);
++    const origin = { origin_id: "source-origin:invented", received_carrier_checksum: { value: await resultDigest(result) }, authentic_producer_available: true, original_producer_checksum: null };
++    await expect(deriveResultDocument({ result_envelope: {} }, model, result, origin)).rejects.toThrow(RETAINED_PRECISION_OUTPUT_REFUSAL);
++    render(<ResultExportPanel model={model} result={result} analysisRun={analysisRun} inputManifest={null} />);
++    expect(await screen.findByText(RETAINED_PRECISION_OUTPUT_REFUSAL, { exact: false })).toBeTruthy();
++    expect(document.querySelectorAll("a[download]")).toHaveLength(0);
++  });
++  it("the report package keeps T0R's fresh-result refusal", async () => {
++    const { result } = await successor(mode);
++    expect(reportPackageUnavailableReason(result)).toBe(`${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`);
++  });
++});
++
++describe("other consumers are unchanged and never make a successor Current", () => {
++  // The session hook may be imported only by workspaceSession.ts (sessionBoundary.test.ts),
++  // and the pinned request model is not a complete desktop session model (no load-case
++  // status), so a full session replay is not possible here. Pinned instead: the inputs
++  // resultsSessionState.ts:62-76 composes. Current requires a fresh identity AND eligible
++  // standing; a registered successor is fresh and its standing is held.
++  it.each(MODES)("%s: a registered successor is fresh but never numerically eligible, so it is never Current", async (mode) => {
++    const { source, model } = milestone(mode);
++    (window as Json).__TAURI_INTERNALS__ = {};
++    invokeMock.mockImplementation(async () => structuredClone(source));
++    const received = await runPreviewMechanics(model, mode);
++    expect(hasNativeMechanicsInvocation(received, model, mode)).toBe(true);
++    expect(isFreshSemanticResult(received)).toBe(true);
++    expect(currentSemanticContract(received)).not.toBeNull();
++    expect(numericalResultStanding(received, model)).toMatchObject({ eligible: false, findings: [RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE] });
++    // The pinned request model lacks desktop load-case status, which the manifest requires.
++    await expect(buildCurrentSessionInputManifest({ model, solver: { solver_name: "x", solver_version: "x", solver_build_ref: "x", solver_mode: mode, settings: {} }, active_rule_packs: [], external_assets: [] })).rejects.toThrow("INPUT-MANIFEST-LOAD-BASIS-INCOMPLETE");
++  });
++  it("the notices component renders the successor's preview and class notices as text only", async () => {
++    const { result } = await successor("sparse_interactive");
++    const before = JSON.stringify(result);
++    render(<KnownSemanticNotices result={result} testIdPrefix="t" />);
++    expect(screen.getByTestId("t-notice-headline-label")).toBeTruthy();
++    expect(screen.getByTestId("t-notice-retained-precision-unvalidated")).toBeTruthy();
++    expect(JSON.stringify(result)).toBe(before);
++  });
++});

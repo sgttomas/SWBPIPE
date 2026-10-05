@@ -1,0 +1,421 @@
+{
+  "utc": "2026-10-03T14:33:09.091219+00:00",
+  "reviewer": "/root/rv71_public_producer_admission",
+  "candidate": "8a7ae33ec0803231181f1af20665a8dc7c3a1c4c",
+  "author_seal_sha256": "7812f66fa2742a0caeaa17cff16867fc3bfc2939e95516a8f9d2d2a39ed12dea",
+  "author_manifest_sha256": "9a29e7c0eaaa49c40dbbbf4d13bbb9a7e1b5da09857fb76d5eb5e2dc3deabdc7",
+  "payload_count": 9,
+  "bulk_count": 13,
+  "origin_count": 37,
+  "candidate_packet_files": 11,
+  "checks": [
+    {
+      "check": "author_manifest_bound_by_seal",
+      "ok": true
+    },
+    {
+      "check": "payload:API.md",
+      "ok": true
+    },
+    {
+      "check": "payload:AUDIT.json",
+      "ok": true
+    },
+    {
+      "check": "payload:BULK_MANIFEST.json",
+      "ok": true
+    },
+    {
+      "check": "payload:COMPOSITION.md",
+      "ok": true
+    },
+    {
+      "check": "payload:EXECUTION.json",
+      "ok": true
+    },
+    {
+      "check": "payload:FENCE.md",
+      "ok": true
+    },
+    {
+      "check": "payload:ORIGINS.json",
+      "ok": true
+    },
+    {
+      "check": "payload:RECEIVED_INPUTS.json",
+      "ok": true
+    },
+    {
+      "check": "payload:RETURN.md",
+      "ok": true
+    },
+    {
+      "check": "bulk:CHECKPOINT55.json",
+      "ok": true
+    },
+    {
+      "check": "bulk:checkpoint55/API.md",
+      "ok": true
+    },
+    {
+      "check": "bulk:checkpoint55/COMPOSITION.md",
+      "ok": true
+    },
+    {
+      "check": "bulk:checkpoint55/FENCE.md",
+      "ok": true
+    },
+    {
+      "check": "bulk:final_corrections/API.md",
+      "ok": true
+    },
+    {
+      "check": "bulk:final_corrections/BOUNDARY.json",
+      "ok": true
+    },
+    {
+      "check": "bulk:final_corrections/COMPOSITION.md",
+      "ok": true
+    },
+    {
+      "check": "bulk:final_corrections/FENCE.md",
+      "ok": true
+    },
+    {
+      "check": "bulk:final_design/API.md",
+      "ok": true
+    },
+    {
+      "check": "bulk:final_design/BOUNDARY.json",
+      "ok": true
+    },
+    {
+      "check": "bulk:final_design/COMPOSITION.md",
+      "ok": true
+    },
+    {
+      "check": "bulk:final_design/FENCE.md",
+      "ok": true
+    },
+    {
+      "check": "bulk:final_design/RETURN.md",
+      "ok": true
+    },
+    {
+      "check": "origin:92790ca0cce2fecb2f58a9b2f56199f685631019:AGENTS.md",
+      "ok": true
+    },
+    {
+      "check": "origin:92790ca0cce2fecb2f58a9b2f56199f685631019:agents/AGENT_TASK.md",
+      "ok": true
+    },
+    {
+      "check": "origin:92790ca0cce2fecb2f58a9b2f56199f685631019:projects/chirality-piping/AGENTS.md",
+      "ok": true
+    },
+    {
+      "check": "origin:92790ca0cce2fecb2f58a9b2f56199f685631019:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I51_PUBLIC_PRODUCER_ADMISSION.md",
+      "ok": true
+    },
+    {
+      "check": "origin:92790ca0cce2fecb2f58a9b2f56199f685631019:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/W1_RESOURCE_POLICY_V1.md",
+      "ok": true
+    },
+    {
+      "check": "origin:92790ca0cce2fecb2f58a9b2f56199f685631019:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_memory_plan_02/RETURN.md",
+      "ok": true
+    },
+    {
+      "check": "origin:92790ca0cce2fecb2f58a9b2f56199f685631019:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_memory_plan_02/OWNERSHIP_INTERFACES.md",
+      "ok": true
+    },
+    {
+      "check": "origin:92790ca0cce2fecb2f58a9b2f56199f685631019:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_preparation_counts_p1/COUNTS_AND_OWNERSHIP.md",
+      "ok": true
+    },
+    {
+      "check": "origin:92790ca0cce2fecb2f58a9b2f56199f685631019:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV48/f2a_preparation_p1_02/RETURN.md",
+      "ok": true
+    },
+    {
+      "check": "origin:92790ca0cce2fecb2f58a9b2f56199f685631019:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_kernel_ownership_p3/ENVELOPE.md",
+      "ok": true
+    },
+    {
+      "check": "origin:92790ca0cce2fecb2f58a9b2f56199f685631019:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_kernel_ownership_p3/OWNER_LEDGER.md",
+      "ok": true
+    },
+    {
+      "check": "origin:92790ca0cce2fecb2f58a9b2f56199f685631019:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV52/f2a_kernel_ownership_p3_02/RETURN.md",
+      "ok": true
+    },
+    {
+      "check": "origin:92790ca0cce2fecb2f58a9b2f56199f685631019:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_routing_02/ROUTING.md",
+      "ok": true
+    },
+    {
+      "check": "origin:92790ca0cce2fecb2f58a9b2f56199f685631019:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_routing_02/CALLERS_AND_TESTS.md",
+      "ok": true
+    },
+    {
+      "check": "origin:92790ca0cce2fecb2f58a9b2f56199f685631019:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/WIRE_CONTRACT.md",
+      "ok": true
+    },
+    {
+      "check": "origin:92790ca0cce2fecb2f58a9b2f56199f685631019:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/CONTRACT_DELTA.md",
+      "ok": true
+    },
+    {
+      "check": "origin:94dbd2dceeb02879e74866f2a1d801c618786cb1:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV68/prepared_producer_01/REVIEW.md",
+      "ok": true
+    },
+    {
+      "check": "origin:77bb95e4ac98a4cff6a57f94c7dee956e059430e:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/prepared_public_contract_02/C3_DELTA.md",
+      "ok": true
+    },
+    {
+      "check": "origin:77bb95e4ac98a4cff6a57f94c7dee956e059430e:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/prepared_public_contract_02/DEFINITION.json",
+      "ok": true
+    },
+    {
+      "check": "origin:77bb95e4ac98a4cff6a57f94c7dee956e059430e:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/prepared_public_contract_02/MANIFEST.json",
+      "ok": true
+    },
+    {
+      "check": "origin:7b4709bcecced03229af19e82adf6de2e6de9fc3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/prepared_public_contract_correction_03/ADDENDUM.md",
+      "ok": true
+    },
+    {
+      "check": "origin:a387fceab1c9ca68433bddf8c5515a981aaf7ea4:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV69/prepared_public_contract_02/REVIEW.md",
+      "ok": true
+    },
+    {
+      "check": "origin:6d9ec9092cfc4e52db4b0cd3790245b2e71de342:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I53/first_party_profile_02/RETURN.md",
+      "ok": true
+    },
+    {
+      "check": "origin:d85300e1d7e0b87c6f9cd5cd9c999d33b218505c:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I53/first_party_profile_correction_03/ADDENDUM.md",
+      "ok": true
+    },
+    {
+      "check": "origin:0fa18256fa3fd46e532632c03deff93e3363e065:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+      "ok": true
+    },
+    {
+      "check": "origin:922db9dce33c2623385841ad3a4a002a79089e3a:projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+      "ok": true
+    },
+    {
+      "check": "origin:922db9dce33c2623385841ad3a4a002a79089e3a:projects/chirality-piping/core/product_physics/src/lib.rs",
+      "ok": true
+    },
+    {
+      "check": "origin:922db9dce33c2623385841ad3a4a002a79089e3a:projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "ok": true
+    },
+    {
+      "check": "origin:922db9dce33c2623385841ad3a4a002a79089e3a:projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+      "ok": true
+    },
+    {
+      "check": "origin:922db9dce33c2623385841ad3a4a002a79089e3a:projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "ok": true
+    },
+    {
+      "check": "origin:922db9dce33c2623385841ad3a4a002a79089e3a:projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "ok": true
+    },
+    {
+      "check": "origin:922db9dce33c2623385841ad3a4a002a79089e3a:projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "ok": true
+    },
+    {
+      "check": "origin:922db9dce33c2623385841ad3a4a002a79089e3a:projects/chirality-piping/core/product_physics/Cargo.toml",
+      "ok": true
+    },
+    {
+      "check": "origin:922db9dce33c2623385841ad3a4a002a79089e3a:projects/chirality-piping/core/reporting/result_export/Cargo.toml",
+      "ok": true
+    },
+    {
+      "check": "origin:922db9dce33c2623385841ad3a4a002a79089e3a:projects/chirality-piping/core/reporting/result_export/Cargo.lock",
+      "ok": true
+    },
+    {
+      "check": "origin:922db9dce33c2623385841ad3a4a002a79089e3a:projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "ok": true
+    },
+    {
+      "check": "origin:cf515e37250446163e80546e99171dba2b990852:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/FENCE.md",
+      "ok": true
+    },
+    {
+      "check": "candidate_blob:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/API.md",
+      "ok": true
+    },
+    {
+      "check": "candidate_blob:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/AUDIT.json",
+      "ok": true
+    },
+    {
+      "check": "candidate_blob:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/BULK_MANIFEST.json",
+      "ok": true
+    },
+    {
+      "check": "candidate_blob:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/COMPOSITION.md",
+      "ok": true
+    },
+    {
+      "check": "candidate_blob:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/EXECUTION.json",
+      "ok": true
+    },
+    {
+      "check": "candidate_blob:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/FENCE.md",
+      "ok": true
+    },
+    {
+      "check": "candidate_blob:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/MANIFEST.json",
+      "ok": true
+    },
+    {
+      "check": "candidate_blob:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/ORIGINS.json",
+      "ok": true
+    },
+    {
+      "check": "candidate_blob:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/RECEIVED_INPUTS.json",
+      "ok": true
+    },
+    {
+      "check": "candidate_blob:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/RETURN.md",
+      "ok": true
+    },
+    {
+      "check": "candidate_blob:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/SEAL.json",
+      "ok": true
+    },
+    {
+      "check": "exact_preservation_commit_scope",
+      "ok": true,
+      "changed_paths": [
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/API.md",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/AUDIT.json",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/BULK_MANIFEST.json",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/COMPOSITION.md",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/EXECUTION.json",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/FENCE.md",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/MANIFEST.json",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/ORIGINS.json",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/RECEIVED_INPUTS.json",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/RETURN.md",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/SEAL.json",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/i51_admission_sealed_05/CHECKS.json"
+      ],
+      "root_verification_sha256": "8b97fb0bcb5db16dd65ef4a95a68ff638190d50fed5e916ae9b77342efd6cc2a"
+    },
+    {
+      "check": "final_API_equals_reviewed_correction",
+      "ok": true
+    },
+    {
+      "check": "final_COMPOSITION_equals_reviewed_correction",
+      "ok": true
+    },
+    {
+      "check": "final_FENCE_delta_reviewed",
+      "ok": true,
+      "detail": "Only six-line exact prospective control paths and conditional S11 inventory preservation addition; source-only prospective fence, no tests run."
+    },
+    {
+      "check": "reviewed_source_unchanged:/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "ok": true
+    },
+    {
+      "check": "reviewed_source_unchanged:/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "ok": true
+    },
+    {
+      "check": "reviewed_source_unchanged:/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+      "ok": true
+    },
+    {
+      "check": "reviewed_source_unchanged:/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "ok": true
+    },
+    {
+      "check": "reviewed_source_unchanged:/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "ok": true
+    },
+    {
+      "check": "reviewed_source_unchanged:/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+      "ok": true
+    },
+    {
+      "check": "reviewed_source_unchanged:/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "ok": true
+    },
+    {
+      "check": "reviewed_source_unchanged:/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+      "ok": true
+    },
+    {
+      "check": "reviewed_source_unchanged:/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+      "ok": true
+    },
+    {
+      "check": "reviewed_source_unchanged:/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/bridge.rs",
+      "ok": true
+    },
+    {
+      "check": "reviewed_source_unchanged:/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/core/product_physics/src/preview_physics.rs",
+      "ok": true
+    },
+    {
+      "check": "reviewed_source_unchanged:/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "ok": true
+    },
+    {
+      "check": "reviewed_source_unchanged:/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/core/product_physics/Cargo.toml",
+      "ok": true
+    },
+    {
+      "check": "reviewed_source_unchanged:/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/core/reporting/result_export/Cargo.toml",
+      "ok": true
+    },
+    {
+      "check": "existing_proposed_control_path:product_physics/src/retained_product_tests.rs",
+      "ok": true
+    },
+    {
+      "check": "existing_proposed_control_path:solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs",
+      "ok": true
+    },
+    {
+      "check": "existing_proposed_control_path:solver/frame_kernel/tests/retained_k4/source_residual_tests.rs",
+      "ok": true
+    },
+    {
+      "check": "existing_proposed_control_path:solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs",
+      "ok": true
+    },
+    {
+      "check": "existing_proposed_control_path:solver/frame_kernel/tests/retained_k4/origins_tests.rs",
+      "ok": true
+    },
+    {
+      "check": "existing_proposed_control_path:product_physics/tests/s11f_site_test.rs",
+      "ok": true
+    },
+    {
+      "check": "existing_proposed_control_path:solver/frame_kernel/tests/s11_site_table.rs",
+      "ok": true
+    }
+  ],
+  "all_passed": true,
+  "qualification": "Independent bytes/scope/source-document audit only; no runtime, build, numerical or memory-profile qualification.",
+  "initial_scope_assertion": {
+    "observed_utc": "2026-10-03T14:33:09.091219+00:00",
+    "ok": false,
+    "reason": "Initial reviewer expectation compared the 11 author packet files with the complete ROOT preservation commit, omitting its separately ROOT-authored verification record. No payload/source integrity check failed. Read and verified that exact record and corrected the expected commit scope to 12 files."
+  },
+  "final_audit_utc": "2026-10-03T14:33:51.146652+00:00"
+}

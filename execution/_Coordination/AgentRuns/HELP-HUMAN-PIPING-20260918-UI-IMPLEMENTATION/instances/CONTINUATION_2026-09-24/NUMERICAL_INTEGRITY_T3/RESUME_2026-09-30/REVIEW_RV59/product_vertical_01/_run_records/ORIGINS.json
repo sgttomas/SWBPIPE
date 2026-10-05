@@ -1,0 +1,211 @@
+{
+  "hash_algorithm": "sha256",
+  "source_pin": "6ba653451f9fd27cdb852b7974753a3921f1c483",
+  "local_HEAD_at_entry": "9732457720ef3c4376625cca8a707bec1b8e0e44",
+  "records": [
+    {
+      "origin": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+      "bytes": 1411,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "b6c8d32de08535825cc5b591ce25f1a3761374abe8aa591c8e5c059dd34a956f",
+      "bytes": 984833,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json",
+      "matches_source_6ba653451f9fd27cdb852b7974753a3921f1c483": true
+    },
+    {
+      "origin": "projects/chirality-piping/core/product_physics/src/preview_physics.rs",
+      "sha256": "2b8265403dd506130eded40cadb05401423a78e0d24d1f8f028cbc6106c6aafa",
+      "bytes": 57331,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json",
+      "matches_source_6ba653451f9fd27cdb852b7974753a3921f1c483": true
+    },
+    {
+      "origin": "projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+      "sha256": "16df0df35138734f85086d50b3544e552bd65db16998862ebf16c5d59303e32b",
+      "bytes": 44573,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json",
+      "matches_source_6ba653451f9fd27cdb852b7974753a3921f1c483": true
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "sha256": "65042658c8cf01273d7765ceb41c74a8acae682716bcbd25a850f14e9764a78a",
+      "bytes": 117834,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json",
+      "matches_source_6ba653451f9fd27cdb852b7974753a3921f1c483": true
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "sha256": "9956c08421eebb44ee2663a790cf3ac882452f5119f6470cf6c5dcc386c3f2b8",
+      "bytes": 29168,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json",
+      "matches_source_6ba653451f9fd27cdb852b7974753a3921f1c483": true
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs",
+      "sha256": "913da33ef301d00ec8fe7679ea7e9dec934f68baa2adc28aef62f9f42e10274a",
+      "bytes": 24768,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json",
+      "matches_source_6ba653451f9fd27cdb852b7974753a3921f1c483": true
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "sha256": "473948b1beba7721c231b304e72e841120efb71762b2d6216c70f5257c9380d3",
+      "bytes": 207408,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json",
+      "matches_source_6ba653451f9fd27cdb852b7974753a3921f1c483": true
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+      "sha256": "06a2ff8f9ba429fbccb0515cc23515d7891dbc9c39d0db211ef3f679df1189f6",
+      "bytes": 18895,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json",
+      "matches_source_6ba653451f9fd27cdb852b7974753a3921f1c483": true
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/bridge.rs",
+      "sha256": "0cbc204925748ecb1bee480b762f7de4b425965c68ec972f5e8963e985c0a8df",
+      "bytes": 25082,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json",
+      "matches_source_6ba653451f9fd27cdb852b7974753a3921f1c483": true
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
+      "sha256": "764aa537c93990c4e825a81f9b00b2786ccfd2ccaf80a9cfaa7f7f49f7581695",
+      "bytes": 36264,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json",
+      "matches_source_6ba653451f9fd27cdb852b7974753a3921f1c483": true
+    },
+    {
+      "origin": "projects/chirality-piping/core/loads/primitive_loads/src/lib.rs",
+      "sha256": "a6ab8d772910a5c64f2084eec753abb333bf2b930c52b2281dc27b3787c33779",
+      "bytes": 158023,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json",
+      "matches_source_6ba653451f9fd27cdb852b7974753a3921f1c483": true
+    },
+    {
+      "origin": "projects/chirality-piping/core/reporting/result_export/src/preview_physics_evidence.rs",
+      "sha256": "49b4af41d9b114ea82436122ee103df90a1336b6510be504e912c57acbced28a",
+      "bytes": 31348,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json",
+      "matches_source_6ba653451f9fd27cdb852b7974753a3921f1c483": true
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV59_PRODUCT_VERTICAL_INTERFACE_REVIEW.md",
+      "sha256": "d3eafd1b5ed6f007f30dc8016d1c37d7a99dee07478062258dd5a284eb364c55",
+      "bytes": 2782,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I45/product_vertical_01/RETURN.md",
+      "sha256": "c0d42f241da1d99db1c1819645e3bb0e84d3086a1f739b1553e09cd4672c6d35",
+      "bytes": 19345,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I45/product_vertical_01/SHA256SUMS",
+      "sha256": "4737491ba2b0b5743e85ce2f86d7644f6701c2aa8c4d3807096e963df560bb4d",
+      "bytes": 682,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I35/f2a_certificate_integration_02/INTEGRATION.md",
+      "sha256": "c89823df47facb5906a612a5f030fdf368faf60ad67ce4168f1b88ccb853c486",
+      "bytes": 17005,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I35/f2a_certificate_integration_02/NEXT_CODE_AND_WITNESS.md",
+      "sha256": "80fef7e943512dfcf4ae7597baf21e57bf1b902f3757de6556f8648a27f1d6c9",
+      "bytes": 18904,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I35/f2a_certificate_integration_02/LOOPS_AND_STORAGE.md",
+      "sha256": "42ad49fb4d81b3e6f60beaf3a6c6ff16643183b1f2e573a957938d6d051ac22a",
+      "bytes": 29239,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/RETURN.md",
+      "sha256": "74670d4f43e58f13e6fd03c69cbde7cd514c117d66d29691ff6d225f2f2e5d3a",
+      "bytes": 16704,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I36/f2a_ordinary_coefficients_02/DEPENDENCIES.md",
+      "sha256": "0806abb33f0478b21b3d92c5113ae3f4939d25abe62e6713afedf60dda6b91a0",
+      "bytes": 11492,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_certificate_b1/RETURN.md",
+      "sha256": "8c146c911a0f5c66b8a984cd556b4277d007ef6f0628e2d1598a84bc018dfe29",
+      "bytes": 19804,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_certificate_b1/SOURCE_OPERANDS.md",
+      "sha256": "f5a4da9ca434fae8a940825e9ce27d03fb846e372bb3e4c5d8f2c8b962d40dde",
+      "bytes": 11013,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_certificate_b2/RETURN.md",
+      "sha256": "de865343d823d6b48e862c9657f331704eb25e9daf5f349e86562b182df76e34",
+      "bytes": 19627,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I43/source_tightening_01/RETURN.md",
+      "sha256": "cf3b682b0c6dddb26c030f885b7b26b1635e59468385bf084109b9a10f16f865",
+      "bytes": 15968,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I44/source_residual_01/RETURN.md",
+      "sha256": "8a1ef094bd68d4106f49007b45a9b7e3e63d5f39a2f2f8dca8a7c9625b52ed3f",
+      "bytes": 8757,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV57/source_tightening_01/RETURN.md",
+      "sha256": "eb31c2fd88bf01cd7add977cee8b6ec2b06115e862dc7d3925c1f75ee46532f5",
+      "bytes": 1458,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV50/f2a_certificate_integration_03/REVIEW.md",
+      "sha256": "0180cda9165bda7c693910f5fb6716c4c18ed4245d70534d63efddcfc32f988e",
+      "bytes": 3622,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV47/f2a_ordinary_coefficients_03/REVIEW.md",
+      "sha256": "a641e62c7c66b93383d0991b95ab447318d30d57a4b428c119677c203f8df64e",
+      "bytes": 2883,
+      "consultation": "bounded sections/searches; see READ_SCOPES.json"
+    }
+  ]
+}

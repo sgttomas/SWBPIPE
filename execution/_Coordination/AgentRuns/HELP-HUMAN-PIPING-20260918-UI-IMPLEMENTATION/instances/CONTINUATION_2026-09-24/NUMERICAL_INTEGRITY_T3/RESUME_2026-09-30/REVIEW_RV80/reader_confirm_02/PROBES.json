@@ -1,0 +1,182 @@
+[
+  {
+    "contract": "S06:38 native{run_ref}: 'native selected is invalid for this error' -> G5 PRODUCT_ATTEMPT_MISMATCH",
+    "id": "PR1_native_error_with_selected_run",
+    "rust_with_invocation": {
+      "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    },
+    "rust_without_invocation": {
+      "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    }
+  },
+  {
+    "contract": "F1:78-84,101,130 old ids are the full inventory in native member order; G3 checks the declared inventory -> G3 COVERAGE_MISMATCH",
+    "id": "PR2_unsourced_complete_old_member_gap",
+    "rust_with_invocation": {
+      "code": "RETAINED_PRECISION_COVERAGE_MISMATCH",
+      "gate": "G3"
+    },
+    "rust_without_invocation": {
+      "code": "RETAINED_PRECISION_COVERAGE_MISMATCH",
+      "gate": "G3"
+    }
+  },
+  {
+    "contract": "I57 s4 item 4 + ROOT parity rule 3: record bound non-null iff has_data -> G5a SCALE_MISMATCH",
+    "id": "PR3_unavailable_record_bound_null_with_data",
+    "rust_with_invocation": {
+      "code": "RETAINED_PRECISION_SCALE_MISMATCH",
+      "gate": "G5a"
+    },
+    "rust_without_invocation": {
+      "code": "RETAINED_PRECISION_SCALE_MISMATCH",
+      "gate": "G5a"
+    }
+  },
+  {
+    "contract": "I57 s4 item 4 / data facts: nonzero free nodal term implies has_data -> G5a SCALE_MISMATCH",
+    "id": "PR4_unavailable_record_bound_extra_on_data_free_flag",
+    "rust_with_invocation": {
+      "code": "RETAINED_PRECISION_SCALE_MISMATCH",
+      "gate": "G5a"
+    },
+    "rust_without_invocation": {
+      "code": "RETAINED_PRECISION_SCALE_MISMATCH",
+      "gate": "G5a"
+    }
+  },
+  {
+    "contract": "S06:33,38 same Run; native selected invalid -> G5 PRODUCT_ATTEMPT_MISMATCH",
+    "id": "PR5_native_error_foreign_run_ref",
+    "rust_with_invocation": {
+      "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    },
+    "rust_without_invocation": {
+      "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    }
+  },
+  {
+    "contract": "C3:146-148 CaseSource.preparation.attempt_ref = attempt.id for every constructed source -> G5 PRODUCT_ATTEMPT_MISMATCH (or earlier G1 if a hash moves)",
+    "id": "PR6_unavailable_source_preparation_backref_foreign",
+    "rust_with_invocation": {
+      "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    },
+    "rust_without_invocation": {
+      "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    }
+  },
+  {
+    "contract": "C3:165-166 product attempt agrees with ordinary attempt and material basis -> G5 PRODUCT_ATTEMPT_MISMATCH",
+    "id": "PR7_ordinary_material_basis_disagrees",
+    "rust_with_invocation": {
+      "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    },
+    "rust_without_invocation": {
+      "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    }
+  },
+  {
+    "contract": "D1 (F1:97,130-131; C3:304): captured_prefix member part at G3; null run_ref is G5 PRODUCT_ATTEMPT_MISMATCH",
+    "id": "PR8_captured_prefix_with_run_ref",
+    "rust_with_invocation": {
+      "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    },
+    "rust_without_invocation": {
+      "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    }
+  },
+  {
+    "contract": "D3 class-1 convention: a native class with an ATTEMPT defect reports ATTEMPT -> G5 ATTEMPT_MISMATCH",
+    "id": "PR9_native_work_then_attempt_dual",
+    "rust_with_invocation": {
+      "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    },
+    "rust_without_invocation": {
+      "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    }
+  },
+  {
+    "contract": "D3: WORK alone reports WORK -> G5 WORK_MISMATCH",
+    "id": "PR10_native_work_only",
+    "rust_with_invocation": {
+      "code": "RETAINED_PRECISION_WORK_MISMATCH",
+      "gate": "G5"
+    },
+    "rust_without_invocation": {
+      "code": "RETAINED_PRECISION_WORK_MISMATCH",
+      "gate": "G5"
+    }
+  },
+  {
+    "contract": "I57 s1 (no empty complete vector; FK/source.rs:497-498 NoNodes) and ROOT parity rule 2 -> G3 COVERAGE_MISMATCH",
+    "id": "PR11_empty_body_inventory_empty_coverage",
+    "rust_with_invocation": {
+      "code": "RETAINED_PRECISION_COVERAGE_MISMATCH",
+      "gate": "G3"
+    },
+    "rust_without_invocation": {
+      "code": "RETAINED_PRECISION_COVERAGE_MISMATCH",
+      "gate": "G3"
+    }
+  },
+  {
+    "contract": "C2:22,54 every quantity reference resolves against the Run's layout (D5d names only stop_rule) -> RV80 reading G5 ATTEMPT_MISMATCH",
+    "id": "PR12_estimate_reason_quantity_not_in_layout",
+    "rust_with_invocation": {
+      "eligible": false,
+      "ok": true
+    },
+    "rust_without_invocation": {
+      "eligible": false,
+      "ok": true
+    }
+  },
+  {
+    "contract": "D5d -> G5 ATTEMPT_MISMATCH",
+    "id": "PR13_stop_rule_reason_quantity_not_in_layout",
+    "rust_with_invocation": {
+      "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    },
+    "rust_without_invocation": {
+      "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    }
+  },
+  {
+    "contract": "D3 class-1 convention: the run's recorded invocation_before >= Li satisfies the N10 idle shape (g5_schedule; PY:439,675); the broken meter chain is native WORK -> RV80 reading G5 WORK_MISMATCH (Rust's extra running-meter conjunct gives ATTEMPT)",
+    "id": "PR14_idle_run_records_exhausted_meter_chain_not",
+    "rust_with_invocation": {
+      "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    },
+    "rust_without_invocation": {
+      "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    }
+  },
+  {
+    "contract": "control = shared idle_budget_not_exhausted_no_group -> G5 ATTEMPT_MISMATCH",
+    "id": "PR15_idle_run_not_exhausted_control",
+    "rust_with_invocation": {
+      "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    },
+    "rust_without_invocation": {
+      "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+      "gate": "G5"
+    }
+  }
+]

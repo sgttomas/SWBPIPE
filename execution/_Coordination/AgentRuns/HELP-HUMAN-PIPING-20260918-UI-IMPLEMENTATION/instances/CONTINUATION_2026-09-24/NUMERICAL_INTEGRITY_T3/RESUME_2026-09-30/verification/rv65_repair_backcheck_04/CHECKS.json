@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-03T08:48:13.937838+00:00",
+  "actor": "ROOT HELP_HUMAN /root",
+  "full_review_or_proposal_read": true,
+  "packet": "REVIEW_RV65/support_accounting_repair_04",
+  "payload_count": 7,
+  "external_files_verified": 2,
+  "external_bytes": 1061983,
+  "seal_sha256": "37065702e98b7eec93b957ee90cae90eb72b57196947de4c550cdec4d8405029",
+  "decision": "RV65 repair clear for local component acceptance; I51 proposal preserved unselected for fresh design re-derivation"
+}

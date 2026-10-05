@@ -1,0 +1,105 @@
+{
+  "task": "I54 direct container profile",
+  "role": "TASK Type 2",
+  "mechanism": "delegated-harness-native",
+  "parent": "/root HELP_HUMAN",
+  "child": "/root/i54_direct_container_profile",
+  "descendants": [],
+  "engine": "Codex; inherited parent model, exact model ID not independently exposed",
+  "receipt_first_tool_utc": "2026-10-03T14:58:26Z",
+  "first_host": "Mac.lan",
+  "first_cwd": "/Users/ryan/.codex/worktrees/92ea/chirality",
+  "numerical_source": "922db9dce3",
+  "entry_head": "64838124fe2d3c625f563bce0f1485c4e173c6bc",
+  "design_basis": "8a7ae33ec0",
+  "review_basis": "19d00f9a53",
+  "clock_limit_minutes": 60,
+  "next_sixty_minute_checkpoint_if_still_active": "2026-10-03T15:58:26Z",
+  "source_clock_checkpoint_utc": "2026-10-03T15:06:48Z",
+  "initial_table_draft_write_utc": "2026-10-03T15:06:35.793595+00:00",
+  "usable_revised_table_checkpoint_utc": "2026-10-03T15:15:25Z",
+  "new_analysis_stopped_utc": "2026-10-03T15:23:54.147890+00:00",
+  "setup_duration": "Not separately timestamped; instruction loading was first, before source inspection. No claim of an independently timed 3-minute setup measurement.",
+  "clock_note": "An earlier parent progress message used an estimated 15:06 label without a contemporaneous clock call. It is not used as clock evidence; actual 15:06:48 read is within the +10 minute source checkpoint. No clock reset.",
+  "scope": [
+    "new NUM/R/I54/direct_container_profile_01",
+    "new WT/scratch/i54_direct_container_profile with WT=NUM immediate parent .claude/t3"
+  ],
+  "host_permissions": "Actual host danger-full-access; role/brief imposed read-only source/code/runtime/Git/API boundaries. Not a host-enforced sandbox claim.",
+  "writes": "Only evidence and selected source excerpts/copies; two misresolved scratch anchors were corrected and recorded; outer bytes preserved per ROOT direction.",
+  "anchor_correction": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_container_profile/ANCHOR_CORRECTION.json",
+  "root_supplemental_authorization": "Read-only existing binary/debug inspection for hashbrown source mapping and prior artifact private layout witnesses; no compiler or executable was run.",
+  "instructions": [
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200,
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_container_profile/instructions/AGENTS.md"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499,
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_container_profile/instructions/agents__AGENT_TASK.md"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016,
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_container_profile/instructions/projects__chirality-piping__AGENTS.md"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I54_DIRECT_CONTAINER_PROFILE.md",
+      "sha256": "44b0954f272dc951baed94b4f8d5cc1d01d2cae55db8ff9c26292c0d328af03c",
+      "bytes": 4502,
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_container_profile/instructions/BRIEF.md"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/92ea/chirality/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200,
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_container_profile/instructions/cwd__AGENTS.md"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/92ea/chirality/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499,
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i54_direct_container_profile/instructions/cwd__agents__AGENT_TASK.md"
+    }
+  ],
+  "skills_selected": [],
+  "workflows_selected": [],
+  "prohibited_operations_executed": [],
+  "no_git_index_api_writes": true,
+  "no_builds_model_solver_native_or_rust_runtime": true,
+  "no_installations_downloads_source_edits_or_descendants": true,
+  "negative_or_failed_inspections": [
+    "RV71 initial path omitted REVIEW_ prefix; immutable path discovery corrected it.",
+    "Initial scratch .claude/scratch was moved to outer-worktree scratch; ROOT clarified WT=.claude/t3; verified copy made, outer copy preserved.",
+    "One search used NUM cwd for WT-relative scratch and failed; repeated in correct path.",
+    "Initial cached .cargo-checksum.json lookup absent; cached archives verified directly against lock and selected file bytes.",
+    "alloc/collections/btree/insert.rs.html absent; insertion source resides in node.rs and was inspected.",
+    "llvm-dis/llvm-bcanalyzer not installed at inspected known paths; none installed. librustc_driver did not expose selected LLVM C decoder symbols; no decoder was loaded.",
+    "Prior unit-test executable had no embedded type entries; non-test rlib supplied DWARF.",
+    "Embedded project-file MD5 correspondence in prior rlib not established; per-artifact layout witnesses were not promoted to current profile facts."
+  ],
+  "verification": "All 197 preserved input records match SHA-256 and byte size; selected pinned dependencies match cached archive members; independent Vec/hash/tree/number arithmetic and direct-parser limb/capacity checks passed. No Rust runtime, model or complete resource qualification.",
+  "status": "bounded source coefficient packet; partial profile closure; ready for independent review",
+  "claims_withheld": [
+    "full DirectPp bound",
+    "fit total",
+    "selected M",
+    "headless/native qualification",
+    "public execution",
+    "final build qualification"
+  ],
+  "provisional_stop_then_refinement": {
+    "provisional_stop_utc": "2026-10-03T15:18:02.131351+00:00",
+    "reason_reopened": "Before seal, ROOT directed exact first-direct source_receipt serializer-to-parser scope and finite numeric lexeme bounds. Continued within original clock.",
+    "refinement_arithmetic_utc": "2026-10-03T15:22:00.010389+00:00"
+  },
+  "result_rows": "Source-derived capacities/layout expressions plus conditional hashbrown source correspondence; existing artifact layouts remain observations. First-direct generated-number parser local Bigint bound requested1440/moving2080 plus shared scratch. No arbitrary-text obligation imported.",
+  "seal_status": "sealed",
+  "sealed_utc": "2026-10-03T15:24:29.577642+00:00",
+  "elapsed_seconds_at_seal": 1563.577642
+}

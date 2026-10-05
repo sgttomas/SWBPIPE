@@ -1,0 +1,43 @@
+{
+  "status": "Informational at-return inventory; revisable, not an acceptance seal",
+  "created_UTC": "2026-10-02T17:05:57.829770+00:00",
+  "owned_root": "R/I29/w1_limits_preparation_01",
+  "self_exclusion": "WRITE_INVENTORY.json is not self-hashed",
+  "files": [
+    {
+      "path": "EVIDENCE_OPTIONS.md",
+      "bytes": 16535,
+      "sha256": "ba46123f18774c9773f633732e57d9ce67d5a1c9152fb15a5c5a9ce12b20af46"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 5496,
+      "sha256": "199b5414073f64e1d1c458beececa73a5359bfebff4c0a2436d8da1546a9c6dc"
+    },
+    {
+      "path": "_run_records/CALCULATIONS.json",
+      "bytes": 145774,
+      "sha256": "6d0c24b64de60ccbddd925b542bd466648e191e9dee9d9b5a4e20eae12d29c9d"
+    },
+    {
+      "path": "_run_records/CALCULATION_ORIGINS.json",
+      "bytes": 4153,
+      "sha256": "a17ef99c46f947b731659b4c539b391a1eb94ebb6759a1e729728da31c3022da"
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "bytes": 27678,
+      "sha256": "2b1e3dc798e2c242314a4441724df31a5e30207ac03b59c846dc9845c098573c"
+    },
+    {
+      "path": "_run_records/SESSION.json",
+      "bytes": 3095,
+      "sha256": "4bd09e2e9e3810816bcfa38cd1653815535b4f49bf4e77628afa035945e31cfb"
+    },
+    {
+      "path": "_run_records/calculate.py",
+      "bytes": 9629,
+      "sha256": "c965b08d57c61a68f0e4ddff48e98676ee57b38689e865468e1e57dca2ebcbc8"
+    }
+  ]
+}

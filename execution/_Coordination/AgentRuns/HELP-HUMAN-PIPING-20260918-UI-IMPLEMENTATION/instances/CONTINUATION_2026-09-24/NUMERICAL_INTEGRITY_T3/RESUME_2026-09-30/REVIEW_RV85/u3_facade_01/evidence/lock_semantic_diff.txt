@@ -1,0 +1,7 @@
+core/runner/headless lockver 4 4 | added: [] | removed: [] | dep changes: [('open_pipe_stress_product_physics', ['open_pipe_stress_result_export'], [])] | registry pkg changes: []
+apps/desktop/src-tauri lockver 4 4 | added: [] | removed: [] | dep changes: [('open_pipe_stress_product_physics', ['open_pipe_stress_result_export'], [])] | registry pkg changes: []
+core/loads/self_weight_wasm lockver 4 4 | added: [('open_pipe_stress_result_export', '0.1.0', None)] | removed: [] | dep changes: [('open_pipe_stress_product_physics', ['open_pipe_stress_result_export'], [])] | registry pkg changes: []
+core/model_operations/operation_applier lockver 4 4 | added: [('open_pipe_stress_result_export', '0.1.0', None)] | removed: [] | dep changes: [('open_pipe_stress_product_physics', ['open_pipe_stress_result_export'], [])] | registry pkg changes: []
+validation/benchmarks/numerical_integrity lockver 4 4 | added: [('open_pipe_stress_result_export', '0.1.0', None)] | removed: [] | dep changes: [('open_pipe_stress_product_physics', ['open_pipe_stress_result_export'], [])] | registry pkg changes: []
+validation/benchmarks/physics_audit_regression lockver 4 4 | added: [('open_pipe_stress_result_export', '0.1.0', None)] | removed: [] | dep changes: [('open_pipe_stress_product_physics', ['open_pipe_stress_result_export'], [])] | registry pkg changes: []
+core/product_physics lockver 4 4 | added: [] | removed: [] | dep changes: [] | registry pkg changes: []

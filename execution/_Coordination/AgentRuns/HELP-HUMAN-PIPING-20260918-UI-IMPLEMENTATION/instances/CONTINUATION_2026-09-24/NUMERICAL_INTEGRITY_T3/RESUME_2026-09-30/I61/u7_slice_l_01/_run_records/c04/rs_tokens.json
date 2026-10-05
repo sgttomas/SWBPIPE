@@ -1,0 +1,28 @@
+{
+  "sparse_interactive": {
+    "reader": {
+      "with_invocation": {
+        "numerical_eligible": true
+      },
+      "without_invocation": {
+        "numerical_eligible": false
+      }
+    },
+    "token": {
+      "d_u7_4_no_native_capture": "numerically_eligible",
+      "d_u7_4_stale_current_model": "numerically_eligible",
+      "with_invocation": "numerically_eligible",
+      "without_invocation": "needs_recompute"
+    },
+    "withheld": {
+      "with_invocation": [
+        1,
+        0
+      ],
+      "without_invocation": [
+        73,
+        0
+      ]
+    }
+  }
+}

@@ -1,0 +1,370 @@
+diff --git a/projects/chirality-piping/core/analysis_runs/compatibility.py b/projects/chirality-piping/core/analysis_runs/compatibility.py
+index 32f2df4b34..322c58f1e2 100644
+--- a/projects/chirality-piping/core/analysis_runs/compatibility.py
++++ b/projects/chirality-piping/core/analysis_runs/compatibility.py
+@@ -345,20 +345,24 @@ def _retained_binding_refusal(envelope: Mapping[str, Any], row: Mapping[str, Any
+     return _class_binding_refusal(match["class"]) if match is not None else None
+ 
+ 
+-def classification_summary(source: Mapping[str, Any], invocation: Any = None) -> list[dict[str, Any]]:
++def classification_summary(source: Mapping[str, Any], invocation: Any = None,
++                           requested_basis_refs: list[Mapping[str, str]] | None = None) -> list[dict[str, Any]]:
+     """D2 4.9.9: per-case counts over a successor's validated G5c classes (rows of
+-    selected cases). Any other identity, or a refused statement, returns nothing."""
++    selected cases). `withheld` counts as Current only when the standing with the
++    caller's requested refs is numerically_eligible (RV94 S-1, as TS's summary);
++    otherwise, with no refs or other refs, it is the not-Current count. Any other
++    identity, or a refused statement, returns nothing."""
+     try:
+         validation = _retained_validation(source, invocation)
+     except (ValueError, KeyError, TypeError, AttributeError):
+         return []
+-    return _classification_summary_from(validation, source, invocation)
++    return _classification_summary_from(validation, source, requested_basis_refs or [])
+ 
+ 
+-def _classification_summary_from(validation: Mapping[str, Any], source: Mapping[str, Any], invocation: Any = None) -> list[dict[str, Any]]:
+-    cases = invocation.get("request", {}).get("model", {}).get("load_cases") if isinstance(invocation, Mapping) else None
+-    requested = [{"ref_type": "load_case", "ref_id": case.get("id")} for case in cases] if isinstance(cases, list) else []
+-    current = _retained_standing_from(validation, source, requested) == "numerically_eligible"
++def _classification_summary_from(validation: Mapping[str, Any], source: Mapping[str, Any], requested_basis_refs: list[Mapping[str, str]]) -> list[dict[str, Any]]:
++    # The invocation only binds the validation; its own cases are never substituted
++    # for the caller's requested refs (RV94 N-4).
++    current = _retained_standing_from(validation, source, requested_basis_refs) == "numerically_eligible"
+     out = []
+     for case in source["retained_precision"]["body"]["cases"]:
+         case_id = case["basis_ref"]["ref_id"]
+diff --git a/projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs b/projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs
+index 554de9abfd..24d96ecd13 100644
+--- a/projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs
++++ b/projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs
+@@ -657,13 +657,13 @@ fn retained_standing(
+ /// D2 4.9.9: per-case counts over the validated G5c classes of a successor
+ /// (rows of selected cases). `withheld` counts the quantity rows (every class
+ /// but `non_quantity`) that cannot bind under the envelope's standing: all of
+-/// them unless the standing with the invocation's requested cases is
+-/// `numerically_eligible`; otherwise the absolute and not-covered rows, since
+-/// S-I has not landed (`interval_bindable` is 0). Any other identity, or a
+-/// statement the reader refuses, returns nothing.
+-pub fn classification_summary(source: &Value, invocation: Option<&Value>) -> Vec<Value> {
++/// them unless the standing with the caller's requested refs is
++/// `numerically_eligible` (RV94 S-1, as TS); then the absolute and not-covered
++/// rows, since S-I has not landed (`interval_bindable` is 0). Any other
++/// identity, or a statement the reader refuses, returns nothing.
++pub fn classification_summary(source: &Value, invocation: Option<&Value>, requested_basis_refs: &[Value]) -> Vec<Value> {
+     match crate::retained_precision::validate(source, invocation) {
+-        Ok(validation) => classification_summary_from(&validation, source, invocation),
++        Ok(validation) => classification_summary_from(&validation, source, requested_basis_refs),
+         Err(_) => Vec::new(),
+     }
+ }
+@@ -672,19 +672,19 @@ pub fn classification_summary(source: &Value, invocation: Option<&Value>) -> Vec
+ pub fn classification_summary_from(
+     validation: &crate::retained_precision::Validation,
+     source: &Value,
+-    invocation: Option<&Value>,
++    requested_basis_refs: &[Value],
+ ) -> Vec<Value> {
+     use crate::retained_precision::AccuracyClass;
+-    let requested: Vec<Value> = invocation
+-        .and_then(|i| i["request"]["model"]["load_cases"].as_array())
+-        .map(|cases| {
+-            cases
+-                .iter()
+-                .map(|c| serde_json::json!({"ref_type":"load_case","ref_id":c["id"]}))
+-                .collect()
+-        })
+-        .unwrap_or_default();
+-    let current = retained_standing_from(validation, source, &requested) == "numerically_eligible";
++    // RV94 S-1 (the U7 repair, as TS's summary since e5e1693ceb): `withheld`
++    // counts as Current only when the standing with the caller's requested refs
++    // is `numerically_eligible`; with no refs, or other refs, it is the
++    // not-Current count. The invocation only binds the validation; its own
++    // cases are never substituted for the caller's refs (RV94 N-4), so this
++    // borrows the caller's slice and builds no list of its own. A caller with no
++    // refs (a library reader, or a summary shown without a model) therefore
++    // sees every quantity row withheld.
++    let current =
++        retained_standing_from(validation, source, requested_basis_refs) == "numerically_eligible";
+     source["retained_precision"]["body"]["cases"]
+         .as_array()
+         .map(Vec::as_slice)
+diff --git a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs
+index 4ba557db28..384d0bd439 100644
+--- a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs
++++ b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs
+@@ -566,25 +566,31 @@ fn u6a_classification_summary_counts_validated_classes() {
+         let expected = json!([{"case_id":case_id,"relative_verified":relative,"absolute_verified":absolute,
+             "interval_bindable":0,"not_covered":0,"input_derived":input,"non_quantity":non_quantity,
+             "withheld":relative + absolute + input}]);
+-        // U7: with its actual invocation the envelope is Current, so only absolute
+-        // and not-covered rows stay withheld; without it every quantity row is.
++        // U7, aligned (RV94 S-1): Current only when the standing with the caller's
++        // requested refs is eligible, so only absolute and not-covered rows stay
++        // withheld; with no refs or other refs every quantity row is.
++        let refs = requested(&m.invocation);
++        let other = vec![json!({"ref_type":"load_case","ref_id":"other"})];
+         let mut current = expected.clone();
+         current[0]["withheld"] = json!(absolute);
+-        assert_eq!(json!(s::classification_summary(&m.source, Some(&m.invocation))), current);
+-        assert_eq!(json!(s::classification_summary(&m.source, None)), expected);
++        assert_eq!(s::numerical_use_standing_with_context(&m.source, &refs, Some(&m.invocation)), "numerically_eligible");
++        assert_eq!(json!(s::classification_summary(&m.source, Some(&m.invocation), &refs)), current);
++        assert_eq!(json!(s::classification_summary(&m.source, Some(&m.invocation), &[])), expected);
++        assert_eq!(s::numerical_use_standing_with_context(&m.source, &other, Some(&m.invocation)), "needs_recompute");
++        assert_eq!(json!(s::classification_summary(&m.source, Some(&m.invocation), &other)), expected);
++        assert_eq!(json!(s::classification_summary(&m.source, None, &refs)), expected);
++        assert_eq!(json!(s::classification_summary(&m.source, None, &[])), expected);
+         let mut broken = m.source.clone();
+         broken["results"][0]["value"] = json!(12345.0);
+-        assert!(s::classification_summary(&broken, Some(&m.invocation)).is_empty());
+-        assert!(s::classification_summary(&projected_base(&m.source), None).is_empty());
++        assert!(s::classification_summary(&broken, Some(&m.invocation), &refs).is_empty());
++        assert!(s::classification_summary(&projected_base(&m.source), None, &[]).is_empty());
+         // Through the seam: only absolute and not-covered rows stay withheld, and
+         // only for the invocation's requested cases.
+         let mut validation = rp::validate(&m.source, Some(&m.invocation)).unwrap();
+         validation.numerical_eligible = true;
+-        assert_eq!(json!(s::classification_summary_from(&validation, &m.source, Some(&m.invocation))), current);
+-        assert_eq!(json!(s::classification_summary_from(&validation, &m.source, None)), expected);
+-        let mut other = m.invocation.clone();
+-        other["request"]["model"]["load_cases"][0]["id"] = json!("other");
+-        assert_eq!(json!(s::classification_summary_from(&validation, &m.source, Some(&other))), expected);
++        assert_eq!(json!(s::classification_summary_from(&validation, &m.source, &refs)), current);
++        assert_eq!(json!(s::classification_summary_from(&validation, &m.source, &[])), expected);
++        assert_eq!(json!(s::classification_summary_from(&validation, &m.source, &other)), expected);
+         // A not_covered row (none exists in any validated statement here) is
+         // withheld whether or not the envelope is Current.
+         let relative = validation.classifications.iter().position(|c| c.class == rp::AccuracyClass::RelativeVerified).unwrap();
+@@ -593,10 +599,10 @@ fn u6a_classification_summary_counts_validated_classes() {
+         uncovered[0]["relative_verified"] = json!(25 - 1);
+         uncovered[0]["not_covered"] = json!(1);
+         uncovered[0]["withheld"] = json!(absolute + 1);
+-        assert_eq!(json!(s::classification_summary_from(&validation, &m.source, Some(&m.invocation))), uncovered);
++        assert_eq!(json!(s::classification_summary_from(&validation, &m.source, &refs)), uncovered);
+         validation.numerical_eligible = false;
+         uncovered[0]["withheld"] = json!(relative_count(&expected) + absolute + input);
+-        assert_eq!(json!(s::classification_summary_from(&validation, &m.source, Some(&m.invocation))), uncovered);
++        assert_eq!(json!(s::classification_summary_from(&validation, &m.source, &refs)), uncovered);
+     }
+ }
+ 
+@@ -731,8 +737,9 @@ fn u6a_shared_carrier_cases_rust() {
+ 
+ /// 'by_validated_class' for the summary subject: per receipt case, the reader's
+ /// class counts, interval binding 0, and the not-Current withheld count (these
+-/// forms carry no invocation).
+-fn expected_summary(source: &Value) -> Value {
++/// forms carry no invocation). With `current`, the Current count: only absolute
++/// and not-covered rows.
++fn expected_summary_with(source: &Value, current: bool) -> Value {
+     let v = rp::validate(source, None).unwrap();
+     let cases = source["retained_precision"]["body"]["cases"].as_array().unwrap();
+     Value::Array(cases.iter().map(|case| {
+@@ -747,9 +754,39 @@ fn expected_summary(source: &Value) -> Value {
+             }] += 1;
+         }
+         json!({"case_id":case["basis_ref"]["ref_id"],"relative_verified":n[0],"absolute_verified":n[1],"interval_bindable":0,
+-            "not_covered":n[2],"input_derived":n[3],"non_quantity":n[4],"withheld":n[0] + n[1] + n[2] + n[3]})
++            "not_covered":n[2],"input_derived":n[3],"non_quantity":n[4],"withheld":if current { n[1] + n[2] } else { n[0] + n[1] + n[2] + n[3] }})
+     }).collect())
+ }
++fn expected_summary(source: &Value) -> Value {
++    expected_summary_with(source, false)
++}
++
++/// RV94 S-1: on both D-U7-4 forms Rust, given the invocation and the requested
++/// refs, stands `numerically_eligible` and its summary is Current (69 withheld);
++/// TS's side (needs_recompute, the not-Current 97) is pinned in TS. With other
++/// requested refs Rust reads `needs_recompute` and the not-Current summary.
++#[test]
++fn u7_d_u7_4_forms_rust_side_standing_and_summary() {
++    let cases: Value = serde_json::from_str(CASES).unwrap();
++    let fixtures = shared_fixtures(&cases);
++    let entry = cases["declared_differences"].as_array().unwrap().iter().find(|e| e["id"] == "D-U7-4:ts_requires_live_native_capture").unwrap();
++    let other = vec![json!({"ref_type":"load_case","ref_id":"other"})];
++    for form in entry["forms"].as_array().unwrap() {
++        assert_eq!(form["expected"]["rust"]["standing"], "numerically_eligible");
++        for fid in form["fixtures"].as_array().unwrap() {
++            let fixture = fixtures.iter().find(|f| fid == f.0.as_str()).unwrap();
++            let (source, invocation, requested) = apply_shared(form, fixture);
++            let label = form["label"].as_str().unwrap();
++            assert_eq!(s::numerical_use_standing_with_context(&source, &requested, invocation.as_ref()), "numerically_eligible", "{label}");
++            let summary = json!(s::classification_summary(&source, invocation.as_ref(), &requested));
++            assert_eq!(summary, expected_summary_with(&source, true), "{label}");
++            assert!(summary[0]["withheld"] == 69 && summary[0]["absolute_verified"] == 69, "{label}");
++            assert_eq!(s::numerical_use_standing_with_context(&source, &other, invocation.as_ref()), "needs_recompute");
++            let not_current = json!(s::classification_summary(&source, invocation.as_ref(), &other));
++            assert!(not_current == expected_summary(&source) && not_current != summary, "{label}");
++        }
++    }
++}
+ /// The expected binding of every row, from the entry's vocabulary.
+ fn expected_binding(source: &Value, expected: &str) -> Vec<Option<String>> {
+     let rows = source["results"].as_array().unwrap();
+@@ -845,7 +882,7 @@ fn u6_declared_differences_rust() {
+                         assert_eq!(got, expected["transport"].as_str().unwrap(), "{id} {label}");
+                     }
+                     "summary" => {
+-                        let got = json!(s::classification_summary(&source, invocation.as_ref()));
++                        let got = json!(s::classification_summary(&source, invocation.as_ref(), &requested));
+                         let want = match expected["summary"].as_str().unwrap() { "by_validated_class" => expected_summary(&source), _ => json!([]) };
+                         assert!(want.as_array().is_some_and(|w| !w.is_empty()), "{id} {label}");
+                         assert_eq!(got, want, "{id} {label}");
+diff --git a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+index f0436dbaaf..032eb38e92 100644
+--- a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
++++ b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+@@ -3287,3 +3287,30 @@ fn d37_error_kind_agrees_with_stage_record() {
+     }
+     assert!(misses.is_empty(), "{}", misses.join("\n"));
+ }
++
++/// RV94 S-1 on 07j's two-case statement whose second case is not_required: with
++/// the receipt's case order the standing is eligible and the summary Current;
++/// with the not_required case omitted, or the two reordered, the standing is
++/// `needs_recompute` and the summary not-Current ([73, 0]).
++#[test]
++fn u7_07j_not_required_case_omitted_or_reordered_is_not_current() {
++    use open_pipe_stress_result_export::semantic_contract as s;
++    let shared = corpus();
++    let entry = shared["must_pass"].as_array().unwrap().iter().find(|e| e["id"] == "not_required_second_case_checks_passed").unwrap();
++    let (source, invocation) = apply_entry(&shared, entry);
++    let cases = source["retained_precision"]["body"]["cases"].as_array().unwrap();
++    assert_eq!(cases.iter().map(|c| c["status"].as_str().unwrap()).collect::<Vec<_>>(), ["selected", "not_required"]);
++    let order: Vec<Value> = cases.iter().map(|c| c["basis_ref"].clone()).collect();
++    assert_eq!(s::numerical_use_standing_with_context(&source, &order, Some(&invocation)), "numerically_eligible");
++    let withheld = |refs: &[Value]| -> Vec<u64> {
++        s::classification_summary(&source, Some(&invocation), refs).iter().map(|c| c["withheld"].as_u64().unwrap()).collect()
++    };
++    let current = withheld(&order);
++    assert_eq!(withheld(&[]), [73, 0]);
++    assert_ne!(current, [73, 0]);
++    let reversed: Vec<Value> = order.iter().rev().cloned().collect();
++    for refs in [order[..1].to_vec(), reversed] {
++        assert_eq!(s::numerical_use_standing_with_context(&source, &refs, Some(&invocation)), "needs_recompute", "{refs:?}");
++        assert_eq!(withheld(&refs), [73, 0], "{refs:?}");
++    }
++}
+diff --git a/projects/chirality-piping/tests/test_retained_precision_carriers.py b/projects/chirality-piping/tests/test_retained_precision_carriers.py
+index f398e9ac11..d196059a81 100644
+--- a/projects/chirality-piping/tests/test_retained_precision_carriers.py
++++ b/projects/chirality-piping/tests/test_retained_precision_carriers.py
+@@ -250,16 +250,18 @@ def test_shared_carrier_cases_python():
+         assert dispatch(docs[fid]["source"]) == "ok" and c.numerical_use_standing(docs[fid]["source"], []) == "needs_recompute", fid
+ 
+ 
+-def expected_summary(source):
++def expected_summary(source, current=False):
+     """'by_validated_class': per receipt case, the reader's class counts, interval
+-    binding 0, and the not-Current withheld count (these forms carry no invocation)."""
++    binding 0, and the not-Current withheld count (these forms carry no invocation).
++    With `current`, the Current count: only absolute and not-covered rows."""
+     classes = rp.validate_retained_precision(source)["classifications"]
+     out = []
+     for case in source["retained_precision"]["body"]["cases"]:
+         mine = [item["class"] for item in classes if item["basis_ref"] == case["basis_ref"]]
+         n = {name: mine.count(name) for name in ("relative_verified", "absolute_verified", "not_covered", "input_derived", "non_quantity")}
+         out.append({"case_id": case["basis_ref"]["ref_id"], **n, "interval_bindable": 0,
+-                    "withheld": n["relative_verified"] + n["absolute_verified"] + n["not_covered"] + n["input_derived"]})
++                    "withheld": n["absolute_verified"] + n["not_covered"] if current else
++                    n["relative_verified"] + n["absolute_verified"] + n["not_covered"] + n["input_derived"]})
+     return out
+ 
+ 
+@@ -324,7 +326,7 @@ def test_declared_differences_python():
+                     assert dispatch_transport(source) == expected["transport"], label
+                 elif form["subject"] == "summary":
+                     want = expected_summary(source) if expected["summary"] == "by_validated_class" else []
+-                    assert want and c.classification_summary(source, context) == want, label
++                    assert want and c.classification_summary(source, context, refs) == want, label
+                 else:
+                     assert form["subject"] == "binding", label
+                     assert [c.rule_binding_refusal(source, row) for row in source["results"]] == expected_binding(source, expected["binding"]), label
+@@ -474,8 +476,15 @@ def test_classification_summary_counts_validated_classes(mode):
+                  "withheld": relative + absolute + input_derived}]
+     current = deepcopy(expected)
+     current[0]["withheld"] = absolute
+-    # U7: with its actual invocation the envelope is Current, so only absolute (and not-covered) rows stay withheld.
+-    assert c.classification_summary(source, invocation) == current
++    # U7, aligned (RV94 S-1): Current only when the standing with the caller's requested refs is
++    # eligible, so only absolute (and not-covered) rows stay withheld; with no refs or other refs, all.
++    assert c.numerical_use_standing(source, requested(invocation), invocation) == "numerically_eligible"
++    assert c.classification_summary(source, invocation, requested(invocation)) == current
++    assert c.classification_summary(source, invocation) == expected
++    other_refs = [{"ref_type": "load_case", "ref_id": "other"}]
++    assert c.numerical_use_standing(source, other_refs, invocation) == "needs_recompute"
++    assert c.classification_summary(source, invocation, other_refs) == expected
++    assert c.classification_summary(source, None, requested(invocation)) == expected
+     assert c.classification_summary(source) == expected
+     broken = deepcopy(source)
+     broken["results"][0]["value"] = 12345.0
+@@ -483,22 +492,60 @@ def test_classification_summary_counts_validated_classes(mode):
+     assert c.classification_summary(projected(source)) == []
+     # Through the seam: only absolute and not-covered rows stay withheld when Current.
+     validation = dict(rp.validate_retained_precision(source, invocation), numerical_eligible=True)
+-    assert c._classification_summary_from(validation, source, invocation) == current
+-    assert c._classification_summary_from(validation, source, None) == expected
+-    other = deepcopy(invocation)
+-    other["request"]["model"]["load_cases"][0]["id"] = "other"
+-    assert c._classification_summary_from(validation, source, other) == expected
++    assert c._classification_summary_from(validation, source, requested(invocation)) == current
++    assert c._classification_summary_from(validation, source, []) == expected
++    assert c._classification_summary_from(validation, source, other_refs) == expected
+     classes = deepcopy(validation["classifications"])
+     index = next(i for i, item in enumerate(classes) if item["class"] == "relative_verified")
+     classes[index]["class"] = "not_covered"
+     uncovered = deepcopy(current)
+     uncovered[0].update(relative_verified=relative - 1, not_covered=1, withheld=absolute + 1)
+-    assert c._classification_summary_from(dict(validation, classifications=classes), source, invocation) == uncovered
++    assert c._classification_summary_from(dict(validation, classifications=classes), source, requested(invocation)) == uncovered
+     uncovered[0]["withheld"] = relative + absolute + input_derived
+-    assert c._classification_summary_from(dict(validation, classifications=classes, numerical_eligible=False), source, invocation) == uncovered
++    assert c._classification_summary_from(dict(validation, classifications=classes, numerical_eligible=False), source, requested(invocation)) == uncovered
+     # Counts are per case: a classification under another case is not counted here.
+     stray = dict(classes[index], basis_ref={"ref_type": "load_case", "ref_id": "other"})
+-    assert c._classification_summary_from(dict(validation, classifications=classes + [stray], numerical_eligible=False), source, invocation) == uncovered
++    assert c._classification_summary_from(dict(validation, classifications=classes + [stray], numerical_eligible=False), source, requested(invocation)) == uncovered
++
++
++def test_d_u7_4_forms_python_side_standing_and_summary():
++    """RV94 S-1: on both D-U7-4 forms Python, given the invocation and the requested refs, stands
++    numerically_eligible and its summary is Current (69 withheld). TS's side (needs_recompute, the
++    not-Current 97) is pinned in TS. With other requested refs Python reads needs_recompute and the
++    not-Current summary, so the summary never says Current when the standing does not."""
++    cases, docs = shared_cases()
++    entry = next(e for e in cases["declared_differences"] if e["id"] == "D-U7-4:ts_requires_live_native_capture")
++    for form in entry["forms"]:
++        assert form["expected"]["python"]["standing"] == "numerically_eligible"
++        for fid in form["fixtures"]:
++            source, context, refs = apply_case(form, docs[fid])
++            assert c.numerical_use_standing(source, refs, context) == "numerically_eligible", form["label"]
++            summary = c.classification_summary(source, context, refs)
++            assert summary == expected_summary(source, current=True) and summary[0]["withheld"] == summary[0]["absolute_verified"] == 69, form["label"]
++            other = [{"ref_type": "load_case", "ref_id": "other"}]
++            assert c.numerical_use_standing(source, other, context) == "needs_recompute"
++            assert c.classification_summary(source, context, other) == expected_summary(source) and summary != expected_summary(source)
++
++
++def test_07j_not_required_case_omitted_or_reordered_is_not_current():
++    """RV94 S-1 on 07j's two-case statement whose second case is not_required: with the receipt's
++    case order the standing is eligible and the summary Current; with the not_required case omitted,
++    or the two reordered, the standing is needs_recompute and the summary not-Current ([73, 0])."""
++    from tests.test_retained_precision_contract import apply_entry, corpus
++    data = corpus()
++    entry = next(e for e in data["must_pass"] if e["id"] == "not_required_second_case_checks_passed")
++    fixture = next(f for f in data["cases"] if f["id"] == entry["base"])
++    source, invocation = apply_entry(fixture, entry)
++    order = [case["basis_ref"] for case in source["retained_precision"]["body"]["cases"]]
++    assert [case["status"] for case in source["retained_precision"]["body"]["cases"]] == ["selected", "not_required"]
++    assert c.numerical_use_standing(source, order, invocation) == "numerically_eligible"
++    current = c.classification_summary(source, invocation, order)
++    not_current = c.classification_summary(source, invocation)
++    assert [case["withheld"] for case in not_current] == [73, 0] and current != not_current
++    assert current == expected_summary(source, current=True) and not_current == expected_summary(source)
++    for refs in (order[:1], order[::-1]):
++        assert c.numerical_use_standing(source, refs, invocation) == "needs_recompute", refs
++        assert c.classification_summary(source, invocation, refs) == not_current, refs
+ 
+ 
+ @pytest.mark.parametrize("mode", MODES)

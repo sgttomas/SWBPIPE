@@ -1,0 +1,25 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+    "-j",
+    "4",
+    "--lib",
+    "targeted_sums_match_the_fraction_oracle",
+    "--",
+    "--nocapture"
+  ],
+  "start": "2026-10-02T22:58:13.153498+00:00",
+  "end": "2026-10-02T22:58:13.202417+00:00",
+  "exit": 0,
+  "target": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i37-frame-kernel",
+  "candidate_hashes": "FINAL_CANDIDATE_HASHES.json",
+  "owned_pid": 71187,
+  "environment": {
+    "RUST_TEST_THREADS": "2",
+    "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i37-frame-kernel"
+  },
+  "wall_limit_seconds": 1200
+}

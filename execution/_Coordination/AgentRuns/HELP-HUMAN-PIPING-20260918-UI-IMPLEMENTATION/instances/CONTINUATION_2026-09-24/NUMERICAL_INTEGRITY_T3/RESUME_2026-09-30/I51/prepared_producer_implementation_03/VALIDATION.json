@@ -1,0 +1,605 @@
+{
+  "status": "complete private candidate refuses; required success gate intentionally remains failing",
+  "commands": [
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_c0_layout_only_01.json",
+      "sha256": "b6517996d34e7fd8e8e6c41a045f8f233f9c9036015000919534b1c4b2714e7b",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "i51_c0_layout_and_accounting_only",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T10:27:50.211448+00:00",
+      "finish": "2026-10-03T10:27:59.148049+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "3f33f03b7760485e66ba1ff8557ae9ceacbfe6886a81fdd051a18b4d33bd634d",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 463 filtered out; finished in 0.00s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_certificate_controls_01.json",
+      "sha256": "8ccc97cd54b3e412393b67cd774878d0a8333abb4be0cd7be7c80362129a4a54",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "product_certificate"
+      ],
+      "start": "2026-10-03T11:22:15.463299+00:00",
+      "finish": "2026-10-03T11:22:25.003714+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "c0c51c3236341c76e910ad7e79047520b998cfb3c3436beddf23cdd7f52ba42a",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 446 filtered out; finished in 0.02s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_origins_controls_01.json",
+      "sha256": "943a9b6dcf039eca72d159a6e39687a0a89013e92fb0ac50c2039f54e32a6d32",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "origins::tests"
+      ],
+      "start": "2026-10-03T11:22:38.110965+00:00",
+      "finish": "2026-10-03T11:22:39.390152+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "c0c51c3236341c76e910ad7e79047520b998cfb3c3436beddf23cdd7f52ba42a",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 456 filtered out; finished in 1.24s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_residual_controls_01.json",
+      "sha256": "c72ca1748dc8e4138f38672d318b50f402a7c7aced32dc56ed6fdf1049247929",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "source_residual_tests"
+      ],
+      "start": "2026-10-03T11:22:36.998975+00:00",
+      "finish": "2026-10-03T11:22:38.036087+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "c0c51c3236341c76e910ad7e79047520b998cfb3c3436beddf23cdd7f52ba42a",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 456 filtered out; finished in 0.99s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_s11_final.json",
+      "sha256": "9bf164f8acc7aa68dbc3151d6f8d288242115c224efa5971d10113ec659cec9b",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--test",
+        "s11_site_table"
+      ],
+      "start": "2026-10-03T11:26:23.006911+00:00",
+      "finish": "2026-10-03T11:26:24.878558+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "c8b0820bdc836613f19683bf9a0706ed2b30a519cd16e25b1ecce46a769f0e9d",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/fk_s11_unchanged_01.json",
+      "sha256": "00e7173bd449b3a9d191a362fb57cda02dcac812e0e90b59123a3b56841791e1",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--test",
+        "s11_site_table"
+      ],
+      "start": "2026-10-03T11:19:55.777198+00:00",
+      "finish": "2026-10-03T11:19:59.996262+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "a41ae505f4924762b4cc005aa7776e8cc86fda4375084516c5aa899b6dfedbe4",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c0_boundaries_01.json",
+      "sha256": "1f041da919b7930de3d57396b35286fefd835e486591abc3d59039f878341fc4",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "i51_c0_isolated_guard_accounting_boundaries",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T10:45:23.516632+00:00",
+      "finish": "2026-10-03T10:45:28.751448+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "2d80bb0f271e8d48e5d4b85e62389f89c94d7a44c123358574e87dc45b9c2a7a",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 435 filtered out; finished in 0.01s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c0_isolated_01.json",
+      "sha256": "00df75d0b2ccb9dbd3c6de776185e1d2b4bdc85c9f0e145180b9199078141e1b",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "i51_c0_isolated_late_hook_custody_and_prefixes",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T10:43:36.628570+00:00",
+      "finish": "2026-10-03T10:43:53.208909+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "c6e9cd21cb5ae8430e407866068ff949a6a7d8c656a693a4e57c5dd2634563c3",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 434 filtered out; finished in 0.05s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c0_isolated_final.json",
+      "sha256": "5994463605f118febec9292c5ad43785c8a2e3f547fc53066991c2a461cdb8cb",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "retained_product_tests::i51_c0_isolated_",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T10:47:51.498344+00:00",
+      "finish": "2026-10-03T10:47:55.295647+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "b19bff797fcf42533e86dc19d35e757013f7e6c3489b3db6de2eaa100712b5b9",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 434 filtered out; finished in 0.05s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c1_compile_01.json",
+      "sha256": "e762ead188959dfcd2b95db4a485f7ed2e236b1a25f1a81b749390e73cecfd38",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "i51_first_prepared_native_both_modes",
+        "--no-run"
+      ],
+      "start": "2026-10-03T10:09:10.766839+00:00",
+      "finish": "2026-10-03T10:09:24.823701+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "5f78695845a6c1417226b4d1542365c9d922955b00248be2ef7c57e306a2d8d4",
+      "source_stable": true,
+      "test_summaries": []
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c1_native_01.json",
+      "sha256": "84cfe831857f061821ad599359d8e3da19c355087abf6ef40a1311479896c346",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "i51_first_prepared_native_both_modes",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T10:10:46.937862+00:00",
+      "finish": "2026-10-03T10:10:48.073087+00:00",
+      "exit": 101,
+      "reaped": true,
+      "source_digest": "15889022b76dd5edef138fdbe373a09c5e42075041fb5adf17f7b81468015906",
+      "source_stable": true,
+      "test_summaries": []
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c1_native_02.json",
+      "sha256": "735e3dd054a6e48775445ae2b530c68c2f554c75a1443e6bec2c9caa37005927",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "i51_first_prepared_native_both_modes",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T10:11:27.054301+00:00",
+      "finish": "2026-10-03T10:11:31.482630+00:00",
+      "exit": 101,
+      "reaped": true,
+      "source_digest": "1c9d567d527a5e9547f0bee4c910921b0f542699ab80af93d73f8a62238cccff",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 433 filtered out; finished in 0.02s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c1_native_03.json",
+      "sha256": "299655f5076b9ac72a5240240f60b75c1a441bf0c7b7bde3039e010f4c727306",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "i51_first_prepared_native_both_modes",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T10:12:19.409904+00:00",
+      "finish": "2026-10-03T10:12:24.080762+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "4922ac2360ef425967ce23ae89d95c23233a5e44aa941f2075d6ec27f7f6ab45",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 433 filtered out; finished in 0.18s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c2_candidate_01.json",
+      "sha256": "32f54b4883398183b3f6136fa4a29f5d09f96fa0ac059d35bfa6d213c16f42b4",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "i51_complete_prepared_candidate_both_modes",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T11:07:41.154108+00:00",
+      "finish": "2026-10-03T11:07:54.628895+00:00",
+      "exit": 101,
+      "reaped": true,
+      "source_digest": "1f7d91a8a419c46e545096b254e7462e63572165b022a2cdf924684d58a6ffbc",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 436 filtered out; finished in 1.57s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_c2_diagnostics_02.json",
+      "sha256": "9d3a96c13b35c84bd18aeb051c29111c1d253529c848448d3c540a5756e402c4",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "i51_complete_prepared_candidate_both_modes",
+        "--",
+        "--nocapture"
+      ],
+      "start": "2026-10-03T11:12:59.009531+00:00",
+      "finish": "2026-10-03T11:13:05.757753+00:00",
+      "exit": 101,
+      "reaped": true,
+      "source_digest": "6497a692481766bea9d3708924b90e4b3fb62d1344a1835eef45bb8752bab04d",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 436 filtered out; finished in 1.58s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_exact_suppression_01.json",
+      "sha256": "0b7879d800af33cbac12a498ad1cedd6b9b3c2b5fd67477279f250d8bfc115c3",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "i51_actual_exact_pressure_selection_suppresses_all_prepared_work"
+      ],
+      "start": "2026-10-03T11:25:05.760469+00:00",
+      "finish": "2026-10-03T11:25:10.095659+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "c8b0820bdc836613f19683bf9a0706ed2b30a519cd16e25b1ecce46a769f0e9d",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 437 filtered out; finished in 0.07s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_formation_01.json",
+      "sha256": "a6f81046c73b027dc56022fb8ae96d68515e7814475705aaed43aba9c4e50be4",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--test",
+        "formation_check_runtime"
+      ],
+      "start": "2026-10-03T11:25:10.172414+00:00",
+      "finish": "2026-10-03T11:25:13.621329+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "c8b0820bdc836613f19683bf9a0706ed2b30a519cd16e25b1ecce46a769f0e9d",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.51s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_nonpressure_01.json",
+      "sha256": "a7e2ac19a56c578a0c5bd40c007779fed926f7cb215f7a5f8b3b5f2f53fb6d24",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "without_pressure"
+      ],
+      "start": "2026-10-03T11:25:14.899116+00:00",
+      "finish": "2026-10-03T11:25:15.105801+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "c8b0820bdc836613f19683bf9a0706ed2b30a519cd16e25b1ecce46a769f0e9d",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 435 filtered out; finished in 0.11s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_pressure_01.json",
+      "sha256": "ec8693348ffd28fbceb65fe56bd4fdd6dec3a580148a762a0a814d5b3e416f49",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--test",
+        "pressure_runtime",
+        "six_si_pressure_states_through_both_public_solver_modes"
+      ],
+      "start": "2026-10-03T11:25:13.698605+00:00",
+      "finish": "2026-10-03T11:25:14.813866+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "c8b0820bdc836613f19683bf9a0706ed2b30a519cd16e25b1ecce46a769f0e9d",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.05s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_retained_debug_01.json",
+      "sha256": "7fbb2a5a74c9d349572e1c50644f505f6d4bde382d2e466747f09a8a3f72731a",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "retained_product_tests"
+      ],
+      "start": "2026-10-03T11:22:39.473962+00:00",
+      "finish": "2026-10-03T11:22:55.950777+00:00",
+      "exit": 101,
+      "reaped": true,
+      "source_digest": "c0c51c3236341c76e910ad7e79047520b998cfb3c3436beddf23cdd7f52ba42a",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: FAILED. 22 passed; 1 failed; 0 ignored; 0 measured; 414 filtered out; finished in 9.08s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_retained_debug_final.json",
+      "sha256": "739135749a00d4495d2aa24d2d4a5539ab30da7d896776b031b1aa31e49b2956",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--lib",
+        "retained_product_tests"
+      ],
+      "start": "2026-10-03T11:25:41.892222+00:00",
+      "finish": "2026-10-03T11:25:51.074180+00:00",
+      "exit": 101,
+      "reaped": true,
+      "source_digest": "c8b0820bdc836613f19683bf9a0706ed2b30a519cd16e25b1ecce46a769f0e9d",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: FAILED. 23 passed; 1 failed; 0 ignored; 0 measured; 414 filtered out; finished in 9.12s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_retained_release_01.json",
+      "sha256": "9f7c3d0d8894acfd702c030694ed6beb93c6e67823e635136bd54bdbbee6e2a3",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--release",
+        "--lib",
+        "retained_product_tests"
+      ],
+      "start": "2026-10-03T11:23:34.292257+00:00",
+      "finish": "2026-10-03T11:24:16.925171+00:00",
+      "exit": 101,
+      "reaped": true,
+      "source_digest": "c0c51c3236341c76e910ad7e79047520b998cfb3c3436beddf23cdd7f52ba42a",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: FAILED. 22 passed; 1 failed; 0 ignored; 0 measured; 414 filtered out; finished in 0.38s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_retained_release_final.json",
+      "sha256": "24d1eb39527b5bae1067980398fa1fac5fee50e1ffaba293fcb2893241932bcd",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--release",
+        "--lib",
+        "retained_product_tests"
+      ],
+      "start": "2026-10-03T11:25:51.155785+00:00",
+      "finish": "2026-10-03T11:26:19.841445+00:00",
+      "exit": 101,
+      "reaped": true,
+      "source_digest": "c8b0820bdc836613f19683bf9a0706ed2b30a519cd16e25b1ecce46a769f0e9d",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: FAILED. 23 passed; 1 failed; 0 ignored; 0 measured; 414 filtered out; finished in 0.38s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_s11_final.json",
+      "sha256": "9ab92a62f1c6a004ec509083dc732147885ab62258a0e0aec02d0aa6aaaad823",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--test",
+        "s11f_site_test"
+      ],
+      "start": "2026-10-03T11:26:19.917901+00:00",
+      "finish": "2026-10-03T11:26:22.925303+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "c8b0820bdc836613f19683bf9a0706ed2b30a519cd16e25b1ecce46a769f0e9d",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.39s"
+      ]
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_producer_implementation/pp_s11_unchanged_01.json",
+      "sha256": "66103c646e2d216fa86f39323efb7d535af5bb1a6f755aa4157115891085a5f3",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--locked",
+        "--offline",
+        "--test",
+        "s11f_site_test"
+      ],
+      "start": "2026-10-03T11:19:33.488470+00:00",
+      "finish": "2026-10-03T11:19:43.024779+00:00",
+      "exit": 0,
+      "reaped": true,
+      "source_digest": "a41ae505f4924762b4cc005aa7776e8cc86fda4375084516c5aa899b6dfedbe4",
+      "source_stable": true,
+      "test_summaries": [
+        "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.40s"
+      ]
+    }
+  ],
+  "remaining_controls": [
+    "selected amendment controls in C2_AMENDMENT_PROPOSAL.md",
+    "foreign/stale owner and values; missing lane; old J/old stress recipe mutants on new path",
+    "successful atomic transfer cannot be exercised until complete predicates and observable pass",
+    "full local C4 auxiliary accounting/measurements",
+    "later public receipt/custody and invocation-wide debit qualification"
+  ]
+}

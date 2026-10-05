@@ -1,0 +1,54 @@
+{
+  "sealed_utc": "2026-10-03T09:48:46.759576+00:00",
+  "actor": "/root/i51_replacement_producer",
+  "parent": "/root",
+  "status": "bounded design completion for RV67 backcheck; not selected or implemented",
+  "seal_policy": "single seal; later corrections must be new addenda",
+  "payloads": [
+    {
+      "path": "API.md",
+      "bytes": 20950,
+      "sha256": "5107c8a36cbf2de0a6b1dd18f22558dc5287b13e1832d532a0793b26c225e55e"
+    },
+    {
+      "path": "AUDIT.json",
+      "bytes": 2228,
+      "sha256": "d35cb355ef432c17e8dcbd792b5d43e6f7e868d2f69036f6fe25dd9853707bb0"
+    },
+    {
+      "path": "BULK_MANIFEST.json",
+      "bytes": 577,
+      "sha256": "1acc658a250b16acdbb0845c607b4d858d8914ceb6e8b20d0864752bcde82eb7"
+    },
+    {
+      "path": "DESIGN.md",
+      "bytes": 14647,
+      "sha256": "6eee08e2ad9abd1a422692596537f0619a012a2de3887f9a43209fb753417325"
+    },
+    {
+      "path": "EXECUTION.json",
+      "bytes": 4862,
+      "sha256": "4b836d28e388b76ed27737bd1e1fccf5742438b155769b7ceeafaad359097c3a"
+    },
+    {
+      "path": "FENCE.md",
+      "bytes": 9518,
+      "sha256": "25b3f427265addcaf912eeccebd75ca53b1d4f64a715c627431a79052451fd02"
+    },
+    {
+      "path": "ORIGINS.json",
+      "bytes": 8722,
+      "sha256": "91b976daf31b9a0099be0f7907fb0edcf3014a5de8d1042a43060d2fe8e05303"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 4026,
+      "sha256": "2df6cef8a16bac019e8e4185381b0c845109211e0b6fae3b8474e4c897d8e9ad"
+    }
+  ],
+  "payload_count": 8,
+  "bulk_manifest": "BULK_MANIFEST.json",
+  "analysis_closed_utc": "2026-10-03 09:47:22 UTC",
+  "prior_packet_unchanged": "I51/replacement_producer_01 at 8d025201b8",
+  "no_live_producer_or_publication_claim": true
+}

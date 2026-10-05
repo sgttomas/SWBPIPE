@@ -1,0 +1,9 @@
+base: 3258 tests, 3258 passed, 0 failed; files 135
+cand: 3417 tests, 3417 passed, 0 failed; files 138
+existing tests with a different outcome or absent: 1
+  features/results/knownSemanticLimitations.test.ts :: static fresh-identity set and standing reasons admits only preview-physics-1, source-blocks-1, physics-1, physics-source-1 and T1's load-reference-1 and load-reference-source-1 :: passed -> ABSENT
+tests only in candidate: 160
+  features/results/knownSemanticLimitations.test.ts: 1 (passed=1)
+  features/results/retainedPrecisionIntegration.test.tsx: 76 (passed=76)
+  features/results/retainedPrecisionOutputRefusal.test.tsx: 64 (passed=64)
+  services/retainedPrecisionAnalysisRun.test.ts: 19 (passed=19)

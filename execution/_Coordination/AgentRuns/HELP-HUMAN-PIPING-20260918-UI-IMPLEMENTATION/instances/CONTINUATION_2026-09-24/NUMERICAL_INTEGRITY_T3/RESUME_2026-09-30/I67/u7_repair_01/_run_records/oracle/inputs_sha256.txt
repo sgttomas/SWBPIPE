@@ -1,0 +1,4 @@
+inputs regenerated with I66's gen_inputs.py (not copied, about 50 MB each):
+104fb7146c8ba7de6bc3b68832c9422f157027a529cfd114ba3e5ce19d672ffa  WT/scratch/i67_u6d/oracle9/inputs_base9.json
+f84f62c4c38f8b2a7573cf06ddab0ae22f256232fe952f476d82135b2939a986  WT/scratch/i67_u6d/oracle9/inputs_cand9.json
+base lane = 8c84e7ae14: 381 inputs, equal to I66 u7_repair_01's inputs_sha256 (104fb714...); candidate: 386 = those 381 unchanged plus 5 new

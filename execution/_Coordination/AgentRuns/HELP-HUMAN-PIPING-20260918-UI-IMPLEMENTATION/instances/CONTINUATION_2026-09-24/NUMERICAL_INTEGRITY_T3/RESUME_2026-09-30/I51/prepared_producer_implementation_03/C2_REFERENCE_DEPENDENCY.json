@@ -1,0 +1,6 @@
+{
+  "note": "Additional source dependency already identified and hashed inside ACTUAL_POINT_CONTROL.json; earlier frozen diagnosis remains unchanged.",
+  "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_replacement_producer/control.py",
+  "bytes": 13460,
+  "sha256": "1ec5589fec4b0d82a1a73ea78743c362604cbe2cd4b3482b237741f39e0f7132"
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I45/product_vertical_repair_03/_run_records/pp_debug.json",
+    "sha256": "831fee9cbf57d5e351c1b96fa3daff5e1d2b968d3d588101612b8a4886d8e693",
+    "exit": 0,
+    "before_after_final_equal": true
+  },
+  {
+    "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I45/product_vertical_repair_03/_run_records/pp_release.json",
+    "sha256": "ecb3136687f506c12840052c18203145d00c96a18ee3940d73f3b45a9a4593f0",
+    "exit": 0,
+    "before_after_final_equal": true
+  },
+  {
+    "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I45/product_vertical_repair_03/_run_records/pp_s11.json",
+    "sha256": "5181b46e18575c8d019555d897a38d769a0a8987f431a577ad111a6765bd9479",
+    "exit": 0,
+    "before_after_final_equal": true
+  }
+]

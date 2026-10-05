@@ -1,0 +1,5 @@
+== waiting for a quiet host 2026-10-04T22:47:30Z
+== quiet since 2026-10-04T22:49:30Z
+== part2 exit=0 2026-10-04T22:55:53Z
+foreign-job samples during the run: 60 of 76 (corrected; the runner's count misparsed a literal \t)
+PART2-DONE 2026-10-04T22:55:53Z

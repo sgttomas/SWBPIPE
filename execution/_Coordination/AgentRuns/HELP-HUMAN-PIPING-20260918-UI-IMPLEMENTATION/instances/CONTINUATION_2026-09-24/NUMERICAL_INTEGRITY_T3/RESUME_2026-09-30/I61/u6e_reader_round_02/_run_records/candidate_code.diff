@@ -1,0 +1,136 @@
+diff --git a/projects/chirality-piping/core/analysis_runs/retained_precision.py b/projects/chirality-piping/core/analysis_runs/retained_precision.py
+index 043d040b5e..780e290de1 100644
+--- a/projects/chirality-piping/core/analysis_runs/retained_precision.py
++++ b/projects/chirality-piping/core/analysis_runs/retained_precision.py
+@@ -911,7 +911,9 @@ def _g5_ordinary(body, cases, diags, quality):
+         # exactly the diagnostics whose affected_refs name the case, once each, in envelope order,
+         # excluding RETAINED_PRECISION_* (a T1 (a)-omitted disclosure is absent from the envelope).
+         name = c["basis_ref"]["ref_id"]
+-        fail(refs == [d["id"] for d in diags if name in (d.get("affected_refs") or []) and not str(d.get("code")).startswith("RETAINED_PRECISION_")])
++        # A non-array affected_refs names no case (S1, RV90: parity with Rust list() and TS Array.isArray).
++        fail(refs == [d["id"] for d in diags if isinstance(d.get("affected_refs"), list) and name in d["affected_refs"]
++                      and not str(d.get("code")).startswith("RETAINED_PRECISION_")])
+         fail(o["initial"]["kind"] != "not_attempted" if c["status"] in ("selected", "not_required") else True)
+         if o["initial"]["kind"] == "report":
+             fail(o["initial"]["report_diagnostic_ref"] in by_id and o["initial"]["outcome"] == quality[i]["solve_quality"])
+diff --git a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+index 1f5db76168..88e80a5537 100644
+--- a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
++++ b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+@@ -270,12 +270,12 @@ fn shared_rehashed_first_failure_mutations() {
+ 
+ /// Observe one slice of the shared mutations against this reader's own
+ /// expectation, print one outcome per mutation (visible with --nocapture) and
+-/// check the slice tally. Snapshot 07g holds 274 mutations in all.
++/// check the slice tally. Snapshot 07h holds 277 mutations in all.
+ fn slice_outcomes(tag: &str, range: std::ops::Range<usize>, want: &[(&str, usize)]) {
+     use std::collections::BTreeMap;
+     let shared = corpus();
+     let mutations = shared["mutations"].as_array().unwrap();
+-    assert_eq!(mutations.len(), 274);
++    assert_eq!(mutations.len(), 277);
+     let mut tally = BTreeMap::new();
+     let mut matched = 0;
+     for mutation in &mutations[range.clone()] {
+@@ -530,6 +530,18 @@ fn snapshot_07g_mutation_outcomes() {
+     );
+ }
+ 
++/// Snapshot-07h pins (I61 U6e repair; RV90 S1, N1, N2): a non-array
++/// `affected_refs` names no case, F5 on the second case, and a strict prefix
++/// of A2's list, mutations 274..277.
++#[test]
++fn snapshot_07h_mutation_outcomes() {
++    slice_outcomes(
++        "I61_OUTCOME_07H",
++        274..277,
++        &[("G5 RETAINED_PRECISION_ATTEMPT_MISMATCH", 3)],
++    );
++}
++
+ /// F5 (D-U6-7; A2) on the real milestone receipts: U1's producer mutants M09
+ /// (RETAINED_PRECISION_* listed), M10 (diagnostics that do not name the case
+ /// listed) and M20 (another row method token) are refused by this reader, each
+@@ -815,8 +827,9 @@ fn g5_audit_local_controls() {
+ fn shared_must_pass_entries_validate() {
+     let shared = corpus();
+     let entries = shared["must_pass"].as_array().unwrap();
+-    // Snapshot 07: 06d's 18 plus the equal-E bracket control.
+-    assert_eq!(entries.len(), 22);
++    // Snapshot 07: 06d's 18 plus the equal-E bracket control; 07h adds F5's
++    // reordered-envelope exact-list control (RV90 N2).
++    assert_eq!(entries.len(), 23);
+     let mut failures = Vec::new();
+     for entry in entries {
+         assert_eq!(entry["expected"], "pass");
+@@ -2428,8 +2441,17 @@ fn d6_d7_ordinary_and_diagnostic_relations() {
+         .map(|d| d["id"].clone());
+     {
+         let other = other.expect("a diagnostic of another scope in the base");
++        // RV90 N3 (07h): the base's exact list plus the other-scope element, so
++        // that element is the only defect (`[integrity, other]` was also 07f's
++        // relaxed form, refused under F5 without `other`).
++        let mut refs = base_source(&shared, ORD)["retained_precision"]["body"]["ordinary_attempts"][0]["diagnostic_refs"]
++            .as_array()
++            .unwrap()
++            .clone();
++        assert!(!refs.contains(&other));
++        refs.push(other);
+         assert_eq!(
+-            probe(&shared, ORD, vec![set(rb(json!(["ordinary_attempts", 0, "diagnostic_refs"])), json!(["diagnostic:numerical-integrity:case:six-component-load", other]))]),
++            probe(&shared, ORD, vec![set(rb(json!(["ordinary_attempts", 0, "diagnostic_refs"])), Value::Array(refs))]),
+             gate("G5", ATTEMPT),
+             "F5: a listed diagnostic of another scope is refused"
+         );
+diff --git a/projects/chirality-piping/tests/test_retained_precision_contract.py b/projects/chirality-piping/tests/test_retained_precision_contract.py
+index 9110cce4d2..42fe690ad6 100644
+--- a/projects/chirality-piping/tests/test_retained_precision_contract.py
++++ b/projects/chirality-piping/tests/test_retained_precision_contract.py
+@@ -621,10 +621,10 @@ def test_rv79_surviving_mutants_m06_m09_m14():
+ 
+ 
+ def test_snapshot_07_counts_and_entry_format():
+-    """Snapshot 07g (I61 U6e; F5, RV79-N1): 15 cases, 274 mutations, 22 must-pass and the D37
+-    table; only rehash "all" (D11); one expectation per entry except the per-reader G7 entry."""
++    """Snapshot 07h (I61 U6e repair; RV90 S1, N1, N2, N4): 15 cases, 277 mutations, 23 must-pass and
++    the D37 table; only rehash "all" (D11); one expectation per entry except the per-reader G7 entry."""
+     c = corpus()
+-    assert (len(c["cases"]), len(c["mutations"]), len(c["must_pass"])) == (15, 274, 22)
++    assert (len(c["cases"]), len(c["mutations"]), len(c["must_pass"])) == (15, 277, 23)
+     assert set(c) == {"version", "provenance", "arithmetic", "cases", "mutations", "must_pass", "d37"}
+     entries = c["mutations"] + c["must_pass"]
+     assert all(e["rehash"] == "all" for e in entries)
+@@ -801,9 +801,10 @@ def test_f5_kills_u1_m09_m10_m20_on_the_real_milestone_receipts(mode):
+     source = doc["source"]
+     case = source["retained_precision"]["body"]["cases"][0]["basis_ref"]["ref_id"]
+     refs = source["retained_precision"]["body"]["ordinary_attempts"][0]["diagnostic_refs"]
+-    assert refs == [d["id"] for d in source["diagnostics"] if case in (d.get("affected_refs") or []) and not d["code"].startswith("RETAINED_PRECISION_")]
++    names = lambda d: isinstance(d.get("affected_refs"), list) and case in d["affected_refs"]
++    assert refs == [d["id"] for d in source["diagnostics"] if names(d) and not d["code"].startswith("RETAINED_PRECISION_")]
+     path = ["retained_precision", "body", "ordinary_attempts", 0, "diagnostic_refs"]
+-    m09 = [d["id"] for d in source["diagnostics"] if case in (d.get("affected_refs") or [])]
++    m09 = [d["id"] for d in source["diagnostics"] if names(d)]
+     m10 = [d["id"] for d in source["diagnostics"] if not d["code"].startswith("RETAINED_PRECISION_")]
+     assert m09 != refs and m10 != refs, "the mutants differ from the exact list on this receipt"
+     for edits, want in [([{"path": path, "op": "set", "value": m09}], ("G5", "RETAINED_PRECISION_ATTEMPT_MISMATCH")),
+@@ -817,6 +818,20 @@ def test_f5_kills_u1_m09_m10_m20_on_the_real_milestone_receipts(mode):
+     assert rp._validate_draft(resealed, invocation)["classifications"] == rp._validate_draft(deepcopy(source), deepcopy(doc["invocation"]))["classifications"]
+ 
+ 
++@pytest.mark.parametrize("value", ["case:six-component-load", 5, {"case:six-component-load": 1}], ids=["string", "number", "object"])
++def test_f5_non_array_affected_refs_names_no_case_s1(value):
++    """RV90 S1 (07h): a non-array `affected_refs` names no case, as Rust's `list()` and TypeScript's
++    `Array.isArray` read it (never a substring or key test, never an exception). Still listed, the
++    diagnostic fails F5 (G5 ATTEMPT, the shared `f5_affected_refs_string_names_no_case`); unlisted,
++    F5 passes and G7 refuses the malformed diagnostic, as every reader did before F5."""
++    refs = _cases()[O_BASE]["source"]["retained_precision"]["body"]["ordinary_attempts"][0]["diagnostic_refs"]
++    malformed = _set(["diagnostics", 0, "affected_refs"], value)
++    _raises(lambda: _validate_entry(O_BASE, [malformed]), "G5", "ATTEMPT_MISMATCH")
++    unlisted = _set(B + ["ordinary_attempts", 0, "diagnostic_refs"], refs[1:])
++    with pytest.raises(rp.RetainedPrecisionError) as error:
++        _validate_entry(O_BASE, [malformed, unlisted])
++    assert (error.value.gate, error.value.code) == ("G7", "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID")
++
+ def test_rv80_n2_integral_normalization_touches_only_the_receipt(monkeypatch):
+     """RV80-N2 (07g): D32's normalization of integral floats runs on the receipt only, never on the
+     statement's rows, diagnostics or quality (Rust pins the same with `integral_receipt`)."""

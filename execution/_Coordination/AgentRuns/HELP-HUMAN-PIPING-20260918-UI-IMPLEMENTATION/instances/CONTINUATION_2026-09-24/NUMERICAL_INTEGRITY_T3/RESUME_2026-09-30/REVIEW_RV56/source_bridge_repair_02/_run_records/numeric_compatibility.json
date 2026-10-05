@@ -1,0 +1,13 @@
+{
+  "original_native_trace_lines": 109,
+  "byte_identical_ignoring_concurrent_line_order": true,
+  "trace_sha256": "9f653a2f5647c5d006e1a3da0db0251bcd02e37862ad40270061636f1d43d3b7",
+  "protected_sharper_expression_sequence_unchanged": true,
+  "expressions": [
+    "let a0 = f64::from_bits(0x3bf0_0000_0000_0000) * x.abs().max(scale);",
+    "let a1 = a0 * f64::from_bits(0x3ff0_0000_8000_0000);",
+    "let u0 = f64::from_bits(0x3ca0_0000_0000_0000) * x.abs();",
+    "let u1 = u0 + f64::from_bits(1);",
+    "let a2 = a1 + u1;"
+  ]
+}

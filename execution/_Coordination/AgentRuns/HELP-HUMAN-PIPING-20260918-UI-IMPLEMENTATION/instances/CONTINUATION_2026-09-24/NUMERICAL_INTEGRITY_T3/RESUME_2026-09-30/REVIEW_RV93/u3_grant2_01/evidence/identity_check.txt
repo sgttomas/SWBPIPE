@@ -1,0 +1,6 @@
+RV93 identity check (candidate 664f8df7b7, default cargo test build, target WT/targets/rv93/reg)
+build-script OPS_RETAINED_BUILD_IDENTITY: v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0
+registered entry identity equal: True len 363 sha256 6bded973c74c8f0b6bc794c8ecc43757e6589c5b512706df31db9666aaec7bfd
+build-script OPS_RETAINED_REVIEWED_INPUTS equal to the registered entry: True len 1740 sha256 4ba8ce1187396df5faaeffddf8e81eb5c2185975fa4fc9791a1a7722d2db04e6
+retained_facade_tests.rs REGISTERED_IDENTITY equal: True
+Stale build (RUSTFLAGS=--cfg=rv93_stale, WT/targets/rv93_stale/cand) identity rustflags field: rustflags=--cfg%3Drv93_stale equal to registered: False

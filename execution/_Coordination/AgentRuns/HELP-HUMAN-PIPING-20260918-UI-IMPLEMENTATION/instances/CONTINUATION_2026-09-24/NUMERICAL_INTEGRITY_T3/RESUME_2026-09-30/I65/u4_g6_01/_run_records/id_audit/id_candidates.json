@@ -1,0 +1,5962 @@
+[
+{
+"site": "core/loads/load_case_algebra/src/lib.rs:246",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:2426",
+"kind": "format",
+"arg": "load.category",
+"spec": "?",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:2469",
+"kind": "format",
+"arg": "load.category",
+"spec": "?",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:271",
+"kind": "write",
+"arg": "field",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:273",
+"kind": "write",
+"arg": "field",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:275",
+"kind": "write",
+"arg": "field",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:277",
+"kind": "write",
+"arg": "load_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:283",
+"kind": "write",
+"arg": "load_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:291",
+"kind": "write",
+"arg": "alias",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:291",
+"kind": "write",
+"arg": "replacement",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:299",
+"kind": "write",
+"arg": "expected.schema_ref()",
+"spec": "",
+"class": 327,
+"mult": 1
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:299",
+"kind": "write",
+"arg": "actual.schema_ref()",
+"spec": "",
+"class": 327,
+"mult": 1
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:1656",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:1659",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/loads/stress_recovery/src/lib.rs:470",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/loads/stress_recovery/src/lib.rs:473",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/formation_guard.rs:450",
+"kind": "format",
+"arg": "record.member",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/formation_guard.rs:456",
+"kind": "format",
+"arg": "record.member",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/formation_guard.rs:465",
+"kind": "format",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:1061",
+"kind": "format",
+"arg": "node.id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:1061",
+"kind": "format",
+"arg": "dof",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:1070",
+"kind": "format",
+"arg": "dof",
+"spec": "",
+"class": "ident",
+"mult": 2788
+},
+{
+"site": "core/product_physics/src/lib.rs:1071",
+"kind": "format",
+"arg": "node.id",
+"spec": "",
+"class": "ident",
+"mult": 2788
+},
+{
+"site": "core/product_physics/src/lib.rs:1071",
+"kind": "format",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 2788
+},
+{
+"site": "core/product_physics/src/lib.rs:1079",
+"kind": "format",
+"arg": "part",
+"spec": "",
+"class": "ident",
+"mult": 1248
+},
+{
+"site": "core/product_physics/src/lib.rs:1084",
+"kind": "format",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 58946
+},
+{
+"site": "core/product_physics/src/lib.rs:1123",
+"kind": "format",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 2
+},
+{
+"site": "core/product_physics/src/lib.rs:1291",
+"kind": "format",
+"arg": "stable_suffix(case_id)",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:1294",
+"kind": "format",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:1327",
+"kind": "format",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 2
+},
+{
+"site": "core/product_physics/src/lib.rs:1660",
+"kind": "format",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:1753",
+"kind": "format",
+"arg": "member",
+"spec": "",
+"class": "ident",
+"mult": 768
+},
+{
+"site": "core/product_physics/src/lib.rs:1763",
+"kind": "format",
+"arg": "entry",
+"spec": "",
+"class": "ident",
+"mult": 12
+},
+{
+"site": "core/product_physics/src/lib.rs:1812",
+"kind": "format",
+"arg": "family",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:1817",
+"kind": "format",
+"arg": "quantity",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:1833",
+"kind": "format",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:2516",
+"kind": "format",
+"arg": "finding.support_id",
+"spec": "",
+"class": "ident",
+"mult": 224
+},
+{
+"site": "core/product_physics/src/lib.rs:2587",
+"kind": "format",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:3042",
+"kind": "format",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 40
+},
+{
+"site": "core/product_physics/src/lib.rs:3584",
+"kind": "format",
+"arg": "stable_suffix(load_case_id)",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:3590",
+"kind": "format",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:3910",
+"kind": "format",
+"arg": "finding.load_id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/lib.rs:3949",
+"kind": "format",
+"arg": "stable_suffix(&load_case.id)",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:3949",
+"kind": "format",
+"arg": "stable_suffix(&pipe_id)",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4246",
+"kind": "format",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4272",
+"kind": "format",
+"arg": "stable_suffix(&load_case.id)",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4482",
+"kind": "format",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4565",
+"kind": "format",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4576",
+"kind": "format",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4609",
+"kind": "format",
+"arg": "stable_suffix(&node.id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4724",
+"kind": "format",
+"arg": "exact_source_identity(&[&load_case.id, &support.id])",
+"spec": "",
+"class": "composite_id",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/lib.rs:4724",
+"kind": "format",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/lib.rs:4758",
+"kind": "format",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4758",
+"kind": "format",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4767",
+"kind": "format",
+"arg": "stable_suffix(&support.id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4844",
+"kind": "format",
+"arg": "stable_suffix(&pipe.element_id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4863",
+"kind": "format",
+"arg": "stable_suffix(&pipe.element_id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4968",
+"kind": "format",
+"arg": "stable_suffix(&load_case.id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4968",
+"kind": "format",
+"arg": "stable_suffix(&pipe.element_id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4975",
+"kind": "format",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5037",
+"kind": "format",
+"arg": "stable_suffix(&pipe.element_id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5043",
+"kind": "format",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5157",
+"kind": "format",
+"arg": "stable_suffix(&pipe.element_id)",
+"spec": "",
+"class": "ident",
+"mult": 256
+},
+{
+"site": "core/product_physics/src/lib.rs:5157",
+"kind": "format",
+"arg": "location.replace('_', \"-\")",
+"spec": "",
+"class": "composite_id",
+"mult": 256
+},
+{
+"site": "core/product_physics/src/lib.rs:5173",
+"kind": "format",
+"arg": "stable_suffix(&pipe.element_id)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:5173",
+"kind": "format",
+"arg": "location.replace('_', \"-\")",
+"spec": "",
+"class": "composite_id",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:5275",
+"kind": "format",
+"arg": "load_case.id.len()",
+"spec": "",
+"class": "int",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5275",
+"kind": "format",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5275",
+"kind": "format",
+"arg": "pipe.element_id.len()",
+"spec": "",
+"class": "int",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5275",
+"kind": "format",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5287",
+"kind": "format",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5287",
+"kind": "format",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5307",
+"kind": "format",
+"arg": "load_case.id.len()",
+"spec": "",
+"class": "int",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5307",
+"kind": "format",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5307",
+"kind": "format",
+"arg": "pipe.element_id.len()",
+"spec": "",
+"class": "int",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5307",
+"kind": "format",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5341",
+"kind": "format",
+"arg": "stable_suffix(&pipe.element_id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5349",
+"kind": "format",
+"arg": "stable_suffix(&pipe.element_id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5504",
+"kind": "format",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:5516",
+"kind": "format",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:5523",
+"kind": "format",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:5529",
+"kind": "format",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:5591",
+"kind": "format",
+"arg": "entity",
+"spec": "",
+"class": "ident",
+"mult": 1760
+},
+{
+"site": "core/product_physics/src/lib.rs:5591",
+"kind": "format",
+"arg": "kind",
+"spec": "",
+"class": "ident",
+"mult": 1760
+},
+{
+"site": "core/product_physics/src/lib.rs:5591",
+"kind": "format",
+"arg": "location",
+"spec": "",
+"class": "ident",
+"mult": 1760
+},
+{
+"site": "core/product_physics/src/lib.rs:6162",
+"kind": "format",
+"arg": "stable_suffix(load_case_id)",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:6165",
+"kind": "format",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:6175",
+"kind": "format",
+"arg": "stable_suffix(load_case_id)",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:6178",
+"kind": "format",
+"arg": "direct_system.dimension",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:6196",
+"kind": "format",
+"arg": "stable_suffix(load_case_id)",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:6199",
+"kind": "format",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:7092",
+"kind": "format",
+"arg": "stable_suffix(&node.id)",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7113",
+"kind": "format",
+"arg": "stable_suffix(&pipe.id)",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7123",
+"kind": "format",
+"arg": "stable_suffix(&pipe.id)",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7132",
+"kind": "format",
+"arg": "stable_suffix(&pipe.material)",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7145",
+"kind": "format",
+"arg": "stable_suffix(&pipe.id)",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7158",
+"kind": "format",
+"arg": "stable_suffix(&pipe.id)",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7169",
+"kind": "format",
+"arg": "stable_suffix(&pipe.id)",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7196",
+"kind": "format",
+"arg": "stable_suffix(&pipe.id)",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7211",
+"kind": "format",
+"arg": "stable_suffix(&pipe.id)",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7257",
+"kind": "format",
+"arg": "stable_suffix(&support.id)",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7272",
+"kind": "format",
+"arg": "stable_suffix(&support.id)",
+"spec": "",
+"class": "ident",
+"mult": 960
+},
+{
+"site": "core/product_physics/src/lib.rs:7340",
+"kind": "format",
+"arg": "stable_suffix(&support.id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:7343",
+"kind": "format",
+"arg": "family",
+"spec": "?",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:7346",
+"kind": "format",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:8027",
+"kind": "format",
+"arg": "stable_suffix(&node.id)",
+"spec": "",
+"class": "ident",
+"mult": 288
+},
+{
+"site": "core/product_physics/src/lib.rs:8051",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 24
+},
+{
+"site": "core/product_physics/src/lib.rs:8062",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 24
+},
+{
+"site": "core/product_physics/src/lib.rs:8074",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 24
+},
+{
+"site": "core/product_physics/src/lib.rs:8091",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8091",
+"kind": "format",
+"arg": "stable_suffix(&point_id)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8104",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8104",
+"kind": "format",
+"arg": "stable_suffix(&point_id)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8117",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8117",
+"kind": "format",
+"arg": "stable_suffix(&point_id)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8130",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8130",
+"kind": "format",
+"arg": "stable_suffix(&point_id)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8146",
+"kind": "format",
+"arg": "stable_suffix(&pipe.id)",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8156",
+"kind": "format",
+"arg": "stable_suffix(&pipe.id)",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8167",
+"kind": "format",
+"arg": "stable_suffix(&pipe.id)",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8179",
+"kind": "format",
+"arg": "stable_suffix(&pipe.id)",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8191",
+"kind": "format",
+"arg": "stable_suffix(&pipe.id)",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8203",
+"kind": "format",
+"arg": "stable_suffix(&pipe.id)",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8215",
+"kind": "format",
+"arg": "stable_suffix(&pipe.id)",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8239",
+"kind": "format",
+"arg": "stable_suffix(&support.id)",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8261",
+"kind": "format",
+"arg": "stable_suffix(&support.id)",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8279",
+"kind": "format",
+"arg": "stable_suffix(&support.id)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8279",
+"kind": "format",
+"arg": "stable_suffix(field)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8297",
+"kind": "format",
+"arg": "stable_suffix(&support.id)",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/lib.rs:8297",
+"kind": "format",
+"arg": "stable_suffix(field)",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/lib.rs:8313",
+"kind": "format",
+"arg": "stable_suffix(&support.id)",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8324",
+"kind": "format",
+"arg": "stable_suffix(&support.id)",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8339",
+"kind": "format",
+"arg": "stable_suffix(&support.id)",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8745",
+"kind": "format",
+"arg": "stable_suffix(&load.id)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8759",
+"kind": "format",
+"arg": "stable_suffix(&load_case.id)",
+"spec": "",
+"class": "ident",
+"mult": 3
+},
+{
+"site": "core/product_physics/src/lib.rs:8779",
+"kind": "format",
+"arg": "stable_suffix(&case_id)",
+"spec": "",
+"class": "ident",
+"mult": 3
+},
+{
+"site": "core/product_physics/src/lib.rs:8795",
+"kind": "format",
+"arg": "stable_suffix(&case_id)",
+"spec": "",
+"class": "ident",
+"mult": 9
+},
+{
+"site": "core/product_physics/src/lib.rs:8810",
+"kind": "format",
+"arg": "stable_suffix(&case_id)",
+"spec": "",
+"class": "ident",
+"mult": 3
+},
+{
+"site": "core/product_physics/src/lib.rs:8821",
+"kind": "format",
+"arg": "stable_suffix(&case_id)",
+"spec": "",
+"class": "ident",
+"mult": 3
+},
+{
+"site": "core/product_physics/src/lib.rs:8897",
+"kind": "format",
+"arg": "dimension.as_str()",
+"spec": "",
+"class": "ident",
+"mult": 3741
+},
+{
+"site": "core/product_physics/src/lib.rs:9002",
+"kind": "format",
+"arg": "stable_suffix(&load.id)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9008",
+"kind": "format",
+"arg": "load.category",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9017",
+"kind": "format",
+"arg": "stable_suffix(&load.id)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9029",
+"kind": "format",
+"arg": "stable_suffix(&load.id)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9044",
+"kind": "format",
+"arg": "stable_suffix(&load.id)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9060",
+"kind": "format",
+"arg": "stable_suffix(&load.id)",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9580",
+"kind": "format",
+"arg": "stable_suffix(&load_case.id)",
+"spec": "",
+"class": "ident",
+"mult": 2
+},
+{
+"site": "core/product_physics/src/lib.rs:9591",
+"kind": "format",
+"arg": "basis_ref",
+"spec": "",
+"class": "ident",
+"mult": 2
+},
+{
+"site": "core/product_physics/src/lib.rs:9598",
+"kind": "format",
+"arg": "stable_suffix(&load_case.id)",
+"spec": "",
+"class": "ident",
+"mult": 2
+},
+{
+"site": "core/product_physics/src/lib.rs:9660",
+"kind": "format",
+"arg": "stable_suffix(load_case_id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9660",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9667",
+"kind": "format",
+"arg": "basis_ref",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9667",
+"kind": "format",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9678",
+"kind": "format",
+"arg": "stable_suffix(load_case_id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9678",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9685",
+"kind": "format",
+"arg": "basis_ref",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9685",
+"kind": "format",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9696",
+"kind": "format",
+"arg": "stable_suffix(load_case_id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9696",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9703",
+"kind": "format",
+"arg": "basis_ref",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9703",
+"kind": "format",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9723",
+"kind": "format",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9723",
+"kind": "format",
+"arg": "basis_ref",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9723",
+"kind": "format",
+"arg": "basis_ref",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9723",
+"kind": "format",
+"arg": "point .thermal_expansion_coefficient .as_ref() .map(|_| basis_ref) .unwrap_or(\"absent_on_selected_point\")",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9747",
+"kind": "format",
+"arg": "stable_suffix(load_case_id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9747",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9754",
+"kind": "format",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9768",
+"kind": "format",
+"arg": "stable_suffix(load_case_id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9768",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9775",
+"kind": "format",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9803",
+"kind": "format",
+"arg": "stable_suffix(load_case_id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9803",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9810",
+"kind": "format",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9810",
+"kind": "format",
+"arg": "lower.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9810",
+"kind": "format",
+"arg": "upper.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9829",
+"kind": "format",
+"arg": "stable_suffix(load_case_id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9829",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9836",
+"kind": "format",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9836",
+"kind": "format",
+"arg": "lower.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9836",
+"kind": "format",
+"arg": "upper.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9874",
+"kind": "format",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9874",
+"kind": "format",
+"arg": "lower.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9874",
+"kind": "format",
+"arg": "upper.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9874",
+"kind": "format",
+"arg": "lower.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9874",
+"kind": "format",
+"arg": "upper.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9874",
+"kind": "format",
+"arg": "lower.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9874",
+"kind": "format",
+"arg": "upper.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9888",
+"kind": "format",
+"arg": "stable_suffix(load_case_id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9888",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9895",
+"kind": "format",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9906",
+"kind": "format",
+"arg": "stable_suffix(load_case_id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9906",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9913",
+"kind": "format",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9927",
+"kind": "format",
+"arg": "stable_suffix(load_case_id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9927",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9934",
+"kind": "format",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9963",
+"kind": "format",
+"arg": "basis_ref",
+"spec": "",
+"class": "ident",
+"mult": 2
+},
+{
+"site": "core/product_physics/src/lib.rs:9968",
+"kind": "format",
+"arg": "load_case .modulus_basis_temperature .as_ref() .map(|temperature| format!(\"solve_temperature_kelvin={}\", temperature.value)) .unwrap_or_default()",
+"spec": "",
+"class": "f64_display",
+"mult": 2
+},
+{
+"site": "core/product_physics/src/lib.rs:9996",
+"kind": "format",
+"arg": "stable_suffix(&load_case.id)",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:10101",
+"kind": "format",
+"arg": "stable_suffix(pipe_id)",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:10113",
+"kind": "format",
+"arg": "stable_suffix(pipe_id)",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:11375",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/lib.rs:11376",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/lib.rs:11383",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/lib.rs:11384",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/lib.rs:11391",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/lib.rs:11392",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/lib.rs:11399",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/lib.rs:11400",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/lib.rs:11407",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/lib.rs:11408",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/lib.rs:11415",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/lib.rs:11416",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/lib.rs:11515",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:11515",
+"kind": "format",
+"arg": "id_tail",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:11546",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/lib.rs:11553",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/lib.rs:11560",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/lib.rs:11567",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/lib.rs:11574",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/lib.rs:11581",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/lib.rs:11675",
+"kind": "format",
+"arg": "case.id.len()",
+"spec": "",
+"class": "int",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/lib.rs:11675",
+"kind": "format",
+"arg": "case.id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/lib.rs:11675",
+"kind": "format",
+"arg": "support.id.len()",
+"spec": "",
+"class": "int",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/lib.rs:11675",
+"kind": "format",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/lib.rs:11675",
+"kind": "format",
+"arg": "component",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/lib.rs:12881",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 896
+},
+{
+"site": "core/product_physics/src/lib.rs:12881",
+"kind": "format",
+"arg": "id_location",
+"spec": "",
+"class": "composite_id",
+"mult": 896
+},
+{
+"site": "core/product_physics/src/lib.rs:12881",
+"kind": "format",
+"arg": "id_tail",
+"spec": "",
+"class": "ident",
+"mult": 896
+},
+{
+"site": "core/product_physics/src/lib.rs:12898",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 224
+},
+{
+"site": "core/product_physics/src/lib.rs:12898",
+"kind": "format",
+"arg": "id_location",
+"spec": "",
+"class": "composite_id",
+"mult": 224
+},
+{
+"site": "core/product_physics/src/lib.rs:12913",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 224
+},
+{
+"site": "core/product_physics/src/lib.rs:12913",
+"kind": "format",
+"arg": "id_location",
+"spec": "",
+"class": "composite_id",
+"mult": 224
+},
+{
+"site": "core/product_physics/src/lib.rs:12985",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 1024
+},
+{
+"site": "core/product_physics/src/lib.rs:12985",
+"kind": "format",
+"arg": "id_tail",
+"spec": "",
+"class": "ident",
+"mult": 1024
+},
+{
+"site": "core/product_physics/src/lib.rs:13002",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 256
+},
+{
+"site": "core/product_physics/src/lib.rs:13017",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 256
+},
+{
+"site": "core/product_physics/src/lib.rs:13617",
+"kind": "format",
+"arg": "stable_suffix(load_case_id)",
+"spec": "",
+"class": "ident",
+"mult": 11054
+},
+{
+"site": "core/product_physics/src/lib.rs:13617",
+"kind": "format",
+"arg": "result_tail(base_id)",
+"spec": "",
+"class": "composite_id",
+"mult": 11054
+},
+{
+"site": "core/product_physics/src/lib.rs:13778",
+"kind": "format",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:13778",
+"kind": "format",
+"arg": "support.node",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/pressure_runtime.rs:92",
+"kind": "format",
+"arg": "stable_suffix(&refs.join(\":\"))",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:272",
+"kind": "format",
+"arg": "case_id.len()",
+"spec": "",
+"class": "int",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:272",
+"kind": "format",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:272",
+"kind": "format",
+"arg": "pipe_id.len()",
+"spec": "",
+"class": "int",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:272",
+"kind": "format",
+"arg": "pipe_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:505",
+"kind": "format",
+"arg": "identity(&[case_id, &member.pipe_id])",
+"spec": "",
+"class": "composite_id",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:508",
+"kind": "format",
+"arg": "member.pipe_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:508",
+"kind": "format",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:713",
+"kind": "format",
+"arg": "identity(&[&support.id])",
+"spec": "",
+"class": "composite_id",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:716",
+"kind": "format",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:720",
+"kind": "format",
+"arg": "identity(&[&support.id])",
+"spec": "",
+"class": "composite_id",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:723",
+"kind": "format",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:1054",
+"kind": "format",
+"arg": "identity(&[&case_id, &load_id])",
+"spec": "",
+"class": "composite_id",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:1057",
+"kind": "format",
+"arg": "load_id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:1057",
+"kind": "format",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:1057",
+"kind": "format",
+"arg": "support_id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/retained_product.rs:646",
+"kind": "format",
+"arg": "stable_suffix(&self.case_id)",
+"spec": "",
+"class": "ident",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:1940",
+"kind": "format",
+"arg": "r.kind",
+"spec": "",
+"class": "ident",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:2239",
+"kind": "format",
+"arg": "row.id",
+"spec": "",
+"class": "result_id",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:2280",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:2305",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:2332",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:2332",
+"kind": "format",
+"arg": "[ \"axial\", \"shear-y\", \"shear-z\", \"torsion\", \"bending-y\", \"bending-z\" ][i]",
+"spec": "",
+"class": "ident",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:2351",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:2351",
+"kind": "format",
+"arg": "station_id_location(loc)",
+"spec": "",
+"class": "composite_id",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:2351",
+"kind": "format",
+"arg": "[ \"axial\", \"shear-y\", \"shear-z\", \"torsion\", \"bending-y\", \"bending-z\" ][i]",
+"spec": "",
+"class": "ident",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:2383",
+"kind": "format",
+"arg": "row.entity_ref.len()",
+"spec": "",
+"class": "int",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:2383",
+"kind": "format",
+"arg": "row.entity_ref",
+"spec": "",
+"class": "ident",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:2383",
+"kind": "format",
+"arg": "component",
+"spec": "",
+"class": "ident",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:2416",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:2416",
+"kind": "format",
+"arg": "idloc",
+"spec": "",
+"class": "ident",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:2421",
+"kind": "format",
+"arg": "row.entity_ref.len()",
+"spec": "",
+"class": "int",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:2421",
+"kind": "format",
+"arg": "row.entity_ref",
+"spec": "",
+"class": "ident",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_product.rs:2434",
+"kind": "format",
+"arg": "row.id",
+"spec": "",
+"class": "result_id",
+"mult": 8460
+},
+{
+"site": "core/product_physics/src/retained_wire.rs:763",
+"kind": "format",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/source_receipt.rs:221",
+"kind": "format",
+"arg": "pipe",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:29",
+"kind": "format",
+"arg": "support",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:29",
+"kind": "format",
+"arg": "component",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:292",
+"kind": "format",
+"arg": "id",
+"spec": "",
+"class": "ident",
+"mult": 1760
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:308",
+"kind": "format",
+"arg": "actual.id",
+"spec": "",
+"class": "ident",
+"mult": 3875
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:377",
+"kind": "format",
+"arg": "stable_suffix(&node.id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:396",
+"kind": "format",
+"arg": "stable_suffix(&s.support_id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:548",
+"kind": "format",
+"arg": "stable_suffix(&m.member_id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:625",
+"kind": "format",
+"arg": "d.row.id",
+"spec": "",
+"class": "ident",
+"mult": 2115
+},
+{
+"site": "core/product_physics/src/validation.rs:34",
+"kind": "format",
+"arg": "stable_suffix(&load.id)",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/validation.rs:46",
+"kind": "format",
+"arg": "stable_suffix(&support.id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/validation.rs:58",
+"kind": "format",
+"arg": "stable_suffix(&support.id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/validation.rs:69",
+"kind": "format",
+"arg": "stable_suffix(&support.id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/validation.rs:323",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 8
+},
+{
+"site": "core/product_physics/src/validation.rs:334",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 8
+},
+{
+"site": "core/product_physics/src/validation.rs:354",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 8
+},
+{
+"site": "core/product_physics/src/validation.rs:370",
+"kind": "format",
+"arg": "stable_suffix(&pipe.id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/validation.rs:380",
+"kind": "format",
+"arg": "stable_suffix(&pipe.id)",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/validation.rs:411",
+"kind": "format",
+"arg": "stable_suffix(&support.id)",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/validation.rs:411",
+"kind": "format",
+"arg": "stable_suffix(field)",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/validation.rs:429",
+"kind": "format",
+"arg": "stable_suffix(&support.id)",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/validation.rs:429",
+"kind": "format",
+"arg": "stable_suffix(field)",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/validation.rs:808",
+"kind": "format",
+"arg": "stable_suffix(&load.id)",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/validation.rs:1023",
+"kind": "format",
+"arg": "stable_suffix(support_id)",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/validation.rs:1023",
+"kind": "format",
+"arg": "stable_suffix(field_path)",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/validation.rs:1040",
+"kind": "format",
+"arg": "stable_suffix(support_id)",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/validation.rs:1040",
+"kind": "format",
+"arg": "stable_suffix(field_path)",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/validation.rs:1408",
+"kind": "format",
+"arg": "entity",
+"spec": "",
+"class": "ident",
+"mult": 1024
+},
+{
+"site": "core/product_physics/src/validation.rs:1411",
+"kind": "format",
+"arg": "entity",
+"spec": "",
+"class": "ident",
+"mult": 1024
+},
+{
+"site": "core/product_physics/src/validation.rs:1428",
+"kind": "format",
+"arg": "entity",
+"spec": "",
+"class": "ident",
+"mult": 1024
+},
+{
+"site": "core/product_physics/src/validation.rs:1428",
+"kind": "format",
+"arg": "stable_suffix(id)",
+"spec": "",
+"class": "ident",
+"mult": 1024
+},
+{
+"site": "core/product_physics/src/validation.rs:1431",
+"kind": "format",
+"arg": "entity",
+"spec": "",
+"class": "ident",
+"mult": 1024
+},
+{
+"site": "core/product_physics/src/validation.rs:1455",
+"kind": "format",
+"arg": "entity",
+"spec": "",
+"class": "ident",
+"mult": 468
+},
+{
+"site": "core/product_physics/src/validation.rs:1455",
+"kind": "format",
+"arg": "stable_suffix(id)",
+"spec": "",
+"class": "ident",
+"mult": 468
+},
+{
+"site": "core/product_physics/src/validation.rs:1458",
+"kind": "format",
+"arg": "entity",
+"spec": "",
+"class": "ident",
+"mult": 468
+},
+{
+"site": "core/product_physics/src/validation.rs:1478",
+"kind": "format",
+"arg": "dimension.as_str()",
+"spec": "",
+"class": "ident",
+"mult": 472
+},
+{
+"site": "core/product_physics/src/validation.rs:1478",
+"kind": "format",
+"arg": "quantity.unit",
+"spec": "",
+"class": "ident",
+"mult": 472
+},
+{
+"site": "core/product_physics/src/validation.rs:1904",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/validation.rs:1917",
+"kind": "format",
+"arg": "stable_suffix(&material.id)",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/reporting/result_export/src/load_reference.rs:224",
+"kind": "format",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 5
+},
+{
+"site": "core/reporting/result_export/src/load_reference_source.rs:47",
+"kind": "format",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 3
+},
+{
+"site": "core/reporting/result_export/src/physics_evidence.rs:169",
+"kind": "format",
+"arg": "material_id",
+"spec": "",
+"class": "ident",
+"mult": 2
+},
+{
+"site": "core/reporting/result_export/src/physics_evidence.rs:169",
+"kind": "format",
+"arg": "point",
+"spec": "",
+"class": "ident",
+"mult": 2
+},
+{
+"site": "core/reporting/result_export/src/physics_evidence.rs:179",
+"kind": "format",
+"arg": "material_id",
+"spec": "",
+"class": "ident",
+"mult": 2
+},
+{
+"site": "core/reporting/result_export/src/preview_physics_evidence.rs:385",
+"kind": "format",
+"arg": "kind",
+"spec": "",
+"class": "ident",
+"mult": 14734
+},
+{
+"site": "core/reporting/result_export/src/preview_physics_evidence.rs:385",
+"kind": "format",
+"arg": "identity(&[support])",
+"spec": "",
+"class": "composite_id",
+"mult": 14734
+},
+{
+"site": "core/reporting/result_export/src/preview_physics_evidence.rs:446",
+"kind": "format",
+"arg": "identity(&[case_id, pipe])",
+"spec": "",
+"class": "composite_id",
+"mult": 32
+},
+{
+"site": "core/reporting/result_export/src/preview_physics_evidence.rs:530",
+"kind": "format",
+"arg": "identity(&[case_id, support])",
+"spec": "",
+"class": "composite_id",
+"mult": 2115
+},
+{
+"site": "core/reporting/result_export/src/retained_precision.rs:213",
+"kind": "format",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 257
+},
+{
+"site": "core/reporting/result_export/src/semantic_contract.rs:32",
+"kind": "format",
+"arg": "kind",
+"spec": "",
+"class": "ident",
+"mult": 2115
+},
+{
+"site": "core/reporting/result_export/src/semantic_contract.rs:51",
+"kind": "format",
+"arg": "kind",
+"spec": "",
+"class": "ident",
+"mult": 2115
+},
+{
+"site": "core/reporting/result_export/src/semantic_contract.rs:54",
+"kind": "format",
+"arg": "kind",
+"spec": "",
+"class": "ident",
+"mult": 2115
+},
+{
+"site": "core/solver/diagnostics/src/lib.rs:265",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/diagnostics/src/lib.rs:268",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/frame_kernel/src/lib.rs:380",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/frame_kernel/src/lib.rs:383",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/frame_kernel/src/lib.rs:404",
+"kind": "write",
+"arg": "dof",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/frame_kernel/src/lib.rs:406",
+"kind": "write",
+"arg": "dof",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/frame_kernel/src/lib.rs:411",
+"kind": "write",
+"arg": "dof",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/frame_kernel/src/lib.rs:413",
+"kind": "write",
+"arg": "dof",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/frame_kernel/src/lib.rs:418",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/frame_kernel/src/load_ledger.rs:63",
+"kind": "write",
+"arg": "dof",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/frame_kernel/src/load_ledger.rs:65",
+"kind": "write",
+"arg": "dof",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/frame_kernel/src/structural/retained/wide.rs:180",
+"kind": "write",
+"arg": "field",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/linear_supports/src/lib.rs:528",
+"kind": "format",
+"arg": "dof",
+"spec": "?",
+"class": "ident",
+"mult": 18432
+},
+{
+"site": "core/solver/linear_supports/src/lib.rs:528",
+"kind": "format",
+"arg": "support.family",
+"spec": "?",
+"class": "ident",
+"mult": 18432
+},
+{
+"site": "core/solver/linear_supports/src/lib.rs:301",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/linear_supports/src/lib.rs:304",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/linear_supports/src/lib.rs:356",
+"kind": "write",
+"arg": "dof",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/linear_supports/src/lib.rs:358",
+"kind": "write",
+"arg": "dof",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/nonlinear_supports/src/lib.rs:360",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/nonlinear_supports/src/lib.rs:363",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/nonlinear_supports/src/lib.rs:366",
+"kind": "write",
+"arg": "support_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/nonlinear_supports/src/lib.rs:372",
+"kind": "write",
+"arg": "support_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/nonlinear_supports/src/lib.rs:378",
+"kind": "write",
+"arg": "support_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/nonlinear_supports/src/lib.rs:381",
+"kind": "write",
+"arg": "support_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/sparse_direct/src/lib.rs:68",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/sparse_direct/src/lib.rs:74",
+"kind": "write",
+"arg": "dimension",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/straight_pipe/src/lib.rs:347",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/straight_pipe/src/lib.rs:349",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/straight_pipe/src/lib.rs:352",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/straight_pipe/src/lib.rs:355",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/units/src/lib.rs:1088",
+"kind": "write",
+"arg": "alias",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/units/src/lib.rs:1088",
+"kind": "write",
+"arg": "replacement",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/units/src/lib.rs:1091",
+"kind": "write",
+"arg": "dimension.as_str()",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/units/src/lib.rs:1106",
+"kind": "write",
+"arg": "quantity_kind",
+"spec": "?",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/units/src/lib.rs:1106",
+"kind": "write",
+"arg": "dimension.as_str()",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/units/src/lib.rs:1121",
+"kind": "write",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:1242",
+"kind": "to_string",
+"arg": "load_id",
+"spec": "",
+"class": "ident",
+"mult": 5376
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:2441",
+"kind": "clone_text",
+"arg": "load.load_id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:2499",
+"kind": "clone_text",
+"arg": "load.load_id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:2544",
+"kind": "clone_text",
+"arg": "load.load_id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:907",
+"kind": "into_text",
+"arg": "load_id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/loads/primitive_loads/src/lib.rs:924",
+"kind": "into_text",
+"arg": "load_id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/loads/stress_recovery/src/lib.rs:56",
+"kind": "into_text",
+"arg": "subject_id",
+"spec": "",
+"class": "ident",
+"mult": 15136
+},
+{
+"site": "core/product_physics/src/lib.rs:10101",
+"kind": "to_string",
+"arg": "pipe_id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:10117",
+"kind": "to_string",
+"arg": "pipe_id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:10652",
+"kind": "clone_text",
+"arg": "load.id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/lib.rs:1125",
+"kind": "to_string",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 2
+},
+{
+"site": "core/product_physics/src/lib.rs:11516",
+"kind": "to_string",
+"arg": "kind",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:11518",
+"kind": "to_string",
+"arg": "unit",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:11519",
+"kind": "to_string",
+"arg": "node_id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:11523",
+"kind": "to_string",
+"arg": "component",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:11617",
+"kind": "to_string",
+"arg": "id",
+"spec": "",
+"class": "ident",
+"mult": 768
+},
+{
+"site": "core/product_physics/src/lib.rs:11618",
+"kind": "to_string",
+"arg": "kind",
+"spec": "",
+"class": "ident",
+"mult": 768
+},
+{
+"site": "core/product_physics/src/lib.rs:11620",
+"kind": "to_string",
+"arg": "unit",
+"spec": "",
+"class": "ident",
+"mult": 768
+},
+{
+"site": "core/product_physics/src/lib.rs:11621",
+"kind": "to_string",
+"arg": "pipe_id",
+"spec": "",
+"class": "ident",
+"mult": 768
+},
+{
+"site": "core/product_physics/src/lib.rs:11625",
+"kind": "to_string",
+"arg": "component",
+"spec": "",
+"class": "ident",
+"mult": 768
+},
+{
+"site": "core/product_physics/src/lib.rs:11627",
+"kind": "to_string",
+"arg": "location",
+"spec": "",
+"class": "ident",
+"mult": 768
+},
+{
+"site": "core/product_physics/src/lib.rs:11649",
+"kind": "to_string",
+"arg": "id",
+"spec": "",
+"class": "ident",
+"mult": 1152
+},
+{
+"site": "core/product_physics/src/lib.rs:11650",
+"kind": "to_string",
+"arg": "kind",
+"spec": "",
+"class": "ident",
+"mult": 1152
+},
+{
+"site": "core/product_physics/src/lib.rs:11652",
+"kind": "to_string",
+"arg": "unit",
+"spec": "",
+"class": "ident",
+"mult": 1152
+},
+{
+"site": "core/product_physics/src/lib.rs:11653",
+"kind": "to_string",
+"arg": "pipe_id",
+"spec": "",
+"class": "ident",
+"mult": 1152
+},
+{
+"site": "core/product_physics/src/lib.rs:11657",
+"kind": "to_string",
+"arg": "component",
+"spec": "",
+"class": "ident",
+"mult": 1152
+},
+{
+"site": "core/product_physics/src/lib.rs:11659",
+"kind": "to_string",
+"arg": "location",
+"spec": "",
+"class": "ident",
+"mult": 1152
+},
+{
+"site": "core/product_physics/src/lib.rs:11676",
+"kind": "to_string",
+"arg": "kind",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/lib.rs:11676",
+"kind": "to_string",
+"arg": "unit",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/lib.rs:11678",
+"kind": "to_string",
+"arg": "component",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/lib.rs:11676",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/lib.rs:11677",
+"kind": "clone_text",
+"arg": "case.id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/lib.rs:1208",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:1213",
+"kind": "clone_text",
+"arg": "node.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:1218",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:1263",
+"kind": "to_string",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:13044",
+"kind": "to_string",
+"arg": "id",
+"spec": "",
+"class": "ident",
+"mult": 1344
+},
+{
+"site": "core/product_physics/src/lib.rs:13045",
+"kind": "to_string",
+"arg": "kind",
+"spec": "",
+"class": "ident",
+"mult": 1344
+},
+{
+"site": "core/product_physics/src/lib.rs:13048",
+"kind": "to_string",
+"arg": "pipe_id",
+"spec": "",
+"class": "ident",
+"mult": 1344
+},
+{
+"site": "core/product_physics/src/lib.rs:13052",
+"kind": "to_string",
+"arg": "component",
+"spec": "",
+"class": "ident",
+"mult": 1344
+},
+{
+"site": "core/product_physics/src/lib.rs:13054",
+"kind": "to_string",
+"arg": "location",
+"spec": "",
+"class": "ident",
+"mult": 1344
+},
+{
+"site": "core/product_physics/src/lib.rs:13074",
+"kind": "to_string",
+"arg": "id",
+"spec": "",
+"class": "ident",
+"mult": 1536
+},
+{
+"site": "core/product_physics/src/lib.rs:13075",
+"kind": "to_string",
+"arg": "kind",
+"spec": "",
+"class": "ident",
+"mult": 1536
+},
+{
+"site": "core/product_physics/src/lib.rs:13078",
+"kind": "to_string",
+"arg": "pipe_id",
+"spec": "",
+"class": "ident",
+"mult": 1536
+},
+{
+"site": "core/product_physics/src/lib.rs:13082",
+"kind": "to_string",
+"arg": "component",
+"spec": "",
+"class": "ident",
+"mult": 1536
+},
+{
+"site": "core/product_physics/src/lib.rs:13084",
+"kind": "to_string",
+"arg": "location",
+"spec": "",
+"class": "ident",
+"mult": 1536
+},
+{
+"site": "core/product_physics/src/lib.rs:1327",
+"kind": "to_string",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 2
+},
+{
+"site": "core/product_physics/src/lib.rs:14032",
+"kind": "replace",
+"arg": "id",
+"spec": "",
+"class": "ident",
+"mult": 44316
+},
+{
+"site": "core/product_physics/src/lib.rs:1671",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:1837",
+"kind": "to_string",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:1910",
+"kind": "clone_text",
+"arg": "case.id",
+"spec": "",
+"class": "ident",
+"mult": 4
+},
+{
+"site": "core/product_physics/src/lib.rs:1916",
+"kind": "clone_text",
+"arg": "d.id",
+"spec": "",
+"class": "ident",
+"mult": 4
+},
+{
+"site": "core/product_physics/src/lib.rs:2520",
+"kind": "clone_text",
+"arg": "finding.support_id",
+"spec": "",
+"class": "ident",
+"mult": 224
+},
+{
+"site": "core/product_physics/src/lib.rs:2674",
+"kind": "clone_text",
+"arg": "basis_key",
+"spec": "",
+"class": "composite_id",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:2752",
+"kind": "clone_text",
+"arg": "solve.load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:2753",
+"kind": "clone_text",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:2759",
+"kind": "clone_text",
+"arg": "row.id",
+"spec": "",
+"class": "result_id",
+"mult": 2115
+},
+{
+"site": "core/product_physics/src/lib.rs:2761",
+"kind": "clone_text",
+"arg": "row.id",
+"spec": "",
+"class": "result_id",
+"mult": 2115
+},
+{
+"site": "core/product_physics/src/lib.rs:2769",
+"kind": "clone_text",
+"arg": "result.id",
+"spec": "",
+"class": "result_id",
+"mult": 2115
+},
+{
+"site": "core/product_physics/src/lib.rs:2772",
+"kind": "clone_text",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 2115
+},
+{
+"site": "core/product_physics/src/lib.rs:2785",
+"kind": "clone_text",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 2115
+},
+{
+"site": "core/product_physics/src/lib.rs:2816",
+"kind": "clone_text",
+"arg": "maximum.result_ref",
+"spec": "",
+"class": "result_id",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:2816",
+"kind": "clone_text",
+"arg": "maximum.location_ref",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:3058",
+"kind": "to_owned",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 40
+},
+{
+"site": "core/product_physics/src/lib.rs:3599",
+"kind": "to_string",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:5160",
+"kind": "replace",
+"arg": "location",
+"spec": "",
+"class": "ident",
+"mult": 256
+},
+{
+"site": "core/product_physics/src/lib.rs:5176",
+"kind": "replace",
+"arg": "location",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:3914",
+"kind": "clone_text",
+"arg": "finding.load_id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/lib.rs:3914",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/lib.rs:3924",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:3952",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:3960",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4070",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4249",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4275",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4357",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4388",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4485",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4508",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4516",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4569",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4580",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:4623",
+"kind": "clone_text",
+"arg": "node.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4624",
+"kind": "clone_text",
+"arg": "result_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4632",
+"kind": "clone_text",
+"arg": "node.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4728",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/lib.rs:4739",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4747",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4760",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4760",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4771",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4815",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4848",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4867",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4882",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4926",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4926",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4946",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4980",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4981",
+"kind": "clone_text",
+"arg": "bend.component_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:4982",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5007",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:5048",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5049",
+"kind": "clone_text",
+"arg": "bend.component_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5050",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5073",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5111",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5166",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 256
+},
+{
+"site": "core/product_physics/src/lib.rs:5182",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:5264",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5276",
+"kind": "clone_text",
+"arg": "result_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5276",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5281",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5281",
+"kind": "clone_text",
+"arg": "result_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5286",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5287",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5287",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5314",
+"kind": "clone_text",
+"arg": "result_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5314",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5328",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5329",
+"kind": "clone_text",
+"arg": "result_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5340",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5341",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5341",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5358",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5359",
+"kind": "clone_text",
+"arg": "result_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5367",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:5516",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:5529",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:5546",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:5562",
+"kind": "into_text",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 1891
+},
+{
+"site": "core/product_physics/src/lib.rs:5559",
+"kind": "clone_text",
+"arg": "row.id",
+"spec": "",
+"class": "result_id",
+"mult": 2115
+},
+{
+"site": "core/product_physics/src/lib.rs:5559",
+"kind": "clone_text",
+"arg": "row.id",
+"spec": "",
+"class": "result_id",
+"mult": 2115
+},
+{
+"site": "core/product_physics/src/lib.rs:5592",
+"kind": "clone_text",
+"arg": "matched[0].id",
+"spec": "",
+"class": "ident",
+"mult": 1760
+},
+{
+"site": "core/product_physics/src/lib.rs:6118",
+"kind": "to_string",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:6168",
+"kind": "to_string",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:6183",
+"kind": "to_string",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:6202",
+"kind": "to_string",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:6234",
+"kind": "to_string",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:7096",
+"kind": "clone_text",
+"arg": "node.id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7117",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7127",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7132",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7132",
+"kind": "clone_text",
+"arg": "pipe.material",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7145",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7154",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7162",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7170",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7200",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7215",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7227",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7261",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7261",
+"kind": "clone_text",
+"arg": "support.node",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7276",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 960
+},
+{
+"site": "core/product_physics/src/lib.rs:7346",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/lib.rs:7367",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/product_physics/src/lib.rs:7979",
+"kind": "clone_text",
+"arg": "model.project.id",
+"spec": "",
+"class": "ident",
+"mult": 3
+},
+{
+"site": "core/product_physics/src/lib.rs:8032",
+"kind": "clone_text",
+"arg": "node.id",
+"spec": "",
+"class": "ident",
+"mult": 288
+},
+{
+"site": "core/product_physics/src/lib.rs:8284",
+"kind": "to_string",
+"arg": "field",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8302",
+"kind": "to_string",
+"arg": "field",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/lib.rs:8055",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 24
+},
+{
+"site": "core/product_physics/src/lib.rs:8066",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 24
+},
+{
+"site": "core/product_physics/src/lib.rs:8079",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 24
+},
+{
+"site": "core/product_physics/src/lib.rs:8086",
+"kind": "clone_text",
+"arg": "point.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8096",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8096",
+"kind": "clone_text",
+"arg": "point_id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8109",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8109",
+"kind": "clone_text",
+"arg": "point_id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8122",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8122",
+"kind": "clone_text",
+"arg": "point_id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8135",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8135",
+"kind": "clone_text",
+"arg": "point_id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8150",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8160",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8171",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8183",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8195",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8207",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8219",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8243",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8265",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8284",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8302",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/lib.rs:8317",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8329",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8343",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/lib.rs:8749",
+"kind": "clone_text",
+"arg": "load.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:8764",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 3
+},
+{
+"site": "core/product_physics/src/lib.rs:8773",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 3
+},
+{
+"site": "core/product_physics/src/lib.rs:8783",
+"kind": "clone_text",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 3
+},
+{
+"site": "core/product_physics/src/lib.rs:8799",
+"kind": "clone_text",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 9
+},
+{
+"site": "core/product_physics/src/lib.rs:8814",
+"kind": "clone_text",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 3
+},
+{
+"site": "core/product_physics/src/lib.rs:8825",
+"kind": "clone_text",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 3
+},
+{
+"site": "core/product_physics/src/lib.rs:9012",
+"kind": "clone_text",
+"arg": "load.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9012",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9021",
+"kind": "clone_text",
+"arg": "load.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9021",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9033",
+"kind": "clone_text",
+"arg": "load.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9033",
+"kind": "clone_text",
+"arg": "node",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9033",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9048",
+"kind": "clone_text",
+"arg": "load.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9048",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9064",
+"kind": "clone_text",
+"arg": "load.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9064",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/lib.rs:9587",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 2
+},
+{
+"site": "core/product_physics/src/lib.rs:9606",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 2
+},
+{
+"site": "core/product_physics/src/lib.rs:9671",
+"kind": "to_string",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9671",
+"kind": "to_string",
+"arg": "basis_ref",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9689",
+"kind": "to_string",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9689",
+"kind": "to_string",
+"arg": "basis_ref",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9708",
+"kind": "to_string",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9710",
+"kind": "to_string",
+"arg": "basis_ref",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9758",
+"kind": "to_string",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9779",
+"kind": "to_string",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9815",
+"kind": "to_string",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9841",
+"kind": "to_string",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9899",
+"kind": "to_string",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9917",
+"kind": "to_string",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9938",
+"kind": "to_string",
+"arg": "load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9648",
+"kind": "clone_text",
+"arg": "material",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9671",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9689",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9709",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9758",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9779",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9816",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9817",
+"kind": "clone_text",
+"arg": "lower.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9818",
+"kind": "clone_text",
+"arg": "upper.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9842",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9843",
+"kind": "clone_text",
+"arg": "lower.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9844",
+"kind": "clone_text",
+"arg": "upper.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9864",
+"kind": "clone_text",
+"arg": "lower_e.unit",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9868",
+"kind": "clone_text",
+"arg": "lower_g.unit",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9872",
+"kind": "clone_text",
+"arg": "lower_alpha.unit",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9899",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9917",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9938",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9949",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9952",
+"kind": "clone_text",
+"arg": "material.constitutive_basis",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:9956",
+"kind": "clone_text",
+"arg": "material.provenance",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/lib.rs:984",
+"kind": "to_string",
+"arg": "solver_component_name()",
+"spec": "",
+"class": "ident",
+"mult": 2
+},
+{
+"site": "core/product_physics/src/lib.rs:985",
+"kind": "to_string",
+"arg": "solver_component_version()",
+"spec": "",
+"class": "ident",
+"mult": 2
+},
+{
+"site": "core/product_physics/src/lib.rs:10010",
+"kind": "to_string",
+"arg": "basis_record",
+"spec": "",
+"class": "composite_id",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:10003",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/lib.rs:10009",
+"kind": "clone_text",
+"arg": "load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/pressure_runtime.rs:94",
+"kind": "join",
+"arg": "refs",
+"spec": "",
+"class": "refs_vec",
+"mult": 384
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:1028",
+"kind": "to_string",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:1029",
+"kind": "to_string",
+"arg": "load.get(\" \").and_then(|v| v.as_str()).unwrap_or(\"\")",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:1030",
+"kind": "to_string",
+"arg": "load.pointer(\" \").and_then(|v| v.as_str()).unwrap_or(\"\")",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:194",
+"kind": "clone_text",
+"arg": "row.id",
+"spec": "",
+"class": "result_id",
+"mult": 2115
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:224",
+"kind": "to_string",
+"arg": "id",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:265",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:282",
+"kind": "to_string",
+"arg": "pipe_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:285",
+"kind": "to_string",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:509",
+"kind": "to_string",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:501",
+"kind": "clone_text",
+"arg": "member.pipe_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:503",
+"kind": "clone_text",
+"arg": "member.pipe_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:509",
+"kind": "clone_text",
+"arg": "member.pipe_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:517",
+"kind": "clone_text",
+"arg": "member.pipe_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:517",
+"kind": "clone_text",
+"arg": "row.id",
+"spec": "",
+"class": "result_id",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:519",
+"kind": "clone_text",
+"arg": "member.pipe_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:544",
+"kind": "clone_text",
+"arg": "solve.load_case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:563",
+"kind": "clone_text",
+"arg": "support_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:568",
+"kind": "clone_text",
+"arg": "support_id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:690",
+"kind": "clone_text",
+"arg": "row.unit",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:690",
+"kind": "clone_text",
+"arg": "row.entity_ref",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:690",
+"kind": "clone_text",
+"arg": "row.id",
+"spec": "",
+"class": "result_id",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:717",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:717",
+"kind": "clone_text",
+"arg": "support.node",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/preview_physics.rs:724",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/retained_product.rs:1490",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/retained_product.rs:1576",
+"kind": "clone_text",
+"arg": "l.load_id",
+"spec": "",
+"class": "ident",
+"mult": 256
+},
+{
+"site": "core/product_physics/src/retained_product.rs:1583",
+"kind": "clone_text",
+"arg": "l.load_id",
+"spec": "",
+"class": "ident",
+"mult": 256
+},
+{
+"site": "core/product_physics/src/retained_product.rs:242",
+"kind": "to_owned",
+"arg": "diagnostic_ref",
+"spec": "",
+"class": "composite_id",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/retained_product.rs:250",
+"kind": "to_owned",
+"arg": "diagnostic_ref",
+"spec": "",
+"class": "composite_id",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/retained_product.rs:274",
+"kind": "to_owned",
+"arg": "diagnostic_ref",
+"spec": "",
+"class": "composite_id",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/retained_product.rs:280",
+"kind": "clone_text",
+"arg": "record.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/retained_product.rs:282",
+"kind": "clone_text",
+"arg": "record.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/retained_product.rs:287",
+"kind": "clone_text",
+"arg": "record.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/retained_product.rs:290",
+"kind": "clone_text",
+"arg": "record.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/retained_product.rs:524",
+"kind": "clone_text",
+"arg": "case.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/retained_product.rs:525",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 16
+},
+{
+"site": "core/product_physics/src/retained_wire.rs:1545",
+"kind": "clone_text",
+"arg": "source",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/source_receipt.rs:676",
+"kind": "clone_text",
+"arg": "input.load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/source_receipt.rs:732",
+"kind": "into_text",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/source_receipt.rs:739",
+"kind": "clone_text",
+"arg": "r.id",
+"spec": "",
+"class": "result_id",
+"mult": 2115
+},
+{
+"site": "core/product_physics/src/source_receipt.rs:774",
+"kind": "into_text",
+"arg": "case_id",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/product_physics/src/source_receipt.rs:781",
+"kind": "clone_text",
+"arg": "r.id",
+"spec": "",
+"class": "result_id",
+"mult": 2115
+},
+{
+"site": "core/product_physics/src/source_receipt.rs:1016",
+"kind": "clone_text",
+"arg": "r.result_id",
+"spec": "",
+"class": "ident",
+"mult": 4230
+},
+{
+"site": "core/product_physics/src/source_receipt.rs:1077",
+"kind": "clone_text",
+"arg": "r.id",
+"spec": "",
+"class": "result_id",
+"mult": 4230
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:24",
+"kind": "clone_text",
+"arg": "input.load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 2592
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:294",
+"kind": "clone_text",
+"arg": "row.id",
+"spec": "",
+"class": "result_id",
+"mult": 1760
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:315",
+"kind": "into_text",
+"arg": "kind",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:317",
+"kind": "into_text",
+"arg": "unit",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:370",
+"kind": "clone_text",
+"arg": "primary[&selected.published_nodal_functional_indices()[i * 6 + c]] .id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:390",
+"kind": "clone_text",
+"arg": "primary[&s.functional_indices[c]].id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:522",
+"kind": "clone_text",
+"arg": "row.id",
+"spec": "",
+"class": "result_id",
+"mult": 960
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:533",
+"kind": "clone_text",
+"arg": "primary[&function].id",
+"spec": "",
+"class": "ident",
+"mult": 960
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:590",
+"kind": "clone_text",
+"arg": "binding.result_id",
+"spec": "",
+"class": "ident",
+"mult": 1760
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:592",
+"kind": "clone_text",
+"arg": "binding.result_id",
+"spec": "",
+"class": "ident",
+"mult": 1760
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:608",
+"kind": "clone_text",
+"arg": "row.id",
+"spec": "",
+"class": "result_id",
+"mult": 1760
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:610",
+"kind": "clone_text",
+"arg": "row.id",
+"spec": "",
+"class": "result_id",
+"mult": 1760
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:612",
+"kind": "clone_text",
+"arg": "projection.projection_id",
+"spec": "",
+"class": "ident",
+"mult": 1760
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:631",
+"kind": "clone_text",
+"arg": "row.id",
+"spec": "",
+"class": "result_id",
+"mult": 2115
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:633",
+"kind": "clone_text",
+"arg": "row.id",
+"spec": "",
+"class": "result_id",
+"mult": 2115
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:642",
+"kind": "clone_text",
+"arg": "r.id",
+"spec": "",
+"class": "result_id",
+"mult": 2115
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:643",
+"kind": "clone_text",
+"arg": "r.id",
+"spec": "",
+"class": "result_id",
+"mult": 2115
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:651",
+"kind": "clone_text",
+"arg": "r.source_result_refs",
+"spec": "",
+"class": "result_id",
+"mult": 2115
+},
+{
+"site": "core/product_physics/src/source_receipt/rows.rs:119",
+"kind": "clone_text",
+"arg": "support.support_id",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/product_physics/src/source_receipt/source.rs:115",
+"kind": "to_string",
+"arg": "location",
+"spec": "",
+"class": "ident",
+"mult": 1760
+},
+{
+"site": "core/product_physics/src/source_recovery.rs:1400",
+"kind": "clone_text",
+"arg": "row.key",
+"spec": "",
+"class": 320,
+"mult": 3840
+},
+{
+"site": "core/product_physics/src/source_recovery.rs:1500",
+"kind": "clone_text",
+"arg": "id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/source_recovery.rs:1517",
+"kind": "clone_text",
+"arg": "id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/source_recovery.rs:1528",
+"kind": "clone_text",
+"arg": "id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/product_physics/src/source_recovery.rs:475",
+"kind": "to_owned",
+"arg": "name",
+"spec": "",
+"class": "ident",
+"mult": 7704
+},
+{
+"site": "core/product_physics/src/source_recovery.rs:737",
+"kind": "clone_text",
+"arg": "load.load_id",
+"spec": "",
+"class": "ident",
+"mult": 512
+},
+{
+"site": "core/product_physics/src/source_recovery.rs:817",
+"kind": "clone_text",
+"arg": "support.support_id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/source_recovery.rs:934",
+"kind": "clone_text",
+"arg": "spring.support_id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/source_recovery.rs:1101",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 1536
+},
+{
+"site": "core/product_physics/src/source_recovery.rs:1126",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 3840
+},
+{
+"site": "core/product_physics/src/source_recovery.rs:1136",
+"kind": "clone_text",
+"arg": "pipe.element_id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/source_recovery.rs:1144",
+"kind": "clone_text",
+"arg": "input.load_case.id",
+"spec": "",
+"class": "ident",
+"mult": 768
+},
+{
+"site": "core/product_physics/src/source_recovery.rs:1146",
+"kind": "clone_text",
+"arg": "authored.id",
+"spec": "",
+"class": "ident",
+"mult": 768
+},
+{
+"site": "core/product_physics/src/source_recovery.rs:1171",
+"kind": "clone_text",
+"arg": "spring.support_id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/source_recovery.rs:1192",
+"kind": "clone_text",
+"arg": "id",
+"spec": "",
+"class": "ident",
+"mult": 768
+},
+{
+"site": "core/product_physics/src/validation.rs:1031",
+"kind": "to_string",
+"arg": "support_id",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/validation.rs:1045",
+"kind": "to_string",
+"arg": "support_id",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/validation.rs:1045",
+"kind": "to_string",
+"arg": "field_path",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/validation.rs:1031",
+"kind": "clone_text",
+"arg": "stiffness.dof",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/validation.rs:1412",
+"kind": "to_string",
+"arg": "entity",
+"spec": "",
+"class": "ident",
+"mult": 1024
+},
+{
+"site": "core/product_physics/src/validation.rs:1432",
+"kind": "to_string",
+"arg": "id",
+"spec": "",
+"class": "ident",
+"mult": 1024
+},
+{
+"site": "core/product_physics/src/validation.rs:1461",
+"kind": "to_string",
+"arg": "id",
+"spec": "",
+"class": "ident",
+"mult": 468
+},
+{
+"site": "core/product_physics/src/validation.rs:1911",
+"kind": "clone_text",
+"arg": "load.id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/validation.rs:1911",
+"kind": "clone_text",
+"arg": "pipe_input.id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/validation.rs:1911",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/validation.rs:1924",
+"kind": "clone_text",
+"arg": "load.id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/validation.rs:1924",
+"kind": "clone_text",
+"arg": "pipe_input.id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/validation.rs:1924",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/validation.rs:37",
+"kind": "clone_text",
+"arg": "load.id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/validation.rs:37",
+"kind": "clone_text",
+"arg": "case.id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/validation.rs:49",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/validation.rs:61",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/validation.rs:72",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/validation.rs:416",
+"kind": "to_string",
+"arg": "field",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/validation.rs:434",
+"kind": "to_string",
+"arg": "field",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/validation.rs:327",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 8
+},
+{
+"site": "core/product_physics/src/validation.rs:338",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 8
+},
+{
+"site": "core/product_physics/src/validation.rs:347",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 8
+},
+{
+"site": "core/product_physics/src/validation.rs:359",
+"kind": "clone_text",
+"arg": "material.id",
+"spec": "",
+"class": "ident",
+"mult": 8
+},
+{
+"site": "core/product_physics/src/validation.rs:374",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/validation.rs:384",
+"kind": "clone_text",
+"arg": "pipe.id",
+"spec": "",
+"class": "ident",
+"mult": 32
+},
+{
+"site": "core/product_physics/src/validation.rs:416",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/product_physics/src/validation.rs:434",
+"kind": "clone_text",
+"arg": "support.id",
+"spec": "",
+"class": "ident",
+"mult": 64
+},
+{
+"site": "core/product_physics/src/validation.rs:809",
+"kind": "clone_text",
+"arg": "load.id",
+"spec": "",
+"class": "ident",
+"mult": 128
+},
+{
+"site": "core/reporting/result_export/src/retained_precision.rs:211",
+"kind": "into_text",
+"arg": "suffix",
+"spec": "",
+"class": "ident",
+"mult": 257
+},
+{
+"site": "core/reporting/result_export/src/retained_precision.rs:285",
+"kind": "clone_text",
+"arg": "source",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/reporting/result_export/src/retained_precision.rs:2613",
+"kind": "into_text",
+"arg": "text(&n[\" \"])",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/reporting/result_export/src/retained_precision.rs:2613",
+"kind": "into_text",
+"arg": "text(&d[\" \"][\" \"])",
+"spec": "",
+"class": "ident",
+"mult": 192
+},
+{
+"site": "core/reporting/result_export/src/retained_precision.rs:2622",
+"kind": "into_text",
+"arg": "text(&r[\" \"])",
+"spec": "",
+"class": "result_id",
+"mult": 67680
+},
+{
+"site": "core/reporting/result_export/src/retained_precision.rs:3233",
+"kind": "to_string",
+"arg": "text(&d[\" \"])",
+"spec": "",
+"class": "ident",
+"mult": 1472
+},
+{
+"site": "core/reporting/result_export/src/retained_precision.rs:3234",
+"kind": "to_string",
+"arg": "text(&d[\" \"])",
+"spec": "",
+"class": "ident",
+"mult": 1472
+},
+{
+"site": "core/reporting/result_export/src/retained_precision.rs:3250",
+"kind": "into_text",
+"arg": "text(&row[\" \"])",
+"spec": "",
+"class": "result_id",
+"mult": 2115
+},
+{
+"site": "core/reporting/result_export/src/retained_precision.rs:3280",
+"kind": "into_text",
+"arg": "text(&row[\" \"])",
+"spec": "",
+"class": "result_id",
+"mult": 2115
+},
+{
+"site": "core/reporting/result_export/src/retained_precision.rs:4238",
+"kind": "clone_text",
+"arg": "source",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/reporting/result_export/src/retained_precision.rs:591",
+"kind": "clone_text",
+"arg": "source",
+"spec": "",
+"class": "ident",
+"mult": 1
+},
+{
+"site": "core/solver/frame_kernel/src/load_ledger.rs:133",
+"kind": "into_text",
+"arg": "source",
+"spec": "",
+"class": "ident",
+"mult": 915010738
+},
+{
+"site": "core/solver/frame_kernel/src/load_ledger.rs:408",
+"kind": "clone_text",
+"arg": "term.source",
+"spec": "",
+"class": "ident",
+"mult": 116864
+},
+{
+"site": "core/solver/frame_kernel/src/load_ledger.rs:670",
+"kind": "to_string",
+"arg": "source",
+"spec": "",
+"class": "ident",
+"mult": 49152
+},
+{
+"site": "core/solver/frame_kernel/src/structural.rs:1099",
+"kind": "clone_text",
+"arg": "t.source",
+"spec": "",
+"class": "ident",
+"mult": 57344
+},
+{
+"site": "core/solver/frame_kernel/src/structural/formation_check.rs:167",
+"kind": "clone_text",
+"arg": "family",
+"spec": "",
+"class": "ident",
+"mult": 224
+},
+{
+"site": "core/solver/frame_kernel/src/structural/retained/adaptive.rs:4854",
+"kind": "clone_text",
+"arg": "decision.summary",
+"spec": "",
+"class": "composite_id",
+"mult": 6
+},
+{
+"site": "core/solver/frame_kernel/src/structural/retained/adaptive.rs:4898",
+"kind": "clone_text",
+"arg": "decision.estimate_summary",
+"spec": "",
+"class": "composite_id",
+"mult": 6
+},
+{
+"site": "core/solver/frame_kernel/src/structural/retained/adaptive.rs:4899",
+"kind": "clone_text",
+"arg": "decision.charge_summary",
+"spec": "",
+"class": "composite_id",
+"mult": 6
+},
+{
+"site": "core/solver/frame_kernel/src/structural/retained/adaptive.rs:5055",
+"kind": "clone_text",
+"arg": "source",
+"spec": "",
+"class": "ident",
+"mult": 2
+},
+{
+"site": "core/solver/linear_supports/src/lib.rs:190",
+"kind": "into_text",
+"arg": "support_id",
+"spec": "",
+"class": "ident",
+"mult": 160
+},
+{
+"site": "core/solver/linear_supports/src/lib.rs:252",
+"kind": "to_string",
+"arg": "support_id",
+"spec": "",
+"class": "ident",
+"mult": 896
+},
+{
+"site": "core/solver/linear_supports/src/lib.rs:587",
+"kind": "clone_text",
+"arg": "support.support_id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/solver/linear_supports/src/lib.rs:628",
+"kind": "clone_text",
+"arg": "support.support_id",
+"spec": "",
+"class": "ident",
+"mult": 96
+},
+{
+"site": "core/solver/nonlinear_integration/src/structural_adapter.rs:1448",
+"kind": "clone_text",
+"arg": "slot.element_id",
+"spec": "",
+"class": "ident",
+"mult": 73728
+},
+{
+"site": "core/solver/straight_pipe/src/lib.rs:435",
+"kind": "into_text",
+"arg": "element_id",
+"spec": "",
+"class": "ident",
+"mult": 160
+}
+]

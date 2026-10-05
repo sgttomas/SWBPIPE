@@ -1,0 +1,13 @@
+{
+  "utc": "2026-10-03T01:44:07.193602+00:00",
+  "actor": "ROOT",
+  "basis": "Mutable I44 first-native log, not final candidate qualification",
+  "log": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I44/source_residual_01/_run_records/native_debug_01.log",
+  "sha256": "76a05ecdf0fc90ab948c6960fa6fa12c019302c46736f178331791b52f1dbd9c",
+  "checks": "Exact rational H from captured source endpoints. Input H=0; absolute H<=bound; relative H<=captured binary64 sharper allowance and exact 2^-64 max(|x|,S)(1+2^-21)+2^-53|x|+2^-1074 and10^9H<=|x|. Native raw=SI.",
+  "passes": {
+    "zero": 52,
+    "loaded": 52
+  },
+  "action": "Author asked to close the initial diagnostic omission of exact/decimal relative checks; no output or tolerance change."
+}

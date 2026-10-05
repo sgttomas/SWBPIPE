@@ -1,0 +1,98 @@
+{
+  "utc": "2026-10-03T15:09:54.575609+00:00",
+  "exact_six_file_fence": true,
+  "changed_tracked": [
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+    "projects/chirality-piping/core/runner/headless/src/lib.rs"
+  ],
+  "changed_new": [
+    "projects/chirality-piping/core/product_physics/src/retained_memory.rs",
+    "projects/chirality-piping/core/product_physics/tests/retained_precision_admission.rs",
+    "projects/chirality-piping/core/runner/headless/tests/retained_precision_admission.rs"
+  ],
+  "candidate_pins_match": true,
+  "diff_check": "passed",
+  "runtime_process_groups": [
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_01.json",
+      "process_group": 72866,
+      "alive": false,
+      "exit": 101
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_02.json",
+      "process_group": 73342,
+      "alive": false,
+      "exit": 0
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_03.json",
+      "process_group": 73610,
+      "alive": false,
+      "exit": 0
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_04.json",
+      "process_group": 73786,
+      "alive": false,
+      "exit": 0
+    },
+    {
+      "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_05.json",
+      "process_group": 74332,
+      "alive": false,
+      "exit": 0
+    }
+  ],
+  "protected": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "sha256": "e9949ff88fef71a32cf07d552cf2b065d445d85cbb7bee9e53f8678562d6d982",
+      "unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+      "sha256": "fcd864d63539a3415f616d4a298bd98ccbcfc72a2d16ec75816c3c99ce0d2078",
+      "unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs",
+      "sha256": "cc6f9e9992853b6d144a823e8865e9f914057d9ba255d1244ad40f0d3f7de075",
+      "unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+      "sha256": "65ec3071eddd539faa5a39499beba11e98a226f20ccdc3c8a24f7b1c2f4cc723",
+      "unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+      "sha256": "96e6ca5562849b9136bc75b665d10b421e75a9b9805303c40b68982101889336",
+      "unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "8f9281c3184a5c407bf371582d8a601b03617c7b71e68168b10a38a54ce7f6bd",
+      "unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/Cargo.lock",
+      "sha256": "f28eee2b6c039de6bbbf4bdf2e3e7138057cddbc73e3ce2676a632b68f5caac3",
+      "unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/Cargo.lock",
+      "sha256": "118bb423f3d51c62547c827f378b076e69776a40e701e1086db4e2658594a537",
+      "unchanged": true
+    }
+  ],
+  "git_index_api_writes": 0,
+  "descendants": 0,
+  "instructions": "TASK role/project guidance and chirality-change skill; explicit grant overrides Git/PR and broader sweep defaults",
+  "review_state": "fresh independent review/ROOT disposition pending; author audit is not acceptance",
+  "read_only_lookup_corrections": [
+    "initial RV71 _05 path did not exist; resolved to actual public_producer_admission_01/REVIEW.md",
+    "HL cache absent; ROOT explicitly granted dedicated build output target; no tooling installed"
+  ]
+}

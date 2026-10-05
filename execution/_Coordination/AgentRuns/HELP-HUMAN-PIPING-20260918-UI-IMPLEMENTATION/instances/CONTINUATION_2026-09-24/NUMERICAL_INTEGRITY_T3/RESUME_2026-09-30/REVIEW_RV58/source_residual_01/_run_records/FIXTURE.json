@@ -1,0 +1,557 @@
+{
+  "utc": "2026-10-03T01:58:50.633812+00:00",
+  "purpose": "Independent reviewer 3D bending/torsion and arbitrary-center source containment; synthetic review-only fixtures, no candidate writes.",
+  "entries": [
+    {
+      "path": "Cargo.toml",
+      "kind": "copy",
+      "source_sha256": "994d118576eb881668f3048f9b4d05f899ceb7599c1cd5f05cbe18f70172b7dc"
+    },
+    {
+      "path": "tests/k5_constrained_bodies.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained_bodies.rs"
+    },
+    {
+      "path": "tests/k2a",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/k2a"
+    },
+    {
+      "path": "tests/m03_skew_scope.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/m03_skew_scope.rs"
+    },
+    {
+      "path": "tests/k5_constrained",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained"
+    },
+    {
+      "path": "tests/retained_k4/classification.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification.txt"
+    },
+    {
+      "path": "tests/retained_k4/sum_differential_sample.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_differential_sample.txt"
+    },
+    {
+      "path": "tests/retained_k4/source_bridge_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/classification_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/source_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/directional_span_exact.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directional_span_exact.txt"
+    },
+    {
+      "path": "tests/retained_k4/scale_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/certificate_arithmetic_vectors.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_vectors.rs"
+    },
+    {
+      "path": "tests/retained_k4/verify_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/verify_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/estimate.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/estimate.txt"
+    },
+    {
+      "path": "tests/retained_k4/source_bridge_vectors.py",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_vectors.py"
+    },
+    {
+      "path": "tests/retained_k4/streams.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/streams.txt"
+    },
+    {
+      "path": "tests/retained_k4/combine_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/combine_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/publication_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/sum_targeted.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_targeted.txt"
+    },
+    {
+      "path": "tests/retained_k4/source_bridge_vectors.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_bridge_vectors.rs"
+    },
+    {
+      "path": "tests/retained_k4/streams_sample.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/streams_sample.txt"
+    },
+    {
+      "path": "tests/retained_k4/support.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/support.rs"
+    },
+    {
+      "path": "tests/retained_k4/assemble_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/certificate_arithmetic_vectors.py",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_vectors.py"
+    },
+    {
+      "path": "tests/retained_k4/scale.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt"
+    },
+    {
+      "path": "tests/retained_k4/kf3.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3.txt"
+    },
+    {
+      "path": "tests/retained_k4/references_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/references_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/models.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt"
+    },
+    {
+      "path": "tests/retained_k4/models.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.rs"
+    },
+    {
+      "path": "tests/retained_k4/work_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/work_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/wide_sum_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/product_certificate_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/gen_k4_vectors.py",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py"
+    },
+    {
+      "path": "tests/retained_k4/bounds.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt"
+    },
+    {
+      "path": "tests/retained_k4/outcomes.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/outcomes.txt"
+    },
+    {
+      "path": "tests/retained_k4/charge.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt"
+    },
+    {
+      "path": "tests/retained_k4/encodings.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/encodings.txt"
+    },
+    {
+      "path": "tests/retained_k4/bound_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bound_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/models5a3.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt"
+    },
+    {
+      "path": "tests/retained_k4/certificate_arithmetic_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/r1_cases.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/r1_cases.txt"
+    },
+    {
+      "path": "tests/retained_k4/formation.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/formation.txt"
+    },
+    {
+      "path": "tests/retained_k4/method_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/source_residual_vectors.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_vectors.rs"
+    },
+    {
+      "path": "tests/retained_k4/ledger_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/product_certificate_vectors.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_vectors.rs"
+    },
+    {
+      "path": "tests/retained_k4/adaptive_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/kf3_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/profiles.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/profiles.txt"
+    },
+    {
+      "path": "tests/retained_k4/r1_large.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/r1_large.txt"
+    },
+    {
+      "path": "tests/retained_k4/ledger.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger.txt"
+    },
+    {
+      "path": "tests/retained_k4/kf1_tracker_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/origins_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/origins_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/factor_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/directed.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed.txt"
+    },
+    {
+      "path": "tests/retained_k4/source_residual_tests.rs",
+      "kind": "copy",
+      "source_sha256": "864b46c7a679b6d04b7b534bb1d07f382abab4a0696a476dba08cb70083c2b74"
+    },
+    {
+      "path": "tests/retained_k4/o8_states.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/o8_states.txt"
+    },
+    {
+      "path": "tests/retained_k4/sum_differential.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_differential.txt"
+    },
+    {
+      "path": "tests/retained_k4/SHA256SUMS",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/SHA256SUMS"
+    },
+    {
+      "path": "tests/retained_k4/product_certificate_vectors.py",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_vectors.py"
+    },
+    {
+      "path": "tests/retained_k4/source_residual_vectors.py",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_residual_vectors.py"
+    },
+    {
+      "path": "tests/retained_k4/recover_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/recover_tests.rs"
+    },
+    {
+      "path": "tests/retained_k4/directed_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed_tests.rs"
+    },
+    {
+      "path": "tests/k2a_checked_formation.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/k2a_checked_formation.rs"
+    },
+    {
+      "path": "tests/retained_wide_k3",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3"
+    },
+    {
+      "path": "tests/s11_site_table.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs"
+    },
+    {
+      "path": "tests/k2b_force_scaling.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs"
+    },
+    {
+      "path": "tests/k5_scale.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/k5_scale.rs"
+    },
+    {
+      "path": "tests/k1_k2a_interaction.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/k1_k2a_interaction.rs"
+    },
+    {
+      "path": "tests/retained_wide",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide"
+    },
+    {
+      "path": "Cargo.lock",
+      "kind": "copy",
+      "source_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "path": "README.md",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/README.md"
+    },
+    {
+      "path": ".gitignore",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/.gitignore"
+    },
+    {
+      "path": "src/exact_sum",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum"
+    },
+    {
+      "path": "src/lib.rs",
+      "kind": "copy",
+      "source_sha256": "627404d6c0de08e6c681dcc876b39efc68fa04b5c155636785e2abb0f4faff0b"
+    },
+    {
+      "path": "src/rigid_body.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs"
+    },
+    {
+      "path": "src/exact_sum.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs"
+    },
+    {
+      "path": "src/structural.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs"
+    },
+    {
+      "path": "src/load_ledger.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/load_ledger.rs"
+    },
+    {
+      "path": "src/structural/exact_boundary.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs"
+    },
+    {
+      "path": "src/structural/kf2_witness_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/kf2_witness_tests.rs"
+    },
+    {
+      "path": "src/structural/s11f_n5_base_signature.txt",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_n5_base_signature.txt"
+    },
+    {
+      "path": "src/structural/formation_check_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check_tests.rs"
+    },
+    {
+      "path": "src/structural/s11k_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs"
+    },
+    {
+      "path": "src/structural/formation_check.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check.rs"
+    },
+    {
+      "path": "src/structural/exact_boundary",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary"
+    },
+    {
+      "path": "src/structural/sparse",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse"
+    },
+    {
+      "path": "src/structural/s11f_tests.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_tests.rs"
+    },
+    {
+      "path": "src/structural/sparse.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs"
+    },
+    {
+      "path": "src/structural/retained/ledger.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs"
+    },
+    {
+      "path": "src/structural/retained/directed.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs"
+    },
+    {
+      "path": "src/structural/retained/combine.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs"
+    },
+    {
+      "path": "src/structural/retained/origins.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs"
+    },
+    {
+      "path": "src/structural/retained/wide",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide"
+    },
+    {
+      "path": "src/structural/retained/source.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs"
+    },
+    {
+      "path": "src/structural/retained/mod.rs",
+      "kind": "copy",
+      "source_sha256": "b9fadf96900fb45131a6492ba34cf6f23cfb00803fad08c58778600aebc84a24"
+    },
+    {
+      "path": "src/structural/retained/recover.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs"
+    },
+    {
+      "path": "src/structural/retained/bound.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs"
+    },
+    {
+      "path": "src/structural/retained/verify.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs"
+    },
+    {
+      "path": "src/structural/retained/directed",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed"
+    },
+    {
+      "path": "src/structural/retained/seeded.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs"
+    },
+    {
+      "path": "src/structural/retained/wide_sum.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs"
+    },
+    {
+      "path": "src/structural/retained/product_certificate.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs"
+    },
+    {
+      "path": "src/structural/retained/factor.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs"
+    },
+    {
+      "path": "src/structural/retained/work.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/work.rs"
+    },
+    {
+      "path": "src/structural/retained/adaptive.rs",
+      "kind": "copy",
+      "source_sha256": "473948b1beba7721c231b304e72e841120efb71762b2d6216c70f5257c9380d3"
+    },
+    {
+      "path": "src/structural/retained/wide.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs"
+    },
+    {
+      "path": "src/structural/retained/assemble.rs",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs"
+    },
+    {
+      "path": "src/structural/retained/product_certificate",
+      "kind": "symlink",
+      "source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate"
+    }
+  ],
+  "appended_test_sha256": "d299446940e0351545ebe62b174ad541160b3db2ba55f998ef3873fa563ad274"
+}

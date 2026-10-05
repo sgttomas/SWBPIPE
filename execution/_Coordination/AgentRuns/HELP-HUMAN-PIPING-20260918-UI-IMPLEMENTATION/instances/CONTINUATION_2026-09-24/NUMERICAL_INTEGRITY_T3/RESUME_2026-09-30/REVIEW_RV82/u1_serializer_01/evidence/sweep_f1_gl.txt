@@ -1,0 +1,201 @@
+../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json sparse_interactive observed_route_equals_public_dispatch=true
+../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json sparse_interactive case=case d5=true legacy=unavailable:source closure initial=Some("NUMERICAL_INTEGRITY_SENSITIVE") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json dense_scrutiny observed_route_equals_public_dispatch=true
+../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json dense_scrutiny case=case d5=true legacy=unavailable:source closure initial=Some("NUMERICAL_INTEGRITY_SENSITIVE") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/invented_preview_model.json sparse_interactive parse-refused
+../../fixtures/product_preview/invented_preview_model.json dense_scrutiny parse-refused
+../../fixtures/product_preview/numerical_sensitive_torsion_model.json sparse_interactive parse-refused
+../../fixtures/product_preview/numerical_sensitive_torsion_model.json dense_scrutiny parse-refused
+../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json sparse_interactive observed_route_equals_public_dispatch=true
+../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json sparse_interactive case=case d5=false legacy=exact_selected initial=Some("NUMERICAL_INTEGRITY_SENSITIVE") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json dense_scrutiny observed_route_equals_public_dispatch=true
+../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json dense_scrutiny case=case d5=false legacy=exact_selected initial=Some("NUMERICAL_INTEGRITY_SENSITIVE") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/source_blocks/n06-sparse_interactive.request.json sparse_interactive observed_route_equals_public_dispatch=true
+../../fixtures/product_preview/source_blocks/n06-sparse_interactive.request.json sparse_interactive case=case d5=false legacy=exact_selected initial=Some("structural_failure") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/source_blocks/n06-sparse_interactive.request.json dense_scrutiny observed_route_equals_public_dispatch=true
+../../fixtures/product_preview/source_blocks/n06-sparse_interactive.request.json dense_scrutiny case=case d5=false legacy=exact_selected initial=Some("structural_failure") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.request.json sparse_interactive observed_route_equals_public_dispatch=true
+../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.request.json sparse_interactive case=case d5=false legacy=exact_selected initial=Some("NUMERICAL_INTEGRITY_SENSITIVE") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.request.json sparse_interactive case=case:signed-companion d5=false legacy=exact_selected initial=Some("NUMERICAL_INTEGRITY_SENSITIVE") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.request.json dense_scrutiny observed_route_equals_public_dispatch=true
+../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.request.json dense_scrutiny case=case d5=false legacy=exact_selected initial=Some("NUMERICAL_INTEGRITY_SENSITIVE") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.request.json dense_scrutiny case=case:signed-companion d5=false legacy=exact_selected initial=Some("NUMERICAL_INTEGRITY_SENSITIVE") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/physics_source/mixed.request.json sparse_interactive observed_route_equals_public_dispatch=false
+../../fixtures/product_preview/physics_source/mixed.request.json sparse_interactive case=case d5=false legacy=exact_selected initial=Some("NUMERICAL_INTEGRITY_SENSITIVE") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/physics_source/mixed.request.json sparse_interactive case=case:ordinary-pressure d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/physics_source/mixed.request.json dense_scrutiny observed_route_equals_public_dispatch=false
+../../fixtures/product_preview/physics_source/mixed.request.json dense_scrutiny case=case d5=false legacy=exact_selected initial=Some("NUMERICAL_INTEGRITY_SENSITIVE") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/physics_source/mixed.request.json dense_scrutiny case=case:ordinary-pressure d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/physics_source/n05_units.request.json sparse_interactive observed_route_equals_public_dispatch=false
+../../fixtures/product_preview/physics_source/n05_units.request.json sparse_interactive case=case d5=false legacy=exact_selected initial=Some("NUMERICAL_INTEGRITY_SENSITIVE") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/physics_source/n05_units.request.json dense_scrutiny observed_route_equals_public_dispatch=false
+../../fixtures/product_preview/physics_source/n05_units.request.json dense_scrutiny case=case d5=false legacy=exact_selected initial=Some("NUMERICAL_INTEGRITY_SENSITIVE") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/physics_source/n06.request.json sparse_interactive observed_route_equals_public_dispatch=false
+../../fixtures/product_preview/physics_source/n06.request.json sparse_interactive case=case d5=false legacy=exact_selected initial=Some("structural_failure") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/physics_source/n06.request.json dense_scrutiny observed_route_equals_public_dispatch=false
+../../fixtures/product_preview/physics_source/n06.request.json dense_scrutiny case=case d5=false legacy=exact_selected initial=Some("structural_failure") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/physics_source/fields.request.json sparse_interactive observed_route_equals_public_dispatch=false
+../../fixtures/product_preview/physics_source/fields.request.json sparse_interactive case=case d5=false legacy=exact_selected initial=Some("NUMERICAL_INTEGRITY_SENSITIVE") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/physics_source/fields.request.json dense_scrutiny observed_route_equals_public_dispatch=false
+../../fixtures/product_preview/physics_source/fields.request.json dense_scrutiny case=case d5=false legacy=exact_selected initial=Some("NUMERICAL_INTEGRITY_SENSITIVE") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/invented_dec092_temperature_g_request.json sparse_interactive observed_route_equals_public_dispatch=true
+../../fixtures/product_preview/invented_dec092_temperature_g_request.json sparse_interactive case=load:L-DEC092-EXACT d5=false legacy=not_eligible initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/invented_dec092_temperature_g_request.json sparse_interactive case=load:L-DEC092-INTERPOLATED d5=false legacy=not_eligible initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/invented_dec092_temperature_g_request.json sparse_interactive case=load:L-DEC092-BASE d5=false legacy=not_eligible initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/invented_dec092_temperature_g_request.json dense_scrutiny observed_route_equals_public_dispatch=true
+../../fixtures/product_preview/invented_dec092_temperature_g_request.json dense_scrutiny case=load:L-DEC092-EXACT d5=false legacy=not_eligible initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/invented_dec092_temperature_g_request.json dense_scrutiny case=load:L-DEC092-INTERPOLATED d5=false legacy=not_eligible initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+../../fixtures/product_preview/invented_dec092_temperature_g_request.json dense_scrutiny case=load:L-DEC092-BASE d5=false legacy=not_eligible initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/preview_physics_invented_model.json sparse_interactive parse-refused
+tests/fixtures/preview_physics_invented_model.json dense_scrutiny parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e5-GGn sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e5-GGn sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e5-GGn dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e5-GGn dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e5-GnG sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e5-GnG sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e5-GnG dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e5-GnG dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e5-nGG sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e5-nGG sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e5-nGG dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e5-nGG dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e6-GGn sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e6-GGn sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e6-GGn dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e6-GGn dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e6-GnG sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e6-GnG sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e6-GnG dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e6-GnG dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e6-nGG sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e6-nGG sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e6-nGG dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e6-nGG dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e7-GGn sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e7-GGn sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e7-GGn dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e7-GGn dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e7-GnG sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e7-GnG sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e7-GnG dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e7-GnG dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e7-nGG sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e7-nGG sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e7-nGG dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e7-nGG dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-GGn sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-GGn sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-GGn dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-GGn dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-GnG sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-GnG sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-GnG dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-GnG dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-GnG-INPLANE sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-GnG-INPLANE sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-GnG-INPLANE dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-GnG-INPLANE dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-GnG-ORTHO sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-GnG-ORTHO sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-GnG-ORTHO dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-GnG-ORTHO dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-nGG sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-nGG sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-nGG dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e8-nGG dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e80-GGn sparse_interactive parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e80-GGn dense_scrutiny parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e80-GnG sparse_interactive parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e80-GnG dense_scrutiny parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e80-GnG-INPLANE sparse_interactive parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e80-GnG-INPLANE dense_scrutiny parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e80-GnG-ORTHO sparse_interactive parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e80-GnG-ORTHO dense_scrutiny parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e80-nGG sparse_interactive parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-F-G1e80-nGG dense_scrutiny parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e5-GGn sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e5-GGn sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e5-GGn dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e5-GGn dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e5-GnG sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e5-GnG sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e5-GnG dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e5-GnG dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e5-nGG sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e5-nGG sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e5-nGG dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e5-nGG dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e6-GGn sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e6-GGn sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e6-GGn dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e6-GGn dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e6-GnG sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e6-GnG sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e6-GnG dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e6-GnG dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e6-nGG sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e6-nGG sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e6-nGG dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e6-nGG dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e7-GGn sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e7-GGn sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e7-GGn dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e7-GGn dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e7-GnG sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e7-GnG sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e7-GnG dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e7-GnG dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e7-nGG sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e7-nGG sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e7-nGG dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e7-nGG dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-GGn sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-GGn sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-GGn dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-GGn dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-GnG sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-GnG sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-GnG dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-GnG dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-GnG-INPLANE sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-GnG-INPLANE sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-GnG-INPLANE dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-GnG-INPLANE dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-GnG-ORTHO sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-GnG-ORTHO sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-GnG-ORTHO dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-GnG-ORTHO dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-nGG sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-nGG sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-nGG dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e8-nGG dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e80-GGn sparse_interactive parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e80-GGn dense_scrutiny parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e80-GnG sparse_interactive parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e80-GnG dense_scrutiny parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e80-GnG-INPLANE sparse_interactive parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e80-GnG-INPLANE dense_scrutiny parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e80-GnG-ORTHO sparse_interactive parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e80-GnG-ORTHO dense_scrutiny parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e80-nGG sparse_interactive parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-M-G1e80-nGG dense_scrutiny parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-UDL-W1e5 sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-UDL-W1e5 sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-UDL-W1e5 dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-UDL-W1e5 dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-UDL-W1e8 sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-UDL-W1e8 sparse_interactive case=case d5=false legacy=declined_without_attempt:formation guard initial=Some("NUMERICAL_INTEGRITY_SENSITIVE") w2="not_triggered" finding_ref=Some(true) demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-UDL-W1e8 dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-UDL-W1e8 dense_scrutiny case=case d5=false legacy=declined_without_attempt:formation guard initial=Some("NUMERICAL_INTEGRITY_SENSITIVE") w2="not_triggered" finding_ref=Some(true) demoted=false
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-UDL-W1e80 sparse_interactive parse-refused
+tests/fixtures/s11f/rf_cancel_cases.json#RF-CANCEL-UDL-W1e80 dense_scrutiny parse-refused
+tests/fixtures/s11g/rb_controls.json#RF-LARGE-CONT-n00100-AX sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11g/rb_controls.json#RF-LARGE-CONT-n00100-AX sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11g/rb_controls.json#RF-LARGE-CONT-n00100-AX dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11g/rb_controls.json#RF-LARGE-CONT-n00100-AX dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11g/rb_controls.json#RF-LARGE-CONT-n00100-ROT sparse_interactive observed_route_equals_public_dispatch=true
+tests/fixtures/s11g/rb_controls.json#RF-LARGE-CONT-n00100-ROT sparse_interactive case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+tests/fixtures/s11g/rb_controls.json#RF-LARGE-CONT-n00100-ROT dense_scrutiny observed_route_equals_public_dispatch=true
+tests/fixtures/s11g/rb_controls.json#RF-LARGE-CONT-n00100-ROT dense_scrutiny case=case d5=false legacy=not_required initial=Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") w2="not_triggered" finding_ref=None demoted=false
+SUMMARY seeds=90 d5_present=2 d5_absent=88 dispositions={"declined_without_attempt:formation guard": 2, "exact_selected": 16, "not_eligible": 6, "not_required": 64, "unavailable:source closure": 2}

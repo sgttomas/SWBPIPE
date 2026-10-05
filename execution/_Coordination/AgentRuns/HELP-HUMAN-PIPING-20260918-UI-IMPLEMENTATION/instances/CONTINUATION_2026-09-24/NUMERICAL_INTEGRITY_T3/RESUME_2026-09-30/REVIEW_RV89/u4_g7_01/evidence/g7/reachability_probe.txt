@@ -1,0 +1,78 @@
+### RV89 G6+G7 probes, instrumented copy of ba1faa1c (registered build)
+RV89_G6_ADMIT SparseInteractive milestone=permit headless=refused d1_violations_refused=21
+RV89_G6_ADMIT DenseScrutiny milestone=permit headless=refused d1_violations_refused=21
+RV89_G6_DEFER length 1e-60 SparseInteractive domain=None attempts=0 fact=false seeds=[] status=MODEL_INCOMPLETE blocking=Some("PIPE_ELEMENT_INPUT_INVALID")
+RV89_G6_DEFER length 1e-60 DenseScrutiny domain=None attempts=0 fact=false seeds=[] status=MODEL_INCOMPLETE blocking=Some("PIPE_ELEMENT_INPUT_INVALID")
+RV89_G6_DEFER length 1e-100 SparseInteractive domain=None attempts=0 fact=false seeds=[] status=MODEL_INCOMPLETE blocking=Some("PIPE_ELEMENT_INPUT_INVALID")
+RV89_G6_DEFER length 1e-100 DenseScrutiny domain=None attempts=0 fact=false seeds=[] status=MODEL_INCOMPLETE blocking=Some("PIPE_ELEMENT_INPUT_INVALID")
+RV89_G6_DEFER length 1e-30 E 1e15 SparseInteractive domain=None attempts=0 fact=false seeds=[] status=MODEL_INCOMPLETE blocking=Some("PIPE_ELEMENT_INPUT_INVALID")
+RV89_G6_DEFER length 1e-30 E 1e15 DenseScrutiny domain=None attempts=0 fact=false seeds=[] status=MODEL_INCOMPLETE blocking=Some("PIPE_ELEMENT_INPUT_INVALID")
+RV89_G6_DEFER length 1e100 SparseInteractive parse refused
+RV89_G6_DEFER length 1e100 DenseScrutiny parse refused
+RV89_G6_DEFER OD 1e-40 SparseInteractive domain=None attempts=1 fact=true seeds=["Some(StructuralFailure { error: Range(\"product o"] status=MODEL_INCOMPLETE blocking=Some("NUMERICAL_INTEGRITY_UNRESOLVED")
+RV89_G6_DEFER OD 1e-40 DenseScrutiny domain=None attempts=1 fact=true seeds=["Some(StructuralFailure { error: Range(\"product o"] status=MODEL_INCOMPLETE blocking=Some("NUMERICAL_INTEGRITY_UNRESOLVED")
+RV89_G6_DEFER OD 1e-100 SparseInteractive domain=None attempts=0 fact=false seeds=[] status=MODEL_INCOMPLETE blocking=Some("PIPE_SECTION_INPUT_INVALID")
+RV89_G6_DEFER OD 1e-100 DenseScrutiny domain=None attempts=0 fact=false seeds=[] status=MODEL_INCOMPLETE blocking=Some("PIPE_SECTION_INPUT_INVALID")
+RV89_G6_DEFER E 1e-200 SparseInteractive domain=None attempts=1 fact=true seeds=["Some(StructuralFailure { error: Range(\"product o"] status=MODEL_INCOMPLETE blocking=Some("NUMERICAL_INTEGRITY_UNRESOLVED")
+RV89_G6_DEFER E 1e-200 DenseScrutiny domain=None attempts=1 fact=true seeds=["Some(StructuralFailure { error: Range(\"product o"] status=MODEL_INCOMPLETE blocking=Some("NUMERICAL_INTEGRITY_UNRESOLVED")
+RV89_G6_DEFER E 1e300 SparseInteractive parse refused
+RV89_G6_DEFER E 1e300 DenseScrutiny parse refused
+RV89_G6_DEFER E 1e305 G 1e305 SparseInteractive parse refused
+RV89_G6_DEFER E 1e305 G 1e305 DenseScrutiny parse refused
+RV89_G6_DEFER OD 1e150 E 1e300 SparseInteractive parse refused
+RV89_G6_DEFER OD 1e150 E 1e300 DenseScrutiny parse refused
+RV89_G6_DEFER spring 1e300 SparseInteractive parse refused
+RV89_G6_DEFER spring 1e300 DenseScrutiny parse refused
+RV89_G6_DEFER short member E 1e300 SparseInteractive parse refused
+RV89_G6_DEFER short member E 1e300 DenseScrutiny parse refused
+RV89_G6_BUILD identity=Some("v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0")
+RV89_G6_BUILD status=Ok(0)
+RV89_G6_BOUND SparseInteractive E_mov=3508669422 +R=3575778286 frac=0.888054 under_0.9M=48100370
+RV89_G6_BOUND DenseScrutiny E_mov=3528379870 +R=3595488734 frac=0.892949 under_0.9M=28389922
+RV89_G6_K2A spring carried SparseInteractive domain=None attempts=1 fact=true seeds=["Some(FormationFailure { error: Numer"] status=MODEL_INCOMPLETE w1=Preparation exact=false
+RV89_G6_K2A spring carried DenseScrutiny domain=None attempts=1 fact=true seeds=["Some(FormationFailure { error: Numer"] status=MODEL_INCOMPLETE w1=Preparation exact=false
+RV89_G6_K2A partial underflow SparseInteractive domain=None attempts=1 fact=true seeds=["Some(FormationFailure { error: Numer"] status=MECHANICS_SOLVED w1=Candidate exact=false
+RV89_G6_K2A partial underflow DenseScrutiny domain=None attempts=1 fact=true seeds=["Some(FormationFailure { error: Numer"] status=MECHANICS_SOLVED w1=Candidate exact=false
+RV89_G6_K2A exact zero SparseInteractive domain=None attempts=1 fact=true seeds=["Some(FormationFailure { error: Numer"] status=MECHANICS_SOLVED w1=Candidate exact=false
+RV89_G6_K2A exact zero DenseScrutiny domain=None attempts=1 fact=true seeds=["Some(FormationFailure { error: Numer"] status=MECHANICS_SOLVED w1=Candidate exact=false
+RV89_G6_K2A least subnormal SparseInteractive domain=None attempts=1 fact=true seeds=["Some(FormationFailure { error: Numer"] status=MECHANICS_SOLVED w1=Candidate exact=false
+RV89_G6_K2A least subnormal DenseScrutiny domain=None attempts=1 fact=true seeds=["Some(FormationFailure { error: Numer"] status=MECHANICS_SOLVED w1=Candidate exact=false
+RV89_G6_SUCCESSOR sparse_interactive file_sha256=ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc receipt_sha256=efc1a39bbe83840df6bd0761c932b8020285d3b8c005ba8fd0b45ba10d667494
+RV89_G6_SUCCESSOR dense_scrutiny file_sha256=6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5 receipt_sha256=3e26499f17caff8f5fc0d46406bbe54acf43e8cb16e761784aa5074413b0ac4a
+RV89_G6_ATTEMPT_SUMMARY checked=44 mismatches=0 in_d1=44
+RV89_G6R_REQUIRED SparseInteractive required=3575778286 = E 3508669422 + R 67108864; frac=0.888054
+RV89_G6R_REQUIRED DenseScrutiny required=3595488734 = E 3528379870 + R 67108864; frac=0.892949
+RV89_G7_HOSTILE project id = successor identity SparseInteractive domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE project id = successor identity DenseScrutiny domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE every provenance = method token SparseInteractive domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE every provenance = method token DenseScrutiny domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE every provenance = successor identity SparseInteractive domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE every provenance = successor identity DenseScrutiny domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE case id = successor identity SparseInteractive domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE case id = successor identity DenseScrutiny domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE case label = retained_precision SparseInteractive domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE case label = retained_precision DenseScrutiny domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE N1 renamed recovery_method SparseInteractive domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE N1 renamed recovery_method DenseScrutiny domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE N1 renamed method token SparseInteractive domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE N1 renamed method token DenseScrutiny domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE material renamed successor identity SparseInteractive domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE material renamed successor identity DenseScrutiny domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE segment renamed retained_precision SparseInteractive domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE segment renamed retained_precision DenseScrutiny domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE load ids = producer SparseInteractive domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE load ids = producer DenseScrutiny domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE model.producer member SparseInteractive domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE model.producer member DenseScrutiny domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE request.retained_precision member SparseInteractive domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE request.retained_precision member DenseScrutiny domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE model.retained_precision member SparseInteractive domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE model.retained_precision member DenseScrutiny domain=None successor=true Counts { validate: 1, calls: 4, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_HOSTILE_SUMMARY inside_d1_runs=26
+RV89_G7_TOTAL_BEFORE_CONTROL Counts { validate: 30, calls: 120, retained: 0, statik: 0, forbid: 0, transport: 0 }
+RV89_G7_CONTROL for_source(unprojected successor) ok=true Counts { validate: 1, calls: 5, retained: 1, statik: 1, forbid: 0, transport: 0 }
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 547 filtered out; finished in 23.48s
+
+### RV89 sweep with counters (71 inputs x 2 modes x 5 routes)
+RV89_G7_SWEEP_COUNTS validate=24 is_retained_calls=96 is_retained_true=0 static_init=0 forbid_err=0 transport=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 36.74s

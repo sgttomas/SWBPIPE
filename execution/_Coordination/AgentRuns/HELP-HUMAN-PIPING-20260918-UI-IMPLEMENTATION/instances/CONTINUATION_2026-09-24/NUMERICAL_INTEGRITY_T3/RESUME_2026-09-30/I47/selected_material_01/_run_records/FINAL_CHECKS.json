@@ -1,0 +1,50 @@
+{
+  "pp_final_debug": {
+    "exit": 101,
+    "source_bound": true,
+    "start": "2026-10-03T04:30:17.327138+00:00",
+    "end": "2026-10-03T04:30:21.163602+00:00"
+  },
+  "pp_final_optimized": {
+    "exit": 101,
+    "source_bound": true,
+    "start": "2026-10-03T04:30:42.724978+00:00",
+    "end": "2026-10-03T04:31:12.026172+00:00"
+  },
+  "pp_original_base": {
+    "exit": 0,
+    "source_bound": true,
+    "start": "2026-10-03T04:31:45.751706+00:00",
+    "end": "2026-10-03T04:31:46.372231+00:00"
+  },
+  "pp_s11": {
+    "exit": 101,
+    "source_bound": true,
+    "start": "2026-10-03T04:31:41.865990+00:00",
+    "end": "2026-10-03T04:31:45.708032+00:00"
+  },
+  "pp_s11_focused": {
+    "exit": 0,
+    "source_bound": true,
+    "start": "2026-10-03T04:32:17.684378+00:00",
+    "end": "2026-10-03T04:32:26.867675+00:00"
+  },
+  "independent_final_debug": {
+    "exit": 0,
+    "source_bound": true,
+    "start": "2026-10-03T04:31:50.650003+00:00",
+    "end": "2026-10-03T04:31:51.361815+00:00"
+  },
+  "independent_final_optimized": {
+    "exit": 0,
+    "source_bound": true,
+    "start": "2026-10-03T04:31:50.650106+00:00",
+    "end": "2026-10-03T04:31:51.361971+00:00"
+  },
+  "oracle_original_base": {
+    "exit": 0,
+    "source_bound": true,
+    "start": "2026-10-03T04:32:25.296316+00:00",
+    "end": "2026-10-03T04:32:25.754488+00:00"
+  }
+}

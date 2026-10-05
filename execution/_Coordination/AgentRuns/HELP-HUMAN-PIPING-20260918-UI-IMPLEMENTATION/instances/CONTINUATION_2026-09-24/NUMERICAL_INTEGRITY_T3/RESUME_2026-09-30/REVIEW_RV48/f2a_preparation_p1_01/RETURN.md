@@ -1,0 +1,52 @@
+# RV48 — independent P1 preparation review
+
+**CORRECTION REQUIRED for complete symbolic-roster fan-in.** The count/encoding and branch-ownership lemmas below are usable at the frozen source, but two allocation owners need an explicit term or a source-bound exclusion/absorption proof. A third finding concerns only the illustrative arithmetic helpers. No numeric memory allowance, guard qualification, full memory/RSS bound, work-exactness proof, implementation grant or engineering acceptance follows.
+
+Reviewed candidate `8eaca35bdc1eedc46e8c3b8fb612f1b304399d4a`, `R/I29/f2a_preparation_counts_p1`, against source `49034a940f3f8cd3f3da4d4cbc839943b808063d`; brief `29364e84f4842093bb86bdaf989730cc83837328`. Here P=`projects/chirality-piping`, FK=`P/core/solver/frame_kernel/src`, and R is this review's `RESUME_2026-09-30` parent. Corrected C1/C2 and RV43 identities are in `_run_records/ORIGINS.json`.
+
+## Actionable findings
+
+### RV48-1 — account for verification-failure vectors copied during combination cache import
+
+**P2; blocking completeness of the preparation roster.** Location: candidate `COUNTS_AND_OWNERSHIP.md:179` and `203–206`.
+
+The combination row borrows selected snapshots and the record paragraph counts at most seven slot references without factor copies, but does not count the dynamic failure payload copied by the native merge. `FK/structural/retained/combine.rs:114` calls `GroupCache::merged` before `run_schedule`. `adaptive.rs:3576–3591` defines each verification slot's failure as `(AttemptStop,u64,StageWork,Vec<BlockRefusal>)`; `adaptive.rs:4431–4438` clones the first occupied v256/v512/v1024 slot into the new cache. An `Err` clone deep-copies its vector. The operand snapshot remains owned. This is distinct from successful factor payloads shared by Arc and from the wire slot-origin array.
+
+The triggering branch is an imported failed verification slot with a nonempty refusal vector. The source populates these vectors from one refusal option per block (`verify.rs:439–441,525–526`; `bound.rs:1319–1332`) and stores nonbudget failures at `adaptive.rs:3820–3827`. P1 supplies neither a term for the newly copied vectors nor a proved invariant excluding nonempty imported failures. This review establishes the omitted source allocation branch; it does not claim to have constructed a numerically reachable instance under the eventual qualified input/profile.
+
+**Repair:** At the cache-merge preparation seam, add the new cache owner and `sum_j V_BlockRefusal(r_j)` for the at-most-three selected failed verification slots, where `r_j` is the actual borrowed failure length and `r_j<=f` for that source's stopped shared-build inventory. Preserve first-occupied selection in authored operand order, keep original snapshot owners in `P_prev`, and carry the new copies to their real drop/transfer. Alternatively supply the source-bound emptiness invariant needed to remove them, or an explicit separately admitted seam owning the merge before it runs. A status stride or seven reference entries cannot stand in for a dynamic vector owner.
+
+### RV48-2 — name and bound the RCM stable-sort workspace
+
+**P2; blocking completeness of the preparation roster.** Location: candidate `COUNTS_AND_OWNERSHIP.md:176`, in relation to `135–136` and `142–147`.
+
+`FK/structural/retained/factor.rs:310–317` deduplicates neighbors, builds degrees, then calls `list.sort_by_key` for each neighbor list. This is a separate stable-sort site after constructor scratch has dropped, while adjacency, neighbors and degrees remain live. The RCM expression lists vectors, BFS arrays and a deque, but does not invoke the separately declared `Sort_T` profile at this site. Constructor sort scratch at line 167 covers other lists and does not establish the RCM peak.
+
+**Repair:** Add `max_i Sort_usize(degree_i)` (or a qualified monotone upper such as `Sort_usize(F)`) to this phase, with `degree_i<=max(F-1,0)` after deduplication and the actual sort build profile. Count sequential sorts by their maximum, not their sum. A reviewed inequality absorbing this site into the deliberately loose `5V_U(F)` allowance is also sufficient, but that relationship must be stated and proved; the currently unbound Vec and Sort profiles do not establish it. Recheck both requested and moving expressions with the resulting owner roster. No particular Rust sort allocation coefficient was assumed or measured here.
+
+### RV48-3 — validate each arithmetic-helper input before combining counts
+
+**P3; non-blocking for the supplied finite examples.** Location: candidate `_run_records/count_checks.py:25–38`; contract at `COUNTS_AND_OWNERSHIP.md:95–96`.
+
+The individual-input rejection promised in the prose is not enforced by `validated` or `combo`. Reviewer reproduction shows `validated(True,0,0,0,0,0,0,0)` accepts a Boolean node count and returns N=6; `validated(1,0,0,-1,0,0,0,0)` accepts k=-1 and returns F=7; `combo([38,38],[-1,1],0)` accepts a negative load count after cancellation in the sum. The existing Boolean test calls only `natural(True)` and does not exercise these entries.
+
+**Repair:** Apply `natural`/the appropriate field-width check to every scalar and each list element before multiplication, subtraction or summation, and add these rejection cases. The original 16 selected examples remain reproducible; their results are not a general helper-input validation proof.
+
+## Usable lemmas and checked boundaries
+
+- The successful capture stores `encoded_len=checked(&raw)?.len()` before returning the same owned raw Value (`P/core/product_physics/src/source_receipt.rs:100–128`). Under that exact immutable custody, counting Value nodes/depth by J+1 is a conservative content bound. The visitor must still reserve its own frame/census/failure storage before allocation. No source encoding, model clone, layout or graph helper is a free census. An implemented visitor's iterator allocation behavior, precise visit accounting including string comparisons, and profile binding remain unverified.
+- K4SRC's constant 38 and coefficients 24n+84m+17s+13k+17l+I+16t+22g+4Cs are correct for d=0 and canonical child lengths. K4STF is 26+24n+84m+17s+5k. K4LED is 10+18v+8 sum a_j, with current fixed accumulator length at most 68. K4CMB is 10+sum(12+E_src_i), with the additional u32 operand-identity length guard genuinely necessary.
+- Native layout gives Q=7n+12m+6t+s+k+2g, hence Q=7n+30m+s+k+2g for C2's t=3m. Distinct valid member-node DOFs give 78 upper contributions and 144 symmetric positions per member. Z<=min(N^2,144m+s), v<=min(N,l), b<=n and f<=F are valid count uppers. Raw duplicate constraints must not become k or F: the native constructor refuses them. Support-child dedup retains capacity, so original raw capacity and validated clone length remain different owners.
+- The source constructor, exact ledger, prescribed pairs, first-source combination clone, layout/extents, rigid-body expansion child counts, pattern arrays, both adjacency/RCM copies, and free-block partitions match the named native paths. ExactWideSum's magnitude fields are inline fixed arrays, while Expansion owns child vectors; the latter's 10/1 motion-term and 11-term exact_scalar temporary bounds are conservative.
+- `solve_cases` checks exhaustion before group lookup/preparation and CasePrep (`adaptive.rs:4353–4395`). Ordinary PreparedCaseSource is the proposed C1 source-only wrapper, not a present compiled API; it carries no graph/cache/solve. Combination checks precede exact combined ledger/preparation; first-source metadata does not replace ordered operand loads. C2's pre-source refusal owns Call/requested operands/reason and no fabricated Source/Group/Build/Run. Later valid-source refusals retain their real associations.
+- The requested/moving pair R0+H and R0+2H is conditionally conservative when every owner/site is in H, its qualified capacity contract bounds old and new backings, and prior ordinary R0 is not mutated/reallocated by this component. It does not close the two missing-owner issues above. Actual aliases need evidence, and concurrent preparation, new ordinary suffix, numeric work, bridge/caller and full invocation overlap remain separate.
+
+**Internal block-id guard clarification, not a confirmed defect:** `bound.rs:90–106` uses u32::MAX as unvisited and casts `positions.len()` to u32. Read P1's “all products fit usize” literally, including the unreduced F*(F+1) numerator: on a <=64-bit target that already implies F<=u32::MAX, hence f<=u32::MAX and no sentinel collision. If a later guard instead checks only the reduced triangular value, it must add an explicit f<=u32::MAX bound before the block loop (or a safe raw upper such as F<=u32::MAX). The reviewer scalar witness has f=u32::MAX+1 while the triangle fits usize64, but its unreduced product does not; it is therefore not a counterexample to the stronger current wording. Preserve this distinction when binding an implementation.
+
+## Verification and limits
+
+The frozen diff has exactly seven packet files; all six inventory payload hashes match. The inspected author script ran with a synthetic `__file__` inside this review only; its 16-check JSON is byte-for-byte identical to the frozen result. The reviewer script reports 20 successful review checks, including 6,720 scalar encoding/layout tuples, 15,620 abstract child-capacity partitions and the malformed-helper-input witnesses. These are finite integer/source checks, not models, native sources, solver runs or measured allocations. See `_run_records/checks.py`, `REVIEW_CHECKS.json` and `author_reproduction/COUNT_CHECKS.json`.
+
+Actual type strides/alignment, Vec/String capacity and growth, tree/deque/Arc/Box/sort/formatter/Value profiles, stack/compiler behavior, changed I34 types, final prepared-handle custody and caller/suffix terms remain unbound. Nothing here qualifies a numeric guard or total memory/work claim. The packet correctly excludes test/mutation-control source copies; that exclusion cannot transfer to a qualified seeded/test build without adding its owners.
+
+Fresh native TASK `/root/rv48_f2a_preparation` under ROOT `/root`, no delegation. Receipt 2026-10-02 21:35:28 UTC; new-check cutoff 22:10:28; hard return 22:20:28. Review evidence only; no maintained edits, Git/index/API writes, compiler, solver, model, runtime or host-profile probe. Sealed by `WRITE_INVENTORY.json`; ROOT owns correction/integration decisions. Stop after this bounded return.

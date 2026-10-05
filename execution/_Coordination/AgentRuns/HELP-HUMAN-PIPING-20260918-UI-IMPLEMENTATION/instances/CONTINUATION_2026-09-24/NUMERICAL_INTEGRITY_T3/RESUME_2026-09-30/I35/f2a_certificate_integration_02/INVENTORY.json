@@ -1,0 +1,64 @@
+{
+  "files": [
+    {
+      "bytes": 17005,
+      "path": "INTEGRATION.md",
+      "sha256": "c89823df47facb5906a612a5f030fdf368faf60ad67ce4168f1b88ccb853c486"
+    },
+    {
+      "bytes": 29239,
+      "path": "LOOPS_AND_STORAGE.md",
+      "sha256": "42ad49fb4d81b3e6f60beaf3a6c6ff16643183b1f2e573a957938d6d051ac22a"
+    },
+    {
+      "bytes": 18904,
+      "path": "NEXT_CODE_AND_WITNESS.md",
+      "sha256": "80fef7e943512dfcf4ae7597baf21e57bf1b902f3757de6556f8648a27f1d6c9"
+    },
+    {
+      "bytes": 5384,
+      "path": "RETURN.md",
+      "sha256": "9fbddc5a0278095331268344b1c97ed36e48f7c3efbae2fe8141aa73d9b473c5"
+    },
+    {
+      "bytes": 1714,
+      "path": "_run_records/CONTROLS.json",
+      "sha256": "d37a31282183081658153e5f75d638c67dd153d0ec8ff49e7bdb4559d5550f49"
+    },
+    {
+      "bytes": 2304,
+      "path": "_run_records/EXECUTION.json",
+      "sha256": "282d31aef714886a5fcadf29187aa2e381975c8e54c4a4cf64a052ae394e401a"
+    },
+    {
+      "bytes": 12321,
+      "path": "_run_records/ORIGINS.json",
+      "sha256": "cb075178b47872d53004c5ccb5abb4eaa1da86c66b760d6ca2d8ff72062c7c05"
+    },
+    {
+      "bytes": 4748,
+      "path": "_run_records/b64u_repair_03/CORRECTION.json",
+      "sha256": "e361513565604773519ca71e1e2a3a7b76f7e719099db50e76b8b05913017c7d"
+    },
+    {
+      "bytes": 2632,
+      "path": "_run_records/b64u_repair_03/checks.json",
+      "sha256": "81dcbb2d3252c3befe9c43dcc1ba07ca03661defcb7586ad19b788cd8766d3fc"
+    },
+    {
+      "bytes": 5432,
+      "path": "_run_records/b64u_repair_03/checks.py",
+      "sha256": "4b547d7439847aaa7251a41e7329e78adcae818ccaaa04ce2ed8916c20655399"
+    },
+    {
+      "bytes": 5206,
+      "path": "_run_records/integration_controls.py",
+      "sha256": "baa814dd15ce75ef39e565968a67e45f67619842b732136d9eb724d1fe543e5c"
+    }
+  ],
+  "kind": "informational owned-packet inventory; repair-03, no acceptance seal",
+  "payload_count": 11,
+  "root": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I35/f2a_certificate_integration_02",
+  "self_excluded": "INVENTORY.json",
+  "state": "RV50-INT02-1 spent-return correction prepared; original raw and section0 preserved"
+}

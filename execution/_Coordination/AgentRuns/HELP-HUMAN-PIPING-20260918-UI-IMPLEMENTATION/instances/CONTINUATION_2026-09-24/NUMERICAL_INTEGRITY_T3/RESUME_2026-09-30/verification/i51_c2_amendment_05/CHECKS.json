@@ -1,0 +1,9 @@
+{
+  "actor": "ROOT /root",
+  "utc": "2026-10-03T11:23:46.398160+00:00",
+  "diagnostic_files_verified": 9,
+  "proposal_sha256": "5aeb414754488595149f40f8d0761746788d4181395d14796a7137a51f6b15eb",
+  "diagnosis_sha256": "5730c66492f81a91c126e13dba4691de5b9b7c2cc47fdd2fc0661050ec2ffe6e",
+  "root_read": "complete proposal and manifest; scoped first-C2, widths and point-control summaries, not all raw rows",
+  "disposition": "freeze for independent numerical/design review; amendments unapplied/unselected; no public success"
+}

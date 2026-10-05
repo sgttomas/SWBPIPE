@@ -1,0 +1,36 @@
+{
+ "found": [
+  {
+   "caller": "core/solver/frame_kernel/src/structural/retained/adaptive.rs:4031:solve_precision",
+   "line": "core/solver/frame_kernel/src/structural/retained/adaptive.rs:4087",
+   "param": "trace",
+   "param_type": "Option<&mut RunTrace<'_>>",
+   "unwrap_chain": ".as_deref_mut()",
+   "call": "requested",
+   "defs": [
+    "core/product_physics/src/source_receipt.rs:137:requested",
+    "core/solver/frame_kernel/src/structural/retained/origins.rs:615:requested"
+   ],
+   "defs_reachable": [
+    true,
+    false
+   ]
+  },
+  {
+   "caller": "core/solver/frame_kernel/src/structural/retained/adaptive.rs:4261:verify_precision",
+   "line": "core/solver/frame_kernel/src/structural/retained/adaptive.rs:4288",
+   "param": "trace",
+   "param_type": "Option<&mut RunTrace<'_>>",
+   "unwrap_chain": ".as_deref_mut()",
+   "call": "requested",
+   "defs": [
+    "core/product_physics/src/source_receipt.rs:137:requested",
+    "core/solver/frame_kernel/src/structural/retained/origins.rs:615:requested"
+   ],
+   "defs_reachable": [
+    true,
+    false
+   ]
+  }
+ ]
+}

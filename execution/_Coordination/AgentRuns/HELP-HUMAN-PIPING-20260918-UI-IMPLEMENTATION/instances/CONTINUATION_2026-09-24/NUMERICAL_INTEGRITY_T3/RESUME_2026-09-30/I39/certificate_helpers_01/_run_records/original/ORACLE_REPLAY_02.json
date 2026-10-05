@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "python3",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_vectors.py"
+  ],
+  "exit": 0,
+  "generator_sha256": "4c24add95da95062da72896f73a06124709afd419de065f11167470ce16e30e8",
+  "fixture_sha256": "24e9eb55045474ecabe754ecfed8850f92f6a481cae24de4f530468708880861",
+  "byte_identical": true,
+  "sqrt_cases": 14,
+  "small_bound_cases": 18,
+  "method": "integer isqrt/midpoint squares; Fraction direct binary64 quantum-ceil"
+}

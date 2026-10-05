@@ -1,0 +1,10 @@
+control 310
+RV03 KILLED ('features/results/retainedPrecisionIntegration.test.tsx', "sparse_interactive: registration through mocked IPC the registered invocation is a private copy: neither the caller's object nor a returned copy can alter it (RV03, RV04)")
+RV04 KILLED ('features/results/retainedPrecisionIntegration.test.tsx', "sparse_interactive: registration through mocked IPC the registered invocation is a private copy: neither the caller's object nor a returned copy can alter it (RV03, RV04)")
+RV08 KILLED ('features/results/retainedPrecisionIntegration.test.tsx', "the downgrade guard (F-5) the successor's own header requires its profile, its contract evidence and a receipt object, and no other receipt")
+RV09 KILLED ('features/results/retainedPrecisionIntegration.test.tsx', "sparse_interactive: registration through mocked IPC registration binds the bytes captured before the reader's await: an edit made while it awaits never registers (RV91 N-3, RV09)")
+RVb1 SURVIVED 
+RVb2 SURVIVED 
+RVb3 KILLED ('services/retainedPrecisionAnalysisRun.test.ts', "the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin) a legacy-shaped source carrying a retained_precision object is refused ANALYSIS_LEGACY_SOURCE_DOWNGRADE_FORBIDDEN")
+RVb4 KILLED ('features/results/retainedPrecisionIntegration.test.tsx', 'notices, labels and the results-panel standing text the standing text comes from the registered receipt, never from numerical_quality')
+RVb5 KILLED ('features/results/retainedPrecisionIntegration.test.tsx', 'notices, labels and the results-panel standing text the standing text comes from the registered receipt, never from numerical_quality')

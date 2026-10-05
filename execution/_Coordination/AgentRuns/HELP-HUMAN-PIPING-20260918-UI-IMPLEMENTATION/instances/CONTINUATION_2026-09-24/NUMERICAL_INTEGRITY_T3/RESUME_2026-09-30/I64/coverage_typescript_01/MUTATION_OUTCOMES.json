@@ -1,0 +1,667 @@
+{
+ "reader_sha256": "a21487a4e19b894063f6efcbec24c0910d944fa7b71076bd0d2d80310a607d5f",
+ "corpus_sha256": "8e333e632cde3b70cb7fcce13d5f9eb724fbc22246c304a30dbdbefcd0cce760",
+ "method": "Each mutation applied with the test harness edits plus rehash (test rehash()), then validateRetainedPrecision(source, invocation); first RetainedPrecisionError gate/code and its throwing line in the final reader recorded by a temporary probe test (removed; test file restored byte-identically before the final runs). Gate/code also asserted by the shared corpus test in vitest_07_final.",
+ "count": 47,
+ "matched": 47,
+ "mutations": [
+  {
+   "id": "coverage_member_missing",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "integrity:175 via integrity:175"
+  },
+  {
+   "id": "coverage_object_not_array",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "integrity:175 via integrity:175"
+  },
+  {
+   "id": "coverage_entry_null",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "integrity:175 via integrity:175"
+  },
+  {
+   "id": "coverage_stop_three",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "integrity:175 via integrity:175"
+  },
+  {
+   "id": "coverage_stop_five",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "integrity:175 via integrity:175"
+  },
+  {
+   "id": "coverage_stop_numeric_flag",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "integrity:175 via integrity:175"
+  },
+  {
+   "id": "coverage_stop_null_flag",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "integrity:175 via integrity:175"
+  },
+  {
+   "id": "coverage_has_data_numeric",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "integrity:175 via integrity:175"
+  },
+  {
+   "id": "coverage_has_data_null",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "integrity:175 via integrity:175"
+  },
+  {
+   "id": "coverage_has_data_missing",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "integrity:175 via integrity:175"
+  },
+  {
+   "id": "coverage_unknown_field",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "integrity:175 via integrity:175"
+  },
+  {
+   "id": "coverage_body_string",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "integrity:175 via integrity:175"
+  },
+  {
+   "id": "coverage_shape_then_duplicate",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "integrity:175 via integrity:175"
+  },
+  {
+   "id": "coverage_defect_with_null_method",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G1",
+    "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "integrity:175 via integrity:175"
+  },
+  {
+   "id": "coverage_body_negative_zero",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "encoding:139 via encoding:139"
+  },
+  {
+   "id": "coverage_body_fraction",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "encoding:139 via encoding:139"
+  },
+  {
+   "id": "coverage_body_negative",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "encoding:139 via encoding:139"
+  },
+  {
+   "id": "coverage_encoding_then_duplicate",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "observed": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "encoding:139 via encoding:139"
+  },
+  {
+   "id": "coverage_empty_array",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:191 via retainedPrecision.ts:212"
+  },
+  {
+   "id": "coverage_duplicate_body",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:191 via retainedPrecision.ts:212"
+  },
+  {
+   "id": "coverage_foreign_body",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:191 via retainedPrecision.ts:212"
+  },
+  {
+   "id": "coverage_extra_body",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:191 via retainedPrecision.ts:212"
+  },
+  {
+   "id": "coverage_duplicate_then_flag_and_method",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:191 via retainedPrecision.ts:212"
+  },
+  {
+   "id": "attempt_owner_only",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G3",
+    "code": "RETAINED_PRECISION_COVERAGE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:191 via retainedPrecision.ts:203"
+  },
+  {
+   "id": "coverage_null_on_ready",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:430 via productAttempts:483"
+  },
+  {
+   "id": "coverage_null_then_method",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:430 via productAttempts:483"
+  },
+  {
+   "id": "coverage_has_data_false",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:621 via selectedCoverage:641"
+  },
+  {
+   "id": "certified_bound_unbound_drop_existing_g5",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:297 via nativeRuns:393"
+  },
+  {
+   "id": "coverage_drop_certified_bound",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:621 via selectedCoverage:641"
+  },
+  {
+   "id": "coverage_no_data_claim_with_free_loads",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "dataCoverage:617 via dataCoverage:617"
+  },
+  {
+   "id": "coverage_stop_forbidden_entry",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:621 via selectedCoverage:628"
+  },
+  {
+   "id": "coverage_stop_uncoupled_consistent_roster",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:621 via selectedCoverage:628"
+  },
+  {
+   "id": "stop_rule_drop_required_zero",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:621 via selectedCoverage:638"
+  },
+  {
+   "id": "stop_rule_duplicate_zero",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:662 via numericSummaries:667"
+  },
+  {
+   "id": "estimate_drop_required_zero",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:621 via selectedCoverage:638"
+  },
+  {
+   "id": "estimate_forbidden_translation_zero",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:662 via numericSummaries:667"
+  },
+  {
+   "id": "charge_drop_required_zero",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:621 via selectedCoverage:638"
+  },
+  {
+   "id": "charge_follows_stop_below_p512",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:621 via selectedCoverage:638"
+  },
+  {
+   "id": "certified_bound_duplicate",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:662 via numericSummaries:672"
+  },
+  {
+   "id": "coverage_flag_defect_then_method",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:621 via selectedCoverage:641"
+  },
+  {
+   "id": "nodata_forbidden_stop_zero",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:621 via selectedCoverage:638"
+  },
+  {
+   "id": "nodata_forbidden_estimate_zero",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:621 via selectedCoverage:638"
+  },
+  {
+   "id": "nodata_forbidden_charge_zero",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:621 via selectedCoverage:638"
+  },
+  {
+   "id": "nodata_forbidden_certified_bound",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:621 via selectedCoverage:641"
+  },
+  {
+   "id": "nodata_has_data_without_bound",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:621 via selectedCoverage:641"
+  },
+  {
+   "id": "nodata_estimate_coupling_L_nonzero",
+   "base": "ordinary_prepared_no_data_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:621 via selectedCoverage:638"
+  },
+  {
+   "id": "coverage_flag_defect_then_body_scale",
+   "base": "ordinary_prepared_synthetic",
+   "expected": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "observed": {
+    "gate": "G5a",
+    "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+   },
+   "match": true,
+   "site_in_final_reader": "fail:621 via selectedCoverage:641"
+  }
+ ]
+}

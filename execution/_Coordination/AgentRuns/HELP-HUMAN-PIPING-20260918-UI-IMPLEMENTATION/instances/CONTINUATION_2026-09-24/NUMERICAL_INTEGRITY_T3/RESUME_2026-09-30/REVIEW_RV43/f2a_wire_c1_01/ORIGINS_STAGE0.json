@@ -1,0 +1,106 @@
+{
+  "mechanism": "delegated-harness-native child /root/rv43_f2a_wire_c1 under /root",
+  "review_scope": "stage0 immutable source derivation before I32 exposure",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "origin": "actual filesystem read; full or targeted excerpts per derivation",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "origin": "actual filesystem read; full or targeted excerpts per derivation",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "origin": "actual filesystem read; full or targeted excerpts per derivation",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_NUMERICS/DESIGN.md",
+      "origin": "actual filesystem read; full or targeted excerpts per derivation",
+      "sha256": "fb62ef4a8282e53fd5875430e8903da80f1e0821c2dfba075dce5a97e5f27a74"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_STANDING/DESIGN.md",
+      "origin": "actual filesystem read; full or targeted excerpts per derivation",
+      "sha256": "edc78f9c20db9848b2f4bad1250359e6ba06c2c3af053039099a147201f7b992"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/W1_RESOURCE_POLICY_V1.md",
+      "origin": "actual filesystem read; full or targeted excerpts per derivation",
+      "sha256": "f63c4c2d6e3071d412e04b6848495d7cd52009b5bb679d6d3d958a471fefbd30"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_SELECTION_DESIGNS.md",
+      "origin": "actual filesystem read; full or targeted excerpts per derivation",
+      "sha256": "2ef5325ba68bceb98b2978dd5f6953fd9ac0c8820d34f5db47e481b2620004de"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+      "origin": "actual filesystem read; full or targeted excerpts per derivation",
+      "sha256": "6100cf7d74a4de8b9987a46af167e70c83f0694dd8dc8c7c3ff6871790a3baf6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V2.md",
+      "origin": "actual filesystem read; full or targeted excerpts per derivation",
+      "sha256": "4addbdbcd848cd42d7196b5015cf55f8a18752a83c064a5233091d26e58ca183"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/A1_CHANGE_RECORD.md",
+      "origin": "actual filesystem read; full or targeted excerpts per derivation",
+      "sha256": "b19456274968697a7fdf9ea0504e4a30328cbf676d34a9856ceed5fa0c881b95"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_a1/DESIGN_PROPOSAL.md",
+      "origin": "actual filesystem read; full or targeted excerpts per derivation",
+      "sha256": "926dea73178b0ecde07203fdf7fc85e5ce752b1a5f6ead7cf31a30673249b178"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_13_api_contract/CONTRACT.md",
+      "origin": "actual filesystem read; full or targeted excerpts per derivation",
+      "sha256": "e314e8b259da7e08c448b643b8c9d6777a13072bd693a30e7eba10b87c5db3b9"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/92ea/chirality/.agents/skills/software-code-review/SKILL.md",
+      "origin": "actual filesystem read; full or targeted excerpts per derivation",
+      "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "revision": "49034a940f",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
+      "revision": "49034a940f",
+      "sha256": "b40ab81311a80720cc19bbbe03fccad4f4f371cc78e2b51e4eec8ab2079a32f1"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "revision": "49034a940f",
+      "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+      "revision": "49034a940f",
+      "sha256": "76d96ee2a0d183ab8b288c41b0075b2cb2feb74016b7a3efcfa3f6eb6bb09d17"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/preview_physics.rs",
+      "revision": "49034a940f",
+      "sha256": "2b8265403dd506130eded40cadb05401423a78e0d24d1f8f028cbc6106c6aafa"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/load_case_algebra/src/lib.rs",
+      "revision": "49034a940f",
+      "sha256": "9f1ce26fff1525d4deb5e763456d0ced706e470ce73571770779dd2ad6378631"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV43_F2A_WIRE_C1_REVIEW.md",
+      "revision": "090088926e",
+      "sha256": "1dc22eecfe36e4f9e437c4c3f059dbbfef55773458f702ae14b01b8ddd2e2426"
+    }
+  ]
+}

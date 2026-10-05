@@ -1,0 +1,18 @@
+{
+  "sealed_utc": "2026-10-03T16:19:56.839985+00:00",
+  "actor": "/root/i52_public_formation_contract",
+  "status": "proposal sealed once for independent review; not selected",
+  "payloads": [
+    {
+      "path": "ADDENDUM.md",
+      "bytes": 10294,
+      "sha256": "031b2a150545df4d80da8d8078b956e98760e0df757a75f98bd39b914dec42ab"
+    },
+    {
+      "path": "MANIFEST.json",
+      "bytes": 6972,
+      "sha256": "3630021d997d6206c47e323071a32cd7b75f05a0110c131fc00b01c495f75a5b"
+    }
+  ],
+  "corrections": "addenda only"
+}

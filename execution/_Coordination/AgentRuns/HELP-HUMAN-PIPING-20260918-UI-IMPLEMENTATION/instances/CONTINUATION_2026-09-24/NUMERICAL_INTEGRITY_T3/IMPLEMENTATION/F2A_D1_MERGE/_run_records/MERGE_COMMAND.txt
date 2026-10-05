@@ -1,0 +1,3 @@
+gh pr ready 1082 --repo sgttomas/chirality
+gh pr merge 1082 --repo sgttomas/chirality --merge --match-head-commit 5488136a193ef8921bd88c33a8124647c4cb352d
+(preconditions checked immediately before: origin/main = 5fdc5ab6012ddb50ecf286621a291b4da577405e; PR head = 5488136a193ef8921bd88c33a8124647c4cb352d; MERGEABLE/CLEAN)

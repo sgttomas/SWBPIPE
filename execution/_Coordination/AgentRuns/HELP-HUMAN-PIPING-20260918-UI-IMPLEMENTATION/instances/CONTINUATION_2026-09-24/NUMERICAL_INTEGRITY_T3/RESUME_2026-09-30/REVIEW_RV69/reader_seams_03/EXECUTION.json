@@ -1,0 +1,39 @@
+{
+  "actor": "/root/rv69_public_formation_contract",
+  "parent": "/root",
+  "mechanism": "same delegated-harness-native TASK Type 2 follow-up",
+  "receipt_utc": "2026-10-03T16:21:20Z",
+  "deadlines_utc": {
+    "findings": "16:36:20",
+    "new_analysis_cutoff": "16:46:20",
+    "seal": "16:51:20"
+  },
+  "host": "Mac.lan",
+  "initial_cwd": "/Users/ryan/.codex/worktrees/92ea/chirality",
+  "write_scopes": [
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV69/reader_seams_03",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv69_reader_seams_03"
+  ],
+  "source_basis": "24af17c47011608d187811024b51807395e4e526",
+  "proposal_basis": "c5890453d7b180b77658eda8776b4313c5a0c310",
+  "brief_basis": "5e616949008e167ab5bf56061f8991a4840b9320",
+  "restrictions": [
+    "No maintained/Git/index/API writes",
+    "No runtime/Cargo/tool installation/framework",
+    "No moving CODE/READER reads",
+    "No descendants"
+  ],
+  "actual_host_permissions": "danger-full-access and approval never; narrower brief enforced by instruction",
+  "setup_completed_utc": "2026-10-03T16:22:04.872626+00:00",
+  "tool_qualification": "Two JS orchestration syntax errors occurred before any nested tool ran; corrected calls succeeded. Correction_07 was first read as a sealed local packet, then verified byte-identical at its preserving commit. No moving CODE/READER read.",
+  "correction_07_basis": "a82b89774f14aa7aad051e8343e615276a6b30bf",
+  "initial_findings_utc": "2026-10-03T16:22:28Z",
+  "other_seams_clear_utc": "2026-10-03T16:27:43.903488+00:00",
+  "correction_07_backcheck_utc": "2026-10-03T16:29:25.602376+00:00",
+  "correction_08_basis": "55e6722a40c6a54ad5d6783323af81118cf4a5aa",
+  "combined_backcheck_utc": "2026-10-03T16:32:06.575607+00:00",
+  "new_analysis_completed_utc": "2026-10-03T16:32:06.575607+00:00",
+  "final_audit_utc": "2026-10-03T16:33:41.733090+00:00",
+  "status": "complete and clear for ROOT selection of06+07+08; final audit before seal",
+  "no_descendants": true
+}

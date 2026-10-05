@@ -1,0 +1,23 @@
+# RV88 U6a review commands (placeholders: WT, REPO_ROOT, P = projects/chirality-piping)
+# Copies (Git reads only, GIT_OPTIONAL_LOCKS=0):
+git -C WT/f2a-carriers archive 844448112f -- projects/chirality-piping ':(exclude)projects/chirality-piping/execution' | tar -x -C WT/rv88/cand
+git -C WT/f2a-carriers archive 7e4f5a51dd -- projects/chirality-piping ':(exclude)projects/chirality-piping/execution' | tar -x -C WT/rv88/base
+# Suites (CARGO_BUILD_JOBS=4 RUST_TEST_THREADS=2, one cargo job at a time, memguard checked):
+(cd WT/rv88/{base,cand}/P/core/reporting/result_export && CARGO_TARGET_DIR=WT/targets/rv88/{base,cand} cargo test --locked --offline)
+(cd WT/rv88/cand/P/core/product_physics && CARGO_TARGET_DIR=WT/targets/rv88/pp cargo test --locked --offline --no-fail-fast --lib -- retained_wire_tests retained_facade_tests)
+(cd WT/rv88/{cand,base}/P/core/runner/headless && CARGO_TARGET_DIR=WT/targets/rv88/runner_{cand,base} cargo test --locked --offline --no-fail-fast)
+(cd WT/rv88/cand/P/core/serialization/canonical_json && cargo build --locked --offline --release --features checked-cli --bin openpipestress_jcs_ijson)
+(cd WT/rv88/cand/P/core/units && cargo build --locked --offline --release --features cli --bin openpipestress_units)
+(cd WT/rv88/{base,cand}/P && PYTHONDONTWRITEBYTECODE=1 OPENPIPESTRESS_CHECKED_JSON_BIN=... OPENPIPESTRESS_UNITS_BIN=... REPO_ROOT/P/.venv/bin/python -m pytest -q -p no:cacheprovider tests/test_retained_precision_contract.py)
+# RV88 tests (copied into each lane's result_export/tests/):
+RV88_SPARSE=<cand sparse fixture> RV88_OUT=sweep_{lane}_1.tsv cargo test --locked --offline --test zz_rv88_sweep      # both lanes
+RV88_LEGACY=1 RV88_SPARSE=... RV88_OUT=sweep_{lane}_2.tsv cargo test --locked --offline --test zz_rv88_sweep       # both lanes
+RV88_LANE={lane} RV88_FIXTURES=<cand fixtures/results> RV88_SLICE_OUT=slice cargo test --locked --offline --test zz_rv88_slice   # both lanes
+RV88_REFUSALS_OUT=refusals.tsv cargo test --locked --offline --test zz_rv88_refusals   # candidate
+RV88_EXTRA_OUT=extra.tsv cargo test --locked --offline --test zz_rv88_extra            # candidate
+python3 rv88_slice_compare.py slice <cand fixtures/results>
+python3 rv88_sweep_compare.py <scratch> > sweep_summary.txt
+REPO_ROOT/P/.venv/bin/python rv88_py_lane.py WT/rv88/cand/P py_cand.json slice
+REPO_ROOT/P/.venv/bin/python rv88_py_lane.py WT/rv88/base/P py_base.json slice <cand fixtures/results>
+python3 rv88_py_summary.py <scratch> > py_lane_summary.txt
+python3 rv88_mutants.py <I66 _run_records/mutants.py> own ; python3 rv88_mutants.py <I66 _run_records/mutants.py> i66

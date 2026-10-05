@@ -1,0 +1,41 @@
+{
+  "agent": "/root/i29_w1_limits",
+  "parent": "/root",
+  "task": "I29_F2A_KERNEL_OWNERSHIP_P3",
+  "actual_receipt_utc": "2026-10-02 23:00:04 UTC",
+  "checkpoint_deadline_utc": "2026-10-02 23:15:04 UTC",
+  "new_analysis_cutoff_utc": "2026-10-02 23:30:04 UTC",
+  "outer_return_deadline_utc": "2026-10-02 23:40:04 UTC",
+  "checkpoint_delivered": "before actual 2026-10-02 23:09:22 UTC; exact send time not separately observed",
+  "timing_correction": "Checkpoint prose estimated 23:12 UTC. This was future relative to subsequent actual clocks 23:09:22 and 23:09:44. Parent notified; estimate is not an observed event time.",
+  "new_analysis_stopped_utc": "2026-10-02 23:15:09 UTC",
+  "completion_clock": {
+    "current_time": "2026-10-02 23:15:45 UTC"
+  },
+  "status": "bounded unreviewed derivation returned early; stopped for owner pause",
+  "source": "conditionally bound to frozen I37 fdae294643b798c1849da8b2e643085562593686, pending RV51",
+  "owned_scope": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I29/f2a_kernel_ownership_p3",
+  "remaining": [
+    "fresh independent P3 roster review after owner resume",
+    "RV51 final-source rebind if repaired",
+    "C2 recorded origins/prepared operands/group/upstream guard implementation binding",
+    "actual target/build strides/container/Arc/Box/tree/sort/moving/stack profile",
+    "private product certificate/facade scratch integration",
+    "P4 captured caller/finalization and ordinary-base overlap"
+  ],
+  "peer_input": "I35 draft received; not accepted, no coefficient reliance",
+  "executed": [
+    "source and instruction/document reads",
+    "optional-locks-zero Git object/diff reads",
+    "standard-library abstract ownership checker (12 controls)",
+    "owned Markdown/JSON/checker files"
+  ],
+  "not_executed": [
+    "source edit",
+    "Git/index/API write",
+    "compiler/build/runtime/solver/model/memory probe",
+    "host-tool change or host process audit",
+    "delegation"
+  ],
+  "process_state": "All owned exec commands returned; no background/build/solver/measurement process started. No external host-process audit."
+}

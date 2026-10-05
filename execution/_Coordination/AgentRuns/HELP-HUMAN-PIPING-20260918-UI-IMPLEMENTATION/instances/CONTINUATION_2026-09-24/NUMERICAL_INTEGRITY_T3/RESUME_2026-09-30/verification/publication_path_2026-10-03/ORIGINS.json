@@ -1,0 +1,101 @@
+{
+  "actor": "ROOT /root",
+  "utc": "2026-10-03T10:04:23.554029+00:00",
+  "basis": "7f6f14167129446a90d16dfcd6c107cd5766370c",
+  "main": "381be775ae9b8d94e7d650713a0c97cba304950b",
+  "purpose": "bounded coordination trace, no new design or acceptance",
+  "origins": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/RETURN.md",
+      "commit": "7f6f14167129446a90d16dfcd6c107cd5766370c",
+      "bytes": 4026,
+      "sha256": "2df6cef8a16bac019e8e4185381b0c845109211e0b6fae3b8474e4c897d8e9ad",
+      "read_scope": "complete"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/DESIGN.md",
+      "commit": "7f6f14167129446a90d16dfcd6c107cd5766370c",
+      "bytes": 14647,
+      "sha256": "6eee08e2ad9abd1a422692596537f0619a012a2de3887f9a43209fb753417325",
+      "read_scope": "complete"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/API.md",
+      "commit": "7f6f14167129446a90d16dfcd6c107cd5766370c",
+      "bytes": 20950,
+      "sha256": "5107c8a36cbf2de0a6b1dd18f22558dc5287b13e1832d532a0793b26c225e55e",
+      "read_scope": "complete"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/FENCE.md",
+      "commit": "7f6f14167129446a90d16dfcd6c107cd5766370c",
+      "bytes": 9518,
+      "sha256": "25b3f427265addcaf912eeccebd75ca53b1d4f64a715c627431a79052451fd02",
+      "read_scope": "complete"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV67/prepared_producer_completion_02/BACKCHECK.md",
+      "commit": "7f6f14167129446a90d16dfcd6c107cd5766370c",
+      "bytes": 12896,
+      "sha256": "34fb75b06b651ac30527cdc1f7af5d80a6907a931e52396b0b889acd168bb506",
+      "read_scope": "complete"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_checkpoint0_01/PLAN.md",
+      "commit": "7f6f14167129446a90d16dfcd6c107cd5766370c",
+      "bytes": 24416,
+      "sha256": "0f94d190c317319e1040b3d34f8cc1ea2b07b882266a82e0048eea28c8b07263",
+      "read_scope": "sections 1\u20134 and 5\u20136; bounded tool output, not a claim of complete read"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_checkpoint0_01/SOURCE_MAP.md",
+      "commit": "7f6f14167129446a90d16dfcd6c107cd5766370c",
+      "bytes": 15433,
+      "sha256": "869bece8c64a7ac8cef2c2c44c3eba0dda0f38dd58005333b3499476e6dd8627",
+      "read_scope": "source-to-interface and maintained-path/validation tables"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_routing_02/RETURN.md",
+      "commit": "7f6f14167129446a90d16dfcd6c107cd5766370c",
+      "bytes": 2141,
+      "sha256": "b72927c851dac20087d74e5324f01d44f31fe88a393d9605e46455ccc7283880",
+      "read_scope": "complete"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/WIRE_CONTRACT.md",
+      "commit": "7f6f14167129446a90d16dfcd6c107cd5766370c",
+      "bytes": 29991,
+      "sha256": "c8ab2318457bd3897e207888af80f54f1a889071bf630ff1815939d922a567e3",
+      "read_scope": "sections 3\u20136, source/wire and readers"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/CONTRACT_DELTA.md",
+      "commit": "7f6f14167129446a90d16dfcd6c107cd5766370c",
+      "bytes": 53986,
+      "sha256": "923da0b97eb5becad7e7c1373c5a6f362568dc28ac8eab029c9170677c890869",
+      "read_scope": "source/map/combinations/carrier and controls; bounded output, not a claim of complete read"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I38/f2a_native_reply_overlap_02/RETURN.md",
+      "commit": "7f6f14167129446a90d16dfcd6c107cd5766370c",
+      "bytes": 715,
+      "sha256": "e0227d46d71eaab4004c2d0aef3112386ca6894ab4fe3a386e2ea9bb19b707a6",
+      "read_scope": "complete"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I38/f2a_native_reply_overlap_02/_run_records/original/RETURN.md",
+      "commit": "7f6f14167129446a90d16dfcd6c107cd5766370c",
+      "bytes": 10051,
+      "sha256": "aacd3262be836888a6a4cf9c7721c325fde5cf550f8b22e98b90c234cf931b6e",
+      "read_scope": "first 105 lines, conditional source/caller premises"
+    }
+  ],
+  "public_paths_compared": [
+    "projects/chirality-piping/core/reporting/result_export",
+    "projects/chirality-piping/core/analysis_runs",
+    "projects/chirality-piping/apps/desktop/src",
+    "projects/chirality-piping/schemas"
+  ],
+  "public_diff": "",
+  "limits": "Historical source maps locate interfaces; current rulings and selected I51 process supersede old proposed formation. No new public code or runtime checked."
+}

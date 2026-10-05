@@ -1,0 +1,206 @@
+{
+ "whole": {
+  "rows": [
+   {
+    "site": "product_physics/src/lib.rs:1632",
+    "kind": "format",
+    "mult": 1,
+    "size_now": 29,
+    "size_at_bound": 140,
+    "delta": 222,
+    "why": "integrity_dof_label(model, dof): '{node.id}:{UX..RZ}' (lib.rs:1067-1072), node id <= 128; priced by the int rule (`_dof`) ahead of the composite_id rule that names it"
+   },
+   {
+    "site": "product_physics/src/lib.rs:1644",
+    "kind": "format",
+    "mult": 32,
+    "size_now": 34,
+    "size_at_bound": 145,
+    "delta": 7104,
+    "why": "integrity_dof_label(model, dof)"
+   },
+   {
+    "site": "product_physics/src/lib.rs:1708",
+    "kind": "format",
+    "mult": 2304,
+    "size_now": 8241,
+    "size_at_bound": 8352,
+    "delta": 511488,
+    "why": "integrity_dof_label(model, record.global_dof)"
+   },
+   {
+    "site": "product_physics/src/lib.rs:1721",
+    "kind": "format",
+    "mult": 384,
+    "size_now": 83,
+    "size_at_bound": 194,
+    "delta": 85248,
+    "why": "integrity_dof_label(model, *dof)"
+   },
+   {
+    "site": "product_physics/src/lib.rs:1739",
+    "kind": "format",
+    "mult": 64,
+    "size_now": 88,
+    "size_at_bound": 199,
+    "delta": 14208,
+    "why": "integrity_dof_label(model, *dof)"
+   },
+   {
+    "site": "product_physics/src/lib.rs:1763",
+    "kind": "format",
+    "mult": 12,
+    "size_now": 8243,
+    "size_at_bound": 8354,
+    "delta": 2664,
+    "why": "TPL entry bound built from :1699-1753, each low by 111 B (the label above)"
+   },
+   {
+    "site": "product_physics/src/retained_product.rs:3125",
+    "kind": "push_str",
+    "mult": 199,
+    "size_now": 327,
+    "size_at_bound": 1024,
+    "delta": 3334,
+    "why": "adapter copy(s): out.push_str(s); callers copy r.id (:3640, a result id) and the basis text (:563); priced by the `^(v|s|t|..)` f64 rule; G4's lex_site_size for it is keyed at the b1f80234dc line 2963, stale at 1e323058f3"
+   }
+  ],
+  "total": 624268
+ },
+ "_W": {
+  "rows": [
+   {
+    "site": "product_physics/src/lib.rs:1632",
+    "kind": "format",
+    "mult": 1,
+    "size_now": 29,
+    "size_at_bound": 140,
+    "delta": 222,
+    "why": "integrity_dof_label(model, dof): '{node.id}:{UX..RZ}' (lib.rs:1067-1072), node id <= 128; priced by the int rule (`_dof`) ahead of the composite_id rule that names it"
+   },
+   {
+    "site": "product_physics/src/lib.rs:1644",
+    "kind": "format",
+    "mult": 32,
+    "size_now": 34,
+    "size_at_bound": 145,
+    "delta": 7104,
+    "why": "integrity_dof_label(model, dof)"
+   },
+   {
+    "site": "product_physics/src/lib.rs:1708",
+    "kind": "format",
+    "mult": 2304,
+    "size_now": 8241,
+    "size_at_bound": 8352,
+    "delta": 511488,
+    "why": "integrity_dof_label(model, record.global_dof)"
+   },
+   {
+    "site": "product_physics/src/lib.rs:1721",
+    "kind": "format",
+    "mult": 384,
+    "size_now": 83,
+    "size_at_bound": 194,
+    "delta": 85248,
+    "why": "integrity_dof_label(model, *dof)"
+   },
+   {
+    "site": "product_physics/src/lib.rs:1739",
+    "kind": "format",
+    "mult": 64,
+    "size_now": 88,
+    "size_at_bound": 199,
+    "delta": 14208,
+    "why": "integrity_dof_label(model, *dof)"
+   },
+   {
+    "site": "product_physics/src/lib.rs:1763",
+    "kind": "format",
+    "mult": 12,
+    "size_now": 8243,
+    "size_at_bound": 8354,
+    "delta": 2664,
+    "why": "TPL entry bound built from :1699-1753, each low by 111 B (the label above)"
+   },
+   {
+    "site": "product_physics/src/retained_product.rs:3125",
+    "kind": "push_str",
+    "mult": 172,
+    "size_now": 327,
+    "size_at_bound": 1024,
+    "delta": 3334,
+    "why": "adapter copy(s): out.push_str(s); callers copy r.id (:3640, a result id) and the basis text (:563); priced by the `^(v|s|t|..)` f64 rule; G4's lex_site_size for it is keyed at the b1f80234dc line 2963, stale at 1e323058f3"
+   }
+  ],
+  "total": 624268
+ },
+ "_X": {
+  "rows": [
+   {
+    "site": "product_physics/src/lib.rs:1632",
+    "kind": "format",
+    "mult": 1,
+    "size_now": 29,
+    "size_at_bound": 140,
+    "delta": 222,
+    "why": "integrity_dof_label(model, dof): '{node.id}:{UX..RZ}' (lib.rs:1067-1072), node id <= 128; priced by the int rule (`_dof`) ahead of the composite_id rule that names it"
+   },
+   {
+    "site": "product_physics/src/lib.rs:1644",
+    "kind": "format",
+    "mult": 32,
+    "size_now": 34,
+    "size_at_bound": 145,
+    "delta": 7104,
+    "why": "integrity_dof_label(model, dof)"
+   },
+   {
+    "site": "product_physics/src/lib.rs:1708",
+    "kind": "format",
+    "mult": 2304,
+    "size_now": 8241,
+    "size_at_bound": 8352,
+    "delta": 511488,
+    "why": "integrity_dof_label(model, record.global_dof)"
+   },
+   {
+    "site": "product_physics/src/lib.rs:1721",
+    "kind": "format",
+    "mult": 384,
+    "size_now": 83,
+    "size_at_bound": 194,
+    "delta": 85248,
+    "why": "integrity_dof_label(model, *dof)"
+   },
+   {
+    "site": "product_physics/src/lib.rs:1739",
+    "kind": "format",
+    "mult": 64,
+    "size_now": 88,
+    "size_at_bound": 199,
+    "delta": 14208,
+    "why": "integrity_dof_label(model, *dof)"
+   },
+   {
+    "site": "product_physics/src/lib.rs:1763",
+    "kind": "format",
+    "mult": 12,
+    "size_now": 8243,
+    "size_at_bound": 8354,
+    "delta": 2664,
+    "why": "TPL entry bound built from :1699-1753, each low by 111 B (the label above)"
+   },
+   {
+    "site": "product_physics/src/retained_product.rs:3125",
+    "kind": "push_str",
+    "mult": 161,
+    "size_now": 327,
+    "size_at_bound": 1024,
+    "delta": 3334,
+    "why": "adapter copy(s): out.push_str(s); callers copy r.id (:3640, a result id) and the basis text (:563); priced by the `^(v|s|t|..)` f64 rule; G4's lex_site_size for it is keyed at the b1f80234dc line 2963, stale at 1e323058f3"
+   }
+  ],
+  "total": 624268
+ }
+}

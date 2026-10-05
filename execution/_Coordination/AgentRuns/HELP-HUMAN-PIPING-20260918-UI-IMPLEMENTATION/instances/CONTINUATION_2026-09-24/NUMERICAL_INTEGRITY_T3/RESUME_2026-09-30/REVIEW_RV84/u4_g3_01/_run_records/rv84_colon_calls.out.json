@@ -1,0 +1,318 @@
+[
+ {
+  "caller": "core/product_physics/src/self_weight.rs:129:generate_operations",
+  "name": "optional",
+  "targets": [
+   "core/product_physics/src/self_weight.rs:63:optional"
+  ],
+  "M_caller": null,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/self_weight.rs:129:generate_operations",
+  "name": "optional",
+  "targets": [
+   "core/product_physics/src/self_weight.rs:63:optional"
+  ],
+  "M_caller": null,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/self_weight.rs:129:generate_operations",
+  "name": "optional",
+  "targets": [
+   "core/product_physics/src/self_weight.rs:63:optional"
+  ],
+  "M_caller": null,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/self_weight.rs:129:generate_operations",
+  "name": "optional",
+  "targets": [
+   "core/product_physics/src/self_weight.rs:63:optional"
+  ],
+  "M_caller": null,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/self_weight.rs:129:generate_operations",
+  "name": "optional",
+  "targets": [
+   "core/product_physics/src/self_weight.rs:63:optional"
+  ],
+  "M_caller": null,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/self_weight.rs:537:dependency_projection",
+  "name": "quantity",
+  "targets": [
+   "core/product_physics/src/self_weight.rs:60:quantity",
+   "core/product_physics/src/source_recovery.rs:478:quantity",
+   "core/solver/frame_kernel/src/structural/exact_boundary.rs:698:quantity",
+   "core/solver/frame_kernel/src/structural/exact_boundary.rs:1125:quantity"
+  ],
+  "M_caller": null,
+  "targets_reached": [
+   "core/product_physics/src/self_weight.rs:60:quantity",
+   "core/product_physics/src/source_recovery.rs:478:quantity",
+   "core/solver/frame_kernel/src/structural/exact_boundary.rs:698:quantity",
+   "core/solver/frame_kernel/src/structural/exact_boundary.rs:1125:quantity"
+  ]
+ },
+ {
+  "caller": "core/product_physics/src/self_weight.rs:537:dependency_projection",
+  "name": "quantity",
+  "targets": [
+   "core/product_physics/src/self_weight.rs:60:quantity",
+   "core/product_physics/src/source_recovery.rs:478:quantity",
+   "core/solver/frame_kernel/src/structural/exact_boundary.rs:698:quantity",
+   "core/solver/frame_kernel/src/structural/exact_boundary.rs:1125:quantity"
+  ],
+  "M_caller": null,
+  "targets_reached": [
+   "core/product_physics/src/self_weight.rs:60:quantity",
+   "core/product_physics/src/source_recovery.rs:478:quantity",
+   "core/solver/frame_kernel/src/structural/exact_boundary.rs:698:quantity",
+   "core/solver/frame_kernel/src/structural/exact_boundary.rs:1125:quantity"
+  ]
+ },
+ {
+  "caller": "core/product_physics/src/self_weight.rs:537:dependency_projection",
+  "name": "optional",
+  "targets": [
+   "core/product_physics/src/self_weight.rs:63:optional"
+  ],
+  "M_caller": null,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/self_weight.rs:537:dependency_projection",
+  "name": "optional",
+  "targets": [
+   "core/product_physics/src/self_weight.rs:63:optional"
+  ],
+  "M_caller": null,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/self_weight.rs:537:dependency_projection",
+  "name": "optional",
+  "targets": [
+   "core/product_physics/src/self_weight.rs:63:optional"
+  ],
+  "M_caller": null,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/self_weight.rs:537:dependency_projection",
+  "name": "optional",
+  "targets": [
+   "core/product_physics/src/self_weight.rs:63:optional"
+  ],
+  "M_caller": null,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/self_weight.rs:537:dependency_projection",
+  "name": "optional",
+  "targets": [
+   "core/product_physics/src/self_weight.rs:63:optional"
+  ],
+  "M_caller": null,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/self_weight.rs:547:primitive_payload",
+  "name": "quantity",
+  "targets": [
+   "core/product_physics/src/self_weight.rs:60:quantity",
+   "core/product_physics/src/source_recovery.rs:478:quantity",
+   "core/solver/frame_kernel/src/structural/exact_boundary.rs:698:quantity",
+   "core/solver/frame_kernel/src/structural/exact_boundary.rs:1125:quantity"
+  ],
+  "M_caller": null,
+  "targets_reached": [
+   "core/product_physics/src/self_weight.rs:60:quantity",
+   "core/product_physics/src/source_recovery.rs:478:quantity",
+   "core/solver/frame_kernel/src/structural/exact_boundary.rs:698:quantity",
+   "core/solver/frame_kernel/src/structural/exact_boundary.rs:1125:quantity"
+  ]
+ },
+ {
+  "caller": "core/product_physics/src/source_receipt/composite.rs:38:maximum_inner",
+  "name": "endpoint_name",
+  "targets": [
+   "core/product_physics/src/source_receipt/composite.rs:18:endpoint_name"
+  ],
+  "M_caller": null,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/source_receipt/source.rs:252:commitment",
+  "name": "matrix12",
+  "targets": [
+   "core/product_physics/src/source_receipt/source.rs:11:matrix12"
+  ],
+  "M_caller": 1,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/source_receipt/source.rs:252:commitment",
+  "name": "matrix12",
+  "targets": [
+   "core/product_physics/src/source_receipt/source.rs:11:matrix12"
+  ],
+  "M_caller": 1,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/source_receipt/source.rs:252:commitment",
+  "name": "matrix12",
+  "targets": [
+   "core/product_physics/src/source_receipt/source.rs:11:matrix12"
+  ],
+  "M_caller": 1,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/source_receipt/source.rs:252:commitment",
+  "name": "products",
+  "targets": [
+   "core/product_physics/src/source_receipt/source.rs:17:products"
+  ],
+  "M_caller": 1,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/source_receipt/source.rs:252:commitment",
+  "name": "products",
+  "targets": [
+   "core/product_physics/src/source_receipt/source.rs:17:products"
+  ],
+  "M_caller": 1,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/source_receipt/source.rs:252:commitment",
+  "name": "matrix",
+  "targets": [
+   "core/product_physics/src/source_receipt/source.rs:5:matrix",
+   "core/solver/frame_kernel/src/lib.rs:1205:matrix",
+   "core/solver/frame_kernel/src/structural.rs:395:matrix"
+  ],
+  "M_caller": 1,
+  "targets_reached": [
+   "core/solver/frame_kernel/src/lib.rs:1205:matrix",
+   "core/solver/frame_kernel/src/structural.rs:395:matrix"
+  ]
+ },
+ {
+  "caller": "core/product_physics/src/source_receipt/source.rs:252:commitment",
+  "name": "recipes",
+  "targets": [
+   "core/product_physics/src/source_receipt/source.rs:153:recipes"
+  ],
+  "M_caller": 1,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/source_receipt/source.rs:57:function",
+  "name": "lowered_products",
+  "targets": [
+   "core/product_physics/src/source_receipt/source.rs:46:lowered_products"
+  ],
+  "M_caller": 1760,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/source_receipt/source.rs:57:function",
+  "name": "functional_id",
+  "targets": [
+   "core/product_physics/src/source_receipt/source.rs:26:functional_id"
+  ],
+  "M_caller": 1760,
+  "targets_reached": [
+   "core/product_physics/src/source_receipt/source.rs:26:functional_id"
+  ]
+ },
+ {
+  "caller": "core/product_physics/src/source_receipt/source.rs:57:function",
+  "name": "unit",
+  "targets": [
+   "core/product_physics/src/source_recovery.rs:416:unit",
+   "core/product_physics/src/source_receipt/rows.rs:35:unit",
+   "core/product_physics/src/source_receipt/source.rs:29:unit"
+  ],
+  "M_caller": 1760,
+  "targets_reached": [
+   "core/product_physics/src/source_recovery.rs:416:unit",
+   "core/product_physics/src/source_receipt/rows.rs:35:unit"
+  ]
+ },
+ {
+  "caller": "core/product_physics/src/source_receipt/source.rs:57:function",
+  "name": "lowered_products",
+  "targets": [
+   "core/product_physics/src/source_receipt/source.rs:46:lowered_products"
+  ],
+  "M_caller": 1760,
+  "targets_reached": []
+ },
+ {
+  "caller": "core/product_physics/src/source_receipt/source.rs:57:function",
+  "name": "bits",
+  "targets": [
+   "core/product_physics/src/source_receipt.rs:38:bits"
+  ],
+  "M_caller": 1760,
+  "targets_reached": [
+   "core/product_physics/src/source_receipt.rs:38:bits"
+  ]
+ },
+ {
+  "caller": "core/product_physics/src/source_receipt/source.rs:57:function",
+  "name": "bits",
+  "targets": [
+   "core/product_physics/src/source_receipt.rs:38:bits"
+  ],
+  "M_caller": 1760,
+  "targets_reached": [
+   "core/product_physics/src/source_receipt.rs:38:bits"
+  ]
+ },
+ {
+  "caller": "core/solver/frame_kernel/src/structural.rs:938:audit_intended_action",
+  "name": "physical_residual_record",
+  "targets": [
+   "core/solver/frame_kernel/src/structural.rs:1418:physical_residual_record"
+  ],
+  "M_caller": null,
+  "targets_reached": [
+   "core/solver/frame_kernel/src/structural.rs:1418:physical_residual_record"
+  ]
+ },
+ {
+  "caller": "core/solver/frame_kernel/src/structural.rs:938:audit_intended_action",
+  "name": "physical_residual_record",
+  "targets": [
+   "core/solver/frame_kernel/src/structural.rs:1418:physical_residual_record"
+  ],
+  "M_caller": null,
+  "targets_reached": [
+   "core/solver/frame_kernel/src/structural.rs:1418:physical_residual_record"
+  ]
+ },
+ {
+  "caller": "core/solver/frame_kernel/src/structural.rs:938:audit_intended_action",
+  "name": "physical_residual_record",
+  "targets": [
+   "core/solver/frame_kernel/src/structural.rs:1418:physical_residual_record"
+  ],
+  "M_caller": null,
+  "targets_reached": [
+   "core/solver/frame_kernel/src/structural.rs:1418:physical_residual_record"
+  ]
+ }
+]

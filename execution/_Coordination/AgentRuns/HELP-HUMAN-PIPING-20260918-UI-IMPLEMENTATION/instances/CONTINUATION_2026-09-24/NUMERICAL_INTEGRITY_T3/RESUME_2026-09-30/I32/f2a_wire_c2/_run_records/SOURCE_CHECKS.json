@@ -1,0 +1,512 @@
+{
+  "scope": "Static source enum/consumer coverage and exact integer cardinalities only; no Rust/solver/model execution and no upstream no-wrap proof.",
+  "enums": [
+    {
+      "enum": "AttemptReason",
+      "source_variants": [
+        "Stop",
+        "StopRule",
+        "VerificationFailed",
+        "PublicationEnclosure",
+        "VerificationEstimate",
+        "Uc",
+        "Theta",
+        "GValidity",
+        "Charge"
+      ],
+      "mapped": [
+        "Stop",
+        "StopRule",
+        "VerificationFailed",
+        "PublicationEnclosure",
+        "VerificationEstimate",
+        "Uc",
+        "Theta",
+        "GValidity",
+        "Charge"
+      ],
+      "explicit_product_exclusions": [],
+      "complete_type_inventory": true
+    },
+    {
+      "enum": "AttemptStop",
+      "source_variants": [
+        "Budget",
+        "Span",
+        "Exponent",
+        "Arithmetic",
+        "Structure",
+        "Pivot",
+        "ZeroDiagonal",
+        "NegativeEnergy",
+        "Condition",
+        "ResidualGate",
+        "ResolutionScale",
+        "PublicationCertificate"
+      ],
+      "mapped": [
+        "Budget",
+        "Span",
+        "Exponent",
+        "Arithmetic",
+        "Structure",
+        "Pivot",
+        "ZeroDiagonal",
+        "NegativeEnergy",
+        "Condition",
+        "ResidualGate",
+        "ResolutionScale",
+        "PublicationCertificate"
+      ],
+      "explicit_product_exclusions": [],
+      "complete_type_inventory": true
+    },
+    {
+      "enum": "UnresolvedReason",
+      "source_variants": [
+        "Ceiling",
+        "Budget",
+        "ExactSumSpan",
+        "ExponentRange",
+        "ZeroDiagonal",
+        "Arithmetic",
+        "ResolutionScaleUnencodable",
+        "CertifiedBoundUnencodable",
+        "PublicationCertificate"
+      ],
+      "mapped": [
+        "Ceiling",
+        "Budget",
+        "ExactSumSpan",
+        "ExponentRange",
+        "ZeroDiagonal",
+        "Arithmetic",
+        "ResolutionScaleUnencodable",
+        "CertifiedBoundUnencodable",
+        "PublicationCertificate"
+      ],
+      "explicit_product_exclusions": [],
+      "complete_type_inventory": true
+    },
+    {
+      "enum": "Refusal",
+      "source_variants": [
+        "MechanismWitnessed",
+        "GeometryUnavailable",
+        "NegativeEnergy",
+        "LedgerUnavailable",
+        "Structure"
+      ],
+      "mapped": [
+        "MechanismWitnessed",
+        "GeometryUnavailable",
+        "NegativeEnergy",
+        "LedgerUnavailable",
+        "Structure"
+      ],
+      "explicit_product_exclusions": [],
+      "complete_type_inventory": true
+    },
+    {
+      "enum": "CombinationReason",
+      "source_variants": [
+        "CombinationUnresolved",
+        "NoOperands",
+        "NestedCombination",
+        "OperandsDiffer",
+        "LedgerUnavailable",
+        "Unresolved",
+        "Refused"
+      ],
+      "mapped": [
+        "CombinationUnresolved",
+        "NoOperands",
+        "NestedCombination",
+        "OperandsDiffer",
+        "LedgerUnavailable",
+        "Unresolved",
+        "Refused"
+      ],
+      "explicit_product_exclusions": [],
+      "complete_type_inventory": true
+    },
+    {
+      "enum": "WideError",
+      "source_variants": [
+        "InvalidPrecision",
+        "NonFinite",
+        "ExponentRange",
+        "DivisionByZero",
+        "NegativeSqrt",
+        "NotNormalized",
+        "AngleDomain",
+        "ArctangentLimit",
+        "SplitOverflow",
+        "Accumulator",
+        "OperandPrecision"
+      ],
+      "mapped": [
+        "InvalidPrecision",
+        "NonFinite",
+        "ExponentRange",
+        "DivisionByZero",
+        "NegativeSqrt",
+        "NotNormalized",
+        "AngleDomain",
+        "ArctangentLimit",
+        "SplitOverflow",
+        "Accumulator",
+        "OperandPrecision"
+      ],
+      "explicit_product_exclusions": [],
+      "complete_type_inventory": true
+    },
+    {
+      "enum": "SumError",
+      "source_variants": [
+        "NonFinite",
+        "AccumulatorOverflow",
+        "NonRepresentable"
+      ],
+      "mapped": [
+        "NonFinite",
+        "AccumulatorOverflow",
+        "NonRepresentable"
+      ],
+      "explicit_product_exclusions": [],
+      "complete_type_inventory": true
+    },
+    {
+      "enum": "SourceError",
+      "source_variants": [
+        "NoNodes",
+        "NonFiniteCoordinate",
+        "NodeOutOfRange",
+        "DuplicateMemberId",
+        "RepeatedMemberNode",
+        "NonFiniteProperty",
+        "NonPositiveProperty",
+        "SubnormalDerivedPrimitive",
+        "ZeroLength",
+        "DegenerateAxis",
+        "DuplicateSpringId",
+        "NonPositiveSpring",
+        "ZeroDirection",
+        "NonFiniteDirection",
+        "DuplicateConstraint",
+        "NonFiniteValue",
+        "EmptyLoadSource",
+        "DuplicateStationId",
+        "UnknownMember",
+        "StationOutOfRange",
+        "DuplicateSupportId",
+        "SupportMismatch"
+      ],
+      "mapped": [
+        "NoNodes",
+        "NonFiniteCoordinate",
+        "NodeOutOfRange",
+        "DuplicateMemberId",
+        "RepeatedMemberNode",
+        "NonFiniteProperty",
+        "NonPositiveProperty",
+        "SubnormalDerivedPrimitive",
+        "ZeroLength",
+        "DegenerateAxis",
+        "DuplicateSpringId",
+        "NonPositiveSpring",
+        "DuplicateConstraint",
+        "NonFiniteValue",
+        "EmptyLoadSource",
+        "DuplicateStationId",
+        "UnknownMember",
+        "StationOutOfRange",
+        "DuplicateSupportId",
+        "SupportMismatch"
+      ],
+      "explicit_product_exclusions": [
+        "ZeroDirection",
+        "NonFiniteDirection"
+      ],
+      "complete_type_inventory": true
+    },
+    {
+      "enum": "QuantityId",
+      "source_variants": [
+        "Displacement",
+        "DisplacementMagnitude",
+        "EndAction",
+        "StationAction",
+        "SpringAction",
+        "DirectionalSpringAction",
+        "Reaction",
+        "SupportForceMagnitude",
+        "SupportMomentMagnitude"
+      ],
+      "mapped": [
+        "Displacement",
+        "DisplacementMagnitude",
+        "EndAction",
+        "StationAction",
+        "SpringAction",
+        "Reaction",
+        "SupportForceMagnitude",
+        "SupportMomentMagnitude"
+      ],
+      "explicit_product_exclusions": [
+        "DirectionalSpringAction"
+      ],
+      "complete_type_inventory": true
+    },
+    {
+      "enum": "StructuralError",
+      "source_variants": [
+        "InvalidInput",
+        "Range",
+        "Asymmetric",
+        "NumericallyUnresolved",
+        "NegativeEnergy",
+        "Mechanism"
+      ],
+      "mapped": [
+        "InvalidInput",
+        "Range",
+        "Asymmetric",
+        "NumericallyUnresolved",
+        "NegativeEnergy",
+        "Mechanism"
+      ],
+      "explicit_product_exclusions": [],
+      "complete_type_inventory": true
+    },
+    {
+      "enum": "FrameKernelError",
+      "source_variants": [
+        "NonFiniteInput",
+        "NonPositiveInput",
+        "DegenerateAxis",
+        "InvalidOrientation",
+        "InvalidNodeIndex",
+        "RepeatedElementNodeIndex",
+        "InvalidMatrixDimensions",
+        "InvalidVectorLength",
+        "RepeatedRestrainedDof",
+        "RestrainedDofOutOfRange",
+        "RepeatedPrescribedDof",
+        "PrescribedDofOutOfRange",
+        "SingularSystem",
+        "NumericalRange"
+      ],
+      "mapped": [
+        "NonFiniteInput",
+        "NonPositiveInput",
+        "DegenerateAxis",
+        "InvalidOrientation",
+        "InvalidNodeIndex",
+        "RepeatedElementNodeIndex",
+        "InvalidMatrixDimensions",
+        "InvalidVectorLength",
+        "RepeatedRestrainedDof",
+        "RestrainedDofOutOfRange",
+        "RepeatedPrescribedDof",
+        "PrescribedDofOutOfRange",
+        "SingularSystem",
+        "NumericalRange"
+      ],
+      "explicit_product_exclusions": [],
+      "complete_type_inventory": true
+    },
+    {
+      "enum": "ForceScaleReason",
+      "source_variants": [
+        "SubnormalAtFormation",
+        "InfeasibleWindow",
+        "ScaledEvaluation",
+        "PublicationOutsideBinary64"
+      ],
+      "mapped": [
+        "SubnormalAtFormation",
+        "InfeasibleWindow",
+        "ScaledEvaluation",
+        "PublicationOutsideBinary64"
+      ],
+      "explicit_product_exclusions": [],
+      "complete_type_inventory": true
+    },
+    {
+      "enum": "ForceScalingFailure",
+      "source_variants": [
+        "Refused",
+        "Failed",
+        "NotAdmitted",
+        "Publication",
+        "NotEngaged"
+      ],
+      "mapped": [
+        "Refused",
+        "Failed",
+        "NotAdmitted",
+        "Publication",
+        "NotEngaged"
+      ],
+      "explicit_product_exclusions": [],
+      "complete_type_inventory": true
+    },
+    {
+      "enum": "ForceScaledError",
+      "source_variants": [
+        "Formation",
+        "Structural",
+        "Refused"
+      ],
+      "mapped": [
+        "Formation",
+        "Structural",
+        "Refused"
+      ],
+      "explicit_product_exclusions": [],
+      "complete_type_inventory": true
+    }
+  ],
+  "ordinary_unresolved_literals": [
+    {
+      "literal": "positive diagonal contribution absorbed by assembly; stabilization unresolved",
+      "line": 816
+    },
+    {
+      "literal": "contribution-preserved prescribed coupling changes zero reduced load",
+      "line": 896
+    },
+    {
+      "literal": "zero original diagonal; no physical nullity inferred",
+      "line": 1285
+    },
+    {
+      "literal": "nonpositive or cancellation-unresolved structural pivot",
+      "line": 1537
+    },
+    {
+      "literal": "scaled condition estimate at working-precision boundary",
+      "line": 1641
+    },
+    {
+      "literal": "assembly perturbation amplification unresolved",
+      "line": 1689
+    },
+    {
+      "literal": "contribution-preserved intended free action failed",
+      "line": 1718
+    },
+    {
+      "literal": "original-equation residual failed after bounded refinement",
+      "line": 1783
+    }
+  ],
+  "excluded_unresolved_literal": "contribution-preserved prescribed coupling changes zero reduced load",
+  "consumer_sites": [
+    {
+      "path": "validation/benchmarks/numerical_robustness/src/records.rs",
+      "sites": [
+        {
+          "line": 79,
+          "excerpt": "CaseOutcome::Refused { refusal, geometry } => {\n            format!(\"Refused {} {geometry:?}\", refusal_text(refusal))\n        }\n        CaseOutcome::Unresolved {\n            reason, geometry, ..\n        } => format!(\"Unr"
+        },
+        {
+          "line": 116,
+          "excerpt": "CaseOutcome::Refused { .. } => Vec::new(),\n    };\n    r.insert(\"attempts\".into(), Value::Array(attempts));\n    r.insert(\"report\".into(), report(t));\n    Value::Object(r)\n}\n\npub fn source_refused_record(case: &Case, error"
+        }
+      ]
+    },
+    {
+      "path": "core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+      "sites": [
+        {
+          "line": 248,
+          "excerpt": "CaseOutcome::Refused {\n                refusal: Refusal::MechanismWitnessed { .. },\n                geometry,\n            } => assert!(geometry.is_empty(), \"{name}\"),\n            other => panic!(\"{name}: {other:?}\"),\n   "
+        }
+      ]
+    },
+    {
+      "path": "core/solver/frame_kernel/tests/retained_k4/references_tests.rs",
+      "sites": [
+        {
+          "line": 257,
+          "excerpt": "CaseOutcome::Refused {\n                    refusal: Refusal::MechanismWitnessed { .. },\n                    geometry,\n                } => assert!(geometry.is_empty(), \"{name}\"),\n                other => failures.push(fo"
+        }
+      ]
+    },
+    {
+      "path": "core/solver/performance_harness/src/k6/w1/staged.rs",
+      "sites": [
+        {
+          "line": 79,
+          "excerpt": "CaseOutcome::Refused { refusal, .. } => Some(format!(\"Refused({refusal:?})\")),\n        CaseOutcome::Unresolved { reason, .. } => Some(format!(\"Unresolved({reason:?})\")),\n    };\n    obs.end(stage, true, error);\n    W1Solv"
+        },
+        {
+          "line": 94,
+          "excerpt": "CaseOutcome::Refused { .. } => \"Refused\",\n        CaseOutcome::Unresolved { .. } => \"Unresolved\",\n    }\n}\n\n/// The attempts of an outcome (none for a refusal).\npub fn attempts_of(outcome: &CaseOutcome) -> &[AttemptRecord"
+        },
+        {
+          "line": 103,
+          "excerpt": "CaseOutcome::Refused { .. } => &[],\n        CaseOutcome::Unresolved { attempts, .. } => attempts,\n    }\n}\n\n/// The 19 stage fields of a `StageWork`, by name (K4 RETURN \u00a714).\npub fn stage_fields(w: &StageWork) -> [(&'stat"
+        }
+      ]
+    },
+    {
+      "path": "core/solver/performance_harness/src/bin/k6_observe/w1.rs",
+      "sites": [
+        {
+          "line": 104,
+          "excerpt": "CaseOutcome::Refused { refusal, .. } => line\n            .null(\"selected_precision\")\n            .null(\"verification_precision\")\n            .s(\"reason\", &bounded(format!(\"{refusal:?}\"))),\n        CaseOutcome::Unresolved"
+        }
+      ]
+    },
+    {
+      "path": "core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "sites": [
+        {
+          "line": 156,
+          "excerpt": "CaseOutcome::Refused { refusal, .. } => Outcome {\n            selected: None,\n            tokens: Vec::new(),\n            attempts: Vec::new(),\n            solve: None,\n            refused: Some(refusal),\n            unr"
+        }
+      ]
+    },
+    {
+      "path": "core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs",
+      "sites": [
+        {
+          "line": 825,
+          "excerpt": "CaseOutcome::Refused { .. }, CaseOutcome::Refused { .. }) => {\n            assert_eq!(format!(\"{x:?}\"), format!(\"{y:?}\"), \"{name}\");\n            Vec::new()\n        }\n        _ => panic!(\"{name}: {x:?} against {y:?}\"),\n  "
+        },
+        {
+          "line": 825,
+          "excerpt": "CaseOutcome::Refused { .. }) => {\n            assert_eq!(format!(\"{x:?}\"), format!(\"{y:?}\"), \"{name}\");\n            Vec::new()\n        }\n        _ => panic!(\"{name}: {x:?} against {y:?}\"),\n    }\n}\n\nfn solve_under(m: &mod"
+        }
+      ]
+    },
+    {
+      "path": "core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+      "sites": [
+        {
+          "line": 354,
+          "excerpt": "CaseOutcome::Refused { refusal, .. } => panic!(\"unexpected source refusal: {refusal:?}\"),\n    }\n}\n\n#[test]\nfn c17_cannot_publish_the_false_p128_interval() {\n    let mut invocation = InvocationMeter::new(u64::MAX);\n    le"
+        }
+      ]
+    },
+    {
+      "path": "validation/benchmarks/numerical_robustness/src/lane.rs",
+      "sites": [
+        {
+          "line": 240,
+          "excerpt": "CaseOutcome::Refused { .. } => (\"refused\", None),\n        CaseOutcome::Unresolved { .. } => (\"unresolved\", None),\n    };\n    if meter.exhausted() {\n        failures.push(format!(\"{}: the invocation meter was exhausted\", "
+        }
+      ]
+    }
+  ],
+  "record_cardinality": {
+    "max_physical_records_per_schedule": 4,
+    "max_solve_slots": 4,
+    "max_verification_slots": 3,
+    "max_slot_requests_per_schedule": 7,
+    "proof_scope": "Structural schedule cardinality, not operation/byte/no-wrap bound."
+  }
+}

@@ -1,0 +1,32 @@
+S01_meta_branch_off KILLED ['u6a_derivative_carries_the_receipt_and_it_comes_back_out', 'u6a_dispatch_admits_the_successor_through_the_accepted_reader_only']
+S02_raw_branch_off KILLED ['u6a_derivative_carries_the_receipt_and_it_comes_back_out', 'u6a_dispatch_admits_the_successor_through_the_accepted_reader_only', 'u6a_receipt_binding_mismatches_are_refused']
+S03_raw_skips_reader KILLED ['u6a_dispatch_admits_the_successor_through_the_accepted_reader_only', 'u6a_shared_carrier_cases_rust']
+S04_meta_skips_reader KILLED ['u6a_dispatch_admits_the_successor_through_the_accepted_reader_only']
+S05_member_guard_dropped KILLED ['u6a_downgrades_to_a_base_identity_are_refused']
+S06_member_guard_null KILLED ['u6a_downgrades_to_a_base_identity_are_refused']
+S07_row_guard_dropped KILLED ['u6a_downgrades_to_a_base_identity_are_refused']
+S08_row_guard_token KILLED ['u6a_downgrades_to_a_base_identity_are_refused']
+S09_error_text_code_only SURVIVED []
+S10_fresh_set KILLED ['precision_1_is_readable_but_never_fresh', 'u6a_dispatch_admits_the_successor_through_the_accepted_reader_only']
+S11_standing_branch_off KILLED ['u6a_shared_carrier_cases_rust', 'u6a_standing_is_needs_recompute_and_comes_only_from_the_receipt']
+S12_standing_err_recompute KILLED ['u6a_shared_carrier_cases_rust', 'u6a_standing_is_needs_recompute_and_comes_only_from_the_receipt']
+S13_standing_ignores_invocation KILLED ['u6a_shared_carrier_cases_rust', 'u6a_standing_is_needs_recompute_and_comes_only_from_the_receipt']
+S14_unbound_ok KILLED ['u6a_standing_rule_conjuncts_with_eligibility_set']
+S15_eligible_ignored KILLED ['u6a_classification_summary_counts_validated_classes', 'u6a_shared_carrier_cases_rust', 'u6a_standing_is_needs_recompute_and_comes_only_from_the_receipt']
+S16_len_check KILLED ['u6a_classification_summary_counts_validated_classes', 'u6a_standing_rule_conjuncts_with_eligibility_set']
+S17_ref_equality KILLED ['u6a_classification_summary_counts_validated_classes', 'u6a_standing_rule_conjuncts_with_eligibility_set']
+S18_mechanics KILLED ['u6a_standing_rule_conjuncts_with_eligibility_set']
+S19_not_required_conjunct KILLED ['u6a_standing_rule_conjuncts_with_eligibility_set']
+S20_nr_basis_ref KILLED ['u6a_standing_rule_conjuncts_with_eligibility_set']
+S21_nr_solve_quality KILLED ['u6a_standing_rule_conjuncts_with_eligibility_set']
+S22_nr_structural KILLED ['u6a_standing_rule_conjuncts_with_eligibility_set']
+S23_nr_fidelity KILLED ['u6a_standing_rule_conjuncts_with_eligibility_set']
+S24_nr_accuracy KILLED ['u6a_standing_rule_conjuncts_with_eligibility_set']
+Traceback (most recent call last):
+  File "WT/scratch/i66_u6a_slice_01/mutants.py", line 113, in <module>
+    main(sys.argv[1:])
+    ~~~~^^^^^^^^^^^^^^
+  File "WT/scratch/i66_u6a_slice_01/mutants.py", line 97, in main
+    assert src.count(old) == 1, (mid, src.count(old))
+           ^^^^^^^^^^^^^^^^^^^
+AssertionError: ('S25_nr_refs_nonempty', 2)

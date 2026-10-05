@@ -1,0 +1,8 @@
+base (full archive of 844448112f): 1726 passed, 22 failed, 7 skipped
+candidate (worktree):              1745 passed, 3 failed, 7 skipped
+tests passing at base but not in candidate: []
+tests failing in candidate but not at base: []
+tests failing at base, passing in candidate: 19 ['tests/test_handoff_export_workflow.py', 'tests/test_handoff_package_schema.py']
+tests added: 0 []
+tests removed: []
+candidate failures: ['tests/test_load_reference_schema.py::test_carrier_branches_are_appended_after_the_existing_methods', 'tests/test_load_reference_source_schema.py::test_joined_branches_are_appended_with_pinned_identities', 'tests/test_source_block_schema_contract.py::test_actual_composite_maximum_metadata_has_a_method_scoped_canonical_route']

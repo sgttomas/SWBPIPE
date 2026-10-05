@@ -1,0 +1,9 @@
+RV89_RUNNER_DIRECT SparseInteractive profile=Registered successor=Some((113733, "3bfa6c68754cf847"))
+RV89_RUNNER_DIRECT DenseScrutiny profile=Registered successor=Some((114894, "a6101b097f0e4bb"))
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.37s
+# successor sha256 (serde_json::to_vec), runner workspace (serde_json 1.0.151):
+7c5fe5c59f2bcc3b3313055223214d0f4884dc44981e3f6bb615a8d84acca595  runner_direct_DenseScrutiny.json
+1d9ba7098dd20390357851e84a136890581a625ae21bf928864c30bc98a1a8c9  runner_direct_SparseInteractive.json
+# the same fixture in PP's own workspace (serde_json 1.0.149), registered sweep R3 successor:
+015_fx_rf_skew_t_cant_off_122_r1e-04.request.json	sparse_interactive	R3	successor	Some("1d9ba7098dd20390357851e84a136890581a625ae21bf928864c30bc98a1a8c9:113733")
+015_fx_rf_skew_t_cant_off_122_r1e-04.request.json	dense_scrutiny	R3	successor	Some("7c5fe5c59f2bcc3b3313055223214d0f4884dc44981e3f6bb615a8d84acca595:114894")

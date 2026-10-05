@@ -1,0 +1,44 @@
+{
+ "in": "callgraph_rules.g4.json",
+ "out": "callgraph_rules.g4.1e32.json",
+ "old": "b1f80234dc",
+ "new": "1e323058f3",
+ "remapped": [
+  [
+   "core/product_physics/src/retained_memory.rs:81:next",
+   "core/product_physics/src/retained_memory.rs:91:next"
+  ],
+  [
+   "core/product_physics/src/retained_product.rs:3524:capture",
+   "core/product_physics/src/retained_product.rs:3526:capture"
+  ],
+  [
+   "core/product_physics/src/retained_product.rs:3523:certificate",
+   "core/product_physics/src/retained_product.rs:3525:certificate"
+  ],
+  [
+   "core/product_physics/src/retained_product.rs:3860:typed_trace",
+   "core/product_physics/src/retained_product.rs:3879:typed_trace"
+  ],
+  [
+   "core/product_physics/src/retained_product.rs:3784:capture",
+   "core/product_physics/src/retained_product.rs:3795:capture"
+  ],
+  [
+   "core/product_physics/src/retained_product.rs:3785:certificate",
+   "core/product_physics/src/retained_product.rs:3796:certificate"
+  ],
+  [
+   "core/product_physics/src/retained_product.rs:3803:typed_trace",
+   "core/product_physics/src/retained_product.rs:3816:typed_trace"
+  ]
+ ],
+ "hunks": {
+  "core/product_physics/src/lib.rs": 40,
+  "core/product_physics/src/retained_product.rs": 11,
+  "core/product_physics/src/retained_receipt.rs": 0,
+  "core/product_physics/src/retained_memory.rs": 22,
+  "core/product_physics/src/retained_wire.rs": 0,
+  "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": 0
+ }
+}

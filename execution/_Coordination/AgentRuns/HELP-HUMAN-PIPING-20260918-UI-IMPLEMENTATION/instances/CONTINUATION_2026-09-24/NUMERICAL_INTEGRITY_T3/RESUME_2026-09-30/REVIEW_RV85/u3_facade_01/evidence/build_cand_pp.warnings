@@ -1,0 +1,8 @@
+   1 warning: field `springs` is never read @ src/source_recovery.rs
+   1 warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read @ src/source_recovery.rs
+   1 warning: function `derived` is never used @ WT/rv85/cand/projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs
+   1 warning: function `derived` is never used @ src/source_receipt/rows.rs
+   1 warning: function `expected_primary` is never used @ src/source_receipt/rows.rs
+   1 warning: function `is_exact_pressure_result_kind` is never used @ src/lib.rs
+   1 warning: method `spring_actions` is never used @ src/source_recovery.rs
+   1 warning: multiple fields are never read @ src/source_recovery.rs

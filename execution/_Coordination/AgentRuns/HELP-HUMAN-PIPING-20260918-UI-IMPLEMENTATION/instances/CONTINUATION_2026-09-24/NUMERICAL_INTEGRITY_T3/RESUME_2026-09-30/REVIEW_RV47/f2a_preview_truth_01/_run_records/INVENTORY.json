@@ -1,0 +1,25 @@
+{
+  "status": "sealed payload inventory; excludes itself and SHA256SUMS; not acceptance",
+  "files": [
+    {
+      "path": "REVIEW.md",
+      "bytes": 9299,
+      "sha256": "b2477767b164b7f8446f6ca55b71f0893e1be4cdf305b0c33e62394622413beb"
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "bytes": 17774,
+      "sha256": "b40858967cb5a308100522c3eb3b5779844413d7e4f671a33d85b50b11a9c8ca"
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "bytes": 3198,
+      "sha256": "48faa05d550ada3f40ee2e1cda0431002269a80eb950b8ede33c31c8749e163a"
+    },
+    {
+      "path": "_run_records/EXECUTION.json",
+      "bytes": 1874,
+      "sha256": "1ae7917ed7389833e7a37ccd4bc0d1bab521240a55fb82c222c29a85e3f42fed"
+    }
+  ]
+}

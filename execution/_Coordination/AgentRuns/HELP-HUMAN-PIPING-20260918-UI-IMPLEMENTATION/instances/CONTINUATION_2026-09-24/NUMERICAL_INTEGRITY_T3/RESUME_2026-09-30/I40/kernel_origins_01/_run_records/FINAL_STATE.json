@@ -1,0 +1,15 @@
+{
+  "completed_at": "2026-10-03T00:12:37.915429+00:00",
+  "head": "887b790c2a646a67f3ac28e63c3eb57275c1868b",
+  "source_hashes": "FINAL_MAINTAINED_HASHES.json",
+  "tested_source_hashes": "candidate02_hashes.json",
+  "maintained_source_stable_since_candidate02": true,
+  "owned_processes_remaining": [],
+  "last_owned_command_end": "2026-10-03T00:06:38.794005+00:00",
+  "cargo_lane": "explicitly released to ROOT; no restart",
+  "memguard_last_observed_pid": 5387,
+  "git_index_api_mutations": false,
+  "delegation": false,
+  "new_workflow_or_skill_selected": false,
+  "acceptance": "candidate only; independent review, downstream admission/profile/receipt interfaces remain"
+}

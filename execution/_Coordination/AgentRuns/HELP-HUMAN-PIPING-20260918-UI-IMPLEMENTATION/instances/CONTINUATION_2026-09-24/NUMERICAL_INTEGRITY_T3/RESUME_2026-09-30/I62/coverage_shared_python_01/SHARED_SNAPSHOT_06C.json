@@ -1,0 +1,432 @@
+{
+  "version": "I62_SHARED_SNAPSHOT_06C",
+  "freeze_utc": "2026-10-03T22:10:37.913666+00:00",
+  "status": "Frozen C2-3 shared corpus; no acceptance, eligibility or reader approval.",
+  "basis": {
+    "grant": "ROOT C2-3 grant (2026-10-03T21:56:01Z): WorkAccounting rejection at G5 ATTEMPT_MISMATCH; invocation edits in the shared format; Python aligns to both",
+    "previous_snapshot": "SHARED_SNAPSHOT_06B 1ddd8146ed (corpus e7983fc641)",
+    "native": "FK/adaptive.rs and PP/lib.rs (product_physics) at CODE/NUM 652ad0cc1f"
+  },
+  "files": [
+    {
+      "path": "P/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+      "bytes": 8346,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_06c/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "changed_from_snapshot_06b": false
+    },
+    {
+      "path": "P/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+      "bytes": 52328,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_06c/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "changed_from_snapshot_06b": false
+    },
+    {
+      "path": "P/fixtures/results/retained_precision_cases.json",
+      "sha256": "d4235f59b6c9c1fdc6e346ff085f9c119d5da011f34a68751b8dde186d3338d0",
+      "bytes": 4648711,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_06c/fixtures/results/retained_precision_cases.json",
+      "changed_from_snapshot_06b": true
+    },
+    {
+      "path": "P/schemas/retained_precision_mp_v2.schema.json",
+      "sha256": "f943ebd3511e31bcdfe09bac2788362d3a5734040bc3088fbe585361b571cd21",
+      "bytes": 174354,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_06c/schemas/retained_precision_mp_v2.schema.json",
+      "changed_from_snapshot_06b": false
+    },
+    {
+      "path": "P/schemas/results.v0.3.schema.yaml",
+      "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586",
+      "bytes": 131530,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_06c/schemas/results.v0.3.schema.yaml",
+      "changed_from_snapshot_06b": false
+    }
+  ],
+  "format_change": {
+    "field": "invocation_edits",
+    "where": "optional on any mutation or must_pass entry; absent or [] means none (all 06b entries carry none)",
+    "grammar": "the same edit grammar as `edits`: a list of {path, op: set|remove, value?}, applied in order; `path` walks object keys and array indices from the root of the base case's `invocation` object; set replaces/creates the final key, remove deletes it",
+    "semantics": [
+      "1. Copy the base case's `source`; apply `edits` to the copy.",
+      "2. Copy the base case's `invocation`; apply `invocation_edits` to that copy.",
+      "3. If `invocation_edits` is non-empty, set source.retained_precision.body.invocation.value = H('source_blocks_invocation_v1', edited invocation), where H(domain, payload) = canonical_sha256_checked_v1({domain, payload}), the digest G8 compares (Python `_hash`). This overrides any value written by `edits`. If it is empty, the digest is untouched.",
+      "4. Rehash per `rehash` exactly as before ('all': prepared-attempt preparation sha256, source_identity_sha256 of selected cases, publication_sha256, then receipt_sha256), after step 3.",
+      "5. Validate the edited source against the edited invocation (both readers' draft entry points take the invocation separately)."
+    ],
+    "python_reference": "P/tests/test_retained_precision_contract.py apply_entry/apply_mutation/_apply_edits"
+  },
+  "work_accounting_rejection": {
+    "rule": "A kernel_terminal of unresolved/work_accounting anywhere in a receipt (idle, after an escalating stop, at or past the last slot, or as a terminal stop translation) fails G5 RETAINED_PRECISION_ATTEMPT_MISMATCH, at the native schedule/terminal class (P1), before C3 association (P2) and work equations (P4).",
+    "why_this_gate_and_code": [
+      "C1 WIRE_CONTRACT.md:66-68: a checked inconsistency or max counter prevents selected successor emission, and an unencodable/saturation-ambiguous run abandons successor finalization; natively a WorkAccounting terminal exists only when some attempt's or the meter's work status is not exact (adaptive.rs:4545-4546, 4777-4781, 4996-4997), so no emitted successor carries one.",
+      "C1:148 (G5 row): the actual logical/native schedule and selected terminal are G5, coded RETAINED_PRECISION_ATTEMPT_MISMATCH (schedule/terminal) or WORK_MISMATCH (partition/stage equations); the defect is the terminal's membership in the emitted domain, not a work equation, so ATTEMPT.",
+      "C2 CONTRACT_DELTA.md:17-40: the reachable Reason map lists no unresolved/work_accounting.",
+      "C3 C3_DELTA.md:304 (G5 row): native schedule/origin checks come first and 'Native p/P/stop stay native', so C3's PRODUCT_ATTEMPT code does not apply.",
+      "Not G1: the closed schema still admits unresolved/work_accounting {space, tag, fault} (C3:261-263 imports WorkAccounting{fault}); that schema/contract tension is ROOT's record, unchanged here. `prior` stays off the wire (G1, work_accounting_prior_not_on_wire)."
+    ],
+    "kept": [
+      "N5: a terminal stop ends on its exact terminal() translation (adaptive.rs:4349-4378)",
+      "N17: Budget(case) iff case_charge > Lc; Budget(invocation) iff case_charge <= Lc and after > Li (test(), adaptive.rs:276-286)",
+      "N10: an idle group-null run is Budget(invocation) with invocation_before >= Li; an idle run in a ready group is refused ledger_unavailable (adaptive.rs:5055-5075)"
+    ],
+    "precedence_note": "work_accounting_after_escalating_stop and work_accounting_at_last_slot keep case 0 selected with its Ready product attempt, and idle_work_accounting_run keeps case 1's covered proof, so each also carries a downstream C3 association defect (PRODUCT_ATTEMPT). The G5 precedence (P1 native schedule before P2 C3 association; C3:304; READER_AUDIT_PLAN Part 1) makes ATTEMPT the first failure, as for the four 06b truncation mutations. The C2-2 reader, which accepted WorkAccounting, reported PRODUCT_ATTEMPT for two of them, so they discriminate."
+  },
+  "replaced_06b_entries": [
+    {
+      "old_id": "escalating_end_requires_work_accounting",
+      "new_id": "ceiling_before_last_slot",
+      "position": 150,
+      "change": "id only; edits, rehash and expected byte-identical (asserted)",
+      "why": "Item 1: the old id stated the superseded C2-2 rationale (an escalating end with slots left requires WorkAccounting). Under the C2-3 ruling no terminal is emitted there; the entry still pins that the Ceiling is not available before the last slot."
+    }
+  ],
+  "unchanged": "All 15 cases, all 23 must_pass entries, and the other 162 06b mutations byte-identical (asserted). Schema/table/yaml/definition/semantic fixture unchanged.",
+  "new_cases": [],
+  "new_mutations": [
+    {
+      "id": "work_accounting_after_escalating_stop",
+      "base": "candidate_failure_skip_synthetic",
+      "uses_invocation_edits": false,
+      "expected_first_failure": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5_schedule",
+        334
+      ],
+      "c2_2_python_observed": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      },
+      "c2_2_python_raised_at": [
+        "_g5_coverage",
+        616
+      ],
+      "native": "Base K truncated after its p128 pivot (escalating) stop with slots left, terminal unresolved/work_accounting{fault: overflow}: the native shape of a work fault at the escalation check (adaptive.rs:4545-4546 -> finish_terminal 4769-4800). Same edits as 06b 'ceiling_before_last_slot' except the terminal."
+    },
+    {
+      "id": "idle_work_accounting_run",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "uses_invocation_edits": false,
+      "expected_first_failure": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5_schedule",
+        334
+      ],
+      "c2_2_python_observed": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      },
+      "c2_2_python_raised_at": [
+        "_g5_coverage",
+        616
+      ],
+      "native": "Base F case 1 as an invocation-entry return with a meter fault (adaptive.rs:4994-4997: WorkAccounting{prior: None} before the exhaustion test): no records/attempts, zero charges, group null, empty caches, and case 1's source removed from group 0 (an entry return precedes group lookup, C2:143), so the native graph is otherwise consistent."
+    },
+    {
+      "id": "work_accounting_at_last_slot",
+      "base": "p512_ladder_synthetic",
+      "uses_invocation_edits": false,
+      "expected_first_failure": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5_schedule",
+        334
+      ],
+      "c2_2_python_observed": "same as expected",
+      "c2_2_python_raised_at": [
+        "_g5_schedule",
+        417
+      ],
+      "native": "Base L (p512 ladder) with the p512 candidate rejected by its stop rule (attempt 2 and record 2 rejected; record 3, its completed p1024 verification, solved): the loop is left past the last slot, where the only emitted terminal is the Ceiling (adaptive.rs:4762-4766); terminal set to unresolved/work_accounting instead."
+    },
+    {
+      "id": "mm_unnormalized_coordinate",
+      "base": "ordinary_prepared_mm_units_synthetic",
+      "uses_invocation_edits": true,
+      "expected_first_failure": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g8",
+        1213
+      ],
+      "c2_2_python_observed": "same as expected",
+      "c2_2_python_raised_at": [
+        "_g8",
+        1210
+      ],
+      "native": "Base M (project length mm, positions x1000): node 1 x = 1 instead of 1000, so the normalized request coordinate (0.001 m) no longer equals the receipt's node map (G8 node binding; Python `_g8`). The base M control passes."
+    },
+    {
+      "id": "interpolation_missing_alpha",
+      "base": "ordinary_prepared_interpolated_material_synthetic",
+      "uses_invocation_edits": true,
+      "expected_first_failure": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "python_raised_at": [
+        "selected_material",
+        1191
+      ],
+      "c2_2_python_observed": "same as expected",
+      "c2_2_python_raised_at": [
+        "selected_material",
+        1188
+      ],
+      "native": "Base I: the lower bracket point lacks thermal_expansion_coefficient; native refuses an interpolation bracket without E, G and alpha on both points and never falls back to the base (PP/lib.rs:9258-9285 at 652ad0cc1f)."
+    },
+    {
+      "id": "interpolation_duplicate_temperature",
+      "base": "ordinary_prepared_interpolated_material_synthetic",
+      "uses_invocation_edits": true,
+      "expected_first_failure": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "python_raised_at": [
+        "selected_material",
+        1186
+      ],
+      "c2_2_python_observed": "same as expected",
+      "c2_2_python_raised_at": [
+        "selected_material",
+        1183
+      ],
+      "native": "Base I: both points at 300 K; native refuses duplicate temperature points (PP/lib.rs:9219-9230)."
+    },
+    {
+      "id": "interpolation_target_below_range",
+      "base": "ordinary_prepared_interpolated_material_synthetic",
+      "uses_invocation_edits": true,
+      "expected_first_failure": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "python_raised_at": [
+        "selected_material",
+        1187
+      ],
+      "c2_2_python_observed": "same as expected",
+      "c2_2_python_raised_at": [
+        "selected_material",
+        1184
+      ],
+      "native": "Base I: target 299 K with selector and target_kelvin rebound to 299 K; native requires a strict adjacent bracket and never extrapolates (PP/lib.rs:9237-9250)."
+    },
+    {
+      "id": "interpolation_target_at_lower_point",
+      "base": "ordinary_prepared_interpolated_material_synthetic",
+      "uses_invocation_edits": true,
+      "expected_first_failure": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "python_raised_at": [
+        "selected_material",
+        1187
+      ],
+      "c2_2_python_observed": "same as expected",
+      "c2_2_python_raised_at": [
+        "selected_material",
+        1184
+      ],
+      "native": "Base I: target exactly 300 K (rebound); interpolation blocks at a stored point (PP/lib.rs:9237-9250)."
+    },
+    {
+      "id": "interpolation_target_at_upper_point",
+      "base": "ordinary_prepared_interpolated_material_synthetic",
+      "uses_invocation_edits": true,
+      "expected_first_failure": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "python_raised_at": [
+        "selected_material",
+        1187
+      ],
+      "c2_2_python_observed": "same as expected",
+      "c2_2_python_raised_at": [
+        "selected_material",
+        1184
+      ],
+      "native": "Base I: target exactly 310 K (rebound); interpolation blocks at a stored point (PP/lib.rs:9237-9250)."
+    },
+    {
+      "id": "interpolation_target_above_range",
+      "base": "ordinary_prepared_interpolated_material_synthetic",
+      "uses_invocation_edits": true,
+      "expected_first_failure": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "python_raised_at": [
+        "selected_material",
+        1187
+      ],
+      "c2_2_python_observed": "same as expected",
+      "c2_2_python_raised_at": [
+        "selected_material",
+        1184
+      ],
+      "native": "Base I: target 311 K (rebound); beyond the stored range (PP/lib.rs:9237-9250)."
+    }
+  ],
+  "new_must_pass": [],
+  "moved_from_python_only_tests": [
+    "rebind_invocation helper",
+    "test_project_length_units_are_normalized_before_node_binding (failing half; the passing half is base M)",
+    "interpolated_control helper (is base I)",
+    "test_temperature_uses_strict_bracket_and_source_operation_order (299/300/310/311 K; the passing control is base I)",
+    "test_temperature_source_refusals_are_not_filled_from_base (missing_alpha, duplicate_temperature)"
+  ],
+  "not_built": [
+    "A sharp WorkAccounting mutation whose only defect is the terminal (case unavailable with an unresolved-kernel product attempt): no base in the corpus carries a non-selected kernel run with a consistent unavailable C3 envelope; building one is a separate base, not attempted in this box.",
+    "Shared exhausted-invocation idle base (Budget(invocation) with invocation_before >= 60B): unchanged deferral; limits are schema constants (case 20B, invocation 60B)."
+  ],
+  "observations": [
+    "06b idle_budget_below_invocation_limit keeps case 1's source in group 0 with group null, so a reader lacking the exhaustion rule still fails it at the C5 partition (also G5 ATTEMPT): it does not discriminate that rule. A sharpened sibling (as idle_work_accounting_run) can be added in a later snapshot if ROOT wants; left byte-identical here.",
+    "Product-level `work_accounting` causes (proof/values errors in product attempts, e.g. must_pass cert_failed_before_summary) are not kernel terminals and are unchanged; whether C1:66-68 also reaches them is outside this grant."
+  ],
+  "counts": {
+    "cases": 15,
+    "mutations": 173,
+    "must_pass": 23,
+    "new_mutations": 10,
+    "replaced": 1
+  },
+  "python": {
+    "tests": "c2_3_corpus_06c: 221 passed in 19.09s",
+    "reader_sha256": "3200f560201bff2c3aed7fb5730dd8925610abd3e0df15efd0b22cebd163242e",
+    "tests_sha256": "354821ddf449b4bdd0304fd16bf5d78e596d71e96358204a30f09fa977a82de3",
+    "all_entries": "15 bases pass with expected classifications; 173/173 mutations at expected first failure; 23/23 must_pass pass (reasons_06c_current.json)",
+    "c2_2_reader_on_06c": "171/173 mutations, 23/23 must_pass; moved: work_accounting_after_escalating_stop and idle_work_accounting_run (PRODUCT_ATTEMPT; the C2-2 reader accepted WorkAccounting); ceiling_before_last_slot same code at a different line (reasons_06c_c22.json)"
+  },
+  "bulk": [
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/before_06c/retained_precision_C2_2.py",
+      "sha256": "ddf85962c3e5d7bca00b128e4fca7f6db7a4bd7ceb6958ae6e645baf89762593",
+      "bytes": 96916
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/before_06c/retained_precision_cases.json",
+      "sha256": "e7983fc6415b3fe4df0b7a68e53a5cb9bb1a217b14d0c99dc1692b98733ce538",
+      "bytes": 4629135
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/before_06c/test_contract_C2_2.py",
+      "sha256": "1c148103438bc4920ff823e57a35ef3cefa044354040677ed3dd6f4adc6c8463",
+      "bytes": 19768
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/build_corpus_06c.py",
+      "sha256": "3dc87e8b85cb21087e88a24de0b6524dd52d5e62da8b316d6ae7859e54fef3ed",
+      "bytes": 5408
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/c2_3_corpus_06c.json",
+      "sha256": "6c33fe432da5a2b4008106c0fc384ac778878b24386d393bcd7aef1d106f0356",
+      "bytes": 2247
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/c2_3_corpus_06c.log",
+      "sha256": "773e836e1186891fa415b3dab93846cd266aa2099712ffa1d8b886c853eedb3e",
+      "bytes": 26993
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/freeze_06c.py",
+      "sha256": "eb2b2a0de9b6b7fa97f4141b04176c99f3d5d95237c604166f437631e4a1ee86",
+      "bytes": 14758
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/patch_reader_06c.py",
+      "sha256": "cec5fab2c1fe0ad72647bcd7653fa995f38200943b9ca7de4ccb6b569c8caed8",
+      "bytes": 3004
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/probe_06c.py",
+      "sha256": "55006779043add2bf452d6605593e24f3297f1b8d47cc9eab6e776868724ec8b",
+      "bytes": 1084
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/reasons_06c.py",
+      "sha256": "db35752629aad2970dfe658302293ae623d12dd6a131e6957215510f6aa88cd7",
+      "bytes": 2560
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/reasons_06c_c22.json",
+      "sha256": "309ce6bbaf561f1abc3f6f099b8a0adb98bcb8bfc0701d4f9d64fb9811f02d37",
+      "bytes": 93117
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/reasons_06c_current.json",
+      "sha256": "df444ad367ef21cc944a960e5b9678ef4f8117afbb4be60c768e3d0518edd704",
+      "bytes": 92816
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/source_final_C2_3/core/analysis_runs/retained_precision.py",
+      "sha256": "3200f560201bff2c3aed7fb5730dd8925610abd3e0df15efd0b22cebd163242e",
+      "bytes": 97035
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/source_final_C2_3/tests/test_retained_precision_contract.py",
+      "sha256": "354821ddf449b4bdd0304fd16bf5d78e596d71e96358204a30f09fa977a82de3",
+      "bytes": 16977
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/source_final_C2_3/tests/test_retained_precision_schema.py",
+      "sha256": "90bbd5660c504d3344ce19756d2b2250f80c0bd5d93b3ec123e5abf10523e504",
+      "bytes": 3627
+    }
+  ]
+}

@@ -1,0 +1,490 @@
+{
+  "version": "I62_SHARED_SNAPSHOT_06B",
+  "freeze_utc": "2026-10-03T21:52:14.674805+00:00",
+  "status": "Frozen C2-2 shared corpus; no acceptance, eligibility or reader approval.",
+  "basis": {
+    "rulings": "'TypeScript checklist audit verified; three native readings settled against Python' and 'Rust checklist audit verified; N17 settled from native code; the remaining readings go to C2-2' (NUM 86c301bbbe)",
+    "previous_snapshot": "SHARED_SNAPSHOT_06A 1d11fc08fc (corpus 58562c88dc)"
+  },
+  "files": [
+    {
+      "path": "P/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+      "bytes": 8346,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_06b/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "changed_from_snapshot_06a": false
+    },
+    {
+      "path": "P/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+      "bytes": 52328,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_06b/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "changed_from_snapshot_06a": false
+    },
+    {
+      "path": "P/fixtures/results/retained_precision_cases.json",
+      "sha256": "e7983fc6415b3fe4df0b7a68e53a5cb9bb1a217b14d0c99dc1692b98733ce538",
+      "bytes": 4629135,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_06b/fixtures/results/retained_precision_cases.json",
+      "changed_from_snapshot_06a": true
+    },
+    {
+      "path": "P/schemas/retained_precision_mp_v2.schema.json",
+      "sha256": "f943ebd3511e31bcdfe09bac2788362d3a5734040bc3088fbe585361b571cd21",
+      "bytes": 174354,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_06b/schemas/retained_precision_mp_v2.schema.json",
+      "changed_from_snapshot_06a": false
+    },
+    {
+      "path": "P/schemas/results.v0.3.schema.yaml",
+      "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586",
+      "bytes": 131530,
+      "snapshot": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_06b/schemas/results.v0.3.schema.yaml",
+      "changed_from_snapshot_06a": false
+    }
+  ],
+  "format_change": "Mutation entries may carry `expected_by_reader` {python, typescript, rust}; a reader uses its own entry when present, else `expected`. Used only for the G7 settlement.",
+  "moved_or_changed_06a_entries": [
+    {
+      "id": "prefix_old_inputs_unbound",
+      "change": "removed from mutations; same edits now the must_pass entry 'prefix_unattached_old_operand_attested'",
+      "why": "P7 settlement (F1:101-106): the P base's old entry has no PreparedMember, so it is an unattached producer attestation and is not bound; editing it is publicly undetectable."
+    },
+    {
+      "id": "g7_maximum_off_enclosure",
+      "change": "added expected_by_reader (python/typescript SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID; rust SOURCE_PREVIEW_PHYSICS_EXTREMA_BOUNDS); `expected` unchanged",
+      "why": "G7 settlement: the base contract fixes only the SOURCE_PREVIEW_PHYSICS_ prefix (S1_INTERFACE.md:138); each language's own base code stands."
+    }
+  ],
+  "unchanged": "All 12 cases and 16 must_pass entries of 06a, and the other 149 mutations, byte-identical (asserted). Schema/table/yaml/definition unchanged.",
+  "new_cases": [
+    {
+      "id": "two_case_two_groups_synthetic",
+      "native": "Case 1 selects a named point with E,G doubled: separate full-stiffness group in the same call with its own cache (C2:143; adaptive.rs:5018-5029). Rows, scales, bounds and classes derived by exact power-of-two scaling (displacements/rotations x1/2, forces/stresses identical)."
+    },
+    {
+      "id": "ordinary_prepared_interpolated_material_synthetic",
+      "native": "Temperature-interpolated material; lo + f*(hi-lo) (lib.rs:9258-9333) equals 200e9 exactly at 301 K, so numerics are unchanged; selector/selection records differ."
+    },
+    {
+      "id": "ordinary_prepared_mm_units_synthetic",
+      "native": "Project length mm with positions x1000; G8 normalization yields the same metre maps; only the invocation digest changes."
+    }
+  ],
+  "new_mutations": [
+    {
+      "id": "escalating_end_requires_work_accounting",
+      "base": "candidate_failure_skip_synthetic",
+      "expected_first_failure": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5_schedule",
+        413
+      ],
+      "c2_1_python_observed": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      }
+    },
+    {
+      "id": "escalating_end_not_a_terminal_translation",
+      "base": "candidate_failure_skip_synthetic",
+      "expected_first_failure": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5_schedule",
+        413
+      ],
+      "c2_1_python_observed": "same as expected"
+    },
+    {
+      "id": "terminal_stop_wrong_translation",
+      "base": "candidate_failure_skip_synthetic",
+      "expected_first_failure": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5_schedule",
+        409
+      ],
+      "c2_1_python_observed": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      }
+    },
+    {
+      "id": "terminal_refusal_wrong_kind",
+      "base": "candidate_failure_skip_synthetic",
+      "expected_first_failure": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5_schedule",
+        409
+      ],
+      "c2_1_python_observed": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      }
+    },
+    {
+      "id": "idle_budget_below_invocation_limit",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "expected_first_failure": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5_schedule",
+        338
+      ],
+      "c2_1_python_observed": "same as expected"
+    },
+    {
+      "id": "idle_ready_group_not_ledger_refusal",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "expected_first_failure": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5_schedule",
+        342
+      ],
+      "c2_1_python_observed": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      }
+    },
+    {
+      "id": "work_accounting_prior_not_on_wire",
+      "base": "ordinary_prepared_synthetic",
+      "expected_first_failure": {
+        "gate": "G1",
+        "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G1",
+        "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      },
+      "python_raised_at": [
+        "_validate_draft",
+        1349
+      ],
+      "c2_1_python_observed": "same as expected"
+    },
+    {
+      "id": "refused_member_conversion_kind_bits",
+      "base": "two_case_preparation_failure_synthetic",
+      "expected_first_failure": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5_products",
+        749
+      ],
+      "c2_1_python_observed": "pass"
+    },
+    {
+      "id": "prefix_attached_old_input_unbound",
+      "base": "two_case_preparation_failure_synthetic",
+      "expected_first_failure": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g8",
+        1319
+      ],
+      "c2_1_python_observed": "same as expected"
+    },
+    {
+      "id": "report_reference_unrelated_diagnostic",
+      "base": "ordinary_prepared_synthetic",
+      "expected_first_failure": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5_ordinary",
+        704
+      ],
+      "c2_1_python_observed": "pass"
+    },
+    {
+      "id": "distinct_stiffness_merged_group",
+      "base": "two_case_two_groups_synthetic",
+      "expected_first_failure": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G5",
+        "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g5_native",
+        575
+      ],
+      "c2_1_python_observed": "same as expected"
+    },
+    {
+      "id": "named_point_value_mismatch",
+      "base": "two_case_two_groups_synthetic",
+      "expected_first_failure": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g8",
+        1218
+      ],
+      "c2_1_python_observed": "same as expected"
+    },
+    {
+      "id": "interpolation_target_mismatch",
+      "base": "ordinary_prepared_interpolated_material_synthetic",
+      "expected_first_failure": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "observed_python": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      },
+      "python_raised_at": [
+        "_g8",
+        1218
+      ],
+      "c2_1_python_observed": "same as expected"
+    }
+  ],
+  "new_must_pass": [
+    {
+      "id": "prefix_unattached_old_operand_attested",
+      "base": "two_case_preparation_failure_synthetic",
+      "c2_1_python_observed": {
+        "gate": "G8",
+        "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      }
+    },
+    {
+      "id": "prefix_after_new_evaluator",
+      "base": "two_case_preparation_failure_synthetic",
+      "c2_1_python_observed": "pass"
+    },
+    {
+      "id": "observables_failed_after_certificate",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "c2_1_python_observed": "pass"
+    },
+    {
+      "id": "g5a_failed_after_certificate",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "c2_1_python_observed": "pass"
+    },
+    {
+      "id": "values_failed_separate_completion",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "c2_1_python_observed": "pass"
+    },
+    {
+      "id": "aliases_abandoned",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "c2_1_python_observed": "pass"
+    },
+    {
+      "id": "bind_rows_abandoned",
+      "base": "two_case_facade_after_certificate_synthetic",
+      "c2_1_python_observed": "pass"
+    }
+  ],
+  "not_built": [
+    "N9 and N10 positive must-pass entries and plan item 16 (WorkAccounting native terminal): C1 WIRE_CONTRACT.md:66-68 says a checked inconsistency or saturation prevents selected successor emission and an unencodable/saturation-ambiguous run abandons successor finalization; a native WorkAccounting terminal exists only when a run's work status is not exact, so no emitted successor can carry it. The native shape is real but not representable in a receipt; ROOT to rule (see RETURN_C2_2).",
+    "Invocation-level G8 refusals (one un-normalized coordinate; missing alpha; duplicate temperature; strict bracket at a point): the shared format edits only the source, so these stay Python-only tests until a format extension (invocation edits) is ruled."
+  ],
+  "counts": {
+    "cases": 15,
+    "mutations": 163,
+    "must_pass": 23
+  },
+  "python": {
+    "tests": "python_schema_H2: 215 passed, 0 failed",
+    "reader_sha256": "ddf85962c3e5d7bca00b128e4fca7f6db7a4bd7ceb6958ae6e645baf89762593",
+    "tests_sha256": "1c148103438bc4920ff823e57a35ef3cefa044354040677ed3dd6f4adc6c8463"
+  },
+  "bulk": [
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/before_06b/retained_precision_C2_1.py",
+      "sha256": "5bb6357a3633d2693313ffc80396e4e4015a830800ba2320bc5456b8b28e1d14",
+      "bytes": 92576
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/before_06b/retained_precision_cases.json",
+      "sha256": "58562c88dc492b7e71f663332208045484b04a0cdc125574837c5d08a62ddfe8",
+      "bytes": 3743331
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/before_06b/test_contract_C2_1.py",
+      "sha256": "514745e24569ee28585bc0047370c900786d4bd79cacc3a1546cf3071fb7f9d3",
+      "bytes": 19034
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/build_c2b.py",
+      "sha256": "a6ea4a065ad22d2026929286c62c913d920e5e73dbb9661027c63448648f79df",
+      "bytes": 14080
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/build_corpus_06b.py",
+      "sha256": "f5cf596cd8ebd6df64a0152db312fa6083fd04b075be1e850ef15aacf1c72a12",
+      "bytes": 12415
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/c2_1_reader_probe/core/analysis_runs/retained_precision.py",
+      "sha256": "5bb6357a3633d2693313ffc80396e4e4015a830800ba2320bc5456b8b28e1d14",
+      "bytes": 92576
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/c2_1_reader_vs_06b.json",
+      "sha256": "cd34bd74c082ac7578d54280cdf6aaf509d61b6b1453d815c1c89b8cb1e8b4b8",
+      "bytes": 713
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/checkpoint_C2_2_reader.diff",
+      "sha256": "3ed9dd91aaa6445d8a8997cac245501ee89328e226a1b6c8a53022cc2770ed76",
+      "bytes": 10561
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/checkpoint_C2_2_tests.diff",
+      "sha256": "390f68df4bcc223130f9acfcf4e6f08f5906c5eadf7cb44034f6e80823a515e6",
+      "bytes": 762
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/patch_reader_06b.py",
+      "sha256": "bead86a236b7c1bf41c805ee717bad20ad272c3eef10d4a5697d2e53c4ec94ce",
+      "bytes": 13268
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/proto_c2b.py",
+      "sha256": "1cc6eebf05a474a4a9bc5d6365d6ef658e6645f2c8177d3c1206bda6d5fe65c7",
+      "bytes": 1120
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/python_schema_H1.json",
+      "sha256": "00e26afbd15c2511e440f30eeab5413c6175096420fa1631cbf382f8f75b0bd4",
+      "bytes": 2247
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/python_schema_H1.log",
+      "sha256": "dc10364ff7768a5a382f71329306405f469877419766c180ac7e2a7a14c459dc",
+      "bytes": 24641
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/python_schema_H2.json",
+      "sha256": "efcdf04d87493c8736307eca3f8e0f4a35a719e5a777592629a79212558e06da",
+      "bytes": 2247
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/python_schema_H2.log",
+      "sha256": "7789b6e665308febea76ffd9f536fa5e8b78e0f7c70b2140fae89a9073e01640",
+      "bytes": 26166
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/reasons_06b_1.json",
+      "sha256": "492c7c158e56ae67a7f8c2f29f06a16d3ab3fae57b445a28c8d7f0be6fa95406",
+      "bytes": 86063
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/reasons_06b_final.json",
+      "sha256": "aef67a5ee377d0548d4697c9b1a60556c9c8241ad07cc33e0b958efbd602f0c6",
+      "bytes": 88124
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_06b/fixtures/results/retained_precision_cases.json",
+      "sha256": "e7983fc6415b3fe4df0b7a68e53a5cb9bb1a217b14d0c99dc1692b98733ce538",
+      "bytes": 4629135
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_06b/fixtures/results/retained_precision_prepared_ordinary_v1.json",
+      "sha256": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+      "bytes": 8346
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_06b/fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+      "sha256": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+      "bytes": 52328
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_06b/schemas/results.v0.3.schema.yaml",
+      "sha256": "4585a45fcfd4aa522acac4843b099d11158b4c7d84f1b99870e9b0a378a05586",
+      "bytes": 131530
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/shared_snapshot_06b/schemas/retained_precision_mp_v2.schema.json",
+      "sha256": "f943ebd3511e31bcdfe09bac2788362d3a5734040bc3088fbe585361b571cd21",
+      "bytes": 174354
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/source_final_C2_2/core/analysis_runs/retained_precision.py",
+      "sha256": "ddf85962c3e5d7bca00b128e4fca7f6db7a4bd7ceb6958ae6e645baf89762593",
+      "bytes": 96916
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/source_final_C2_2/tests/test_retained_precision_contract.py",
+      "sha256": "1c148103438bc4920ff823e57a35ef3cefa044354040677ed3dd6f4adc6c8463",
+      "bytes": 19768
+    },
+    {
+      "path": "WT/scratch/i62_coverage_shared_python_01/source_final_C2_2/tests/test_retained_precision_schema.py",
+      "sha256": "90bbd5660c504d3344ce19756d2b2250f80c0bd5d93b3ec123e5abf10523e504",
+      "bytes": 3627
+    }
+  ]
+}

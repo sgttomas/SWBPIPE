@@ -1,0 +1,386 @@
+[
+ {
+  "id": "P01_legacy_branch_skips_token_guard",
+  "lang": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_shared_carrier_cases_python"
+  ],
+  "summary": [
+   "1 failed, 5 passed in 2.19s"
+  ],
+  "seconds": 2.3
+ },
+ {
+  "id": "P02_v02_constructor_admits_token_rows",
+  "lang": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_legacy_sources_with_a_token_row_are_refused_on_every_python_path"
+  ],
+  "summary": [
+   "1 failed, 20 passed in 43.92s"
+  ],
+  "seconds": 44.0
+ },
+ {
+  "id": "P03_wrapper_admits_token_rows",
+  "lang": "py",
+  "file": "core/analysis_runs/records.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_legacy_sources_with_a_token_row_are_refused_on_every_python_path"
+  ],
+  "summary": [
+   "1 failed, 20 passed in 37.83s"
+  ],
+  "seconds": 38.0
+ },
+ {
+  "id": "P04_Q02_token_guard_first_row_only",
+  "lang": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_shared_carrier_cases_python"
+  ],
+  "summary": [
+   "1 failed, 5 passed in 2.33s"
+  ],
+  "seconds": 2.5
+ },
+ {
+  "id": "P05_Q06_refs_order_insensitive",
+  "lang": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": [
+   "1 failed, 4 passed in 1.41s"
+  ],
+  "seconds": 1.5
+ },
+ {
+  "id": "P06_wrapper_token_first_row_only",
+  "lang": "py",
+  "file": "core/analysis_runs/records.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_legacy_sources_with_a_token_row_are_refused_on_every_python_path"
+  ],
+  "summary": [
+   "1 failed, 20 passed in 35.98s"
+  ],
+  "seconds": 36.1
+ },
+ {
+  "id": "P07_legacy_guard_ungated_transport",
+  "lang": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_legacy_sources_with_a_token_row_are_refused_on_every_python_path"
+  ],
+  "summary": [
+   "1 failed, 20 passed in 39.60s"
+  ],
+  "seconds": 39.7
+ },
+ {
+  "id": "P08_token_guard_on_key_presence",
+  "lang": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_downgrades_are_refused[dense_scrutiny]"
+  ],
+  "summary": [
+   "1 failed, 9 passed in 17.11s"
+  ],
+  "seconds": 17.3
+ },
+ {
+  "id": "P09_seam_named_in_records",
+  "lang": "py",
+  "file": "core/analysis_runs/records.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_private_seams_have_no_product_callers"
+  ],
+  "summary": [
+   "1 failed, 21 passed in 42.91s"
+  ],
+  "seconds": 43.0
+ },
+ {
+  "id": "P10_python_transport_admitted",
+  "lang": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[dense_scrutiny]"
+  ],
+  "summary": [
+   "1 failed in 0.25s"
+  ],
+  "seconds": 0.4
+ },
+ {
+  "id": "P11_refused_statement_binds",
+  "lang": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_declared_differences_python"
+  ],
+  "summary": [
+   "1 failed, 6 passed in 9.87s"
+  ],
+  "seconds": 10.0
+ },
+ {
+  "id": "P12_Q01_member_guard_null_slips",
+  "lang": "py",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_shared_carrier_cases_python"
+  ],
+  "summary": [
+   "1 failed, 5 passed in 2.12s"
+  ],
+  "seconds": 2.2
+ },
+ {
+  "id": "P13_Q05_wrapper_null_slips",
+  "lang": "py",
+  "file": "core/analysis_runs/records.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_legacy_record_wrapper_refuses_a_receipt[dense_scrutiny]"
+  ],
+  "summary": [
+   "1 failed, 18 passed in 35.83s"
+  ],
+  "seconds": 35.9
+ },
+ {
+  "id": "R01_row_guard_first_row_only",
+  "lang": "rs",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6a_downgrades_to_a_base_identity_are_refused",
+   "u6a_legacy_sources_carrying_a_receipt_or_token_are_refused",
+   "u6a_shared_carrier_cases_rust"
+  ],
+  "summary": [
+   "error: test failed, to rerun pass `--test retained_precision_carriers`"
+  ],
+  "seconds": 17.1
+ },
+ {
+  "id": "R02_doc_downgrade_ignores_null",
+  "lang": "rs",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6a_downgrades_to_a_base_identity_are_refused"
+  ],
+  "summary": [
+   "error: test failed, to rerun pass `--test retained_precision_carriers`"
+  ],
+  "seconds": 17.0
+ },
+ {
+  "id": "R05_refs_order_insensitive",
+  "lang": "rs",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6a_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": [
+   "error: test failed, to rerun pass `--test retained_precision_carriers`"
+  ],
+  "seconds": 17.8
+ },
+ {
+  "id": "R06_member_guard_skips_legacy",
+  "lang": "rs",
+  "file": "core/reporting/result_export/src/semantic_contract.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6a_legacy_sources_carrying_a_receipt_or_token_are_refused",
+   "u6a_shared_carrier_cases_rust"
+  ],
+  "summary": [
+   "error: test failed, to rerun pass `--test retained_precision_carriers`"
+  ],
+  "seconds": 19.2
+ },
+ {
+  "id": "S2a_mm_printed_as_row_unit",
+  "lang": "rs",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_each_class_maps_to_its_refusal_and_disclosure"
+  ],
+  "summary": [
+   "error: test failed, to rerun pass `--test retained_precision_carriers`"
+  ],
+  "seconds": 17.9
+ },
+ {
+  "id": "S2b_MPa_printed_as_row_unit",
+  "lang": "rs",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_each_class_maps_to_its_refusal_and_disclosure"
+  ],
+  "summary": [
+   "error: test failed, to rerun pass `--test retained_precision_carriers`"
+  ],
+  "seconds": 17.8
+ },
+ {
+  "id": "S2c_unit_dropped",
+  "lang": "rs",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_each_class_maps_to_its_refusal_and_disclosure"
+  ],
+  "summary": [
+   "error: test failed, to rerun pass `--test retained_precision_carriers`"
+  ],
+  "seconds": 17.5
+ },
+ {
+  "id": "S2d_kNm_mapped_to_N",
+  "lang": "rs",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6a_each_class_maps_to_its_refusal_and_disclosure"
+  ],
+  "summary": [
+   "error: test failed, to rerun pass `--test retained_precision_carriers`"
+  ],
+  "seconds": 17.9
+ },
+ {
+  "id": "S2e_unknown_unit_claims_absolute",
+  "lang": "rs",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6a_each_class_maps_to_its_refusal_and_disclosure"
+  ],
+  "summary": [
+   "error: test failed, to rerun pass `--test retained_precision_carriers`"
+  ],
+  "seconds": 17.3
+ },
+ {
+  "id": "S2f_validate_assumes_Pa",
+  "lang": "rs",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6a_derivative_carries_the_receipt_and_it_comes_back_out",
+   "u6a_receipt_binding_mismatches_are_refused"
+  ],
+  "summary": [
+   "error: test failed, to rerun pass `--test retained_precision_carriers`"
+  ],
+  "seconds": 15.9
+ },
+ {
+  "id": "S2g_rad_unknown",
+  "lang": "rs",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6a_each_class_maps_to_its_refusal_and_disclosure"
+  ],
+  "summary": [
+   "error: test failed, to rerun pass `--test retained_precision_carriers`"
+  ],
+  "seconds": 17.9
+ },
+ {
+  "id": "N3a_seam_called_in_derivative",
+  "lang": "rs",
+  "file": "core/reporting/result_export/src/derivative.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6_doc_hidden_seams_have_no_product_callers"
+  ],
+  "summary": [
+   "error: test failed, to rerun pass `--test retained_precision_carriers`"
+  ],
+  "seconds": 17.6
+ },
+ {
+  "id": "N3b_seam_named_in_tauri",
+  "lang": "rs",
+  "file": "apps/desktop/src-tauri/src/lib.rs",
+  "status": "KILLED",
+  "killed_by": [
+   "u6_doc_hidden_seams_have_no_product_callers"
+  ],
+  "summary": [
+   "error: test failed, to rerun pass `--test retained_precision_carriers`"
+  ],
+  "seconds": 17.5
+ },
+ {
+  "id": "Y4_results_successor_admits_sbr",
+  "lang": "schema",
+  "file": "schemas/results.v0.3.schema.yaml",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_schema.py::test_rv78_n2_receipt_and_branch_probes[ordinary_prepared_synthetic-]"
+  ],
+  "summary": [
+   "1 failed, 29 passed in 3.84s"
+  ],
+  "seconds": 4.0
+ },
+ {
+  "id": "Y11_value_rows_admit_token",
+  "lang": "schema",
+  "file": "schemas/results.v0.3.schema.yaml",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_schema.py::test_rv78_n2_receipt_and_branch_probes[ordinary_prepared_synthetic-]"
+  ],
+  "summary": [
+   "1 failed, 29 passed in 4.50s"
+  ],
+  "seconds": 4.6
+ },
+ {
+  "id": "W06_sn_successor_annotations_optional",
+  "lang": "schema",
+  "file": "schemas/stress_neutral_export.v0.3.schema.json",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_schema.py::test_stress_neutral_successor_branch_is_transport_shape_only[dense_scrutiny]"
+  ],
+  "summary": [
+   "1 failed, 51 passed in 41.54s"
+  ],
+  "seconds": 41.7
+ }
+]

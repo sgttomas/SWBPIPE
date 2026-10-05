@@ -1,0 +1,49 @@
+{
+  "scope": "Independent abstract integer checks; no Rust/solver/model/runtime claim",
+  "completed_utc": "2026-10-02T21:18:36.143324+00:00",
+  "checked_author_control_rows": 15,
+  "state_triples": 64,
+  "add_delta_pairs": 1024,
+  "clean_price_vectors": 19683,
+  "price_table": {
+    "4": [
+      8,
+      8,
+      16,
+      1290,
+      1548,
+      8,
+      48,
+      32
+    ],
+    "8": [
+      16,
+      16,
+      64,
+      4626,
+      5140,
+      16,
+      96,
+      96
+    ],
+    "16": [
+      32,
+      32,
+      256,
+      17442,
+      18468,
+      32,
+      192,
+      320
+    ]
+  },
+  "max_clean_price_vector": {
+    "4": 5916,
+    "8": 20140,
+    "16": 73548
+  },
+  "generalized_reduced_headroom_states": 22410,
+  "case_projection": 117,
+  "invocation_projection": 90,
+  "source_derivation_sha256": "fd6a1c434210ea67fb92b9d92928ff6fbf68f726d4f3a0c69cc95f66b28f2937"
+}

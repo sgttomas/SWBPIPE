@@ -1,0 +1,14 @@
+# I66 part-1 files checked against their part-1 sha256 (r6/part1_sha256.txt):
+projects/chirality-piping/core/analysis_runs/compatibility.py: OK
+projects/chirality-piping/core/analysis_runs/retained_precision.py: OK
+projects/chirality-piping/core/product_physics/src/lib.rs: OK
+projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs: OK
+projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs: OK
+projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs: OK
+projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs: FAILED
+projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs: OK
+projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json: FAILED
+projects/chirality-piping/fixtures/results/retained_precision_cases.json: OK
+projects/chirality-piping/tests/test_retained_precision_carriers.py: FAILED
+projects/chirality-piping/tests/test_retained_precision_contract.py: OK
+shasum: WARNING: 3 computed checksums did NOT match

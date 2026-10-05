@@ -1,0 +1,36 @@
+{
+  "status": "finite derivation returned for RV42 backcheck; no acceptance or implementation",
+  "agent": "/root/i31_f2a_certificate_b1",
+  "parent": "/root HELP_HUMAN Agent 0",
+  "role": "TASK Type 2",
+  "mechanism": "existing direct Codex native child follow-up; no delegation",
+  "receipt_utc": "2026-10-02 20:18:42 UTC",
+  "new_analysis_cutoff_utc": "2026-10-02 20:53:42 UTC",
+  "return_deadline_utc": "2026-10-02 21:03:42 UTC",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_source_geometry_b1c",
+  "host_boundary": "Unrestricted shared host permissions; assigned write/probe fence is instructional. No isolation claim.",
+  "not_performed": [
+    "compiler",
+    "solver",
+    "model/product runtime",
+    "host tooling development",
+    "Git/index/API writes",
+    "maintained edits",
+    "delegation",
+    "SIF/hypot/span proof",
+    "operator bridge proof"
+  ],
+  "executed_arithmetic": "python3 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_source_geometry_b1c/_run_records/exact_geometry_checks.py > projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I31/f2a_source_geometry_b1c/_run_records/arithmetic.json",
+  "arithmetic_final_exit": 0,
+  "arithmetic_control_groups": 12,
+  "first_arithmetic_failure": {
+    "exit_code": 1,
+    "line": 174,
+    "assertion": "assert qk != qg",
+    "message": "AssertionError",
+    "initial_control": "3*pi and 5*pi rounded coefficients happened to preserve exact 3/8 partition. Final finite p=3..33 coefficient vector finds p=11, with unchanged exact comparison. No product claim or protected criterion was changed."
+  },
+  "provenance": "All Git reads prefixed/configured GIT_OPTIONAL_LOCKS=0. Thirteen inspected maintained files equal main pin; original B1 payload hashes checked unchanged.",
+  "remaining": "Private geometric operand construction derived; public exact-profile q_K/q_G response/action bridge unproved. Ordinary-route warrant reconciliation and actual arithmetic/storage/cost implementation remain open.",
+  "completed_utc": "2026-10-02 20:29:07 UTC"
+}

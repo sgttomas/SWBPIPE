@@ -1,0 +1,65 @@
+{
+  "root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01",
+  "files": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/candidate.patch",
+      "bytes": 77940,
+      "sha256": "9e8fbd143c98149e20cac4ceac21b2266f05b574318587ed7b40a2b68af95c8d"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_01.json",
+      "bytes": 5288,
+      "sha256": "b1e39995bee4a719a82edc4a6112713688f6f6736fe1a2dcb6e85bf51e35466c"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_01.log",
+      "bytes": 6560,
+      "sha256": "13fef20866ece6213c78d54f1802d951762fc04901af39c2b08a76f2a401afb0"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_02.json",
+      "bytes": 5294,
+      "sha256": "28c32cb195090aef38f58b9b1d106a79bf9e9a62e613693fe6894c30abb373c4"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_02.log",
+      "bytes": 2569933,
+      "sha256": "8253890a5ea9c31d887003ea44b5d3e80c8870c4c8db9b77afca5b936b4d8fee"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_03.json",
+      "bytes": 5280,
+      "sha256": "a9bb7c234616c27af494bde9ab608915516ce3fa7f867b662b38e82478cec64e"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_03.log",
+      "bytes": 559,
+      "sha256": "43b11bfd0e4dec376adb491e558f93f2f1a5725853950d66632e0001a471c85f"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_04.json",
+      "bytes": 5281,
+      "sha256": "29fa0bece40eea3c4a751af42520b76b055aa1b634ab2e45d815141a395faaca"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_04.log",
+      "bytes": 5054,
+      "sha256": "737726fe9bea7f8cbbdca3d1c40aeb0ea7caa78323ccdb8b9700c0a4569a4154"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_05_repair.json",
+      "bytes": 5946,
+      "sha256": "e5d4cd600cf2b19a5886951221bfef3a550bce4ac0f83cd0bd0cfc6398a61f1a"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/cargo_05_repair.log",
+      "bytes": 2570568,
+      "sha256": "3b762f440d68f1949b2cf329462f24d397a71972f86d104242202cbf3a458b2d"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/rv74_prepared_trace_01/repair.patch",
+      "bytes": 6688,
+      "sha256": "0a6f1e1d2f7fdb269be86e339651ab31cfa1faf161a5822f4c680b1a4704f21f"
+    }
+  ]
+}

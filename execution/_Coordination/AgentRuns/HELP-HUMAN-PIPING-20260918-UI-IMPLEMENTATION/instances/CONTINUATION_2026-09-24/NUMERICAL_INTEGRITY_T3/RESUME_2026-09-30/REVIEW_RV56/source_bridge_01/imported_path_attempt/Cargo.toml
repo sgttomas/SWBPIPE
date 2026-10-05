@@ -1,0 +1,9 @@
+[package]
+name="rv56_source_bridge_review"
+version="0.0.0"
+edition="2021"
+[lib]
+path="lib.rs"
+[features]
+mutation-controls=[]
+[workspace]

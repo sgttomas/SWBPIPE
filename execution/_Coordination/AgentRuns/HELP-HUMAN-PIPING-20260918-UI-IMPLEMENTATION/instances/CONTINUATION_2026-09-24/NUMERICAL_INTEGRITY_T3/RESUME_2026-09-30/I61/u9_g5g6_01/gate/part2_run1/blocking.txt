@@ -1,0 +1,8 @@
+base RF-LARGE-CHAIN-n01000-ROT captured MODEL_INCOMPLETE 0 [('NUMERICAL_INTEGRITY_UNRESOLVED', 'Load case case: structural integrity: NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural')]
+base RF-LARGE-CHAIN-n01000-ROT typed MODEL_INCOMPLETE 0 [('NUMERICAL_INTEGRITY_UNRESOLVED', 'Load case case: structural integrity: NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural')]
+base RF-LARGE-TREE-n01000-AX captured MODEL_INCOMPLETE 0 [('NUMERICAL_INTEGRITY_UNRESOLVED', 'Load case case: structural integrity: NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural')]
+base RF-LARGE-TREE-n01000-AX typed MODEL_INCOMPLETE 0 [('NUMERICAL_INTEGRITY_UNRESOLVED', 'Load case case: structural integrity: NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural')]
+cand RF-LARGE-CHAIN-n01000-ROT captured MODEL_INCOMPLETE 0 [('NUMERICAL_INTEGRITY_UNRESOLVED', 'Load case case: structural integrity: NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural')]
+cand RF-LARGE-CHAIN-n01000-ROT typed MODEL_INCOMPLETE 0 [('NUMERICAL_INTEGRITY_UNRESOLVED', 'Load case case: structural integrity: NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural')]
+cand RF-LARGE-TREE-n01000-AX captured MODEL_INCOMPLETE 0 [('NUMERICAL_INTEGRITY_UNRESOLVED', 'Load case case: structural integrity: NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural')]
+cand RF-LARGE-TREE-n01000-AX typed MODEL_INCOMPLETE 0 [('NUMERICAL_INTEGRITY_UNRESOLVED', 'Load case case: structural integrity: NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural')]

@@ -1,0 +1,14 @@
+lib.rs: lines base=24334 cand=24334; test module span (0-based) (3174, 3296)
+  lib.rs:2379: production line; removing the cfg(test) statement(s) restores base exactly
+  lib.rs:3005: production line; removing the cfg(test) statement(s) restores base exactly
+  lib.rs:3184: inside the cfg(test) module
+  lib.rs:3214: inside the cfg(test) module
+  lib.rs:3216: inside the cfg(test) module
+  lib.rs:3219: inside the cfg(test) module
+  lib.rs:3232: inside the cfg(test) module
+  lib.rs:3247: inside the cfg(test) module
+  lib.rs:3255: inside the cfg(test) module
+  lib.rs:3296: inside the cfg(test) module
+retained_product.rs: lines base=3909 cand=3909; test module span (0-based) None
+  retained_product.rs:3244: production line; removing the cfg(test) statement(s) restores base exactly
+PRODUCTION TEXT EQUAL

@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "/Users/ryan/.cargo/bin/cargo",
+    "test",
+    "--manifest-path",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+    "--locked",
+    "--offline",
+    "--lib",
+    "product_final_case",
+    "--",
+    "--nocapture"
+  ],
+  "start": "2026-10-03T02:29:57.546708+00:00",
+  "before": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "117485f3c37a049d039a9ebe739201383e71379d9da16047098ea360af7face4",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs": "ca59f5acd00d77f14f6f4953116276a88440198ad66feffeb91ccdd53a4c09b9",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs": "7ace570033487a11e18468550d4e54847785b75b3678d27248bb68b24fcba7e0",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "868545c71811cdb8dde77a3b398a4d263c449915d318e7779efdf380ba3713bc",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs": "010a91c225ac5713f48bcdaf546ed3c5e4ba18b7ca61f1e77fcd139529ab2d58",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "b6c8d32de08535825cc5b591ce25f1a3761374abe8aa591c8e5c059dd34a956f",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs": "714e0b1fdec69701103851e751c7b14882b4cbeb9908f03227ee6b5acdafc46a"
+  },
+  "target": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/targets/i45-product-vertical/frame_kernel",
+  "jobs": 4,
+  "threads": 2,
+  "wall_seconds": 1200,
+  "exit": 101,
+  "after": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "117485f3c37a049d039a9ebe739201383e71379d9da16047098ea360af7face4",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs": "ca59f5acd00d77f14f6f4953116276a88440198ad66feffeb91ccdd53a4c09b9",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs": "7ace570033487a11e18468550d4e54847785b75b3678d27248bb68b24fcba7e0",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs": "868545c71811cdb8dde77a3b398a4d263c449915d318e7779efdf380ba3713bc",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs": "010a91c225ac5713f48bcdaf546ed3c5e4ba18b7ca61f1e77fcd139529ab2d58",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "b6c8d32de08535825cc5b591ce25f1a3761374abe8aa591c8e5c059dd34a956f",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs": "714e0b1fdec69701103851e751c7b14882b4cbeb9908f03227ee6b5acdafc46a"
+  },
+  "end": "2026-10-03T02:30:03.144296+00:00"
+}

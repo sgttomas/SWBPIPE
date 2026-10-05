@@ -1,0 +1,9 @@
+source_blocks.rs three-way: git merge-file -p <NUM 7ff569a55c> <B 381be775ae> <M 5fdc5ab601>
+rc=0 (no conflict); result cmp PR 92a5a9da1c blob: identical
+NUM vs B:
+56d55
+<         .and_then(|n| usize::try_from(n).ok())
+57a57
+>         .and_then(|n| usize::try_from(n).ok())
+a9ee998ad4b3925b092320bb48a5db527b2269db6d90ec450847d3723c96e534  merged.rs
+a9ee998ad4b3925b092320bb48a5db527b2269db6d90ec450847d3723c96e534  pr.rs

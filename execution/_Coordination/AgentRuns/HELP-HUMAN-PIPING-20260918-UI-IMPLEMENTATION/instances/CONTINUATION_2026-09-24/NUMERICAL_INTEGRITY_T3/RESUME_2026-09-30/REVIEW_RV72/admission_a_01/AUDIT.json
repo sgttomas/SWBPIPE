@@ -1,0 +1,268 @@
+{
+  "utc": "2026-10-03T15:17:51.208031+00:00",
+  "author_files": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/admission_implementation_06/AUDIT.json",
+      "bytes": 4061,
+      "sha256": "015d7696414686d4d8934a9b51c0f996c48c433168ddd9d5643a7535a6977682"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/admission_implementation_06/BULK_MANIFEST.json",
+      "bytes": 2132,
+      "sha256": "8ec0598fc70436a1071e1ce483f3d87ea3470bb33c5a9934cca096b09333ef7a"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/admission_implementation_06/CANDIDATE.json",
+      "bytes": 2040,
+      "sha256": "17d0d4a3feac87a1cfae42c25abe19c508cd8e0b261f6df9bad85e32d8af0217"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/admission_implementation_06/EXECUTION.json",
+      "bytes": 2207,
+      "sha256": "196b56d6af8e147081f01ead7dc37ab11dcf58602d5bf2bfa7245c90c85bfa70"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/admission_implementation_06/FIRST_BOUNDARY.json",
+      "bytes": 1861,
+      "sha256": "3703dfe5f5e7a78eb4c84bbc14b944a0813d6f414aefebcf861ed85c18b0f944"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/admission_implementation_06/ORIGINS.json",
+      "bytes": 7446,
+      "sha256": "c1168f207ad0fd580024206bf959c5dae230c13a5b12f35b8b2342a8fa2c38d1"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/admission_implementation_06/RETURN.md",
+      "bytes": 4691,
+      "sha256": "719663c1791907f38dd97c198271961f58a0443c514c1d7d77f33a697900ed54"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/admission_implementation_06/SCOPE.json",
+      "bytes": 1217,
+      "sha256": "2af50fc33f01437ff9ac1f7ae7a03b45d603a21b45e4b68fcd2bc00a2f860a5d"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/admission_implementation_06/VALIDATION.json",
+      "bytes": 6583,
+      "sha256": "6fb5b8d7e1ce43066f4854fbe47360dbcd817663390e38aa5309ecc0e7eb1c61"
+    }
+  ],
+  "author_bulk": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/candidate.patch",
+      "bytes": 40167,
+      "sha256": "2dbd59b73c7dddf449df84cfc89c0c2e8ca35ed5e3e844079f38b48cb09131d3"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_01.json",
+      "bytes": 2768,
+      "sha256": "490fe238c7d67dfc4e0c38d50b8e6e8eaf9d8d58ff24a1b88a67deb64257db33"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_01.log",
+      "bytes": 5334,
+      "sha256": "bbcf295bcaf052b65f1d6c4aa4921ccc729256fe938632059c1d354cd4a360df"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_02.json",
+      "bytes": 2766,
+      "sha256": "6b58aa70405410dfee0c629f39192e1fb4504a9a1494e3711fcfe7ea06444a16"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_02.log",
+      "bytes": 4916,
+      "sha256": "d0964a8e094dbc9aff6fe9e787075dc82b5a90716734ef6776ff535cb294791f"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_03.json",
+      "bytes": 2759,
+      "sha256": "70cb20687cf0579bcc75613df4eddc15a0fe5aea2719bb5c2e1590b2f4bfd3a9"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_03.log",
+      "bytes": 4111,
+      "sha256": "16884062fef15fddc6a1fbfd5173f6c5799ecb3e628e92ca15562c3456d74628"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_04.json",
+      "bytes": 2751,
+      "sha256": "86992e4fb657ad254a71e2aeb2845ce263756aa8e05a958ae8abd31ee14effa8"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_04.log",
+      "bytes": 13058,
+      "sha256": "9d6e9d8de1097f3d140eb5f0ba3279fd7b27072ae8338c76b9ca5820d1a6e152"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_05.json",
+      "bytes": 2759,
+      "sha256": "6c67031eb62915a0372641b8e9078680a0ebcbd56f45c4c976ce45d64b66d142"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/cargo_05.log",
+      "bytes": 2170238,
+      "sha256": "2d9f7d6af613860027784e9388510f93828bc47a0cce8aa7ed5435890af58110"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_admission_implementation/test_assumption_repair.patch",
+      "bytes": 1412,
+      "sha256": "1db51c838777d90932fa14eed6d0008fef7ad455dab534a1b62797982edc19de"
+    }
+  ],
+  "baseline_files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "97708a3c27bffe918b78f100c5aa984a19ffb32e4a5adb8768791ab2c267e152"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+      "sha256": "16df0df35138734f85086d50b3544e552bd65db16998862ebf16c5d59303e32b"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "sha256": "83bf616c115ab255666297f280d95f0514f3afab31658dc093262e3c740fbc35"
+    }
+  ],
+  "protected_files": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "sha256": "e9949ff88fef71a32cf07d552cf2b065d445d85cbb7bee9e53f8678562d6d982",
+      "unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+      "sha256": "fcd864d63539a3415f616d4a298bd98ccbcfc72a2d16ec75816c3c99ce0d2078",
+      "unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs",
+      "sha256": "cc6f9e9992853b6d144a823e8865e9f914057d9ba255d1244ad40f0d3f7de075",
+      "unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+      "sha256": "65ec3071eddd539faa5a39499beba11e98a226f20ccdc3c8a24f7b1c2f4cc723",
+      "unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+      "sha256": "96e6ca5562849b9136bc75b665d10b421e75a9b9805303c40b68982101889336",
+      "unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "8f9281c3184a5c407bf371582d8a601b03617c7b71e68168b10a38a54ce7f6bd",
+      "unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/Cargo.lock",
+      "sha256": "f28eee2b6c039de6bbbf4bdf2e3e7138057cddbc73e3ce2676a632b68f5caac3",
+      "unchanged": true
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/Cargo.lock",
+      "sha256": "118bb423f3d51c62547c827f378b076e69776a40e701e1086db4e2658594a537",
+      "unchanged": true
+    }
+  ],
+  "tracked_scope": [
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+    "projects/chirality-piping/core/runner/headless/src/lib.rs"
+  ],
+  "new_maintained_scope": [
+    "projects/chirality-piping/core/product_physics/src/retained_memory.rs",
+    "projects/chirality-piping/core/product_physics/tests/retained_precision_admission.rs",
+    "projects/chirality-piping/core/runner/headless/tests/retained_precision_admission.rs"
+  ],
+  "patch_reconstructed_all_six": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "d2f0f2dc73a717412cf5a37f3df8bcb808703466378ecf56052866b073b35f61"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+      "sha256": "c2fce1458f646b866886b9e1ffae07569d34ea517c7a7309d6b8140522f305fa"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_memory.rs",
+      "sha256": "002ef8584f6db37572ddbbff760665539e3245d27b83b87b9f79d9a2fa3ffd99"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/tests/retained_precision_admission.rs",
+      "sha256": "99f700f4a9fc103e8ec55331e21d99f79eb720a575865d6e94ae86300fd6659f"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "sha256": "782f496dd297a60e1c3cd8c19948f3988555b1fe79b5ed0325c2b140b9669693"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/tests/retained_precision_admission.rs",
+      "sha256": "5640c8eaa15cf307ddb5d64549f686367c1699c716f627561e707fa710b9ed7e"
+    }
+  ],
+  "private_regression_summary": [
+    "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 419 filtered out; finished in 13.13s"
+  ],
+  "cargo_01_failure_summary": [
+    "assertion failed: expected.source_block_recovery.is_some()",
+    "test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s"
+  ],
+  "first_failure_source_recovered_sha256": "047a83ace4377716783b6ef28f606e405a9e3d373bd58e6b905e4d1f66cc60d3",
+  "first_failure_correction": "Inverse preserved test patch recovers exact failed-test source; ordinary pressure fixture byte check retained and separate maintained N05 exact-recovery positive control added.",
+  "scope_warning": "git ls-files returned exit 0 and exact maintained scope, with a warning on an unrelated historical RV58 fixture .gitignore symlink loop; no repair or traversal expansion performed.",
+  "final_source": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "d2f0f2dc73a717412cf5a37f3df8bcb808703466378ecf56052866b073b35f61",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/source_receipt.rs",
+      "sha256": "c2fce1458f646b866886b9e1ffae07569d34ea517c7a7309d6b8140522f305fa",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/retained_memory.rs",
+      "sha256": "002ef8584f6db37572ddbbff760665539e3245d27b83b87b9f79d9a2fa3ffd99",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/tests/retained_precision_admission.rs",
+      "sha256": "99f700f4a9fc103e8ec55331e21d99f79eb720a575865d6e94ae86300fd6659f",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "sha256": "782f496dd297a60e1c3cd8c19948f3988555b1fe79b5ed0325c2b140b9669693",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/tests/retained_precision_admission.rs",
+      "sha256": "5640c8eaa15cf307ddb5d64549f686367c1699c716f627561e707fa710b9ed7e",
+      "matches": true
+    }
+  ],
+  "code_head_final": "90aae4e6e7c7a02780ca4f5f8df678d8d4d001ae",
+  "process_groups": [
+    {
+      "pid": 78063,
+      "alive": false
+    },
+    {
+      "pid": 78241,
+      "alive": false
+    },
+    {
+      "pid": 78341,
+      "alive": false
+    }
+  ],
+  "guard_observation": "PID  PPID     ELAPSED ARGS\n 5387     1 05-13:43:17 /bin/bash /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh",
+  "final_audit_utc": "2026-10-03T15:19:36.445302+00:00",
+  "git_index_api_writes": 0,
+  "maintained_writes": 0,
+  "descendants": 0,
+  "seal_boundary_utc": "2026-10-03T15:20:05.461693+00:00",
+  "source_and_author_packet_stable_at_seal": true
+}

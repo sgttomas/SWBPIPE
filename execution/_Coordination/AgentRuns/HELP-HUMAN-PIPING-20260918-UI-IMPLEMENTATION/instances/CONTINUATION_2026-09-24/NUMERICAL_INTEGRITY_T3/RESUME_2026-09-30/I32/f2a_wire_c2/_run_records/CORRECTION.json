@@ -1,0 +1,169 @@
+{
+  "status": "narrow draft repair proposed for same-reviewer backcheck; no acceptance",
+  "task": "I32 C2 combination mapping repair",
+  "agent": "/root/i32_f2a_wire_c1 TASK Type2",
+  "parent": "/root HELP_HUMAN Agent0",
+  "mechanism": "native direct-child follow-up; no delegation",
+  "receipt_utc": "2026-10-02 20:48:16 UTC",
+  "new_analysis_cutoff_utc": "2026-10-02 21:03:16 UTC",
+  "maximum_return_utc": "2026-10-02 21:08:16 UTC",
+  "completed_utc": "2026-10-02 20:53:59 UTC",
+  "original_c2": "0440ea0777",
+  "review": "2200f45465",
+  "authorization_brief": "87ded04a30",
+  "actual_host_permissions": "shared unrestricted M5; four-file write fence is instructional",
+  "write_allowlist": [
+    "CONTRACT_DELTA.md",
+    "RETURN.md",
+    "INVENTORY.json",
+    "_run_records/CORRECTION.json"
+  ],
+  "findings": {
+    "RV43-C2-F1": "Closed case/combination source union; common map representative separated from ordered exact factor/operand provenance; no combined binary64 nodal terms; own K4CMB/K4LED and nested source/hash equality/count rules.",
+    "RV43-C2-F2": "Closed pre_source_refusal Call with exact typed early reason, unchanged meter, zero new source/group/build/Run; valid-source later refusals keep Run. Call/run/execution-order and unavailable-entry/API/cache compatibility reconciled."
+  },
+  "changes": [
+    {
+      "path": "CONTRACT_DELTA.md",
+      "original_sha256": "4baee6ad54b2a31e3f2431aeab57f35ff69e0e0936f5663536177e534c0f8293",
+      "revised_sha256": "923da0b97eb5becad7e7c1373c5a6f362568dc28ac8eab029c9170677c890869",
+      "original_bytes": 41684,
+      "revised_bytes": 53986
+    },
+    {
+      "path": "RETURN.md",
+      "original_sha256": "ebe8d55414a74d5bf6e0e1680b3fd8283fa91a2f7d5698d38efdbdf2459c3b1c",
+      "revised_sha256": "1e97c22596caeb02a3149e8148b012ecba1e06887afff55d809836d2152420fc",
+      "original_bytes": 2653,
+      "revised_bytes": 3564
+    }
+  ],
+  "origins": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I32_F2A_C2_COMBINATION_REPAIR.md",
+      "revision": "87ded04a30",
+      "sha256": "086b23e4e1df36469e64084a8879de1f9bc606c19a87a7eae6117054c97b02ac",
+      "bytes": 2083,
+      "read_extent": "full brief"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV43/f2a_wire_c2_03/RETURN.md",
+      "revision": "2200f45465",
+      "sha256": "1b7f833ce4bca99de13a5835a94fb8f4afe7128094dc9e13ebbc7a7273451aac",
+      "bytes": 2119,
+      "read_extent": "full return"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV43/f2a_wire_c2_03/REVIEW.md",
+      "revision": "2200f45465",
+      "sha256": "50e22802ecba254c15904bdf0c34318e7788e73f1dc957337d855b30f9605fcf",
+      "bytes": 10972,
+      "read_extent": "full review"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
+      "revision": "49034a940f",
+      "sha256": "b40ab81311a80720cc19bbbe03fccad4f4f371cc78e2b51e4eec8ab2079a32f1",
+      "bytes": 6203,
+      "read_extent": "80-140"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "revision": "49034a940f",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "bytes": 160870,
+      "read_extent": "914-966"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+      "revision": "49034a940f",
+      "sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e",
+      "bytes": 8977,
+      "read_extent": "139-182 and211-242"
+    }
+  ],
+  "unchanged_original_raw_payloads": [
+    {
+      "path": "_run_records/CHECK_ORIGINS.json",
+      "sha256": "bbeb6497f567e24b2bfe0b1afaf25bf39ee358f01d7cbe4a205c2bd6bd129393",
+      "unchanged_from": "0440ea0777"
+    },
+    {
+      "path": "_run_records/COMMANDS.md",
+      "sha256": "e1e9b27999d288ea7c7943fe5924e756dc342f4a3de2267248298b468ca30464",
+      "unchanged_from": "0440ea0777"
+    },
+    {
+      "path": "_run_records/EXECUTION.json",
+      "sha256": "f30413e6bcc258fbb8ebd5a154660b608739abbe9e1a3b7e8e58f2487ab0d21e",
+      "unchanged_from": "0440ea0777"
+    },
+    {
+      "path": "_run_records/READ_ORIGINS.json",
+      "sha256": "a03f586dea6676bcdfd7e3c7202233b317ae8c6be5441cc6ee283725e7f40bba",
+      "unchanged_from": "0440ea0777"
+    },
+    {
+      "path": "_run_records/SOURCE_CHECKS.json",
+      "sha256": "4602951c13bd63f0465762541c8571f35798a4302c89fe8de047457ad003b6f0",
+      "unchanged_from": "0440ea0777"
+    },
+    {
+      "path": "_run_records/source_checks.py",
+      "sha256": "d850193f5e159b0979a2649069fa518820d5cac63196f50a757752ac341cf6c6",
+      "unchanged_from": "0440ea0777"
+    }
+  ],
+  "review_payload_checks": [
+    {
+      "path": "RETURN.md",
+      "sha256": "1b7f833ce4bca99de13a5835a94fb8f4afe7128094dc9e13ebbc7a7273451aac",
+      "verified": true
+    },
+    {
+      "path": "REVIEW.md",
+      "sha256": "50e22802ecba254c15904bdf0c34318e7788e73f1dc957337d855b30f9605fcf",
+      "verified": true
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "sha256": "b36619813383f0f25f62cf07d41c499202c708b191518839310b2df6f4c8fb6f",
+      "verified": true
+    },
+    {
+      "path": "_run_records/CONSUMER_CHECKS.json",
+      "sha256": "604e2098daafb08e68bab1b637eb27f3646e0c95246c8fbac444db62600c1b65",
+      "verified": true
+    },
+    {
+      "path": "_run_records/ENUM_DECLARATIONS.json",
+      "sha256": "d0c4dcc9ec70ecc9722d59f78b71b4435a9aa4341df503a66cabd84d0d60ff7a",
+      "verified": true
+    },
+    {
+      "path": "_run_records/EXECUTION.json",
+      "sha256": "5c8af5a4b63e28b2d7826c3a92e1012e532d0bbde5d3f9ab13a74404ec1ab1d6",
+      "verified": true
+    },
+    {
+      "path": "_run_records/ORIGINS.json",
+      "sha256": "aa31b9231cb5d4caee1a15440d7690752105ef4d14688af77bcec64e7542f4fc",
+      "verified": true
+    }
+  ],
+  "proposed_controls": [
+    "Differing-load operands and ledger-net/source identity distinction",
+    "Factor order/repetition/zero/cancellation and source-local term ordinals",
+    "Four pre-source refusals and nonfinite receipt-encoding fallback",
+    "Interleaved refused Calls without Run-index gaps or meter increments",
+    "Valid-source/group/after-work refusal stays distinct; legacy observations unchanged"
+  ],
+  "control_execution": "All new controls are proposed and unrun. Only read-only source/hash/JSON checks were performed; no producer/schema/compiler/solver/model/native probe ran.",
+  "limits": [
+    "No no-wrap admission proof",
+    "No source-geometric action bridge",
+    "No memory/cost/caller or numerical recipe closure",
+    "No implementation grant, schema installation, new domain/numerical policy or identity reservation"
+  ],
+  "scope_check": "Existing C2 raw payloads byte-equal original0440; seven RV43 review payload seals verified. C1 and review files not written. Only the four allowed correction paths were written. No Git/index/API mutation or maintained edit."
+}

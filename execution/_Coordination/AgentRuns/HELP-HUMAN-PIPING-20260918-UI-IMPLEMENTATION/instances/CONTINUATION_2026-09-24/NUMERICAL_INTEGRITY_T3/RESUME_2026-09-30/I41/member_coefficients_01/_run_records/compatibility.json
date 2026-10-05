@@ -1,0 +1,41 @@
+{
+  "mode": "compatibility",
+  "argv": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+    "--locked",
+    "--offline",
+    "--lib",
+    "structural::retained::directed::",
+    "--",
+    "--test-threads=2"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic",
+  "environment": {
+    "CARGO_BUILD_JOBS": "4",
+    "RUST_TEST_THREADS": "2",
+    "CARGO_TARGET_DIR": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/i41-target/frame_kernel"
+  },
+  "guard_pid": 5387,
+  "start_utc": "2026-10-03T00:09:56.226045+00:00",
+  "source_hashes": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs": "404e6a7ad192d4ca946028d876ba21e52c773e70c21df8008dcf29165c59eb76",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs": "ab7544d78557b04a034754b1b88a4b214c0dd70c054856f1f0052514d3070679",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs": "b5ab75205cf85627bdffc7f017f0b0985070d64926bd7f2063b093a9cf3b034d",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed/certificate.rs": "3525a99225a7d19a3e798cfdfe40921f658bb61acc2151098b28c3f19292926e",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs": "7d473352d032bcfa3fade1bdb1b8cb84107c21ca6870dd9ceee36debdfc0ac3e",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_vectors.rs": "8cbe5d32ea21a3ced7d5dc5cf9ccde256d01a6d546e94406a43a5d46b3a39a37",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_vectors.py": "88fc0765939e9dff16041c6221dac068fa7a6ea0f60b1f5bdd29498e229323b7",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed_tests.rs": "1c9e13fd515138c360b904c1e46d7c71966382be66059a36e5a55c6b05461bad",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_tests.rs": "4b704dacd360a46ae82a6e0e27668a23fab9a6c574f1e63e24a02ca042300b1e",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_vectors.rs": "24e9eb55045474ecabe754ecfed8850f92f6a481cae24de4f530468708880861"
+  },
+  "pid": 10118,
+  "exit_code": 0,
+  "elapsed_seconds": 0.151732083,
+  "end_utc": "2026-10-03T00:09:56.379772+00:00",
+  "process_exited": true,
+  "source_unchanged": true
+}

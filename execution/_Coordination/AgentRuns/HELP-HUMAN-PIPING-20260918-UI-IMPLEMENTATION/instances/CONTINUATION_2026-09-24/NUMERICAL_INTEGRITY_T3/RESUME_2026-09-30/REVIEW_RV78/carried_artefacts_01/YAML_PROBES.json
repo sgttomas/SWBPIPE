@@ -1,0 +1,187 @@
+{
+ "what": "RV78 read-only JSON Schema probes of results.v0.3.schema.yaml (successor branch) using the repository's validate_instance and _results_document helpers; review evidence only",
+ "probes": [
+  {
+   "probe": "Y0_successor_base_ordinary_prepared_synthetic",
+   "expected_valid": true,
+   "valid": true,
+   "match": true,
+   "first_error": ""
+  },
+  {
+   "probe": "Y0_successor_base_ordinary_prepared_dense_synthetic",
+   "expected_valid": true,
+   "valid": true,
+   "match": true,
+   "first_error": ""
+  },
+  {
+   "probe": "Y0_successor_base_ordinary_prepared_no_data_synthetic",
+   "expected_valid": true,
+   "valid": true,
+   "match": true,
+   "first_error": ""
+  },
+  {
+   "probe": "Y0_successor_base_ordinary_prepared_cancelled_loads_synthetic",
+   "expected_valid": true,
+   "valid": true,
+   "match": true,
+   "first_error": ""
+  },
+  {
+   "probe": "Y0_successor_base_two_case_facade_after_certificate_synthetic",
+   "expected_valid": true,
+   "valid": true,
+   "match": true,
+   "first_error": ""
+  },
+  {
+   "probe": "Y0_successor_base_two_case_preparation_failure_synthetic",
+   "expected_valid": true,
+   "valid": true,
+   "match": true,
+   "first_error": ""
+  },
+  {
+   "probe": "Y0_successor_base_two_body_synthetic",
+   "expected_valid": true,
+   "valid": true,
+   "match": true,
+   "first_error": ""
+  },
+  {
+   "probe": "Y0_successor_base_p512_ladder_synthetic",
+   "expected_valid": true,
+   "valid": true,
+   "match": true,
+   "first_error": ""
+  },
+  {
+   "probe": "Y0_successor_base_two_case_synthetic",
+   "expected_valid": true,
+   "valid": true,
+   "match": true,
+   "first_error": ""
+  },
+  {
+   "probe": "Y0_successor_base_candidate_failure_skip_synthetic",
+   "expected_valid": true,
+   "valid": true,
+   "match": true,
+   "first_error": ""
+  },
+  {
+   "probe": "Y0_successor_base_verification_failure_skip_synthetic",
+   "expected_valid": true,
+   "valid": true,
+   "match": true,
+   "first_error": ""
+  },
+  {
+   "probe": "Y0_successor_base_two_case_shared_failed_cache_synthetic",
+   "expected_valid": true,
+   "valid": true,
+   "match": true,
+   "first_error": ""
+  },
+  {
+   "probe": "Y0_successor_base_two_case_two_groups_synthetic",
+   "expected_valid": true,
+   "valid": true,
+   "match": true,
+   "first_error": ""
+  },
+  {
+   "probe": "Y0_successor_base_ordinary_prepared_interpolated_material_synthetic",
+   "expected_valid": true,
+   "valid": true,
+   "match": true,
+   "first_error": ""
+  },
+  {
+   "probe": "Y0_successor_base_ordinary_prepared_mm_units_synthetic",
+   "expected_valid": true,
+   "valid": true,
+   "match": true,
+   "first_error": ""
+  },
+  {
+   "probe": "Y1_receipt_policy_v1_rejected_via_ref",
+   "expected_valid": false,
+   "valid": false,
+   "match": true,
+   "first_error": "Y1_receipt_policy_v1_rejected_via_ref failed JSON Schema validation:"
+  },
+  {
+   "probe": "Y2_receipt_unknown_member_rejected_via_ref",
+   "expected_valid": false,
+   "valid": false,
+   "match": true,
+   "first_error": "Y2_receipt_unknown_member_rejected_via_ref failed JSON Schema validation:"
+  },
+  {
+   "probe": "Y3_receipt_empty_body_rejected",
+   "expected_valid": false,
+   "valid": false,
+   "match": true,
+   "first_error": "Y3_receipt_empty_body_rejected failed JSON Schema validation:"
+  },
+  {
+   "probe": "Y4_successor_with_source_block_recovery_rejected",
+   "expected_valid": false,
+   "valid": false,
+   "match": true,
+   "first_error": "Y4_successor_with_source_block_recovery_rejected failed JSON Schema validation:"
+  },
+  {
+   "probe": "Y5_successor_with_preview_profile_rejected",
+   "expected_valid": false,
+   "valid": false,
+   "match": true,
+   "first_error": "Y5_successor_with_preview_profile_rejected failed JSON Schema validation:"
+  },
+  {
+   "probe": "Y6_successor_limitations_changed_rejected",
+   "expected_valid": false,
+   "valid": false,
+   "match": true,
+   "first_error": "Y6_successor_limitations_changed_rejected failed JSON Schema validation:"
+  },
+  {
+   "probe": "Y7_successor_ref_mismatch_rejected",
+   "expected_valid": false,
+   "valid": false,
+   "match": true,
+   "first_error": "Y7_successor_ref_mismatch_rejected failed JSON Schema validation:"
+  },
+  {
+   "probe": "Y8_successor_without_contract_evidence_rejected",
+   "expected_valid": false,
+   "valid": false,
+   "match": true,
+   "first_error": "Y8_successor_without_contract_evidence_rejected failed JSON Schema validation:"
+  },
+  {
+   "probe": "Y9_preview_branch_with_receipt_rejected",
+   "expected_valid": false,
+   "valid": false,
+   "match": true,
+   "first_error": "Y9_preview_branch_with_receipt_rejected failed JSON Schema validation:"
+  },
+  {
+   "probe": "Y10_historical_preview_still_valid",
+   "expected_valid": true,
+   "valid": true,
+   "match": true,
+   "first_error": ""
+  },
+  {
+   "probe": "Y11_derivative_value_cannot_carry_row_token",
+   "expected_valid": false,
+   "valid": false,
+   "match": true,
+   "first_error": "Y11_derivative_value_cannot_carry_row_token failed JSON Schema validation:"
+  }
+ ]
+}

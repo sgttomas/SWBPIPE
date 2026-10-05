@@ -1,0 +1,40 @@
+{
+  "draft_for": "fixtures/results/retained_precision_carrier_cases.json, declared_differences (to be applied by slice F at the flip; I67 U7 slice T draft, not applied)",
+  "format_note": "Both forms need one field each that format v3 cannot express, proposed for the format revision that slice F adopts. 'capture': 'none' means TS delivers the source without an IPC capture and offers the form's invocation to its registration directly (no live native capture); Rust and Python read the invocation argument as for 'invocation': 'fixture'. 'current_model_edits' are edits (op 'set') applied to TS's current model only, which otherwise is the captured invocation's model; Rust and Python have no current-model input beyond 'requested'. Before the flip every language reads needs_recompute on both forms, so the entry is a difference only once the flags are set.",
+  "entry": {
+    "id": "D-U7-4:ts_requires_live_native_capture",
+    "kind": "language",
+    "ruling": "ROOT_RULINGS_V1 \"RV93 on U3 grant 2: PASS; RV89 confirms the final basis re-qualified; U7 planned and ruled\" (D-U7-4); RV91 u6d_01 N-2; RV88 u6d_01 S-1; I61 u7_scoping_01 PLAN section 2 row 5; I67 u7_slice_t_01",
+    "description": "A valid successor statement with its actual invocation, whose TS standing has no live native capture for these bytes and the current model: registered without an IPC capture, or read against a current model that differs from the captured one while keeping the same load-case ids. After U7, Rust and Python, given the invocation argument and requested refs equal to the receipt's case order, read numerically_eligible; TS binds standing to the live native capture (hasNativeMechanicsInvocation: an unchanged, not invalidated capture, unchanged bytes, and the current model equal to the captured one) and reads needs_recompute with RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED. Stricter; fails closed. Every TS consumer of eligible standing (session Current, the rule-check gate, the T6 panels) also requires hasNativeMechanicsInvocation.",
+    "forms": [
+      {
+        "label": "invocation_without_native_capture",
+        "fixtures": ["milestone_sparse_interactive", "milestone_dense_scrutiny"],
+        "invocation": "fixture",
+        "capture": "none",
+        "requested": "invocation",
+        "edits": [],
+        "subject": "standing",
+        "expected": {
+          "rust": { "standing": "numerically_eligible" },
+          "python": { "standing": "numerically_eligible" },
+          "typescript": { "standing": "needs_recompute", "finding": "RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED" }
+        }
+      },
+      {
+        "label": "stale_current_model_same_case_ids",
+        "fixtures": ["milestone_sparse_interactive", "milestone_dense_scrutiny"],
+        "invocation": "fixture",
+        "requested": "invocation",
+        "edits": [],
+        "current_model_edits": [{ "path": ["nodes", 0, "position", "x"], "op": "set", "value": 1.0 }],
+        "subject": "standing",
+        "expected": {
+          "rust": { "standing": "numerically_eligible" },
+          "python": { "standing": "numerically_eligible" },
+          "typescript": { "standing": "needs_recompute", "finding": "RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED" }
+        }
+      }
+    ]
+  }
+}

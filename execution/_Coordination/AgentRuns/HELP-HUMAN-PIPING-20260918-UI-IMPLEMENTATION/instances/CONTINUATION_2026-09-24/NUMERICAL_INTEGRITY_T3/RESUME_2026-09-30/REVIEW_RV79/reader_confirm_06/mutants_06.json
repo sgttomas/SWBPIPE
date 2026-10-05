@@ -1,0 +1,101 @@
+[
+ {
+  "id": "M33_d37_removed",
+  "description": "D37: the error/stage-record check removed",
+  "mutated_sha256": "faf535b251ab67c57e11b1eb375a34df564891ca8a532a63389088c99dcc8373",
+  "exit": 1,
+  "killed": true,
+  "summary": "7 failed, 364 passed in 27.80s",
+  "killing_tests": [
+   "test_error_kind_agrees_with_stage_record_d37",
+   "test_rv79_surviving_mutants_m06_m09_m14",
+   "test_shared_draft_first_failure_controls[g5a_error_with_g5a_not_entered]",
+   "test_shared_draft_first_failure_controls[numeric_error_with_checks_not_entered]",
+   "test_shared_draft_first_failure_controls[observable_error_with_observables_not_entered]",
+   "test_shared_draft_first_failure_controls[proof_error_with_certificate_passed]",
+   "test_shared_draft_first_failure_controls[values_error_with_values_completed]"
+  ],
+  "killing_test_count": 7,
+  "seconds": 27.9
+ },
+ {
+  "id": "M34_observable_narrowed",
+  "description": "D37: observable loses its g5a-failed record (F, F)",
+  "mutated_sha256": "1df31e13263f5811b494d7ff5b9ee602d5318b2822cd019af3bf9d152864d32e",
+  "exit": 1,
+  "killed": true,
+  "summary": "1 failed, 370 passed in 26.76s",
+  "killing_tests": [
+   "test_error_kind_agrees_with_stage_record_d37"
+  ],
+  "killing_test_count": 1,
+  "seconds": 26.9
+ },
+ {
+  "id": "M35_abandoned_widened_after_certificate",
+  "description": "D37: abandoned also admitted after a passed certificate",
+  "mutated_sha256": "e2b0a456e742526f6577b65af87daa77c7d1ac50dbe54b291458a088b6b8f243",
+  "exit": 0,
+  "killed": false,
+  "summary": "371 passed in 26.39s",
+  "killing_tests": [],
+  "killing_test_count": 0,
+  "seconds": 26.5
+ },
+ {
+  "id": "M36_proof_drops_unchecked_pair",
+  "description": "D37: certify_final failure without the verdict copy (N, N) no longer admitted",
+  "mutated_sha256": "55dc302299e5d50bef510518aa019c0456ff57eb1d616b76256a21b9d57fe07d",
+  "exit": 1,
+  "killed": true,
+  "summary": "5 failed, 366 passed in 26.89s",
+  "killing_tests": [
+   "test_rv78_probe_relations[Q1_nested_stop_work_accounting_exact_status]",
+   "test_shared_draft_first_failure_controls[nested_stop_work_accounting_exact_status]",
+   "test_shared_draft_first_failure_controls[work_accounting_cause_exact_status]",
+   "test_shared_publicly_consistent_attestations_must_pass[cert_failed_after_summary_storage]",
+   "test_shared_publicly_consistent_attestations_must_pass[cert_failed_before_summary]"
+  ],
+  "killing_test_count": 5,
+  "seconds": 27.0
+ },
+ {
+  "id": "M37_values_widened",
+  "description": "D37: values also admitted with values completed",
+  "mutated_sha256": "b38a5fc84d8edf5405d3deb8a316321b1e0bdec4c4cd21100f060bb284a954c8",
+  "exit": 0,
+  "killed": false,
+  "summary": "371 passed in 26.71s",
+  "killing_tests": [],
+  "killing_test_count": 0,
+  "seconds": 26.8
+ },
+ {
+  "id": "M38_numeric_widened",
+  "description": "D37: numeric also admitted with observables and g5a not entered",
+  "mutated_sha256": "565600c9d4b2e4f72e1d8f8f8d61d1c3261d410b198a17b0d08919a0c19c4035",
+  "exit": 1,
+  "killed": true,
+  "summary": "2 failed, 369 passed in 26.10s",
+  "killing_tests": [
+   "test_error_kind_agrees_with_stage_record_d37",
+   "test_shared_draft_first_failure_controls[numeric_error_with_checks_not_entered]"
+  ],
+  "killing_test_count": 2,
+  "seconds": 26.2
+ },
+ {
+  "id": "M39_g5a_widened",
+  "description": "D37: g5a also admitted with g5a not entered",
+  "mutated_sha256": "39540fac26eb744f7fbc79ab0f3740c52caf0b49d9c5c584be586121e0450301",
+  "exit": 1,
+  "killed": true,
+  "summary": "2 failed, 369 passed in 26.22s",
+  "killing_tests": [
+   "test_error_kind_agrees_with_stage_record_d37",
+   "test_shared_draft_first_failure_controls[g5a_error_with_g5a_not_entered]"
+  ],
+  "killing_test_count": 2,
+  "seconds": 26.3
+ }
+]

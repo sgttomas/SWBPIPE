@@ -1,0 +1,1036 @@
+{
+ "lane": "WT/rv91/mut",
+ "files": [
+  "src/features/results/retainedPrecisionIntegration.test.tsx",
+  "src/services/retainedPrecisionAnalysisRun.test.ts",
+  "src/features/results/retainedPrecisionOutputRefusal.test.tsx",
+  "src/features/results/numericalResultQuality.test.ts",
+  "src/features/results/knownSemanticLimitations.test.ts",
+  "src/features/results/resultSemantics.test.ts",
+  "src/services/analysisRunCompatibility.test.ts",
+  "src/services/previewService.test.ts",
+  "src/services/ruleCheckService.test.ts",
+  "src/features/results/HistoricalRunContext.test.tsx",
+  "src/features/results/ResultsPanel.test.tsx",
+  "src/features/results/zzRV91Review.test.tsx"
+ ],
+ "i67_total": 103,
+ "mutants": [
+  {
+   "id": "N06",
+   "origin": "I67",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "dispatch: guard not applied",
+   "killed": true,
+   "exit": 1,
+   "passed": 298,
+   "failed": 10,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality a relabelled successor is refused by every builder; the legacy builder refuses the successor"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "dense_scrutiny: the AnalysisRun copies the receipt and validates its equality a relabelled successor is refused by every builder; the legacy builder refuses the successor"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 parity: the 14 shared cases and RV91's extra cases, TS side records the TS standing token and dispatch for every case"
+    ]
+   ]
+  },
+  {
+   "id": "N09",
+   "origin": "I67",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "dispatch: null receipt admitted",
+   "killed": true,
+   "exit": 1,
+   "passed": 307,
+   "failed": 1,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": false,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the downgrade guard (F-5) the successor's own header requires its profile, its contract evidence and a receipt object, and no other receipt"
+    ]
+   ],
+   "first_rv91": []
+  },
+  {
+   "id": "N13",
+   "origin": "I67",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "dispatch: routed as preview-physics-1",
+   "killed": true,
+   "exit": 1,
+   "passed": 176,
+   "failed": 132,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality builds through the product path with the complete receipt, byte-equal, and validates"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality row interpretation equals the base preview-physics-1 projection's except the contract binding"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 parity: the 14 shared cases and RV91's extra cases, TS side records the TS standing token and dispatch for every case"
+    ],
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 registration binding binds the exact bytes; every edit voids it; a copy never registers; revert restores"
+    ]
+   ]
+  },
+  {
+   "id": "N16",
+   "origin": "I67",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "standing: successor routed to the generic numerical_quality branch",
+   "killed": true,
+   "exit": 1,
+   "passed": 273,
+   "failed": 35,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC direct IPC registers only after the accepted reader passes with the captured invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC job IPC registers only after the accepted reader passes with the captured invocation"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 registration binding binds the exact bytes; every edit voids it; a copy never registers; revert restores"
+    ],
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 registration binding standing never reads numerical_quality for a selected case (seam), and only the registration (post-U7 simulation)"
+    ]
+   ]
+  },
+  {
+   "id": "N23",
+   "origin": "I67",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "predicate: unresolved refs admitted",
+   "killed": true,
+   "exit": 1,
+   "passed": 307,
+   "failed": 1,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": false,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+    ]
+   ],
+   "first_rv91": []
+  },
+  {
+   "id": "S03",
+   "origin": "I67",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "register: refusal not rethrown (native registration proceeds)",
+   "killed": true,
+   "exit": 1,
+   "passed": 296,
+   "failed": 12,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": false,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC bytes outside the checked profile never register, even when registration is called directly"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a delivery with an edited covered row records the reader's first code: unsupported, never registered natively"
+    ]
+   ],
+   "first_rv91": []
+  },
+  {
+   "id": "S04",
+   "origin": "I67",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "register: unchecked bytes recorded",
+   "killed": true,
+   "exit": 1,
+   "passed": 306,
+   "failed": 2,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": false,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC bytes outside the checked profile never register, even when registration is called directly"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC bytes outside the checked profile never register, even when registration is called directly"
+    ]
+   ],
+   "first_rv91": []
+  },
+  {
+   "id": "S05",
+   "origin": "I67",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "registered: text not compared",
+   "killed": true,
+   "exit": 1,
+   "passed": 305,
+   "failed": 3,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 registration binding binds the exact bytes; every edit voids it; a copy never registers; revert restores"
+    ]
+   ]
+  },
+  {
+   "id": "S09",
+   "origin": "I67",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "seam: invocation binding not required",
+   "killed": true,
+   "exit": 1,
+   "passed": 306,
+   "failed": 2,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) is numerically_eligible only with every conjunct"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 registration binding standing never reads numerical_quality for a selected case (seam), and only the registration (post-U7 simulation)"
+    ]
+   ]
+  },
+  {
+   "id": "S14",
+   "origin": "I67",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "seam: not_required conjunct dropped",
+   "killed": true,
+   "exit": 1,
+   "passed": 307,
+   "failed": 1,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": false,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses"
+    ]
+   ],
+   "first_rv91": []
+  },
+  {
+   "id": "S22",
+   "origin": "I67",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "invocation: returned without eligible standing",
+   "killed": true,
+   "exit": 1,
+   "passed": 302,
+   "failed": 6,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": false,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC direct IPC registers only after the accepted reader passes with the captured invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC job IPC registers only after the accepted reader passes with the captured invocation"
+    ]
+   ],
+   "first_rv91": []
+  },
+  {
+   "id": "S25",
+   "origin": "I67",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "summary: current standing ignored",
+   "killed": true,
+   "exit": 1,
+   "passed": 305,
+   "failed": 3,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": false,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the post-U7 standing rules (seams; the reader's flag is untouched) counts withheld rows by standing (Rust classification_summary_from)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ]
+   ],
+   "first_rv91": []
+  },
+  {
+   "id": "K03",
+   "origin": "I67",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "binding: unregistered rows bind",
+   "killed": true,
+   "exit": 1,
+   "passed": 304,
+   "failed": 4,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": false,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero"
+    ]
+   ],
+   "first_rv91": []
+  },
+  {
+   "id": "K13",
+   "origin": "I67",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "bound text: equal printed value not stepped up",
+   "killed": true,
+   "exit": 1,
+   "passed": 306,
+   "failed": 2,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 text upwardBoundText is never below b and is the tight upward 3-digit value except where the decimal equals b"
+    ]
+   ]
+  },
+  {
+   "id": "K15",
+   "origin": "I67",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "bound text: mantissa overflow not carried",
+   "killed": true,
+   "exit": 1,
+   "passed": 306,
+   "failed": 2,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 text upwardBoundText is never below b and is the tight upward 3-digit value except where the decimal equals b"
+    ]
+   ]
+  },
+  {
+   "id": "K17",
+   "origin": "I67",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "units: MPa not normalized",
+   "killed": true,
+   "exit": 1,
+   "passed": 304,
+   "failed": 4,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 text the milestone absolute labels print each receipt bound upward in the SI unit the reader classified in"
+    ]
+   ]
+  },
+  {
+   "id": "L01",
+   "origin": "I67",
+   "file": "src/features/results/loadReferenceOutputAvailability.ts",
+   "desc": "refusal: successor not refused",
+   "killed": true,
+   "exit": 1,
+   "passed": 267,
+   "failed": 41,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": false,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionOutputRefusal.test.tsx",
+     "the shared refusal names the desktop route only, routes it to T6, never calls the result invalid or unsupported, and is distinct from load-reference"
+    ],
+    [
+     "features/results/retainedPrecisionOutputRefusal.test.tsx",
+     "PCF export refuses sparse_interactive successor output with its own reason and keeps its display"
+    ]
+   ],
+   "first_rv91": []
+  },
+  {
+   "id": "R01",
+   "origin": "I67",
+   "file": "src/features/results/resultSemantics.ts",
+   "desc": "table: inherited table returned",
+   "killed": true,
+   "exit": 1,
+   "passed": 307,
+   "failed": 1,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": false,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the inputs and the pinned identity dispatch constants equal the accepted reader's and the pinned table, whose rows are preview-physics-1's"
+    ]
+   ],
+   "first_rv91": []
+  },
+  {
+   "id": "A02",
+   "origin": "I67",
+   "file": "src/services/analysisRunCompatibility.ts",
+   "desc": "build: receipt not copied",
+   "killed": true,
+   "exit": 1,
+   "passed": 233,
+   "failed": 75,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality builds through the product path with the complete receipt, byte-equal, and validates"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality row interpretation equals the base preview-physics-1 projection's except the contract binding"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 AnalysisRun, reopen and the gate sparse_interactive: builds, copies whole, validates equality; every receipt change is refused with the ruled code"
+    ],
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 AnalysisRun, reopen and the gate dense_scrutiny: builds, copies whole, validates equality; every receipt change is refused with the ruled code"
+    ]
+   ]
+  },
+  {
+   "id": "A04",
+   "origin": "I67",
+   "file": "src/services/analysisRunCompatibility.ts",
+   "desc": "validate: copy equality not checked",
+   "killed": true,
+   "exit": 1,
+   "passed": 298,
+   "failed": 10,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality a dropped copy fails with ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality a altered copy fails with ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 AnalysisRun, reopen and the gate sparse_interactive: builds, copies whole, validates equality; every receipt change is refused with the ruled code"
+    ],
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 AnalysisRun, reopen and the gate dense_scrutiny: builds, copies whole, validates equality; every receipt change is refused with the ruled code"
+    ]
+   ]
+  },
+  {
+   "id": "A05",
+   "origin": "I67",
+   "file": "src/services/analysisRunCompatibility.ts",
+   "desc": "validate: receipt on another identity admitted",
+   "killed": true,
+   "exit": 1,
+   "passed": 305,
+   "failed": 3,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "no other identity's record carries a receipt a preview-physics-1 record given the successor's receipt is ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 AnalysisRun, reopen and the gate sparse_interactive: builds, copies whole, validates equality; every receipt change is refused with the ruled code"
+    ],
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 AnalysisRun, reopen and the gate dense_scrutiny: builds, copies whole, validates equality; every receipt change is refused with the ruled code"
+    ]
+   ]
+  },
+  {
+   "id": "P01",
+   "origin": "I67",
+   "file": "src/services/previewService.ts",
+   "desc": "capture: successor registered without the reader",
+   "killed": true,
+   "exit": 1,
+   "passed": 265,
+   "failed": 43,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC direct IPC registers only after the accepted reader passes with the captured invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC job IPC registers only after the accepted reader passes with the captured invocation"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 parity: the 14 shared cases and RV91's extra cases, TS side records the TS standing token and dispatch for every case"
+    ],
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 registration binding binds the exact bytes; every edit voids it; a copy never registers; revert restores"
+    ]
+   ]
+  },
+  {
+   "id": "P02",
+   "origin": "I67",
+   "file": "src/services/previewService.ts",
+   "desc": "capture: invocation not bound",
+   "killed": true,
+   "exit": 1,
+   "passed": 288,
+   "failed": 20,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC direct IPC registers only after the accepted reader passes with the captured invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: registration through mocked IPC job IPC registers only after the accepted reader passes with the captured invocation"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 parity: the 14 shared cases and RV91's extra cases, TS side records the TS standing token and dispatch for every case"
+    ],
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 registration binding binds the exact bytes; every edit voids it; a copy never registers; revert restores"
+    ]
+   ]
+  },
+  {
+   "id": "C01",
+   "origin": "I67",
+   "file": "src/services/ruleCheckService.ts",
+   "desc": "gate: successor not gated",
+   "killed": true,
+   "exit": 1,
+   "passed": 304,
+   "failed": 4,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the rule-check gate and binding refusals (eligibility held) refuses a registered successor before any rule backend call, and unregistered bytes as not native"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the rule-check gate and binding refusals (eligibility held) refuses a registered successor before any rule backend call, and unregistered bytes as not native"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 AnalysisRun, reopen and the gate sparse_interactive: the rule-check gate refuses before the backend; post-U7 it passes the registered invocation"
+    ],
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 AnalysisRun, reopen and the gate dense_scrutiny: the rule-check gate refuses before the backend; post-U7 it passes the registered invocation"
+    ]
+   ]
+  },
+  {
+   "id": "C02",
+   "origin": "I67",
+   "file": "src/services/ruleCheckService.ts",
+   "desc": "gate: invocation not passed",
+   "killed": true,
+   "exit": 1,
+   "passed": 304,
+   "failed": 4,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 AnalysisRun, reopen and the gate sparse_interactive: the rule-check gate refuses before the backend; post-U7 it passes the registered invocation"
+    ],
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 AnalysisRun, reopen and the gate dense_scrutiny: the rule-check gate refuses before the backend; post-U7 it passes the registered invocation"
+    ]
+   ]
+  },
+  {
+   "id": "RP1",
+   "origin": "I67",
+   "file": "src/features/results/ResultsPanel.tsx",
+   "desc": "panel: generic numerical_quality text for the successor",
+   "killed": true,
+   "exit": 1,
+   "passed": 307,
+   "failed": 1,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": false,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the standing text comes from the registered receipt, never from numerical_quality"
+    ]
+   ],
+   "first_rv91": []
+  },
+  {
+   "id": "H03",
+   "origin": "I67",
+   "file": "src/features/results/HistoricalRunContext.tsx",
+   "desc": "reopen: copy not compared",
+   "killed": true,
+   "exit": 1,
+   "passed": 303,
+   "failed": 5,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: reopen revalidates the saved statement and never mints standing an altered AnalysisRun receipt copy is reported"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: reopen revalidates the saved statement and never mints standing an dropped AnalysisRun receipt copy is reported"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 AnalysisRun, reopen and the gate reopen: a rehashed altered copy is caught by the copy check alone; standing never mints"
+    ]
+   ]
+  },
+  {
+   "id": "H05",
+   "origin": "I67",
+   "file": "src/features/results/HistoricalRunContext.tsx",
+   "desc": "reopen: absent copy matches",
+   "killed": true,
+   "exit": 1,
+   "passed": 306,
+   "failed": 2,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": false,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: reopen revalidates the saved statement and never mints standing an dropped AnalysisRun receipt copy is reported"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: reopen revalidates the saved statement and never mints standing an dropped AnalysisRun receipt copy is reported"
+    ]
+   ],
+   "first_rv91": []
+  },
+  {
+   "id": "RV01",
+   "origin": "RV91",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "guard: a null receipt member admitted on another identity (Rust and Python refuse it)",
+   "killed": true,
+   "exit": 1,
+   "passed": 307,
+   "failed": 1,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": false,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the downgrade guard (F-5) a successor relabelled as preview-physics-1 keeping a null receipt member only is unsupported"
+    ]
+   ],
+   "first_rv91": []
+  },
+  {
+   "id": "RV02",
+   "origin": "RV91",
+   "file": "src/features/results/numericalResultQuality.ts",
+   "desc": "guard: legacy 0.1.0 exempt from the downgrade guard",
+   "killed": true,
+   "exit": 1,
+   "passed": 307,
+   "failed": 1,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": false,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "the downgrade guard (F-5) applies to every other identity, including legacy 0.1.0 and an unparseable header"
+    ]
+   ],
+   "first_rv91": []
+  },
+  {
+   "id": "RV03",
+   "origin": "RV91",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "registration: holds the caller's live invocation object (not the captured copy)",
+   "killed": false,
+   "exit": 0,
+   "passed": 308,
+   "failed": 0,
+   "load_errors": [],
+   "killed_by_i67_suite": false,
+   "killed_by_rv91": false,
+   "first_i67": [],
+   "first_rv91": []
+  },
+  {
+   "id": "RV04",
+   "origin": "RV91",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "registered invocation handed out by reference",
+   "killed": false,
+   "exit": 0,
+   "passed": 308,
+   "failed": 0,
+   "load_errors": [],
+   "killed_by_i67_suite": false,
+   "killed_by_rv91": false,
+   "first_i67": [],
+   "first_rv91": []
+  },
+  {
+   "id": "RV05",
+   "origin": "RV91",
+   "file": "src/services/analysisRunCompatibility.ts",
+   "desc": "AnalysisRun: copy equality on receipt_sha256 only",
+   "killed": true,
+   "exit": 1,
+   "passed": 304,
+   "failed": 4,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "sparse_interactive: the AnalysisRun copies the receipt and validates its equality a altered in its body copy fails with ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH"
+    ],
+    [
+     "services/retainedPrecisionAnalysisRun.test.ts",
+     "dense_scrutiny: the AnalysisRun copies the receipt and validates its equality a altered in its body copy fails with ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 AnalysisRun, reopen and the gate sparse_interactive: builds, copies whole, validates equality; every receipt change is refused with the ruled code"
+    ],
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 AnalysisRun, reopen and the gate dense_scrutiny: builds, copies whole, validates equality; every receipt change is refused with the ruled code"
+    ]
+   ]
+  },
+  {
+   "id": "RV06",
+   "origin": "RV91",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "label: prints the body scale S* instead of the bound b",
+   "killed": true,
+   "exit": 1,
+   "passed": 303,
+   "failed": 5,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the rule-check gate and binding refusals (eligibility held) binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the rule-check gate and binding refusals (eligibility held) binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 text the milestone absolute labels print each receipt bound upward in the SI unit the reader classified in"
+    ]
+   ]
+  },
+  {
+   "id": "RV07",
+   "origin": "RV91",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "bound text: no upward step when nearest is below b",
+   "killed": true,
+   "exit": 1,
+   "passed": 303,
+   "failed": 5,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text the bound is printed upward with three significant digits"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 text upwardBoundText is never below b and is the tight upward 3-digit value except where the decimal equals b"
+    ],
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 text the milestone absolute labels print each receipt bound upward in the SI unit the reader classified in"
+    ]
+   ]
+  },
+  {
+   "id": "RV08",
+   "origin": "RV91",
+   "file": "src/features/results/knownSemanticLimitations.ts",
+   "desc": "binding: successor selected by route, not producer id (a header-broken successor binds as ordinary)",
+   "killed": false,
+   "exit": 0,
+   "passed": 308,
+   "failed": 0,
+   "load_errors": [],
+   "killed_by_i67_suite": false,
+   "killed_by_rv91": false,
+   "first_i67": [],
+   "first_rv91": []
+  },
+  {
+   "id": "RV09",
+   "origin": "RV91",
+   "file": "src/features/results/retainedPrecisionStanding.ts",
+   "desc": "registration: fingerprint taken after the reader's await",
+   "killed": true,
+   "exit": 1,
+   "passed": 307,
+   "failed": 1,
+   "load_errors": [],
+   "killed_by_i67_suite": false,
+   "killed_by_rv91": true,
+   "first_i67": [],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 registration binding binds the exact bytes; every edit voids it; a copy never registers; revert restores"
+    ]
+   ]
+  },
+  {
+   "id": "RV10",
+   "origin": "RV91",
+   "file": "src/services/ruleCheckService.ts",
+   "desc": "precheck: class label never shown",
+   "killed": true,
+   "exit": 1,
+   "passed": 304,
+   "failed": 4,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": false,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)"
+    ]
+   ],
+   "first_rv91": []
+  },
+  {
+   "id": "RV11",
+   "origin": "RV91",
+   "file": "src/features/results/HistoricalRunContext.tsx",
+   "desc": "reopen: the reader's code not preserved",
+   "killed": true,
+   "exit": 1,
+   "passed": 305,
+   "failed": 3,
+   "load_errors": [],
+   "killed_by_i67_suite": true,
+   "killed_by_rv91": true,
+   "first_i67": [
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "sparse_interactive: reopen revalidates the saved statement and never mints standing a mutated saved row reads unsupported: the reader's own code is a finding"
+    ],
+    [
+     "features/results/retainedPrecisionIntegration.test.tsx",
+     "dense_scrutiny: reopen revalidates the saved statement and never mints standing a mutated saved row reads unsupported: the reader's own code is a finding"
+    ]
+   ],
+   "first_rv91": [
+    [
+     "features/results/zzRV91Review.test.tsx",
+     "RV91 AnalysisRun, reopen and the gate reopen: a rehashed altered copy is caught by the copy check alone; standing never mints"
+    ]
+   ]
+  }
+ ],
+ "control": {
+  "exit": 0,
+  "passed": 308,
+  "failed": 0,
+  "load_errors": [],
+  "killed_by_i67_suite": false,
+  "killed_by_rv91": false,
+  "first_i67": [],
+  "first_rv91": []
+ },
+ "seconds": 203
+}

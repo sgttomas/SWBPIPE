@@ -1,0 +1,18 @@
+# I61 U7 slice L suites (lane = WT/f2a-u7 candidate with the live milestone bytes at the fixture paths; Python sweep in the worktree, read-only)
+python retained (contract, schema, carriers), lane: 460 passed in 184.23s (0:03:04)
+result_export (all targets), lane: 169 passed, 0 failed, 0 ignored
+vitest, lane: Tests  3542 passed (3542)  (Test Files  138 passed (138))
+tsc --noEmit, lane: exit 0, 0 lines of output
+python 24-file sweep + retained, WT/f2a-u7: 1846 passed, 30 skipped in 751.61s (0:12:31)
+  (the first run in the lane failed 27 tests, all from the archive lacking examples/ and execution/ handoff fixtures; not code)
+# sweep outcome diff vs I66 cand (R/I66/u7_slice_f_01/_run_records/sweep.cand.outcomes), PASSED lines only:
+62c62
+< PASSED tests/test_analysis_run_compatibility.py::test_explicit_legacy_constructor_rejects_unknown_or_nonstring_source_version[0.2.0
+---
+> PASSED tests/test_analysis_run_compatibility.py::test_explicit_legacy_constructor_rejects_unknown_or_nonstring_source_version[0.2.0 ]
+1096a1097,1098
+> PASSED tests/test_retained_precision_carriers.py::test_a_solved_status_is_required_before_the_eligibility_conjunct[dense_scrutiny]
+> PASSED tests/test_retained_precision_carriers.py::test_a_solved_status_is_required_before_the_eligibility_conjunct[sparse_interactive]
+1488a1491
+> PASSED tests/test_retained_precision_contract.py::test_shared_publicly_consistent_attestations_must_pass[not_required_second_case_checks_passed]
+(the 62c62 line is a parameter id whose trailing space I66's outcome file trimmed; same test)

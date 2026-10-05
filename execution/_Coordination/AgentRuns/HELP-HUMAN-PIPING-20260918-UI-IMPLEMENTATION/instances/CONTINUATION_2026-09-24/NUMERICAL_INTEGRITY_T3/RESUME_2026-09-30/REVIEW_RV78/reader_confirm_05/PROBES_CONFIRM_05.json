@@ -1,0 +1,4321 @@
+{
+ "what": "RV78 confirmation-05 probes (review evidence only).",
+ "probes": [
+  {
+   "batch": "D34 negative zero",
+   "id": "Z1_negzero_U_counter",
+   "base": "ordinary_prepared_synthetic",
+   "rv78_expectation": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "edits": [
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "cases",
+      0,
+      "run",
+      "records",
+      0,
+      "corrections"
+     ],
+     "op": "set",
+     "value": -0.0
+    }
+   ],
+   "observed": {
+    "python": {
+     "result": "error",
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "rust": {
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH",
+     "detail": null,
+     "gate": "G2",
+     "result": "error"
+    },
+    "ts": {
+     "result": "error",
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH",
+     "detail": null
+    }
+   }
+  },
+  {
+   "batch": "D34 negative zero",
+   "id": "Z2_negzero_index_origin_call",
+   "base": "ordinary_prepared_synthetic",
+   "rv78_expectation": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "edits": [
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "cases",
+      0,
+      "run",
+      "origin",
+      "call"
+     ],
+     "op": "set",
+     "value": -0.0
+    }
+   ],
+   "observed": {
+    "python": {
+     "result": "error",
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "rust": {
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH",
+     "detail": null,
+     "gate": "G2",
+     "result": "error"
+    },
+    "ts": {
+     "result": "error",
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH",
+     "detail": null
+    }
+   }
+  },
+  {
+   "batch": "D34 negative zero",
+   "id": "Z2b_negzero_index_product_attempt_ref",
+   "base": "ordinary_prepared_synthetic",
+   "rv78_expectation": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "edits": [
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "cases",
+      0,
+      "product_attempt_ref"
+     ],
+     "op": "set",
+     "value": -0.0
+    }
+   ],
+   "observed": {
+    "python": {
+     "result": "error",
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "rust": {
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH",
+     "detail": null,
+     "gate": "G2",
+     "result": "error"
+    },
+    "ts": {
+     "result": "error",
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH",
+     "detail": null
+    }
+   }
+  },
+  {
+   "batch": "D34 negative zero",
+   "id": "Z3_negzero_enum_G5aError_quantity_kind",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "rv78_expectation": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "edits": [
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "result"
+     ],
+     "op": "set",
+     "value": {
+      "kind": "unavailable",
+      "error": {
+       "kind": "g5a",
+       "cause": {
+        "kind": "sanity",
+        "body": 0,
+        "quantity_kind": -0.0
+       }
+      }
+     }
+    }
+   ],
+   "observed": {
+    "python": {
+     "result": "error",
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "rust": {
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH",
+     "detail": null,
+     "gate": "G2",
+     "result": "error"
+    },
+    "ts": {
+     "result": "error",
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH",
+     "detail": null
+    }
+   }
+  },
+  {
+   "batch": "D34 negative zero",
+   "id": "Z3c_control_quantity_kind_zero",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "rv78_expectation": "info",
+   "edits": [
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "result"
+     ],
+     "op": "set",
+     "value": {
+      "kind": "unavailable",
+      "error": {
+       "kind": "g5a",
+       "cause": {
+        "kind": "sanity",
+        "body": 0,
+        "quantity_kind": 0
+       }
+      }
+     }
+    }
+   ],
+   "observed": {
+    "python": {
+     "result": "pass",
+     "numerical_eligible": false
+    },
+    "rust": {
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "detail": null,
+     "gate": "G5",
+     "result": "error"
+    },
+    "ts": {
+     "result": "error",
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "detail": null
+    }
+   }
+  },
+  {
+   "batch": "D34 negative zero",
+   "id": "Z4_negzero_const_directional_springs",
+   "base": "two_case_preparation_failure_synthetic",
+   "rv78_expectation": {
+    "gate": "G2",
+    "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+   },
+   "edits": [
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "cases",
+      1,
+      "source_decline"
+     ],
+     "op": "set",
+     "value": {
+      "input_owner": {
+       "case_index": 1,
+       "case_id": "case:unavailable-row",
+       "material_basis_ref": 0
+      },
+      "constructor_counts": {
+       "nodes": 0,
+       "members": 1,
+       "springs": 0,
+       "constraints": 6,
+       "nodal_terms": 6,
+       "stations": 3,
+       "supports": 1,
+       "id_utf8_bytes": 0,
+       "directional_springs": -0.0
+      },
+      "error": {
+       "tag": "no_nodes"
+      }
+     }
+    }
+   ],
+   "observed": {
+    "python": {
+     "result": "error",
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH"
+    },
+    "rust": {
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH",
+     "detail": null,
+     "gate": "G2",
+     "result": "error"
+    },
+    "ts": {
+     "result": "error",
+     "gate": "G2",
+     "code": "RETAINED_PRECISION_ENCODING_MISMATCH",
+     "detail": null
+    }
+   }
+  },
+  {
+   "batch": "D34 negative zero",
+   "id": "Z4c_control_directional_springs_zero",
+   "base": "two_case_preparation_failure_synthetic",
+   "rv78_expectation": "info",
+   "edits": [
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "cases",
+      1,
+      "source_decline"
+     ],
+     "op": "set",
+     "value": {
+      "input_owner": {
+       "case_index": 1,
+       "case_id": "case:unavailable-row",
+       "material_basis_ref": 0
+      },
+      "constructor_counts": {
+       "nodes": 0,
+       "members": 1,
+       "springs": 0,
+       "constraints": 6,
+       "nodal_terms": 6,
+       "stations": 3,
+       "supports": 1,
+       "id_utf8_bytes": 0,
+       "directional_springs": 0
+      },
+      "error": {
+       "tag": "no_nodes"
+      }
+     }
+    }
+   ],
+   "observed": {
+    "python": {
+     "result": "pass",
+     "numerical_eligible": false
+    },
+    "rust": {
+     "classifications": [
+      [
+       "result:solver-mode:linear-solve-basis",
+       "non_quantity",
+       "3ff0000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root",
+       "absolute_verified:3b58df09e8b2978b",
+       "0000000000000000",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip",
+       "relative_verified",
+       "3f5304c937441229",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-root:ux",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:uy",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:uz",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:rx",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:ry",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:rz",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-tip:ux",
+       "relative_verified",
+       "3eb8463ad2ba9802",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:uy",
+       "relative_verified",
+       "3f4e0d814e82771e",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:uz",
+       "relative_verified",
+       "bf4751194a276e13",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:rx",
+       "relative_verified",
+       "3f402670d2f24e75",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:ry",
+       "relative_verified",
+       "3f4f16cc62df3d6e",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:rz",
+       "relative_verified",
+       "3f58df09e8b2978b",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fx",
+       "relative_verified",
+       "c08f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fy",
+       "relative_verified",
+       "c09f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fz",
+       "relative_verified",
+       "40a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Mx",
+       "relative_verified",
+       "c078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:My",
+       "relative_verified",
+       "c0a3880000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Mz",
+       "relative_verified",
+       "c0a4500000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude",
+       "relative_verified",
+       "40ad3b5094ffcdce",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:moment_magnitude",
+       "relative_verified",
+       "40ac5a19532036e5",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:axial",
+       "relative_verified",
+       "c08f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:axial:end-j",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-y",
+       "relative_verified",
+       "c09f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-y:end-j",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-z",
+       "relative_verified",
+       "40a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-z:end-j",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:torsion",
+       "relative_verified",
+       "c078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:torsion:end-j",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-y",
+       "relative_verified",
+       "c0a3880000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-y:end-j",
+       "relative_verified",
+       "c07f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-z",
+       "relative_verified",
+       "c0a4500000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-z:end-j",
+       "relative_verified",
+       "4082c00000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:bending-y",
+       "relative_verified",
+       "409b580000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:bending-z",
+       "relative_verified",
+       "40a0680000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:bending-y",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:bending-z",
+       "relative_verified",
+       "4099000000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:bending-y",
+       "relative_verified",
+       "406f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:bending-z",
+       "relative_verified",
+       "4091300000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:bending-normal-y",
+       "relative_verified",
+       "417b24f2107a4100",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:bending-normal-z",
+       "relative_verified",
+       "417c3ae744562f1e",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:bending-normal-y",
+       "relative_verified",
+       "c155b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:bending-normal-z",
+       "relative_verified",
+       "415a0efcdc9e52e1",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:bending-normal-y",
+       "relative_verified",
+       "417300430b88c719",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:bending-normal-z",
+       "relative_verified",
+       "4176cd1d410a8885",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:bending-normal-y",
+       "relative_verified",
+       "4165b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:bending-normal-z",
+       "relative_verified",
+       "41715f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:bending-normal-y",
+       "relative_verified",
+       "4145b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:bending-normal-z",
+       "relative_verified",
+       "4167e31274e676a3",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
+       "relative_verified",
+       "4183b834e6098994",
+       "419cfc2853972824"
+      ]
+     ],
+     "invocation_bound": true,
+     "numerical_eligible": false,
+     "result": "pass"
+    },
+    "ts": {
+     "result": "pass",
+     "numerical_eligible": false,
+     "invocation_bound": true,
+     "classifications": [
+      [
+       "result:solver-mode:linear-solve-basis",
+       "non_quantity",
+       "3ff0000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root",
+       "absolute_verified:3b58df09e8b2978b",
+       "0000000000000000",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip",
+       "relative_verified",
+       "3f5304c937441229",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-root:ux",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:uy",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:uz",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:rx",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:ry",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:rz",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-tip:ux",
+       "relative_verified",
+       "3eb8463ad2ba9802",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:uy",
+       "relative_verified",
+       "3f4e0d814e82771e",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:uz",
+       "relative_verified",
+       "bf4751194a276e13",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:rx",
+       "relative_verified",
+       "3f402670d2f24e75",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:ry",
+       "relative_verified",
+       "3f4f16cc62df3d6e",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:rz",
+       "relative_verified",
+       "3f58df09e8b2978b",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fx",
+       "relative_verified",
+       "c08f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fy",
+       "relative_verified",
+       "c09f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fz",
+       "relative_verified",
+       "40a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Mx",
+       "relative_verified",
+       "c078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:My",
+       "relative_verified",
+       "c0a3880000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Mz",
+       "relative_verified",
+       "c0a4500000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude",
+       "relative_verified",
+       "40ad3b5094ffcdce",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:moment_magnitude",
+       "relative_verified",
+       "40ac5a19532036e5",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:axial",
+       "relative_verified",
+       "c08f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:axial:end-j",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-y",
+       "relative_verified",
+       "c09f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-y:end-j",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-z",
+       "relative_verified",
+       "40a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-z:end-j",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:torsion",
+       "relative_verified",
+       "c078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:torsion:end-j",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-y",
+       "relative_verified",
+       "c0a3880000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-y:end-j",
+       "relative_verified",
+       "c07f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-z",
+       "relative_verified",
+       "c0a4500000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-z:end-j",
+       "relative_verified",
+       "4082c00000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:bending-y",
+       "relative_verified",
+       "409b580000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:bending-z",
+       "relative_verified",
+       "40a0680000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:bending-y",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:bending-z",
+       "relative_verified",
+       "4099000000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:bending-y",
+       "relative_verified",
+       "406f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:bending-z",
+       "relative_verified",
+       "4091300000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:bending-normal-y",
+       "relative_verified",
+       "417b24f2107a4100",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:bending-normal-z",
+       "relative_verified",
+       "417c3ae744562f1e",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:bending-normal-y",
+       "relative_verified",
+       "c155b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:bending-normal-z",
+       "relative_verified",
+       "415a0efcdc9e52e1",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:bending-normal-y",
+       "relative_verified",
+       "417300430b88c719",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:bending-normal-z",
+       "relative_verified",
+       "4176cd1d410a8885",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:bending-normal-y",
+       "relative_verified",
+       "4165b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:bending-normal-z",
+       "relative_verified",
+       "41715f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:bending-normal-y",
+       "relative_verified",
+       "4145b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:bending-normal-z",
+       "relative_verified",
+       "4167e31274e676a3",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
+       "relative_verified",
+       "4183b834e6098994",
+       "419cfc2853972824"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "batch": "result error vs stage/check consistency",
+   "id": "Y1_g5a_error_stage_not_entered",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "rv78_expectation": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "edits": [
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "result"
+     ],
+     "op": "set",
+     "value": {
+      "kind": "unavailable",
+      "error": {
+       "kind": "g5a",
+       "cause": {
+        "kind": "sanity",
+        "body": 0,
+        "quantity_kind": 0
+       }
+      }
+     }
+    }
+   ],
+   "observed": {
+    "python": {
+     "result": "pass",
+     "numerical_eligible": false
+    },
+    "rust": {
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "detail": null,
+     "gate": "G5",
+     "result": "error"
+    },
+    "ts": {
+     "result": "error",
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "detail": null
+    }
+   }
+  },
+  {
+   "batch": "result error vs stage/check consistency",
+   "id": "Y2_observable_error_stage_not_entered",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "rv78_expectation": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "edits": [
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "result"
+     ],
+     "op": "set",
+     "value": {
+      "kind": "unavailable",
+      "error": {
+       "kind": "observable",
+       "cause": {
+        "kind": "storage",
+        "detail": "x"
+       }
+      }
+     }
+    }
+   ],
+   "observed": {
+    "python": {
+     "result": "pass",
+     "numerical_eligible": false
+    },
+    "rust": {
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "detail": null,
+     "gate": "G5",
+     "result": "error"
+    },
+    "ts": {
+     "result": "error",
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "detail": null
+    }
+   }
+  },
+  {
+   "batch": "result error vs stage/check consistency",
+   "id": "Y3_g5a_error_consistent_stages_checks",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "rv78_expectation": "info",
+   "edits": [
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "result"
+     ],
+     "op": "set",
+     "value": {
+      "kind": "unavailable",
+      "error": {
+       "kind": "g5a",
+       "cause": {
+        "kind": "sanity",
+        "body": 0,
+        "quantity_kind": 0
+       }
+      }
+     }
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "stages"
+     ],
+     "op": "set",
+     "value": {
+      "preparation": "completed",
+      "native": "completed",
+      "proof_start": "completed",
+      "projection": "completed",
+      "maxima": "completed",
+      "values": "completed",
+      "aliases": "completed",
+      "certificate": "completed",
+      "observables": "completed",
+      "g5a": "failed"
+     }
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "proof",
+      "checks"
+     ],
+     "op": "set",
+     "value": {
+      "certificate": {
+       "kind": "passed"
+      },
+      "observables": {
+       "kind": "passed"
+      },
+      "g5a": {
+       "kind": "failed",
+       "error": {
+        "kind": "g5a",
+        "cause": {
+         "kind": "sanity",
+         "body": 0,
+         "quantity_kind": 0
+        }
+       }
+      }
+     }
+    }
+   ],
+   "observed": {
+    "python": {
+     "result": "pass",
+     "numerical_eligible": false
+    },
+    "rust": {
+     "classifications": [
+      [
+       "result:solver-mode:linear-solve-basis",
+       "non_quantity",
+       "3ff0000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root",
+       "absolute_verified:3b58df09e8b2978b",
+       "0000000000000000",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip",
+       "relative_verified",
+       "3f5304c937441229",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-root:ux",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:uy",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:uz",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:rx",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:ry",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:rz",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-tip:ux",
+       "relative_verified",
+       "3eb8463ad2ba9802",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:uy",
+       "relative_verified",
+       "3f4e0d814e82771e",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:uz",
+       "relative_verified",
+       "bf4751194a276e13",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:rx",
+       "relative_verified",
+       "3f402670d2f24e75",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:ry",
+       "relative_verified",
+       "3f4f16cc62df3d6e",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:rz",
+       "relative_verified",
+       "3f58df09e8b2978b",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fx",
+       "relative_verified",
+       "c08f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fy",
+       "relative_verified",
+       "c09f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fz",
+       "relative_verified",
+       "40a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Mx",
+       "relative_verified",
+       "c078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:My",
+       "relative_verified",
+       "c0a3880000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Mz",
+       "relative_verified",
+       "c0a4500000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude",
+       "relative_verified",
+       "40ad3b5094ffcdce",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:moment_magnitude",
+       "relative_verified",
+       "40ac5a19532036e5",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:axial",
+       "relative_verified",
+       "c08f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:axial:end-j",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-y",
+       "relative_verified",
+       "c09f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-y:end-j",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-z",
+       "relative_verified",
+       "40a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-z:end-j",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:torsion",
+       "relative_verified",
+       "c078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:torsion:end-j",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-y",
+       "relative_verified",
+       "c0a3880000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-y:end-j",
+       "relative_verified",
+       "c07f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-z",
+       "relative_verified",
+       "c0a4500000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-z:end-j",
+       "relative_verified",
+       "4082c00000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:bending-y",
+       "relative_verified",
+       "409b580000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:bending-z",
+       "relative_verified",
+       "40a0680000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:bending-y",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:bending-z",
+       "relative_verified",
+       "4099000000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:bending-y",
+       "relative_verified",
+       "406f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:bending-z",
+       "relative_verified",
+       "4091300000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:bending-normal-y",
+       "relative_verified",
+       "417b24f2107a4100",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:bending-normal-z",
+       "relative_verified",
+       "417c3ae744562f1e",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:bending-normal-y",
+       "relative_verified",
+       "c155b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:bending-normal-z",
+       "relative_verified",
+       "415a0efcdc9e52e1",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:bending-normal-y",
+       "relative_verified",
+       "417300430b88c719",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:bending-normal-z",
+       "relative_verified",
+       "4176cd1d410a8885",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:bending-normal-y",
+       "relative_verified",
+       "4165b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:bending-normal-z",
+       "relative_verified",
+       "41715f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:bending-normal-y",
+       "relative_verified",
+       "4145b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:bending-normal-z",
+       "relative_verified",
+       "4167e31274e676a3",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
+       "relative_verified",
+       "4183b834e6098994",
+       "419cfc2853972824"
+      ]
+     ],
+     "invocation_bound": true,
+     "numerical_eligible": false,
+     "result": "pass"
+    },
+    "ts": {
+     "result": "pass",
+     "numerical_eligible": false,
+     "invocation_bound": true,
+     "classifications": [
+      [
+       "result:solver-mode:linear-solve-basis",
+       "non_quantity",
+       "3ff0000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root",
+       "absolute_verified:3b58df09e8b2978b",
+       "0000000000000000",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip",
+       "relative_verified",
+       "3f5304c937441229",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-root:ux",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:uy",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:uz",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:rx",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:ry",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:rz",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-tip:ux",
+       "relative_verified",
+       "3eb8463ad2ba9802",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:uy",
+       "relative_verified",
+       "3f4e0d814e82771e",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:uz",
+       "relative_verified",
+       "bf4751194a276e13",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:rx",
+       "relative_verified",
+       "3f402670d2f24e75",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:ry",
+       "relative_verified",
+       "3f4f16cc62df3d6e",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:rz",
+       "relative_verified",
+       "3f58df09e8b2978b",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fx",
+       "relative_verified",
+       "c08f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fy",
+       "relative_verified",
+       "c09f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fz",
+       "relative_verified",
+       "40a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Mx",
+       "relative_verified",
+       "c078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:My",
+       "relative_verified",
+       "c0a3880000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Mz",
+       "relative_verified",
+       "c0a4500000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude",
+       "relative_verified",
+       "40ad3b5094ffcdce",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:moment_magnitude",
+       "relative_verified",
+       "40ac5a19532036e5",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:axial",
+       "relative_verified",
+       "c08f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:axial:end-j",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-y",
+       "relative_verified",
+       "c09f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-y:end-j",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-z",
+       "relative_verified",
+       "40a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-z:end-j",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:torsion",
+       "relative_verified",
+       "c078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:torsion:end-j",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-y",
+       "relative_verified",
+       "c0a3880000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-y:end-j",
+       "relative_verified",
+       "c07f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-z",
+       "relative_verified",
+       "c0a4500000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-z:end-j",
+       "relative_verified",
+       "4082c00000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:bending-y",
+       "relative_verified",
+       "409b580000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:bending-z",
+       "relative_verified",
+       "40a0680000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:bending-y",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:bending-z",
+       "relative_verified",
+       "4099000000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:bending-y",
+       "relative_verified",
+       "406f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:bending-z",
+       "relative_verified",
+       "4091300000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:bending-normal-y",
+       "relative_verified",
+       "417b24f2107a4100",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:bending-normal-z",
+       "relative_verified",
+       "417c3ae744562f1e",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:bending-normal-y",
+       "relative_verified",
+       "c155b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:bending-normal-z",
+       "relative_verified",
+       "415a0efcdc9e52e1",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:bending-normal-y",
+       "relative_verified",
+       "417300430b88c719",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:bending-normal-z",
+       "relative_verified",
+       "4176cd1d410a8885",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:bending-normal-y",
+       "relative_verified",
+       "4165b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:bending-normal-z",
+       "relative_verified",
+       "41715f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:bending-normal-y",
+       "relative_verified",
+       "4145b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:bending-normal-z",
+       "relative_verified",
+       "4167e31274e676a3",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
+       "relative_verified",
+       "4183b834e6098994",
+       "419cfc2853972824"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "batch": "result error vs stage/check consistency",
+   "id": "Y4_numeric_error_null_stage_not_entered",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "rv78_expectation": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "edits": [
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "result"
+     ],
+     "op": "set",
+     "value": {
+      "kind": "unavailable",
+      "error": {
+       "kind": "numeric",
+       "cause": null
+      }
+     }
+    }
+   ],
+   "observed": {
+    "python": {
+     "result": "pass",
+     "numerical_eligible": false
+    },
+    "rust": {
+     "classifications": [
+      [
+       "result:solver-mode:linear-solve-basis",
+       "non_quantity",
+       "3ff0000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root",
+       "absolute_verified:3b58df09e8b2978b",
+       "0000000000000000",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip",
+       "relative_verified",
+       "3f5304c937441229",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-root:ux",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:uy",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:uz",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:rx",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:ry",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:rz",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-tip:ux",
+       "relative_verified",
+       "3eb8463ad2ba9802",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:uy",
+       "relative_verified",
+       "3f4e0d814e82771e",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:uz",
+       "relative_verified",
+       "bf4751194a276e13",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:rx",
+       "relative_verified",
+       "3f402670d2f24e75",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:ry",
+       "relative_verified",
+       "3f4f16cc62df3d6e",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:rz",
+       "relative_verified",
+       "3f58df09e8b2978b",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fx",
+       "relative_verified",
+       "c08f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fy",
+       "relative_verified",
+       "c09f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fz",
+       "relative_verified",
+       "40a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Mx",
+       "relative_verified",
+       "c078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:My",
+       "relative_verified",
+       "c0a3880000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Mz",
+       "relative_verified",
+       "c0a4500000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude",
+       "relative_verified",
+       "40ad3b5094ffcdce",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:moment_magnitude",
+       "relative_verified",
+       "40ac5a19532036e5",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:axial",
+       "relative_verified",
+       "c08f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:axial:end-j",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-y",
+       "relative_verified",
+       "c09f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-y:end-j",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-z",
+       "relative_verified",
+       "40a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-z:end-j",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:torsion",
+       "relative_verified",
+       "c078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:torsion:end-j",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-y",
+       "relative_verified",
+       "c0a3880000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-y:end-j",
+       "relative_verified",
+       "c07f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-z",
+       "relative_verified",
+       "c0a4500000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-z:end-j",
+       "relative_verified",
+       "4082c00000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:bending-y",
+       "relative_verified",
+       "409b580000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:bending-z",
+       "relative_verified",
+       "40a0680000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:bending-y",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:bending-z",
+       "relative_verified",
+       "4099000000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:bending-y",
+       "relative_verified",
+       "406f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:bending-z",
+       "relative_verified",
+       "4091300000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:bending-normal-y",
+       "relative_verified",
+       "417b24f2107a4100",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:bending-normal-z",
+       "relative_verified",
+       "417c3ae744562f1e",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:bending-normal-y",
+       "relative_verified",
+       "c155b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:bending-normal-z",
+       "relative_verified",
+       "415a0efcdc9e52e1",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:bending-normal-y",
+       "relative_verified",
+       "417300430b88c719",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:bending-normal-z",
+       "relative_verified",
+       "4176cd1d410a8885",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:bending-normal-y",
+       "relative_verified",
+       "4165b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:bending-normal-z",
+       "relative_verified",
+       "41715f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:bending-normal-y",
+       "relative_verified",
+       "4145b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:bending-normal-z",
+       "relative_verified",
+       "4167e31274e676a3",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
+       "relative_verified",
+       "4183b834e6098994",
+       "419cfc2853972824"
+      ]
+     ],
+     "invocation_bound": true,
+     "numerical_eligible": false,
+     "result": "pass"
+    },
+    "ts": {
+     "result": "pass",
+     "numerical_eligible": false,
+     "invocation_bound": true,
+     "classifications": [
+      [
+       "result:solver-mode:linear-solve-basis",
+       "non_quantity",
+       "3ff0000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root",
+       "absolute_verified:3b58df09e8b2978b",
+       "0000000000000000",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip",
+       "relative_verified",
+       "3f5304c937441229",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-root:ux",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:uy",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:uz",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:rx",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:ry",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:rz",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-tip:ux",
+       "relative_verified",
+       "3eb8463ad2ba9802",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:uy",
+       "relative_verified",
+       "3f4e0d814e82771e",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:uz",
+       "relative_verified",
+       "bf4751194a276e13",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:rx",
+       "relative_verified",
+       "3f402670d2f24e75",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:ry",
+       "relative_verified",
+       "3f4f16cc62df3d6e",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:rz",
+       "relative_verified",
+       "3f58df09e8b2978b",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fx",
+       "relative_verified",
+       "c08f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fy",
+       "relative_verified",
+       "c09f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fz",
+       "relative_verified",
+       "40a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Mx",
+       "relative_verified",
+       "c078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:My",
+       "relative_verified",
+       "c0a3880000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Mz",
+       "relative_verified",
+       "c0a4500000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude",
+       "relative_verified",
+       "40ad3b5094ffcdce",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:moment_magnitude",
+       "relative_verified",
+       "40ac5a19532036e5",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:axial",
+       "relative_verified",
+       "c08f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:axial:end-j",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-y",
+       "relative_verified",
+       "c09f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-y:end-j",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-z",
+       "relative_verified",
+       "40a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-z:end-j",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:torsion",
+       "relative_verified",
+       "c078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:torsion:end-j",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-y",
+       "relative_verified",
+       "c0a3880000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-y:end-j",
+       "relative_verified",
+       "c07f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-z",
+       "relative_verified",
+       "c0a4500000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-z:end-j",
+       "relative_verified",
+       "4082c00000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:bending-y",
+       "relative_verified",
+       "409b580000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:bending-z",
+       "relative_verified",
+       "40a0680000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:bending-y",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:bending-z",
+       "relative_verified",
+       "4099000000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:bending-y",
+       "relative_verified",
+       "406f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:bending-z",
+       "relative_verified",
+       "4091300000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:bending-normal-y",
+       "relative_verified",
+       "417b24f2107a4100",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:bending-normal-z",
+       "relative_verified",
+       "417c3ae744562f1e",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:bending-normal-y",
+       "relative_verified",
+       "c155b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:bending-normal-z",
+       "relative_verified",
+       "415a0efcdc9e52e1",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:bending-normal-y",
+       "relative_verified",
+       "417300430b88c719",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:bending-normal-z",
+       "relative_verified",
+       "4176cd1d410a8885",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:bending-normal-y",
+       "relative_verified",
+       "4165b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:bending-normal-z",
+       "relative_verified",
+       "41715f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:bending-normal-y",
+       "relative_verified",
+       "4145b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:bending-normal-z",
+       "relative_verified",
+       "4167e31274e676a3",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
+       "relative_verified",
+       "4183b834e6098994",
+       "419cfc2853972824"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "batch": "result error vs stage/check consistency",
+   "id": "Y5_g5a_error_checks_failed_stage_not_entered",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "rv78_expectation": {
+    "gate": "G5",
+    "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+   },
+   "edits": [
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "result"
+     ],
+     "op": "set",
+     "value": {
+      "kind": "unavailable",
+      "error": {
+       "kind": "g5a",
+       "cause": {
+        "kind": "sanity",
+        "body": 0,
+        "quantity_kind": 0
+       }
+      }
+     }
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "proof",
+      "checks"
+     ],
+     "op": "set",
+     "value": {
+      "certificate": {
+       "kind": "passed"
+      },
+      "observables": {
+       "kind": "passed"
+      },
+      "g5a": {
+       "kind": "failed",
+       "error": {
+        "kind": "g5a",
+        "cause": {
+         "kind": "sanity",
+         "body": 0,
+         "quantity_kind": 0
+        }
+       }
+      }
+     }
+    }
+   ],
+   "observed": {
+    "python": {
+     "result": "error",
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "rust": {
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "detail": null,
+     "gate": "G5",
+     "result": "error"
+    },
+    "ts": {
+     "result": "error",
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+     "detail": null
+    }
+   }
+  },
+  {
+   "batch": "numeric error control",
+   "id": "Y6_numeric_error_consistent_stages_checks",
+   "base": "two_case_facade_after_certificate_synthetic",
+   "rv78_expectation": "info",
+   "edits": [
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "result"
+     ],
+     "op": "set",
+     "value": {
+      "kind": "unavailable",
+      "error": {
+       "kind": "numeric",
+       "cause": null
+      }
+     }
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "stages"
+     ],
+     "op": "set",
+     "value": {
+      "preparation": "completed",
+      "native": "completed",
+      "proof_start": "completed",
+      "projection": "completed",
+      "maxima": "completed",
+      "values": "completed",
+      "aliases": "completed",
+      "certificate": "completed",
+      "observables": "completed",
+      "g5a": "completed"
+     }
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "proof",
+      "checks"
+     ],
+     "op": "set",
+     "value": {
+      "certificate": {
+       "kind": "passed"
+      },
+      "observables": {
+       "kind": "passed"
+      },
+      "g5a": {
+       "kind": "passed"
+      }
+     }
+    }
+   ],
+   "observed": {
+    "python": {
+     "result": "pass",
+     "numerical_eligible": false
+    },
+    "rust": {
+     "classifications": [
+      [
+       "result:solver-mode:linear-solve-basis",
+       "non_quantity",
+       "3ff0000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root",
+       "absolute_verified:3b58df09e8b2978b",
+       "0000000000000000",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip",
+       "relative_verified",
+       "3f5304c937441229",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-root:ux",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:uy",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:uz",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:rx",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:ry",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:rz",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-tip:ux",
+       "relative_verified",
+       "3eb8463ad2ba9802",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:uy",
+       "relative_verified",
+       "3f4e0d814e82771e",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:uz",
+       "relative_verified",
+       "bf4751194a276e13",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:rx",
+       "relative_verified",
+       "3f402670d2f24e75",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:ry",
+       "relative_verified",
+       "3f4f16cc62df3d6e",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:rz",
+       "relative_verified",
+       "3f58df09e8b2978b",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fx",
+       "relative_verified",
+       "c08f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fy",
+       "relative_verified",
+       "c09f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fz",
+       "relative_verified",
+       "40a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Mx",
+       "relative_verified",
+       "c078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:My",
+       "relative_verified",
+       "c0a3880000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Mz",
+       "relative_verified",
+       "c0a4500000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude",
+       "relative_verified",
+       "40ad3b5094ffcdce",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:moment_magnitude",
+       "relative_verified",
+       "40ac5a19532036e5",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:axial",
+       "relative_verified",
+       "c08f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:axial:end-j",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-y",
+       "relative_verified",
+       "c09f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-y:end-j",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-z",
+       "relative_verified",
+       "40a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-z:end-j",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:torsion",
+       "relative_verified",
+       "c078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:torsion:end-j",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-y",
+       "relative_verified",
+       "c0a3880000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-y:end-j",
+       "relative_verified",
+       "c07f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-z",
+       "relative_verified",
+       "c0a4500000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-z:end-j",
+       "relative_verified",
+       "4082c00000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:bending-y",
+       "relative_verified",
+       "409b580000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:bending-z",
+       "relative_verified",
+       "40a0680000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:bending-y",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:bending-z",
+       "relative_verified",
+       "4099000000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:bending-y",
+       "relative_verified",
+       "406f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:bending-z",
+       "relative_verified",
+       "4091300000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:bending-normal-y",
+       "relative_verified",
+       "417b24f2107a4100",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:bending-normal-z",
+       "relative_verified",
+       "417c3ae744562f1e",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:bending-normal-y",
+       "relative_verified",
+       "c155b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:bending-normal-z",
+       "relative_verified",
+       "415a0efcdc9e52e1",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:bending-normal-y",
+       "relative_verified",
+       "417300430b88c719",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:bending-normal-z",
+       "relative_verified",
+       "4176cd1d410a8885",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:bending-normal-y",
+       "relative_verified",
+       "4165b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:bending-normal-z",
+       "relative_verified",
+       "41715f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:bending-normal-y",
+       "relative_verified",
+       "4145b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:bending-normal-z",
+       "relative_verified",
+       "4167e31274e676a3",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
+       "relative_verified",
+       "4183b834e6098994",
+       "419cfc2853972824"
+      ]
+     ],
+     "invocation_bound": true,
+     "numerical_eligible": false,
+     "result": "pass"
+    },
+    "ts": {
+     "result": "pass",
+     "numerical_eligible": false,
+     "invocation_bound": true,
+     "classifications": [
+      [
+       "result:solver-mode:linear-solve-basis",
+       "non_quantity",
+       "3ff0000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root",
+       "absolute_verified:3b58df09e8b2978b",
+       "0000000000000000",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip",
+       "relative_verified",
+       "3f5304c937441229",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-root:ux",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:uy",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:uz",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:rx",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:ry",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-root:rz",
+       "input_derived",
+       "0000000000000000",
+       null
+      ],
+      [
+       "result:disp:node-fixture-tip:ux",
+       "relative_verified",
+       "3eb8463ad2ba9802",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:uy",
+       "relative_verified",
+       "3f4e0d814e82771e",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:uz",
+       "relative_verified",
+       "bf4751194a276e13",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:rx",
+       "relative_verified",
+       "3f402670d2f24e75",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:ry",
+       "relative_verified",
+       "3f4f16cc62df3d6e",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:disp:node-fixture-tip:rz",
+       "relative_verified",
+       "3f58df09e8b2978b",
+       "3f58df09e8b2978b"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fx",
+       "relative_verified",
+       "c08f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fy",
+       "relative_verified",
+       "c09f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Fz",
+       "relative_verified",
+       "40a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Mx",
+       "relative_verified",
+       "c078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:My",
+       "relative_verified",
+       "c0a3880000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:Mz",
+       "relative_verified",
+       "c0a4500000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude",
+       "relative_verified",
+       "40ad3b5094ffcdce",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:support-action:23:case:six-component-load:20:support:fixture-root:moment_magnitude",
+       "relative_verified",
+       "40ac5a19532036e5",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:axial",
+       "relative_verified",
+       "c08f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:axial:end-j",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-y",
+       "relative_verified",
+       "c09f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-y:end-j",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-z",
+       "relative_verified",
+       "40a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:shear-z:end-j",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:torsion",
+       "relative_verified",
+       "c078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:torsion:end-j",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-y",
+       "relative_verified",
+       "c0a3880000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-y:end-j",
+       "relative_verified",
+       "c07f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-z",
+       "relative_verified",
+       "c0a4500000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:bending-z:end-j",
+       "relative_verified",
+       "4082c00000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-1:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:bending-y",
+       "relative_verified",
+       "409b580000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-1:bending-z",
+       "relative_verified",
+       "40a0680000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:midspan:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:bending-y",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:midspan:bending-z",
+       "relative_verified",
+       "4099000000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:axial",
+       "relative_verified",
+       "408f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:shear-y",
+       "relative_verified",
+       "409f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:force:pipe-fixture-span:quarter-3:shear-z",
+       "relative_verified",
+       "c0a7700000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:torsion",
+       "relative_verified",
+       "4078ffffffffffff",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:bending-y",
+       "relative_verified",
+       "406f400000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:moment:pipe-fixture-span:quarter-3:bending-z",
+       "relative_verified",
+       "4091300000000000",
+       "40ad3b5094ffcdce"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:bending-normal-y",
+       "relative_verified",
+       "417b24f2107a4100",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:bending-normal-z",
+       "relative_verified",
+       "417c3ae744562f1e",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-i:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:bending-normal-y",
+       "relative_verified",
+       "c155b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:bending-normal-z",
+       "relative_verified",
+       "415a0efcdc9e52e1",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:end-j:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:bending-normal-y",
+       "relative_verified",
+       "417300430b88c719",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:bending-normal-z",
+       "relative_verified",
+       "4176cd1d410a8885",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-1:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:bending-normal-y",
+       "relative_verified",
+       "4165b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:bending-normal-z",
+       "relative_verified",
+       "41715f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:midspan:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:axial-normal",
+       "relative_verified",
+       "4111a9727ec6549f",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:bending-normal-y",
+       "relative_verified",
+       "4145b7280d2e9a66",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:bending-normal-z",
+       "relative_verified",
+       "4167e31274e676a3",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:stress:pipe-fixture-span:quarter-3:torsional-shear",
+       "relative_verified",
+       "41415f533dbee1eb",
+       "4184d448c6b24dd6"
+      ],
+      [
+       "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
+       "relative_verified",
+       "4183b834e6098994",
+       "419cfc2853972824"
+      ]
+     ]
+    }
+   }
+  }
+ ]
+}

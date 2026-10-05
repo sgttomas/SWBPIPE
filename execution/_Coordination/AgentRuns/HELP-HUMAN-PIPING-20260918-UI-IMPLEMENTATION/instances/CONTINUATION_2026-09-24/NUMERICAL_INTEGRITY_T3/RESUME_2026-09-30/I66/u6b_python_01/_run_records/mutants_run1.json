@@ -1,0 +1,586 @@
+[
+ {
+  "id": "D01_no_successor_dispatch",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[dense_scrutiny]"
+  ],
+  "summary": "1 failed in 0.11s",
+  "seconds": 0.3
+ },
+ {
+  "id": "D02_g7_code_not_detail",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[dense_scrutiny]"
+  ],
+  "summary": "1 failed in 0.29s",
+  "seconds": 0.4
+ },
+ {
+  "id": "D03_detail_only",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[dense_scrutiny]"
+  ],
+  "summary": "1 failed in 0.22s",
+  "seconds": 0.4
+ },
+ {
+  "id": "D04_transport_admitted_unchecked",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[dense_scrutiny]"
+  ],
+  "summary": "1 failed in 0.38s",
+  "seconds": 0.5
+ },
+ {
+  "id": "D05_transport_admitted_checked",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[dense_scrutiny]"
+  ],
+  "summary": "1 failed in 0.34s",
+  "seconds": 0.5
+ },
+ {
+  "id": "D06_no_reader_on_dispatch",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[dense_scrutiny]"
+  ],
+  "summary": "1 failed in 0.11s",
+  "seconds": 0.2
+ },
+ {
+  "id": "D07_base_sha_returned",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[dense_scrutiny]"
+  ],
+  "summary": "1 failed in 0.15s",
+  "seconds": 0.3
+ },
+ {
+  "id": "D08_base_path_returned",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[dense_scrutiny]"
+  ],
+  "summary": "1 failed in 0.17s",
+  "seconds": 0.3
+ },
+ {
+  "id": "D09_no_member_guard",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_downgrades_are_refused[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 8 passed in 7.92s",
+  "seconds": 8.1
+ },
+ {
+  "id": "D10_member_guard_truthy",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_downgrades_are_refused[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 8 passed in 8.05s",
+  "seconds": 8.2
+ },
+ {
+  "id": "D11_no_token_guard",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_downgrades_are_refused[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 8 passed in 7.95s",
+  "seconds": 8.1
+ },
+ {
+  "id": "D12_token_guard_ungated",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "summary": "70 passed in 45.32s",
+  "seconds": 45.5
+ },
+ {
+  "id": "D13_is_retained_profile",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[dense_scrutiny]"
+  ],
+  "summary": "1 failed in 0.26s",
+  "seconds": 0.4
+ },
+ {
+  "id": "F01_not_fresh",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[dense_scrutiny]"
+  ],
+  "summary": "1 failed in 0.14s",
+  "seconds": 0.3
+ },
+ {
+  "id": "F02_not_current_record",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_dispatch_admits_the_successor_through_the_accepted_reader_only[dense_scrutiny]"
+  ],
+  "summary": "1 failed in 0.15s",
+  "seconds": 0.3
+ },
+ {
+  "id": "F03_builder_old_set",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 6 passed in 3.36s",
+  "seconds": 3.5
+ },
+ {
+  "id": "F04_router_old_set",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 6 passed in 3.73s",
+  "seconds": 3.9
+ },
+ {
+  "id": "F05_validator_old_set",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 6 passed in 4.11s",
+  "seconds": 4.3
+ },
+ {
+  "id": "S01_no_standing_branch",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_is_needs_recompute_and_comes_only_from_the_receipt[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 2 passed in 0.81s",
+  "seconds": 1.0
+ },
+ {
+  "id": "S02_standing_ignores_invocation",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_is_needs_recompute_and_comes_only_from_the_receipt[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 2 passed in 0.85s",
+  "seconds": 1.0
+ },
+ {
+  "id": "S03_reader_error_needs_recompute",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_is_needs_recompute_and_comes_only_from_the_receipt[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 2 passed in 0.90s",
+  "seconds": 1.1
+ },
+ {
+  "id": "S04_quality_routes",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "summary": "70 passed in 38.61s",
+  "seconds": 38.8
+ },
+ {
+  "id": "S05_no_invocation_bound",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": "1 failed, 4 passed in 1.42s",
+  "seconds": 1.5
+ },
+ {
+  "id": "S06_no_eligibility",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_is_needs_recompute_and_comes_only_from_the_receipt[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 2 passed in 0.60s",
+  "seconds": 0.7
+ },
+ {
+  "id": "S07_no_refs",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": "1 failed, 4 passed in 1.67s",
+  "seconds": 1.8
+ },
+ {
+  "id": "S08_refs_prefix",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": "1 failed, 4 passed in 1.58s",
+  "seconds": 1.7
+ },
+ {
+  "id": "S09_no_mechanics",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": "1 failed, 4 passed in 1.44s",
+  "seconds": 1.6
+ },
+ {
+  "id": "S10_no_not_required",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": "1 failed, 4 passed in 1.46s",
+  "seconds": 1.6
+ },
+ {
+  "id": "S11_quality_contributes",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": "1 failed, 4 passed in 1.43s",
+  "seconds": 1.6
+ },
+ {
+  "id": "N01_unavailable_as_not_required",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": "1 failed, 4 passed in 1.54s",
+  "seconds": 1.7
+ },
+ {
+  "id": "N02_no_duplicate_check",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": "1 failed, 4 passed in 1.67s",
+  "seconds": 1.8
+ },
+ {
+  "id": "N03_no_basis_check",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": "1 failed, 4 passed in 1.48s",
+  "seconds": 1.6
+ },
+ {
+  "id": "N04_no_solve_quality",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": "1 failed, 4 passed in 1.56s",
+  "seconds": 1.7
+ },
+ {
+  "id": "N05_no_structural",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": "1 failed, 4 passed in 1.42s",
+  "seconds": 1.5
+ },
+ {
+  "id": "N06_no_fidelity",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": "1 failed, 4 passed in 1.48s",
+  "seconds": 1.6
+ },
+ {
+  "id": "N07_accuracy_unresolved",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": "1 failed, 4 passed in 1.60s",
+  "seconds": 1.7
+ },
+ {
+  "id": "N08_refs_may_be_empty",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": "1 failed, 4 passed in 1.54s",
+  "seconds": 1.7
+ },
+ {
+  "id": "N09_refs_unresolved",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": "1 failed, 4 passed in 1.47s",
+  "seconds": 1.6
+ },
+ {
+  "id": "N10_short_quality_unchecked",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_standing_rule_conjuncts_with_eligibility_set"
+  ],
+  "summary": "1 failed, 4 passed in 1.47s",
+  "seconds": 1.6
+ },
+ {
+  "id": "B01_codes_swapped",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_binding_refusal_follows_the_validated_class_only[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 10 passed in 9.60s",
+  "seconds": 9.7
+ },
+ {
+  "id": "B02_not_covered_binds",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_each_class_maps_to_its_refusal"
+  ],
+  "summary": "1 failed, 12 passed in 22.25s",
+  "seconds": 22.4
+ },
+ {
+  "id": "B03_broken_binds",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_binding_refusal_follows_the_validated_class_only[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 10 passed in 13.19s",
+  "seconds": 13.3
+ },
+ {
+  "id": "B04_unmatched_refused",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_binding_refusal_follows_the_validated_class_only[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 10 passed in 15.40s",
+  "seconds": 15.5
+ },
+ {
+  "id": "B05_no_binding_branch",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_binding_refusal_follows_the_validated_class_only[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 10 passed in 8.93s",
+  "seconds": 9.0
+ },
+ {
+  "id": "C01_withheld_swapped",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_classification_summary_counts_validated_classes[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 13 passed in 21.11s",
+  "seconds": 21.2
+ },
+ {
+  "id": "C02_never_current",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_classification_summary_counts_validated_classes[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 13 passed in 22.16s",
+  "seconds": 22.3
+ },
+ {
+  "id": "C03_always_current",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_classification_summary_counts_validated_classes[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 13 passed in 22.35s",
+  "seconds": 22.5
+ },
+ {
+  "id": "C04_not_per_case",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_classification_summary_counts_validated_classes[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 13 passed in 23.08s",
+  "seconds": 23.2
+ },
+ {
+  "id": "C05_withheld_held_omits_input",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_classification_summary_counts_validated_classes[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 13 passed in 22.64s",
+  "seconds": 22.8
+ },
+ {
+  "id": "C06_summary_on_broken",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_classification_summary_counts_validated_classes[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 13 passed in 22.47s",
+  "seconds": 22.6
+ },
+ {
+  "id": "A01_receipt_not_copied",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 6 passed in 3.63s",
+  "seconds": 3.8
+ },
+ {
+  "id": "A02_receipt_body_only",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 6 passed in 3.48s",
+  "seconds": 3.6
+ },
+ {
+  "id": "A03_no_equality",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_analysis_run_carries_the_complete_receipt_and_it_comes_back_out[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 6 passed in 5.20s",
+  "seconds": 5.4
+ },
+ {
+  "id": "A04_equality_body_only",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "SURVIVED",
+  "killed_by": [],
+  "summary": "70 passed in 39.28s",
+  "seconds": 39.5
+ },
+ {
+  "id": "A05_no_downgrade_check",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_downgrades_are_refused[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 8 passed in 8.56s",
+  "seconds": 8.7
+ },
+ {
+  "id": "A06_v02_admits_receipt",
+  "file": "core/analysis_runs/compatibility.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_downgrades_are_refused[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 8 passed in 8.17s",
+  "seconds": 8.4
+ },
+ {
+  "id": "R01_records_no_guard",
+  "file": "core/analysis_runs/records.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_legacy_record_wrapper_refuses_a_receipt[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 17 passed in 33.43s",
+  "seconds": 33.6
+ },
+ {
+  "id": "R02_records_truthy",
+  "file": "core/analysis_runs/records.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_legacy_record_wrapper_refuses_a_receipt[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 17 passed in 33.76s",
+  "seconds": 33.9
+ },
+ {
+  "id": "R03_records_drop_receipt",
+  "file": "core/analysis_runs/records.py",
+  "status": "KILLED",
+  "killed_by": [
+   "tests/test_retained_precision_carriers.py::test_legacy_record_wrapper_refuses_a_receipt[dense_scrutiny]"
+  ],
+  "summary": "1 failed, 17 passed in 33.90s",
+  "seconds": 34.0
+ }
+]

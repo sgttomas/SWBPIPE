@@ -1,0 +1,20 @@
+{
+  "utc": "2026-10-03T08:51:58.991200+00:00",
+  "actor": "ROOT HELP_HUMAN /root",
+  "before": "8d025201b8dc4591aa3be7f4534c0cbb932e594c",
+  "candidate": "c79a1c293dbf5581468e839c8545b5a815a32df7",
+  "remote_main": "381be775ae9b8d94e7d650713a0c97cba304950b",
+  "kind": "local component integration; no main/public acceptance",
+  "merge": "7e9597bd9cc7b2d2b1868e421caac1d8a920cb1b",
+  "review_packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV65/support_accounting_repair_04",
+  "matched_source_paths": [
+    "core",
+    "fixtures",
+    "validation",
+    "apps",
+    "schemas",
+    "tests"
+  ],
+  "verification": "git diff --exit-code candidate merge -- maintained Piping roots; no output, exit0",
+  "main_merge": false
+}

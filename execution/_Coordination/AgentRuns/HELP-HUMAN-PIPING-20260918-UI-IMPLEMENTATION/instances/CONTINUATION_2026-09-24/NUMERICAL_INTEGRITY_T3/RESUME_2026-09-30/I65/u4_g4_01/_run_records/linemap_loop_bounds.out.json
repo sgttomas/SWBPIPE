@@ -1,0 +1,70 @@
+{
+ "in": "loop_bounds.json",
+ "out": "loop_bounds.head.json",
+ "old": "5ae5fe4f0f",
+ "new": "HEAD",
+ "remapped": [
+  [
+   "lib.rs:8347:normalize_quantity",
+   "lib.rs:8396:normalize_quantity"
+  ],
+  [
+   "lib.rs:8430:unit_conversion_diag",
+   "lib.rs:8479:unit_conversion_diag"
+  ],
+  [
+   "lib.rs:2230:run_linear_static_preview_captured",
+   "lib.rs:2234:run_linear_static_preview_captured"
+  ],
+  [
+   "lib.rs:2268:run_linear_static_preview_captured_once",
+   "lib.rs:2272:run_linear_static_preview_captured_once"
+  ],
+  [
+   "lib.rs:7357:resolve_shared_sections",
+   "lib.rs:7406:resolve_shared_sections"
+  ],
+  [
+   "lib.rs:9891:add_uniform_element_loads",
+   "lib.rs:9940:add_uniform_element_loads"
+  ],
+  [
+   "lib.rs:10042:build_thermal_element_loads",
+   "lib.rs:10091:build_thermal_element_loads"
+  ],
+  [
+   "lib.rs:11179:append_exact_pressure_results",
+   "lib.rs:11228:append_exact_pressure_results"
+  ],
+  [
+   "lib.rs:6288:build_nonlinear_supports",
+   "lib.rs:6337:build_nonlinear_supports"
+  ],
+  [
+   "lib.rs:13472:missing_nonlinear_field_diag",
+   "lib.rs:13521:missing_nonlinear_field_diag"
+  ],
+  [
+   "lib.rs:13486:invalid_nonlinear_field_diag",
+   "lib.rs:13535:invalid_nonlinear_field_diag"
+  ],
+  [
+   "lib.rs:8702:append_equivalent_static_generated_loads",
+   "lib.rs:8751:append_equivalent_static_generated_loads"
+  ],
+  [
+   "lib.rs:3398:solve_load_case_observed",
+   "lib.rs:3402:solve_load_case_observed"
+  ],
+  [
+   "lib.rs:13110:blocked_envelope",
+   "lib.rs:13159:blocked_envelope"
+  ]
+ ],
+ "hunks": {
+  "core/product_physics/src/lib.rs": 14,
+  "core/product_physics/src/retained_product.rs": 11,
+  "core/product_physics/src/retained_receipt.rs": 1,
+  "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": 7
+ }
+}

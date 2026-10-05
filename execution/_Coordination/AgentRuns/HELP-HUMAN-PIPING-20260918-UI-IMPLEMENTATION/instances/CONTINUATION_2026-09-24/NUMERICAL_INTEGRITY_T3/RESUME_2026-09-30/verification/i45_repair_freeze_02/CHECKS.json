@@ -1,0 +1,20 @@
+{
+  "utc": "2026-10-03T04:16:11.666614+00:00",
+  "base": "52842022cc49d0c9dd8d0760e727963d29015842",
+  "candidate": "28ac57891cd5786e8f84d28f54aa7f1581f69402",
+  "seal": "140318fec18e51287b65491abde7960bc75d3af17a1b150d7bb30ab75b1c3f63",
+  "verified_payloads": 28,
+  "source": {
+    "projects/chirality-piping/core/product_physics/src/retained_product.rs": "1c91363565207758827ea7c19e08909c9ef984d73004a8580ae8e50bf3207691",
+    "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs": "55ca1c4c1f5157a573003348c6127f82c5cc3e9d4bdc7aaeb67b25bbbe2b0917"
+  },
+  "root_core_read_hashes_match": true,
+  "unaffected_tracked_core_files": 586,
+  "old_i45_payloads_unchanged": 98,
+  "tests": {
+    "pp_debug": "PASS; final source before/after match",
+    "pp_release": "PASS; final source before/after match",
+    "pp_s11": "PASS; final source before/after match"
+  },
+  "status": "Frozen candidate; RV60 backcheck pending"
+}

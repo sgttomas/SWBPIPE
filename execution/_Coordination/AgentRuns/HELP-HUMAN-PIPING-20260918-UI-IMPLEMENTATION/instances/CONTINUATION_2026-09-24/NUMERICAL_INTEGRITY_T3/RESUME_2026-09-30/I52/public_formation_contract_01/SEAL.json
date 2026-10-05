@@ -1,0 +1,39 @@
+{
+  "sealed_utc": "2026-10-03T12:43:03.786555+00:00",
+  "actor": "/root/i52_public_formation_contract",
+  "status": "sealed once after audit; proposal for ROOT independent review",
+  "payloads": [
+    {
+      "path": "AUDIT.json",
+      "bytes": 911,
+      "sha256": "cb389ea75ca9ba64e89d1f3ce3826a2410d709d5de5eaeb3ba2a8335a07e2816"
+    },
+    {
+      "path": "BULK_MANIFEST.json",
+      "bytes": 2439,
+      "sha256": "c2856d812d6adf3d7f4750b91a9d45dd8e7fd8aed633759d94a5387d65445d22"
+    },
+    {
+      "path": "CHECKS.json",
+      "bytes": 1572,
+      "sha256": "7cdf7d9c57960754b55579f827f7b24c61a8067cdc37fd55f089eed8de5c5d43"
+    },
+    {
+      "path": "EXECUTION.json",
+      "bytes": 3756,
+      "sha256": "a978d3619b1afbe91142bb616f39d407bf64cd369c2ed10db45ecdb20b240253"
+    },
+    {
+      "path": "ORIGINS.json",
+      "bytes": 29518,
+      "sha256": "dcc22bf9726c560e590a05e6faf9a14c3f63998c987a5ce7e0504963e2e6da05"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 18854,
+      "sha256": "328aba9e1cb349cd4cd9349f8203c2eadb27771c0b39fe9c5530e9ff0bbcc727"
+    }
+  ],
+  "external_manifest": "BULK_MANIFEST.json",
+  "later_corrections": "addenda only"
+}

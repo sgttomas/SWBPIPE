@@ -1,0 +1,25 @@
+{
+  "utc": "2026-10-03T12:42:52.095835+00:00",
+  "result": "PASS for bounded evidence/contract assignment; not product acceptance",
+  "checks": {
+    "required_return_and_delta": true,
+    "exact_selected_basis_hashes": true,
+    "public_trees_unchanged_verified": true,
+    "unsealed_reviews_qualified": true,
+    "source_assertions_bounded_and_cited": true,
+    "no_new_names_or_meaning_selected": true,
+    "timing_error_recorded": true,
+    "bulk_hashes_verified": true,
+    "protected_scope_and_future_gates_retained": true
+  },
+  "owned_files_before_seal": [
+    "BULK_MANIFEST.json",
+    "CHECKS.json",
+    "EXECUTION.json",
+    "ORIGINS.json",
+    "RETURN.md",
+    "AUDIT.json"
+  ],
+  "bulk_files": 3,
+  "open_product_dependencies": "Final private source acceptance, public atomic implementation/readers/carriers, resource/caller qualification, protected public gates and native Current remain open."
+}

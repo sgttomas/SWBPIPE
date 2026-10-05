@@ -1,0 +1,18 @@
+{
+ "which": "caps",
+ "atoms": {
+  "Text(row)": 11474,
+  "Text(diag_total)": 109065359,
+  "Text(err)": 16384,
+  "Text(sym)": 368,
+  "Text(audit_error)": 16384,
+  "Text(formation_detail)": 16426,
+  "Text(recovery_finding)": 10466306,
+  "D": 17574,
+  "D_env": 11408,
+  "Text(diag_env)": 78860051,
+  "TAV_text_requested": 2144966676,
+  "TAV_text_moving": 2147566638
+ },
+ "notes": "content bounds except Text(err)/Text(audit_error)/Text(formation_detail)/Text(sym)/Text(recovery_finding), which are capacity bounds (2x length)"
+}

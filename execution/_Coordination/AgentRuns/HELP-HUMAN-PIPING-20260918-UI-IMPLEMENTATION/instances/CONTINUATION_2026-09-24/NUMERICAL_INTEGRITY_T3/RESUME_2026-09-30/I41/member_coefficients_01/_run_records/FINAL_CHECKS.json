@@ -1,0 +1,58 @@
+{
+  "utc": "2026-10-03T00:10:32.861421+00:00",
+  "source_hashes": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs": "404e6a7ad192d4ca946028d876ba21e52c773e70c21df8008dcf29165c59eb76",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs": "ab7544d78557b04a034754b1b88a4b214c0dd70c054856f1f0052514d3070679",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs": "b5ab75205cf85627bdffc7f017f0b0985070d64926bd7f2063b093a9cf3b034d",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs": "7d473352d032bcfa3fade1bdb1b8cb84107c21ca6870dd9ceee36debdfc0ac3e",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_vectors.rs": "8cbe5d32ea21a3ced7d5dc5cf9ccde256d01a6d546e94406a43a5d46b3a39a37",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_vectors.py": "88fc0765939e9dff16041c6221dac068fa7a6ea0f60b1f5bdd29498e229323b7"
+  },
+  "oracle_exit": 0,
+  "fixed_pi_source_constants": "both match reviewed integer numerator shifted 510",
+  "format_argv": [
+    "rustfmt",
+    "--edition",
+    "2021",
+    "--config",
+    "skip_children=true",
+    "--check",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs"
+  ],
+  "format_exit": 0,
+  "successful_runs": [
+    "debug_02",
+    "optimized",
+    "compatibility"
+  ],
+  "initial_failure": "debug: mistaken test assumption equated scalar entries and TwoProduct core calls; exact-zero operand path corrected in new test only",
+  "source_counts_in_entry_order_Add_Sub_Mul_Div_R4_B64U": {
+    "exact": [
+      4,
+      12,
+      23,
+      4,
+      0,
+      0
+    ],
+    "ordinary": [
+      2,
+      12,
+      23,
+      4,
+      0,
+      0
+    ],
+    "interpolated": [
+      2,
+      14,
+      31,
+      8,
+      4,
+      0
+    ]
+  },
+  "count_scope": "complete successful component paths; includes ordinary represented Z; excludes deferred chord DS6/DD9 from I35 common builder; not a spent LME tariff"
+}

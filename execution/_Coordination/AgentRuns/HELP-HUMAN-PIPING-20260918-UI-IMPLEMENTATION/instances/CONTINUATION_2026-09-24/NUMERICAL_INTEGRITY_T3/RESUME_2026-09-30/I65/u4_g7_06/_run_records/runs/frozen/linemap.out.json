@@ -1,0 +1,26 @@
+{
+ "old": "ba1faa1c858ce3630a22767677310b1902a14b83",
+ "new": "20dd3d929d2a8b6e51671023b2f1eaa74f364a88",
+ "changed_production_rs": [
+  "core/product_physics/src/lib.rs",
+  "core/product_physics/src/retained_memory.rs",
+  "core/product_physics/src/retained_product.rs",
+  "core/product_physics/src/retained_tests_hooks/grant2.rs",
+  "core/product_physics/src/retained_wire.rs",
+  "core/reporting/result_export/src/retained_precision.rs",
+  "core/reporting/result_export/src/semantic_contract.rs",
+  "core/reporting/result_export/src/source_blocks.rs"
+ ],
+ "hunks": {
+  "core/product_physics/src/lib.rs": 17,
+  "core/product_physics/src/retained_memory.rs": 7,
+  "core/product_physics/src/retained_product.rs": 1,
+  "core/product_physics/src/retained_tests_hooks/grant2.rs": 1,
+  "core/product_physics/src/retained_wire.rs": 2,
+  "core/reporting/result_export/src/retained_precision.rs": 22,
+  "core/reporting/result_export/src/semantic_contract.rs": 5,
+  "core/reporting/result_export/src/source_blocks.rs": 3
+ },
+ "remapped": 0,
+ "unmapped": []
+}

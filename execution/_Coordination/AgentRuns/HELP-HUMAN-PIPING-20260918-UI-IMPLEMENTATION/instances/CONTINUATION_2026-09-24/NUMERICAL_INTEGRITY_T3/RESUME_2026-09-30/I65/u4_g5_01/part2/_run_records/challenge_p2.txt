@@ -1,0 +1,10 @@
+# I65 U4 G5 part 2: the allocation challenge (cargo test --test retained_memory_challenge -- --nocapture --test-threads=1; debug build). Peak live requested heap bytes over the public retained Direct entry, against the profile's in-build W1 phase (without R).
+I65_G5_CHALLENGE_RUN milestone SparseInteractive mechanics=MECHANICS_SOLVED rows=98 blocking=[]
+I65_G5_CHALLENGE milestone SparseInteractive peak_bytes=533234 w1_phase_bytes=1850979440 ratio=0.000288
+I65_G5_CHALLENGE_RUN milestone DenseScrutiny mechanics=MECHANICS_SOLVED rows=99 blocking=[]
+I65_G5_CHALLENGE milestone DenseScrutiny peak_bytes=540831 w1_phase_bytes=1870689888 ratio=0.000289
+I65_G5_CHALLENGE_RUN cap_maximal SparseInteractive mechanics=MECHANICS_SOLVED rows=2113 blocking=[]
+I65_G5_CHALLENGE cap_maximal SparseInteractive peak_bytes=13191619 w1_phase_bytes=1850979440 ratio=0.007127
+I65_G5_CHALLENGE_RUN cap_maximal DenseScrutiny mechanics=MECHANICS_SOLVED rows=2114 blocking=[]
+I65_G5_CHALLENGE cap_maximal DenseScrutiny peak_bytes=13199237 w1_phase_bytes=1870689888 ratio=0.007056
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s

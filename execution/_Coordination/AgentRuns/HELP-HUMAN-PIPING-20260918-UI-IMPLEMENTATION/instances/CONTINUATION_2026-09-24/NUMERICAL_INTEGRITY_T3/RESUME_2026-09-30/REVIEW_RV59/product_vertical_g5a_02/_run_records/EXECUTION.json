@@ -1,0 +1,18 @@
+{
+  "task": "/root/rv59_product_vertical_interface",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native",
+  "descendants": [],
+  "receipt_utc": "2026-10-03 02:38:58 UTC",
+  "checkpoint_due": "2026-10-03 02:45:58 UTC",
+  "cutoff_due": "2026-10-03 02:50:58 UTC",
+  "final_due": "2026-10-03 02:53:58 UTC",
+  "actual_investigation_cutoff": "2026-10-03 02:43:20 UTC",
+  "completed_utc": "2026-10-03 02:44:14 UTC",
+  "source_writes": false,
+  "git_index_api_writes": false,
+  "compiler_model_solver_native_runs": false,
+  "owned_writes": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV59/product_vertical_g5a_02",
+  "git_reads": "git show only, every call GIT_OPTIONAL_LOCKS=0",
+  "prior_packets_untouched": true
+}

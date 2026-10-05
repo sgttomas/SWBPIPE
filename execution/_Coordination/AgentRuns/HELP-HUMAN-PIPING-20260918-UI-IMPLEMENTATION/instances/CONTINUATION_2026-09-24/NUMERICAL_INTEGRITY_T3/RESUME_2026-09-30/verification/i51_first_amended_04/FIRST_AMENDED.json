@@ -1,0 +1,27 @@
+{
+  "frozen_utc": "2026-10-03T11:47:10.030398+00:00",
+  "command": "pp_amended_candidate_01.json",
+  "source_patch_sha256": "dd6c65aafbf7804425935fdfaae43d5b09a735b39039d9e8028eb83772716925",
+  "cases": [
+    {
+      "mode": "sparse_interactive",
+      "native_precision": 128,
+      "row_count": 98,
+      "all_verdicts_pass": true,
+      "G5a_pass": true,
+      "observables_pass": true,
+      "private_commit": true,
+      "source_sha256": "e61b9eeb14c50ca144659366ee74941310099a03df49ebd6b8f2cbd9f9c4ca43"
+    },
+    {
+      "mode": "dense_scrutiny",
+      "native_precision": 128,
+      "row_count": 99,
+      "all_verdicts_pass": true,
+      "G5a_pass": true,
+      "observables_pass": true,
+      "private_commit": true,
+      "source_sha256": "e61b9eeb14c50ca144659366ee74941310099a03df49ebd6b8f2cbd9f9c4ca43"
+    }
+  ]
+}

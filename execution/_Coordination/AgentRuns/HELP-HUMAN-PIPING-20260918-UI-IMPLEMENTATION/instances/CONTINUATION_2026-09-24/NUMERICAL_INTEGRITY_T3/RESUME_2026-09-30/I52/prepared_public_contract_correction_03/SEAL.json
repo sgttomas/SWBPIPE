@@ -1,0 +1,20 @@
+{
+  "sealed_utc": "2026-10-03T13:16:21.053837+00:00",
+  "actor": "/root/i52_public_formation_contract",
+  "parent": "/root",
+  "status": "F1 corrective addendum sealed once after audit for RV69 backcheck; no selection",
+  "payloads": [
+    {
+      "path": "ADDENDUM.md",
+      "bytes": 11381,
+      "sha256": "6b8ebea5b83c3033211df144f69add8fcb753855cae570ec66afdd6684ddbf36"
+    },
+    {
+      "path": "MANIFEST.json",
+      "bytes": 6185,
+      "sha256": "985f07e9cd135b38e9ce5c1326684d00750886dcd8a44d4be376d03e6137cae5"
+    }
+  ],
+  "prior_seals": "unchanged, verified in MANIFEST.json",
+  "corrections": "addenda only"
+}

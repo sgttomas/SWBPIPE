@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-03T05:25:13.532691+00:00",
+  "before": "8b2d87ca7b68aea2aa9c9858784eef7137fb9c01",
+  "source": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4",
+  "local_merge": "21ca7af33b68ca3be833403e700640f4f02606c2",
+  "core_validation_exact_match": true,
+  "review": "8b2d87ca7b68aea2aa9c9858784eef7137fb9c01",
+  "main_merge": false,
+  "other_untracked_evidence_preserved": true
+}

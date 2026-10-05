@@ -1,0 +1,100 @@
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: registration through mocked IPC a delivery with a hash-consistent-looking quality claim of checks_passed records the reader's first code: unsupported, never registered natively	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: registration through mocked IPC a delivery with an altered receipt records the reader's first code: unsupported, never registered natively	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: registration through mocked IPC a delivery with an edited covered row records the reader's first code: unsupported, never registered natively	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: registration through mocked IPC a foreign solver mode is refused at the reader's invocation binding	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: registration through mocked IPC a registration without an invocation is never eligible, even with the post-U7 reader, and says so	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: registration through mocked IPC bytes outside the checked profile never register, even after a later repair	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: registration through mocked IPC bytes outside the checked profile never register, even when registration is called directly	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: registration through mocked IPC copies, saved bytes, headers and a model-less solve never register	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: registration through mocked IPC direct IPC registers only after the accepted reader passes with the captured invocation	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: registration through mocked IPC job IPC registers only after the accepted reader passes with the captured invocation	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: registration through mocked IPC numerical_quality never contributes, even with the post-U7 reader and a fully passing ordinary claim	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: registration through mocked IPC registration binds the bytes captured before the reader's await: an edit made while it awaits never registers (RV91 N-3, RV09)	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: registration through mocked IPC the registered invocation is a private copy: neither the caller's object nor a returned copy can alter it (RV03, RV04)	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: reopen revalidates the saved statement and never mints standing a mutated saved row reads unsupported: the reader's own code is a finding	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: reopen revalidates the saved statement and never mints standing a saved successor reads needs_recompute; its receipt revalidates and its AnalysisRun copy matches	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: reopen revalidates the saved statement and never mints standing a saved successor without an AnalysisRun is revalidated and reports no copy mismatch	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: reopen revalidates the saved statement and never mints standing an altered AnalysisRun receipt copy is reported	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: reopen revalidates the saved statement and never mints standing an dropped AnalysisRun receipt copy is reported	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: the rule-check gate and binding refusals (eligibility held) binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: the rule-check gate and binding refusals (eligibility held) refuses a registered successor before any rule backend call, and unregistered bytes as not native	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: the rule-check gate and binding refusals (eligibility held) summarizes classes per case over the registration only	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation	passed
+features/results/retainedPrecisionIntegration.test.tsx	dense_scrutiny: the simulated post-U7 path through the real carriers without absolute rows there is no absolute summary notice	passed
+features/results/retainedPrecisionIntegration.test.tsx	notices, labels and the results-panel standing text dense_scrutiny: registered rows carry their class label with an upward b in SI units; notices summarize per case	passed
+features/results/retainedPrecisionIntegration.test.tsx	notices, labels and the results-panel standing text sparse_interactive: registered rows carry their class label with an upward b in SI units; notices summarize per case	passed
+features/results/retainedPrecisionIntegration.test.tsx	notices, labels and the results-panel standing text the bound is printed upward with three significant digits	passed
+features/results/retainedPrecisionIntegration.test.tsx	notices, labels and the results-panel standing text the case count is the validated receipt's selected cases over all its cases (RV91 N-4)	passed
+features/results/retainedPrecisionIntegration.test.tsx	notices, labels and the results-panel standing text the standing text comes from the registered receipt, never from numerical_quality	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: registration through mocked IPC a delivery with a hash-consistent-looking quality claim of checks_passed records the reader's first code: unsupported, never registered natively	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: registration through mocked IPC a delivery with an altered receipt records the reader's first code: unsupported, never registered natively	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: registration through mocked IPC a delivery with an edited covered row records the reader's first code: unsupported, never registered natively	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: registration through mocked IPC a foreign solver mode is refused at the reader's invocation binding	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: registration through mocked IPC a later edit of the received bytes voids the registration, including a sign of zero	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: registration through mocked IPC a registration without an invocation is never eligible, even with the post-U7 reader, and says so	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: registration through mocked IPC bytes outside the checked profile never register, even after a later repair	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: registration through mocked IPC bytes outside the checked profile never register, even when registration is called directly	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: registration through mocked IPC copies, saved bytes, headers and a model-less solve never register	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: registration through mocked IPC direct IPC registers only after the accepted reader passes with the captured invocation	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: registration through mocked IPC job IPC registers only after the accepted reader passes with the captured invocation	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: registration through mocked IPC numerical_quality never contributes, even with the post-U7 reader and a fully passing ordinary claim	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: registration through mocked IPC registration binds the bytes captured before the reader's await: an edit made while it awaits never registers (RV91 N-3, RV09)	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: registration through mocked IPC the registered invocation is a private copy: neither the caller's object nor a returned copy can alter it (RV03, RV04)	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: reopen revalidates the saved statement and never mints standing a mutated saved row reads unsupported: the reader's own code is a finding	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: reopen revalidates the saved statement and never mints standing a saved successor reads needs_recompute; its receipt revalidates and its AnalysisRun copy matches	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: reopen revalidates the saved statement and never mints standing a saved successor without an AnalysisRun is revalidated and reports no copy mismatch	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: reopen revalidates the saved statement and never mints standing an altered AnalysisRun receipt copy is reported	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: reopen revalidates the saved statement and never mints standing an dropped AnalysisRun receipt copy is reported	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: the rule-check gate and binding refusals (eligibility held) binds rows by validated class; a headline is refused as the row it names; unregistered rows are all refused	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: the rule-check gate and binding refusals (eligibility held) refuses a registered successor before any rule backend call, and unregistered bytes as not native	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: the rule-check gate and binding refusals (eligibility held) summarizes classes per case over the registration only	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: the simulated post-U7 path through the real carriers a not_covered row is labelled, refused and counted (fabricated class; no statement has one)	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: the simulated post-U7 path through the real carriers standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation	passed
+features/results/retainedPrecisionIntegration.test.tsx	sparse_interactive: the simulated post-U7 path through the real carriers without absolute rows there is no absolute summary notice	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b covers every case of the shared file	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b dense_scrutiny:edited_row	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b dense_scrutiny:foreign_mode	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b dense_scrutiny:invocation	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b dense_scrutiny:no_invocation	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b dense_scrutiny:no_requested	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b dense_scrutiny:other_requested	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b dense_scrutiny:relabelled_base_with_receipt	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b legacy_0_1:receipt_member_empty	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b legacy_0_1:receipt_member_null	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b legacy_0_1:token_last_row_only	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b preview_physics_1:receipt_member_empty	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b preview_physics_1:receipt_member_null	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b preview_physics_1:token_last_row_only	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b sparse_interactive:edited_row	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b sparse_interactive:foreign_mode	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b sparse_interactive:invocation	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b sparse_interactive:no_invocation	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b sparse_interactive:no_requested	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b sparse_interactive:other_requested	passed
+features/results/retainedPrecisionIntegration.test.tsx	the 20 shared parity scenarios agree with Rust U6a and Python U6b sparse_interactive:relabelled_base_with_receipt	passed
+features/results/retainedPrecisionIntegration.test.tsx	the declared differences, with TypeScript's expectations F-U6b-2:python_refuses_transport on milestone_dense_scrutiny	passed
+features/results/retainedPrecisionIntegration.test.tsx	the declared differences, with TypeScript's expectations F-U6b-2:python_refuses_transport on milestone_sparse_interactive	passed
+features/results/retainedPrecisionIntegration.test.tsx	the declared differences, with TypeScript's expectations F5:refused_statement_binding on milestone_dense_scrutiny	passed
+features/results/retainedPrecisionIntegration.test.tsx	the declared differences, with TypeScript's expectations F5:refused_statement_binding on milestone_sparse_interactive	passed
+features/results/retainedPrecisionIntegration.test.tsx	the declared differences, with TypeScript's expectations I67-F1:unregistered_invalid_statement on milestone_dense_scrutiny	passed
+features/results/retainedPrecisionIntegration.test.tsx	the declared differences, with TypeScript's expectations I67-F1:unregistered_invalid_statement on milestone_sparse_interactive	passed
+features/results/retainedPrecisionIntegration.test.tsx	the declared differences, with TypeScript's expectations I67-F2:display_only_binding_precheck on milestone_dense_scrutiny	passed
+features/results/retainedPrecisionIntegration.test.tsx	the declared differences, with TypeScript's expectations I67-F2:display_only_binding_precheck on milestone_sparse_interactive	passed
+features/results/retainedPrecisionIntegration.test.tsx	the declared differences, with TypeScript's expectations are exactly the four ruled entries, each with a ruling and one expectation per language	passed
+features/results/retainedPrecisionIntegration.test.tsx	the declared differences, with TypeScript's expectations dense_scrutiny: I67-F1 also holds for numerical_quality rewritten to checks_passed	passed
+features/results/retainedPrecisionIntegration.test.tsx	the declared differences, with TypeScript's expectations sparse_interactive: I67-F1 also holds for numerical_quality rewritten to checks_passed	passed
+features/results/retainedPrecisionIntegration.test.tsx	the downgrade guard (F-5) a successor relabelled as preview-physics-1 keeping a null receipt member only is unsupported	passed
+features/results/retainedPrecisionIntegration.test.tsx	the downgrade guard (F-5) a successor relabelled as preview-physics-1 keeping one token row only is unsupported	passed
+features/results/retainedPrecisionIntegration.test.tsx	the downgrade guard (F-5) a successor relabelled as preview-physics-1 keeping the receipt and the token rows is unsupported	passed
+features/results/retainedPrecisionIntegration.test.tsx	the downgrade guard (F-5) a successor relabelled as preview-physics-1 keeping the token rows only is unsupported	passed
+features/results/retainedPrecisionIntegration.test.tsx	the downgrade guard (F-5) applies to every other identity, including legacy 0.1.0 and an unparseable header	passed
+features/results/retainedPrecisionIntegration.test.tsx	the downgrade guard (F-5) the successor's own header requires its profile, its contract evidence and a receipt object, and no other receipt	passed
+features/results/retainedPrecisionIntegration.test.tsx	the downgrade guard (F-5) with neither the receipt nor a token row it is the base identity again, and the guard ignores other method strings	passed
+features/results/retainedPrecisionIntegration.test.tsx	the inputs and the pinned identity dispatch constants equal the accepted reader's and the pinned table, whose rows are preview-physics-1's	passed
+features/results/retainedPrecisionIntegration.test.tsx	the inputs and the pinned identity the raw fixtures' guard cases are refused only through their edit (as Rust asserts)	passed
+features/results/retainedPrecisionIntegration.test.tsx	the inputs and the pinned identity uses PP's byte-identical successors and the shared 20-case file (format v2)	passed
+features/results/retainedPrecisionIntegration.test.tsx	the post-U7 standing rules (seams; the reader's flag is untouched) applies the base ordinary-eligibility predicate to not_required cases (F-7) and refuses other statuses	passed
+features/results/retainedPrecisionIntegration.test.tsx	the post-U7 standing rules (seams; the reader's flag is untouched) counts withheld rows by standing (Rust classification_summary_from)	passed
+features/results/retainedPrecisionIntegration.test.tsx	the post-U7 standing rules (seams; the reader's flag is untouched) is numerically_eligible only with every conjunct	passed

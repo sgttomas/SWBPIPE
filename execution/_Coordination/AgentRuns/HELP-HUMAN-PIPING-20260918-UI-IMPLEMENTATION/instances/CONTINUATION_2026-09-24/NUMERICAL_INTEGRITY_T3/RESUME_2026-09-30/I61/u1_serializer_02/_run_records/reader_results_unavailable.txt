@@ -1,0 +1,35 @@
+# Accepted readers on the grant-2 unavailable representations (lane: NUM 43a6368c21 readers)
+## Python (harness_py.py)
+== u1g2_candidate_abandoned_sparse_interactive: schema violations 0
+   PY FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail: 
+   PY AT harness_py.py:23 <- retained_precision.py:1634 <- retained_precision.py:128
+== u1g2_candidate_values_sparse_interactive: schema violations 0
+   PY FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail: 
+   PY AT harness_py.py:23 <- retained_precision.py:1634 <- retained_precision.py:128
+== u1g2_d38_dense_scrutiny: schema violations 0
+   PY FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail: 
+   PY AT harness_py.py:23 <- retained_precision.py:1634 <- retained_precision.py:128
+== u1g2_d38_sparse_interactive: schema violations 0
+   PY FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail: 
+   PY AT harness_py.py:23 <- retained_precision.py:1634 <- retained_precision.py:128
+== u1g2_preparation_refusal_sparse_interactive: schema violations 0
+   PY FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail: 
+   PY AT harness_py.py:23 <- retained_precision.py:1634 <- retained_precision.py:128
+## Rust (result_export tests/i61_receipt_probe.rs)
+I61_RS "u1g2_candidate_abandoned_sparse_interactive" FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail=None
+I61_RS "u1g2_candidate_values_sparse_interactive" FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail=None
+I61_RS "u1g2_d38_dense_scrutiny" FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail=None
+I61_RS "u1g2_d38_sparse_interactive" FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail=None
+I61_RS "u1g2_preparation_refusal_sparse_interactive" FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail=None
+## TypeScript (i61Probe.test.ts)
+I61_TS u1g2_candidate_abandoned_sparse_interactive FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail=null
+I61_TS u1g2_candidate_values_sparse_interactive FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail=null
+I61_TS u1g2_d38_dense_scrutiny FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail=null
+I61_TS u1g2_d38_sparse_interactive FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail=null
+I61_TS u1g2_preparation_refusal_sparse_interactive FIRST G3 RETAINED_PRECISION_COVERAGE_MISMATCH detail=null
+## Probe (not a reading): the Python reader's _g5_stages check list on each product attempt
+u1g2_candidate_abandoned_sparse_interactive.json g5_stages failed lines: []
+u1g2_candidate_values_sparse_interactive.json g5_stages failed lines: []
+u1g2_d38_dense_scrutiny.json g5_stages failed lines: [836, 837]
+u1g2_d38_sparse_interactive.json g5_stages failed lines: [836, 837]
+u1g2_preparation_refusal_sparse_interactive.json g5_stages failed lines: []

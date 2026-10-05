@@ -1,0 +1,217 @@
+{
+  "purpose": "Place raw host evidence under designated raw directory; original sealed bytes untouched; SHA256SUMS run-from base is _run_records/original",
+  "moves": [
+    {
+      "from": "DEBUG_03.log",
+      "to": "_run_records/original/DEBUG_03.log",
+      "bytes": 1602,
+      "sha256": "ce172a899e248b362fe7675741701c42363d4f76797df37cf53998fcdc61365b"
+    },
+    {
+      "from": "FORMAT_01.json",
+      "to": "_run_records/original/FORMAT_01.json",
+      "bytes": 444,
+      "sha256": "7c5fb968a5c7f00b0314f3d9cadf6ff48132aaac76e37e850aa64477f2eeca12"
+    },
+    {
+      "from": "DEBUG_02.log",
+      "to": "_run_records/original/DEBUG_02.log",
+      "bytes": 1602,
+      "sha256": "a84fb8f3079ccac767620a515dcf2214ad20e7133462255f8f4c14c3d70a8c0f"
+    },
+    {
+      "from": "GUARD_01.txt",
+      "to": "_run_records/original/GUARD_01.txt",
+      "bytes": 144,
+      "sha256": "d656247d7737b680561d572c4da03a49aba4e4e7ce6b3b82924470174d2e3712"
+    },
+    {
+      "from": "SOURCE_01.json",
+      "to": "_run_records/original/SOURCE_01.json",
+      "bytes": 934,
+      "sha256": "1a4da4fce188f88c44a2d16c56d786dcbed503f07920bf50794f4ace1b020cb9"
+    },
+    {
+      "from": "DEBUG_01.log",
+      "to": "_run_records/original/DEBUG_01.log",
+      "bytes": 2485,
+      "sha256": "703f2e1b5a2be3615c11442a46482aef9ed9f6b512126a13c0c7565b1b803c88"
+    },
+    {
+      "from": "RELEASE_01.log",
+      "to": "_run_records/original/RELEASE_01.log",
+      "bytes": 1594,
+      "sha256": "3a12aa400632803fc0eb82be9b976c735155c8f72509392e54b0a37b33440040"
+    },
+    {
+      "from": "FINAL_GIT_READS.json",
+      "to": "_run_records/original/FINAL_GIT_READS.json",
+      "bytes": 8847,
+      "sha256": "93acf257babf3c222ccabcc2189dc5aefef016c81269dba8a54263ed0e624cac"
+    },
+    {
+      "from": "RETURN.md",
+      "to": "_run_records/original/RETURN.md",
+      "bytes": 5669,
+      "sha256": "2114086e7dc2f4594550f6e80697735df20c7e06ff58ba8f6d003190fc44d9e2"
+    },
+    {
+      "from": "DEBUG_03.json",
+      "to": "_run_records/original/DEBUG_03.json",
+      "bytes": 909,
+      "sha256": "f87787f6b5504f0e5ad099247ee9886b0df6afa18ba0d2d69ed2b0b2d60c08b5"
+    },
+    {
+      "from": "ORACLE_REPLAY.json",
+      "to": "_run_records/original/ORACLE_REPLAY.json",
+      "bytes": 631,
+      "sha256": "0fda37f96bd27bd1a59f643de745e60ab0295f0bf91ff6284ed254d3e60914af"
+    },
+    {
+      "from": "VERSIONS.json",
+      "to": "_run_records/original/VERSIONS.json",
+      "bytes": 383,
+      "sha256": "1bb7c319c6eed1dbe07ef2f118ef389fac3b2d779a5c2add6fab704869eb318f"
+    },
+    {
+      "from": "ORACLE_REPLAY_02.json",
+      "to": "_run_records/original/ORACLE_REPLAY_02.json",
+      "bytes": 493,
+      "sha256": "faac39460cd8d1e450f48c54350b7c33e03f94882c6feff611a3bd32e98c02f2"
+    },
+    {
+      "from": "RELEASE_01.json",
+      "to": "_run_records/original/RELEASE_01.json",
+      "bytes": 926,
+      "sha256": "56545072267143bdb4c31e3eccafc0e43df636f45d1dbb90ea435dddc434654f"
+    },
+    {
+      "from": "DEBUG_FINAL.log",
+      "to": "_run_records/original/DEBUG_FINAL.log",
+      "bytes": 1845,
+      "sha256": "813b6e1b237976c56636235c593f3aca0515f3cf6cef10493baea593bfe34e63"
+    },
+    {
+      "from": "DEBUG_02.json",
+      "to": "_run_records/original/DEBUG_02.json",
+      "bytes": 748,
+      "sha256": "91f73ece073b7c0cad59525929c884071bfa72572704a08a8411d9ba2c45aa46"
+    },
+    {
+      "from": "FINAL_PROCESS.json",
+      "to": "_run_records/original/FINAL_PROCESS.json",
+      "bytes": 450,
+      "sha256": "c7ddc547afc3e2bcae74957f6fddfc136dc1ca564b8b515cb75b04a9da2593e0"
+    },
+    {
+      "from": "ORACLE_REPLAY.stderr",
+      "to": "_run_records/original/ORACLE_REPLAY.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "from": "RELEASE_FINAL.log",
+      "to": "_run_records/original/RELEASE_FINAL.log",
+      "bytes": 1594,
+      "sha256": "7731c30ccb30dae8a9dd633b2b20a4c3bd8428c387fa868a1a63f92facffdc0d"
+    },
+    {
+      "from": "SOURCE_04.json",
+      "to": "_run_records/original/SOURCE_04.json",
+      "bytes": 1086,
+      "sha256": "7ff59f47b16f81ea2e6fdb056f4dbaeacc3fa94f935fc9aa34ab1274684afc52"
+    },
+    {
+      "from": "DEBUG_01.json",
+      "to": "_run_records/original/DEBUG_01.json",
+      "bytes": 734,
+      "sha256": "bd0763189f3f6acc6d1e174770ef0fd77a883b4cdce0ddfbbb05fc33e212525c"
+    },
+    {
+      "from": "COMPATIBILITY_01.log",
+      "to": "_run_records/original/COMPATIBILITY_01.log",
+      "bytes": 632,
+      "sha256": "c08f6dab58dc4c4d8f8bce6c916cc450c0d404b56177ca8df6ba47a7e7f224e6"
+    },
+    {
+      "from": "RELEASE_FINAL.json",
+      "to": "_run_records/original/RELEASE_FINAL.json",
+      "bytes": 926,
+      "sha256": "d3accf7535c9b1ffee501423b4951c7bdac6737a256d4ae695054af8b87533f0"
+    },
+    {
+      "from": "DEBUG_FINAL.json",
+      "to": "_run_records/original/DEBUG_FINAL.json",
+      "bytes": 891,
+      "sha256": "213537ea3ed8a90e2eb1e5810679aa2a60d3a03d5100156ccfd9da111887e458"
+    },
+    {
+      "from": "REPAIR_01.md",
+      "to": "_run_records/original/REPAIR_01.md",
+      "bytes": 541,
+      "sha256": "a6a69270c7efad8ec3c90dc133b487c29b649e6770cb30b583808463bf947b6a"
+    },
+    {
+      "from": "SOURCE_02.json",
+      "to": "_run_records/original/SOURCE_02.json",
+      "bytes": 934,
+      "sha256": "728c1fc5181a653477244188016738d129b275763966508df20ca35d67c059bf"
+    },
+    {
+      "from": "FORMAT_02.json",
+      "to": "_run_records/original/FORMAT_02.json",
+      "bytes": 342,
+      "sha256": "d5275003323634d9ed0ac361c03e1e7a037c5cf6ef86fe3ea375a6636f05e338"
+    },
+    {
+      "from": "SHA256SUMS",
+      "to": "_run_records/original/SHA256SUMS",
+      "bytes": 2701,
+      "sha256": "6e87a62bc9e08a902b3582e037f16bf403ebc063ed410da1bcdd47215b7caa57"
+    },
+    {
+      "from": "ORIGINS.json",
+      "to": "_run_records/original/ORIGINS.json",
+      "bytes": 5933,
+      "sha256": "fa1adb0fdc9eee1d771b8ba79497f390717071f272cd81e6415b33359c8d53ed"
+    },
+    {
+      "from": "FORMAT_02.log",
+      "to": "_run_records/original/FORMAT_02.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "from": "EXECUTION.json",
+      "to": "_run_records/original/EXECUTION.json",
+      "bytes": 2188,
+      "sha256": "315047c33ddec98234c61557394e1eeab44bbd2e1da908ae520a96c8287e7bdb"
+    },
+    {
+      "from": "SOURCE_03.json",
+      "to": "_run_records/original/SOURCE_03.json",
+      "bytes": 934,
+      "sha256": "ab61b76897b8faad1cd77221cc0ccb1aadda7e5154555229b62c0223428e8223"
+    },
+    {
+      "from": "COMPATIBILITY_01.json",
+      "to": "_run_records/original/COMPATIBILITY_01.json",
+      "bytes": 896,
+      "sha256": "17b18b2fb0ca3be700d3ffe7ab31a14f28efcfe8fe61c4f644b2eb308c6d9d70"
+    },
+    {
+      "from": "FORMAT_01.log",
+      "to": "_run_records/original/FORMAT_01.log",
+      "bytes": 13153,
+      "sha256": "4476beb0798b29a156e2912877d3068cb75d14df655c2bc7dcd681f473ffdf8d"
+    }
+  ],
+  "maintained_source_hashes": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs": "3682ee4f7c78a4f7cf5f96ca3065dcae903f1fcce28c0265f614bf305eb441e6",
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed/certificate.rs": "3525a99225a7d19a3e798cfdfe40921f658bb61acc2151098b28c3f19292926e",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_tests.rs": "4b704dacd360a46ae82a6e0e27668a23fab9a6c574f1e63e24a02ca042300b1e",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_vectors.rs": "24e9eb55045474ecabe754ecfed8850f92f6a481cae24de4f530468708880861",
+    "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_vectors.py": "4c24add95da95062da72896f73a06124709afd419de065f11167470ce16e30e8"
+  },
+  "root_read": "ROOT read complete helper source, tests and exact vector generator; scope/hash/final command checks passed; fresh review remains required"
+}

@@ -1,0 +1,7 @@
+{
+  "imported/src/structural/retained/adaptive.rs": "cbd78d3e79fe11a5ae3cdd5422d641850980b88aa0dbb7fa318d6a5e7ce8d8bb",
+  "imported/tests/retained_k4/source_bridge_tests.rs": "2c8d2c8586161086df97dade2a3e88ad53253a309ed3f34122cbbe606e74aca9",
+  "imported/tests/retained_k4/review_vectors.rs": "6309ee96ae520bab410c271846aed37650ac9fe012ed8ad965477adb7e729300",
+  "imported/Cargo.toml": "94e33a698cd8ea7c96fecc8d8905d2c1bf3731e00ffff92787409cf343ddb4ef",
+  "imported/Cargo.lock": "5c3c32cb24f5c2a7e4d50681198ece70c888772e9fb8b330260ab841ed766095"
+}

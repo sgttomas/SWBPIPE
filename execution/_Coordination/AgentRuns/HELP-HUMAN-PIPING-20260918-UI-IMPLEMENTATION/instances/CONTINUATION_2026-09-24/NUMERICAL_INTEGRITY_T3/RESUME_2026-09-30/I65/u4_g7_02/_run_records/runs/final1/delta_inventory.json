@@ -1,0 +1,190 @@
+{
+ "old": "ba1faa1c858ce3630a22767677310b1902a14b83",
+ "new": "7f07a2f7b413b37ecaa879f81b3d759a9cde7f13",
+ "files": 6,
+ "hunks_and_files": 15,
+ "classes": {
+  "cfg-test-stmt": 3,
+  "test": 11,
+  "generated": 1
+ },
+ "unreviewed": [
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "2379-2379",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "44ce5c671ad34b3e965db0dd5983257cde8ea0db0a5fd00db5cf2e4510008333",
+   "class": "cfg-test-stmt",
+   "reason": "only `#[cfg(test)] <statement>;` added to production lines: compiled into the lib test binary only",
+   "statements": [
+    "#[cfg(test)] retained_tests_hooks::ordinary_run_entered();"
+   ],
+   "reviewed": null
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3005-3005",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "c5e1d6c96bd07c6021979792a95e0f5348a76bed99f5a18972daed8f33918145",
+   "class": "cfg-test-stmt",
+   "reason": "only `#[cfg(test)] <statement>;` added to production lines: compiled into the lib test binary only",
+   "statements": [
+    "#[cfg(test)] retained_tests_hooks::at_complete_gate(&mut observer);"
+   ],
+   "reviewed": null
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "new_lines": "3244-3244",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "2a8be2da9031008a40c52eaea93db74089b899457f24e786a9f3f8ef4595952e",
+   "class": "cfg-test-stmt",
+   "reason": "only `#[cfg(test)] <statement>;` added to production lines: compiled into the lib test binary only",
+   "statements": [
+    "#[cfg(test)] crate::retained_tests_hooks::before_late_gate(&*self);"
+   ],
+   "reviewed": null
+  }
+ ],
+ "verdict": "STOP: 3 hunk(s) need a reviewed entry",
+ "rows": [
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "2379-2379",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "44ce5c671ad34b3e965db0dd5983257cde8ea0db0a5fd00db5cf2e4510008333",
+   "class": "cfg-test-stmt",
+   "reason": "only `#[cfg(test)] <statement>;` added to production lines: compiled into the lib test binary only",
+   "statements": [
+    "#[cfg(test)] retained_tests_hooks::ordinary_run_entered();"
+   ],
+   "reviewed": null
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3005-3005",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "c5e1d6c96bd07c6021979792a95e0f5348a76bed99f5a18972daed8f33918145",
+   "class": "cfg-test-stmt",
+   "reason": "only `#[cfg(test)] <statement>;` added to production lines: compiled into the lib test binary only",
+   "statements": [
+    "#[cfg(test)] retained_tests_hooks::at_complete_gate(&mut observer);"
+   ],
+   "reviewed": null
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3184-3184",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "22017b2d2ca4bc03db94b4d3f971ba16606a874d72b14dced9d05e9f0250d3d3",
+   "class": "test",
+   "reason": "wholly inside #[cfg(test)] items"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3214-3214",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "c6ef24d605fb24141a27fc27008598766a48bd9a46f206ee6f2b374341732dac",
+   "class": "test",
+   "reason": "wholly inside #[cfg(test)] items"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3216-3216",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "abb71d63f92846b1e1c77ae39fd3c8bddeffacc59dde85252d4a5177560e7112",
+   "class": "test",
+   "reason": "wholly inside #[cfg(test)] items"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3219-3219",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "30156e6239a4c20e69e9066f622e5454c685deb311152bc0796616a61da71116",
+   "class": "test",
+   "reason": "wholly inside #[cfg(test)] items"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3232-3232",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "55081f31b8b4762e6f1208a3a16ce48499500daa4e9d70ba18deed6d35cb67d0",
+   "class": "test",
+   "reason": "wholly inside #[cfg(test)] items"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3247-3247",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "1100b27e0679023f09ecbc47abe5c4ccf5912b604e643182ae2a6deeda23198d",
+   "class": "test",
+   "reason": "wholly inside #[cfg(test)] items"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3255-3255",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "3823f8f72549336efe251e186f1190fc8a124d577b4420ff41618e215f34a011",
+   "class": "test",
+   "reason": "wholly inside #[cfg(test)] items"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "new_lines": "3296-3296",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "f6ccadb211e05d6d4ac1896293b7f71037e1f5cfbdf6747fcf8c41a63e2d2532",
+   "class": "test",
+   "reason": "wholly inside #[cfg(test)] items"
+  },
+  {
+   "file": "core/product_physics/src/retained_facade_tests.rs",
+   "class": "test",
+   "reason": "a test file"
+  },
+  {
+   "file": "core/product_physics/src/retained_memory.rs",
+   "new_lines": "2125-2125",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "560cba35c98cc33ea67aaf48dda36eb2b3b8290aa9fb460914ca2ee0312e459d",
+   "class": "generated",
+   "reason": "inside the GENERATED PROFILE markers: gated by FORMS (equal to regeneration from G7's profile tree)"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "new_lines": "3244-3244",
+   "removed": 1,
+   "added": 1,
+   "fingerprint": "2a8be2da9031008a40c52eaea93db74089b899457f24e786a9f3f8ef4595952e",
+   "class": "cfg-test-stmt",
+   "reason": "only `#[cfg(test)] <statement>;` added to production lines: compiled into the lib test binary only",
+   "statements": [
+    "#[cfg(test)] crate::retained_tests_hooks::before_late_gate(&*self);"
+   ],
+   "reviewed": null
+  },
+  {
+   "file": "core/product_physics/src/retained_tests_hooks/grant2.rs",
+   "class": "test",
+   "reason": "a module file declared only inside #[cfg(test)]"
+  },
+  {
+   "file": "core/product_physics/src/retained_wire_tests.rs",
+   "class": "test",
+   "reason": "a test file"
+  }
+ ]
+}

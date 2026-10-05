@@ -1,0 +1,2 @@
+result_export, base vs candidate:
+base: 171 ok, 0 failed; cand (final): 171 ok, 0 failed

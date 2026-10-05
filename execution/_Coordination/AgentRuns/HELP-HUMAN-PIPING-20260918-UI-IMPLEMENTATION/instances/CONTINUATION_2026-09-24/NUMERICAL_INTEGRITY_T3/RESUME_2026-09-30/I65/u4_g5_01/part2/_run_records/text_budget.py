@@ -1,0 +1,550 @@
+"""I65 U4 G3 T08: D1 reachability, multiplicity and byte bound for the 707 text sites
+(stdlib only, read-only; no product code is run).
+
+Inputs:
+  - G2's template_inventory.out.json (707 format!/write!/diag sites with literal bytes
+    and placeholders);
+  - callgraph_edges.json (over-approximate call graph with every call site's enclosing
+    loop headers, from callgraph.py with the manual rules applied);
+  - loop_bounds.json (manual table: loop-header regex -> bound expression over the D1
+    caps, each with its source reason; `0` = the loop iterates a collection D1 forces
+    empty);
+  - text_args.json (manual table: placeholder-argument regex -> maximum spelling class).
+
+Method:
+  1. Reachability: BFS from the D1 roots over the over-approximate graph. A site in a
+     function not reached is unreachable (sound: the graph over-approximates calls).
+     Display impls (`fmt`) are treated as reached whenever their crate is reached,
+     because formatting calls them invisibly.
+  2. Function multiplicity M(f): sum over call sites (caller c, loops L) of
+     M(c) * prod(bound(L)), computed in topological order of the condensation.
+     Bounded self-recursions get their documented factor.
+  3. Site multiplicity = M(f) * prod(bound(site loops)).
+  4. Site bytes = literal + sum(placeholder maxima); requested String capacity
+     <= max(8, 2*bytes) (I54 COEFFICIENTS J9 / V3); moving adds one old backing <= bytes.
+  5. Live-text bound = total allocation volume over all reachable sites (every
+     formatted String counted as if retained), split by ordinary phase.
+Unmapped loop headers and unclassified placeholder arguments are reported, never zero.
+Usage: python3 text_budget.py <P root> <inventory json> <edges json> <loop_bounds json> <text_args json> <roots,comma> <caps|milestone>
+"""
+import json, re, sys, collections, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import loopscan
+
+proot, inv_p, edges_p, lb_p, ta_p, roots_s, which = sys.argv[1:8]
+inv = json.load(open(inv_p))
+cg = json.load(open(edges_p))
+LB = json.load(open(lb_p))
+TA = json.load(open(ta_p))
+if os.environ.get("TB_COMPOSITE"):
+    TA["classes"].update(json.load(open(os.environ["TB_COMPOSITE"]))["classes"])
+COUNTS = LB["counts"][which]
+if which == "caps":
+    # G4: cap overrides (G4_CAPS) and the diagnostics fixpoint D (TB_D) for the sensitivity runs
+    from g3lib import g4_caps as _gc
+    _c = _gc()
+    COUNTS = dict(COUNTS)
+    for _k in ("n", "m", "g", "s", "k", "r", "l", "N", "F", "Z", "C", "P", "R0", "E", "H", "Q"):
+        COUNTS[_k] = _c[_k]
+    if os.environ.get("TB_D"):
+        COUNTS["D"] = int(os.environ["TB_D"])
+    TA["classes"]["ident"] = _c["ident"]
+
+def ev(expr):
+    return int(eval(expr, {"__builtins__": {}, "max": max, "min": min}, dict(COUNTS)))
+
+loop_rules = [(re.compile(r["re"]), r["bound"], r["why"]) for r in LB["loops"]]
+ZERO_HITS = {}
+def array_len(h):
+    m = re.search(r"\bin\s*\[(.*)\]", h)
+    if not m:
+        return None
+    body, d, n, cur = m.group(1), 0, 0, ""
+    for ch in body:
+        if ch in "([{": d += 1
+        elif ch in ")]}": d -= 1
+        if ch == "," and d == 0:
+            if cur.strip(): n += 1
+            cur = ""
+        else:
+            cur += ch
+    if cur.strip(): n += 1
+    return n
+def loop_bound(h):
+    a = array_len(h) if re.match(r"for\s.*\bin\s*\[", h) else None
+    if a is not None:
+        return a, "array literal"
+    for rx, b, why in loop_rules:
+        if rx.search(h):
+            v = ev(b)
+            if v == 0:
+                ZERO_HITS[h] = rx.pattern     # G4 (RV84 S-2): every zero-matched header is listed for review
+            return v, b
+    m = re.search(r"\bin\s*\(?\s*(\d+)(?:usize)?\s*\.\.(=?)\s*(\d+)\b", h)
+    if m:
+        return max(0, int(m.group(3)) - int(m.group(1)) + (1 if m.group(2) else 0)), "literal range"
+    a = array_len(h)
+    if a is not None:
+        return a, "array literal"
+    return None, None
+
+edges = cg["edges"]
+site_loops = collections.defaultdict(list)
+for a, b, stacks in cg["site_loops"]:
+    site_loops[(a, b)].extend(stacks)
+
+_rs = roots_s.split(",")   # G4: an entry containing "/src/" is a full node key
+roots = [k for k in edges if k in _rs or k.rsplit(":", 1)[1] in [r for r in _rs if "/src/" not in r]]
+reach, todo = set(roots), list(roots)
+while todo:
+    v = todo.pop()
+    for w in edges.get(v, []):
+        if w not in reach:
+            reach.add(w); todo.append(w)
+reached_crates = {k.split("/src/")[0] for k in reach}
+
+# function spans per file for locating sites
+spans = collections.defaultdict(list)
+for k in edges:
+    f, line, name = k.rsplit(":", 2)
+    spans[f].append((int(line), k))
+for f in spans:
+    spans[f].sort()
+filetext = {}
+def fn_of(f, line):
+    if f not in filetext:
+        filetext[f] = open(os.path.join(proot, f), encoding="utf-8").read().split("\n")
+    L = filetext[f]
+    best = None
+    for l0, k in spans.get(f, []):
+        if l0 > line:
+            break
+        depth, started, end = 0, False, len(L)
+        for j in range(l0 - 1, len(L)):
+            depth += L[j].count("{") - L[j].count("}")
+            if "{" in L[j]:
+                started = True
+            if started and depth <= 0:
+                end = j + 1; break
+        if l0 <= line <= end:
+            best = k   # innermost: later starts win
+    return best
+
+_spancache = {}
+def loops_at_line(f, line, fkey):
+    """Enclosing loops (brace loops and iterator-adapter closures, loopscan.py) at the
+    site's macro token on `line`."""
+    if f not in _spancache:
+        raw = open(os.path.join(proot, f), encoding="utf-8").read()
+        bt = loopscan.blank(raw)
+        starts = [0]
+        for ch in bt:
+            pass
+        offs, acc = [], 0
+        for ln in bt.split("\n"):
+            offs.append(acc); acc += len(ln) + 1
+        _spancache[f] = (bt, offs, loopscan.loop_spans(bt))
+    bt, offs, spans = _spancache[f]
+    raw_line = filetext[f][line - 1]
+    col = max([raw_line.find(tok) for tok in ("format!", "write!", "writeln!", "format_args!", "diag(")] + [0])
+    for tok in ("format!", "writeln!", "write!", "format_args!", "diag("):
+        c = raw_line.find(tok)
+        if c >= 0:
+            col = c; break
+    pos = offs[line - 1] + col
+    l0 = int(fkey.rsplit(":", 2)[1]) if fkey else 1
+    fstart = offs[l0 - 1]
+    return [h for (a, b, h) in spans if fstart <= a < pos < b]
+
+# ancestors (within the reached graph) of functions that contain text sites
+LEX = json.load(open(os.environ["TB_LEXICON"]))["rows"] if os.environ.get("TB_LEXICON") else []
+# a `.join(` whose receiver is a work/bound status lattice value produces no String: drop it
+# before the ancestor set is formed, so its (non-text) callers' loops are not required
+_zero_join = [re.compile(r["re"]) for r in TA.get("join_rules", []) if r["bytes"] == "0"]
+LEX = [r for r in LEX if not (r["kind"] == "join" and any(x.search(" ".join(r["receiver"].split())) for x in _zero_join))]
+site_fns = set(r["fn"] for r in LEX)
+for r in inv["rows"]:
+    k = fn_of(r["file"], r["line"])
+    if k: site_fns.add(k)
+rev = collections.defaultdict(set)
+for v in reach:
+    for w in edges.get(v, []):
+        if w in reach: rev[w].add(v)
+anc, todo = set(x for x in site_fns if x in reach), [x for x in site_fns if x in reach]
+while todo:
+    v = todo.pop()
+    for u in rev[v]:
+        if u not in anc:
+            anc.add(u); todo.append(u)
+
+# condensation topological order (Kahn on SCC graph)
+index, low, onst, st, comp, cid = {}, {}, set(), [], {}, [0]
+def strong(v0):
+    work = [(v0, iter(edges.get(v0, [])))]
+    index[v0] = low[v0] = cid[0]; cid[0] += 1; st.append(v0); onst.add(v0)
+    while work:
+        v, it = work[-1]; adv = False
+        for w in it:
+            if w not in reach: continue
+            if w not in index:
+                index[w] = low[w] = cid[0]; cid[0] += 1; st.append(w); onst.add(w)
+                work.append((w, iter(edges.get(w, [])))); adv = True; break
+            elif w in onst:
+                low[v] = min(low[v], index[w])
+        if adv: continue
+        work.pop()
+        if work: low[work[-1][0]] = min(low[work[-1][0]], low[v])
+        if low[v] == index[v]:
+            c = []
+            while True:
+                w = st.pop(); onst.discard(w); c.append(w)
+                if w == v: break
+            for w in c: comp[w] = tuple(sorted(c))
+for v in sorted(reach):
+    if v not in index: strong(v)
+comps = sorted(set(comp.values()))
+cin = collections.Counter()
+cedges = collections.defaultdict(list)
+for v in reach:
+    for w in edges.get(v, []):
+        if w in reach and comp[v] != comp[w]:
+            cedges[comp[v]].append((v, w)); cin[comp[w]] += 1
+order, q = [], [c for c in comps if cin[c] == 0]
+while q:
+    c = q.pop(); order.append(c)
+    for v, w in cedges[c]:
+        cin[comp[w]] -= 1
+        if cin[comp[w]] == 0: q.append(comp[w])
+RECUR = LB.get("recursion_factor", {})
+FN_ZERO = {e["fn"]: e["why"] for e in LB.get("fn_zero", [])}
+FILE_ZERO = {e["file"]: e["why"] for e in LB.get("file_zero", [])}
+# TB_EXTRA_ZERO (comma-separated file prefixes): an additional exclusion used only to measure the
+# ordinary envelope's own diagnostics (D_env), i.e. without the receipt finalization's replays
+for f_ in filter(None, os.environ.get("TB_EXTRA_ZERO", "").split(",")):
+    FILE_ZERO[f_] = "D_env measurement only"
+# G4: TB_FN_ZERO (comma-separated short fn keys) zeroes functions that one branch never runs, for
+# the per-branch text totals (branch X: retained_w1 returns at its coexistence check; branch W:
+# the selected source-blocks finalization never runs)
+for k_ in filter(None, os.environ.get("TB_FN_ZERO", "").split(",")):
+    FN_ZERO[k_] = "branch-exclusive (TB_FN_ZERO)"
+def zeroed(w):
+    sw = short(w)
+    fpath = w.split(":")[0]
+    return sw in FN_ZERO or any(fpath == f or fpath.startswith(f) for f in FILE_ZERO)
+EDGE_ZERO = {(e["caller"], e["callee"]) for e in LB.get("edge_zero", [])}
+EDGE_ONCE = {(e["caller"], e["callee"]) for e in LB.get("edge_once", [])}
+EDGE_PER_CALL = {(e["caller"], e["callee"]): e["per_call"] for e in LB.get("edge_per_call", [])}
+PAIRS = [(re.compile(x["outer"]), re.compile(x["inner"]), x["joint"]) for x in LB.get("pairs", [])]
+def stack_product(stack, note):
+    hs = list(stack)
+    prod, used = 1, set()
+    for i, h in enumerate(hs):
+        if i in used: continue
+        joined = False
+        for orx, irx, joint in PAIRS:
+            if orx.search(h):
+                for j in range(i + 1, len(hs)):
+                    if j not in used and irx.search(hs[j]):
+                        prod *= ev(joint); used.update({i, j}); joined = True; break
+            if joined: break
+        if joined: continue
+        b, _ = loop_bound(h)
+        if b is None:
+            note[h] += 1; b = 0   # incomplete: reported, and "complete" is false
+        prod *= b
+    return prod
+def short(k):
+    return k.split("/src/")[-1] if k else k
+# G4: loop_total rules bound the TOTAL iterations of a loop over every execution of its fn in
+# one invocation (e.g. functional atoms <= 16,384 on the selected path, functionals.rs
+# descriptors_charge). A stack through such a loop contributes total x (other loops), in place
+# of M(fn) x bound. Sound when the total bounds the sum over all calls.
+LOOP_TOTAL = [(e["fn"], re.compile(e["loop"]), e["total"], re.compile(e["covers"]) if e.get("covers") else None)
+              for e in LB.get("loop_total", [])]
+def loop_total(fk, stack):
+    for fs, rx, tot, cov in LOOP_TOTAL:
+        if short(fk) == fs and any(rx.search(h) for h in stack):
+            # loops the total already covers (matched, or enclosing ones named by `covers`) drop out
+            other = [h for h in stack if not rx.search(h) and not (cov and cov.search(h))]
+            return ev(tot) * stack_product(other, unmapped)
+    return None
+M = collections.Counter()
+for r in roots: M[r] = 1
+unmapped = collections.Counter()
+FN_CAP = {e["fn"]: (e["cap"], e["why"]) for e in LB.get("fn_cap", [])}
+for c in order:
+    for v in c:
+        if short(v) in FN_CAP:
+            M[v] = min(M[v], ev(FN_CAP[short(v)][0]))
+    # within an SCC (bounded self-recursion) multiply by its factor
+    for v in c:
+        name = v.rsplit(":", 1)[1]
+        if v in edges.get(v, []) and name in RECUR:
+            M[v] *= RECUR[name]
+    for v, w in cedges[c]:
+        if w not in anc:
+            continue
+        if (short(v), short(w)) in EDGE_ZERO or zeroed(w):
+            continue
+        if not M[v]:
+            continue
+        prods = [M[v] * stack_product(stack, unmapped) if loop_total(v, stack) is None
+                 else loop_total(v, stack) for stack in site_loops.get((v, w), [[]])]
+        if (short(v), short(w)) in EDGE_PER_CALL:
+            # G4: a stated per-call count of the callee from this caller replaces the sum over
+            # its call sites (e.g. RV83 R-2: validate_profile reaches `problem` only per load)
+            prods = [M[v] * ev(EDGE_PER_CALL[(short(v), short(w))])]
+        if (short(v), short(w)) in EDGE_ONCE:
+            prods = [max(prods)]
+        M[w] += sum(prods)
+
+arg_rules = [(re.compile(r["re"]), r["max"], r["why"]) for r in TA["args"]]
+join_rules = [(re.compile(r["re"]), r["bytes"], r["why"]) for r in TA.get("join_rules", [])]
+def cls_value(cls):
+    return cls if isinstance(cls, int) else TA["classes"][cls]
+def arg_max(spec, arg):
+    a1 = " ".join(arg.split())
+    if spec.endswith("e"):
+        return TA["classes"]["f64_exp"]
+    if "x" in spec:
+        w = re.search(r"0?(\d+)x", spec)
+        if re.search(r"digest|Sha256", a1):
+            return max(64, int(w.group(1)) if w else 0)
+        if re.search(r"u128|identity_hash|hash128", a1):
+            return max(32, int(w.group(1)) if w else 0)
+        return max(16, int(w.group(1)) if w else 0)
+    for rx, cls, why in arg_rules:
+        if rx.search(a1):
+            if isinstance(cls, int):
+                return cls
+            if "?" in spec and cls == "ident":
+                cls = "ident_debug"
+            if "?" in spec and cls == "f64_display":
+                cls = "f64_debug"
+            return TA["classes"][cls]
+    return None
+
+AGG = TA.get("site_aggregate", {})
+unclassified = collections.Counter()
+rows, total_req, max_size = [], 0, 0
+D, diag_bytes = 0, 0
+def site_mult(f, line, fk, loops, key):
+    reached = fk in reach or (fk and fk.rsplit(":", 1)[1] == "fmt" and fk.split("/src/")[0] in reached_crates)
+    mult = 0
+    if reached and fk:
+        mult = M[fk] if M[fk] else (1 if fk.rsplit(":", 1)[1] == "fmt" else 0)
+        if not mult:
+            return reached, 0
+        lt = loop_total(fk, loops)
+        if lt is not None:
+            mult = lt
+        elif key in AGG:
+            keep = [h for h in loops if not re.search(AGG[key]["absorbs"], h)]
+            mult *= stack_product(keep, unmapped)
+        else:
+            mult *= stack_product(loops, unmapped)
+        if key in TA.get("site_zero", {}):
+            mult = 0
+    return reached, mult
+fmt_by_line = {}
+for r in inv["rows"]:
+    if r["kind"] != "diag":
+        fmt_by_line.setdefault(r["file"], []).append(r)
+def evaluate_format(r):
+    size = r.get("literal_bytes", 0)
+    for ph in r.get("placeholders", []):
+        a = arg_max(ph["spec"], ph["arg"])
+        if a is None:
+            unclassified[(ph["spec"], ph["arg"][:80])] += 1
+            a = 0
+        size += a
+    return size
+def message_size(r):
+    """Bound on the moved/converted message of one diag(...) site."""
+    m = " ".join(r.get("message_arg", "").split())
+    if m.startswith("format!("):
+        cands = [x for x in fmt_by_line.get(r["file"], []) if r["line"] <= x["line"] <= r["line"] + 40
+                 and x["kind"] == "format"]
+        if not cands:
+            unclassified[("diag-message-format", m[:80])] += 1
+            return 0
+        return max(evaluate_format(x) for x in cands)
+    lm = re.fullmatch(r'"(.*)"', m)
+    if lm:
+        return len(lm.group(1).encode())
+    a = arg_max("", m)
+    if a is None:
+        unclassified[("diag-message", m[:80])] += 1
+        return 0
+    return a
+REFS = [(re.compile(x["re"]), x["bytes"], x["why"]) for x in TA.get("refs_rules", [])]
+big_refs = []
+def refs_bytes(f, line):
+    """Bytes of the affected_refs Vec and its Strings for the diag( call at f:line: the
+    fifth argument, parsed from the blanked source."""
+    if f not in _spancache:
+        loops_at_line(f, line, None)
+    bt, offs, _ = _spancache[f]
+    pos = bt.find("diag(", offs[line - 1])
+    if pos < 0 or pos > offs[line - 1] + 400:
+        unclassified[("diag-refs-locate", f"{short(f)}:{line}")] += 1
+        return 0
+    j, d, args, cur = pos + 4, 0, [], ""
+    while j < len(bt):
+        ch = bt[j]
+        if ch in "([{":
+            d += 1
+            if d == 1 and ch == "(":
+                j += 1; continue
+        elif ch in ")]}":
+            d -= 1
+            if d == 0:
+                args.append(cur); break
+        if ch == "," and d == 1:
+            args.append(cur); cur = ""
+        else:
+            cur += ch
+        j += 1
+    if len(args) < 5:
+        unclassified[("diag-refs-args", f"{short(f)}:{line}")] += 1
+        return 0
+    a5 = " ".join(args[4].split())
+    if re.fullmatch(r"(vec!\[\s*\]|Vec::new\(\))", a5):
+        return 0
+    m = re.fullmatch(r"vec!\[(.*)\]", a5)
+    if m:
+        body, dd, k, cur2 = m.group(1), 0, 0, ""
+        for ch in body:
+            if ch in "([{": dd += 1
+            elif ch in ")]}": dd -= 1
+            if ch == "," and dd == 0:
+                k += 1 if cur2.strip() else 0; cur2 = ""
+            else:
+                cur2 += ch
+        k += 1 if cur2.strip() else 0
+        return k * (24 + TA["classes"]["ident"])
+    for rx, bexpr, why in REFS:
+        if rx.search(a5):
+            return ev(bexpr)
+    unclassified[("diag-refs", a5[:80])] += 1
+    return 0
+for r in inv["rows"]:
+    f, line = r["file"], r["line"]
+    fk = fn_of(f, line)
+    loops = loops_at_line(f, line, fk) if fk else []
+    key = f"{short(f)}:{line}"
+    reached, mult = site_mult(f, line, fk, loops, key)
+    sf = TA.get("site_from", {}).get(key)
+    if sf is not None and mult:
+        mult = sum(M[k] for k in M if short(k) in sf["from"]) * ev(sf["per"])
+    so = TA.get("site_size", {}).get(key)
+    if key in AGG:
+        size = ev(AGG[key]["bytes"])
+    elif r["kind"] == "diag":
+        size = TA["diag_fixed_bytes"]
+    elif so is not None:
+        size = so["bytes"]
+    else:
+        size = evaluate_format(r)
+    if r["kind"] == "diag" and mult:
+        D += mult
+        rb = refs_bytes(f, line)
+        diag_bytes += mult * (size + message_size(r) + rb)
+        if mult and rb > TA["diag_refs_default_bytes"]:
+            big_refs.append((key, rb, mult))
+    tav_size = size
+    if r["kind"] == "diag" and mult:
+        mm = " ".join(r.get("message_arg", "").split())
+        if not mm.startswith("format!("):
+            tav_size = size + message_size(r)   # a &str message is copied by into(); a String moves (counted at its source too)
+    req = mult * max(8, 2 * tav_size) if tav_size else 0
+    st = TA.get("site_total", {}).get(key)
+    if st is not None and mult:
+        req = ev(st["bytes"])
+    total_req += req
+    if mult:
+        max_size = max(max_size, tav_size)
+    rows.append({"file": f, "line": line, "kind": r["kind"], "fn": fk, "reached": bool(reached), "loops": loops,
+                 "mult": mult, "bytes": tav_size, "req": req})
+for r in LEX:
+    f, line, fk = r["file"], r["line"], r["fn"]
+    key = f"{short(f)}:{line}:{r['kind']}"
+    lkey = f"{short(f)}:{line}"
+    loops = loops_at_line_lex(f, line, fk, r) if False else []
+    raw_line = filetext.setdefault(f, open(os.path.join(proot, f), encoding="utf-8").read().split("\n"))[line - 1]
+    # loops enclosing this lexicon site: recompute with the token position on the line
+    tok = {"to_string": ".to_string", "to_owned": ".to_owned", "string_from": "String::from", "into_text": ".into",
+           "join": ".join", "replace": ".replace", "push_str": ".push_str", "clone_text": ".clone",
+           "diag_literal": "Diagnostic", "from_literal": "ok_or", "collect_string": ".collect::<String>"}[r["kind"]]
+    if r["kind"] == "from_literal" and tok not in raw_line:
+        tok = "map_err" if "map_err" in raw_line else "?"
+    if f not in _spancache:
+        loops_at_line(f, line, fk)
+    bt, offs, sp = _spancache[f]
+    col = raw_line.find(tok)
+    pos = offs[line - 1] + max(col, 0)
+    l0 = int(fk.rsplit(":", 2)[1])
+    loops = [h for (a, b, h) in sp if offs[l0 - 1] <= a < pos < b]
+    reached, mult = site_mult(f, line, fk, loops, lkey)
+    if lkey in TA.get("site_zero", {}) or key in TA.get("site_zero", {}):
+        mult = 0
+    sf = TA.get("site_from", {}).get(lkey)
+    if sf is not None and mult:
+        # G4: every execution of this site lies inside a call of one of `from`, at most `per`
+        # times per call (e.g. term-source clones summed over one audit's rows <= 2l)
+        mult = sum(M[k] for k in M if short(k) in sf["from"]) * ev(sf["per"])
+    lss = TA.get("lex_site_size", {}).get(lkey) or TA.get("lex_site_size", {}).get(f.split("core/")[-1].split("/", 1)[-1] + ":" + str(line))
+    if lss is not None:
+        size = cls_value(lss["class"])
+    elif r["literal_bytes"] is not None:
+        size = r["literal_bytes"]
+    elif r["kind"] == "diag_literal":
+        size = TA["diag_fixed_bytes"]
+    elif r["kind"] == "join":
+        size = None
+        for rx, bexpr, why in join_rules:
+            if rx.search(" ".join(r["receiver"].split())):
+                size = ev(bexpr); break
+        if size is None:
+            if mult:
+                unclassified[("join", r["receiver"][-80:])] += 1
+            size = 0
+    elif r["kind"] == "push_str":
+        arg = r["arg"]
+        size = TA["classes"]["static"] if re.fullmatch(r'"\s*"', arg) else arg_max("", arg)
+        if size is None:
+            if mult:
+                unclassified[("push_str", arg[:80])] += 1
+            size = 0
+    else:
+        size = arg_max("", r["receiver"])
+        if size is None:
+            if mult:
+                unclassified[(r["kind"], r["receiver"][-80:])] += 1
+            size = 0
+    if r["kind"] == "diag_literal":
+        D += mult
+        diag_bytes += mult * (size + TA["classes"]["message_lit_struct"] + TA["diag_refs_default_bytes"])
+        size = 0   # its field copies are the lexicon rows inside the literal, counted separately
+    req = mult * max(8, 2 * size) if size else 0
+    st = TA.get("site_total", {}).get(lkey)
+    if st is not None and mult:
+        req = ev(st["bytes"])
+    total_req += req
+    if mult:
+        max_size = max(max_size, size)
+    rows.append({"file": f, "line": line, "kind": r["kind"], "fn": fk, "reached": bool(reached), "loops": loops,
+                 "mult": mult, "bytes": size, "req": req, "receiver": r["receiver"][-120:]})
+complete = not unclassified and not unmapped
+out = {"which": which, "roots": roots, "reachable_fns": len(reach), "complete": complete,
+       "sites": len(rows), "sites_reached": sum(1 for x in rows if x["reached"]),
+       "sites_with_positive_multiplicity": sum(1 for x in rows if x["mult"] > 0),
+       "total_text_requested_bytes": total_req,
+       "largest_single_site_bytes": max_size,
+       "total_text_moving_bytes": total_req + max_size,
+       "D_diagnostics": D, "retained_diagnostic_bytes": diag_bytes, "large_refs_sites": big_refs,
+       "unmapped_loop_headers": unmapped.most_common(), "unclassified_args": [[list(k), v] for k, v in unclassified.most_common()],
+       "zero_matched_headers": sorted([h, r] for h, r in ZERO_HITS.items()),
+       "top_sites": sorted(rows, key=lambda x: -x["req"])[:60], "rows": rows,
+       "function_multiplicity": {k: v for k, v in M.items() if v}}
+print(json.dumps(out, indent=1))

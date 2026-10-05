@@ -1,0 +1,1 @@
+Receipt2026-10-03T04:43:36Z; checkpoint04:53:17Z supplied before scheduled04:53:36Z. First complete actual verdict04:46:01.006131Z. All authorized focused checks completed before runtime release04:54:44.506296Z. Remaining work at release was RETURN/inventory sealing only. Original cutoff05:13:36Z and deadline05:23:36Z unchanged.

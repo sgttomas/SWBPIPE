@@ -1,0 +1,62 @@
+packet zero_matched_headers: 56
+reached rows zeroed (distinct headers): 40
+  Z for &intensity in uniform_intensities | RULE span\.start_fraction|uniform_intensities | ['lib.rs:10795']
+  Z for &thrust in pressure_thrusts | RULE pressure|region|aggregates | ['lib.rs:10804']
+  Z for (_, mut aggregate) in aggregates | RULE pressure|region|aggregates | ['lib.rs:11039', 'lib.rs:11052']
+  Z for (axis, metadata_component, unit, quantity) in entries | RULE metadata_component, unit, quantity\) in entri | ['lib.rs:11990', 'lib.rs:12003']
+  Z for (index, region) in case.pressure_regions.iter_mut().flatten().enumerate() | RULE pressure|region|aggregates | ['pressure_runtime.rs:377', 'pressure_runtime.rs:392']
+  Z for (index, region) in regions.iter().enumerate() | RULE pressure|region|aggregates | ['pressure_runtime.rs:252', 'pressure_runtime.rs:326']
+  Z for (index, span) in wind.exposed_spans.iter_mut().enumerate() | RULE \bwind\b|exposed_spans|seismic|axis_factors|e | ['lib.rs:8570', 'lib.rs:8576']
+  Z for (support, disposition) in constant_effort_solve_dispositions(model) | RULE constant_effort|is_variable_spring_hanger|han | ['lib.rs:12432', 'lib.rs:12438']
+  Z for (terminal_index, terminal) in terminals.iter().enumerate() | RULE traversal|terminals|\(dof, pbits, hi, lo, _\) | ['pressure_runtime.rs:326']
+  Z for association in associations(model, node, &member.pipe_id) | RULE model\s*\.\s*components|&model\.components|&m | ['preview_physics.rs:636', 'preview_physics.rs:654']
+  Z for bend in &built.curved_bend_elements | RULE curved|bend\b|bend in|primitives\.curved | ['preview_physics.rs:472', 'preview_physics.rs:475']
+  Z for combination in &model.combinations | RULE combination|operand_id | ['lib.rs:9793', 'lib.rs:13097']
+  Z for component in &model.components | RULE model\s*\.\s*components|&model\.components|&m | ['preview_physics.rs:375', 'preview_physics.rs:378']
+  Z for component in &mut model.components | RULE model\s*\.\s*components|&model\.components|&m | ['lib.rs:8100', 'lib.rs:8112']
+  Z for component in model .components .iter() .filter(|component| is_curved_bend_macro_component(component)) | RULE model\s*\.\s*components|&model\.components|&m | ['lib.rs:7414', 'lib.rs:7431']
+  Z for component in model .components .iter() .filter(|component| is_expansion_joint_component(component)) | RULE model\s*\.\s*components|&model\.components|&m | ['lib.rs:11990', 'lib.rs:12003']
+  Z for component in model.components.iter().filter(|c| is_expansion_joint_component(c)) | RULE model\s*\.\s*components|&model\.components|&m | ['preview_physics.rs:141', 'preview_physics.rs:144']
+  Z for dof in state.prescribed.keys() | RULE \bstate\s*\.members|state\.prescribed | ['lib.rs:3792', 'lib.rs:3792']
+  Z for element in curved_bend_elements | RULE curved|bend\b|bend in|primitives\.curved | ['lib.rs:12032', 'lib.rs:12043']
+  Z for gate in gates | RULE ^for\ gate\ in\ gates$ | ['preview_physics_evidence.rs:674']
+  Z for input in inputs | RULE for input in inputs$ | ['lib.rs:10373']
+  Z for linear_support in model .supports .iter() .filter(|s| s.node == nonlinear_support.node) | RULE nonlinear|friction|support_state|boundary_mot | ['validation.rs:125', 'validation.rs:127']
+  Z for load in input.thermal_loads | RULE thermal | ['source_recovery.rs:1378', 'source_recovery.rs:1383']
+  Z for load in loads .iter() .filter(|l| l.span.start_fraction <= a && l.span.end_fraction >= b) | RULE span\.start_fraction|uniform_intensities | ['lib.rs:10009']
+  Z for load in pressure_loads | RULE pressure|region|aggregates | ['lib.rs:11017', 'lib.rs:11024']
+  Z for nonlinear_support in &model.supports | RULE nonlinear|friction|support_state|boundary_mot | ['validation.rs:86', 'validation.rs:125']
+  Z for operand_id in expression.operand_ids() | RULE combination|operand_id | ['lib.rs:13172', 'lib.rs:13173']
+  Z for operand_id in operand_ids | RULE combination|operand_id | ['lib.rs:9793', 'lib.rs:9790']
+  Z for region in regions | RULE pressure|region|aggregates | ['pressure_runtime.rs:496', 'pressure_runtime.rs:534']
+  Z for slot in &primitives.curved | RULE curved|bend\b|bend in|primitives\.curved | ['structural_adapter.rs:1562', 'structural_adapter.rs:1592']
+  Z for step in &traversal | RULE traversal|terminals|\(dof, pbits, hi, lo, _\) | ['pressure_runtime.rs:534', 'pressure_runtime.rs:586']
+  Z for support in model .supports .iter() .filter(|support| is_variable_spring_hanger(support) || is_constant_eff | RULE constant_effort|is_variable_spring_hanger|han | ['lib.rs:12101', 'lib.rs:12105']
+  Z iter:&curved_bends_by_pipe .values().map | RULE curved|bend\b|bend in|primitives\.curved | ['lib.rs:5142']
+  Z iter:built .curved_bend_elements .iter().map | RULE curved|bend\b|bend in|primitives\.curved | ['lib.rs:1433', 'lib.rs:5715']
+  Z iter:curved .iter().map | RULE curved|bend\b|bend in|primitives\.curved | ['structural_adapter.rs:1653']
+  Z iter:curved: curved .iter().map | RULE curved|bend\b|bend in|primitives\.curved | ['structural_adapter.rs:1103']
+  Z iter:model.combinations.iter().map | RULE combination|operand_id | ['preview_physics.rs:744']
+  Z iter:results .iter() .filter(|item| item.kind == " ").filter_map | RULE item\.kind == \" \"\)\.filter_map|append_comb | ['lib.rs:9759', 'lib.rs:9759']
+  Z iter:sources.iter().map | RULE item\.kind == \" \"\)\.filter_map|append_comb | ['preview_physics.rs:957', 'preview_physics.rs:981']
+  Z iter:state .members .iter() .filter(|member| member.strain.total_eigenstrain != 0.0).map | RULE \bstate\s*\.members|state\.prescribed | ['lib.rs:3046']
+cited loop rows:
+   lib.rs:10009 format mult 0 fnM 96 for load in loads .iter() .filter(|l| l.span.start_fraction <= a && l.
+   lib.rs:10015 format mult 288 fnM 96 for (value, accumulator) in w.iter_mut().zip(&intensity)
+   lib.rs:10029 format mult 96 fnM 96 for bounds in boundaries.windows(2)
+   lib.rs:11248 format mult 384 fnM 64 for (id_tail, kind, component, dof, scale, unit, sign_convention) in c
+   lib.rs:12614 format mult 896 fnM 224 for (id_tail, kind, component, value, sign_convention) in local_compon
+   lib.rs:12707 format mult 1024 fnM 256 for (id_tail, kind, component, value, sign_convention) in local_compon
+   lib.rs:12718 format mult 1024 fnM 256 for (id_tail, kind, component, value, sign_convention) in local_compon
+   lib.rs:11249 to_string mult 384 fnM 64 for (id_tail, kind, component, dof, scale, unit, sign_convention) in c
+   lib.rs:11251 to_string mult 384 fnM 64 for (id_tail, kind, component, dof, scale, unit, sign_convention) in c
+   lib.rs:11252 to_string mult 384 fnM 64 for (id_tail, kind, component, dof, scale, unit, sign_convention) in c
+   lib.rs:11256 to_string mult 384 fnM 64 for (id_tail, kind, component, dof, scale, unit, sign_convention) in c
+   lib.rs:11257 to_string mult 384 fnM 64 for (id_tail, kind, component, dof, scale, unit, sign_convention) in c
+   lib.rs:11258 to_string mult 384 fnM 64 for (id_tail, kind, component, dof, scale, unit, sign_convention) in c
+   lib.rs:11259 to_string mult 384 fnM 64 for (id_tail, kind, component, dof, scale, unit, sign_convention) in c
+   lib.rs:11260 to_string mult 384 fnM 64 for (id_tail, kind, component, dof, scale, unit, sign_convention) in c
+   lib.rs:12709 replace mult 1024 fnM 256 for (id_tail, kind, component, value, sign_convention) in local_compon
+   lib.rs:9990 to_string mult 96 fnM 96 for bounds in boundaries.windows(2)
+   retained_product.rs:2166 into_text mult 1218240 fnM 3 for r in rows.iter().flatten().filter(|r|r.metadata.as_ref().is_some_a
+   retained_product.rs:2168 from_literal mult 576 fnM 3 for (i, c) in components.into_iter().enumerate()

@@ -1,0 +1,10 @@
+2026-10-04T22:49:30Z part 2 start: 4 runs x (base, candidate), one at a time
+2026-10-04T22:50:16Z base RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__captured ok 45.7909 exit 0 load [5.68, 9.17, 9.82] [6.8, 9.02, 9.74] mem% 95
+2026-10-04T22:51:02Z cand RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__captured ok 46.1509 exit 0 load [6.8, 9.02, 9.74] [7.01, 8.76, 9.6] mem% 94
+2026-10-04T22:51:51Z base RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__typed ok 48.3325 exit 0 load [7.01, 8.76, 9.6] [7.75, 8.7, 9.53] mem% 95
+2026-10-04T22:52:39Z cand RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__typed ok 47.936 exit 0 load [7.75, 8.7, 9.53] [7.1, 8.32, 9.34] mem% 95
+2026-10-04T22:53:26Z base RF-LARGE-TREE-n01000-AX__dense_scrutiny__captured ok 47.1189 exit 0 load [7.1, 8.32, 9.34] [6.24, 7.94, 9.15] mem% 95
+2026-10-04T22:54:19Z cand RF-LARGE-TREE-n01000-AX__dense_scrutiny__captured ok 52.8302 exit 0 load [6.24, 7.94, 9.15] [7.09, 7.9, 9.06] mem% 94
+2026-10-04T22:55:06Z base RF-LARGE-TREE-n01000-AX__dense_scrutiny__typed ok 46.9522 exit 0 load [7.09, 7.9, 9.06] [5.93, 7.49, 8.84] mem% 95
+2026-10-04T22:55:53Z cand RF-LARGE-TREE-n01000-AX__dense_scrutiny__typed ok 46.4417 exit 0 load [5.93, 7.49, 8.84] [5.29, 7.12, 8.64] mem% 95
+2026-10-04T22:55:53Z part 2 done

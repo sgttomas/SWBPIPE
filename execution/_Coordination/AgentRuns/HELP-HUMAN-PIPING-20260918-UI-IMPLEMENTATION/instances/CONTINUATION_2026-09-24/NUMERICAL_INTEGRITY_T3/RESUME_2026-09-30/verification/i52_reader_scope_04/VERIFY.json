@@ -1,0 +1,9 @@
+{
+  "time_utc": "2026-10-03T16:04:54.445654+00:00",
+  "seal_sha256": "7c858ac1f094ef6eb587501261ea7f81410fb42fe94494f322fdbfa974bfd5f3",
+  "payloads": 2,
+  "origins_verified": 48,
+  "return_read": "complete with final spacing cleanup",
+  "source_check": "small_row_bound and double-rounding discriminator read directly",
+  "result": "verified"
+}

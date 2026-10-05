@@ -1,0 +1,10 @@
+S01 KILLED 1 ('features/results/retainedPrecisionIntegration.test.tsx', "the declared differences, with TypeScript's expectations are exactly the six ruled entries, each with a ruling, forms and one expectation per language, in closed field sets")
+S02 KILLED 5 ('features/results/retainedPrecisionIntegration.test.tsx', "the declared differences, with TypeScript's expectations are exactly the six ruled entries, each with a ruling, forms and one expectation per language, in closed field sets")
+S03 SURVIVED 0 
+S04 SURVIVED 0 
+S05 KILLED 5 ('features/results/retainedPrecisionIntegration.test.tsx', "the declared differences, with TypeScript's expectations are exactly the six ruled entries, each with a ruling, forms and one expectation per language, in closed field sets")
+N01 KILLED 1 ('features/results/retainedPrecisionIntegration.test.tsx', "the declared differences, with TypeScript's expectations carry the N-4 scope: differences inherited from the base carriers are not U6's")
+N02 KILLED 1 ('features/results/retainedPrecisionIntegration.test.tsx', "the declared differences, with TypeScript's expectations carry the N-4 scope: differences inherited from the base carriers are not U6's")
+N03 KILLED 1 ('features/results/retainedPrecision.test.ts', "07g round (I61 U6e): F5 and RV79-N1 RV94 N-3: an invalid enum value in a not_required case's quality is refused at G7 with TS's own code")
+N04 KILLED 2 ('features/results/retainedPrecision.test.ts', 'shared synthetic prepared receipt controls, never solver execution evidence g7_not_required_quality_enum_invalid')
+total 9 survivors ['S03', 'S04'] not by assertion []

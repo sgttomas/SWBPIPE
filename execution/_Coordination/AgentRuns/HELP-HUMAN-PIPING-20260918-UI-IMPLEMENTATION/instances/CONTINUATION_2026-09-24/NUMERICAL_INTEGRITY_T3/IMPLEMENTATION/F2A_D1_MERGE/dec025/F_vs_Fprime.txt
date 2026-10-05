@@ -1,0 +1,3 @@
+# First freeze F (20dd3d929d) against F′ (5488136a19), per manifest (rc passed failed ignored), from each suites.log
+DIFF core/solver/nonlinear_integration/Cargo.toml 101 passed=132 failed=2 ignored=0 0 passed=134 failed=0 ignored=0
+39 manifests identical

@@ -1,0 +1,57 @@
+### PR1080 loop: new (new = as committed at 6b9bb19a5f; old = the header of its parent), counters on validate_in and its row loop
+RV89_PR_D1 SparseInteractive successor=true validate_in_calls=0 loop_rows=0
+RV89_PR_D1 DenseScrutiny successor=true validate_in_calls=0 loop_rows=0
+RV89_PR_OFFD1 n05 sparse round=0 result=Ok("0.3.0") validate_in_calls=1 loop_rows=79 allocations=26773 bytes=3059428
+RV89_PR_OFFD1 n05 sparse round=1 result=Ok("0.3.0") validate_in_calls=1 loop_rows=79 allocations=24043 bytes=2757837
+RV89_PR_OFFD1 n05 dense round=0 result=Ok("0.3.0") validate_in_calls=1 loop_rows=80 allocations=24229 bytes=2778362
+RV89_PR_OFFD1 n05 dense round=1 result=Ok("0.3.0") validate_in_calls=1 loop_rows=80 allocations=24229 bytes=2778362
+RV89_PR_OFFD1 multicase sparse round=0 result=Ok("0.3.0") validate_in_calls=1 loop_rows=158 allocations=47640 bytes=5460697
+RV89_PR_OFFD1 multicase sparse round=1 result=Ok("0.3.0") validate_in_calls=1 loop_rows=158 allocations=47640 bytes=5460697
+RV89_PR_OFFD1 multicase dense round=0 result=Ok("0.3.0") validate_in_calls=1 loop_rows=160 allocations=48012 bytes=5501917
+RV89_PR_OFFD1 multicase dense round=1 result=Ok("0.3.0") validate_in_calls=1 loop_rows=160 allocations=48012 bytes=5501917
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 553 filtered out; finished in 1.67s
+
+### PR1080 loop: old (new = as committed at 6b9bb19a5f; old = the header of its parent), counters on validate_in and its row loop
+RV89_PR_D1 SparseInteractive successor=true validate_in_calls=0 loop_rows=0
+RV89_PR_D1 DenseScrutiny successor=true validate_in_calls=0 loop_rows=0
+RV89_PR_OFFD1 n05 sparse round=0 result=Ok("0.3.0") validate_in_calls=1 loop_rows=79 allocations=26773 bytes=3059428
+RV89_PR_OFFD1 n05 sparse round=1 result=Ok("0.3.0") validate_in_calls=1 loop_rows=79 allocations=24043 bytes=2757837
+RV89_PR_OFFD1 n05 dense round=0 result=Ok("0.3.0") validate_in_calls=1 loop_rows=80 allocations=24229 bytes=2778362
+RV89_PR_OFFD1 n05 dense round=1 result=Ok("0.3.0") validate_in_calls=1 loop_rows=80 allocations=24229 bytes=2778362
+RV89_PR_OFFD1 multicase sparse round=0 result=Ok("0.3.0") validate_in_calls=1 loop_rows=158 allocations=47640 bytes=5460697
+RV89_PR_OFFD1 multicase sparse round=1 result=Ok("0.3.0") validate_in_calls=1 loop_rows=158 allocations=47640 bytes=5460697
+RV89_PR_OFFD1 multicase dense round=0 result=Ok("0.3.0") validate_in_calls=1 loop_rows=160 allocations=48012 bytes=5501917
+RV89_PR_OFFD1 multicase dense round=1 result=Ok("0.3.0") validate_in_calls=1 loop_rows=160 allocations=48012 bytes=5501917
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 553 filtered out; finished in 1.50s
+
+### every line equal, new vs old: yes
+### counting sweep (6b9bb19a5f): RV89_PR_SWEEP_COUNTS validate_in_calls=0 loop_rows=0
+
+### integer(): new (new = 92a5a9da1c's order; old = 6b9bb19a5f's), counters on integer and validate_in
+RV89_INT_D1 SparseInteractive successor=true validate_in_calls=0 integer_calls=0
+RV89_INT_D1 DenseScrutiny successor=true validate_in_calls=0 integer_calls=0
+RV89_INT_OFFD1 n05 sparse round=0 result=Ok("0.3.0") validate_in_calls=1 integer_calls=72 allocations=26773 bytes=3059428
+RV89_INT_OFFD1 n05 sparse round=1 result=Ok("0.3.0") validate_in_calls=1 integer_calls=72 allocations=24043 bytes=2757837
+RV89_INT_OFFD1 n05 dense round=0 result=Ok("0.3.0") validate_in_calls=1 integer_calls=72 allocations=24229 bytes=2778362
+RV89_INT_OFFD1 n05 dense round=1 result=Ok("0.3.0") validate_in_calls=1 integer_calls=72 allocations=24229 bytes=2778362
+RV89_INT_OFFD1 multicase sparse round=0 result=Ok("0.3.0") validate_in_calls=1 integer_calls=139 allocations=47640 bytes=5460697
+RV89_INT_OFFD1 multicase sparse round=1 result=Ok("0.3.0") validate_in_calls=1 integer_calls=139 allocations=47640 bytes=5460697
+RV89_INT_OFFD1 multicase dense round=0 result=Ok("0.3.0") validate_in_calls=1 integer_calls=139 allocations=48012 bytes=5501917
+RV89_INT_OFFD1 multicase dense round=1 result=Ok("0.3.0") validate_in_calls=1 integer_calls=139 allocations=48012 bytes=5501917
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 553 filtered out; finished in 1.58s
+
+### integer(): old (new = 92a5a9da1c's order; old = 6b9bb19a5f's), counters on integer and validate_in
+RV89_INT_D1 SparseInteractive successor=true validate_in_calls=0 integer_calls=0
+RV89_INT_D1 DenseScrutiny successor=true validate_in_calls=0 integer_calls=0
+RV89_INT_OFFD1 n05 sparse round=0 result=Ok("0.3.0") validate_in_calls=1 integer_calls=72 allocations=26773 bytes=3059428
+RV89_INT_OFFD1 n05 sparse round=1 result=Ok("0.3.0") validate_in_calls=1 integer_calls=72 allocations=24043 bytes=2757837
+RV89_INT_OFFD1 n05 dense round=0 result=Ok("0.3.0") validate_in_calls=1 integer_calls=72 allocations=24229 bytes=2778362
+RV89_INT_OFFD1 n05 dense round=1 result=Ok("0.3.0") validate_in_calls=1 integer_calls=72 allocations=24229 bytes=2778362
+RV89_INT_OFFD1 multicase sparse round=0 result=Ok("0.3.0") validate_in_calls=1 integer_calls=139 allocations=47640 bytes=5460697
+RV89_INT_OFFD1 multicase sparse round=1 result=Ok("0.3.0") validate_in_calls=1 integer_calls=139 allocations=47640 bytes=5460697
+RV89_INT_OFFD1 multicase dense round=0 result=Ok("0.3.0") validate_in_calls=1 integer_calls=139 allocations=48012 bytes=5501917
+RV89_INT_OFFD1 multicase dense round=1 result=Ok("0.3.0") validate_in_calls=1 integer_calls=139 allocations=48012 bytes=5501917
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 553 filtered out; finished in 1.54s
+
+### every line equal, new vs old: yes
+### counting sweep (92a5a9da1c's source_blocks.rs): RV89_INT_SWEEP_COUNTS validate_in_calls=0 integer_calls=0

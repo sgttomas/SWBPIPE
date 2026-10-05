@@ -1,0 +1,75 @@
+{
+  "source_pin": "d0daa18717f8243a7232e898c9ef9b4f4d18d9e4",
+  "first_actual_command": "pp_named_second",
+  "source_digest": "8782452e5e0d09da67a05730d892b693f3e8121cef6b9ad08e2b2a683112a89b",
+  "candidate_sources": [
+    {
+      "repository_path": "projects/chirality-piping/core/product_physics/src/retained_product.rs",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/first_candidate_0.rs",
+      "sha256": "5a350d53ca3f4fd207dcfccd6797894269cd9f2ec12f6b867e0a623776a5cdc7",
+      "bytes": 103747
+    },
+    {
+      "repository_path": "projects/chirality-piping/core/product_physics/src/retained_product_tests.rs",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/first_candidate_1.rs",
+      "sha256": "4b70a806a75af08ce48bbfe5d667174068f25eca9947c390d20d0d922d48a3f0",
+      "bytes": 62502
+    },
+    {
+      "repository_path": "projects/chirality-piping/core/product_physics/tests/formation_check_runtime.rs",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/first_candidate_2.rs",
+      "sha256": "2e14cce9379c92e6ceec9887d181f7a21fb02babf80b67b080ed947b76c3a2f9",
+      "bytes": 41899
+    },
+    {
+      "repository_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/first_candidate_3.rs",
+      "sha256": "af41689e5905347474bbc875e184dee9323a28eabc07d1e259f3e4c13c56e490",
+      "bytes": 46284
+    },
+    {
+      "repository_path": "projects/chirality-piping/fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json",
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/first_candidate_4.json",
+      "sha256": "2aa51bee095186b95463567f190198f82a69557a569bf8a6a7b318aad37ab0b1",
+      "bytes": 2747
+    }
+  ],
+  "evidence": [
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/BASELINE.json",
+      "sha256": "1d035f0554c71ae2c4674e76e80a26f99dc2ceb4eb7bbbbb7df5b74fb4b37d6e",
+      "bytes": 153186
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_named_first.json",
+      "sha256": "bb9e1af8856e5535fe44edeeae9997dacaa0cbf93c692290dabcbd6b7603cc18",
+      "bytes": 2077
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_named_first.log",
+      "sha256": "36fb78578dd82ec25ee81ea8937a04db83781b05d2895fbfb90ec658ee9deb9b",
+      "bytes": 2840
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_named_second.json",
+      "sha256": "79e89838fa106b3020b8fbc6bc723cda39e485aa5a10be1ed2409b1dd7f5fdd1",
+      "bytes": 2077
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/pp_named_second.log",
+      "sha256": "92ace49fe3a748c6cf462ef5af7f1b87b7d420866b2892161bfc93360959a096",
+      "bytes": 197239
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/named_oracle_first.json",
+      "sha256": "03f590cd622821d9a344d0e85e87f0a06fe372544a8f727ca120080775f7a2de",
+      "bytes": 648728
+    },
+    {
+      "location": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i50_first_publishing/runtime02/named_oracle_first.log",
+      "sha256": "06d154c370a8cac47e4a50bf2e0bfcd93aa3c008959e71bef3f05b326f13f11d",
+      "bytes": 916
+    }
+  ],
+  "observations": "Sparse Q58/final98/complete98 verdicts; dense Q58/final99/refuses existing sparse-only mode binding; dense ancillary classification held for RV65."
+}

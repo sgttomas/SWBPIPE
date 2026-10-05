@@ -1,0 +1,98 @@
+[
+  {
+    "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_01.json",
+    "exit": 0,
+    "source_stable": true,
+    "summaries": [
+      "test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 447 filtered out; finished in 0.32s"
+    ],
+    "record_verified": true,
+    "record_bytes": 5213,
+    "log_verified": true,
+    "log_bytes": 6449
+  },
+  {
+    "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_02.json",
+    "exit": 0,
+    "source_stable": true,
+    "summaries": [
+      "test result: ok. 32 passed; 0 failed; 0 ignored; 0 measured; 419 filtered out; finished in 14.67s"
+    ],
+    "record_verified": true,
+    "record_bytes": 5215,
+    "log_verified": true,
+    "log_bytes": 2460267
+  },
+  {
+    "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_03.json",
+    "exit": 0,
+    "source_stable": true,
+    "summaries": [
+      "test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 447 filtered out; finished in 0.32s"
+    ],
+    "record_verified": true,
+    "record_bytes": 5211,
+    "log_verified": true,
+    "log_bytes": 6619
+  },
+  {
+    "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_04.json",
+    "exit": 101,
+    "source_stable": true,
+    "summaries": [
+      "test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s"
+    ],
+    "record_verified": true,
+    "record_bytes": 5210,
+    "log_verified": true,
+    "log_bytes": 1214
+  },
+  {
+    "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_05.json",
+    "exit": 0,
+    "source_stable": true,
+    "summaries": [
+      "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 447 filtered out; finished in 0.32s"
+    ],
+    "record_verified": true,
+    "record_bytes": 5512,
+    "log_verified": true,
+    "log_bytes": 6751
+  },
+  {
+    "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_06.json",
+    "exit": 0,
+    "source_stable": true,
+    "summaries": [
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s"
+    ],
+    "record_verified": true,
+    "record_bytes": 5508,
+    "log_verified": true,
+    "log_bytes": 750
+  },
+  {
+    "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_07.json",
+    "exit": 0,
+    "source_stable": true,
+    "summaries": [
+      "test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 419 filtered out; finished in 15.29s"
+    ],
+    "record_verified": true,
+    "record_bytes": 5514,
+    "log_verified": true,
+    "log_bytes": 2572286
+  },
+  {
+    "record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i51_prepared_trace_07/cargo_08.json",
+    "exit": 0,
+    "source_stable": true,
+    "summaries": [
+      "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.40s"
+    ],
+    "record_verified": true,
+    "record_bytes": 5507,
+    "log_verified": true,
+    "log_bytes": 5244
+  }
+]
