@@ -12,6 +12,7 @@
   - The Python, Rust and TS readers treat it as eligible with its invocation, and the carriers transport it.
   - No product caller exists.
   - The records are `../IMPLEMENTATION/F2A_D1/` and `../IMPLEMENTATION/F2A_D1_MERGE/` (with ERRATA E-1).
+- **T3's records through the handoff go to main in #1084** (merged, squash `f506f3e2de`) **and #1088.** Their merge records are `../IMPLEMENTATION/RECORDS_MERGE_2026-10-05/` and, on NUM, `RECORDS_MERGE_2026-10-05B/`, which confirms #1088's merge.
 - **U8,** the F2a-breadth roadmap and S-I1's readiness are planned (`I61/u8_plan_01/PLAN.md`) and ruled. The owner pulled T6's successor-output slice forward.
 
 ## Open
@@ -34,10 +35,12 @@
 
 ## Next
 
-Follow the handoff's "The next work, in order": verify the state, absorb main if needed, then dispatch U8 (I68 Part 1), with S-I1 (I73) and the T6 slice plan (I74) alongside.
+Follow the handoff's "The next work, in order": verify the state (including that #1088 merged), absorb main if needed, then dispatch U8 (I68 Part 1), with S-I1 (I73) and the T6 slice plan (I74) alongside.
 
 ## Branches
 
 - **NUM** (`codex/piping-numerical-integrity-20260926`) is the integration branch. Its maintained source equals main's.
-- **Product PRs** are cut compactly from main. **Records** reach main only through records-only PRs.
+- **Product PRs** are cut compactly from main. **Records** reach main only through records-only PRs, which are squash-merged.
+- **NUM itself is never merged into main.** Its history holds #1084's redacted originals.
+- **The next unused IDs are I75 and RV101.**
 - **All T3 component branches** are pushed, and contained in main or NUM.

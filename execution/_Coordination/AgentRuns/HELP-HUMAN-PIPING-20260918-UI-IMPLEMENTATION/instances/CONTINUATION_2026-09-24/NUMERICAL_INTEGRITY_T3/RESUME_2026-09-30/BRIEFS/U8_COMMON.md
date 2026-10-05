@@ -46,7 +46,7 @@ The receipt Ceiling row (W-C2) is **not** U8's. It is B1's acceptance witness. U
   - no DEC-025, native or solver-at-scale jobs.
 - **The memory guard** (`WT/guard/memguard.sh`; check with `pgrep -f memguard.sh`) must be running.
 - **Node:** use the existing `node_modules` through an untracked symlink only, and remove the symlink when done. No installs.
-- **Scratch** goes under `WT/scratch/<your-id>_<unit>/`, never the system temp directory.
+- **Scratch** goes under `WT/scratch/<your-id>_<unit>/`: never the system temp directory, never the parent checkout's `scratch/`, and never a worktree's own folder.
 - **Records** go in `NUM/R/<your-id>/<unit>_01/`: RETURN.md with SHA256SUMS, placeholder paths only (`WT`, `NUM`, `P`), and the changed files' hashes.
 - **Cleanup:** delete disposable copies and your target directory when you return, unless your brief says to keep them. The periodic cleanup tool (`WT/tools/t3_cleanup.py`) removes leftovers, but don't rely on it.
 

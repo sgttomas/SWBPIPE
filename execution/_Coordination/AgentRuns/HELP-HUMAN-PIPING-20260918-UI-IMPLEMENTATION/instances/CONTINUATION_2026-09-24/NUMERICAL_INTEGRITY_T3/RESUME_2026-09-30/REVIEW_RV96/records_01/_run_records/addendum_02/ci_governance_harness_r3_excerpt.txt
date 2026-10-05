@@ -1,0 +1,2 @@
+harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-05T03:16:28.0128715Z   CHIRALITY_REQUIRE_LIVE_TESTS: 1
+harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-05T03:17:24.2008399Z 1156 passed, 48 subtests passed in 54.89s

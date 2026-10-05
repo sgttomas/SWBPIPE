@@ -1,0 +1,6 @@
+RV100: RECORDS_MERGE_2026-10-05/dec025 at H against the host run folder WT/scratch/u9_dec025/R3
+- ORIGINALS.json's 4 sha256 values equal the 4 host files (SWEEP_..._5758e1c3df70.json 31907501..., sweep.log 66b50954..., desktop_vitest.log 463fc8d0..., surfaces.txt e0198d1f...).
+- After replacing the sweep worktree prefix by <WORKTREE> and the venv prefix by <VENV>, each of the 4 host files is byte-identical to the committed file: placeholder-only edits.
+- The other 6 committed files are byte-identical to the host files. Not committed: suites/ (per-manifest logs) and sweep_tree_copy.json.
+- meta.txt: start 03:18:01Z head 5758e1c3df; sweep exit 1 (fail-fast, Mac platform, as on earlier heads); ALL-DONE 03:50:59Z.
+- suites_vs_baseline.txt: vs F' 40/40 identical; python_pytest 3540 passed, 32 skipped; vitest 3552 passed (138 files); both builds exit 0.

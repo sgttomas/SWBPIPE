@@ -1,0 +1,10 @@
+file: R/REVIEW_RV62/selected_material_01/_run_records/whole_diff_whitespace.log
+blob at dfa5e2dc44 = blob at R2 = 2092ba09fc76 (unchanged until R3)
+sha256 original (H/R2 blob) = 103536c842260d18614912c6283fdbbf152b463458aa6ce8407e61642880ce11 = REDACTIONS.json files[12].original_sha256
+sha256 at R3                = e62fae3fe2c73c57ad2b73b4bb88654e1a1503c39c3fe91d71b97a61c8097188 = REDACTIONS.json files[12].redacted_sha256
+lines: 165 -> 165 (original_lines 165)
+lines differing R2 -> R3: 2, 4, 7, 9, 45, 47 (= redacted_line_numbers); every other line byte-identical
+each replaced line: "+[REDACTED: whole-host process line quoted from I47's listing; owner decision 2026-10-05; see REDACTIONS.json]"
+app/agent pattern hits remaining in the file (/Applications/, Teams, Parallels, session, claude, codex, chatgpt): 0
+REDACTIONS.json: files 12 -> 13; first 12 entries and top-level keys unchanged
+original-hash bindings at R3: RV62 _run_records/INVENTORY.json (superseded by the manifest) and REDACTIONS.json

@@ -1,0 +1,20 @@
+T3 execution records through the 2026-10-05 handoff, as one squashed commit.
+
+- projects/chirality-piping/execution/: byte-identical to the T3 integration
+  branch at cc44bce7f3 (codex/piping-numerical-integrity-20260926): rulings,
+  TASK and review records, the F2a D1 merge record, I61's U8/F2a-breadth plan,
+  the prepared dispatch briefs, the host-cleanup record and the handoff.
+- projects/chirality-piping/validation/portability_policy.json: 255 appended,
+  owner-approved, hash-bound entries (210 historical run records as EVIDENCE;
+  45 as-issued briefs, plans and the 2026-10-03 handoff as CONTROL), so GEN-8
+  passes without editing sealed records.
+- 13 files are redacted by owner decision (12 whole-host process listings and
+  one diff log quoting them); IMPLEMENTATION/HANDOFF_2026-10-05/_run_records/
+  REDACTIONS.json holds their original and redacted hashes.
+- Squashed (not a merge commit) so main's history does not carry the
+  unredacted listings of the PR's first head.
+
+Gates at 5758e1c3df: RV96 independent review PASS (addenda 01-02), GEN-8,
+hosted CI and the full-SHA dispatch, and the Mac DEC-025.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

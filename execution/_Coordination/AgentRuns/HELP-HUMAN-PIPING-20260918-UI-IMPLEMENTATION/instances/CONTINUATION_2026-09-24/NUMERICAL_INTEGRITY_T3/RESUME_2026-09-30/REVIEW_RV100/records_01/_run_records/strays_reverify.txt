@@ -1,0 +1,8 @@
+RV100 re-verification of IMPLEMENTATION/HANDOFF_2026-10-05/cleanup/strays_moved_20261005.sha256 (1,347 lines) against WT/scratch, 2026-10-05T14:18Z
+As listed (paths relative to the stray root):              153 OK, 1 FAILED (i54_.../INPUTS.json resolves to the older same-named WT/scratch folder), 1193 missing
+With i54_direct_container_profile/ mapped to i54_direct_container_profile_from_parent_checkout/:  154 OK, 0 FAILED, 1193 missing
+The 1193 missing = rv84_u4_g3_01/srcb1f (598) + rv84_u4_g3_01/src5ae (595): the two "treecopy" removals in cleanup/manifest_20261005c.jsonl (13:53:39Z).
+Their sources 5ae5fe4f0f and b1f80234dc are on origin (codex/piping-numerical-integrity-20260926), so the copies are regenerable.
+No gather_*.jsonl exists in WT/tools/cleanup_logs/. Directory ctime of the moved folders: 13:52:25Z; t3_cleanup.py last modified 13:53:01Z; treecopy removals 13:53:39Z.
+WT/tools/t3_cleanup.py sha256 6e3fdc7f54fd5cde8f919bb63b347034875f52118ade35af10f899db3448dd35 = committed host_tools/t3_cleanup.py.txt at H (identical bytes).
+cleanup/manifest_20261005c.jsonl at H = WT/tools/cleanup_logs/manifest_20261005c.jsonl (identical); 17 cache + 3 treecopy removed, 11.897 GB planned bytes.

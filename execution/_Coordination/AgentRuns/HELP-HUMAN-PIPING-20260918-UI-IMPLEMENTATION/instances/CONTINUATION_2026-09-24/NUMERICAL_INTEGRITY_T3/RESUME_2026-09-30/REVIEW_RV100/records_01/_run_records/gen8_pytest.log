@@ -1,0 +1,7 @@
+start 2026-10-05T14:13:06Z
+.                                                                        [100%]
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants
+1 passed, 10 deselected in 23.32s
+exit 0 end 2026-10-05T14:13:30Z

@@ -2,8 +2,16 @@
 """T3 host cleanup: remove only what is regenerable, after a reviewed plan.
 
 Usage:
+  python3 t3_cleanup.py gather [--apply --log gather.jsonl]  # step 0: move stray T3 scratch into WT/scratch
   python3 t3_cleanup.py plan  --out plan.json          # read-only: lists candidates with sizes
   python3 t3_cleanup.py apply --plan plan.json --log manifest.jsonl
+
+Step 0, gather: T3 scratch belongs in WT/scratch (this file's root + /scratch). A `scratch/` folder
+found directly in the checkout that holds `.claude/` (the parent checkout), or untracked directly in
+a worktree under the root, is stray. `gather` lists each stray entry and its destination
+WT/scratch/<name> (or <name>_from_<origin> on a name collision); with --apply it refuses while a
+build or test runs, moves each entry, verifies every file's sha256 after the move, logs one JSON line
+per entry, and removes the stray folder only when it is empty. It never deletes a file.
 
 Removes three classes under the T3 root (this file's parent's parent), never anything else:
   cache     a Cargo target directory: its root holds CACHEDIR.TAG or .rustc_info.json (topmost only)
@@ -152,6 +160,8 @@ def plan(args):
                "candidates": cands}, open(args.out, "w"), indent=1)
     for k, v in sorted(tot.items()):
         print(f"{k}: {sum(1 for c in cands if c['class'] == k)} paths, {v / 1e9:.1f} GB")
+    for origin, s in strays():
+        print(f"STRAY scratch outside WT/scratch ({origin}): {s}; run `gather` first", file=sys.stderr)
 
 
 def remove_tree(p):
@@ -173,6 +183,74 @@ def remove_tree(p):
             shutil.rmtree(p, onexc=onexc)
         finally:
             os.chmod(parent, mode)
+
+
+PARENT = os.path.dirname(os.path.dirname(ROOT))  # the checkout that holds .claude/
+
+
+def strays():
+    """(origin label, stray scratch dir) pairs outside WT/scratch."""
+    found = []
+    ps = os.path.join(PARENT, "scratch")
+    if os.path.isdir(ps) and not os.path.islink(ps):
+        found.append(("parent_checkout", ps))
+    for w in sorted(worktrees()):
+        s = os.path.join(w, "scratch")
+        if os.path.isdir(s) and not os.path.islink(s):
+            r = git("ls-files", "--", "scratch", cwd=w)
+            if r.returncode == 0 and not r.stdout.strip():
+                found.append((os.path.basename(w), s))
+    return found
+
+
+def gather(args):
+    dest_root = os.path.join(ROOT, "scratch")
+    moves = []
+    taken = set(os.listdir(dest_root))
+    for origin, s in strays():
+        for name in sorted(os.listdir(s)):
+            dest = name
+            if dest in taken:
+                dest = f"{name}_from_{origin}"
+                n = 2
+                while dest in taken:
+                    dest = f"{name}_from_{origin}_{n}"; n += 1
+            taken.add(dest)
+            moves.append((origin, os.path.join(s, name), os.path.join(dest_root, dest)))
+    if not moves:
+        print("no stray scratch found"); return
+    for origin, src, dst in moves:
+        print(f"{'move' if args.apply else 'would move'} {src} -> {os.path.relpath(dst, ROOT)} ({size(src) / 1e6:.1f} MB)")
+    if not args.apply:
+        return
+    b = busy()
+    if b:
+        sys.exit("refusing: build or test processes are running")
+    import hashlib
+    def hashes(p):
+        if os.path.isfile(p):
+            return {"": hashlib.sha256(open(p, "rb").read()).hexdigest()}
+        out = {}
+        for a, _, fs in os.walk(p):
+            for f in fs:
+                q = os.path.join(a, f)
+                if not os.path.islink(q):
+                    out[os.path.relpath(q, p)] = hashlib.sha256(open(q, "rb").read()).hexdigest()
+        return out
+    log = open(args.log, "a")
+    for origin, src, dst in moves:
+        before = hashes(src)
+        shutil.move(src, dst)
+        after = hashes(dst)
+        rec = {"origin": origin, "from": src.replace(PARENT, "<parent-checkout>"), "to": os.path.relpath(dst, ROOT),
+               "files": len(before), "verified": before == after, "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+        log.write(json.dumps(rec) + "\n")
+        if before != after:
+            sys.exit(f"hash mismatch after moving {src}; stopped")
+    for origin, s in strays():
+        if not os.listdir(s):
+            os.rmdir(s)
+    print(f"moved {len(moves)} entries; log {args.log}")
 
 
 def busy():
@@ -233,8 +311,13 @@ p1 = sub.add_parser("plan"); p1.add_argument("--out", required=True)
 p1.add_argument("--keep", action="append", default=[])
 p2 = sub.add_parser("apply"); p2.add_argument("--plan", required=True); p2.add_argument("--log", required=True)
 p2.add_argument("--min-age-hours", type=float, default=2.0)
+p0 = sub.add_parser("gather"); p0.add_argument("--apply", action="store_true"); p0.add_argument("--log")
 a = ap.parse_args()
-if a.cmd == "plan":
+if a.cmd == "gather":
+    if a.apply and not a.log:
+        sys.exit("--apply needs --log")
+    gather(a)
+elif a.cmd == "plan":
     KEEP_WORKTREES.update(a.keep)
     plan(a)
 else:

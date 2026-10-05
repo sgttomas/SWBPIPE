@@ -71,9 +71,23 @@ The largest items:
 
 ## Periodic cleanup (for every later ROOT)
 
+**All T3 scratch lives in `WT/scratch`.** That excludes the parent checkout's `scratch/`, a worktree's own folder, and the system temp directory. Briefs say so, and step 0 below moves anything that strayed.
+**This is a documented procedure with a host tool, not a registered workflow.** If the owner wants a reusable workflow, it is made with `create-workflow` and registered by the owner.
+
 **When:** after each merge to main, and whenever free space falls below about 400 GiB, but never while a cargo, test or DEC-025 job runs.
 
 **How:**
+0. **Gather stray scratch** into `WT/scratch`:
+   ```
+   python3 WT/tools/t3_cleanup.py gather
+   ```
+   That is a dry run listing each stray entry and its destination. Then:
+   ```
+   python3 WT/tools/t3_cleanup.py gather --apply --log WT/tools/cleanup_logs/gather_<date>.jsonl
+   ```
+   - **Strays** are a `scratch/` folder directly in the parent checkout (the folder that holds `.claude/`), or an untracked one directly in a worktree under WT.
+   - **On a name collision** the destination gets a `_from_<origin>` suffix.
+   - **Every file's sha256 is verified after the move.** Nothing is deleted. `plan` also prints a STRAY line while any remain.
 1. Plan, read-only:
    ```
    python3 WT/tools/t3_cleanup.py plan --out WT/tools/cleanup_logs/plan_<date>.json
@@ -86,3 +100,25 @@ The largest items:
 4. Record the result in the next ruling.
 
 **Deleting logs or evidence** is never part of the periodic cleanup; ask the owner.
+
+## Addendum, 2026-10-05: stray scratch gathered (owner direction)
+
+**The owner directed:** "move the scratch records to the common folder and ensure the cleanup work instructions … indicate to do so also."
+
+**The strays:** the parent checkout's untracked `scratch/` (77 MB, 1,347 files) held two earlier T3 assignments' working folders, written there before this session.
+- **`rv84_u4_g3_01`** moved to `WT/scratch/rv84_u4_g3_01`.
+- **`i54_direct_container_profile`** collided with an existing `WT/scratch` folder of the same run. That folder has all 134 stray paths, and only `INPUTS.json` differs. The stray was moved whole to `WT/scratch/i54_direct_container_profile_from_parent_checkout`.
+
+**Verification:** all 1,347 files' sha256 were verified after the move (`cleanup/strays_moved_20261005.sha256`). The emptied `scratch/` was removed, and the parent checkout is clean.
+
+**The tool gained `gather`,** which was tested on a throwaway probe. The committed copy is updated in `host_tools/`.
+
+**The periodic cleanup then ran after #1084's merge:** 17 caches (the last DEC-025 runs) and 3 tree copies, about 11.9 GB (`cleanup/manifest_20261005c.jsonl`).
+
+## Addendum 2, 2026-10-05: RV100's N-5
+
+**RV84's two tree copies were removed.** Of the 1,347 gathered files, 1,193 belonged to `rv84_u4_g3_01/srcb1f/projects` and `rv84_u4_g3_01/src5ae/projects`. The periodic cleanup removed them about a minute after the move, as regenerable `treecopy` entries; both source commits are on origin.
+
+**The hash list's paths are relative to the stray root,** which is the parent checkout's `scratch/`. Lines under `i54_direct_container_profile/` map to `WT/scratch/i54_direct_container_profile_from_parent_checkout/`.
+
+**The move was made by hand,** before `gather` existed, so there is no gather log. The hash list and the first addendum record it.

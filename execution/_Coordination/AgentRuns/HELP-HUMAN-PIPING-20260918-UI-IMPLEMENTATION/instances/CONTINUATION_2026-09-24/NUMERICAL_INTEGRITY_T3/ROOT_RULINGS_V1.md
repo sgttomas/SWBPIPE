@@ -12068,3 +12068,129 @@ Their bytes are records, and many are bound by SHA256SUMS, so they cannot be rel
 - **N-7, corrected:** the registration is **255** new entries, 210 `historical_role_override` and 45 `control_path_exception`. The previous ruling said 256: RR's accidental override was counted, then removed.
 
 **Next:** the PR branch gains R3, with NUM's execution tree and POL at this ruling's commit. GEN-8, hosted CI with the full-SHA dispatch, and DEC-025 run on R3. DEC-025 on R2 was stopped at 28 of 40 manifests, superseded by R3, and is not counted. RV96 confirms R3.
+
+## #1084 squash-merged: T3's records are on main; the handoff is complete (ROOT, 2026-10-05 UTC)
+
+**RV96 PASSES R3** `5758e1c3df` (ADDENDUM_02, `089188ac…`, 0/0/1). N-8, the explicit squash message, is applied.
+
+**The gates on R3:**
+- GEN-8: 1 passed;
+- hosted CI: all four pull_request runs succeeded;
+- the full-SHA dispatch 37258656686 succeeded (`target_base` = main);
+- DEC-025, 03:18–03:51Z: 40 of 40 manifests identical to F′'s run; pytest 3,540; vitest 3,552; both builds exit 0.
+
+**Main moved after the gates,** to `09574ed9a5` (#1086 and #1087, `projects/chirality-app-v4` only). That is disjoint from the PR's paths and from all of piping.
+- **GEN-8 passed** on a local, unpushed combination of R3 with that main.
+- **The owner said "merge what's ready".** The carry-over is ruled on that basis.
+
+**The merge:**
+- ROOT confirmed main was still `09574ed9a5`, then ran `gh pr merge 1084 --squash --match-head-commit` R3 with an explicit subject and body.
+- **The result is `f506f3e2de`,** a single parent on `09574ed9a5`. Main's `projects/chirality-piping/execution/` and portability policy equal R3's.
+- **The PR's earlier heads** (`dfa5e2dc44`, which held the unredacted listings, and `59b72619fe`) are not in main's history.
+- **The record** is `IMPLEMENTATION/RECORDS_MERGE_2026-10-05/`.
+
+**Next on the integration branch:**
+- **ROOT absorbs main into NUM.** The record files on both sides come from NUM; where NUM has appended since `cc44bce7f3`, NUM's version is kept.
+- **The handoff is complete.** The next ROOT starts from `HANDOFF_2026-10-05_TO_NEXT_ROOT.md` with the owner's steering prompt.
+
+## Stray scratch gathered; the cleanup procedure gains step 0 (ROOT, 2026-10-05 UTC)
+
+**The owner directed:** "move the scratch records to the common folder and ensure the cleanup work instructions … indicate to do so also."
+
+**Done:** the parent checkout's untracked `scratch/` (77 MB, 1,347 files; I54's and RV84's working folders from before this session) moved into `WT/scratch`. I54's folder went to `i54_direct_container_profile_from_parent_checkout`, because of a name collision. Every file's sha256 was verified after the move, and the parent checkout is clean.
+
+**The instructions now carry it:**
+- **The tool** (`WT/tools/t3_cleanup.py`) gains `gather`. It moves stray scratch into `WT/scratch` with hash verification and never deletes, and `plan` flags any stray left.
+- **`CLEANUP.md`** gains step 0 and an addendum.
+- **The handoff's rules, the steering prompt's step 7, and `U8_COMMON.md`'s host rules** say that all T3 scratch lives in `WT/scratch`.
+
+**On the owner's question:** the cleanup is a documented procedure with a host tool, not a registered workflow. A reusable workflow would be made with `create-workflow` and registered by the owner.
+
+**The periodic cleanup after #1084** freed about 11.9 GB (17 caches, 3 tree copies). The record is in `IMPLEMENTATION/HANDOFF_2026-10-05/CLEANUP.md`.
+
+## A follow-up records-only PR before the handoff (ROOT, 2026-10-05 UTC)
+
+**The owner said:** "you can merge that records PR now and update the handoff prompt (and anything else) as necessary."
+
+**ROOT opens a follow-up records-only PR.** It carries NUM's 39 execution files added since #1084, plus this ruling and the updated handoff, so main holds the handoff's final form.
+- **How it is cut:** from main `f506f3e2de`, as one commit, with `projects/chirality-piping/execution/` from NUM. It has no deletions and no non-execution change. The portability policy is unchanged.
+- **Its gates follow #1084's:**
+  - **RV100,** a fresh independent review (`BRIEFS/RV100_RECORDS_PR2_REVIEW.md`);
+  - GEN-8 on the candidate before the PR opens;
+  - hosted CI with the full-SHA dispatch;
+  - DEC-025 on the exact head.
+- **It is squash-merged** with an explicit subject and body, after checking main.
+- **Its post-merge record** is `IMPLEMENTATION/RECORDS_MERGE_2026-10-05B/`, on NUM.
+
+**Handoff corrections made with it:**
+- **Next unused IDs** become I75 and RV101.
+- **The records-PR procedure becomes step 8 of the steering prompt's loop.** Records PRs squash; product PRs merge with `--merge`.
+- **The prompt's hard limits gain three rules from #1084:**
+  - no machine-absolute paths in living documents, and none hash-bound;
+  - screen run records for whole-host data;
+  - never merge NUM itself into main, because its history holds the 13 redacted originals.
+- **The handoff gains a lesson and an open item:** #1084's three heads; and the owner's option to delete #1084's PR branch, which would not remove those originals from origin.
+
+## RV100 passes #1088 at H; S-1 repaired by a re-cut; errata E-3 and E-4 (ROOT, 2026-10-05 UTC)
+
+**RV100's review** is `R/REVIEW_RV100/records_01/REVIEW.md` (sha256 `3a83f40d…`; SHA256SUMS 17/17). Verdict: **PASS** at H `e2b83da584`, with 0 BLOCKING, 1 SHOULD-FIX and 7 NOTES.
+- **Confirmed:**
+  - scope: one commit on main; 41 paths (31 added, 10 modified, 0 deleted); H's tree equals NUM's at `656d0e274d`;
+  - the publication screen;
+  - GEN-8; 0 machine paths in changed files and living documents;
+  - the three SUMS folders;
+  - RR is append-only;
+  - none of the 13 redacted originals is in H or main.
+- **The pull_request runs on H** and dispatch 37322486897 (full mode, `target_base` = main `f506f3e2de`) succeeded.
+
+**S-1, ruled: the "disjoint move" wording is withdrawn.** The handoff and prompt had let a merge proceed when main's move was disjoint from the PR and from piping. No ruling adopted that, it dropped #1084's conditions, and it contradicted handoff step 3.8 and the carry-over rule.
+- **The rule now:** check that main has not moved. If it has, refresh the gates, or carry them over by ruling.
+- **A carry-over** needs a stated premise and the independent reviewer's confirmation, both recorded in the merge record. Two kinds are defined:
+  - **Main moved after the gates (#1084).** Every changed path lies under another project's own directory, with nothing in `projects/chirality-piping/`, `tools/`, `.github/`, the portability policy or root build files. GEN-8 also passes on the local combination.
+  - **A records-only re-cut (#1088).** See below.
+- **Step 3.8** now refers to this rule. The fix travels in #1088 itself, through a re-cut, so main does not carry the withdrawn wording.
+
+**The notes:**
+- **N-1, adopted:** records PRs squash with `--match-head-commit`, as #1084 did. #1088 will too.
+- **N-2: erratum E-3.** The ruling "A follow-up records-only PR before the handoff" says "39 execution files … plus this ruling and the updated handoff". The PR at H was 41 paths (31 added, 10 modified), and the 39 already included RR and the handoff. The handoff's "RV96's three passes" now reads "FAIL, FAIL, then PASS".
+- **N-3, adopted:** the handoff, ROOT_CURRENT and work graph now word #1088's merge, and NUM's absorbing main, as things `RECORDS_MERGE_2026-10-05B/` confirms.
+- **N-4: erratum E-4.** The method adopted from RV96's N-6, in the ruling "Records PR #1084: redactions, GEN-8 repair and re-cut", is withdrawn: with `GIT_CEILING_DIRECTORIES=<WT>`, GEN-8's self-check errors at setup.
+  - **GEN-8's method from now on:** run the brief's command in a Git checkout of the exact head, a worktree or the PR checkout, and save the output with the head SHA and the command.
+  - #1084's and #1088's GEN-8 runs used this method, but their files lack the SHA. Their heads are recorded in the merge records.
+- **N-5, adopted:** `CLEANUP.md` gains addendum 2, covering RV84's two tree copies removed by the cleanup, the hash list's root, and the hand move.
+- **N-6, adopted.**
+  - **The first DEC-025 attempt on H is void.** It ran no step, and its log is kept in `WT/scratch/u9_dec025/H1088_attempt1_no_outdir/`.
+  - **The new wrapper `run_dec025.sh`** creates the output folder, checks the guard by name, and reports `dec025-complete` only when `meta.txt` has `ALL-DONE`, otherwise `dec025-INCOMPLETE` with exit 3. A copy is in `host_tools/`.
+  - The handoff's rule now names the wrapper and `ALL-DONE`.
+- **N-7, recorded:** RV100 confirms #1084's carry-over after the fact:
+  - main's move `e916ad1789..09574ed9a5` touched app-v4 only;
+  - main's tree equals that main plus R3's execution and policy;
+  - a GEN-8 replay on main gives 0 findings.
+
+**The re-cut H2:** the PR branch gains one commit, taking `projects/chirality-piping/execution/` from NUM at the head that carries this ruling.
+- **Its gates:**
+  - **rerun:** GEN-8 (after DEC-025 on H finishes), hosted CI and the full-SHA dispatch;
+  - **carried over by ruling:** DEC-025 from H.
+- **The premise of the DEC-025 carry-over:**
+  - H2 differs from H only in execution-record text, and its tree outside `projects/chirality-piping/execution/` equals H's.
+  - No DEC-025 suite reads the changed paths. The only piping code that names T3 paths, `gen_k4_vectors.py`, reads `REFERENCES/` and `DESIGN_NUMERICS/`; `nativeMechanicsReplay.ts` and `reference_cases.json` name other instances.
+- **RV100 confirms** the H→H2 delta, the premise, and the fixes for S-1 and N-1 to N-6, in an addendum.
+
+## Owner direction: proportionate CI; records-only PRs drop DEC-025 and the dispatch (ROOT, 2026-10-05 UTC)
+
+**The owner asked:** "Are you running a full test suite for documentation updates?" Then: "Well yes I only want an appropriate level of CI done."
+
+**What had happened:** since PR1068's precedent, records-only PRs (#1084, #1088) ran the full Mac DEC-025, about 35 minutes of cargo, Python and desktop suites, and the manual full-SHA dispatch. Those test source, which a records-only PR leaves byte-identical to main. ROOT carried the precedent forward and wrote it into the handoff without questioning it.
+
+**Ruled, as a standing rule:**
+- **A records-only PR's gates are GEN-8, the PR's automatic CI checks, and an independent review.** A records-only PR changes only `projects/chirality-piping/execution/`, plus at most the portability policy, which GEN-8 reads.
+- **DEC-025 and the full-SHA dispatch are not run for it.**
+- **If a changed record is read by a test,** run the suites that read it. T3's `REFERENCES/` and `DESIGN_NUMERICS/` are read by `gen_k4_vectors.py`.
+- **The full gate set stays** for PRs that change source, tests, CI, tools or the portability policy.
+- **This supersedes PR1068's precedent** for records-only PRs, and the "records-only re-cut" carry-over in the ruling "RV100 passes #1088 at H". That carry-over is no longer needed, because DEC-025 is not a records-PR gate.
+- **The handoff and prompt now say this.**
+
+**For #1088:**
+- **DEC-025 on H** (`run_dec025.sh`'s predecessor; ALL-DONE 14:48:51Z) is recorded as **informational**: 40 of 40 manifests identical to R3's; pytest 3,540; vitest 3,552; builds exit 0.
+- **H's dispatch 37322486897** succeeded, and is not rerun on the re-cut.
+- **The re-cut's gates:** GEN-8 on its exact head (saved with the SHA and the command), the PR's automatic CI, and RV100's confirmation.
