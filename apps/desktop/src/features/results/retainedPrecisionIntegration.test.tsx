@@ -90,7 +90,7 @@ import { computeModelHash, computeProjectEnvelopeHash } from "../../services/has
 import { cancelPreviewMechanicsJob } from "../../services/previewService";
 import { ResultExportPanel } from "../result-export/ResultExportPanel";
 import { StressNeutralExportPanel, liveStressBinding } from "../stress-neutral/StressNeutralExportPanel";
-import { RETAINED_PRECISION_OUTPUT_REFUSAL } from "./loadReferenceOutputAvailability";
+import { N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE } from "./outputPolicy";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import type { RulePackDocument } from "../../services/rulePackService";
 
@@ -889,12 +889,14 @@ describe.each(MODES)("%s: the class notices do not depend on standing (U7 slice 
   });
 });
 
-// U7 slice T (RV91 N-5): the result-export and stress-neutral panels refuse a successor
-// by an explicit gate on the shared output refusal, not by a builder throwing. Each
-// test registers an eligible successor through mocked IPC with the pinned model, and
-// lets the builders proceed (t6.*) so that only the gate can refuse; the positive
-// control removes the refusal and shows the packet the gate withholds.
-describe.each(MODES)("%s: the T6 panels refuse a successor by an explicit gate (U7 slice T)", (mode) => {
+// U7 slice T (RV91 N-5), superseded by T6S-3 (RR decision 2): the result-export and
+// stress-neutral panels gate a successor by their explicit entries in the output
+// policy, not by a builder throwing: they admit it only at numerically eligible
+// standing with the live native capture. Each test registers an eligible successor
+// through mocked IPC with the pinned model and lets the result-export builder proceed
+// (t6.builderDoc), so that only the gate decides: the panel withholds the packet for a
+// moved model, which is not the live capture, and offers it for the captured model.
+describe.each(MODES)("%s: the T6 panels gate a successor by an explicit policy entry (U7 slice T; T6S-3)", (mode) => {
   async function eligibleSuccessor() {
     const { source, model } = milestone(mode);
     const received = await deliverDirect(source, model, mode);
@@ -905,28 +907,26 @@ describe.each(MODES)("%s: the T6 panels refuse a successor by an explicit gate (
     return { received, model, analysisRun, manifest };
   }
   const DOC = { export_format_status: { baseline_format: "invented", additional_formats: "none" }, result_envelope: { run_ref: { ref_id: "invented" }, model_ref: { ref_id: "invented" }, result_sets: [{ values: [{ unit: "N", dimension: "force" }] }], diagnostics: [], unit_preservation_witnesses: [], reproducibility: { deterministic_ordering: true, run_hashes: [] }, professional_boundary: { human_review_required: true } } };
-  it("result export: no packet is offered even when its builder would not refuse", async () => {
+  const movedModel = (model: PreviewModel) => { const copy = structuredClone(model) as Json; copy.nodes[0].position.x += 1; return copy as PreviewModel; };
+  it("result export: no packet is offered for a moved model even when its builder would not refuse", async () => {
     const { received, model, analysisRun, manifest } = await eligibleSuccessor();
-    t6.throwless = true; t6.builderDoc = DOC;
-    render(<ResultExportPanel model={model} result={received} analysisRun={analysisRun} inputManifest={manifest} />);
+    t6.builderDoc = DOC;
+    render(<ResultExportPanel model={movedModel(model)} result={received} analysisRun={analysisRun} inputManifest={manifest} />);
     await new Promise(settle => setTimeout(settle, 50));
     expect(screen.queryByTestId("result-export-summary")).toBeNull();
     cleanup();
-    t6.noRefusal = true; // positive control: without the shared refusal the packet would be offered
+    // The admission: the captured model is the live capture, and the panel offers the packet.
     render(<ResultExportPanel model={model} result={received} analysisRun={analysisRun} inputManifest={manifest} />);
     expect((await screen.findByTestId("result-export-summary")).textContent).toContain("available");
   });
-  it("stress-neutral: the live binding is closed by the gate, and the panel shows the shared refusal", async () => {
+  it("stress-neutral: the live binding is closed for a moved model, whose panel shows the standing's refusal", async () => {
     const { received, model, analysisRun } = await eligibleSuccessor();
-    t6.throwless = true;
-    // The packet builder itself still refuses a successor (its header cannot carry the
-    // receipt: SN-PRECISION-CONTRACT-MISMATCH), so the gate is tested on the binding.
-    expect(liveStressBinding(model, received, analysisRun)).toBeNull();
-    render(<StressNeutralExportPanel model={model} result={received} analysisRun={analysisRun} />);
+    expect(liveStressBinding(movedModel(model), received, analysisRun)).toBeNull();
+    render(<StressNeutralExportPanel model={movedModel(model)} result={received} analysisRun={analysisRun} />);
     await new Promise(settle => setTimeout(settle, 50));
-    expect(screen.getByTestId("stress-neutral-load-reference-output-unavailable").textContent).toBe(RETAINED_PRECISION_OUTPUT_REFUSAL);
+    expect(screen.getByTestId("stress-neutral-load-reference-output-unavailable").textContent).toBe(`${RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED}: ${N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE}`);
     expect(screen.queryByTestId("stress-neutral-empty")).toBeNull();
-    t6.noRefusal = true; // positive control: without the shared refusal the binding would be open
+    // The admission: the binding is open for the captured model.
     expect(liveStressBinding(model, received, analysisRun)).not.toBeNull();
   });
 });

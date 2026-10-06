@@ -1,9 +1,17 @@
 /** U6d (D-U6-8; D2 4.9.6; plan 1d and 4): every desktop output of the F2a
- * preview successor is refused until T6. No T6 panel is edited: each refuses
- * through the one shared function (`loadReferenceOutputRefusal` /
- * `refuseLoadReferenceOutput`), which now returns the successor's own reason,
- * or through the report package's fresh-result refusal. `isLoadReferenceRoute`
- * is unchanged, so the load-reference text is never shown for a successor.
+ * preview successor is refused until T6. Each refuses through the one shared
+ * function (`loadReferenceOutputRefusal` / `refuseLoadReferenceOutput`), which
+ * returns the successor's own reason, or through the report package's
+ * fresh-result refusal. `isLoadReferenceRoute` is unchanged, so the
+ * load-reference text is never shown for a successor.
+ * T6S-3 (RR decisions 2 and 12): the Result Export and Stress-Neutral Export
+ * panels now read their own entries in the output policy (`outputPolicy.ts`),
+ * which admit a successor only at numerically eligible standing with the live
+ * native capture; the eighteen other surfaces and the report package keep the
+ * shared refusal, whose text is reworded. The successors here are unregistered
+ * file bytes, so the two panels refuse them with the standing's own reason
+ * (their admission is tested in retainedPrecisionStressNeutral.test.tsx and
+ * retainedPrecisionResultExport.test.tsx).
  * Display stays. A preview-physics-1 result is the control: its outputs are
  * unchanged. Inputs are PP's pinned milestone successor bytes (D-U6-5); unit
  * rendering only, NOT a native witness (plan F-1). */
@@ -28,10 +36,11 @@ import {
 import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE, isFreshSemanticResult } from "./knownSemanticLimitations";
 import { currentSemanticContract, numericalResultStanding } from "./numericalResultQuality";
 import { RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_VALIDATION_REQUIRED } from "./retainedPrecisionStanding";
+import { N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE } from "./outputPolicy";
 import { KnownSemanticNotices } from "./KnownSemanticNotices";
 import { reportPackageUnavailableReason } from "../report/reportPackageRequest";
 import { buildStressNeutralExportPacket, validateStressNeutralExportPacket, StressNeutralExportPanel } from "../stress-neutral/StressNeutralExportPanel";
-import { buildCurrentResultExport, deriveResultDocument, resultDigest, validateResultDocument } from "../result-export/resultExportAdapter";
+import { buildCurrentResultExport, currentReceivedOrigin, currentResultDocumentBase, deriveResultDocument, resultDigest, validateResultDocument } from "../result-export/resultExportAdapter";
 import { ResultExportPanel } from "../result-export/ResultExportPanel";
 import { PcfExportPanel } from "../pcf-export/PcfExportPanel";
 import { CaepipeMbfExportPanel } from "../caepipe-mbf/CaepipeMbfExportPanel";
@@ -152,29 +161,44 @@ describe.each(GATED)("%s", (_label, Panel, prefix) => {
 describe.each(MODES)("%s: stress-neutral, result export and the report package keep their own refusal points", (mode) => {
   it("stress-neutral packet build, packet validation and panel all refuse", async () => {
     const { model, result, analysisRun } = await successor(mode);
-    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(RETAINED_PRECISION_OUTPUT_REFUSAL);
-    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0" }, result)).rejects.toThrow(RETAINED_PRECISION_OUTPUT_REFUSAL);
-    // A header-only packet cannot carry the receipt (the packet header has no
-    // retained_precision member until T6), so the successor header reads unsupported.
-    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0", producer: result.producer, numerical_quality: result.numerical_quality, formulation_basis: result.formulation_basis, contract_evidence: result.contract_evidence, retained_precision: result.retained_precision, export_profile: {} })).rejects.toThrow("SN-PRECISION-CONTRACT-MISMATCH");
+    // T6S-3: the panel's builder admits a successor only at eligible standing; these
+    // unregistered bytes refuse with the standing's own reason.
+    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(`${RETAINED_PRECISION_VALIDATION_REQUIRED}: ${N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE}`);
+    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0" }, result)).rejects.toThrow("SN-PRECISION-SOURCE-METADATA-MISMATCH");
+    // T6S-5 (I67's F4): the packet header now carries the receipt, so a header-only
+    // packet dispatches to the successor route; it then needs the UTF-8 CSV profile,
+    // passes the reader's transport checks, and stops at its absent annotations.
+    const header = { schema_version: "0.3.0", producer: result.producer, numerical_quality: result.numerical_quality, formulation_basis: result.formulation_basis, contract_evidence: result.contract_evidence, retained_precision: result.retained_precision };
+    await expect(validateStressNeutralExportPacket({ ...header, export_profile: {} })).rejects.toThrow("SN-CSV-ENCODING-PROFILE-MISMATCH");
+    await expect(validateStressNeutralExportPacket({ ...header, export_profile: { csv_encoding: "utf-8", csv_row_order: "unicode_scalar_value_result_id" } })).rejects.toThrow("SN-SOURCE-ANNOTATION-COVERAGE");
     render(<StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun} />);
-    // U7 slice T (RV91 N-5): the panel shows the shared refusal for a successor (it showed
-    // its generic empty text before); the load/reference text is never shown.
-    expect(screen.getByTestId("stress-neutral-load-reference-output-unavailable").textContent).toBe(RETAINED_PRECISION_OUTPUT_REFUSAL);
+    // U7 slice T (RV91 N-5), then T6S-3: the panel shows its policy refusal for a
+    // successor it does not admit (here, the standing's reason); the load/reference
+    // text is never shown.
+    expect(screen.getByTestId("stress-neutral-load-reference-output-unavailable").textContent).toBe(`${RETAINED_PRECISION_VALIDATION_REQUIRED}: ${N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE}`);
     expect(screen.queryByTestId("stress-neutral-empty")).toBeNull();
     expect(screen.queryByText(LOAD_REFERENCE_OUTPUT_REFUSAL)).toBeNull();
     expect(document.querySelectorAll("a[download]")).toHaveLength(0);
   });
-  it("result export build, document validation, derivation and panel all refuse", async () => {
+  it("result export: the Current build and the panel refuse; the pure projection and its validator read no standing", async () => {
     const { model, result, analysisRun } = await successor(mode);
-    await expect(buildCurrentResultExport({ model, result, analysisRun, inputManifest: null })).rejects.toThrow(RETAINED_PRECISION_OUTPUT_REFUSAL);
-    await expect(validateResultDocument({ schema_version: "0.3.0", result_envelope: { schema_version: "0.3.0" } }, result)).rejects.toThrow(RETAINED_PRECISION_OUTPUT_REFUSAL);
-    // A hash-consistent origin passes every earlier gate, so derivation reaches the refusal.
+    // T6S-3/T6S-4: the Current builder and the panel admit a successor only at eligible
+    // standing; these unregistered bytes refuse with the standing's own reason.
+    await expect(buildCurrentResultExport({ model, result, analysisRun, inputManifest: null })).rejects.toThrow(`${RETAINED_PRECISION_VALIDATION_REQUIRED}: ${N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE}`);
+    // As in Rust, the pure projection and its validator take no standing: a document
+    // without the successor's receipt does not bind it.
+    await expect(validateResultDocument({ schema_version: "0.3.0", result_envelope: { schema_version: "0.3.0" } }, result)).rejects.toThrow("RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH");
+    // A hash-consistent origin and the desktop-shaped base pass every gate, and the
+    // derivative carries the receipt whole (retainedPrecisionResultExport.test.tsx pins its bytes).
     expect(model.project.id).toBe(result.model_ref);
-    const origin = { origin_id: "source-origin:invented", received_carrier_checksum: { value: await resultDigest(result) }, authentic_producer_available: true, original_producer_checksum: null };
-    await expect(deriveResultDocument({ result_envelope: {} }, model, result, origin)).rejects.toThrow(RETAINED_PRECISION_OUTPUT_REFUSAL);
+    const run = { ...analysisRun.analysis_run, hashes: [] };
+    const base = currentResultDocumentBase(model, result, run, "test:invented-refusal-manifest", { solver_name: result.producer!.component_name, solver_version: result.producer!.component_version, solver_build_ref: "test:invented" });
+    const origin = await currentReceivedOrigin(model, result, "test:invented-refusal-manifest", false, "Test-built origin; not a qualified Current received carrier.");
+    expect(origin.received_carrier_checksum.value).toBe(await resultDigest(result));
+    expect((await deriveResultDocument(base, model, result, origin)).result_envelope.retained_precision).toStrictEqual(result.retained_precision);
     render(<ResultExportPanel model={model} result={result} analysisRun={analysisRun} inputManifest={null} />);
-    expect(await screen.findByText(RETAINED_PRECISION_OUTPUT_REFUSAL, { exact: false })).toBeTruthy();
+    expect(await screen.findByText(`${RETAINED_PRECISION_VALIDATION_REQUIRED}: ${N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE}`, { exact: false })).toBeTruthy();
+    expect(screen.queryByText(RETAINED_PRECISION_OUTPUT_REFUSAL, { exact: false })).toBeNull();
     expect(document.querySelectorAll("a[download]")).toHaveLength(0);
   });
   it("the report package keeps T0R's fresh-result refusal", async () => {

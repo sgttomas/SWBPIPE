@@ -2,7 +2,8 @@ import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { checkedJsonText } from "../../services/hashService";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { hasCurrentSourceContract, numericalResultStanding } from "../results/numericalResultQuality";
-import { loadReferenceOutputRefusal } from "../results/loadReferenceOutputAvailability";
+import { surfaceOutputRefusal } from "../results/outputPolicy";
+import { retainedPrecisionSummaryLine } from "../results/retainedPrecisionDisclosure";
 import { useEffect, useState } from "react";
 import { buildCurrentResultExport, type JsonObject } from "./resultExportAdapter";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
@@ -11,9 +12,10 @@ import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, Previ
 
 function liveResultBinding(model: PreviewModel, result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null, inputManifest?: CurrentSessionInputManifestEvidence | null): string | null {
   try {
-    // U7 slice T (RV91 N-5): an explicit gate on the shared output refusal, which
-    // covers load/reference-state and retained-precision successor results.
-    if (!result || !analysisRun || !inputManifest || !hasCurrentSourceContract(result) || loadReferenceOutputRefusal(result) !== null
+    // T6S-3 (RR decision 2): an explicit gate on this surface's entry in the output
+    // policy. Load/reference-state results refuse; a retained-precision successor is
+    // admitted only at numerically eligible standing with the live native capture.
+    if (!result || !analysisRun || !inputManifest || !hasCurrentSourceContract(result) || surfaceOutputRefusal(result, model, "result-export") !== null
       || !hasNativeMechanicsInvocation(result, model, inputManifest.manifest.solver_basis.solver_mode)
       || !numericalResultStanding(result, model).eligible) return null;
     return checkedJsonText({ model, result, analysisRun, inputManifest });
@@ -37,6 +39,7 @@ export function ResultExportPanel({
   // downloadable document while the asynchronous proof check is running.
   const [binding,setBinding] = useState<object[]|null>(null);
   const [publicationFingerprint, setPublicationFingerprint] = useState<string|null>(null);
+  const retainedSummary = retainedPrecisionSummaryLine(result, model);
   const currentFingerprint = liveResultBinding(model, result, analysisRun, inputManifest);
   const currentPacket = binding?.[0]===model && binding?.[1]===result && binding?.[2]===analysisRun && binding?.[3]===inputManifest
     && currentFingerprint !== null && currentFingerprint === publicationFingerprint ? packet : null;
@@ -52,6 +55,7 @@ export function ResultExportPanel({
         Result Export
       </div>
       <KnownSemanticNotices result={result} testIdPrefix="result-export" />
+      {retainedSummary ? <p className="muted" data-testid="result-export-retained-precision-summary">{retainedSummary}</p> : null}
       {currentPacket ? (
         <>
           <div className="report-actions" onClickCapture={(event) => {

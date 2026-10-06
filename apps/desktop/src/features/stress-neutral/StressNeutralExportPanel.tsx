@@ -5,8 +5,10 @@ import { validatePhysicsTransportMetadata } from "../results/physicsResultEviden
 import { validateRetainedRecoverySource } from "../../services/analysisRunCompatibility";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { validatePreviewPhysicsTransportMetadata } from "../results/previewPhysicsEvidence";
-import { sourceContract, numericalResultStanding, currentSemanticContract, hasCurrentSourceContract } from "../results/numericalResultQuality";
-import { loadReferenceOutputRefusal, refuseLoadReferenceOutput } from "../results/loadReferenceOutputAvailability";
+import { sourceContract, numericalResultStanding, currentSemanticContract, hasCurrentSourceContract, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, type SourceContract } from "../results/numericalResultQuality";
+import { refuseSurfaceOutput, refuseSurfaceRoute, surfaceOutputRefusal } from "../results/outputPolicy";
+import { RETAINED_ABSOLUTE_VERIFIED, retainedClassDisclosure, retainedPrecisionSummaryLine, retainedRowClassesFromReader } from "../results/retainedPrecisionDisclosure";
+import { validateRetainedPrecisionTransport, type RowClassification } from "../results/retainedPrecision";
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRowSemantics, sourceBasisReference, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { semanticFamily, semanticDimension, semanticCategory, resultSemantics } from "../results/resultSemantics";
 import { Download, FileJson } from "lucide-react";
@@ -84,8 +86,9 @@ type StressNeutralUnitPreservationWitness = {
 export function liveStressBinding(model: PreviewModel, result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null): string | null {
   try {
     if (!result || !analysisRun || !hasNativeMechanicsInvocation(result, model)
-      // U7 slice T (RV91 N-5): an explicit gate on the shared output refusal.
-      || !hasCurrentSourceContract(result) || loadReferenceOutputRefusal(result) !== null || !numericalResultStanding(result, model).eligible) return null;
+      // T6S-3 (RR decision 2): an explicit gate on this surface's entry in the output
+      // policy; a retained-precision successor is admitted only at eligible standing.
+      || !hasCurrentSourceContract(result) || surfaceOutputRefusal(result, model, "stress-neutral") !== null || !numericalResultStanding(result, model).eligible) return null;
     return checkedJsonText({ model, result, analysisRun });
   } catch { return null; }
 }
@@ -103,6 +106,8 @@ export function StressNeutralExportPanel({
   const [binding, setBinding] = useState<[PreviewModel, MechanicsResult, AnalysisRunEnvelope] | null>(null);
   const [publicationFingerprint, setPublicationFingerprint] = useState<string | null>(null);
   const currentFingerprint = liveStressBinding(model, result, analysisRun);
+  const outputRefusal = surfaceOutputRefusal(result, model, "stress-neutral");
+  const retainedSummary = retainedPrecisionSummaryLine(result, model);
   const currentPacket = binding?.[0] === model && binding?.[1] === result && binding?.[2] === analysisRun
     && currentFingerprint !== null && currentFingerprint === publicationFingerprint
     ? packet
@@ -133,6 +138,7 @@ export function StressNeutralExportPanel({
         Stress-neutral CSV/JSON
       </div>
       <KnownSemanticNotices result={result} testIdPrefix="stress-neutral" />
+      {retainedSummary ? <p className="muted" data-testid="stress-neutral-retained-precision-summary">{retainedSummary}</p> : null}
       {currentPacket ? (
         <>
           <div className="report-actions" onClickCapture={(event) => {
@@ -206,8 +212,8 @@ export function StressNeutralExportPanel({
             />
           </div>
         </>
-      ) : loadReferenceOutputRefusal(result) ? (
-        <p className="muted" role="status" data-testid="stress-neutral-load-reference-output-unavailable">{loadReferenceOutputRefusal(result)}</p>
+      ) : outputRefusal ? (
+        <p className="muted" role="status" data-testid="stress-neutral-load-reference-output-unavailable">{outputRefusal}</p>
       ) : (
         <p className="muted" data-testid="stress-neutral-empty">
           Run mechanics with the native backend to assemble a stress-neutral CSV/JSON package. Bundled references and restored history are unavailable for qualified export.
@@ -401,7 +407,7 @@ function buildStressNeutralExportPacketV01({
 const STRICT_MEMBER_NAMES = ["manifest.json", "stress_neutral_results.csv", "result_rows.json", "unit_system_disclosure.json", "unit_preservation_witnesses.json", "stable_id_map.json", "loss_report.json", "validation_report.json", "diagnostics.json"] as const;
 
 function usesUtf8Csv(source: MechanicsResult): boolean {
-  return ["source_blocks", "physics", "physics_source", "preview_physics"].includes(sourceContract(source));
+  return ["source_blocks", "physics", "physics_source", "preview_physics", "retained_preview_physics"].includes(sourceContract(source));
 }
 function validUtf8Text(text: string): boolean {
   // TextEncoder alone replaces unpaired surrogates. A strict round trip refuses
@@ -444,16 +450,40 @@ function strictManifestSeed(packet: any, checksums: any[]) {
   };
 }
 
-type StrictWitnessDisposition = "eligible" | "diagnostic_work" | "unknown_semantic" | "missing_semantic" | "contradiction";
+type StrictWitnessDisposition = "eligible" | "diagnostic_work" | "unknown_semantic" | "missing_semantic" | "contradiction"
+  | "retained_absolute_verified" | "retained_not_covered";
 
 const WITHHOLDING_CODES: Record<Exclude<StrictWitnessDisposition, "eligible">, string> = {
   diagnostic_work: "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK",
   unknown_semantic: "SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC",
   missing_semantic: "SN-UNIT-WITNESS-WITHHELD-MISSING-SEMANTIC",
-  contradiction: "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION"
+  contradiction: "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION",
+  // T6S-5 (S-d; RR decision 5; D2 4.9.9; D-U6-2): a retained-precision successor row
+  // whose validated class is absolute_verified or not_covered keeps its CSV row and
+  // value, and its unit-preservation witness is withheld with one of these codes.
+  retained_absolute_verified: "SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-ABSOLUTE-VERIFIED",
+  retained_not_covered: "SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-NOT-COVERED"
 };
+/** Withholdings that are information, not a block on the package's rows. */
+const INFO_WITHHOLDINGS: ReadonlySet<string> = new Set(["diagnostic_work", "retained_absolute_verified", "retained_not_covered"]);
+/** Withholdings that block, and so keep precedence over a retained-precision class. */
+const BLOCKING_WITHHOLDINGS: ReadonlySet<string> = new Set(["unknown_semantic", "missing_semantic", "contradiction"]);
 
-function strictWitnessDisposition(source: MechanicsResult["results"][number], carrier: MechanicsResult): { disposition: StrictWitnessDisposition; dimension: string | null } {
+type StrictWitnessInterpretation = { disposition: StrictWitnessDisposition; dimension: string | null; message?: string };
+/** The row's witness disposition. For a successor, the validated class from the
+ * accepted reader (`classes`) withholds the witness of an absolute_verified or
+ * not_covered row with D-U6-2's message, exactly as Rust's derivative states it.
+ * A blocking disposition keeps precedence (fail safe); the class takes precedence
+ * over diagnostic work, as it does in Rust's derivative. Exported for the
+ * precedence test only. */
+export function strictWitnessDisposition(source: MechanicsResult["results"][number], carrier: MechanicsResult, classes: ReadonlyMap<string, RowClassification> | null = null): StrictWitnessInterpretation {
+  const ordinary = ordinaryWitnessDisposition(source, carrier);
+  if (classes === null || BLOCKING_WITHHOLDINGS.has(ordinary.disposition)) return ordinary;
+  const disclosure = retainedClassDisclosure(source.kind, source.unit, classes.get(source.id));
+  if (!disclosure) return ordinary;
+  return { disposition: disclosure.code === RETAINED_ABSOLUTE_VERIFIED ? "retained_absolute_verified" : "retained_not_covered", dimension: ordinary.dimension, message: disclosure.message };
+}
+function ordinaryWitnessDisposition(source: MechanicsResult["results"][number], carrier: MechanicsResult): StrictWitnessInterpretation {
   try {
     const semantic = hasCurrentSourceContract(carrier) ? analysisRowSemantics(source, carrier).semantic : resultSemantics(source, carrier);
     if (!semantic) return { disposition: "unknown_semantic", dimension: null };
@@ -468,7 +498,17 @@ function strictWitnessDisposition(source: MechanicsResult["results"][number], ca
   }
 }
 
-function strictWithholdingDiagnostic(disposition: Exclude<StrictWitnessDisposition, "eligible">, row: StressNeutralRow, rowIndex: number, packetProvenance = previewProvenance(), precision = false) {
+function strictWithholdingDiagnostic(disposition: Exclude<StrictWitnessDisposition, "eligible">, row: StressNeutralRow, rowIndex: number, packetProvenance = previewProvenance(), precision = false, classMessage?: string) {
+  if (disposition === "retained_absolute_verified" || disposition === "retained_not_covered") {
+    if (typeof classMessage !== "string" || !classMessage) throw new Error("SN-RETAINED-PRECISION-CLASS-MESSAGE-MISSING");
+    return {
+      code: WITHHOLDING_CODES[disposition], class: "unit_preservation_witness", severity: "info",
+      source: reference("StressNeutralResultRow", row.result_id), affected_object: reference("StressNeutralUnitWitness", `unit-witness:${rowIndex}`),
+      message: classMessage,
+      remediation: "Read the retained-precision receipt carried whole by this package before any downstream physical interpretation; this quantity is withheld from rule binding and reliance.",
+      provenance: structuredClone(packetProvenance)
+    };
+  }
   const diagnosticWork = disposition === "diagnostic_work";
   return {
     code: WITHHOLDING_CODES[disposition], class: "unit_preservation_witness", severity: diagnosticWork ? "info" : "blocking",
@@ -483,13 +523,23 @@ function strictWithholdingDiagnostic(disposition: Exclude<StrictWitnessDispositi
   };
 }
 
+/** T6S-5: the successor package's boundary note (D2 4.9.7, 4.9.9; CQ-4, CQ-5). */
+const RETAINED_PRECISION_BOUNDARY_NOTE = "The retained-precision receipt travels whole with this package. A row that the accepted reader classes as verified only to the receipt's absolute bound, or as uncovered, keeps its CSV row and value; its unit-preservation witness is withheld with a class finding, and it is withheld from rule binding and reliance. No invocation travels with this package, so numerical eligibility cannot be re-established from the package alone, and the package makes no producer-origin claim.";
+/** T6S-5 (S-d): the class findings, counted in the loss report's exported reason. */
+function retainedLossCount(absolute: number, uncovered: number): string {
+  return ` Of these, ${absolute} rows are verified only to the retained-precision receipt's absolute bound and ${uncovered} rows are uncovered; both are withheld from rule binding and reliance.`;
+}
+
 export async function buildStressNeutralExportPacket(args: { model: PreviewModel; result: MechanicsResult; analysisRun: AnalysisRunEnvelope }) {
   const route = sourceContract(args.result);
   const utf8 = usesUtf8Csv(args.result);
   if (route === "unsupported") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
   // T1: not yet available on the desktop for load/reference-state results (T6).
-  refuseLoadReferenceOutput(args.result);
+  // T6S-3: this surface's policy entry; a retained-precision successor is admitted
+  // only at numerically eligible standing with the live native capture.
+  refuseSurfaceOutput(args.result, args.model, "stress-neutral");
   const precision = route !== "legacy";
+  const retained = route === "retained_preview_physics";
   const semantics = precision ? currentSemanticContract(args.result) : null;
   const version = precision ? "0.3.0" : STRESS_NEUTRAL_EXPORT_VERSION;
   const profile = precision ? "ops.stress_neutral.v3" : STRESS_NEUTRAL_EXPORT_PROFILE;
@@ -514,15 +564,19 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
     await validateAnalysisRunV03(args.analysisRun, args.result, modelLoadBasisRefs(args.model));
     sourceCarrierChecksum = structuredClone(hashes[0]);
   }
+  // T6S-5: classes come only from the accepted reader, run on these bytes without an
+  // invocation (Rust `retained_row_classes`); null for every other identity.
+  const classes = retained ? await retainedRowClassesFromReader(args.result) : null;
   const legacy = buildStressNeutralExportPacketV01(args);
   const strictBoundaryNotes = legacy.boundary_notes.filter((note) =>
     !note.includes("does not emit canonical package member hashes")
   );
   strictBoundaryNotes.push("Result-row dimensions and witness eligibility are interpreted from the accepted semantic contract and bound analysis run; received numerical values, units, rows and source hashes remain unchanged, and no absent raw dimension is claimed as received evidence.");
   if (precision && route !== "precision") strictBoundaryNotes.push("Source annotations carry canonical JSON numeric values; source_value_bits preserves the actual received binary64 value, including negative zero. No live invocation follows from this transport.");
+  if (retained) strictBoundaryNotes.push(RETAINED_PRECISION_BOUNDARY_NOTE);
   const dispositions = legacy.result_rows.map((row, rowIndex) => {
     const source = args.result.results.find((candidate) => candidate.id === row.result_id);
-    const interpreted = source ? strictWitnessDisposition(source, args.result) : { disposition: "unknown_semantic" as const, dimension: null };
+    const interpreted: StrictWitnessInterpretation = source ? strictWitnessDisposition(source, args.result, classes) : { disposition: "unknown_semantic", dimension: null };
     return { row, rowIndex, source, ...interpreted };
   });
   const strictWitnesses = dispositions.filter((item) => item.disposition === "eligible").map(({ row, rowIndex }) => ({
@@ -535,7 +589,7 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
     policy: "preserve_received_value_and_unit"
   }));
   const withheld = dispositions.filter((item): item is typeof item & { disposition: Exclude<StrictWitnessDisposition, "eligible"> } => item.disposition !== "eligible");
-  const withheldDiagnostics = withheld.map(({ disposition, row, rowIndex }) => strictWithholdingDiagnostic(disposition, row, rowIndex, previewProvenance(), precision));
+  const withheldDiagnostics = withheld.map(({ disposition, row, rowIndex, message }) => strictWithholdingDiagnostic(disposition, row, rowIndex, previewProvenance(), precision, message));
   const aggregateWithholdingDiagnostic = withheld.length ? [{
     code: "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", class: "export_blocking", severity: "blocking",
     source: reference("ExportConsumer", "DEL-17-06"), affected_object: reference("StressNeutralResultRows", "stress-neutral:result-rows"),
@@ -562,7 +616,7 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
     csv_text: legacy.csv_text, result_rows: legacy.result_rows, unit_system_disclosure: { ...legacy.unit_system_disclosure, decision_basis_refs: decisionBasisRefs },
     unit_preservation_witnesses: strictWitnesses,
     stable_id_map: legacy.stable_id_map.map(({ canonical_ref, export_ref, mapping_status, loss_category, provenance }) => ({ canonical_ref, export_ref, mapping_status, loss_category, provenance })),
-    loss_report: legacy.loss_report.entries.map((entry) => ({ loss_id: entry.loss_id, category: entry.category, severity: entry.severity, affected_refs: [entry.affected_ref], target_artifact_ref: reference("StressNeutralExportPackage", legacy.export_id), reason: entry.category === "exported" ? `All ${legacy.result_rows.length} received numerical rows and units are retained unchanged; ${strictWitnesses.length} rows have accepted semantic-contract dimension witnesses and ${withheld.length} rows have explicit witness-withholding findings.` : entry.reason, source_basis_ref: reference("Deliverable", "DEL-17-06"), downstream_implication: entry.downstream_implication, human_review_required: true, provenance: previewProvenance() })),
+    loss_report: legacy.loss_report.entries.map((entry) => ({ loss_id: entry.loss_id, category: entry.category, severity: entry.severity, affected_refs: [entry.affected_ref], target_artifact_ref: reference("StressNeutralExportPackage", legacy.export_id), reason: entry.category === "exported" ? `All ${legacy.result_rows.length} received numerical rows and units are retained unchanged; ${strictWitnesses.length} rows have accepted semantic-contract dimension witnesses and ${withheld.length} rows have explicit witness-withholding findings.${retained ? retainedLossCount(withheld.filter((item) => item.disposition === "retained_absolute_verified").length, withheld.filter((item) => item.disposition === "retained_not_covered").length) : ""}` : entry.reason, source_basis_ref: reference("Deliverable", "DEL-17-06"), downstream_implication: entry.downstream_implication, human_review_required: true, provenance: previewProvenance() })),
     validation_report: { validation_status: blockingCount ? "blocked" : "passed", checks: legacy.validation_report.checks.map((check) => check.check_id === "unit_preservation_witness_per_row"
       ? ({ check_id: check.check_id, check_status: withheld.length ? "blocking" : "passed", blocking_count: withheld.length, diagnostic_count: withheldDiagnostics.length, provenance: previewProvenance() })
       : ({ check_id: check.check_id, check_status: check.status, blocking_count: check.blocking ? 1 : 0, diagnostic_count: 0, provenance: previewProvenance() })), human_review_required: true, provenance: previewProvenance() },
@@ -585,7 +639,9 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
     },
   };
   if (route === "source_blocks" || route === "physics_source") packet.source_block_recovery = structuredClone(args.result.source_block_recovery);
-  if (route === "physics" || route === "physics_source" || route === "preview_physics") packet.contract_evidence = structuredClone(args.result.contract_evidence);
+  if (route === "physics" || route === "physics_source" || route === "preview_physics" || retained) packet.contract_evidence = structuredClone(args.result.contract_evidence);
+  // D2 4.9.7 and RR decision 5: the successor's receipt travels with the package, whole.
+  if (retained) packet.retained_precision = structuredClone(args.result.retained_precision);
   if (precision && route !== "precision") packet.source_annotations = await retainedSourceAnnotations(args.result);
   if (utf8) Object.assign(packet.export_profile, { csv_encoding: 'utf-8', csv_row_order: 'unicode_scalar_value_result_id' });
   if (precision) Object.assign(packet, {
@@ -615,11 +671,12 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
 
 export async function validateStressNeutralExportPacket(packet: any, source?: MechanicsResult, analysisRun?: AnalysisRunEnvelope, expectedBasisRefs?: ObjectRef[]): Promise<void> {
   const precision = packet.schema_version === "0.3.0";
-  if (packet.schema_version === "0.2.0" && ["producer", "numerical_quality", "formulation_basis", "semantic_contract_ref", "semantic_contract", "source_carrier_checksum", "source_block_recovery", "contract_evidence", "source_annotations"].some(key => Object.hasOwn(packet, key))) {
+  if (packet.schema_version === "0.2.0" && ["producer", "numerical_quality", "formulation_basis", "semantic_contract_ref", "semantic_contract", "source_carrier_checksum", "source_block_recovery", "contract_evidence", "source_annotations", "retained_precision"].some(key => Object.hasOwn(packet, key))) {
     throw new Error("SN-LEGACY-PRECISION-METADATA-FORBIDDEN");
   }
   if (precision && analysisRun !== undefined && source === undefined) throw new Error("SN-PRECISION-ANALYSIS-SOURCE-REQUIRED");
-  refuseLoadReferenceOutput(source);
+  // T6S-3: this surface's policy entry, route level (a validator has no model).
+  refuseSurfaceRoute(source, "stress-neutral");
   if (source !== undefined) {
     if (!precision || !hasCurrentSourceContract(source)) throw new Error("SN-PRECISION-SOURCE-BINDING-REQUIRED");
     for (const value of [source.run_id, source.model_ref, ...source.results.map(r => r.id)]) if (typeof value !== "string" || !value) throw new Error("ANALYSIS_SOURCE_REFERENCE_INVALID");
@@ -629,16 +686,24 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
     if (["source_blocks", "physics_source"].includes(sourceContract(source))) {
       if (!await same(packet.source_block_recovery, source.source_block_recovery)) throw new Error("SN-SOURCE-RECOVERY-MISMATCH");
     } else if (Object.hasOwn(packet, "source_block_recovery")) throw new Error("SN-SOURCE-RECOVERY-CONTRADICTION");
-    if (["physics", "physics_source", "preview_physics"].includes(sourceContract(source))) {
+    const sourceRetained = sourceContract(source) === "retained_preview_physics";
+    if (["physics", "physics_source", "preview_physics", "retained_preview_physics"].includes(sourceContract(source))) {
       if (!await same(packet.contract_evidence, source.contract_evidence)) throw new Error("SN-PHYSICAL-EVIDENCE-MISMATCH");
     } else if (Object.hasOwn(packet, "contract_evidence")) throw new Error("SN-PHYSICAL-EVIDENCE-CONTRADICTION");
+    // T6S-5 (D2 4.9.7): the copied receipt equals the source's, whole; no other identity's package carries one.
+    if (sourceRetained) {
+      if (!await same(packet.retained_precision, source.retained_precision)) throw new Error("SN-RETAINED-PRECISION-RECEIPT-MISMATCH");
+    } else if (Object.hasOwn(packet, "retained_precision")) throw new Error(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
     if (sourceContract(source) !== "precision" && !await same(packet.source_annotations, await retainedSourceAnnotations(source))) throw new Error("SN-SOURCE-ANNOTATION-BINDING-MISMATCH");
     const received = { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_result", payload_ref: reference("ResultEnvelope", `result-envelope:${source.run_id}`), value: await canonicalSha256HexCheckedV1(source) };
     if (!await same(packet.source_model_ref, reference("Model", source.model_ref)) || !await same(packet.source_run_ref, reference("AnalysisRun", source.run_id)) || !await same(packet.source_result_ref, received.payload_ref) || !await same(packet.source_carrier_checksum, received) || !await same(packet.received_source_checksums?.filter((h: any) => h.payload_scope === "received_result"), [received])) throw new Error("SN-PRECISION-SOURCE-IDENTITY-MISMATCH");
     const rawById = new Map(source.results.map(row => [row.id, row]));
     const rows = packet.result_rows;
     if (!Array.isArray(rows) || rows.length !== source.results.length || rawById.size !== source.results.length || new Set(rows.map((r: any) => r?.result_id)).size !== rows.length) throw new Error("SN-PRECISION-ROW-SOURCE-MISMATCH");
+    // T6S-5: the successor's classes from the accepted reader (no invocation).
+    const classes = sourceRetained ? await retainedRowClassesFromReader(source) : null;
     const expectedWitnesses = [], expectedFindings = [];
+    let retainedAbsolute = 0, retainedUncovered = 0;
     for (const [index, row] of rows.entries()) {
       const raw = rawById.get(row?.result_id);
       if (!raw) throw new Error("SN-PRECISION-ROW-SOURCE-MISMATCH");
@@ -647,10 +712,12 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
       if (Object.keys(expected).some(key => !Object.hasOwn(row, key))) throw new Error("SN-PRECISION-ROW-SOURCE-MISMATCH");
       const actual = Object.fromEntries(Object.keys(expected).map(key => [key, row[key]]));
       if (!await same(actual, expected)) throw new Error("SN-PRECISION-ROW-SOURCE-MISMATCH");
-      const { disposition } = strictWitnessDisposition(raw, source);
+      const { disposition, message } = strictWitnessDisposition(raw, source, classes);
       const quantity = { value: row.value, unit: row.unit, dimension: row.dimension };
+      if (disposition === "retained_absolute_verified") retainedAbsolute++;
+      if (disposition === "retained_not_covered") retainedUncovered++;
       if (disposition === "eligible") expectedWitnesses.push({ witness_id: `unit-witness:${index}`, source_row_index: index, result_id: row.result_id, source_quantity: quantity, target_quantity: quantity, conversion_performed: false, policy: "preserve_received_value_and_unit" });
-      else expectedFindings.push(strictWithholdingDiagnostic(disposition, row, index, packet.provenance, true));
+      else expectedFindings.push(strictWithholdingDiagnostic(disposition, row, index, packet.provenance, true, message));
     }
     if (expectedFindings.length) expectedFindings.push({
       code: "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", class: "export_blocking", severity: "blocking",
@@ -660,10 +727,20 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
     });
     const codes = [...Object.values(WITHHOLDING_CODES), "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE"];
     if (!await same(packet.unit_preservation_witnesses, expectedWitnesses) || !await same(packet.diagnostics.filter((d: any) => codes.includes(d.code)), expectedFindings)) throw new Error("SN-PRECISION-WITNESS-BINDING-MISMATCH");
+    // T6S-5 (S-d): the class findings are counted in the loss report's exported reason.
+    if (sourceRetained) {
+      const withheldCount = expectedFindings.length ? expectedFindings.length - 1 : 0;
+      const exported = Array.isArray(packet.loss_report) ? packet.loss_report.filter((entry: any) => entry?.category === "exported") : [];
+      const reason = `All ${rows.length} received numerical rows and units are retained unchanged; ${expectedWitnesses.length} rows have accepted semantic-contract dimension witnesses and ${withheldCount} rows have explicit witness-withholding findings.${retainedLossCount(retainedAbsolute, retainedUncovered)}`;
+      if (exported.length !== 1 || exported[0].reason !== reason) throw new Error("SN-RETAINED-PRECISION-LOSS-COUNT-MISMATCH");
+    }
   }
   const version = precision ? "0.3.0" : STRESS_NEUTRAL_EXPORT_VERSION;
   const profile = precision ? "ops.stress_neutral.v3" : STRESS_NEUTRAL_EXPORT_PROFILE;
-  const header = { schema_version: "0.2.0", producer: packet.producer, numerical_quality: packet.numerical_quality, formulation_basis: packet.formulation_basis, ...(Object.hasOwn(packet,"source_block_recovery") ? {source_block_recovery:packet.source_block_recovery} : {}), ...(Object.hasOwn(packet,"contract_evidence") ? {contract_evidence:packet.contract_evidence} : {}) } as MechanicsResult;
+  // T6S-5 (I67's F4): the transport header carries the receipt, so a successor
+  // package dispatches to its own route and a receipt on any other identity reads
+  // unsupported (the downgrade guard).
+  const header = { schema_version: "0.2.0", producer: packet.producer, numerical_quality: packet.numerical_quality, formulation_basis: packet.formulation_basis, ...(Object.hasOwn(packet,"source_block_recovery") ? {source_block_recovery:packet.source_block_recovery} : {}), ...(Object.hasOwn(packet,"contract_evidence") ? {contract_evidence:packet.contract_evidence} : {}), ...(Object.hasOwn(packet,"retained_precision") ? {retained_precision:packet.retained_precision} : {}) } as MechanicsResult;
   if (precision && sourceContract(header) === 'unsupported') throw new Error('SN-PRECISION-CONTRACT-MISMATCH');
   const semanticPath = precision ? semanticTablePath(header) : "fixtures/results/semantic_contract_v0_2.json";
   const utf8 = precision && usesUtf8Csv(header);
@@ -748,7 +825,7 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
     const category = withholdingCodes.get(item.code);
     if (!category) continue;
     const resultId = item.source?.ref;
-    const expectedSeverity = category === "diagnostic_work" ? "info" : "blocking";
+    const expectedSeverity = INFO_WITHHOLDINGS.has(category) ? "info" : "blocking";
     if (typeof resultId !== "string" || !rows.some((row: any) => row.result_id === resultId)
       || categorized.has(resultId) || item.severity !== expectedSeverity) throw new Error("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH");
     categorized.set(resultId, category);
@@ -1054,12 +1131,21 @@ function safeFileToken(value: string): string {
 }
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
 
+/** Every route has a deliberate entry (tsc-checked); null names no table here, and
+ * such a route refuses (load/reference-state routes refuse earlier by the policy). */
+const SEMANTIC_TABLE_FILES: Readonly<Record<Exclude<SourceContract, "unsupported">, string | null>> = Object.freeze({
+  legacy: "semantic_contract_v0_2.json", precision: "semantic_contract_v0_3_precision_1.json", physics: "semantic_contract_v0_3_physics_1.json",
+  source_blocks: "semantic_contract_v0_3_source_blocks_1.json", physics_source: "semantic_contract_v0_3_physics_source_1.json",
+  preview_physics: "semantic_contract_v0_3_preview_physics_1.json", retained_preview_physics: "semantic_contract_v0_3_preview_physics_retained_1.json",
+  load_reference: null, load_reference_source: null,
+});
 function semanticTablePath(source: MechanicsResult): string {
   const route = sourceContract(source);
-  const paths = { legacy: "semantic_contract_v0_2.json", precision: "semantic_contract_v0_3_precision_1.json", physics: "semantic_contract_v0_3_physics_1.json", source_blocks: "semantic_contract_v0_3_source_blocks_1.json", physics_source: "semantic_contract_v0_3_physics_source_1.json", preview_physics: "semantic_contract_v0_3_preview_physics_1.json" };
   if (route === "unsupported") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
-  refuseLoadReferenceOutput(source);
-  return `fixtures/results/${paths[route as keyof typeof paths]}`;
+  refuseSurfaceRoute(source, "stress-neutral");
+  const file = Object.hasOwn(SEMANTIC_TABLE_FILES, route) ? SEMANTIC_TABLE_FILES[route] : null;
+  if (!file) throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
+  return `fixtures/results/${file}`;
 }
 async function validateNeutralTransportEvidence(header: MechanicsResult): Promise<void> {
   const route = sourceContract(header);
@@ -1070,6 +1156,9 @@ async function validateNeutralTransportEvidence(header: MechanicsResult): Promis
     const receipt = header.source_block_recovery as { body: unknown; receipt_sha256: string };
     if (!sourceBlockReceiptShape(receipt) || receipt.receipt_sha256 !== await canonicalSha256HexCheckedV1({domain:"source_blocks_receipt_v1",payload:receipt.body})) throw new Error("SN-SOURCE-RECEIPT-METADATA");
   }
+  // T6S-5: the accepted reader's transport checks (G0-G2 and the base transport
+  // metadata on its projection); a refusal carries the reader's code.
+  else if (route === "retained_preview_physics") await validateRetainedPrecisionTransport(header);
   else if (route !== "precision") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
 }
 async function retainedSourceAnnotations(source: MechanicsResult) {

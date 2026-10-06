@@ -616,3 +616,91 @@ fn rule_binding_refuses_only_the_all_selected_summary() {
         assert_eq!(semantic_contract::rule_binding_refusal(&composite, summary_row), None);
     }
 }
+
+/// RV95 N-5 (I74 decision 9): at the public API the 2^53−1 bound of
+/// `source_blocks::integer` sits behind two earlier layers, so a value of 2^53
+/// never reaches it. A receipt integer of 2^53 fails the receipt shape (each
+/// such schema maximum is 2^53−1 or smaller, compared in f64); a `summary`
+/// count of 2^53 fails the checked profile at the publication hash, before
+/// `summary` is read. Neither returns `SOURCE_BLOCKS_INTEGER`, so RV95's
+/// mutant S1 (the bound removed) is equivalent here. The direct unit test that
+/// kills S1 is a `#[cfg(test)]` test in `src/source_blocks.rs`, which goes
+/// with PR-B1.
+#[test]
+fn rv95_n5_the_integer_bound_is_masked_at_the_public_api() {
+    const TWO_53: u64 = 1 << 53;
+    let (source, context) = control();
+    assert_eq!(source_blocks::validate(&source, Some(&context)), Ok(true));
+    let unsafe_integer = format!("CHECKED-JSON-UNSAFE-INTEGER: {TWO_53}");
+    let case = "/source_block_recovery/body/cases/0";
+    // Receipt integers that `integer` reads: schema maximum 2^53−1 ...
+    let widest = [
+        "/work/charged",
+        "/work/reserved_unobserved_failure",
+        "/ordinary_attempt/quality_case_index",
+        "/source/dof_count",
+        "/source/stiffness_term_count",
+        "/source/force_term_count",
+        "/source/functional_count",
+        "/supports/0/components/0/action_terms/0/global_dof",
+    ]
+    .map(|field| format!("{case}{field}"));
+    // ... and tighter maxima (4,000,000 and 64,000,000).
+    let tighter = [
+        format!("{case}/work/limit"),
+        "/source_block_recovery/body/invocation_work/limit".to_string(),
+        "/source_block_recovery/body/invocation_work/charged".to_string(),
+        "/source_block_recovery/body/invocation_work/publication_charged".to_string(),
+    ];
+    for pointer in widest.iter().chain(&tighter) {
+        let mut changed = source.clone();
+        *changed.pointer_mut(pointer).unwrap() = json!(TWO_53);
+        // It cannot be resealed: the checked profile refuses 2^53 in the body.
+        assert_eq!(
+            source_blocks::domain_hash("source_blocks_receipt_v1", &changed["source_block_recovery"]["body"]),
+            Err(unsafe_integer.clone()),
+            "{pointer}"
+        );
+        for invocation in [None, Some(&context)] {
+            assert_eq!(
+                source_blocks::validate(&changed, invocation),
+                Err("SOURCE_BLOCKS_RECEIPT_SHAPE".into()),
+                "{pointer}"
+            );
+        }
+        assert_eq!(semantic_contract::for_source(&changed).unwrap_err(), "SOURCE_BLOCKS_RECEIPT_SHAPE", "{pointer}");
+    }
+    // Control: at 2^53−1 a widest field passes the shape and, resealed, the
+    // hashes; `integer` admits it, and a later check refuses the statement.
+    for pointer in &widest {
+        let mut edge = source.clone();
+        *edge.pointer_mut(pointer).unwrap() = json!(TWO_53 - 1);
+        seal(&mut edge, &context);
+        let error = source_blocks::validate(&edge, Some(&context)).unwrap_err();
+        assert!(
+            error.starts_with("SOURCE_BLOCKS_")
+                && !["SOURCE_BLOCKS_RECEIPT_SHAPE", "SOURCE_BLOCKS_INTEGER", "SOURCE_BLOCKS_RECEIPT_HASH", "SOURCE_BLOCKS_PUBLICATION_HASH"]
+                    .contains(&error.as_str()),
+            "{pointer}: {error}"
+        );
+        eprintln!("N-5 control {pointer} = 2^53-1: {error}");
+    }
+    // Summary counts, read by `integer` only after the hashes.
+    for key in ["node_count", "segment_count", "support_count", "load_case_count"] {
+        let mut changed = source.clone();
+        changed["summary"][key] = json!(TWO_53);
+        for invocation in [None, Some(&context)] {
+            assert_eq!(source_blocks::validate(&changed, invocation), Err(unsafe_integer.clone()), "{key}");
+        }
+        assert_eq!(semantic_contract::for_source(&changed).unwrap_err(), unsafe_integer, "{key}");
+        // Control: 2^53−1, resealed, reaches the summary and is a count mismatch.
+        let mut edge = source.clone();
+        edge["summary"][key] = json!(TWO_53 - 1);
+        seal(&mut edge, &context);
+        assert_eq!(
+            source_blocks::validate(&edge, Some(&context)),
+            Err("SOURCE_BLOCKS_SUMMARY_MODEL_COUNTS".into()),
+            "{key}"
+        );
+    }
+}

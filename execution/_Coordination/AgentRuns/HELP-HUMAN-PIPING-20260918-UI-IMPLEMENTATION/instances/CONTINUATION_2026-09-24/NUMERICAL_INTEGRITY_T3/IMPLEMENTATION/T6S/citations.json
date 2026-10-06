@@ -1,0 +1,764 @@
+{
+ "schema": "u9-citation-index-v1",
+ "about": "Resolves every record and review citation that the T6 successor-output slice's compact PR (T6S) adds to maintained source (the 19 files of c1bfc460fc..fdcdb5e024; main's later commits through d8c88774d0 touch none of them). Records stay on the integration branch, pinned at num_commit. The slice's added lines cite no design document in the tool's document class: its D2 and I74 PLAN references are written without '§' or ':', so the documents table (#1082's 23 names, unchanged, as S-I1 and U8 carry it) finds none. Verify with main's IMPLEMENTATION/F2A_D1/check_citations.py (#1082's tool, unchanged). named_references lists the citations the tool has no class for; the tool ignores that key, and I80's verify_named_t6s.py checks it. cited_at paths are relative to projects/chirality-piping/ at source_basis; num_path is relative to records_root at num_commit; rr_line is a line of rr_path at num_commit; repo_path is read at rev",
+ "num_branch": "codex/piping-numerical-integrity-20260926",
+ "num_commit": "2b1f244fafa88e7d4441f72327e231d938d4c348",
+ "github": "https://github.com/sgttomas/chirality",
+ "records_root": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30",
+ "rr_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+ "source_basis": "fdcdb5e024c09e87c4df7e37302112f21a837e57",
+ "source_base": "c1bfc460fc8bedd2a0080e0aa3cfb74bf15df7df",
+ "copies": {},
+ "citations": [
+  {
+   "class": "record_path",
+   "token": "R/I76/t6s_01/inputs",
+   "num_paths": [
+    "I76/t6s_01/inputs"
+   ],
+   "note": "I76's recorded golden inputs (the exact canonical base and origin files), cited in the result-export golden-parity test's header with the goldens' commit 055ee0c0bc (named_references). The folder's tree is the same on main"
+  },
+  {
+   "class": "review_path",
+   "token": "REVIEW_RV101/t6s_01/evidence/oracle/exp_differences.txt",
+   "num_paths": [
+    "REVIEW_RV101/t6s_01/evidence/oracle/exp_differences.txt"
+   ],
+   "note": "RV101's nine exact-tie words, the first source of the {:e} test's Rust-computed vectors (SF-1). On NUM, and on main since records PR #1103 (d8c88774d0)"
+  }
+ ],
+ "documents": {
+  "C1": {
+   "aliases": [
+    "C1"
+   ],
+   "what": "the logical receipt and reader contract (GLOSSARY: C1)",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c1/WIRE_CONTRACT.md"
+  },
+  "C2": {
+   "aliases": [
+    "C2"
+   ],
+   "what": "the source/capture/owner association contract, the finite wire-interface completion (GLOSSARY: C2)",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I32/f2a_wire_c2/CONTRACT_DELTA.md"
+  },
+  "C3": {
+   "aliases": [
+    "C3"
+   ],
+   "what": "the prepared ordinary formation and receipt delta (GLOSSARY: C3)",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/prepared_public_contract_02/C3_DELTA.md"
+  },
+  "F1": {
+   "aliases": [
+    "F1"
+   ],
+   "what": "C3's corrective addendum RV69-C3-F1, the old/new-prefix correction (GLOSSARY: C1 / C3)",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/prepared_public_contract_correction_03/ADDENDUM.md"
+  },
+  "S06": {
+   "aliases": [
+    "S06"
+   ],
+   "what": "wire completion 06, the three C3 wire seams (RR \"Prepared receipt wire completions selected…\"); 07 and 08 amend it",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I52/reader_contract_seams_06/ADDENDUM.md"
+  },
+  "D1": {
+   "aliases": [
+    "D1"
+   ],
+   "what": "T3 design D1, numerical core (anchored citations only; bare D1.0–D1.11 is the U4 domain predicate, DOMAIN.md)",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_NUMERICS/DESIGN.md"
+  },
+  "D2": {
+   "aliases": [
+    "D2"
+   ],
+   "what": "T3 design D2, result standing, source envelopes and transport",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_STANDING/DESIGN.md"
+  },
+  "ROUTING": {
+   "aliases": [
+    "ROUTING",
+    "ROUTING.md"
+   ],
+   "what": "the reviewed F2a routing plan",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I30/f2a_routing_02/ROUTING.md"
+  },
+  "COMP": {
+   "aliases": [
+    "COMP"
+   ],
+   "what": "cited as COMP:66 among the R-2 notice texts (RR \"U3 grant 1 verified…\")",
+   "candidates": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/COMPOSITION.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I65/u4_g3_01/COMPOSITION.md"
+   ],
+   "rules": [
+    {
+     "file_prefix": "projects/chirality-piping/core/product_physics/",
+     "resolve": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/COMPOSITION.md",
+     "why": "ROOT's ruling (U9 citations): COMP in PP's U3 facade code means I51's COMPOSITION. The comment came in with U3 grant 1b (4b31bbf23a), whose design basis is I51's COMPOSITION; its line 66 (atomic transfer/fallback, no fallible allocation after first mutation) is why the N1 notice's space is reserved before W1 starts"
+    }
+   ],
+   "note": "line 66 of the first is the atomic transfer/fallback row; of the second, the T25 publication-text doubling. Neither the citing file nor the unit decides: listed for ROOT."
+  },
+  "I57": {
+   "aliases": [
+    "I57"
+   ],
+   "what": "I57's summary-coverage design (the only sectioned I57 document)",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I57/summary_coverage_01/ADDENDUM.md"
+  },
+  "I51 COMPOSITION": {
+   "aliases": [
+    "I51 COMPOSITION"
+   ],
+   "what": "I51's single-case ownership composition (I51's only COMPOSITION.md)",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/COMPOSITION.md"
+  },
+  "G4 NOTES": {
+   "aliases": [
+    "G4 NOTES",
+    "NOTES_G4.md"
+   ],
+   "what": "U4 G4 notes",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I65/u4_g4_01/NOTES_G4.md"
+  },
+  "DOMAIN.md": {
+   "aliases": [
+    "DOMAIN.md"
+   ],
+   "what": "U4 G2: the D1 domain predicate and caps",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I65/u4_g2_01/DOMAIN.md"
+  },
+  "BUILD.md": {
+   "aliases": [
+    "BUILD.md"
+   ],
+   "what": "U4 G2: build identity and pricing",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I65/u4_g2_01/BUILD.md"
+  },
+  "STACK_PLAN": {
+   "aliases": [
+    "STACK_PLAN",
+    "STACK_PLAN.md"
+   ],
+   "what": "U4 G2: the reserved-stack plan",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I65/u4_g2_01/STACK_PLAN.md"
+  },
+  "STACK_INVENTORY.md": {
+   "aliases": [
+    "STACK_INVENTORY.md"
+   ],
+   "what": "U4 G3: the stack inventory",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I65/u4_g3_01/STACK_INVENTORY.md"
+  },
+  "API.md": {
+   "aliases": [
+    "API.md"
+   ],
+   "what": "three files share the name",
+   "candidates": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I65/u4_g2_01/API.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/public_producer_admission_05/API.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I51/prepared_producer_completion_02/API.md"
+   ],
+   "rules": [
+    {
+     "file_prefix": "projects/chirality-piping/core/product_physics/",
+     "resolve": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I65/u4_g2_01/API.md",
+     "why": "product_physics comments citing API.md were written in U3/U4 and use its numbering: §2 'Added by U4 (G5)' holds G-A (census, then admission) and §3 'Owned by U3' the permitted dispatch; I51's API.md files are the private producer's records, cited elsewhere by I51's name"
+    }
+   ]
+  },
+  "API_G4.md": {
+   "aliases": [
+    "API_G4.md"
+   ],
+   "what": "U4 G4: the G-B and G-C facts",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I65/u4_g4_01/API_G4.md"
+  },
+  "G2_AMENDMENTS": {
+   "aliases": [
+    "G2_AMENDMENTS",
+    "G2_AMENDMENTS.md"
+   ],
+   "what": "U4 G3: amendments to the G2 records",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I65/u4_g3_01/G2_AMENDMENTS.md",
+   "copy": "copies/G2_AMENDMENTS.md"
+  },
+  "QUALIFICATION.md": {
+   "aliases": [
+    "QUALIFICATION.md"
+   ],
+   "what": "U4 G6: the qualification (M, the registered identity)",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I65/u4_g6_01/QUALIFICATION.md",
+   "copy": "copies/QUALIFICATION.md"
+  },
+  "TRANSFER_COMPLETION.md": {
+   "aliases": [
+    "TRANSFER_COMPLETION.md"
+   ],
+   "what": "U4 G4: U3's transfer budgets",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I65/u4_g4_01/TRANSFER_COMPLETION.md"
+  },
+  "ADDENDUM_L128.md": {
+   "aliases": [
+    "ADDENDUM_L128.md"
+   ],
+   "what": "U4 G4: the l <= 128 addendum",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I65/u4_g4_01/ADDENDUM_L128.md"
+  },
+  "COMPOSITION_G4.md": {
+   "aliases": [
+    "COMPOSITION_G4.md"
+   ],
+   "what": "U4 G4: the composition through caller completion",
+   "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I65/u4_g4_01/COMPOSITION_G4.md"
+  }
+ },
+ "code_anchors": [],
+ "named_references": [
+  {
+   "token": "RR decisions 2, 3, 4, 5, 6, 11 and 12",
+   "kind": "rr_decision",
+   "site_regex": "RR decisions? [0-9]",
+   "resolves_to": [
+    {
+     "rr_line": 12431,
+     "heading_line": 12394,
+     "contains": "| 2 |"
+    },
+    {
+     "rr_line": 12432,
+     "heading_line": 12394,
+     "contains": "| 3 |"
+    },
+    {
+     "rr_line": 12433,
+     "heading_line": 12394,
+     "contains": "| 4 |"
+    },
+    {
+     "rr_line": 12434,
+     "heading_line": 12394,
+     "contains": "| 5 |"
+    },
+    {
+     "rr_line": 12435,
+     "heading_line": 12394,
+     "contains": "| 6 |"
+    },
+    {
+     "rr_line": 12440,
+     "heading_line": 12394,
+     "contains": "| 11 |"
+    },
+    {
+     "rr_line": 12441,
+     "heading_line": 12394,
+     "contains": "| 12 |"
+    }
+   ],
+   "note": "The slice writes 'RR decision(s) N' without a heading. In T6S's files these are I74's decisions as ruled in the table of RR \"I73's checkpoint 1 and I74's plan ruled; D2 5b.3; the T6 slice dispatched\" (decision 2: the gate split and policy; 3: no activation switch; 4: Rust derive_document's form; 5: S-d; 6: standing and claims; 11: the test-built positive witness; 12: the reworded refusal text)",
+   "cited_at": [
+    "apps/desktop/src/features/result-export/ResultExportPanel.tsx:15",
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:1",
+    "apps/desktop/src/features/results/loadReferenceOutputAvailability.ts:18",
+    "apps/desktop/src/features/results/outputPolicy.test.ts:1",
+    "apps/desktop/src/features/results/outputPolicy.ts:1",
+    "apps/desktop/src/features/results/outputPolicy.ts:22",
+    "apps/desktop/src/features/results/outputPolicy.ts:76",
+    "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts:1",
+    "apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx:892",
+    "apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx:7",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:89",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:461",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:643",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:1"
+   ]
+  },
+  {
+   "token": "I74 PLAN 1.1, 1.2, 1.3 and 4.3",
+   "kind": "document_section",
+   "site_regex": "PLAN [0-9]",
+   "resolves_to": [
+    {
+     "num_path": "I74/t6_slice_plan_01/PLAN.md",
+     "line": 64,
+     "contains": "### 1.1 The two panels and the shared gate"
+    },
+    {
+     "num_path": "I74/t6_slice_plan_01/PLAN.md",
+     "line": 73,
+     "contains": "### 1.2 Result export"
+    },
+    {
+     "num_path": "I74/t6_slice_plan_01/PLAN.md",
+     "line": 82,
+     "contains": "### 1.3 Stress-neutral export"
+    },
+    {
+     "num_path": "I74/t6_slice_plan_01/PLAN.md",
+     "line": 262,
+     "contains": "### 4.3 Staying consistent"
+    }
+   ],
+   "note": "Written without '§', so the tool's document class does not see them. 'PLAN 4.3' (retainedPrecisionDisclosure.ts) is the same plan by context. The plan's blob on main equals NUM's (#1101 carried it)",
+   "cited_at": [
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:1",
+    "apps/desktop/src/features/results/outputPolicy.test.ts:1",
+    "apps/desktop/src/features/results/outputPolicy.ts:1",
+    "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts:1",
+    "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts:9",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:1"
+   ]
+  },
+  {
+   "token": "D2 4.9.4, 4.9.7 and 4.9.9",
+   "kind": "document_section",
+   "site_regex": "\\bD2 4\\.9\\.[0-9]",
+   "resolves_to": [
+    {
+     "repo_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_STANDING/DESIGN.md",
+     "rev": "2b1f244fafa88e7d4441f72327e231d938d4c348",
+     "line": 596,
+     "contains": "#### 4.9.4 The standing basis"
+    },
+    {
+     "repo_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_STANDING/DESIGN.md",
+     "rev": "2b1f244fafa88e7d4441f72327e231d938d4c348",
+     "line": 622,
+     "contains": "#### 4.9.7 Binding"
+    },
+    {
+     "repo_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_STANDING/DESIGN.md",
+     "rev": "2b1f244fafa88e7d4441f72327e231d938d4c348",
+     "line": 639,
+     "contains": "#### 4.9.9 Verified-accuracy classes"
+    }
+   ],
+   "note": "T3's design D2 (result standing). Written without '§', so outside the tool's document class. D2's blob on main equals NUM's",
+   "cited_at": [
+    "apps/desktop/src/features/result-export/resultExportAdapter.ts:74",
+    "apps/desktop/src/features/result-export/resultExportAdapter.ts:131",
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:1",
+    "apps/desktop/src/features/results/outputPolicy.ts:8",
+    "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts:89",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:461",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:526",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:643",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:693",
+    "core/reporting/result_export/tests/retained_precision_derivative_golden.rs:295"
+   ]
+  },
+  {
+   "token": "D-U6-2",
+   "kind": "decision",
+   "site_regex": "D-U6-2",
+   "resolves_to": [
+    {
+     "num_path": "I66/u6_scoping_01/PLAN.md",
+     "line": 303,
+     "contains": "| **D-U6-2** |"
+    },
+    {
+     "rr_line": 9453,
+     "heading_line": 9439,
+     "contains": "**D-U6-2, option (A):**"
+    }
+   ],
+   "note": "How the derivative discloses classes: absolute_verified and not_covered rows are disclosed, not valued, with the two reason codes",
+   "cited_at": [
+    "apps/desktop/src/features/result-export/resultExportAdapter.ts:61",
+    "apps/desktop/src/features/result-export/resultExportAdapter.ts:87",
+    "apps/desktop/src/features/result-export/resultExportAdapter.ts:168",
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:1",
+    "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts:1",
+    "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts:23",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:461",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:475",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:143",
+    "core/reporting/result_export/tests/retained_precision_derivative_golden.rs:287",
+    "core/reporting/result_export/tests/retained_precision_derivative_golden.rs:359"
+   ]
+  },
+  {
+   "token": "D-U6-5",
+   "kind": "decision",
+   "site_regex": "D-U6-5",
+   "resolves_to": [
+    {
+     "num_path": "I66/u6_scoping_01/PLAN.md",
+     "line": 306,
+     "contains": "| **D-U6-5** |"
+    },
+    {
+     "rr_line": 9456,
+     "heading_line": 9439,
+     "contains": "**D-U6-5:**"
+    }
+   ],
+   "note": "The pinned successor fixtures are byte-identical copies of PP's files, checked by sha256",
+   "cited_at": [
+    "apps/desktop/src/features/results/outputPolicy.test.ts:3",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:5"
+   ]
+  },
+  {
+   "token": "D-U7-4",
+   "kind": "decision",
+   "site_regex": "D-U7-4",
+   "resolves_to": [
+    {
+     "rr_line": 10889,
+     "heading_line": 10836,
+     "contains": "**D-U7-4:**"
+    }
+   ],
+   "note": "TS standing requires the live native capture",
+   "cited_at": [
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:286",
+    "apps/desktop/src/features/results/outputPolicy.ts:8",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:77"
+   ]
+  },
+  {
+   "token": "D-U7-6",
+   "kind": "decision",
+   "site_regex": "D-U7-6",
+   "resolves_to": [
+    {
+     "rr_line": 10891,
+     "heading_line": 10836,
+     "contains": "**D-U7-6, confirmed.**"
+    }
+   ],
+   "note": "No producer-origin claim",
+   "cited_at": [
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:13",
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:171",
+    "apps/desktop/src/features/results/outputPolicy.ts:21",
+    "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts:16",
+    "core/reporting/result_export/tests/retained_precision_derivative_golden.rs:304"
+   ]
+  },
+  {
+   "token": "CQ-1, CQ-4, CQ-5, CQ-7, CQ-10 and CQ-11",
+   "kind": "plan_question",
+   "site_regex": "\\bCQ-(?:1|4|5|7|10|11)\\b",
+   "resolves_to": [
+    {
+     "num_path": "I74/t6_slice_plan_01/PLAN.md",
+     "line": 168,
+     "contains": "**CQ-1."
+    },
+    {
+     "num_path": "I74/t6_slice_plan_01/PLAN.md",
+     "line": 184,
+     "contains": "**CQ-4."
+    },
+    {
+     "num_path": "I74/t6_slice_plan_01/PLAN.md",
+     "line": 186,
+     "contains": "**CQ-5."
+    },
+    {
+     "num_path": "I74/t6_slice_plan_01/PLAN.md",
+     "line": 193,
+     "contains": "**CQ-7."
+    },
+    {
+     "num_path": "I74/t6_slice_plan_01/PLAN.md",
+     "line": 210,
+     "contains": "**CQ-10"
+    },
+    {
+     "num_path": "I74/t6_slice_plan_01/PLAN.md",
+     "line": 217,
+     "contains": "**CQ-11."
+    }
+   ],
+   "note": "I74's contract questions (PLAN §3), ruled through decisions 4, 6, 7, 10 and 11",
+   "cited_at": [
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:10",
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:88",
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:171",
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:183",
+    "apps/desktop/src/features/results/outputPolicy.test.ts:6",
+    "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts:6",
+    "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts:35",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:526",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:10",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:143",
+    "core/reporting/result_export/tests/retained_precision_derivative_golden.rs:242",
+    "core/reporting/result_export/tests/retained_precision_derivative_golden.rs:304",
+    "core/reporting/result_export/tests/retained_precision_derivative_golden.rs:364",
+    "tests/test_result_export_v0_2.py:8",
+    "tests/test_results_dispatcher_v0_3.py:1"
+   ]
+  },
+  {
+   "token": "RV101 SF-1",
+   "kind": "review_finding",
+   "site_regex": "RV101 SF-1",
+   "resolves_to": [
+    {
+     "num_path": "REVIEW_RV101/t6s_01/REVIEW.md",
+     "line": 46,
+     "contains": "| SF-1 | SHOULD-FIX |"
+    },
+    {
+     "num_path": "REVIEW_RV101/t6s_01/ADDENDUM_01.md",
+     "line": 15,
+     "contains": "## Verdict: **CONFIRMED**"
+    }
+   ],
+   "note": "rustLowerExp on exact decimal ties; repaired by I75 (REPAIR_01) and confirmed by RV101 (ADDENDUM_01, with erratum E-1: ties occur at 16 and 17 digits)",
+   "cited_at": [
+    "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts:39",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:145"
+   ]
+  },
+  {
+   "token": "REPAIR_01",
+   "kind": "record",
+   "site_regex": "REPAIR_01",
+   "resolves_to": [
+    {
+     "num_path": "I75/t6s_01/REPAIR_01.md",
+     "line": 1,
+     "contains": "# I75 T6S REPAIR_01"
+    }
+   ],
+   "note": "I75's repair of SF-1, committed by ROOT as fdcdb5e024",
+   "cited_at": [
+    "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts:39",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:147",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:153",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:157",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:160",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:162",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:166",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:169",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:172",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:174"
+   ]
+  },
+  {
+   "token": "I67's F4",
+   "kind": "finding",
+   "site_regex": "I67's F4",
+   "resolves_to": [
+    {
+     "rr_line": 9810,
+     "heading_line": 9788,
+     "contains": "**F4:**"
+    }
+   ],
+   "note": "A header-only stress-neutral packet could not carry the receipt; noted for T6, closed by T6S-5",
+   "cited_at": [
+    "apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx:168",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:740",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:261"
+   ]
+  },
+  {
+   "token": "checkpoint readings R-1 and R-5",
+   "kind": "ruling",
+   "site_regex": "reading R-[15]\\b",
+   "resolves_to": [
+    {
+     "rr_line": 12618,
+     "heading_line": 12600,
+     "contains": "**R-1, accepted.**"
+    },
+    {
+     "rr_line": 12624,
+     "heading_line": 12600,
+     "contains": "**R-5, accepted.**"
+    }
+   ],
+   "note": "I75's checkpoint readings, ruled in RR \"I75's checkpoint: S-1 granted; readings R-1 to R-7; …\"",
+   "cited_at": [
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:286",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:206"
+   ]
+  },
+  {
+   "token": "I76's CHECKPOINT_1 section 2",
+   "kind": "record_anchor",
+   "site_regex": "CHECKPOINT_1 section 2",
+   "resolves_to": [
+    {
+     "num_path": "I76/t6s_01/CHECKPOINT_1.md",
+     "line": 28,
+     "contains": "## 2. The fixed desktop-shaped base and origin"
+    }
+   ],
+   "note": "I76's fixed stand-ins",
+   "cited_at": [
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:52"
+   ]
+  },
+  {
+   "token": "RV91 N-5",
+   "kind": "review_finding",
+   "site_regex": "RV91 N-5",
+   "resolves_to": [
+    {
+     "num_path": "REVIEW_RV91/u6d_01/REVIEW.md",
+     "line": 38,
+     "contains": "| N-5 | NOTE |"
+    }
+   ],
+   "note": "Carried in rewritten lines from main's text (U7 slice T)",
+   "cited_at": [
+    "apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx:892",
+    "apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx:175"
+   ]
+  },
+  {
+   "token": "RV95 N-5",
+   "kind": "review_finding",
+   "site_regex": "RV95 N-5",
+   "resolves_to": [
+    {
+     "num_path": "REVIEW_RV95/u9_01/REVIEW.md",
+     "line": 52,
+     "contains": "| N-5 | NOTE |"
+    }
+   ],
+   "note": "The 2^53-1 integer bound; the public-API masking test is in the slice, the direct unit test goes with PR-B1 (decision 9)",
+   "cited_at": [
+    "core/reporting/result_export/tests/source_blocks.rs:620"
+   ]
+  },
+  {
+   "token": "F-U6c-2",
+   "kind": "finding",
+   "site_regex": "F-U6c-2",
+   "resolves_to": [
+    {
+     "rr_line": 9785,
+     "heading_line": 9760,
+     "contains": "**F-U6c-2,**"
+    }
+   ],
+   "note": "The dispatcher's v0.3 branch knew only precision-1",
+   "cited_at": [
+    "tests/test_results_dispatcher_v0_3.py:3"
+   ]
+  },
+  {
+   "token": "T6S-1 to T6S-5; I75 and I76",
+   "kind": "attribution",
+   "site_regex": "T6S-[1-5]|\\bI7[56]\\b",
+   "resolves_to": [
+    {
+     "num_path": "I74/t6_slice_plan_01/PLAN.md",
+     "line": 229,
+     "contains": "| **T6S-1** |"
+    },
+    {
+     "num_path": "I74/t6_slice_plan_01/PLAN.md",
+     "line": 230,
+     "contains": "| **T6S-2** |"
+    },
+    {
+     "num_path": "I74/t6_slice_plan_01/PLAN.md",
+     "line": 231,
+     "contains": "| **T6S-3** |"
+    },
+    {
+     "num_path": "I74/t6_slice_plan_01/PLAN.md",
+     "line": 232,
+     "contains": "| **T6S-4** |"
+    },
+    {
+     "num_path": "I74/t6_slice_plan_01/PLAN.md",
+     "line": 233,
+     "contains": "| **T6S-5** |"
+    },
+    {
+     "num_path": "I76/t6s_01/RETURN.md",
+     "line": 1,
+     "contains": "# I76 RETURN"
+    },
+    {
+     "num_path": "I75/t6s_01/RETURN.md",
+     "line": 1,
+     "contains": "# I75 RETURN"
+    }
+   ],
+   "note": "The slice labels (PLAN §4) and the implementers' records",
+   "cited_at": [
+    "apps/desktop/src/features/result-export/ResultExportPanel.tsx:15",
+    "apps/desktop/src/features/result-export/resultExportAdapter.ts:59",
+    "apps/desktop/src/features/result-export/resultExportAdapter.ts:61",
+    "apps/desktop/src/features/result-export/resultExportAdapter.ts:129",
+    "apps/desktop/src/features/result-export/resultExportAdapter.ts:193",
+    "apps/desktop/src/features/result-export/resultExportAdapter.ts:208",
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:1",
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:5",
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:7",
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:8",
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:47",
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:52",
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:70",
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:122",
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:129",
+    "apps/desktop/src/features/results/loadReferenceOutputAvailability.ts:18",
+    "apps/desktop/src/features/results/outputPolicy.test.ts:1",
+    "apps/desktop/src/features/results/outputPolicy.test.ts:56",
+    "apps/desktop/src/features/results/outputPolicy.ts:1",
+    "apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx:892",
+    "apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx:899",
+    "apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx:7",
+    "apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx:164",
+    "apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx:168",
+    "apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx:175",
+    "apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx:185",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:89",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:461",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:526",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:528",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:538",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:567",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:678",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:693",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:703",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:730",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:740",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx:1159",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:1",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:120",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:147",
+    "apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:224",
+    "core/reporting/result_export/tests/retained_precision_derivative_golden.rs:1",
+    "core/reporting/result_export/tests/retained_precision_derivative_golden.rs:2",
+    "tests/test_results_dispatcher_v0_3.py:1",
+    "tests/test_results_dispatcher_v0_3.py:29"
+   ]
+  },
+  {
+   "token": "055ee0c0bc",
+   "kind": "commit",
+   "site_regex": "\\b055ee0c0bc\\b",
+   "resolves_to": [
+    {
+     "commit": "055ee0c0bc7426d6df8ad88add86976b2076d47d",
+     "subject": "piping(T3 T6S-1, T6S-2): results dispatcher references the v0.3 version file; Rust successor-derivative goldens; RV95 N-5 public-API masking test",
+     "reachable_from": "origin/codex/piping-t6-successor-outputs-20261005",
+     "ancestor_of_num": true,
+     "ancestor_of_main": false
+    }
+   ],
+   "note": "I76's commit, which holds the goldens. Reachable from the pushed T6 branch and from NUM (T6S merged at the pin); not from main. The compact PR carries the files, not this history",
+   "cited_at": [
+    "apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:47"
+   ]
+  }
+ ]
+}

@@ -58,7 +58,8 @@ export const N_RP_UNVALIDATED = "Retained-precision accuracy classes are unavail
 /** The SI unit the reader normalizes a row's unit to, and so the unit the receipt's
  * absolute bound b is published in. The same table as Rust `derivative::si_unit`
  * (RV88 U6a S-2): m and mm to m, rad, N and kN to N, N*m and kN*m to N*m, Pa and MPa
- * to Pa. TS emits only this display label, never the derivative's disclosure message. */
+ * to Pa. This module emits only this display label; the derivative's disclosure message
+ * is T6S's, in `retainedPrecisionDisclosure.ts` (result JSON and stress-neutral exports). */
 const RETAINED_SI_UNIT: Readonly<Record<string, string>> = Object.freeze({ m: "m", mm: "m", rad: "rad", N: "N", kN: "N", "N*m": "N*m", "kN*m": "N*m", Pa: "Pa", MPa: "Pa" });
 /** b with three significant digits, rounded upward: the printed bound is never below b. */
 export function upwardBoundText(b: number): string {

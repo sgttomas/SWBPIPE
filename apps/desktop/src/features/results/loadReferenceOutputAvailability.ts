@@ -14,16 +14,22 @@
  * likewise T6's. The same shared function returns its own reason for it;
  * `isLoadReferenceRoute` is unchanged, so the load-reference text is never
  * shown for a successor.
+ *
+ * T6S-3 (RR decisions 2 and 12): the reasons now come from the per-route output
+ * policy (`outputPolicy.ts`), and this function's meaning is unchanged: it returns
+ * the route's shared refusal on every surface that calls it. The eighteen surfaces
+ * behind `LoadReferenceOutputGate` keep calling it. The Result Export and
+ * Stress-Neutral Export panels no longer call it: they read the policy's
+ * per-surface decision, which admits an eligible successor there only.
  */
+import { routeOutputRefusal } from "./outputPolicy";
 import { sourceContract } from "./numericalResultQuality";
 import type { MechanicsResult } from "../../types";
 
-export const LOAD_REFERENCE_OUTPUT_NOT_YET_AVAILABLE = "LOAD-REFERENCE-OUTPUT-NOT-YET-AVAILABLE";
-export const N_LOAD_REFERENCE_OUTPUT = "Output of load/reference-state results (load-reference-1 and load-reference-source-1) is not yet available on the desktop; it is routed to T6. The result remains readable here; this is not a finding about the result.";
-export const LOAD_REFERENCE_OUTPUT_REFUSAL = `${LOAD_REFERENCE_OUTPUT_NOT_YET_AVAILABLE}: ${N_LOAD_REFERENCE_OUTPUT}`;
-export const RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE = "RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE";
-export const N_RETAINED_PRECISION_OUTPUT = "Output of retained-precision results (preview-physics-retained-1) is not yet available on the desktop; it is routed to T6. The result remains readable here; this is not a finding about the result.";
-export const RETAINED_PRECISION_OUTPUT_REFUSAL = `${RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE}: ${N_RETAINED_PRECISION_OUTPUT}`;
+export {
+  LOAD_REFERENCE_OUTPUT_NOT_YET_AVAILABLE, N_LOAD_REFERENCE_OUTPUT, LOAD_REFERENCE_OUTPUT_REFUSAL,
+  RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE, N_RETAINED_PRECISION_OUTPUT, RETAINED_PRECISION_OUTPUT_REFUSAL,
+} from "./outputPolicy";
 
 /** Whether header dispatch selects a load/reference-state route. */
 export function isLoadReferenceRoute(source: MechanicsResult | null | undefined): boolean {
@@ -33,13 +39,10 @@ export function isLoadReferenceRoute(source: MechanicsResult | null | undefined)
     return route === "load_reference" || route === "load_reference_source";
   } catch { return false; }
 }
-function isRetainedPrecisionRoute(source: MechanicsResult | null | undefined): boolean {
-  try { return sourceContract(source!) === "retained_preview_physics"; } catch { return false; }
-}
 /** The shared output refusal: the reason for a load/reference-state or
  * retained-precision successor result, else null. */
 export function loadReferenceOutputRefusal(source: MechanicsResult | null | undefined): string | null {
-  return isLoadReferenceRoute(source) ? LOAD_REFERENCE_OUTPUT_REFUSAL : isRetainedPrecisionRoute(source) ? RETAINED_PRECISION_OUTPUT_REFUSAL : null;
+  return routeOutputRefusal(source);
 }
 /** Throws the shared refusal for a load/reference-state or successor result. */
 export function refuseLoadReferenceOutput(source: MechanicsResult | null | undefined): void {
