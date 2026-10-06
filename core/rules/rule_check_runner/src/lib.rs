@@ -64,8 +64,10 @@ use open_pipe_stress_completeness_checker::{
 };
 pub use open_pipe_stress_expression_evaluator::AnalysisStatus;
 use open_pipe_stress_expression_evaluator::{
-    evaluate, BindingSource, ComparisonOperator, Dimension as EvalDimension, EvaluationInput,
-    EvaluationValue, Expression, Quantity, VariableBinding,
+    enclosure_from_bound, evaluate, evaluate_interval, BindingSource, ComparisonOperator,
+    Dimension as EvalDimension, Enclosure, EvaluationInput, EvaluationValue, Expression,
+    IntervalBinding, IntervalEvaluationResult, IntervalNoteCode, IntervalValue, Quantity, Truth,
+    VariableBinding,
 };
 use open_pipe_stress_rule_pack_document::{decode_dimension, decode_expression, encode_dimension};
 use open_pipe_stress_units::{convert_for_dimension, unit_by_symbol, Dimension as UnitDimension};
@@ -88,6 +90,32 @@ pub struct SolverResultBinding {
     pub value: f64,
     pub unit: String,
 }
+
+/// The verified absolute bound `b` of one `solver_result` input (T3 D2
+/// §4.11.2, option C), in the unit of the input's [`SolverResultBinding`]. The
+/// caller copies `b` from a validated receipt's `absolute_verified` row; the
+/// runner never derives it. With `b > 0` the input binds as the outward
+/// enclosure `[next_down(fl(q - b)), next_up(fl(q + b))]` and its check runs in
+/// interval mode; `b == 0` binds the exact point `q`. A bound that is not a
+/// finite non-negative number blocks the input (treated as unsupplied).
+#[derive(Debug, Clone)]
+pub struct SolverResultBound {
+    pub input_id: String,
+    pub absolute_bound: f64,
+}
+
+/// Interval-mode outcome code (D2 §4.11.5): the check passes for every value
+/// within the verified bounds (`USER_RULE_CHECKED`, info).
+pub const RULE_INTERVAL_ALL_PASS: &str = "RULE_INTERVAL_ALL_PASS";
+/// Interval-mode outcome code (D2 §4.11.5): the check fails for every value
+/// within the verified bounds (`USER_RULE_FAILED`, info).
+pub const RULE_INTERVAL_ALL_FAIL: &str = "RULE_INTERVAL_ALL_FAIL";
+/// Interval-mode outcome code (D2 §4.11.5): the check passes for some values
+/// in the bounds and fails for others, or cannot be enclosed soundly
+/// (`RULE_INPUTS_INCOMPLETE`, warning). Never a pass.
+pub const RULE_RESULT_INDETERMINATE: &str = "RULE_RESULT_INDETERMINATE";
+/// Interval-mode finding (D2 §4.11.3): a divisor range contains zero.
+pub const RULE_INTERVAL_DIVIDE_BY_ZERO_RANGE: &str = "RULE_INTERVAL_DIVIDE_BY_ZERO_RANGE";
 
 /// A `solver_result` input the caller refused to bind, with the refusal reason
 /// (T0R: `result_export::semantic_contract::rule_binding_refusal`). The runner
@@ -246,6 +274,26 @@ pub struct RuleCheckRunResult {
 /// Run every `check_definition` in the rule pack against the caller-resolved
 /// values and return per-check outcomes plus a worst-of aggregate.
 pub fn run_rule_checks(input: &RuleCheckRunInput) -> RuleCheckRunResult {
+    run_rule_checks_with_bounds(input, &[])
+}
+
+/// [`run_rule_checks`] with verified absolute bounds for some `solver_result`
+/// inputs (T3 D2 §4.11, option C: conservative interval binding).
+///
+/// A check whose formula binds no interval input follows [`run_rule_checks`]'s
+/// point path unchanged. A check with at least one interval input is evaluated
+/// in interval mode, including the synthesized `Compare(formula, relation,
+/// limit)`, and reads three-valued (D2 §4.11.5):
+/// - every value passes: `USER_RULE_CHECKED` with [`RULE_INTERVAL_ALL_PASS`];
+/// - every value fails: `USER_RULE_FAILED` with [`RULE_INTERVAL_ALL_FAIL`];
+/// - otherwise: `RULE_INPUTS_INCOMPLETE` with [`RULE_RESULT_INDETERMINATE`];
+///   never a pass.
+///
+/// With an empty `bounds` slice this is exactly [`run_rule_checks`].
+pub fn run_rule_checks_with_bounds(
+    input: &RuleCheckRunInput,
+    bounds: &[SolverResultBound],
+) -> RuleCheckRunResult {
     let doc = input.rule_pack_document;
     let rule_pack_id = doc
         .pointer("/metadata/rule_pack_id")
@@ -281,6 +329,10 @@ pub fn run_rule_checks(input: &RuleCheckRunInput) -> RuleCheckRunResult {
             .library_values
             .iter()
             .map(|b| (b.input_id.as_str(), b))
+            .collect(),
+        bound_by_input: bounds
+            .iter()
+            .map(|b| (b.input_id.as_str(), b.absolute_bound))
             .collect(),
         current_statuses: &input.current_statuses,
         grammar_version: grammar_version.as_str(),
@@ -326,6 +378,8 @@ struct RunContext<'a> {
     refused_by_input: HashMap<&'a str, &'a RefusedSolverResult>,
     supplied_by_ref: HashMap<&'a str, &'a SuppliedValueBinding>,
     library_by_input: HashMap<&'a str, &'a LibraryValueBinding>,
+    /// Verified absolute bounds by `solver_result` input id (D2 §4.11.2).
+    bound_by_input: HashMap<&'a str, f64>,
     current_statuses: &'a [AnalysisStatus],
     grammar_version: &'a str,
 }
@@ -336,6 +390,9 @@ struct ResolvedValue {
     unit: String,
     eval_dimension: Option<EvalDimension>,
     binding_source: BindingSource,
+    /// `Some` for an interval input (a verified bound `b > 0`): its enclosure
+    /// in the declared unit, or `None` inside when no finite enclosure exists.
+    interval: Option<Option<Enclosure>>,
 }
 
 fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
@@ -527,6 +584,46 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                 None => (None, None, None, BindingSource::RulePackRequiredInput, None),
             },
         };
+        // D2 §4.11.2: a verified absolute bound for a bound solver result.
+        let bound = match source_kind {
+            SourceKind::SolverResult if raw_value.is_some() => {
+                ctx.bound_by_input.get(ref_id).copied()
+            }
+            _ => None,
+        };
+        let (raw_value, raw_unit, note, interval_source) = match bound {
+            None => (raw_value, raw_unit, note, None),
+            Some(b) if !(b.is_finite() && b >= 0.0) => {
+                completeness_findings.push(RunFinding {
+                    code: "RULE_EVALUATOR_ERROR".to_string(),
+                    severity: "blocking".to_string(),
+                    subject_id: ref_id.to_string(),
+                    message: format!(
+                        "the absolute bound {b:e} for this solver result is not a finite \
+                         non-negative number; the input is treated as unsupplied"
+                    ),
+                });
+                (
+                    None,
+                    None,
+                    Some(format!(
+                        "invalid absolute bound {b:e}: treated as unsupplied"
+                    )),
+                    None,
+                )
+            }
+            // b = 0 binds the exact point q, with no widening (D2 §4.11.2).
+            Some(b) if b == 0.0 => (raw_value, raw_unit, note, None),
+            Some(b) => {
+                let source = raw_value.zip(raw_unit.clone()).map(|(q, u)| (q, u, b));
+                (
+                    raw_value,
+                    raw_unit,
+                    Some(format!("interval ±{b:e} from receipt")),
+                    source,
+                )
+            }
+        };
         let (value, unit) = match (raw_value, raw_unit) {
             (Some(v), Some(u)) => {
                 match normalize_value_to_declared_unit(v, &u, &unit_ref, dimension_token, ref_id) {
@@ -560,6 +657,16 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
         }
 
         if let (Some(v), Some(u)) = (value, unit) {
+            // The interval's ends are normalized like the point, each floating
+            // operation of the conversion stepped outward (D2 §4.11.2).
+            let interval = interval_source.map(|(q, entered_unit, b)| {
+                normalize_enclosure_to_declared_unit(
+                    enclosure_from_bound(q, b),
+                    &entered_unit,
+                    &unit_ref,
+                    dimension_token,
+                )
+            });
             resolved.insert(
                 ref_id.to_string(),
                 ResolvedValue {
@@ -567,6 +674,7 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                     unit: u,
                     eval_dimension,
                     binding_source,
+                    interval,
                 },
             );
         }
@@ -683,6 +791,7 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
         .unwrap_or_default();
     let mut bindings: Vec<VariableBinding> = Vec::new();
     let mut required_variable_ids: Vec<String> = Vec::new();
+    let mut intervals: Vec<IntervalBinding> = Vec::new();
     for fr in &formula_input_refs {
         let id = fr
             .pointer("/ref_id")
@@ -695,7 +804,17 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
         match resolved.get(id) {
             Some(rv) => match rv.eval_dimension {
                 Some(dim) => match Quantity::new(rv.value, dim, rv.unit.clone()) {
-                    Ok(q) => bindings.push(VariableBinding::new(id, rv.binding_source, q)),
+                    Ok(q) => {
+                        if let Some(enclosure) = rv.interval {
+                            if !intervals.iter().any(|i| i.variable_id == id) {
+                                intervals.push(IntervalBinding {
+                                    variable_id: id.to_string(),
+                                    enclosure,
+                                });
+                            }
+                        }
+                        bindings.push(VariableBinding::new(id, rv.binding_source, q))
+                    }
                     Err(_) => bindings.push(VariableBinding::missing(id, rv.binding_source)),
                 },
                 None => bindings.push(VariableBinding::missing(id, rv.binding_source)),
@@ -705,6 +824,33 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                 BindingSource::RulePackRequiredInput,
             )),
         }
+    }
+
+    // A check with at least one interval input runs in interval mode (D2
+    // §4.11.1); every other check follows the point path below, unchanged.
+    if !intervals.is_empty() {
+        let formula_input = EvaluationInput {
+            expression,
+            bindings,
+            required_variable_ids,
+            statuses: ctx.current_statuses.to_vec(),
+            declared_grammar_version: ctx.grammar_version.to_string(),
+        };
+        return run_interval_check(
+            ctx,
+            check,
+            check_id,
+            &formula_input,
+            &intervals,
+            CheckRecords {
+                bound_inputs,
+                completeness_findings,
+                evaluator_findings,
+                diagnostic_codes,
+            },
+            diagnostic_policy,
+            &result_statuses,
+        );
     }
 
     let formula_eval = evaluate(&EvaluationInput {
@@ -1124,6 +1270,407 @@ fn blocked_after_completeness(
         evaluator_findings,
         diagnostic_codes: diagnostic_codes.clone(),
     }
+}
+
+// ---------------------------------------------------------------------------
+// Interval mode (T3 D2 §4.11, option C: conservative interval binding)
+// ---------------------------------------------------------------------------
+
+/// The records an interval-mode check carries to its outcome.
+struct CheckRecords {
+    bound_inputs: Vec<BoundInput>,
+    completeness_findings: Vec<RunFinding>,
+    evaluator_findings: Vec<RunFinding>,
+    diagnostic_codes: Vec<String>,
+}
+
+impl CheckRecords {
+    fn outcome(
+        self,
+        check_id: String,
+        status: RuleCheckStatus,
+        limit_value: Option<ComputedQuantity>,
+        acceptability_relation: String,
+    ) -> CheckOutcome {
+        CheckOutcome {
+            check_id,
+            status,
+            // An interval check computes an enclosure, not one value; the
+            // enclosure is reported in the outcome finding (D2 §4.11.5).
+            computed_value: None,
+            limit_value,
+            acceptability_relation,
+            bound_inputs: self.bound_inputs,
+            completeness_findings: self.completeness_findings,
+            evaluator_findings: self.evaluator_findings,
+            diagnostic_codes: self.diagnostic_codes,
+        }
+    }
+
+    /// Blocking evaluator findings, mapped exactly as the point path maps them.
+    fn push_blocking(&mut self, result: &IntervalEvaluationResult) {
+        for f in &result.findings {
+            self.evaluator_findings.push(RunFinding {
+                code: format!("{:?}", f.code),
+                severity: "blocking".to_string(),
+                subject_id: f.subject_id.clone(),
+                message: f.message.clone(),
+            });
+        }
+    }
+
+    /// An acceptability failure before the comparison: the point path's
+    /// finding and diagnostic, with no computed value.
+    fn blocked(
+        mut self,
+        check_id: String,
+        finding: RunFinding,
+        diagnostic_key: &str,
+        diagnostic_policy: Option<&Value>,
+        result_statuses: &[String],
+        acceptability_relation: String,
+    ) -> CheckOutcome {
+        self.evaluator_findings.push(finding);
+        push_diagnostic(
+            &mut self.diagnostic_codes,
+            diagnostic_policy,
+            diagnostic_key,
+        );
+        let status = enforce_declared(
+            RuleCheckStatus::RuleInputsIncomplete,
+            result_statuses,
+            &mut self.evaluator_findings,
+        );
+        self.outcome(check_id, status, None, acceptability_relation)
+    }
+}
+
+/// The synthetic variable that carries the formula's enclosure into the
+/// synthesized interval-mode `Compare(formula, relation, limit)`.
+const FORMULA_ENCLOSURE_VARIABLE: &str = "interval_formula_value";
+
+/// One check with at least one interval input, evaluated in interval mode
+/// (D2 §4.11.3) and mapped to the three-valued outcome (D2 §4.11.5). Every
+/// structural failure is reported exactly as the point path reports it.
+#[allow(clippy::too_many_arguments)]
+fn run_interval_check(
+    ctx: &RunContext,
+    check: &Value,
+    check_id: String,
+    formula_input: &EvaluationInput,
+    intervals: &[IntervalBinding],
+    mut records: CheckRecords,
+    diagnostic_policy: Option<&Value>,
+    result_statuses: &[String],
+) -> CheckOutcome {
+    let formula_eval = evaluate_interval(formula_input, intervals);
+    records.push_blocking(&formula_eval);
+    if formula_eval.is_blocked() {
+        return blocked_after_completeness(
+            check_id,
+            records.bound_inputs,
+            records.completeness_findings,
+            records.evaluator_findings,
+            &mut records.diagnostic_codes,
+            diagnostic_policy,
+            result_statuses,
+        );
+    }
+
+    let formula = match formula_eval.value {
+        Some(IntervalValue::Boolean(truth)) => {
+            return finish_interval_check(
+                check_id,
+                truth,
+                "enclosure=none unit=none".to_string(),
+                &formula_eval,
+                "formula_predicate".to_string(),
+                None,
+                records,
+                result_statuses,
+            );
+        }
+        Some(IntervalValue::Quantity(ref formula)) => formula.clone(),
+        None => {
+            return blocked_after_completeness(
+                check_id,
+                records.bound_inputs,
+                records.completeness_findings,
+                records.evaluator_findings,
+                &mut records.diagnostic_codes,
+                diagnostic_policy,
+                result_statuses,
+            );
+        }
+    };
+
+    // The acceptability relation and the limit, resolved and reported exactly
+    // as the point path does.
+    let acceptability_operator = match resolve_acceptability_relation(check) {
+        Ok(operator) => operator,
+        Err(token) => {
+            let finding = RunFinding {
+                code: "RULE_EVALUATOR_ERROR".to_string(),
+                severity: "blocking".to_string(),
+                subject_id: check_id.clone(),
+                message: format!(
+                    "check declares an unsupported acceptability_relation '{token}'; \
+                     expected one of less_than, less_than_or_equal, greater_than, \
+                     greater_than_or_equal"
+                ),
+            };
+            return records.blocked(
+                check_id,
+                finding,
+                "evaluator_error",
+                diagnostic_policy,
+                result_statuses,
+                "none".to_string(),
+            );
+        }
+    };
+    let acceptability_label = acceptability_relation_label(&acceptability_operator).to_string();
+    let limit = match resolve_limit(check, ctx) {
+        Ok(limit) => limit,
+        Err(finding) => {
+            return records.blocked(
+                check_id,
+                finding,
+                "evaluator_error",
+                diagnostic_policy,
+                result_statuses,
+                acceptability_label,
+            );
+        }
+    };
+    let Some((limit_value, limit_unit, limit_dimension)) = limit else {
+        let finding = RunFinding {
+            code: "RULE_INPUT_MISSING".to_string(),
+            severity: "blocking".to_string(),
+            subject_id: check_id.clone(),
+            message: "no user-supplied value-slot limit available for this check".to_string(),
+        };
+        return records.blocked(
+            check_id,
+            finding,
+            "missing_input",
+            diagnostic_policy,
+            result_statuses,
+            acceptability_label,
+        );
+    };
+    let Some(limit_quantity) =
+        limit_dimension.and_then(|d| Quantity::new(limit_value, d, limit_unit.clone()).ok())
+    else {
+        let finding = RunFinding {
+            code: "RULE_EVALUATOR_ERROR".to_string(),
+            severity: "blocking".to_string(),
+            subject_id: check_id.clone(),
+            message: "value-slot limit has missing or unknown unit/dimension metadata".to_string(),
+        };
+        return records.blocked(
+            check_id,
+            finding,
+            "evaluator_error",
+            diagnostic_policy,
+            result_statuses,
+            acceptability_label,
+        );
+    };
+    let limit_computed = Some(quantity_to_computed(&limit_quantity));
+
+    // The synthesized Compare(formula, relation, limit), in interval mode. The
+    // formula enters as a variable carrying its enclosure (its point value is
+    // never read); the limit is a user-supplied point.
+    let formula_quantity = Quantity {
+        value: formula.enclosure.map_or(0.0, |e| e.lo),
+        dimension: formula.dimension,
+        unit_ref: formula.unit_ref.clone(),
+        unit_required: true,
+        dimension_check_required: true,
+    };
+    let comparison = evaluate_interval(
+        &EvaluationInput {
+            expression: Expression::Compare {
+                operator: acceptability_operator,
+                left: Box::new(Expression::VariableRef(
+                    FORMULA_ENCLOSURE_VARIABLE.to_string(),
+                )),
+                right: Box::new(Expression::Literal(limit_quantity)),
+            },
+            bindings: vec![VariableBinding::new(
+                FORMULA_ENCLOSURE_VARIABLE,
+                BindingSource::SolverResultField,
+                formula_quantity,
+            )],
+            required_variable_ids: Vec::new(),
+            statuses: ctx.current_statuses.to_vec(),
+            declared_grammar_version: ctx.grammar_version.to_string(),
+        },
+        &[IntervalBinding {
+            variable_id: FORMULA_ENCLOSURE_VARIABLE.to_string(),
+            enclosure: formula.enclosure,
+        }],
+    );
+    records.push_blocking(&comparison);
+    match comparison.value {
+        Some(IntervalValue::Boolean(truth)) if !comparison.is_blocked() => finish_interval_check(
+            check_id,
+            truth,
+            enclosure_message(formula.enclosure, &formula.unit_ref),
+            &formula_eval,
+            acceptability_label,
+            limit_computed,
+            records,
+            result_statuses,
+        ),
+        _ => {
+            push_diagnostic(
+                &mut records.diagnostic_codes,
+                diagnostic_policy,
+                "evaluator_error",
+            );
+            let status = enforce_declared(
+                RuleCheckStatus::RuleInputsIncomplete,
+                result_statuses,
+                &mut records.evaluator_findings,
+            );
+            records.outcome(check_id, status, limit_computed, acceptability_label)
+        }
+    }
+}
+
+/// The fixed enclosure form of D2 §4.11.5: `enclosure=[0x<lo>,0x<hi>] unit=<u>`.
+fn enclosure_message(enclosure: Option<Enclosure>, unit_ref: &str) -> String {
+    match enclosure {
+        Some(enclosure) => format!("enclosure={} unit={unit_ref}", enclosure.bits_text()),
+        None => format!("enclosure=none unit={unit_ref}"),
+    }
+}
+
+/// Maps the predicate's truth to D2 §4.11.5's status, code and finding.
+/// Indeterminate is never a pass.
+#[allow(clippy::too_many_arguments)]
+fn finish_interval_check(
+    check_id: String,
+    truth: Truth,
+    enclosure_text: String,
+    formula_eval: &IntervalEvaluationResult,
+    acceptability_relation: String,
+    limit_value: Option<ComputedQuantity>,
+    mut records: CheckRecords,
+    result_statuses: &[String],
+) -> CheckOutcome {
+    let (status, code, severity) = match truth {
+        Truth::True => (
+            RuleCheckStatus::UserRuleChecked,
+            RULE_INTERVAL_ALL_PASS,
+            "info",
+        ),
+        Truth::False => (
+            RuleCheckStatus::UserRuleFailed,
+            RULE_INTERVAL_ALL_FAIL,
+            "info",
+        ),
+        Truth::Indeterminate => (
+            RuleCheckStatus::RuleInputsIncomplete,
+            RULE_RESULT_INDETERMINATE,
+            "warning",
+        ),
+    };
+    // Causes of an indeterminate formula, after the fixed enclosure form.
+    let mut causes: Vec<&str> = Vec::new();
+    for note in &formula_eval.notes {
+        if !causes.contains(&note.code.as_str()) {
+            causes.push(note.code.as_str());
+        }
+    }
+    let message = if causes.is_empty() {
+        enclosure_text
+    } else {
+        format!("{enclosure_text}; causes={}", causes.join(","))
+    };
+    records.evaluator_findings.push(RunFinding {
+        code: code.to_string(),
+        severity: severity.to_string(),
+        subject_id: check_id.clone(),
+        message,
+    });
+    if let Some(note) = formula_eval
+        .notes
+        .iter()
+        .find(|note| note.code == IntervalNoteCode::DivideByZeroRange)
+    {
+        records.evaluator_findings.push(RunFinding {
+            code: RULE_INTERVAL_DIVIDE_BY_ZERO_RANGE.to_string(),
+            severity: "warning".to_string(),
+            subject_id: note.subject_id.clone(),
+            message: "a divisor range within the verified bounds contains zero".to_string(),
+        });
+    }
+    if !records.diagnostic_codes.iter().any(|c| c == code) {
+        records.diagnostic_codes.push(code.to_string());
+    }
+    let status = enforce_declared(status, result_statuses, &mut records.evaluator_findings);
+    records.outcome(check_id, status, limit_value, acceptability_relation)
+}
+
+/// Normalizes an interval input's enclosure to the declared unit (D2
+/// §4.11.2). It mirrors [`normalize_value_to_declared_unit`], which has already
+/// succeeded for the same input's point, and the units crate's conversion
+/// `((x * f_from + o_from) - o_to) / f_to`, with one outward step after each of
+/// those four floating operations. Identical units, or units that resolve to
+/// the same catalog unit, convert exactly, as for the point. `None` (no finite
+/// enclosure) when an end is not finite or a factor is not positive.
+fn normalize_enclosure_to_declared_unit(
+    enclosure: Option<Enclosure>,
+    entered_unit: &str,
+    declared_unit: &str,
+    dimension_token: &str,
+) -> Option<Enclosure> {
+    let enclosure = enclosure?;
+    let (entered, declared) = (entered_unit.trim(), declared_unit.trim());
+    if entered == declared {
+        return Some(enclosure);
+    }
+    let dimension = UnitDimension::from_schema_value(dimension_token).ok()?;
+    let from = unit_by_symbol(entered, dimension).ok()?;
+    let to = unit_by_symbol(declared, dimension).ok()?;
+    if from == to {
+        return Some(enclosure);
+    }
+    let (f, t) = (
+        from.definition().transform_to_canonical,
+        to.definition().transform_to_canonical,
+    );
+    if !(f.factor.is_finite()
+        && f.factor > 0.0
+        && f.offset.is_finite()
+        && t.factor.is_finite()
+        && t.factor > 0.0
+        && t.offset.is_finite())
+    {
+        return None;
+    }
+    // Each step: round to nearest, then one ulp outward; every function here
+    // is non-decreasing in x because both factors are positive.
+    let down = |x: f64| -> Option<f64> {
+        let y = x.next_down();
+        (x.is_finite() && y.is_finite()).then_some(y)
+    };
+    let up = |x: f64| -> Option<f64> {
+        let y = x.next_up();
+        (x.is_finite() && y.is_finite()).then_some(y)
+    };
+    let lo = down(enclosure.lo * f.factor)?;
+    let lo = down(lo + f.offset)?;
+    let lo = down(lo - t.offset)?;
+    let lo = down(lo / t.factor)?;
+    let hi = up(enclosure.hi * f.factor)?;
+    let hi = up(hi + f.offset)?;
+    let hi = up(hi - t.offset)?;
+    let hi = up(hi / t.factor)?;
+    Some(Enclosure { lo, hi })
 }
 
 /// Keep an emitted status inside the check's declared `result_statuses`
