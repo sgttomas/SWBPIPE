@@ -1,0 +1,252 @@
+diff --git a/projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs b/projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs
+index d31d65a77b..a7c4cf92f4 100644
+--- a/projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs
++++ b/projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs
+@@ -825,3 +825,247 @@ fn u3g2_d_u6_5_carrier_fixtures_are_the_live_successors() {
+             "{name}: U1's pinned hashes");
+     }
+ }
++
++// ---- U8 (I68): producer-solved witnesses from real D1 inputs ------------------------------
++//
++// RR "I61's U8 plan ruled…" and "I68's probe verified…" (R/I68/u8_probe_01). Real inputs, no
++// hooks: RV93 N-5's Candidate and Preparation fallbacks, W-C1's Native fallback (two-body case B;
++// its kernel reason, Unresolved(Ceiling), is recorded by the U8-0 probe and not asserted here),
++// and the L = 0 base, whose successor is pinned and copied to the corpus fixtures (D-U6-5).
++
++/// RV93 N-5's Candidate input (zz_rv93.rs:292–315): the milestone with only its first load.
++fn u8_first_load_only() -> Value {
++    let mut raw = raw();
++    let first = raw["model"]["load_cases"][0]["primitive_loads"][0].clone();
++    raw["model"]["load_cases"][0]["primitive_loads"] = json!([first]);
++    raw
++}
++/// RV93's Preparation sibling: support 1's spring stiffness set to 1e-300. The ordinary run does
++/// not solve (MODEL_INCOMPLETE), so preparation's MECHANICS_SOLVED requirement refuses.
++fn u8_tiny_spring() -> Value {
++    let mut raw = raw();
++    raw["model"]["supports"][1]["stiffness"]["value"]["value"] = json!(1e-300);
++    raw
++}
++/// W-C2's two-body model (PLAN §1.3) with case A's loads: the milestone body (body 0) and its
++/// three moments, plus PHYS-R4's cantilever as body 1 (W6's body, retained_memory_witness_tests.rs
++/// :181–199, moved to x = 5..6 so that no node coincides with N0), unloaded.
++fn u8_two_body_case_a() -> Value {
++    let mut raw = raw();
++    let p = "invented_t3_g5_witness_input_no_library_data";
++    let model = &mut raw["model"];
++    model["nodes"].as_array_mut().unwrap().extend([
++        json!({"id": "node:section-a", "position": {"x": 5.0, "y": 0.0, "z": 0.0}, "provenance": p}),
++        json!({"id": "node:section-b", "position": {"x": 6.0, "y": 0.0, "z": 0.0}, "provenance": p}),
++    ]);
++    model["pipe_segments"].as_array_mut().unwrap().push(json!({"id": "pipe:source-section", "from": "node:section-a", "to": "node:section-b",
++        "material": "material:section", "y_reference": {"x": 0.0, "y": 1.0, "z": 0.0},
++        "section": {"outside_diameter": {"value": 4e-77, "unit": "m"}, "wall_thickness": {"value": 1e-77, "unit": "m"}}, "provenance": p}));
++    model["materials"].as_array_mut().unwrap().push(json!({"id": "material:section", "elastic_modulus": {"value": 1.0, "unit": "Pa"},
++        "shear_modulus": {"value": 0.4545, "unit": "Pa"}, "provenance": p}));
++    model["supports"].as_array_mut().unwrap().push(json!({"id": "support:section-a", "node": "node:section-a", "family": "anchor",
++        "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": p}));
++    raw
++}
++/// W-C1's input (RR "I68's probe verified…"): two-body case B, with W6's tip force and tip torque
++/// on body 1 only. The kernel ends Unresolved(Ceiling), so W1 falls back at Native.
++fn u8_two_body_case_b() -> Value {
++    let mut raw = u8_two_body_case_a();
++    let (tip, p) = (f64::from_bits(0x0031fa182c40c60d), "invented_t3_g5_witness_input_no_library_data");
++    raw["model"]["load_cases"][0]["primitive_loads"] = json!([
++        {"id": "load:tip-y", "category": "concentrated_force", "target": {"type": "node", "node": "node:section-b"}, "direction": "global_y",
++            "dimension": "force", "magnitude": {"value": tip, "unit": "N"}, "provenance": p},
++        {"id": "load:tip-torque", "category": "concentrated_moment", "target": {"type": "node", "node": "node:section-b"}, "direction": "rotation_x",
++            "dimension": "moment", "magnitude": {"value": tip, "unit": "N*m"}, "provenance": p}]);
++    raw
++}
++/// The L = 0 base (PLAN §1.2): the milestone plus node N2 at (3, 0, 0), which no member
++/// references, with one rigid support restraining all six DOFs (the milestone's rigid-support
++/// shape, no family). Body 1 is a single node: extent 0.
++fn u8_l0_isolated_node() -> Value {
++    let mut raw = raw();
++    let p = "invented_t3_p1_detection_input_no_library_data";
++    raw["model"]["nodes"].as_array_mut().unwrap().push(json!({"id": "N2", "position": {"x": 3.0, "y": 0.0, "z": 0.0}, "provenance": p}));
++    raw["model"]["supports"].as_array_mut().unwrap().push(json!({"id": "rigid:N2", "node": "N2", "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": p}));
++    raw
++}
++
++/// U8 (RV93 N-5; W-C1): real D1 inputs reach the Candidate, Preparation and Native fallbacks on
++/// the actual Direct entry, with no fault hook. In the registered build each publishes the plain
++/// bytes plus exactly one N1 notice, from one ordinary run that reached G-C once. In any other
++/// build each publishes the plain bytes from one run.
++#[test]
++fn u8_real_input_fallbacks_append_one_notice() {
++    let variants = [
++        ("first_load_only", u8_first_load_only(), W1Fallback::Candidate),
++        ("tiny_spring", u8_tiny_spring(), W1Fallback::Preparation),
++        ("w_c1_two_body_case_b", u8_two_body_case_b(), W1Fallback::Native),
++    ];
++    for mode in MODES {
++        for (label, raw, cause) in &variants {
++            let case = raw["model"]["load_cases"][0]["id"].as_str().unwrap();
++            let plain = plain(mode, raw);
++            assert!(hooks::armed_names().is_empty(), "{label} {mode:?}: no fault armed before");
++            let (output, counts) = direct(raw, mode);
++            if !registered() {
++                assert!(output.retained().is_none(), "{label}: no permit, no W1");
++                assert_eq!(counts, ONE_RUN, "{label} {mode:?}");
++                assert_eq!(published(output), plain, "{label} {mode:?}: the ordinary route");
++                assert!(hooks::armed_names().is_empty(), "{label} {mode:?}: no fault armed after");
++                continue;
++            }
++            assert_eq!(output.admission().unwrap().law().refusal, None, "{label} {mode:?}: admitted (inside D1)");
++            assert_eq!(output.retained().and_then(|r| r.as_ref().err()), Some(cause), "{label} {mode:?}: the real input's cause");
++            assert!(output.successor().is_none(), "{label} {mode:?}");
++            assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{label} {mode:?}: one ordinary run, then G-C once");
++            let bytes = published(output);
++            assert_eq!(String::from_utf8(bytes.clone()).unwrap(), String::from_utf8(with_notice(&plain, case, None)).unwrap(),
++                "{label} {mode:?}: the ordinary bytes, then the notice");
++            assert_eq!(notices(&bytes), 1, "{label} {mode:?}: exactly one N1 notice");
++            assert!(hooks::armed_names().is_empty(), "{label} {mode:?}: no fault armed after");
++        }
++    }
++}
++
++/// U8's L = 0 pins, per mode: the successor document's sha256 (id `u8_l0_isolated_node_<mode>`,
++/// U1's document form), its receipt sha256 and the published bytes' sha256 (R/I68/u8_probe_01 §3).
++const U8_L0_PINNED: [(&str, &str, &str, &str); 2] = [
++    ("sparse_interactive", "93c6c86548b9d263cba9d9869010043d23ed1c9f2f304dd9f82eb705eb350876", "c00cbe76954e5188c63b0ef69738cd40a8db15d303b1113a86524e6c3119dd72",
++        "9b425066029969b992278306a678303717400a5f16636d3427c5b9b8150ac83a"),
++    ("dense_scrutiny", "dbb3d477364248fb9ae15f7b9cff44410c2bffe45f783dd02d96eca663b0ac88", "0b4250c8139ba25ab9d35fc2d443a01d85de943a8e3d0eb9193f5dd5061ce994",
++        "5d84fce64bb0810da24df9ea5d6ad354b18d864f07826dd09e191e345e4dea48"),
++];
++/// The milestone's pinned successor documents (U1; the U5-verified reference rows for body 0).
++const U8_MILESTONE_DOCUMENTS: [&str; 2] = [
++    include_str!("../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json"),
++    include_str!("../../../fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json"),
++];
++/// The L = 0 successor document, in U1's form.
++fn u8_l0_document(name: &str, raw: &Value, successor: &Value) -> String {
++    serde_json::to_string_pretty(&json!({"id": format!("u8_l0_isolated_node_{name}"), "source": successor,
++        "invocation": {"request": raw, "solver_mode": name}})).unwrap()
++}
++/// L = 0's value controls on its published successor (PLAN §1.2's "Tests and controls" row).
++/// Body 1 (N2 and rigid:N2): every row is exactly +0 and is input-derived or an exact zero
++/// (absolute-verified with scale and bound 0); the receipt gives the body extent-0 coverage.
++/// Body 0: every milestone row is present and bit-identical (as observed), carries the milestone's
++/// class claim, and agrees within the unchanged U5 criterion (relative rows within 1e-9 of their
++/// value, absolute rows within their published bound, input-derived rows exactly), with the
++/// milestone's U5-verified rows as the reference.
++fn u8_l0_value_controls(name: &str, raw: &Value, successor: &Value, milestone_document: &str) {
++    use open_pipe_stress_result_export::retained_precision::{validate, AccuracyClass};
++    let classes = |source: &Value, invocation: &Value| -> std::collections::BTreeMap<String, (u64, Option<u64>, AccuracyClass)> {
++        let validation = validate(source, Some(invocation)).unwrap_or_else(|e| panic!("{name}: the reader refuses: {e:?}"));
++        validation.classifications.into_iter().map(|c| (c.result_id, (c.normalized_bits, c.scale_bits, c.class))).collect()
++    };
++    let classes_l0 = classes(successor, &json!({"request": raw, "solver_mode": name}));
++    let milestone: Value = serde_json::from_str(milestone_document).unwrap();
++    let classes_milestone = classes(&milestone["source"], &milestone["invocation"]);
++    let rows = successor["results"].as_array().unwrap();
++    let bits = |row: &Value| row["value"].as_f64().map(f64::to_bits);
++    // Body 1.
++    let body1: Vec<&Value> = rows.iter().filter(|r| r["entity_ref"] == "N2" || r["entity_ref"] == "rigid:N2").collect();
++    let (mut input_derived, mut exact_zero) = (0, 0);
++    for row in &body1 {
++        let id = row["id"].as_str().unwrap();
++        assert_eq!(bits(row), Some(0), "{name} {id}: body 1's row is exactly +0");
++        match &classes_l0[id] {
++            (_, _, AccuracyClass::InputDerived) => input_derived += 1,
++            (0, Some(0), AccuracyClass::AbsoluteVerified { bound_bits: 0 }) => exact_zero += 1,
++            other => panic!("{name} {id}: {other:?} is neither input-derived nor an exact zero"),
++        }
++    }
++    assert_eq!((input_derived, exact_zero), (6, 9), "{name}: body 1's six displacements, its magnitude and its nine reaction rows");
++    let body = &successor["retained_precision"]["body"];
++    assert_eq!(body["sources"][0]["body_membership"][1], json!({"body": 1, "members": [], "nodes": [2]}), "{name}: body 1 is N2 alone");
++    assert_eq!(body["product_attempts"][0]["proof"]["summary_coverage"][1], json!({"body": 1, "has_data": false, "stop": [false, false, false, false]}),
++        "{name}: body 1's coverage (extent 0, no free DOF)");
++    assert_eq!(body["cases"][0]["selection"]["body_scales"][1], json!({"body": 1, "force": "0000000000000000", "moment": "0000000000000000",
++        "rotation": "0000000000000000", "translation": "0000000000000000"}), "{name}: body 1's scales");
++    // Body 0.
++    let milestone_rows = milestone["source"]["results"].as_array().unwrap();
++    assert_eq!(rows.len(), milestone_rows.len() + body1.len(), "{name}: the milestone's rows plus body 1's");
++    for reference in milestone_rows {
++        let id = reference["id"].as_str().unwrap();
++        let row = rows.iter().find(|r| r["id"] == reference["id"]).unwrap_or_else(|| panic!("{name} {id}: missing"));
++        assert_eq!(bits(row), bits(reference), "{name} {id}: bit-identical to the milestone");
++        let ((normalized, _, class), (reference_normalized, _, reference_class)) = (&classes_l0[id], &classes_milestone[id]);
++        assert_eq!(class, reference_class, "{name} {id}: the milestone's class claim");
++        let (value, reference_value) = (f64::from_bits(*normalized), f64::from_bits(*reference_normalized));
++        let within = match class {
++            AccuracyClass::RelativeVerified => (value - reference_value).abs() <= value.abs() / 1e9,
++            AccuracyClass::AbsoluteVerified { bound_bits } => (value - reference_value).abs() <= f64::from_bits(*bound_bits),
++            AccuracyClass::InputDerived => value.to_bits() == reference_value.to_bits(),
++            AccuracyClass::NonQuantity => true,
++            AccuracyClass::NotCovered => false,
++        };
++        assert!(within, "{name} {id}: {class:?} outside the U5 criterion ({value:e} against {reference_value:e})");
++    }
++}
++
++/// U8: the L = 0 base on the actual Direct entry. In the registered build it is admitted (inside
++/// D1) and publishes its pinned successor in both modes, from exactly one ordinary run that reached
++/// G-C once, with the plain run's envelope beside it (B′); `I68_U8_OUT` writes the fixtures. In any
++/// other build it publishes exactly the plain bytes, also from one run.
++#[test]
++fn u8_l0_isolated_node_publishes_pinned_successor() {
++    let out = std::env::var("I68_U8_OUT").ok().map(std::path::PathBuf::from);
++    for ((mode, (name, file_sha, receipt_sha, bytes_sha)), milestone) in MODES.into_iter().zip(U8_L0_PINNED).zip(U8_MILESTONE_DOCUMENTS) {
++        assert_eq!(mode.as_str(), name);
++        let raw = u8_l0_isolated_node();
++        let plain = plain(mode, &raw);
++        let (output, counts) = direct(&raw, mode);
++        assert_eq!(serde_json::to_vec(output.envelope()).unwrap(), plain, "{name}: B′, the ordinary envelope is the plain run");
++        if !registered() {
++            assert!(output.retained().is_none() && output.successor().is_none(), "{name}: no permit, no W1");
++            assert_eq!(counts, ONE_RUN, "{name}");
++            assert_eq!(published(output), plain, "{name}: the ordinary route");
++            continue;
++        }
++        assert_eq!(output.admission().unwrap().law().refusal, None, "{name}: admitted (inside D1)");
++        assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{name}: one ordinary run, then G-C once");
++        let successor = match output.retained() {
++            Some(Ok(successor)) => successor.value().clone(),
++            other => panic!("{name}: {other:?}"),
++        };
++        assert_eq!(output.successor(), Some(&successor));
++        let text = u8_l0_document(name, &raw, &successor);
++        let bytes = published(output);
++        assert_eq!((sha(text.as_bytes()).as_str(), successor["retained_precision"]["receipt_sha256"].as_str(), sha(&bytes).as_str()),
++            (file_sha, Some(receipt_sha), bytes_sha), "{name}: the pinned L = 0 successor");
++        assert_eq!(bytes, serde_json::to_vec(&successor).unwrap(), "{name}: the one publication is the successor");
++        u8_l0_value_controls(name, &raw, &successor, milestone);
++        if let Some(dir) = &out {
++            std::fs::write(dir.join(format!("retained_precision_l0_successor_{name}.json")), &text).unwrap();
++        }
++    }
++}
++
++/// D-U6-5 (U8): the two L = 0 fixtures are byte-identical copies of PP's pinned L = 0 successor
++/// documents. In the registered build each is compared byte for byte with the document the actual
++/// Direct entry publishes; in any other build (no permit), with the private driver's successor
++/// document. Either way the fixture carries the pinned hashes.
++#[test]
++fn u8_d_u6_5_l0_fixtures_are_the_live_successors() {
++    const FIXTURES: [&str; 2] = [
++        include_str!("../../../fixtures/results/retained_precision_l0_successor_sparse_interactive.json"),
++        include_str!("../../../fixtures/results/retained_precision_l0_successor_dense_scrutiny.json"),
++    ];
++    for ((mode, (name, file_sha, receipt_sha, _)), fixture) in MODES.into_iter().zip(U8_L0_PINNED).zip(FIXTURES) {
++        let raw = u8_l0_isolated_node();
++        let successor = if registered() {
++            let (output, counts) = direct(&raw, mode);
++            assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{name}");
++            match output.into_publication() {
++                RetainedPublication::Successor(value) => value,
++                RetainedPublication::Ordinary(_) => panic!("{name}: the registered Direct entry did not publish its successor"),
++            }
++        } else {
++            let (capture, observer, ordinary) = observed(mode, &raw);
++            retained_w1(observer, ordinary, &capture).1.unwrap_or_else(|f| panic!("{name}: {f:?}")).value().clone()
++        };
++        assert!(u8_l0_document(name, &raw, &successor) == fixture, "{name}: the L = 0 fixture is the live successor document, byte for byte");
++        assert_eq!((sha(fixture.as_bytes()).as_str(), successor["retained_precision"]["receipt_sha256"].as_str()), (file_sha, Some(receipt_sha)),
++            "{name}: the pinned L = 0 hashes");
++    }
++}

@@ -1,0 +1,8 @@
+#!/bin/bash
+# Runs under the T3 host lock (called by t3_cargo.sh through lockf). Do not call directly.
+WT="${T3_WT:?set T3_WT to the T3 root, WT}"
+LOG=$WT/guard/cargo_jobs.log
+echo "$(date -u '+%FT%TZ') START pid=$$ cwd=$PWD args: $*" >> "$LOG"
+cargo "$@"; rc=$?
+echo "$(date -u '+%FT%TZ') END rc=$rc pid=$$ cwd=$PWD" >> "$LOG"
+exit $rc

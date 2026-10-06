@@ -1,0 +1,66 @@
+# RV97 addendum 01, item 4: the carry-over premise (git reads at the PR head 61c35f56a8 and #1101's head 11b2d04f13)
+
+## DEC-025's surfaces (tools/release/run_evidence_sweep.py build_sweep_plan; WT/scratch/u9_dec025/dec025_mac.sh)
+- cargo: check_release_readiness.py --profile cargo; discover_cargo_manifests() searches CARGO_SEARCH_ROOTS = (core, validation/benchmarks), skipping target/
+- pytest: python -m pytest -q tests (P/tests only; no pytest.ini, pyproject testpaths or conftest at P)
+- vitest: npm run build:wasm:desktop; npm run test:desktop (apps/desktop vite.config.ts include: src/**/*.test.{ts,tsx})
+- build: npm run build:desktop
+
+## maintained files outside execution/ naming the T3 folder (git grep NUMERICAL_INTEGRITY_T3)
+projects/chirality-app-v4/execution/PKG-09_Candidate examination and connected journeys/1_Working/DEL-09-06_Connected activity contract and workflow round trip/Design/RELAY_ANSWERS_SWBPIPE.md
+projects/chirality-app-v4/execution/_Coordination/AgentRuns/APP-V4-DESIGN-PASS-2-20260930/reviews/V20b.md
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py
+projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/gen_vk_cases.py
+projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/run_harness_mutants.py
+projects/chirality-piping/validation/portability_policy.json
+
+## what the three readers read
+core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py:
+125:R1_PY = T3 / "REFERENCES/references.py"
+126:R1_JSON = T3 / "REFERENCES/references.json"
+127:FLOOR_JSON = T3 / "DESIGN_NUMERICS/_run_records/floor_kinds.json"
+validation/benchmarks/numerical_robustness/cases/gen_vk_cases.py:
+56:R1_JSON = T3 / 'REFERENCES/references.json'
+57:R1_PY = T3 / 'REFERENCES/references.py'
+58:FLOOR_JSON = T3 / 'DESIGN_NUMERICS/_run_records/floor_kinds.json'
+validation/benchmarks/numerical_robustness/runner/run_harness_mutants.py:
+57:GEN_INPUTS = [T3 + '/REFERENCES/references.json', T3 + '/REFERENCES/references.py',
+58:              T3 + '/DESIGN_NUMERICS/_run_records/floor_kinds.json']
+
+## readers of the other two names
+- validation/portability_policy.json (data): no maintained piping code names it (git grep portability_policy finds only records and sweep JSON). Its readers are repo-root tools (GEN-8, tools/practitioner_harness/test_live_baseline.py), not DEC-025 surfaces; GEN-8 is a separate gate on the exact head.
+- apps/desktop/src/test/nativeMechanicsReplay.ts names CONTINUATION_2026-09-24/ENGINE_INTEGRATION/UI_PRODUCER_CAPTURE.json, not the T3 folder.
+- WorkGraphs / WORK_GRAPH: named by no maintained code: 655 files
+
+## broad walkers in DEC-025 suites stay outside execution/
+- tests/test_adapter_framework_contract.py:838, tests/test_plugin_manifest_schema.py:190: rglob over apps/, core/, tools/
+- tests/test_ci_numerical.py:87: rglob('*.rs') over CARGO_SEARCH_ROOTS
+- tests/test_retained_precision_carriers.py:615: core/ and tools/ *.py
+- RE/tests/retained_precision_carriers.rs:1071 and validation/benchmarks/numerical_robustness/tests/feature_guard.rs:26 skip execution
+
+## #1101 (11b2d04f13, parent 75a8c3291f)
+status counts:  712 A    3 M 
+paths outside execution/: 0
+paths in the T3 folder: 714
+other execution paths:
+M	projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md
+modified:
+M	T3/DESIGN_STANDING/DESIGN.md
+M	T3/ROOT_RULINGS_V1.md
+M	projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md
+paths under T3/REFERENCES/ or T3/DESIGN_NUMERICS/: 0
+test-shaped files added under execution/ (outside every collection root):
+T3/RESUME_2026-09-30/I68/u8_probe_01/_run_records/zz_i68_probe.test.ts
+T3/RESUME_2026-09-30/I69/u8_corpus_07l_01/_run_records/scripts/test_mutants.py
+T3/RESUME_2026-09-30/I75/t6s_01/_run_records/final/tools/zz_i75_preview_rc_probe.test.ts
+T3/RESUME_2026-09-30/I75/t6s_01/_run_records/final/tools/zz_i75_rd_probe.test.ts
+T3/RESUME_2026-09-30/I75/t6s_01/_run_records/tools/zz_i75_sn_probe.test.tsx
+T3/RESUME_2026-09-30/REVIEW_RV97/u8_01/evidence/readers/zz_rv97_probe.test.ts
+T3/RESUME_2026-09-30/REVIEW_RV97/u8_01/evidence/round2/tools/zz_rv97_parity.test.ts
+
+## paths both #1101 and #1102 add (both relative to 75a8c3291f)
+#1101 c02757765902  #1102 a5075a7dbd1b  DIFFERENT  IMPLEMENTATION/U8/CHANGE_RECORD.md
+#1101 700a94a4cd99  #1102 9acbec1ea74a  DIFFERENT  IMPLEMENTATION/U8/PR_BODY.md
+#1101 76b76866f5e1  #1102 fe399414595a  DIFFERENT  IMPLEMENTATION/U8/SHA256SUMS
+#1101 ab044a39563f  #1102 ab044a39563f  same  IMPLEMENTATION/U8/citations.json
+#1101's versions equal NUM 4e6c2fcbfe's (I77's draft, rows marked PENDING); #1102's equal NUM HEAD's (completed at the cut, f7fc01d939).

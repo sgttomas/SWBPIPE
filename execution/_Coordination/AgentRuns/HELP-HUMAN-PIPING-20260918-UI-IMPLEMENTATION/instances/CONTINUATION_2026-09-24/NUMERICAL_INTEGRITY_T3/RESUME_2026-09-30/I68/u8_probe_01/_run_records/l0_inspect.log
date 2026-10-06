@@ -1,0 +1,50 @@
+== sparse_interactive
+sources[].body_membership: [[{'body': 0, 'members': [0], 'nodes': [0, 1]}, {'body': 1, 'members': [], 'nodes': [2]}]]
+product_attempts[0].proof.summary_coverage: [{"body": 0, "has_data": true, "stop": [true, true, true, true]}, {"body": 1, "has_data": false, "stop": [false, false, false, false]}]
+cases[0] status=selected selection keys=['absolute_verified', 'body_scales', 'certified_bound', 'corrections', 'floor', 'floor_ratio', 'input_derived_dofs', 'ledger_sha256', 'not_covered', 'pivot_margin_min', 'precision', 'rcond', 'rcond_label', 'residual_worst', 'resolution_scale', 'retained_state_sha256', 'section_terms', 'stop_rule', 'theta', 'verification_charge', 'verification_estimate', 'verification_precision']
+  selection.body_scales: [{"body": 0, "force": "3f73a92a30553261", "moment": "3f8d7dbf487fcb91", "rotation": "3f017a5f1a5d9346", "translation": "3f1a378ea78c5ce9"}, {"body": 1, "force": "0000000000000000", "moment": "0000000000000000", "rotation": "0000000000000000", "translation": "0000000000000000"}]
+  selection.stop_rule: [{"body": 0, "kind": "translation", "value": "396922fc8f790f44"}, {"body": 0, "kind": "rotation", "value": "396aa9477af95597"}, {"body": 0, "kind": "force", "value": "3952a8e673ad1a99"}, {"body": 0, "kind": "moment", "value": "3952b4696138024c"}]
+body-1 rows: 15
+  result:disp:N2 kind=displacement_magnitude value=0.0 bits=0000000000000000 entity=N2
+  result:disp:N2:ux kind=global_nodal_displacement_x value=0.0 bits=0000000000000000 entity=N2
+  result:disp:N2:uy kind=global_nodal_displacement_y value=0.0 bits=0000000000000000 entity=N2
+  result:disp:N2:uz kind=global_nodal_displacement_z value=0.0 bits=0000000000000000 entity=N2
+  result:disp:N2:rx kind=global_nodal_rotation_x value=0.0 bits=0000000000000000 entity=N2
+  result:disp:N2:ry kind=global_nodal_rotation_y value=0.0 bits=0000000000000000 entity=N2
+  result:disp:N2:rz kind=global_nodal_rotation_z value=0.0 bits=0000000000000000 entity=N2
+  result:support-action:4:case:8:rigid:N2:Fx kind=support_reaction_component_v2 value=0.0 bits=0000000000000000 entity=rigid:N2
+  result:support-action:4:case:8:rigid:N2:Fy kind=support_reaction_component_v2 value=0.0 bits=0000000000000000 entity=rigid:N2
+  result:support-action:4:case:8:rigid:N2:Fz kind=support_reaction_component_v2 value=0.0 bits=0000000000000000 entity=rigid:N2
+  result:support-action:4:case:8:rigid:N2:Mx kind=support_reaction_component_v2 value=0.0 bits=0000000000000000 entity=rigid:N2
+  result:support-action:4:case:8:rigid:N2:My kind=support_reaction_component_v2 value=0.0 bits=0000000000000000 entity=rigid:N2
+  result:support-action:4:case:8:rigid:N2:Mz kind=support_reaction_component_v2 value=0.0 bits=0000000000000000 entity=rigid:N2
+  result:support-action:4:case:8:rigid:N2:force_magnitude kind=support_reaction_force_magnitude_v2 value=0.0 bits=0000000000000000 entity=rigid:N2
+  result:support-action:4:case:8:rigid:N2:moment_magnitude kind=support_reaction_moment_magnitude_v2 value=0.0 bits=0000000000000000 entity=rigid:N2
+rows: l0=113 milestone=98 common=98 common_bits_differ=0 only_l0=15 only_milestone=0
+  only_l0: ['result:disp:N2', 'result:disp:N2:ux', 'result:disp:N2:uy', 'result:disp:N2:uz', 'result:disp:N2:rx', 'result:disp:N2:ry', 'result:disp:N2:rz', 'result:support-action:4:case:8:rigid:N2:Fx', 'result:support-action:4:case:8:rigid:N2:Fy', 'result:support-action:4:case:8:rigid:N2:Fz', 'result:support-action:4:case:8:rigid:N2:Mx', 'result:support-action:4:case:8:rigid:N2:My', 'result:support-action:4:case:8:rigid:N2:Mz', 'result:support-action:4:case:8:rigid:N2:force_magnitude', 'result:support-action:4:case:8:rigid:N2:moment_magnitude']
+  only_milestone: []
+== dense_scrutiny
+sources[].body_membership: [[{'body': 0, 'members': [0], 'nodes': [0, 1]}, {'body': 1, 'members': [], 'nodes': [2]}]]
+product_attempts[0].proof.summary_coverage: [{"body": 0, "has_data": true, "stop": [true, true, true, true]}, {"body": 1, "has_data": false, "stop": [false, false, false, false]}]
+cases[0] status=selected selection keys=['absolute_verified', 'body_scales', 'certified_bound', 'corrections', 'floor', 'floor_ratio', 'input_derived_dofs', 'ledger_sha256', 'not_covered', 'pivot_margin_min', 'precision', 'rcond', 'rcond_label', 'residual_worst', 'resolution_scale', 'retained_state_sha256', 'section_terms', 'stop_rule', 'theta', 'verification_charge', 'verification_estimate', 'verification_precision']
+  selection.body_scales: [{"body": 0, "force": "3f73a92a30553261", "moment": "3f8d7dbf487fcb91", "rotation": "3f017a5f1a5d9346", "translation": "3f1a378ea78c5ce9"}, {"body": 1, "force": "0000000000000000", "moment": "0000000000000000", "rotation": "0000000000000000", "translation": "0000000000000000"}]
+  selection.stop_rule: [{"body": 0, "kind": "translation", "value": "396922fc8f790f44"}, {"body": 0, "kind": "rotation", "value": "396aa9477af95597"}, {"body": 0, "kind": "force", "value": "3952a8e673ad1a99"}, {"body": 0, "kind": "moment", "value": "3952b4696138024c"}]
+body-1 rows: 15
+  result:disp:N2 kind=displacement_magnitude value=0.0 bits=0000000000000000 entity=N2
+  result:disp:N2:ux kind=global_nodal_displacement_x value=0.0 bits=0000000000000000 entity=N2
+  result:disp:N2:uy kind=global_nodal_displacement_y value=0.0 bits=0000000000000000 entity=N2
+  result:disp:N2:uz kind=global_nodal_displacement_z value=0.0 bits=0000000000000000 entity=N2
+  result:disp:N2:rx kind=global_nodal_rotation_x value=0.0 bits=0000000000000000 entity=N2
+  result:disp:N2:ry kind=global_nodal_rotation_y value=0.0 bits=0000000000000000 entity=N2
+  result:disp:N2:rz kind=global_nodal_rotation_z value=0.0 bits=0000000000000000 entity=N2
+  result:support-action:4:case:8:rigid:N2:Fx kind=support_reaction_component_v2 value=0.0 bits=0000000000000000 entity=rigid:N2
+  result:support-action:4:case:8:rigid:N2:Fy kind=support_reaction_component_v2 value=0.0 bits=0000000000000000 entity=rigid:N2
+  result:support-action:4:case:8:rigid:N2:Fz kind=support_reaction_component_v2 value=0.0 bits=0000000000000000 entity=rigid:N2
+  result:support-action:4:case:8:rigid:N2:Mx kind=support_reaction_component_v2 value=0.0 bits=0000000000000000 entity=rigid:N2
+  result:support-action:4:case:8:rigid:N2:My kind=support_reaction_component_v2 value=0.0 bits=0000000000000000 entity=rigid:N2
+  result:support-action:4:case:8:rigid:N2:Mz kind=support_reaction_component_v2 value=0.0 bits=0000000000000000 entity=rigid:N2
+  result:support-action:4:case:8:rigid:N2:force_magnitude kind=support_reaction_force_magnitude_v2 value=0.0 bits=0000000000000000 entity=rigid:N2
+  result:support-action:4:case:8:rigid:N2:moment_magnitude kind=support_reaction_moment_magnitude_v2 value=0.0 bits=0000000000000000 entity=rigid:N2
+rows: l0=114 milestone=99 common=99 common_bits_differ=0 only_l0=15 only_milestone=0
+  only_l0: ['result:disp:N2', 'result:disp:N2:ux', 'result:disp:N2:uy', 'result:disp:N2:uz', 'result:disp:N2:rx', 'result:disp:N2:ry', 'result:disp:N2:rz', 'result:support-action:4:case:8:rigid:N2:Fx', 'result:support-action:4:case:8:rigid:N2:Fy', 'result:support-action:4:case:8:rigid:N2:Fz', 'result:support-action:4:case:8:rigid:N2:Mx', 'result:support-action:4:case:8:rigid:N2:My', 'result:support-action:4:case:8:rigid:N2:Mz', 'result:support-action:4:case:8:rigid:N2:force_magnitude', 'result:support-action:4:case:8:rigid:N2:moment_magnitude']
+  only_milestone: []

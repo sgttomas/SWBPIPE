@@ -1,0 +1,12 @@
+isolated_rotation_stop_sparse_interactive REFUSE G5a RETAINED_PRECISION_SCALE_MISMATCH at _g5a_coverage:1247: need(feasible)
+isolated_has_data_sparse_interactive REFUSE G5a RETAINED_PRECISION_SCALE_MISMATCH at _g5a_coverage:1273: if not free: need(not has_data[b["body"]])
+isolated_estimate_coupled_sparse_interactive REFUSE G5a RETAINED_PRECISION_SCALE_MISMATCH at _g5a_coverage:1260: need([(x["body"], x["kind"]) for x in s["verification_estimate"]] == expected["verification_estimate"])
+isolated_estimate_uncoupled_sparse_interactive PASS {'invocation_bound': True, 'numerical_eligible': True, 'standing': 'eligible'} classes==base True
+isolated_translation_rotation_stop_sparse_interactive REFUSE G5a RETAINED_PRECISION_SCALE_MISMATCH at _g5a_coverage:1247: need(feasible)
+isolated_translation_stop_sparse_interactive PASS {'invocation_bound': True, 'numerical_eligible': True, 'standing': 'eligible'} classes==base True
+isolated_rotation_stop_dense_scrutiny REFUSE G5a RETAINED_PRECISION_SCALE_MISMATCH at _g5a_coverage:1247: need(feasible)
+isolated_has_data_dense_scrutiny REFUSE G5a RETAINED_PRECISION_SCALE_MISMATCH at _g5a_coverage:1273: if not free: need(not has_data[b["body"]])
+isolated_estimate_coupled_dense_scrutiny REFUSE G5a RETAINED_PRECISION_SCALE_MISMATCH at _g5a_coverage:1260: need([(x["body"], x["kind"]) for x in s["verification_estimate"]] == expected["verification_estimate"])
+isolated_estimate_uncoupled_dense_scrutiny PASS {'invocation_bound': True, 'numerical_eligible': True, 'standing': 'eligible'} classes==base True
+isolated_translation_rotation_stop_dense_scrutiny REFUSE G5a RETAINED_PRECISION_SCALE_MISMATCH at _g5a_coverage:1247: need(feasible)
+isolated_translation_stop_dense_scrutiny PASS {'invocation_bound': True, 'numerical_eligible': True, 'standing': 'eligible'} classes==base True

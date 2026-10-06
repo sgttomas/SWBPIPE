@@ -1,0 +1,4 @@
+PW1_python_nan_bound_as_point on RV99's 240 invalid/explicit cases: {'parity_notes': 71, 'parity_value': 33}
+PW2_python_inverted_enclosure_accepted on RV99's 240 invalid/explicit cases: {'parity_findings': 23, 'parity_value': 20}
+PW3_python_nonfinite_enclosure_accepted on RV99's 240 invalid/explicit cases: {'parity_findings': 48, 'parity_value': 42, 'parity_notes': 26}
+PW4_python_overlay_on_missing_value_accepted on RV99's 240 invalid/explicit cases: {}

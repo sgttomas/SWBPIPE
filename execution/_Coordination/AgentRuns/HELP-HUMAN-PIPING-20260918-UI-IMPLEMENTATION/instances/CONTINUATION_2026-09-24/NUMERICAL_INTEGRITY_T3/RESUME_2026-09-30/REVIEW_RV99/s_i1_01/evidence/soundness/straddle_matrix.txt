@@ -1,0 +1,115 @@
+eval boxes whose point path both passes and fails (straddles): {'U': 903}
+by family: {'str:U': 124, 'strr:U': 124, 'pair:U': 15, 'neg:U': 11, 'interp:U': 15, 'rand:U': 614}
+runner boxes that straddle (point path CHECKED and FAILED): {'RULE_INPUTS_INCOMPLETE|RULE_RESULT_INDETERMINATE': 149}
+== ('str', '-3.5') (x op c)  * = point path both passes and fails in the box
+   op                      below     hi_touch  straddle  lo_touch  above     point     wide     
+   less_than               T         U*        U*        F         F         F         U*       
+   less_than_or_equal      T         T         U*        U*        F         T         U*       
+   greater_than            F         F         U*        U*        T         F         U*       
+   greater_than_or_equal   F         U*        U*        T         T         T         U*       
+   equal                   F         U*        U*        U*        F         T         U*       
+   not_equal               T         U*        U*        U*        T         F         U*       
+== ('str', '0.0') (x op c)  * = point path both passes and fails in the box
+   op                      below     hi_touch  straddle  lo_touch  above     point     wide     
+   less_than               T         T         U*        F         F         F         U*       
+   less_than_or_equal      T         T         U*        F         F         T         U*       
+   greater_than            F         F         U*        T         T         F         U*       
+   greater_than_or_equal   F         F         U*        T         T         T         U*       
+   equal                   F         F         U*        F         F         T         U*       
+   not_equal               T         T         U*        T         T         F         U*       
+== ('str', '1.0') (x op c)  * = point path both passes and fails in the box
+   op                      below     hi_touch  straddle  lo_touch  above     point     wide     
+   less_than               T         U*        U*        F         F         F         U*       
+   less_than_or_equal      T         T         U*        U*        F         T         U*       
+   greater_than            F         F         U*        U*        T         F         U*       
+   greater_than_or_equal   F         U*        U*        T         T         T         U*       
+   equal                   F         U*        U*        U*        F         T         U*       
+   not_equal               T         U*        U*        U*        T         F         U*       
+== ('str', '100.0') (x op c)  * = point path both passes and fails in the box
+   op                      below     hi_touch  straddle  lo_touch  above     point     wide     
+   less_than               T         U*        U*        F         F         F         U*       
+   less_than_or_equal      T         T         U*        U*        F         T         U*       
+   greater_than            F         F         U*        U*        T         F         U*       
+   greater_than_or_equal   F         U*        U*        T         T         T         U*       
+   equal                   F         U*        U*        U*        F         T         U*       
+   not_equal               T         U*        U*        U*        T         F         U*       
+== ('str', '1e+300') (x op c)  * = point path both passes and fails in the box
+   op                      below     hi_touch  straddle  lo_touch  above     point     wide     
+   less_than               T         U*        U*        F         F         F         U*       
+   less_than_or_equal      T         T         U*        U*        F         T         U*       
+   greater_than            F         F         U*        U*        T         F         U*       
+   greater_than_or_equal   F         U*        U*        T         T         T         U*       
+   equal                   F         U*        U*        U*        F         T         U*       
+   not_equal               T         U*        U*        U*        T         F         U*       
+== ('str', '1e-300') (x op c)  * = point path both passes and fails in the box
+   op                      below     hi_touch  straddle  lo_touch  above     point     wide     
+   less_than               T         U*        U*        F         F         F         U*       
+   less_than_or_equal      T         T         U*        U*        F         T         U*       
+   greater_than            F         F         U*        U*        T         F         U*       
+   greater_than_or_equal   F         U*        U*        T         T         T         U*       
+   equal                   F         U*        U*        U*        F         T         U*       
+   not_equal               T         U*        U*        U*        T         F         U*       
+== ('str', '5e-324') (x op c)  * = point path both passes and fails in the box
+   op                      below     hi_touch  straddle  lo_touch  above     point     wide     
+   less_than               T         T         U*        F         F         F         U*       
+   less_than_or_equal      T         T         U*        F         F         T         U*       
+   greater_than            F         F         U*        T         T         F         U*       
+   greater_than_or_equal   F         F         U*        T         T         T         U*       
+   equal                   F         F         U*        F         F         T         U*       
+   not_equal               T         T         U*        T         T         F         U*       
+== ('strr', '-3.5') (c op x)  * = point path both passes and fails in the box
+   op                      below     hi_touch  straddle  lo_touch  above     point     wide     
+   less_than               F         F         U*        U*        T         F         U*       
+   less_than_or_equal      F         U*        U*        T         T         T         U*       
+   greater_than            T         U*        U*        F         F         F         U*       
+   greater_than_or_equal   T         T         U*        U*        F         T         U*       
+   equal                   F         U*        U*        U*        F         T         U*       
+   not_equal               T         U*        U*        U*        T         F         U*       
+== ('strr', '0.0') (c op x)  * = point path both passes and fails in the box
+   op                      below     hi_touch  straddle  lo_touch  above     point     wide     
+   less_than               F         F         U*        T         T         F         U*       
+   less_than_or_equal      F         F         U*        T         T         T         U*       
+   greater_than            T         T         U*        F         F         F         U*       
+   greater_than_or_equal   T         T         U*        F         F         T         U*       
+   equal                   F         F         U*        F         F         T         U*       
+   not_equal               T         T         U*        T         T         F         U*       
+== ('strr', '1.0') (c op x)  * = point path both passes and fails in the box
+   op                      below     hi_touch  straddle  lo_touch  above     point     wide     
+   less_than               F         F         U*        U*        T         F         U*       
+   less_than_or_equal      F         U*        U*        T         T         T         U*       
+   greater_than            T         U*        U*        F         F         F         U*       
+   greater_than_or_equal   T         T         U*        U*        F         T         U*       
+   equal                   F         U*        U*        U*        F         T         U*       
+   not_equal               T         U*        U*        U*        T         F         U*       
+== ('strr', '100.0') (c op x)  * = point path both passes and fails in the box
+   op                      below     hi_touch  straddle  lo_touch  above     point     wide     
+   less_than               F         F         U*        U*        T         F         U*       
+   less_than_or_equal      F         U*        U*        T         T         T         U*       
+   greater_than            T         U*        U*        F         F         F         U*       
+   greater_than_or_equal   T         T         U*        U*        F         T         U*       
+   equal                   F         U*        U*        U*        F         T         U*       
+   not_equal               T         U*        U*        U*        T         F         U*       
+== ('strr', '1e+300') (c op x)  * = point path both passes and fails in the box
+   op                      below     hi_touch  straddle  lo_touch  above     point     wide     
+   less_than               F         F         U*        U*        T         F         U*       
+   less_than_or_equal      F         U*        U*        T         T         T         U*       
+   greater_than            T         U*        U*        F         F         F         U*       
+   greater_than_or_equal   T         T         U*        U*        F         T         U*       
+   equal                   F         U*        U*        U*        F         T         U*       
+   not_equal               T         U*        U*        U*        T         F         U*       
+== ('strr', '1e-300') (c op x)  * = point path both passes and fails in the box
+   op                      below     hi_touch  straddle  lo_touch  above     point     wide     
+   less_than               F         F         U*        U*        T         F         U*       
+   less_than_or_equal      F         U*        U*        T         T         T         U*       
+   greater_than            T         U*        U*        F         F         F         U*       
+   greater_than_or_equal   T         T         U*        U*        F         T         U*       
+   equal                   F         U*        U*        U*        F         T         U*       
+   not_equal               T         U*        U*        U*        T         F         U*       
+== ('strr', '5e-324') (c op x)  * = point path both passes and fails in the box
+   op                      below     hi_touch  straddle  lo_touch  above     point     wide     
+   less_than               F         F         U*        T         T         F         U*       
+   less_than_or_equal      F         F         U*        T         T         T         U*       
+   greater_than            T         T         U*        F         F         F         U*       
+   greater_than_or_equal   T         T         U*        F         F         T         U*       
+   equal                   F         F         U*        F         F         T         U*       
+   not_equal               T         T         U*        T         T         F         U*       

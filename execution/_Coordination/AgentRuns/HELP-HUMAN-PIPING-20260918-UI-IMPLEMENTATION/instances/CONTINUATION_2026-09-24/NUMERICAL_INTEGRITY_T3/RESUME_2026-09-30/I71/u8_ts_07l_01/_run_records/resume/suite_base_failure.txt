@@ -1,0 +1,3 @@
+src/App.test.tsx | SWBPIPE desktop preview renders the engineering workspace from invented local fixtures | failed | 30616 ms
+18392: FAIL  src/App.test.tsx > SWBPIPE desktop preview > renders the engineering workspace from invented local fixtures
+18393-Error: Test timed out in 30000ms.

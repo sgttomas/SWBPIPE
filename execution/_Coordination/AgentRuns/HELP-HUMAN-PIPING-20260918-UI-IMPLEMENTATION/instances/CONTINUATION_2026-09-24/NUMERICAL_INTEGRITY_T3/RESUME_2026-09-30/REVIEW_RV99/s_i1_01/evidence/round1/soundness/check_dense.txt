@@ -1,0 +1,16 @@
+{
+ "eval_cases": 1080,
+ "exact_samples": 59751,
+ "parity_compared": 1080,
+ "point_samples": 2394299,
+ "quantity_enclosure": 243,
+ "runner_USER_RULE_CHECKED": 150,
+ "runner_USER_RULE_FAILED": 191,
+ "runner_cases": 341,
+ "runner_outcome_RULE_INTERVAL_ALL_FAIL": 191,
+ "runner_outcome_RULE_INTERVAL_ALL_PASS": 150,
+ "runner_point_samples": 707783,
+ "truth_F": 411,
+ "truth_T": 426
+}
+VIOLATIONS: {}

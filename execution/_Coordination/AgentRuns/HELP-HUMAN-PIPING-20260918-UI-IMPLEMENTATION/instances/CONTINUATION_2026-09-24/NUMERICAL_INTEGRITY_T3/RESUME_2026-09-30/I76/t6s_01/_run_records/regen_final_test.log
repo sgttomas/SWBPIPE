@@ -1,0 +1,23 @@
+warning: function `derived` is never used
+   --> src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running tests/retained_precision_derivative_golden.rs (WT/targets/i76-t6s/debug/deps/retained_precision_derivative_golden-f646c23b526e79df)
+
+running 3 tests
+test t6s2_golden_carries_the_receipt_evidence_and_class_disclosures ... ok
+sparse_interactive: a resealed one-ulp edit of row 2 is refused: RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH
+I76_T6S2_OUT: wrote retained_precision_successor_derivative_sparse_interactive.json sha256 958df02e276538a96c4732302a46cb36a53c2298ca7e1f4deb88a3748c67c661
+dense_scrutiny: a resealed one-ulp edit of row 3 is refused: RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH
+test t6s2_a_mutated_pinned_successor_changes_the_golden ... ok
+I76_T6S2_OUT: wrote retained_precision_successor_derivative_dense_scrutiny.json sha256 3f9905ad4c4bba688687714751abe965d18cea834701c32c379d81f573dcf682
+test t6s2_goldens_are_the_live_successor_derivative ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.19s
+

@@ -1,0 +1,32 @@
+== cand_reg_pp start 2026-10-06T01:41:30Z
+== cand_reg_pp exit=101 2026-10-06T01:43:12Z
+cand_reg_pp: 708 ok, 1 failed, 10 ignored
+src/lib.rs :: test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+== base_reg_pp start 2026-10-06T01:43:12Z
+== base_reg_pp exit=101 2026-10-06T01:45:07Z
+base_reg_pp: 705 ok, 1 failed, 10 ignored
+src/lib.rs :: test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+== cand_reg_rx start 2026-10-06T01:45:07Z
+== cand_reg_rx exit=0 2026-10-06T01:46:56Z
+cand_reg_rx: 172 ok, 0 failed, 0 ignored
+== base_reg_rx start 2026-10-06T01:46:56Z
+== base_reg_rx exit=0 2026-10-06T01:48:47Z
+base_reg_rx: 172 ok, 0 failed, 0 ignored
+== cand_reg_runner start 2026-10-06T01:48:47Z
+== cand_reg_runner exit=101 2026-10-06T01:49:49Z
+cand_reg_runner: 85 ok, 2 failed, 0 ignored
+src/lib.rs :: test load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes ... FAILED
+tests/load_reference_cli.rs :: test cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route ... FAILED
+== base_reg_runner start 2026-10-06T01:49:50Z
+== base_reg_runner exit=101 2026-10-06T01:50:50Z
+base_reg_runner: 85 ok, 2 failed, 0 ignored
+src/lib.rs :: test load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes ... FAILED
+tests/load_reference_cli.rs :: test cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route ... FAILED
+== cand_stale_pp start 2026-10-06T01:50:50Z
+== cand_stale_pp exit=101 2026-10-06T01:52:30Z
+cand_stale_pp: 708 ok, 1 failed, 10 ignored
+src/lib.rs :: test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+== base_stale_pp start 2026-10-06T01:58:19Z
+== base_stale_pp exit=101 2026-10-06T02:00:03Z
+base_stale_pp: 705 ok, 1 failed, 10 ignored
+src/lib.rs :: test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED

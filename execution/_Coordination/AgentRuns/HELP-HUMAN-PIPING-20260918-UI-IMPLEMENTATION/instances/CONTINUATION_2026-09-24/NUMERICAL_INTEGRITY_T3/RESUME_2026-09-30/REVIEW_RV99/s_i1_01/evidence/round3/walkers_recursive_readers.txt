@@ -1,0 +1,62 @@
+apps/desktop/e2e/ui-foundation/aggregate-results.mjs:19:for (const runName of await readdir(rawRoot).catch(() => [])) {
+apps/desktop/e2e/ui-foundation/aggregate-results.mjs:21:  for (const fixtureName of await readdir(runDir).catch(() => [])) {
+apps/desktop/e2e/ui-foundation/capture-bundle-manifest.mjs:20:      for (const name of (await readdir(absolute)).sort()) await visit(path.join(absolute, name), path.join(relative, name));
+apps/desktop/e2e/ui-foundation/capture-external-candidate-bundle-manifest.mjs:26:      for (const name of (await readdir(absolute)).sort()) await visit(path.join(absolute, name), path.join(relative, n
+apps/desktop/e2e/ui-foundation/characterization-observations.mjs:246:  const names=(await readdir(directory)).sort();
+apps/desktop/e2e/ui-foundation/characterization-observations.mjs:368:      const raw=path.join(root,"raw"),runs=await readdir(raw),states=[];
+apps/desktop/e2e/ui-foundation/characterization-observations.mjs:369:      for(const run of runs)for(const size of await readdir(path.join(raw,run))) {
+apps/desktop/e2e/ui-foundation/characterization-observations.mjs:370:        const dir=path.join(raw,run,size),dirents=await readdir(dir,{withFileTypes:true}),names=dirents.map(e=>e.name);
+apps/desktop/e2e/ui-foundation/characterization-observations.mjs:372:          const entries=await readdir(path.join(dir,name));states.push(`${run}/${size}/${name}:${entries.includes("derived.json")?"
+apps/desktop/e2e/ui-foundation/fresh-demo-policy.mjs:2:import { readFileSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+apps/desktop/e2e/ui-foundation/fresh-demo-policy.mjs:49:  if(readdirSync(root).some(name => name !== 'playwright-artifacts')) throw new Error('fresh demonstration evidence root already used');
+apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts:1437:      for (const name of (await readdir(dir)).sort()) {
+apps/desktop/e2e/ui-foundation/full-cohort-controller.ts:372:    const entries = await readdir(path.join(binding.candidateSourceRoot, relative), { withFileTypes: true });
+apps/desktop/scripts/build-wasm-engine.mjs:16:import { existsSync, mkdirSync, readdirSync, renameSync, rmSync } from "node:fs";
+apps/desktop/scripts/build-wasm-engine.mjs:177:  for (const entry of readdirSync(legacyParent)) {
+apps/desktop/scripts/build-wasm-engine.mjs:183:for (const entry of readdirSync(generatedParent)) {
+apps/desktop/src-tauri/src/atomic_report_package_save.rs:502:        assert!(fs::read_dir(root).unwrap().all(|entry| {
+apps/desktop/src/features/results/PhysicsSourceEvidencePanel.test.tsx:8:const fixtureSources = import.meta.glob("../../../../../fixtures/product_preview/physics_source/*.raw.json", { query: "?raw", im
+apps/desktop/src/features/results/physicsSourceIntegration.test.tsx:39:const fixtureSources = import.meta.glob("../../../../../fixtures/product_preview/physics_source/*.json", { query: "?raw", import:
+apps/desktop/src/features/results/retainedPrecision.test.ts:505:    for (const rel of fs.readdirSync(root, { recursive: true }) as string[]) {
+apps/desktop/src/features/solve/LoadReferenceStatesBlock.test.tsx:14:const raws = import.meta.glob<{ default: unknown }>([
+apps/desktop/src/features/viewport/viewportColourLiterals.test.ts:1:import { readdirSync, readFileSync } from "node:fs";
+apps/desktop/src/features/viewport/viewportColourLiterals.test.ts:19:  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+apps/desktop/src/features/workspace/resultsSessionState.test.ts:136:const retainedSourceFixtures = import.meta.glob("../../../../../fixtures/product_preview/{physics_source,source_blocks/ui}/n05*.json
+apps/desktop/src/features/workspace/sessionBoundary.test.ts:1:import { readdirSync, readFileSync, statSync } from "node:fs";
+apps/desktop/src/features/workspace/sessionBoundary.test.ts:15:  return readdirSync(dir).flatMap((name) => {
+apps/desktop/src/services/operationContractCorpus.test.ts:32:import { readdirSync, readFileSync, statSync } from "node:fs";
+apps/desktop/src/services/operationContractCorpus.test.ts:118:  const files = readdirSync(corpusDir)
+apps/desktop/src/services/operationService.test.ts:10:import { readdirSync, readFileSync } from "node:fs";
+apps/desktop/src/services/operationService.test.ts:45:  return readdirSync(corpusDir)
+core/model_operations/operation_applier/tests/contract_corpus.rs:102:    let mut paths: Vec<PathBuf> = fs::read_dir(corpus_dir())
+core/reporting/result_export/tests/retained_precision_carriers.rs:1067:        for entry in std::fs::read_dir(&dir).unwrap() {
+core/rules/expression_evaluator/tests/conformance_corpus.rs:690:    let mut paths: Vec<PathBuf> = fs::read_dir(corpus_dir())
+core/rules/rule_pack_document/tests/corpus_parity.rs:19:    let mut case_paths: Vec<PathBuf> = fs::read_dir(corpus_dir())
+core/runner/headless/tests/preview_physics_admission.rs:226:        for entry in std::fs::read_dir(root.join(dir)).unwrap() {
+core/solver/nonlinear_integration/src/s11k_tests.rs:985:        for entry in std::fs::read_dir(dir).unwrap() {
+core/solver/nonlinear_integration/src/structural_adapter/k5_tests.rs:907:        for entry in std::fs::read_dir(&dir).unwrap() {
+tests/test_adapter_framework_contract.py:838:        for path in root.rglob("*"):
+tests/test_ci_numerical.py:87:                         for path in (project / search).rglob('*.rs')
+tests/test_export_public_openpipestress.py:327:    before = {p for p in tmp_path.rglob("*")}
+tests/test_export_public_openpipestress.py:329:    assert {p for p in tmp_path.rglob("*")} == before
+tests/test_export_public_openpipestress.py:382:              for p in (target_one / "staging").rglob("*") if p.is_file()}
+tests/test_plugin_manifest_schema.py:190:        for path in root.rglob("*"):
+tests/test_retained_precision_carriers.py:615:    files = [path for path in (ROOT / "core").rglob("*.py")] + [path for path in (ROOT / "tools").rglob("*.py")]
+tools/ci/e2e_plan.py:67:    return sorted(p.relative_to(desktop).as_posix() for p in (desktop / 'e2e').rglob('*')
+tools/ci/e2e_plan.py:150:    for file in (directory / 'e2e').rglob('*'):
+tools/coordination/dependency_semantic_refresh_fanin.py:16:        for path in (working_root / "execution").rglob("Dependencies.csv")
+tools/release/check_release_readiness.py:76:        for manifest in sorted(base.rglob("Cargo.toml")):
+tools/release/export_public_openpipestress.py:443:        for path in sorted(base.rglob("*")):
+tools/release/export_public_openpipestress.py:479:    for path in sorted(staging.rglob("*")):
+tools/release/export_public_openpipestress.py:496:    for path in sorted(staging.rglob("*")):
+tools/release/export_public_openpipestress.py:545:    for path in sorted(staging.rglob("*")):
+tools/release/package_release_artifact.py:210:    for path in sorted(app_path.rglob("*"), key=lambda p: str(p)):
+tools/release/run_evidence_sweep.py:365:        for path in search_root.rglob("Cargo.toml")
+tools/release/run_evidence_sweep.py:381:                "ls-files",
+tools/release/run_release_candidate_scan.py:172:        candidate for candidate in class_root.rglob("*") if candidate.is_file()
+tools/serialization/generate_product_preview_mechanics.mjs:8:import { readFileSync, writeFileSync, readdirSync, lstatSync, realpathSync,
+tools/serialization/generate_product_preview_mechanics.mjs:92:    for (const entry of readdirSync(checkedPath(relative, "directory"), { withFileTypes: true })) {
+validation/benchmarks/numerical_robustness/examples/vk_records.rs:132:        let mut names: Vec<String> = std::fs::read_dir(&dir)
+validation/benchmarks/numerical_robustness/runner/check_fault_sites.py:114:    untracked = subprocess.check_output(['git', 'ls-files', '--others', '--exclude-standard', FK + '/src'],
+validation/benchmarks/numerical_robustness/tests/feature_guard.rs:21:    for entry in std::fs::read_dir(dir).unwrap() {
+validation/benchmarks/numerical_robustness/tests/feature_guard.rs:109:        let Ok(entries) = std::fs::read_dir(&base) else {

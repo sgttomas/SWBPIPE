@@ -1,0 +1,14 @@
+{"mutant": "G1_absolute_message_text", "file": "core/reporting/result_export/src/derivative.rs", "exit": 101, "outcome": "killed", "expected": "killed", "as_expected": true, "seconds": 90.8}
+{"mutant": "G2_receipt_not_copied", "file": "core/reporting/result_export/src/derivative.rs", "exit": 101, "outcome": "killed", "expected": "killed", "as_expected": true, "seconds": 17.0}
+{"mutant": "G3_bound_format", "file": "core/reporting/result_export/src/derivative.rs", "exit": 101, "outcome": "killed", "expected": "killed", "as_expected": true, "seconds": 14.4}
+{"mutant": "G4_contract_evidence_not_copied", "file": "core/reporting/result_export/src/derivative.rs", "exit": 101, "outcome": "killed", "expected": "killed", "as_expected": true, "seconds": 12.9}
+{"mutant": "G5_absolute_rows_not_disclosed", "file": "core/reporting/result_export/src/derivative.rs", "exit": 101, "outcome": "killed", "expected": "killed", "as_expected": true, "seconds": 14.4}
+{"mutant": "G6_golden_byte", "file": "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", "exit": 101, "outcome": "killed", "expected": "killed", "as_expected": true, "seconds": 19.5}
+{"mutant": "G7_pinned_successor_byte", "file": "fixtures/results/retained_precision_milestone_successor_sparse_interactive.json", "exit": 101, "outcome": "killed", "expected": "killed", "as_expected": true, "seconds": 25.0}
+{"mutant": "S1_integer_bound_removed", "file": "core/reporting/result_export/src/source_blocks.rs", "exit": 0, "outcome": "survives", "expected": "survives", "as_expected": true, "seconds": 148.6}
+{"mutant": "S1_full_suite", "file": "core/reporting/result_export/src/source_blocks.rs", "exit": 0, "outcome": "survives", "expected": "survives", "as_expected": true, "seconds": 139.4}
+{"mutant": "N1_receipt_shape_maximum_removed", "file": "schemas/source_block_recovery.schema.json", "exit": 101, "outcome": "killed", "expected": "killed", "as_expected": true, "seconds": 30.0}
+{"mutant": "N2_checked_profile_bound_removed", "file": "core/serialization/canonical_json/src/lib.rs", "exit": 101, "outcome": "killed", "expected": "killed", "as_expected": true, "seconds": 25.9}
+{"mutant": "D1_ref_to_v0_2", "file": "schemas/results.schema.yaml", "exit": 1, "outcome": "killed", "expected": "killed", "as_expected": true, "seconds": 29.2}
+{"mutant": "D2_arm_dropped", "file": "schemas/results.schema.yaml", "exit": 1, "outcome": "killed", "expected": "killed", "as_expected": true, "seconds": 24.6}
+{"mutant": "D3_base_inline_arm", "file": "schemas/results.schema.yaml", "exit": 1, "outcome": "killed", "expected": "killed", "as_expected": true, "seconds": 30.2}

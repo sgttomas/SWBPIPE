@@ -1,0 +1,10 @@
+# git diff --numstat --histogram (candidate vs d449097085), and the corpus's deleted lines
+16139	1	projects/chirality-piping/fixtures/results/retained_precision_cases.json
+68	7	projects/chirality-piping/tests/test_retained_precision_contract.py
+# deleted lines in the corpus:
+-    "claim": "Arithmetic and reader controls only; no producer execution or native Current evidence."
+# status:
+ M projects/chirality-piping/fixtures/results/retained_precision_cases.json
+ M projects/chirality-piping/tests/test_retained_precision_contract.py
+# HEAD:
+d44909708529c6277fc1fd3b22997218296c8dd3

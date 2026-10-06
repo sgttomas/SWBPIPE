@@ -1,0 +1,8 @@
+== base: run 2 (resume) against run 1, sorted (file, test, occurrence, status) rows; diff output (empty = identical):
+191c191
+< src/App.test.tsx	SWBPIPE desktop preview renders the engineering workspace from invented local fixtures	1	passed
+---
+> src/App.test.tsx	SWBPIPE desktop preview renders the engineering workspace from invented local fixtures	1	failed
+== end base
+== candidate: run 2 (resume) against run 1, sorted (file, test, occurrence, status) rows; diff output (empty = identical):
+== end candidate

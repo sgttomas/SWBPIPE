@@ -1,0 +1,5 @@
+== mut_D1_ref_to_v0_2 start 2026-10-06T02:36:56Z
+== mut_D1_ref_to_v0_2 exit=1 2026-10-06T02:37:25Z
+FAILED tests/test_results_dispatcher_v0_3.py::test_dispatcher_admits_preview_physics_physics_and_the_successor[synthetic precision-1]
+FAILED tests/test_results_dispatcher_v0_3.py::test_other_arms_are_unchanged
+8 failed, 17 passed in 28.65s

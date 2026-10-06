@@ -1,0 +1,63 @@
+I68	apps/desktop/src/features/results/retainedPrecision.test.ts:988	it('07l: the two appended producer-solved bases are eligible, with the class counts all three readers observed (I68)', async () => {
+I68	core/product_physics/src/retained_facade_tests.rs:829	// ---- U8 (I68): producer-solved witnesses from real D1 inputs ------------------------------
+I68	core/product_physics/src/retained_facade_tests.rs:831	// RR "I61's U8 plan ruled…" and "I68's probe verified…" (R/I68/u8_probe_01). Real inputs, no
+RR	core/product_physics/src/retained_facade_tests.rs:831	// RR "I61's U8 plan ruled…" and "I68's probe verified…" (R/I68/u8_probe_01). Real inputs, no
+R/	core/product_physics/src/retained_facade_tests.rs:831	// RR "I61's U8 plan ruled…" and "I68's probe verified…" (R/I68/u8_probe_01). Real inputs, no
+probe verified	core/product_physics/src/retained_facade_tests.rs:831	// RR "I61's U8 plan ruled…" and "I68's probe verified…" (R/I68/u8_probe_01). Real inputs, no
+RV93	core/product_physics/src/retained_facade_tests.rs:832	// hooks: RV93 N-5's Candidate and Preparation fallbacks, W-C1's Native fallback (two-body case B;
+W-C1	core/product_physics/src/retained_facade_tests.rs:832	// hooks: RV93 N-5's Candidate and Preparation fallbacks, W-C1's Native fallback (two-body case B;
+U8-0	core/product_physics/src/retained_facade_tests.rs:833	// its kernel reason, Unresolved(Ceiling), is recorded by the U8-0 probe and not asserted here),
+D-U6-5	core/product_physics/src/retained_facade_tests.rs:834	// and the L = 0 base, whose successor is pinned and copied to the corpus fixtures (D-U6-5).
+RV93	core/product_physics/src/retained_facade_tests.rs:836	/// RV93 N-5's Candidate input (zz_rv93.rs:292–315): the milestone with only its first load.
+RV93	core/product_physics/src/retained_facade_tests.rs:843	/// RV93's Preparation sibling: support 1's spring stiffness set to 1e-300. The ordinary run does
+W-C2	core/product_physics/src/retained_facade_tests.rs:850	/// W-C2's two-body model (PLAN §1.3) with case A's loads: the milestone body (body 0) and its
+§	core/product_physics/src/retained_facade_tests.rs:850	/// W-C2's two-body model (PLAN §1.3) with case A's loads: the milestone body (body 0) and its
+PLAN	core/product_physics/src/retained_facade_tests.rs:850	/// W-C2's two-body model (PLAN §1.3) with case A's loads: the milestone body (body 0) and its
+W6	core/product_physics/src/retained_facade_tests.rs:851	/// three moments, plus PHYS-R4's cantilever as body 1 (W6's body, retained_memory_witness_tests.rs
+PHYS-R4	core/product_physics/src/retained_facade_tests.rs:851	/// three moments, plus PHYS-R4's cantilever as body 1 (W6's body, retained_memory_witness_tests.rs
+witness_tests	core/product_physics/src/retained_facade_tests.rs:851	/// three moments, plus PHYS-R4's cantilever as body 1 (W6's body, retained_memory_witness_tests.rs
+W-C1	core/product_physics/src/retained_facade_tests.rs:870	/// W-C1's input (RR "I68's probe verified…"): two-body case B, with W6's tip force and tip torque
+I68	core/product_physics/src/retained_facade_tests.rs:870	/// W-C1's input (RR "I68's probe verified…"): two-body case B, with W6's tip force and tip torque
+W6	core/product_physics/src/retained_facade_tests.rs:870	/// W-C1's input (RR "I68's probe verified…"): two-body case B, with W6's tip force and tip torque
+RR	core/product_physics/src/retained_facade_tests.rs:870	/// W-C1's input (RR "I68's probe verified…"): two-body case B, with W6's tip force and tip torque
+probe verified	core/product_physics/src/retained_facade_tests.rs:870	/// W-C1's input (RR "I68's probe verified…"): two-body case B, with W6's tip force and tip torque
+§	core/product_physics/src/retained_facade_tests.rs:882	/// The L = 0 base (PLAN §1.2): the milestone plus node N2 at (3, 0, 0), which no member
+PLAN	core/product_physics/src/retained_facade_tests.rs:882	/// The L = 0 base (PLAN §1.2): the milestone plus node N2 at (3, 0, 0), which no member
+RV93	core/product_physics/src/retained_facade_tests.rs:893	/// U8 (RV93 N-5; W-C1): real D1 inputs reach the Candidate, Preparation and Native fallbacks on
+W-C1	core/product_physics/src/retained_facade_tests.rs:893	/// U8 (RV93 N-5; W-C1): real D1 inputs reach the Candidate, Preparation and Native fallbacks on
+I68	core/product_physics/src/retained_facade_tests.rs:931	/// U1's document form), its receipt sha256 and the published bytes' sha256 (R/I68/u8_probe_01 §3).
+§	core/product_physics/src/retained_facade_tests.rs:931	/// U1's document form), its receipt sha256 and the published bytes' sha256 (R/I68/u8_probe_01 §3).
+R/	core/product_physics/src/retained_facade_tests.rs:931	/// U1's document form), its receipt sha256 and the published bytes' sha256 (R/I68/u8_probe_01 §3).
+U5	core/product_physics/src/retained_facade_tests.rs:938	/// The milestone's pinned successor documents (U1; the U5-verified reference rows for body 0).
+§	core/product_physics/src/retained_facade_tests.rs:948	/// L = 0's value controls on its published successor (PLAN §1.2's "Tests and controls" row).
+PLAN	core/product_physics/src/retained_facade_tests.rs:948	/// L = 0's value controls on its published successor (PLAN §1.2's "Tests and controls" row).
+U5	core/product_physics/src/retained_facade_tests.rs:952	/// class claim, and agrees within the unchanged U5 criterion (relative rows within 1e-9 of their
+U5	core/product_physics/src/retained_facade_tests.rs:954	/// milestone's U5-verified rows as the reference.
+U5	core/product_physics/src/retained_facade_tests.rs:1002	assert!(within, "{name} {id}: {class:?} outside the U5 criterion ({value:e} against {reference_value:e})");
+D-U6-5	core/product_physics/src/retained_facade_tests.rs:1044	/// D-U6-5 (U8): the two L = 0 fixtures are byte-identical copies of PP's pinned L = 0 successor
+D-U7-2	core/reporting/result_export/tests/retained_precision_contract.rs:207	// U7 (07i, D-U7-2): 15 bases are eligible (07l: 13 synthetic plus the two
+RV94 N-3	core/reporting/result_export/tests/retained_precision_contract.rs:278	/// check the slice tally. 07h held 277 mutations; RV94 N-3's G7 probe makes 278;
+I69	core/reporting/result_export/tests/retained_precision_contract.rs:551	/// Snapshot-07l pins (U8-2; I69) on the two producer-solved L = 0 bases:
+§	core/reporting/result_export/tests/retained_precision_contract.rs:552	/// SNAPSHOT_05_PLAN §1.2's isolated rotation stop, has_data and coupled estimate
+PLAN	core/reporting/result_export/tests/retained_precision_contract.rs:552	/// SNAPSHOT_05_PLAN §1.2's isolated rotation stop, has_data and coupled estimate
+I69	core/reporting/result_export/tests/retained_precision_contract.rs:553	/// (sparse, then dense), then I69's translation-plus-rotation stop (sparse, then
+I70	core/reporting/result_export/tests/retained_precision_contract.rs:558	"I70_OUTCOME_07L",
+RV90	core/reporting/result_export/tests/retained_precision_contract.rs:850	// reordered-envelope exact-list control (RV90 N2); 07j adds C04's not_required case;
+C04	core/reporting/result_export/tests/retained_precision_contract.rs:850	// reordered-envelope exact-list control (RV90 N2); 07j adds C04's not_required case;
+u8_head	fixtures/results/retained_precision_cases.json:110680	"u8_head": "d44909708529c6277fc1fd3b22997218296c8dd3",
+D-U6-5	fixtures/results/retained_precision_cases.json:118181	"qualification": "PRODUCER-SOLVED (U8, L = 0): the PP-pinned live successor of the milestone request (fixtures/product_preview/rf_skew_t_cant_off_122_
+u8_head	fixtures/results/retained_precision_cases.json:118194	"u8_head": "d44909708529c6277fc1fd3b22997218296c8dd3",
+D-U6-5	fixtures/results/retained_precision_cases.json:125725	"qualification": "PRODUCER-SOLVED (U8, L = 0): the PP-pinned live successor of the milestone request (fixtures/product_preview/rf_skew_t_cant_off_122_
+D-U7-2	tests/test_retained_precision_contract.py:149	# U7 (07i, D-U7-2): the shared expectation; 15 bases are eligible (07l: 13 synthetic plus the two
+RV94 N-3	tests/test_retained_precision_contract.py:640	"""Snapshot 07l: 07k (07j plus RV94 N-3's G7 probe) plus U8's two producer-solved L = 0 bases and
+D-U7-2	tests/test_retained_precision_contract.py:642	07j: U7 slice L, C04; 07i: D-U7-2; 07h: RV90 S1, N1, N2, N4):
+RV90	tests/test_retained_precision_contract.py:642	07j: U7 slice L, C04; 07i: D-U7-2; 07h: RV90 S1, N1, N2, N4):
+C04	tests/test_retained_precision_contract.py:642	07j: U7 slice L, C04; 07i: D-U7-2; 07h: RV90 S1, N1, N2, N4):
+D11	tests/test_retained_precision_contract.py:643	17 cases, 286 mutations, 28 must-pass and the D37 table; only rehash "all" (D11); one expectation
+D37	tests/test_retained_precision_contract.py:643	17 cases, 286 mutations, 28 must-pass and the D37 table; only rehash "all" (D11); one expectation
+decision 6	tests/test_retained_precision_contract.py:884	# Snapshot 07l (U8-2): the listed producer-solved bases (RR "I61's U8 plan ruled ...", decision 6).
+RR	tests/test_retained_precision_contract.py:884	# Snapshot 07l (U8-2): the listed producer-solved bases (RR "I61's U8 plan ruled ...", decision 6).
+I68	tests/test_retained_precision_contract.py:887	# head): (file sha256, receipt sha256, class counts), the counts as all three readers observed them (I68).
+D-U6-5	tests/test_retained_precision_contract.py:903	"""Decision 6 and D-U6-5: the corpus lists exactly the two producer-solved L = 0 bases. Each base's
+decision 6	tests/test_retained_precision_contract.py:903	"""Decision 6 and D-U6-5: the corpus lists exactly the two producer-solved L = 0 bases. Each base's
+u8_head	tests/test_retained_precision_contract.py:926	assert p["u8_head"] == "d44909708529c6277fc1fd3b22997218296c8dd3"

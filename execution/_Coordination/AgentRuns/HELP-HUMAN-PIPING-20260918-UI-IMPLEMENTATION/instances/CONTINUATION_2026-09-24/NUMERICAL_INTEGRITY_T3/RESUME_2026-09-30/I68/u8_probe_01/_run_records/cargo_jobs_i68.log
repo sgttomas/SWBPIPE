@@ -1,0 +1,18 @@
+2026-10-06T01:18:08Z WAIT pid=36883 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/product_physics args: test --locked --offline --lib --no-run
+2026-10-06T01:18:08Z START pid=36887 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/product_physics args: test --locked --offline --lib --no-run
+2026-10-06T01:18:26Z END rc=0 pid=36887 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/product_physics
+2026-10-06T01:18:43Z WAIT pid=37484 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/product_physics args: test --locked --offline --lib zz_i68 -- --nocapture --test-threads=1
+2026-10-06T01:18:43Z START pid=37493 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/product_physics args: test --locked --offline --lib zz_i68 -- --nocapture --test-threads=1
+2026-10-06T01:18:51Z END rc=0 pid=37493 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/product_physics
+2026-10-06T01:20:06Z WAIT pid=38313 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/product_physics args: test --locked --offline --lib zz_i68 -- --nocapture --test-threads=1
+2026-10-06T01:20:06Z START pid=38316 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/product_physics args: test --locked --offline --lib zz_i68 -- --nocapture --test-threads=1
+2026-10-06T01:20:18Z END rc=0 pid=38316 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/product_physics
+2026-10-06T01:20:53Z WAIT pid=38821 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/serialization/canonical_json args: build --locked --offline --release --features checked-cli --bin openpipestress_jcs_ijson --target-dir WT/targets/i68-u8/checked-json
+2026-10-06T01:20:53Z START pid=38824 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/serialization/canonical_json args: build --locked --offline --release --features checked-cli --bin openpipestress_jcs_ijson --target-dir WT/targets/i68-u8/checked-json
+2026-10-06T01:20:57Z END rc=0 pid=38824 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/serialization/canonical_json
+2026-10-06T01:21:17Z WAIT pid=39224 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/units args: build --locked --offline --release --features cli --bin openpipestress_units --target-dir WT/targets/i68-u8/units-authority
+2026-10-06T01:21:17Z START pid=39227 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/units args: build --locked --offline --release --features cli --bin openpipestress_units --target-dir WT/targets/i68-u8/units-authority
+2026-10-06T01:21:20Z END rc=0 pid=39227 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/units
+2026-10-06T01:23:35Z WAIT pid=40925 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/product_physics args: test --locked --offline --lib zz_i68_reader_on_dump -- --nocapture --test-threads=1
+2026-10-06T01:23:35Z START pid=40928 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/product_physics args: test --locked --offline --lib zz_i68_reader_on_dump -- --nocapture --test-threads=1
+2026-10-06T01:23:43Z END rc=0 pid=40928 cwd=WT/scratch/i68_u8_probe/projects/chirality-piping/core/product_physics

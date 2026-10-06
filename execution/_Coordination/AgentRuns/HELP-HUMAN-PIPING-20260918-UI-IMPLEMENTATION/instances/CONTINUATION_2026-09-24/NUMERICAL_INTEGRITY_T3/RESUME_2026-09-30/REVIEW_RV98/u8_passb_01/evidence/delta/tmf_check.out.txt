@@ -1,0 +1,7 @@
+test_module_file core/product_physics/src/retained_facade_tests.rs -> True
+test_module_file core/product_physics/src/retained_wire_tests.rs -> True
+test_module_file core/product_physics/src/retained_product_tests.rs -> True
+test_module_file core/product_physics/src/retained_product.rs -> False
+retained_facade_tests.rs: cfg(test) item spans in the file: [] (count 0 )
+  enclosing fn of :1051/:1052: [(1049, 1071, 'u8_d_u6_5_l0_fixtures_are_the_live_successors')]
+result_export retained_precision.rs corpus lines: [4353] inside a cfg(test) span: [True] spans: [(4349, 4402)]

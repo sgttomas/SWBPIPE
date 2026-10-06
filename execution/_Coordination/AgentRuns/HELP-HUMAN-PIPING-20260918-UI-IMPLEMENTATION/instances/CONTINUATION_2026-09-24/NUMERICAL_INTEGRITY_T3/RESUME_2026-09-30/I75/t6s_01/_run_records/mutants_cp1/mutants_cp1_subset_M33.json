@@ -1,0 +1,18 @@
+[
+ {
+  "id": "control",
+  "failed": 0,
+  "total": 173
+ },
+ {
+  "id": "M33",
+  "desc": "a blocking disposition loses precedence to a class (fail-safe order)",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "status": "killed",
+  "failed": 1,
+  "total": 173,
+  "first_failures": [
+   "the package's withholding precedence (checkpoint reading R-1) a blocking disposition keeps precedence over a class; a class takes precedence over diagnostic work"
+  ]
+ }
+]

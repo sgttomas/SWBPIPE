@@ -1,0 +1,69 @@
+diff --git a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+index f4cdb39ae7..5fdd720e49 100644
+--- a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
++++ b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+@@ -1,4 +1,5 @@
+-//! Shared synthetic statement controls. These do not establish execution.
++//! Shared synthetic statement controls plus listed producer-solved bases (07l); no native
++//! Current evidence. These do not establish execution.
+ use open_pipe_stress_result_export::retained_precision as rp;
+ use serde_json::Value;
+ fn corpus() -> Value {
+@@ -203,7 +204,8 @@ fn complete_synthetic_controls_carry_their_shared_eligibility() {
+         let got = rp::validate(&case["source"], Some(&case["invocation"]))
+             .unwrap_or_else(|e| panic!("{}: {e:?}", case["id"]));
+         assert!(got.invocation_bound);
+-        // U7 (07i, D-U7-2): 13 bases are eligible; the two with an unavailable case are not.
++        // U7 (07i, D-U7-2): 15 bases are eligible (07l: 13 synthetic plus the two
++        // producer-solved L = 0 bases); the two with an unavailable case are not.
+         assert_eq!(
+             got.numerical_eligible,
+             case["expected"]["numerical_eligible"].as_bool().unwrap(),
+@@ -273,12 +275,13 @@ fn shared_rehashed_first_failure_mutations() {
+ 
+ /// Observe one slice of the shared mutations against this reader's own
+ /// expectation, print one outcome per mutation (visible with --nocapture) and
+-/// check the slice tally. 07h held 277 mutations; RV94 N-3's G7 probe makes 278.
++/// check the slice tally. 07h held 277 mutations; RV94 N-3's G7 probe makes 278;
++/// 07l (U8-2) appends the 8 L = 0 mutations, making 286.
+ fn slice_outcomes(tag: &str, range: std::ops::Range<usize>, want: &[(&str, usize)]) {
+     use std::collections::BTreeMap;
+     let shared = corpus();
+     let mutations = shared["mutations"].as_array().unwrap();
+-    assert_eq!(mutations.len(), 278);
++    assert_eq!(mutations.len(), 286);
+     let mut tally = BTreeMap::new();
+     let mut matched = 0;
+     for mutation in &mutations[range.clone()] {
+@@ -545,6 +548,19 @@ fn snapshot_07h_mutation_outcomes() {
+     );
+ }
+ 
++/// Snapshot-07l pins (U8-2; I69) on the two producer-solved L = 0 bases:
++/// SNAPSHOT_05_PLAN §1.2's isolated rotation stop, has_data and coupled estimate
++/// (sparse, then dense), then I69's translation-plus-rotation stop (sparse, then
++/// dense), mutations 278..286.
++#[test]
++fn snapshot_07l_mutation_outcomes() {
++    slice_outcomes(
++        "I70_OUTCOME_07L",
++        278..286,
++        &[("G5a RETAINED_PRECISION_SCALE_MISMATCH", 8)],
++    );
++}
++
+ /// F5 (D-U6-7; A2) on the real milestone receipts: U1's producer mutants M09
+ /// (RETAINED_PRECISION_* listed), M10 (diagnostics that do not name the case
+ /// listed) and M20 (another row method token) are refused by this reader, each
+@@ -831,8 +847,9 @@ fn shared_must_pass_entries_validate() {
+     let shared = corpus();
+     let entries = shared["must_pass"].as_array().unwrap();
+     // Snapshot 07: 06d's 18 plus the equal-E bracket control; 07h adds F5's
+-    // reordered-envelope exact-list control (RV90 N2); 07j adds C04's not_required case.
+-    assert_eq!(entries.len(), 24);
++    // reordered-envelope exact-list control (RV90 N2); 07j adds C04's not_required case;
++    // 07l (U8-2) appends the 4 L = 0 entries on the producer-solved bases, 24 to 28.
++    assert_eq!(entries.len(), 28);
+     let mut failures = Vec::new();
+     for entry in entries {
+         assert_eq!(entry["expected"], "pass");

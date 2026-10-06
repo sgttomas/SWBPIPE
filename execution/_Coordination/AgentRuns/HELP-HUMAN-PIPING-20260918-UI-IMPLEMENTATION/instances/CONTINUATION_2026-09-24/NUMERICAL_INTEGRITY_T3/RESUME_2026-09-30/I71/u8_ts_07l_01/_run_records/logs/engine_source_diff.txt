@@ -1,0 +1,27 @@
+== git diff --stat e2b83da584 b1e2d7741e -- <the 17 closure crates> projects/chirality-piping/apps/desktop/scripts projects/chirality-piping/schemas projects/chirality-piping/fixtures
+== git diff --stat e2b83da584 d449097085 -- <the 17 closure crates> projects/chirality-piping/apps/desktop/scripts projects/chirality-piping/schemas projects/chirality-piping/fixtures
+ .../product_physics/src/retained_facade_tests.rs   |  244 +
+ ...ined_precision_l0_successor_dense_scrutiny.json | 6263 ++++++++++++++++++++
+ ..._precision_l0_successor_sparse_interactive.json | 6244 +++++++++++++++++++
+ 3 files changed, 12751 insertions(+)
+== git diff --stat e2b83da584 69a925bd68 -- <the 17 closure crates> projects/chirality-piping/apps/desktop/scripts projects/chirality-piping/schemas projects/chirality-piping/fixtures
+ .../product_physics/src/retained_facade_tests.rs   |   244 +
+ .../fixtures/results/retained_precision_cases.json | 16140 ++++++++++++++++++-
+ ...ined_precision_l0_successor_dense_scrutiny.json |  6263 +++++++
+ ..._precision_l0_successor_sparse_interactive.json |  6244 +++++++
+ 4 files changed, 28890 insertions(+), 1 deletion(-)
+== every path under projects/chirality-piping changed e2b83da584..69a925bd68, outside execution/_Coordination
+M	projects/chirality-piping/AGENTS.md
+M	projects/chirality-piping/README.md
+M	projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs
+M	projects/chirality-piping/docs/AGENTIC_DEVELOPMENT_WORKFLOW.md
+M	projects/chirality-piping/docs/README.md
+M	projects/chirality-piping/docs/contributor_guide/index.md
+M	projects/chirality-piping/fixtures/results/retained_precision_cases.json
+A	projects/chirality-piping/fixtures/results/retained_precision_l0_successor_dense_scrutiny.json
+A	projects/chirality-piping/fixtures/results/retained_precision_l0_successor_sparse_interactive.json
+M	projects/chirality-piping/loop/LOOP_INIT.md
+M	projects/chirality-piping/loop/WORKPLAN_2026-09-19_piping_loop.md
+M	projects/chirality-piping/tests/test_retained_precision_contract.py
+== Cargo.toml, Cargo.lock and build.rs in the closure, e2b83da584..69a925bd68
+(empty above = unchanged)

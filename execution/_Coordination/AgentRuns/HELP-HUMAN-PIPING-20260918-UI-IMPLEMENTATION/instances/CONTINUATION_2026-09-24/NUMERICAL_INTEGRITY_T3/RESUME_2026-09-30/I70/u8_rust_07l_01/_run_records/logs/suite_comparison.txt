@@ -1,0 +1,6 @@
+base totals: [('src/lib.rs', 24, 0, 0), ('tests/derivative_contract.rs', 6, 0, 0), ('tests/load_reference_contract.rs', 5, 0, 0), ('tests/load_reference_source_contract.rs', 5, 0, 0), ('tests/physics_contract.rs', 10, 0, 0), ('tests/physics_source_contract.rs', 7, 0, 0), ('tests/precision_contract.rs', 4, 0, 0), ('tests/preview_physics_contract.rs', 19, 0, 0), ('tests/retained_precision_carriers.rs', 16, 0, 0), ('tests/retained_precision_contract.rs', 62, 0, 0), ('tests/source_blocks.rs', 14, 0, 0), ('doctests:open_pipe_stress_result_export', 0, 0, 0)]
+cand totals: [('src/lib.rs', 24, 0, 0), ('tests/derivative_contract.rs', 6, 0, 0), ('tests/load_reference_contract.rs', 5, 0, 0), ('tests/load_reference_source_contract.rs', 5, 0, 0), ('tests/physics_contract.rs', 10, 0, 0), ('tests/physics_source_contract.rs', 7, 0, 0), ('tests/precision_contract.rs', 4, 0, 0), ('tests/preview_physics_contract.rs', 19, 0, 0), ('tests/retained_precision_carriers.rs', 16, 0, 0), ('tests/retained_precision_contract.rs', 63, 0, 0), ('tests/source_blocks.rs', 14, 0, 0), ('doctests:open_pipe_stress_result_export', 0, 0, 0)]
+base tests 172 statuses {'ok': 172}
+cand tests 173 statuses {'ok': 173}
+differences 1
+   ('tests/retained_precision_contract.rs', 'snapshot_07l_mutation_outcomes', 'absent', 'ok', 'DIFF')

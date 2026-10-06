@@ -1,0 +1,485 @@
+
+ RUN  v4.1.10 WT/f2a-u8/projects/chirality-piping/apps/desktop
+
+ ✓ src/features/results/retainedPrecision.test.ts > synthetic prepared receipt arithmetic controls, not execution evidence > preserves the independently derived small-bound bits 3ms
+ ✓ src/features/results/retainedPrecision.test.ts > synthetic prepared receipt arithmetic controls, not execution evidence > preserves finite exact-product controls and overflow refusal 1ms
+ ✓ src/features/results/retainedPrecision.test.ts > synthetic prepared receipt arithmetic controls, not execution evidence > retains the distant low tail and canonicalizes bound zero 0ms
+ ✓ src/features/results/retainedPrecision.test.ts > synthetic prepared receipt arithmetic controls, not execution evidence > independently brackets every protected small-bound result with exact fractions 7ms
+ ✓ src/features/results/retainedPrecision.test.ts > synthetic prepared receipt arithmetic controls, not execution evidence > independently brackets products, the normal boundary and distant-tail sums 1ms
+ ✓ src/features/results/retainedPrecision.test.ts > synthetic prepared receipt arithmetic controls, not execution evidence > keeps zero/sign behavior explicit at every finite helper entrypoint 1ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_synthetic 58ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_synthetic missing invocation and metadata transport remain needs-recompute 32ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_synthetic snapshots all inputs before awaiting 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_dense_synthetic 25ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_dense_synthetic missing invocation and metadata transport remain needs-recompute 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_dense_synthetic snapshots all inputs before awaiting 24ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_no_data_synthetic 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_no_data_synthetic missing invocation and metadata transport remain needs-recompute 33ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_no_data_synthetic snapshots all inputs before awaiting 26ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_cancelled_loads_synthetic 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_cancelled_loads_synthetic missing invocation and metadata transport remain needs-recompute 25ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_cancelled_loads_synthetic snapshots all inputs before awaiting 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_case_facade_after_certificate_synthetic 43ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_case_facade_after_certificate_synthetic missing invocation and metadata transport remain needs-recompute 40ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_case_facade_after_certificate_synthetic snapshots all inputs before awaiting 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_case_preparation_failure_synthetic 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_case_preparation_failure_synthetic missing invocation and metadata transport remain needs-recompute 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_case_preparation_failure_synthetic snapshots all inputs before awaiting 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_body_synthetic 33ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_body_synthetic missing invocation and metadata transport remain needs-recompute 37ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_body_synthetic snapshots all inputs before awaiting 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > p512_ladder_synthetic 38ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > p512_ladder_synthetic missing invocation and metadata transport remain needs-recompute 43ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > p512_ladder_synthetic snapshots all inputs before awaiting 26ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_case_synthetic 34ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_case_synthetic missing invocation and metadata transport remain needs-recompute 42ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_case_synthetic snapshots all inputs before awaiting 34ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > candidate_failure_skip_synthetic 25ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > candidate_failure_skip_synthetic missing invocation and metadata transport remain needs-recompute 25ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > candidate_failure_skip_synthetic snapshots all inputs before awaiting 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > verification_failure_skip_synthetic 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > verification_failure_skip_synthetic missing invocation and metadata transport remain needs-recompute 22ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > verification_failure_skip_synthetic snapshots all inputs before awaiting 22ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_case_shared_failed_cache_synthetic 32ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_case_shared_failed_cache_synthetic missing invocation and metadata transport remain needs-recompute 52ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_case_shared_failed_cache_synthetic snapshots all inputs before awaiting 30ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_case_two_groups_synthetic 40ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_case_two_groups_synthetic missing invocation and metadata transport remain needs-recompute 41ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_case_two_groups_synthetic snapshots all inputs before awaiting 38ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_interpolated_material_synthetic 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_interpolated_material_synthetic missing invocation and metadata transport remain needs-recompute 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_interpolated_material_synthetic snapshots all inputs before awaiting 25ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_mm_units_synthetic 24ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_mm_units_synthetic missing invocation and metadata transport remain needs-recompute 22ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_prepared_mm_units_synthetic snapshots all inputs before awaiting 14ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > u8_l0_isolated_node_sparse_interactive 24ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > u8_l0_isolated_node_sparse_interactive missing invocation and metadata transport remain needs-recompute 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > u8_l0_isolated_node_sparse_interactive snapshots all inputs before awaiting 25ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > u8_l0_isolated_node_dense_scrutiny 30ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > u8_l0_isolated_node_dense_scrutiny missing invocation and metadata transport remain needs-recompute 36ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > u8_l0_isolated_node_dense_scrutiny snapshots all inputs before awaiting 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > method_null 13ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > method_number 13ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > method_alternate_metadata 12ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > method_alternate_container 11ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > method_empty 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > method_wrong 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > method_missing 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > nonfinite_then_method 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > shape_then_encoding 11ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > negative_zero_counter 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_then_method 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > member_prefix_coverage 22ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > diagnostic_then_method 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > native_work 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > product_new_not_ready 10ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > body_scale 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > section_echo 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > absolute_bound 22ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > input_dof 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > old_inputs_must_bind_old_J 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > new_stiffness_must_bind_C2 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > bad_invocation_digest 23ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > v1_relabel 10ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > native_source_digest_rehashed 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > native_stiffness_digest_rehashed 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > physical_residual_basis 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > physical_stop_stage_partition 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > negative_zero_scale_with_wrong_method 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > shared_stage_projection_preserves_total 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > verification_own_stage_projection_preserves_total 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_member_missing 11ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_object_not_array 9ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_entry_null 10ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_stop_three 9ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_stop_five 9ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_stop_numeric_flag 9ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_stop_null_flag 10ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_has_data_numeric 9ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_has_data_null 12ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_has_data_missing 13ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_unknown_field 12ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_body_string 11ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_shape_then_duplicate 11ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_defect_with_null_method 11ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_body_negative_zero 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_body_fraction 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_body_negative 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_encoding_then_duplicate 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_empty_array 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_duplicate_body 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_foreign_body 15ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_extra_body 15ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_duplicate_then_flag_and_method 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > attempt_owner_only 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_null_on_ready 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_null_then_method 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_has_data_false 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > certified_bound_unbound_drop_existing_g5 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_drop_certified_bound 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_no_data_claim_with_free_loads 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_stop_forbidden_entry 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_stop_uncoupled_consistent_roster 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > stop_rule_drop_required_zero 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > stop_rule_duplicate_zero 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > estimate_drop_required_zero 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > estimate_forbidden_translation_zero 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > charge_drop_required_zero 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > charge_follows_stop_below_p512 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > certified_bound_duplicate 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_flag_defect_then_method 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > nodata_forbidden_stop_zero 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > nodata_forbidden_estimate_zero 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > nodata_forbidden_charge_zero 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > nodata_forbidden_certified_bound 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > nodata_has_data_without_bound 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > nodata_estimate_coupling_L_nonzero 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_flag_defect_then_body_scale 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > layout_force_row_input_derived 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > layout_constrained_displacement_not_input_derived 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > layout_nonzero_prescription 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > coverage_null_and_product_work 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > product_work_only 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > native_work_then_coverage_null 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > layout_row_relabelled 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > layout_row_dropped 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > layout_rows_reordered 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > layout_row_foreign_body 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > nodata_empty_coverage 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > verification_bound_duplicate_entry 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > verification_bound_missing_entry 23ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > nodata_verification_bound_nonnull 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > schedule_fresh_first_p256 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > cancelled_no_data_claim 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > cancelled_drop_B_only 23ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > unavailable_certificate_passed_coverage_null 36ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > unavailable_empty_coverage 30ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > unavailable_no_data_claim_with_free_loads 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > unavailable_stop_uncoupled 33ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > unavailable_layout_relabelled 32ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > unavailable_verification_bound_duplicate 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > cert_failed_before_summary_g5a_passed 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > lane_k_failed_with_coverage 36ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > maxima_abandoned_with_coverage 31ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > prefix_captured_with_members 22ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_body_swap_has_data 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_body_swap_has_data_with_rosters 30ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_body_swap_stop_only 31ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_body_body_order_swapped 25ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_body_missing_body 26ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > two_body_resolution_order_swapped 31ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > p512_floor_not_phi 33ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > p512_positive_floor_forces_stop 31ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > p512_charge_follows_estimate 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > p512_floor_null 31ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > p512_zero_floor_body_given_positive_floor 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > copy_flags_into_loaded 35ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > rebind_source_run_only 32ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > cross_case_gate_order_selected 36ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > cross_case_gate_order_unavailable 30ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > unavailable_record_resolution_duplicate 30ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > unavailable_record_theta_duplicate 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > skip_after_failed_candidate_reused 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > skip_after_failed_candidate_wrong_slot 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > failed_build_reason_mismatch 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > failed_slot_not_cached 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > failed_verification_reused_as_candidate 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > failed_verification_one_slot 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > cached_failed_slot_rebuilt 31ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > corrections_above_three 15ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > group_sources_out_of_order 34ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > w2_published_without_initial_failure 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > legacy_source_dangling_diagnostic 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > formation_d5_dangling_diagnostic 23ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > native_stage_disagrees_with_run 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > conversion_subnormal_kind_normal_bits 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > conversion_normal_kind_subnormal_bits 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > conversion_ready_underflow_nonzero_row 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > conversion_ready_overflow 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > conversion_subnormal_metadata_negative_zero 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > g7_maximum_off_enclosure 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > row_index_foreign_support_norm 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > row_index_missing_row 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > row_index_unsorted 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > row_index_ready_subset 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > maps_extra_support_id 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > maps_member_ends_swapped 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > maxima_abandoned_separate_failure 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > certificate_check_wrong_wrapper 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > certificate_stage_check_disagree 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > stage_entered_after_failure 22ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ceiling_before_last_slot 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > escalating_end_not_a_terminal_translation 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > terminal_stop_wrong_translation 15ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > terminal_refusal_wrong_kind 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > idle_budget_below_invocation_limit 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > idle_ready_group_not_ledger_refusal 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > work_accounting_prior_not_on_wire 10ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > refused_member_conversion_kind_bits 24ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > prefix_attached_old_input_unbound 31ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > report_reference_unrelated_diagnostic 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > distinct_stiffness_merged_group 30ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > named_point_value_mismatch 39ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > interpolation_target_mismatch 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > work_accounting_after_escalating_stop 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > idle_work_accounting_run 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > work_accounting_at_last_slot 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > mm_unnormalized_coordinate 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > interpolation_missing_alpha 25ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > interpolation_duplicate_temperature 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > interpolation_target_below_range 24ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > interpolation_target_at_lower_point 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > interpolation_target_at_upper_point 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > interpolation_target_above_range 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > adapter_fault_present 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > accounting_cause_without_fault 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > scalar_trace_lost_unavailable 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > work_accounting_cause_exact_status 33ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > idle_budget_not_exhausted_no_group 30ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > execution_order_swapped 31ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > run_id_not_execution_position 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > old_members_reordered 25ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > complete_old_short_of_source 24ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > unsourced_old_member_noncontiguous 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > complete_old_longer_than_source 25ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > unavailable_source_backref_foreign 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > attempt_basis_not_ordinary 31ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > native_error_with_selected_run 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > group_call_out_of_range 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > escalating_failed_verification_pass_entered 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > stop_rule_quantity_other_body 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > candidate_record_with_verification 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_diagnostic_ref_duplicate 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_diagnostic_ref_dangling 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_dangling_plus_adapter_fault 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > selected_case_ordinary_checks_passed 15ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > section_accounting_exact_status 22ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > nested_stop_work_accounting_exact_status 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > view_work_fault_exact_status 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > old_operational_accounting_not_lost 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > interpolation_target_at_lower_point_equal_e 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > interpolation_target_below_range_equal_e 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > interpolation_target_at_upper_point_equal_e 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > interpolation_target_above_range_equal_e 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > source_preparation_null 26ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > run_ref_null_with_case_run 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > preparation_error_with_selected_run 30ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > prepared_failure_cause_without_own_attempt 25ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > prepared_failure_cause_foreign_attempt 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > reason_code_phase_mismatch_on_facade 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > reason_code_phase_mismatch_on_preparation 24ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > rejected_verification_failed_with_completed_verification 30ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > rejected_attempt_with_verified_record 15ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_attempt_order_swapped 32ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > record_index_not_contiguous 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > selected_verification_record_not_verified 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > projection_conversions_count_mismatch 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > preparation_conversion_count_mismatch 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > retained_diagnostic_names_unrequested_case 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > g0_case_limit_threshold 10ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > g0_invocation_limit_threshold 12ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > g0_receipt_version_not_1 12ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > g0_canonicalization_profile 9ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > g0_retained_precision_absent 3ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > g0_receipt_body_absent 3ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > refusal_work_accounting_variant 9ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > refusal_count_range_variant 11ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > unavailable_source_ref_absent 13ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > source_decline_with_source_ref 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > rcond_label_plus_adapter_fault 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > native_attempt_defect_after_native_work_defect 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > dangling_candidate_record 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > dangling_build_ref 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > dangling_ordinary_attempt_ref 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > g5b_zero_section_area 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ordinary_dangling_ref_plus_source_preparation_null 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > g5b_zero_section_length 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > unavailable_attempt_under_facade_failure_cause 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > unavailable_attempt_under_source_error_cause 23ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > preparation_error_selected_run_under_receipt_cause 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > selected_case_without_c3_attempt 31ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > vbuild_on_escalating_failed_verification 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > dangling_attempt_source_ref 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > source_member_map_kernel_id_noncanonical 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > forged_publication_hash 12ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > forged_preparation_hash 12ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > source_identity_stale_receipt_rehashed 12ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > forged_receipt_hash 13ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > g5a_sanity_margin_between_2m40_and_2m39 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > idle_run_exhausted_meter_chain_broken 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > verification_estimate_quantity_not_in_layout 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > charge_quantity_not_in_layout 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > publication_enclosure_quantity_not_in_layout 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > empty_body_inventory 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > verification_summary_on_escalating_failed_verification 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > model_schema_version_0_4_0_rejected 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > forged_source_identity_float_source_ref 12ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > verification_estimate_names_translation_row 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ready_attempt_under_facade_failure_cause 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > ready_attempt_under_prepared_product_failure 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > g0_receipt_version_non_integral 10ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > g0_case_limit_non_integral 9ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > g0_invocation_limit_non_integral 10ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > verification_estimate_names_rotation_row 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > g5a_error_with_g5a_not_entered 30ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > observable_error_with_observables_not_entered 32ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > numeric_error_with_checks_not_entered 32ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > proof_error_with_certificate_passed 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > values_error_with_values_completed 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > f5_ordinary_refs_omit_naming_diagnostic 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > f5_ordinary_refs_out_of_envelope_order 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > f5_ordinary_refs_list_retained_precision_m09 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > f5_ordinary_refs_list_invocation_level_m10 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > f5_ordinary_refs_list_other_case 33ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > f5_ordinary_refs_relaxed_d6a_form 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > f5_affected_refs_string_names_no_case 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > f5_ordinary_refs_second_case_relaxed_d6a_form 31ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > f5_ordinary_refs_strict_prefix 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > g7_not_required_quality_enum_invalid 22ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > isolated_rotation_stop_sparse_interactive 23ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > isolated_has_data_sparse_interactive 22ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > isolated_estimate_coupled_sparse_interactive 23ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > isolated_rotation_stop_dense_scrutiny 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > isolated_has_data_dense_scrutiny 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > isolated_estimate_coupled_dense_scrutiny 22ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > isolated_translation_rotation_stop_sparse_interactive 22ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > isolated_translation_rotation_stop_dense_scrutiny 23ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: loaded_stop_without_force_moment 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: loaded_all_stop_false 23ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: no_data_all_stop_true 22ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: no_data_attested_data_block 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: cancelled_all_stop_true 23ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: cert_failed_before_summary 33ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: lane_k_failed 35ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: lane_source_failed 37ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: maxima_abandoned 35ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: prefix_captured 26ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: cert_failed_after_summary_storage 33ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: two_body_swap_stop_with_rosters 33ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: p512_charge_follows_stop_zero_floor_body 34ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: copy_flags_into_unloaded 36ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: prefix_unattached_old_operand_attested 26ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: values_failed_separate_completion 33ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: aliases_abandoned 33ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: bind_rows_abandoned 33ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: interpolation_equal_e_bracketed_control 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: integral_float_integers_and_references 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: model_schema_version_0_1_0_accepted 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: verification_estimate_names_moment_row 32ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: f5_envelope_reordered_exact_list 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: not_required_second_case_checks_passed 26ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: isolated_estimate_uncoupled_sparse_interactive 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: isolated_estimate_uncoupled_dense_scrutiny 26ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: isolated_translation_stop_sparse_interactive 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > shared synthetic prepared receipt controls, never solver execution evidence > must pass: isolated_translation_stop_dense_scrutiny 33ms
+ ✓ src/features/results/retainedPrecision.test.ts > reader-logic checklist controls, not corpus or producer evidence > N10/N1: an idle invocation-entry run has no records or charge and never selects 1ms
+ ✓ src/features/results/retainedPrecision.test.ts > reader-logic checklist controls, not corpus or producer evidence > N6: a rejected p128 candidate must hand its verification on, so a Ceiling there is refused 1ms
+ ✓ src/features/results/retainedPrecision.test.ts > reader-logic checklist controls, not corpus or producer evidence > N5: a non-escalating verification-pass failure is terminal and never selects 1ms
+ ✓ src/features/results/retainedPrecision.test.ts > reader-logic checklist controls, not corpus or producer evidence > N8: a rejected p512 candidate with a solved p1024 verification is the Ceiling 2ms
+ ✓ src/features/results/retainedPrecision.test.ts > reader-logic checklist controls, not corpus or producer evidence > R1'-R4 (D8): each accounting mutation falsifies exactly its own rule on one attempt 80ms
+ ✓ src/features/results/retainedPrecision.test.ts > reader-logic checklist controls, not corpus or producer evidence > O5: a source decline names its own unavailable case and material basis 2ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > R1a_execution_order_swapped 31ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > R1b_run_id_not_position 31ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > R2_old_members_reordered 26ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > R3_complete_old_short_of_source 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > R4_unavailable_source_backref_foreign 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > R5_attempt_and_source_basis_not_ordinary 30ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > R6a_native_error_with_selected_run 29ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > R8_group_call_out_of_range 31ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > T1_escalating_failed_verification_pass_entered 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > T2_stop_rule_quantity_other_body 28ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > T3_candidate_record_with_verification 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > T4a_ordinary_diagnostic_ref_duplicate 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > T4b_ordinary_diagnostic_ref_dangling 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > T4c_source_identity_stale_receipt_rehashed 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > T4d_ordinary_dangling_plus_adapter_fault 27ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > R2b_unsourced_old_member_noncontiguous 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > R3b_complete_old_longer_than_source 26ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > B_interpolation_target_at_lower_point_equal_point_E 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > B_interpolation_target_below_range_equal_point_E 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > B_interpolation_target_at_upper_point_equal_point_E 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > B_interpolation_target_above_range_equal_point_E 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > B_control_equal_point_E_bracketed 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: RV78 probe relations (reader-local) > T4e_selected_case_ordinary_checks_passed 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D1/RV81-B1: unsourced old ids must be 0..len-1 at G3, with or without the invocation 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D1 (checkpoint A): unsourced complete old coverage matches every CaseSource member count, with no emptiness rule 43ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D1/RV81-S1: a captured prefix with a Run is a G5 association defect, not G3 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D2: G0 owns the producer component/schema versions, receipt constants and thresholds; body shape waits for G1 34ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D3: a native class with an ATTEMPT defect reports ATTEMPT even when an earlier-coded WORK defect exists 64ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D4c/RV81-B2: a prepared_product_failure cause must name the case's own attempt 47ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D4e: run_ref is null exactly when no native call happened 41ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D5c: rejected(verification_failed) requires a failed verification phase 2ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D5a/RV81-M04: a candidate record carrying verification work alone is an ATTEMPT defect 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D6c: a published W2 needs a nonzero exponent and the initial failure's trigger 3ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D6a as amended by F5 (D-U6-7; A2): the untyped list is exactly the diagnostics naming the case; typed references stay strict 4ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D6b (checkpoint A): a selected case's quality is sensitive, unresolved or failed 7ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D8 kernel scope: a work_accounting stop or reason anywhere in a Run, build or group preparation fails G5 ATTEMPT 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D18: each echoed G5b section term equals the source term and is positive, else G5b SECTION 103ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > native class: each dangling reference reports the code of the check that follows it 90ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D6d/RV81-N2: legacy_source.work_ref is a reference check reported as ATTEMPT 3ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D7: a RETAINED_PRECISION_UNAVAILABLE diagnostic naming no requested case fails G4 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D13/RV81-M13: a no-data body needs theta = +0 in its verification record 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D13/RV81-M16: a p128 verification-solve failure continues at p512, so it never ends in the Ceiling 1ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D13/RV81-M08 and D8 owner scopes: R3' needs every fault of every fault-bearing cause in its owner, including both 5ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D13: the absolute bound switches at S = 2^-988 on both sides 0ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > RV81-M07 (N17): the case scope wins when both budget limits are exceeded 2ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D12/N11: a refused group preparation gives a Run with its group index, no attempts and the refusal 3ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > RV81-M12: a non-null empty roster fails G3 even against an empty body inventory 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D11/RV78-N5: the harness admits only rehash "all" and splices array removals 2ms
+ ✓ src/features/results/retainedPrecision.test.ts > review repair 07: decisions without a probe (reader-local) > D14: no non-test module imports the @internal reader exports 68ms
+ ✓ src/features/results/retainedPrecision.test.ts > confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D19: an unavailable C3 attempt must be reported through prepared_product_failure naming it 30ms
+ ✓ src/features/results/retainedPrecision.test.ts > confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D19: a Ready attempt belongs to a selected case, or to an unavailable case with a receipt_failure cause 60ms
+ ✓ src/features/results/retainedPrecision.test.ts > confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D20: a selected case without a C3 attempt is a G5 PRODUCT_ATTEMPT association defect 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D22/RV81-S1: a dangling attempt source_ref is a G5 PRODUCT_ATTEMPT defect, not G3 48ms
+ ✓ src/features/results/retainedPrecision.test.ts > confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D24: after_rehash edits apply after rehash "all", so a forged receipt hash fails G1 12ms
+ ✓ src/features/results/retainedPrecision.test.ts > confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D27: the idle-Run rule reads the recorded invocation_before; a broken meter chain reports WORK 2ms
+ ✓ src/features/results/retainedPrecision.test.ts > confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D28: every quantity-bearing reason resolves to a layout row with the same body and kind 111ms
+ ✓ src/features/results/retainedPrecision.test.ts > confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D29: a CaseSource with an empty body inventory fails G3 20ms
+ ✓ src/features/results/retainedPrecision.test.ts > confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D30: a native error names its own nonselected Run 5ms
+ ✓ src/features/results/retainedPrecision.test.ts > confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D21/RV81-N1: a failed verification showing its pass ran (a verification build, zero verification_lme) cannot carry an escalating stop 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > D21 widened: a non-null verification summary on an escalating failed verification shows the pass ran 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > confirmation repair round (D19-D30, RV81-N1/N2): reader-local relations > RV81-N2: the kernel scope alone decides for an unreferenced build carrying a work_accounting stop 2ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07d round (D31-D33): reader-local relations > D31: G8 admits model schema_version 0.1.0, 0.2.0 and 0.3.0, and refuses 0.4.0 78ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07d round (D31-D33): reader-local relations > D32: integers and references written as integral floats are the same values (parse boundary) 24ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07d round (D31-D33): reader-local relations > D33: a verification_estimate reason names a force or moment row 95ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07e round (D34): -0 anywhere in the receipt fails G2 ENCODING > D34: the enum member G5aError.quantity_kind written as -0 fails G2; written as 0 it passes G2 112ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07e round (D34): -0 anywhere in the receipt fails G2 ENCODING > D34: the const member source_decline.constructor_counts.directional_springs written as -0 fails G2; written as 0 it keeps its entry outcome 44ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07e round (D34): -0 anywhere in the receipt fails G2 ENCODING > D34: every numeric 0 in a base receipt, rewritten as -0, fails G2 (hashes are unchanged: canonical JSON writes 0) 4702ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07e round (D34): -0 anywhere in the receipt fails G2 ENCODING > RV78-N1: the harness rehash indexes only strict integral values and skips everything else 39ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07f round (D37): an unavailable attempt error kind and its stage record agree in both directions > D37: each native-consistent post-certificate shape stays clear of G5 PRODUCT_ATTEMPT (Y6) 195ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07f round (D37): an unavailable attempt error kind and its stage record agree in both directions > D37: a kind the stage record cannot produce, or a presupposed stage not recorded so, is G5 PRODUCT_ATTEMPT 343ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07f round (RV81-N1 R35): only -0 maps to 0 in the G1 const/enum comparison > RV81-N1: a tiny non-zero value at a const-0 or enum position fails G1, not G2 189ms
+ ✓ src/features/results/retainedPrecision.test.ts > native p512 floor rounding, independent of any corpus case > phi512 is the least binary64 at or above 2^-438 * e_hat and equals the native transcription 10ms
+ ✓ src/features/results/retainedPrecision.test.ts > native p512 floor rounding, independent of any corpus case > stopFeasible admits exactly the natively generated stop vectors, including L = 0 412ms
+ ✓ src/features/results/retainedPrecision.test.ts > native p512 floor rounding, independent of any corpus case > e_hat couples force and moment only for a nonzero extent 0ms
+ ✓ src/features/results/retainedPrecision.test.ts > source-bound recovery controls > rederives K4SRC independently of repaired semantic receipt hashes 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > source-bound recovery controls > rederives K4STF even when source and group repeat the same forged digest 19ms
+ ✓ src/features/results/retainedPrecision.test.ts > source-bound recovery controls > keeps signed bound zero invalid at G2 despite a later row-method defect 14ms
+ ✓ src/features/results/retainedPrecision.test.ts > source-bound recovery controls > binds residual precision to the actual native solve width 15ms
+ ✓ src/features/results/retainedPrecision.test.ts > source-bound recovery controls > reconciles stop-rule stages independently of the total own work 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > source-bound recovery controls > reconciles every shared stage with both contributing build records 16ms
+ ✓ src/features/results/retainedPrecision.test.ts > source-bound recovery controls > requires the first actual candidate to start at128 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > source-bound recovery controls > rejects a purported input-derived force row at G5a before invocation binding 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > source-bound recovery controls > rejects a constrained displacement row not marked input-derived at G5a 18ms
+ ✓ src/features/results/retainedPrecision.test.ts > source-bound recovery controls > rejects a nonzero prescription at G5a because D is false only for exact +0 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > source-bound recovery controls > admits the publicly consistent rewrite: stop [T,T,F,F] with its exact stop roster 25ms
+ ✓ src/features/results/retainedPrecision.test.ts > source-bound recovery controls > admits the publicly consistent rewrite: all-false stop with an empty stop roster 22ms
+ ✓ src/features/results/retainedPrecision.test.ts > source-bound recovery controls > admits the publicly consistent rewrite: no-data all-true stop with four zero stop entries 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > source-bound recovery controls > admits the publicly consistent rewrite: no-data body attesting one data block with its bound 21ms
+ ✓ src/features/results/retainedPrecision.test.ts > source-bound recovery controls > requires actual entered proof state and checks it before product work 17ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07g round (I61 U6e): F5 and RV79-N1 > RV79-N1: D37 agrees with the corpus table (native source and C3, never this reader) on every well-formed record 2ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07g round (I61 U6e): F5 and RV79-N1 > F5: U1's M09, M10 and M20 are refused on the real milestone receipts (resealed like corpus entries) 177ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07g round (I61 U6e): F5 and RV79-N1 > U7: a solved status is required before the eligibility conjunct; a blocked envelope is refused at G7 with TS's own base code 134ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07g round (I61 U6e): F5 and RV79-N1 > RV94 N-3: an invalid enum value in a not_required case's quality is refused at G7 with TS's own code 91ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07l round (U8-2): counts and the appended producer-solved L = 0 entries > 07l: 17 cases, 286 mutations and 28 must-pass entries; 15 bases and 18 must-pass entries are eligible 0ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07l round (U8-2): counts and the appended producer-solved L = 0 entries > 07l: the two appended producer-solved bases are eligible, with the class counts all three readers observed (I68) 41ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07l round (U8-2): counts and the appended producer-solved L = 0 entries > 07l: the 8 appended mutations are refused at G5a SCALE 184ms
+ ✓ src/features/results/retainedPrecision.test.ts > 07l round (U8-2): counts and the appended producer-solved L = 0 entries > 07l: the 4 appended must-pass entries are admitted, eligible, with their base classifications 111ms
+
+ Test Files  1 passed (1)
+      Tests  474 passed (474)
+   Start at  06:39:25
+   Duration  20.87s (transform 1.71s, setup 217ms, import 2.24s, tests 17.14s, environment 991ms)
+
+JSON report written to WT/scratch/i71_u8/logs/candidate_rp.json
+rc=0

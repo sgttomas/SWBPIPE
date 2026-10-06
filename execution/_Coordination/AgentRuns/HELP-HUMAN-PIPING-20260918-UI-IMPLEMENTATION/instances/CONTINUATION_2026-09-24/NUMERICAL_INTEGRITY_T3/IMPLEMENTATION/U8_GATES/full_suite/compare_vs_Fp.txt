@@ -1,0 +1,8 @@
+manifests 40; identical 38; differing 2
+
+== core/product_physics/Cargo.toml: baseline rc/passed/failed/ignored (101, 705, 1, 10)  candidate (101, 708, 1, 10)
+   added ok: 3
+   failing in candidate: s11g_tests::t13_committed_fallback_uz_is_byte_identical
+
+== core/reporting/result_export/Cargo.toml: baseline rc/passed/failed/ignored (0, 172, 0, 0)  candidate (0, 173, 0, 0)
+   added ok: 1

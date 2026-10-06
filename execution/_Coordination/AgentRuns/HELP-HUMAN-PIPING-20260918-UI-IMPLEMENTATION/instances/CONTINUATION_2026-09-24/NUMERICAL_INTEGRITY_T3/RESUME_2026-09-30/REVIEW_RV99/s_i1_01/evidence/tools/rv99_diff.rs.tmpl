@@ -1,0 +1,123 @@
+//! RV99 point-mode differential (scratch; not a candidate file). Lines marked
+//! `//C ` are enabled only in the candidate copy.
+
+use std::fs;
+use std::io::Write;
+use std::panic::{catch_unwind, AssertUnwindSafe};
+
+use open_pipe_stress_expression_evaluator::{evaluate, AnalysisStatus, EvaluationInput, BindingSource, Quantity, VariableBinding};
+use open_pipe_stress_rule_check_runner::{
+    run_rule_checks, RefusedSolverResult, RuleCheckRunInput, SolverResultBinding,
+    SuppliedValueBinding,
+};
+//C use open_pipe_stress_rule_check_runner::{run_rule_checks_with_bounds, SolverResultBound};
+use open_pipe_stress_rule_pack_document::{decode_dimension, decode_expression};
+use serde_json::Value;
+
+fn hexf(v: &Value) -> f64 {
+    let t = v.as_str().expect("hex");
+    f64::from_bits(u64::from_str_radix(t.trim_start_matches("0x"), 16).expect("bits"))
+}
+
+fn dehex(v: &Value) -> Value {
+    match v {
+        Value::Object(m) => {
+            let mut out = serde_json::Map::new();
+            for (k, x) in m {
+                let is_num = matches!(k.as_str(), "value" | "argument" | "result");
+                if is_num && x.as_str().map_or(false, |s| s.starts_with("0x")) {
+                    out.insert(k.clone(), Value::from(hexf(x)));
+                } else {
+                    out.insert(k.clone(), dehex(x));
+                }
+            }
+            Value::Object(out)
+        }
+        Value::Array(a) => Value::Array(a.iter().map(dehex).collect()),
+        other => other.clone(),
+    }
+}
+
+fn status(s: &str) -> AnalysisStatus {
+    match s {
+        "MechanicsSolved" => AnalysisStatus::MechanicsSolved,
+        "ModelIncomplete" => AnalysisStatus::ModelIncomplete,
+        "HumanApprovedForProject" => AnalysisStatus::HumanApprovedForProject,
+        other => panic!("status {other}"),
+    }
+}
+
+fn input<'a>(doc: &'a Value, run: &Value) -> RuleCheckRunInput<'a> {
+    RuleCheckRunInput {
+        rule_pack_document: doc,
+        solver_results: run["solver"].as_array().unwrap().iter().map(|s| SolverResultBinding {
+            input_id: s[0].as_str().unwrap().to_string(),
+            result_id: format!("result:rv99:{}", s[0].as_str().unwrap()),
+            value: hexf(&s[1]),
+            unit: s[2].as_str().unwrap().to_string(),
+        }).collect(),
+        refused_solver_results: run["refused"].as_array().unwrap().iter().map(|r| RefusedSolverResult {
+            input_id: r[0].as_str().unwrap().to_string(),
+            reason: r[1].as_str().unwrap().to_string(),
+        }).collect(),
+        supplied_values: run["supplied"].as_array().unwrap().iter().map(|s| SuppliedValueBinding {
+            ref_id: s[0].as_str().unwrap().to_string(),
+            value: hexf(&s[1]),
+            unit: s[2].as_str().unwrap().to_string(),
+            dimension: s[3].as_str().unwrap().to_string(),
+        }).collect(),
+        library_values: Vec::new(),
+        current_statuses: run["statuses"].as_array().unwrap().iter().map(|s| status(s.as_str().unwrap())).collect(),
+    }
+}
+
+fn dump<F: Fn() -> String>(f: F) -> String {
+    match catch_unwind(AssertUnwindSafe(f)) {
+        Ok(s) => s,
+        Err(_) => "PANIC".to_string(),
+    }
+}
+
+#[test]
+fn rv99_diff() {
+    let Ok(path) = std::env::var("RV99_DIFF_CASES") else {
+        return;
+    };
+    let out_dir = std::env::var("RV99_DIFF_OUT").expect("RV99_DIFF_OUT");
+    let cases: Value = serde_json::from_str(&fs::read_to_string(path).unwrap()).unwrap();
+    std::panic::set_hook(Box::new(|_| {}));
+    let docs: Vec<Value> = cases["packs"].as_array().unwrap().iter().map(|p| dehex(&p["doc"])).collect();
+    let mut plain = fs::File::create(format!("{out_dir}/run_plain.txt")).unwrap();
+    //C let mut empty = fs::File::create(format!("{out_dir}/run_empty_bounds.txt")).unwrap();
+    //C let mut inert = fs::File::create(format!("{out_dir}/run_inert_bounds.txt")).unwrap();
+    for run in cases["runs"].as_array().unwrap() {
+        let doc = &docs[run["pack"].as_u64().unwrap() as usize];
+        let inp = input(doc, run);
+        writeln!(plain, "{}", dump(|| serde_json::to_string(&run_rule_checks(&inp)).unwrap())).unwrap();
+        //C writeln!(empty, "{}", dump(|| serde_json::to_string(&run_rule_checks_with_bounds(&inp, &[])).unwrap())).unwrap();
+        //C // b = 0 on every solver input, plus bounds on user inputs, slots and unknown ids: all inert.
+        //C let mut bounds: Vec<SolverResultBound> = inp.solver_results.iter().map(|s| SolverResultBound { input_id: s.input_id.clone(), absolute_bound: 0.0 }).collect();
+        //C for s in &inp.supplied_values { bounds.push(SolverResultBound { input_id: s.ref_id.clone(), absolute_bound: 7.5 }); }
+        //C bounds.push(SolverResultBound { input_id: "rv99_not_an_input".to_string(), absolute_bound: 1.0 });
+        //C writeln!(inert, "{}", dump(|| serde_json::to_string(&run_rule_checks_with_bounds(&inp, &bounds)).unwrap())).unwrap();
+    }
+    // Evaluator point path over the formula packs' formulas at their run values.
+    let mut ev = fs::File::create(format!("{out_dir}/evaluate.txt")).unwrap();
+    for run in cases["runs"].as_array().unwrap() {
+        let doc = &docs[run["pack"].as_u64().unwrap() as usize];
+        let Some(ast) = doc.pointer("/formula_declarations/0/declaration_payload/expression_ast") else { continue };
+        let Ok(expression) = decode_expression(ast) else { writeln!(ev, "DECODE_ERROR").unwrap(); continue };
+        let mut bindings = Vec::new();
+        for s in run["solver"].as_array().unwrap().iter().chain(run["supplied"].as_array().unwrap().iter()) {
+            let dim = s.get(3).and_then(Value::as_str).and_then(decode_dimension)
+                .or_else(|| decode_dimension("dimensionless")).unwrap();
+            if let Ok(q) = Quantity::new(hexf(&s[1]), dim, s[2].as_str().unwrap()) {
+                bindings.push(VariableBinding::new(s[0].as_str().unwrap(), BindingSource::SolverResultField, q));
+            }
+        }
+        let ei = EvaluationInput { expression, bindings, required_variable_ids: Vec::new(),
+            statuses: vec![AnalysisStatus::MechanicsSolved], declared_grammar_version: "1.0.0".to_string() };
+        writeln!(ev, "{}", dump(|| { let r = evaluate(&ei); format!("{:?} {:?}", r, r.value.as_ref().map(|v| match v { open_pipe_stress_expression_evaluator::EvaluationValue::Quantity(q) => q.value.to_bits(), _ => 0 })) })).unwrap();
+    }
+    let _ = std::panic::take_hook();
+}

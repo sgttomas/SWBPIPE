@@ -1,0 +1,17 @@
+== 37484843883
+Select source coverage	success
+Desktop E2E (source mode)	success
+Source remainder (${{ matrix.shard }}/4)	skipped
+Accessibility barrier and selected coverage	skipped
+Numerical cargo suite	skipped
+== 37484843578
+Select App coverage	success
+Harness pre-merge	success
+App instruction bundle	skipped
+App Runtime integration	skipped
+== 37484843572
+Select PEC coverage	success
+pec	success
+PEC workspace tests	skipped
+== 37484843634
+harness	success

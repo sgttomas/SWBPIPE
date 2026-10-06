@@ -1,0 +1,10 @@
+pass1 {'eval_straddle_U': 903, 'eval_point_panic_boxes': 30, 'runner_straddle_RULE_INPUTS_INCOMPLETE': 149, 'runner_point_panic_boxes': 3}
+seed1 {'eval_straddle_U': 1820, 'eval_point_panic_boxes': 30, 'runner_straddle_RULE_INPUTS_INCOMPLETE': 367, 'runner_point_panic_boxes': 4}
+seed2 {'eval_straddle_U': 1776, 'eval_point_panic_boxes': 30, 'runner_straddle_RULE_INPUTS_INCOMPLETE': 333, 'runner_point_panic_boxes': 3}
+seed3 {'eval_straddle_U': 1733, 'eval_point_panic_boxes': 30, 'runner_straddle_RULE_INPUTS_INCOMPLETE': 343, 'runner_point_panic_boxes': 3}
+seed4 {'eval_straddle_U': 1730, 'eval_point_panic_boxes': 30, 'runner_straddle_RULE_INPUTS_INCOMPLETE': 356, 'runner_point_panic_boxes': 3}
+extra {'eval_straddle_U': 20}
+i73 {'eval_straddle_U': 19}
+invalid {'eval_straddle_B': 15, 'eval_straddle_U': 38}
+dense {}
+TOTAL (dense excluded from straddle/panic box counts: it re-samples pass-1 boxes) {'eval_straddle_U': 8039, 'eval_point_panic_boxes': 150, 'runner_straddle_RULE_INPUTS_INCOMPLETE': 1548, 'runner_point_panic_boxes': 16, 'eval_straddle_B': 15}

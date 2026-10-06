@@ -1,0 +1,12 @@
+I63_MUST_PASS "isolated_estimate_uncoupled_sparse_interactive" true
+I63_MUST_PASS "isolated_estimate_uncoupled_dense_scrutiny" true
+I63_MUST_PASS "isolated_translation_stop_sparse_interactive" true
+I63_MUST_PASS "isolated_translation_stop_dense_scrutiny" true
+I70_OUTCOME_07L {"base":"u8_l0_isolated_node_sparse_interactive","expected":{"code":"RETAINED_PRECISION_SCALE_MISMATCH","gate":"G5a"},"id":"isolated_rotation_stop_sparse_interactive","match":true,"observed":{"code":"RETAINED_PRECISION_SCALE_MISMATCH","gate":"G5a"}}
+I70_OUTCOME_07L {"base":"u8_l0_isolated_node_sparse_interactive","expected":{"code":"RETAINED_PRECISION_SCALE_MISMATCH","gate":"G5a"},"id":"isolated_has_data_sparse_interactive","match":true,"observed":{"code":"RETAINED_PRECISION_SCALE_MISMATCH","gate":"G5a"}}
+I70_OUTCOME_07L {"base":"u8_l0_isolated_node_sparse_interactive","expected":{"code":"RETAINED_PRECISION_SCALE_MISMATCH","gate":"G5a"},"id":"isolated_estimate_coupled_sparse_interactive","match":true,"observed":{"code":"RETAINED_PRECISION_SCALE_MISMATCH","gate":"G5a"}}
+I70_OUTCOME_07L {"base":"u8_l0_isolated_node_dense_scrutiny","expected":{"code":"RETAINED_PRECISION_SCALE_MISMATCH","gate":"G5a"},"id":"isolated_rotation_stop_dense_scrutiny","match":true,"observed":{"code":"RETAINED_PRECISION_SCALE_MISMATCH","gate":"G5a"}}
+I70_OUTCOME_07L {"base":"u8_l0_isolated_node_dense_scrutiny","expected":{"code":"RETAINED_PRECISION_SCALE_MISMATCH","gate":"G5a"},"id":"isolated_has_data_dense_scrutiny","match":true,"observed":{"code":"RETAINED_PRECISION_SCALE_MISMATCH","gate":"G5a"}}
+I70_OUTCOME_07L {"base":"u8_l0_isolated_node_dense_scrutiny","expected":{"code":"RETAINED_PRECISION_SCALE_MISMATCH","gate":"G5a"},"id":"isolated_estimate_coupled_dense_scrutiny","match":true,"observed":{"code":"RETAINED_PRECISION_SCALE_MISMATCH","gate":"G5a"}}
+I70_OUTCOME_07L {"base":"u8_l0_isolated_node_sparse_interactive","expected":{"code":"RETAINED_PRECISION_SCALE_MISMATCH","gate":"G5a"},"id":"isolated_translation_rotation_stop_sparse_interactive","match":true,"observed":{"code":"RETAINED_PRECISION_SCALE_MISMATCH","gate":"G5a"}}
+I70_OUTCOME_07L {"base":"u8_l0_isolated_node_dense_scrutiny","expected":{"code":"RETAINED_PRECISION_SCALE_MISMATCH","gate":"G5a"},"id":"isolated_translation_rotation_stop_dense_scrutiny","match":true,"observed":{"code":"RETAINED_PRECISION_SCALE_MISMATCH","gate":"G5a"}}

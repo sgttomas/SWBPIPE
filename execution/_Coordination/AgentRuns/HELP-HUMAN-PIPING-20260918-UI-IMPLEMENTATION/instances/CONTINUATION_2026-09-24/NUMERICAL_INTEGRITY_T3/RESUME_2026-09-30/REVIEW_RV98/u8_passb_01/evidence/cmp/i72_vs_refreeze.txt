@@ -1,0 +1,18 @@
+i72 vs refreeze (skipping top-level ['logs', 'rr', 'tmp', 'work']): common 92, identical 85, differ 7, only in i72 5, only in refreeze 4
+  DIFFER   delta.out.txt  905f9f4768bd e2520f1f6084
+  DIFFER   delta_inventory.json  c97fdc3167c9 e28029a6b45b
+  DIFFER   gate_tree.json  fa7a90721d6a da846c554172
+  DIFFER   linemap.out.json  43496feb80ba 1b823bcb4b68
+  DIFFER   rules/g7_linemap.out.json  374e92b9da3f 047d7388ec55
+  DIFFER   tree_blobs.tsv  f2036b7a9881 c783500752d8
+  DIFFER   verdict.tsv  49c30757baed e9376301665a
+  ONLY_i72  VERDICT.txt
+  ONLY_i72  cargo_summary.txt
+  ONLY_i72  gate_law.json
+  ONLY_i72  gate_pp_outcomes.json
+  ONLY_i72  gate_runner_outcomes.json
+  ONLY_refreeze  F_to_Fprime_files.txt
+  ONLY_refreeze  GATES.txt
+  ONLY_refreeze  reviewed_inputs_blobs.txt
+  ONLY_refreeze  run.out
+  IDENTICAL: D.txt audit_pb.json cg_pb.out.json controls.out.txt ctl/audit_controls_g7.out.json ctl/loop_bounds.c0_unmodified.json ctl/loop_bounds.c10_g7_si_rule_removed.json ctl/loop_bounds.c11_g7_self_recursion_unreviewed.json ctl/loop_bounds.c1_rv87_c2_primitive_loads_299.json ctl/loop_bounds.c2_stale_site_zero_key.json ctl/loop_bounds.c3_rv87_c1_lib_5592.json ctl/loop_bounds.c4_sf1_label_1708.json ctl/loop_bounds.c5_sf2_copy_3125.json ctl/loop_bounds.c6_sf2_lex_key_back_to_2963.json ctl/loop_bounds.c7_stale_audit_entry.json ctl/loop_bounds.c8_static_class_entry_8795.json ctl/loop_bounds.c9_g7_cycle_edge_restored.json ctl/text_args.c0_unmodified.json ctl/text_args.c10_g7_si_rule_removed.json ctl/text_args.c11_g7_self_recursion_unreviewed.json ctl/text_args.c1_rv87_c2_primitive_loads_299.json ctl/text_args.c2_stale_site_zero_key.json ctl/text_args.c3_rv87_c1_lib_5592.json ctl/text_args.c4_sf1_label_1708.json ctl/text_args.c5_sf2_copy_3125.json ctl/text_args.c6_sf2_lex_key_back_to_2963.json ctl/text_args.c7_stale_audit_entry.json ctl/text_args.c8_static_class_entry_8795.json ctl/text_args.c9_g7_cycle_edge_restored.json edges_pb.json gate_controls.json gate_entry.json gate_forms.json gate_noncand.json gate_premise.json gate_statics.json gate_text.json lexicon_pb.json noncand.json noncand_compare.out.json price_delta.out.json registered_retained_memory.rs retained_memory.regen.rs rules/callgraph_rules.g4.json rules/loop_bounds.g4.json rules/premise_pins.json rules/sens.py rules/text_args.g4.json sens_pb.summary.json sens_pb/callgraph_g5.py sens_pb/callgraph_rules.g4.json sens_pb/composite_text.caps.json sens_pb/composite_text.py sens_pb/crate_dirs.txt sens_pb/g3lib.py sens_pb/g4_caps.caps.eps2.out.json sens_pb/g4_caps.py sens_pb/g5_profile.py sens_pb/loop_bounds.g4.json sens_pb/loopscan.py sens_pb/ordinary_caps.caps.out.json sens_pb/ordinary_caps.py sens_pb/producer_caps.caps.out.json sens_pb/producer_caps.py sens_pb/profile_tree.json sens_pb/sens.py sens_pb/t07_repair.caps.out.json sens_pb/t07_repair.py sens_pb/t08_closure.caps.log sens_pb/t08_closure.py sens_pb/t25_caps.caps.out.json sens_pb/t25_g4.caps.eps2.out.json sens_pb/t25_g4.py sens_pb/template_inventory.py sens_pb/template_inventory_head.out.json sens_pb/text_args.g4.json sens_pb/text_budget.caps.out.json sens_pb/text_budget.py sens_pb/text_budget_W.caps.out.json sens_pb/text_budget_X.caps.out.json sens_pb/text_budget_env.caps.out.json sens_pb/text_closure.caps.json sens_pb/text_lexicon.py statics.json whole_nc.out.json

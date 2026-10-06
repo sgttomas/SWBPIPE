@@ -1,0 +1,29 @@
+base: {'passed': 3424, 'skipped': 32, 'failed': 52, 'error': 64} total 3572
+candidate: {'passed': 3447, 'skipped': 32, 'failed': 52, 'error': 64} total 3595
+added (23):
+  tests.test_results_dispatcher_v0_3::test_committed_v03_documents_include_the_goldens [passed]
+  tests.test_results_dispatcher_v0_3::test_dispatcher_admits_preview_physics_physics_and_the_successor[golden dense_scrutiny] [passed]
+  tests.test_results_dispatcher_v0_3::test_dispatcher_admits_preview_physics_physics_and_the_successor[golden sparse_interactive] [passed]
+  tests.test_results_dispatcher_v0_3::test_dispatcher_admits_preview_physics_physics_and_the_successor[synthetic physics-1] [passed]
+  tests.test_results_dispatcher_v0_3::test_dispatcher_admits_preview_physics_physics_and_the_successor[synthetic precision-1] [passed]
+  tests.test_results_dispatcher_v0_3::test_dispatcher_admits_preview_physics_physics_and_the_successor[synthetic preview-physics-1] [passed]
+  tests.test_results_dispatcher_v0_3::test_dispatcher_and_version_file_agree_on_every_committed_v03_document [passed]
+  tests.test_results_dispatcher_v0_3::test_dispatcher_and_version_file_agree_on_refusals [passed]
+  tests.test_results_dispatcher_v0_3::test_dispatcher_arm_is_a_reference_to_the_version_file [passed]
+  tests.test_results_dispatcher_v0_3::test_dispatcher_mutants_are_killed[drop-arm-0.1.0] [passed]
+  tests.test_results_dispatcher_v0_3::test_dispatcher_mutants_are_killed[drop-arm-0.2.0] [passed]
+  tests.test_results_dispatcher_v0_3::test_dispatcher_mutants_are_killed[drop-arm-0.3.0] [passed]
+  tests.test_results_dispatcher_v0_3::test_dispatcher_mutants_are_killed[ref-analysis-run] [passed]
+  tests.test_results_dispatcher_v0_3::test_dispatcher_mutants_are_killed[ref-v0.1] [passed]
+  tests.test_results_dispatcher_v0_3::test_dispatcher_mutants_are_killed[ref-v0.2] [passed]
+  tests.test_results_dispatcher_v0_3::test_mixed_and_unknown_versions_are_refused[0.1.0-0.3.0] [passed]
+  tests.test_results_dispatcher_v0_3::test_mixed_and_unknown_versions_are_refused[0.2.0-0.3.0] [passed]
+  tests.test_results_dispatcher_v0_3::test_mixed_and_unknown_versions_are_refused[0.3.0-0.1.0] [passed]
+  tests.test_results_dispatcher_v0_3::test_mixed_and_unknown_versions_are_refused[0.3.0-0.2.0] [passed]
+  tests.test_results_dispatcher_v0_3::test_mixed_and_unknown_versions_are_refused[0.3.0-0.4.0] [passed]
+  tests.test_results_dispatcher_v0_3::test_mixed_and_unknown_versions_are_refused[0.4.0-0.3.0] [passed]
+  tests.test_results_dispatcher_v0_3::test_mixed_and_unknown_versions_are_refused[0.4.0-0.4.0] [passed]
+  tests.test_results_dispatcher_v0_3::test_other_arms_are_unchanged [passed]
+removed (0):
+outcome changed (0):
+base failures/errors (116); candidate failures/errors (116); identical sets: True

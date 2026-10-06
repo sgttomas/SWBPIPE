@@ -1,0 +1,16 @@
+reviewed table entries: 11
+rows with a reviewed entry: rv98 11 F 11 F' 11
+every table entry matched by an rv98 row: True
+rv98 reviewed rows equal F's (file, lines, class, entry): True ; equal F''s: True
+  09a2779c35c4b96f core/product_physics/src/lib.rs 2235-2235 item
+  38a7b43fd37f6845 core/product_physics/src/lib.rs 2254-2254 item
+  44ce5c671ad34b3e core/product_physics/src/lib.rs 2379-2379 cfg-test-stmt
+  c5e1d6c96bd07c60 core/product_physics/src/lib.rs 3005-3005 cfg-test-stmt
+  9b81ac2ee4bdcda0 core/product_physics/src/retained_memory_law_tests.rs 2-4 qualification-test
+  71e1fff29b187e92 core/product_physics/src/retained_memory_law_tests.rs 1238-1238 qualification-test
+  4198b681db65c62a core/product_physics/src/retained_memory_witness_tests.rs 6-6 qualification-test
+  2a8be2da9031008a core/product_physics/src/retained_product.rs 3244-3244 cfg-test-stmt
+  eb06a586f6d1f50e core/product_physics/tests/retained_memory_challenge.rs 6-10 qualification-test
+  1ea4bbe3d178aa2d core/reporting/result_export/src/retained_precision.rs 4267-4269 item
+  2718103130462590 core/reporting/result_export/src/source_blocks.rs after 55 item
+unreviewed: [] unreviewed_qualification_tests: []

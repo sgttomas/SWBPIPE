@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "WT/scratch/i77_u8_pkg/main_tools/check_citations.py", line 142, in <module>
+    if not text[hl - 1].startswith("## ") or text[hl - 1][3:] != e["heading"]:
+           ~~~~^^^^^^^^
+IndexError: list index out of range

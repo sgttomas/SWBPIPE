@@ -1,0 +1,45 @@
+# RV97 round 2: scope of d449097085..bd6b4be2c3 (git reads, GIT_OPTIONAL_LOCKS=0, in WT/f2a-u8)
+
+bd6b4be2c33cc64edf3e273bc126083872d03e24 de01e43bc417b72161b964db8f5208dda91c99d4 piping(T3 U8-3): the TS reader test pins corpus 07l's counts and new entries
+de01e43bc417b72161b964db8f5208dda91c99d4 69a925bd68417736fdb513229b954770d869c324 piping(T3 U8-3): result_export's contract test aligned to corpus 07l
+69a925bd68417736fdb513229b954770d869c324 d44909708529c6277fc1fd3b22997218296c8dd3 piping(T3 U8-2): corpus 07l with the L = 0 producer-solved bases and their mutations
+
+## numstat (whole repository)
+45	0	projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts
+23	6	projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+16139	1	projects/chirality-piping/fixtures/results/retained_precision_cases.json
+68	7	projects/chirality-piping/tests/test_retained_precision_contract.py
+
+## every deleted line, per file
+### projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts
+### projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+-//! Shared synthetic statement controls. These do not establish execution.
+-        // U7 (07i, D-U7-2): 13 bases are eligible; the two with an unavailable case are not.
+-/// check the slice tally. 07h held 277 mutations; RV94 N-3's G7 probe makes 278.
+-    assert_eq!(mutations.len(), 278);
+-    // reordered-envelope exact-list control (RV90 N2); 07j adds C04's not_required case.
+-    assert_eq!(entries.len(), 24);
+### projects/chirality-piping/fixtures/results/retained_precision_cases.json
+-    "claim": "Arithmetic and reader controls only; no producer execution or native Current evidence."
+### projects/chirality-piping/tests/test_retained_precision_contract.py
+-"""Synthetic reader controls, not produced receipts or native Current evidence."""
+-        # U7 (07i, D-U7-2): the shared expectation; 13 bases are eligible, the two with an unavailable case are not.
+-    # U7 (07i): 13 entries are eligible; the 10 with an unavailable case are not.
+-    """Snapshot 07j plus RV94 N-3's G7 probe (U7 repair; 07j: U7 slice L, C04; 07i: D-U7-2; 07h: RV90 S1, N1, N2, N4):
+-    15 cases, 278 mutations, 24 must-pass and the D37 table; only rehash "all" (D11); one expectation
+-    assert (len(c["cases"]), len(c["mutations"]), len(c["must_pass"])) == (15, 278, 24)
+-    assert (eligible(c["cases"], "expected"), eligible(c["must_pass"], "expected_eligibility")) == (13, 14)
+
+## sha256 at bd6b4be2c3
+59531ed1ecf9aff190d9501a0eb120113380e36a2c37a25effd88f007629c287  projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts
+7832a6024c8c460bd02d145ec490fbe5ee798e118ab14c6163fd919030d6d5d0  projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+5ac13296c69745ae837e41b93c42e4daa0c4100dc863229f8e6a4cdbe2692ccd  projects/chirality-piping/fixtures/results/retained_precision_cases.json
+729405c6352a2f6ac83ef04eddf0bbdcac9c91a10cd4e0b2e9c0aec8036bd794  projects/chirality-piping/tests/test_retained_precision_contract.py
+
+## reader src, schemas and production paths touched (expect none)
+(end)
+
+## engine closure diff (17 crates + apps/desktop/scripts), e2b83da584 -> bd6b4be2c3
+projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs (cfg(test) module, lib.rs:128-129)
+projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs (integration test)
+fixtures changed: the corpus and the two L = 0 successors; included only by PP's cfg(test) facade tests, result_export's cfg(test) module (src/retained_precision.rs:4349-4353) and result_export/tests

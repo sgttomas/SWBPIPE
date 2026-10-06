@@ -1,0 +1,5 @@
+stops []
+sparse_interactive tallies equal: True | claims 97 97 | observables True | body1 {'rows': 15, 'input_derived': 6, 'exact_zero_absolute': 9, 'failures': []} | controls True
+   body-0 per-row entries identical to the milestone's: 98 of 98 | L0 report rows 98
+dense_scrutiny tallies equal: True | claims 97 97 | observables True | body1 {'rows': 15, 'input_derived': 6, 'exact_zero_absolute': 9, 'failures': []} | controls True
+   body-0 per-row entries identical to the milestone's: 99 of 99 | L0 report rows 99

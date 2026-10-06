@@ -1,0 +1,5 @@
+  W6's body; PHYS-R4's cantilever; retained_memory_witness_tests.rs :181–199: core/product_physics/src/retained_memory_witness_tests.rs:181 blob at source 9745e3fe38ef, at main 9745e3fe38ef
+  W6's body; PHYS-R4's cantilever; retained_memory_witness_tests.rs :181–199: core/product_physics/src/retained_memory_witness_tests.rs:199 blob at source 9745e3fe38ef, at main 9745e3fe38ef
+  u8_head d44909708529…: remote branches ['origin/codex/piping-f2a-u8-20261005']; ancestor of NUM False; of main False
+named_references: 15 entries, 63 checks, 0 failed
+RESULT PASS

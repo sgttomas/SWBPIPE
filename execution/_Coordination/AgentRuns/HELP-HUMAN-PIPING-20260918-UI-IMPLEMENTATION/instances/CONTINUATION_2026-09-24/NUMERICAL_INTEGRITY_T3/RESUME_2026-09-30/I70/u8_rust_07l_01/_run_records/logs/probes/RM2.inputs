@@ -1,0 +1,3 @@
+f894b12ef1f44197bdc78d6a719a9fedbcffed7180aadc05a4fa0339f7b60670  WT/scratch/i70_u8/probe/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs
+5ac13296c69745ae837e41b93c42e4daa0c4100dc863229f8e6a4cdbe2692ccd  WT/scratch/i70_u8/probe/projects/chirality-piping/fixtures/results/retained_precision_cases.json
+b996e0c95eee9753a0d541259e06a202f4985a9e7a96f3420b54f4737df22b54  WT/scratch/i70_u8/probe/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
