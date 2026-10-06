@@ -971,3 +971,48 @@ describe('07g round (I61 U6e): F5 and RV79-N1', () => {
     expect(probe.expected_by_reader.typescript).toEqual({ gate: 'G7', code: 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED' });
   });
 });
+
+// Snapshot 07l (U8-2): the count pins Python and Rust carry, and the appended L = 0 slices pinned here rather than
+// read from the corpus, so a dropped, reordered or re-expected L = 0 entry fails even though the per-entry tests
+// above follow the corpus's own expectation.
+describe('07l round (U8-2): counts and the appended producer-solved L = 0 entries', () => {
+  const MODES = ['sparse_interactive', 'dense_scrutiny'], SCALE = G('G5a', 'SCALE_MISMATCH');
+  const ELIGIBLE = { invocation_bound: true, numerical_eligible: true, standing: 'eligible' };
+  const l0 = (names: string[]) => MODES.flatMap(mode => names.map(name => `${name}_${mode}`));
+  const baseOf = (id: string) => `u8_l0_isolated_node_${MODES.find(mode => id.endsWith('_' + mode))}`;
+  const eligibility = (r: any) => ({ invocation_bound: r.invocation_bound, numerical_eligible: r.numerical_eligible, standing: r.standing });
+  it('07l: 17 cases, 286 mutations and 28 must-pass entries; 15 bases and 18 must-pass entries are eligible', () => {
+    expect([corpus.cases.length, corpus.mutations.length, corpus.must_pass.length]).toEqual([17, 286, 28]);
+    expect([corpus.cases.filter((c: any) => c.expected.numerical_eligible).length, corpus.must_pass.filter((m: any) => m.expected_eligibility.numerical_eligible).length]).toEqual([15, 18]);
+  });
+  it('07l: the two appended producer-solved bases are eligible, with the class counts all three readers observed (I68)', async () => {
+    expect(corpus.cases.slice(15).map((c: any) => c.id)).toEqual(MODES.map(mode => `u8_l0_isolated_node_${mode}`));
+    for (const [index, classes] of [[15, [25, 78, 9, 1]], [16, [25, 78, 9, 2]]] as const) {
+      const c = corpus.cases[index], result = await validateRetainedPrecision(structuredClone(c.source), structuredClone(c.invocation));
+      expect(c.provenance.kind, c.id).toBe('producer_solved');
+      expect(eligibility(result), c.id).toEqual(ELIGIBLE);
+      expect(['relative_verified', 'absolute_verified', 'input_derived', 'non_quantity'].map(k => result.classifications.filter((x: any) => x.class === k).length), c.id).toEqual(classes);
+      expect(result.classifications, c.id).toEqual(c.expected_classifications);
+    }
+  });
+  it('07l: the 8 appended mutations are refused at G5a SCALE', async () => {
+    const appended = corpus.mutations.slice(278);
+    expect(appended.map((m: any) => m.id)).toEqual([...l0(['isolated_rotation_stop', 'isolated_has_data', 'isolated_estimate_coupled']), ...l0(['isolated_translation_rotation_stop'])]);
+    for (const m of appended) {
+      expect([m.base, m.expected, m.expected_by_reader], m.id).toEqual([baseOf(m.id), SCALE, undefined]);
+      const { source, invocation } = await applyEntry(m);
+      expect(await firstFailure(source, invocation), m.id).toEqual(SCALE);
+    }
+  });
+  it('07l: the 4 appended must-pass entries are admitted, eligible, with their base classifications', async () => {
+    const appended = corpus.must_pass.slice(24);
+    expect(appended.map((m: any) => m.id)).toEqual([...l0(['isolated_estimate_uncoupled']), ...l0(['isolated_translation_stop'])]);
+    for (const m of appended) {
+      expect([m.base, m.expected, m.expected_eligibility], m.id).toEqual([baseOf(m.id), 'pass', ELIGIBLE]);
+      const { base, source, invocation } = await applyEntry(m);
+      const result = await validateRetainedPrecision(source, invocation);
+      expect(eligibility(result), m.id).toEqual(ELIGIBLE);
+      expect(result.classifications, m.id).toEqual(base.expected_classifications);
+    }
+  });
+});
