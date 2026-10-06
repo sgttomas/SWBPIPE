@@ -1,0 +1,110 @@
+{
+ "base": "c1571f7febcb4b710c8aa5633f1f5c4460c3faf3",
+ "checks": {
+  "check1": {
+   "detail": "PR non-execution paths equal S",
+   "pass": true
+  },
+  "check2": {
+   "detail": "8 paths identical in blob and mode",
+   "pass": true
+  },
+  "check3": {
+   "detail": {
+    "rules_not_needed": [
+     "projects/chirality-piping/core/analysis_runs/compatibility.py"
+    ]
+   },
+   "pass": true
+  },
+  "check4": {
+   "detail": {
+    "execution_files": 4,
+    "outside_package": [],
+    "sha256_mismatch": []
+   },
+   "pass": true
+  },
+  "check5": {
+   "detail": "8 rows; 8 equal; 0 recorded three-way merge(s); unexplained []",
+   "pass": true
+  }
+ },
+ "int": "f9657c51c53a99ee1fb8c247a5a5aa5d20163b7e",
+ "main": "c1571f7febcb4b710c8aa5633f1f5c4460c3faf3",
+ "pr": "ef266247dea454f4ed4525fc67f9013be568adff",
+ "table": [
+  {
+   "equal": true,
+   "int_blob": "ec8777bee244279a04010954241757027b524eb8",
+   "int_last_commit": "c26ecabbc1e62dc233340a9f6722a7e96e3f9eae",
+   "mode": "100644",
+   "path": "projects/chirality-piping/core/analysis_runs/rule_interval.py",
+   "pr_blob": "ec8777bee244279a04010954241757027b524eb8",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "125eb3814219dabb7bfef3c5c1d1df00827be717",
+   "int_last_commit": "c26ecabbc1e62dc233340a9f6722a7e96e3f9eae",
+   "mode": "100644",
+   "path": "projects/chirality-piping/core/rules/expression_evaluator/src/lib.rs",
+   "pr_blob": "125eb3814219dabb7bfef3c5c1d1df00827be717",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "5bccfb772630744db70517565f3f9c409967d129",
+   "int_last_commit": "c26ecabbc1e62dc233340a9f6722a7e96e3f9eae",
+   "mode": "100644",
+   "path": "projects/chirality-piping/core/rules/rule_check_runner/src/lib.rs",
+   "pr_blob": "5bccfb772630744db70517565f3f9c409967d129",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "30d6e24dc221186a653886d15f188eaab214076a",
+   "int_last_commit": "c26ecabbc1e62dc233340a9f6722a7e96e3f9eae",
+   "mode": "100644",
+   "path": "projects/chirality-piping/core/rules/rule_check_runner/tests/interval_bounds_run.rs",
+   "pr_blob": "30d6e24dc221186a653886d15f188eaab214076a",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "decebf81d4d40a5a3da05fec9b48aa5cef36094a",
+   "int_last_commit": "c26ecabbc1e62dc233340a9f6722a7e96e3f9eae",
+   "mode": "100644",
+   "path": "projects/chirality-piping/core/rules/rule_check_runner/tests/rule_interval_cases.rs",
+   "pr_blob": "decebf81d4d40a5a3da05fec9b48aa5cef36094a",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "8b89eeab897831affb8fc6d5aa74b227d87dd868",
+   "int_last_commit": "c26ecabbc1e62dc233340a9f6722a7e96e3f9eae",
+   "mode": "100644",
+   "path": "projects/chirality-piping/fixtures/rule_interval/rule_interval_cases.json",
+   "pr_blob": "8b89eeab897831affb8fc6d5aa74b227d87dd868",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "9fc0f9eefa3ca7d9aa1f208a6060a8493656a042",
+   "int_last_commit": "ea7c0881f413cca1f01f83886565f01c1228cdab",
+   "mode": "100644",
+   "path": "projects/chirality-piping/schemas/rule_check_run_result.schema.json",
+   "pr_blob": "9fc0f9eefa3ca7d9aa1f208a6060a8493656a042",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "4d5ee02ab5b5bfe4b4589f3bc10cd27fe29010a5",
+   "int_last_commit": "c26ecabbc1e62dc233340a9f6722a7e96e3f9eae",
+   "mode": "100644",
+   "path": "projects/chirality-piping/tests/test_rule_interval.py",
+   "pr_blob": "4d5ee02ab5b5bfe4b4589f3bc10cd27fe29010a5",
+   "resolution": null
+  }
+ ]
+}

@@ -1,0 +1,2 @@
+FAIL: 1 literal home-dir absolute path finding(s) in 20103 live path-anchor surfaces
+projects/chirality-app-v4/execution/_Coordination/_COORDINATION.md:18: <home path elided>

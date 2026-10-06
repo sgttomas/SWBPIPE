@@ -1,0 +1,83 @@
+--- WT/scratch/rv97_u8_01/u5/u5_compare.pinned.py	2026-10-05 20:15:14
++++ WT/scratch/rv97_u8_01/u5/u5_compare_l0_variant.py	2026-10-05 20:15:14
+@@ -14,6 +14,18 @@
+ a row kind the oracle does not map, or any mapping that needs a reading, stops.
+ 
+ Usage: u5_compare.py ORACLE I50_RECORD_LOG READER_ROOT OUT_JSON SUCCESSOR_FILE...
++
++RV97 L = 0 variant (review records only). Three declared changes, nothing else:
++  (a) the invocation's request must equal I50's request once the L = 0 additions are
++      removed, and those additions must be exactly one node N2 that no member references
++      and one support rigid:N2 on it restraining all six DOFs (a no-op for the milestone);
++  (b) body 1's rows (entity_ref N2 or rigid:N2) are not mapped through the oracle, whose
++      model has no N2; they are checked against the exact statics of an unloaded node held
++      only by a rigid support: every value exactly 0, class input_derived, or
++      absolute_verified with normalized and bound 0 (reported under "body1");
++  (c) the oracle's observable checks read the invocation's own model (equal to I50's for
++      the milestone), and the negative controls pick body-0 rows.
++Body 0's rows go through the unchanged oracle mapping and the unchanged criterion.
+ """
+ import hashlib, json, sys
+ from fractions import Fraction as F
+@@ -61,7 +73,16 @@
+     mode = invocation["solver_mode"]
+     record = dict(i50[mode])
+     # The oracle's derivation applies to this invocation only if it is I50's request.
+-    assert invocation["request"] == record["request"], "the successor's invocation is I50's named request"
++    req = json.loads(json.dumps(invocation["request"]))
++    added_nodes = [n for n in req["model"]["nodes"] if n["id"] == "N2"]
++    added_supports = [x for x in req["model"]["supports"] if x["node"] == "N2"]
++    req["model"]["nodes"] = [n for n in req["model"]["nodes"] if n["id"] != "N2"]
++    req["model"]["supports"] = [x for x in req["model"]["supports"] if x["node"] != "N2"]
++    assert req == record["request"], "body 0's request is I50's named request"
++    assert all(p["from"] != "N2" and p["to"] != "N2" for p in req["model"]["pipe_segments"])
++    assert len(added_nodes) == len(added_supports) <= 1
++    assert all(x["id"] == "rigid:N2" and x["restraints"] == ["UX", "UY", "UZ", "RX", "RY", "RZ"] and "family" not in x and "stiffness" not in x for x in added_supports)
++    body1 = {"rows": 0, "input_derived": 0, "exact_zero_absolute": 0, "failures": []}
+     # The public entry refuses at G0 until U7 switches `_IMPLEMENTATION_COMPLETE` on;
+     # its ordered checks are `_validate_draft` (eligibility off), as U1's lane used.
+     validation = reader._validate_draft(source, invocation)
+@@ -78,6 +99,17 @@
+         c = classes[r["id"]]
+         cls = c["class"]
+         counts[cls] = counts.get(cls, 0) + 1
++        if r["entity_ref"] in ("N2", "rigid:N2"):
++            body1["rows"] += 1
++            if bits(r["value"]) != bits(0.0):
++                body1["failures"].append([r["id"], "value is not exactly +0"])
++            if cls == "input_derived":
++                body1["input_derived"] += 1
++            elif cls == "absolute_verified" and c["normalized_bits"] == bits(0.0) and c["bound_bits"] == bits(0.0):
++                body1["exact_zero_absolute"] += 1
++            else:
++                body1["failures"].append([r["id"], f"class {cls} is neither input-derived nor an exact zero"])
++            continue
+         n = norm_value(r)
+         assert bits(n) == c["normalized_bits"], ("normalized bits", r["id"])
+         entry = {"id": r["id"], "kind": r["kind"], "class": cls, "value_bits": bits(r["value"]), "unit": r["unit"],
+@@ -125,12 +157,15 @@
+         out_rows.append(entry)
+     # The prepared route's maxima patches, overlay headlines and support rows, by the
+     # oracle's own observable checks (mapped through the oracle, not reinterpreted).
+-    m = record["request"]["model"]
++    m = invocation["request"]["model"]
+     observable_ok = observables({"envelope": envelope, "mode": mode}, rows, m)
+     summary = {"mode": mode, "successor_file_sha256": file_sha, "receipt_sha256": source["retained_precision"]["receipt_sha256"],
+                "reader": {k: validation[k] for k in ["invocation_bound", "numerical_eligible", "standing", "publication_sha256"]},
+                "rows": len(rows), "classes": counts, "observable_checks": observable_ok,
+                "class_claims_checked": sum(1 for e in out_rows if isinstance(e.get("readouts"), dict))}
++    if body1["rows"]:
++        summary["body1"] = body1
++        stops.extend([mode, rid, why] for rid, why in body1["failures"])
+     tallies: dict = {}
+     for e in out_rows:
+         if isinstance(e.get("readouts"), dict):
+@@ -143,7 +178,7 @@
+     # just outside its class, for the first relative and the first absolute row.
+     controls = []
+     for cls_name in ["relative_verified", "absolute_verified"]:
+-        r = next(x for x in rows if classes[x["id"]]["class"] == cls_name)
++        r = next(x for x in rows if classes[x["id"]]["class"] == cls_name and x["entity_ref"] not in ("N2", "rigid:N2"))
+         t = truth(r, True)
+         n = F(norm_value(r))
+         if cls_name == "relative_verified":

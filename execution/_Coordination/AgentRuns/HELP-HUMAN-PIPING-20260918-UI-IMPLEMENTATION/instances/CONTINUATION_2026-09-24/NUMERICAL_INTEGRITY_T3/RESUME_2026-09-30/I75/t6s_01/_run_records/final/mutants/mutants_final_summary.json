@@ -1,0 +1,750 @@
+[
+ {
+  "id": "control",
+  "part": "part1",
+  "desc": "",
+  "file": "",
+  "failed": 0,
+  "total": 430,
+  "status": "control",
+  "first_failures": []
+ },
+ {
+  "id": "control",
+  "part": "part2",
+  "desc": "",
+  "file": "",
+  "failed": 0,
+  "total": 430,
+  "status": "control",
+  "first_failures": []
+ },
+ {
+  "id": "M01",
+  "part": "part1",
+  "desc": "gate admits a non-panel surface (rule-check)",
+  "file": "apps/desktop/src/features/results/outputPolicy.ts",
+  "failed": 3,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "the output policy (T6S-3) has one deliberate entry per route and names every surface",
+   "the output policy (T6S-3) sparse_interactive: the two panels admit an eligible successor, with the live capture, and no other surface does",
+   "the output policy (T6S-3) dense_scrutiny: the two panels admit an eligible successor, with the live capture, and no other surface does"
+  ]
+ },
+ {
+  "id": "M02",
+  "part": "part1",
+  "desc": "admission without the live capture (standing not read)",
+  "file": "apps/desktop/src/features/results/outputPolicy.ts",
+  "failed": 18,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: the Current builder and panel export an eligible successor (CQ-11: test-built manifest evidence) the panel offers the local result JSON, with its summary line",
+   "dense_scrutiny: the Current builder and panel export an eligible successor (CQ-11: test-built manifest evidence) the panel offers the local result JSON, with its summary line",
+   "sparse_interactive: the negative controls refuse with their expected codes copied, moved and unregistered successors are refused by the Current builder"
+  ]
+ },
+ {
+  "id": "M03",
+  "part": "part1",
+  "desc": "a route without an entry fails open",
+  "file": "apps/desktop/src/features/results/outputPolicy.ts",
+  "failed": 1,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "the output policy (T6S-3) fails closed for a route or a surface without an entry"
+  ]
+ },
+ {
+  "id": "M04",
+  "part": "part1",
+  "desc": "a surface the entry does not name is admitted",
+  "file": "apps/desktop/src/features/results/outputPolicy.ts",
+  "failed": 1,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "the output policy (T6S-3) fails closed for a route or a surface without an entry"
+  ]
+ },
+ {
+  "id": "M05",
+  "part": "part1",
+  "desc": "load_reference route ungated",
+  "file": "apps/desktop/src/features/results/outputPolicy.ts",
+  "failed": 24,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "a load/reference-state result keeps T1's refusal in the Current builder, the derivative and the validator",
+   "the shared refusal names the desktop route only, routes it to T6 and never calls the result invalid or unsupported",
+   "PCF export refuses load-reference-1 output with the shared reason and keeps its display"
+  ]
+ },
+ {
+  "id": "M06",
+  "part": "part1",
+  "desc": "the shared function stops refusing the successor on the eighteen surfaces",
+  "file": "apps/desktop/src/features/results/loadReferenceOutputAvailability.ts",
+  "failed": 39,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "the output policy (T6S-3) sparse_interactive: the two panels admit an eligible successor, with the live capture, and no other surface does",
+   "the output policy (T6S-3) dense_scrutiny: the two panels admit an eligible successor, with the live capture, and no other surface does",
+   "the shared refusal names the desktop route only, routes it to T6, never calls the result invalid or unsupported, and is distinct from load-reference"
+  ]
+ },
+ {
+  "id": "M07",
+  "part": "part1",
+  "desc": "stress-neutral panel shows no policy refusal",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 8,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "stress-neutral and result export keep their own refusal points load-reference-1: packet build, packet validation and panel all refuse",
+   "stress-neutral and result export keep their own refusal points load-reference-source-1: packet build, packet validation and panel all refuse",
+   "sparse_interactive: the T6 panels gate a successor by an explicit policy entry (U7 slice T; T6S-3) stress-neutral: the live binding is closed for a moved model, whose panel shows the standing's refusal"
+  ]
+ },
+ {
+  "id": "M08",
+  "part": "part1",
+  "desc": "summary line swaps the two counts",
+  "file": "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts",
+  "failed": 5,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: the Current builder and panel export an eligible successor (CQ-11: test-built manifest evidence) the panel offers the local result JSON, with its summary line",
+   "dense_scrutiny: the Current builder and panel export an eligible successor (CQ-11: test-built manifest evidence) the panel offers the local result JSON, with its summary line",
+   "the panels (T6S-3): load/reference-state refusal and the summary line sparse_interactive: each panel shows one text-only per-case summary line from classificationSummary"
+  ]
+ },
+ {
+  "id": "M09",
+  "part": "part1",
+  "desc": "e+ exponent left unnormalized",
+  "file": "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts",
+  "failed": 2,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "the disclosure texts are Rust derivative's (D-U6-2; CQ-1) prints b as Rust's {:e} does: shortest round-trip digits and no '+' in the exponent",
+   "the disclosure texts are Rust derivative's (D-U6-2; CQ-1) states Rust class_disclosure's code and message for each class"
+  ]
+ },
+ {
+  "id": "M10",
+  "part": "part1",
+  "desc": "negative-zero sign dropped",
+  "file": "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts",
+  "failed": 1,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "the disclosure texts are Rust derivative's (D-U6-2; CQ-1) prints b as Rust's {:e} does: shortest round-trip digits and no '+' in the exponent"
+  ]
+ },
+ {
+  "id": "M11",
+  "part": "part1",
+  "desc": "SI unit table maps mm to mm",
+  "file": "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts",
+  "failed": 9,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin",
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) carries the receipt whole, the evidence, the class disclosures, and no standing or origin claim",
+   "dense_scrutiny: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin"
+  ]
+ },
+ {
+  "id": "M12",
+  "part": "part1",
+  "desc": "an unnormalized unit still names a bound",
+  "file": "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts",
+  "failed": 1,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "the disclosure texts are Rust derivative's (D-U6-2; CQ-1) states Rust class_disclosure's code and message for each class"
+  ]
+ },
+ {
+  "id": "M13",
+  "part": "part1",
+  "desc": "a dropped disclosure (absolute class not disclosed)",
+  "file": "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts",
+  "failed": 17,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin",
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) carries the receipt whole, the evidence, the class disclosures, and no standing or origin claim",
+   "dense_scrutiny: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin"
+  ]
+ },
+ {
+  "id": "M14",
+  "part": "part1",
+  "desc": "classes never read from the reader",
+  "file": "apps/desktop/src/features/results/retainedPrecisionDisclosure.ts",
+  "failed": 16,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin",
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) carries the receipt whole, the evidence, the class disclosures, and no standing or origin claim",
+   "dense_scrutiny: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin"
+  ]
+ },
+ {
+  "id": "M15",
+  "part": "part1",
+  "desc": "UTF-8 CSV policy omits the successor",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 4,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: stress-neutral, result export and the report package keep their own refusal points stress-neutral packet build, packet validation and panel all refuse",
+   "dense_scrutiny: stress-neutral, result export and the report package keep their own refusal points stress-neutral packet build, packet validation and panel all refuse",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) builds and validates a package that carries the receipt, the evidence and the class findings"
+  ]
+ },
+ {
+  "id": "M16",
+  "part": "part1",
+  "desc": "successor semantic table path wrong",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 2,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) builds and validates a package that carries the receipt, the evidence and the class findings",
+   "dense_scrutiny: stress-neutral export of an eligible successor (T6S-5) builds and validates a package that carries the receipt, the evidence and the class findings"
+  ]
+ },
+ {
+  "id": "M17",
+  "part": "part1",
+  "desc": "contract_evidence not copied for the successor",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 7,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) builds and validates a package that carries the receipt, the evidence and the class findings",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) refuses each negative control with its expected code",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) shows the package in the panel, and the specific standing reason otherwise"
+  ]
+ },
+ {
+  "id": "M18",
+  "part": "part1",
+  "desc": "receipt not copied into the package",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 7,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) builds and validates a package that carries the receipt, the evidence and the class findings",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) refuses each negative control with its expected code",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) shows the package in the panel, and the specific standing reason otherwise"
+  ]
+ },
+ {
+  "id": "M19",
+  "part": "part1",
+  "desc": "missing receipt in the transport header",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 10,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: stress-neutral, result export and the report package keep their own refusal points stress-neutral packet build, packet validation and panel all refuse",
+   "dense_scrutiny: stress-neutral, result export and the report package keep their own refusal points stress-neutral packet build, packet validation and panel all refuse",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) builds and validates a package that carries the receipt, the evidence and the class findings"
+  ]
+ },
+ {
+  "id": "M20",
+  "part": "part1",
+  "desc": "transport validation skipped for the successor",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 2,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) refuses each negative control with its expected code",
+   "dense_scrutiny: stress-neutral export of an eligible successor (T6S-5) refuses each negative control with its expected code"
+  ]
+ },
+ {
+  "id": "M21",
+  "part": "part1",
+  "desc": "withheld-witness code emitted with the wrong severity",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 7,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) builds and validates a package that carries the receipt, the evidence and the class findings",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) refuses each negative control with its expected code",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) shows the package in the panel, and the specific standing reason otherwise"
+  ]
+ },
+ {
+  "id": "M22",
+  "part": "part1",
+  "desc": "validator accepts the wrong severity for the new codes",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 7,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) builds and validates a package that carries the receipt, the evidence and the class findings",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) refuses each negative control with its expected code",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) shows the package in the panel, and the specific standing reason otherwise"
+  ]
+ },
+ {
+  "id": "M23",
+  "part": "part1",
+  "desc": "receipt equality not checked against the source",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 2,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) refuses each negative control with its expected code",
+   "dense_scrutiny: stress-neutral export of an eligible successor (T6S-5) refuses each negative control with its expected code"
+  ]
+ },
+ {
+  "id": "M24",
+  "part": "part2",
+  "desc": "a receipt on another identity not refused (with a source)",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 1,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "a receipt on another identity is refused a preview-physics-1 package carrying a receipt"
+  ]
+ },
+ {
+  "id": "M25",
+  "part": "part2",
+  "desc": "loss-report class count not checked",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 2,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) refuses each negative control with its expected code",
+   "dense_scrutiny: stress-neutral export of an eligible successor (T6S-5) refuses each negative control with its expected code"
+  ]
+ },
+ {
+  "id": "M26",
+  "part": "part2",
+  "desc": "class findings not counted in the loss report",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 7,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) builds and validates a package that carries the receipt, the evidence and the class findings",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) refuses each negative control with its expected code",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) shows the package in the panel, and the specific standing reason otherwise"
+  ]
+ },
+ {
+  "id": "M27",
+  "part": "part2",
+  "desc": "builder ignores classes (no class findings)",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 7,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) builds and validates a package that carries the receipt, the evidence and the class findings",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) refuses each negative control with its expected code",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) shows the package in the panel, and the specific standing reason otherwise"
+  ]
+ },
+ {
+  "id": "M28",
+  "part": "part2",
+  "desc": "a valued absolute row (witness kept alongside the finding)",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 7,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) builds and validates a package that carries the receipt, the evidence and the class findings",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) refuses each negative control with its expected code",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) shows the package in the panel, and the specific standing reason otherwise"
+  ]
+ },
+ {
+  "id": "M29",
+  "part": "part2",
+  "desc": "class finding message replaced by a generic text",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 4,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) builds and validates a package that carries the receipt, the evidence and the class findings",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) refuses each negative control with its expected code",
+   "dense_scrutiny: stress-neutral export of an eligible successor (T6S-5) builds and validates a package that carries the receipt, the evidence and the class findings"
+  ]
+ },
+ {
+  "id": "M30",
+  "part": "part2",
+  "desc": "builder admits without eligibility (route level only)",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 5,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: stress-neutral, result export and the report package keep their own refusal points stress-neutral packet build, packet validation and panel all refuse",
+   "dense_scrutiny: stress-neutral, result export and the report package keep their own refusal points stress-neutral packet build, packet validation and panel all refuse",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) refuses each negative control with its expected code"
+  ]
+ },
+ {
+  "id": "M31",
+  "part": "part2",
+  "desc": "validator keeps the old shared refusal",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 9,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: stress-neutral, result export and the report package keep their own refusal points stress-neutral packet build, packet validation and panel all refuse",
+   "dense_scrutiny: stress-neutral, result export and the report package keep their own refusal points stress-neutral packet build, packet validation and panel all refuse",
+   "sparse_interactive: stress-neutral export of an eligible successor (T6S-5) builds and validates a package that carries the receipt, the evidence and the class findings"
+  ]
+ },
+ {
+  "id": "M32",
+  "part": "part2",
+  "desc": "legacy 0.2.0 packet may carry a receipt",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 1,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "a receipt on another identity is refused a preview-physics-1 package carrying a receipt"
+  ]
+ },
+ {
+  "id": "M33",
+  "part": "part2",
+  "desc": "a blocking disposition loses precedence to a class (fail-safe order)",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 1,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "the package's withholding precedence (checkpoint reading R-1) a blocking disposition keeps precedence over a class; a class takes precedence over diagnostic work"
+  ]
+ },
+ {
+  "id": "M34",
+  "part": "part2",
+  "desc": "diagnostic work takes precedence over a class",
+  "file": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+  "failed": 1,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "the package's withholding precedence (checkpoint reading R-1) a blocking disposition keeps precedence over a class; a class takes precedence over diagnostic work"
+  ]
+ },
+ {
+  "id": "R01",
+  "part": "part2",
+  "desc": "derivative: a dropped disclosure (classes ignored per row)",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 13,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin",
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) carries the receipt whole, the evidence, the class disclosures, and no standing or origin claim",
+   "dense_scrutiny: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin"
+  ]
+ },
+ {
+  "id": "R02",
+  "part": "part2",
+  "desc": "derivative: a valued absolute_verified row (disposition ignores the class)",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 13,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin",
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) carries the receipt whole, the evidence, the class disclosures, and no standing or origin claim",
+   "dense_scrutiny: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin"
+  ]
+ },
+ {
+  "id": "R03",
+  "part": "part2",
+  "desc": "derivative: the class row keeps the ordinary reason code",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 13,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin",
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) carries the receipt whole, the evidence, the class disclosures, and no standing or origin claim",
+   "dense_scrutiny: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin"
+  ]
+ },
+ {
+  "id": "R04",
+  "part": "part2",
+  "desc": "derivative: the class row keeps the ordinary message",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 13,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin",
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) carries the receipt whole, the evidence, the class disclosures, and no standing or origin claim",
+   "dense_scrutiny: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin"
+  ]
+ },
+ {
+  "id": "R05",
+  "part": "part2",
+  "desc": "derivative: the receipt not copied",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 13,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin",
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) carries the receipt whole, the evidence, the class disclosures, and no standing or origin claim",
+   "dense_scrutiny: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin"
+  ]
+ },
+ {
+  "id": "R06",
+  "part": "part2",
+  "desc": "derivative: contract_evidence not copied for the successor",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 13,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin",
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) carries the receipt whole, the evidence, the class disclosures, and no standing or origin claim",
+   "dense_scrutiny: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin"
+  ]
+ },
+ {
+  "id": "R07",
+  "part": "part2",
+  "desc": "derivative: classes never read from the reader",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 13,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin",
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) carries the receipt whole, the evidence, the class disclosures, and no standing or origin claim",
+   "dense_scrutiny: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin"
+  ]
+ },
+ {
+  "id": "R08",
+  "part": "part2",
+  "desc": "validator: receipt equality unchecked",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 4,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: the negative controls refuse with their expected codes a relabelled statement, a receipt on another identity, a forged class code and an edited message are refused",
+   "dense_scrutiny: the negative controls refuse with their expected codes a relabelled statement, a receipt on another identity, a forged class code and an edited message are refused",
+   "sparse_interactive: stress-neutral, result export and the report package keep their own refusal points result export: the Current build and the panel refuse; the pure projection and its validator read no standing"
+  ]
+ },
+ {
+  "id": "R09",
+  "part": "part2",
+  "desc": "validator: a receipt on another identity unrefused",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 2,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: the negative controls refuse with their expected codes a receipt on another identity's document is refused (RETAINED_PRECISION_DOWNGRADE_FORBIDDEN)",
+   "dense_scrutiny: the negative controls refuse with their expected codes a receipt on another identity's document is refused (RETAINED_PRECISION_DOWNGRADE_FORBIDDEN)"
+  ]
+ },
+ {
+  "id": "R10",
+  "part": "part2",
+  "desc": "validator: class code and message unchecked",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 2,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: the negative controls refuse with their expected codes a relabelled statement, a receipt on another identity, a forged class code and an edited message are refused",
+   "dense_scrutiny: the negative controls refuse with their expected codes a relabelled statement, a receipt on another identity, a forged class code and an edited message are refused"
+  ]
+ },
+ {
+  "id": "R11",
+  "part": "part2",
+  "desc": "validator: a non-class disclosure may claim a class code",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 2,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: the negative controls refuse with their expected codes a relabelled statement, a receipt on another identity, a forged class code and an edited message are refused",
+   "dense_scrutiny: the negative controls refuse with their expected codes a relabelled statement, a receipt on another identity, a forged class code and an edited message are refused"
+  ]
+ },
+ {
+  "id": "R12",
+  "part": "part2",
+  "desc": "validator: the class disposition ignored",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 13,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin",
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) carries the receipt whole, the evidence, the class disclosures, and no standing or origin claim",
+   "dense_scrutiny: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin"
+  ]
+ },
+ {
+  "id": "R13",
+  "part": "part2",
+  "desc": "validator: classes never read from the reader",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 13,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin",
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) carries the receipt whole, the evidence, the class disclosures, and no standing or origin claim",
+   "dense_scrutiny: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin"
+  ]
+ },
+ {
+  "id": "R14",
+  "part": "part2",
+  "desc": "Current builder: admission at route level only (no live capture)",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 7,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: the Current builder and panel export an eligible successor (CQ-11: test-built manifest evidence) the panel offers the local result JSON, with its summary line",
+   "dense_scrutiny: the Current builder and panel export an eligible successor (CQ-11: test-built manifest evidence) the panel offers the local result JSON, with its summary line",
+   "sparse_interactive: the negative controls refuse with their expected codes copied, moved and unregistered successors are refused by the Current builder"
+  ]
+ },
+ {
+  "id": "R15",
+  "part": "part2",
+  "desc": "Current builder: the policy gate removed",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 10,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: the Current builder and panel export an eligible successor (CQ-11: test-built manifest evidence) the panel offers the local result JSON, with its summary line",
+   "dense_scrutiny: the Current builder and panel export an eligible successor (CQ-11: test-built manifest evidence) the panel offers the local result JSON, with its summary line",
+   "sparse_interactive: the negative controls refuse with their expected codes copied, moved and unregistered successors are refused by the Current builder"
+  ]
+ },
+ {
+  "id": "R16",
+  "part": "part2",
+  "desc": "origin: the limit argument ignored",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 4,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin",
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) carries the receipt whole, the evidence, the class disclosures, and no standing or origin claim",
+   "dense_scrutiny: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin"
+  ]
+ },
+ {
+  "id": "R17",
+  "part": "part2",
+  "desc": "derivative: the successor still refused (the old shared refusal)",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 13,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin",
+   "sparse_interactive: byte parity with I76's Rust golden (T6S-2, T6S-4) carries the receipt whole, the evidence, the class disclosures, and no standing or origin claim",
+   "dense_scrutiny: byte parity with I76's Rust golden (T6S-2, T6S-4) derives the golden's exact canonical bytes from the same fixed desktop-shaped base and origin"
+  ]
+ },
+ {
+  "id": "R18",
+  "part": "part2",
+  "desc": "derivative: the route gate removed (load/reference admitted)",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 3,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "a load/reference-state result keeps T1's refusal in the Current builder, the derivative and the validator",
+   "stress-neutral and result export keep their own refusal points load-reference-1: packet build, packet validation and panel all refuse",
+   "stress-neutral and result export keep their own refusal points load-reference-source-1: packet build, packet validation and panel all refuse"
+  ]
+ },
+ {
+  "id": "R19",
+  "part": "part2",
+  "desc": "validator: the route gate removed",
+  "file": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+  "failed": 3,
+  "total": 430,
+  "status": "killed",
+  "first_failures": [
+   "a load/reference-state result keeps T1's refusal in the Current builder, the derivative and the validator",
+   "stress-neutral and result export keep their own refusal points load-reference-1: packet build, packet validation and panel all refuse",
+   "stress-neutral and result export keep their own refusal points load-reference-source-1: packet build, packet validation and panel all refuse"
+  ]
+ },
+ {
+  "id": "R20",
+  "part": "part2",
+  "desc": "result-export panel: the policy gate removed",
+  "file": "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+  "failed": 0,
+  "total": 430,
+  "status": "SURVIVED",
+  "first_failures": []
+ }
+]

@@ -1,0 +1,117 @@
+{
+ "R3c_indeterminate_collapsed_to_pass": {
+  "killed": true,
+  "compiled": true,
+  "exit": 101,
+  "failed_tests": [
+   "a_divisor_range_containing_zero_is_indeterminate_with_its_finding",
+   "a_straddling_result_is_indeterminate_never_a_pass",
+   "bounded_checks_never_panic_where_the_point_path_can",
+   "unit_normalization_steps_each_end_outward"
+  ]
+ },
+ "R2_interval_mode_bypassed": {
+  "killed": true,
+  "compiled": true,
+  "exit": 101,
+  "failed_tests": [
+   "a_divisor_range_containing_zero_is_indeterminate_with_its_finding",
+   "a_straddling_result_is_indeterminate_never_a_pass",
+   "bounded_checks_never_panic_where_the_point_path_can",
+   "every_value_failing_is_failed_with_the_all_fail_code",
+   "every_value_passing_is_checked_with_the_all_pass_code",
+   "unit_normalization_steps_each_end_outward"
+  ]
+ },
+ "R3_unit_conversion_not_outward": {
+  "killed": true,
+  "compiled": true,
+  "exit": 101,
+  "failed_tests": [
+   "unit_normalization_steps_each_end_outward"
+  ]
+ },
+ "R4_invalid_bound_bound_as_point": {
+  "killed": true,
+  "compiled": true,
+  "exit": 101,
+  "failed_tests": [
+   "an_invalid_bound_blocks_the_input"
+  ]
+ },
+ "R5_formula_enclosure_collapsed_in_compare": {
+  "killed": true,
+  "compiled": true,
+  "exit": 101,
+  "failed_tests": [
+   "a_straddling_result_is_indeterminate_never_a_pass"
+  ]
+ },
+ "P1_python_outward_step_removed": {
+  "killed": true,
+  "compiled": true,
+  "exit": 1,
+  "failed_tests": [
+   "tests/test_rule_interval.py::test_bound_formation_and_bits",
+   "tests/test_rule_interval.py::test_reference_evaluator_is_sound_on_generated_formulas",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[abs_negative]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[abs_positive]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[abs_straddle]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[add_intervals]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[add_points_steps_outward]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[divide_derived_quotient_unit]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[divide_negative_divisor]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[divide_positive_divisor]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[divide_same_dimension_ratio]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[gt_shared_end]"
+  ]
+ },
+ "P2_python_compare_U_arm_to_T": {
+  "killed": true,
+  "compiled": true,
+  "exit": 1,
+  "failed_tests": [
+   "tests/test_rule_interval.py::test_reference_evaluator_is_sound_on_generated_formulas",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[and_true_unknown]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[le_straddle]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[or_false_unknown]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[rounding_hides_real_excess]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[select_unknown_booleans_disagree]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[select_unknown_hull]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[select_unknown_straddle]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[square_le]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[two_inputs_interior_extremum]"
+  ]
+ },
+ "P3_python_interpolation_point_hull": {
+  "killed": true,
+  "compiled": true,
+  "exit": 1,
+  "failed_tests": [
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[interpolate_point_inside_segment]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[interpolate_range_spanning_row]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[interpolate_rounding_near_row]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[interpolate_rounding_near_row_not_true]"
+  ]
+ },
+ "P4_python_eager_u_removed": {
+  "killed": true,
+  "compiled": true,
+  "exit": 1,
+  "failed_tests": [
+   "tests/test_rule_interval.py::test_reference_evaluator_is_sound_on_generated_formulas",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[eager_u_beside_true_or]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[eager_u_untaken_branch]"
+  ]
+ },
+ "P5_python_abs_straddle_inward": {
+  "killed": true,
+  "compiled": true,
+  "exit": 1,
+  "failed_tests": [
+   "tests/test_rule_interval.py::test_reference_evaluator_is_sound_on_generated_formulas",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[abs_straddle]",
+   "tests/test_rule_interval.py::test_reference_evaluator_matches_the_shared_case[abs_straddle_ge]"
+  ]
+ }
+}

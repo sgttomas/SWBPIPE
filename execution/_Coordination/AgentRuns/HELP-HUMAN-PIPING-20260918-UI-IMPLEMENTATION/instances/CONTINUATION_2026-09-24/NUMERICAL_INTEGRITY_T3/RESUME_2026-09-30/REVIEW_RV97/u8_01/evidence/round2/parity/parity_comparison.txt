@@ -1,0 +1,32 @@
+{
+ "documents": 348,
+ "tally": {
+  "case admitted as expected by all three": 17,
+  "case_unbound admitted as expected by all three": 17,
+  "mutation identical first failure in all three": 284,
+  "mutation per-reader first failure differs": 2,
+  "  of which declared by expected_by_reader": 2,
+  "must_pass admitted as expected by all three": 28
+ },
+ "problems": [],
+ "problem_count": 0
+}
+py mutation first failures: {'G0 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED': 10, 'G1 RETAINED_PRECISION_RECEIPT_MISMATCH': 30, 'G2 RETAINED_PRECISION_ENCODING_MISMATCH': 8, 'G3 RETAINED_PRECISION_COVERAGE_MISMATCH': 25, 'G4 RETAINED_PRECISION_DIAGNOSTIC_MISMATCH': 2, 'G5 RETAINED_PRECISION_ATTEMPT_MISMATCH': 57, 'G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH': 42, 'G5 RETAINED_PRECISION_WORK_MISMATCH': 20, 'G5a RETAINED_PRECISION_SCALE_MISMATCH': 58, 'G5b RETAINED_PRECISION_SCALE_MISMATCH': 2, 'G5b RETAINED_PRECISION_SECTION_MISMATCH': 3, 'G5c RETAINED_PRECISION_CLASSIFICATION_MISMATCH': 1, 'G5c RETAINED_PRECISION_INPUT_DOF_MISMATCH': 1, 'G6 RETAINED_PRECISION_ROW_METHOD_MISMATCH': 3, 'G7 SOURCE_NUMERICAL_CASE_INVALID': 1, 'G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID': 1, 'G8 RETAINED_PRECISION_INVOCATION_MISMATCH': 2, 'G8 RETAINED_PRECISION_PREPARATION_MISMATCH': 20}
+rust mutation first failures: {'G0 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED': 10, 'G1 RETAINED_PRECISION_RECEIPT_MISMATCH': 30, 'G2 RETAINED_PRECISION_ENCODING_MISMATCH': 8, 'G3 RETAINED_PRECISION_COVERAGE_MISMATCH': 25, 'G4 RETAINED_PRECISION_DIAGNOSTIC_MISMATCH': 2, 'G5 RETAINED_PRECISION_ATTEMPT_MISMATCH': 57, 'G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH': 42, 'G5 RETAINED_PRECISION_WORK_MISMATCH': 20, 'G5a RETAINED_PRECISION_SCALE_MISMATCH': 58, 'G5b RETAINED_PRECISION_SCALE_MISMATCH': 2, 'G5b RETAINED_PRECISION_SECTION_MISMATCH': 3, 'G5c RETAINED_PRECISION_CLASSIFICATION_MISMATCH': 1, 'G5c RETAINED_PRECISION_INPUT_DOF_MISMATCH': 1, 'G6 RETAINED_PRECISION_ROW_METHOD_MISMATCH': 3, 'G7 SOURCE_NUMERICAL_CASE_INVALID': 1, 'G7 SOURCE_PREVIEW_PHYSICS_EXTREMA_BOUNDS': 1, 'G8 RETAINED_PRECISION_INVOCATION_MISMATCH': 2, 'G8 RETAINED_PRECISION_PREPARATION_MISMATCH': 20}
+ts mutation first failures: {'G0 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED': 10, 'G1 RETAINED_PRECISION_RECEIPT_MISMATCH': 30, 'G2 RETAINED_PRECISION_ENCODING_MISMATCH': 8, 'G3 RETAINED_PRECISION_COVERAGE_MISMATCH': 25, 'G4 RETAINED_PRECISION_DIAGNOSTIC_MISMATCH': 2, 'G5 RETAINED_PRECISION_ATTEMPT_MISMATCH': 57, 'G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH': 42, 'G5 RETAINED_PRECISION_WORK_MISMATCH': 20, 'G5a RETAINED_PRECISION_SCALE_MISMATCH': 58, 'G5b RETAINED_PRECISION_SCALE_MISMATCH': 2, 'G5b RETAINED_PRECISION_SECTION_MISMATCH': 3, 'G5c RETAINED_PRECISION_CLASSIFICATION_MISMATCH': 1, 'G5c RETAINED_PRECISION_INPUT_DOF_MISMATCH': 1, 'G6 RETAINED_PRECISION_ROW_METHOD_MISMATCH': 3, 'G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID': 1, 'G7 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED': 1, 'G8 RETAINED_PRECISION_INVOCATION_MISMATCH': 2, 'G8 RETAINED_PRECISION_PREPARATION_MISMATCH': 20}
+07L case:u8_l0_isolated_node_sparse_interactive {"py": "ok bound=True eligible=True rows=113", "rust": "ok bound=True eligible=True rows=113", "ts": "ok bound=True eligible=True rows=113"}
+07L case:u8_l0_isolated_node_sparse_interactive:no-invocation {"py": "ok bound=False eligible=False rows=113", "rust": "ok bound=False eligible=False rows=113", "ts": "ok bound=False eligible=False rows=113"}
+07L case:u8_l0_isolated_node_dense_scrutiny {"py": "ok bound=True eligible=True rows=114", "rust": "ok bound=True eligible=True rows=114", "ts": "ok bound=True eligible=True rows=114"}
+07L case:u8_l0_isolated_node_dense_scrutiny:no-invocation {"py": "ok bound=False eligible=False rows=114", "rust": "ok bound=False eligible=False rows=114", "ts": "ok bound=False eligible=False rows=114"}
+07L mutation:278:isolated_rotation_stop_sparse_interactive {"py": "G5a RETAINED_PRECISION_SCALE_MISMATCH", "rust": "G5a RETAINED_PRECISION_SCALE_MISMATCH", "ts": "G5a RETAINED_PRECISION_SCALE_MISMATCH"}
+07L mutation:279:isolated_has_data_sparse_interactive {"py": "G5a RETAINED_PRECISION_SCALE_MISMATCH", "rust": "G5a RETAINED_PRECISION_SCALE_MISMATCH", "ts": "G5a RETAINED_PRECISION_SCALE_MISMATCH"}
+07L mutation:280:isolated_estimate_coupled_sparse_interactive {"py": "G5a RETAINED_PRECISION_SCALE_MISMATCH", "rust": "G5a RETAINED_PRECISION_SCALE_MISMATCH", "ts": "G5a RETAINED_PRECISION_SCALE_MISMATCH"}
+07L mutation:281:isolated_rotation_stop_dense_scrutiny {"py": "G5a RETAINED_PRECISION_SCALE_MISMATCH", "rust": "G5a RETAINED_PRECISION_SCALE_MISMATCH", "ts": "G5a RETAINED_PRECISION_SCALE_MISMATCH"}
+07L mutation:282:isolated_has_data_dense_scrutiny {"py": "G5a RETAINED_PRECISION_SCALE_MISMATCH", "rust": "G5a RETAINED_PRECISION_SCALE_MISMATCH", "ts": "G5a RETAINED_PRECISION_SCALE_MISMATCH"}
+07L mutation:283:isolated_estimate_coupled_dense_scrutiny {"py": "G5a RETAINED_PRECISION_SCALE_MISMATCH", "rust": "G5a RETAINED_PRECISION_SCALE_MISMATCH", "ts": "G5a RETAINED_PRECISION_SCALE_MISMATCH"}
+07L mutation:284:isolated_translation_rotation_stop_sparse_interactive {"py": "G5a RETAINED_PRECISION_SCALE_MISMATCH", "rust": "G5a RETAINED_PRECISION_SCALE_MISMATCH", "ts": "G5a RETAINED_PRECISION_SCALE_MISMATCH"}
+07L mutation:285:isolated_translation_rotation_stop_dense_scrutiny {"py": "G5a RETAINED_PRECISION_SCALE_MISMATCH", "rust": "G5a RETAINED_PRECISION_SCALE_MISMATCH", "ts": "G5a RETAINED_PRECISION_SCALE_MISMATCH"}
+07L must_pass:24:isolated_estimate_uncoupled_sparse_interactive {"py": "ok bound=True eligible=True rows=113", "rust": "ok bound=True eligible=True rows=113", "ts": "ok bound=True eligible=True rows=113"}
+07L must_pass:25:isolated_estimate_uncoupled_dense_scrutiny {"py": "ok bound=True eligible=True rows=114", "rust": "ok bound=True eligible=True rows=114", "ts": "ok bound=True eligible=True rows=114"}
+07L must_pass:26:isolated_translation_stop_sparse_interactive {"py": "ok bound=True eligible=True rows=113", "rust": "ok bound=True eligible=True rows=113", "ts": "ok bound=True eligible=True rows=113"}
+07L must_pass:27:isolated_translation_stop_dense_scrutiny {"py": "ok bound=True eligible=True rows=114", "rust": "ok bound=True eligible=True rows=114", "ts": "ok bound=True eligible=True rows=114"}

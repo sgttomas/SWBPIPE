@@ -1,0 +1,5 @@
+== mut_D3_base_inline_arm start 2026-10-06T02:37:49Z
+== mut_D3_base_inline_arm exit=1 2026-10-06T02:38:19Z
+FAILED tests/test_results_dispatcher_v0_3.py::test_dispatcher_admits_preview_physics_physics_and_the_successor[synthetic preview-physics-1]
+FAILED tests/test_results_dispatcher_v0_3.py::test_dispatcher_admits_preview_physics_physics_and_the_successor[synthetic physics-1]
+6 failed, 19 passed in 29.99s

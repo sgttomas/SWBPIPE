@@ -1,0 +1,8 @@
+base totals {'numTotalTests': 3552, 'numPassedTests': 3552, 'numFailedTests': 0, 'numPendingTests': 0, 'numTodoTests': 0, 'numTotalTestSuites': 490, 'numPassedTestSuites': 490, 'numFailedTestSuites': 0, 'success': True}
+candidate totals {'numTotalTests': 3574, 'numPassedTests': 3574, 'numFailedTests': 0, 'numPendingTests': 0, 'numTodoTests': 0, 'numTotalTestSuites': 491, 'numPassedTestSuites': 491, 'numFailedTestSuites': 0, 'success': True}
+files: base 138 candidate 138 same set True
+file status changes []
+tests: base 3552 candidate 3574 common 3552
+status counts base Counter({'passed': 3552}) candidate Counter({'passed': 3574})
+differences 22 Counter({('absent', 'passed'): 22})
+differing files Counter({'src/features/results/retainedPrecision.test.ts': 22})

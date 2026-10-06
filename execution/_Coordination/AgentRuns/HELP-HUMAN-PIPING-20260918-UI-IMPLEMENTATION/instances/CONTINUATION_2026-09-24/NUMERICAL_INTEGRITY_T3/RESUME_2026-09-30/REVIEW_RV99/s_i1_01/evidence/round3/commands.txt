@@ -1,0 +1,22 @@
+RV99 round 3 commands (read-only; GIT_OPTIONAL_LOCKS=0; no cargo; placeholders WT, T)
+
+git diff --name-status 20e7e3e5a2 ef266247de                                   # 3 package files
+git diff --name-only 20e7e3e5a2 ef266247de -- . ':(exclude)projects/chirality-piping/execution'   # 0 paths
+git diff 20e7e3e5a2 ef266247de -- <T>/IMPLEMENTATION/S_I1 > package_delta.diff
+git show ef266247de:<T>/IMPLEMENTATION/S_I1/<file> ; shasum -a 256 -c SHA256SUMS      # 3/3 OK
+git rev-parse {f9657c51c5,ef266247de}:<T>/IMPLEMENTATION/S_I1/<file>                   # 4/4 equal
+
+# premise scan at ef266247de (code and data outside projects/chirality-piping/execution and validation/evidence)
+git grep -n -I -E 'IMPLEMENTATION/S_I1|S_I1/|NUMERICAL_INTEGRITY_T3' ef266247de -- <code and config globs>   -> t3_and_package_references.txt
+git grep -n -I -E 'rglob\(|os\.walk\(|read_dir|readdirSync|readdir\(|import\.meta\.glob|ls-files|...'          -> walkers_recursive_readers.txt
+git grep -n -E '\.glob\(|glob\.glob' ...  (Python)                                                             -> reviewed, none rooted at the project or execution/
+
+# main's gate tools (blobs fb96decf…, 50c39a8a…; equal at main and at the head)
+python3 -B tools/source_equality.py --repo WT/s-i1 --pr ef266247de --int f9657c51c5 --main c1571f7feb \
+    --work <scratch>/se_work --json se2.json --package <T>/IMPLEMENTATION/S_I1                # exit 0
+python3 -B tools/check_citations.py --repo WT/s-i1 --base c1571f7feb --head ef266247de \
+    --index pkg/citations.json --package pkg --out resolved2.md                                # exit 0
+diff se2.txt ROOT/se2.txt; cmp se2.json ROOT/se2.json; diff citations2.txt ROOT/citations2.txt   # identical
+
+# repo-root path-anchor validator, read-only, in the S-I1 checkout at ef266247de (information only)
+python3 -B tools/validation/validate_path_anchors.py . --text                          # exit 1: one finding, in projects/chirality-app-v4

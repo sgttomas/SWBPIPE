@@ -1,0 +1,27 @@
+scanned lines: 119027
+ghp_	hits=0	files=0
+gho_	hits=0	files=0
+ghs_/ghu_/ghr_	hits=0	files=0
+github_pat_	hits=0	files=0
+sk-	hits=0	files=0
+sk- (any)	hits=0	files=0
+AKIA	hits=0	files=0
+PRIVATE KEY	hits=0	files=0
+password	hits=0	files=0
+secret	hits=71	files=11
+token=	hits=0	files=0
+Authorization:	hits=0	files=0
+Bearer	hits=0	files=0
+slack	hits=0	files=0
+cred env	hits=0	files=0
+email	hits=0	files=0
+Applications dir	hits=0	files=0
+app names	hits=0	files=0
+session flags	hits=0	files=0
+system dirs	hits=0	files=0
+host name	hits=0	files=0
+uuid	hits=0	files=0
+ps header	hits=0	files=0
+ps row	hits=0	files=0
+home/tmp roots	hits=0	files=0
+claude/codex ids	hits=0	files=0

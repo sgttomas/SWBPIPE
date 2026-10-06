@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 WT/rv97/probe/P/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  20:18:37
+   Duration  944ms (transform 195ms, setup 87ms, import 201ms, tests 235ms, environment 344ms)
+

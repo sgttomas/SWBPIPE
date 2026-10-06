@@ -1,0 +1,16 @@
+{
+ "U_conservative_all_points_agree": 36,
+ "U_points_disagree_or_block": 72,
+ "eval_cases": 240,
+ "exact_samples": 361,
+ "explicit_enclosure_inputs": 144,
+ "interval_blocked": 93,
+ "parity_compared": 240,
+ "point_samples": 19666,
+ "quantity_enclosure": 6,
+ "quantity_no_enclosure": 21,
+ "truth_F": 8,
+ "truth_T": 4,
+ "truth_U": 108
+}
+VIOLATIONS: {}

@@ -1,0 +1,7 @@
+tool: files 46, rows 97, classes {'not-d1': 30, 'no-code': 35, 'item': 4, 'cfg-test-stmt': 3, 'test': 12, 'generated': 1, 'qualification-test': 4, 'unreachable': 8}
+diag: files 46, rows 97, classes {'not-d1': 32, 'no-code': 35, 'item': 4, 'cfg-test-stmt': 3, 'test': 12, 'generated': 1, 'qualification-test': 4, 'unreachable': 6}
+rows only in diag: 2; rows only in tool: 2
+  + {"class": "not-d1", "file": "fixtures/results/retained_precision_l0_successor_dense_scrutiny.json", "reason": "not embedded by D1 production code"}
+  + {"class": "not-d1", "file": "fixtures/results/retained_precision_l0_successor_sparse_interactive.json", "reason": "not embedded by D1 production code"}
+  - {"class": "unreachable", "embedders": [{"at": "core/product_physics/src/retained_facade_tests.rs:1052", "fn": "retained_facade_tests.rs:1049:u8_d_u6_5_l0_fixtures_are_the_live_successors", "live": false}], "file": "fixtures/results/retained_precision_l0_successor_dense_scrutiny.json", "reason": "data embedded only by fns not live on D1"}
+  - {"class": "unreachable", "embedders": [{"at": "core/product_physics/src/retained_facade_tests.rs:1051", "fn": "retained_facade_tests.rs:1049:u8_d_u6_5_l0_fixtures_are_the_live_successors", "live": false}], "file": "fixtures/results/retained_precision_l0_successor_sparse_interactive.json", "reason": "data embedded only by fns not live on D1"}

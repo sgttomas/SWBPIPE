@@ -1,0 +1,4 @@
+UNRESOLVED projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs:870 [rr_title] I68's probe verified
+COUNTS resolved 9; ambiguous 0; unresolved 1
+  records/RR: occurrences 5, distinct 3, unresolved 1; documents: 4 citations (4 resolved, 0 ambiguous, 0 unresolved); verification failures 0; unused index entries 0; code lines: 1 (1 pinned in code_anchors, 0 unresolved)
+RESULT FAIL

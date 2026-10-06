@@ -1,0 +1,17 @@
+RV99 round 2 commands (read-only; GIT_OPTIONAL_LOCKS=0; no cargo; WT and the package path are placeholders)
+
+# main's tools, exported unchanged (blobs fb96decf… and 50c39a8a…, equal at main c1571f7feb, the PR head and NUM)
+git show c1571f7feb:<T>/IMPLEMENTATION/F2A_D1/source_equality.py > tools/source_equality.py
+git show c1571f7feb:<T>/IMPLEMENTATION/F2A_D1/check_citations.py > tools/check_citations.py
+# the PR head's package, exported for check_citations' --index and --package
+git show 20e7e3e5a2:<T>/IMPLEMENTATION/S_I1/{CHANGE_RECORD.md,PR_BODY.md,citations.json,SHA256SUMS} > pkg/...
+
+python3 -B tools/source_equality.py --repo WT/s-i1 --pr 20e7e3e5a2 --int b9030f501c --main c1571f7feb \
+    --work <scratch>/se_work --json se.json --package <T>/IMPLEMENTATION/S_I1        # exit 0
+python3 -B tools/check_citations.py --repo WT/s-i1 --base c1571f7feb --head 20e7e3e5a2 \
+    --index pkg/citations.json --package pkg --out resolved.md                          # exit 0
+
+# comparison with ROOT's records in NUM <T>/IMPLEMENTATION/S_I1_MERGE/_run_records/ (SHA256SUMS.run_records 4/4 OK)
+diff se.txt         ROOT/se.txt          -> identical
+cmp  se.json        ROOT/se.json         -> byte-identical
+diff citations.txt  ROOT/citations.txt   -> identical

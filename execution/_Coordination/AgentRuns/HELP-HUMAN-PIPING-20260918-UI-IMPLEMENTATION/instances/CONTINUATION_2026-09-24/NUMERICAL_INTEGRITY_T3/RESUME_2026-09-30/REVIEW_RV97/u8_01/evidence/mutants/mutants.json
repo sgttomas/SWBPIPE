@@ -1,0 +1,604 @@
+[
+ {
+  "id": "F1",
+  "what": "wrong cause (production): the Candidate fallback reports Native",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes",
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "passed_count": 18,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "only_u8": false,
+  "panics": {
+   "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes": "assertion `left == right` failed: Maxima\n  left: Some(Native)\n right: Some(Candidate)",
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice": "assertion `left == right` failed: candidate maxima SparseInteractive\n  left: Some(Native)\n right: Some(Candidate)",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice": "assertion `left == right` failed: first_load_only SparseInteractive: the real input's cause\n  left: Some(Native)\n right: Some(Candidate)\n\n\nfailures:\n    retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes\n    retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice\n    retained_facade_tests::u8_real_input_fallbacks_append_one_notice\n\ntest result: FAILED. 18 p"
+  }
+ },
+ {
+  "id": "F2",
+  "what": "wrong cause (production): the Preparation fallback reports Candidate",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes",
+   "retained_facade_tests::u3_unfired_hooks_come_back_across_the_hop",
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "passed_count": 17,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "only_u8": false,
+  "panics": {
+   "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes": "assertion `left == right` failed\n  left: Some(Candidate)\n right: Some(Preparation)",
+   "retained_facade_tests::u3_unfired_hooks_come_back_across_the_hop": "assertion `left == right` failed\n  left: Some(Err(Candidate))\n right: Some(Err(Preparation))",
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice": "assertion `left == right` failed: preparation SparseInteractive\n  left: Some(Candidate)\n right: Some(Preparation)",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice": "assertion `left == right` failed: tiny_spring SparseInteractive: the real input's cause\n  left: Some(Candidate)\n right: Some(Preparation)\n\n\nfailures:\n    retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes\n    retained_facade_tests::u3_unfired_hooks_come_back_across_the_hop\n    retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice\n    retained_facade_tests"
+  }
+ },
+ {
+  "id": "F3",
+  "what": "wrong cause (production): the Native fallback reports Preparation",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes",
+   "retained_facade_tests::u3_unfired_hooks_come_back_across_the_hop",
+   "retained_facade_tests::u3_test_hooks_follow_the_reserved_stack_thread",
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "passed_count": 16,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "only_u8": false,
+  "panics": {
+   "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes": "assertion `left == right` failed\n  left: Some(Preparation)\n right: Some(Native)",
+   "retained_facade_tests::u3_unfired_hooks_come_back_across_the_hop": "assertion `left == right` failed\n  left: Some(Err(Preparation))\n right: Some(Err(Native))",
+   "retained_facade_tests::u3_test_hooks_follow_the_reserved_stack_thread": "assertion `left == right` failed\n  left: Some(Err(Preparation))\n right: Some(Err(Native))",
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice": "assertion `left == right` failed: native SparseInteractive\n  left: Some(Preparation)\n right: Some(Native)",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice": "assertion `left == right` failed: w_c1_two_body_case_b SparseInteractive: the real input's cause\n  left: Some(Preparation)\n right: Some(Native)\n\n\nfailures:\n    retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes\n    retained_facade_tests::u3_test_hooks_follow_the_reserved_stack_thread\n    retained_facade_tests::u3_unfired_hooks_come_back_across_the_hop\n    retained_facade_t"
+  }
+ },
+ {
+  "id": "F4",
+  "what": "wrong cause (input): tiny_spring's stiffness restored to 144",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "passed_count": 20,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice": "assertion `left == right` failed: tiny_spring SparseInteractive: the real input's cause\n  left: None\n right: Some(Preparation)\n\n\nfailures:\n    retained_facade_tests::u8_real_input_fallbacks_append_one_notice\n\ntest result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 535 filtered out; finished in 22.81s\n\nwarning: function `derived` is never used\n   --> ~/dev/chirality/.claude/workt"
+  }
+ },
+ {
+  "id": "F5",
+  "what": "wrong cause (input): W-C1's entry runs two-body case A",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "passed_count": 20,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice": "assertion `left == right` failed: w_c1_two_body_case_b SparseInteractive: the real input's cause\n  left: None\n right: Some(Native)\n\n\nfailures:\n    retained_facade_tests::u8_real_input_fallbacks_append_one_notice\n\ntest result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 535 filtered out; finished in 25.04s\n\nwarning: function `derived` is never used\n   --> ~/dev/chirality/.claude/w"
+  }
+ },
+ {
+  "id": "F6",
+  "what": "outside D1 (input): first_load_only gains a combination",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "passed_count": 20,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice": "assertion `left == right` failed: first_load_only SparseInteractive: admitted (inside D1)\n  left: Some(Family(Invocation, Combinations))\n right: None\n\n\nfailures:\n    retained_facade_tests::u8_real_input_fallbacks_append_one_notice\n\ntest result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 535 filtered out; finished in 21.67s\n\nwarning: function `derived` is never used\n   --> ~/dev/"
+  }
+ },
+ {
+  "id": "F7",
+  "what": "two notices (production, no allocation): the last ordinary diagnostic is overwritten by the notice, then the notice is appended",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes",
+   "retained_facade_tests::u3_r1_carrier_names_exactly_one_publication",
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "passed_count": 17,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "only_u8": false,
+  "panics": {
+   "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes": "assertion `left == right` failed: preparation\n  left: \"{\\\"contract_evidence\\\":{\\\"combination_gates\\\":[],\\\"preview_cases\\\":[{\\\"intensified_measures\\\":[],\\\"load_case_id\\\":\\\"case\\\",\\\"pipe_stress_extrema\\\":[{\\\"approximation\\\":\\\"piecewise_quadratic_straight_section_statics\\\",\\\"certified_gap_pa\\\":2.646977960169689e-23,\\\"coefficient_basis\\\":\\\"j_side_section_equilibrium_binary64\\\",\\\"enclosure_scope\\\":\\\"su",
+   "retained_facade_tests::u3_r1_carrier_names_exactly_one_publication": "assertion `left == right` failed\n  left: [123, 34, 99, 111, 110, 116, 114, 97, 99, 116, 95, 101, 118, 105, 100, 101, 110, 99, 101, 34, 58, 123, 34, 99, 111, 109, 98, 105, 110, 97, 116, 105, 111, 110, 95, 103, 97, 116, 101, 115, 34, 58, 91, 93, 44, 34, 112, 114, 101, 118, 105, 101, 119, 95, 99, 97, 115, 101, 115, 34, 58, 91, 123, 34, 105, 110, 116, 101, 110, 115, 105, 102, 105, 101, 100, 95, 109, 1",
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice": "assertion `left == right` failed: preparation SparseInteractive: exactly one N1 notice\n  left: 2\n right: 1",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice": "assertion `left == right` failed: first_load_only SparseInteractive: the ordinary bytes, then the notice\n  left: \"{\\\"contract_evidence\\\":{\\\"combination_gates\\\":[],\\\"preview_cases\\\":[{\\\"intensified_measures\\\":[],\\\"load_case_id\\\":\\\"case\\\",\\\"pipe_stress_extrema\\\":[{\\\"approximation\\\":\\\"piecewise_quadratic_straight_section_statics\\\",\\\"certified_gap_pa\\\":2.131628207280301e-14,\\\"coefficient_basis\\\":\\\"j_s"
+  }
+ },
+ {
+  "id": "F8",
+  "what": "two notices, isolated (production reserves and appends two; the test's with_notice oracle also appends two): only the count can catch it",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "passed_count": 19,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "only_u8": false,
+  "panics": {
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice": "assertion `left == right` failed: preparation SparseInteractive: exactly one N1 notice\n  left: 2\n right: 1",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice": "assertion `left == right` failed: first_load_only SparseInteractive: exactly one N1 notice\n  left: 2\n right: 1\n\n\nfailures:\n    retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice\n    retained_facade_tests::u8_real_input_fallbacks_append_one_notice\n\ntest result: FAILED. 19 passed; 2 failed; 0 ignored; 0 measured; 535 filtered out; finished in 11.92s\n\nwarning: function `derived` "
+  }
+ },
+ {
+  "id": "F9",
+  "what": "no notice (production): Candidate fallback returns the plain envelope",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes",
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "passed_count": 18,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "only_u8": false,
+  "panics": {
+   "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes": "assertion `left == right` failed: candidate\n  left: \"{\\\"contract_evidence\\\":{\\\"combination_gates\\\":[],\\\"preview_cases\\\":[{\\\"intensified_measures\\\":[],\\\"load_case_id\\\":\\\"case\\\",\\\"pipe_stress_extrema\\\":[{\\\"approximation\\\":\\\"piecewise_quadratic_straight_section_statics\\\",\\\"certified_gap_pa\\\":2.646977960169689e-23,\\\"coefficient_basis\\\":\\\"j_side_section_equilibrium_binary64\\\",\\\"enclosure_scope\\\":\\\"supp",
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice": "assertion `left == right` failed: candidate maxima SparseInteractive: exactly one N1 notice\n  left: 0\n right: 1",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice": "assertion `left == right` failed: first_load_only SparseInteractive: the ordinary bytes, then the notice\n  left: \"{\\\"contract_evidence\\\":{\\\"combination_gates\\\":[],\\\"preview_cases\\\":[{\\\"intensified_measures\\\":[],\\\"load_case_id\\\":\\\"case\\\",\\\"pipe_stress_extrema\\\":[{\\\"approximation\\\":\\\"piecewise_quadratic_straight_section_statics\\\",\\\"certified_gap_pa\\\":2.131628207280301e-14,\\\"coefficient_basis\\\":\\\"j_s"
+  }
+ },
+ {
+  "id": "F10",
+  "what": "no notice (production): Preparation fallback returns the plain envelope",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes",
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "passed_count": 18,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "only_u8": false,
+  "panics": {
+   "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes": "assertion `left == right` failed: preparation\n  left: \"{\\\"contract_evidence\\\":{\\\"combination_gates\\\":[],\\\"preview_cases\\\":[{\\\"intensified_measures\\\":[],\\\"load_case_id\\\":\\\"case\\\",\\\"pipe_stress_extrema\\\":[{\\\"approximation\\\":\\\"piecewise_quadratic_straight_section_statics\\\",\\\"certified_gap_pa\\\":2.646977960169689e-23,\\\"coefficient_basis\\\":\\\"j_side_section_equilibrium_binary64\\\",\\\"enclosure_scope\\\":\\\"su",
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice": "assertion `left == right` failed: preparation SparseInteractive: exactly one N1 notice\n  left: 0\n right: 1",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice": "assertion `left == right` failed: tiny_spring SparseInteractive: the ordinary bytes, then the notice\n  left: \"{\\\"contract_evidence\\\":{\\\"combination_gates\\\":[],\\\"preview_cases\\\":[]},\\\"schema_version\\\":\\\"0.2.0\\\",\\\"producer\\\":{\\\"component_name\\\":\\\"open_pipe_stress_product_physics\\\",\\\"component_version\\\":\\\"0.2.0\\\",\\\"semantic_contract_id\\\":\\\"openpipestress.result_semantics/0.3.0/preview-physics-1\\\"},\\\""
+  }
+ },
+ {
+  "id": "F11",
+  "what": "no notice (production): Native fallback returns the plain envelope",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes",
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "passed_count": 18,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "only_u8": false,
+  "panics": {
+   "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes": "assertion `left == right` failed: native\n  left: \"{\\\"contract_evidence\\\":{\\\"combination_gates\\\":[],\\\"preview_cases\\\":[{\\\"intensified_measures\\\":[],\\\"load_case_id\\\":\\\"case\\\",\\\"pipe_stress_extrema\\\":[{\\\"approximation\\\":\\\"piecewise_quadratic_straight_section_statics\\\",\\\"certified_gap_pa\\\":2.646977960169689e-23,\\\"coefficient_basis\\\":\\\"j_side_section_equilibrium_binary64\\\",\\\"enclosure_scope\\\":\\\"supplie",
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice": "assertion `left == right` failed: native SparseInteractive: exactly one N1 notice\n  left: 0\n right: 1",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice": "assertion `left == right` failed: w_c1_two_body_case_b SparseInteractive: the ordinary bytes, then the notice\n  left: \"{\\\"contract_evidence\\\":{\\\"combination_gates\\\":[],\\\"preview_cases\\\":[{\\\"intensified_measures\\\":[],\\\"load_case_id\\\":\\\"case\\\",\\\"pipe_stress_extrema\\\":[{\\\"approximation\\\":\\\"piecewise_quadratic_straight_section_statics\\\",\\\"certified_gap_pa\\\":0.0,\\\"coefficient_basis\\\":\\\"j_side_section_e"
+  }
+ },
+ {
+  "id": "F12",
+  "what": "a second ordinary run (production) on the Candidate fallback path",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u3_n9_single_parse_custody",
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "passed_count": 18,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "only_u8": false,
+  "panics": {
+   "retained_facade_tests::u3_n9_single_parse_custody": "assertion `left == right` failed: borrowed_raw() reads\n  left: 3\n right: 2",
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice": "assertion `left == right` failed: candidate maxima SparseInteractive: B-1\n  left: Counts { runs: 2, complete_gates: 1 }\n right: Counts { runs: 1, complete_gates: 1 }",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice": "assertion `left == right` failed: first_load_only SparseInteractive: one ordinary run, then G-C once\n  left: Counts { runs: 2, complete_gates: 1 }\n right: Counts { runs: 1, complete_gates: 1 }\n\n\nfailures:\n    retained_facade_tests::u3_n9_single_parse_custody\n    retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice\n    retained_facade_tests::u8_real_input_fallbacks_append_one_not"
+  }
+ },
+ {
+  "id": "F13",
+  "what": "hook armed before the loop (test)",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "passed_count": 20,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice": "first_load_only SparseInteractive: no fault armed before\n\n\nfailures:\n    retained_facade_tests::u8_real_input_fallbacks_append_one_notice\n\ntest result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 535 filtered out; finished in 19.58s\n\nwarning: function `derived` is never used\n   --> WT/rv97/mut/projects/chirali"
+  }
+ },
+ {
+  "id": "F14",
+  "what": "hook armed after the before-check and left unfired (test)",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "passed_count": 20,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice": "first_load_only SparseInteractive: no fault armed after\n\n\nfailures:\n    retained_facade_tests::u8_real_input_fallbacks_append_one_notice\n\ntest result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 535 filtered out; finished in 19.80s\n\nwarning: function `derived` is never used\n   --> WT/rv97/mut/projects/chiralit"
+  }
+ },
+ {
+  "id": "F15",
+  "what": "hook left armed by production (the Candidate path arms staging on the worker; handed back)",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "passed_count": 19,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice"
+  ],
+  "only_u8": false,
+  "panics": {
+   "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice": "candidate maxima: fired on the reserved-stack thread, not handed back",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice": "first_load_only SparseInteractive: no fault armed after\n\n\nfailures:\n    retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice\n    retained_facade_tests::u8_real_input_fallbacks_append_one_notice\n\ntest result: FAILED. 19 passed; 2 failed; 0 ignored; 0 measured; 535 filtered out; finished in 13.50s\n\nwarning: function `derived` is never used\n   --> ~/dev/chirality/.claude/"
+  }
+ },
+ {
+  "id": "L1",
+  "what": "corrupted body-1 row (production): result:disp:N2:ux = 5e-324 in the published successor",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors",
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "passed_count": 19,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors",
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors": "sparse_interactive: the L = 0 fixture is the live successor document, byte for byte",
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor": "assertion `left == right` failed: sparse_interactive: the pinned L = 0 successor\n  left: (\"facade9a109a879a9857fbcd4c67154161f9ed2701b9cb92542bd5f0c8d93376\", Some(\"c00cbe76954e5188c63b0ef69738cd40a8db15d303b1113a86524e6c3119dd72\"), \"9811eb9c512584aee3b40342150a25ee285c326343a8d72ad277df3ff157e319\")\n right: (\"93c6c86548b9d263cba9d9869010043d23ed1c9f2f304dd9f82eb705eb350876\", Some(\"c00cbe76954e5188c"
+  }
+ },
+ {
+  "id": "L2",
+  "what": "B-prime (production): the ordinary envelope beside a successor gains a diagnostic",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u3_permitted_path_publishes_the_pinned_successor",
+   "retained_facade_tests::u3_r1_carrier_names_exactly_one_publication",
+   "retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor",
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "passed_count": 17,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "only_u8": false,
+  "panics": {
+   "retained_facade_tests::u3_permitted_path_publishes_the_pinned_successor": "assertion `left == right` failed: sparse_interactive: the ordinary owner is untouched\n  left: [123, 34, 99, 111, 110, 116, 114, 97, 99, 116, 95, 101, 118, 105, 100, 101, 110, 99, 101, 34, 58, 123, 34, 99, 111, 109, 98, 105, 110, 97, 116, 105, 111, 110, 95, 103, 97, 116, 101, 115, 34, 58, 91, 93, 44, 34, 112, 114, 101, 118, 105, 101, 119, 95, 99, 97, 115, 101, 115, 34, 58, 91, 123, 34, 105, 110, 11",
+   "retained_facade_tests::u3_r1_carrier_names_exactly_one_publication": "assertion `left == right` failed: envelope() stays the ordinary base\n  left: [123, 34, 99, 111, 110, 116, 114, 97, 99, 116, 95, 101, 118, 105, 100, 101, 110, 99, 101, 34, 58, 123, 34, 99, 111, 109, 98, 105, 110, 97, 116, 105, 111, 110, 95, 103, 97, 116, 101, 115, 34, 58, 91, 93, 44, 34, 112, 114, 101, 118, 105, 101, 119, 95, 99, 97, 115, 101, 115, 34, 58, 91, 123, 34, 105, 110, 116, 101, 110, 115,",
+   "retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor": "assertion `left == right` failed: sparse_interactive: B\u2032, the ordinary envelope is the plain run\n  left: [123, 34, 99, 111, 110, 116, 114, 97, 99, 116, 95, 101, 118, 105, 100, 101, 110, 99, 101, 34, 58, 123, 34, 99, 111, 109, 98, 105, 110, 97, 116, 105, 111, 110, 95, 103, 97, 116, 101, 115, 34, 58, 91, 93, 44, 34, 112, 114, 101, 118, 105, 101, 119, 95, 99, 97, 115, 101, 115, 34, 58, 91, 123, 34, 1",
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor": "assertion `left == right` failed: sparse_interactive: B\u2032, the ordinary envelope is the plain run\n  left: [123, 34, 99, 111, 110, 116, 114, 97, 99, 116, 95, 101, 118, 105, 100, 101, 110, 99, 101, 34, 58, 123, 34, 99, 111, 109, 98, 105, 110, 97, 116, 105, 111, 110, 95, 103, 97, 116, 101, 115, 34, 58, 91, 93, 44, 34, 112, 114, 101, 118, 105, 101, 119, 95, 99, 97, 115, 101, 115, 34, 58, 91, 123, 34, 1"
+  }
+ },
+ {
+  "id": "L3",
+  "what": "a second ordinary run (production) on the success path",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u3_n9_single_parse_custody",
+   "retained_facade_tests::u3g2_d_u6_5_carrier_fixtures_are_the_live_successors",
+   "retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor",
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors",
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "passed_count": 16,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors",
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "only_u8": false,
+  "panics": {
+   "retained_facade_tests::u3_n9_single_parse_custody": "assertion `left == right` failed: borrowed_raw() reads\n  left: 3\n right: 2",
+   "retained_facade_tests::u3g2_d_u6_5_carrier_fixtures_are_the_live_successors": "assertion `left == right` failed: sparse_interactive\n  left: Counts { runs: 2, complete_gates: 1 }\n right: Counts { runs: 1, complete_gates: 1 }",
+   "retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor": "assertion `left == right` failed: sparse_interactive: B-1, one ordinary run, then G-C once\n  left: Counts { runs: 2, complete_gates: 1 }\n right: Counts { runs: 1, complete_gates: 1 }",
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors": "assertion `left == right` failed: sparse_interactive\n  left: Counts { runs: 2, complete_gates: 1 }\n right: Counts { runs: 1, complete_gates: 1 }",
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor": "assertion `left == right` failed: sparse_interactive: one ordinary run, then G-C once\n  left: Counts { runs: 2, complete_gates: 1 }\n right: Counts { runs: 1, complete_gates: 1 }\n\n\nfailures:\n    retained_facade_tests::u3_n9_single_parse_custody\n    retained_facade_tests::u3g2_d_u6_5_carrier_fixtures_are_the_live_successors\n    retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor\n"
+  }
+ },
+ {
+  "id": "L4",
+  "what": "outside D1 (input): the L = 0 request gains a combination",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors",
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "passed_count": 19,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors",
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors": "assertion `left == right` failed: sparse_interactive\n  left: Counts { runs: 1, complete_gates: 0 }\n right: Counts { runs: 1, complete_gates: 1 }",
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor": "assertion `left == right` failed: sparse_interactive: admitted (inside D1)\n  left: Some(Family(Invocation, Combinations))\n right: None\n\n\nfailures:\n    retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors\n    retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor\n\ntest result: FAILED. 19 passed; 2 failed; 0 ignored; 0 measured; 535 filtered out; finished in 19.10s\n\nwa"
+  }
+ },
+ {
+  "id": "L5",
+  "what": "W1 falls back (input): N2 left unsupported",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors",
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "passed_count": 19,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors",
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors": "sparse_interactive: the registered Direct entry did not publish its successor",
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor": "assertion `left == right` failed: sparse_interactive: B\u2032, the ordinary envelope is the plain run\n  left: [123, 34, 99, 111, 110, 116, 114, 97, 99, 116, 95, 101, 118, 105, 100, 101, 110, 99, 101, 34, 58, 123, 34, 99, 111, 109, 98, 105, 110, 97, 116, 105, 111, 110, 95, 103, 97, 116, 101, 115, 34, 58, 91, 93, 44, 34, 112, 114, 101, 118, 105, 101, 119, 95, 99, 97, 115, 101, 115, 34, 58, 91, 93, 125, 4"
+  }
+ },
+ {
+  "id": "V1",
+  "what": "corrupted body-1 row, past the pin: N2:ux = 5e-324 in the rows the value controls read",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "passed_count": 20,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor": "assertion `left == right` failed: sparse_interactive result:disp:N2:ux: body 1's row is exactly +0\n  left: Some(1)\n right: Some(0)\n\n\nfailures:\n    retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor\n\ntest result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 535 filtered out; finished in 18.73s\n\nwarning: function `derived` is never used\n   --> ~/dev/chirality/.cla"
+  }
+ },
+ {
+  "id": "V2",
+  "what": "body-1 class, past the pin: N2:ux classified relative-verified",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "passed_count": 20,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor": "sparse_interactive result:disp:N2:ux: (0, None, RelativeVerified) is neither input-derived nor an exact zero\n\n\nfailures:\n    retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor\n\ntest result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 535 filtered out; finished in 19.21s\n\nwarning: function `derived` is never used\n   --> ~/dev/chirality/.claude/worktrees/swbpipe-"
+  }
+ },
+ {
+  "id": "V3",
+  "what": "body-1 tally, past the pin: one input-derived row reclassified as an exact-zero absolute row",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "passed_count": 20,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor": "assertion `left == right` failed: sparse_interactive: body 1's six displacements, its magnitude and its nine reaction rows\n  left: (5, 10)\n right: (6, 9)\n\n\nfailures:\n    retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor\n\ntest result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 535 filtered out; finished in 18.54s\n\nwarning: function `derived` is never used\n   --> <home>/"
+  }
+ },
+ {
+  "id": "V4",
+  "what": "body-1 coverage, past the pin: has_data true",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "passed_count": 20,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor": "assertion `left == right` failed: sparse_interactive: body 1's coverage (extent 0, no free DOF)\n  left: Object {\"body\": Number(1), \"has_data\": Bool(true), \"stop\": Array [Bool(false), Bool(false), Bool(false), Bool(false)]}\n right: Object {\"body\": Number(1), \"has_data\": Bool(false), \"stop\": Array [Bool(false), Bool(false), Bool(false), Bool(false)]}\n\n\nfailures:\n    retained_facade_tests::u8_l0_isol"
+  }
+ },
+ {
+  "id": "V5",
+  "what": "body-0 bit identity, past the pin: result:disp:N1 moved by one ulp",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "passed_count": 20,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor": "assertion `left == right` failed: sparse_interactive result:disp:N1: bit-identical to the milestone\n  left: Some(4591457097494188853)\n right: Some(4591457097494188852)\n\n\nfailures:\n    retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor\n\ntest result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 535 filtered out; finished in 18.62s\n\nwarning: function `derived` is never used\n"
+  }
+ },
+ {
+  "id": "V6",
+  "what": "body-0 U5 criterion, past the pin: result:disp:N1's normalized value moved by 3e-9 relative",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "passed_count": 20,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor": "sparse_interactive result:disp:N1: RelativeVerified outside the U5 criterion (9.426732799080953e-5 against 9.426732770800755e-5)\n\n\nfailures:\n    retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor\n\ntest result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 535 filtered out; finished in 18.99s\n\nwarning: function `derived` is never used\n   --> ~/dev/chirality/.claud"
+  }
+ },
+ {
+  "id": "V6c",
+  "what": "CONTROL (expected to survive): the same row moved by 5e-10 relative, inside the criterion",
+  "rc": 0,
+  "compile_error": false,
+  "failed": [],
+  "passed_count": 21,
+  "killed": false,
+  "killed_by_u8": [],
+  "only_u8": false,
+  "panics": {}
+ },
+ {
+  "id": "V7",
+  "what": "body-0 class claim, past the pin: result:disp:N1 classified input-derived",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "passed_count": 20,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor": "assertion `left == right` failed: sparse_interactive result:disp:N1: the milestone's class claim\n  left: InputDerived\n right: RelativeVerified\n\n\nfailures:\n    retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor\n\ntest result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 535 filtered out; finished in 18.23s\n\nwarning: function `derived` is never used\n   --> ~/dev/ch"
+  }
+ },
+ {
+  "id": "D1",
+  "what": "the dense L = 0 fixture gains a trailing newline",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors"
+  ],
+  "passed_count": 20,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors": "dense_scrutiny: the L = 0 fixture is the live successor document, byte for byte\n\n\nfailures:\n    retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors\n\ntest result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 535 filtered out; finished in 17.65s\n\nwarning: function `derived` is never used\n   --> <parent-checkout>/.claude/t"
+  }
+ },
+ {
+  "id": "D2",
+  "what": "the two fixtures swapped in the D-U6-5 test",
+  "rc": 101,
+  "compile_error": false,
+  "failed": [
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors"
+  ],
+  "passed_count": 20,
+  "killed": true,
+  "killed_by_u8": [
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors"
+  ],
+  "only_u8": true,
+  "panics": {
+   "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors": "sparse_interactive: the L = 0 fixture is the live successor document, byte for byte\n\n\nfailures:\n    retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors\n\ntest result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 535 filtered out; finished in 17.97s\n\nwarning: function `derived` is never used\n   --> <parent-checkout>/.clau"
+  }
+ }
+]

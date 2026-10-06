@@ -1,0 +1,45 @@
+   Compiling open_pipe_stress_result_export v0.1.0 (WT/scratch/i76_t6s/mut/projects/chirality-piping/core/reporting/result_export)
+warning: function `derived` is never used
+   --> src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.46s
+     Running tests/retained_precision_derivative_golden.rs (WT/targets/i76-t6s-mut/debug/deps/retained_precision_derivative_golden-90936703cdba7b36)
+
+running 3 tests
+test t6s2_a_mutated_pinned_successor_changes_the_golden ... FAILED
+test t6s2_golden_carries_the_receipt_evidence_and_class_disclosures ... FAILED
+test t6s2_goldens_are_the_live_successor_derivative ... FAILED
+
+failures:
+
+---- t6s2_a_mutated_pinned_successor_changes_the_golden stdout ----
+
+thread 't6s2_a_mutated_pinned_successor_changes_the_golden' (75166926) panicked at tests/retained_precision_derivative_golden.rs:389:70:
+called `Result::unwrap()` on an `Err` value: "SOURCE_CONTRACT_EVIDENCE_BINDING_MISMATCH"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- t6s2_golden_carries_the_receipt_evidence_and_class_disclosures stdout ----
+
+thread 't6s2_golden_carries_the_receipt_evidence_and_class_disclosures' (75166927) panicked at tests/retained_precision_derivative_golden.rs:292:47:
+called `Result::unwrap()` on an `Err` value: "SOURCE_CONTRACT_EVIDENCE_BINDING_MISMATCH"
+
+---- t6s2_goldens_are_the_live_successor_derivative stdout ----
+
+thread 't6s2_goldens_are_the_live_successor_derivative' (75167160) panicked at tests/retained_precision_derivative_golden.rs:267:66:
+sparse_interactive: SOURCE_CONTRACT_EVIDENCE_BINDING_MISMATCH
+
+
+failures:
+    t6s2_a_mutated_pinned_successor_changes_the_golden
+    t6s2_golden_carries_the_receipt_evidence_and_class_disclosures
+    t6s2_goldens_are_the_live_successor_derivative
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.51s
+
+error: test failed, to rerun pass `--test retained_precision_derivative_golden`

@@ -1,0 +1,4 @@
+== diff_rcr_cand_rep2_inert_bounds start 2026-10-06T12:51:17Z dir=<WT>/scratch/i73_s_i1/cand/projects/chirality-piping/core/rules/rule_check_runner
+     Running tests/i73_run_diff.rs (<WT>/targets/i73-s-i1/debug/deps/i73_run_diff)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.77s
+== diff_rcr_cand_rep2_inert_bounds exit=0 2026-10-06T12:51:21Z

@@ -1,0 +1,63 @@
+--- _i68_orig/lib.rs.orig_i68	2026-10-05 19:17:33
++++ projects/chirality-piping/core/product_physics/src/lib.rs	2026-10-05 19:20:00
+@@ -3120,7 +3120,7 @@
+     };
+     let mut prepared = match observer.prepare_case(ordinary) {
+         Ok(prepared) => prepared,
+-        Err(failure) => return notice.publish(failure.ordinary, W1Fallback::Preparation),
++        Err(failure) => { #[cfg(test)] println!("I68_PREPARATION_FAILURE error={:?} preparation_error={:?}", failure.capture.error, failure.preparation_error); return notice.publish(failure.ordinary, W1Fallback::Preparation) },
+     };
+     #[cfg(test)]
+     retained_tests_hooks::before_native(&mut prepared);
+@@ -3129,7 +3129,7 @@
+     }
+     let frozen = match prepared.freeze_candidate() {
+         Ok(frozen) => frozen,
+-        Err(refusal) => return notice.publish(refusal.ordinary, W1Fallback::Candidate),
++        Err(refusal) => { #[cfg(test)] { let e = format!("{:?}", refusal.error); let mut end = e.len().min(1500); while !e.is_char_boundary(end) { end -= 1; } println!("I68_CANDIDATE_REFUSAL len={} error={}", e.len(), &e[..end]); } return notice.publish(refusal.ordinary, W1Fallback::Candidate) },
+     };
+     // Staging: the overlay applies to a copy; the ordinary owner stays intact. A
+     // broken overlay invariant falls back typed (RV85 N6).
+@@ -3159,6 +3159,11 @@
+     #[cfg(test)]
+     retained_tests_hooks::before_precommit_invocation(&mut invocation);
+     if let Err(error) = open_pipe_stress_result_export::retained_precision::validate(&successor, Some(&invocation)) {
++        #[cfg(test)] { use sha2::Digest; println!("I68_PRECOMMIT_ERROR {:?}", error);
++            if let Ok(d) = std::env::var("I68_OUT") { let tag = format!("{:x}", sha2::Sha256::digest(serde_json::to_vec(&invocation).unwrap()));
++                let path = std::path::Path::new(&d).join(format!("precommit_refused_{}_{}.json", capture.mode().as_str(), &tag[..12]));
++                std::fs::write(&path, serde_json::to_vec_pretty(&serde_json::json!({"source": &successor, "invocation": &invocation})).unwrap()).unwrap();
++                println!("I68_PRECOMMIT_DUMP {}", path.file_name().unwrap().to_string_lossy()); } }
+         return notice.publish(frozen.into_ordinary(), W1Fallback::Precommit { gate: error.gate, code: error.code });
+     }
+     drop(invocation);
+@@ -24331,3 +24336,6 @@
+         assert!(!metadata.sign_convention.contains("1.08"));
+     }
+ }
++
++#[cfg(test)]
++mod zz_i68_probe;
+--- _i68_orig/retained_product.rs.orig_i68	2026-10-05 19:17:33
++++ projects/chirality-piping/core/product_physics/src/retained_product.rs	2026-10-05 19:17:47
+@@ -3461,6 +3461,11 @@
+         let mut invocation=k::RecordedInvocation::new(60_000_000_000,cap).map_err(CaptureError::Origin)?;
+         let mut cases=invocation.solve_cases(std::slice::from_ref(source),k::CaseLimit::new(20_000_000_000)).map_err(CaptureError::Origin)?;
+         let case=cases.remove(0);
++        #[cfg(test)] { match &case.outcome {
++            k::ExecutionOutcome::Selected(_)=>println!("I68_NATIVE_OUTCOME Selected"),
++            k::ExecutionOutcome::Unresolved{reason,attempts,..}=>println!("I68_NATIVE_OUTCOME Unresolved reason={:?} attempts={:?}",reason,attempts.iter().map(|a|(a.precision,format!("{:?}",a.role),format!("{:?}",a.outcome))).collect::<Vec<_>>()),
++            k::ExecutionOutcome::Refused{refusal,attempts,..}=>println!("I68_NATIVE_OUTCOME Refused refusal={:?} attempts={:?}",refusal,attempts.iter().map(|a|(a.precision,format!("{:?}",a.role),format!("{:?}",a.outcome))).collect::<Vec<_>>()),
++        } }
+         let selected=matches!(case.outcome,k::ExecutionOutcome::Selected(_));
+         o.native=Some((invocation,case));
+         if selected {Ok(())} else {Err(CaptureError::NativeUnavailable)}
+--- _i68_orig/retained_precision.rs.orig_i68	2026-10-05 19:23:28
++++ projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs	2026-10-05 19:23:28
+@@ -204,6 +204,7 @@
+ const DOFS: [&str; 6] = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
+ const SLOTS: [&str; 7] = ["s128", "s256", "s512", "s1024", "v256", "v512", "v1024"];
+ fn error(gate: &'static str, suffix: &str) -> ValidationError {
++    if gate == "G8" && std::env::var_os("I68_READER_BT").is_some() { eprintln!("I68_READER_ERROR {gate} {suffix}\n{}", std::backtrace::Backtrace::force_capture()); }
+     ValidationError {
+         gate,
+         detail: None,

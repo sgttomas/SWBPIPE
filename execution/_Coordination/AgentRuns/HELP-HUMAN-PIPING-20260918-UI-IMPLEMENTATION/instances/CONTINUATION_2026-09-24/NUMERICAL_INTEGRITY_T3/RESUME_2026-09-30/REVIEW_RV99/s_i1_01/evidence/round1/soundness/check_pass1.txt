@@ -1,0 +1,27 @@
+{
+ "U_conservative_all_points_agree": 254,
+ "U_points_disagree_or_block": 1448,
+ "eval_cases": 3227,
+ "exact_samples": 39290,
+ "interval_blocked": 295,
+ "parity_compared": 3227,
+ "point_samples": 247142,
+ "quantity_enclosure": 243,
+ "quantity_no_enclosure": 150,
+ "runner_RULE_INPUTS_INCOMPLETE": 241,
+ "runner_USER_RULE_CHECKED": 159,
+ "runner_USER_RULE_FAILED": 203,
+ "runner_U_conservative": 52,
+ "runner_cases": 603,
+ "runner_div0_finding": 53,
+ "runner_invalid_bound": 4,
+ "runner_outcome_RULE_INTERVAL_ALL_FAIL": 191,
+ "runner_outcome_RULE_INTERVAL_ALL_PASS": 150,
+ "runner_outcome_RULE_RESULT_INDETERMINATE": 235,
+ "runner_point_samples": 11448,
+ "runner_zero_bound_point_path_panic_T3_SI1b": 3,
+ "truth_F": 411,
+ "truth_T": 426,
+ "truth_U": 1702
+}
+VIOLATIONS: {}

@@ -1,0 +1,5 @@
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  1 failed | 138 passed (139)
+      Tests  4 failed | 3568 passed (3572)
+   Duration  98.51s (transform 6.67s, setup 5.74s, import 18.03s, tests 408.05s, environment 28.38s)
+rc=1

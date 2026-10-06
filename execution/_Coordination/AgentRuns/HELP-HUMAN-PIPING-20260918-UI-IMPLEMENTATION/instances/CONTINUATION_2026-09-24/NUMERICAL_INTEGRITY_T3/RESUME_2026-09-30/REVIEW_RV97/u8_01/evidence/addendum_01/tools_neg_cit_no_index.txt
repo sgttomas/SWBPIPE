@@ -1,0 +1,50 @@
+UNRESOLVED projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs:831 [record_path] R/I68/u8_probe_01
+UNRESOLVED projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs:831 [rr_title] I61's U8 plan ruled
+UNRESOLVED projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs:870 [rr_title] I68's probe verified
+UNRESOLVED projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs:931 [record_path] R/I68/u8_probe_01
+UNRESOLVED projects/chirality-piping/tests/test_retained_precision_contract.py:884 [rr_title] I61's U8 plan ruled
+UNRESOLVED projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs:836 [code_line] zz_rv93.rs:292–315 (bare code line citation: name the symbol)
+COUNTS resolved 0; ambiguous 0; unresolved 6
+  records/RR: occurrences 5, distinct 3, unresolved 5; documents: 0 citations (0 resolved, 0 ambiguous, 0 unresolved); verification failures 0; unused index entries 41; code lines: 1 (0 pinned in code_anchors, 1 unresolved)
+  unused: generator 'part2/_run_records/g5_profile.py'
+  unused: generator_input 'profile_tree.json'
+  unused: record_path 'R/I61'
+  unused: record_path 'R/I61/receipt_experiment_02-03'
+  unused: record_path 'R/I62/review_repair_07/RETURN_07F.md'
+  unused: record_path 'R/I65/u4_g3_01/G2_AMENDMENTS.md'
+  unused: record_path 'R/I65/u4_g6_01/QUALIFICATION.md'
+  unused: review_path 'REVIEW_RV77/coverage_producer_01/tests/rv77_enum.rs'
+  unused: review_path 'REVIEW_RV77/coverage_producer_01/tests/rv77_pp.rs'
+  unused: rr_line 'RR:8117'
+  unused: rr_line 'RR:8436'
+  unused: rr_line 'RR:8821'
+  unused: rr_title 'RV84 on U4 G3'
+  unused: rr_title 'RV88 on U6a, U6c, U6b (and U6d)'
+  unused: rr_title 'RV88 on U6a, U6c, U6b (and U6d): all PASS; repair rounds and the shared declared-difference cases'
+  unused: rr_title 'RV92 (U6f) on the whole of U6'
+  unused: rr_title 'RV92 (U6f) on the whole of U6: PASS; the post-U6f repair round; U7 preconditions'
+  unused: rr_title 'RV92 on the post-U6f round: one transport residue, declared by a scope sentence'
+  unused: rr_title 'RV93 on U3 grant 2: PASS; RV89 confirms the final basis re-qualified; U7 planned and ruled'
+  unused: rr_title 'RV94 on U7: PASS; the summary aligned across languages; the stale-comment repair; a public-activation checklist'
+  unused: rr_title 'The memory branch merged into NUM; U7 slices T and P committed'
+  unused: rr_title 'U4 G3 verified'
+  unused: rr_title 'U4 G4'
+  unused: rr_title 'U4 G4: the margin rule trips'
+  unused: rr_title 'U6a verified and committed; fan-out'
+  unused: rr_title 'U6b (Python carriers) verified and committed; the pin and findings ruled'
+  unused: run 'I61 u7_scoping_01'
+  unused: run 'I65 u4_g6_01'
+  unused: run 'I66 u7_repair_01'
+  unused: run 'I66 u7_slice_f_01'
+  unused: run 'I67 u7_repair_01'
+  unused: run 'I67 u7_slice_f_01'
+  unused: run 'I67 u7_slice_f_02'
+  unused: run 'I67 u7_slice_t_01'
+  unused: run 'RV88 u6a_01'
+  unused: run 'RV88 u6b_01'
+  unused: run 'RV88 u6d_01'
+  unused: run 'RV91 u6d_01'
+  unused: run 'RV92 u6f_01'
+  unused: run 'RV92 u6f_02'
+  unused: run 'RV94 u7_01'
+RESULT FAIL

@@ -1,0 +1,3 @@
+main 75a8c3291f RR: 1050478 bytes 12302 lines sha256 265d67dafd564ca75a72daca8d433b874fe0e080aba61af575316569daa87b81
+head RR (same blob b65adaf62c at 11b2d04f13 and e41566921d): 1114766 bytes 13035 lines sha256 67d438b405756121c6e50ef7f7e4fca2a92b045d517609be0d93e843464aba8e
+main's RR is a byte prefix of the head's: True ; appended 64288 bytes, 733 lines

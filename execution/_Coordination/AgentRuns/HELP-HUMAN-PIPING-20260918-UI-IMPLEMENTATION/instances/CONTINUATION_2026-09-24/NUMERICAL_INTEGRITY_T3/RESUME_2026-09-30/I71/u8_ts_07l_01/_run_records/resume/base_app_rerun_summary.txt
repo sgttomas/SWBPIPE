@@ -1,0 +1,6 @@
+ 6:47  up 8 days, 11:35, 1 user, load averages: 12.67 18.81 12.82
+ Test Files  1 passed (1)
+      Tests  225 passed (225)
+   Duration  104.29s (transform 1.73s, setup 71ms, import 2.03s, tests 101.91s, environment 184ms)
+rc=0
+ 6:49  up 8 days, 11:36, 1 user, load averages: 8.61 15.56 12.24

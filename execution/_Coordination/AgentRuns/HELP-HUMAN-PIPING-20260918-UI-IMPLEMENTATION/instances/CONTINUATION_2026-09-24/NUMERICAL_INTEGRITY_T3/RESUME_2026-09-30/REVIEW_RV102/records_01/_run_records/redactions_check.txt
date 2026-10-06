@@ -1,0 +1,17 @@
+entries=13
+T3/RESUME_2026-09-30/I40/kernel_origins_01/_run_records/final_read_5.log	orig_sha_ok	head_is_redacted	main_eq_head	adc6618bb81f
+T3/RESUME_2026-09-30/I42/source_bridge_01/_run_records/final_processes.txt	orig_sha_ok	head_is_redacted	main_eq_head	5d4ae32210be
+T3/RESUME_2026-09-30/I42/source_bridge_01/_run_records/preflight_processes.txt	orig_sha_ok	head_is_redacted	main_eq_head	7eb4a0a0a3d5
+T3/RESUME_2026-09-30/I42/source_bridge_rv56_repair_02/_run_records/final_processes.txt	orig_sha_ok	head_is_redacted	main_eq_head	c553620c4d20
+T3/RESUME_2026-09-30/I42/source_bridge_rv56_repair_02/_run_records/preflight_processes.txt	orig_sha_ok	head_is_redacted	main_eq_head	5c2d6c60ff5d
+T3/RESUME_2026-09-30/I47/selected_material_01/_run_records/FINAL_PROCESS.log	orig_sha_ok	head_is_redacted	main_eq_head	107fcd6955f1
+T3/RESUME_2026-09-30/I47/selected_material_01/_run_records/PROCESS_DURING_FINAL_OPTIMIZED.log	orig_sha_ok	head_is_redacted	main_eq_head	ad1919b1e4c6
+T3/RESUME_2026-09-30/I47/selected_material_02/_run_records/FINAL_PROCESS.log	orig_sha_ok	head_is_redacted	main_eq_head	300ccc65888b
+T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/_run_records/final_processes.txt	orig_sha_ok	head_is_redacted	main_eq_head	5b633bd9066d
+T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/_run_records/preflight_processes.txt	orig_sha_ok	head_is_redacted	main_eq_head	be7ca335c0f5
+T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_repair_02/_run_records/final_processes.txt	orig_sha_ok	head_is_redacted	main_eq_head	503d251e5425
+T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_repair_02/_run_records/preflight_processes.txt	orig_sha_ok	head_is_redacted	main_eq_head	5c5242266c5b
+T3/RESUME_2026-09-30/REVIEW_RV62/selected_material_01/_run_records/whole_diff_whitespace.log	orig_sha_ok	head_is_redacted	main_eq_head	2092ba09fc76
+original blob ids present in full tree of 11b2d04f13: 0/13 (tree entries scanned: 80440)
+original blob ids present in full tree of 75a8c3291f: 0/13 (tree entries scanned: 79728)
+changed files hashed: 715; equal to an original_sha256: 0

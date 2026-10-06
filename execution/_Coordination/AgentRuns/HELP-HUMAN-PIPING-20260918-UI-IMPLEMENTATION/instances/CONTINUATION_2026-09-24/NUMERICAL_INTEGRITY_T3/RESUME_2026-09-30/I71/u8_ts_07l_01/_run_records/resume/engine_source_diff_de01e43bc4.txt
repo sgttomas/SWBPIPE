@@ -1,0 +1,10 @@
+== git diff --stat e2b83da584 de01e43bc4 -- <the 17 closure crates> projects/chirality-piping/apps/desktop/scripts projects/chirality-piping/schemas projects/chirality-piping/fixtures
+ .../product_physics/src/retained_facade_tests.rs   |   244 +
+ .../tests/retained_precision_contract.rs           |    29 +-
+ .../fixtures/results/retained_precision_cases.json | 16140 ++++++++++++++++++-
+ ...ined_precision_l0_successor_dense_scrutiny.json |  6263 +++++++
+ ..._precision_l0_successor_sparse_interactive.json |  6244 +++++++
+ 5 files changed, 28913 insertions(+), 7 deletions(-)
+== Cargo.toml, Cargo.lock and build.rs in the closure, e2b83da584..de01e43bc4 (empty = unchanged)
+== the one closure file changed by U8-3 (de01e43bc4) is an integration test, outside the lib target
+M	projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs

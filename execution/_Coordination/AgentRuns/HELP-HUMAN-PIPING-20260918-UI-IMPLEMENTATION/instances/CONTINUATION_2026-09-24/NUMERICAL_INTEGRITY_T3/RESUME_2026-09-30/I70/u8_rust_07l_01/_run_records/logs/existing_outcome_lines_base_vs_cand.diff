@@ -1,0 +1,5 @@
+18a19,22
+> I63_MUST_PASS "isolated_estimate_uncoupled_dense_scrutiny" true
+> I63_MUST_PASS "isolated_estimate_uncoupled_sparse_interactive" true
+> I63_MUST_PASS "isolated_translation_stop_dense_scrutiny" true
+> I63_MUST_PASS "isolated_translation_stop_sparse_interactive" true

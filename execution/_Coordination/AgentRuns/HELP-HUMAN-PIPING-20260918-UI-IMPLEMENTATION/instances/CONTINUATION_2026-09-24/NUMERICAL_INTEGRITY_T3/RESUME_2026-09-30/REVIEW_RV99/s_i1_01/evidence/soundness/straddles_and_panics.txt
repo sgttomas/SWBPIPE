@@ -1,0 +1,12 @@
+Per run: evaluator boxes whose point path both passes and fails (straddles), by the
+interval verdict; boxes where the point path panics at some sample, by the interval
+verdict; the same for the runner (point statuses CHECKED and FAILED both present).
+INTERVAL_PANIC and RUNNER_BOUNDED_PANIC would be listed if any occurred (none did).
+rv99_cases.json  eval_straddle_U 903; point-panic boxes 30 (interval U 15, quantity without enclosure 15); runner_straddle INCOMPLETE 149; runner point-panic boxes 3 (bounded INCOMPLETE 3)
+seed1.json       eval_straddle_U 1820; point-panic boxes 30 (U 15, none 15); runner_straddle INCOMPLETE 367; runner point-panic boxes 4 (bounded INCOMPLETE 4)
+seed2.json       eval_straddle_U 1776; point-panic boxes 30 (U 15, none 15); runner_straddle INCOMPLETE 333; runner point-panic boxes 3 (bounded INCOMPLETE 3)
+seed3.json       eval_straddle_U 1733; point-panic boxes 30 (U 15, none 15); runner_straddle INCOMPLETE 343; runner point-panic boxes 3 (bounded INCOMPLETE 3)
+seed4.json       eval_straddle_U 1730; point-panic boxes 30 (U 15, none 15); runner_straddle INCOMPLETE 356; runner point-panic boxes 3 (bounded INCOMPLETE 3)
+rv99_extra.json  eval_straddle_U 20
+rv99_i73cases    eval_straddle_U 17
+TOTAL            evaluator straddles 7999, all U; runner straddles 1548, all RULE_INPUTS_INCOMPLETE; point-panic boxes 150 evaluator + 16 runner, interval/bounded never panicked

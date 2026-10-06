@@ -1,0 +1,8 @@
+base distinct inputs: 182 {('rc', 'physics'): 1, ('rc', 'physics_source'): 14, ('rc', 'preview_physics'): 2, ('rc', 'source_blocks'): 7, ('rd', 'legacy'): 89, ('rd', 'physics'): 3, ('rd', 'physics_source'): 14, ('rd', 'precision'): 6, ('rd', 'preview_physics'): 2, ('rd', 'source_blocks'): 7, ('sn', 'legacy'): 6, ('sn', 'physics'): 1, ('sn', 'physics_source'): 16, ('sn', 'precision'): 5, ('sn', 'preview_physics'): 3, ('sn', 'source_blocks'): 6}
+  inputs with more than one output (nondeterministic): 0
+cand distinct inputs: 198 {('rc', 'physics'): 1, ('rc', 'physics_source'): 14, ('rc', 'preview_physics'): 4, ('rc', 'retained_preview_physics'): 2, ('rc', 'source_blocks'): 7, ('rd', 'legacy'): 89, ('rd', 'physics'): 3, ('rd', 'physics_source'): 14, ('rd', 'precision'): 6, ('rd', 'preview_physics'): 4, ('rd', 'retained_preview_physics'): 7, ('rd', 'source_blocks'): 7, ('sn', 'legacy'): 6, ('sn', 'physics'): 1, ('sn', 'physics_source'): 16, ('sn', 'precision'): 5, ('sn', 'preview_physics'): 3, ('sn', 'retained_preview_physics'): 3, ('sn', 'source_blocks'): 6}
+  inputs with more than one output (nondeterministic): 0
+non-successor inputs in both: 182 differing: 0
+base-only inputs: 0 Counter()
+cand-only inputs: 16 Counter({('rd', 'retained_preview_physics'): 7, ('sn', 'retained_preview_physics'): 3, ('rc', 'retained_preview_physics'): 2, ('rd', 'preview_physics'): 2, ('rc', 'preview_physics'): 2})
+successor inputs in base: 0

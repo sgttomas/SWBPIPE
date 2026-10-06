@@ -1,0 +1,7 @@
+nc1_plan_no_rule: rc=0 (want 0) as expected; RESULT PASS (ambiguous citations listed for ROOT)
+nc2_no_code_anchor: rc=1 (want 1) as expected; RESULT FAIL
+nc3_num_without_u8_records: rc=1 (want 1) as expected; IndexError: list index out of range
+nc4_anchor_text: rc=1 (want 1) as expected; RESULT FAIL
+nc5_rr_heading: rc=1 (want 1) as expected; RESULT FAIL
+nc6_missing_entry: rc=1 (want 1) as expected; RESULT FAIL
+NEGATIVE CONTROLS ALL AS EXPECTED

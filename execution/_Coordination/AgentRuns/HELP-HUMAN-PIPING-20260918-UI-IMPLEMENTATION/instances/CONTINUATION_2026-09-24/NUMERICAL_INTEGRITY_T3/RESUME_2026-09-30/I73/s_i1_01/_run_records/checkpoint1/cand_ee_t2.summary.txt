@@ -1,0 +1,7 @@
+     Running unittests src/lib.rs (<WT>/targets/i73-s-i1/debug/deps/open_pipe_stress_expression_evaluator)
+interval soundness property: tally [763, 770, 752, 1237, 478], point-path panics 117
+test result: ok. 48 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
+     Running tests/conformance_corpus.rs (<WT>/targets/i73-s-i1/debug/deps/conformance_corpus)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== cand_ee_t2 exit=0 2026-10-06T01:34:45Z

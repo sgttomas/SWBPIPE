@@ -1,0 +1,30 @@
+# PP against Pass A reference: 710 -> 719 lines; 9 added, 0 removed
++unittests :: test retained_facade_tests::u3g2_d_u6_5_carrier_fixtures_are_the_live_successors ... ok
++unittests :: test retained_facade_tests::u3g2_direct_entry_no_w1_refusals_keep_exact_bytes ... ok
++unittests :: test retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor ... ok
++unittests :: test retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice ... ok
++unittests :: test retained_facade_tests::u3g2_late_gate_refusal_is_final_and_g_c_is_not_consulted ... ok
++unittests :: test retained_facade_tests::u3g2_no_permit_path_runs_once_without_a_copy ... ok
++unittests :: test retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors ... ok
++unittests :: test retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor ... ok
++unittests :: test retained_facade_tests::u8_real_input_fallbacks_append_one_notice ... ok
+# PP against u4_g7_06 (F): 716 -> 719 lines; 3 added, 0 removed
++unittests :: test retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors ... ok
++unittests :: test retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor ... ok
++unittests :: test retained_facade_tests::u8_real_input_fallbacks_append_one_notice ... ok
+PP now: 708 passed, 1 failed, 10 ignored
+  FAILED: unittests :: test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+
+# runner/headless against Pass A reference: 87 -> 87 lines; identical
+# runner/headless against u4_g7_06 (F): 87 -> 87 lines; identical
+runner/headless now: 85 passed, 2 failed, 0 ignored
+  FAILED: tests/load_reference_cli.rs :: test cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route ... FAILED
+  FAILED: unittests :: test load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes ... FAILED
+
+# witness and challenge lines against u4_g7_06 (F): identical
+# law run test lines (52) against u4_g7_06 (F) pass_frozen law.log (52): DIFFER
+@@ -52 +52 @@
+-test result: ok. 42 passed; 0 failed; 9 ignored; 0 measured; 502 filtered out; finished in 3.20s
++test result: ok. 42 passed; 0 failed; 9 ignored; 0 measured; 505 filtered out; finished in 4.85s
+# law record against u4_g7_06 (F): identical
+maxima now: sparse 0.8881 M; dense 0.8929 M

@@ -1,0 +1,16 @@
+# Bootstrap of the L = 0 file pins (first two runs, with the file sha256 unset): the assertion's left side is the observed (file, receipt, published bytes) triple.
+test retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor ... FAILED
+test retained_facade_tests::u8_real_input_fallbacks_append_one_notice ... ok
+thread 'retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor' (73504861) panicked at src/retained_facade_tests.rs:1034:9:
+  left: ("93c6c86548b9d263cba9d9869010043d23ed1c9f2f304dd9f82eb705eb350876", Some("c00cbe76954e5188c63b0ef69738cd40a8db15d303b1113a86524e6c3119dd72"), "9b425066029969b992278306a678303717400a5f16636d3427c5b9b8150ac83a")
+ right: ("unpinned", Some("c00cbe76954e5188c63b0ef69738cd40a8db15d303b1113a86524e6c3119dd72"), "9b425066029969b992278306a678303717400a5f16636d3427c5b9b8150ac83a")
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 553 filtered out; finished in 1.64s
+test retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor ... FAILED
+thread 'retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor' (73506234) panicked at src/retained_facade_tests.rs:1034:9:
+  left: ("dbb3d477364248fb9ae15f7b9cff44410c2bffe45f783dd02d96eca663b0ac88", Some("0b4250c8139ba25ab9d35fc2d443a01d85de943a8e3d0eb9193f5dd5061ce994"), "5d84fce64bb0810da24df9ea5d6ad354b18d864f07826dd09e191e345e4dea48")
+ right: ("unpinned", Some("0b4250c8139ba25ab9d35fc2d443a01d85de943a8e3d0eb9193f5dd5061ce994"), "5d84fce64bb0810da24df9ea5d6ad354b18d864f07826dd09e191e345e4dea48")
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 554 filtered out; finished in 1.56s
+# Run 3 (I68_U8_OUT=P/fixtures/results) wrote the fixtures:
+test retained_facade_tests::u8_real_input_fallbacks_append_one_notice ... ok
+test retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor ... ok
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 553 filtered out; finished in 1.64s

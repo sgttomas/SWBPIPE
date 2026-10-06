@@ -1,0 +1,37 @@
+RV102 scope checks (Git reads with GIT_OPTIONAL_LOCKS=0 in NUM's object store), 2026-10-06T15:23:56Z
+M=75a8c3291ffe5dad1bbd2833bcc8b9d501274bf0 H=11b2d04f13f48ce7821aa08d0261318fadcb1d09 H2=e41566921d5a1edd2fd4bb373ad2cbb40c7de0fa N=4e6c2fcbfed4472ed3272f94632c0dada5f0596a
+parents H2: e41566921d5a1edd2fd4bb373ad2cbb40c7de0fa 11b2d04f13f48ce7821aa08d0261318fadcb1d09
+parents H:  11b2d04f13f48ce7821aa08d0261318fadcb1d09 75a8c3291ffe5dad1bbd2833bcc8b9d501274bf0
+count M..H2: 2
+origin: 75a8c3291ffe5dad1bbd2833bcc8b9d501274bf0	refs/heads/main e41566921d5a1edd2fd4bb373ad2cbb40c7de0fa	refs/pull/1101/head 
+name-status M..H:   712 A    3 M 
+name-status M..H2:  708 A    3 M 
+paths outside P/execution, M..H2: 0
+modes added M..H2:  709 100644    2 100755 
+tree H = tree N: b2ac23f7bef0c91b969a399b3005cacc983abb73 b2ac23f7bef0c91b969a399b3005cacc983abb73
+P/execution H = N: d71855b0d602cde12ef9b9dbc660d2b141d85508 d71855b0d602cde12ef9b9dbc660d2b141d85508
+N..H2 (the only differences from NUM at N):
+D	T3/IMPLEMENTATION/U8/CHANGE_RECORD.md
+D	T3/IMPLEMENTATION/U8/PR_BODY.md
+D	T3/IMPLEMENTATION/U8/SHA256SUMS
+D	T3/IMPLEMENTATION/U8/citations.json
+H..H2:
+D	T3/IMPLEMENTATION/U8/CHANGE_RECORD.md
+D	T3/IMPLEMENTATION/U8/PR_BODY.md
+D	T3/IMPLEMENTATION/U8/SHA256SUMS
+D	T3/IMPLEMENTATION/U8/citations.json
+modified paths M..H2 (main blob -> head blob):
+ef6ff10242 -> 52c51711b9  T3/DESIGN_STANDING/DESIGN.md
+38a10296e7 -> b65adaf62c  T3/ROOT_RULINGS_V1.md
+1cca06c0b3 -> ad8031255e  projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md
+NUM-only commits (M..N): 727; of them ancestors of H2: 0
+29160bbc1c ancestor of H2: no
+dfa5e2dc44 ancestor of H2: no
+59b72619fe ancestor of H2: no
+3798d5eca7 ancestor of H2: no
+5758e1c3df ancestor of H2: no
+#1102 IMPLEMENTATION/U8 paths: 4
+U8/CHANGE_RECORD.md sha256 draft(N) fd5e4d4908c9 #1102(b18dd4f369) aee05a807c51
+U8/PR_BODY.md sha256 draft(N) 143ee2fadaa5 #1102(b18dd4f369) 6c6827f47a9e
+U8/citations.json sha256 draft(N) ffa4048142ca #1102(b18dd4f369) ffa4048142ca
+U8/SHA256SUMS sha256 draft(N) e5e11bc8d344 #1102(b18dd4f369) 7af694862aa7

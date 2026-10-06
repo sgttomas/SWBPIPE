@@ -1,0 +1,33 @@
+== how product_physics compiles the changed file (lib.rs at 69a925bd68)
+128-#[cfg(test)]
+129:mod retained_facade_tests;
+== every reference in the 17 closure crates (at 69a925bd68) to the three changed fixtures
+projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs:1039:            std::fs::write(dir.join(format!("retained_precision_l0_successor_{name}.json")), &text).unwrap();
+projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs:1051:        include_str!("../../../fixtures/results/retained_precision_l0_successor_sparse_interactive.json"),
+projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs:1052:        include_str!("../../../fixtures/results/retained_precision_l0_successor_dense_scrutiny.json"),
+projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:4353:        serde_json::from_str(include_str!("../../../../fixtures/results/retained_precision_cases.json")).unwrap()
+projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs:6:        "../../../../fixtures/results/retained_precision_cases.json"
+== the cfg(test) module enclosing result_export's corpus include_str!
+#[cfg(test)]
+mod u6e_reader_round_tests {
+    use super::*;
+    fn corpus() -> Value {
+        serde_json::from_str(include_str!("../../../../fixtures/results/retained_precision_cases.json")).unwrap()
+    }
+== PP REVIEWED_INPUTS (build.rs digests) at 69a925bd68
+pub(crate) const REVIEWED_INPUTS: [&str; 14] = [
+    "Cargo.lock",
+    "../../schemas/physics_source_recovery.schema.json",
+    "../../schemas/retained_precision_mp_v2.schema.json",
+    "../../fixtures/results/retained_precision_prepared_ordinary_v1.json",
+    "../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+    "../../fixtures/results/semantic_contract_v0_2.json",
+    "../../fixtures/results/semantic_contract_v0_3_precision_1.json",
+    "../../fixtures/results/semantic_contract_v0_3_physics_1.json",
+    "../../fixtures/results/semantic_contract_v0_3_load_reference_1.json",
+    "../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json",
+    "../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json",
+    "../../fixtures/results/semantic_contract_v0_3_physics_source_1.json",
+    "../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json",
+    "../../schemas/source_block_recovery.schema.json",
+];

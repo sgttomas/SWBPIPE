@@ -1,0 +1,11 @@
+PR bd6b4be2c33cc64edf3e273bc126083872d03e24
+INT bd6b4be2c33cc64edf3e273bc126083872d03e24
+MAIN c1bfc460fc8bedd2a0080e0aa3cfb74bf15df7df
+B c1bfc460fc8bedd2a0080e0aa3cfb74bf15df7df
+|S| = 7
+[PASS] check 1: PR non-execution paths equal S
+[PASS] check 2: 7 paths identical in blob and mode
+[PASS] check 3: {"rules_not_needed": ["projects/chirality-piping/core/analysis_runs/compatibility.py"]}
+[FAIL] check 4: {"execution_files": 0, "note": "no --package given; list not verified", "paths": []}
+[PASS] check 5: 7 rows; 7 equal; 0 recorded three-way merge(s); unexplained []
+RESULT FAIL

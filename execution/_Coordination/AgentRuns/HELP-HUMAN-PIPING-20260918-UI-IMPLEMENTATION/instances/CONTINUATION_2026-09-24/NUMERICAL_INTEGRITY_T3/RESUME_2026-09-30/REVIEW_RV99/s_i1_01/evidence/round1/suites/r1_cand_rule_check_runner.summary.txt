@@ -1,0 +1,12 @@
+     Running unittests src/lib.rs (<WT>/targets/rv99/cand/debug/deps/open_pipe_stress_rule_check_runner-be3202976a2436f6)
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/acceptability_relation_run.rs (<WT>/targets/rv99/cand/debug/deps/acceptability_relation_run-09729428ae09bad4)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/interval_bounds_run.rs (<WT>/targets/rv99/cand/debug/deps/interval_bounds_run-8a8b909fb0765413)
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+     Running tests/invented_demo_run.rs (<WT>/targets/rv99/cand/debug/deps/invented_demo_run-4c3cc39274329aa8)
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/rule_interval_cases.rs (<WT>/targets/rv99/cand/debug/deps/rule_interval_cases-a0df75569de1ad01)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+rc=0

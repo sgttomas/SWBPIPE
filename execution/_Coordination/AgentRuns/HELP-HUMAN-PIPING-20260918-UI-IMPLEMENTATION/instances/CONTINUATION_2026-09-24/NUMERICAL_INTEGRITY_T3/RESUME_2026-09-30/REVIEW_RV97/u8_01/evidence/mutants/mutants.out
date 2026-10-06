@@ -1,0 +1,32 @@
+{"id": "F1", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_real_input_fallbacks_append_one_notice"], "only_u8": false}
+{"id": "F2", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_real_input_fallbacks_append_one_notice"], "only_u8": false}
+{"id": "F3", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_real_input_fallbacks_append_one_notice"], "only_u8": false}
+{"id": "F4", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_real_input_fallbacks_append_one_notice"], "only_u8": true}
+{"id": "F5", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_real_input_fallbacks_append_one_notice"], "only_u8": true}
+{"id": "F6", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_real_input_fallbacks_append_one_notice"], "only_u8": true}
+{"id": "F7", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_real_input_fallbacks_append_one_notice"], "only_u8": false}
+{"id": "F8", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_real_input_fallbacks_append_one_notice"], "only_u8": false}
+{"id": "F9", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_real_input_fallbacks_append_one_notice"], "only_u8": false}
+{"id": "F10", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_real_input_fallbacks_append_one_notice"], "only_u8": false}
+{"id": "F11", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_real_input_fallbacks_append_one_notice"], "only_u8": false}
+{"id": "F12", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_real_input_fallbacks_append_one_notice"], "only_u8": false}
+{"id": "F13", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_real_input_fallbacks_append_one_notice"], "only_u8": true}
+{"id": "F14", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_real_input_fallbacks_append_one_notice"], "only_u8": true}
+{"id": "F15", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_real_input_fallbacks_append_one_notice"], "only_u8": false}
+{"id": "L1", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors", "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"], "only_u8": true}
+{"id": "L2", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"], "only_u8": false}
+{"id": "L3", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors", "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"], "only_u8": false}
+{"id": "L4", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors", "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"], "only_u8": true}
+{"id": "L5", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors", "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"], "only_u8": true}
+{"id": "V1", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"], "only_u8": true}
+{"id": "V2", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"], "only_u8": true}
+{"id": "V3", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"], "only_u8": true}
+{"id": "V4", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"], "only_u8": true}
+{"id": "V5", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"], "only_u8": true}
+{"id": "V6", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"], "only_u8": true}
+{"id": "V6c", "rc": 0, "compile_error": false, "killed": false, "killed_by_u8": [], "only_u8": false}
+{"id": "V7", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor"], "only_u8": true}
+{"id": "D1", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors"], "only_u8": true}
+{"id": "D2", "rc": 101, "compile_error": false, "killed": true, "killed_by_u8": ["retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors"], "only_u8": true}
+pristine restored and verified
+rc=0

@@ -1,0 +1,11 @@
+PR 75a8c3291ffe5dad1bbd2833bcc8b9d501274bf0
+INT b4140b76452531ee5d04d783c8eebf2a007f321c
+MAIN 75a8c3291ffe5dad1bbd2833bcc8b9d501274bf0
+B 75a8c3291ffe5dad1bbd2833bcc8b9d501274bf0
+|S| = 7
+[FAIL] check 1: {"in_pr_not_S": [], "in_S_not_pr": ["projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts", "projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs", "projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs", "projects/chirality-piping/fixtures/results/retained_precision_cases.json", "projects/chirality-piping/fixtures/results/retained_precision_l0_successor_dense_scrutiny.json", "projects/chirality-piping/fixtures/results/retained_precision_l0_successor_sparse_interactive.json", "projects/chirality-pipin
+[FAIL] check 2: {"differ": ["projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts", "projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs", "projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs", "projects/chirality-piping/fixtures/results/retained_precision_cases.json", "projects/chirality-piping/fixtures/results/retained_precision_l0_successor_dense_scrutiny.json", "projects/chirality-piping/fixtures/results/retained_precision_l0_successor_sparse_interactive.json", "projects/chirality-piping/tests/test_retained_pr
+[PASS] check 3: {"rules_not_needed": ["projects/chirality-piping/core/analysis_runs/compatibility.py"]}
+[FAIL] check 4: {"execution_files": 0, "outside_package": [], "sha256_mismatch": ["SHA256SUMS unreadable"]}
+[FAIL] check 5: 7 rows; 0 equal; 0 recorded three-way merge(s); unexplained ['projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts', 'projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs', 'projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs', 'projects/chirality-piping/fixtures/results/retained_precision_cases.json', 'projects/chirality-piping/fixtures/results/retained_precision_l0_successor_dense_scrutiny.json', 'projects/chirality-piping/fixtures/results/retained_precision_l0_successor_sparse_interactive.json', 'projects/chirality-piping/tests/test_retained_precision_contract.py']
+RESULT FAIL

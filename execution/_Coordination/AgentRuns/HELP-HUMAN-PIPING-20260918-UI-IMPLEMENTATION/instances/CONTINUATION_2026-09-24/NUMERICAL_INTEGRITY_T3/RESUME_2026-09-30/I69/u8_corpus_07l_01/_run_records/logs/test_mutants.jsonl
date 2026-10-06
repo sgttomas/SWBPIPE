@@ -1,0 +1,7 @@
+{"mutant": "TM1_base_value_one_ulp", "rc": 1, "failed": ["test_producer_solved_bases_are_the_pinned_live_successors_d_u6_5"]}
+{"mutant": "TM2_integral_float_receipt_version", "rc": 1, "failed": ["test_producer_solved_bases_are_the_pinned_live_successors_d_u6_5"]}
+{"mutant": "TM3_provenance_head", "rc": 1, "failed": ["test_producer_solved_bases_are_the_pinned_live_successors_d_u6_5"]}
+{"mutant": "TM4_claim_reverted", "rc": 1, "failed": ["test_producer_solved_bases_are_the_pinned_live_successors_d_u6_5"]}
+{"mutant": "TM5_must_pass_dropped", "rc": 1, "failed": ["test_snapshot_07_counts_and_entry_format"]}
+{"mutant": "TM6_appended_order_swapped", "rc": 1, "failed": ["test_snapshot_07_counts_and_entry_format"]}
+restored 5ac13296c69745ae837e41b93c42e4daa0c4100dc863229f8e6a4cdbe2692ccd

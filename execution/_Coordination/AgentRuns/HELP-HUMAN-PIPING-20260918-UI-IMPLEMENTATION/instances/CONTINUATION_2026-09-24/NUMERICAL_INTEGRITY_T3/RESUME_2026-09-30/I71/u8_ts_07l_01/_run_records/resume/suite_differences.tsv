@@ -1,0 +1,24 @@
+file	test	occurrence	base	candidate
+src/App.test.tsx	SWBPIPE desktop preview renders the engineering workspace from invented local fixtures	1	failed	passed
+src/features/results/retainedPrecision.test.ts	07l round (U8-2): counts and the appended producer-solved L = 0 entries 07l: 17 cases, 286 mutations and 28 must-pass entries; 15 bases and 18 must-pass entries are eligible	1	absent	passed
+src/features/results/retainedPrecision.test.ts	07l round (U8-2): counts and the appended producer-solved L = 0 entries 07l: the 4 appended must-pass entries are admitted, eligible, with their base classifications	1	absent	passed
+src/features/results/retainedPrecision.test.ts	07l round (U8-2): counts and the appended producer-solved L = 0 entries 07l: the 8 appended mutations are refused at G5a SCALE	1	absent	passed
+src/features/results/retainedPrecision.test.ts	07l round (U8-2): counts and the appended producer-solved L = 0 entries 07l: the two appended producer-solved bases are eligible, with the class counts all three readers observed (I68)	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence isolated_estimate_coupled_dense_scrutiny	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence isolated_estimate_coupled_sparse_interactive	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence isolated_has_data_dense_scrutiny	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence isolated_has_data_sparse_interactive	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence isolated_rotation_stop_dense_scrutiny	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence isolated_rotation_stop_sparse_interactive	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence isolated_translation_rotation_stop_dense_scrutiny	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence isolated_translation_rotation_stop_sparse_interactive	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence must pass: isolated_estimate_uncoupled_dense_scrutiny	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence must pass: isolated_estimate_uncoupled_sparse_interactive	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence must pass: isolated_translation_stop_dense_scrutiny	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence must pass: isolated_translation_stop_sparse_interactive	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence u8_l0_isolated_node_dense_scrutiny	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence u8_l0_isolated_node_dense_scrutiny missing invocation and metadata transport remain needs-recompute	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence u8_l0_isolated_node_dense_scrutiny snapshots all inputs before awaiting	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence u8_l0_isolated_node_sparse_interactive	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence u8_l0_isolated_node_sparse_interactive missing invocation and metadata transport remain needs-recompute	1	absent	passed
+src/features/results/retainedPrecision.test.ts	shared synthetic prepared receipt controls, never solver execution evidence u8_l0_isolated_node_sparse_interactive snapshots all inputs before awaiting	1	absent	passed

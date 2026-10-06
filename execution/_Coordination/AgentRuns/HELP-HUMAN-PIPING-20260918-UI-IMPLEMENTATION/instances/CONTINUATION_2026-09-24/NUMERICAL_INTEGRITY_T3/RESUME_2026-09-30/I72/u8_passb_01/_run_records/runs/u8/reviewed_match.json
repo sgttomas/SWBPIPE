@@ -1,0 +1,73 @@
+{
+ "entries": 11,
+ "matched": 11,
+ "unmatched": [],
+ "rows": [
+  {
+   "fingerprint": "44ce5c671ad34b3e965db0dd5983257cde8ea0db0a5fd00db5cf2e4510008333",
+   "file": "lib.rs",
+   "class": "cfg-test-stmt",
+   "matched_row": "lib.rs 2379-2379"
+  },
+  {
+   "fingerprint": "c5e1d6c96bd07c6021979792a95e0f5348a76bed99f5a18972daed8f33918145",
+   "file": "lib.rs",
+   "class": "cfg-test-stmt",
+   "matched_row": "lib.rs 3005-3005"
+  },
+  {
+   "fingerprint": "2a8be2da9031008a40c52eaea93db74089b899457f24e786a9f3f8ef4595952e",
+   "file": "retained_product.rs",
+   "class": "cfg-test-stmt",
+   "matched_row": "retained_product.rs 3244-3244"
+  },
+  {
+   "fingerprint": "09a2779c35c4b96f95eb72c7ef8b579f69ae46692b2197354612a560885f2c15",
+   "file": "lib.rs",
+   "class": "doc only",
+   "matched_row": "lib.rs 2235-2235"
+  },
+  {
+   "fingerprint": "38a7b43fd37f68458a67d2ec6277e309778e76733898b9cb9a81aead34baa766",
+   "file": "lib.rs",
+   "class": "doc only",
+   "matched_row": "lib.rs 2254-2254"
+  },
+  {
+   "fingerprint": "1ea4bbe3d178aa2d0b90332e3de97ecea8e93c70cf85d7b5d9ff8f2f25811227",
+   "file": "retained_precision.rs",
+   "class": "D1-live (an `item`, the const, read by the live `validate`)",
+   "matched_row": "retained_precision.rs 4267-4269"
+  },
+  {
+   "fingerprint": "71e1fff29b187e9207ea7aeff829a79fc2794e8a52f6cfc4b71b3d463f4e45cf",
+   "file": "retained_memory_law_tests.rs",
+   "class": "doc comment only",
+   "matched_row": "retained_memory_law_tests.rs 1238-1238"
+  },
+  {
+   "fingerprint": "2718103130462590a4379a0c336fc369cb0267826de894b3cce2040241f2e585",
+   "file": "source_blocks.rs",
+   "class": "unreachable on D1 (the deletion half of a two-line reorder)",
+   "matched_row": "source_blocks.rs after 55"
+  },
+  {
+   "fingerprint": "9b81ac2ee4bdcda07f7d36d27cef2a6e84344c2634a8316c55ff48533ef9e0ee",
+   "file": "retained_memory_law_tests.rs",
+   "class": "doc comment only",
+   "matched_row": "retained_memory_law_tests.rs 2-4"
+  },
+  {
+   "fingerprint": "4198b681db65c62a5012f76ea92e27b1d49af1f08736ed087ee06394cd9a6a47",
+   "file": "retained_memory_witness_tests.rs",
+   "class": "doc comment only",
+   "matched_row": "retained_memory_witness_tests.rs 6-6"
+  },
+  {
+   "fingerprint": "eb06a586f6d1f50e94c94b3526de473da8f88962e051c8adf41bd16d38f84220",
+   "file": "retained_memory_challenge.rs",
+   "class": "doc comment only",
+   "matched_row": "retained_memory_challenge.rs 6-10"
+  }
+ ]
+}

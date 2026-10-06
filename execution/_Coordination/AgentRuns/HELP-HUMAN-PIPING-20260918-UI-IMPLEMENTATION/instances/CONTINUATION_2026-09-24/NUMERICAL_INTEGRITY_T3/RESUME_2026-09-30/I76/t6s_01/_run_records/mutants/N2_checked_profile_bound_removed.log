@@ -1,0 +1,48 @@
+   Compiling open_pipe_stress_canonical_json v0.1.0 (WT/scratch/i76_t6s/mut/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_result_export v0.1.0 (WT/scratch/i76_t6s/mut/projects/chirality-piping/core/reporting/result_export)
+warning: function `derived` is never used
+   --> src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.74s
+     Running tests/source_blocks.rs (WT/targets/i76-t6s-mut/debug/deps/source_blocks-bd748120c911acde)
+
+running 15 tests
+test actual_pre_repair_producer_stress_range_packets_are_refused_unchanged ... ok
+test additive_signatures_leave_precision_table_unchanged ... ok
+test independent_actual_context_is_required_and_bound ... ok
+test physics_source_ordinary_cases_stay_admitted ... ok
+test receipt_presence_never_downgrades_to_precision_or_legacy ... ok
+test received_invocation_work_aggregates_all_cases_and_rejects_rehashed_tampering ... ok
+test actual_pre_repair_stress_range_first_failure_is_stable ... ok
+test received_real_producer_artifacts_qualify_only_against_actual_invocation ... ok
+test rehashed_projection_work_and_attribution_mutations_reject ... ok
+test reserved_unobserved_failure_is_debited_in_the_invocation_ledger ... ok
+test rehashed_received_stress_underflow_and_subnormal_rows_are_refused ... ok
+test rule_binding_refuses_only_the_all_selected_summary ... ok
+test rv95_n5_the_integer_bound_is_masked_at_the_public_api ... FAILED
+test stress_containing_case_reserves_both_recipe_layers ... ok
+test selected_plus_ordinary_source_blocks_needs_recompute_with_reason ... ok
+
+failures:
+
+---- rv95_n5_the_integer_bound_is_masked_at_the_public_api stdout ----
+
+thread 'rv95_n5_the_integer_bound_is_masked_at_the_public_api' (75662114) panicked at tests/source_blocks.rs:659:9:
+assertion `left == right` failed: /source_block_recovery/body/cases/0/work/charged
+  left: Ok("77ab5ac8f41804c22beabb922a91cd0ef0fb62ca6285109658d54022802d8566")
+ right: Err("CHECKED-JSON-UNSAFE-INTEGER: 9007199254740992")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    rv95_n5_the_integer_bound_is_masked_at_the_public_api
+
+test result: FAILED. 14 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.99s
+
+error: test failed, to rerun pass `--test source_blocks`

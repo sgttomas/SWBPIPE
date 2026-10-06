@@ -1,0 +1,4 @@
+gh pr ready 1100 --repo sgttomas/chirality
+gh pr merge 1100 --repo sgttomas/chirality --merge --match-head-commit ef266247dea454f4ed4525fc67f9013be568adff
+(preconditions checked immediately before: origin/main = c1571f7febcb4b710c8aa5633f1f5c4460c3faf3; PR head = ef266247dea454f4ed4525fc67f9013be568adff; MERGEABLE/CLEAN; 16 checks success or skipped)
+result: MERGED 75a8c3291ffe5dad1bbd2833bcc8b9d501274bf0 2026-10-06T14:59:35Z

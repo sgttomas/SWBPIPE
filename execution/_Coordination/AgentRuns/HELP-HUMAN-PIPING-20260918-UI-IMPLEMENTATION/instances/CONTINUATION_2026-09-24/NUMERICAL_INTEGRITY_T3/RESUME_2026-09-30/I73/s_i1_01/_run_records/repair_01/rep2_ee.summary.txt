@@ -1,0 +1,6 @@
+== rep2_ee start 2026-10-06T12:51:22Z dir=<WT>/s-i1/projects/chirality-piping/core/rules/expression_evaluator
+     Running unittests src/lib.rs (<WT>/targets/i73-s-i1/debug/deps/open_pipe_stress_expression_evaluator)
+thread 'interval_tests::interval_outcomes_are_sound_against_the_point_path' (78641588) panicked at src/lib.rs:4531:33:
+test result: FAILED. 48 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+error: test failed, to rerun pass `--lib`
+== rep2_ee exit=101 2026-10-06T12:51:22Z
