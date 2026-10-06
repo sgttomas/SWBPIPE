@@ -658,9 +658,20 @@ def evaluate_interval(
     """Evaluate decoded or JSON formula ``formula`` in interval mode.
 
     ``inputs`` are ``{variable_id, value, dimension, unit_ref}`` with an
-    optional ``bound`` (b > 0 overlays ``enclosure_from_bound(value, b)``) or an
-    explicit ``enclosure`` (a ``(lo, hi)`` pair, or ``None`` for an input with
-    no finite enclosure). Returns ``{"findings", "value", "notes",
+    optional ``bound`` or an explicit ``enclosure``, as a Rust caller of
+    ``evaluate_interval`` supplies them:
+
+    * a ``bound`` b other than zero overlays ``enclosure_from_bound(value, b)``,
+      which has no finite enclosure (``None``, so U) for a negative, NaN or
+      infinite b; b = 0 leaves the exact point;
+    * an ``enclosure`` (a ``(lo, hi)`` pair, or ``None`` for an input with no
+      finite enclosure) overlays as given, and is validated as Rust's
+      ``build_interval_overlays`` validates it, with the same codes and
+      subjects: a non-finite end blocks with ``NonFiniteInput``, an inverted
+      pair with ``InvalidReference``, an overlay on no bound value with
+      ``InvalidReference``, a repeated overlay with ``DuplicateBinding``.
+
+    Returns ``{"findings", "value", "notes",
     "statuses", "source_variable_ids"}``; ``value`` is ``None`` when blocked,
     else ``{"kind": "truth", "truth"}`` or ``{"kind": "quantity",
     "enclosure", "dimension", "unit_ref"}``.
@@ -680,9 +691,15 @@ def evaluate_interval(
         elif status not in collected:
             collected.append(status)
     bindings: dict = {}
-    overlays: dict = {}
+    pending: list[tuple[str, Any]] = []
     for item in inputs:
         variable_id = item["variable_id"]
+        if "enclosure" in item:
+            pending.append((variable_id, item["enclosure"]))
+        elif item.get("bound") is not None and item["bound"] != 0.0:
+            value = item.get("value")
+            pending.append((variable_id, None if value is None
+                            else enclosure_from_bound(value, item["bound"])))
         if not variable_id.strip():
             findings.append(("InvalidReference", "binding"))
             continue
@@ -699,10 +716,6 @@ def evaluate_interval(
             findings.append(("UnitMetadataMissing", variable_id))
             continue
         bindings[variable_id] = item
-        if "enclosure" in item:
-            overlays[variable_id] = item["enclosure"]
-        elif item.get("bound", 0.0) > 0.0:
-            overlays[variable_id] = enclosure_from_bound(item["value"], item["bound"])
     seen: set[str] = set()
     for variable_id in required_variable_ids or []:
         if not variable_id.strip():
@@ -713,6 +726,29 @@ def evaluate_interval(
             seen.add(variable_id)
             if bindings.get(variable_id) is None:
                 findings.append(("MissingRequiredValue", variable_id))
+    # Interval overlays, in input order, after the bindings and required ids
+    # (Rust ``build_interval_overlays``).
+    overlays: dict = {}
+    for variable_id, enclosure in pending:
+        if not variable_id.strip():
+            findings.append(("InvalidReference", "interval_binding"))
+            continue
+        if variable_id in overlays:
+            findings.append(("DuplicateBinding", variable_id))
+            continue
+        if bindings.get(variable_id) is None:
+            findings.append(("InvalidReference", variable_id))
+            continue
+        if enclosure is not None:
+            lo, hi = enclosure
+            if not (math.isfinite(lo) and math.isfinite(hi)):
+                findings.append(("NonFiniteInput", variable_id))
+                continue
+            if lo > hi:
+                findings.append(("InvalidReference", variable_id))
+                continue
+            enclosure = (lo, hi)
+        overlays[variable_id] = enclosure
     state = _State(bindings, overlays)
     state.findings = findings
     try:

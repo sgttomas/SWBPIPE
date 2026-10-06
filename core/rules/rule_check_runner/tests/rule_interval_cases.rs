@@ -10,8 +10,9 @@ use std::fs;
 use std::path::PathBuf;
 
 use open_pipe_stress_expression_evaluator::{
-    enclosure_from_bound, evaluate_interval, AnalysisStatus, BindingSource, EvaluationInput,
-    Expression, IntervalBinding, IntervalValue, Quantity, Truth, VariableBinding, GRAMMAR_VERSION,
+    enclosure_from_bound, evaluate_interval, AnalysisStatus, BindingSource, Enclosure,
+    EvaluationInput, Expression, IntervalBinding, IntervalValue, Quantity, Truth, VariableBinding,
+    GRAMMAR_VERSION,
 };
 use open_pipe_stress_rule_pack_document::{decode_dimension, decode_expression, encode_dimension};
 use serde_json::Value;
@@ -199,7 +200,18 @@ fn rust_interval_mode_matches_every_shared_case() {
                 BindingSource::SolverResultField,
                 Quantity::new(q, dimension, input["unit_ref"].as_str().unwrap()).unwrap(),
             ));
-            if b > 0.0 {
+            // An explicit enclosure (or null) replaces the bound; any b other
+            // than zero binds enclosure_from_bound(q, b), which has no
+            // finite enclosure for a negative, NaN or infinite b.
+            if let Some(explicit) = input.get("enclosure_bits") {
+                intervals.push(IntervalBinding {
+                    variable_id: id.to_string(),
+                    enclosure: explicit.as_array().map(|ends| Enclosure {
+                        lo: from_bits(&ends[0]),
+                        hi: from_bits(&ends[1]),
+                    }),
+                });
+            } else if b != 0.0 {
                 intervals.push(IntervalBinding {
                     variable_id: id.to_string(),
                     enclosure: enclosure_from_bound(q, b),

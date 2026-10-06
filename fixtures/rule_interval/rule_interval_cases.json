@@ -2,7 +2,7 @@
  "document_kind": "openpipestress.rule_interval_cases",
  "case_file_version": 1,
  "basis": "T3 D2 revision 5b.3 §4.11.2-§4.11.5 (option C, conservative interval binding)",
- "notice": "Invented values only; no protected standards content and no professional, certification or code-compliance claim. Inputs and expected enclosures are binary64 bit patterns; formula literals are short decimals that every JSON reader parses exactly. An input binds [next_down(q-b), next_up(q+b)] when b > 0 and the exact point q when b = 0. Truth values: T (every value passes), F (every value fails), U (indeterminate, never a pass). A negative control must never read T.",
+ "notice": "Invented values only; no protected standards content and no professional, certification or code-compliance claim. Inputs and expected enclosures are binary64 bit patterns; formula literals are short decimals that every JSON reader parses exactly. An input binds [next_down(q-b), next_up(q+b)] when b > 0 and the exact point q when b = 0; any other b (negative, NaN, infinite) gives no finite enclosure (enclosure_from_bound returns none). An optional enclosure_bits pair (or null) is an explicit input enclosure that replaces the bound. Truth values: T (every value passes), F (every value fails), U (indeterminate, never a pass). A negative control must never read T.",
  "consumers": [
   "core/rules/rule_check_runner/tests/rule_interval_cases.rs",
   "tests/test_rule_interval.py"
@@ -3842,6 +3842,500 @@
      [
       "TableMalformed",
       "invented_short_table"
+     ]
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "equal_identical_ranges",
+   "description": "x = y with identical non-point ranges: x != y inside the box, so U (RV99 S-1).",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "variable_ref",
+     "variable_id": "y"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x3ff0000000000000",
+     "bound_bits": "0x3d70000000000000",
+     "value_text": "1.0",
+     "bound_text": "9.094947017729282e-13"
+    },
+    {
+     "variable_id": "y",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x3ff0000000000000",
+     "bound_bits": "0x3d70000000000000",
+     "value_text": "1.0",
+     "bound_text": "9.094947017729282e-13"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "not_equal_identical_ranges",
+   "description": "x != y with identical non-point ranges: x = y inside the box, so U (RV99 S-1).",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "not_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "variable_ref",
+     "variable_id": "y"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x3ff0000000000000",
+     "bound_bits": "0x3d70000000000000",
+     "value_text": "1.0",
+     "bound_text": "9.094947017729282e-13"
+    },
+    {
+     "variable_id": "y",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x3ff0000000000000",
+     "bound_bits": "0x3d70000000000000",
+     "value_text": "1.0",
+     "bound_text": "9.094947017729282e-13"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "divide_by_zero_end_range",
+   "description": "0 / (-abs(z)) <= 1: the divisor [-1, -0] ends at zero, where the point path blocks (RV99 S-2).",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "binary",
+     "operator": "divide",
+     "left": {
+      "node": "literal",
+      "quantity": {
+       "value": 0.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     },
+     "right": {
+      "node": "unary",
+      "operator": "negate",
+      "operand": {
+       "node": "unary",
+       "operator": "abs",
+       "operand": {
+        "node": "variable_ref",
+        "variable_id": "z"
+       }
+      }
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 1.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x0000000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "0.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "divide_by_zero_range",
+     "divide"
+    ]
+   ]
+  },
+  {
+   "case_id": "invalid_bound_nan",
+   "description": "A bound of nan is not finite and non-negative: enclosure_from_bound gives no enclosure, so U (RV99 S-3).",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4023000000000000",
+     "bound_bits": "0x7ff8000000000000",
+     "value_text": "9.5",
+     "bound_text": "nan"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "non_finite_enclosure",
+     "x"
+    ]
+   ]
+  },
+  {
+   "case_id": "invalid_bound_negative",
+   "description": "A bound of -1.0 is not finite and non-negative: enclosure_from_bound gives no enclosure, so U (RV99 S-3).",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4023000000000000",
+     "bound_bits": "0xbff0000000000000",
+     "value_text": "9.5",
+     "bound_text": "-1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "non_finite_enclosure",
+     "x"
+    ]
+   ]
+  },
+  {
+   "case_id": "invalid_bound_infinite",
+   "description": "A bound of inf is not finite and non-negative: enclosure_from_bound gives no enclosure, so U (RV99 S-3).",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4023000000000000",
+     "bound_bits": "0x7ff0000000000000",
+     "value_text": "9.5",
+     "bound_text": "inf"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "non_finite_enclosure",
+     "x"
+    ]
+   ]
+  },
+  {
+   "case_id": "enclosure_explicit_valid",
+   "description": "An explicit enclosure [9, 9.75] binds as given.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4023000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "9.5",
+     "bound_text": "0.0",
+     "enclosure_bits": [
+      "0x4022000000000000",
+      "0x4023800000000000"
+     ]
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "T"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "enclosure_explicit_none",
+   "description": "An explicit input with no finite enclosure: U.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4023000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "9.5",
+     "bound_text": "0.0",
+     "enclosure_bits": null
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "non_finite_enclosure",
+     "x"
+    ]
+   ]
+  },
+  {
+   "case_id": "enclosure_inverted",
+   "description": "An inverted enclosure (11, 9) is refused as Rust refuses it (RV99 S-3).",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4023000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "9.5",
+     "bound_text": "0.0",
+     "enclosure_bits": [
+      "0x4026000000000000",
+      "0x4022000000000000"
+     ]
+    }
+   ],
+   "expected": {
+    "kind": "blocked",
+    "findings": [
+     [
+      "InvalidReference",
+      "x"
+     ]
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "enclosure_nan_end",
+   "description": "An enclosure with a NaN end is refused (RV99 S-3).",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4023000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "9.5",
+     "bound_text": "0.0",
+     "enclosure_bits": [
+      "0x7ff8000000000000",
+      "0x3ff0000000000000"
+     ]
+    }
+   ],
+   "expected": {
+    "kind": "blocked",
+    "findings": [
+     [
+      "NonFiniteInput",
+      "x"
+     ]
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "enclosure_infinite_end",
+   "description": "An enclosure with an infinite end is refused (RV99 S-3).",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4023000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "9.5",
+     "bound_text": "0.0",
+     "enclosure_bits": [
+      "0xfff0000000000000",
+      "0x0000000000000000"
+     ]
+    }
+   ],
+   "expected": {
+    "kind": "blocked",
+    "findings": [
+     [
+      "NonFiniteInput",
+      "x"
      ]
     ]
    },

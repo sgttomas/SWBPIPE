@@ -400,6 +400,42 @@ fn unit_normalization_steps_each_end_outward() {
         RuleCheckStatus::UserRuleFailed
     );
 
+    // Both ends pinned bit for bit (RV99 N-1): the bound's outward ends, then
+    // the units crate's ((x * f_from + o_from) - o_to) / f_to with one outward
+    // step after each operation. `actual <= limit` is T exactly when the
+    // enclosure's upper end is at most the limit and F exactly when its lower
+    // end exceeds it.
+    let (f, t) = (
+        psi.definition().transform_to_canonical,
+        mpa.definition().transform_to_canonical,
+    );
+    let lo_end = {
+        let x = ((q - b).next_down() * f.factor).next_down();
+        let x = (x + f.offset).next_down();
+        let x = (x - t.offset).next_down();
+        (x / t.factor).next_down()
+    };
+    let hi_end = {
+        let x = ((q + b).next_up() * f.factor).next_up();
+        let x = (x + f.offset).next_up();
+        let x = (x - t.offset).next_up();
+        (x / t.factor).next_up()
+    };
+    for (limit, expected) in [
+        (hi_end, RuleCheckStatus::UserRuleChecked),
+        (hi_end.next_down(), RuleCheckStatus::RuleInputsIncomplete),
+        (lo_end, RuleCheckStatus::RuleInputsIncomplete),
+        (lo_end.next_down(), RuleCheckStatus::UserRuleFailed),
+    ] {
+        input.supplied_values[0] = supplied("limit", limit, "MPa", "stress");
+        let result = run_rule_checks_with_bounds(&input, &[bound("actual", b)]);
+        assert_eq!(
+            outcome(&result, "predicate_check").status,
+            expected,
+            "limit {limit:e}"
+        );
+    }
+
     // Affine units (degF entered, degC declared) convert outward too.
     let temperature = UnitDimension::from_schema_value("temperature").unwrap();
     let (degf, degc) = (
@@ -449,4 +485,105 @@ fn bounded_checks_never_panic_where_the_point_path_can() {
 
 fn crate_input_at(document: &Value, actual: f64) -> RuleCheckRunInput<'_> {
     input(document, actual, "MPa", 20.0)
+}
+
+#[test]
+fn a_downgraded_interval_check_emits_what_the_point_path_emits() {
+    // The pack declares only RULE_INPUTS_INCOMPLETE, so enforce_declared
+    // downgrades a pass or a fail. The interval check then carries neither
+    // RULE_INTERVAL_ALL_PASS nor RULE_INTERVAL_ALL_FAIL (RV99 N-4): its status,
+    // codes and findings equal the point path's for the same check.
+    let mut document = pack();
+    for check in document["check_definitions"].as_array_mut().unwrap() {
+        check["result_statuses"] = json!(["RULE_INPUTS_INCOMPLETE"]);
+    }
+    for actual in [50.0, 150.0] {
+        let input = input(&document, actual, "MPa", 20.0);
+        let point = run_rule_checks(&input);
+        let bounded = run_rule_checks_with_bounds(&input, &[bound("actual", 1.0)]);
+        for check_id in ["ratio_check", "predicate_check"] {
+            let (point_check, interval_check) =
+                (outcome(&point, check_id), outcome(&bounded, check_id));
+            assert_eq!(interval_check.status, RuleCheckStatus::RuleInputsIncomplete);
+            assert_eq!(interval_check.status, point_check.status);
+            assert_eq!(
+                interval_check.diagnostic_codes,
+                point_check.diagnostic_codes
+            );
+            assert_eq!(
+                serde_json::to_value(&interval_check.evaluator_findings).unwrap(),
+                serde_json::to_value(&point_check.evaluator_findings).unwrap(),
+                "{check_id} at {actual}"
+            );
+            assert_eq!(
+                interval_check.evaluator_findings[0].code,
+                "STATUS_NOT_DECLARED"
+            );
+            let wire = serde_json::to_string(interval_check).unwrap();
+            assert!(
+                !wire.contains(RULE_INTERVAL_ALL_PASS) && !wire.contains(RULE_INTERVAL_ALL_FAIL)
+            );
+        }
+    }
+    // An indeterminate check is RULE_INPUTS_INCOMPLETE already: undeclared,
+    // it keeps its code beside STATUS_NOT_DECLARED.
+    for check in document["check_definitions"].as_array_mut().unwrap() {
+        check["result_statuses"] = json!(["USER_RULE_CHECKED", "USER_RULE_FAILED"]);
+    }
+    let result = run_rule_checks_with_bounds(
+        &input(&document, 100.0, "MPa", 20.0),
+        &[bound("actual", 1.0)],
+    );
+    let straddle = outcome(&result, "ratio_check");
+    assert_eq!(straddle.status, RuleCheckStatus::RuleInputsIncomplete);
+    assert_eq!(codes(straddle), vec![RULE_RESULT_INDETERMINATE]);
+    finding(straddle, "STATUS_NOT_DECLARED");
+}
+
+#[test]
+fn duplicate_bounds_for_one_input_block_it() {
+    // More than one bound for one input id is refused, whatever the order or
+    // values (RV99 N-5), by the invalid-bound route: never last-wins.
+    let document = pack();
+    for bounds in [
+        vec![bound("actual", 1.0), bound("actual", 60.0)],
+        vec![bound("actual", 60.0), bound("actual", 1.0)],
+        vec![bound("actual", 1.0), bound("actual", 1.0)],
+        vec![bound("actual", 0.0), bound("actual", 0.0)],
+    ] {
+        let result = run_rule_checks_with_bounds(&input(&document, 50.0, "MPa", 20.0), &bounds);
+        for check_id in ["ratio_check", "predicate_check"] {
+            let blocked = outcome(&result, check_id);
+            assert_eq!(blocked.status, RuleCheckStatus::RuleInputsIncomplete);
+            let refusal = blocked
+                .completeness_findings
+                .iter()
+                .find(|f| f.code == "RULE_EVALUATOR_ERROR")
+                .expect("duplicate-bound refusal");
+            assert_eq!(
+                (refusal.severity.as_str(), refusal.subject_id.as_str()),
+                ("blocking", "actual")
+            );
+            let actual = blocked
+                .bound_inputs
+                .iter()
+                .find(|b| b.input_id == "actual")
+                .unwrap();
+            assert!(!actual.supplied);
+            assert_eq!(
+                actual.note.as_deref(),
+                Some("duplicate absolute bounds: treated as unsupplied")
+            );
+            assert_eq!(codes(blocked), vec!["RULE_INPUT_MISSING"]);
+        }
+    }
+    // Duplicates for an id the pack does not bind change nothing.
+    let input = input(&document, 50.0, "MPa", 20.0);
+    assert_eq!(
+        bytes(&run_rule_checks_with_bounds(
+            &input,
+            &[bound("not_an_input", 1.0), bound("not_an_input", 2.0)]
+        )),
+        bytes(&run_rule_checks(&input))
+    );
 }

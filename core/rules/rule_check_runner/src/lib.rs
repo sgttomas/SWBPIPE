@@ -97,7 +97,8 @@ pub struct SolverResultBinding {
 /// runner never derives it. With `b > 0` the input binds as the outward
 /// enclosure `[next_down(fl(q - b)), next_up(fl(q + b))]` and its check runs in
 /// interval mode; `b == 0` binds the exact point `q`. A bound that is not a
-/// finite non-negative number blocks the input (treated as unsupplied).
+/// finite non-negative number, or more than one bound for the same input id,
+/// blocks the input (treated as unsupplied).
 #[derive(Debug, Clone)]
 pub struct SolverResultBound {
     pub input_id: String,
@@ -330,10 +331,17 @@ pub fn run_rule_checks_with_bounds(
             .iter()
             .map(|b| (b.input_id.as_str(), b))
             .collect(),
-        bound_by_input: bounds
-            .iter()
-            .map(|b| (b.input_id.as_str(), b.absolute_bound))
-            .collect(),
+        bound_by_input: {
+            // A second bound for the same input marks it refused (`None`),
+            // never last-wins.
+            let mut map: HashMap<&str, Option<f64>> = HashMap::new();
+            for b in bounds {
+                map.entry(b.input_id.as_str())
+                    .and_modify(|entry| *entry = None)
+                    .or_insert(Some(b.absolute_bound));
+            }
+            map
+        },
         current_statuses: &input.current_statuses,
         grammar_version: grammar_version.as_str(),
     };
@@ -378,8 +386,9 @@ struct RunContext<'a> {
     refused_by_input: HashMap<&'a str, &'a RefusedSolverResult>,
     supplied_by_ref: HashMap<&'a str, &'a SuppliedValueBinding>,
     library_by_input: HashMap<&'a str, &'a LibraryValueBinding>,
-    /// Verified absolute bounds by `solver_result` input id (D2 §4.11.2).
-    bound_by_input: HashMap<&'a str, f64>,
+    /// Verified absolute bounds by `solver_result` input id (D2 §4.11.2);
+    /// `None` when more than one bound was supplied for the id.
+    bound_by_input: HashMap<&'a str, Option<f64>>,
     current_statuses: &'a [AnalysisStatus],
     grammar_version: &'a str,
 }
@@ -593,7 +602,23 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
         };
         let (raw_value, raw_unit, note, interval_source) = match bound {
             None => (raw_value, raw_unit, note, None),
-            Some(b) if !(b.is_finite() && b >= 0.0) => {
+            Some(None) => {
+                completeness_findings.push(RunFinding {
+                    code: "RULE_EVALUATOR_ERROR".to_string(),
+                    severity: "blocking".to_string(),
+                    subject_id: ref_id.to_string(),
+                    message: "more than one absolute bound was supplied for this solver \
+                              result; the input is treated as unsupplied"
+                        .to_string(),
+                });
+                (
+                    None,
+                    None,
+                    Some("duplicate absolute bounds: treated as unsupplied".to_string()),
+                    None,
+                )
+            }
+            Some(Some(b)) if !(b.is_finite() && b >= 0.0) => {
                 completeness_findings.push(RunFinding {
                     code: "RULE_EVALUATOR_ERROR".to_string(),
                     severity: "blocking".to_string(),
@@ -613,8 +638,8 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                 )
             }
             // b = 0 binds the exact point q, with no widening (D2 §4.11.2).
-            Some(b) if b == 0.0 => (raw_value, raw_unit, note, None),
-            Some(b) => {
+            Some(Some(b)) if b == 0.0 => (raw_value, raw_unit, note, None),
+            Some(Some(b)) => {
                 let source = raw_value.zip(raw_unit.clone()).map(|(q, u)| (q, u, b));
                 (
                     raw_value,
@@ -1578,38 +1603,48 @@ fn finish_interval_check(
             "warning",
         ),
     };
-    // Causes of an indeterminate formula, after the fixed enclosure form.
-    let mut causes: Vec<&str> = Vec::new();
-    for note in &formula_eval.notes {
-        if !causes.contains(&note.code.as_str()) {
-            causes.push(note.code.as_str());
+    // `enforce_declared` downgrades a pass or fail the pack does not declare
+    // to `RULE_INPUTS_INCOMPLETE`, as on the point path. D2 §4.11.5 pairs the
+    // all-pass and all-fail codes with their own statuses, so a downgraded
+    // check carries neither code nor its finding: it emits what the point path
+    // emits for a downgraded check. (An indeterminate check is already
+    // `RULE_INPUTS_INCOMPLETE` and keeps its code.)
+    let downgraded = status != RuleCheckStatus::RuleInputsIncomplete
+        && !(result_statuses.is_empty() || result_statuses.iter().any(|s| s == status.as_str()));
+    if !downgraded {
+        // Causes of an indeterminate formula, after the fixed enclosure form.
+        let mut causes: Vec<&str> = Vec::new();
+        for note in &formula_eval.notes {
+            if !causes.contains(&note.code.as_str()) {
+                causes.push(note.code.as_str());
+            }
         }
-    }
-    let message = if causes.is_empty() {
-        enclosure_text
-    } else {
-        format!("{enclosure_text}; causes={}", causes.join(","))
-    };
-    records.evaluator_findings.push(RunFinding {
-        code: code.to_string(),
-        severity: severity.to_string(),
-        subject_id: check_id.clone(),
-        message,
-    });
-    if let Some(note) = formula_eval
-        .notes
-        .iter()
-        .find(|note| note.code == IntervalNoteCode::DivideByZeroRange)
-    {
+        let message = if causes.is_empty() {
+            enclosure_text
+        } else {
+            format!("{enclosure_text}; causes={}", causes.join(","))
+        };
         records.evaluator_findings.push(RunFinding {
-            code: RULE_INTERVAL_DIVIDE_BY_ZERO_RANGE.to_string(),
-            severity: "warning".to_string(),
-            subject_id: note.subject_id.clone(),
-            message: "a divisor range within the verified bounds contains zero".to_string(),
+            code: code.to_string(),
+            severity: severity.to_string(),
+            subject_id: check_id.clone(),
+            message,
         });
-    }
-    if !records.diagnostic_codes.iter().any(|c| c == code) {
-        records.diagnostic_codes.push(code.to_string());
+        if let Some(note) = formula_eval
+            .notes
+            .iter()
+            .find(|note| note.code == IntervalNoteCode::DivideByZeroRange)
+        {
+            records.evaluator_findings.push(RunFinding {
+                code: RULE_INTERVAL_DIVIDE_BY_ZERO_RANGE.to_string(),
+                severity: "warning".to_string(),
+                subject_id: note.subject_id.clone(),
+                message: "a divisor range within the verified bounds contains zero".to_string(),
+            });
+        }
+        if !records.diagnostic_codes.iter().any(|c| c == code) {
+            records.diagnostic_codes.push(code.to_string());
+        }
     }
     let status = enforce_declared(status, result_statuses, &mut records.evaluator_findings);
     records.outcome(check_id, status, limit_value, acceptability_relation)

@@ -74,9 +74,15 @@ def features(node: dict, out: set) -> set:
 
 
 def case_inputs(case: dict) -> list[dict]:
-    return [{"variable_id": i["variable_id"], "dimension": i["dimension"], "unit_ref": i["unit_ref"],
-             "value": ri.from_bits(i["value_bits"]), "bound": ri.from_bits(i["bound_bits"])}
-            for i in case["inputs"]]
+    inputs = []
+    for i in case["inputs"]:
+        item = {"variable_id": i["variable_id"], "dimension": i["dimension"], "unit_ref": i["unit_ref"],
+                "value": ri.from_bits(i["value_bits"]), "bound": ri.from_bits(i["bound_bits"])}
+        if "enclosure_bits" in i:  # an explicit enclosure (or none) replaces the bound
+            ends = i["enclosure_bits"]
+            item["enclosure"] = None if ends is None else (ri.from_bits(ends[0]), ri.from_bits(ends[1]))
+        inputs.append(item)
+    return inputs
 
 
 def outcome_of(result: dict) -> dict:
@@ -103,6 +109,8 @@ def test_case_file_shape_and_coverage():
             # The readable text matches the bits it annotates.
             assert repr(ri.from_bits(item["value_bits"])) == item["value_text"]
             assert repr(ri.from_bits(item["bound_bits"])) == item["bound_text"]
+            if item.get("enclosure_bits") is not None:
+                assert len(item["enclosure_bits"]) == 2
     assert EVERY_FEATURE <= covered, EVERY_FEATURE - covered
     assert D2_NEGATIVE_CONTROLS <= {c["case_id"] for c in CASES if c["negative_control"]}
     # Formula literals are short decimals every JSON reader parses exactly.
@@ -191,12 +199,20 @@ def point_value(node: dict, env: dict, exact: bool):
     raise Block
 
 
-def samples(q: float, b: float, special: list[float], rng: random.Random):
-    """Float sample points of an input's binding enclosure, and exact extras."""
-    if b == 0:
+def samples(q: float, b: float, special: list[float], rng: random.Random, enclosure=False):
+    """Float sample points of an input's binding enclosure, and exact extras.
+
+    ``enclosure`` is an explicit (lo, hi) pair, ``None`` for an explicit input
+    with no finite enclosure, or ``False`` when the input carries a bound."""
+    if enclosure is False:
+        if b == 0 or not math.isfinite(b) or b < 0:
+            return [q], []
+        lo, hi = nd(q - b), nu(q + b)
+    elif enclosure is None:
         return [q], []
-    lo, hi = nd(q - b), nu(q + b)
-    if not (math.isfinite(lo) and math.isfinite(hi)):
+    else:
+        lo, hi = enclosure
+    if not (math.isfinite(lo) and math.isfinite(hi)) or lo > hi:
         return [q], []
     points = {lo, hi, min(nu(lo), hi), max(nd(hi), lo), q}
     points.update(v for v in special if lo <= v <= hi)
@@ -227,7 +243,8 @@ def oracle_check(formula: dict, inputs: list[dict], outcome: dict, *, negative_c
     special = [0.0, -0.0] + table_arguments(formula, [])
     per_input = []
     for item in inputs:
-        floats, extras = samples(item["value"], item.get("bound", 0.0), special, rng)
+        floats, extras = samples(item["value"], item.get("bound", 0.0), special, rng,
+                                 item.get("enclosure", False))
         per_input.append((item["variable_id"], floats, extras))
     combos = []
     for choice in itertools.product(*[floats for _, floats, _ in per_input]):
@@ -368,6 +385,29 @@ def test_bound_formation_and_bits():
     assert ri.bits(1.0) == "0x3ff0000000000000"
     assert ri.from_bits("0x3ff0000000000000") == 1.0
     assert struct.pack(">d", ri.from_bits(ri.bits(-0.0))) == struct.pack(">d", -0.0)
+
+
+def test_reference_refuses_invalid_inputs_as_rust_does():
+    """RV99 S-3: invalid bounds give no finite enclosure (U), and explicit
+    enclosures are validated with Rust's codes and subjects."""
+    formula = {"node": "compare", "operator": "less_than_or_equal",
+               "left": {"node": "variable_ref", "variable_id": "x"}, "right": lit(10.0)}
+    base = {"variable_id": "x", "dimension": "stress", "unit_ref": U_S, "value": 9.5}
+    for bound in (math.nan, -1.0, math.inf, -math.inf):
+        result = ri.evaluate_interval(formula, [dict(base, bound=bound)])
+        assert result["value"] == {"kind": "truth", "truth": "U"}, bound
+        assert result["notes"] == [("non_finite_enclosure", "x")]
+    for enclosure, code in (((11.0, 9.0), "InvalidReference"), ((math.nan, 1.0), "NonFiniteInput"),
+                            ((-math.inf, 0.0), "NonFiniteInput"), ((0.0, math.inf), "NonFiniteInput")):
+        result = ri.evaluate_interval(formula, [dict(base, enclosure=enclosure)])
+        assert result["value"] is None and result["findings"] == [(code, "x")], enclosure
+    # An overlay on an input with no value, a repeated input id, and an empty id.
+    result = ri.evaluate_interval(formula, [dict(base, value=None, bound=1.0)])
+    assert ("InvalidReference", "x") in result["findings"]
+    result = ri.evaluate_interval(formula, [dict(base, bound=1.0), dict(base, bound=1.0)])
+    assert result["findings"] == [("DuplicateBinding", "x"), ("DuplicateBinding", "x")]
+    result = ri.evaluate_interval(formula, [dict(base, variable_id=" ", bound=1.0)])
+    assert ("InvalidReference", "interval_binding") in result["findings"]
 
 
 def test_decoder_refuses_unknown_forms():

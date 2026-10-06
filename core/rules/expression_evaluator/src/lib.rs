@@ -3698,6 +3698,14 @@ mod interval_tests {
         assert_eq!(truth(&points), Truth::True);
         let points = run(cmp(NotEqual, var("x"), stress(10.0)), &[sx(10.0, 0.0)]);
         assert_eq!(truth(&points), Truth::False);
+        // Two independent inputs with identical non-point ranges are not
+        // equal at every point (x != y inside the box): both read U (RV99 S-1).
+        let tiny = 2f64.powi(-40);
+        let same = [sx(1.0, tiny), sy(1.0, tiny)];
+        let equal = run(cmp(Equal, var("x"), var("y")), &same);
+        assert_eq!(truth(&equal), Truth::Indeterminate);
+        let not_equal = run(cmp(NotEqual, var("x"), var("y")), &same);
+        assert_eq!(truth(&not_equal), Truth::Indeterminate);
     }
 
     #[test]
@@ -3825,6 +3833,26 @@ mod interval_tests {
         assert_eq!(truth(&result), Truth::Indeterminate);
         assert_eq!(
             note_codes(&result),
+            vec![IntervalNoteCode::DivideByZeroRange]
+        );
+        // A divisor range that ends exactly at zero: 0 / (-abs(z)) has the
+        // divisor [-1, -0] for z straddling 0, and the point path blocks at
+        // z = 0 (RV99 S-2).
+        let zero_end = run(
+            cmp(
+                ComparisonOperator::LessThanOrEqual,
+                bin(
+                    BinaryOperator::Divide,
+                    stress(0.0),
+                    unary(UnaryOperator::Negate, unary(UnaryOperator::Abs, var("z"))),
+                ),
+                stress(1.0),
+            ),
+            &[rz(0.0, 1.0)],
+        );
+        assert_eq!(truth(&zero_end), Truth::Indeterminate);
+        assert_eq!(
+            note_codes(&zero_end),
             vec![IntervalNoteCode::DivideByZeroRange]
         );
         // The block is possible somewhere in the box, so even a branch the
