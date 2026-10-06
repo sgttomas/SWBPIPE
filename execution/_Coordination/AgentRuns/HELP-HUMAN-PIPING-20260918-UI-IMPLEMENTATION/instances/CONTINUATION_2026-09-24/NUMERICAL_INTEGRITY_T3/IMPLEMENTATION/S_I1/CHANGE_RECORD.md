@@ -33,16 +33,17 @@ Eight maintained files under `projects/chirality-piping/`. Their maintained diff
 ## 3. What it does not do
 
 - **No product caller.** src-tauri and the desktop do not call the bounded entry. Wiring solver result bounds into rule binding is S-I2.
+- **Soundness is relative to the supplied bound b** (D2 §4.11.2). b is operational evidence carried by the receipt, not a forward-error enclosure of the exact solution.
 - **No point-mode change.** Without bounds, `RuleCheckRunResult` is byte-identical to main.
 - **No schema shape change, and no dependency or lock change.** src-tauri's lock is unchanged.
 - **Outside the F2a D1 milestone's build closure,** so there is no Pass B and no registered-identity change.
-- **The point path still panics** on an overflowing same-dimension quotient and on a NaN table argument. That predates S-I1 and is routed to T3-SI1b. Interval mode does not panic on those inputs.
+- **The point path still panics** on an overflowing same-dimension quotient and on a NaN interpolation or step-lookup argument (an exact lookup blocks instead). That predates S-I1 and is routed to T3-SI1b. Interval mode does not panic on those inputs.
 
 ## 4. Review
 
 **RV99** (fresh, independent, not an F2a reviewer) built its own oracles.
-- **Soundness:** no violation over 30,609 evaluator cases (about 4.9 million point samples and 450,000 exact samples) and 6,615 runner cases. Every box in which the point path both passes and fails reads U.
-- **Point mode:** byte-identical over 63,086 runs.
+- **Soundness:** no violation over 30,609 evaluator cases (about 4.9 million point samples and 450,000 exact-rational samples) and 6,615 runner cases (against the point path). Every box in which the point path both passes and fails reads U, apart from 15 boxes with invalid explicit overlays, which are blocked. None passes.
+- **Point mode:** byte-identical over 63,086 runs: the committed packs and fixtures, plus generated packs and variants.
 - **Parity:** 94 shared cases plus 30,515 of RV99's own.
 - **Mutants:** 46 of 46 killed.
 - **Verdict:** PASS with 3 SHOULD-FIX, all repaired by I73 and confirmed by RV99.
@@ -53,7 +54,7 @@ Eight maintained files under `projects/chirality-piping/`. Their maintained diff
 | Gate | Result |
 |---|---|
 | Independent complete-diff review (RV99) | PASS; repairs CONFIRMED |
-| Suites against main (I73, RV99) | `expression_evaluator` 49+1, `rule_check_runner` 33, `rule_pack_document` 10, src-tauri 116, Python `test_rule_interval.py` 193. Every count change is an added test |
+| Suites against main | I73: `expression_evaluator` 49+1, `rule_check_runner` 33, `rule_pack_document` 10, src-tauri 116, Python `test_rule_interval.py` 193. RV99 reproduced the rules crates' and the Python counts. Every count change is an added test |
 | `source_equality.py` (main's #1082 tool) | see the PR-head record |
 | `check_citations.py` with this package's index | PASS: 34 D2 citations resolved at the NUM pin (revision 5b.3) |
 | GEN-8 on the exact head | see the merge record |
