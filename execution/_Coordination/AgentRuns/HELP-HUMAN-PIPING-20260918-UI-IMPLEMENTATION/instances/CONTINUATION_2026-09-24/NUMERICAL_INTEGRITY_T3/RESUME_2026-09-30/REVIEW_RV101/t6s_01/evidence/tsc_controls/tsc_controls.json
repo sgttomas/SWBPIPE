@@ -1,0 +1,56 @@
+[
+ {
+  "id": "C0",
+  "desc": "unmodified",
+  "exit": 0,
+  "errors": 0,
+  "first": []
+ },
+ {
+  "id": "C1",
+  "desc": "a new route in SourceContract (B3's physics_retained)",
+  "exit": 2,
+  "errors": 3,
+  "first": [
+   "src/features/results/outputPolicy.test.ts(51,7): error TS2741: Property 'physics_retained' is missing in type '{ legacy: true; precision: true; physics: true; source_blocks: true; physics_source: true; preview_physics: t",
+   "src/features/results/outputPolicy.ts(64,14): error TS2741: Property 'physics_retained' is missing in type 'Readonly<{ legacy: { readonly gate: \"none\"; }; precision: { readonly gate: \"none\"; }; physics: { readonly gate: \"",
+   "src/features/stress-neutral/StressNeutralExportPanel.tsx(1136,7): error TS2741: Property 'physics_retained' is missing in type 'Readonly<{ legacy: \"semantic_contract_v0_2.json\"; precision: \"semantic_contract_v0_3_precisi"
+  ]
+ },
+ {
+  "id": "C2",
+  "desc": "the successor entry leaves a surface unnamed (rule-check)",
+  "exit": 2,
+  "errors": 1,
+  "first": [
+   "src/features/results/outputPolicy.ts(64,14): error TS2322: Type 'Readonly<{ legacy: { readonly gate: \"none\"; }; precision: { readonly gate: \"none\"; }; physics: { readonly gate: \"none\"; }; source_blocks: { readonly gate: "
+  ]
+ },
+ {
+  "id": "C3",
+  "desc": "a new output surface is added to OUTPUT_SURFACES",
+  "exit": 2,
+  "errors": 1,
+  "first": [
+   "src/features/results/outputPolicy.ts(64,14): error TS2322: Type 'Readonly<{ legacy: { readonly gate: \"none\"; }; precision: { readonly gate: \"none\"; }; physics: { readonly gate: \"none\"; }; source_blocks: { readonly gate: "
+  ]
+ },
+ {
+  "id": "C4",
+  "desc": "a route entry is removed (unsupported)",
+  "exit": 2,
+  "errors": 1,
+  "first": [
+   "src/features/results/outputPolicy.ts(64,14): error TS2741: Property 'unsupported' is missing in type 'Readonly<{ legacy: { readonly gate: \"none\"; }; precision: { readonly gate: \"none\"; }; physics: { readonly gate: \"none\""
+  ]
+ },
+ {
+  "id": "C5",
+  "desc": "a surface decision outside the two values",
+  "exit": 2,
+  "errors": 1,
+  "first": [
+   "src/features/results/outputPolicy.ts(64,14): error TS2322: Type 'Readonly<{ legacy: { readonly gate: \"none\"; }; precision: { readonly gate: \"none\"; }; physics: { readonly gate: \"none\"; }; source_blocks: { readonly gate: "
+  ]
+ }
+]

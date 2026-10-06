@@ -1,0 +1,6 @@
+cand_vitest.log: Test Files  141 passed (141)
+cand_vitest.log:      Tests  3590 passed (3590)
+cand_vitest.log:vitest rc=0
+base_vitest.log: Test Files  138 passed (138)
+base_vitest.log:      Tests  3552 passed (3552)
+base_vitest.log:vitest rc=0

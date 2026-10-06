@@ -1,0 +1,14 @@
+# RV101: S-1. The candidate's hunks for DT/features/results/retainedPrecisionIntegration.test.tsx against I75's proposed_integration_n5.diff, with file headers and index lines removed. Only Git's hunk-header context text differs.
+1c1
+< @@ -90,7 +90,7 @@
+---
+> @@ -90,7 +90,7 @@ import { computeModelHash, computeProjectEnvelopeHash } from "../../services/has
+10c10
+< @@ -889,12 +889,14 @@
+---
+> @@ -889,12 +889,14 @@ describe.each(MODES)("%s: the class notices do not depend on standing (U7 slice
+31c31
+< @@ -905,28 +907,26 @@
+---
+> @@ -905,28 +907,26 @@ describe.each(MODES)("%s: the T6 panels refuse a successor by an explicit gate (
+# diff exit: 1

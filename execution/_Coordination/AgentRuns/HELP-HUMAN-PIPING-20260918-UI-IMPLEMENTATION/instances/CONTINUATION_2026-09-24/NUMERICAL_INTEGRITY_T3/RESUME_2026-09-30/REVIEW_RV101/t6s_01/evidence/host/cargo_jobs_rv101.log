@@ -1,0 +1,74 @@
+2026-10-06T13:24:24Z WAIT pid=24255 cwd=WT/rv101/cand/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --no-fail-fast
+2026-10-06T13:43:52Z START pid=39393 cwd=WT/rv101/cand/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --no-fail-fast
+2026-10-06T13:47:07Z WAIT pid=41589 cwd=WT/rv101/cand/projects/chirality-piping/core/serialization/canonical_json args: build --locked --offline --release --features checked-cli --bin openpipestress_jcs_ijson --target-dir WT/targets/rv101/checked-json
+2026-10-06T13:47:18Z END rc=0 pid=39393 cwd=WT/rv101/cand/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:47:25Z START pid=41817 cwd=WT/rv101/cand/projects/chirality-piping/core/serialization/canonical_json args: build --locked --offline --release --features checked-cli --bin openpipestress_jcs_ijson --target-dir WT/targets/rv101/checked-json
+2026-10-06T13:47:33Z END rc=0 pid=41817 cwd=WT/rv101/cand/projects/chirality-piping/core/serialization/canonical_json
+2026-10-06T13:47:33Z WAIT pid=42033 cwd=WT/rv101/cand/projects/chirality-piping/core/units args: build --locked --offline --release --features cli --bin openpipestress_units --target-dir WT/targets/rv101/units-authority
+2026-10-06T13:47:34Z WAIT pid=42049 cwd=WT/rv101/cand/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --no-fail-fast --test zz_rv101_oracle -- --nocapture
+2026-10-06T13:47:40Z START pid=42130 cwd=WT/rv101/cand/projects/chirality-piping/core/units args: build --locked --offline --release --features cli --bin openpipestress_units --target-dir WT/targets/rv101/units-authority
+2026-10-06T13:47:47Z END rc=0 pid=42130 cwd=WT/rv101/cand/projects/chirality-piping/core/units
+2026-10-06T13:47:47Z START pid=42338 cwd=WT/rv101/cand/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --no-fail-fast --test zz_rv101_oracle -- --nocapture
+2026-10-06T13:48:55Z END rc=0 pid=42338 cwd=WT/rv101/cand/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:52:00Z WAIT pid=53827 cwd=WT/rv101/cand/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --no-fail-fast --test zz_rv101_oracle -- --nocapture
+2026-10-06T13:52:05Z START pid=55094 cwd=WT/rv101/cand/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --no-fail-fast --test zz_rv101_oracle -- --nocapture
+2026-10-06T13:52:05Z END rc=0 pid=55094 cwd=WT/rv101/cand/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:57:15Z WAIT pid=50220 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:57:15Z START pid=50240 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:57:34Z END rc=101 pid=50240 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:57:34Z WAIT pid=54878 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:57:34Z START pid=54907 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:57:37Z END rc=101 pid=54907 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:57:37Z WAIT pid=55716 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:57:37Z START pid=55739 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:57:42Z END rc=101 pid=55739 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:57:42Z WAIT pid=57134 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:57:42Z START pid=57160 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:57:47Z END rc=101 pid=57160 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:57:47Z WAIT pid=58093 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:57:47Z START pid=58118 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:57:54Z END rc=101 pid=58118 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:57:54Z WAIT pid=59218 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:57:54Z START pid=59232 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:58:00Z END rc=101 pid=59232 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:58:00Z WAIT pid=60295 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:58:00Z START pid=60311 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:58:01Z END rc=101 pid=60311 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:58:01Z WAIT pid=60534 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:58:01Z START pid=60555 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:58:07Z END rc=0 pid=60555 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:58:07Z WAIT pid=62161 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:58:07Z START pid=62189 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:58:12Z END rc=101 pid=62189 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:58:12Z WAIT pid=63555 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:58:12Z START pid=63575 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_derivative_golden
+2026-10-06T13:58:17Z END rc=101 pid=63575 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:58:17Z WAIT pid=64908 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test source_blocks
+2026-10-06T13:58:17Z START pid=64937 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test source_blocks
+2026-10-06T13:58:26Z END rc=0 pid=64937 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:58:26Z WAIT pid=67333 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test source_blocks
+2026-10-06T13:58:26Z START pid=67363 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test source_blocks
+2026-10-06T13:58:33Z END rc=101 pid=67363 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:58:33Z WAIT pid=69564 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test source_blocks
+2026-10-06T13:58:33Z START pid=69588 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test source_blocks
+2026-10-06T13:58:41Z END rc=101 pid=69588 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:58:41Z WAIT pid=71685 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test source_blocks
+2026-10-06T13:58:41Z START pid=71707 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test source_blocks
+2026-10-06T13:58:46Z END rc=101 pid=71707 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export
+2026-10-06T13:58:47Z WAIT pid=73379 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --no-fail-fast
+2026-10-06T13:58:47Z START pid=73404 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --no-fail-fast
+2026-10-06T14:01:57Z END rc=0 pid=73404 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export
+2026-10-06T14:05:49Z WAIT RV101 TS mutant loop (lockf)
+2026-10-06T14:07:49Z WAIT pid=87390 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_carriers
+2026-10-06T14:09:44Z WAIT pid=88435 cwd=WT/rv101/cand/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --no-fail-fast --test zz_rv101_oracle -- --nocapture
+2026-10-06T14:11:35Z WAIT pid=90493 cwd=WT/rv101/cand/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --no-fail-fast --test zz_rv101_oracle -- --nocapture
+2026-10-06T14:58:43Z START RV101 TS mutant loop (locked)
+2026-10-06T15:27:51Z END RV101 TS mutant loop (locked)
+2026-10-06T15:38:17Z START pid=4673 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --test retained_precision_carriers
+2026-10-06T15:38:17Z WAIT pid=4675 cwd=WT/rv101/cand/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --no-fail-fast --test zz_rv101_oracle -- --nocapture
+2026-10-06T15:38:52Z END rc=101 pid=4673 cwd=WT/rv101/mutr/projects/chirality-piping/core/reporting/result_export
+2026-10-06T15:38:52Z START pid=5049 cwd=WT/rv101/cand/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --no-fail-fast --test zz_rv101_oracle -- --nocapture
+2026-10-06T15:38:52Z END rc=0 pid=5049 cwd=WT/rv101/cand/projects/chirality-piping/core/reporting/result_export
+2026-10-06T15:38:52Z START pid=5054 cwd=WT/rv101/cand/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --no-fail-fast --test zz_rv101_oracle -- --nocapture
+2026-10-06T15:38:52Z END rc=0 pid=5054 cwd=WT/rv101/cand/projects/chirality-piping/core/reporting/result_export
+2026-10-06T15:39:31Z CANCELLED (never started) pid=4675 RV101 re_oracle2 wait, killed by RV101: superseded by its first run

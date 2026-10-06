@@ -1,0 +1,67 @@
+# RV97 addendum 02: the delta 61c35f56a8 -> f7a7572e35 and the main move 75a8c3291f -> d069e7130c (git reads, GIT_OPTIONAL_LOCKS=0, in NUM)
+
+f7a7572e3541202dc25a563b43816b678381b481 parents=b18dd4f369f99d871b4d515dafceb14ab659c2bc d069e7130c47642a37622de0aaa4e3d6e647add9 Merge main (#1101, records) into U8's PR
+b18dd4f369f99d871b4d515dafceb14ab659c2bc parents=61c35f56a881f89a345d9765f4d26dd34b58365a piping(T3 U8): evidence package wording (RV97 A1-N-1, A1-N-2)
+d069e7130c47642a37622de0aaa4e3d6e647add9 parents=75a8c3291ffe5dad1bbd2833bcc8b9d501274bf0 piping(T3): records through S-I1's merge (#1100) (records only) (#1101)
+55f5b7ecf1550cf9800ad02e146a4cfbe8ad7b38 parents=9b8a18a20ceb4a21a7ae306acdc803ac6077f83c d069e7130c47642a37622de0aaa4e3d6e647add9 Merge main (#1101, records) into the T3 integration branch
+
+## outside projects/chirality-piping/execution
+61c35f56a8 vs f7a7572e35: 0 paths
+75a8c3291f vs d069e7130c: 0 paths
+
+## under projects/chirality-piping/execution
+head move:  758 A    5 M 
+main move:  758 A    3 M 
+61c35f56a8 -> b18dd4f369:
+M	T3/IMPLEMENTATION/U8/CHANGE_RECORD.md
+M	T3/IMPLEMENTATION/U8/SHA256SUMS
+b18dd4f369 -> f7a7572e35 equals 75a8c3291f -> d069e7130c: names identical; patch-id 845fdf425d0b76c2 / 845fdf425d0b76c2
+d069e7130c -> f7a7572e35 equals 75a8c3291f -> b18dd4f369 (full diff text): identical
+main move touching IMPLEMENTATION/U8/: 0
+
+## #1101's final content (75a8c3291f -> d069e7130c)
+in the T3 folder: 760
+elsewhere:
+M	projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md
+modified:
+M	T3/DESIGN_STANDING/DESIGN.md
+M	T3/ROOT_RULINGS_V1.md
+M	projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md
+under T3/REFERENCES/ or T3/DESIGN_NUMERICS/: 0
+test-shaped or manifest files (all under execution/, outside every DEC-025 collection root):
+T3/RESUME_2026-09-30/I68/u8_probe_01/_run_records/zz_i68_probe.test.ts
+T3/RESUME_2026-09-30/I69/u8_corpus_07l_01/_run_records/scripts/test_mutants.py
+T3/RESUME_2026-09-30/I75/t6s_01/_run_records/final/tools/zz_i75_preview_rc_probe.test.ts
+T3/RESUME_2026-09-30/I75/t6s_01/_run_records/final/tools/zz_i75_rd_probe.test.ts
+T3/RESUME_2026-09-30/I75/t6s_01/_run_records/tools/zz_i75_sn_probe.test.tsx
+T3/RESUME_2026-09-30/REVIEW_RV97/u8_01/evidence/readers/zz_rv97_probe.test.ts
+T3/RESUME_2026-09-30/REVIEW_RV97/u8_01/evidence/round2/tools/zz_rv97_parity.test.ts
+
+## readers at f7a7572e35
+maintained files naming the T3 folder:
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py
+projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/gen_vk_cases.py
+projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/run_harness_mutants.py
+projects/chirality-piping/validation/portability_policy.json
+maintained files naming IMPLEMENTATION/U8: 0
+maintained files naming WorkGraphs or WORK_GRAPH (piping): 13
+DEC-025 collection code changed 61c35f56a8 -> f7a7572e35 (tools/, apps/desktop/vite.config.ts, package.json): 0
+
+## package at f7a7572e35
+OK CHANGE_RECORD.md
+OK PR_BODY.md
+OK citations.json
+head f5ebd6b9356e = b18dd4f369 f5ebd6b9356e = NUM 55f5b7ecf1 f5ebd6b9356e  CHANGE_RECORD.md
+head 9acbec1ea74a = b18dd4f369 9acbec1ea74a = NUM 55f5b7ecf1 9acbec1ea74a  PR_BODY.md
+head ab044a39563f = b18dd4f369 ab044a39563f = NUM 55f5b7ecf1 ab044a39563f  citations.json
+head dc4a88b713d9 = b18dd4f369 dc4a88b713d9 = NUM 55f5b7ecf1 dc4a88b713d9  SHA256SUMS
+
+## #1100's 8 piping files (75a8c3291f's main move from the U8 base), by kind
+projects/chirality-piping/core/analysis_runs/rule_interval.py
+projects/chirality-piping/core/rules/expression_evaluator/src/lib.rs
+projects/chirality-piping/core/rules/rule_check_runner/src/lib.rs
+projects/chirality-piping/core/rules/rule_check_runner/tests/interval_bounds_run.rs
+projects/chirality-piping/core/rules/rule_check_runner/tests/rule_interval_cases.rs
+projects/chirality-piping/fixtures/rule_interval/rule_interval_cases.json
+projects/chirality-piping/schemas/rule_check_run_result.schema.json
+projects/chirality-piping/tests/test_rule_interval.py

@@ -1,0 +1,21 @@
+package_dense_scrutiny.json matching oneOf branches: [7] of 8
+package_dense_scrutiny.json v0.3 valid: True dispatcher valid: True first errors: []
+   no receipt -> v0.3 valid: False dispatcher valid: False
+   no annotations -> v0.3 valid: False dispatcher valid: False
+   no contract_evidence -> v0.3 valid: False dispatcher valid: False
+   csv_encoding removed -> v0.3 valid: False dispatcher valid: False
+   receipt extra member -> v0.3 valid: False dispatcher valid: False
+package_sparse_interactive.json matching oneOf branches: [7] of 8
+package_sparse_interactive.json v0.3 valid: True dispatcher valid: True first errors: []
+   no receipt -> v0.3 valid: False dispatcher valid: False
+   no annotations -> v0.3 valid: False dispatcher valid: False
+   no contract_evidence -> v0.3 valid: False dispatcher valid: False
+   csv_encoding removed -> v0.3 valid: False dispatcher valid: False
+   receipt extra member -> v0.3 valid: False dispatcher valid: False
+package_two_case_synthetic.json matching oneOf branches: [7] of 8
+package_two_case_synthetic.json v0.3 valid: True dispatcher valid: True first errors: []
+   no receipt -> v0.3 valid: False dispatcher valid: False
+   no annotations -> v0.3 valid: False dispatcher valid: False
+   no contract_evidence -> v0.3 valid: False dispatcher valid: False
+   csv_encoding removed -> v0.3 valid: False dispatcher valid: False
+   receipt extra member -> v0.3 valid: False dispatcher valid: False

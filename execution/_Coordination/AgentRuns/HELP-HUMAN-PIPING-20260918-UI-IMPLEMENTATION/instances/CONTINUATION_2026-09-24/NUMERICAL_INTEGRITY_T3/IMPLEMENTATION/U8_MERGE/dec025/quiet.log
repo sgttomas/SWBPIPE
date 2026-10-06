@@ -1,0 +1,17 @@
+wait-start 2026-10-06T15:38:52Z head 61c35f56a881f89a345d9765f4d26dd34b58365a
+15:38:52 busy=0 quiet=1
+15:39:12 busy=0 quiet=2
+15:39:32 busy=0 quiet=3
+15:39:52 busy=0 quiet=4
+15:40:13 busy=1 quiet=0
+15:40:33 busy=0 quiet=1
+15:40:53 busy=0 quiet=2
+15:41:13 busy=0 quiet=3
+15:41:33 busy=0 quiet=4
+15:41:53 busy=0 quiet=5
+15:42:13 busy=0 quiet=6
+quiet 2026-10-06T15:42:13Z
+baseline-start 2026-10-06T15:42:13Z head 75a8c3291ffe5dad1bbd2833bcc8b9d501274bf0
+baseline-done 2026-10-06T15:54:26Z
+dec025-start 2026-10-06T15:54:26Z
+dec025-complete 2026-10-06T16:25:56Z

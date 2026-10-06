@@ -1,0 +1,33 @@
+diff --git a/T3/IMPLEMENTATION/U8/CHANGE_RECORD.md b/T3/IMPLEMENTATION/U8/CHANGE_RECORD.md
+index a5075a7dbd..f5ebd6b935 100644
+--- a/T3/IMPLEMENTATION/U8/CHANGE_RECORD.md
++++ b/T3/IMPLEMENTATION/U8/CHANGE_RECORD.md
+@@ -11,7 +11,7 @@ U8 is an intermediate F2a PR. It goes to main on its own, as I61's plan decision
+ **Status of this file.** I77 drafted it, records only, while the full suite and RV98 ran. ROOT completed it at the cut: the full suite and RV98 are in. The PR-head gates run before the merge, and are recorded in the merge record `IMPLEMENTATION/U8_MERGE/` on the integration branch.
+ - **The U8 head** is `bd6b4be2c3` on `codex/piping-f2a-u8-20261005`. It sits on NUM `b1e2d7741e`, whose maintained source equals main `c1bfc460fc`.
+ - **The PR branch** is cut by ROOT from main. It carries the 7 files from `bd6b4be2c3` and this package.
+-- **Main has moved since.** The local `origin/main` is `c1571f7feb` (#1098 and #1099). Its 209 changed files are all under `projects/chirality-app-v4/`: no piping path, and none of the 7 files. NUM absorbed #1098 at `10df4a37ea`.
++- **Main has moved since.** This PR is cut from main `75a8c3291f`, which includes #1098 and #1099 (App v4 only) and #1100 (S-I1: 8 piping files in the rules crates, Python and schemas, none of them U8's 7). NUM carries main plus U8 at `b4140b7645`.
+ 
+ **Notation:**
+ - **P** = `projects/chirality-piping`; **PP** = `P/core/product_physics`; **RE** = `P/core/reporting/result_export`; **DT** = `P/apps/desktop/src`.
+@@ -21,7 +21,7 @@ U8 is an intermediate F2a PR. It goes to main on its own, as I61's plan decision
+ 
+ ## 1. What the PR contains
+ 
+-**Maintained source: 7 files under P.** 2 are added and 5 modified, +29,026 / −14 lines, 6,372,777 B at the head. The 5 modified files have the same base blobs on main `c1bfc460fc` and on `b1e2d7741e`, and main's later commits through `c1571f7feb` touch none of the 7.
++**Maintained source: 7 files under P.** 2 are added and 5 modified, +29,026 / −14 lines, 6,372,777 B at the head. The 5 modified files have the same base blobs on main `c1bfc460fc` and on `b1e2d7741e`, and main's later commits through `75a8c3291f` touch none of the 7.
+ 
+ | File | Change | Purpose | sha256 at `bd6b4be2c3` |
+ |---|---|---|---|
+@@ -113,8 +113,8 @@ It reuses main's `IMPLEMENTATION/F2A_D1/source_equality.py` and `check_citations
+ | PP, Stale | 708 / 1 / 10; the three U8 tests pass through their unregistered branches | I68 |
+ | result_export | 173 (base 172) | I70, RV97 |
+ | runner/headless | 85 passed, 2 failed (the known `load_reference` pair) | I68, I72 |
+-| Python | The retained suites: 480 (base 463). The 24-file sweep: 1,873 passed, 30 skipped (base 1,856) | I69, RV97 |
+-| TS | `retainedPrecision.test.ts`: 474. The desktop suite: 3,574 (base 3,552), with all 22 additions in that file. `tsc` clean | I71, RV97 |
++| Python | The retained suites: 480 (base 463). The 24-file sweep: 1,873 passed, 30 skipped (base 1,856) | I69 (RV97 ran the retained suites and the 07l parity) |
++| TS | `retainedPrecision.test.ts`: 474. The desktop suite: 3,574 (base 3,552), with all 22 additions in that file. `tsc` clean | I71 (RV97 ran `retainedPrecision.test.ts` and `tsc`) |
+ | Mutants | PP: 6 / 6 (I68) and 29 / 29 (RV97). Reader mutants RM1–RM4 are killed by 07l entries in Python, Rust and TS, and by nothing older except TS's `stopFeasible` unit test for RM1. Corpus and test mutants are killed (I69 6 / 6; I70 TM-A; I71 TM1–TM4) | I68–I71, RV97 |
+ 
+ ## 6. Citations

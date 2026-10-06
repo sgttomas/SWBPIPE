@@ -13106,3 +13106,103 @@ The record is `IMPLEMENTATION/S_I1_MERGE/RECORD.md`, with `_run_records/` and `d
 - **N-5:** no action.
 
 **#1101 is re-cut to H3:** NUM's execution tree at this ruling's commit, minus `IMPLEMENTATION/U8/`. RV102 confirms the delta from H2 before the squash.
+
+## #1101 squash-merged; RV102's addendum notes (ROOT, 2026-10-06 UTC)
+
+**RV102's ADDENDUM_01** (sha256 `32261a96…`; 12/12 OK) passes H3 `93d15f1bd3`, 0/0/4.
+- The H2→H3 delta is as listed.
+- RV98 verifies 47/47 from H3's Git blobs.
+- The S-2 rewrite is truthful.
+- The screen is clean, and RR is append-only.
+- GEN-8 passes, and 4/4 CI runs succeeded.
+
+**The merge.** Main was checked unmoved at `75a8c3291f`, then `gh pr merge 1101 --squash --match-head-commit 93d15f1bd3` ran with an explicit subject and body. **The result is `d069e7130c`.** The record is `IMPLEMENTATION/RECORDS_MERGE_2026-10-06/RECORD.md`.
+
+**The notes:**
+- **A-2 and A-3 are applied now in the work graph.** RV100 was dispatched on 2026-10-05, and RV97's ADDENDUM_01 confirms `61c35f56a8`, with the `b18dd4f369` delta still to confirm.
+- **A-1 and A-4** need no action.
+
+**Next:** NUM absorbs main; #1102 absorbs main; RV97 confirms #1102's head delta and the DEC-025 carry-over.
+
+## #1102 absorbs main; DEC-025 carried to its head by ruling (ROOT, 2026-10-06 UTC)
+
+**NUM absorbed main `d069e7130c`** (#1101) as `55f5b7ecf1`.
+- `ROOT_RULINGS_V1.md` and the work graph conflicted, as expected after a squash. Main's copies equal NUM's at `1720a5c06b`, and RR's is a byte prefix of NUM's. Per #1084's precedent, NUM's versions are kept.
+- NUM's maintained diff from main is exactly U8's 7 files.
+
+**#1102 absorbed main** as head `f7a7572e35`.
+- Nothing outside `execution/` changed since `b18dd4f369`.
+- **The checks at that head** (`IMPLEMENTATION/U8_MERGE/_run_records/*3*`): `source_equality.py` 5/5 against NUM `55f5b7ecf1`; `check_citations.py` PASS; GEN-8 1 passed.
+- **The full-SHA dispatch** is run 37489501933 (`target_base` `d069e7130c`).
+
+**DEC-025 is carried to `f7a7572e35` by ruling.** It runs on `61c35f56a8`, against a baseline of `75a8c3291f`.
+- **The premise:**
+  - between the two heads, and between the two mains, only `projects/chirality-piping/execution/` differs: U8's package text, and #1101's T3 records and work graph;
+  - no DEC-025 suite reads those paths beyond the three readers of `REFERENCES/` and `DESIGN_NUMERICS/`, whose contents #1101 did not change.
+- **RV97 confirms** the delta and the premise (ADDENDUM_02) before the merge.
+
+## RV101 passes the T6 slice; SF-1 repaired by I75; no DEC-025 rerun (ROOT, 2026-10-06 UTC)
+
+**RV101's report** is `R/REVIEW_RV101/t6s_01/REVIEW.md` (sha256 `510fbdb5…`; SHA256SUMS 54/54 OK; no machine paths).
+
+**Verdict on `c1bfc460fc..2033260c57`: PASS,** 0 BLOCKING, 1 SHOULD-FIX, 10 NOTE.
+- **Closure:** only the two panels admit a successor, and only at eligible standing with the live capture.
+- **Goldens:** RV101 re-derived them byte for byte. TS and Rust agree on 63 statements.
+- **Stress-neutral S-d** is faithful.
+- **The fence** is exactly the fence plus the granted S-1, R-6 and R-7.
+- **Non-successor outputs** are identical to the base: 891 steps over 69 fixtures.
+- **The dispatcher** refuses all 651 of RV101's mutations.
+- **Mutants:** all of the implementers' mutants reproduce, and 10 of RV101's 13 are killed.
+
+**SF-1 is repaired before the PR, by I75 (the owner); RV101 confirms.**
+- **The defect:** `rustLowerExp` differs from Rust's `{:e}` on exact 17-digit decimal ties. V8 rounds a tie to even, where Rust rounds it up. No bound below 2^-25 can tie, so no receipt is affected, but decision 4 promises Rust's form.
+- **The repair:** when the shortest form has 17 digits, use `toExponential(16)`. Add Rust-computed tie vectors from RV101's oracle evidence, which are not Python `repr`, and correct the doc comment.
+
+**The lock overlap needs no rerun.** RV101's question was whether its unlocked jobs disturbed SI1's DEC-025. `run_dec025.sh`'s quiet-host wait held until 14:09:48Z: activity until 14:07:48, then two quiet minutes before the baseline began. RV101's unlocked jobs had ended by about 14:05, so no job overlapped the sweep's work, and the sweep ended `ALL-DONE` with clean comparisons.
+
+**The notes:**
+- **NT-1** (`failure.block_order` in N-5's direct test) goes to PR-B1's brief, with I76's item b.
+- **NT-9** (the disclosure prints b round-trip, not upward) goes to S-I2's planning of D-U6-2's text.
+- **NT-7 and NT-10** (test gaps: no committed `not_covered` statement; the fail-closed `catch` in `surfaceOutputRefusal`) go to T6's later slot, with I75's item d.
+- **NT-2 to NT-6 and NT-8** are confirmations; no action.
+- **RV101's one direct `cargo --version`,** run to record the toolchain, is disclosed and has no effect.
+
+**The T6 slice's PR** follows U8's merge, by the merge order, on the proven gate path.
+
+## RV97 confirms #1102 at `f7a7572e35` and the DEC-025 carry-over (ROOT, 2026-10-06 UTC)
+
+**The confirmation.** RV97's ADDENDUM_02 (sha256 `8d301e00…`; 7/7 OK) **passes, 0/0/1.**
+- The delta `61c35f56a8 → f7a7572e35` is exactly the package text plus #1101's records: a clean union with the same patch-id.
+- A1-N-1 and A1-N-2 are applied truthfully.
+- The carry-over premise holds for both moves: no maintained code names `IMPLEMENTATION/U8` or the work graph, and #1101 has no path under `REFERENCES/` or `DESIGN_NUMERICS/`.
+- Both tools reproduce `se3` and `citations3` byte for byte.
+
+**A2-N-1 is noted:** one of #1100's 8 files is a fixture. The claim that matters, "none of U8's 7", holds.
+
+**#1102 waits only for** DEC-025 `ALL-DONE` with a clean comparison, green CI, and an unmoved main.
+
+## #1102 merged; DEC-025's suites rerun in a fresh target; B0 and T3-SI1b dispatched (ROOT, 2026-10-06 UTC)
+
+**DEC-025 `U8_61c35f56a8` ended `ALL-DONE`** (16:25:56Z), on `61c35f56a8` against main `75a8c3291f`.
+- The sweep stopped at PP's known `t13`.
+- pytest: 3,750 passed, 32 skipped (+17, U8's retained suites). vitest: 138 files, 3,574 tests (+22, all in `retainedPrecision.test.ts`). Both builds exit 0.
+
+**The first suites comparison was not clean, and the cause was the host.**
+- 37 of 40 manifests were identical. `operation_applier`'s tests did not compile: 279 errors, with rustc naming two versions of `serde_json` (1.0.150 and 1.0.151) and of `serde_core` in one build.
+- `dec025_mac.sh` built every candidate's suites in one persistent target. `operation_applier` is built there under its own lockfile (1.0.150) and under `self_weight_wasm`'s (1.0.151, which depends on it), and the persistent target mixed the two resolutions.
+- The baseline runs in a fresh target per label and passed 194/0. U8 changes no manifest, lockfile or `operation_applier` source, and the hosted Numerical cargo suite passed on `f7a7572e35`.
+
+**Ruled: the suites part is rerun on the same tree in a fresh target, under the lock, and that comparison is the one that counts.**
+- The rerun (16:27:57Z–16:40:24Z): **38 of 40 identical.** PP 705 → 708 and result_export 172 → 173 are U8's added tests, all ok, and `t13` fails on both sides. `operation_applier` passes 194/0.
+- The sweep, pytest, vitest and the builds do not use that target, so the `ALL-DONE` run's results stand for them.
+- **Repaired:** `dec025_mac.sh` now gives each candidate a fresh per-label target, `targets/<label>_cand`, as the baseline already had (`IMPLEMENTATION/SESSION_2026-10-06/host_tools/dec025_mac.sh.txt`). Each DEC-025 now builds from scratch; this costs a few minutes and removes cross-run state.
+- **No earlier result is reopened.** Here the mixed resolution failed at compile time, and cargo's fingerprints still rebuild changed sources, so the hazard did not make a stale test pass. S-I1's comparison (38/40, only added tests) shows no such failure.
+
+**#1102 merged** at 16:41:07Z as `f8ed4f0551` (`--merge --match-head-commit f7a7572e35`), with every gate met on that head: RV97 (ADDENDUM_02), source equality, citations, GEN-8, CI with dispatch 37489501933, Pass B (I72, confirmed by RV98), the full suite, and DEC-025 carried by ruling. Record: `IMPLEMENTATION/U8_MERGE/`.
+
+**NUM absorbed main** as `02b96aa3cc`. NUM's tree did not change, and its non-execution tree equals main's.
+
+**Now ready, and dispatched:**
+- **B0** (F2a breadth: contract and identities; documents only) to **I78**, by `BRIEFS/B0_CONTRACT_AND_IDENTITIES.md`.
+- **T3-SI1b** (the point-path panic repair) to **I79**, by `BRIEFS/SI1B_POINT_PATH_PANICS.md`. It is on its own branch from main `f8ed4f0551` and gets its own reviewer and PR. By the merge order, it reaches NUM after the T6 slice merges.
+- **The next unused IDs** are I80 and RV103.

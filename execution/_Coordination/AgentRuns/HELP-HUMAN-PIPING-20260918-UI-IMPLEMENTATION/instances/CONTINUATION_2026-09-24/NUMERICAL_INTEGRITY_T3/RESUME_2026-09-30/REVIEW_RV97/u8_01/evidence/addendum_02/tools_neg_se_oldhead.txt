@@ -1,0 +1,11 @@
+PR 61c35f56a881f89a345d9765f4d26dd34b58365a
+INT 55f5b7ecf1550cf9800ad02e146a4cfbe8ad7b38
+MAIN d069e7130c47642a37622de0aaa4e3d6e647add9
+B d069e7130c47642a37622de0aaa4e3d6e647add9
+|S| = 7
+[PASS] check 1: PR non-execution paths equal S
+[PASS] check 2: 7 paths identical in blob and mode
+[PASS] check 3: {"rules_not_needed": ["projects/chirality-piping/core/analysis_runs/compatibility.py"]}
+[FAIL] check 4: {"execution_files": 765, "outside_package": ["projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_STANDING/DESIGN.md", "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/RECORDS_MERGE_2026-10-06/_run_records/gen8.txt", "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-
+[PASS] check 5: 7 rows; 7 equal; 0 recorded three-way merge(s); unexplained []
+RESULT FAIL

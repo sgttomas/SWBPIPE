@@ -1,0 +1,20 @@
+# RV101: the candidate's 19 changed files (c1bfc460fc..2033260c57): path, +/- lines (numstat), base sha256 prefix (or new), candidate sha256
+P/apps/desktop/src/features/result-export/ResultExportPanel.tsx +8 -4 17f7a6869bda d362eb2bae112a0d9cb412627d53afc7efef193c31cd61d32183e7a6b2fb6da5
+P/apps/desktop/src/features/result-export/resultExportAdapter.ts +51 -13 2473cc21cc85 b2ba958adc6465b4d3adc740a5548fc7d7a90c00429d1dd16c00a4310c5cba13
+P/apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx +316 -0 new a171d71c65a53fd79c72df1e8413a807c2fba468d1543e0b07f59ab7634be6a1
+P/apps/desktop/src/features/results/knownSemanticLimitations.ts +2 -1 b0af6b5b3f3c 07decdc36f974b02253476f88a1b01e126c5c2db82f7f25e14b1308b314eab4d
+P/apps/desktop/src/features/results/loadReferenceOutputAvailability.ts +13 -10 910713da3a7c e1662f09334a12c2deaeda859693f2cf1d804c4de091b0c90e96abc6da7c30a9
+P/apps/desktop/src/features/results/outputPolicy.test.ts +122 -0 new ee51a26d2542145d6ccaa64fe93256d89c95cce93ce204e08702b8232973edcb
+P/apps/desktop/src/features/results/outputPolicy.ts +148 -0 new 712941315278fc92773366d59e34c45bf4d84e06541265402cc5bbd9ffbc9f4b
+P/apps/desktop/src/features/results/retainedPrecisionDisclosure.ts +89 -0 new 9ee23d2678426f6c13c2c89032bb2c8ada024c1cd954dd6acb81d04d5976b8b9
+P/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx +19 -19 1fac2453f6cb d1bf8a5df4937b9b2ddf7454343150b23fa64c177d3b210d1fa8bd6d08125776
+P/apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx +45 -21 1b610c31d4db 4c3abb0bb46353f25572be9dbe85b41e5f76d5ebd3cac8b888a7b9b73c76df71
+P/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx +115 -26 fae618075838 50bd72355ccbc8a1c1ca9cfa7a1581ba44adfa9982f0b53a3f3350c29aea2e60
+P/apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx +317 -0 new 8e9766048c1d6a0da4a28917b95ff8f6cd6711e91eb425901718d4a145f87a66
+P/core/reporting/result_export/tests/retained_precision_derivative_golden.rs +422 -0 new 2706d06b561756b530a234e4c488cd341061093f822b45bfccf06e75c99fc798
+P/core/reporting/result_export/tests/source_blocks.rs +88 -0 cc9cc92723e2 00b322c51a35da25b9f552bd9965eb6a30a853dffea4e8a4cc3e4ca1513f73ee
+P/fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json +1 -0 new 3f9905ad4c4bba688687714751abe965d18cea834701c32c379d81f573dcf682
+P/fixtures/results/retained_precision_successor_derivative_sparse_interactive.json +1 -0 new 958df02e276538a96c4732302a46cb36a53c2298ca7e1f4deb88a3748c67c661
+P/schemas/results.schema.yaml +2 -1808 9f2adf6a1017 d6b5bace42ef5208ae8686dbeee88f9e942aa51b24c504ba2652bacb4dff1d13
+P/tests/test_result_export_v0_2.py +14 -1 dd4d2bbf9de2 9605b438d88862d442e99d94db80e48504f132c160b66ab4e36d4bc210a16c48
+P/tests/test_results_dispatcher_v0_3.py +244 -0 new 08007e4ddbbb3a2ecd2ea750503376e54f73e4e6a6eef7df0959b3ace7462988

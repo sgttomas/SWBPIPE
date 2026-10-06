@@ -1,0 +1,6 @@
+# RV101: 14 Python modules (schema, dispatcher consumers, retained-precision schema/carriers/contract), RV101-built CLI authorities, cargo shim on PATH (never invoked), -n 4 --dist loadscope
+base 1315 passed, 11 skipped in 510.79s (0:08:30)
+cand 1338 passed, 11 skipped in 504.66s (0:08:24)
+added 20 {'tests/test_results_dispatcher_v0_3.py': 20} {'PASSED': 20}
+removed 0 status changes 0
+(unique test ids; the dispatcher file has 23 tests, of which -rA lines give 20 distinct ids)

@@ -1,0 +1,44 @@
+{"mode":"sparse_interactive","label":"control","with_source":false,"verdict":"OK"}
+{"mode":"sparse_interactive","label":"control","with_source":true,"verdict":"OK"}
+{"mode":"sparse_interactive","label":"receipt body edited, not resealed","with_source":false,"verdict":"RETAINED_PRECISION_RECEIPT_MISMATCH"}
+{"mode":"sparse_interactive","label":"receipt body edited, not resealed","with_source":true,"verdict":"SN-RETAINED-PRECISION-RECEIPT-MISMATCH"}
+{"mode":"sparse_interactive","label":"receipt body edited and receipt hash resealed","with_source":false,"verdict":"SN-PACKAGE-CHECKSUM-MISMATCH"}
+{"mode":"sparse_interactive","label":"receipt body edited and receipt hash resealed","with_source":true,"verdict":"SN-RETAINED-PRECISION-RECEIPT-MISMATCH"}
+{"mode":"sparse_interactive","label":"receipt removed","with_source":false,"verdict":"SN-PRECISION-CONTRACT-MISMATCH"}
+{"mode":"sparse_interactive","label":"receipt removed","with_source":true,"verdict":"SN-RETAINED-PRECISION-RECEIPT-MISMATCH"}
+{"mode":"sparse_interactive","label":"receipt null","with_source":false,"verdict":"SN-PRECISION-CONTRACT-MISMATCH"}
+{"mode":"sparse_interactive","label":"receipt null","with_source":true,"verdict":"SN-RETAINED-PRECISION-RECEIPT-MISMATCH"}
+{"mode":"sparse_interactive","label":"class finding severity blocking","with_source":false,"verdict":"SN-MEMBER-CHECKSUM-MISMATCH: diagnostics.json"}
+{"mode":"sparse_interactive","label":"class finding severity blocking","with_source":true,"verdict":"SN-PRECISION-WITNESS-BINDING-MISMATCH"}
+{"mode":"sparse_interactive","label":"class finding code changed to not_covered","with_source":false,"verdict":"SN-MEMBER-CHECKSUM-MISMATCH: diagnostics.json"}
+{"mode":"sparse_interactive","label":"class finding code changed to not_covered","with_source":true,"verdict":"SN-PRECISION-WITNESS-BINDING-MISMATCH"}
+{"mode":"sparse_interactive","label":"class finding message edited","with_source":false,"verdict":"SN-MEMBER-CHECKSUM-MISMATCH: diagnostics.json"}
+{"mode":"sparse_interactive","label":"class finding message edited","with_source":true,"verdict":"SN-PRECISION-WITNESS-BINDING-MISMATCH"}
+{"mode":"sparse_interactive","label":"one class finding removed","with_source":false,"verdict":"SN-MEMBER-CHECKSUM-MISMATCH: diagnostics.json"}
+{"mode":"sparse_interactive","label":"one class finding removed","with_source":true,"verdict":"SN-PRECISION-WITNESS-BINDING-MISMATCH"}
+{"mode":"sparse_interactive","label":"contract_evidence removed","with_source":false,"verdict":"SN-PRECISION-CONTRACT-MISMATCH"}
+{"mode":"sparse_interactive","label":"contract_evidence removed","with_source":true,"verdict":"SN-PHYSICAL-EVIDENCE-MISMATCH"}
+{"mode":"sparse_interactive","label":"semantic table relabelled to preview-physics-1","with_source":false,"verdict":"SN-PRECISION-CONTRACT-MISMATCH"}
+{"mode":"sparse_interactive","label":"semantic table relabelled to preview-physics-1","with_source":true,"verdict":"SN-PRECISION-SOURCE-METADATA-MISMATCH"}
+{"mode":"dense_scrutiny","label":"control","with_source":false,"verdict":"OK"}
+{"mode":"dense_scrutiny","label":"control","with_source":true,"verdict":"OK"}
+{"mode":"dense_scrutiny","label":"receipt body edited, not resealed","with_source":false,"verdict":"RETAINED_PRECISION_RECEIPT_MISMATCH"}
+{"mode":"dense_scrutiny","label":"receipt body edited, not resealed","with_source":true,"verdict":"SN-RETAINED-PRECISION-RECEIPT-MISMATCH"}
+{"mode":"dense_scrutiny","label":"receipt body edited and receipt hash resealed","with_source":false,"verdict":"SN-PACKAGE-CHECKSUM-MISMATCH"}
+{"mode":"dense_scrutiny","label":"receipt body edited and receipt hash resealed","with_source":true,"verdict":"SN-RETAINED-PRECISION-RECEIPT-MISMATCH"}
+{"mode":"dense_scrutiny","label":"receipt removed","with_source":false,"verdict":"SN-PRECISION-CONTRACT-MISMATCH"}
+{"mode":"dense_scrutiny","label":"receipt removed","with_source":true,"verdict":"SN-RETAINED-PRECISION-RECEIPT-MISMATCH"}
+{"mode":"dense_scrutiny","label":"receipt null","with_source":false,"verdict":"SN-PRECISION-CONTRACT-MISMATCH"}
+{"mode":"dense_scrutiny","label":"receipt null","with_source":true,"verdict":"SN-RETAINED-PRECISION-RECEIPT-MISMATCH"}
+{"mode":"dense_scrutiny","label":"class finding severity blocking","with_source":false,"verdict":"SN-MEMBER-CHECKSUM-MISMATCH: diagnostics.json"}
+{"mode":"dense_scrutiny","label":"class finding severity blocking","with_source":true,"verdict":"SN-PRECISION-WITNESS-BINDING-MISMATCH"}
+{"mode":"dense_scrutiny","label":"class finding code changed to not_covered","with_source":false,"verdict":"SN-MEMBER-CHECKSUM-MISMATCH: diagnostics.json"}
+{"mode":"dense_scrutiny","label":"class finding code changed to not_covered","with_source":true,"verdict":"SN-PRECISION-WITNESS-BINDING-MISMATCH"}
+{"mode":"dense_scrutiny","label":"class finding message edited","with_source":false,"verdict":"SN-MEMBER-CHECKSUM-MISMATCH: diagnostics.json"}
+{"mode":"dense_scrutiny","label":"class finding message edited","with_source":true,"verdict":"SN-PRECISION-WITNESS-BINDING-MISMATCH"}
+{"mode":"dense_scrutiny","label":"one class finding removed","with_source":false,"verdict":"SN-MEMBER-CHECKSUM-MISMATCH: diagnostics.json"}
+{"mode":"dense_scrutiny","label":"one class finding removed","with_source":true,"verdict":"SN-PRECISION-WITNESS-BINDING-MISMATCH"}
+{"mode":"dense_scrutiny","label":"contract_evidence removed","with_source":false,"verdict":"SN-PRECISION-CONTRACT-MISMATCH"}
+{"mode":"dense_scrutiny","label":"contract_evidence removed","with_source":true,"verdict":"SN-PHYSICAL-EVIDENCE-MISMATCH"}
+{"mode":"dense_scrutiny","label":"semantic table relabelled to preview-physics-1","with_source":false,"verdict":"SN-PRECISION-CONTRACT-MISMATCH"}
+{"mode":"dense_scrutiny","label":"semantic table relabelled to preview-physics-1","with_source":true,"verdict":"SN-PRECISION-SOURCE-METADATA-MISMATCH"}

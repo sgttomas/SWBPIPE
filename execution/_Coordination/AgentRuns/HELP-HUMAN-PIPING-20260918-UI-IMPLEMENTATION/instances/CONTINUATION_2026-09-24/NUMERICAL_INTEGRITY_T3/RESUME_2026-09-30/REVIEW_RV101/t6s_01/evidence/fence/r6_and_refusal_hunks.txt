@@ -1,0 +1,25 @@
+# RV101: R-6, the whole diff of knownSemanticLimitations.ts
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/knownSemanticLimitations.ts b/projects/chirality-piping/apps/desktop/src/features/results/knownSemanticLimitations.ts
+index f0d8671a2b..f79f9a54b0 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/results/knownSemanticLimitations.ts
++++ b/projects/chirality-piping/apps/desktop/src/features/results/knownSemanticLimitations.ts
+@@ -58,7 +58,8 @@ export const N_RP_UNVALIDATED = "Retained-precision accuracy classes are unavail
+ /** The SI unit the reader normalizes a row's unit to, and so the unit the receipt's
+  * absolute bound b is published in. The same table as Rust `derivative::si_unit`
+  * (RV88 U6a S-2): m and mm to m, rad, N and kN to N, N*m and kN*m to N*m, Pa and MPa
+- * to Pa. TS emits only this display label, never the derivative's disclosure message. */
++ * to Pa. This module emits only this display label; the derivative's disclosure message
++ * is T6S's, in `retainedPrecisionDisclosure.ts` (result JSON and stress-neutral exports). */
+ const RETAINED_SI_UNIT: Readonly<Record<string, string>> = Object.freeze({ m: "m", mm: "m", rad: "rad", N: "N", kN: "N", "N*m": "N*m", "kN*m": "N*m", Pa: "Pa", MPa: "Pa" });
+ /** b with three significant digits, rounded upward: the printed bound is never below b. */
+ export function upwardBoundText(b: number): string {
+# hunks of retainedPrecisionOutputRefusal.test.tsx
+@@ -2,5 +2,13 @@
+@@ -30,0 +39 @@ import { RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_VALIDATI
+@@ -34 +43 @@ import { buildStressNeutralExportPacket, validateStressNeutralExportPacket, Stre
+@@ -155,5 +164,10 @@ describe.each(MODES)("%s: stress-neutral, result export and the report package k
+@@ -161,3 +175,4 @@ describe.each(MODES)("%s: stress-neutral, result export and the report package k
+@@ -168 +183 @@ describe.each(MODES)("%s: stress-neutral, result export and the report package k
+@@ -170,3 +185,8 @@ describe.each(MODES)("%s: stress-neutral, result export and the report package k
+@@ -174,2 +194,5 @@ describe.each(MODES)("%s: stress-neutral, result export and the report package k
+@@ -177 +200,2 @@ describe.each(MODES)("%s: stress-neutral, result export and the report package k

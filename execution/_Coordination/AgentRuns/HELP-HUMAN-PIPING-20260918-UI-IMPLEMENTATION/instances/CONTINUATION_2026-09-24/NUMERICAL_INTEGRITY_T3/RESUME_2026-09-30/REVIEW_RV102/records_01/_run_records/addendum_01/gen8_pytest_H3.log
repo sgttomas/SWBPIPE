@@ -1,0 +1,14 @@
+head 93d15f1bd36daedf49b5ab3977b2bab4fa99d4d2
+checkout: WT/records-pr, ROOT's PR checkout, read-only
+status entries before: 0
+command: VENV -m pytest -q -p no:cacheprovider -rA tools/practitioner_harness/test_live_baseline.py -k gen8 (PYTHONDONTWRITEBYTECODE=1, GIT_OPTIONAL_LOCKS=0, TMPDIR=WT/scratch/rv102_records_01/tmp; VENV = repository venv Python 3.13.14, pytest 9.1.1)
+start 2026-10-06T15:34:29Z
+.                                                                        [100%]
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants
+1 passed, 10 deselected in 28.26s
+exit 0 end 2026-10-06T15:34:57Z
+head after 93d15f1bd36daedf49b5ab3977b2bab4fa99d4d2
+status entries after: 0
+ignored entries after: 0

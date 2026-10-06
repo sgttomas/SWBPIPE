@@ -1,0 +1,16 @@
+# RV101 differential (run r4): the same driver in base c1bfc460fc and candidate 2033260c57 copies; entries in strict manifest order in both outputs
+manifest entries 71 non-successor 69 successor 2
+by identity (non-successor): {'load-reference-1': 6, 'source-blocks-1': 15, 'legacy-0.1.0': 7, 'precision-1': 4, 'preview-physics-1': 7, 'load-reference-source-1': 10, 'physics-source-1': 14, 'physics-1': 6}
+identical step outcomes: {'non_successor/bytes': 267, 'non_successor/error': 153, 'non_successor/value': 471, 'successor/error': 2, 'successor/value': 4}
+non-successor differences: 0
+non-successor byte outputs by step: {'analysis_run_preview': 48, 'derive_plain': 50, 'derive_bound': 50, 'analysis_run_v02': 7, 'sn_registered_v02': 7, 'sn_clone_v02': 7, 'sn_registered_preview': 34, 'sn_clone_preview': 34, 'current_result_export': 30}
+DIFF successor fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json#source derive_bound | base ('error', 'RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE: Output of retained-precision results (previe | cand ('bytes', '2e66f6043b8a776ce21b6d1b8cb38389d192f93a4f93646666fb1c69e2ddf85f')
+DIFF successor fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json#source derive_plain | base ('error', 'RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE: Output of retained-precision results (previe | cand ('bytes', '2e66f6043b8a776ce21b6d1b8cb38389d192f93a4f93646666fb1c69e2ddf85f')
+DIFF successor fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json#source shared_refusal | base ('value', '"RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE: Output of retained-precision results (previ | cand ('value', '"RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE: This output of retained-precision results (
+DIFF successor fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json#source validate_bound | base ('absent',) | cand ('value', 'null')
+DIFF successor fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json#source validate_plain | base ('absent',) | cand ('value', 'null')
+DIFF successor fixtures/results/retained_precision_milestone_successor_sparse_interactive.json#source derive_bound | base ('error', 'RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE: Output of retained-precision results (previe | cand ('bytes', '5789da9874a462ede75009a54cbf4c37ea9f93ff390c0e773c74bf21c42787d4')
+DIFF successor fixtures/results/retained_precision_milestone_successor_sparse_interactive.json#source derive_plain | base ('error', 'RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE: Output of retained-precision results (previe | cand ('bytes', '5789da9874a462ede75009a54cbf4c37ea9f93ff390c0e773c74bf21c42787d4')
+DIFF successor fixtures/results/retained_precision_milestone_successor_sparse_interactive.json#source shared_refusal | base ('value', '"RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE: Output of retained-precision results (previ | cand ('value', '"RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE: This output of retained-precision results (
+DIFF successor fixtures/results/retained_precision_milestone_successor_sparse_interactive.json#source validate_bound | base ('absent',) | cand ('value', 'null')
+DIFF successor fixtures/results/retained_precision_milestone_successor_sparse_interactive.json#source validate_plain | base ('absent',) | cand ('value', 'null')
