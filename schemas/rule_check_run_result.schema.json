@@ -89,7 +89,7 @@
         "code": { "type": "string" },
         "severity": {
           "type": "string",
-          "description": "Open string in the Rust type; emitted vocabulary at publication is \"blocking\"."
+          "description": "Open string in the Rust type; emitted vocabulary at publication is \"blocking\". With interval bounds (run_rule_checks_with_bounds, S-I1) the interval outcome findings are also emitted: \"info\" for RULE_INTERVAL_ALL_PASS and RULE_INTERVAL_ALL_FAIL, and \"warning\" for RULE_RESULT_INDETERMINATE and RULE_INTERVAL_DIVIDE_BY_ZERO_RANGE."
         },
         "subject_id": { "type": "string" },
         "message": { "type": "string" }
