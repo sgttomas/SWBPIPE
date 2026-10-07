@@ -1648,6 +1648,12 @@ fn b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping() {
         let counts = |a: &Value| a["adapter"]["counts"].as_array().unwrap().iter().map(|n| n.as_u64().unwrap()).collect::<Vec<_>>();
         let (a_counts, c_counts) = (counts(&attempts[0]), counts(&attempts[1]));
         assert!(c_counts.iter().zip(&a_counts).all(|(c, a)| c <= a) && c_counts[1] < a_counts[1], "{label}: C {c_counts:?} before A {a_counts:?}");
+        // RV109 R3P-8 (S20): the capture's observation capacity is summed over the requested cases
+        // (cumulative snapshots, T-11): its case-id slot holds the three ids' bytes.
+        let ids_bytes: usize = W_C2_IDS.iter().map(|id| id.len()).sum();
+        for attempt in attempts {
+            assert_eq!(attempt["adapter"]["observation_capacity_bytes"][0], json!(ids_bytes), "{label}: every case's id capacity");
+        }
         assert_eq!(attempts[1]["stages"]["native"], "failed", "{label}");
         assert_eq!(attempts[1]["stages"]["proof_start"], "not_entered", "{label}");
         // Staging order: A's selected diagnostic, then C's unavailable one, last.
