@@ -76,6 +76,28 @@ fn witness(label: &str, stack: usize, work: impl FnOnce() -> Ran + Send) -> Ran 
     println!("I65_G5_WITNESS {label} stack={stack} ran={ran:?}");
     ran
 }
+/// B1 ST (T-4; RR "I81's B1-0 probe verified…", ruling 4): a `NoTriggeredCase` pin on the witness
+/// stack. The private driver's work, as `permitted_work` runs it, also hands back the ordinary
+/// owner `retained_w1` returned; the pin asserts the cause and that owner's bytes against the
+/// plain route's (exact bytes: no notice, no W1 work). `input_sha256` is the input's PROBE pin.
+fn no_triggered_case_witness(label: &str, raw: Value, mode: PreviewSolverMode, input_sha256: &str) {
+    use sha2::Digest;
+    assert_eq!(format!("{:x}", sha2::Sha256::digest(serde_json::to_vec(&raw).unwrap())), input_sha256, "{label}: PROBE's input");
+    let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
+    let work = move || {
+        let (request, capture) = CapturedInvocation::parse(raw, mode).expect("a valid request");
+        let mut observer = crate::retained_product::ProductCapture::prepared_probe();
+        let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
+        assert!(ordinary.source_block_recovery.is_none(), "not an exact-selected input");
+        let (envelope, retained) = crate::retained_w1(observer, ordinary, &capture);
+        (retained.err().map(|fallback| format!("{fallback:?}")), envelope)
+    };
+    let (cause, envelope) = crate::on_reserved_stack(WITNESS_STACK, crate::carry_test_hooks(work)).unwrap_or_else(|| panic!("{label}: the reserved thread did not spawn"));
+    let ran = cause.map_or(Ran::Successor, Ran::Fallback);
+    println!("I65_G5_WITNESS {label} stack={WITNESS_STACK} ran={ran:?}");
+    assert_eq!(ran, Ran::Fallback("NoTriggeredCase".into()), "{label}");
+    assert!(serde_json::to_vec(&envelope).unwrap() == plain, "{label}: the exact ordinary bytes");
+}
 
 /// W1 (and W5's dense half): the milestone, both modes: native, proof, serializer and
 /// the precommit reader on the selected W1 path.
@@ -126,11 +148,14 @@ fn witness_w2_deep_milestone_publishes() {
     }
 }
 
-/// W2b: the cap-maximal shape made solvable (one rigid support, 31 scalar springs), so the W1
-/// phases run past preparation at the largest counts.
+/// W2b's input: the cap-maximal shape made solvable (one rigid support, 31 scalar springs). Its
+/// ordinary report passes (`checks_passed`, no W2; R/I81/b1_probe_01 PROBE §2.1), so under T-4 (B1)
+/// A is empty and it pins `NoTriggeredCase` at the largest counts: the exact ordinary bytes and no
+/// W1 work (RR "I81's B1-0 probe verified…", ruling 4). Its former role, the only full native run at
+/// the cap-maximal counts, moves to B1's SQ (W2b's replacement, from the SW probe).
 #[test]
 #[ignore]
-fn witness_w2b_cap_maximal_solvable() {
+fn witness_w2b_cap_maximal_passed_report_no_triggered_case() {
     for mode in MODES {
         let mut raw = super::law_tests::cap_maximal();
         let supports = raw["model"]["supports"].as_array_mut().unwrap();
@@ -144,8 +169,7 @@ fn witness_w2b_cap_maximal_solvable() {
                 support["restraints"] = json!(["UY"]);
             }
         }
-        let ran = witness(&format!("W2b {mode:?}"), WITNESS_STACK, move || permitted_work(raw, mode, |_| {}));
-        assert_eq!(ran, Ran::Fallback("Candidate".into()), "W2b {mode:?}: the full native run, then the candidate refuses");
+        no_triggered_case_witness(&format!("W2b {mode:?}"), raw, mode, "d74d01ce1bc33244796877890ad134dd8476beb059bd82f26f2e004f8af619cb");
     }
 }
 
@@ -174,10 +198,11 @@ fn witness_w4_preparation_refusal() {
     }
 }
 
-/// W6: an in-domain force-scaled (W2) case: PHYS-R4's cantilever (OD 4e-77 m, tip
-/// load about 1e-307) in the legacy namespace, so the ordinary run scales by an exact
-/// power of two (f1b_w2_runtime.rs `phys_r4(false)`, without its pressure contract).
-/// W6's input: PHYS-R4's cantilever in the legacy namespace (force-scaled).
+/// W6's input before B1: PHYS-R4's cantilever (OD 4e-77 m, tip load about 1e-307) in the
+/// legacy namespace, so the ordinary run scales by an exact power of two (f1b_w2_runtime.rs
+/// `phys_r4(false)`, without its pressure contract). It is W2-published with the published
+/// verdict `checks_passed` (R/I81/b1_probe_01 PROBE §2.1), so since B1 it is a `NoTriggeredCase`
+/// pin, and W6's stack witness runs on W-C2's case C.
 pub(super) fn w6_input() -> Value {
     let (a, b) = ("node:section-a", "node:section-b");
     let tip = f64::from_bits(0x0031fa182c40c60d);
@@ -199,17 +224,37 @@ pub(super) fn w6_input() -> Value {
     raw
 }
 
+/// W6: an in-domain force-scaled (W2) case on the native stack path. Since B1 (T-4; RR "I81's
+/// B1-0 probe verified…", ruling 3) its input is W-C2's case C alone (R/I81/b1_probe_01 PROBE
+/// §4–§5): Sensitive and W2-published (b = 518), so W1 runs, and its native run climbs the full
+/// ladder to Unresolved(Ceiling): `Fallback("Native")` in both modes.
 #[test]
 #[ignore]
 fn witness_w6_force_scaled() {
-    let raw = w6_input();
+    let raw = crate::retained_facade_tests::w_c2_case_c();
+    {
+        use sha2::Digest;
+        assert_eq!(format!("{:x}", sha2::Sha256::digest(serde_json::to_vec(&raw).unwrap())), crate::retained_facade_tests::W_C2_CASE_C_INPUT_SHA256, "PROBE §4's case C");
+    }
     let plain = crate::run_linear_static_preview_value_with_mode(raw.clone(), PreviewSolverMode::SparseInteractive).unwrap();
     let scaled = plain.diagnostics.iter().any(|d| d.message.contains("range_scaling: force_scale_exponent=") && !d.message.contains("force_scale_exponent=none"));
     println!("I65_G5_WITNESS_INPUT W6 force_scaled={scaled}");
+    assert!(scaled, "W6: the ordinary run is force-scaled");
     for mode in MODES {
         let raw = raw.clone();
         let ran = witness(&format!("W6 {mode:?}"), WITNESS_STACK, move || permitted_work(raw, mode, |_| {}));
         println!("I65_G5_WITNESS_OUTCOME W6 {mode:?} {ran:?}");
+        assert_eq!(ran, Ran::Fallback("Native".into()), "W6 {mode:?}: case C's full native ladder, then Native");
+    }
+}
+
+/// B1 ST (T-4; RR "I81's B1-0 probe verified…", ruling 4): PHYS-R4's cantilever (`w6_input()`),
+/// W6's input before B1, pins `NoTriggeredCase` on the witness stack in both modes.
+#[test]
+#[ignore]
+fn witness_w6_phys_r4_input_no_triggered_case() {
+    for mode in MODES {
+        no_triggered_case_witness(&format!("W6-PHYS-R4 {mode:?}"), w6_input(), mode, "19a424c5ff064fa0010bcbb95b437e87092605e322f405e8252066995795e8f5");
     }
 }
 

@@ -2366,6 +2366,11 @@ pub(super) struct LateFacts<'a> {
 pub(super) struct CompleteFacts<'a> {
     pub(super) ordinary: &'a crate::MechanicsEnvelope,
     pub(super) capture: &'a crate::retained_product::ProductCapture,
+    /// B1 seam (PLAN_v2 §2.1; RV107 SF-4): the typed request's `model.load_cases.len()`,
+    /// which `permitted_run` reads before the request moves into the observed run. T-3
+    /// (e)'s requested count; no G-C fact reads it until B1's SA.
+    #[allow(dead_code)]
+    pub(super) requested_cases: usize,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum PhaseGate {

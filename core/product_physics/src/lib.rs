@@ -2221,6 +2221,11 @@ pub(crate) enum W1Fallback {
     Serializer(retained_wire::ReceiptFailure),
     /// Precommit validation (decision 5): the accepted Rust reader's first failure.
     Precommit { gate: &'static str, code: String },
+    /// T-4 (B0 DESIGN_v2 §1.2; decisions 1 and 21): no requested case is in A. Each is
+    /// `not_required` by its published verdict, or excluded by DN §4.3, so W1 does not
+    /// start: the exact ordinary bytes, no notice and no reservation. Distinct from
+    /// `LegacySeed::NotRequired` and from the receipt's `not_required` disposition.
+    NoTriggeredCase,
     /// R-2: the notice's space could not be reserved, so W1 did not start.
     NoticeReservation,
     /// Fail-closed guard: the permitted observer no longer held its permit at G-C
@@ -2988,6 +2993,9 @@ fn permitted_run(
         return ordinary_dispatch(request, capture, solver_mode, Some(report), Some(Err(W1Fallback::Domain)));
     }
     let mut budget = SourceRecoveryBudget::default();
+    // B1 seam (PLAN_v2 §2.1; RV107 SF-4): T-3 (e)'s requested count, read before the
+    // request moves into the observed run. G-C carries it; no G-C fact reads it yet.
+    let requested_cases = request.model.load_cases.len();
     // The permit moves into the observer, which checks G-B with it.
     let mut observer = retained_product::ProductCapture::permitted_probe(permit);
     let ordinary = run_linear_static_preview_observed(request, solver_mode, Some(capture), &mut budget, Some(&mut observer));
@@ -3003,7 +3011,7 @@ fn permitted_run(
         (ordinary, Err(W1Fallback::LateGate(refusal)))
     } else {
         #[cfg(test)] retained_tests_hooks::at_complete_gate(&mut observer); // G-C, with the observer's own permit.
-        match observer.permit().map(|permit| permit.check_complete(&retained_memory::CompleteFacts { ordinary: &ordinary, capture: &observer })) {
+        match observer.permit().map(|permit| permit.check_complete(&retained_memory::CompleteFacts { ordinary: &ordinary, capture: &observer, requested_cases })) {
             Some(Ok(())) => retained_w1(observer, ordinary, capture),
             Some(Err(refusal)) => (ordinary, Err(W1Fallback::CompleteGate(refusal))),
             None => (ordinary, Err(W1Fallback::PermitUnbound)),
@@ -3093,8 +3101,62 @@ fn w1_case_id(capture: &source_receipt::CapturedInvocation) -> Option<&str> {
     }
 }
 
+/// T-4 (B0 DESIGN_v2 §1.2; decisions 1 and 21): one requested case's W1 trigger class.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum CaseTrigger {
+    /// Its published verdict is `checks_passed`: no product attempt and no notice.
+    NotRequired,
+    /// DN §4.3 (decision 21): an ordinary Mechanism, Asymmetric or InvalidInput failure
+    /// that W2 did not publish. No product attempt and no notice; it stays an ordinary
+    /// failed case.
+    Excluded,
+    /// In A: W1 attempts the case. Every other verdict, an absent quality entry, and a
+    /// case with no seed (RR "I81's B1-0 probe verified…", ruling 2).
+    Attempted,
+}
+
+/// T-4's classifier over the requested case ids, in request order (n cases; D1.4
+/// admits one until B1's SA). A case's published verdict is the one
+/// `numerical_quality.cases[]` entry whose `basis_ref.ref_id` is the case id, never an
+/// entry found by position (as `ordinary_value` binds it); its seed is the one seed
+/// whose `case` is the case id. An entry or a seed that is absent, or not unique, is
+/// absent: such a case is in A unless its verdict is `checks_passed`.
+fn case_triggers<'a>(
+    quality: &'a NumericalQuality,
+    seeds: &'a [retained_product::OrdinarySeed],
+    case_ids: &'a [&'a str],
+) -> impl Iterator<Item = CaseTrigger> + 'a {
+    case_ids.iter().map(move |&case_id| {
+        let verdict = only_one(quality.cases.iter().filter(|entry| entry.basis_ref.ref_id == case_id)).map(|entry| entry.solve_quality);
+        let seed = only_one(seeds.iter().filter(|seed| seed.case == case_id));
+        if verdict == Some(NumericalQualityStatus::ChecksPassed) {
+            CaseTrigger::NotRequired
+        } else if seed.is_some_and(dn_trigger_excluded) {
+            CaseTrigger::Excluded
+        } else {
+            CaseTrigger::Attempted
+        }
+    })
+}
+
+/// The one item, or `None` when there is none or more than one.
+fn only_one<T>(mut items: impl Iterator<Item = T>) -> Option<T> {
+    match (items.next(), items.next()) {
+        (Some(item), None) => Some(item),
+        _ => None,
+    }
+}
+
+/// Decision 21 (DN §4.3): the trigger never fires for an ordinary attempt that failed
+/// as a Mechanism, Asymmetric or InvalidInput, unless W2 published the case.
+fn dn_trigger_excluded(seed: &retained_product::OrdinarySeed) -> bool {
+    matches!(&seed.initial, Some(retained_product::InitialSeed::StructuralFailure {
+        error: StructuralError::Mechanism { .. } | StructuralError::Asymmetric { .. } | StructuralError::InvalidInput(_), ..
+    })) && !matches!(seed.w2, retained_product::W2Seed::Published { .. })
+}
+
 /// U3: the W1 phases over the single actual ordinary run's capture: coexistence,
-/// G-B's outcome, the notice reservation, preparation, native, proof (the frozen
+/// G-B's outcome, T-4's trigger (B1), the notice reservation, preparation, native, proof (the frozen
 /// candidate), staging, serialization, precommit validation and the transfer. The
 /// ordinary envelope's bytes are never changed by W1: it returns on every fallback
 /// (D-b), with R-2's notice appended when W1 work ran, and beside the successor on
@@ -3114,6 +3176,11 @@ fn retained_w1(
     let Some(case_id) = w1_case_id(capture) else {
         return (ordinary, Err(W1Fallback::Domain));
     };
+    // T-4 (decisions 1 and 21): W1 attempts only the cases in A. With A empty, the exact
+    // ordinary bytes: no notice, and nothing reserved.
+    if !case_triggers(&ordinary.numerical_quality, &observer.ordinary, &[case_id]).any(|trigger| trigger == CaseTrigger::Attempted) {
+        return (ordinary, Err(W1Fallback::NoTriggeredCase));
+    }
     // R-2: the notice's space is reserved before any W1 work starts.
     let Some(notice) = ReservedNotice::reserve(&mut ordinary, case_id) else {
         return (ordinary, Err(W1Fallback::NoticeReservation));

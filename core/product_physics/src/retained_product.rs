@@ -144,6 +144,11 @@ pub(super) struct ProductCapture {
     /// and G-B's refusal if the late gate refused (the late capture is then skipped).
     permit: Option<super::retained_memory::CapturePermit>,
     late_refusal: Option<super::retained_memory::PhaseRefusal>,
+    /// B1 seam (PLAN_v2 §2.1; RV107 SF-4): the running total of the requested cases'
+    /// primitive loads at the late capture, added immediately before G-B, so that G-B at
+    /// case k sees the sum over cases 0..=k. It records no adapter event (RV107 A1-N-2):
+    /// the adapter's counts are receipt bytes. Nothing reads it until B1's SA (G-B's total).
+    pub late_loads_total: usize,
 }
 /// G-b/G-l (I61 U1): one case's ordinary attempt as the route actually ran it.
 /// Diagnostic references are the ids of the diagnostics actually pushed; no
@@ -3242,6 +3247,11 @@ impl ProductCapture {
         // U3, G-B (I51 COMPOSITION §2): immediately before the late old-source
         // capture. A refusal skips the capture; the ordinary solve is unaffected.
         if let Some(permit)=self.permit.as_ref() { #[cfg(test)] crate::retained_tests_hooks::before_late_gate(&*self);
+            // B1 seam: G-B's running load total, checked, with no adapter event.
+            match self.late_loads_total.checked_add(case.primitive_loads.len()) {
+                Some(total)=>self.late_loads_total=total,
+                None=>{self.error=Some(CaptureError::CountRange("late loads total"));return;}
+            }
             let facts=super::retained_memory::LateFacts{model,built,materials,case,restrained,springs,capture:&*self};
             if let Err(refusal)=permit.check_late(&facts) {self.late_refusal=Some(refusal);return;}
         }

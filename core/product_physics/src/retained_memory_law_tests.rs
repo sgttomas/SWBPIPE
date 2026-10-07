@@ -807,7 +807,7 @@ fn complete_observations_of_milestone() -> [PhaseObservation; COMPLETE_FACTS] {
     let (request, capture) = CapturedInvocation::parse(raw, mode).unwrap();
     let mut observer = crate::retained_product::ProductCapture::prepared_probe();
     let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::SourceRecoveryBudget::default(), Some(&mut observer));
-    complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &observer })
+    complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &observer, requested_cases: 1 })
 }
 
 #[test]
@@ -817,7 +817,7 @@ fn complete_facts_read_the_actual_owners() {
         let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
         let mut observer = crate::retained_product::ProductCapture::prepared_probe();
         let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::SourceRecoveryBudget::default(), Some(&mut observer));
-        let o = complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &observer });
+        let o = complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &observer, requested_cases: 1 });
         let get = |fact| o.iter().find(|x| x.fact == fact).unwrap().observed;
         assert_eq!(get(PhaseFact::EnvelopeResults), ordinary.results.len() as u64);
         assert_eq!(get(PhaseFact::EnvelopeDiagnostics), ordinary.diagnostics.len() as u64);
@@ -852,7 +852,7 @@ fn complete_facts_read_the_actual_owners() {
         // A source-block recovery present at G-C is observed (permitted_run checks it first).
         let mut selected = ordinary.clone();
         selected.source_block_recovery = Some(json!({}));
-        let s = complete_observations(&CompleteFacts { ordinary: &selected, capture: &observer });
+        let s = complete_observations(&CompleteFacts { ordinary: &selected, capture: &observer, requested_cases: 1 });
         assert_eq!(s.iter().find(|x| x.fact == PhaseFact::SourceBlockRecovery).unwrap().observed, 1);
         // An incomplete preview-tree census is observed as such.
         let mut deep = ordinary.clone();
@@ -861,13 +861,13 @@ fn complete_facts_read_the_actual_owners() {
             v = Value::Array(vec![v]);
         }
         deep.contract_evidence = Some(v);
-        let d = complete_observations(&CompleteFacts { ordinary: &deep, capture: &observer });
+        let d = complete_observations(&CompleteFacts { ordinary: &deep, capture: &observer, requested_cases: 1 });
         assert_eq!(d.iter().find(|x| x.fact == PhaseFact::ContractEvidenceStatus).unwrap().observed, 1);
         // An association error's text is retained error text (C-N4).
         let mut failed = crate::retained_product::ProductCapture::prepared_probe();
         failed.error = Some(crate::retained_product::CaptureError::Association(String::with_capacity(40)));
         failed.observable_error = Some(crate::retained_product::CaptureError::Association(String::with_capacity(9)));
-        let e = complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &failed });
+        let e = complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &failed, requested_cases: 1 });
         assert_eq!(e.iter().find(|x| x.fact == PhaseFact::RetainedErrorTextBytes).unwrap().observed, 49);
         assert_eq!(get(PhaseFact::SourceBlockRecovery), 0);
         assert_eq!(get(PhaseFact::ContractEvidenceStatus), 0);
@@ -1203,7 +1203,7 @@ fn gate_sums_saturate_and_the_longest_string_reads_every_diagnostic_field() {
         let mut e = ordinary.clone();
         change(e.diagnostics.last_mut().unwrap());
         assert_eq!(longest_string(&e), long, "{label}");
-        let o = complete_observations(&CompleteFacts { ordinary: &e, capture: &observer });
+        let o = complete_observations(&CompleteFacts { ordinary: &e, capture: &observer, requested_cases: 1 });
         assert_eq!(o.iter().find(|x| x.fact == PhaseFact::EnvelopeMaxStringBytes).unwrap().observed, long as u64, "{label}");
     }
 }
@@ -1340,7 +1340,7 @@ fn g_c_declines_w1_when_the_ordinary_solve_was_not_attempted() {
                     assert!(matches!(observer.ordinary[0].initial, Some(crate::retained_product::InitialSeed::FormationFailure { .. })),
                         "{label} {mode:?}: the seed is F1b's FormationFailure, got {:?}", observer.ordinary[0].initial);
                 }
-                let o = complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &observer });
+                let o = complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &observer, requested_cases: 1 });
                 let fact = o.iter().find(|x| x.fact == PhaseFact::OrdinarySolveNotAttempted).unwrap();
                 assert_eq!(fact.observed, u64::from(!attempted), "{label} {mode:?}");
                 let checked = check_phase(PhaseGate::Complete, &o, &caps);

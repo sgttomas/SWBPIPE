@@ -51,6 +51,23 @@ fn with_notice(plain: &[u8], case: &str, detail: Option<&str>) -> Vec<u8> {
     let sep = if items.is_empty() { "" } else { "," };
     format!(r#"{head}"diagnostics":[{items}{sep}{}{rest}"#, notice_json(case, detail)).into_bytes()
 }
+/// B1 (PLAN_v2 §2.1; RV107 SF-2): an out-of-domain oracle's request, `raw` with C + 1 load
+/// cases (`caps::LOAD_CASES` + 1). Each added case copies the first. With `renamed` the
+/// copies take the ids `case-2`, `case-3`, …; otherwise they keep the first case's id, as
+/// each oracle built its second case before B1. While C = 1 (before SA) this is the same
+/// two-case request as before.
+fn beyond_load_cases(raw: &Value, renamed: bool) -> Value {
+    let mut over = raw.clone();
+    let first = over["model"]["load_cases"][0].clone();
+    for ordinal in 2..=crate::retained_memory::caps::LOAD_CASES + 1 {
+        let mut case = first.clone();
+        if renamed {
+            case["id"] = json!(format!("case-{ordinal}"));
+        }
+        over["model"]["load_cases"].as_array_mut().unwrap().push(case);
+    }
+    over
+}
 
 /// Control 2: the permitted path publishes U1's pinned successor bytes, in both
 /// modes, through the frozen candidate and its staging copy; the ordinary
@@ -168,16 +185,13 @@ fn u3_each_stage_fault_falls_back_to_the_ordinary_bytes() {
     let (envelope, retained) = retained_w1(observer, ordinary, &capture);
     assert_eq!(retained.err(), Some(W1Fallback::NoticeReservation));
     check(&envelope, &marked, "notice reservation");
-    // No W1 work ran: an invocation outside D1.4 (two load cases).
-    let mut two = raw.clone();
-    let mut second = two["model"]["load_cases"][0].clone();
-    second["id"] = json!("case-2");
-    two["model"]["load_cases"].as_array_mut().unwrap().push(second);
-    let (capture, observer, ordinary) = observed(mode, &two);
-    let two_plain = serde_json::to_vec(&ordinary).unwrap();
+    // No W1 work ran: an invocation outside D1.4 (C + 1 load cases).
+    let over = beyond_load_cases(&raw, true);
+    let (capture, observer, ordinary) = observed(mode, &over);
+    let over_plain = serde_json::to_vec(&ordinary).unwrap();
     let (envelope, retained) = retained_w1(observer, ordinary, &capture);
-    assert_eq!(retained.err(), Some(W1Fallback::Domain), "outside D1.4");
-    check(&envelope, &two_plain, "two cases");
+    assert_eq!(retained.err(), Some(W1Fallback::Domain), "C + 1 cases: outside D1.4");
+    check(&envelope, &over_plain, "C + 1 cases");
     // No W1 work ran: one case with a combination (also outside D1.4).
     let mut combined = raw.clone();
     combined["model"]["combinations"] = json!([{"id":"combo","basis":"mechanics","terms":[{"load_case":"case","factor":1.0}]}]);
@@ -207,14 +221,12 @@ fn u3_r2_notice_bytes_are_pinned() {
 
 /// Control 1: with no permit both retained entries and the shared route are the
 /// unchanged ordinary route, with no W1 result. G6: a profile is registered, so the
-/// control uses the milestone made out of D1 (a second load case, D1.4), which no build
+/// control uses the milestone made out of D1 (C + 1 load cases, D1.4), which no build
 /// admits.
 #[test]
 fn u3_no_permit_entries_are_the_ordinary_route() {
     for mode in MODES {
-        let mut raw = raw();
-        let case = raw["model"]["load_cases"][0].clone();
-        raw["model"]["load_cases"].as_array_mut().unwrap().push(case);
+        let raw = beyond_load_cases(&raw(), false);
         let plain = plain(mode, &raw);
         let direct = run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
         assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain);
@@ -650,16 +662,13 @@ fn u3g2_direct_entry_no_w1_refusals_keep_exact_bytes() {
     for mode in MODES {
         let milestone = raw();
         let plain_milestone = plain(mode, &milestone);
-        // G-A: outside D1 (D1.4: a second load case; a combination; D1.3: another namespace).
-        let mut two = milestone.clone();
-        let mut second = two["model"]["load_cases"][0].clone();
-        second["id"] = json!("case-2");
-        two["model"]["load_cases"].as_array_mut().unwrap().push(second);
+        // G-A: outside D1 (D1.4: C + 1 load cases; a combination; D1.3: another namespace).
+        let over = beyond_load_cases(&milestone, true);
         let mut combined = milestone.clone();
         combined["model"]["combinations"] = json!([{"id":"combo","basis":"mechanics","terms":[{"load_case":"case","factor":1.0}]}]);
         let mut namespace = milestone.clone();
         namespace["model"]["schema_version"] = json!("0.3.0");
-        for (label, raw, clause) in [("two cases", &two, D1Clause::Invocation), ("combination", &combined, D1Clause::Invocation),
+        for (label, raw, clause) in [("C + 1 cases", &over, D1Clause::Invocation), ("combination", &combined, D1Clause::Invocation),
             ("namespace", &namespace, D1Clause::Namespace)] {
             let plain = plain(mode, raw);
             let (output, counts) = direct(raw, mode);
@@ -773,13 +782,12 @@ fn u3g2_late_gate_refusal_is_final_and_g_c_is_not_consulted() {
 /// or borrowed).
 #[test]
 fn u3g2_no_permit_path_runs_once_without_a_copy() {
-    let mut two = raw();
-    let case = two["model"]["load_cases"][0].clone();
-    two["model"]["load_cases"].as_array_mut().unwrap().push(case);
+    // Out of D1 (D1.4): C + 1 load cases.
+    let over = beyond_load_cases(&raw(), false);
     for mode in MODES {
-        let shared = hooks::counted(|| run_linear_static_preview_value_with_mode(two.clone(), mode).unwrap());
+        let shared = hooks::counted(|| run_linear_static_preview_value_with_mode(over.clone(), mode).unwrap());
         assert_eq!(shared.1, ONE_RUN, "{mode:?}: the shared value route");
-        let (output, counts) = direct(&two, mode);
+        let (output, counts) = direct(&over, mode);
         assert!(output.retained().is_none() && output.admission().unwrap().law().refusal.is_some());
         assert_eq!(counts, ONE_RUN, "{mode:?}: the refused Direct entry");
         assert_eq!(serde_json::to_vec(output.envelope()).unwrap(), serde_json::to_vec(&shared.0).unwrap());
@@ -829,11 +837,13 @@ fn u3g2_d_u6_5_carrier_fixtures_are_the_live_successors() {
 // ---- U8 (I68): producer-solved witnesses from real D1 inputs ------------------------------
 //
 // RR "I61's U8 plan ruled…" and "I68's probe verified…" (R/I68/u8_probe_01). Real inputs, no
-// hooks: RV93 N-5's Candidate and Preparation fallbacks, W-C1's Native fallback (two-body case B;
-// its kernel reason, Unresolved(Ceiling), is recorded by the U8-0 probe and not asserted here),
-// and the L = 0 base, whose successor is pinned and copied to the corpus fixtures (D-U6-5).
+// hooks: RV93 N-5's Candidate and Preparation fallbacks, W-C1's Native fallback (since B1, W-C2's
+// case C; its kernel reason, Unresolved(Ceiling), is recorded by the B1-0 probe, R/I81/b1_probe_01,
+// and not asserted here), and the L = 0 base, whose successor is pinned and copied to the corpus
+// fixtures (D-U6-5). B1 (T-4): two-body case B, W-C1's input before B1, is a `NoTriggeredCase` pin.
 
-/// RV93 N-5's Candidate input (zz_rv93.rs:292–315): the milestone with only its first load.
+/// RV93 N-5's Candidate input (RV93's probe, `zz_rv93_input_fallbacks`): the milestone with only
+/// its first load.
 fn u8_first_load_only() -> Value {
     let mut raw = raw();
     let first = raw["model"]["load_cases"][0]["primitive_loads"][0].clone();
@@ -848,8 +858,8 @@ fn u8_tiny_spring() -> Value {
     raw
 }
 /// W-C2's two-body model (PLAN §1.3) with case A's loads: the milestone body (body 0) and its
-/// three moments, plus PHYS-R4's cantilever as body 1 (W6's body, retained_memory_witness_tests.rs
-/// :181–199, moved to x = 5..6 so that no node coincides with N0), unloaded.
+/// three moments, plus PHYS-R4's cantilever as body 1 (W6's body, `w6_input()` in
+/// retained_memory_witness_tests.rs, moved to x = 5..6 so that no node coincides with N0), unloaded.
 fn u8_two_body_case_a() -> Value {
     let mut raw = raw();
     let p = "invented_t3_g5_witness_input_no_library_data";
@@ -867,8 +877,9 @@ fn u8_two_body_case_a() -> Value {
         "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": p}));
     raw
 }
-/// W-C1's input (RR "I68's probe verified…"): two-body case B, with W6's tip force and tip torque
-/// on body 1 only. The kernel ends Unresolved(Ceiling), so W1 falls back at Native.
+/// Two-body case B, with W6's tip force and tip torque on body 1 only: W-C1's input before B1
+/// (RR "I68's probe verified…"). It is W2-published with the published verdict `checks_passed`
+/// (R/I81/b1_probe_01 PROBE §2.3), so under T-4 it is `not_required`: B1's `NoTriggeredCase` pin.
 fn u8_two_body_case_b() -> Value {
     let mut raw = u8_two_body_case_a();
     let (tip, p) = (f64::from_bits(0x0031fa182c40c60d), "invented_t3_g5_witness_input_no_library_data");
@@ -879,6 +890,19 @@ fn u8_two_body_case_b() -> Value {
             "dimension": "moment", "magnitude": {"value": tip, "unit": "N*m"}, "provenance": p}]);
     raw
 }
+/// W-C2's case C (B0 DESIGN_v2 §1.4; R/I81/b1_probe_01 PROBE §4): case A's loads (the milestone's
+/// three moments on body 0) followed by case B's (the tip force and torque on body 1), as one load
+/// case. W-C1's input and W6's stack-witness input since B1 (RR "I81's B1-0 probe verified…",
+/// ruling 3): Sensitive, W2-published (b = 518), and the native run ends Unresolved(Ceiling).
+pub(super) fn w_c2_case_c() -> Value {
+    let mut raw = u8_two_body_case_a();
+    let tip = u8_two_body_case_b()["model"]["load_cases"][0]["primitive_loads"].as_array().unwrap().clone();
+    raw["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().extend(tip);
+    raw
+}
+/// PROBE §4's input sha256 of case C, and PROBE §2.3's of two-body case B (`serde_json::to_vec`).
+pub(super) const W_C2_CASE_C_INPUT_SHA256: &str = "3649b4dcb96ecb9e8a32ee9ae95bddea65648d3d6aff10860785cb95f73306b3";
+const TWO_BODY_B_INPUT_SHA256: &str = "cf688351686bbaff9843052438479a9b5410d0e722245375b1d2aa729f21a406";
 /// The L = 0 base (PLAN §1.2): the milestone plus node N2 at (3, 0, 0), which no member
 /// references, with one rigid support restraining all six DOFs (the milestone's rigid-support
 /// shape, no family). Body 1 is a single node: extent 0.
@@ -893,13 +917,16 @@ fn u8_l0_isolated_node() -> Value {
 /// U8 (RV93 N-5; W-C1): real D1 inputs reach the Candidate, Preparation and Native fallbacks on
 /// the actual Direct entry, with no fault hook. In the registered build each publishes the plain
 /// bytes plus exactly one N1 notice, from one ordinary run that reached G-C once. In any other
-/// build each publishes the plain bytes from one run.
+/// build each publishes the plain bytes from one run. B1 (T-4; RR "I81's B1-0 probe verified…",
+/// ruling 3): W-C1's variant is case C alone, since two-body case B is now `not_required`.
 #[test]
 fn u8_real_input_fallbacks_append_one_notice() {
+    let case_c = w_c2_case_c();
+    assert_eq!(sha(&serde_json::to_vec(&case_c).unwrap()), W_C2_CASE_C_INPUT_SHA256, "PROBE §4's case C");
     let variants = [
         ("first_load_only", u8_first_load_only(), W1Fallback::Candidate),
         ("tiny_spring", u8_tiny_spring(), W1Fallback::Preparation),
-        ("w_c1_two_body_case_b", u8_two_body_case_b(), W1Fallback::Native),
+        ("w_c1_case_c", case_c, W1Fallback::Native),
     ];
     for mode in MODES {
         for (label, raw, cause) in &variants {
@@ -1067,5 +1094,200 @@ fn u8_d_u6_5_l0_fixtures_are_the_live_successors() {
         assert!(u8_l0_document(name, &raw, &successor) == fixture, "{name}: the L = 0 fixture is the live successor document, byte for byte");
         assert_eq!((sha(fixture.as_bytes()).as_str(), successor["retained_precision"]["receipt_sha256"].as_str()), (file_sha, Some(receipt_sha)),
             "{name}: the pinned L = 0 hashes");
+    }
+}
+
+// ---- B1 ST (I85): T-4's per-case trigger, decision 21 and `NoTriggeredCase` ------------------
+//
+// R/I84/b1_plan_01/PLAN_v2.md §2.1 (B0 DESIGN_v2 §1.2, T-4; decisions 1 and 21). The classifier
+// `case_triggers` is pinned on hand-built published verdicts and seeds. Decision 21's branch is
+// pinned only here, because no audited committed input reaches it (R/I81/b1_probe_01 PROBE §3).
+// `NoTriggeredCase` is pinned on real inputs (RR "I81's B1-0 probe verified…", ruling 4).
+
+fn verdict_entry(case: &str, verdict: NumericalQualityStatus) -> NumericalCaseQuality {
+    NumericalCaseQuality {
+        basis_ref: ResultBasisRef { ref_type: "load_case".into(), ref_id: case.into() },
+        structural_status: StructuralStatus::PassiveModelBasis,
+        solve_quality: verdict,
+        model_matrix_fidelity: ModelMatrixFidelity::NotAssessed,
+        accuracy_evidence: AccuracyEvidence::NotClaimed,
+        evidence_refs: Vec::new(),
+    }
+}
+fn quality_of(entries: Vec<NumericalCaseQuality>) -> NumericalQuality {
+    NumericalQuality { cases: entries, ..unassessed_numerical_quality() }
+}
+fn seed_of(case: &str, initial: Option<rp::InitialSeed>, w2: rp::W2Seed) -> rp::OrdinarySeed {
+    rp::OrdinarySeed { case: case.into(), initial, w2, load_row_finding: None, d5_diagnostic_ref: None, recovery_demoted: false, legacy: None }
+}
+fn report_seed(code: &str) -> Option<rp::InitialSeed> {
+    Some(rp::InitialSeed::Report { code: code.into(), report_diagnostic_ref: "diagnostic:numerical-integrity:case".into() })
+}
+fn failure_seed(error: StructuralError) -> Option<rp::InitialSeed> {
+    Some(rp::InitialSeed::StructuralFailure { error, diagnostic_ref: None })
+}
+fn w2_published() -> rp::W2Seed {
+    rp::W2Seed::Published { trigger: RangeTrigger::Evaluation(StructuralError::Range("arithmetic outside normal range")), force_scale_exponent: 518,
+        report_diagnostic_ref: Some("diagnostic:numerical-integrity:case".into()) }
+}
+fn w2_failed() -> rp::W2Seed {
+    rp::W2Seed::Failed { trigger: RangeTrigger::Evaluation(StructuralError::Range("arithmetic outside normal range")),
+        failure: ForceScalingFailure::NotAdmitted { family: "spring", b: 518 }, diagnostic_ref: "diagnostic:numerical-integrity:case".into() }
+}
+fn classified(quality: &NumericalQuality, seeds: &[rp::OrdinarySeed], ids: &[&str]) -> Vec<CaseTrigger> {
+    case_triggers(quality, seeds, ids).collect()
+}
+
+/// T-4's unit tests (PLAN_v2 §2.1's list): each published verdict; W2-published Passed; report
+/// Passed; the verdict, not the seed's `initial`, decides; each excluded tag with and without W2;
+/// the other failure tags; no seed; an entry or seed that is not unique; and quality entries and
+/// seeds out of request order, which the case-id lookup reads correctly.
+#[test]
+fn b1_t4_classifier_reads_the_published_verdict_by_case_id() {
+    use CaseTrigger::{Attempted, Excluded, NotRequired};
+    use NumericalQualityStatus as V;
+    let one = |verdict: Option<V>, seed: Option<rp::OrdinarySeed>| {
+        let quality = quality_of(verdict.map(|v| verdict_entry("case", v)).into_iter().collect());
+        let seeds: Vec<rp::OrdinarySeed> = seed.into_iter().collect();
+        let got = classified(&quality, &seeds, &["case"]);
+        assert_eq!(got.len(), 1, "one class per requested case");
+        got[0]
+    };
+    // Each verdict, with the report seed that verdict comes from.
+    for (verdict, code, expected) in [(V::ChecksPassed, "NUMERICAL_INTEGRITY_CHECKS_PASSED", NotRequired), (V::Sensitive, "NUMERICAL_INTEGRITY_SENSITIVE", Attempted),
+        (V::NotAssessed, "NUMERICAL_INTEGRITY_SENSITIVE", Attempted), (V::Unresolved, "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED", Attempted),
+        (V::Failed, "NUMERICAL_INTEGRITY_FAILED", Attempted)] {
+        assert_eq!(one(Some(verdict), Some(seed_of("case", report_seed(code), rp::W2Seed::NotTriggered))), expected, "{verdict:?}");
+    }
+    // W2-published Passed (W6's and two-body B's shape): not_required, though its initial attempt failed.
+    assert_eq!(one(Some(V::ChecksPassed), Some(seed_of("case", failure_seed(StructuralError::Range("arithmetic outside normal range")), w2_published()))), NotRequired,
+        "W2-published Passed");
+    // Report Passed (W2b's shape).
+    assert_eq!(one(Some(V::ChecksPassed), Some(seed_of("case", report_seed("NUMERICAL_INTEGRITY_CHECKS_PASSED"), rp::W2Seed::NotTriggered))), NotRequired,
+        "report Passed");
+    // The published verdict decides, not the seed's initial outcome (R-b′ demotes the verdict after the report).
+    let mut demoted = seed_of("case", report_seed("NUMERICAL_INTEGRITY_CHECKS_PASSED"), rp::W2Seed::NotTriggered);
+    demoted.recovery_demoted = true;
+    assert_eq!(one(Some(V::Sensitive), Some(demoted)), Attempted, "a report-Passed seed under a Sensitive verdict");
+    // Decision 21: each excluded tag, without W2 (not triggered, or failed), and with W2 published.
+    let excluded_tags = || [StructuralError::Mechanism { direction: vec![1.0, 0.0] }, StructuralError::Asymmetric { row: 0, col: 1, relative_skew: 1e-3 },
+        StructuralError::InvalidInput("invalid structural input")];
+    for error in excluded_tags() {
+        for verdict in [Some(V::Failed), Some(V::Unresolved), Some(V::NotAssessed), None] {
+            assert_eq!(one(verdict, Some(seed_of("case", failure_seed(error.clone()), rp::W2Seed::NotTriggered))), Excluded, "{error:?} {verdict:?}, no W2");
+            assert_eq!(one(verdict, Some(seed_of("case", failure_seed(error.clone()), w2_failed()))), Excluded, "{error:?} {verdict:?}, W2 failed");
+            assert_eq!(one(verdict, Some(seed_of("case", failure_seed(error.clone()), w2_published()))), Attempted, "{error:?} {verdict:?}, W2 published");
+        }
+        // A Passed verdict is not_required whatever the seed says.
+        assert_eq!(one(Some(V::ChecksPassed), Some(seed_of("case", failure_seed(error.clone()), rp::W2Seed::NotTriggered))), NotRequired, "{error:?} Passed");
+    }
+    // The other attempted failures stay in A (tiny_spring's NumericallyUnresolved among them; PROBE §3).
+    for initial in [failure_seed(StructuralError::Range("arithmetic outside normal range")),
+        failure_seed(StructuralError::NumericallyUnresolved { reason: "positive diagonal contribution absorbed by assembly; stabilization unresolved", global_dof: Some(3) }),
+        failure_seed(StructuralError::NegativeEnergy { direction: vec![1.0], energy: -1.0, allowance: 0.0 }),
+        Some(rp::InitialSeed::FormationFailure { error: FrameKernelError::NumericalRange { name: "12EIy/L^3: (12*E)*Iy" } }),
+        None] {
+        for w2 in [rp::W2Seed::NotTriggered, w2_failed()] {
+            assert_eq!(one(Some(V::Unresolved), Some(seed_of("case", initial.clone(), w2))), Attempted, "{initial:?}");
+        }
+    }
+    // No seed (W2's witness on the private driver: `not_assessed`, never attempted): in A
+    // (RR "I81's B1-0 probe verified…", ruling 2), and with no quality entry either.
+    assert_eq!(one(Some(V::NotAssessed), None), Attempted, "no seed");
+    assert_eq!(one(Some(V::Failed), None), Attempted, "no seed, Failed");
+    assert_eq!(one(None, None), Attempted, "no entry and no seed");
+    // An entry or a seed that is not unique is absent.
+    let doubled = quality_of(vec![verdict_entry("case", V::ChecksPassed), verdict_entry("case", V::ChecksPassed)]);
+    assert_eq!(classified(&doubled, &[], &["case"]), [Attempted], "two entries for one case");
+    let mechanism = || seed_of("case", failure_seed(StructuralError::Mechanism { direction: vec![1.0] }), rp::W2Seed::NotTriggered);
+    assert_eq!(classified(&quality_of(vec![verdict_entry("case", V::Failed)]), &[mechanism(), mechanism()], &["case"]), [Attempted], "two seeds for one case");
+    // Request order a, b, c, d; quality entries and seeds in other orders. Positions would read
+    // c's verdict for a, a's for b and b's for c.
+    let quality = quality_of(vec![verdict_entry("c", V::ChecksPassed), verdict_entry("a", V::Sensitive), verdict_entry("b", V::ChecksPassed), verdict_entry("d", V::Failed)]);
+    let seeds = [
+        seed_of("d", failure_seed(StructuralError::Mechanism { direction: vec![0.0, 1.0] }), rp::W2Seed::NotTriggered),
+        seed_of("b", report_seed("NUMERICAL_INTEGRITY_CHECKS_PASSED"), rp::W2Seed::NotTriggered),
+        seed_of("c", failure_seed(StructuralError::Range("arithmetic outside normal range")), w2_published()),
+        seed_of("a", report_seed("NUMERICAL_INTEGRITY_SENSITIVE"), rp::W2Seed::NotTriggered),
+    ];
+    assert_eq!(classified(&quality, &seeds, &["a", "b", "c", "d"]), [Attempted, NotRequired, NotRequired, Excluded], "request order, looked up by id");
+    assert_eq!(classified(&quality, &seeds, &["d", "c", "b", "a"]), [Excluded, NotRequired, NotRequired, Attempted], "another request order");
+    assert_eq!(classified(&quality, &seeds, &[]), Vec::<CaseTrigger>::new(), "no requested case");
+}
+
+/// B1 ST (T-4; RR "I81's B1-0 probe verified…", ruling 4): two-body case B is W2-published with
+/// the published verdict `checks_passed` (PROBE §2.3), so it is `not_required` and A is empty:
+/// `NoTriggeredCase`. On the private driver, in every build, `retained_w1` returns that cause with
+/// the ordinary owner untouched and no W1 stage entered. On the actual Direct entry in the
+/// registered build it publishes the exact ordinary bytes, with no notice and no W1 work, from one
+/// ordinary run that reached G-C once; in any other build, the plain bytes from one run.
+#[test]
+fn b1_t4_two_body_case_b_is_a_no_triggered_case_pin() {
+    let raw = u8_two_body_case_b();
+    assert_eq!(sha(&serde_json::to_vec(&raw).unwrap()), TWO_BODY_B_INPUT_SHA256, "PROBE §2.3's two-body case B");
+    for mode in MODES {
+        let plain = plain(mode, &raw);
+        // The private driver. The native-stage fault is a sentinel: it fires only if W1 reaches native.
+        let (capture, observer, ordinary) = observed(mode, &raw);
+        assert_eq!(serde_json::to_vec(&ordinary).unwrap(), plain, "{mode:?}: the observed run is the plain run");
+        assert_eq!(ordinary.numerical_quality.cases.iter().map(|c| (c.basis_ref.ref_id.as_str(), c.solve_quality)).collect::<Vec<_>>(),
+            [("case", NumericalQualityStatus::ChecksPassed)], "{mode:?}: the published verdict");
+        assert!(matches!(observer.ordinary.as_slice(), [rp::OrdinarySeed { initial: Some(rp::InitialSeed::StructuralFailure { .. }), w2: rp::W2Seed::Published { .. }, .. }]),
+            "{mode:?}: W2-published");
+        hooks::withdraw_next_native_source();
+        let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+        assert_eq!(retained.err(), Some(W1Fallback::NoTriggeredCase), "{mode:?}");
+        assert_eq!(String::from_utf8(serde_json::to_vec(&envelope).unwrap()).unwrap(), String::from_utf8(plain.clone()).unwrap(),
+            "{mode:?}: the exact ordinary bytes, no notice");
+        assert_eq!(hooks::armed_names(), ["native"], "{mode:?}: no W1 stage ran");
+        hooks::disarm();
+        // The actual Direct entry.
+        hooks::withdraw_next_native_source();
+        let (output, counts) = direct(&raw, mode);
+        if !registered() {
+            assert!(output.retained().is_none(), "{mode:?}: no permit, no W1");
+            assert_eq!(counts, ONE_RUN, "{mode:?}");
+        } else {
+            assert_eq!(output.admission().unwrap().law().refusal, None, "{mode:?}: admitted (inside D1)");
+            assert_eq!(output.retained().and_then(|r| r.as_ref().err()), Some(&W1Fallback::NoTriggeredCase), "{mode:?}");
+            assert!(output.successor().is_none(), "{mode:?}");
+            assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{mode:?}: one ordinary run, then G-C once");
+        }
+        assert_eq!(hooks::armed_names(), ["native"], "{mode:?}: no W1 stage ran on the reserved-stack thread");
+        hooks::disarm();
+        let bytes = published(output);
+        assert_eq!(notices(&bytes), 0, "{mode:?}: no notice");
+        assert_eq!(String::from_utf8(bytes).unwrap(), String::from_utf8(plain).unwrap(), "{mode:?}: the exact ordinary bytes");
+    }
+}
+
+/// B1 ST (decision 21, and ruling 2 on a seedless case) through `retained_w1` on the private
+/// driver, with the milestone's actual observer and one hand-set seed. A Mechanism failure that
+/// W2 did not publish is excluded, so A is empty: `NoTriggeredCase`, exact bytes. With W2
+/// published it is in A, and so is a case with no seed: W1 runs (the notice, or a successor).
+#[test]
+fn b1_t4_retained_w1_applies_decision_21_and_keeps_a_seedless_case() {
+    let mode = PreviewSolverMode::SparseInteractive;
+    let raw = raw();
+    let plain = plain(mode, &raw);
+    let mechanism = || failure_seed(StructuralError::Mechanism { direction: vec![1.0, 0.0] });
+    let (capture, mut observer, ordinary) = observed(mode, &raw);
+    observer.ordinary[0].initial = mechanism();
+    observer.ordinary[0].w2 = rp::W2Seed::NotTriggered;
+    let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+    assert_eq!(retained.err(), Some(W1Fallback::NoTriggeredCase), "excluded: A is empty");
+    assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "excluded: the exact ordinary bytes");
+    for label in ["W2 published", "no seed"] {
+        let (capture, mut observer, ordinary) = observed(mode, &raw);
+        if label == "no seed" {
+            observer.ordinary.clear();
+        } else {
+            observer.ordinary[0].initial = mechanism();
+            observer.ordinary[0].w2 = w2_published();
+        }
+        let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+        assert_ne!(retained.as_ref().err(), Some(&W1Fallback::NoTriggeredCase), "{label}: in A, so W1 runs");
+        let bytes = serde_json::to_vec(&envelope).unwrap();
+        assert!(retained.is_ok() && bytes == plain || bytes == with_notice(&plain, "case", None), "{label}: {:?}", retained.err());
     }
 }
