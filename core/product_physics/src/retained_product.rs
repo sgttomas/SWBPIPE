@@ -3526,8 +3526,8 @@ impl ProductCapture {
         // capture. A refusal skips the capture; the ordinary solve is unaffected.
         if let Some(permit)=self.permit.as_ref() { #[cfg(test)] crate::retained_tests_hooks::before_late_gate(&*self);
             // B1 seam: G-B's running load total, with no adapter event. It saturates (RR "I89's SA
-            // verified and ruled…", ruling 2): G-B then refuses typed on CaseLoadsTotal (exact bytes,
-            // no notice, no capture error), as for any G-B refusal.
+            // verified and ruled…", ruling 2), recording no capture error: G-B then refuses typed on
+            // CaseLoadsTotal, with exact bytes and no notice, as for any G-B refusal.
             self.late_loads_total = self.late_loads_total.saturating_add(case.primitive_loads.len());
             let facts=super::retained_memory::LateFacts{model,built,materials,case,restrained,springs,capture:&*self};
             if let Err(refusal)=permit.check_late(&facts) {self.late_refusal=Some(refusal);return;}
