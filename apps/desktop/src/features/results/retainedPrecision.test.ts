@@ -1155,12 +1155,18 @@ describe('B1 SR-TS: R-D38 (4b), F-1 text B per case and the not_required rule (r
       expect([result.invocation_bound, result.numerical_eligible, result.standing], name).toEqual([true, true, 'eligible']);
       expect(() => ordinaryAttempts(source.retained_precision.body, source), name).not.toThrow();
     }
+    const nr = corpus.must_pass.find((m: any) => m.id === NOT_REQUIRED);
+    const keep = nr.edits.filter((e: any) => !(e.op === 'remove' && JSON.stringify(e.path) === JSON.stringify(rb('product_attempts', 1))));
+    expect(keep.length).toBe(nr.edits.length - 1);
+    const ownAttempt = entry(P_BASE, null, [...structuredClone(keep), set(rb('cases', 1, 'product_attempt_ref'), 1)]);
     await table([
       ['W2-published, verdict sensitive', entry(P_BASE, NOT_REQUIRED, [...structuredClone(evaluation), set(['numerical_quality', 'cases', 1, 'solve_quality'], 'sensitive')]), ATTEMPT],
       ['initial not_attempted', entry(P_BASE, NOT_REQUIRED, [set(ordinary('initial'), { kind: 'not_attempted', cause: 'ineligible' })]), ATTEMPT],
       ['a report whose outcome differs from the verdict (the kept equality)', entry(P_BASE, NOT_REQUIRED, [set(rb('ordinary_attempts', 1, 'initial', 'outcome'), 'sensitive')]), ATTEMPT],
       // It names case 0's attempt, which G3's ownership check refuses first (as in Rust; I90's note).
       ['product_attempt_ref non-null', entry(P_BASE, NOT_REQUIRED, [set(rb('cases', 1, 'product_attempt_ref'), 0)]), G('G3', 'COVERAGE_MISMATCH')],
+      // With its own attempt kept, G3 passes and the rule itself refuses (G5's ordinary class, before D19's PRODUCT_ATTEMPT).
+      ['product_attempt_ref naming its own attempt', ownAttempt, ATTEMPT],
     ]);
   });
   it('G8 P1 and the requested mode, for every case, report PREPARATION; mode code 3 is refused', async () => {
