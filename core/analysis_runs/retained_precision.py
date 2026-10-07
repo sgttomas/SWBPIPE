@@ -1657,9 +1657,13 @@ def validate_retained_precision(source: Any, invocation: Any = None) -> dict[str
 
 
 def validate_retained_precision_transport(source: Any) -> dict[str, Any]:
-    """F-U6b-2 (B6): G0-G2 and the unchanged base transport metadata only, the twin of Rust
-    `validate_transport_metadata` and TS `validateRetainedPrecisionTransport`. Omitted raw publication
-    bytes are never reconstructed or verified, so a transported statement is never eligible."""
+    """F-U6b-2 (B6): G0-G2, then the unchanged base step on the transport projection (no rows read).
+    On G0-G2 this is the twin of Rust `validate_transport_metadata` and TS
+    `validateRetainedPrecisionTransport`: the same checks, gates and codes. At the base step it runs
+    both of theirs (RV108 N6(a)): the base header check, which Rust runs alone (reported as G2), and
+    the preview-physics transport metadata check, which TS runs alone. So a header or evidence defect
+    there can carry a different reader-level code in each language. Omitted raw publication bytes are
+    never reconstructed or verified, so a transported statement is never eligible."""
     return _validate_draft(source, None, raw=False)
 
 
