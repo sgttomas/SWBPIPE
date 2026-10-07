@@ -1453,10 +1453,11 @@ fn finish(e: Enc, mut env: Value, invocation: &source_receipt::CapturedInvocatio
     env.as_object_mut().ok_or(fail(ReceiptCheck::Association, "envelope"))?.insert("retained_precision".into(), json!({"body":body,"receipt_sha256":receipt}));
     Ok(env)
 }
-/// The source's preparation reference (C3 §2) for product attempt 0.
-fn bind_preparation(source: &mut Value, attempt: &Value) -> Result<(), ReceiptFailure> {
+/// The source's preparation reference (C3 §2): the product attempt that prepared it, by its
+/// index in `product_attempts[]` (B1 SP, DESIGN_v2 T-7: the attempt's own index; 0 at c = 1).
+fn bind_preparation(source: &mut Value, attempt: &Value, attempt_ref: usize) -> Result<(), ReceiptFailure> {
     let preparation = domain_hash("retained_precision_preparation_v1", &preparation_payload(attempt)).ok_or(fail(ReceiptCheck::Encoding, "sources[].preparation.sha256"))?;
-    source["preparation"] = json!({"attempt_ref":0,"sha256":preparation});
+    source["preparation"] = json!({"attempt_ref":attempt_ref,"sha256":preparation});
     Ok(())
 }
 
@@ -1540,7 +1541,7 @@ fn serialize_selected_from(candidate: &impl SelectedCandidate, overlaid: &Mechan
     let run_v = run_value(&e, run, records, terminal, case_index)?;
     let mut source = case_source(&e, pc, owner.source(), inv, run, case_index, &case_id, &view)?;
     let attempt = product_attempt(&e, &view, case_index, Some(run.source), Some(case.run), json!({"kind":"ready"}), pc);
-    bind_preparation(&mut source, &attempt)?;
+    bind_preparation(&mut source, &attempt, 0)?;
     let source_identity = {
         let mut binding = source.clone();
         binding.as_object_mut().ok_or(assoc("sources[]"))?.remove("index");
@@ -1670,7 +1671,7 @@ pub(super) fn serialize_unavailable(refused: Refused<'_>, invocation: &source_re
             };
             let attempt = product_attempt(&e, &view, case_index, Some(run.source), Some(case.run), json!({"kind":"unavailable","error":error}), pc);
             if view.members.iter().all(|m| matches!(m.result, rr::PreparationResult::Prepared(_))) {
-                bind_preparation(&mut source_v, &attempt)?;
+                bind_preparation(&mut source_v, &attempt, 0)?;
             }
             let case_v = json!({"basis_ref":{"ref_type":"load_case","ref_id":case_id},"ordinary":{"attempt_ref":case_index,"quality_binding":{"kind":"present","index":quality_index}},
                 "product_attempt_ref":0,"status":"unavailable","reason":{"code":code.0,"phase":code.1,"cause":{"kind":"prepared_product_failure","product_attempt_ref":0}},

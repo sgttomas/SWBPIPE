@@ -1325,3 +1325,216 @@ fn b1_t4_retained_w1_applies_decision_21_and_keeps_a_seedless_case() {
         assert!(retained.is_ok() && bytes == plain || bytes == with_notice(&plain, "case", None), "{label}: {:?}", retained.err());
     }
 }
+
+// ---- B1 SP (I85): the n-case transaction, T-2 to T-7 ------------------------------------------
+//
+// R/I84/b1_plan_01/PLAN_v2.md §2.2 (B0 DESIGN_v2 §1.2, T-2 to T-7). Until I2 merges SA's
+// `LOAD_CASES` = 3, `retained_w1` refuses c ≥ 2 with `Domain` (RV107 A1-S-2), so these tests drive
+// the capture and the preparation directly, below `retained_w1`: the observed ordinary run with the
+// capture installed (T-2), invocation custody (T-6) and the per-case product attempts (T-7).
+
+/// W-C2 (B0 DESIGN_v2 §1.4; decision 2): three cases on U8's two-body model, in request order:
+/// - `case-a`: the milestone's three moments on body 0 (two-body case A's loads);
+/// - `case-b`: the tip force and torque on body 1 (two-body case B's loads);
+/// - `case-c`: A's loads followed by B's (case C), each id suffixed `:c`, because primitive-load ids
+///   are unique across the model.
+pub(super) fn w_c2() -> Value {
+    let mut raw = u8_two_body_case_a();
+    let template = raw["model"]["load_cases"][0].clone();
+    let loads_a = template["primitive_loads"].clone();
+    let loads_b = u8_two_body_case_b()["model"]["load_cases"][0]["primitive_loads"].clone();
+    let mut loads_c = w_c2_case_c()["model"]["load_cases"][0]["primitive_loads"].clone();
+    for load in loads_c.as_array_mut().unwrap() {
+        load["id"] = json!(format!("{}:c", load["id"].as_str().unwrap()));
+    }
+    let case = |id: &str, loads: Value| {
+        let mut case = template.clone();
+        case["id"] = json!(id);
+        case["primitive_loads"] = loads;
+        case
+    };
+    raw["model"]["load_cases"] = json!([case("case-a", loads_a), case("case-b", loads_b), case("case-c", loads_c)]);
+    raw
+}
+const W_C2_IDS: [&str; 3] = ["case-a", "case-b", "case-c"];
+
+/// T-2 (one owner, per-case capture), both modes, on W-C2: the observed ordinary run captures each
+/// requested case in its own slot, in request order: its scope and custody counters, its solver
+/// observations, and its late old-source capture (the source with that case's loads, and its facts
+/// and operational records). The seeds are per case, and the published verdicts are A Sensitive,
+/// B Passed and C Sensitive (PROBE §2.3 and §4), so T-4's A is {A, C}.
+#[test]
+fn b1_sp_t2_the_capture_holds_each_requested_case() {
+    let raw = w_c2();
+    for mode in MODES {
+        let plain = plain(mode, &raw);
+        let (capture, mut observer, ordinary) = observed(mode, &raw);
+        assert_eq!(serde_json::to_vec(&ordinary).unwrap(), plain, "{mode:?}: the observed run is the plain run");
+        assert_eq!(ordinary.status.mechanics, "MECHANICS_SOLVED", "{mode:?}");
+        assert!(observer.error.is_none() && observer.parked_cases().iter().all(|slot| slot.error.is_none()), "{mode:?}: {:?}", observer.error);
+        assert_eq!((observer.cases_seen(), observer.parked_cases().len()), (3, 2), "{mode:?}: three slots, the last in the capture's fields");
+        let loads = [3, 2, 5];
+        for (index, id) in W_C2_IDS.into_iter().enumerate() {
+            let (case_id, calls, observations, source_loads, facts, operational) = observer.with_case(index, |c| {
+                (c.case_id.clone(), (c.case_calls, c.prepared_late_calls, c.source_capture_entries, c.observation_calls),
+                    c.observations.as_ref().map(|o| (o.case.clone(), o.mode)), c.source.as_ref().map(|s| s.loads().len()),
+                    c.facts.len(), c.operational.len())
+            });
+            assert_eq!(case_id, id, "{mode:?}: slot {index} is request case {index}");
+            assert_eq!(calls, (1, 1, 1, 1), "{mode:?} {id}: one early hook, one late hook, one late capture, one observation");
+            assert_eq!(observations, Some((id.to_owned(), mode)), "{mode:?} {id}: its own observations");
+            assert_eq!(source_loads, Some(loads[index]), "{mode:?} {id}: its own loads in its captured source");
+            assert_eq!((facts, operational), (2, 2), "{mode:?} {id}: both members' facts and operational records");
+        }
+        assert_eq!(observer.ordinary.iter().map(|s| s.case.as_str()).collect::<Vec<_>>(), W_C2_IDS, "{mode:?}: one seed per case");
+        assert_eq!(ordinary.numerical_quality.cases.iter().map(|c| (c.basis_ref.ref_id.as_str(), c.solve_quality)).collect::<Vec<_>>(),
+            [("case-a", NumericalQualityStatus::Sensitive), ("case-b", NumericalQualityStatus::ChecksPassed), ("case-c", NumericalQualityStatus::Sensitive)],
+            "{mode:?}: the published verdicts");
+        assert_eq!(classified(&ordinary.numerical_quality, &observer.ordinary, &W_C2_IDS),
+            [CaseTrigger::Attempted, CaseTrigger::NotRequired, CaseTrigger::Attempted], "{mode:?}: T-4's A is {{A, C}}");
+        let _ = capture;
+    }
+}
+
+/// T-6 and T-7, both modes, on W-C2 with A = {A, C} (request indices 0 and 2):
+/// - custody is checked once, then each case in A gets one product attempt, in request order, with
+///   ids in actual start order (0, 1), and each prepares its own case's source;
+/// - case B, `not_required`, gets no attempt: its slot keeps its captured source, unprepared;
+/// - with `fail_preparation_of_case(i)`, only that case's attempt fails: its preparation stage
+///   fails with the helper's refusal, its error stays in its slot, its terminal snapshot is
+///   preparation's, and it has no prepared source; the other case's attempt still prepares.
+#[test]
+fn b1_sp_t6_t7_custody_once_then_one_attempt_per_case_in_a() {
+    use super::retained_receipt::{Stage, StageState};
+    let raw = w_c2();
+    for mode in MODES {
+        for failing in [None, Some(0), Some(2)] {
+            let label = format!("{mode:?} failing {failing:?}");
+            let (_, observer, ordinary) = observed(mode, &raw);
+            if let Some(index) = failing {
+                hooks::fail_preparation_of_case(index);
+            }
+            let mut prepared = observer.prepare_cases(ordinary, 3, &[0, 2]).unwrap_or_else(|f| panic!("{label}: custody {:?}", f.error));
+            assert!(hooks::armed_names().is_empty(), "{label}: the case's fault fired");
+            assert_eq!(prepared.attempts.iter().map(|a| (a.request, a.attempt)).collect::<Vec<_>>(), [(0, 0), (2, 1)],
+                "{label}: request order, ids in start order");
+            for attempt in &prepared.attempts {
+                let fails = failing == Some(attempt.request);
+                assert_eq!(attempt.prepared, !fails, "{label} request {}", attempt.request);
+                assert_eq!(attempt.trace.stages[Stage::Preparation as usize], if fails { StageState::Failed } else { StageState::Completed },
+                    "{label} request {}", attempt.request);
+                assert_eq!(attempt.trace.source_ready, !fails, "{label} request {}: a prepared source exactly when preparation completed", attempt.request);
+                assert_eq!(attempt.trace.adapter.is_some(), fails, "{label} request {}: a failed attempt's terminal snapshot", attempt.request);
+                assert_eq!(attempt.parts.preparation_error.is_some(), fails, "{label} request {}: the helper's refusal", attempt.request);
+                assert_eq!(attempt.trace.stages[Stage::Native as usize], StageState::NotEntered, "{label}: native is T-8's");
+                let error = prepared.capture.with_case(attempt.request, |c| c.error.as_ref().map(|e| format!("{e:?}")));
+                assert_eq!(error.is_some(), fails, "{label} request {}: {error:?}", attempt.request);
+            }
+            let untouched = prepared.capture.with_case(1, |c| (c.case_id.clone(), c.source.as_ref().map(|s| s.loads().len()), c.error.is_some()));
+            assert_eq!(untouched, ("case-b".to_owned(), Some(2), false), "{label}: B has no attempt");
+            assert_eq!(serde_json::to_vec(&prepared.ordinary).unwrap(), plain(mode, &raw), "{label}: the ordinary owner is untouched");
+        }
+    }
+}
+
+/// T-6's refusals on W-C2, each before any product attempt: a requested case the capture never
+/// saw; a prior capture error in any case's slot (parked or not); a case's captured observation
+/// that no longer matches the envelope; and an envelope observation row naming no requested case.
+#[test]
+fn b1_sp_t6_custody_refuses_the_whole_invocation() {
+    use super::retained_product::CaptureError;
+    let mode = PreviewSolverMode::DenseScrutiny;
+    let raw = w_c2();
+    let refused = |observer: rp::ProductCapture, ordinary: MechanicsEnvelope, requested: usize| -> String {
+        match observer.prepare_cases(ordinary, requested, &[0, 2]) {
+            Ok(_) => panic!("custody passed"),
+            Err(failure) => {
+                assert!(failure.capture.prepared_capacity_bytes == [0; 16], "no attempt started");
+                match failure.error { CaptureError::Association(text) => text, other => format!("{other:?}") }
+            }
+        }
+    };
+    let (_, observer, ordinary) = observed(mode, &raw);
+    assert_eq!(refused(observer, ordinary, 4), "prepared case count");
+    for index in [0, 2] {
+        let (_, mut observer, ordinary) = observed(mode, &raw);
+        observer.with_case(index, |c| c.error = Some("planted".into()));
+        assert_eq!(refused(observer, ordinary, 3), "planted", "case {index}'s prior error");
+    }
+    let (_, mut observer, ordinary) = observed(mode, &raw);
+    observer.with_case(1, |c| c.observations.as_mut().unwrap().mode_row.value_bits = 7f64.to_bits());
+    assert_eq!(refused(observer, ordinary, 3), "observation captured value/text", "case B's observation");
+    let (_, observer, mut ordinary) = observed(mode, &raw);
+    let row = ordinary.results.iter_mut().find(|r| r.kind == "linear_solver_mode_basis").unwrap();
+    row.basis_ref.as_mut().unwrap().ref_id = "foreign".into();
+    assert_eq!(refused(observer, ordinary, 3), "observation final case", "a mode row naming no requested case");
+}
+
+/// T-5 (R-2 per case), for every count the domain admits (1 to `caps::LOAD_CASES`): one notice per
+/// case in A, in request order, every slot reserved before any W1 work, then published with no
+/// allocation, with N1's exact bytes. A collision with the base, or between the notices, and a
+/// count outside 1..=C reserve nothing.
+#[test]
+fn b1_sp_t5_one_reserved_notice_per_case_in_a() {
+    let mode = PreviewSolverMode::SparseInteractive;
+    let ids: Vec<String> = (1..=crate::retained_memory::caps::LOAD_CASES + 1).map(|k| format!("case-{k}")).collect();
+    let ids: Vec<&str> = ids.iter().map(String::as_str).collect();
+    let (_, _, base) = observed(mode, &raw());
+    for count in 1..=crate::retained_memory::caps::LOAD_CASES {
+        let mut ordinary = base.clone();
+        ordinary.diagnostics.shrink_to_fit();
+        let before = serde_json::to_vec(&ordinary).unwrap();
+        let notices = ReservedNotices::reserve(&mut ordinary, &ids[..count]).unwrap_or_else(|| panic!("{count} notices"));
+        assert!(ordinary.diagnostics.capacity() >= ordinary.diagnostics.len() + count, "{count}: every slot reserved before W1");
+        let (published, cause) = notices.publish(ordinary, W1Fallback::Preparation);
+        assert_eq!(cause.err(), Some(W1Fallback::Preparation));
+        let mut expected = before;
+        for id in &ids[..count] {
+            expected = with_notice(&expected, id, None);
+        }
+        assert_eq!(String::from_utf8(serde_json::to_vec(&published).unwrap()).unwrap(), String::from_utf8(expected).unwrap(),
+            "{count}: the notices in request order");
+    }
+    let mut ordinary = base.clone();
+    assert!(ReservedNotices::reserve(&mut ordinary, &ids).is_none(), "C + 1 cases");
+    assert!(ReservedNotices::reserve(&mut ordinary, &[]).is_none(), "no case");
+    if crate::retained_memory::caps::LOAD_CASES >= 2 {
+        let mut ordinary = base.clone();
+        assert!(ReservedNotices::reserve(&mut ordinary, &["case-1", "case-1"]).is_none(), "two notices with one id");
+    }
+    let mut colliding = base.clone();
+    colliding.diagnostics.push(Diagnostic { id: format!("diagnostic:retained-precision:{}:unavailable", ids[0]), code: "X".into(),
+        severity: "info".into(), message: "m".into(), source: None, affected_refs: Vec::new() });
+    let before = serde_json::to_vec(&colliding).unwrap();
+    assert!(ReservedNotices::reserve(&mut colliding, &ids[..1]).is_none(), "the base carries the id");
+    assert_eq!(serde_json::to_vec(&colliding).unwrap(), before, "nothing reserved, nothing changed");
+}
+
+/// The domain re-check (PLAN_v2 §2.2; RV107 SF-2): `w1_case_ids` gives the request's cases in
+/// request order for 1 ≤ c ≤ C with no combination, and `None` (`Domain`) for C + 1 cases, for no
+/// case, and for a combination.
+#[test]
+fn b1_sp_domain_recheck_names_the_requested_cases() {
+    let mode = PreviewSolverMode::SparseInteractive;
+    let ids = |raw: &Value| {
+        let (_, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+        w1_case_ids(&capture).map(|set| (set.requests().to_vec(), set.ids().iter().map(|s| s.to_string()).collect::<Vec<_>>()))
+    };
+    assert_eq!(ids(&raw()), Some((vec![0], vec!["case".to_owned()])));
+    let mut full = raw();
+    let first = full["model"]["load_cases"][0].clone();
+    full["model"]["load_cases"] = json!((0..crate::retained_memory::caps::LOAD_CASES).map(|k| {
+        let mut case = first.clone();
+        case["id"] = json!(format!("case-{k}"));
+        case
+    }).collect::<Vec<_>>());
+    let expected = (0..crate::retained_memory::caps::LOAD_CASES).map(|k| format!("case-{k}")).collect::<Vec<_>>();
+    assert_eq!(ids(&full), Some(((0..crate::retained_memory::caps::LOAD_CASES).collect(), expected)), "C cases");
+    assert_eq!(ids(&beyond_load_cases(&raw(), true)), None, "C + 1 cases");
+    let mut none = raw();
+    none["model"]["load_cases"] = json!([]);
+    assert_eq!(ids(&none), None, "no case");
+    let mut combined = raw();
+    combined["model"]["combinations"] = json!([{"id":"combo","basis":"mechanics","terms":[{"load_case":"case","factor":1.0}]}]);
+    assert_eq!(ids(&combined), None, "a combination");
+}
