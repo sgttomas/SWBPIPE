@@ -33,7 +33,7 @@ Five maintained files under `projects/chirality-piping/`. Their maintained diff 
 ## 3. What it does not do
 
 - **No byte changes for other inputs.** Every input with no non-finite intermediate and no non-finite caller value or limit (N-4) gives byte-identical results, in the evaluator and in `run_rule_checks`.
-- **The interval evaluator is unchanged, byte for byte** (`evaluate_interval`). `run_rule_checks_with_bounds` with b > 0 is byte-identical except where N-4 applies, as in point runs.
+- **The interval evaluator is unchanged, byte for byte** (`evaluate_interval`). In `run_rule_checks_with_bounds` with b > 0, a check that binds a bound is byte-identical except where N-4 applies. A check that binds no bound follows the point path, so D applies to it as in point runs (RV111 ADDENDUM_03 R-1; I88 counted 1,513 such lines).
 - **No new finding code, and no schema, dependency, lock, src-tauri or desktop change.**
 - **Outside the F2a D1 milestone's build closure** (the rules crates; `R/I61/u8_plan_01/PLAN.md` §3), so there is no Pass B.
 - **A test comment's "I87 §2.4"** means `R/I87/si1c_plan_01/PLAN.md` §2.4, the plan's comparison truth table. `check_citations.py` does not parse that form, and the path resolves on NUM. Record names elsewhere in comments (I79's reproducers, RV104's probe 29, RV111's input) are evidence labels, not document citations.

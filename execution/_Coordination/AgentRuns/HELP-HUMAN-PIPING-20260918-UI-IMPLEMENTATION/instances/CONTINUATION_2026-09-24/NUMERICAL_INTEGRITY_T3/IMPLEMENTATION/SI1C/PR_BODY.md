@@ -11,7 +11,7 @@ On the ordinary point path, a rule formula whose arithmetic overflowed or produc
 ## What stays the same
 
 - **Every input with no non-finite intermediate and no non-finite caller value or limit gives byte-identical results,** in the evaluator and in `run_rule_checks`. Two independent differentials checked this, over about 370,000 point-path evaluator lines and 400,000 runner lines in all.
-- **The interval evaluator is unchanged:** all 433,221 interval evaluation lines in the independent differential are identical. Bounded rule checks change only where N-4 applies.
+- **The interval evaluator is unchanged:** all 433,221 interval evaluation lines in the independent differential are identical. In a bounded rule run, a check that binds a solver bound reads in interval mode and changes only where N-4 applies. A check that binds no bound reads on the point path, so option D applies to it as above.
 - **No new finding code, and no grammar version, conformance-corpus, schema, dependency or lock change.**
 - **The rules crates are outside the F2a D1 milestone's build,** so the registered identity is untouched.
 
