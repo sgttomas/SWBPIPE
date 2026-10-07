@@ -1,0 +1,14 @@
+{
+ "counts": {
+  "base": 17,
+  "mutation": 294,
+  "must_pass": 28
+ },
+ "entries": 339,
+ "inputs_differ": [],
+ "verdict_changes": [],
+ "corpus_expectation_misses": {
+  "i1": [],
+  "head": []
+ }
+}

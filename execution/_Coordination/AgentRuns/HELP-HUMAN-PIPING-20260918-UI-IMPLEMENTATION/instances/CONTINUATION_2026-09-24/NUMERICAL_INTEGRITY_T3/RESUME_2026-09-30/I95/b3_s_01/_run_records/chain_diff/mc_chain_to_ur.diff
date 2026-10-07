@@ -1,0 +1,657 @@
+Only in ur: B3S_REBINDS.json
+diff -ru mc_chain/g4_caps.py ur/g4_caps.py
+--- mc_chain/g4_caps.py	2026-10-07 14:35:14
++++ ur/g4_caps.py	2026-10-07 15:03:02
+@@ -95,15 +95,21 @@
+     return B(j3cap(vf.text()) // 2)
+ 
+ 
++
++# I95 B3-S census: per-case evidence facts = max(preview tree, exact evidence) at (n, m, g)
++_EXC = {'arr': (12, 40, 19), 'obj': (3, 13, 0), 'ent': (25, 64, 0), 'strb': (5400, 6600, 300), 'keyb': (441, 660, 0), 'nums': (3, 53, 18)}
++def _exmax(n, m, g):
++    pv = dict(arr=3 * m + 2 * g, obj=3 + m + g, ent=9 + 15 * m + 2 * g,
++              strb=m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64),
++              keyb=(9 + 15 * m + 2 * g) * 40, nums=10 * m)
++    return {k: max(pv[k], _EXC[k][0] + _EXC[k][1] * m + _EXC[k][2] * n) for k in pv}
+ rows = {}
+ # =========================================================================== envelope facts
+ # The ordinary MechanicsEnvelope as a Value (G3 T25 env_vf, at the G4 text atoms); on branch W it
+ # carries contract_evidence (the preview tree, PREVIEW in ordinary_caps).
+ ENV = (VF(arr=PA + 4 * PA, obj=3 * PA, ent=15 * PA, strb=PA * ROW, keyb=15 * PA * 24, nums=PA, depth=4)
+        + VF(arr=DENV + 4 * DENV + 3 * (CC + LL), obj=DENV, ent=6 * DENV, strb=DIAGENV, keyb=6 * DENV * 16, depth=4)
+-       + VF(arr=3 * m + 2 * g, obj=3 + m + g, ent=9 + 15 * m + 2 * g,
+-            strb=m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64), keyb=(9 + 15 * m + 2 * g) * 40,
+-            nums=10 * m, depth=6).scale(CC)
++       + VF(depth=7, **_exmax(n, m, g)).scale(CC)                      # I95: max(preview, exact)
+        + VF(arr=64, obj=24, ent=160, strb=24 * 1024, keyb=160 * 40, nums=60, depth=5).scale(CC))
+ # successor deltas (successor_envelope, retained_wire.rs:740-773): recovery_method on every case
+ # row; the selected diagnostic (id <= 30+ID+9, code, severity, the fixed message, source, one ref);
+@@ -180,8 +186,8 @@
+ # =========================================================================== typed staging copy
+ # U3 FrozenCandidate::staged_envelope (retained_product.rs:3788-3792): MechanicsEnvelope::clone
+ # (exact capacities) plus the overlay (values and maxima numbers, no growth beyond the clone).
+-PREVIEW_T = (s("Value") * (3 * m + 2 * g) + X({"Node(String,Value)": 3 + m + g + (9 + 15 * m + 2 * g) // 5})
+-             + B(m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64) + (9 + 15 * m + 2 * g) * 40))
++_PX = _exmax(n, m, g)                                                                # I95: max(preview, exact)
++PREVIEW_T = (s("Value") * _PX["arr"] + X({"Node(String,Value)": _PX["obj"] + _PX["ent"] // 5}) + B(_PX["strb"] + _PX["keyb"]))
+ STAGED = (s("MechanicsEnvelope") + Xc("ResultItem", PA) + B(PA * ROW) + Xc("Diagnostic", DENV) + B(DIAGENV)
+           + PREVIEW_T * CC + B(64 * 1024)
+           + s("String") * (4 * PA))          # G5 part 2 (RV87 N-1(b)): ResultItem.source_result_refs Vec backings
+diff -ru mc_chain/loop_bounds.g4.json ur/loop_bounds.g4.json
+--- mc_chain/loop_bounds.g4.json	2026-10-07 14:35:14
++++ ur/loop_bounds.g4.json	2026-10-07 15:03:02
+@@ -963,7 +963,7 @@
+   {
+    "re": "exact\\.assembled_operands",
+    "bound": "0",
+-   "why": "exact pressure operands (D1.3)"
++   "why": "I95 B3-S restated (0 kept): exact route (B3b): 0.3.0 with {2.0.0, exact_straight_pressure_v2}, so is_exact is true; every case's pressure_regions is explicitly Some([]) (D1.5-exact). assembled_operands is filled only by add_factor_term inside the per-region traversal (pressure_runtime.rs:794); with no region it is empty | was: exact pressure operands (D1.3)"
+   },
+   {
+    "re": "^for entry in entries$",
+@@ -1123,7 +1123,7 @@
+   {
+    "re": "traversal|terminals|\\(dof, pbits, hi, lo, _\\), group\\) in groups",
+    "bound": "0",
+-   "why": "D1.3/D1.5: pressure_runtime paths (no pressure contract/regions)"
++   "why": "I95 B3-S restated (0 kept): exact route (B3b): 0.3.0 with {2.0.0, exact_straight_pressure_v2}, so is_exact is true; every case's pressure_regions is explicitly Some([]) (D1.5-exact). traversals, terminals and factor groups exist only per region; every region list is empty | was: D1.3/D1.5: pressure_runtime paths (no pressure contract/regions)"
+   },
+   {
+    "re": "initial_states|current_states|all_active|\\bstates\\b|state_summary",
+@@ -1173,7 +1173,7 @@
+   {
+    "re": "pressure|region|aggregates",
+    "bound": "0",
+-   "why": "D1.3/D1.5: no pressure contract/regions; pressure-thrust aggregates need expansion-joint components (PP lib.rs:10755-10769)"
++   "why": "I95 B3-S restated (0 kept): exact route (B3b): 0.3.0 with {2.0.0, exact_straight_pressure_v2}, so is_exact is true; every case's pressure_regions is explicitly Some([]) (D1.5-exact). Every loop this rule zeroes on the exact graph iterates a region list, a region's members or terminals, pipe_states (filled only per region member) or pressure-thrust aggregates (expansion-joint components, D1.4); each is empty. b3s_zero_review.py lists every header it matches on the exact graph for review | was: D1.3/D1.5: no pressure contract/regions; pressure-thrust aggregates need expansion-joint components (PP lib.rs:10755-10769)"
+   },
+   {
+    "re": "thermal",
+@@ -1399,275 +1399,175 @@
+    "re": "points",
+    "bound": "pts",
+    "why": "temperature points <= 16"
+-  }
+- ],
+- "edge_zero": [
+-  {
+-   "caller": "formation_guard.rs:297:load_row_finding",
+-   "callee": "formation_guard.rs:216:decide_row",
+-   "why": "D1.7 nodal-only loads: every formation slot is None, so load_row_finding returns at its has_formation_records() check (formation_guard.rs:303-305; FK load_ledger.rs:307-309; I54 correction ADDENDUM)"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:1206:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for diagnostic in array\\(&source\\[\" \"\\]\\)\\?$",
++   "bound": "D",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:341: the projection's diagnostics <= D"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:1254:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for reference in array\\(&case\\[\" \"\\]\\)\\?$",
++   "bound": "D",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:365: a numerical case's evidence_refs name envelope diagnostics <= D"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:1268:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for \\(case_id, case\\) in &cases$",
++   "bound": "cases",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:385, :810: one entry per load case"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:1286:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for s in sections\\.values\\(\\)$",
++   "bound": "m",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:424: one section per member"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:133:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for \\(id, row\\) in &rows$",
++   "bound": "Pall",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:514, :805: every published row"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:1468:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for components in support_components\\.values\\(\\)$",
++   "bound": "g",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:564: one entry per support"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:380:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for \\(member, duplicate\\) in duplicates$",
++   "bound": "m",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:655 (inside the region loop): per member"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:42:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for item in applied\\.values\\(\\)$",
++   "bound": "N",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:676 (inside the region loop): applied loads per DOF"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:80:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for \\(reaction, closure\\) in array\\(&terminal\\[\" \"\\]\\)\\? \\.iter\\(\\) \\.zip\\(array\\(&terminal\\[\" \"\\]\\)\\?\\)$",
++   "bound": "3",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:690 (inside the region loop): three axes"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "case_state/thermal.rs:82:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for id in actual$",
++   "bound": "Pall",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:762 (inside the region loop): bound result ids <= rows"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:13952:is_temperature_change_dimension",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^iter:rows \\.iter\\(\\)\\.filter$",
++   "bound": "Pall",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:752 (inside the region loop): every published row"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:791:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for component in components$",
++   "bound": "6",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:794 (inside the region loop): <= 2 components per kind; 6 bounds every reached table of this header"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:10228:exact_section_evidence",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for station in stations$",
++   "bound": "5",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:795: STATIONS (5) or its first 2"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_exact.rs:212:inner_radius_m",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for \\(i, v\\) in values\\.into_iter\\(\\)\\.enumerate\\(\\)$",
++   "bound": "3",
++   "why": "I95 B3-S (exact route, newly reached): composite.rs:214, physics_source.rs:254: a [f64; 3]"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_exact.rs:237:new",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for row in actual$",
++   "bound": "Pall",
++   "why": "I95 B3-S (exact route, newly reached): composite.rs:604: a case's published rows <= every row"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_exact.rs:255:elastic_modulus_pa",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for mut row in expected$",
++   "bound": "Pall",
++   "why": "I95 B3-S (exact route, newly reached): composite.rs:704: expected rows <= every row"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_exact.rs:259:poisson_ratio",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for id in member_ids$",
++   "bound": "m",
++   "why": "I95 B3-S (exact route, newly reached): composite.rs:780: member ids"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_exact.rs:263:shear_modulus_pa",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for \\(group, mut row\\) in generated\\.into_iter\\(\\)\\.skip\\(6\\)\\.enumerate\\(\\)$",
++   "bound": "2",
++   "why": "I95 B3-S (exact route, newly reached): composite.rs:816: append_signed_support_results makes 8 rows; skip(6) leaves the 2 magnitudes"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_exact.rs:274:new",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for row in actual\\.iter\\(\\)\\.filter\\(\\|r\\| r\\.entity_ref == member\\.member_id\\)$",
++   "bound": "Pall",
++   "why": "I95 B3-S (exact route, newly reached): composite.rs:842: every row"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_exact.rs:281:pressure_pa",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^iter:\" \":source_recovery::STATIONS\\.iter\\(\\)\\.enumerate\\(\\)\\.map$",
++   "bound": "5",
++   "why": "I95 B3-S (exact route, newly reached): composite.rs:914: STATIONS has 5 entries"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_exact/source_geometry.rs:166:surface_stresses",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^iter:rows: actual \\.iter\\(\\)\\.map$",
++   "bound": "Pall",
++   "why": "I95 B3-S (exact route, newly reached): composite.rs:966: every row"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_exact/source_geometry.rs:71:inner_radius_m",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for \\(index, \\(case, physical\\)\\) in cases\\.iter\\(\\)\\.zip\\(physical\\)\\.enumerate\\(\\)$",
++   "bound": "cases",
++   "why": "I95 B3-S (exact route, newly reached): composite.rs:1042: one per case"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_exact/source_geometry.rs:92:cap_pair",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^iter:inputs: \\(0\\.\\.3\\)\\.map$",
++   "bound": "3",
++   "why": "I95 B3-S (exact route, newly reached): composite.rs:825: three inputs"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_exact/source_geometry.rs:98:eigenload_pair",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for item in a$",
++   "bound": "Pall",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:62 strings(): an id list (node_order n, pipe ids m, result ids <= rows)"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_runtime.rs:794:add_factor_term",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for x in array\\(v\\)\\?$",
++   "bound": "N",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:98 vector(): length 2, 3 or 6n"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_runtime.rs:836:finish_source_groups",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for k in &GEOMETRY_KEYS\\[2\\.\\.\\]$",
++   "bound": "9",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:144: GEOMETRY_KEYS has 11 entries"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_runtime.rs:85:problem",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for \\(i, n\\) in array\\(&v\\[values\\]\\)\\?\\.iter\\(\\)\\.enumerate\\(\\)$",
++   "bound": "N",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:892: an RHS vector of 6n"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_runtime.rs:934:temperature_basis",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for group in array\\(&v\\[\" \"\\]\\)\\?$",
++   "bound": "0",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:899 assembly(): `groups` holds one entry per pressure source group, made only inside a region (finish_source_groups' group loop); every region list is empty (D1.5-exact)"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_runtime.rs:944:traverse_region",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for term in array\\(&group\\[\" \"\\]\\)\\?$",
++   "bound": "m",
++   "why": "I95 B3-S (exact route, newly reached): physics_evidence.rs:951: terms of one group <= members"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "pressure_sum.rs:16:exact_sum",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for \\(endpoint, \\(end, claim\\)\\) in ends\\.iter\\(\\)\\.zip\\(claimed\\)\\.enumerate\\(\\)$",
++   "bound": "2",
++   "why": "I95 B3-S (exact route, newly reached): physics_source.rs:375: two endpoints (required at :370-373)"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "retained_receipt.rs:93:len",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "re": "^for \\(\\(index, id\\), action\\) in array\\(&end\\[\" \"\\]\\)\\? \\.iter\\(\\) \\.zip\\(array\\(&end\\[\" \"\\]\\)\\?\\) \\.zip\\(array\\(&end\\[\" \"\\]\\)\\?\\)$",
++   "bound": "3",
++   "why": "I95 B3-S (exact route, newly reached): physics_source.rs:388: three functionals per endpoint"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:195:orientation",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
++   "re": "^for end in ends$",
++   "bound": "2",
++   "why": "I95 B3-S (exact route, newly reached): physics_source.rs:432: two endpoints"
++  }
++ ],
++ "edge_zero": [
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:129:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
++   "caller": "formation_guard.rs:297:load_row_finding",
++   "callee": "formation_guard.rs:216:decide_row",
++   "why": "D1.7 nodal-only loads: every formation slot is None, so load_row_finding returns at its has_formation_records() check (formation_guard.rs:303-305; FK load_ledger.rs:307-309; I54 correction ADDENDUM)"
+   },
+   {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:277:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:55:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:603:orientation",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:674:orientation",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "load_ledger.rs:131:push",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "load_ledger.rs:265:get",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "load_ledger.rs:269:len",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "load_ledger.rs:757:len",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "structural/exact_boundary/functionals.rs:718:len",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "structural/retained/adaptive.rs:83:get",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "structural/retained/product_certificate/final_case.rs:1779:len",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "structural/sparse.rs:184:find",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "structural/sparse.rs:288:get",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:49:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:157:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:303:get",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:449:frame_element",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:427:build_pressure_case_with_members",
+-   "callee": "lib.rs:93:as_str",
+-   "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+-  },
+-  {
+-   "caller": "pressure_runtime.rs:111:validate_profile",
+-   "callee": "pressure_runtime.rs:357:check_suffixes",
+-   "why": "G4 (RV83 R-2 follow-through): check_suffixes is called only inside the is_exact branch (pressure_runtime.rs:168-200); D1.3 makes is_exact false"
+-  },
+-  {
+    "caller": "semantic_contract.rs:437:for_source",
+    "callee": "load_reference.rs:349:validate_load_reference_evidence",
+    "why": "G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)"
+@@ -1679,11 +1579,6 @@
+   },
+   {
+    "caller": "semantic_contract.rs:437:for_source",
+-   "callee": "physics_evidence.rs:319:validate_physics_evidence",
+-   "why": "G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)"
+-  },
+-  {
+-   "caller": "semantic_contract.rs:437:for_source",
+    "callee": "physics_source.rs:1128:validate",
+    "why": "G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)"
+   },
+@@ -1694,11 +1589,6 @@
+   },
+   {
+    "caller": "semantic_contract.rs:437:for_source",
+-   "callee": "semantic_contract.rs:490:forbid_load_reference_evidence",
+-   "why": "G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)"
+-  },
+-  {
+-   "caller": "semantic_contract.rs:437:for_source",
+    "callee": "retained_precision.rs:4272:validate",
+    "why": "G7 (U6, D-U6-6): the new is_retained(source) branch of for_source is dead on the D1 graph. Its only D1 caller is retained_precision::validate's G7 (retained_precision.rs:4305) on project(source) (:4246-4265), which sets producer.semantic_contract_id to the literal preview-physics-1 id (:4252-4253), so is_retained (semantic_contract.rs:147) is false and the branch's calls are never made; for_source_metadata is reached only from for_source's base branch on the same projection (validate_transport_metadata, which also calls it, is reached only from this dead branch)"
+   },
+@@ -1726,6 +1616,11 @@
+    "caller": "semantic_contract.rs:269:for_source_metadata",
+    "callee": "semantic_contract.rs:152:retained_error",
+    "why": "G7 (U6, D-U6-6): the new is_retained(source) branch of for_source_metadata is dead on the D1 graph. Its only D1 caller is retained_precision::validate's G7 (retained_precision.rs:4305) on project(source) (:4246-4265), which sets producer.semantic_contract_id to the literal preview-physics-1 id (:4252-4253), so is_retained (semantic_contract.rs:147) is false and the branch's calls are never made; for_source_metadata is reached only from for_source's base branch on the same projection (validate_transport_metadata, which also calls it, is reached only from this dead branch)"
++  },
++  {
++   "caller": "source_receipt/composite.rs:406:physical_source",
++   "callee": "source_receipt.rs:152:captured_load_state_case",
++   "why": "I95 B3-S (D1.3's load-state clause, unchanged on the exact route): called only under case_state::is_load_state (composite.rs:415-417), false for 0.3.0"
+   }
+  ],
+  "edge_once": [
+@@ -1847,7 +1742,7 @@
+   },
+   {
+    "fn": "lib.rs:11705:append_exact_pressure_results",
+-   "why": "called only under `exact_pressure` Some (lib.rs:4851-4855); D1.3 has no exact pressure case"
++   "why": "I95 B3-S restated: exact route (B3b): 0.3.0 with {2.0.0, exact_straight_pressure_v2}, so is_exact is true; every case's pressure_regions is explicitly Some([]) (D1.5-exact). Its only call (PP lib.rs:5373-5389) is under `exact_pressure...pipe_states.get(&pipe_index)` Some; build_pressure_case_with_members inserts a pipe state only for a member of a region (pressure_runtime.rs region loop), so with every region list empty pipe_states is empty and the call never happens: multiplicity 0 | was: called only under `exact_pressure` Some (lib.rs:4851-4855); D1.3 has no exact pressure case"
+   },
+   {
+    "fn": "lib.rs:6814:build_nonlinear_supports",
+@@ -1888,14 +1783,6 @@
+  ],
+  "file_zero": [
+   {
+-   "file": "core/product_physics/src/source_receipt/composite.rs",
+-   "why": "every entry is guarded by an exact-pressure or physical-evidence condition false in D1: composite_support_norms (lib.rs:4226 is_exact), composite_member_maximum (lib.rs:4746 is_exact), validate_publication (source_receipt.rs:938-956, `composite` = source_selected && is_exact, lib.rs:2743), physical_source_built (source_receipt.rs:254, :374, under `physical` Some, which check_input never passes, :147; :254 is the load-state replay)"
+-  },
+-  {
+-   "file": "core/product_physics/src/pressure_material.rs",
+-   "why": "resolve_base returns at pressure_material.rs:66-68 when !is_exact (D1.3); resolve_case is called only under is_exact (lib.rs:9108-9110)"
+-  },
+-  {
+    "file": "core/product_physics/src/case_state/",
+    "why": "D1.3: no load-state document. validate_document emits nothing for D1 (see fn_zero); resolve_case is called only when is_load_state (lib.rs:2335-2356, source_receipt.rs:178 inside captured_load_state_case); every other case_state function takes a ResolvedCase, which exists only for a load-state document"
+   },
+@@ -1969,7 +1856,7 @@
+    "caller": "pressure_runtime.rs:111:validate_profile",
+    "callee": "pressure_runtime.rs:85:problem",
+    "per_call": "L",
+-   "why": "I82 B1-S rebind (l -> L): RV83 R-2 (ruled: price it). Under D1.3 (schema 0.1.0/0.2.0, no pressure contract) is_exact is false, so of validate_profile's problem() calls only the !exact arm runs: pressure_regions is None (D1.5), and PRESSURE_MODEL_REAUTHOR_REQUIRED fires at most once per primitive load of the one case (pressure_runtime.rs:207-225): <= l per call"
++   "why": "I95 B3-S restated (L unchanged): exact route (B3b): 0.3.0 with {2.0.0, exact_straight_pressure_v2}, so is_exact is true; every case's pressure_regions is explicitly Some([]) (D1.5-exact). Of validate_profile's direct problem() calls the exact arm makes, per call: components 0 (D1.4); nonlinear or constant-effort supports 0 (D1.6); combinations 0 (D1.4); per case equivalent_static 0 (D1.5), pressure_regions None 0 (D1.5-exact), the region loop 0 (empty); EXACT_PRESSURE_REQUIRES_REGION at most once per primitive load whose category or dimension is pressure: <= L over every case (pressure_runtime.rs:186-191). | was: I82 B1-S rebind (l -> L): RV83 R-2 (ruled: price it). Under D1.3 (schema 0.1.0/0.2.0, no pressure contract) is_exact is false, so of validate_profile's problem() calls only the !exact arm runs: pressure_regions is None (D1.5), and PRESSURE_MODEL_REAUTHOR_REQUIRED fires at most once per primitive load of the one case (pressure_runtime.rs:207-225): <= l per call"
+   },
+   {
+    "caller": "lib.rs:3102:retained_w1",
+@@ -2102,6 +1989,12 @@
+    "callee": "retained_wire.rs:776:legacy_source",
+    "per_call": "cases",
+    "why": "I82 B1-S: per attempted/requested case under B1's n-case transaction (emulated edge multiplicity)"
++  },
++  {
++   "caller": "pressure_runtime.rs:357:check_suffixes",
++   "callee": "pressure_runtime.rs:85:problem",
++   "per_call": "max(n, m, g, cases)",
++   "why": "I95 B3-S (exact route, newly reached; the loop's real bound): check_suffixes is called on the pipe, node, support and load-case id lists (pressure_runtime.rs:175-194) and reports at most one collision per id (:363-367), so <= max(n, m, g, c) per call; the generic 'entity id iterator' rule would give max(l, L)"
+   }
+  ],
+  "recursion_reviewed": [
+diff -ru mc_chain/ordinary_caps.py ur/ordinary_caps.py
+--- mc_chain/ordinary_caps.py	2026-10-07 14:35:14
++++ ur/ordinary_caps.py	2026-10-07 15:03:02
+@@ -74,9 +74,16 @@
+ # preview evidence tree per case (preview_physics.rs:697-703, 298-304): extrema objects (<= m, 15 entries,
+ # 3 static strings <= 120 B, pipe id and result id), coverage lists (<= 2m ids), attribution (<= g ids,
+ # <= g withheld objects of 2 entries), intensified measures (D1.4: none); keys <= 40 bytes each
+-PREVIEW = value_tree(3 * m + 2 * g, 3 + m + g, 9 + 15 * m + 2 * g,
+-                     m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64),
+-                     (9 + 15 * m + 2 * g) * 40)
++
++# I95 B3-S census: per-case evidence facts = max(preview tree, exact evidence) at (n, m, g)
++_EXC = {'arr': (12, 40, 19), 'obj': (3, 13, 0), 'ent': (25, 64, 0), 'strb': (5400, 6600, 300), 'keyb': (441, 660, 0), 'nums': (3, 53, 18)}
++def _exmax(n, m, g):
++    pv = dict(arr=3 * m + 2 * g, obj=3 + m + g, ent=9 + 15 * m + 2 * g,
++              strb=m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64),
++              keyb=(9 + 15 * m + 2 * g) * 40, nums=10 * m)
++    return {k: max(pv[k], _EXC[k][0] + _EXC[k][1] * m + _EXC[k][2] * n) for k in pv}
++_PX = _exmax(n, m, g)
++PREVIEW = value_tree(_PX["arr"], _PX["obj"], _PX["ent"], _PX["strb"], _PX["keyb"])   # I95: max(preview, exact)
+ T = {}   # text atoms (values from TEXT.md)
+ def tx(name):
+     return atom("Text(" + name + ")")
+diff -ru mc_chain/sens.py ur/sens.py
+--- mc_chain/sens.py	2026-10-07 14:35:14
++++ ur/sens.py	2026-10-07 15:03:02
+@@ -26,6 +26,10 @@
+     run([os.path.join(work, "composite_text.py"), snap, w], f"composite_text.{w}.json", cwd=snap)
+ ROOT = "run_linear_static_preview_value_with_retained_direct"
+ ZW = "source_receipt.rs:636:exact,source_receipt.rs:839:finalize,source_receipt.rs:853:finalize_composite,source_receipt.rs:867:finalize_for"
++# I95 B3-S: on the exact route the ordinary path calls two composite entries only with a selected source
++# (lib.rs:4748-4750, :5268-5270); under T-3 (c) a selected case publishes the exact ordinary bytes, so W1's
++# branch W never has one: they are branch-X-exclusive, like finalize_composite
++ZW += ",source_receipt/composite.rs:353:composite_support_norms,source_receipt/composite.rs:165:composite_member_maximum,source_receipt/composite.rs:721:composite_exact"
+ ENVZERO = ("core/product_physics/src/source_receipt,core/product_physics/src/retained_wire.rs,core/product_physics/src/retained_product.rs,"
+            "core/product_physics/src/retained_receipt.rs,core/reporting/result_export")
+ def tb(variant, D):
+@@ -47,7 +51,7 @@
+     D = d_new
+ complete = True
+ for v in ("", "_env", "_X", "_W"):
+-    complete = complete and tb(v, D)["complete"]
++    complete = tb(v, D)["complete"] and complete     # I95: evaluate every variant
+ run([os.path.join(work, "t08_closure.py"), "caps"], "t08_closure.caps.log")
+ run([os.path.join(work, "producer_caps.py"), "caps"], "producer_caps.caps.out.json")
+ run([os.path.join(work, "t07_repair.py"), "caps"], "t07_repair.caps.out.json")
+diff -ru mc_chain/t08_closure.py ur/t08_closure.py
+--- mc_chain/t08_closure.py	2026-10-07 14:34:29
++++ ur/t08_closure.py	2026-10-07 15:03:02
+@@ -12,9 +12,11 @@
+ # the ordinary envelope's own diagnostics: the same budget without the receipt finalization's
+ # replays (whose diagnostics go to local vectors that are dropped) and without the W1 root
+ tbe = json.load(open(os.path.join(H, f"text_budget_env.{which}.out.json")))
+-assert tbe["complete"], "envelope text budget incomplete"
++def _only_id(t):                                    # I95 B3-S: only identifier-audit items open
++    return t["complete"] or (not t["unmapped_loop_headers"] and all(u[0][0] == "id-unaudited" for u in t["unclassified_args"]))
++assert _only_id(tbe), "envelope text budget incomplete"
+ ct = json.load(open(os.path.join(H, f"composite_text.{which}.json")))
+-assert tb["complete"], "text budget incomplete"
++assert _only_id(tb), "text budget incomplete"
+ ERR = ct["classes"]["error_display"]            # every D1-reachable error Display/Debug <= 8192
+ RESULT_ID = 1024                                 # longest reached result-id template: 872 bytes
+ STATIC = 426                                     # longest literal used as text on the reached graph
+diff -ru mc_chain/t25_g4.py ur/t25_g4.py
+--- mc_chain/t25_g4.py	2026-10-07 14:35:14
++++ ur/t25_g4.py	2026-10-07 15:03:02
+@@ -174,13 +174,19 @@
+ rows["T25.5 actual_rows Value, work Value, retained FinalizedSourceBlockCase"] = (
+     rowjson + VF(obj=2, ent=12, strb=256, keyb=12 * 32, nums=8).tree() + s("FinalizedSourceBlockCase")
+     + B(64 + ID))
++
++# I95 B3-S census: per-case evidence facts = max(preview tree, exact evidence) at (n, m, g)
++_EXC = {'arr': (12, 40, 19), 'obj': (3, 13, 0), 'ent': (25, 64, 0), 'strb': (5400, 6600, 300), 'keyb': (441, 660, 0), 'nums': (3, 53, 18)}
++def _exmax(n, m, g):
++    pv = dict(arr=3 * m + 2 * g, obj=3 + m + g, ent=9 + 15 * m + 2 * g,
++              strb=m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64),
++              keyb=(9 + 15 * m + 2 * g) * 40, nums=10 * m)
++    return {k: max(pv[k], _EXC[k][0] + _EXC[k][1] * m + _EXC[k][2] * n) for k in pv}
+ # ---------------------------------------------------------------- per-invocation finalize
+ PA = CC * P                                  # I82: rows of the c-case envelope
+ env_vf = (VF(arr=PA + 4 * PA, obj=3 * PA, ent=15 * PA, strb=PA * ROW, keyb=15 * PA * 24, nums=PA, depth=4)
+           + VF(arr=D + 4 * D + 3 * (CC + LL), obj=D, ent=6 * D, strb=DIAG, keyb=6 * D * 16, depth=4)
+-          + VF(arr=3 * m + 2 * g, obj=3 + m + g, ent=9 + 15 * m + 2 * g,
+-               strb=m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64),
+-               keyb=(9 + 15 * m + 2 * g) * 40, nums=10 * m, depth=6).scale(CC)
++          + VF(depth=7, **_exmax(n, m, g)).scale(CC)                 # I95: max(preview, exact)
+           + VF(arr=64, obj=24, ent=160, strb=24 * 1024, keyb=160 * 40, nums=60, depth=5).scale(CC))
+ publication = env_vf.tree()
+ rows["T25.6 serialized(envelope) = publication Value"] = publication
+diff -ru mc_chain/text_args.g4.json ur/text_args.g4.json
+--- mc_chain/text_args.g4.json	2026-10-07 14:34:29
++++ ur/text_args.g4.json	2026-10-07 15:03:02
+@@ -579,6 +579,34 @@
+    ],
+    "per": "1",
+    "why": "G4 (T17 reader): require()/text() allocate only on failure, and every failure returns through `?` (preview_physics_evidence.rs:86-101; no caller swallows it), so <= 1 per validate call"
++  },
++  "physics_evidence.rs:38": {
++   "from": [
++    "physics_evidence.rs:319:validate_physics_evidence"
++   ],
++   "per": "1",
++   "why": "I95 B3-S (exact route, newly reached; as G4's preview_physics_evidence.rs:90/:100): an error-path allocation; require()/text()/number()/array() allocate only on failure and every failure returns through `?` (physics_evidence.rs:34-58); the only swallowing `.ok()` (:755) is inside the region loop, empty on this route; so <= 1 per validate_physics_evidence call"
++  },
++  "physics_evidence.rs:48": {
++   "from": [
++    "physics_evidence.rs:319:validate_physics_evidence"
++   ],
++   "per": "1",
++   "why": "I95 B3-S (exact route, newly reached; as G4's preview_physics_evidence.rs:90/:100): an error-path allocation; require()/text()/number()/array() allocate only on failure and every failure returns through `?` (physics_evidence.rs:34-58); the only swallowing `.ok()` (:755) is inside the region loop, empty on this route; so <= 1 per validate_physics_evidence call"
++  },
++  "physics_evidence.rs:53": {
++   "from": [
++    "physics_evidence.rs:319:validate_physics_evidence"
++   ],
++   "per": "1",
++   "why": "I95 B3-S (exact route, newly reached; as G4's preview_physics_evidence.rs:90/:100): an error-path allocation; require()/text()/number()/array() allocate only on failure and every failure returns through `?` (physics_evidence.rs:34-58); the only swallowing `.ok()` (:755) is inside the region loop, empty on this route; so <= 1 per validate_physics_evidence call"
++  },
++  "physics_evidence.rs:57": {
++   "from": [
++    "physics_evidence.rs:319:validate_physics_evidence"
++   ],
++   "per": "1",
++   "why": "I95 B3-S (exact route, newly reached; as G4's preview_physics_evidence.rs:90/:100): an error-path allocation; require()/text()/number()/array() allocate only on failure and every failure returns through `?` (physics_evidence.rs:34-58); the only swallowing `.ok()` (:755) is inside the region loop, empty on this route; so <= 1 per validate_physics_evidence call"
+   }
+  },
+  "id_audit": {

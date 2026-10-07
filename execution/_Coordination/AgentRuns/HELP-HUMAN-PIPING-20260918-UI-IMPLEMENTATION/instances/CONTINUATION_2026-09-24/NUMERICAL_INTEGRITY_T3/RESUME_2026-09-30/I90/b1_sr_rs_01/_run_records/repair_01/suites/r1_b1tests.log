@@ -1,0 +1,22 @@
+warning: function `derived` is never used
+   --> src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+   Compiling open_pipe_stress_result_export v0.1.0 (WT/b1-r/projects/chirality-piping/core/reporting/result_export)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.82s
+     Running tests/retained_precision_contract.rs (WT/targets/i90-b1-sr-rs/debug/deps/retained_precision_contract-877ba7029a2c4627)
+
+running 5 tests
+test b1_d38_4a_native_failure_with_a_run_is_admitted ... ok
+test b1_g5_not_required_admits_a_w2_published_case ... ok
+test b1_d38_capture_before_any_run_beside_a_selected_case ... ok
+test b1_g8_mode_row_and_requested_mode_for_every_case ... ok
+test b1_g8_parity_rows_p2_to_p4_for_every_case ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 65 filtered out; finished in 1.87s
+

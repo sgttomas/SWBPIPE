@@ -1,0 +1,4 @@
+H1 145443e9e4: 1 passed, 10 deselected in 30.14s
+head: ea3b1443ea4214ccb1975a25390fb382dc77674d
+command: python -m pytest -q -p no:cacheprovider tools/practitioner_harness/test_live_baseline.py -k gen8 (cwd: records-PR checkout root, WT/records-pr-b; PYTHONDONTWRITEBYTECODE=1; VENV's python)
+1 passed, 10 deselected in 30.50s

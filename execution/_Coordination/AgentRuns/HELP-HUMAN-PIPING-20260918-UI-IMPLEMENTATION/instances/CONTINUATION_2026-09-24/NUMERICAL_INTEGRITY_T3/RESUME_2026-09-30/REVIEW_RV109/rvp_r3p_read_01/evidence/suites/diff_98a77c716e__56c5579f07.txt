@@ -1,0 +1,29 @@
+elastic_extrema_runtime.rs: base {'ok': 2, 'FAILED': 0, 'ignored': 0} cand {'ok': 2, 'FAILED': 0, 'ignored': 0}
+f1b_guard_ceiling.rs: base {'ok': 1, 'FAILED': 0, 'ignored': 0} cand {'ok': 1, 'FAILED': 0, 'ignored': 0}
+f1b_sparse_pattern_memory.rs: base {'ok': 1, 'FAILED': 0, 'ignored': 0} cand {'ok': 1, 'FAILED': 0, 'ignored': 0}
+f1b_w2_runtime.rs: base {'ok': 15, 'FAILED': 0, 'ignored': 0} cand {'ok': 15, 'FAILED': 0, 'ignored': 0}
+formation_check_runtime.rs: base {'ok': 5, 'FAILED': 0, 'ignored': 0} cand {'ok': 5, 'FAILED': 0, 'ignored': 0}
+k2a_formation_range_runtime.rs: base {'ok': 3, 'FAILED': 0, 'ignored': 0} cand {'ok': 3, 'FAILED': 0, 'ignored': 0}
+k5_curved_mechanism_runtime.rs: base {'ok': 4, 'FAILED': 0, 'ignored': 0} cand {'ok': 4, 'FAILED': 0, 'ignored': 0}
+lib.rs: base {'ok': 549, 'FAILED': 1, 'ignored': 11} cand {'ok': 554, 'FAILED': 1, 'ignored': 11}
+  DIFF retained_facade_tests::b1_sp_domain_recheck_names_the_requested_cases: base=None cand=ok
+  DIFF retained_facade_tests::b1_sp_t2_the_capture_holds_each_requested_case: base=None cand=ok
+  DIFF retained_facade_tests::b1_sp_t5_one_reserved_notice_per_case_in_a: base=None cand=ok
+  DIFF retained_facade_tests::b1_sp_t6_custody_refuses_the_whole_invocation: base=None cand=ok
+  DIFF retained_facade_tests::b1_sp_t6_t7_custody_once_then_one_attempt_per_case_in_a: base=None cand=ok
+load_reference_state_runtime.rs: base {'ok': 20, 'FAILED': 0, 'ignored': 0} cand {'ok': 20, 'FAILED': 0, 'ignored': 0}
+load_reference_state_runtime_extension.rs: base {'ok': 9, 'FAILED': 0, 'ignored': 0} cand {'ok': 9, 'FAILED': 0, 'ignored': 0}
+physics_source_runtime.rs: base {'ok': 5, 'FAILED': 0, 'ignored': 0} cand {'ok': 5, 'FAILED': 0, 'ignored': 0}
+pressure_grouping_limits.rs: base {'ok': 1, 'FAILED': 0, 'ignored': 0} cand {'ok': 1, 'FAILED': 0, 'ignored': 0}
+pressure_membrane_range.rs: base {'ok': 2, 'FAILED': 0, 'ignored': 0} cand {'ok': 2, 'FAILED': 0, 'ignored': 0}
+pressure_runtime.rs: base {'ok': 14, 'FAILED': 0, 'ignored': 0} cand {'ok': 14, 'FAILED': 0, 'ignored': 0}
+pressure_section_geometry.rs: base {'ok': 9, 'FAILED': 0, 'ignored': 0} cand {'ok': 9, 'FAILED': 0, 'ignored': 0}
+preview_physics_runtime.rs: base {'ok': 26, 'FAILED': 0, 'ignored': 0} cand {'ok': 26, 'FAILED': 0, 'ignored': 0}
+represented_gap_publication.rs: base {'ok': 17, 'FAILED': 0, 'ignored': 0} cand {'ok': 17, 'FAILED': 0, 'ignored': 0}
+retained_memory_challenge.rs: base {'ok': 1, 'FAILED': 0, 'ignored': 0} cand {'ok': 1, 'FAILED': 0, 'ignored': 0}
+retained_precision_admission.rs: base {'ok': 5, 'FAILED': 0, 'ignored': 0} cand {'ok': 5, 'FAILED': 0, 'ignored': 0}
+s11f_site_test.rs: base {'ok': 11, 'FAILED': 0, 'ignored': 0} cand {'ok': 11, 'FAILED': 0, 'ignored': 0}
+source_block_recovery.rs: base {'ok': 4, 'FAILED': 0, 'ignored': 0} cand {'ok': 4, 'FAILED': 0, 'ignored': 0}
+stress_maximum_coverage.rs: base {'ok': 4, 'FAILED': 0, 'ignored': 0} cand {'ok': 4, 'FAILED': 0, 'ignored': 0}
+support_reactions_runtime.rs: base {'ok': 4, 'FAILED': 0, 'ignored': 0} cand {'ok': 4, 'FAILED': 0, 'ignored': 0}
+TOTAL_DIFFERENCES 5

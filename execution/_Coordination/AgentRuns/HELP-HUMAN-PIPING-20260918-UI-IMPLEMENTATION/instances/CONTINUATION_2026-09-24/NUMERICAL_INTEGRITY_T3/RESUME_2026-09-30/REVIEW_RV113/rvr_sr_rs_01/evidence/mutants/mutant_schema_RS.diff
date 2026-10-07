@@ -1,0 +1,117 @@
+--- head/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs	2026-10-07 08:47:06
++++ mut/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs	2026-10-07 10:09:29
+@@ -12,6 +12,10 @@
+ pub const METHOD: &str = "contribution_preserving_multiprecision_v1";
+ const MAX_BITS: u64 = 0x7fef_ffff_ffff_ffff;
+ 
++fn mx(id: &str) -> bool {
++    std::env::var("RV113_MUT").map_or(false, |v| v == id)
++}
++
+ #[derive(Debug, Clone, PartialEq, Eq)]
+ pub struct ValidationError {
+     pub gate: &'static str,
+@@ -2020,6 +2024,12 @@
+ /// Call, and every Build to its building record.
+ fn d38_capture_before_run(c: &Value, a: &Value, ai: usize) -> bool {
+     let st = &a["stages"];
++    if mx("M05") {
++        return a["source_ref"] == c["source_ref"];
++    }
++    if mx("M06") {
++        return !c["source_ref"].is_null();
++    }
+     a["result"]["kind"] == "unavailable"
+         && a["result"]["error"]["kind"] == "capture"
+         && st["preparation"] == "completed"
+@@ -2282,8 +2292,17 @@
+             // R-D38 (DESIGN_v2 §2; RR:8823): an entered native stage has a Run
+             // (4a), except a native capture failure before any Run beside a
+             // registered prepared source (4b).
+-            if st["native"] == "failed" && a["run_ref"].is_null() {
+-                pf(d38_capture_before_run(c, a, ai))?;
++            let branch = if mx("M01") {
++                a["run_ref"].is_null()
++            } else if mx("M02") {
++                st["native"] == "failed" || a["run_ref"].is_null()
++            } else if mx("M03") {
++                false
++            } else {
++                st["native"] == "failed" && a["run_ref"].is_null()
++            };
++            if branch {
++                pf(mx("M04") || d38_capture_before_run(c, a, ai))?;
+             } else {
+                 pf(!a["run_ref"].is_null() && st["preparation"] == "completed")?;
+             }
+@@ -3562,28 +3581,36 @@
+             .iter()
+             .filter(|r| r["kind"] == "linear_solver_mode_basis")
+             .collect();
++        let selected_only = b["cases"][i]["status"] == "selected";
+         // P1: exactly one mode row, valued with the mode code (1 sparse, 2 dense).
+         fail(
+-            modes.len() == 1
++            (mx("M14") && !selected_only) || modes.len() == 1
+                 && modes[0]["value"].as_f64()
+                     == Some(if mode == "sparse_interactive" {
+                         1.0
+                     } else {
+                         2.0
+-                    }),
++                    })
++                || (mx("M14") && !selected_only),
+         )?;
+-        let parity = rows
++        let parity_rows = if mx("M16") { rows_for(source, &b["cases"][0]) } else { rows.clone() };
++        let parity = parity_rows
+             .iter()
+             .filter(|r| r["kind"] == "sparse_live_path_dense_parity_relative_delta")
+             .count();
+         // P2: at most one parity row. P3: none in sparse_interactive. P4: none
+         // when W2 published (b != 0; OQ5). A dense b = 0 case may lack it (a
+         // failed observation lane); that deletion is the disclosed limit.
+-        fail(
+-            parity <= 1
++        let w2 = if mx("M10") { &b["ordinary_attempts"][0]["w2"] } else { &o["w2"] };
++        let p4 = if mx("M11") { w2["kind"] == "not_triggered" } else { w2["kind"] != "published" };
++        let ok = if mx("M18") && selected_only {
++            parity == usize::from(mode == "dense_scrutiny")
++        } else {
++            parity <= (if mx("M13") { 2 } else { 1 })
+                 && (parity == 0 || mode == "dense_scrutiny")
+-                && (parity == 0 || o["w2"]["kind"] != "published"),
+-        )?;
++                && (parity == 0 || p4 || (mx("M12") && !selected_only))
++        };
++        fail((mx("M15") && !selected_only) || ok)?;
+     }
+     fail(list(&b["material_bases"]).len() == expected_selectors.len())?;
+     for (mi, mb) in list(&b["material_bases"]).iter().enumerate() {
+@@ -4210,7 +4237,7 @@
+                 fail(refs.contains(text(path)))?;
+             }
+         }
+-        if matches!(text(&c["status"]), "selected" | "not_required") {
++        if matches!(text(&c["status"]), "selected" | "not_required") && !(mx("M25") && c["status"] == "not_required") {
+             fail(o["initial"]["kind"] != "not_attempted")?;
+         }
+         // B1 (DESIGN_v2 §3.3, decision 9; C1:101): a not_required case has no
+@@ -4220,11 +4247,15 @@
+         // not_required (T-4). PY `_g5_ordinary` and TS `ordinaryAttempts`
+         // apply the same rule.
+         if c["status"] == "not_required" {
+-            fail(c["product_attempt_ref"].is_null() && quality["solve_quality"] == "checks_passed")?;
++            fail(
++                (mx("M20") || c["product_attempt_ref"].is_null())
++                    && (mx("M21") || quality["solve_quality"] == "checks_passed")
++                    && (!mx("M24") || o["w2"]["kind"] != "published"),
++            )?;
+         }
+         // The report-outcome equality is kept; its W2 guard is equivalent
+         // under D6c, since W2 runs only after a failed ordinary attempt.
+-        if o["initial"]["kind"] == "report" && o["w2"]["kind"] == "not_triggered" {
++        if !mx("M23") && o["initial"]["kind"] == "report" && (mx("M22") || o["w2"]["kind"] == "not_triggered") {
+             fail(o["initial"]["outcome"] == quality["solve_quality"])?;
+         }
+         if o["w2"]["kind"] != "not_triggered" {

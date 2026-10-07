@@ -1,0 +1,14 @@
+base ee rc=0
+base rcr rc=0
+cand ee rc=0
+cand rcr rc=0
+graft ee rc=101
+graft rcr rc=101
+base rpd rc=0
+cand rpd rc=0
+base pytest rc=0
+cand pytest rc=0
+rustfmt cand core/rules/expression_evaluator/src/lib.rs rc=0
+rustfmt cand core/rules/rule_check_runner/tests/point_path_non_finite_run.rs rc=0
+rustfmt base rcr lib rc=1
+rustfmt cand rcr lib rc=1

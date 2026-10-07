@@ -1,0 +1,220 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (WT/b1-a/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling proc-macro2 v1.0.106
+   Compiling version_check v0.9.5
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling generic-array v0.14.7
+   Compiling serde_core v1.0.228
+   Compiling typenum v1.20.1
+   Compiling zmij v1.0.21
+   Compiling libc v0.2.189
+   Compiling syn v2.0.117
+   Compiling serde_json v1.0.149
+   Compiling serde v1.0.228
+   Compiling serde_derive v1.0.228
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling open_pipe_stress_linear_supports v0.1.0 (WT/b1-a/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (WT/b1-a/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (WT/b1-a/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling memchr v2.8.0
+   Compiling itoa v1.0.18
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (WT/b1-a/projects/chirality-piping/core/solver/diagnostics)
+   Compiling digest v0.10.7
+   Compiling cpufeatures v0.2.17
+   Compiling ryu v1.0.23
+   Compiling cfg-if v1.0.5
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (WT/b1-a/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (WT/b1-a/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (WT/b1-a/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling open_pipe_stress_product_physics v0.2.0 (WT/b1-a/projects/chirality-piping/core/product_physics)
+   Compiling open_pipe_stress_canonical_json v0.1.0 (WT/b1-a/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_units v0.1.0 (WT/b1-a/projects/chirality-piping/core/units)
+   Compiling open_pipe_stress_result_export v0.1.0 (WT/b1-a/projects/chirality-piping/core/reporting/result_export)
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (WT/b1-a/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (WT/b1-a/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (WT/b1-a/projects/chirality-piping/core/loads/load_case_algebra)
+warning: function `derived` is never used
+   --> WT/b1-a/projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1631:27
+     |
+1631 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+1631 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+1631 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1632:27
+     |
+1632 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+help: remove these parentheses
+     |
+1632 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+1632 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+     |
+
+warning: function `is_exact_pressure_result_kind` is never used
+     --> src/lib.rs:10387:4
+      |
+10387 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      |
+      = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   --> src/source_recovery.rs:146:9
+    |
+145 | pub(super) struct SpringAction {
+    |                   ------------ fields in this struct
+146 |     pub support_id: String,
+    |         ^^^^^^^^^^
+147 |     pub global_dof: usize,
+    |         ^^^^^^^^^^
+148 |     pub value: f64,
+    |         ^^^^^
+149 |     pub functional_index: usize,
+    |         ^^^^^^^^^^^^^^^^
+    |
+    = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:171:9
+    |
+170 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+171 |     pub dofs: usize,
+    |         ^^^^
+172 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+173 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+174 |     pub blocks: usize,
+    |         ^^^^^^
+175 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+176 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+177 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+178 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+179 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+180 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+181 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+182 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+183 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+184 |     pub max_relative_projection_error: f64,
+185 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:198:5
+    |
+192 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+198 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:224:12
+    |
+207 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+224 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 7 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 2 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 15.24s
+     Running unittests src/lib.rs (WT/targets/i89-b1-sa/stale/debug/deps/open_pipe_stress_product_physics-b79a95c9fabe007b)
+
+running 60 tests
+test retained_memory::law_tests::admission_bound_adds_r_before_comparing_with_m ... ok
+test retained_memory::law_tests::admit_grants_a_permit_for_the_milestone_in_the_registered_build ... ok
+test retained_memory::law_tests::an_unreadable_reviewed_input_never_binds ... ok
+test retained_memory::law_tests::b1_sa_d1_4_admits_one_to_c_load_cases ... ok
+test retained_memory::law_tests::actual_inputs_map_each_cap_fact ... ok
+test retained_memory::law_tests::b1_sa_g_b_reads_each_case_and_the_running_total ... ok
+test retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions ... ok
+test retained_memory::law_tests::b1_sa_runner_oracle_literal_is_load_cases_plus_one ... ok
+test retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases ... ok
+test retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one ... ok
+test retained_memory::law_tests::bindings_need_witnesses_inputs_and_reader_layouts ... ok
+test retained_memory::law_tests::bound_admits_at_m_and_refuses_above ... ok
+test retained_memory::law_tests::challenge_bounds_are_the_profile ... ok
+test retained_memory::law_tests::complete_facts_read_the_actual_owners ... ok
+test retained_memory::law_tests::d1_3_refuses_one_authored_law_among_several_materials ... ok
+test retained_memory::law_tests::encoder_roundtrip_covers_every_byte ... ok
+test retained_memory::law_tests::every_cap_row_admits_its_cap_and_refuses_cap_plus_one ... ok
+test retained_memory::law_tests::every_family_clause_refuses_with_its_fact ... ok
+test retained_memory::law_tests::every_phase_fact_admits_its_cap_and_refuses_cap_plus_one ... ok
+test retained_memory::law_tests::g_c_declines_w1_when_the_ordinary_solve_was_not_attempted ... ok
+test retained_memory::law_tests::gate_sums_saturate_and_the_longest_string_reads_every_diagnostic_field ... ok
+test retained_memory::law_tests::identity_carries_every_key_in_order ... ok
+test retained_memory::law_tests::identity_matching_is_missing_stale_or_exact ... ok
+test retained_memory::law_tests::late_facts_read_the_actual_owners ... ok
+test retained_memory::law_tests::law_order_reports_the_first_failing_clause ... ok
+test retained_memory::law_tests::maximum_takes_every_phase ... ok
+test retained_memory::law_tests::milestone_and_cap_maximal_inputs_are_inside_d1 ... ok
+test retained_memory::law_tests::nested_typed_census_reads_the_roster ... ok
+test retained_memory::law_tests::profile_in_build_record ... ok
+test retained_memory::law_tests::profile_laws_hold_in_this_build ... ok
+test retained_memory::law_tests::profile_transcribes_the_python_chain_exactly ... ok
+test retained_memory::law_tests::raw_text_census_reads_lengths_and_control_bytes ... ok
+test retained_memory::law_tests::refusal_kinds_are_the_schema_preconditions ... ok
+test retained_memory::law_tests::registered_g_c_declines_only_unattempted_solves ... ok
+test retained_memory::law_tests::reserved_stack_is_r_with_a_test_override ... ok
+test retained_memory::law_tests::restraint_capacity_total_is_the_sum_over_supports ... ok
+test retained_memory::law_tests::reviewed_inputs_bind_the_lock_and_the_reader_statics ... ok
+test retained_memory::law_tests::sha256_matches_the_sha2_dependency ... ok
+test retained_memory::law_tests::structural_budgets_are_u3s ... ok
+test retained_memory::law_tests::the_registered_profile_is_the_only_permit_source ... ok
+test retained_memory::law_tests::b1_sa_envelope_results_bound_is_c_times_p_final ... ok
+test retained_memory::law_tests::typed_walk_reads_request_materials_and_temperature_point_ids ... ok
+test retained_memory::law_tests::unknown_stale_overflow_and_partial_refusals_keep_every_fact ... ok
+test retained_memory::tests::actual_retained_entry_dispatches_ordinary_once ... ok
+test retained_memory::tests::arithmetic_refusal_keeps_prefix_and_never_wraps ... ok
+test retained_memory::tests::missing_stale_overflow_and_unknowns_cannot_mint_a_permit ... ok
+test retained_memory::tests::object_keys_and_array_spare_capacity_are_observed ... ok
+test retained_memory::tests::prefix_depth_and_value_limits_are_honest ... ok
+test retained_memory::law_tests::typed_capacity_and_units_rows_read_the_actual_owners ... ok
+test retained_memory::witness_tests::witness_headroom_w1_at_one_mebibyte ... ignored
+test retained_memory::witness_tests::witness_w1_milestone ... ignored
+test retained_memory::witness_tests::witness_w2_cap_maximal ... ignored
+test retained_memory::witness_tests::witness_w2_deep_milestone_publishes ... ignored
+test retained_memory::witness_tests::witness_w2b_cap_maximal_passed_report_no_triggered_case ... ignored
+test retained_memory::witness_tests::witness_w3_exact_selected ... ignored
+test retained_memory::witness_tests::witness_w4_preparation_refusal ... ignored
+test retained_memory::witness_tests::witness_w6_force_scaled ... ignored
+test retained_memory::witness_tests::witness_w6_phys_r4_input_no_triggered_case ... ignored
+test retained_memory::witness_tests::witness_w7_fault_fallbacks ... ignored
+test retained_memory::witness_tests::b1_t4_w2b_and_w6_phys_r4_inputs_are_no_triggered_case_pins ... ok
+
+test result: ok. 50 passed; 0 failed; 10 ignored; 0 measured; 508 filtered out; finished in 2.66s
+

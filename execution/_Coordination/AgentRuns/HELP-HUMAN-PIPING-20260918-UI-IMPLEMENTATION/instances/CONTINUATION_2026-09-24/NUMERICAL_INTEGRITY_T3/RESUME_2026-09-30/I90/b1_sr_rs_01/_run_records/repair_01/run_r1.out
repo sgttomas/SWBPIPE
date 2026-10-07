@@ -1,0 +1,7 @@
+== r1_re start 2026-10-07T18:02:14Z
+== r1_re exit=0 2026-10-07T18:05:56Z
+r1_re: 187 ok, 0 failed, 0 ignored
+== r1_pins start 2026-10-07T18:05:56Z
+== r1_pins exit=0 2026-10-07T18:09:00Z
+r1_pins: 3 ok, 0 failed, 0 ignored
+mutants rc=0

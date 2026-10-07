@@ -1,0 +1,530 @@
+diff --git a/projects/chirality-piping/core/analysis_runs/compatibility.py b/projects/chirality-piping/core/analysis_runs/compatibility.py
+index edc8c77bb7..eee5f42afa 100644
+--- a/projects/chirality-piping/core/analysis_runs/compatibility.py
++++ b/projects/chirality-piping/core/analysis_runs/compatibility.py
+@@ -425,14 +425,18 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True) -
+     if producer["semantic_contract_id"] not in {SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID} and "source_block_recovery" in source:
+         raise ValueError("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
+     quality = source.get("numerical_quality")
+-    if not isinstance(quality, Mapping) or set(quality) != {"value_representation", "publication_quantization", "integrity_policy", "status", "cases"} or quality.get("value_representation") != "finite_binary64" or quality.get("publication_quantization") != "none" or quality.get("integrity_policy") != "M03-INTEGRITY-v1" or quality.get("status") not in {"not_assessed", "checks_passed", "sensitive", "unresolved", "failed"} or not isinstance(quality.get("cases"), list):
++    if not isinstance(quality, Mapping) or set(quality) != {"value_representation", "publication_quantization", "integrity_policy", "status", "cases"} or quality.get("value_representation") != "finite_binary64" or quality.get("publication_quantization") != "none" or quality.get("integrity_policy") != "M03-INTEGRITY-v1" or not isinstance(quality.get("status"), str) or quality.get("status") not in {"not_assessed", "checks_passed", "sensitive", "unresolved", "failed"} or not isinstance(quality.get("cases"), list):
++        # RV108 N1: each enum membership test refuses a non-string value first. A list- or
++        # dict-valued enum is unhashable, so a bare `in` raised TypeError, which escaped callers
++        # that catch ValueError only. A string is tested as before; no other value was ever a member.
+         raise ValueError("SOURCE_NUMERICAL_QUALITY_INVALID")
+     statuses = {"not_assessed", "checks_passed", "sensitive", "unresolved", "failed"}
+     for case in quality["cases"]:
+         if not isinstance(case, Mapping) or set(case) != {"basis_ref", "structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence", "evidence_refs"}:
+             raise ValueError("SOURCE_NUMERICAL_CASE_INVALID")
+         basis = case.get("basis_ref")
+-        if not isinstance(basis, Mapping) or set(basis) != {"ref_type", "ref_id"} or not all(isinstance(value, str) and value for value in basis.values()) or case.get("solve_quality") not in statuses or case.get("structural_status") not in {"passive_model_basis", "physical_mechanism_witnessed", "negative_energy_witnessed", "numerically_unresolved"} or case.get("model_matrix_fidelity") not in {"represented_equations_retained", "assembly_loss_detected", "assembly_uncertainty", "not_assessed"} or case.get("accuracy_evidence") not in {"not_claimed", "reference_verified", "unresolved"} or not isinstance(case.get("evidence_refs"), list) or not all(isinstance(item, str) and item for item in case["evidence_refs"]):
++        if not isinstance(basis, Mapping) or set(basis) != {"ref_type", "ref_id"} or not all(isinstance(value, str) and value for value in basis.values()) or not isinstance(case.get("solve_quality"), str) or case.get("solve_quality") not in statuses or not isinstance(case.get("structural_status"), str) or case.get("structural_status") not in {"passive_model_basis", "physical_mechanism_witnessed", "negative_energy_witnessed", "numerically_unresolved"} or not isinstance(case.get("model_matrix_fidelity"), str) or case.get("model_matrix_fidelity") not in {"represented_equations_retained", "assembly_loss_detected", "assembly_uncertainty", "not_assessed"} or not isinstance(case.get("accuracy_evidence"), str) or case.get("accuracy_evidence") not in {"not_claimed", "reference_verified", "unresolved"} or not isinstance(case.get("evidence_refs"), list) or not all(isinstance(item, str) and item for item in case["evidence_refs"]):
++            # RV108 N1: the same string guard on each case enum.
+             raise ValueError("SOURCE_NUMERICAL_CASE_INVALID")
+     formulation = source.get("formulation_basis")
+     if not isinstance(formulation, Mapping) or set(formulation) != {"profile_id", "limitations"} or formulation.get("profile_id") != (LOAD_REFERENCE_PROFILE if load_reference else LOAD_REFERENCE_SOURCE_PROFILE if joined else "exact_straight_pressure_v2" if physics else "product_preview_mechanics_v1") or not isinstance(formulation.get("limitations"), list) or not formulation["limitations"] or not all(isinstance(item, str) and item for item in formulation["limitations"]):
+diff --git a/projects/chirality-piping/core/analysis_runs/retained_precision.py b/projects/chirality-piping/core/analysis_runs/retained_precision.py
+index 63ccfb9358..e13d855eec 100644
+--- a/projects/chirality-piping/core/analysis_runs/retained_precision.py
++++ b/projects/chirality-piping/core/analysis_runs/retained_precision.py
+@@ -604,6 +604,7 @@ def _g5_native_checks(body, runs, fail, wf):
+     for item in runs + body["builds"] + [g["preparation"] for g in body["groups"]]:
+         fail(not any(o.get("tag") == "work_accounting" for o in _objects(item)))
+     current = 0
++    built_refs = set()  # builds referenced by their building record (R-D38 (4b)'s Build conjunct)
+     for call_id, call in enumerate(body["calls"]):
+         fail(call["id"] == call_id and call["invocation_before"] == current, "WORK_MISMATCH")
+         fail(len(call["run_refs"]) == len(call["source_refs"]) == len(call["owner_refs"]))
+@@ -668,7 +669,9 @@ def _g5_native_checks(body, runs, fail, wf):
+                     fail(build["work"] == cost and build["group"] == run["origin"]["group"], "WORK_MISMATCH")
+                     fail(build["slot"] == ("s" if part == "shared" else "v") + str(r["precision"]), "WORK_MISMATCH")
+                     for key, count in build["stages"].items(): shared_stages[key] += count
+-                    if built: fail(build["origin"] == {"call": call_id, "run": ri, "physical_record": r["index"], "phase": part}, "WORK_MISMATCH")
++                    if built:
++                        fail(build["origin"] == {"call": call_id, "run": ri, "physical_record": r["index"], "phase": part}, "WORK_MISMATCH")
++                        built_refs.add(int(bi))
+                     else: fail(build["origin"]["run"] < ri or (build["origin"]["run"] == ri and build["origin"]["physical_record"] < r["index"]), "WORK_MISMATCH")
+                 fail(shared_stages == w["shared_stages"], "WORK_MISMATCH")
+             fragments = []
+@@ -738,6 +741,10 @@ def _g5_native_checks(body, runs, fail, wf):
+         call = _ref(body["calls"], group["call"])
+         fail(call is not None and len(set(group["source_refs"])) == len(group["source_refs"]) and all(si in call["source_refs"] for si in group["source_refs"]))
+     fail(body["work"]["charged"] == current, "WORK_MISMATCH")
++    # Every Build is referenced by its building record (C1 build provenance; WORK), as Rust's
++    # `builds_seen` and TypeScript's `seenBuilds` require. So no Build outlives its Run, and none
++    # names a case whose native stage failed before any Run (R-D38 (4b), DESIGN_v2 §2).
++    fail(built_refs == set(range(len(body["builds"]))), "WORK_MISMATCH")
+     for call_id, call in enumerate(body["calls"]):
+         # C2:143 call-local groups at first equality of full stiffness bytes, first-seen order;
+         # an idle (group-null) run never formed a group (adaptive.rs `solve_cases_projected`).
+@@ -816,7 +823,34 @@ def _conversion_kind_ok(outcome):
+ STAGE_ORDER = ["preparation", "native", "proof_start", "projection", "maxima", "values", "aliases", "certificate", "observables", "g5a"]
+ 
+ 
+-def _g5_stages(a, case, fail):
++def _d38_capture_before_run(a, case, ai):
++    """R-D38 (4b) (DESIGN_v2 §2; RR:8823; C1:103, C3:167): a native capture failure before any Run,
++    beside a registered prepared source (C2 §3 registers a CaseSource once it is constructed and its
++    maps validate, whatever the outcome). G5 PRODUCT_ATTEMPT. The conjuncts here: the case has no Run
++    and the attempt no proof; an unavailable `capture` result; the stage record done(1, [failed]),
++    preparation completed, native failed and every later stage not_entered; the case unavailable with
++    `prepared_product_failure` naming this attempt and reason (source_unavailable, preparation), D4d's
++    mapping for a capture with no Run; and a non-null source reference equal to the case's own
++    ([r01: N-6]; TS already requires it). The caller's branch gives `run_ref` null.
++
++    The rest of (4b) holds for every receipt elsewhere: `_g5_products` resolves a non-null source
++    reference to a CaseSource whose preparation binds this attempt; G3 binds `execution_order` to
++    the cases' Runs; G5's native class binds every Call position to its Run's own case and source,
++    every Group source to its Call, and every Build to its building record (`_g5_native_checks`)."""
++    st = a["stages"]
++    reason = case.get("reason") or {}
++    cause = reason.get("cause") or {}
++    return (case.get("run") is None and a["proof"] is None
++            and a["result"]["kind"] == "unavailable" and a["result"]["error"]["kind"] == "capture"
++            and st["preparation"] == "completed" and st["native"] == "failed"
++            and all(st[k] == "not_entered" for k in STAGE_ORDER[2:])
++            and case["status"] == "unavailable" and cause.get("kind") == "prepared_product_failure"
++            and cause.get("product_attempt_ref") == ai
++            and (reason.get("code"), reason.get("phase")) == ("source_unavailable", "preparation")
++            and a["source_ref"] is not None and a["source_ref"] == case.get("source_ref"))
++
++
++def _g5_stages(a, case, fail, ai):
+     """Checklist P2, P6, P11 (C3:196-201, 253-257; retained_receipt.rs `PreparedTrace::enter` through `PreparedTrace::checked`, `project`)."""
+     st, proof = a["stages"], a["proof"]
+     pipeline = [st[k] for k in STAGE_ORDER[:8]]
+@@ -833,6 +867,10 @@ def _g5_stages(a, case, fail):
+     run = case.get("run")
+     if st["native"] == "not_entered":
+         fail(a["run_ref"] is None)
++    elif st["native"] == "failed" and a["run_ref"] is None:
++        # R-D38 (DESIGN_v2 §2; RR:8823): an entered native stage has a Run (4a, below), except a
++        # native capture failure before any Run beside a registered prepared source (4b).
++        fail(_d38_capture_before_run(a, case, ai))
+     else:
+         fail(a["run_ref"] is not None and run is not None and (st["native"] == "completed") == (run["kernel_terminal"]["kind"] == "selected"))
+     fail((st["preparation"] == "completed") == (a["source_ref"] is not None) or st["preparation"] == "not_entered" and a["source_ref"] is None)
+@@ -915,13 +953,19 @@ def _g5_ordinary(body, cases, diags, quality):
+         fail(refs == [d["id"] for d in diags if isinstance(d.get("affected_refs"), list) and name in d["affected_refs"]
+                       and not str(d.get("code")).startswith("RETAINED_PRECISION_")])
+         fail(o["initial"]["kind"] != "not_attempted" if c["status"] in ("selected", "not_required") else True)
++        # RV108 N2: a quality case without `solve_quality` has no published verdict. Each rule
++        # below that reads the verdict then fails with its own G5 ATTEMPT code, as Rust's null and
++        # TypeScript's undefined do, never through the fail-closed fallback's PRODUCT_ATTEMPT code.
++        # A case for which no rule here reads the verdict passes this pass unchanged, and G7's base
++        # header then refuses the missing member (SOURCE_NUMERICAL_CASE_INVALID), as before.
++        verdict = quality[i]["solve_quality"] if "solve_quality" in quality[i] else None
+         if o["initial"]["kind"] == "report":
+-            fail(o["initial"]["report_diagnostic_ref"] in by_id and o["initial"]["outcome"] == quality[i]["solve_quality"])
++            fail(o["initial"]["report_diagnostic_ref"] in by_id and o["initial"]["outcome"] == verdict)
+         if c["status"] == "not_required":
+-            fail(c["product_attempt_ref"] is None and quality[i]["solve_quality"] == "checks_passed")
++            fail(c["product_attempt_ref"] is None and verdict == "checks_passed")
+         if c["status"] == "selected":
+             # D6b (C1:101; C2:153, :164; source_receipt.rs `OrdinaryAttempt::wire`): only an attempted trigger selects.
+-            fail(quality[i]["solve_quality"] in ("sensitive", "unresolved", "failed"))
++            fail(verdict in ("sensitive", "unresolved", "failed"))
+             fail(c["selection"]["rcond_label"] == RCOND_LABEL)
+         listed = set(refs)
+         cid = c["basis_ref"]["ref_id"]
+@@ -1032,7 +1076,7 @@ def _g5_products(body, rows_by_case):
+                     value = 0.0 if outcome["kind"] == "underflow" else from_bits(outcome["value"])
+                     fail(bits(float(row["value"])) == bits(value if value != 0 else 0.0))
+         _g5_coverage(a, case, source, fail)
+-        _g5_stages(a, case, fail)
++        _g5_stages(a, case, fail, ai)
+         for ok in _accounting_rules(a): wf(ok)
+         if a["result"]["kind"] == "ready":
+             fail(source is not None and a["run_ref"] is not None and case["run"]["kernel_terminal"]["kind"] == "selected")
+@@ -1425,6 +1469,24 @@ def _g8(body, source, invocation):
+     nodes, pipes, supports = model["nodes"], model["pipe_segments"], model["supports"]
+     need(len({x["id"] for x in nodes}) == len(nodes) and len({x["id"] for x in pipes}) == len(pipes) and len({x["id"] for x in supports}) == len(supports))
+     materials = request.get("materials") or model.get("materials", [])
++    # F-1 text B (DESIGN_v2 §3.2-§3.3, decision 8): after the invocation, project and model-scope
++    # checks, one loop in request order over every case (selected, unavailable or not_required:
++    # every case's rows come from the one ordinary run). G3 binds case i to ordinary attempt i and
++    # to the invocation's case i. Each check is PREPARATION_MISMATCH.
++    mode = invocation.get("solver_mode")
++    mode_code = {"sparse_interactive": 1, "dense_scrutiny": 2}.get(mode) if isinstance(mode, str) else None
++    for i, case in enumerate(body["cases"]):
++        o = body["ordinary_attempts"][i]
++        need(o["requested_mode"] == mode)
++        case_rows = [r for r in source["results"] if r["basis_ref"]["ref_id"] == case["basis_ref"]["ref_id"]]
++        modes = [r for r in case_rows if r["kind"] == "linear_solver_mode_basis"]
++        # P1: exactly one mode row, valued with the mode code (1 sparse, 2 dense).
++        need(len(modes) == 1 and mode_code is not None and type(modes[0]["value"]) in (int, float) and modes[0]["value"] == mode_code)
++        parity = sum(1 for r in case_rows if r["kind"] == "sparse_live_path_dense_parity_relative_delta")
++        # P2: at most one parity row. P3: none in sparse_interactive. P4: none when W2 published
++        # (b != 0; OQ5). A dense b = 0 case may lack it (a failed observation lane); that deletion
++        # is the disclosed limit.
++        need(parity <= 1 and (parity == 0 or mode == "dense_scrutiny") and (parity == 0 or o["w2"]["kind"] != "published"))
+     from core.units.adapter import convert_quantities_to_canonical
+     def unit(q, dimension):
+         values = convert_quantities_to_canonical([{"id":"v","value":q["value"],"unit":q["unit"],"dimension":dimension}])
+@@ -1595,9 +1657,13 @@ def validate_retained_precision(source: Any, invocation: Any = None) -> dict[str
+ 
+ 
+ def validate_retained_precision_transport(source: Any) -> dict[str, Any]:
+-    """F-U6b-2 (B6): G0-G2 and the unchanged base transport metadata only, the twin of Rust
+-    `validate_transport_metadata` and TS `validateRetainedPrecisionTransport`. Omitted raw publication
+-    bytes are never reconstructed or verified, so a transported statement is never eligible."""
++    """F-U6b-2 (B6): G0-G2, then the unchanged base step on the transport projection (no rows read).
++    On G0-G2 this is the twin of Rust `validate_transport_metadata` and TS
++    `validateRetainedPrecisionTransport`: the same checks, gates and codes. At the base step it runs
++    both of theirs (RV108 N6(a)): the base header check, which Rust runs alone (reported as G2), and
++    the preview-physics transport metadata check, which TS runs alone. So a header or evidence defect
++    there can carry a different reader-level code in each language. Omitted raw publication bytes are
++    never reconstructed or verified, so a transported statement is never eligible."""
+     return _validate_draft(source, None, raw=False)
+ 
+ 
+diff --git a/projects/chirality-piping/tests/test_retained_precision_carriers.py b/projects/chirality-piping/tests/test_retained_precision_carriers.py
+index 80155f9e3c..5f595f1d7c 100644
+--- a/projects/chirality-piping/tests/test_retained_precision_carriers.py
++++ b/projects/chirality-piping/tests/test_retained_precision_carriers.py
+@@ -715,3 +715,85 @@ def test_r2_noticed_ordinary_envelope_keeps_its_base_behaviour(mode):
+     assert record["analysis_run"]["diagnostics"][-1]["source_annotation"]["code"] == "RETAINED_PRECISION_UNAVAILABLE"
+     assert "retained_precision" not in record["analysis_run"]
+     assert all(c.rule_binding_refusal(noticed, row) is None for row in noticed["results"])
++
++
++# RV108 N1 (B1 SR-PY; RR "SR-PY prepared; the N1 guard in `_source_contract` ruled in"): a list- or
++# dict-valued enum in the base header. `_source_contract`'s membership tests raised TypeError on an
++# unhashable value; each now refuses a non-string with the base header code, as Rust and TS do.
++N1_FIELDS = [(["numerical_quality", "status"], "SOURCE_NUMERICAL_QUALITY_INVALID")] + [
++    (["numerical_quality", "cases", 0, key], "SOURCE_NUMERICAL_CASE_INVALID")
++    for key in ("solve_quality", "structural_status", "model_matrix_fidelity", "accuracy_evidence")]
++N1_UNHASHABLE = [[], {}, ["sensitive"], {"sensitive": 1}]
++
++
++def n1_edit(source, path, value):
++    source = deepcopy(source)
++    parent = source
++    for part in path[:-1]:
++        parent = parent[part]
++    parent[path[-1]] = deepcopy(value)
++    return source
++
++
++def value_error_only(fn, *args):
++    """A caller that catches ValueError only, as the v0.3 packager's own callers do. Anything else
++    that escapes it (before N1, a TypeError) is reported by name, so the equality assertion that
++    follows fails on it instead of reading it as a refusal."""
++    try:
++        fn(*args)
++    except ValueError as error:
++        return str(error)
++    except Exception as error:  # noqa: BLE001 - the escape itself is what is asserted against
++        return f"escaped {type(error).__name__}: {error}"
++    return "ok"
++
++
++@pytest.mark.parametrize("mode", MODES)
++def test_rv108_n1_base_header_refuses_a_non_string_enum_with_its_code(mode):
++    """The base dispatch on the reader's projection (a preview-physics-1 envelope), raw and transport:
++    each unhashable enum value gives the base header code. Hashable non-strings and strings outside
++    the vocabulary read as before (the same codes); the unedited envelope is admitted."""
++    source, _ = milestone(mode)
++    base = projected(source)
++    assert c._source_contract(base)[0] == c.PREVIEW_PHYSICS_CONTRACT_ID
++    for path, code in N1_FIELDS:
++        for value in N1_UNHASHABLE + [None, 3, True, "estimated", ""]:
++            edited = n1_edit(base, path, value)
++            for check_receipt in (True, False):
++                assert value_error_only(lambda s: c._source_contract(s, check_receipt=check_receipt), edited) == code, (path, value, check_receipt)
++
++
++@pytest.mark.parametrize("mode", MODES)
++def test_rv108_n1_retained_reader_reports_the_base_header_code_at_g7(mode):
++    """The retained path: a hash-consistent successor with an unhashable enum in a header field that
++    no earlier gate reads is refused at G7 with the base header code (no longer the G7 fallback
++    SOURCE_PREVIEW_PHYSICS_INVALID), raw with and without its invocation, by the transport validator,
++    and by the raw and transport dispatch."""
++    source, invocation = milestone(mode)
++    # solve_quality is read at G5 first (a list is no verdict), so its G7 code is pinned on the base dispatch.
++    for path, code in [field for field in N1_FIELDS if field[0][-1] != "solve_quality"]:
++        for value in N1_UNHASHABLE:
++            edited = rehash(n1_edit(source, path, value))
++            for fn in (lambda s: rp.validate_retained_precision(s, deepcopy(invocation)), rp.validate_retained_precision, rp.validate_retained_precision_transport):
++                with pytest.raises(rp.RetainedPrecisionError) as error:
++                    fn(deepcopy(edited))
++                assert (error.value.gate, error.value.code, error.value.detail) == ("G7", code, code), (path, value)
++            for check_receipt in (True, False):
++                assert value_error_only(lambda s: c._source_contract(s, check_receipt=check_receipt), edited) == code, (path, value, check_receipt)
++
++
++@pytest.mark.parametrize("mode", MODES)
++def test_rv108_n1_stress_neutral_packager_validator_refuses_with_a_value_error(mode):
++    """The ValueError-only caller RV108 named: the v0.3 packager's validator on a preview-physics-1
++    package view. An unhashable enum is refused with the base header code, a ValueError; before, a
++    TypeError escaped it."""
++    from core.handoff.stress_neutral import package_v0_3 as sn
++    from tests.test_stress_neutral_physics_source import arguments
++    source, _ = milestone(mode)
++    base = projected(source)
++    record = build(base)
++    packet = sn.build_stress_neutral_export_package_v0_3(source_envelope=base, analysis_record=record, **arguments(base, record))
++    assert value_error_only(sn.validate_stress_neutral_export_package_v0_3, deepcopy(packet)) == "ok"
++    for path, code in N1_FIELDS:
++        for value in N1_UNHASHABLE:
++            assert value_error_only(sn.validate_stress_neutral_export_package_v0_3, n1_edit(packet, path, value)) == code, (path, value)
+diff --git a/projects/chirality-piping/tests/test_retained_precision_contract.py b/projects/chirality-piping/tests/test_retained_precision_contract.py
+index 58469c7110..a48561b2fb 100644
+--- a/projects/chirality-piping/tests/test_retained_precision_contract.py
++++ b/projects/chirality-piping/tests/test_retained_precision_contract.py
+@@ -991,3 +991,255 @@ def test_producer_solved_bases_are_the_pinned_live_successors_d_u6_5():
+         assert eligibility(public) == base["expected"] == {"invocation_bound": True, "numerical_eligible": True, "standing": "eligible"}
+         assert public["classifications"] == base["expected_classifications"]
+         assert [sum(1 for x in public["classifications"] if x["class"] == k) for k in ("relative_verified", "absolute_verified", "input_derived", "non_quantity")] == counts
++
++
++# ---------------------------------------------------------------------------------------------
++# B1 SR-PY (I91; PLAN_v2 §2.4; DESIGN_v2 §2 and §3.2-§3.3; RV108 N2): reader-local tests on
++# synthetic n-case receipts, derived from the shared two-case bases and 07j's must-pass entry. They
++# are not shared corpus entries: SC's 07n pins the shared ones (W-C2, `d38_beside_selected` with
++# m1-m8, F-1's five and `not_required`'s three).
++# ---------------------------------------------------------------------------------------------
++NOT_REQUIRED = "not_required_second_case_checks_passed"
++UNAVAILABLE_ROW = "case:unavailable-row"
++PREP = ("G8", "RETAINED_PRECISION_PREPARATION_MISMATCH")
++PRODUCT, ATTEMPT, WORK = (("G5", "RETAINED_PRECISION_" + x) for x in ("PRODUCT_ATTEMPT_MISMATCH", "ATTEMPT_MISMATCH", "WORK_MISMATCH"))
++
++
++def _b1_verdict(base, edits, invocation_edits=None, must=None):
++    """The reader's verdict on `base` after a must-pass entry's edits (when named) and `edits`,
++    rehashed as a shared entry: ("admitted", eligible, standing), or the first failure (gate, code)."""
++    prefix = []
++    if must is not None:
++        entry = next(e for e in corpus()["must_pass"] if e["id"] == must)
++        assert entry["base"] == base
++        prefix = deepcopy(entry["edits"])
++    source, invocation = apply_entry(_cases()[base], {"edits": prefix + edits, "invocation_edits": invocation_edits or [], "rehash": "all"})
++    try:
++        result = rp.validate_retained_precision(source, invocation)
++    except rp.RetainedPrecisionError as error:
++        return (error.gate, error.code)
++    return ("admitted", result["numerical_eligible"], result["standing"])
++
++
++def _b1_row(base, kind, case):
++    """The index of a base's row of `kind` for load case `case`."""
++    rows = _cases()[base]["source"]["results"]
++    return next(i for i, r in enumerate(rows) if r["kind"] == kind and r["basis_ref"]["ref_id"] == case)
++
++
++def _b1_parity_row(case, row_id):
++    """The dense base's parity row, moved to `case` with a fresh id; a non-selected case's row
++    carries no recovery method (G6)."""
++    rows = _cases()["ordinary_prepared_dense_synthetic"]["source"]["results"]
++    row = deepcopy(next(r for r in rows if r["kind"] == "sparse_live_path_dense_parity_relative_delta"))
++    row.pop("recovery_method", None)
++    return dict(row, id=row_id, basis_ref=dict(row["basis_ref"], ref_id=case))
++
++
++def _d38_edits():
++    """R-D38 (4b) (DESIGN_v2 §2) on F_BASE, as SC's `d38_beside_selected` rewrites W-C2's case C:
++    case 1 (unavailable, with its own registered CaseSource and a prepared attempt) failed its native
++    stage before any Run, beside selected case 0. Its Run, `execution_order` entry and Call and Group
++    entries go, the call's after-value and `charged` are recomputed (case 1's Run built nothing: it
++    reused case 0's builds), its cause is a typed CaptureError::Origin, and every hash is resealed."""
++    body = _cases()[F_BASE]["source"]["retained_precision"]["body"]
++    assert all(b["origin"]["run"] == 0 for b in body["builds"])
++    after = body["cases"][0]["run"]["invocation_after"]
++    stages = dict.fromkeys(rp.STAGE_ORDER, "not_entered")
++    stages.update(preparation="completed", native="failed")
++    return [
++        _set(B + ["cases", 1, "run"], None),
++        _set(B + ["cases", 1, "reason"], {"code": "source_unavailable", "phase": "preparation", "cause": {"kind": "prepared_product_failure", "product_attempt_ref": 1}}),
++        _set(A1 + ["run_ref"], None), _set(A1 + ["proof"], None), _set(A1 + ["stages"], stages),
++        _set(A1 + ["result"], {"kind": "unavailable", "error": {"kind": "capture", "cause": {"kind": "origin", "cause": {"kind": "capacity"}}}}),
++        _set(B + ["calls", 0, "owner_refs"], [{"kind": "case", "index": 0}]), _set(B + ["calls", 0, "source_refs"], [0]),
++        _set(B + ["calls", 0, "run_refs"], [0]), _set(B + ["calls", 0, "invocation_after"], after),
++        _set(B + ["groups", 0, "source_refs"], [0]), _set(B + ["work", "charged"], after),
++        _set(B + ["work", "execution_order"], [{"kind": "case", "index": 0}]),
++    ]
++
++
++def test_b1_d38_capture_before_any_run_beside_a_selected_case():
++    """R-D38 (4b) beside a selected case is admitted: G0-G8 pass, the standing is needs_recompute and
++    case 0's classifications are the base's. Before B1, Python refused it at G5 PRODUCT_ATTEMPT (an
++    entered native stage needed a Run). m1-m8 (DESIGN_v2 §2) and the other (4b) conjuncts are refused,
++    each at this reader's first failure."""
++    d38 = _d38_edits()
++    assert _b1_verdict(F_BASE, d38) == ("admitted", False, "needs_recompute")
++    source, invocation = apply_entry(_cases()[F_BASE], {"edits": d38, "rehash": "all"})
++    assert rp.validate_retained_precision(source, invocation)["classifications"] == _cases()[F_BASE]["expected_classifications"]
++    stages = dict.fromkeys(rp.STAGE_ORDER, "not_entered")
++    stages.update(preparation="completed", native="failed")
++    orphan = deepcopy(_cases()[F_BASE]["source"]["retained_precision"]["body"]["builds"])
++    orphan.append(dict(deepcopy(orphan[0]), id=len(orphan), origin={"call": 0, "run": 1, "physical_record": 0, "phase": "shared"}))
++    refused = {
++        "m1 error kind native": ([_set(A1 + ["result", "error"], {"kind": "native", "run_ref": 1})], PRODUCT),
++        "m2 native completed": ([_set(A1 + ["stages", "native"], "completed")], PRODUCT),
++        "m3 run_ref while the case has no Run": ([_set(A1 + ["run_ref"], 1)], PRODUCT),
++        "m4 execution_order still lists the case": ([_set(B + ["work", "execution_order"], [{"kind": "case", "index": 0}, {"kind": "case", "index": 1}])], ("G3", "RETAINED_PRECISION_COVERAGE_MISMATCH")),
++        "m5 proof_start completed": ([_set(A1 + ["stages", "proof_start"], "completed")], PRODUCT),
++        "m6 source_ref null with preparation completed": ([_set(A1 + ["source_ref"], None)], PRODUCT),
++        "m7 the case's source in the call's source_refs": ([_set(B + ["calls", 0, "source_refs"], [0, 1])], ATTEMPT),
++        "m7 the case's source in the group's source_refs": ([_set(B + ["groups", 0, "source_refs"], [0, 1])], ATTEMPT),
++        "m8 the case's source_ref differs from the attempt's": ([_set(B + ["cases", 1, "source_ref"], 0)], PRODUCT),
++        "a Build kept from the case's removed Run": ([_set(B + ["builds"], orphan)], WORK),
++        "both source references null": ([_set(A1 + ["source_ref"], None), _set(B + ["cases", 1, "source_ref"], None)], PRODUCT),
++        "result ready": ([_set(A1 + ["result"], {"kind": "ready"})], PRODUCT),
++        "preparation failed": ([_set(A1 + ["stages"], dict(stages, preparation="failed"))], PRODUCT),
++        "observables and G5a entered": ([_set(A1 + ["stages"], dict(stages, observables="failed", g5a="failed"))], PRODUCT),
++        "reason code kernel_unresolved": ([_set(B + ["cases", 1, "reason", "code"], "kernel_unresolved")], PRODUCT),
++        "reason phase kernel": ([_set(B + ["cases", 1, "reason", "phase"], "kernel")], PRODUCT),
++        "cause names the other attempt": ([_set(B + ["cases", 1, "reason", "cause", "product_attempt_ref"], 0)], PRODUCT),
++        "cause not a prepared product failure": ([_set(B + ["cases", 1, "reason", "cause"], {"kind": "receipt_failure", "check": "association", "field_path": "b1"})], PRODUCT),
++    }
++    got = {name: _b1_verdict(F_BASE, d38 + edits) for name, (edits, _) in refused.items()}
++    assert got == {name: want for name, (_, want) in refused.items()}
++
++
++def test_b1_d38_reader_logic_names_every_conjunct():
++    """The (4b) predicate itself, conjunct by conjunct, on the admitted attempt and case."""
++    source, _ = apply_entry(_cases()[F_BASE], {"edits": _d38_edits(), "rehash": "all"})
++    body = source["retained_precision"]["body"]
++    a, case = body["product_attempts"][1], body["cases"][1]
++    assert rp._d38_capture_before_run(a, case, 1)
++    assert not rp._d38_capture_before_run(a, case, 0)  # the cause names this attempt
++    breaks = [
++        lambda a, c: c.__setitem__("run", body["cases"][0]["run"]),
++        lambda a, c: a.__setitem__("proof", {}),
++        lambda a, c: a["result"].__setitem__("kind", "ready"),
++        lambda a, c: a["result"]["error"].__setitem__("kind", "native"),
++        lambda a, c: a["stages"].__setitem__("preparation", "failed"),
++        lambda a, c: a["stages"].__setitem__("native", "completed"),
++        lambda a, c: a["stages"].__setitem__("certificate", "failed"),
++        lambda a, c: c.__setitem__("status", "selected"),
++        lambda a, c: c["reason"]["cause"].__setitem__("kind", "receipt_failure"),
++        lambda a, c: c["reason"].__setitem__("code", "kernel_unresolved"),
++        lambda a, c: c["reason"].__setitem__("phase", "kernel"),
++        lambda a, c: (a.__setitem__("source_ref", None), c.__setitem__("source_ref", None)),
++        lambda a, c: c.__setitem__("source_ref", 0),
++    ]
++    for k, edit in enumerate(breaks):
++        a2, c2 = deepcopy(a), deepcopy(case)
++        edit(a2, c2)
++        assert not rp._d38_capture_before_run(a2, c2, 1), k
++
++
++def _w2_published(index, tag="evaluation"):
++    """Ordinary attempt `index` made W2-published (T-4's case B): an initial failure, then a W2
++    publication triggered by it, keeping the attempt's own report diagnostic."""
++    report = _cases()[P_BASE]["source"]["retained_precision"]["body"]["ordinary_attempts"][index]["initial"]["report_diagnostic_ref"]
++    if tag == "evaluation":
++        initial = {"kind": "structural_failure", "error": {"tag": "range", "detail": "b1"}, "diagnostic_ref": None}
++        trigger = {"tag": "evaluation", "error": {"tag": "range", "detail": "b1"}}
++    else:
++        initial = {"kind": "formation_failure", "error": {"tag": "numerical_range", "name": "b1"}, "basis_index": 0}
++        trigger = {"tag": "formation", "error": {"tag": "numerical_range", "name": "b1"}}
++    w2 = {"kind": "published", "trigger": trigger, "force_scale_exponent": 3, "report_diagnostic_ref": report}
++    return [_set(B + ["ordinary_attempts", index, "initial"], initial), _set(B + ["ordinary_attempts", index, "w2"], w2)]
++
++
++def test_b1_g5_not_required_admits_a_w2_published_case():
++    """G5's `not_required` rule (DESIGN_v2 §3.3, decision 9), on 07j's two-case statement (selected,
++    then not_required): a W2-published case with the verdict checks_passed (T-4's case B), by an
++    evaluation or a formation trigger, is admitted and the statement is eligible. Rust's three extra
++    conjuncts (a Passed report, W2 untriggered) are not Python's rule. A non-null product attempt,
++    `initial` not_attempted and another verdict stay refused, and a report keeps its outcome equality."""
++    for tag in ("evaluation", "formation"):
++        assert _b1_verdict(P_BASE, _w2_published(1, tag), must=NOT_REQUIRED) == ("admitted", True, "eligible"), tag
++    refused = {
++        "W2-published, verdict sensitive": (_w2_published(1) + [_set(["numerical_quality", "cases", 1, "solve_quality"], "sensitive")], ATTEMPT),
++        "initial not_attempted": ([_set(B + ["ordinary_attempts", 1, "initial"], {"kind": "not_attempted", "cause": "ineligible"})], ATTEMPT),
++        "report outcome differs from the verdict": ([_set(B + ["ordinary_attempts", 1, "initial", "outcome"], "sensitive")], ATTEMPT),
++        "product_attempt_ref non-null (G3 first)": ([_set(B + ["cases", 1, "product_attempt_ref"], 0)], ("G3", "RETAINED_PRECISION_COVERAGE_MISMATCH")),
++    }
++    got = {name: _b1_verdict(P_BASE, edits, must=NOT_REQUIRED) for name, (edits, _) in refused.items()}
++    assert got == {name: want for name, (_, want) in refused.items()}
++
++
++def test_b1_g8_mode_row_and_requested_mode_for_every_case():
++    """F-1 text B's P1 and the requested mode (DESIGN_v2 §3.2-§3.3), in G8's per-case loop: every case
++    is checked, here the second one, unavailable (F_BASE) or not_required (07j). Before B1 Python
++    checked neither, on any case."""
++    fm = _b1_row(F_BASE, "linear_solver_mode_basis", UNAVAILABLE_ROW)
++    pm = _b1_row(P_BASE, "linear_solver_mode_basis", UNAVAILABLE_ROW)
++    rows = _cases()[F_BASE]["source"]["results"]
++    duplicate = dict(deepcopy(rows[fm]), id="result:b1:duplicate-mode")
++    # The not_required case has no proof, so dropping its row moves no projection index (G3).
++    without = [r for i, r in enumerate(_cases()[P_BASE]["source"]["results"]) if i != pm]
++    cases = {
++        "unavailable case: dense code in sparse": (F_BASE, [_set(["results", fm, "value"], 2.0)], None),
++        "unavailable case: mode code 3": (F_BASE, [_set(["results", fm, "value"], 3.0)], None),
++        "unavailable case: two mode rows": (F_BASE, [_set(["results"], deepcopy(rows) + [duplicate])], None),
++        "unavailable case: requested mode flipped": (F_BASE, [_set(B + ["ordinary_attempts", 1, "requested_mode"], "dense_scrutiny")], None),
++        "not_required case: dense code in sparse": (P_BASE, [_set(["results", pm, "value"], 2.0)], NOT_REQUIRED),
++        "not_required case: requested mode flipped": (P_BASE, [_set(B + ["ordinary_attempts", 1, "requested_mode"], "dense_scrutiny")], NOT_REQUIRED),
++        "not_required case: no mode row": (P_BASE, [_set(["results"], deepcopy(without))], NOT_REQUIRED),
++    }
++    got = {name: _b1_verdict(base, edits, must=must) for name, (base, edits, must) in cases.items()}
++    assert got == dict.fromkeys(cases, PREP)
++    # The invocation's own mode is what each case's requested mode and mode code must match.
++    assert _b1_verdict(F_BASE, [], [_set(["solver_mode"], "dense_scrutiny")]) == PREP
++
++
++def test_b1_g8_parity_rows_p2_to_p4_for_every_case():
++    """F-1 text B's P2-P4 (DESIGN_v2 §3.2) for every case. 07j's two-case statement is made dense (the
++    invocation's mode, both requested modes and both mode rows; it has no parity row): the selected dense
++    case at b = 0 without a parity row is admitted, and so is the not_required case's single parity row
++    at b = 0. Two parity rows (P2), a parity row in sparse_interactive (P3) and a parity row on a
++    W2-published case (P4) are refused at G8."""
++    p = _cases()[P_BASE]["source"]
++    to_dense = [_set(["solver_mode"], "dense_scrutiny")]
++    dense = [_set(B + ["ordinary_attempts", k, "requested_mode"], "dense_scrutiny") for k in (0, 1)]
++    dense_rows = deepcopy(p["results"])
++    for case in ("case:six-component-load", UNAVAILABLE_ROW):
++        dense_rows[_b1_row(P_BASE, "linear_solver_mode_basis", case)]["value"] = 2.0
++    one, two = (_b1_parity_row(UNAVAILABLE_ROW, f"result:b1:parity-{k}") for k in (1, 2))
++    on_dense = lambda extra_rows, extra=(): _b1_verdict(P_BASE, dense + [_set(["results"], dense_rows + extra_rows)] + list(extra), to_dense, NOT_REQUIRED)
++    d = _cases()["ordinary_prepared_dense_synthetic"]["source"]
++    parity = next(i for i, r in enumerate(d["results"]) if r["kind"] == "sparse_live_path_dense_parity_relative_delta")
++    twice = dict(deepcopy(d["results"][parity]), id="result:b1:parity-twice")
++    d_report = _cases()["ordinary_prepared_dense_synthetic"]["source"]["retained_precision"]["body"]["ordinary_attempts"][0]["initial"]["report_diagnostic_ref"]
++    d_w2 = [_set(B + ["ordinary_attempts", 0, "initial"], {"kind": "structural_failure", "error": {"tag": "range", "detail": "b1"}, "diagnostic_ref": None}),
++            _set(B + ["ordinary_attempts", 0, "w2"], {"kind": "published", "trigger": {"tag": "evaluation", "error": {"tag": "range", "detail": "b1"}}, "force_scale_exponent": 3, "report_diagnostic_ref": d_report})]
++    f_rows = _cases()[F_BASE]["source"]["results"]
++    got = {
++        "dense b = 0, no parity row on either case": on_dense([]),
++        "dense b = 0, one parity row on the not_required case": on_dense([one]),
++        "dense, a W2-published not_required case without a parity row": on_dense([], _w2_published(1)),
++        "P2: two parity rows on the not_required case": on_dense([one, two]),
++        "P4: a parity row on the W2-published not_required case": on_dense([one], _w2_published(1)),
++        "P2: two parity rows on the dense selected case": _b1_verdict("ordinary_prepared_dense_synthetic", [_set(["results"], deepcopy(d["results"]) + [twice])]),
++        "P4: a parity row on a W2-published selected case": _b1_verdict("ordinary_prepared_dense_synthetic", d_w2),
++        "P3: a parity row on the sparse unavailable case": _b1_verdict(F_BASE, [_set(["results"], deepcopy(f_rows) + [_b1_parity_row(UNAVAILABLE_ROW, "result:b1:sparse-parity")])]),
++    }
++    assert got == {
++        "dense b = 0, no parity row on either case": ("admitted", True, "eligible"),
++        "dense b = 0, one parity row on the not_required case": ("admitted", True, "eligible"),
++        "dense, a W2-published not_required case without a parity row": ("admitted", True, "eligible"),
++        "P2: two parity rows on the not_required case": PREP,
++        "P4: a parity row on the W2-published not_required case": PREP,
++        "P2: two parity rows on the dense selected case": PREP,
++        "P4: a parity row on a W2-published selected case": PREP,
++        "P3: a parity row on the sparse unavailable case": PREP,
++    }
++
++
++def test_b1_rv108_n2_a_missing_verdict_is_g5_attempt():
++    """RV108 N2: a numerical_quality case without `solve_quality`, hash-consistent, fails G5 with
++    RETAINED_PRECISION_ATTEMPT_MISMATCH wherever an ordinary rule reads the verdict (a report's
++    outcome, not_required's checks_passed, selected's trigger verdicts), as Rust and TypeScript do;
++    before, a KeyError reached the fail-closed fallback (PRODUCT_ATTEMPT). A case for which no rule
++    reads the verdict still reaches G7's base header (SOURCE_NUMERICAL_CASE_INVALID)."""
++    drop = lambda i: _set(["numerical_quality", "cases", i, "solve_quality"], None) | {"op": "remove"}
++    got = {
++        "selected case, report": _b1_verdict(O_BASE, [drop(0)]),
++        "unavailable case, report": _b1_verdict(F_BASE, [drop(1)]),
++        "not_required case, report": _b1_verdict(P_BASE, [drop(1)], must=NOT_REQUIRED),
++        "not_required case, W2-published": _b1_verdict(P_BASE, _w2_published(1) + [drop(1)], must=NOT_REQUIRED),
++    }
++    assert got == dict.fromkeys(got, ATTEMPT)
++    # An unavailable case whose initial is a structural failure (W2 not triggered): no G5 rule reads its
++    # verdict. Present, the statement is admitted; absent, G7's base header refuses the case.
++    structural = [_set(B + ["ordinary_attempts", 1, "initial"], {"kind": "structural_failure", "error": {"tag": "range", "detail": "b1"}, "diagnostic_ref": None})]
++    assert _b1_verdict(F_BASE, structural) == ("admitted", False, "needs_recompute")
++    assert _b1_verdict(F_BASE, structural + [drop(1)]) == ("G7", "SOURCE_NUMERICAL_CASE_INVALID")

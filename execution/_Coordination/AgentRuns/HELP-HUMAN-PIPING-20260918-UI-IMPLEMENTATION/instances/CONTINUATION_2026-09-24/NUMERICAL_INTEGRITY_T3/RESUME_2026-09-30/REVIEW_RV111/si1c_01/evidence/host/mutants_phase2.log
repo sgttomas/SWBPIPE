@@ -1,0 +1,30 @@
+11:36:02 I07_four_unchecked_jointly {"file": "core/rules/expression_evaluator/src/lib.rs", "ee_lib": {"rc": 0, "failed": []}, "runner_pp": {"rc": 0, "failed": []}, "killed": false}
+11:38:53 N02_raw_other_unit_supplied {"file": "core/rules/rule_check_runner/src/lib.rs", "runner_all": {"rc": 101, "failed": ["a_non_finite_raw_input_in_another_unit_is_named_and_still_unsupplied"]}, "killed": true}
+11:40:55 N03_note_dropped {"file": "core/rules/rule_check_runner/src/lib.rs", "runner_all": {"rc": 101, "failed": ["a_non_finite_input_is_named_and_never_bound", "an_unreferenced_non_finite_input_blocks_nothing", "a_non_finite_raw_input_in_another_unit_is_named_and_still_unsupplied"]}, "killed": true}
+11:43:31 N04_value_kept {"file": "core/rules/rule_check_runner/src/lib.rs", "runner_all": {"rc": 101, "failed": ["a_non_finite_input_is_named_and_never_bound", "an_unreferenced_non_finite_input_blocks_nothing"]}, "killed": true}
+11:46:31 N06_dedup_removed {"file": "core/rules/rule_check_runner/src/lib.rs", "runner_all": {"rc": 0, "failed": []}, "killed": false}
+12:02:55 N07_block_after_mode_dispatch {"file": "core/rules/rule_check_runner/src/lib.rs", "runner_all": {"rc": 101, "failed": ["a_non_finite_input_is_named_and_never_bound"]}, "killed": true}
+12:07:40 N08_unreferenced_input_blocks {"file": "core/rules/rule_check_runner/src/lib.rs", "runner_all": {"rc": 101, "failed": ["an_unreferenced_non_finite_input_blocks_nothing"]}, "killed": true}
+12:09:02 N09_trim_dropped {"file": "core/rules/rule_check_runner/src/lib.rs", "runner_all": {"rc": 0, "failed": []}, "killed": false}
+12:12:01 L01_limit_raw_check_removed {"file": "core/rules/rule_check_runner/src/lib.rs", "runner_all": {"rc": 101, "failed": ["a_non_finite_limit_is_named_in_both_limit_blocks"]}, "killed": true}
+12:14:50 L02_limit_normalized_check_removed {"file": "core/rules/rule_check_runner/src/lib.rs", "runner_all": {"rc": 101, "failed": ["a_non_finite_limit_is_named_in_both_limit_blocks"]}, "killed": true}
+12:33:41 L04_limit_as_missing {"file": "core/rules/rule_check_runner/src/lib.rs", "runner_all": {"rc": 101, "failed": ["a_non_finite_limit_is_named_in_both_limit_blocks"]}, "killed": true}
+12:35:16 X01_step_nan_check_removed {"file": "core/rules/expression_evaluator/src/lib.rs", "ee_lib": {"rc": 0, "failed": []}, "runner_pp": {"skipped": "guard unreachable from the runner tests"}, "killed": false}
+12:36:18 X02_interpolate_nan_check_removed {"file": "core/rules/expression_evaluator/src/lib.rs", "ee_lib": {"rc": 0, "failed": []}, "runner_pp": {"skipped": "guard unreachable from the runner tests"}, "killed": false}
+12:37:18 X03_ratio_check_infinite_only {"file": "core/rules/expression_evaluator/src/lib.rs", "ee_lib": {"rc": 0, "failed": []}, "runner_pp": {"skipped": "guard unreachable from the runner tests"}, "killed": false}
+12:38:18 X04_nan_argument_code_out_of_range {"file": "core/rules/expression_evaluator/src/lib.rs", "ee_lib": {"rc": 0, "failed": []}, "runner_pp": {"skipped": "guard unreachable from the runner tests"}, "killed": false}
+phase2 kill run rc=0
+survivors: E09_is_infinite_for_not_finite,I01_rise_unchecked,I02_offset_unchecked,I04_fraction_unchecked,I05_product_unchecked,I07_four_unchecked_jointly,N06_dedup_removed,N09_trim_dropped,X01_step_nan_check_removed,X02_interpolate_nan_check_removed,X03_ratio_check_infinite_only,X04_nan_argument_code_out_of_range
+12:40:15 E09_is_infinite_for_not_finite {"ee_lib": {"failed": [], "rc": 0}, "file": "core/rules/expression_evaluator/src/lib.rs", "killed": false, "runner_pp": {"failed": [], "rc": 0}, "diff_rc": 0}
+12:44:59 I01_rise_unchecked {"ee_lib": {"failed": [], "rc": 0}, "file": "core/rules/expression_evaluator/src/lib.rs", "killed": false, "runner_pp": {"failed": [], "rc": 0}, "diff_rc": 0}
+12:49:26 I02_offset_unchecked {"ee_lib": {"failed": [], "rc": 0}, "file": "core/rules/expression_evaluator/src/lib.rs", "killed": false, "runner_pp": {"failed": [], "rc": 0}, "diff_rc": 0}
+13:07:16 I04_fraction_unchecked {"ee_lib": {"failed": [], "rc": 0}, "file": "core/rules/expression_evaluator/src/lib.rs", "killed": false, "runner_pp": {"failed": [], "rc": 0}, "diff_rc": 0}
+13:09:32 I05_product_unchecked {"ee_lib": {"failed": [], "rc": 0}, "file": "core/rules/expression_evaluator/src/lib.rs", "killed": false, "runner_pp": {"failed": [], "rc": 0}, "diff_rc": 0}
+13:11:29 I07_four_unchecked_jointly {"ee_lib": {"failed": [], "rc": 0}, "file": "core/rules/expression_evaluator/src/lib.rs", "killed": false, "runner_pp": {"failed": [], "rc": 0}, "diff_rc": 0}
+13:13:17 N06_dedup_removed {"file": "core/rules/rule_check_runner/src/lib.rs", "killed": false, "runner_all": {"failed": [], "rc": 0}, "diff_rc": 0}
+13:15:05 N09_trim_dropped {"file": "core/rules/rule_check_runner/src/lib.rs", "killed": false, "runner_all": {"failed": [], "rc": 0}, "diff_rc": 0}
+13:16:49 X01_step_nan_check_removed {"ee_lib": {"failed": [], "rc": 0}, "file": "core/rules/expression_evaluator/src/lib.rs", "killed": false, "runner_pp": {"skipped": "guard unreachable from the runner tests"}, "diff_rc": 0}
+13:18:38 X02_interpolate_nan_check_removed {"ee_lib": {"failed": [], "rc": 0}, "file": "core/rules/expression_evaluator/src/lib.rs", "killed": false, "runner_pp": {"skipped": "guard unreachable from the runner tests"}, "diff_rc": 0}
+13:20:26 X03_ratio_check_infinite_only {"ee_lib": {"failed": [], "rc": 0}, "file": "core/rules/expression_evaluator/src/lib.rs", "killed": false, "runner_pp": {"skipped": "guard unreachable from the runner tests"}, "diff_rc": 0}
+13:21:05 X04_nan_argument_code_out_of_range {"ee_lib": {"failed": [], "rc": 0}, "file": "core/rules/expression_evaluator/src/lib.rs", "killed": false, "runner_pp": {"skipped": "guard unreachable from the runner tests"}, "diff_rc": 0}
+diff run rc=0

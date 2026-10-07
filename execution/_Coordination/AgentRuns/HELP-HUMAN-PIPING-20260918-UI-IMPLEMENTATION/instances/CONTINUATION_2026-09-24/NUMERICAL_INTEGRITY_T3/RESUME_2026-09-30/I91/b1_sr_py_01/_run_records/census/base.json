@@ -1,0 +1,5992 @@
+{
+ "corpus_sha256": "c21112fdbfad37dd4832c8dd64d066e1809dd70dce6c89cb920d1d6dd3d46807",
+ "counts": {
+  "bases": 17,
+  "must_pass": 28,
+  "mutations": 294
+ },
+ "rows": {
+  "base:candidate_failure_skip_synthetic": {
+   "raw": [
+    "pass",
+    "72e1208ef6172a3bab8738cb4f7235b4280fd549989f85c0a556ff0a90cad9bf"
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "base:ordinary_prepared_cancelled_loads_synthetic": {
+   "raw": [
+    "pass",
+    "d529b91fdb3cdf9a8168911e19128b7ea08ed7c088ef0fccf8c122d4db6e7338"
+   ],
+   "raw_noinv": [
+    "pass",
+    "ca8b8549aeea81b41bbd79c60e9b103430bc12698a7086bb7fada95f5f0a7079"
+   ],
+   "transport": [
+    "pass",
+    "fb05a3711a366763c4fe2f71ad03cb6416cb3e15944a648e7c3b18e43b669de3"
+   ]
+  },
+  "base:ordinary_prepared_dense_synthetic": {
+   "raw": [
+    "pass",
+    "10b28eb79187a0a088c25e0ba0b04be84962faa098455e1ad5f43b6267767984"
+   ],
+   "raw_noinv": [
+    "pass",
+    "34aaa287c74037340d41f87c00a2f57d89e3304bbc4920f6fab8cbaf7b3a58a6"
+   ],
+   "transport": [
+    "pass",
+    "dc67de04263918b341162f2fc57d2f44a8a2e3c818a4a41e05b20c9234d1ba21"
+   ]
+  },
+  "base:ordinary_prepared_interpolated_material_synthetic": {
+   "raw": [
+    "pass",
+    "72e1208ef6172a3bab8738cb4f7235b4280fd549989f85c0a556ff0a90cad9bf"
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "base:ordinary_prepared_mm_units_synthetic": {
+   "raw": [
+    "pass",
+    "72e1208ef6172a3bab8738cb4f7235b4280fd549989f85c0a556ff0a90cad9bf"
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "base:ordinary_prepared_no_data_synthetic": {
+   "raw": [
+    "pass",
+    "49a1c28e090fe414dbe758336f92fff9862992a1b7606666a57071a9829344f9"
+   ],
+   "raw_noinv": [
+    "pass",
+    "f5be61395e3abbc64252b9211f2e1b35e7699d6cfb1cd67a1e1377c9978b7f05"
+   ],
+   "transport": [
+    "pass",
+    "3b207e67d11e662784953f7c6363a1ea4a5f13b86f4f420e1a4c37acb50bbadf"
+   ]
+  },
+  "base:ordinary_prepared_synthetic": {
+   "raw": [
+    "pass",
+    "72e1208ef6172a3bab8738cb4f7235b4280fd549989f85c0a556ff0a90cad9bf"
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "base:p512_ladder_synthetic": {
+   "raw": [
+    "pass",
+    "41c52eb7d6c0d9bcb9fda400b93f15e232e3585118c9efb5de0665a15c41a3f5"
+   ],
+   "raw_noinv": [
+    "pass",
+    "6f00df912d1c7196367908e2c0ecd617a9ebba24af512e136b7d2f50180a6b66"
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "base:two_body_synthetic": {
+   "raw": [
+    "pass",
+    "41c52eb7d6c0d9bcb9fda400b93f15e232e3585118c9efb5de0665a15c41a3f5"
+   ],
+   "raw_noinv": [
+    "pass",
+    "6f00df912d1c7196367908e2c0ecd617a9ebba24af512e136b7d2f50180a6b66"
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "base:two_case_facade_after_certificate_synthetic": {
+   "raw": [
+    "pass",
+    "a3e910d68d33622c9746f537249e82c4ad766398a3a09386c72218212973ea1d"
+   ],
+   "raw_noinv": [
+    "pass",
+    "4dcf0c8c3e568f36afcb97f6b1c9ab22edf169f81ffe883c42e6f0137b36fdbc"
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "base:two_case_preparation_failure_synthetic": {
+   "raw": [
+    "pass",
+    "a3e910d68d33622c9746f537249e82c4ad766398a3a09386c72218212973ea1d"
+   ],
+   "raw_noinv": [
+    "pass",
+    "4dcf0c8c3e568f36afcb97f6b1c9ab22edf169f81ffe883c42e6f0137b36fdbc"
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "base:two_case_shared_failed_cache_synthetic": {
+   "raw": [
+    "pass",
+    "9903de630d6b56bf69e167c163d02b0551735a423e1b668c62fde0015b770051"
+   ],
+   "raw_noinv": [
+    "pass",
+    "972dcf03e2009da5865705dba1d2252187b3ff730bef5f81e9c6edc03a7f287d"
+   ],
+   "transport": [
+    "pass",
+    "eff72fc27c20809bea881a02cd13afa7c8d5fb5a298cddb20d6b039d5c857475"
+   ]
+  },
+  "base:two_case_synthetic": {
+   "raw": [
+    "pass",
+    "aabcd17fb7c389b3c9c31dfd585bdc1d2dd578a29614dcf6c410dc9c3302d654"
+   ],
+   "raw_noinv": [
+    "pass",
+    "aeb9165444aa4944b1b40ff98c2a95f2efe38c0dc154009ec925ec2e6dfbd139"
+   ],
+   "transport": [
+    "pass",
+    "12df14b07a64706daacc63165d5a255bfa406b45d206edbdb354d2f3f4c14b5b"
+   ]
+  },
+  "base:two_case_two_groups_synthetic": {
+   "raw": [
+    "pass",
+    "ec71207d334bc993af1a8e3494c1ef3d884e7fe4ed0b1034c9c1479d025b777d"
+   ],
+   "raw_noinv": [
+    "pass",
+    "7b066bb3938921139eb08c601e023deaa1fbe88bef7bd95ba9a3e3213e452b0c"
+   ],
+   "transport": [
+    "pass",
+    "5a4c054cdef4537159655b855ebbf3066217f2154c3ade805245a24f89608b84"
+   ]
+  },
+  "base:u8_l0_isolated_node_dense_scrutiny": {
+   "raw": [
+    "pass",
+    "322b1592b366ccf28f7be2fcd77e53572119bd0b0efed12e9dd640b7ddefed44"
+   ],
+   "raw_noinv": [
+    "pass",
+    "ce4556de554b654ecae65eb0388000ee5932b7b08316b96e43b4011e55216006"
+   ],
+   "transport": [
+    "pass",
+    "7f1ec8a036165ca193c13e31df15e089d388858f91615e1bad27817fd8807400"
+   ]
+  },
+  "base:u8_l0_isolated_node_sparse_interactive": {
+   "raw": [
+    "pass",
+    "03c1cf6224e457065a65df0917059f7be3e51a857d26fe3505370184bdb47464"
+   ],
+   "raw_noinv": [
+    "pass",
+    "8b9dfa13a567061531bce2c5937e5d7a77d8ffcd230641fa46328ed287eac7ff"
+   ],
+   "transport": [
+    "pass",
+    "a595077766dd26c0c0aba67c051c012f8cede7becc3b74ad1047d702a78a9122"
+   ]
+  },
+  "base:verification_failure_skip_synthetic": {
+   "raw": [
+    "pass",
+    "72e1208ef6172a3bab8738cb4f7235b4280fd549989f85c0a556ff0a90cad9bf"
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "must_pass:aliases_abandoned": {
+   "raw": [
+    "pass",
+    "a3e910d68d33622c9746f537249e82c4ad766398a3a09386c72218212973ea1d"
+   ],
+   "raw_noinv": [
+    "pass",
+    "4dcf0c8c3e568f36afcb97f6b1c9ab22edf169f81ffe883c42e6f0137b36fdbc"
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "must_pass:bind_rows_abandoned": {
+   "raw": [
+    "pass",
+    "a3e910d68d33622c9746f537249e82c4ad766398a3a09386c72218212973ea1d"
+   ],
+   "raw_noinv": [
+    "pass",
+    "4dcf0c8c3e568f36afcb97f6b1c9ab22edf169f81ffe883c42e6f0137b36fdbc"
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "must_pass:cancelled_all_stop_true": {
+   "raw": [
+    "pass",
+    "d529b91fdb3cdf9a8168911e19128b7ea08ed7c088ef0fccf8c122d4db6e7338"
+   ],
+   "raw_noinv": [
+    "pass",
+    "ca8b8549aeea81b41bbd79c60e9b103430bc12698a7086bb7fada95f5f0a7079"
+   ],
+   "transport": [
+    "pass",
+    "fb05a3711a366763c4fe2f71ad03cb6416cb3e15944a648e7c3b18e43b669de3"
+   ]
+  },
+  "must_pass:cert_failed_after_summary_storage": {
+   "raw": [
+    "pass",
+    "a3e910d68d33622c9746f537249e82c4ad766398a3a09386c72218212973ea1d"
+   ],
+   "raw_noinv": [
+    "pass",
+    "4dcf0c8c3e568f36afcb97f6b1c9ab22edf169f81ffe883c42e6f0137b36fdbc"
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "must_pass:cert_failed_before_summary": {
+   "raw": [
+    "pass",
+    "a3e910d68d33622c9746f537249e82c4ad766398a3a09386c72218212973ea1d"
+   ],
+   "raw_noinv": [
+    "pass",
+    "4dcf0c8c3e568f36afcb97f6b1c9ab22edf169f81ffe883c42e6f0137b36fdbc"
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "must_pass:copy_flags_into_unloaded": {
+   "raw": [
+    "pass",
+    "aabcd17fb7c389b3c9c31dfd585bdc1d2dd578a29614dcf6c410dc9c3302d654"
+   ],
+   "raw_noinv": [
+    "pass",
+    "aeb9165444aa4944b1b40ff98c2a95f2efe38c0dc154009ec925ec2e6dfbd139"
+   ],
+   "transport": [
+    "pass",
+    "12df14b07a64706daacc63165d5a255bfa406b45d206edbdb354d2f3f4c14b5b"
+   ]
+  },
+  "must_pass:f5_envelope_reordered_exact_list": {
+   "raw": [
+    "pass",
+    "735b466c91786436d7b4f9d763861f801a168a50caf30fb0d9b2163aac9c5d45"
+   ],
+   "raw_noinv": [
+    "pass",
+    "f62603815ceda620794c75ba9b213edb8ad6d2b56ff566021a8ba63166913f2a"
+   ],
+   "transport": [
+    "pass",
+    "33a9e3b953bf0fe35ba78d140b9d61ce58e7ed521048959d0d8d6e839f9da2bc"
+   ]
+  },
+  "must_pass:integral_float_integers_and_references": {
+   "raw": [
+    "pass",
+    "72e1208ef6172a3bab8738cb4f7235b4280fd549989f85c0a556ff0a90cad9bf"
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "must_pass:interpolation_equal_e_bracketed_control": {
+   "raw": [
+    "pass",
+    "72e1208ef6172a3bab8738cb4f7235b4280fd549989f85c0a556ff0a90cad9bf"
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "must_pass:isolated_estimate_uncoupled_dense_scrutiny": {
+   "raw": [
+    "pass",
+    "322b1592b366ccf28f7be2fcd77e53572119bd0b0efed12e9dd640b7ddefed44"
+   ],
+   "raw_noinv": [
+    "pass",
+    "ce4556de554b654ecae65eb0388000ee5932b7b08316b96e43b4011e55216006"
+   ],
+   "transport": [
+    "pass",
+    "7f1ec8a036165ca193c13e31df15e089d388858f91615e1bad27817fd8807400"
+   ]
+  },
+  "must_pass:isolated_estimate_uncoupled_sparse_interactive": {
+   "raw": [
+    "pass",
+    "03c1cf6224e457065a65df0917059f7be3e51a857d26fe3505370184bdb47464"
+   ],
+   "raw_noinv": [
+    "pass",
+    "8b9dfa13a567061531bce2c5937e5d7a77d8ffcd230641fa46328ed287eac7ff"
+   ],
+   "transport": [
+    "pass",
+    "a595077766dd26c0c0aba67c051c012f8cede7becc3b74ad1047d702a78a9122"
+   ]
+  },
+  "must_pass:isolated_translation_stop_dense_scrutiny": {
+   "raw": [
+    "pass",
+    "322b1592b366ccf28f7be2fcd77e53572119bd0b0efed12e9dd640b7ddefed44"
+   ],
+   "raw_noinv": [
+    "pass",
+    "ce4556de554b654ecae65eb0388000ee5932b7b08316b96e43b4011e55216006"
+   ],
+   "transport": [
+    "pass",
+    "7f1ec8a036165ca193c13e31df15e089d388858f91615e1bad27817fd8807400"
+   ]
+  },
+  "must_pass:isolated_translation_stop_sparse_interactive": {
+   "raw": [
+    "pass",
+    "03c1cf6224e457065a65df0917059f7be3e51a857d26fe3505370184bdb47464"
+   ],
+   "raw_noinv": [
+    "pass",
+    "8b9dfa13a567061531bce2c5937e5d7a77d8ffcd230641fa46328ed287eac7ff"
+   ],
+   "transport": [
+    "pass",
+    "a595077766dd26c0c0aba67c051c012f8cede7becc3b74ad1047d702a78a9122"
+   ]
+  },
+  "must_pass:lane_k_failed": {
+   "raw": [
+    "pass",
+    "a3e910d68d33622c9746f537249e82c4ad766398a3a09386c72218212973ea1d"
+   ],
+   "raw_noinv": [
+    "pass",
+    "4dcf0c8c3e568f36afcb97f6b1c9ab22edf169f81ffe883c42e6f0137b36fdbc"
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "must_pass:lane_source_failed": {
+   "raw": [
+    "pass",
+    "a3e910d68d33622c9746f537249e82c4ad766398a3a09386c72218212973ea1d"
+   ],
+   "raw_noinv": [
+    "pass",
+    "4dcf0c8c3e568f36afcb97f6b1c9ab22edf169f81ffe883c42e6f0137b36fdbc"
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "must_pass:loaded_all_stop_false": {
+   "raw": [
+    "pass",
+    "72e1208ef6172a3bab8738cb4f7235b4280fd549989f85c0a556ff0a90cad9bf"
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "must_pass:loaded_stop_without_force_moment": {
+   "raw": [
+    "pass",
+    "72e1208ef6172a3bab8738cb4f7235b4280fd549989f85c0a556ff0a90cad9bf"
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "must_pass:maxima_abandoned": {
+   "raw": [
+    "pass",
+    "a3e910d68d33622c9746f537249e82c4ad766398a3a09386c72218212973ea1d"
+   ],
+   "raw_noinv": [
+    "pass",
+    "4dcf0c8c3e568f36afcb97f6b1c9ab22edf169f81ffe883c42e6f0137b36fdbc"
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "must_pass:model_schema_version_0_1_0_accepted": {
+   "raw": [
+    "pass",
+    "72e1208ef6172a3bab8738cb4f7235b4280fd549989f85c0a556ff0a90cad9bf"
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "must_pass:no_data_all_stop_true": {
+   "raw": [
+    "pass",
+    "49a1c28e090fe414dbe758336f92fff9862992a1b7606666a57071a9829344f9"
+   ],
+   "raw_noinv": [
+    "pass",
+    "f5be61395e3abbc64252b9211f2e1b35e7699d6cfb1cd67a1e1377c9978b7f05"
+   ],
+   "transport": [
+    "pass",
+    "3b207e67d11e662784953f7c6363a1ea4a5f13b86f4f420e1a4c37acb50bbadf"
+   ]
+  },
+  "must_pass:no_data_attested_data_block": {
+   "raw": [
+    "pass",
+    "49a1c28e090fe414dbe758336f92fff9862992a1b7606666a57071a9829344f9"
+   ],
+   "raw_noinv": [
+    "pass",
+    "f5be61395e3abbc64252b9211f2e1b35e7699d6cfb1cd67a1e1377c9978b7f05"
+   ],
+   "transport": [
+    "pass",
+    "3b207e67d11e662784953f7c6363a1ea4a5f13b86f4f420e1a4c37acb50bbadf"
+   ]
+  },
+  "must_pass:not_required_second_case_checks_passed": {
+   "raw": [
+    "pass",
+    "850f6cba6d3fb959a1f85cc99a872a05c3cea36d68a84fc1ca39e6831509c464"
+   ],
+   "raw_noinv": [
+    "pass",
+    "877c95418ed2e6db1db4e3557af664417fb85a836357dc672ed9f66ee6d1c5d9"
+   ],
+   "transport": [
+    "pass",
+    "dc23d8fc02357c47bbc986f518f5fc7ed240255b118ffcad8226bbc1f14a50d7"
+   ]
+  },
+  "must_pass:p512_charge_follows_stop_zero_floor_body": {
+   "raw": [
+    "pass",
+    "41c52eb7d6c0d9bcb9fda400b93f15e232e3585118c9efb5de0665a15c41a3f5"
+   ],
+   "raw_noinv": [
+    "pass",
+    "6f00df912d1c7196367908e2c0ecd617a9ebba24af512e136b7d2f50180a6b66"
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "must_pass:prefix_captured": {
+   "raw": [
+    "pass",
+    "a3e910d68d33622c9746f537249e82c4ad766398a3a09386c72218212973ea1d"
+   ],
+   "raw_noinv": [
+    "pass",
+    "4dcf0c8c3e568f36afcb97f6b1c9ab22edf169f81ffe883c42e6f0137b36fdbc"
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "must_pass:prefix_unattached_old_operand_attested": {
+   "raw": [
+    "pass",
+    "a3e910d68d33622c9746f537249e82c4ad766398a3a09386c72218212973ea1d"
+   ],
+   "raw_noinv": [
+    "pass",
+    "4dcf0c8c3e568f36afcb97f6b1c9ab22edf169f81ffe883c42e6f0137b36fdbc"
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "must_pass:two_body_swap_stop_with_rosters": {
+   "raw": [
+    "pass",
+    "41c52eb7d6c0d9bcb9fda400b93f15e232e3585118c9efb5de0665a15c41a3f5"
+   ],
+   "raw_noinv": [
+    "pass",
+    "6f00df912d1c7196367908e2c0ecd617a9ebba24af512e136b7d2f50180a6b66"
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "must_pass:values_failed_separate_completion": {
+   "raw": [
+    "pass",
+    "a3e910d68d33622c9746f537249e82c4ad766398a3a09386c72218212973ea1d"
+   ],
+   "raw_noinv": [
+    "pass",
+    "4dcf0c8c3e568f36afcb97f6b1c9ab22edf169f81ffe883c42e6f0137b36fdbc"
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "must_pass:verification_estimate_names_moment_row": {
+   "raw": [
+    "pass",
+    "41c52eb7d6c0d9bcb9fda400b93f15e232e3585118c9efb5de0665a15c41a3f5"
+   ],
+   "raw_noinv": [
+    "pass",
+    "6f00df912d1c7196367908e2c0ecd617a9ebba24af512e136b7d2f50180a6b66"
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:absolute_bound": {
+   "raw": [
+    "refuse",
+    "G5c",
+    "RETAINED_PRECISION_CLASSIFICATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5c",
+    "RETAINED_PRECISION_CLASSIFICATION_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:accounting_cause_without_fault": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:adapter_fault_present": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:attempt_basis_not_ordinary": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "5a4c054cdef4537159655b855ebbf3066217f2154c3ade805245a24f89608b84"
+   ]
+  },
+  "mutations:attempt_owner_only": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:bad_invocation_digest": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_INVOCATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:body_scale": {
+   "raw": [
+    "refuse",
+    "G5b",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5b",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:cached_failed_slot_rebuilt": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "eff72fc27c20809bea881a02cd13afa7c8d5fb5a298cddb20d6b039d5c857475"
+   ]
+  },
+  "mutations:cancelled_drop_B_only": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "fb05a3711a366763c4fe2f71ad03cb6416cb3e15944a648e7c3b18e43b669de3"
+   ]
+  },
+  "mutations:cancelled_no_data_claim": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "fb05a3711a366763c4fe2f71ad03cb6416cb3e15944a648e7c3b18e43b669de3"
+   ]
+  },
+  "mutations:candidate_record_with_verification": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:ceiling_before_last_slot": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:cert_failed_before_summary_g5a_passed": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:certificate_check_wrong_wrapper": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:certificate_stage_check_disagree": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:certified_bound_duplicate": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:certified_bound_unbound_drop_existing_g5": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:charge_drop_required_zero": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:charge_follows_stop_below_p512": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:charge_quantity_not_in_layout": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:complete_old_longer_than_source": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:complete_old_short_of_source": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:conversion_normal_kind_subnormal_bits": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:conversion_ready_overflow": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:conversion_ready_underflow_nonzero_row": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:conversion_subnormal_kind_normal_bits": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:conversion_subnormal_metadata_negative_zero": {
+   "raw": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ]
+  },
+  "mutations:copy_flags_into_loaded": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "12df14b07a64706daacc63165d5a255bfa406b45d206edbdb354d2f3f4c14b5b"
+   ]
+  },
+  "mutations:corrections_above_three": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:coverage_body_fraction": {
+   "raw": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ]
+  },
+  "mutations:coverage_body_negative": {
+   "raw": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ]
+  },
+  "mutations:coverage_body_negative_zero": {
+   "raw": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ]
+  },
+  "mutations:coverage_body_string": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:coverage_defect_with_null_method": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "6aef82675e5d64a6400a6f83343bb0b919b0c1f443699eacffae1143d72c4636"
+   ]
+  },
+  "mutations:coverage_drop_certified_bound": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:coverage_duplicate_body": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:coverage_duplicate_then_flag_and_method": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "6b7ab793a2d432df5387a565b76814741d4ffad9766ec22790e9485844c2dc4e"
+   ]
+  },
+  "mutations:coverage_empty_array": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:coverage_encoding_then_duplicate": {
+   "raw": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ]
+  },
+  "mutations:coverage_entry_null": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:coverage_extra_body": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:coverage_flag_defect_then_body_scale": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:coverage_flag_defect_then_method": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "6b7ab793a2d432df5387a565b76814741d4ffad9766ec22790e9485844c2dc4e"
+   ]
+  },
+  "mutations:coverage_foreign_body": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:coverage_has_data_false": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:coverage_has_data_missing": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:coverage_has_data_null": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:coverage_has_data_numeric": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:coverage_member_missing": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:coverage_no_data_claim_with_free_loads": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:coverage_null_and_product_work": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:coverage_null_on_ready": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:coverage_null_then_method": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "6b7ab793a2d432df5387a565b76814741d4ffad9766ec22790e9485844c2dc4e"
+   ]
+  },
+  "mutations:coverage_object_not_array": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:coverage_shape_then_duplicate": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:coverage_stop_five": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:coverage_stop_forbidden_entry": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:coverage_stop_null_flag": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:coverage_stop_numeric_flag": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:coverage_stop_three": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:coverage_stop_uncoupled_consistent_roster": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:coverage_then_method": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e6904df43c827d249bc1bab7ef7c26ca4c4de7b400377860a43916c42420afb4"
+   ]
+  },
+  "mutations:coverage_unknown_field": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:cross_case_gate_order_selected": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "12df14b07a64706daacc63165d5a255bfa406b45d206edbdb354d2f3f4c14b5b"
+   ]
+  },
+  "mutations:cross_case_gate_order_unavailable": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:dangling_attempt_source_ref": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:dangling_build_ref": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:dangling_candidate_record": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:dangling_ordinary_attempt_ref": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:diagnostic_then_method": {
+   "raw": [
+    "refuse",
+    "G4",
+    "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G4",
+    "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "77fd2f1a3a55cc6c10eb62d320db81ed6cb8591ba16b9e5db4404d05671ff762"
+   ]
+  },
+  "mutations:distinct_stiffness_merged_group": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "5a4c054cdef4537159655b855ebbf3066217f2154c3ade805245a24f89608b84"
+   ]
+  },
+  "mutations:empty_body_inventory": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:escalating_end_not_a_terminal_translation": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:escalating_failed_verification_pass_entered": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:estimate_drop_required_zero": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:estimate_forbidden_translation_zero": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:execution_order_swapped": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "12df14b07a64706daacc63165d5a255bfa406b45d206edbdb354d2f3f4c14b5b"
+   ]
+  },
+  "mutations:f5_affected_refs_string_names_no_case": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "21ee69c727d3f107f37af80aa7741ec8ff0708bf2db52395772c34bda0c12c83"
+   ]
+  },
+  "mutations:f5_ordinary_refs_list_invocation_level_m10": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:f5_ordinary_refs_list_other_case": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "12df14b07a64706daacc63165d5a255bfa406b45d206edbdb354d2f3f4c14b5b"
+   ]
+  },
+  "mutations:f5_ordinary_refs_list_retained_precision_m09": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:f5_ordinary_refs_omit_naming_diagnostic": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:f5_ordinary_refs_out_of_envelope_order": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:f5_ordinary_refs_relaxed_d6a_form": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:f5_ordinary_refs_second_case_relaxed_d6a_form": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "12df14b07a64706daacc63165d5a255bfa406b45d206edbdb354d2f3f4c14b5b"
+   ]
+  },
+  "mutations:f5_ordinary_refs_strict_prefix": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "33a9e3b953bf0fe35ba78d140b9d61ce58e7ed521048959d0d8d6e839f9da2bc"
+   ]
+  },
+  "mutations:failed_build_reason_mismatch": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:failed_slot_not_cached": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:failed_verification_one_slot": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:failed_verification_reused_as_candidate": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:forged_preparation_hash": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:forged_publication_hash": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:forged_receipt_hash": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:forged_source_identity_float_source_ref": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:formation_d5_dangling_diagnostic": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:g0_canonicalization_profile": {
+   "raw": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ]
+  },
+  "mutations:g0_case_limit_non_integral": {
+   "raw": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ]
+  },
+  "mutations:g0_case_limit_threshold": {
+   "raw": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ]
+  },
+  "mutations:g0_invocation_limit_non_integral": {
+   "raw": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ]
+  },
+  "mutations:g0_invocation_limit_threshold": {
+   "raw": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ]
+  },
+  "mutations:g0_receipt_body_absent": {
+   "raw": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ]
+  },
+  "mutations:g0_receipt_version_non_integral": {
+   "raw": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ]
+  },
+  "mutations:g0_receipt_version_not_1": {
+   "raw": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ]
+  },
+  "mutations:g0_retained_precision_absent": {
+   "raw": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ]
+  },
+  "mutations:g5a_error_with_g5a_not_entered": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:g5a_sanity_margin_between_2m40_and_2m39": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:g5b_zero_section_area": {
+   "raw": [
+    "refuse",
+    "G5b",
+    "RETAINED_PRECISION_SECTION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5b",
+    "RETAINED_PRECISION_SECTION_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:g5b_zero_section_length": {
+   "raw": [
+    "refuse",
+    "G5b",
+    "RETAINED_PRECISION_SECTION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5b",
+    "RETAINED_PRECISION_SECTION_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:g7_contract_evidence_null": {
+   "raw": [
+    "refuse",
+    "G7",
+    "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED",
+    "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G7",
+    "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED",
+    "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
+   ],
+   "transport": [
+    "refuse",
+    "G7",
+    "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED",
+    "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
+   ]
+  },
+  "mutations:g7_formulation_limitations_empty": {
+   "raw": [
+    "refuse",
+    "G7",
+    "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+    "SOURCE_FORMULATION_BASIS_UNSUPPORTED"
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G7",
+    "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+    "SOURCE_FORMULATION_BASIS_UNSUPPORTED"
+   ],
+   "transport": [
+    "refuse",
+    "G7",
+    "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
+    "SOURCE_FORMULATION_BASIS_UNSUPPORTED"
+   ]
+  },
+  "mutations:g7_maximum_off_enclosure": {
+   "raw": [
+    "refuse",
+    "G7",
+    "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
+    "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: maximum outside or off its enclosure"
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G7",
+    "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
+    "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: maximum outside or off its enclosure"
+   ],
+   "transport": [
+    "pass",
+    "5a102cad8d1c744c53948b1b1cdb571e5bca874a76c79e8e09027a9811361b31"
+   ]
+  },
+  "mutations:g7_not_required_quality_enum_invalid": {
+   "raw": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_CASE_INVALID",
+    "SOURCE_NUMERICAL_CASE_INVALID"
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_CASE_INVALID",
+    "SOURCE_NUMERICAL_CASE_INVALID"
+   ],
+   "transport": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_CASE_INVALID",
+    "SOURCE_NUMERICAL_CASE_INVALID"
+   ]
+  },
+  "mutations:g7_quality_case_evidence_ref_empty": {
+   "raw": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_CASE_INVALID",
+    "SOURCE_NUMERICAL_CASE_INVALID"
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_CASE_INVALID",
+    "SOURCE_NUMERICAL_CASE_INVALID"
+   ],
+   "transport": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_CASE_INVALID",
+    "SOURCE_NUMERICAL_CASE_INVALID"
+   ]
+  },
+  "mutations:g7_quality_case_extra_member": {
+   "raw": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_CASE_INVALID",
+    "SOURCE_NUMERICAL_CASE_INVALID"
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_CASE_INVALID",
+    "SOURCE_NUMERICAL_CASE_INVALID"
+   ],
+   "transport": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_CASE_INVALID",
+    "SOURCE_NUMERICAL_CASE_INVALID"
+   ]
+  },
+  "mutations:g7_quality_status_invalid": {
+   "raw": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_QUALITY_INVALID",
+    "SOURCE_NUMERICAL_QUALITY_INVALID"
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_QUALITY_INVALID",
+    "SOURCE_NUMERICAL_QUALITY_INVALID"
+   ],
+   "transport": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_QUALITY_INVALID",
+    "SOURCE_NUMERICAL_QUALITY_INVALID"
+   ]
+  },
+  "mutations:g7_selected_quality_enum_invalid": {
+   "raw": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_CASE_INVALID",
+    "SOURCE_NUMERICAL_CASE_INVALID"
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_CASE_INVALID",
+    "SOURCE_NUMERICAL_CASE_INVALID"
+   ],
+   "transport": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_CASE_INVALID",
+    "SOURCE_NUMERICAL_CASE_INVALID"
+   ]
+  },
+  "mutations:g7_source_block_recovery_present": {
+   "raw": [
+    "refuse",
+    "G7",
+    "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+    "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G7",
+    "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+    "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+   ],
+   "transport": [
+    "refuse",
+    "G7",
+    "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+    "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+   ]
+  },
+  "mutations:g7_unavailable_quality_enum_invalid": {
+   "raw": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_CASE_INVALID",
+    "SOURCE_NUMERICAL_CASE_INVALID"
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_CASE_INVALID",
+    "SOURCE_NUMERICAL_CASE_INVALID"
+   ],
+   "transport": [
+    "refuse",
+    "G7",
+    "SOURCE_NUMERICAL_CASE_INVALID",
+    "SOURCE_NUMERICAL_CASE_INVALID"
+   ]
+  },
+  "mutations:group_call_out_of_range": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "12df14b07a64706daacc63165d5a255bfa406b45d206edbdb354d2f3f4c14b5b"
+   ]
+  },
+  "mutations:group_sources_out_of_order": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "12df14b07a64706daacc63165d5a255bfa406b45d206edbdb354d2f3f4c14b5b"
+   ]
+  },
+  "mutations:idle_budget_below_invocation_limit": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:idle_budget_not_exhausted_no_group": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:idle_ready_group_not_ledger_refusal": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:idle_run_exhausted_meter_chain_broken": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:idle_work_accounting_run": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:input_dof": {
+   "raw": [
+    "refuse",
+    "G5c",
+    "RETAINED_PRECISION_INPUT_DOF_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5c",
+    "RETAINED_PRECISION_INPUT_DOF_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:interpolation_duplicate_temperature": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:interpolation_missing_alpha": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:interpolation_target_above_range": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:interpolation_target_above_range_equal_e": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:interpolation_target_at_lower_point": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:interpolation_target_at_lower_point_equal_e": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:interpolation_target_at_upper_point": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:interpolation_target_at_upper_point_equal_e": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:interpolation_target_below_range": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:interpolation_target_below_range_equal_e": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:interpolation_target_mismatch": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:isolated_estimate_coupled_dense_scrutiny": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "7f1ec8a036165ca193c13e31df15e089d388858f91615e1bad27817fd8807400"
+   ]
+  },
+  "mutations:isolated_estimate_coupled_sparse_interactive": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "a595077766dd26c0c0aba67c051c012f8cede7becc3b74ad1047d702a78a9122"
+   ]
+  },
+  "mutations:isolated_has_data_dense_scrutiny": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "7f1ec8a036165ca193c13e31df15e089d388858f91615e1bad27817fd8807400"
+   ]
+  },
+  "mutations:isolated_has_data_sparse_interactive": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "a595077766dd26c0c0aba67c051c012f8cede7becc3b74ad1047d702a78a9122"
+   ]
+  },
+  "mutations:isolated_rotation_stop_dense_scrutiny": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "7f1ec8a036165ca193c13e31df15e089d388858f91615e1bad27817fd8807400"
+   ]
+  },
+  "mutations:isolated_rotation_stop_sparse_interactive": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "a595077766dd26c0c0aba67c051c012f8cede7becc3b74ad1047d702a78a9122"
+   ]
+  },
+  "mutations:isolated_translation_rotation_stop_dense_scrutiny": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "7f1ec8a036165ca193c13e31df15e089d388858f91615e1bad27817fd8807400"
+   ]
+  },
+  "mutations:isolated_translation_rotation_stop_sparse_interactive": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "a595077766dd26c0c0aba67c051c012f8cede7becc3b74ad1047d702a78a9122"
+   ]
+  },
+  "mutations:lane_k_failed_with_coverage": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:layout_constrained_displacement_not_input_derived": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:layout_force_row_input_derived": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:layout_nonzero_prescription": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:layout_row_dropped": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:layout_row_foreign_body": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:layout_row_relabelled": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:layout_rows_reordered": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:legacy_source_dangling_diagnostic": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:maps_extra_support_id": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:maps_member_ends_swapped": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:maxima_abandoned_separate_failure": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:maxima_abandoned_with_coverage": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:member_prefix_coverage": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:method_alternate_container": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "895858fe894dcd97a78bb76cd03f37b50dc6f67ea154fecee9eca18d20595482"
+   ]
+  },
+  "mutations:method_alternate_metadata": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "553006349a750bb921748b3838b4342aa1fdc38d3e81b0401f1e7f8cd27c32bc"
+   ]
+  },
+  "mutations:method_empty": {
+   "raw": [
+    "refuse",
+    "G6",
+    "RETAINED_PRECISION_ROW_METHOD_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G6",
+    "RETAINED_PRECISION_ROW_METHOD_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "25d98c92dffc61321891175504013077e0a390141db0e8da87f9afa456c1fbd1"
+   ]
+  },
+  "mutations:method_missing": {
+   "raw": [
+    "refuse",
+    "G6",
+    "RETAINED_PRECISION_ROW_METHOD_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G6",
+    "RETAINED_PRECISION_ROW_METHOD_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4b4d785c58981d15fefed1e91579d9955cb8e257787d4f33e457e4634f4fd669"
+   ]
+  },
+  "mutations:method_null": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "6aef82675e5d64a6400a6f83343bb0b919b0c1f443699eacffae1143d72c4636"
+   ]
+  },
+  "mutations:method_number": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "6692dee66aabf2d83e145432e6072c6ef032a66290b54e9104fbd23b089863b3"
+   ]
+  },
+  "mutations:method_wrong": {
+   "raw": [
+    "refuse",
+    "G6",
+    "RETAINED_PRECISION_ROW_METHOD_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G6",
+    "RETAINED_PRECISION_ROW_METHOD_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "6b7ab793a2d432df5387a565b76814741d4ffad9766ec22790e9485844c2dc4e"
+   ]
+  },
+  "mutations:mm_unnormalized_coordinate": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:model_schema_version_0_4_0_rejected": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_INVOCATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:named_point_value_mismatch": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "7b066bb3938921139eb08c601e023deaa1fbe88bef7bd95ba9a3e3213e452b0c"
+   ],
+   "transport": [
+    "pass",
+    "5a4c054cdef4537159655b855ebbf3066217f2154c3ade805245a24f89608b84"
+   ]
+  },
+  "mutations:native_attempt_defect_after_native_work_defect": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:native_error_with_selected_run": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:native_source_digest_rehashed": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:native_stage_disagrees_with_run": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:native_stiffness_digest_rehashed": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:native_work": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:native_work_then_coverage_null": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:negative_zero_counter": {
+   "raw": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ]
+  },
+  "mutations:negative_zero_scale_with_wrong_method": {
+   "raw": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ]
+  },
+  "mutations:nested_stop_work_accounting_exact_status": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:new_stiffness_must_bind_C2": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:nodata_empty_coverage": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "3b207e67d11e662784953f7c6363a1ea4a5f13b86f4f420e1a4c37acb50bbadf"
+   ]
+  },
+  "mutations:nodata_estimate_coupling_L_nonzero": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "3b207e67d11e662784953f7c6363a1ea4a5f13b86f4f420e1a4c37acb50bbadf"
+   ]
+  },
+  "mutations:nodata_forbidden_certified_bound": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "3b207e67d11e662784953f7c6363a1ea4a5f13b86f4f420e1a4c37acb50bbadf"
+   ]
+  },
+  "mutations:nodata_forbidden_charge_zero": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "3b207e67d11e662784953f7c6363a1ea4a5f13b86f4f420e1a4c37acb50bbadf"
+   ]
+  },
+  "mutations:nodata_forbidden_estimate_zero": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "3b207e67d11e662784953f7c6363a1ea4a5f13b86f4f420e1a4c37acb50bbadf"
+   ]
+  },
+  "mutations:nodata_forbidden_stop_zero": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "3b207e67d11e662784953f7c6363a1ea4a5f13b86f4f420e1a4c37acb50bbadf"
+   ]
+  },
+  "mutations:nodata_has_data_without_bound": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "3b207e67d11e662784953f7c6363a1ea4a5f13b86f4f420e1a4c37acb50bbadf"
+   ]
+  },
+  "mutations:nodata_verification_bound_nonnull": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "3b207e67d11e662784953f7c6363a1ea4a5f13b86f4f420e1a4c37acb50bbadf"
+   ]
+  },
+  "mutations:nonfinite_then_method": {
+   "raw": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ]
+  },
+  "mutations:numeric_error_with_checks_not_entered": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:observable_error_with_observables_not_entered": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:old_inputs_must_bind_old_J": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "dd21b657ea4fe13c587802d9ea1469a3f35e0c19320ac57293d9373d571e7cea"
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:old_members_reordered": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:old_operational_accounting_not_lost": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:ordinary_attempt_order_swapped": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "12df14b07a64706daacc63165d5a255bfa406b45d206edbdb354d2f3f4c14b5b"
+   ]
+  },
+  "mutations:ordinary_dangling_plus_adapter_fault": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:ordinary_dangling_ref_plus_source_preparation_null": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:ordinary_diagnostic_ref_dangling": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:ordinary_diagnostic_ref_duplicate": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:p512_charge_follows_estimate": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:p512_floor_not_phi": {
+   "raw": [
+    "refuse",
+    "G5b",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5b",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:p512_floor_null": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:p512_positive_floor_forces_stop": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:p512_zero_floor_body_given_positive_floor": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:physical_residual_basis": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:physical_stop_stage_partition": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:prefix_attached_old_input_unbound": {
+   "raw": [
+    "refuse",
+    "G8",
+    "RETAINED_PRECISION_PREPARATION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "pass",
+    "4dcf0c8c3e568f36afcb97f6b1c9ab22edf169f81ffe883c42e6f0137b36fdbc"
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:prefix_captured_with_members": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:preparation_conversion_count_mismatch": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:preparation_error_selected_run_under_receipt_cause": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:preparation_error_with_selected_run": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:prepared_failure_cause_foreign_attempt": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:prepared_failure_cause_without_own_attempt": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:product_new_not_ready": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:product_work_only": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:projection_conversions_count_mismatch": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:proof_error_with_certificate_passed": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:publication_enclosure_quantity_not_in_layout": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:rcond_label_plus_adapter_fault": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:ready_attempt_under_facade_failure_cause": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "6c481dc1897dc2d306a6ea9348f5dcdd3d23fed0b08f66a68053d97bfe05e530"
+   ]
+  },
+  "mutations:ready_attempt_under_prepared_product_failure": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "6c481dc1897dc2d306a6ea9348f5dcdd3d23fed0b08f66a68053d97bfe05e530"
+   ]
+  },
+  "mutations:reason_code_phase_mismatch_on_facade": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:reason_code_phase_mismatch_on_preparation": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:rebind_source_run_only": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "12df14b07a64706daacc63165d5a255bfa406b45d206edbdb354d2f3f4c14b5b"
+   ]
+  },
+  "mutations:record_index_not_contiguous": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:refusal_count_range_variant": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:refusal_work_accounting_variant": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:refused_member_conversion_kind_bits": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:rejected_attempt_with_verified_record": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:rejected_verification_failed_with_completed_verification": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:report_reference_unrelated_diagnostic": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:retained_diagnostic_names_unrequested_case": {
+   "raw": [
+    "refuse",
+    "G4",
+    "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G4",
+    "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "1633564763ff88ea58d1703b7b85f84d9b06480e615ab9497659ef300b00362e"
+   ]
+  },
+  "mutations:row_index_foreign_support_norm": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:row_index_missing_row": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:row_index_ready_subset": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:row_index_unsorted": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:run_id_not_execution_position": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "12df14b07a64706daacc63165d5a255bfa406b45d206edbdb354d2f3f4c14b5b"
+   ]
+  },
+  "mutations:run_ref_null_with_case_run": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:scalar_trace_lost_unavailable": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:schedule_fresh_first_p256": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:section_accounting_exact_status": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:section_echo": {
+   "raw": [
+    "refuse",
+    "G5b",
+    "RETAINED_PRECISION_SECTION_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5b",
+    "RETAINED_PRECISION_SECTION_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:selected_case_ordinary_checks_passed": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "b6466e88004d04b2f0793a0c3096831f75a2945bfbbfc3789b530e2d5c7b1863"
+   ]
+  },
+  "mutations:selected_case_without_c3_attempt": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "12df14b07a64706daacc63165d5a255bfa406b45d206edbdb354d2f3f4c14b5b"
+   ]
+  },
+  "mutations:selected_verification_record_not_verified": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:shape_then_encoding": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G2",
+    "RETAINED_PRECISION_ENCODING_MISMATCH",
+    null
+   ]
+  },
+  "mutations:shared_stage_projection_preserves_total": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:skip_after_failed_candidate_reused": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:skip_after_failed_candidate_wrong_slot": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:source_decline_with_source_ref": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:source_identity_stale_receipt_rehashed": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:source_member_map_kernel_id_noncanonical": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:source_preparation_null": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:stage_entered_after_failure": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:stop_rule_drop_required_zero": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:stop_rule_duplicate_zero": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:stop_rule_quantity_other_body": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:terminal_refusal_wrong_kind": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:terminal_stop_wrong_translation": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:two_body_body_order_swapped": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:two_body_missing_body": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:two_body_resolution_order_swapped": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:two_body_swap_has_data": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:two_body_swap_has_data_with_rosters": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:two_body_swap_stop_only": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:unavailable_attempt_under_facade_failure_cause": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:unavailable_attempt_under_source_error_cause": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:unavailable_certificate_passed_coverage_null": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:unavailable_empty_coverage": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:unavailable_layout_relabelled": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:unavailable_no_data_claim_with_free_loads": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:unavailable_record_resolution_duplicate": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:unavailable_record_theta_duplicate": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:unavailable_source_backref_foreign": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:unavailable_source_ref_absent": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  },
+  "mutations:unavailable_stop_uncoupled": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:unavailable_verification_bound_duplicate": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:unsourced_old_member_noncontiguous": {
+   "raw": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G3",
+    "RETAINED_PRECISION_COVERAGE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:v1_relabel": {
+   "raw": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G0",
+    "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+    null
+   ]
+  },
+  "mutations:values_error_with_values_completed": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:vbuild_on_escalating_failed_verification": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:verification_bound_duplicate_entry": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:verification_bound_missing_entry": {
+   "raw": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5a",
+    "RETAINED_PRECISION_SCALE_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "3b207e67d11e662784953f7c6363a1ea4a5f13b86f4f420e1a4c37acb50bbadf"
+   ]
+  },
+  "mutations:verification_estimate_names_rotation_row": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:verification_estimate_names_translation_row": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:verification_estimate_quantity_not_in_layout": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:verification_own_stage_projection_preserves_total": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:verification_summary_on_escalating_failed_verification": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:view_work_fault_exact_status": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:w2_published_without_initial_failure": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:work_accounting_after_escalating_stop": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "4bdb59bbfba84a07fdd1ba4a136c4896afb0ad8012e8c14862dd02e6b47c101f"
+   ]
+  },
+  "mutations:work_accounting_at_last_slot": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_ATTEMPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "c583a67c66c8c79727fc68309dd267b8e6f3d822296e4b67974335624f2e827d"
+   ]
+  },
+  "mutations:work_accounting_cause_exact_status": {
+   "raw": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G5",
+    "RETAINED_PRECISION_WORK_MISMATCH",
+    null
+   ],
+   "transport": [
+    "pass",
+    "e4c3f93be4f9b2df04a682e522ab32eebdd16b053934702e96e92b33a83300d8"
+   ]
+  },
+  "mutations:work_accounting_prior_not_on_wire": {
+   "raw": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "raw_noinv": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ],
+   "transport": [
+    "refuse",
+    "G1",
+    "RETAINED_PRECISION_RECEIPT_MISMATCH",
+    null
+   ]
+  }
+ }
+}

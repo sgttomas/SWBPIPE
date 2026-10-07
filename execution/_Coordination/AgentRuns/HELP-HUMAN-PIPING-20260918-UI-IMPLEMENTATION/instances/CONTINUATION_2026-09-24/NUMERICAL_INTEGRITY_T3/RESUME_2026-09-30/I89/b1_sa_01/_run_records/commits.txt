@@ -1,0 +1,26 @@
+6b626067786523068188ccd29f9ac2db9ed50e7d 262bd687f0bc4a552586be14ba1b8e8f290f710b
+Ryan C Tufts 2026-10-07T08:22:15-06:00
+piping(T3 B1 SA): admission at option S3 (C = 3, L = 384), G-B's running total, T-3 (e)
+
+I89 (I-A), PLAN_v2 §2.3, within §1's SA fence (PP retained_memory.rs outside the
+GENERATED PROFILE block, its law tests, and the runner's admission test):
+
+- caps: LOAD_CASES 1 -> 3; new TOTAL_LOADS = 384 (stated, not binding).
+- census: the per-case load facts are the maxima over every case; new Σ l_i
+  (u32, so the report's layout and the registered profile record are unchanged).
+- D1.4: 1 <= c <= C; D1.5 and D1.7 over every case.
+- cap_rows: Loads/LoadsCapacity over every case, LoadCasesCapacity <= C, new
+  TotalLoads <= L (CAP_ROWS 46 -> 47).
+- G-B: new CaseLoadsTotal from the capture's late_loads_total (LATE_FACTS 9 -> 10).
+- G-C at C: EnvelopeResults, its capacity and text by C·P_final; the
+  contract-evidence facts and RetainedErrorTextBytes times C.
+- T-3 (e): ordinary_solve_attempted counts CompleteFacts::requested_cases.
+- B-6: NOTICE_RESERVE_BYTES × C.
+- Out-of-domain oracles at LOAD_CASES + 1; the runner's literal 4, tied to the
+  producer by a new PP law test. No D1 visibility change; pricing unchanged.
+- Law tests for c = 0..4, every new row, G-B per case and in total, the
+  EnvelopeResults bound, T-3 (e) on blocking runs, and the gate bounds as
+  expressions of the profile's forms and atoms (SQ fixes their values).
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+

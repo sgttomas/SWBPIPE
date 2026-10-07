@@ -1,0 +1,38 @@
+differing by (section, value):
+  ('A3', '["not_assessed"]') 86
+  ('A3', '["not_claimed"]') 48
+  ('A3', '["passive_model_basis"]') 48
+  ('A3', '["represented_equations_retained"]') 48
+  ('A3', '[]') 230
+  ('A3', '{"not_assessed": 1}') 86
+  ('A3', '{"not_claimed": 1}') 48
+  ('A3', '{"passive_model_basis": 1}') 48
+  ('A3', '{"represented_equations_retained": 1}') 48
+  ('A3', '{}') 230
+  ('B', '["not_assessed"]') 4
+  ('B', '["not_claimed"]') 2
+  ('B', '["passive_model_basis"]') 2
+  ('B', '["represented_equations_retained"]') 2
+  ('B', '[]') 10
+  ('B', '{"not_assessed": 1}') 4
+  ('B', '{"not_claimed": 1}') 2
+  ('B', '{"passive_model_basis": 1}') 2
+  ('B', '{"represented_equations_retained": 1}') 2
+  ('B', '{}') 10
+  ('C', 'REMOVE') 48
+  ('C', '["not_assessed"]') 81
+  ('C', '["not_claimed"]') 72
+  ('C', '["passive_model_basis"]') 72
+  ('C', '["represented_equations_retained"]') 72
+  ('C', '[]') 297
+  ('C', '{"not_assessed": 1}') 81
+  ('C', '{"not_claimed": 1}') 72
+  ('C', '{"passive_model_basis": 1}') 72
+  ('C', '{"represented_equations_retained": 1}') 72
+  ('C', '{}') 297
+base TypeError outcomes by section: {'A3': 920, 'B': 40}
+identical outcomes by section: {'A1': 1356, 'A2': 584, 'A3': 2798, 'B': 124, 'C': 3249}
+changed without a base TypeError: 1236 Counter({('C', '[]'): 297, ('C', '{}'): 297, ('C', '["not_assessed"]'): 81, ('C', '{"not_assessed": 1}'): 81, ('C', '["not_claimed"]'): 72, ('C', '{"not_claimed": 1}'): 72, ('C', '["represented_equations_retained"]'): 72, ('C', '{"represented_equations_retained": 1}'): 72, ('C', '["passive_model_basis"]'): 72, ('C', '{"passive_model_basis": 1}'): 72, ('C', 'REMOVE'): 48})
+base TypeErrors left unchanged: 0
+head TypeErrors: 0
+base outcomes that escaped as other non-ValueError classes: Counter()

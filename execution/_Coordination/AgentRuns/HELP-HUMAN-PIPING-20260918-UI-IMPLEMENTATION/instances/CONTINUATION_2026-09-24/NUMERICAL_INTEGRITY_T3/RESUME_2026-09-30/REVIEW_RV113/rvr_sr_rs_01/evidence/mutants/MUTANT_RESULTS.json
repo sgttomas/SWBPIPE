@@ -1,0 +1,944 @@
+[
+ {
+  "id": "NONE",
+  "family": "control",
+  "description": "RV113_MUT unset",
+  "run_log": [
+   "# NONE start 2026-10-07T16:31:42Z",
+   "lib rc=0",
+   "contract rc=0",
+   "source_blocks rc=0",
+   "harness rc=101",
+   "# NONE end 2026-10-07T16:33:00Z",
+   "probes rerun rc=0 2026-10-07T16:34:41Z"
+  ],
+  "candidate_tests_failing": [],
+  "killed_by_candidate_assertion": false,
+  "probe_verdict_changes": [],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M01",
+  "family": "D38",
+  "description": "(4b) branch without `native == failed` (any entered native stage with no run_ref)",
+  "run_log": [
+   "# M01 start 2026-10-07T16:33:00Z",
+   "lib rc=0",
+   "contract rc=0",
+   "harness rc=101",
+   "# M01 end 2026-10-07T16:34:15Z",
+   "probes rerun rc=0 2026-10-07T16:37:30Z"
+  ],
+  "candidate_tests_failing": [],
+  "killed_by_candidate_assertion": false,
+  "probe_verdict_changes": [],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M02",
+  "family": "D38",
+  "description": "(4b) branch `&&` -> `||` (a native-failed attempt with a Run is also routed to (4b))",
+  "run_log": [
+   "# M02 start 2026-10-07T16:34:15Z",
+   "lib rc=0",
+   "contract rc=0",
+   "harness rc=0",
+   "# M02 end 2026-10-07T16:35:30Z"
+  ],
+  "candidate_tests_failing": [],
+  "killed_by_candidate_assertion": false,
+  "probe_verdict_changes": [
+   {
+    "id": "a4_native_failed_with_refused_run",
+    "control": {
+     "admitted": false
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "a4_capture_with_refused_run",
+    "control": {
+     "admitted": false
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M03",
+  "family": "D38",
+  "description": "the relaxed check restored (I90's D38-1, replicated)",
+  "run_log": [
+   "# M03 start 2026-10-07T16:35:30Z",
+   "lib rc=0",
+   "contract rc=101",
+   "harness rc=0",
+   "# M03 end 2026-10-07T16:36:44Z"
+  ],
+  "candidate_tests_failing": [
+   "contract::b1_d38_capture_before_any_run_beside_a_selected_case"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "d38_base",
+    "control": {
+     "admitted": false
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "x_cause_capture_accounting",
+    "control": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "x_cause_native_unavailable",
+    "control": {
+     "admitted": false
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "x_recovery_method_kept",
+    "control": {
+     "gate": "G6",
+     "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "f38_base",
+    "control": {
+     "admitted": false
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "g8_d38_case_mode_code_3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "g8_d38_case_parity_in_sparse_P3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M04",
+  "family": "D38",
+  "description": "(4b)'s predicate replaced by true (no (4b) conjunct)",
+  "run_log": [
+   "# M04 start 2026-10-07T16:36:44Z",
+   "lib rc=0",
+   "contract rc=101",
+   "harness rc=0",
+   "# M04 end 2026-10-07T16:37:58Z"
+  ],
+  "candidate_tests_failing": [
+   "contract::b1_d38_capture_before_any_run_beside_a_selected_case"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "m8_case_source_other",
+    "control": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "m8_case_source_null",
+    "control": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M05",
+  "family": "D38",
+  "description": "(4b)'s predicate reduced to the source equality alone (I90's 'minimal form')",
+  "run_log": [
+   "# M05 start 2026-10-07T16:37:58Z",
+   "lib rc=0",
+   "contract rc=0",
+   "harness rc=0",
+   "# M05 end 2026-10-07T16:39:12Z"
+  ],
+  "candidate_tests_failing": [],
+  "killed_by_candidate_assertion": false,
+  "probe_verdict_changes": [],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M06",
+  "family": "D38",
+  "description": "(4b)'s predicate reduced to `case.source_ref` non-null (equality weakened)",
+  "run_log": [
+   "# M06 start 2026-10-07T16:39:12Z",
+   "lib rc=0",
+   "contract rc=101",
+   "harness rc=0",
+   "# M06 end 2026-10-07T16:40:26Z"
+  ],
+  "candidate_tests_failing": [
+   "contract::b1_d38_capture_before_any_run_beside_a_selected_case"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "m8_case_source_other",
+    "control": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M14",
+  "family": "G8",
+  "description": "P1 for selected cases only (P2-P4 still for every case)",
+  "run_log": [
+   "# M14 start 2026-10-07T16:45:24Z",
+   "lib rc=0",
+   "contract rc=101",
+   "harness rc=0",
+   "# M14 end 2026-10-07T16:46:39Z"
+  ],
+  "candidate_tests_failing": [
+   "contract::b1_g8_mode_row_and_requested_mode_for_every_case"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "g8_unavailable_mode_code_2_in_sparse",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_unavailable_mode_code_3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_unavailable_mode_row_duplicated",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_unavailable_mode_row_removed",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_d38_case_mode_code_3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M16",
+  "family": "G8",
+  "description": "P2-P4 count the parity rows of case 0 (rows mis-indexed in the loop)",
+  "run_log": [
+   "# M16 start 2026-10-07T16:47:53Z",
+   "lib rc=0",
+   "contract rc=101",
+   "harness rc=0",
+   "# M16 end 2026-10-07T16:49:07Z"
+  ],
+  "candidate_tests_failing": [
+   "contract::b1_g8_parity_rows_p2_to_p4_for_every_case"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "g8_unavailable_parity_in_sparse_P3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_d38_case_parity_in_sparse_P3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "dz_parity_twice_case1_P2",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   },
+   {
+    "id": "dz_no_parity_case1_w2_published",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    }
+   },
+   {
+    "id": "fz_unavailable_two_parity_P2",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "nz_w2_published_no_parity",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M10",
+  "family": "G8",
+  "description": "P4 reads case 0's ordinary attempt instead of the case's own",
+  "run_log": [
+   "# M10 start 2026-10-07T16:40:26Z",
+   "lib rc=0",
+   "contract rc=101",
+   "harness rc=0",
+   "# M10 end 2026-10-07T16:41:40Z"
+  ],
+  "candidate_tests_failing": [
+   "contract::b1_g8_parity_rows_p2_to_p4_for_every_case"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "dz_parity_case1_w2_published_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   },
+   {
+    "id": "fz_unavailable_parity_w2_published_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "nz_w2_published_parity_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M11",
+  "family": "G8",
+  "description": "P4 stricter: a parity row needs W2 not_triggered (refuses it beside a failed W2)",
+  "run_log": [
+   "# M11 start 2026-10-07T16:41:40Z",
+   "lib rc=0",
+   "contract rc=0",
+   "harness rc=0",
+   "# M11 end 2026-10-07T16:42:55Z"
+  ],
+  "candidate_tests_failing": [],
+  "killed_by_candidate_assertion": false,
+  "probe_verdict_changes": [
+   {
+    "id": "dz_parity_case1_w2_failed",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M12",
+  "family": "G8",
+  "description": "P4 for selected cases only",
+  "run_log": [
+   "# M12 start 2026-10-07T16:42:55Z",
+   "lib rc=0",
+   "contract rc=101",
+   "harness rc=0",
+   "# M12 end 2026-10-07T16:44:10Z"
+  ],
+  "candidate_tests_failing": [
+   "contract::b1_g8_parity_rows_p2_to_p4_for_every_case"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "fz_unavailable_parity_w2_published_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "nz_w2_published_parity_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M13",
+  "family": "G8",
+  "description": "P2 widened to at most two parity rows",
+  "run_log": [
+   "# M13 start 2026-10-07T16:44:10Z",
+   "lib rc=0",
+   "contract rc=101",
+   "harness rc=0",
+   "# M13 end 2026-10-07T16:45:24Z"
+  ],
+  "candidate_tests_failing": [
+   "contract::b1_g8_parity_rows_p2_to_p4_for_every_case"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "dz_parity_twice_case1_P2",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   },
+   {
+    "id": "fz_unavailable_two_parity_P2",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M15",
+  "family": "G8",
+  "description": "P2-P4 for selected cases only (P1 still for every case)",
+  "run_log": [
+   "# M15 start 2026-10-07T16:46:39Z",
+   "lib rc=0",
+   "contract rc=101",
+   "harness rc=0",
+   "# M15 end 2026-10-07T16:47:53Z"
+  ],
+  "candidate_tests_failing": [
+   "contract::b1_g8_parity_rows_p2_to_p4_for_every_case"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "g8_unavailable_parity_in_sparse_P3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_d38_case_parity_in_sparse_P3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "fz_unavailable_two_parity_P2",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "fz_unavailable_parity_w2_published_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "nz_w2_published_parity_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M18",
+  "family": "G8",
+  "description": "the old 'exactly one parity row iff dense' kept for selected cases; P2-P4 only for the others",
+  "run_log": [
+   "# M18 start 2026-10-07T16:49:07Z",
+   "lib rc=0",
+   "contract rc=101",
+   "harness rc=0",
+   "# M18 end 2026-10-07T16:50:22Z"
+  ],
+  "candidate_tests_failing": [
+   "contract::b1_g8_parity_rows_p2_to_p4_for_every_case"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "dz_no_parity_b0_admitted",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    }
+   },
+   {
+    "id": "dz_parity_case0_only",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    }
+   },
+   {
+    "id": "dz_parity_case1_w2_published_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   },
+   {
+    "id": "dz_parity_case0_w2_published_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   },
+   {
+    "id": "dz_no_parity_case1_w2_published",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    }
+   },
+   {
+    "id": "limit_l0_dense_parity_deleted",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    }
+   },
+   {
+    "id": "limit_dense_synthetic_parity_deleted",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M20",
+  "family": "G5",
+  "description": "not_required: `product_attempt_ref` null dropped",
+  "run_log": [
+   "# M20 start 2026-10-07T16:50:22Z",
+   "lib rc=0",
+   "contract rc=0",
+   "harness rc=0",
+   "# M20 end 2026-10-07T16:51:36Z"
+  ],
+  "candidate_tests_failing": [],
+  "killed_by_candidate_assertion": false,
+  "probe_verdict_changes": [
+   {
+    "id": "nr_product_attempt_ref_with_attempt",
+    "control": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M21",
+  "family": "G5",
+  "description": "not_required: verdict checks_passed dropped",
+  "run_log": [
+   "# M21 start 2026-10-07T16:51:36Z",
+   "lib rc=0",
+   "contract rc=101",
+   "harness rc=0",
+   "# M21 end 2026-10-07T16:52:50Z"
+  ],
+  "candidate_tests_failing": [
+   "contract::b1_g5_not_required_admits_a_w2_published_case"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "nr_w2_published_verdict_sensitive",
+    "control": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M24",
+  "family": "G5",
+  "description": "not_required: a W2-published case refused (a partial restoration)",
+  "run_log": [
+   "# M24 start 2026-10-07T16:55:18Z",
+   "lib rc=0",
+   "contract rc=101",
+   "harness rc=0",
+   "# M24 end 2026-10-07T16:56:33Z"
+  ],
+  "candidate_tests_failing": [
+   "contract::b1_g5_not_required_admits_a_w2_published_case",
+   "contract::b1_g8_parity_rows_p2_to_p4_for_every_case"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "nr_w2_published_evaluation",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nr_w2_published_formation",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nz_w2_published_no_parity",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nz_w2_published_parity_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M22",
+  "family": "G5",
+  "description": "the report-outcome equality's W2 guard dropped (claimed equivalent under D6c)",
+  "run_log": [
+   "# M22 start 2026-10-07T16:52:50Z",
+   "lib rc=0",
+   "contract rc=0",
+   "harness rc=0",
+   "# M22 end 2026-10-07T16:54:04Z"
+  ],
+  "candidate_tests_failing": [],
+  "killed_by_candidate_assertion": false,
+  "probe_verdict_changes": [],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M23",
+  "family": "G5",
+  "description": "the report-outcome equality dropped",
+  "run_log": [
+   "# M23 start 2026-10-07T16:54:04Z",
+   "lib rc=0",
+   "contract rc=101",
+   "harness rc=0",
+   "# M23 end 2026-10-07T16:55:18Z"
+  ],
+  "candidate_tests_failing": [
+   "contract::b1_g5_not_required_admits_a_w2_published_case"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "nr_report_outcome_sensitive",
+    "control": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M25",
+  "family": "G5",
+  "description": "the existing `initial != not_attempted` check no longer applied to not_required (now its only guard)",
+  "run_log": [
+   "# M25 start 2026-10-07T16:56:33Z",
+   "lib rc=0",
+   "contract rc=101",
+   "harness rc=0",
+   "# M25 end 2026-10-07T16:57:48Z"
+  ],
+  "candidate_tests_failing": [
+   "contract::b1_g5_not_required_admits_a_w2_published_case"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "nr_initial_not_attempted",
+    "control": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   }
+  ],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M30",
+  "family": "N-5",
+  "description": "integer's 2^53-1 bound removed (RV95's S1, replicated)",
+  "run_log": [
+   "# M30 start 2026-10-07T16:57:48Z",
+   "lib rc=101",
+   "contract rc=0",
+   "source_blocks rc=0",
+   "harness rc=0",
+   "# M30 end 2026-10-07T16:59:05Z"
+  ],
+  "candidate_tests_failing": [
+   "lib::source_blocks::rv95_n5_integer_tests::every_field_read_through_integer_refuses_two_to_53",
+   "lib::source_blocks::rv95_n5_integer_tests::integer_admits_two_to_53_minus_1_and_refuses_two_to_53"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [],
+  "census_07m_changes": []
+ },
+ {
+  "id": "M31",
+  "family": "N-5",
+  "description": "integer's bound off by one (`<`)",
+  "run_log": [
+   "# M31 start 2026-10-07T16:59:05Z",
+   "lib rc=101",
+   "contract rc=0",
+   "source_blocks rc=101",
+   "harness rc=0",
+   "# M31 end 2026-10-07T17:00:21Z"
+  ],
+  "candidate_tests_failing": [
+   "lib::source_blocks::rv95_n5_integer_tests::every_field_read_through_integer_refuses_two_to_53",
+   "lib::source_blocks::rv95_n5_integer_tests::integer_admits_two_to_53_minus_1_and_refuses_two_to_53",
+   "source_blocks::rv95_n5_the_integer_bound_is_masked_at_the_public_api"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [],
+  "census_07m_changes": []
+ }
+]

@@ -1,0 +1,32 @@
+-    fn same_dimension_quotients_that_did_not_panic_are_unchanged() {
+-        // A finite numerator over an overflowing divisor used to be the ratio
+-        // 0 (the infinity absorbed). Since T3-SI1c the divisor blocks at the
+-        // multiply that overflows, and the quotient is never formed.
+-        let over_infinity = evaluate(&input(
+-            binary(
+-                BinaryOperator::Divide,
+-                variable("limit"),
+-                binary(
+-                    BinaryOperator::Multiply,
+-                    ratio_literal(1.0e300),
+-                    variable("actual"),
+-                ),
+-            ),
+-            vec![
+-                binding("actual", 1.0e300, Dimension::Stress),
+-                binding("limit", 2.0, Dimension::Stress),
+-            ],
+-        ));
+-        assert_eq!(finding_records(&over_infinity), vec![OVERFLOWED_PRODUCT]);
+-        assert_eq!(over_infinity.value, None);
+-    fn blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking() {
+-    fn blocks_generated_nan_table_arguments() {
+-            note: if non_finite {
+-                Some(NON_FINITE_INPUT_NOTE.to_string())
+-            } else {
+-                note
+-/// N-4 (T3-SI1c): the note on a supplied input whose value is not finite.
+-    run_rule_checks, run_rule_checks_with_bounds, RuleCheckRunInput, RuleCheckRunResult,
+-    RuleCheckStatus, SolverResultBinding, SolverResultBound, SuppliedValueBinding,
+-fn a_nan_table_argument_check_blocks() {
+-            assert_eq!(bound_input.note.as_deref(), Some(NOT_BOUND_NOTE));

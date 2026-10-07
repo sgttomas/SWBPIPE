@@ -1,0 +1,26 @@
+{"id": "G8-1 P1-P4 for case 0 only", "status": "KILLED", "rc": 101, "failed": ["b1_g8_mode_row_and_requested_mode_for_every_case", "b1_g8_parity_rows_p2_to_p4_for_every_case"], "passed": 93, "log": "G8_1_P1_P4_for_case_0_only.log"}
+{"id": "G8-2 P1-P4 for selected cases only (B1's widening undone)", "status": "KILLED", "rc": 101, "failed": ["b1_g8_mode_row_and_requested_mode_for_every_case", "b1_g8_parity_rows_p2_to_p4_for_every_case"], "passed": 93, "log": "G8_2_P1_P4_for_selected_cases_only_B1_s_widening_undone_.log"}
+{"id": "G8-3 P1 dropped", "status": "KILLED", "rc": 101, "failed": ["b1_g8_mode_row_and_requested_mode_for_every_case"], "passed": 94, "log": "G8_3_P1_dropped.log"}
+{"id": "G8-4 P1 'exactly one' dropped (first row's value only)", "status": "KILLED", "rc": 101, "failed": ["b1_g8_mode_row_and_requested_mode_for_every_case"], "passed": 94, "log": "G8_4_P1_exactly_one_dropped_first_row_s_value_only_.log"}
+{"id": "G8-5 P2 dropped", "status": "KILLED", "rc": 101, "failed": ["b1_g8_parity_rows_p2_to_p4_for_every_case"], "passed": 94, "log": "G8_5_P2_dropped.log"}
+{"id": "G8-6 P3 dropped", "status": "KILLED", "rc": 101, "failed": ["b1_g8_parity_rows_p2_to_p4_for_every_case"], "passed": 94, "log": "G8_6_P3_dropped.log"}
+{"id": "G8-7 P4 dropped", "status": "KILLED", "rc": 101, "failed": ["b1_g8_parity_rows_p2_to_p4_for_every_case"], "passed": 94, "log": "G8_7_P4_dropped.log"}
+{"id": "G8-8 the old parity rule restored (exactly one iff dense)", "status": "KILLED", "rc": 101, "failed": ["b1_g8_parity_rows_p2_to_p4_for_every_case"], "passed": 94, "log": "G8_8_the_old_parity_rule_restored_exactly_one_iff_dense_.log"}
+{"id": "G5-1 initial.kind == report restored", "status": "KILLED", "rc": 101, "failed": ["b1_g5_not_required_admits_a_w2_published_case", "b1_g8_parity_rows_p2_to_p4_for_every_case"], "passed": 93, "log": "G5_1_initial_kind_report_restored.log"}
+{"id": "G5-2 initial.outcome == checks_passed restored", "status": "KILLED", "rc": 101, "failed": ["b1_g5_not_required_admits_a_w2_published_case", "b1_g8_parity_rows_p2_to_p4_for_every_case"], "passed": 93, "log": "G5_2_initial_outcome_checks_passed_restored.log"}
+{"id": "G5-3 w2.kind == not_triggered restored", "status": "KILLED", "rc": 101, "failed": ["b1_g5_not_required_admits_a_w2_published_case", "b1_g8_parity_rows_p2_to_p4_for_every_case"], "passed": 93, "log": "G5_3_w2_kind_not_triggered_restored.log"}
+{"id": "D38-1 the run_ref requirement restored (no (4b))", "status": "KILLED", "rc": 101, "failed": ["b1_d38_capture_before_any_run_beside_a_selected_case"], "passed": 94, "log": "D38_1_the_run_ref_requirement_restored_no_4b_.log"}
+{"id": "D38-2 (4b) source equality dropped", "status": "KILLED", "rc": 101, "failed": ["b1_d38_capture_before_any_run_beside_a_selected_case"], "passed": 94, "log": "D38_2_4b_source_equality_dropped.log"}
+{"id": "D38-3 (4b) source non-null dropped", "status": "SURVIVED", "rc": 0, "failed": [], "passed": 95, "log": "D38_3_4b_source_non_null_dropped.log"}
+{"id": "D38-4 (4b) result unavailable dropped", "status": "SURVIVED", "rc": 0, "failed": [], "passed": 95, "log": "D38_4_4b_result_unavailable_dropped.log"}
+{"id": "D38-5 (4b) error kind capture dropped", "status": "SURVIVED", "rc": 0, "failed": [], "passed": 95, "log": "D38_5_4b_error_kind_capture_dropped.log"}
+{"id": "D38-6 (4b) preparation completed dropped", "status": "SURVIVED", "rc": 0, "failed": [], "passed": 95, "log": "D38_6_4b_preparation_completed_dropped.log"}
+{"id": "D38-7 (4b) later stages not_entered dropped", "status": "SURVIVED", "rc": 0, "failed": [], "passed": 95, "log": "D38_7_4b_later_stages_not_entered_dropped.log"}
+{"id": "D38-8 (4b) case unavailable dropped", "status": "SURVIVED", "rc": 0, "failed": [], "passed": 95, "log": "D38_8_4b_case_unavailable_dropped.log"}
+{"id": "D38-9 (4b) cause kind dropped", "status": "SURVIVED", "rc": 0, "failed": [], "passed": 95, "log": "D38_9_4b_cause_kind_dropped.log"}
+{"id": "D38-10 (4b) cause attempt dropped", "status": "SURVIVED", "rc": 0, "failed": [], "passed": 95, "log": "D38_10_4b_cause_attempt_dropped.log"}
+{"id": "D38-11 (4b) reason code dropped", "status": "SURVIVED", "rc": 0, "failed": [], "passed": 95, "log": "D38_11_4b_reason_code_dropped.log"}
+{"id": "D38-12 (4b) reason phase dropped", "status": "SURVIVED", "rc": 0, "failed": [], "passed": 95, "log": "D38_12_4b_reason_phase_dropped.log"}
+{"id": "S1 integer bound removed (RV95's S1)", "status": "KILLED", "rc": 101, "failed": ["source_blocks::rv95_n5_integer_tests::every_field_read_through_integer_refuses_two_to_53", "source_blocks::rv95_n5_integer_tests::integer_admits_two_to_53_minus_1_and_refuses_two_to_53"], "passed": 93, "log": "S1_integer_bound_removed_RV95_s_S1_.log"}
+{"id": "S1b integer bound off by one", "status": "KILLED", "rc": 101, "failed": ["source_blocks::rv95_n5_integer_tests::every_field_read_through_integer_refuses_two_to_53", "source_blocks::rv95_n5_integer_tests::integer_admits_two_to_53_minus_1_and_refuses_two_to_53"], "passed": 93, "log": "S1b_integer_bound_off_by_one.log"}
+restored: pristine bytes

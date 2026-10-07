@@ -1,0 +1,83 @@
+{
+ "evaluator": {
+  "i79_dump.tsv": {
+   "identical": true,
+   "lines": 36069
+  },
+  "i79_dump.tsv.interval": {
+   "identical": true,
+   "lines": 144176
+  },
+  "i79_dump.tsv.panics": {
+   "identical": true,
+   "lines": 0
+  },
+  "i79_extreme.tsv": {
+   "identical": true,
+   "lines": 36000
+  },
+  "i79_extreme.tsv.interval": {
+   "identical": true,
+   "lines": 144000
+  },
+  "i79_extreme.tsv.panics": {
+   "identical": true,
+   "lines": 0
+  },
+  "i79_table.tsv": {
+   "identical": true,
+   "lines": 12000
+  },
+  "i79_table.tsv.interval": {
+   "identical": true,
+   "lines": 48000
+  },
+  "i79_table.tsv.panics": {
+   "identical": true,
+   "lines": 0
+  },
+  "rv104_ee.txt": {
+   "identical": true,
+   "lines": 626721
+  },
+  "si1c_ee.txt": {
+   "identical": true,
+   "lines": 85670
+  }
+ },
+ "examples": [],
+ "runner": {
+  "i79_run_extreme.tsv": {
+   "differ": 3645,
+   "identical": 35793,
+   "lines": 39438,
+   "note_appended_interval": 3969
+  },
+  "i79_run_plain.tsv": {
+   "identical": 32820,
+   "lines": 32820
+  },
+  "rv104_run.txt": {
+   "differ": 23549,
+   "differ_hash_only": 21511,
+   "identical": 192929,
+   "lines": 216478,
+   "note_appended_interval": 145,
+   "note_appended_library": 1893
+  },
+  "rv104_run_full.txt": {
+   "differ": 23549,
+   "identical": 192929,
+   "lines": 216478,
+   "note_appended_interval": 15538,
+   "note_appended_library": 11019
+  },
+  "si1c_run.txt": {
+   "differ": 1386,
+   "identical": 10472,
+   "lines": 11858,
+   "note_appended_interval": 1386
+  }
+ },
+ "violations": {}
+}

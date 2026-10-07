@@ -1,0 +1,573 @@
+{
+ "E01_add_unchecked": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::blocks_generated_nan_table_arguments",
+   "tests::each_producer_blocks_where_its_result_overflows",
+   "tests::the_comparison_truth_table_is_unreachable"
+  ]
+ },
+ "E02_mul_dimensionless_left_unchecked": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression",
+   "tests::absorbing_forms_block_instead_of_deciding",
+   "tests::blocks_generated_nan_table_arguments",
+   "tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking",
+   "tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking",
+   "tests::each_producer_blocks_where_its_result_overflows",
+   "tests::interval_mode_still_reads_these_overflows_indeterminate_without_a_finding",
+   "tests::non_finite_table_arguments_block_at_the_overflowing_multiply",
+   "tests::same_dimension_quotients_that_did_not_panic_are_unchanged",
+   "tests::the_carried_non_finite_reproducers_block_at_the_multiply",
+   "tests::the_comparison_truth_table_is_unreachable"
+  ]
+ },
+ "E03_mul_dimensionless_right_unchecked": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::each_producer_blocks_where_its_result_overflows"
+  ]
+ },
+ "E04_mul_derived_unchecked": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::each_producer_blocks_where_its_result_overflows"
+  ]
+ },
+ "E05_div_dimensionless_divisor_unchecked": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::each_producer_blocks_where_its_result_overflows",
+   "tests::non_finite_quotients_outside_the_ratio_arm_block_at_divide",
+   "tests::the_comparison_truth_table_is_unreachable"
+  ]
+ },
+ "E06_div_derived_unchecked": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::each_producer_blocks_where_its_result_overflows",
+   "tests::non_finite_quotients_outside_the_ratio_arm_block_at_divide"
+  ]
+ },
+ "E07_block_continues_with_value": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression",
+   "tests::absorbing_forms_block_instead_of_deciding",
+   "tests::blocks_generated_nan_table_arguments",
+   "tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking",
+   "tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking",
+   "tests::non_finite_table_arguments_block_at_the_overflowing_multiply",
+   "tests::the_carried_non_finite_reproducers_block_at_the_multiply",
+   "tests::the_comparison_truth_table_is_unreachable"
+  ]
+ },
+ "E08_nan_only": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression",
+   "tests::absorbing_forms_block_instead_of_deciding",
+   "tests::blocks_generated_nan_table_arguments",
+   "tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking",
+   "tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking",
+   "tests::each_producer_blocks_where_its_result_overflows",
+   "tests::interval_mode_still_reads_these_overflows_indeterminate_without_a_finding",
+   "tests::non_finite_quotients_outside_the_ratio_arm_block_at_divide",
+   "tests::non_finite_table_arguments_block_at_the_overflowing_multiply",
+   "tests::same_dimension_quotients_that_did_not_panic_are_unchanged",
+   "tests::the_carried_non_finite_reproducers_block_at_the_multiply",
+   "tests::the_comparison_truth_table_is_unreachable"
+  ]
+ },
+ "E09_is_infinite_for_not_finite": {
+  "compile_error": null,
+  "differential_vs_candidate": {
+   "ee_interval.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 433221
+   },
+   "ee_point.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 144407
+   },
+   "probe.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 5
+   },
+   "run.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 106884
+   }
+  },
+  "killed": false,
+  "killed_by": []
+ },
+ "E10_max_blocks": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::finite_boundaries_still_evaluate"
+  ]
+ },
+ "E11_subnormal_blocks": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "interval_tests::interval_outcomes_are_sound_against_the_point_path",
+   "tests::finite_boundaries_still_evaluate"
+  ]
+ },
+ "E12_add_check_before_structure": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression"
+  ]
+ },
+ "E13_mul_check_before_product_lookup": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression"
+  ]
+ },
+ "E14_div_check_before_zero": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::a_blocked_ratio_stops_the_enclosing_expression",
+   "tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression",
+   "tests::blocks_an_i73_differential_quotient_input",
+   "tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking",
+   "tests::rejects_division_by_zero",
+   "tests::same_dimension_quotients_that_did_not_panic_are_unchanged"
+  ]
+ },
+ "E15_div_check_before_quotient_lookup": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression"
+  ]
+ },
+ "E16_divide_subject": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::each_producer_blocks_where_its_result_overflows",
+   "tests::non_finite_quotients_outside_the_ratio_arm_block_at_divide",
+   "tests::the_comparison_truth_table_is_unreachable"
+  ]
+ },
+ "E17_derived_product_message": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::each_producer_blocks_where_its_result_overflows"
+  ]
+ },
+ "E18_ratio_arm_quotient_message": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::a_blocked_ratio_stops_the_enclosing_expression",
+   "tests::blocks_an_i73_differential_quotient_input",
+   "tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking"
+  ]
+ },
+ "I01_rise_unchecked": {
+  "compile_error": null,
+  "differential_vs_candidate": {
+   "ee_interval.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 433221
+   },
+   "ee_point.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 144407
+   },
+   "probe.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 5
+   },
+   "run.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 106884
+   }
+  },
+  "killed": false,
+  "killed_by": []
+ },
+ "I02_offset_unchecked": {
+  "compile_error": null,
+  "differential_vs_candidate": {
+   "ee_interval.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 433221
+   },
+   "ee_point.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 144407
+   },
+   "probe.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 5
+   },
+   "run.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 106884
+   }
+  },
+  "killed": false,
+  "killed_by": []
+ },
+ "I03_run_unchecked": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::each_producer_blocks_where_its_result_overflows",
+   "tests::interval_mode_still_reads_these_overflows_indeterminate_without_a_finding"
+  ]
+ },
+ "I04_fraction_unchecked": {
+  "compile_error": null,
+  "differential_vs_candidate": {
+   "ee_interval.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 433221
+   },
+   "ee_point.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 144407
+   },
+   "probe.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 5
+   },
+   "run.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 106884
+   }
+  },
+  "killed": false,
+  "killed_by": []
+ },
+ "I05_product_unchecked": {
+  "compile_error": null,
+  "differential_vs_candidate": {
+   "ee_interval.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 433221
+   },
+   "ee_point.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 144407
+   },
+   "probe.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 5
+   },
+   "run.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 106884
+   }
+  },
+  "killed": false,
+  "killed_by": []
+ },
+ "I06_sum_unchecked": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "tests::each_producer_blocks_where_its_result_overflows"
+  ]
+ },
+ "I07_four_unchecked_jointly": {
+  "compile_error": null,
+  "differential_vs_candidate": {
+   "ee_interval.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 433221
+   },
+   "ee_point.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 144407
+   },
+   "probe.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 5
+   },
+   "run.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 106884
+   }
+  },
+  "killed": false,
+  "killed_by": []
+ },
+ "L01_limit_raw_check_removed": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "a_non_finite_limit_is_named_in_both_limit_blocks"
+  ]
+ },
+ "L02_limit_normalized_check_removed": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "a_non_finite_limit_is_named_in_both_limit_blocks"
+  ]
+ },
+ "L04_limit_as_missing": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "a_non_finite_limit_is_named_in_both_limit_blocks"
+  ]
+ },
+ "N02_raw_other_unit_supplied": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "a_non_finite_raw_input_in_another_unit_is_named_and_still_unsupplied"
+  ]
+ },
+ "N03_note_dropped": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "a_non_finite_input_is_named_and_never_bound",
+   "a_non_finite_raw_input_in_another_unit_is_named_and_still_unsupplied",
+   "an_unreferenced_non_finite_input_blocks_nothing"
+  ]
+ },
+ "N04_value_kept": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "a_non_finite_input_is_named_and_never_bound",
+   "an_unreferenced_non_finite_input_blocks_nothing"
+  ]
+ },
+ "N06_dedup_removed": {
+  "compile_error": null,
+  "differential_vs_candidate": {
+   "ee_interval.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 433221
+   },
+   "ee_point.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 144407
+   },
+   "probe.tsv": {
+    "differ": 1,
+    "examples": [
+     "x_listed_twice_nan"
+    ],
+    "lines": 5
+   },
+   "run.tsv": {
+    "differ": 1896,
+    "examples": [
+     "rn4|x_twice|ref|all|x=v0:NaNPa|plain",
+     "rn4|x_twice|ref|all|x=v0:NaNPa|b0",
+     "rn4|x_twice|ref|all|x=v0:NaNPa|b1",
+     "rn4|x_twice|ref|all|x=v0:NaNPa|brel",
+     "rn4|x_twice|ref|all|x=v1:NaNPa|plain"
+    ],
+    "lines": 106884
+   }
+  },
+  "killed": false,
+  "killed_by": []
+ },
+ "N07_block_after_mode_dispatch": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "a_non_finite_input_is_named_and_never_bound"
+  ]
+ },
+ "N08_unreferenced_input_blocks": {
+  "compile_error": null,
+  "killed": true,
+  "killed_by": [
+   "an_unreferenced_non_finite_input_blocks_nothing"
+  ]
+ },
+ "N09_trim_dropped": {
+  "compile_error": null,
+  "differential_vs_candidate": {
+   "ee_interval.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 433221
+   },
+   "ee_point.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 144407
+   },
+   "probe.tsv": {
+    "differ": 2,
+    "examples": [
+     "x_nan_padded_unit_referenced",
+     "u_nan_padded_unit_unreferenced"
+    ],
+    "lines": 5
+   },
+   "run.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 106884
+   }
+  },
+  "killed": false,
+  "killed_by": []
+ },
+ "X01_step_nan_check_removed": {
+  "compile_error": null,
+  "differential_vs_candidate": {
+   "ee_interval.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 433221
+   },
+   "ee_point.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 144407
+   },
+   "probe.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 5
+   },
+   "run.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 106884
+   }
+  },
+  "killed": false,
+  "killed_by": []
+ },
+ "X02_interpolate_nan_check_removed": {
+  "compile_error": null,
+  "differential_vs_candidate": {
+   "ee_interval.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 433221
+   },
+   "ee_point.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 144407
+   },
+   "probe.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 5
+   },
+   "run.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 106884
+   }
+  },
+  "killed": false,
+  "killed_by": []
+ },
+ "X03_ratio_check_infinite_only": {
+  "compile_error": null,
+  "differential_vs_candidate": {
+   "ee_interval.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 433221
+   },
+   "ee_point.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 144407
+   },
+   "probe.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 5
+   },
+   "run.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 106884
+   }
+  },
+  "killed": false,
+  "killed_by": []
+ },
+ "X04_nan_argument_code_out_of_range": {
+  "compile_error": null,
+  "differential_vs_candidate": {
+   "ee_interval.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 433221
+   },
+   "ee_point.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 144407
+   },
+   "probe.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 5
+   },
+   "run.tsv": {
+    "differ": 0,
+    "examples": [],
+    "lines": 106884
+   }
+  },
+  "killed": false,
+  "killed_by": []
+ }
+}

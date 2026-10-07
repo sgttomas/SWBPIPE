@@ -1,0 +1,25 @@
+122a123,137
+> src/lib.rs :: test retained_facade_tests::b1_sp_domain_recheck_names_the_requested_cases ... ok
+> src/lib.rs :: test retained_facade_tests::b1_sp_first_g_b_refusal_stands_and_stops_later_late_hooks ... ok
+> src/lib.rs :: test retained_facade_tests::b1_sp_multi_case_coexistence_pin ... ok
+> src/lib.rs :: test retained_facade_tests::b1_sp_r3p_1_one_case_in_a_runs_on_its_own_slot ... ok
+> src/lib.rs :: test retained_facade_tests::b1_sp_r3p_2_3_custody_validates_a_and_orders_prior_errors ... ok
+> src/lib.rs :: test retained_facade_tests::b1_sp_r3p_7_custody_per_case_presence_parked_capture_and_native ... ok
+> src/lib.rs :: test retained_facade_tests::b1_sp_seam_overflow_is_a_typed_g_b_refusal ... ok
+> src/lib.rs :: test retained_facade_tests::b1_sp_t2_the_capture_holds_each_requested_case ... ok
+> src/lib.rs :: test retained_facade_tests::b1_sp_t5_one_reserved_notice_per_case_in_a ... ok
+> src/lib.rs :: test retained_facade_tests::b1_sp_t6_custody_refuses_the_whole_invocation ... ok
+> src/lib.rs :: test retained_facade_tests::b1_sp_t6_t7_custody_once_then_one_attempt_per_case_in_a ... ok
+> src/lib.rs :: test retained_facade_tests::b1_sp_w_c2_direct_entry_counts_one_run_through_g_c ... ok
+> src/lib.rs :: test retained_facade_tests::b1_sp_w_c2_through_retained_w1_publishes_t12 ... ok
+> src/lib.rs :: test retained_facade_tests::b1_sp_w_c2_transaction_faults_and_abandonment ... ok
+> src/lib.rs :: test retained_facade_tests::b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping ... ok
+150a166,173
+> src/lib.rs :: test retained_memory::law_tests::b1_sa_d1_4_admits_one_to_c_load_cases ... ok
+> src/lib.rs :: test retained_memory::law_tests::b1_sa_envelope_results_bound_is_c_times_p_final ... ok
+> src/lib.rs :: test retained_memory::law_tests::b1_sa_g_b_reads_each_case_and_the_running_total ... ok
+> src/lib.rs :: test retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions ... ok
+> src/lib.rs :: test retained_memory::law_tests::b1_sa_retained_error_text_reads_every_case_slot ... ok
+> src/lib.rs :: test retained_memory::law_tests::b1_sa_runner_oracle_literal_is_load_cases_plus_one ... ok
+> src/lib.rs :: test retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases ... ok
+> src/lib.rs :: test retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one ... ok

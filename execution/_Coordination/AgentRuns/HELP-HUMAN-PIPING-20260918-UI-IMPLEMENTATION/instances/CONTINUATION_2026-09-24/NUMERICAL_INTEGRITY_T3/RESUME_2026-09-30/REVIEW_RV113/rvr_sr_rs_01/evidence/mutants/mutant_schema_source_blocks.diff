@@ -1,0 +1,16 @@
+--- head/projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs	2026-10-07 08:47:06
++++ mut/projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs	2026-10-07 10:09:29
+@@ -51,9 +51,12 @@
+         .filter(|x| x.is_finite())
+         .ok_or_else(|| "SOURCE_BLOCKS_NUMBER".into())
+ }
++fn mx(id: &str) -> bool {
++    std::env::var("RV113_MUT").map_or(false, |v| v == id)
++}
+ fn integer(v: &Value) -> Result<usize, String> {
+     v.as_u64()
+-        .filter(|n| *n <= 9_007_199_254_740_991)
++        .filter(|n| mx("M30") || (if mx("M31") { *n < 9_007_199_254_740_991 } else { *n <= 9_007_199_254_740_991 }))
+         .and_then(|n| usize::try_from(n).ok())
+         .ok_or_else(|| "SOURCE_BLOCKS_INTEGER".into())
+ }

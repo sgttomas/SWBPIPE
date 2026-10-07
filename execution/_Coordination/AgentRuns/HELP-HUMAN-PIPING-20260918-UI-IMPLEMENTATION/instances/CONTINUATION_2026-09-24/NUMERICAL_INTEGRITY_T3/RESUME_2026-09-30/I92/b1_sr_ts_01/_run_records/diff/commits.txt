@@ -1,0 +1,8 @@
+7e47e51b5d935fda7a8289d14b21f8979e4f4876 7e5c40f3d5a50ead3f774d8db8a2c7f22fdd0f40
+  piping(T3 B1 SR-TS): pin P4 on published, not triggered
+7e5c40f3d5a50ead3f774d8db8a2c7f22fdd0f40 8c0425a3af664678362dde34f4b84a5bb71901cb
+  piping(T3 B1 SR-TS): pin the not_required rule on a case owning its own attempt
+8c0425a3af664678362dde34f4b84a5bb71901cb 5d7b4447cd5c9abadc4e0802bc69abb07510965c
+  piping(T3 B1 SR-TS): TS tests on synthetic n-case receipts; RV108 N4 and N6 pins
+5d7b4447cd5c9abadc4e0802bc69abb07510965c 262bd687f0bc4a552586be14ba1b8e8f290f710b
+  piping(T3 B1 SR-TS): TS reader: R-D38 (4b), F-1 text B per case, RV108 N4 and N6

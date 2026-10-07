@@ -1,0 +1,6 @@
+75132d2673e6fdb6ab62adc0b76227550704b28c piping(T3 B1 SR-PY): the N1 carrier tests assert on an escape from the ValueError-only caller
+de7d9b9736d6d4766516e1fcede723f3410d3c06 piping(T3 B1 SR-PY): reader-local tests on synthetic n-case receipts; RV108 N1 and N2 pins
+5cd239e58e2dea2d7e1dad7cd86c0d09597b0736 piping(T3 B1 SR-PY): RV108 N6(a), say what the transport validator twins
+36c0980e4d873ce54ba4cee0f9d68ce8fbbe7e82 piping(T3 B1 SR-PY): RV108 N1, string guards on _source_contract's enum membership tests
+a29949e238c6e1984ad8ef2cf8c34eee9d5a22bf piping(T3 B1 SR-PY): RV108 N2, a quality case without solve_quality reads as no verdict at G5
+a514f4ca746aae5af6d6b223e32baccac646206f piping(T3 B1 SR-PY): align the Python retained reader: R-D38 (4b), F-1 text B per case

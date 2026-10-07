@@ -1,0 +1,30 @@
+2026-10-07T22:20:14Z WAIT pid=44700 cwd=WT/rv111/head2/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv111_si1c --test rv111_probe -- --test-threads=2
+2026-10-07T22:21:10Z START pid=45255 cwd=WT/rv111/head2/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv111_si1c --test rv111_probe -- --test-threads=2
+2026-10-07T22:21:42Z END rc=0 pid=45255 cwd=WT/rv111/head2/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:21:42Z WAIT pid=45606 cwd=WT/rv111/head2/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --no-fail-fast
+2026-10-07T22:23:15Z START pid=46357 cwd=WT/rv111/head2/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --no-fail-fast
+2026-10-07T22:23:16Z END rc=0 pid=46357 cwd=WT/rv111/head2/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T22:23:16Z WAIT pid=46412 cwd=WT/rv111/head2/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --no-fail-fast
+2026-10-07T22:24:46Z START pid=47130 cwd=WT/rv111/head2/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --no-fail-fast
+2026-10-07T22:24:48Z END rc=0 pid=47130 cwd=WT/rv111/head2/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:24:48Z WAIT pid=47251 cwd=WT/rv111/head2/projects/chirality-piping/core/rules/rule_pack_document args: test --offline --locked --no-fail-fast
+2026-10-07T22:25:15Z START pid=47473 cwd=WT/rv111/head2/projects/chirality-piping/core/rules/rule_pack_document args: test --offline --locked --no-fail-fast
+2026-10-07T22:25:16Z END rc=0 pid=47473 cwd=WT/rv111/head2/projects/chirality-piping/core/rules/rule_pack_document
+2026-10-07T22:25:44Z WAIT pid=47804 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --no-fail-fast
+2026-10-07T22:25:44Z START pid=47807 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --no-fail-fast
+2026-10-07T22:25:50Z END rc=101 pid=47807 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:25:50Z WAIT pid=48054 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --no-fail-fast
+2026-10-07T22:25:50Z START pid=48057 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --no-fail-fast
+2026-10-07T22:25:51Z END rc=101 pid=48057 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:25:51Z WAIT pid=48157 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --no-fail-fast
+2026-10-07T22:25:51Z START pid=48160 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --no-fail-fast
+2026-10-07T22:25:53Z END rc=101 pid=48160 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:25:53Z WAIT pid=48258 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --no-fail-fast
+2026-10-07T22:25:53Z START pid=48261 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --no-fail-fast
+2026-10-07T22:25:55Z END rc=101 pid=48261 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:25:55Z WAIT pid=48356 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --no-fail-fast
+2026-10-07T22:25:55Z START pid=48359 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --no-fail-fast
+2026-10-07T22:25:57Z END rc=101 pid=48359 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:25:57Z WAIT pid=48447 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --no-fail-fast
+2026-10-07T22:25:57Z START pid=48450 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --no-fail-fast
+2026-10-07T22:25:59Z END rc=101 pid=48450 cwd=WT/rv111/mut2/projects/chirality-piping/core/rules/rule_check_runner

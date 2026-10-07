@@ -1,0 +1,477 @@
+{
+ "by_family": {
+  "bd": {
+   "flagged": 1892,
+   "flagged_blocked_as_predicted": 1892,
+   "lines": 11664,
+   "unflagged_identical": 9771
+  },
+  "corpus": {
+   "lines": 69,
+   "unflagged_identical": 69
+  },
+  "gen": {
+   "flagged": 2711,
+   "flagged_blocked_as_predicted": 2711,
+   "lines": 40000,
+   "unflagged_identical": 37288
+  },
+  "pc": {
+   "flagged": 80417,
+   "flagged_blocked_as_predicted": 80416,
+   "lines": 82814,
+   "unflagged_identical": 2397
+  },
+  "tbl": {
+   "flagged": 3135,
+   "flagged_blocked_as_predicted": 3135,
+   "lines": 9860,
+   "unflagged_identical": 6725
+  }
+ },
+ "consumer_rows": {
+  "add_operand": {
+   "finite_quantity_on_main": 829,
+   "non_finite_quantity_on_main": 769
+  },
+  "and_L": {
+   "decided_B(false)": 1068,
+   "decided_B(true)": 530
+  },
+  "and_R": {
+   "decided_B(false)": 1068,
+   "decided_B(true)": 530
+  },
+  "bsel_cond": {
+   "decided_B(false)": 1068,
+   "decided_B(true)": 530
+  },
+  "bsel_taken": {
+   "decided_B(false)": 1068,
+   "decided_B(true)": 530
+  },
+  "bsel_untaken": {
+   "decided_B(false)": 1598
+  },
+  "cmp_eq_L": {
+   "decided_B(false)": 1598
+  },
+  "cmp_eq_NN": {
+   "decided_B(false)": 119,
+   "decided_B(true)": 1479
+  },
+  "cmp_eq_R": {
+   "decided_B(false)": 1598
+  },
+  "cmp_ge_L": {
+   "decided_B(false)": 1068,
+   "decided_B(true)": 530
+  },
+  "cmp_ge_NN": {
+   "decided_B(false)": 119,
+   "decided_B(true)": 1479
+  },
+  "cmp_ge_R": {
+   "decided_B(false)": 649,
+   "decided_B(true)": 949
+  },
+  "cmp_gt_L": {
+   "decided_B(false)": 1068,
+   "decided_B(true)": 530
+  },
+  "cmp_gt_NN": {
+   "decided_B(false)": 1598
+  },
+  "cmp_gt_R": {
+   "decided_B(false)": 649,
+   "decided_B(true)": 949
+  },
+  "cmp_le_L": {
+   "decided_B(false)": 649,
+   "decided_B(true)": 949
+  },
+  "cmp_le_NN": {
+   "decided_B(false)": 119,
+   "decided_B(true)": 1479
+  },
+  "cmp_le_R": {
+   "decided_B(false)": 1068,
+   "decided_B(true)": 530
+  },
+  "cmp_lt_L": {
+   "decided_B(false)": 649,
+   "decided_B(true)": 949
+  },
+  "cmp_lt_NN": {
+   "decided_B(false)": 1598
+  },
+  "cmp_lt_R": {
+   "decided_B(false)": 1068,
+   "decided_B(true)": 530
+  },
+  "cmp_ne_L": {
+   "decided_B(true)": 1598
+  },
+  "cmp_ne_NN": {
+   "decided_B(false)": 1479,
+   "decided_B(true)": 119
+  },
+  "cmp_ne_R": {
+   "decided_B(true)": 1598
+  },
+  "div_by_cmp": {
+   "blocked_on_main": 119,
+   "decided_B(false)": 601,
+   "decided_B(true)": 878
+  },
+  "div_by_dd": {
+   "finite_quantity_on_main": 265,
+   "non_finite_quantity_on_main": 17
+  },
+  "div_by_derived": {
+   "blocked_on_main": 17,
+   "finite_quantity_on_main": 1150,
+   "non_finite_quantity_on_main": 102
+  },
+  "div_by_ratio_arm": {
+   "blocked_on_main": 119,
+   "finite_quantity_on_main": 1462,
+   "non_finite_quantity_on_main": 17
+  },
+  "event:abs": {
+   "blocked_on_main": 257,
+   "decided_B(false)": 474,
+   "decided_B(true)": 491,
+   "finite_quantity_on_main": 197,
+   "non_finite_quantity_on_main": 306
+  },
+  "event:add_subtract_operand": {
+   "blocked_on_main": 2395,
+   "decided_B(false)": 7037,
+   "decided_B(true)": 5623,
+   "finite_quantity_on_main": 4687,
+   "non_finite_quantity_on_main": 2916
+  },
+  "event:compare": {
+   "blocked_on_main": 98,
+   "decided_B(false)": 11808,
+   "decided_B(true)": 9401,
+   "finite_quantity_on_main": 7
+  },
+  "event:divide_divisor": {
+   "blocked_on_main": 445,
+   "decided_B(false)": 874,
+   "decided_B(true)": 1158,
+   "finite_quantity_on_main": 2007,
+   "non_finite_quantity_on_main": 241
+  },
+  "event:divide_numerator": {
+   "blocked_on_main": 951,
+   "decided_B(false)": 509,
+   "decided_B(true)": 457,
+   "finite_quantity_on_main": 202,
+   "non_finite_quantity_on_main": 1476
+  },
+  "event:final_quantity": {
+   "non_finite_quantity_on_main": 11335
+  },
+  "event:max": {
+   "blocked_on_main": 1321,
+   "decided_B(false)": 5264,
+   "decided_B(true)": 5231,
+   "finite_quantity_on_main": 5599,
+   "non_finite_quantity_on_main": 2310
+  },
+  "event:min": {
+   "blocked_on_main": 1105,
+   "decided_B(false)": 5482,
+   "decided_B(true)": 5285,
+   "finite_quantity_on_main": 6638,
+   "non_finite_quantity_on_main": 1117
+  },
+  "event:multiply_operand": {
+   "blocked_on_main": 2375,
+   "decided_B(false)": 6362,
+   "decided_B(true)": 5178,
+   "finite_quantity_on_main": 4077,
+   "non_finite_quantity_on_main": 2863
+  },
+  "event:negate": {
+   "blocked_on_main": 1938,
+   "decided_B(false)": 5189,
+   "decided_B(true)": 4169,
+   "finite_quantity_on_main": 2910,
+   "non_finite_quantity_on_main": 2150
+  },
+  "event:ratio_block_from_finite": {
+   "blocked_on_main": 4
+  },
+  "event:select_quantity_taken": {
+   "blocked_on_main": 486,
+   "decided_B(false)": 1012,
+   "decided_B(true)": 907,
+   "finite_quantity_on_main": 398,
+   "non_finite_quantity_on_main": 1287
+  },
+  "event:select_quantity_untaken": {
+   "blocked_on_main": 732,
+   "decided_B(false)": 5633,
+   "decided_B(true)": 4709,
+   "finite_quantity_on_main": 8459,
+   "non_finite_quantity_on_main": 2
+  },
+  "event:table_argument_exact": {
+   "blocked_on_main": 1571
+  },
+  "event:table_argument_interpolate": {
+   "blocked_on_main": 1595
+  },
+  "event:table_argument_step": {
+   "blocked_on_main": 1602
+  },
+  "final": {
+   "finite_quantity_on_main": 828,
+   "non_finite_quantity_on_main": 769
+  },
+  "max_L": {
+   "finite_quantity_on_main": 1220,
+   "non_finite_quantity_on_main": 378
+  },
+  "max_NN": {
+   "finite_quantity_on_main": 829,
+   "non_finite_quantity_on_main": 769
+  },
+  "max_R": {
+   "finite_quantity_on_main": 1220,
+   "non_finite_quantity_on_main": 378
+  },
+  "max_cmp_le": {
+   "decided_B(false)": 378,
+   "decided_B(true)": 1220
+  },
+  "min_L": {
+   "finite_quantity_on_main": 1326,
+   "non_finite_quantity_on_main": 272
+  },
+  "min_R": {
+   "finite_quantity_on_main": 1326,
+   "non_finite_quantity_on_main": 272
+  },
+  "min_cmp_le": {
+   "decided_B(true)": 1598
+  },
+  "mul_operand": {
+   "finite_quantity_on_main": 829,
+   "non_finite_quantity_on_main": 769
+  },
+  "not": {
+   "decided_B(false)": 530,
+   "decided_B(true)": 1068
+  },
+  "num_dd": {
+   "finite_quantity_on_main": 829,
+   "non_finite_quantity_on_main": 769
+  },
+  "num_derived": {
+   "finite_quantity_on_main": 272,
+   "non_finite_quantity_on_main": 292
+  },
+  "num_ratio_arm": {
+   "blocked_on_main": 627,
+   "finite_quantity_on_main": 829,
+   "non_finite_quantity_on_main": 142
+  },
+  "or_L": {
+   "decided_B(false)": 1068,
+   "decided_B(true)": 530
+  },
+  "or_R": {
+   "decided_B(false)": 1068,
+   "decided_B(true)": 530
+  },
+  "qsel_taken": {
+   "finite_quantity_on_main": 829,
+   "non_finite_quantity_on_main": 769
+  },
+  "qsel_untaken": {
+   "finite_quantity_on_main": 1598
+  },
+  "qsel_untaken_else": {
+   "finite_quantity_on_main": 1598
+  },
+  "tbl_regular_exact": {
+   "blocked_on_main": 1581,
+   "finite_quantity_on_main": 17
+  },
+  "tbl_regular_interp": {
+   "blocked_on_main": 769,
+   "finite_quantity_on_main": 829
+  },
+  "tbl_regular_step": {
+   "blocked_on_main": 769,
+   "finite_quantity_on_main": 829
+  },
+  "tbl_wide_exact": {
+   "blocked_on_main": 1598
+  },
+  "tbl_wide_interp": {
+   "blocked_on_main": 769,
+   "finite_quantity_on_main": 829
+  },
+  "tbl_wide_step": {
+   "blocked_on_main": 769,
+   "finite_quantity_on_main": 829
+  }
+ },
+ "counts": {
+  "interval_ibase_identical": 433221,
+  "interval_identical": 433220,
+  "interval_lines": 433221,
+  "interval_panics": 0,
+  "labels": 144407,
+  "panics": {}
+ },
+ "flag_sites": {
+  "add_subtract": 19135,
+  "divide_derived": 7368,
+  "divide_dimensionless_divisor": 12688,
+  "interpolate": 17939,
+  "multiply_derived": 5304,
+  "multiply_dimensionless_left": 19787,
+  "multiply_dimensionless_right": 5934
+ },
+ "interp_masks": {
+  "000001": 2489,
+  "001000": 3733,
+  "011111": 2686,
+  "100011": 8743,
+  "101011": 216,
+  "111111": 72
+ },
+ "oracle2": {
+  "counts": {
+   "base_agree": 144338,
+   "cand_agree": 144335,
+   "cand_disagree": 3,
+   "cases": 144338,
+   "classifier_agree": 144338
+  },
+  "mismatch_samples": {
+   "cand": [
+    {
+     "label": "pc|interp_run_absorbed|d1|final",
+     "oracle": [
+      "None",
+      [
+       [
+        "NonFiniteInput",
+        "t_wide",
+        "interpolated table value must be finite (a step of the interpolation overflowed)"
+       ]
+      ],
+      []
+     ],
+     "rust": "v=None st=[MechanicsSolved] src=[] f=[NonFiniteInput|t_wide|interpolated table value must be finite (overflowed)]"
+    },
+    {
+     "label": "bd|add|12|12",
+     "oracle": [
+      "('q', 2.0, 'stress', 'u_stress')",
+      [],
+      []
+     ],
+     "rust": "v=Q(0x1000000000000000|2.0|Stress|u_stress|true|true) st=[MechanicsSolved] src=[] f="
+    },
+    {
+     "label": "gen|5|0",
+     "oracle": [
+      "('b', False)",
+      [],
+      [
+       "g_thermal_expansion_coefficient_0"
+      ]
+     ],
+     "rust": "v=B(true) st=[MechanicsSolved] src=[\"g_thermal_expansion_coefficient_0\"] f="
+    }
+   ]
+  }
+ },
+ "oracle3_exact_boundary": {
+  "counts": {
+   "agree": 11663,
+   "blocked": 2368,
+   "disagree": 1,
+   "finite": 9295,
+   "finite_at_plus_minus_MAX": 268
+  },
+  "disagreements": [
+   {
+    "a": 1.0,
+    "b": 1.0,
+    "cand": "v=Q(0x1000000000000000|2.0|Stress|u_stress|true|true) st=[MechanicsSolved] src=[] f=",
+    "expect": [
+     "value",
+     "0x4000000000000000"
+    ],
+    "label": "bd|add|12|12"
+   }
+  ]
+ },
+ "transitions": {
+  "bd": {
+   "non_finite_quantity_on_main": 1892
+  },
+  "gen": {
+   "blocked_on_main": 913,
+   "decided_B(false)": 359,
+   "decided_B(true)": 320,
+   "finite_quantity_on_main": 359,
+   "non_finite_quantity_on_main": 760
+  },
+  "pc": {
+   "blocked_on_main": 7137,
+   "decided_B(false)": 24611,
+   "decided_B(true)": 21612,
+   "finite_quantity_on_main": 20572,
+   "non_finite_quantity_on_main": 6484
+  },
+  "tbl": {
+   "finite_quantity_on_main": 936,
+   "non_finite_quantity_on_main": 2199
+  }
+ },
+ "violation_counts": {
+  "flagged_not_as_predicted": 1,
+  "interval_differs": 1,
+  "unflagged_differs": 2
+ },
+ "violations": {
+  "flagged_not_as_predicted": [
+   {
+    "cand": "v=None st=[MechanicsSolved] src=[] f=[NonFiniteInput|t_wide|interpolated table value must be finite (overflowed)]",
+    "expected": [
+     [
+      "NonFiniteInput",
+      "t_wide",
+      "interpolated table value must be finite (a step of the interpolation overflowed)"
+     ]
+    ],
+    "flag": {
+     "k": 0,
+     "mask": "001000",
+     "site": "interpolate",
+     "sources": [],
+     "subject": "t_wide"
+    },
+    "label": "pc|interp_run_absorbed|d1|final"
+   }
+  ],
+  "interval_differs": [
+   "pc|add+|d2.selT|max_R|I1"
+  ],
+  "unflagged_differs": [
+   "bd|add|12|12",
+   "gen|5|0"
+  ]
+ }
+}

@@ -1,0 +1,20 @@
+S1_no_parking	T-2: a later case's early hook does not park the earlier case
+S2_unqualified_ids	decision 19: a later case's row id is not case-qualified
+S3_no_per_case_presence	decision 19: the per-case final mode/parity presence check is dropped
+S4_finish_ignores_parked_late_hooks	T-2/T-6: the final hook no longer checks the parked cases' late captures
+S5_custody_ignores_parked_errors	T-6: a parked case's prior capture error is not a custody refusal
+S6_custody_no_case_count	T-6: the requested case count is not checked
+S7_custody_ignores_parked_native	T-6: native work already in a parked slot is not refused
+S8_stop_after_failed_attempt	T-7: a failed preparation stops the later cases' attempts
+S9_no_failure_snapshot	T-7/T-11: a failed attempt takes no terminal snapshot
+S10_failure_not_in_slot	T-7: a failed attempt's error is not kept in its case's slot
+S11_attempt_id_is_request	T-7: attempt ids are request indices, not start order
+S12_attempt_on_wrong_slot	T-7: the attempt runs on the slot at its start index, not its request index
+S13_one_reserved_slot	T-5: one diagnostics slot reserved, whatever |A|
+S14_no_cross_notice_collision	T-5: two notices with one id are not refused
+S15_domain_allows_combination	domain re-check: a combination is admitted
+S16_domain_allows_no_case	domain re-check: c = 0 is admitted
+S17_rows_bound_to_first_case	decision 19: every mode/parity row is bound to request case 0
+S18_one_case_binding_at_c_ge_2	T-6: custody binds observations with the one-case binder at c >= 2
+S19_late_hook_case_zero	T-2: the late hook checks request case 0's id for every case
+S20_observation_bytes_assigned	the observation capacity record is the last case's, not the sum

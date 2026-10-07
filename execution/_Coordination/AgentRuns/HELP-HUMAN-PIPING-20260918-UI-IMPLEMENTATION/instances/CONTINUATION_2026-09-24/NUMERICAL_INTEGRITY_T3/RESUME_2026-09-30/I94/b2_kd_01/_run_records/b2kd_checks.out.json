@@ -1,0 +1,185 @@
+{
+ "nets": {
+  "C1_A+B-A2": {
+   "0": {
+    "net": "0",
+    "zero": true,
+    "individual_nonzero": true,
+    "span_bits": 0,
+    "fits_1024": true
+   },
+   "1": {
+    "net": "0",
+    "zero": true,
+    "individual_nonzero": true,
+    "span_bits": 0,
+    "fits_1024": true
+   },
+   "2": {
+    "net": "3",
+    "zero": false,
+    "individual_nonzero": true,
+    "span_bits": 2,
+    "fits_1024": true
+   },
+   "3": {
+    "net": "0",
+    "zero": true,
+    "individual_nonzero": true,
+    "span_bits": 0,
+    "fits_1024": true
+   },
+   "4": {
+    "net": "-2",
+    "zero": false,
+    "individual_nonzero": true,
+    "span_bits": 1,
+    "fits_1024": true
+   }
+  },
+  "C2_0.1A+3B": {
+   "0": {
+    "net": "3602879701896397/36028797018963968",
+    "zero": false,
+    "individual_nonzero": true,
+    "span_bits": 52,
+    "fits_1024": true
+   },
+   "1": {
+    "net": "3602879701896397/36028797018963968",
+    "zero": false,
+    "individual_nonzero": true,
+    "span_bits": 52,
+    "fits_1024": true
+   },
+   "2": {
+    "net": "9",
+    "zero": false,
+    "individual_nonzero": true,
+    "span_bits": 4,
+    "fits_1024": true
+   },
+   "3": {
+    "net": "3602879701896397/36028797018963968",
+    "zero": false,
+    "individual_nonzero": true,
+    "span_bits": 52,
+    "fits_1024": true
+   },
+   "4": {
+    "net": "-6",
+    "zero": false,
+    "individual_nonzero": true,
+    "span_bits": 2,
+    "fits_1024": true
+   }
+  },
+  "C3_P+Q": {
+   "0": {
+    "net": "1/1152921504606846976",
+    "zero": false,
+    "individual_nonzero": true,
+    "span_bits": 1,
+    "fits_1024": true
+   }
+  },
+  "C4_2B(prepared first)+A": {
+   "0": {
+    "net": "1",
+    "zero": false,
+    "individual_nonzero": true,
+    "span_bits": 1,
+    "fits_1024": true
+   },
+   "1": {
+    "net": "1",
+    "zero": false,
+    "individual_nonzero": true,
+    "span_bits": 1,
+    "fits_1024": true
+   },
+   "2": {
+    "net": "6",
+    "zero": false,
+    "individual_nonzero": true,
+    "span_bits": 2,
+    "fits_1024": true
+   },
+   "3": {
+    "net": "1",
+    "zero": false,
+    "individual_nonzero": true,
+    "span_bits": 1,
+    "fits_1024": true
+   },
+   "4": {
+    "net": "-4",
+    "zero": false,
+    "individual_nonzero": true,
+    "span_bits": 1,
+    "fits_1024": true
+   }
+  },
+  "C5_2^700A-2^700A2+2^-700B": {
+   "0": {
+    "net": "0",
+    "zero": true,
+    "individual_nonzero": true,
+    "span_bits": 0,
+    "fits_1024": true
+   },
+   "1": {
+    "net": "0",
+    "zero": true,
+    "individual_nonzero": true,
+    "span_bits": 0,
+    "fits_1024": true
+   },
+   "2": {
+    "net": "3/5260135901548373507240989882880128665550339802823173859498280903068732154297080822113666536277588451226982968856178217713019432250183803863127814770651880849955223671128444598191663757884322717271293251735781376",
+    "zero": false,
+    "individual_nonzero": true,
+    "span_bits": 2,
+    "fits_1024": true
+   },
+   "3": {
+    "net": "0",
+    "zero": true,
+    "individual_nonzero": true,
+    "span_bits": 0,
+    "fits_1024": true
+   },
+   "4": {
+    "net": "-1/2630067950774186753620494941440064332775169901411586929749140451534366077148540411056833268138794225613491484428089108856509716125091901931563907385325940424977611835564222299095831878942161358635646625867890688",
+    "zero": false,
+    "individual_nonzero": true,
+    "span_bits": 1,
+    "fits_1024": true
+   }
+  },
+  "C6_H1": {
+   "1": {
+    "net": "17218479456385750618067377696052635483579924745448689921733236816400740691241745619397484537236046173286370919031961587788584927290816661024991609882728717344659503471655990880884679896520055123906467064419056526231345685268240569209892573766037966584735183775739433978714578587782701380797240772477647874555986712746271362892227516205318914435913511141036261377/4149515568880992958512407863691161151012446232242436899995657329690652811412908146399707048947103794288197886611300789182395151075411775307886874834113963687061181803401509523685376",
+    "zero": false,
+    "individual_nonzero": true,
+    "span_bits": 1201,
+    "fits_1024": false
+   }
+  }
+ },
+ "cantilever_coupling_EA7_GJ5_EI3_L1": {
+  "uy_per_Mz": "1/6",
+  "rz_per_Fy": "1/6",
+  "uz_per_My": "-1/6",
+  "ry_per_Fz": "-1/6",
+  "uy_per_Fy": "1/9",
+  "rz_per_Mz": "1/3"
+ },
+ "c03_discriminator": {
+  "one_plus_2^-60_is_one_in_binary64": true,
+  "sum_of_operand_rows": 0.0,
+  "exact_combined_ux": 2.7678177052557755e-27,
+  "relative_loss": "total"
+ },
+ "factor_0.1_bits": "0x3fb999999999999a"
+}

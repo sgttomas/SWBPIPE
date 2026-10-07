@@ -1,0 +1,3 @@
+src/lib.rs :: test retained_facade_tests::u3_permitted_path_publishes_the_pinned_successor ... ok
+src/lib.rs :: test retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor ... ok
+src/lib.rs :: test retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor ... ok

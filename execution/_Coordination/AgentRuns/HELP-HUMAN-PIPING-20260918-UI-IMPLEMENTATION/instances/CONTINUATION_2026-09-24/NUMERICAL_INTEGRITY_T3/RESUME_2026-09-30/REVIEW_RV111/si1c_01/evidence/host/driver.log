@@ -1,0 +1,26 @@
+2026-10-07T14:22:47Z rv111 job start tree=cand crate=rule_check_runner cfg= args=test --offline --locked --test rv111_si1c -- --nocapture --test-threads=2
+2026-10-07T14:25:17Z rv111 job end tree=cand crate=rule_check_runner rc=0 log=h_cand
+2026-10-07T14:25:58Z rv111 job start tree=base crate=rule_check_runner cfg= args=test --offline --locked --test rv111_si1c -- --nocapture --test-threads=2
+2026-10-07T14:31:06Z rv111 job end tree=base crate=rule_check_runner rc=0 log=h_base
+2026-10-07T14:31:06Z rv111 job start tree=ibase crate=rule_check_runner cfg=rv111_ibase args=test --offline --locked --test rv111_si1c -- --nocapture --test-threads=2
+2026-10-07T14:34:33Z rv111 job start tree=base crate=expression_evaluator cfg= args=test --offline --locked --no-fail-fast
+2026-10-07T14:35:38Z rv111 job end tree=ibase crate=rule_check_runner rc=0 log=h_ibase
+2026-10-07T14:37:57Z rv111 job end tree=base crate=expression_evaluator rc=0 log=suite_base_ee
+2026-10-07T14:37:57Z rv111 job start tree=base crate=rule_check_runner cfg= args=test --offline --locked --no-fail-fast
+2026-10-07T14:40:27Z rv111 job end tree=base crate=rule_check_runner rc=0 log=suite_base_rcr
+2026-10-07T14:40:27Z rv111 job start tree=cand crate=expression_evaluator cfg= args=test --offline --locked --no-fail-fast
+2026-10-07T14:42:08Z rv111 job end tree=cand crate=expression_evaluator rc=0 log=suite_cand_ee
+2026-10-07T14:42:08Z rv111 job start tree=cand crate=rule_check_runner cfg= args=test --offline --locked --no-fail-fast
+2026-10-07T14:43:22Z rv111 job end tree=cand crate=rule_check_runner rc=0 log=suite_cand_rcr
+2026-10-07T14:43:22Z rv111 job start tree=graft crate=expression_evaluator cfg= args=test --offline --locked --no-fail-fast
+2026-10-07T14:45:16Z rv111 job end tree=graft crate=expression_evaluator rc=101 log=suite_graft_ee
+2026-10-07T14:45:16Z rv111 job start tree=graft crate=rule_check_runner cfg= args=test --offline --locked --no-fail-fast
+2026-10-07T14:49:06Z rv111 job end tree=graft crate=rule_check_runner rc=101 log=suite_graft_rcr
+2026-10-07T14:49:06Z rv111 job start tree=base crate=rule_pack_document cfg= args=test --offline --locked --no-fail-fast
+2026-10-07T14:49:24Z rv111 job start tree=base crate=rule_check_runner cfg= args=test --offline --locked --test rv111_probe
+2026-10-07T14:52:45Z rv111 job end tree=base crate=rule_pack_document rc=0 log=suite_base_rpd
+2026-10-07T14:52:45Z rv111 job start tree=cand crate=rule_pack_document cfg= args=test --offline --locked --no-fail-fast
+2026-10-07T14:52:46Z rv111 job end tree=base crate=rule_check_runner rc=0 log=probe_base
+2026-10-07T14:52:46Z rv111 job start tree=cand crate=rule_check_runner cfg= args=test --offline --locked --test rv111_probe
+2026-10-07T14:54:11Z rv111 job end tree=cand crate=rule_pack_document rc=0 log=suite_cand_rpd
+2026-10-07T14:54:11Z rv111 job end tree=cand crate=rule_check_runner rc=0 log=probe_cand

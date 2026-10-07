@@ -1,0 +1,61 @@
+== pc|nan_inf-inf|d1|cmp_ne_L
+base: v=B(true) st=[MechanicsSolved] src=[] f=
+cand: v=None st=[MechanicsSolved] src=[] f=[NonFiniteInput|add_subtract|sum or difference must be finite (it overflowed)]
+== pc|muldl+|d1|cmp_ge_L
+base: v=B(true) st=[MechanicsSolved] src=["x"] f=
+cand: v=None st=[MechanicsSolved] src=["x"] f=[NonFiniteInput|multiply|product must be finite (it overflowed)]
+== pc|muldl+|d1|qsel_untaken
+base: v=Q(0x4008000000000000|3.0|Stress|u_stress|true|true) st=[MechanicsSolved] src=["x"] f=
+cand: v=None st=[MechanicsSolved] src=["x"] f=[NonFiniteInput|multiply|product must be finite (it overflowed)]
+== pc|nan_inf-inf|d1|max_R
+base: v=Q(0x4008000000000000|3.0|Stress|u_stress|true|true) st=[MechanicsSolved] src=[] f=
+cand: v=None st=[MechanicsSolved] src=[] f=[NonFiniteInput|add_subtract|sum or difference must be finite (it overflowed)]
+== pc|muldr+|d1|div_by_ratio_arm
+base: v=Q(0x0000000000000000|0.0|Dimensionless|ratio|true|true) st=[MechanicsSolved] src=["x"] f=
+cand: v=None st=[MechanicsSolved] src=["x"] f=[NonFiniteInput|multiply|product must be finite (it overflowed)]
+== pc|interp_run_absorbed|d1|final
+base: v=Q(0x0000000000000000|0.0|Stress|u_stress|true|true) st=[MechanicsSolved] src=[] f=
+cand: v=None st=[MechanicsSolved] src=[] f=[NonFiniteInput|t_wide|interpolated table value must be finite (a step of the interpolation overflowed)]
+== pc|interp_sum|d1|final
+base: v=Q(0x7ff0000000000000|inf|Stress|u_stress|true|true) st=[MechanicsSolved] src=[] f=
+cand: v=None st=[MechanicsSolved] src=[] f=[NonFiniteInput|t_sum|interpolated table value must be finite (a step of the interpolation overflowed)]
+== pc|nan_0*inf|d1|div_by_ratio_arm
+base: v=None st=[MechanicsSolved] src=["x"] f=[NonFiniteInput|divide|same-dimension quotient (ratio) must be finite]
+cand: v=None st=[MechanicsSolved] src=["x"] f=[NonFiniteInput|multiply|product must be finite (it overflowed)]
+== pc|add+|d1|tbl_regular_exact
+base: v=None st=[MechanicsSolved] src=[] f=[TableOutOfRange|arg_regular|table argument inf is outside the table range [-10, 10]; extrapolation and clamping are not permitted]
+cand: v=None st=[MechanicsSolved] src=[] f=[NonFiniteInput|add_subtract|sum or difference must be finite (it overflowed)]
+== pc|add+|d1|tbl_wide_interp
+base: v=None st=[MechanicsSolved] src=[] f=[TableOutOfRange|arg_wide|table argument inf is outside the table range [-179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000, 179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]; extrapolation and clamping are not permitted]
+cand: v=None st=[MechanicsSolved] src=[] f=[NonFiniteInput|add_subtract|sum or difference must be finite (it overflowed)]
+== pc|r_ratio_arm|d1|final
+base: v=None st=[MechanicsSolved] src=[] f=[NonFiniteInput|divide|same-dimension quotient (ratio) must be finite]
+cand: v=None st=[MechanicsSolved] src=[] f=[NonFiniteInput|divide|same-dimension quotient (ratio) must be finite]
+== bd|add|35|35
+base: v=Q(0xfff0000000000000|-inf|Stress|u_stress|true|true) st=[MechanicsSolved] src=[] f=
+cand: v=None st=[MechanicsSolved] src=[] f=[NonFiniteInput|add_subtract|sum or difference must be finite (it overflowed)]
+== bd|add|34|34
+base: v=Q(0x7ff0000000000000|inf|Stress|u_stress|true|true) st=[MechanicsSolved] src=[] f=
+cand: v=None st=[MechanicsSolved] src=[] f=[NonFiniteInput|add_subtract|sum or difference must be finite (it overflowed)]
+== bd|divdd|35|0
+base: v=None st=[MechanicsSolved] src=[] f=[DivisionByZero|divide|division by zero is not permitted]
+cand: v=None st=[MechanicsSolved] src=[] f=[DivisionByZero|divide|division by zero is not permitted]
+== bd|divratio|0|1
+base: v=None st=[MechanicsSolved] src=[] f=[DivisionByZero|divide|division by zero is not permitted]
+cand: v=None st=[MechanicsSolved] src=[] f=[DivisionByZero|divide|division by zero is not permitted]
+== bd|add|34|28
+base: v=Q(0x7fefffffffffffff|1.7976931348623157e308|Stress|u_stress|true|true) st=[MechanicsSolved] src=[] f=
+cand: v=Q(0x7fefffffffffffff|1.7976931348623157e308|Stress|u_stress|true|true) st=[MechanicsSolved] src=[] f=
+== bd|add|34|26
+base: v=Q(0x7ff0000000000000|inf|Stress|u_stress|true|true) st=[MechanicsSolved] src=[] f=
+cand: v=None st=[MechanicsSolved] src=[] f=[NonFiniteInput|add_subtract|sum or difference must be finite (it overflowed)]
+== bd|add|24|24
+base: v=Q(0x7fefffffffffffff|1.7976931348623157e308|Stress|u_stress|true|true) st=[MechanicsSolved] src=[] f=
+cand: v=Q(0x7fefffffffffffff|1.7976931348623157e308|Stress|u_stress|true|true) st=[MechanicsSolved] src=[] f=
+== bd|muldl|34|12
+base: v=Q(0x7fefffffffffffff|1.7976931348623157e308|Stress|u_stress|true|true) st=[MechanicsSolved] src=[] f=
+cand: v=Q(0x7fefffffffffffff|1.7976931348623157e308|Stress|u_stress|true|true) st=[MechanicsSolved] src=[] f=
+== bd|divdd|2|23
+base: v=Q(0x8000000000000000|-0.0|Stress|u_stress|true|true) st=[MechanicsSolved] src=[] f=
+cand: v=Q(0x8000000000000000|-0.0|Stress|u_stress|true|true) st=[MechanicsSolved] src=[] f=
+bd index: value = VALS[i], VALS = [v, -v for v in (0, 5e-324, MIN_POSITIVE, 1e-308, 1e-300, 0.5, 1, 2, 1e154, 1.4e154, 1e300, 1e308, MAX/2, 2^970, next_down(2^970), next_up(2^970), next_down(MAX), MAX)]

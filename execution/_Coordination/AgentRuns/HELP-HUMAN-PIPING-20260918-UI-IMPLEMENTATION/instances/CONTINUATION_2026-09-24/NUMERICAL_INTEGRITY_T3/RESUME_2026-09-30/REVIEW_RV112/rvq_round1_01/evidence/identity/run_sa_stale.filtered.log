@@ -1,0 +1,2 @@
+test retained_memory::law_tests::identity_carries_every_key_in_order ... I65_G5_IDENTITY v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=--cfg%3Drv112_stale;pkg=open_pipe_stress_product_physics@0.2.0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 567 filtered out; finished in 0.01s

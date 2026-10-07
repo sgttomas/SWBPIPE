@@ -1,0 +1,25 @@
+budget_0.9x12GiB 11596411699
+c=1 z=1 dense: low 5046259089 mid 5991518154 high 6592396996; 5% step GiB low 5.5 mid 6.5 high 7.0
+c=1 z=1 sparse: low 5026548641 mid 5971807706 high 6552976100; 5% step GiB low 5.5 mid 6.5 high 7.0
+c=2 z=1 dense: low 8150366023 mid 9127476129 high 9749149984; 5% step GiB low 8.75 mid 9.75 high 10.5
+c=2 z=1 sparse: low 8110945127 mid 9088055233 high 9690018640; 5% step GiB low 8.75 mid 9.75 high 10.25
+c=1 z=2 dense: low 6604085788 mid 8526454959 high 9747441022; 5% step GiB low 7.0 mid 9.0 high 10.5
+c=1 z=2 sparse: low 6584375340 mid 8506744511 high 9688309678; 5% step GiB low 7.0 mid 9.0 high 10.25
+c=3 z=1 dense: low 11416844017 mid 12427112010 high 13063805472; 5% step GiB low 12.25 mid 13.25 high 14.0
+c=3 z=1 sparse: low 11357712673 mid 12367980666 high 12984963680; 5% step GiB low 12.0 mid 13.25 high 13.75
+c=2 z=2 dense: low 9819484362 mid 11806862462 high 13063663144; 5% step GiB low 10.5 mid 12.5 high 14.0
+c=2 z=2 sparse: low 9780063466 mid 11767441566 high 12984821352; 5% step GiB low 10.5 mid 12.5 high 13.75
+c=3 z=3 dense: low 16620735244 mid None high 21731066973; 5% step GiB low 17.5 mid None high 23.0
+c=3 z=3 sparse: low 16561603900 mid None high 21612804285; 5% step GiB low 17.5 mid None high 23.0
+c=2 z=4 dense: low 15023375589 mid None high 21727791377; 5% step GiB low 15.75 mid None high 23.0
+c=2 z=4 sparse: low 14983954693 mid None high 21609528689; 5% step GiB low 15.75 mid None high 23.0
+c=3 z=5 dense: low 24177852476 mid None high 32970718879; 5% step GiB low 25.25 mid None high 34.75
+c=3 z=5 sparse: low 24118721132 mid None high 32813035295; 5% step GiB low 25.25 mid None high 34.75
+Ceq3_high(c2z1): dense E+R 9749149984; heap 9682041120 = 9.02 GiB; of 16 GiB 0.564; of 32 GiB 0.282
+c3z1_mid: dense E+R 12427112010; heap 12360003146 = 11.51 GiB; of 16 GiB 0.719; of 32 GiB 0.360
+c3z1_high: dense E+R 13063805472; heap 12996696608 = 12.10 GiB; of 16 GiB 0.757; of 32 GiB 0.378
+c4_l32 {'dense': (11213200292, 0.0752, 12.0), 'sparse': (11134358500, 0.0907, 12.0)}
+c4_m24 {'dense': (11348074996, 0.0527, 12.0), 'sparse': (11265743412, 0.0702, 12.0)}
+c4_m20 {'dense': (10512635788, 0.2534, 11.25), 'sparse': (10428461004, 0.2731, 11.25)}
+c4_l48 {'dense': (11518161636, 0.0151, 12.25), 'sparse': (11439319844, 0.0304, 12.25)}
+t_c4_k12_l64 {'dense': (5358966100, 3.1847, 5.75), 'sparse': (5351302804, 3.1886, 5.75)}

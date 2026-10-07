@@ -1,0 +1,4 @@
+2026-10-07T15:43:34Z WAIT pid=80528 cwd=WT/b1-p/projects/chirality-piping/core/serialization/canonical_json args: build --locked --offline --release --features checked-cli --bin openpipestress_jcs_ijson --target-dir WT/targets/i91-b1-sr-py/checked-json
+2026-10-07T15:45:18Z START pid=81858 cwd=WT/b1-p/projects/chirality-piping/core/serialization/canonical_json args: build --locked --offline --release --features checked-cli --bin openpipestress_jcs_ijson --target-dir WT/targets/i91-b1-sr-py/checked-json
+2026-10-07T15:45:21Z WAIT pid=82032 cwd=WT/b1-p/projects/chirality-piping/core/units args: build --locked --offline --release --features cli --bin openpipestress_units --target-dir WT/targets/i91-b1-sr-py/units-authority
+2026-10-07T15:46:41Z START pid=83874 cwd=WT/b1-p/projects/chirality-piping/core/units args: build --locked --offline --release --features cli --bin openpipestress_units --target-dir WT/targets/i91-b1-sr-py/units-authority

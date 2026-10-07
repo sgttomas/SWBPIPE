@@ -1,0 +1,5 @@
+publication hits in the delta (H1..H2) by file group
+in RV110's own records (scan vocabulary): 2446
+outside RV110's records: 0
+e-mail addresses in the delta's files: noreply@anthropic.com x5 (attribution trailers and RV110's records); 6 '+@pytest.mark' false positives; owner e-mail: 0
+I88 lock log: 504 lines, all cwd=WT/scratch/i88_si1c (own); no CANCELLED line

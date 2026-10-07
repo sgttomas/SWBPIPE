@@ -1,0 +1,48 @@
+{
+  "g_hat": {
+    "cases": 250011,
+    "first_differences": [],
+    "normal_G_differ": 0,
+    "normal_G_equal": 250011,
+    "skipped_nonnormal_G": 0
+  },
+  "sections": {
+    "distinct_inputs": [
+      {
+        "differing_properties": [
+          "I",
+          "J",
+          "Z"
+        ],
+        "od": 0.2,
+        "prepared": {
+          "A": "3f7872fa3a37ac13",
+          "I": "3efc52664442210a",
+          "J": "3f0c52664442210a",
+          "Z": "3f31b37feaa954a6",
+          "c": "3fb999999999999a"
+        },
+        "source_annulus": {
+          "A": "3f7872fa3a37ac13",
+          "I": "3efc52664442210b",
+          "J": "3f0c52664442210b",
+          "Z": "3f31b37feaa954a7"
+        },
+        "wall": 0.01
+      }
+    ],
+    "emulation_matches_all_published": true,
+    "published_checked": 18,
+    "random_sections": {
+      "ambiguous_rounding": 0,
+      "any_property_differs": 1504,
+      "per_property_differs": {
+        "A": 815,
+        "I": 1078,
+        "J": 1078,
+        "Z": 1131
+      },
+      "sections": 2000
+    }
+  }
+}

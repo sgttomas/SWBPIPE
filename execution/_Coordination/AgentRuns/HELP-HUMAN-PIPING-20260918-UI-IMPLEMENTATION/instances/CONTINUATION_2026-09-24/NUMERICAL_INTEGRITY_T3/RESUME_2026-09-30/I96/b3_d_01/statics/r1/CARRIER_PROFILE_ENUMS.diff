@@ -1,0 +1,24 @@
+--- a/P/schemas/results.v0.3.schema.yaml
++++ b/P/schemas/results.v0.3.schema.yaml
+@@ -1008,7 +1008,8 @@
+                 "exact_straight_pressure_v2",
+                 "resolved_straight_load_state_v1",
+                 "resolved_straight_load_state_source_v1",
+-                "product_preview_retained_w1a_v2"
++                "product_preview_retained_w1a_v2",
++                "exact_straight_retained_w1a_v2"
+               ]
+             },
+             "limitations": {
+--- a/P/schemas/stress_neutral_export.v0.3.schema.json
++++ b/P/schemas/stress_neutral_export.v0.3.schema.json
+@@ -357,7 +357,8 @@
+             "exact_straight_pressure_v2",
+             "resolved_straight_load_state_v1",
+             "resolved_straight_load_state_source_v1",
+-            "product_preview_retained_w1a_v2"
++            "product_preview_retained_w1a_v2",
++            "exact_straight_retained_w1a_v2"
+           ]
+         },
+         "limitations": {
