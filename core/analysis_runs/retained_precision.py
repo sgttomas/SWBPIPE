@@ -1459,6 +1459,10 @@ def _g5_numeric(body, rows_by_case, phase=None):
 
 def _g8(body, source, invocation):
     need = lambda ok, code="PREPARATION_MISMATCH": _need(ok, "G8", code)
+    # The invocation is exactly {request, solver_mode} with a known solver mode (I91 repair 01, findings d1
+    # and d2), as Rust's `g8` (its first two `need`s) and TS's `invocationBinding` (its first `fail`) require.
+    need(type(invocation) is dict and set(invocation) == {"request", "solver_mode"}
+         and invocation["solver_mode"] in ("sparse_interactive", "dense_scrutiny"), "INVOCATION_MISMATCH")
     try: need(_hash("source_blocks_invocation_v1", invocation) == body["invocation"]["value"], "INVOCATION_MISMATCH")
     except RetainedPrecisionError: raise
     except (ValueError, RuntimeError): need(False, "INVOCATION_MISMATCH")
@@ -1469,24 +1473,6 @@ def _g8(body, source, invocation):
     nodes, pipes, supports = model["nodes"], model["pipe_segments"], model["supports"]
     need(len({x["id"] for x in nodes}) == len(nodes) and len({x["id"] for x in pipes}) == len(pipes) and len({x["id"] for x in supports}) == len(supports))
     materials = request.get("materials") or model.get("materials", [])
-    # F-1 text B (DESIGN_v2 §3.2-§3.3, decision 8): after the invocation, project and model-scope
-    # checks, one loop in request order over every case (selected, unavailable or not_required:
-    # every case's rows come from the one ordinary run). G3 binds case i to ordinary attempt i and
-    # to the invocation's case i. Each check is PREPARATION_MISMATCH.
-    mode = invocation.get("solver_mode")
-    mode_code = {"sparse_interactive": 1, "dense_scrutiny": 2}.get(mode) if isinstance(mode, str) else None
-    for i, case in enumerate(body["cases"]):
-        o = body["ordinary_attempts"][i]
-        need(o["requested_mode"] == mode)
-        case_rows = [r for r in source["results"] if r["basis_ref"]["ref_id"] == case["basis_ref"]["ref_id"]]
-        modes = [r for r in case_rows if r["kind"] == "linear_solver_mode_basis"]
-        # P1: exactly one mode row, valued with the mode code (1 sparse, 2 dense).
-        need(len(modes) == 1 and mode_code is not None and type(modes[0]["value"]) in (int, float) and modes[0]["value"] == mode_code)
-        parity = sum(1 for r in case_rows if r["kind"] == "sparse_live_path_dense_parity_relative_delta")
-        # P2: at most one parity row. P3: none in sparse_interactive. P4: none when W2 published
-        # (b != 0; OQ5). A dense b = 0 case may lack it (a failed observation lane); that deletion
-        # is the disclosed limit.
-        need(parity <= 1 and (parity == 0 or mode == "dense_scrutiny") and (parity == 0 or o["w2"]["kind"] != "published"))
     from core.units.adapter import convert_quantities_to_canonical
     def unit(q, dimension):
         values = convert_quantities_to_canonical([{"id":"v","value":q["value"],"unit":q["unit"],"dimension":dimension}])
@@ -1521,6 +1507,41 @@ def _g8(body, source, invocation):
         axial = (x[6]*x[8])/length; torsion = (x[7]*x[9])/length
         need(math.isfinite(axial) and math.isfinite(torsion) and abs(axial) >= 2.0**-1022 and abs(torsion) >= 2.0**-1022)
         return {"kind":"ready","length":bits(length),"axial_stiffness":bits(axial),"torsional_stiffness":bits(torsion),"normalization":[bits(d*inverse) for d in delta]}
+    # DESIGN_v2 §3.3 (decision 9) and F-1 text B (§3.2, decision 8): after the invocation, project and
+    # model-scope checks, one loop in request order over every case (selected, unavailable or
+    # not_required: every case's rows come from the one ordinary run). G3 binds case i to ordinary
+    # attempt i and to the invocation's case i. Each check is PREPARATION_MISMATCH.
+    mode = invocation["solver_mode"]
+    mode_code = {"sparse_interactive": 1, "dense_scrutiny": 2}[mode]
+    selectors, case_bases = [], []
+    for i, case in enumerate(body["cases"]):
+        o = body["ordinary_attempts"][i]
+        # 1. The requested mode.
+        need(o["requested_mode"] == mode)
+        # 2. The ordinary attempt's material basis is its case's selector, numbered in first-seen order
+        # over the request's cases (I91 repair 01, finding b), as Rust's `g8` (`case_bases`) and TS's
+        # `invocationBinding` (`knownSelectors`) number it. This binds every case, sourced or not.
+        raw_case = model["load_cases"][i]
+        named, temperature = raw_case.get("modulus_basis_ref"), raw_case.get("modulus_basis_temperature")
+        need(named is None or temperature is None)
+        selector = {"kind":"named","id":named} if named is not None else {"kind":"temperature","kelvin":bits(unit(temperature,"temperature"))} if temperature is not None else {"kind":"base"}
+        if selector not in selectors: selectors.append(selector)
+        case_bases.append(selectors.index(selector))
+        need(o["material_basis_ref"] == case_bases[i])
+        case_rows = [r for r in source["results"] if r["basis_ref"]["ref_id"] == case["basis_ref"]["ref_id"]]
+        modes = [r for r in case_rows if r["kind"] == "linear_solver_mode_basis"]
+        # 3. P1: exactly one mode row, valued with the mode code (1 sparse, 2 dense).
+        need(len(modes) == 1 and type(modes[0]["value"]) in (int, float) and modes[0]["value"] == mode_code)
+        parity = sum(1 for r in case_rows if r["kind"] == "sparse_live_path_dense_parity_relative_delta")
+        # 4. P2: at most one parity row. P3: none in sparse_interactive. P4: none when W2 published
+        # (b != 0; OQ5). A dense b = 0 case may lack it (a failed observation lane); that deletion
+        # is the disclosed limit.
+        need(parity <= 1 and (parity == 0 or mode == "dense_scrutiny") and (parity == 0 or o["w2"]["kind"] != "published"))
+    # One material basis per distinct selector, in first-seen order, each listing exactly the cases
+    # that use it (I91 repair 01, finding c), as Rust's `g8` and TS's `invocationBinding` require.
+    need(len(body["material_bases"]) == len(selectors))
+    for mi, mb in enumerate(body["material_bases"]):
+        need(mb["selector"] == selectors[mi] and mb["case_indices"] == [i for i, k in enumerate(case_bases) if k == mi])
     for si, s in enumerate(body["sources"]):
         need(s["index"] == si and s["owner"]["kind"] == "case")
         for include_loads, field in ((True, "kernel_source_sha256"), (False, "stiffness_sha256")):

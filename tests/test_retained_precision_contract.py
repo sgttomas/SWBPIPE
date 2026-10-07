@@ -1243,3 +1243,63 @@ def test_b1_rv108_n2_a_missing_verdict_is_g5_attempt():
     structural = [_set(B + ["ordinary_attempts", 1, "initial"], {"kind": "structural_failure", "error": {"tag": "range", "detail": "b1"}, "diagnostic_ref": None})]
     assert _b1_verdict(F_BASE, structural) == ("admitted", False, "needs_recompute")
     assert _b1_verdict(F_BASE, structural + [drop(1)]) == ("G7", "SOURCE_NUMERICAL_CASE_INVALID")
+
+
+# I91 repair 01 (RR "I91's SR-PY verified; the Build check accepted; PY's four false accepts repaired
+# before RV-R"): Python admitted four statements that Rust and TypeScript refuse at G8. Each is now
+# refused with their gate and code. Rust: RE `src/retained_precision.rs` `g8`; TS:
+# `apps/desktop/src/features/results/retainedPrecision.ts` `invocationBinding`.
+INVOCATION = ("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")
+
+
+def test_b1_repair01_g8_invocation_members_and_solver_mode():
+    """(d1) An invocation is exactly {request, solver_mode}: Rust's first `need` in `g8`
+    (`o.len() == 2 && o.contains_key("request") && o.contains_key("solver_mode")`, with the digest) and
+    TS's first `fail` in `invocationBinding` (`same(Object.keys(invocation).sort(), ['request',
+    'solver_mode'])`), both INVOCATION_MISMATCH. (d2) Its solver mode is one of the two: Rust's second
+    `need` (`matches!(mode, "sparse_interactive" | "dense_scrutiny")`) and TS's same first `fail`, both
+    INVOCATION_MISMATCH; before, Python admitted an unknown mode (requested modes unedited) or refused it
+    at PREPARATION through the requested-mode check. Each invocation edit rebinds the receipt's digest."""
+    got = {
+        "an extra member": _b1_verdict(O_BASE, [], [_set(["extra"], 1)]),
+        "an extra member, 07j's two-case statement": _b1_verdict(P_BASE, [], [_set(["extra"], None)], NOT_REQUIRED),
+        "solver_mode removed": _b1_verdict(O_BASE, [], [_set(["solver_mode"], None) | {"op": "remove"}]),
+        "solver_mode unknown": _b1_verdict(O_BASE, [], [_set(["solver_mode"], "foo")]),
+        "solver_mode another spelling": _b1_verdict(O_BASE, [], [_set(["solver_mode"], "SPARSE_INTERACTIVE")]),
+        "solver_mode null": _b1_verdict(O_BASE, [], [_set(["solver_mode"], None)]),
+        "solver_mode a list": _b1_verdict(O_BASE, [], [_set(["solver_mode"], ["sparse_interactive"])]),
+    }
+    assert got == dict.fromkeys(got, INVOCATION)
+    # The other known mode stays a per-case PREPARATION refusal (the requested modes disagree).
+    assert _b1_verdict(O_BASE, [], [_set(["solver_mode"], "dense_scrutiny")]) == PREP
+
+
+def test_b1_repair01_g8_material_basis_of_every_case_and_exact_case_indices():
+    """(b) DESIGN_v2 §3.3's G8 step 2 for every case: an ordinary attempt's material basis is its case's
+    selector in first-seen order. Rust: `fail(o["requested_mode"] == mode && u(&o["material_basis_ref"])
+    == index)` in `g8`'s case loop; TS: `fail(ordinary.material_basis_ref === bi && ...)`; both
+    PREPARATION_MISMATCH. On 07j's not_required case (no product attempt, no source) Python admitted a
+    dangling or foreign reference as eligible. (c) The material bases are exactly one per selector, in
+    first-seen order, each with exactly its cases. Rust: `fail(list(&b["material_bases"]).len() ==
+    expected_selectors.len())` and each basis's `case_indices == …`; TS: `fail(b.material_bases.length ===
+    knownSelectors.length)`, `same(mb.case_indices, …)` and `material_bases[bi]?.case_indices.includes(ci)`;
+    all PREPARATION_MISMATCH."""
+    basis = deepcopy(_cases()[P_BASE]["source"]["retained_precision"]["body"]["material_bases"])
+    assert basis[0]["case_indices"] == [0, 1]
+    two_groups = "two_case_two_groups_synthetic"
+    tg = deepcopy(_cases()[two_groups]["source"]["retained_precision"]["body"]["material_bases"])
+    got = {
+        "(b) not_required case: material_basis_ref 7": _b1_verdict(P_BASE, [_set(B + ["ordinary_attempts", 1, "material_basis_ref"], 7)], must=NOT_REQUIRED),
+        "(b) not_required case: material_basis_ref 1 beside a second basis listing it": _b1_verdict(P_BASE, [
+            _set(B + ["ordinary_attempts", 1, "material_basis_ref"], 1),
+            _set(B + ["material_bases"], [dict(basis[0], case_indices=[0]), dict(deepcopy(basis[0]), index=1, case_indices=[1])])], must=NOT_REQUIRED),
+        "(c) the basis omits the not_required case": _b1_verdict(P_BASE, [_set(B + ["material_bases", 0, "case_indices"], [0])], must=NOT_REQUIRED),
+        "(c) the basis lists its cases out of order": _b1_verdict(P_BASE, [_set(B + ["material_bases", 0, "case_indices"], [1, 0])], must=NOT_REQUIRED),
+        "(c) an extra basis listing no case": _b1_verdict(P_BASE, [_set(B + ["material_bases"], basis + [dict(deepcopy(basis[0]), index=1, case_indices=[])])], must=NOT_REQUIRED),
+        "(c) two selectors, the second basis's cases swapped into the first": _b1_verdict(two_groups, [
+            _set(B + ["material_bases", 0, "case_indices"], [0, 1]), _set(B + ["material_bases", 1, "case_indices"], [])]),
+    }
+    assert got == dict.fromkeys(got, PREP)
+    # Controls: the unedited statements are admitted, and so is each base's own basis list.
+    assert _b1_verdict(P_BASE, [], must=NOT_REQUIRED) == ("admitted", True, "eligible")
+    assert _b1_verdict(two_groups, [_set(B + ["material_bases"], tg)]) == ("admitted", True, "eligible")
