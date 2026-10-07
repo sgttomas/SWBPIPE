@@ -2503,9 +2503,11 @@ fn i51_c0_isolated_late_hook_custody_and_prefixes() {
                 &boundary.restrained_dofs,&boundary.springs,&application,&[],&[]);
             assert_eq!(o.adapter.counts.get(),counts,"prior fault blocks repeat source work");
         }
-        let after_capture=matches!(name,"valid"|"duplicate"|"inner capture failure"|"final identity"|"final status"|"final source selected"|"final value"|"final metadata"|"prepared reserve fault");
+        // B1 SP (T-2): each requested case's late capture is its own, so a request naming a
+        // second case no longer refuses the first case's capture; custody refuses it (below).
+        let after_capture=matches!(name,"valid"|"duplicate"|"inner capture failure"|"final identity"|"final status"|"final source selected"|"final value"|"final metadata"|"prepared reserve fault"|"multiple cases");
         assert_eq!(o.source_capture_entries,usize::from(after_capture),"{name}");
-        if name=="valid" || name.starts_with("final ") || name=="missing late" || name=="prepared reserve fault" {
+        if name=="valid" || name.starts_with("final ") || name=="missing late" || name=="prepared reserve fault" || name=="multiple cases" {
             let mut e=i51_c0_envelope(mode_row);
             match name {"final identity"=>e.producer.semantic_contract_id="foreign".into(),
                 "final status"=>e.status.mechanics="blocked".into(),
@@ -2515,6 +2517,16 @@ fn i51_c0_isolated_late_hook_custody_and_prefixes() {
             let bytes=serde_json::to_vec(&e).unwrap();
             o.finish(&e);
             assert_eq!(serde_json::to_vec(&e).unwrap(),bytes,"capture never mutates envelope");
+            if name=="multiple cases" {
+                // B1 SP (T-6): two cases requested, one seen. Invocation custody refuses once,
+                // before any product attempt.
+                assert!(o.error.is_none(),"{:?}",o.error);assert!(o.source.is_some());assert_eq!(o.cases_seen(),1);
+                let failure=match o.prepare_cases(e.clone(),2,&[0,1]) {Ok(_)=>panic!("one case seen of two requested"),Err(f)=>f};
+                assert!(matches!(&failure.error,CaptureError::Association(m) if m=="prepared case count"),"{:?}",failure.error);
+                assert!(failure.capture.native.is_none() && failure.capture.prepared_capacity_bytes==[0;16],"no attempt started");
+                println!("I51_C0_SEAM {name} source_entries=1 custody={:?}",failure.error);
+                continue;
+            }
             if name=="valid" {
                 assert!(o.error.is_none(),"{:?}",o.error);assert!(o.source.is_some());
                 let prepared=o.prepare_case(e.clone()).unwrap_or_else(|f|panic!("{:?}",f.capture.error));

@@ -48,10 +48,12 @@ pub(super) fn merge(a: &mut Armed, faults: &Armed) {
     a.complete_gate |= faults.complete_gate;
     a.preparation |= faults.preparation;
     a.candidate = a.candidate.or(faults.candidate);
+    a.preparation_of_case = a.preparation_of_case.or(faults.preparation_of_case);
 }
 /// `armed_names`: this grant's faults.
-pub(super) fn names(a: &Armed) -> [(bool, &'static str); 4] {
-    [(a.late_gate, "late_gate"), (a.complete_gate, "complete_gate"), (a.preparation, "preparation"), (a.candidate.is_some(), "candidate")]
+pub(super) fn names(a: &Armed) -> [(bool, &'static str); 5] {
+    [(a.late_gate, "late_gate"), (a.complete_gate, "complete_gate"), (a.preparation, "preparation"), (a.candidate.is_some(), "candidate"),
+        (a.preparation_of_case.is_some(), "preparation_of_case")]
 }
 /// `run_linear_static_preview_observed`'s first statement: one ordinary run.
 pub(crate) fn ordinary_run_entered() {
@@ -68,6 +70,18 @@ pub(crate) fn fail_next_complete_gate() { arm(|a| a.complete_gate = true); }
 pub(crate) fn fail_next_preparation() { arm(|a| a.preparation = true); }
 /// Candidate fault: the proof trace faults at this point.
 pub(crate) fn fault_next_candidate(fault: crate::retained_receipt::TraceFault) { arm(|a| a.candidate = Some(fault)); }
+/// B1 SP (decision 23; RV107 A1-N-6): the preparation of request case `index` fails (the closed
+/// annulus helper refuses a zero diameter), on the private driver and the actual entry alike. Its
+/// attempt alone fails; the other cases' attempts continue (DESIGN_v2 T-7). `fail_next_preparation`
+/// would fail the first attempted case instead.
+pub(crate) fn fail_preparation_of_case(index: usize) { arm(|a| a.preparation_of_case = Some(index)); }
+/// At each product attempt, before its preparation (retained_product.rs, `prepare_attempt`), on the
+/// case in the capture's own fields.
+pub(crate) fn before_case_preparation(capture: &mut crate::retained_product::ProductCapture, request: usize) {
+    if consume(|a| if a.preparation_of_case == Some(request) { a.preparation_of_case.take() } else { None }).is_some() {
+        capture.facts[0].diameter = 0.0;
+    }
+}
 fn exceed_every_bound(capture: &crate::retained_product::ProductCapture) {
     use crate::retained_product::AdapterEvent;
     let mut counts = capture.adapter.counts.get();

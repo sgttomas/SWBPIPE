@@ -149,6 +149,95 @@ pub(super) struct ProductCapture {
     /// case k sees the sum over cases 0..=k. It records no adapter event (RV107 A1-N-2):
     /// the adapter's counts are receipt bytes. Nothing reads it until B1's SA (G-B's total).
     pub late_loads_total: usize,
+    /// B1 SP (DESIGN_v2 T-2): the earlier requested cases' per-case capture, in request
+    /// order. The capture's per-case fields hold the case being captured (or attempted); a
+    /// later case's early hook parks them here. Empty at c = 1, where nothing is parked.
+    parked: Vec<CaseSlot>,
+}
+/// B1 SP (DESIGN_v2 T-2): declares `CaseSlot`, the per-case part of `ProductCapture`, and the
+/// swap that moves it in and out of the capture's own fields. Every per-case field of
+/// `ProductCapture` is listed here; the other fields are the invocation's (one owner: the
+/// adapter and its capacity records, the invocation, normalization, the seeds, the permit).
+macro_rules! per_case_capture {
+    ($($field:ident : $ty:ty),* $(,)?) => {
+        /// One requested case's capture: its scope and custody counters, its solver
+        /// observations, its late old-source capture with its facts and operational records,
+        /// and its attempt's later state.
+        #[derive(Default)]
+        pub(super) struct CaseSlot { $(pub $field: $ty),* }
+        impl ProductCapture {
+            /// Exchange the capture's per-case fields with `slot`'s. Moves only: no event.
+            fn swap_case(&mut self, slot: &mut CaseSlot) { $(std::mem::swap(&mut self.$field, &mut slot.$field);)* }
+        }
+    };
+}
+per_case_capture! {
+    prepared_one_case_seen: bool,
+    prepared_late_calls: usize,
+    prepared_source_permit: bool,
+    source_capture_entries: usize,
+    observation_calls: usize,
+    observations: Option<SolverObservations>,
+    case_calls: usize,
+    members: Vec<MemberIdentity>,
+    terms: Vec<TermIdentity>,
+    supports: Vec<(String, usize)>,
+    spring_map: Vec<SpringIdentity>,
+    support_fixed: Vec<[bool; 6]>,
+    facts: Vec<k::ProductMemberFacts>,
+    source: Option<k::PrimitiveSource>,
+    case_id: String,
+    error: Option<CaptureError>,
+    verdicts: Vec<k::ProductRowVerdict>,
+    numeric_failure: Option<k::ProductFailure>,
+    numeric_pass: bool,
+    observable_error: Option<CaptureError>,
+    native: Option<(k::RecordedInvocation, k::RecordedCase)>,
+    operational: Vec<OperationalSpent>,
+    g5a_work: ScalarWork,
+    g5a_error: Option<G5aFailure>,
+    summary_coverage: Vec<k::ProductSummaryCoverage>,
+    source_correction_calls: Option<k::WorkTotal>,
+    work: String,
+    capacities: Vec<(&'static str, usize)>,
+}
+impl ProductCapture {
+    /// B1 SP (T-2): the number of requested cases this capture has seen: the parked ones,
+    /// plus the case in the capture's own fields once its early hook has run.
+    pub(super) fn cases_seen(&self) -> usize { self.parked.len() + usize::from(self.prepared_one_case_seen) }
+    /// B1 SP (T-2): the parked cases' slots, in request order (case `i` at index `i`). The
+    /// last case seen is in the capture's own fields, not here.
+    pub(super) fn parked_cases(&self) -> &[CaseSlot] { &self.parked }
+    /// B1 SP (T-2): run `f` with request case `index` in the capture's own fields, then put
+    /// every case back. The case already there (the last one seen) needs no move, so at
+    /// c = 1 this is just `f(self)`.
+    pub(super) fn with_case<R>(&mut self, index: usize, f: impl FnOnce(&mut Self) -> R) -> R {
+        if index == self.parked.len() {
+            return f(self);
+        }
+        let mut slot = std::mem::take(&mut self.parked[index]);
+        self.swap_case(&mut slot);
+        let result = f(self);
+        self.swap_case(&mut slot);
+        self.parked[index] = slot;
+        result
+    }
+    /// B1 SP (T-2): a later requested case's early hook parks the case in the capture's
+    /// fields. The first park reserves room for every earlier case, through the adapter
+    /// (one allocation, its capacity recorded); each park is one map write. Never at c = 1.
+    fn park_case(&mut self, requested: usize) -> Result<(), CaptureError> {
+        if self.parked.capacity() == 0 {
+            self.parked = self.adapter.reserve(requested.checked_sub(1).ok_or(CaptureError::CountRange("parked cases"))?)?;
+        }
+        if self.parked.len() == self.parked.capacity() {
+            return Err("parked case capacity".into());
+        }
+        self.capture_entry(AdapterEvent::MapWrite)?;
+        let mut slot = CaseSlot::default();
+        self.swap_case(&mut slot);
+        self.parked.push(slot);
+        Ok(())
+    }
 }
 /// G-b/G-l (I61 U1): one case's ordinary attempt as the route actually ran it.
 /// Diagnostic references are the ids of the diagnostics actually pushed; no
@@ -687,7 +776,10 @@ impl ProductCapture {
         value
             .try_reserve_exact(text.len())
             .map_err(|_| CaptureError::Storage("observation text"))?;
-        self.observation_capacity_bytes[slot] = value.capacity();
+        // B1 SP (T-11's cumulative snapshot): summed over the requested cases (at c = 1, the one value).
+        self.observation_capacity_bytes[slot] = self.observation_capacity_bytes[slot]
+            .checked_add(value.capacity())
+            .ok_or(CaptureError::CountRange("observation capacity total"))?;
         let bytes = u64::try_from(value.capacity())
             .map_err(|_| CaptureError::CountRange("observation capacity"))?;
         self.adapter.enter(AdapterEvent::RustCapacityBytes, bytes);
@@ -705,6 +797,21 @@ impl ProductCapture {
         final_row: bool,
         captured: Option<&ObservationValue>,
     ) -> Result<(), CaptureError> {
+        self.observation_fields_of(row, case, mode, parity, final_row, false, captured)
+    }
+    /// `observation_fields`, where `qualified` marks the final row of a requested case after the
+    /// first (B1 SP): the envelope qualifies its id with its case (`qualified_load_case_result_id`).
+    #[allow(clippy::too_many_arguments)]
+    fn observation_fields_of(
+        &self,
+        row: &ResultItem,
+        case: &str,
+        mode: PreviewSolverMode,
+        parity: bool,
+        final_row: bool,
+        qualified: bool,
+        captured: Option<&ObservationValue>,
+    ) -> Result<(), CaptureError> {
         self.capture_entry(AdapterEvent::ValidationEntry)?;
         let m = row.metadata.as_ref().ok_or("observation metadata")?;
         let (id, kind, unit, entity, component, location, sign) = if parity {
@@ -716,7 +823,14 @@ impl ProductCapture {
              "solver:linear_static_preview", "linear_solver_mode", case,
              "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure")
         };
-        let fixed = self.adapter.same(&row.id, id)
+        let qualified_id = if qualified {
+            // The envelope's existing case qualification of a row id (lib.rs).
+            self.capture_entry(AdapterEvent::LibraryBoundary)?;
+            Some(qualified_load_case_result_id(case, id))
+        } else {
+            None
+        };
+        let fixed = self.adapter.same(&row.id, qualified_id.as_deref().unwrap_or(id))
             && self.adapter.same(&row.kind, kind)
             && self.adapter.same(&row.unit, unit)
             && self.adapter.same(&row.entity_ref, entity)
@@ -923,6 +1037,89 @@ impl ProductCapture {
         }
         if mode_count != 1 || parity_count != usize::from(captured.parity_produced) {
             return Err("observation final presence".into());
+        }
+        Ok(())
+    }
+    /// B1 SP (T-2): request case `index`'s error, observations, captured id and custody
+    /// counters, wherever its slot is (parked, or in the capture's own fields).
+    fn case_observation_state(&self, index: usize) -> (Option<&CaptureError>, Option<&SolverObservations>, &str, usize, usize) {
+        match self.parked.get(index) {
+            Some(slot) => (slot.error.as_ref(), slot.observations.as_ref(), &slot.case_id, slot.case_calls, slot.observation_calls),
+            None => (self.error.as_ref(), self.observations.as_ref(), &self.case_id, self.case_calls, self.observation_calls),
+        }
+    }
+    /// B1 SP (DESIGN_v2 T-6; decision 19): every requested case's observations bound to the
+    /// envelope in one pass over its rows, not one pass per case. Each case keeps
+    /// `bind_observations`' checks: its completion and custody; exactly one final mode row
+    /// and the parity rows its producing prefix made; each equal to its captured value and
+    /// text. A mode or parity row is bound to the case whose captured id its basis names; a
+    /// row that names no requested case is refused.
+    pub(super) fn bind_observations_by_case(&self, envelope: &MechanicsEnvelope) -> Result<(), CaptureError> {
+        self.adapter.require()?;
+        let cases = self.cases_seen();
+        for index in 0..cases {
+            let (error, observations, case_id, case_calls, observation_calls) = self.case_observation_state(index);
+            if error.is_some() {
+                return Err("prior observation capture refusal".into());
+            }
+            self.capture_entry(AdapterEvent::ValidationEntry)?;
+            let captured = observations.ok_or("missing observation completion")?;
+            let same = self.adapter.same(&captured.case, case_id);
+            self.adapter.require()?;
+            if self.invocation_calls != 1
+                || case_calls != 1
+                || observation_calls != 1
+                || self.invocation_mode != Some(captured.mode)
+                || !same
+                || captured.parity_produced != captured.parity.is_some()
+            {
+                return Err("observation completion/presence custody".into());
+            }
+        }
+        // Per case: [final mode rows, final parity rows].
+        let mut counts = self.adapter.reserve::<[usize; 2]>(cases)?;
+        for _ in 0..cases {
+            self.capture_entry(AdapterEvent::MapWrite)?;
+            counts.push([0, 0]);
+        }
+        for row in &envelope.results {
+            self.capture_entry(AdapterEvent::RowVisit)?;
+            let is_mode = self.adapter.same(&row.kind, "linear_solver_mode_basis");
+            let is_parity = self
+                .adapter
+                .same(&row.kind, "sparse_live_path_dense_parity_relative_delta");
+            self.adapter.require()?;
+            if !is_mode && !is_parity {
+                continue;
+            }
+            let basis = row.basis_ref.as_ref().ok_or("observation final basis")?;
+            let mut owner = None;
+            for index in 0..cases {
+                let captured = self.case_observation_state(index).1.ok_or("missing observation completion")?;
+                let same = self.adapter.same(&basis.ref_id, &captured.case);
+                self.adapter.require()?;
+                if same {
+                    owner = Some((index, captured));
+                    break;
+                }
+            }
+            let (index, captured) = owner.ok_or("observation final case")?;
+            let slot = usize::from(is_parity);
+            counts[index][slot] = counts[index][slot]
+                .checked_add(1)
+                .ok_or(CaptureError::CountRange("final observations"))?;
+            let snapshot = if is_parity {
+                captured.parity.as_ref().ok_or("unexpected final parity")?
+            } else {
+                &captured.mode_row
+            };
+            self.observation_fields_of(row, &captured.case, captured.mode, is_parity, true, index > 0, Some(snapshot))?;
+        }
+        for index in 0..cases {
+            let captured = self.case_observation_state(index).1.ok_or("missing observation completion")?;
+            if counts[index] != [1, usize::from(captured.parity_produced)] {
+                return Err("observation final presence".into());
+            }
         }
         Ok(())
     }
@@ -1293,7 +1490,8 @@ impl ProductCapture {
         let Some(entries)=self.source_capture_entries.checked_add(1) else {self.fail_count("source capture entries");return;};
         if let Err(e)=self.capture_entry(AdapterEvent::MapWrite) {self.error=Some(e);return;}
         self.source_capture_entries=entries;
-        if self.case_calls != 1 || model.load_cases.len() != 1 {
+        // B1 SP (T-2): the prepared probe captures each requested case in its own slot.
+        if self.case_calls != 1 || (model.load_cases.len() != 1 && !self.prepared_probe) {
             self.fail("private witness has exactly one actual case");
             return;
         }
@@ -1674,11 +1872,15 @@ impl ProductCapture {
             return;
         }
         if self.prepared_probe {
+            // B1 SP (T-2): every case seen, parked or not, completed its own late hook.
             if self.prepared_late_calls!=1 || !self.prepared_source_permit
-                || !self.prepared_one_case_seen || self.source_capture_entries!=1 || self.source.is_none() {
+                || !self.prepared_one_case_seen || self.source_capture_entries!=1 || self.source.is_none()
+                || self.parked.iter().any(|slot|slot.prepared_late_calls!=1 || !slot.prepared_source_permit
+                    || !slot.prepared_one_case_seen || slot.source_capture_entries!=1 || slot.source.is_none()) {
                 self.fail("missing successful prepared late source hook");return;
             }
-            if let Err(e)=self.bind_observations(envelope) {self.error=Some(e);}
+            let bound=if self.parked.is_empty() {self.bind_observations(envelope)} else {self.bind_observations_by_case(envelope)};
+            if let Err(e)=bound {self.error=Some(e);}
             return;
         }
         let Some(source) = self.source.as_ref() else {
@@ -3194,10 +3396,13 @@ impl ProductCapture {
     }
     fn prepared_case_seen(&mut self,model:&PreviewModel,case:&PreviewLoadCase)->Result<(),CaptureError> {
         self.capture_entry(AdapterEvent::ValidationEntry)?;
-        if self.case_calls!=0 || self.prepared_one_case_seen || model.load_cases.len()!=1 || !model.combinations.is_empty() {
-            return Err("prepared one-case/no-combination source scope".into());
+        // B1 SP (T-2): a later requested case parks the earlier case first (never at c = 1).
+        if self.prepared_one_case_seen && self.parked.len()+1<model.load_cases.len() {self.park_case(model.load_cases.len())?;}
+        let index=self.parked.len();
+        if self.case_calls!=0 || self.prepared_one_case_seen || index>=model.load_cases.len() || !model.combinations.is_empty() {
+            return Err("prepared case/no-combination source scope".into());
         }
-        if !self.checked_same(&model.load_cases[0].id,&case.id)? {return Err("prepared early case identity".into());}
+        if !self.checked_same(&model.load_cases[index].id,&case.id)? {return Err("prepared early case identity".into());}
         let id=self.adapter.copy(&case.id)?;
         self.capture_entry(AdapterEvent::MapWrite)?;self.case_id=id;
         self.capture_entry(AdapterEvent::MapWrite)?;self.case_calls=1;
@@ -3233,9 +3438,10 @@ impl ProductCapture {
             let count=self.prepared_late_calls.checked_add(1).ok_or(CaptureError::CountRange("prepared late hooks"))?;
             self.capture_entry(AdapterEvent::MapWrite)?;self.prepared_late_calls=count;
             self.capture_entry(AdapterEvent::ValidationEntry)?;
-            if count!=1 || !self.prepared_one_case_seen || self.case_calls!=1 || model.load_cases.len()!=1
+            // B1 SP (T-2): this case is request case `parked.len()`; its own counters.
+            if count!=1 || !self.prepared_one_case_seen || self.case_calls!=1 || self.parked.len()>=model.load_cases.len()
                 || !model.combinations.is_empty() {return Err("prepared late hook scope/presence".into());}
-            if !self.checked_same(&model.load_cases[0].id,&case.id)? || !self.checked_same(&self.case_id,&case.id)? {
+            if !self.checked_same(&model.load_cases[self.parked.len()].id,&case.id)? || !self.checked_same(&self.case_id,&case.id)? {
                 return Err("prepared late case identity".into());
             }
             self.prepared_observation_custody(&case.id)?;
@@ -3307,6 +3513,115 @@ pub(super) struct PreparedCaseFailure {
     pub old_operational: Vec<OperationalSpent>,
     pub trace:trace::PreparedTrace,
 }
+/// What one preparation attempt allocates and returns, kept whether it succeeds or not.
+#[derive(Default)]
+pub(super) struct AttemptParts {
+    pub preparations: Vec<k::PreparedAnnulus>,
+    pub preparation_work: Vec<k::SectionPreparationWork>,
+    pub associations: Vec<PreparedAssociation>,
+    pub old_operational: Vec<OperationalSpent>,
+    pub preparation_error: Option<k::SectionPreparationError>,
+}
+/// B1 SP (DESIGN_v2 T-7; C3): one case's product attempt. Its per-case capture (the prepared
+/// source, the facts, the operational records, its error) stays in the capture's slot for
+/// `request`; this holds the attempt's own trace and preparation records.
+pub(super) struct CaseAttempt {
+    /// The case's index in the request (`model.load_cases`).
+    pub request: usize,
+    /// The attempt's id: its position in actual start order (C3 `product_attempts[]`).
+    pub attempt: usize,
+    /// Whether preparation completed, so that the case has a prepared `CaseSource`.
+    pub prepared: bool,
+    pub parts: AttemptParts,
+    pub trace: trace::PreparedTrace,
+}
+/// B1 SP (DESIGN_v2 T-6 and T-7): the invocation after custody and per-case preparation.
+/// The one ordinary owner and the one capture, with the attempts over A in request order.
+pub(super) struct PreparedCases {
+    pub ordinary: MechanicsEnvelope,
+    pub capture: ProductCapture,
+    pub attempts: Vec<CaseAttempt>,
+}
+/// B1 SP (DESIGN_v2 T-6): invocation custody failed, so no case was attempted.
+pub(super) struct CustodyFailure {
+    pub ordinary: MechanicsEnvelope,
+    pub capture: ProductCapture,
+    pub error: CaptureError,
+}
+impl PreparedCases {
+    /// The one-case continuation (c = 1, until B1 SP's T-8 to T-11 are n-case): the one
+    /// attempt as today's `PreparedCase`, or its failure. `Err(self)` for any other count.
+    pub(super) fn into_single(mut self) -> Result<Result<PreparedCase, PreparedCaseFailure>, Self> {
+        if self.attempts.len() != 1 {
+            return Err(self);
+        }
+        let CaseAttempt { prepared, parts, trace, .. } = self.attempts.pop().expect("one attempt");
+        let AttemptParts { preparations, preparation_work, associations, old_operational, preparation_error } = parts;
+        Ok(if prepared {
+            Ok(PreparedCase { ordinary: Some(self.ordinary), proof_attempted: false, overlay_work: ScalarWork::default(), associations,
+                capture: self.capture, preparations, preparation_work, old_operational, trace })
+        } else {
+            Err(PreparedCaseFailure { associations, ordinary: self.ordinary, capture: self.capture, preparations, preparation_work,
+                preparation_error, old_operational, trace })
+        })
+    }
+}
+impl ProductCapture {
+    /// B1 SP (DESIGN_v2 T-6): invocation custody, checked once for every requested case.
+    /// - A prior capture error of any case, the first in request order, is the cause.
+    /// - The ordinary preconditions: one final hook, the preview contract, `MECHANICS_SOLVED`,
+    ///   no exact-block selection, and no native work yet.
+    /// - One complete late capture per requested case.
+    /// - Each case's observations bound to the envelope (`bind_observations`, per case).
+    ///
+    /// At c = 1 this is `prepare_owned_case`'s prelude, with the same adapter events.
+    fn prepared_custody(&mut self,ordinary:&MechanicsEnvelope,requested:usize)->Result<(),CaptureError> {
+        if self.error.is_some() {
+            return Err(self.error.take().expect("observed prior capture cause"));
+        }
+        if let Some(slot)=self.parked.iter_mut().find(|slot|slot.error.is_some()) {
+            return Err(slot.error.take().expect("observed prior case cause"));
+        }
+        self.adapter.require()?;
+        if !self.prepared_probe || self.final_calls!=1
+            || ordinary.source_block_recovery.is_some() || self.native.is_some() || self.parked.iter().any(|slot|slot.native.is_some())
+            || ordinary.producer.semantic_contract_id!=preview_physics::ID || ordinary.status.mechanics!="MECHANICS_SOLVED" {
+            return Err("prepared case custody/permit".into());
+        }
+        if self.cases_seen()!=requested {
+            return Err("prepared case count".into());
+        }
+        if self.parked.is_empty() {self.bind_observations(ordinary)} else {self.bind_observations_by_case(ordinary)}
+    }
+    /// B1 SP (DESIGN_v2 T-6, then T-7): custody once, then one product attempt per case in
+    /// A (`attempted`, request indices in request order), each preparing its own case. An
+    /// attempt's preparation failure makes only that case unavailable: it keeps no prepared
+    /// source, its error is in its slot, and its trace's terminal snapshot is preparation's.
+    /// The other cases continue. Attempt ids are the actual start order.
+    pub(super) fn prepare_cases(mut self,ordinary:MechanicsEnvelope,requested:usize,attempted:&[usize])->Result<PreparedCases,CustodyFailure> {
+        if let Err(error)=self.prepared_custody(&ordinary,requested) {
+            return Err(CustodyFailure{ordinary,capture:self,error});
+        }
+        let mut attempts=Vec::with_capacity(attempted.len());
+        for (attempt,&request) in attempted.iter().enumerate() {
+            if request>=requested {
+                return Err(CustodyFailure{ordinary,capture:self,error:"attempted case outside the request".into()});
+            }
+            attempts.push(self.with_case(request,|capture|capture.prepare_attempt(request,attempt)));
+        }
+        Ok(PreparedCases{ordinary,capture:self,attempts})
+    }
+    /// One product attempt (T-7) on the case in the capture's own fields.
+    fn prepare_attempt(&mut self,request:usize,attempt:usize)->CaseAttempt {
+        #[cfg(test)] crate::retained_tests_hooks::before_case_preparation(self,request);
+        let mut parts=AttemptParts::default();
+        let mut trace=trace::PreparedTrace::default();trace.enter(trace::Stage::Preparation);
+        match self.prepare_active_case(&mut trace,&mut parts) {
+            Ok(())=>CaseAttempt{request,attempt,prepared:true,parts,trace},
+            Err(e)=>{trace.fail_entered();self.error=Some(e);trace.freeze(self);CaseAttempt{request,attempt,prepared:false,parts,trace}}
+        }
+    }
+}
 impl ProductCapture {
     pub(super) fn prepared_probe() -> Self { Self {prepared_probe:true,..Self::default()} }
     /// U3: the facade's observer, bound to its capture permit for G-B.
@@ -3319,9 +3634,7 @@ impl ProductCapture {
     /// Preparation over the single actual ordinary run's capture (U3 and tests).
     pub(super) fn prepare_case(self,ordinary:MechanicsEnvelope)->Result<PreparedCase,PreparedCaseFailure> {self.prepare_owned_case(ordinary)}
     fn prepare_owned_case(mut self, ordinary:MechanicsEnvelope) -> Result<PreparedCase,PreparedCaseFailure> {
-        let mut preparations=Vec::new(); let mut work=Vec::new();let mut associations=Vec::new();
-        let mut preparation_error=None;
-        let mut old_operational=Vec::new();
+        let mut out=AttemptParts::default();
         let mut trace=trace::PreparedTrace::default();trace.enter(trace::Stage::Preparation);
         let outcome=(|| -> Result<(),CaptureError> {
             let ordinary=&ordinary;
@@ -3338,109 +3651,117 @@ impl ProductCapture {
                 return Err("prepared case custody/permit".into());
             }
             self.bind_observations(ordinary)?;
-            let old=self.source.as_ref().ok_or("old source validation missing")?;
-            if old.members().len()!=self.facts.len() || old.members().len()!=self.operational.len() {
-                return Err("old source/facts/operational coverage".into());
-            }
-            // Complete inventory/order is independent of later old-to-old section checks.
-            for (m,op) in old.members().iter().zip(&self.operational) {
-                trace.costs.record::<(u32,Option<u32>)>();
-                if op.member!=Some(m.id){return Err("old operational member order".into());}
-            }
-            trace.costs.record::<trace::OldCoverage>();trace.old_coverage=trace::OldCoverage::Complete;
-            #[cfg(test)] if self.trace_fault==Some(trace::TraceFault::AfterPrelude){return Err("trace control after prelude".into());}
-            let mut parts=k::SourceParts::default();
-            parts.nodes=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,0,old.nodes().len())?;
-            parts.members=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,1,old.members().len())?;
-            parts.constraints=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,2,old.constraints().len())?;
-            parts.springs=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,3,old.springs().len())?;
-            parts.stations=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,4,old.stations().len())?;
-            parts.supports=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,5,old.supports().len())?;
-            parts.loads=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,6,old.loads().len())?;
-            preparations=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,7,old.members().len())?;
-            work=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,8,old.members().len())?;
-            associations=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,13,old.members().len())?;
-            let new_operational=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,9,old.members().len())?;
-            old_operational=std::mem::replace(&mut self.operational,new_operational);
-            trace.costs.record::<bool>();trace.old_vector_swapped=true;
-            trace.members=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,14,old.members().len())?;
-            for x in old.nodes() { self.capture_entry(AdapterEvent::MapWrite)?; parts.nodes.push(*x); }
-            for x in old.constraints() { self.capture_entry(AdapterEvent::MapWrite)?; parts.constraints.push(*x); }
-            for x in old.springs() { self.capture_entry(AdapterEvent::MapWrite)?; parts.springs.push(*x); }
-            for x in old.stations() { self.capture_entry(AdapterEvent::MapWrite)?; parts.stations.push(*x); }
-            for x in old.supports() {
-                let mut children=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,11,x.springs.len())?;
-                for &id in &x.springs {self.capture_entry(AdapterEvent::MapWrite)?;children.push(id);}
-                let mut directional=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,12,x.directional_springs.len())?;
-                for &id in &x.directional_springs {self.capture_entry(AdapterEvent::MapWrite)?;directional.push(id);}
-                self.capture_entry(AdapterEvent::MapWrite)?;
-                parts.supports.push(k::SupportGroup{id:x.id,node:x.node,restrained:x.restrained,springs:children,directional_springs:directional});
-            }
-            for x in old.loads() {
-                let id=prepared_string(&self.adapter,&mut self.prepared_capacity_bytes,&x.source_id)?;
-                self.capture_entry(AdapterEvent::MapWrite)?;
-                parts.loads.push(k::NodalLoad{dof:x.dof,value:x.value,source_id:id});
-            }
-            for (i,m) in old.members().iter().enumerate() {
-                self.capture_entry(AdapterEvent::SourceVisit)?;
-                let f=self.facts.get(i).ok_or("prepared fact coverage")?;
-                if f.member!=m.id || f.area.to_bits()!=m.area.to_bits()
-                    || f.second_moment.to_bits()!=m.second_moment_y.to_bits()
-                    || f.second_moment.to_bits()!=m.second_moment_z.to_bits()
-                    || f.torsion_constant.to_bits()!=m.torsion_constant.to_bits() {return Err("old-to-old section".into());}
-                // Enter the reserved work-record write before the producer. Every
-                // producing return is immediately owned, with no fallible gap.
-                self.capture_entry(AdapterEvent::MapWrite)?;
-                if trace.members.len()==trace.members.capacity() || work.len()==work.capacity(){return Err("prepared trace/work capacity".into());}
-                trace.costs.record::<trace::PreparationEntry>();
-                trace.members.push(trace::PreparationEntry {member:m.id,
-                    old_source:[m.elastic_modulus.to_bits(),m.shear_modulus.to_bits(),m.area.to_bits(),m.second_moment_y.to_bits(),m.second_moment_z.to_bits(),m.torsion_constant.to_bits()],
-                    old_facts:[f.diameter.to_bits(),f.effective_wall.to_bits(),f.area.to_bits(),f.second_moment.to_bits(),f.torsion_constant.to_bits(),f.section_modulus.to_bits(),f.radius.to_bits()],
-                    result:trace::PreparationResult::Entered,work_index:work.len()});
-                let spent=k::prepare_product_annulus(f.diameter,f.effective_wall);
-                let (result,w)=spent.into_parts();work.push(w); // reserved/precharged: no fallible return gap
-                trace.costs.record::<trace::PreparationResult>();
-                trace.members.last_mut().unwrap().result=match &result {
-                    Ok(p)=>trace::PreparationResult::Prepared(p.section_bits()),Err(e)=>trace::PreparationResult::Refused(e.clone())};
-                #[cfg(test)] if self.trace_fault==Some(trace::TraceFault::AfterHelper){return Err("trace control after helper".into());}
-                let prep=match result { Ok(p)=>p, Err(e)=>{
-                    preparation_error=Some(e); return Err("annulus preparation refused".into());
-                }};
-                if prep.input_bits()!=[f.diameter.to_bits(),f.effective_wall.to_bits()] {return Err("prepared input bits".into());}
-                // Fixed infallible group: five returned bit copies plus nineteen record fields.
-                self.adapter.enter(AdapterEvent::MapWrite,24);self.adapter.require()?;
-                self.adapter.enter(AdapterEvent::RequestedCopyBytes,std::mem::size_of::<PreparedAssociation>() as u64);self.adapter.require()?;
-                associations.push(PreparedAssociation{member:m.id,
-                    old_source:[m.elastic_modulus.to_bits(),m.shear_modulus.to_bits(),m.area.to_bits(),m.second_moment_y.to_bits(),m.second_moment_z.to_bits(),m.torsion_constant.to_bits()],
-                    old_facts:[f.diameter.to_bits(),f.effective_wall.to_bits(),f.area.to_bits(),f.second_moment.to_bits(),f.torsion_constant.to_bits(),f.section_modulus.to_bits(),f.radius.to_bits()],
-                    prepared:prep.section_bits().bits()});
-                let [a,ii,j,z,c]=prep.section_bits().values();
-                self.adapter.enter(AdapterEvent::RequestedCopyBytes,std::mem::size_of::<k::StraightMember>() as u64);self.adapter.require()?;
-                self.capture_entry(AdapterEvent::MapWrite)?;let mut new=*m;
-                self.adapter.enter(AdapterEvent::MapWrite,4);self.adapter.require()?;
-                new.area=a;new.second_moment_y=ii;new.second_moment_z=ii;new.torsion_constant=j;
-                self.capture_entry(AdapterEvent::MapWrite)?;parts.members.push(new);
-                self.adapter.enter(AdapterEvent::MapWrite,5);self.adapter.require()?;
-                let f=&mut self.facts[i];f.area=a;f.second_moment=ii;f.torsion_constant=j;f.section_modulus=z;f.radius=c;
-                self.capture_entry(AdapterEvent::MapWrite)?;
-                self.adapter.enter(AdapterEvent::RequestedCopyBytes,std::mem::size_of::<Option<u32>>() as u64);self.adapter.require()?;
-                self.operational.push(evaluate_member_operational(m.id,[parts.nodes[m.node_i as usize],parts.nodes[m.node_j as usize]],
-                    [m.elastic_modulus,m.shear_modulus,a,j]));
-                #[cfg(test)] if self.trace_fault==Some(trace::TraceFault::AfterEvaluation){return Err("trace control after evaluator".into());}
-                self.capture_entry(AdapterEvent::MapWrite)?;preparations.push(prep);
-            }
-            self.adapter.require()?;
-            #[cfg(test)] if self.trace_fault==Some(trace::TraceFault::SourceConstruction){parts.members[0].area=0.0;}
-            let new=k::PrimitiveSource::new(parts).map_err(CaptureError::Source)?;
-            self.check_support_source(&new)?;
-            self.capture_entry(AdapterEvent::MapWrite)?;
-            self.source=Some(new);trace.costs.record::<bool>();trace.source_ready=true;
-            trace.completed(trace::Stage::Preparation);
-            Ok(())
+            self.prepare_active_case(&mut trace,&mut out)
         })();
+        let AttemptParts{preparations,preparation_work:work,associations,old_operational,preparation_error}=out;
         match outcome { Ok(())=>Ok(PreparedCase{ordinary:Some(ordinary),proof_attempted:false,overlay_work:ScalarWork::default(),associations,capture:self,preparations,preparation_work:work,old_operational,trace}),
             Err(e)=>{trace.fail_entered();self.error=Some(e);trace.freeze(&self); Err(PreparedCaseFailure{associations,ordinary,capture:self,preparations,
                 preparation_work:work,preparation_error,old_operational,trace})} }
+    }
+    /// The preparation of the case in the capture's own fields (DESIGN_v2 T-7, one attempt):
+    /// the old source's custody, the closed annulus helper per member, and the prepared
+    /// source. Shared by the one-case `prepare_owned_case` and B1's `prepare_cases`; what it
+    /// allocates and returns goes into `out`, whether it succeeds or not.
+    fn prepare_active_case(&mut self,trace:&mut trace::PreparedTrace,out:&mut AttemptParts)->Result<(),CaptureError> {
+        let old=self.source.as_ref().ok_or("old source validation missing")?;
+        if old.members().len()!=self.facts.len() || old.members().len()!=self.operational.len() {
+            return Err("old source/facts/operational coverage".into());
+        }
+        // Complete inventory/order is independent of later old-to-old section checks.
+        for (m,op) in old.members().iter().zip(&self.operational) {
+            trace.costs.record::<(u32,Option<u32>)>();
+            if op.member!=Some(m.id){return Err("old operational member order".into());}
+        }
+        trace.costs.record::<trace::OldCoverage>();trace.old_coverage=trace::OldCoverage::Complete;
+        #[cfg(test)] if self.trace_fault==Some(trace::TraceFault::AfterPrelude){return Err("trace control after prelude".into());}
+        let mut parts=k::SourceParts::default();
+        parts.nodes=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,0,old.nodes().len())?;
+        parts.members=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,1,old.members().len())?;
+        parts.constraints=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,2,old.constraints().len())?;
+        parts.springs=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,3,old.springs().len())?;
+        parts.stations=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,4,old.stations().len())?;
+        parts.supports=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,5,old.supports().len())?;
+        parts.loads=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,6,old.loads().len())?;
+        out.preparations=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,7,old.members().len())?;
+        out.preparation_work=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,8,old.members().len())?;
+        out.associations=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,13,old.members().len())?;
+        let new_operational=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,9,old.members().len())?;
+        out.old_operational=std::mem::replace(&mut self.operational,new_operational);
+        trace.costs.record::<bool>();trace.old_vector_swapped=true;
+        trace.members=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,14,old.members().len())?;
+        for x in old.nodes() { self.capture_entry(AdapterEvent::MapWrite)?; parts.nodes.push(*x); }
+        for x in old.constraints() { self.capture_entry(AdapterEvent::MapWrite)?; parts.constraints.push(*x); }
+        for x in old.springs() { self.capture_entry(AdapterEvent::MapWrite)?; parts.springs.push(*x); }
+        for x in old.stations() { self.capture_entry(AdapterEvent::MapWrite)?; parts.stations.push(*x); }
+        for x in old.supports() {
+            let mut children=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,11,x.springs.len())?;
+            for &id in &x.springs {self.capture_entry(AdapterEvent::MapWrite)?;children.push(id);}
+            let mut directional=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,12,x.directional_springs.len())?;
+            for &id in &x.directional_springs {self.capture_entry(AdapterEvent::MapWrite)?;directional.push(id);}
+            self.capture_entry(AdapterEvent::MapWrite)?;
+            parts.supports.push(k::SupportGroup{id:x.id,node:x.node,restrained:x.restrained,springs:children,directional_springs:directional});
+        }
+        for x in old.loads() {
+            let id=prepared_string(&self.adapter,&mut self.prepared_capacity_bytes,&x.source_id)?;
+            self.capture_entry(AdapterEvent::MapWrite)?;
+            parts.loads.push(k::NodalLoad{dof:x.dof,value:x.value,source_id:id});
+        }
+        for (i,m) in old.members().iter().enumerate() {
+            self.capture_entry(AdapterEvent::SourceVisit)?;
+            let f=self.facts.get(i).ok_or("prepared fact coverage")?;
+            if f.member!=m.id || f.area.to_bits()!=m.area.to_bits()
+                || f.second_moment.to_bits()!=m.second_moment_y.to_bits()
+                || f.second_moment.to_bits()!=m.second_moment_z.to_bits()
+                || f.torsion_constant.to_bits()!=m.torsion_constant.to_bits() {return Err("old-to-old section".into());}
+            // Enter the reserved work-record write before the producer. Every
+            // producing return is immediately owned, with no fallible gap.
+            self.capture_entry(AdapterEvent::MapWrite)?;
+            if trace.members.len()==trace.members.capacity() || out.preparation_work.len()==out.preparation_work.capacity(){return Err("prepared trace/work capacity".into());}
+            trace.costs.record::<trace::PreparationEntry>();
+            trace.members.push(trace::PreparationEntry {member:m.id,
+                old_source:[m.elastic_modulus.to_bits(),m.shear_modulus.to_bits(),m.area.to_bits(),m.second_moment_y.to_bits(),m.second_moment_z.to_bits(),m.torsion_constant.to_bits()],
+                old_facts:[f.diameter.to_bits(),f.effective_wall.to_bits(),f.area.to_bits(),f.second_moment.to_bits(),f.torsion_constant.to_bits(),f.section_modulus.to_bits(),f.radius.to_bits()],
+                result:trace::PreparationResult::Entered,work_index:out.preparation_work.len()});
+            let spent=k::prepare_product_annulus(f.diameter,f.effective_wall);
+            let (result,w)=spent.into_parts();out.preparation_work.push(w); // reserved/precharged: no fallible return gap
+            trace.costs.record::<trace::PreparationResult>();
+            trace.members.last_mut().unwrap().result=match &result {
+                Ok(p)=>trace::PreparationResult::Prepared(p.section_bits()),Err(e)=>trace::PreparationResult::Refused(e.clone())};
+            #[cfg(test)] if self.trace_fault==Some(trace::TraceFault::AfterHelper){return Err("trace control after helper".into());}
+            let prep=match result { Ok(p)=>p, Err(e)=>{
+                out.preparation_error=Some(e); return Err("annulus preparation refused".into());
+            }};
+            if prep.input_bits()!=[f.diameter.to_bits(),f.effective_wall.to_bits()] {return Err("prepared input bits".into());}
+            // Fixed infallible group: five returned bit copies plus nineteen record fields.
+            self.adapter.enter(AdapterEvent::MapWrite,24);self.adapter.require()?;
+            self.adapter.enter(AdapterEvent::RequestedCopyBytes,std::mem::size_of::<PreparedAssociation>() as u64);self.adapter.require()?;
+            out.associations.push(PreparedAssociation{member:m.id,
+                old_source:[m.elastic_modulus.to_bits(),m.shear_modulus.to_bits(),m.area.to_bits(),m.second_moment_y.to_bits(),m.second_moment_z.to_bits(),m.torsion_constant.to_bits()],
+                old_facts:[f.diameter.to_bits(),f.effective_wall.to_bits(),f.area.to_bits(),f.second_moment.to_bits(),f.torsion_constant.to_bits(),f.section_modulus.to_bits(),f.radius.to_bits()],
+                prepared:prep.section_bits().bits()});
+            let [a,ii,j,z,c]=prep.section_bits().values();
+            self.adapter.enter(AdapterEvent::RequestedCopyBytes,std::mem::size_of::<k::StraightMember>() as u64);self.adapter.require()?;
+            self.capture_entry(AdapterEvent::MapWrite)?;let mut new=*m;
+            self.adapter.enter(AdapterEvent::MapWrite,4);self.adapter.require()?;
+            new.area=a;new.second_moment_y=ii;new.second_moment_z=ii;new.torsion_constant=j;
+            self.capture_entry(AdapterEvent::MapWrite)?;parts.members.push(new);
+            self.adapter.enter(AdapterEvent::MapWrite,5);self.adapter.require()?;
+            let f=&mut self.facts[i];f.area=a;f.second_moment=ii;f.torsion_constant=j;f.section_modulus=z;f.radius=c;
+            self.capture_entry(AdapterEvent::MapWrite)?;
+            self.adapter.enter(AdapterEvent::RequestedCopyBytes,std::mem::size_of::<Option<u32>>() as u64);self.adapter.require()?;
+            self.operational.push(evaluate_member_operational(m.id,[parts.nodes[m.node_i as usize],parts.nodes[m.node_j as usize]],
+                [m.elastic_modulus,m.shear_modulus,a,j]));
+            #[cfg(test)] if self.trace_fault==Some(trace::TraceFault::AfterEvaluation){return Err("trace control after evaluator".into());}
+            self.capture_entry(AdapterEvent::MapWrite)?;out.preparations.push(prep);
+        }
+        self.adapter.require()?;
+        #[cfg(test)] if self.trace_fault==Some(trace::TraceFault::SourceConstruction){parts.members[0].area=0.0;}
+        let new=k::PrimitiveSource::new(parts).map_err(CaptureError::Source)?;
+        self.check_support_source(&new)?;
+        self.capture_entry(AdapterEvent::MapWrite)?;
+        self.source=Some(new);trace.costs.record::<bool>();trace.source_ready=true;
+        trace.completed(trace::Stage::Preparation);
+        Ok(())
     }
 }
 impl PreparedCase {
