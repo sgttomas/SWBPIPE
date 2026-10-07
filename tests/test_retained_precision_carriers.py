@@ -736,12 +736,15 @@ def n1_edit(source, path, value):
 
 
 def value_error_only(fn, *args):
-    """A caller that catches ValueError only, as the v0.3 packager's own callers do: an escaping
-    TypeError fails the test instead of reading as a refusal."""
+    """A caller that catches ValueError only, as the v0.3 packager's own callers do. Anything else
+    that escapes it (before N1, a TypeError) is reported by name, so the equality assertion that
+    follows fails on it instead of reading it as a refusal."""
     try:
         fn(*args)
     except ValueError as error:
         return str(error)
+    except Exception as error:  # noqa: BLE001 - the escape itself is what is asserted against
+        return f"escaped {type(error).__name__}: {error}"
     return "ok"
 
 
