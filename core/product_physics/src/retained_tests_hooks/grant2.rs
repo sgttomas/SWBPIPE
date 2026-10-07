@@ -14,9 +14,10 @@ use super::{arm, consume, Armed};
 use std::sync::atomic::{AtomicUsize, Ordering::SeqCst};
 use std::sync::Arc;
 
-/// One invocation's counts, shared with the reserved-stack thread.
+/// One invocation's counts, shared with the reserved-stack thread, and (RV107 A1-N-1) a copy
+/// of the successor its precommit received.
 #[derive(Debug, Default)]
-pub(crate) struct Tally { runs: AtomicUsize, complete_gates: AtomicUsize }
+pub(crate) struct Tally { runs: AtomicUsize, complete_gates: AtomicUsize, successor: std::sync::Mutex<Option<serde_json::Value>> }
 thread_local! {
     static TALLY: std::cell::RefCell<Option<Arc<Tally>>> = const { std::cell::RefCell::new(None) };
 }
@@ -27,11 +28,23 @@ pub(crate) struct Counts { pub(crate) runs: usize, pub(crate) complete_gates: us
 /// Run `f` on this thread with a fresh tally (the permitted work carries it to the
 /// reserved-stack thread). One tally at a time per thread.
 pub(crate) fn counted<T>(f: impl FnOnce() -> T) -> (T, Counts) {
+    let (value, counts, _) = counted_with_successor(f);
+    (value, counts)
+}
+/// B1 SP (RV107 A1-N-1): `counted`, also returning a copy of the serialized successor that the
+/// invocation's precommit received (taken before any precommit fault), if it reached precommit.
+/// The copy is shared across the reserved-stack hop with the tally.
+pub(crate) fn counted_with_successor<T>(f: impl FnOnce() -> T) -> (T, Counts, Option<serde_json::Value>) {
     let fresh = Arc::new(Tally::default());
     assert!(TALLY.with(|t| t.replace(Some(fresh.clone()))).is_none(), "one tally at a time");
     let value = f();
     TALLY.with(|t| t.borrow_mut().take());
-    (value, Counts { runs: fresh.runs.load(SeqCst), complete_gates: fresh.complete_gates.load(SeqCst) })
+    let successor = fresh.successor.lock().unwrap().take();
+    (value, Counts { runs: fresh.runs.load(SeqCst), complete_gates: fresh.complete_gates.load(SeqCst) }, successor)
+}
+/// At precommit (`lib.rs`, `before_precommit`): the successor's copy, when a tally is installed.
+pub(crate) fn capture_successor(successor: &serde_json::Value) {
+    if let Some(t) = tally() { *t.successor.lock().unwrap() = Some(successor.clone()); }
 }
 /// The caller's tally in transit with its faults (`Carried`): shared, not copied.
 pub(super) struct TallyCarry(Option<Arc<Tally>>);

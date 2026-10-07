@@ -134,7 +134,7 @@ fn i50_dump(e: &MechanicsEnvelope, o: &ProductCapture, mode: PreviewSolverMode) 
         "members":s.members().iter().map(|m|serde_json::json!({"id":m.id,"nodes":[m.node_i,m.node_j],"E":m.elastic_modulus,"G":m.shear_modulus,"A":m.area,"I":m.second_moment_y,"J":m.torsion_constant,"y_reference":m.y_reference})).collect::<Vec<_>>(),
         "springs":s.springs().iter().map(|s|serde_json::json!({"id":s.id,"node":s.dof.node,"axis":s.dof.component.index(),"k":s.stiffness})).collect::<Vec<_>>(),
         "supports":s.supports().iter().map(|s|serde_json::json!({"id":s.id,"node":s.node,"rigid":s.restrained,"springs":s.springs})).collect::<Vec<_>>() }));
-    let native = o.native.as_ref().map(|(invocation,case)| match &case.outcome {
+    let native = o.native_pair().map(|(invocation,case)| match &case.outcome {
         k::ExecutionOutcome::Selected(owner) => {
             let ev=owner.evidence();
             serde_json::json!({"calls":invocation.calls().len(),"run":case.run,"precision":owner.selected_precision(),
@@ -194,7 +194,7 @@ fn i50_actual_named_case_both_modes_complete_private_verdict() {
         assert!(!o.request_materials);
         complete &=
             o.error.is_none() && o.numeric_failure.is_none() && o.verdicts.len() == e.results.len();
-        if let Some((invocation, case)) = &o.native {
+        if let Some((invocation, case)) = o.native_pair() {
             assert_eq!(invocation.calls().len(), 1);
             if let k::ExecutionOutcome::Selected(owner) = &case.outcome {
                 assert_eq!(owner.publish().rows.len(), 58);
@@ -443,7 +443,7 @@ fn i50_actual_support_bijections_and_accounting_prefixes() {
 fn i50_support_coverage_native_non_aliasing_and_g5a() {
     use super::retained_product::{G5aFailure, ScalarWork};
     let (e, mut o) = observed(i50_named_request());
-    let (invocation, case) = o.native.take().unwrap();
+    let (invocation, case) = o.take_native().unwrap();
     let k::ExecutionOutcome::Selected(owner) = &case.outcome else {
         panic!()
     };
@@ -619,7 +619,7 @@ fn i50_support_coverage_native_non_aliasing_and_g5a() {
     let node = raw["model"]["nodes"][1]["id"].as_str().unwrap().to_owned();
     raw["model"]["supports"].as_array_mut().unwrap().push(serde_json::json!({"id":"i50:zero-spring","node":node,"family":"spring","restraints":["UX"],"stiffness":{"dof":"UX","value":{"value":1.0,"unit":"N/m"}},"provenance":"invented isolated I50 G5a control"}));
     let (mut e, mut o) = observed(raw);
-    let (invocation, case) = o.native.take().unwrap();
+    let (invocation, case) = o.take_native().unwrap();
     let k::ExecutionOutcome::Selected(owner) = &case.outcome else {
         panic!()
     };
@@ -914,7 +914,7 @@ fn i50_observation_custody_presence_fields_and_failure_prefixes() {
     println!("I50_OBSERVATION_SYNTHETIC absence_and_signed_zero_pass storage_prefix={saved:?}");
     // Independent typed FK maximum coverage, bypassing final-id validation only
     // for isolated synthetic descriptors; mode remains mandatory.
-    let (invocation, case) = actual.native.as_ref().unwrap();
+    let (invocation, case) = actual.native_pair().unwrap();
     let k::ExecutionOutcome::Selected(owner) = &case.outcome else {
         panic!()
     };
@@ -1048,7 +1048,7 @@ fn actual_ordinary_zero_loaded_capture_and_final_verdict() {
         assert_eq!(o.terms.len(), 3);
         assert_eq!(o.facts[0].diameter.to_bits(), 0.1f64.to_bits());
         assert_eq!(o.facts[0].effective_wall.to_bits(), 0.005f64.to_bits());
-        let (invocation, case) = o.native.as_ref().unwrap();
+        let (invocation, case) = o.native_pair().unwrap();
         assert_eq!(invocation.calls().len(), 1);
         let k::ExecutionOutcome::Selected(owner) = &case.outcome else {
             panic!("not selected")
@@ -1140,7 +1140,7 @@ fn actual_ordinary_zero_loaded_capture_and_final_verdict() {
 fn actual_final_identity_coverage_observable_and_headline_mutations_refuse() {
     let (e, o) = observed(specimen(true));
     assert!(o.error.is_none(), "{:?}", o.error);
-    let (invocation, case) = o.native.as_ref().unwrap();
+    let (invocation, case) = o.native_pair().unwrap();
     let k::ExecutionOutcome::Selected(owner) = &case.outcome else {
         panic!()
     };
@@ -1442,7 +1442,7 @@ fn adapter_byte_prefix_count_range_and_loss_are_typed() {
 fn actual_sparse_zero_and_cancelled_summary_coverage_is_not_inferred_from_net() {
     use super::retained_product::{validate_summary_shape, G5aFailure};
     let (_, zero) = observed(specimen(false));
-    let (context, case) = zero.native.as_ref().unwrap();
+    let (context, case) = zero.native_pair().unwrap();
     assert_eq!(context.calls().len(), 1);
     let k::ExecutionOutcome::Selected(owner) = &case.outcome else {
         panic!()
@@ -1470,7 +1470,7 @@ fn actual_sparse_zero_and_cancelled_summary_coverage_is_not_inferred_from_net() 
     loads.push(term);
     let (_, cancelled) = observed(raw);
     assert!(cancelled.error.is_none());
-    let (_, case) = cancelled.native.as_ref().unwrap();
+    let (_, case) = cancelled.native_pair().unwrap();
     let k::ExecutionOutcome::Selected(owner) = &case.outcome else {
         panic!()
     };
@@ -1486,7 +1486,7 @@ fn actual_sparse_zero_and_cancelled_summary_coverage_is_not_inferred_from_net() 
         Err(G5aFailure::Shape("B data coverage"))
     );
     let (_, loaded) = observed(specimen(true));
-    let (_, case) = loaded.native.as_ref().unwrap();
+    let (_, case) = loaded.native_pair().unwrap();
     let k::ExecutionOutcome::Selected(owner) = &case.outcome else {
         panic!()
     };
@@ -1603,7 +1603,7 @@ fn rv60_fixed_mode_sign_refuses_in_isolated_synthetic_zero_snapshot() {
     let (actual, o) = observed(specimen(false));
     let actual_bytes = serde_json::to_string(&actual).unwrap();
     assert!(actual.results[35].value.is_sign_negative());
-    let (invocation, case) = o.native.as_ref().unwrap();
+    let (invocation, case) = o.native_pair().unwrap();
     let k::ExecutionOutcome::Selected(owner) = &case.outcome else {
         panic!()
     };
@@ -1798,7 +1798,7 @@ fn i47_actual_selected_material_zero_loaded_capture_and_final_verdict() {
         assert_eq!(o.terms.len(), 3);
         assert_eq!(o.facts[0].diameter.to_bits(), 0.1f64.to_bits());
         assert_eq!(o.facts[0].effective_wall.to_bits(), 0.005f64.to_bits());
-        let (invocation, case) = o.native.as_ref().unwrap();
+        let (invocation, case) = o.native_pair().unwrap();
         assert_eq!(invocation.calls().len(), 1);
         let k::ExecutionOutcome::Selected(owner) = &case.outcome else {
             panic!("not selected")
@@ -2008,7 +2008,7 @@ fn i47_actual_selection_and_resolver_validity_controls() {
         let (refused, o) = observed(invalid.clone());
         assert_ne!(refused.status.mechanics, "MECHANICS_SOLVED");
         assert!(o.selections.is_empty());
-        assert!(o.native.is_none());
+        assert!(o.native_pair().is_none());
         assert_eq!(o.normalized_calls, 1);
         assert_eq!(o.case_calls, 0);
         assert!(!o.full_case_passed());
@@ -2025,7 +2025,7 @@ fn i47_modulus_record_closed_binding_and_independent_presence() {
     assert!(o.error.is_none());
     assert!(o.basis_expected);
     assert_eq!(o.basis_record_calls, 1);
-    let (invocation, case) = o.native.take().unwrap();
+    let (invocation, case) = o.take_native().unwrap();
     let k::ExecutionOutcome::Selected(owner) = &case.outcome else {
         panic!()
     };
@@ -2170,7 +2170,7 @@ fn i47_modulus_record_closed_binding_and_independent_presence() {
     );
     let (mut base, mut b) = observed(specimen(true));
     assert!(!b.basis_expected && b.basis_record.is_none() && b.basis_record_calls == 0);
-    let (_, bc) = b.native.as_ref().unwrap();
+    let bc = b.native.as_ref().unwrap();
     let k::ExecutionOutcome::Selected(bo) = &bc.outcome else {
         panic!()
     };
@@ -2348,7 +2348,7 @@ fn i47_successful_aggregate_capture_sticky_errors_and_work_prefixes() {
 fn i47_modulus_binding_accounting_failure_remains_typed() {
     use super::retained_product::{AdapterEvent as E, AdapterFault, AdapterWork, CaptureError};
     let (e, o) = observed(i47_selected_specimen(false, true));
-    let (_, case) = o.native.as_ref().unwrap();
+    let (_, case) = o.native_pair().unwrap();
     let k::ExecutionOutcome::Selected(owner) = &case.outcome else {
         panic!()
     };
@@ -2393,7 +2393,7 @@ fn i51_first_prepared_native_both_modes() {
         let (request,capture)=source_receipt::CapturedInvocation::parse(raw.clone(),mode).unwrap();
         let mut observer=ProductCapture::prepared_probe();
         let e=run_linear_static_preview_observed(request,mode,Some(&capture),&mut SourceRecoveryBudget::default(),Some(&mut observer));
-        assert!(observer.native.is_none(),"no old source solve");
+        assert!(observer.native_pair().is_none(),"no old source solve");
         assert!(observer.error.is_none(),"{:?}",observer.error);
         let mut prepared=observer.prepare_case(e.clone()).unwrap_or_else(|o|panic!("prepare {:?} {:?}",o.capture.error,o.preparation_error));
         for (p,w) in prepared.preparations.iter().zip(&prepared.preparation_work) {
@@ -2405,7 +2405,7 @@ fn i51_first_prepared_native_both_modes() {
         }
         prepared.solve_native().unwrap();
         i50_dump(&e,prepared.capture(),mode);
-        let (invocation,case)=prepared.capture().native.as_ref().unwrap();
+        let (invocation,case)=prepared.capture().native_pair().unwrap();
         assert_eq!(invocation.calls().len(),1);
         if let k::ExecutionOutcome::Selected(owner)=&case.outcome {
             println!("I51_NATIVE mode={} p={} evidence={:?} late_source_hooks={}",mode.as_str(),owner.selected_precision(),owner.evidence(),prepared.capture().prepared_late_calls);
@@ -2463,7 +2463,7 @@ fn i51_c0_isolated_late_hook_custody_and_prefixes() {
             o.case_source(&request.model,&built,&request.model.materials,&request.model.load_cases[0],
                 &boundary.restrained_dofs,&boundary.springs,&application,&[],&[]);
         }
-        assert!(o.source.is_none() && o.source_capture_entries==0 && o.native.is_none());
+        assert!(o.source.is_none() && o.source_capture_entries==0 && o.native_pair().is_none());
         if name!="missing observations" && name!="missing early" {
             o.solver_observations(&request.model.load_cases[0],PreviewSolverMode::SparseInteractive,std::slice::from_ref(&mode_row));
             assert!(o.error.is_none(),"{name}: {:?}",o.error);
@@ -2495,7 +2495,7 @@ fn i51_c0_isolated_late_hook_custody_and_prefixes() {
                 &boundary.restrained_dofs,&boundary.springs,&application,&[],&[]);
             assert_eq!(o.source_capture_entries,entries);
         }
-        assert!(o.native.is_none(),"zero native calls");
+        assert!(o.native_pair().is_none(),"zero native calls");
         if name.ends_with("accounting") {
             assert!(matches!(o.error,Some(CaptureError::Accounting(_))),"{name}: {:?}",o.error);
             let counts=o.adapter.counts.get();
@@ -2523,7 +2523,7 @@ fn i51_c0_isolated_late_hook_custody_and_prefixes() {
                 assert!(o.error.is_none(),"{:?}",o.error);assert!(o.source.is_some());assert_eq!(o.cases_seen(),1);
                 let failure=match o.prepare_cases(e.clone(),2,&[0,1]) {Ok(_)=>panic!("one case seen of two requested"),Err(f)=>f};
                 assert!(matches!(&failure.error,CaptureError::Association(m) if m=="prepared case count"),"{:?}",failure.error);
-                assert!(failure.capture.native.is_none() && failure.capture.prepared_capacity_bytes==[0;16],"no attempt started");
+                assert!(failure.capture.native_pair().is_none() && failure.capture.prepared_capacity_bytes==[0;16],"no attempt started");
                 println!("I51_C0_SEAM {name} source_entries=1 custody={:?}",failure.error);
                 continue;
             }
@@ -2531,7 +2531,7 @@ fn i51_c0_isolated_late_hook_custody_and_prefixes() {
                 assert!(o.error.is_none(),"{:?}",o.error);assert!(o.source.is_some());
                 let prepared=o.prepare_case(e.clone()).unwrap_or_else(|f|panic!("{:?}",f.capture.error));
                 assert_eq!(prepared.preparations.len(),1);assert_eq!(prepared.preparation_work.len(),1);
-                assert!(prepared.capture().native.is_none());
+                assert!(prepared.capture().native_pair().is_none());
                 assert_eq!(prepared.capture().prepared_capacity_bytes[11],3*std::mem::size_of::<u32>());
                 assert_eq!(prepared.capture().prepared_capacity_bytes[10],18);
                 println!("I51_C0_SEAM valid prepared source_entries=1 preparation_entries=1 native_calls=0 capacities={:?} work={:?}",
@@ -2543,7 +2543,7 @@ fn i51_c0_isolated_late_hook_custody_and_prefixes() {
                 let failure=match o.prepare_case(e.clone()) {Ok(_)=>panic!("injected preparation allocation must fail"),Err(f)=>f};
                 assert!(matches!(failure.capture.error,Some(CaptureError::Accounting(_))));
                 assert!(failure.capture.prepared_capacity_bytes[0]>0,"successful reserve survives later counter fault");
-                assert!(failure.preparations.is_empty() && failure.capture.native.is_none());
+                assert!(failure.preparations.is_empty() && failure.capture.native_pair().is_none());
                 println!("I51_C0_SEAM {name} source_entries={} preparation_entries={} native_calls=0 capacities={:?} work={:?}",
                     failure.capture.source_capture_entries,failure.preparation_work.len(),failure.capture.prepared_capacity_bytes,failure.capture.adapter);
                 continue;
@@ -2580,7 +2580,7 @@ fn i51_c0_isolated_guard_accounting_boundaries() {
                 if late {o.prepared_case_source(false,&request.model,&built,&request.model.materials,case,&boundary.restrained_dofs,&boundary.springs,&empty,&[],&[]);}
                 else {o.case_source(&request.model,&built,&request.model.materials,case,&boundary.restrained_dofs,&boundary.springs,&empty,&[],&[]);}
                 assert!(matches!(o.error,Some(CaptureError::Accounting(_))),"late={late} event={event:?} offset={offset}: {:?}",o.error);
-                assert_eq!(o.source_capture_entries,0);assert!(o.source.is_none() && o.native.is_none());
+                assert_eq!(o.source_capture_entries,0);assert!(o.source.is_none() && o.native_pair().is_none());
                 let after=o.adapter.counts.get();
                 o.prepared_case_source(false,&request.model,&built,&request.model.materials,case,&boundary.restrained_dofs,&boundary.springs,&empty,&[],&[]);
                 assert_eq!(o.adapter.counts.get(),after);checked+=1;
@@ -2632,11 +2632,11 @@ fn i51_actual_exact_pressure_selection_suppresses_all_prepared_work() {
         let mut observer=ProductCapture::prepared_probe();
         let ordinary=run_linear_static_preview_observed(request,mode,Some(&capture),&mut SourceRecoveryBudget::default(),Some(&mut observer));
         assert_eq!(observer.source_capture_entries,0);
-        assert!(observer.source.is_none());assert!(observer.native.is_none());
+        assert!(observer.source.is_none());assert!(observer.native_pair().is_none());
         assert_eq!(observer.prepared_capacity_bytes,[0;16]);
         let failure=match observer.prepare_case(ordinary.clone()) {Err(e)=>e,Ok(_)=>panic!("exact selection must suppress prepared W1")};
         assert!(failure.preparations.is_empty());assert!(failure.preparation_work.is_empty());
-        assert!(failure.capture.native.is_none());
+        assert!(failure.capture.native_pair().is_none());
         let public=run_linear_static_preview_value_with_mode(raw.clone(),mode).unwrap();
         assert_eq!(serde_json::to_vec(&ordinary).unwrap(),serde_json::to_vec(&public).unwrap());
     }
@@ -2654,7 +2654,7 @@ fn i51_ready_for_controls()->(MechanicsEnvelope,retained_product::PreparedCase) 
 fn i51_frozen_owner_values_and_numeric_refusal_controls() {
     for variant in 0..5 {
         let (ordinary,prepared)=i51_ready_for_controls();
-        let (invocation,case)=prepared.capture().native.as_ref().unwrap();let owner=match &case.outcome{k::ExecutionOutcome::Selected(v)=>v,_=>panic!()};
+        let (invocation,case)=prepared.capture().native_pair().unwrap();let owner=match &case.outcome{k::ExecutionOutcome::Selected(v)=>v,_=>panic!()};
         let base=prepared.capture().bind_rows(&ordinary,owner).unwrap();
         let specs:Vec<_>=base.iter().map(|r|match r.recipe {
             k::ProductRecipe::NonQuantity=>k::ProductRowSpec::mode(r.id,r.case_id,r.body,1).unwrap(),
@@ -2682,7 +2682,7 @@ fn i51_frozen_owner_values_and_numeric_refusal_controls() {
     }
     // A different recorded owner is rejected before any residual or correction.
     let (ordinary,a)=i51_ready_for_controls();let (_,b)=i51_ready_for_controls();
-    let (ai,ac)=a.capture().native.as_ref().unwrap();let (_,bc)=b.capture().native.as_ref().unwrap();
+    let (ai,ac)=a.capture().native_pair().unwrap();let (_,bc)=b.capture().native_pair().unwrap();
     let foreign=match &bc.outcome{k::ExecutionOutcome::Selected(v)=>v,_=>panic!()};
     let failed=match ai.begin_prepared_product(ac.run,foreign,&a.capture().facts,&[]).into_ready(){Err(e)=>e,Ok(_)=>panic!("foreign accepted")};
     assert_eq!(failed.failure().category(),"association");assert!(failed.work().source_correction_calls().is_none());drop(ordinary);
@@ -2931,7 +2931,7 @@ fn prepared_trace_prior_owned_cause_precedes_sticky_adapter_and_fresh_prelude_er
 // The typed C3 seam borrows the proof's own vector (I57 §1–§3). Every test names
 // its I57 §5 control; "actual" means a producer run of an existing fixture.
 fn i61_owner(capture:&ProductCapture)->&k::RetainedSolve {
-    match &capture.native.as_ref().unwrap().1.outcome {k::ExecutionOutcome::Selected(v)=>v,_=>panic!("native owner")}
+    match &capture.native_pair().unwrap().1.outcome {k::ExecutionOutcome::Selected(v)=>v,_=>panic!("native owner")}
 }
 fn i61_complete<'a>(view:&retained_receipt::PreparedAttemptView<'a>)->retained_receipt::CompleteCoverage<'a> {
     match view.summary_coverage {Some(retained_receipt::SummaryCoverage::Complete(c))=>c,ref other=>panic!("complete coverage expected: {other:?}")}
@@ -3067,7 +3067,7 @@ fn i61_fk_certificate_failure(variant:usize)->(retained_product::PreparedCase,k:
     // refused after the summary assignment.
     let (ordinary,prepared)=i51_ready_for_controls();
     let failure={
-        let (invocation,case)=prepared.capture().native.as_ref().unwrap();let owner=i61_owner(prepared.capture());
+        let (invocation,case)=prepared.capture().native_pair().unwrap();let owner=i61_owner(prepared.capture());
         let base=prepared.capture().bind_rows(&ordinary,owner).unwrap();
         let specs:Vec<_>=base.iter().map(|r|match r.recipe {
             k::ProductRecipe::NonQuantity=>k::ProductRowSpec::mode(r.id,r.case_id,r.body,1).unwrap(),

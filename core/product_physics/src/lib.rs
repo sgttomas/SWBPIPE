@@ -3088,8 +3088,11 @@ impl ReservedNotices {
         Some(Self(notices))
     }
     /// T-12: append the notices after the ordinary prefix, in request order, for a fallback
-    /// after W1 work ran. Within the reserved capacities: no allocation.
-    fn publish(self, mut ordinary: MechanicsEnvelope, cause: W1Fallback) -> (MechanicsEnvelope, Result<RetainedSuccessor, W1Fallback>) {
+    /// after W1 work ran. Within the reserved capacities: no allocation. C1:68's receipt-encoding
+    /// detail (a serializer refusal with one of its details) goes only on the notices of the
+    /// cases that were selected when the successor was abandoned: bit `k` of `selected` is the
+    /// `k`-th case in A (decision 6). Every other notice is plain.
+    fn publish(self, mut ordinary: MechanicsEnvelope, cause: W1Fallback, selected: u64) -> (MechanicsEnvelope, Result<RetainedSuccessor, W1Fallback>) {
         // RV85 T1: rendering and appending allocate nothing (the capacities reserved
         // before W1 are the capacities published).
         #[cfg(test)]
@@ -3098,10 +3101,11 @@ impl ReservedNotices {
             W1Fallback::Serializer(failure) => receipt_encoding_detail(failure.check),
             _ => None,
         };
-        for ReservedNotice(mut notice) in self.0.into_iter().flatten() {
+        for (k, ReservedNotice(mut notice)) in self.0.into_iter().flatten().enumerate() {
             #[cfg(test)]
             let message = notice.message.capacity();
-            if let Some(detail) = detail {
+            let was_selected = u32::try_from(k).ok().and_then(|k| selected.checked_shr(k)).is_some_and(|bits| bits & 1 == 1);
+            if let Some(detail) = detail.filter(|_| was_selected) {
                 notice.message.push_str(RECEIPT_ENCODING_REASON);
                 notice.message.push_str(detail);
                 notice.message.push('.');
@@ -3250,49 +3254,75 @@ fn retained_w1(
     let Some(notice) = ReservedNotices::reserve(&mut ordinary, attempted.ids()) else {
         return (ordinary, Err(W1Fallback::NoticeReservation));
     };
-    // T-6, then T-7: invocation custody once; then one product attempt per case in A.
-    let prepared = match observer.prepare_cases(ordinary, cases.ids().len(), attempted.requests()) {
-        Ok(prepared) => prepared,
-        Err(failure) => return notice.publish(failure.ordinary, W1Fallback::Preparation),
-    };
-    // T-8 to T-13 are one-case until B1 SP completes them: one attempt continues as before.
-    let mut prepared = match prepared.into_single() {
-        Ok(Ok(prepared)) => prepared,
-        Ok(Err(failure)) => return notice.publish(failure.ordinary, W1Fallback::Preparation),
-        // Interim (B1 SP, before T-8): several attempts. Fail-safe: the ordinary bytes, then
-        // every case's notice (T-12).
-        Err(prepared) => {
-            let cause = if prepared.attempts.iter().any(|attempt| attempt.prepared) { W1Fallback::Native } else { W1Fallback::Preparation };
-            return notice.publish(prepared.ordinary, cause);
+    // T-6 to T-11, then T-12 on any abandonment.
+    match w1_transaction(observer, ordinary, capture, cases.ids().len(), attempted.requests()) {
+        // The transfer: moves only. The unused notices drop; the reserved slots are not
+        // bytes of the ordinary publication.
+        (ordinary, Ok(successor)) => {
+            drop(notice);
+            (ordinary, Ok(RetainedSuccessor(successor)))
         }
+        (ordinary, Err((cause, selected))) => notice.publish(ordinary, cause, selected),
+    }
+}
+
+/// B1 SP (DESIGN_v2 T-6 to T-11): the transaction over the `requested` cases, with A's
+/// request indices `attempted`, in request order. Custody once (T-6); one product attempt per
+/// case in A (T-7); one `CaseBatchCall` over the prepared cases (T-8); one freeze per selected
+/// Run (T-9); with no case selected, T-10's fallback; otherwise staging, the serializer and
+/// precommit (T-11). It returns the untouched ordinary owner with the successor, or with the
+/// abandonment's cause and which cases in A were selected then (bit `k`: the `k`-th case in A).
+/// With no case selected the cause is the furthest stage any case reached: `Candidate` (T-9),
+/// `Native` (T-8, also a failure of the call itself) or `Preparation` (T-6, T-7). At c = 1
+/// these are the one-case transaction's causes and bytes.
+fn w1_transaction(
+    observer: retained_product::ProductCapture,
+    ordinary: MechanicsEnvelope,
+    capture: &source_receipt::CapturedInvocation,
+    requested: usize,
+    attempted: &[usize],
+) -> (MechanicsEnvelope, Result<serde_json::Value, (W1Fallback, u64)>) {
+    use retained_product::AttemptEnd;
+    // T-6, then T-7: invocation custody once; then one product attempt per case in A.
+    let mut prepared = match observer.prepare_cases(ordinary, requested, attempted) {
+        Ok(prepared) => prepared,
+        Err(failure) => return (failure.ordinary, Err((W1Fallback::Preparation, 0))),
     };
+    // T-8: one CaseBatchCall over the prepared cases of A.
     #[cfg(test)]
     retained_tests_hooks::before_native(&mut prepared);
-    if prepared.solve_native().is_err() {
-        return notice.publish(prepared.into_ordinary(), W1Fallback::Native);
+    prepared.native();
+    // T-9: one freeze per selected Run.
+    prepared.freeze();
+    // T-10: a successor needs a selected case.
+    let reached = |stage: fn(&AttemptEnd) -> bool| prepared.attempts.iter().any(|attempt| stage(&attempt.end));
+    if !reached(|end| matches!(end, AttemptEnd::Frozen(_))) {
+        let cause = if reached(|end| matches!(end, AttemptEnd::Candidate(_))) {
+            W1Fallback::Candidate
+        } else if reached(|end| matches!(end, AttemptEnd::Native)) {
+            W1Fallback::Native
+        } else {
+            W1Fallback::Preparation
+        };
+        return (prepared.into_ordinary(), Err((cause, 0)));
     }
-    let frozen = match prepared.freeze_candidate() {
-        Ok(frozen) => frozen,
-        Err(refusal) => return notice.publish(refusal.ordinary, W1Fallback::Candidate),
-    };
-    // Staging: the overlay applies to a copy; the ordinary owner stays intact. A
+    let selected = prepared.selected_attempts();
+    // T-11. Staging: the overlays apply to one copy; the ordinary owner stays intact. A
     // broken overlay invariant falls back typed (RV85 N6).
     #[cfg(test)]
-    let mut frozen = frozen;
-    #[cfg(test)]
-    retained_tests_hooks::before_staging(&mut frozen);
-    let staged = match frozen.staged_envelope() {
+    retained_tests_hooks::before_staging(&mut prepared);
+    let staged = match prepared.staged_envelope() {
         Ok(staged) => staged,
-        Err(fault) => return notice.publish(frozen.into_ordinary(), W1Fallback::Staging(fault)),
+        Err(fault) => return (prepared.into_ordinary(), Err((W1Fallback::Staging(fault), selected))),
     };
-    let serialized = retained_wire::serialize_frozen(&frozen, &staged, capture);
+    let serialized = retained_wire::serialize_cases(&mut prepared, &staged, capture);
     drop(staged);
     #[cfg(test)]
     let serialized = retained_tests_hooks::after_serialize(serialized);
     #[cfg_attr(not(test), allow(unused_mut))]
     let mut successor = match serialized {
         Ok(successor) => successor,
-        Err(failure) => return notice.publish(frozen.into_ordinary(), W1Fallback::Serializer(failure)),
+        Err(failure) => return (prepared.into_ordinary(), Err((W1Fallback::Serializer(failure), selected))),
     };
     #[cfg(test)]
     retained_tests_hooks::before_precommit(&mut successor);
@@ -3303,13 +3333,11 @@ fn retained_w1(
     #[cfg(test)]
     retained_tests_hooks::before_precommit_invocation(&mut invocation);
     if let Err(error) = open_pipe_stress_result_export::retained_precision::validate(&successor, Some(&invocation)) {
-        return notice.publish(frozen.into_ordinary(), W1Fallback::Precommit { gate: error.gate, code: error.code });
+        return (prepared.into_ordinary(), Err((W1Fallback::Precommit { gate: error.gate, code: error.code }, selected)));
     }
     drop(invocation);
-    // The transfer: moves only. The unused notice drops; the reserved slot is not
-    // a byte of the ordinary publication.
-    drop(notice);
-    (frozen.into_ordinary(), Ok(RetainedSuccessor(successor)))
+    // The transfer moves only: no fallible step follows.
+    (prepared.into_ordinary(), Ok(successor))
 }
 
 /// Test-only fault seams for the W1 phases the private driver reaches (decision 7
@@ -3411,20 +3439,23 @@ pub(crate) mod retained_tests_hooks {
         }
     }
     pub(crate) fn corrupt_next_precommit() { arm(|a| a.corrupt = true); }
-    /// Native-stage fault: the prepared source is withdrawn before the native solve.
+    /// Native-stage fault: the first prepared case's source is withdrawn before the call, so
+    /// the call itself fails before any Run (B1 SP T-8; D38's trigger).
     pub(crate) fn withdraw_next_native_source() { arm(|a| a.withdraw = true); }
     /// Serializer-stage fault: the next serialization refuses with this check.
     pub(crate) fn fail_next_serializer(check: ReceiptCheck) { arm(|a| a.serializer = Some(check)); }
     /// Staging fault: the next frozen overlay names a maxima patch past the evidence.
     pub(crate) fn break_next_staging() { arm(|a| a.staging = true); }
-    pub(crate) fn before_staging(frozen: &mut super::retained_product::FrozenCandidate) {
+    pub(crate) fn before_staging(prepared: &mut super::retained_product::PreparedCases) {
         if consume(|a| std::mem::take(&mut a.staging)) {
-            frozen.test_break_overlay();
+            prepared.test_break_overlay();
         }
     }
-    pub(crate) fn before_native(prepared: &mut super::retained_product::PreparedCase) {
+    pub(crate) fn before_native(prepared: &mut super::retained_product::PreparedCases) {
         if consume(|a| std::mem::take(&mut a.withdraw)) {
-            prepared.test_capture_mut().source = None;
+            if let Some(request) = prepared.attempts.iter().find(|attempt| attempt.prepared).map(|attempt| attempt.request) {
+                prepared.capture.with_case(request, |capture| capture.source = None);
+            }
         }
     }
     pub(crate) fn after_serialize(serialized: Result<serde_json::Value, ReceiptFailure>) -> Result<serde_json::Value, ReceiptFailure> {
@@ -3434,6 +3465,8 @@ pub(crate) mod retained_tests_hooks {
         }
     }
     pub(crate) fn before_precommit(successor: &mut serde_json::Value) {
+        // RV107 A1-N-1: the serialized successor, as precommit receives it, for the test.
+        grant2::capture_successor(successor);
         if consume(|a| std::mem::take(&mut a.corrupt)) {
             successor["retained_precision"]["receipt_sha256"] = serde_json::json!("0".repeat(64));
         }

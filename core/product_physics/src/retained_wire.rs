@@ -738,9 +738,18 @@ fn range_trigger(e: &Enc, trigger: &RangeTrigger) -> Value {
 /// G-a with T1 (a): identity, profile, method token, the omitted legacy
 /// disclosure (by its captured id) and the selected-case diagnostic.
 fn successor_envelope(env: &mut Value, case_id: &str, omit: Option<&str>) -> Result<String, ReceiptFailure> {
-    let assoc = |p| fail(ReceiptCheck::Association, p);
+    successor_identity(env);
+    selected_case_envelope(env, case_id, omit)
+}
+/// The successor's identity and profile (G-a), set once per successor.
+fn successor_identity(env: &mut Value) {
     env["producer"]["semantic_contract_id"] = json!(RETAINED_SEMANTIC_ID);
     env["formulation_basis"]["profile_id"] = json!(RETAINED_PROFILE_ID);
+}
+/// One selected case's part of G-a with T1 (a): its rows' method token, its omitted legacy
+/// disclosure and its selected-case diagnostic (appended).
+fn selected_case_envelope(env: &mut Value, case_id: &str, omit: Option<&str>) -> Result<String, ReceiptFailure> {
+    let assoc = |p| fail(ReceiptCheck::Association, p);
     for row in env["results"].as_array_mut().ok_or(assoc("results"))? {
         if row["basis_ref"]["ref_id"] == json!(case_id) {
             row["recovery_method"] = json!(METHOD);
@@ -854,12 +863,16 @@ fn ordinary_members(e: &Enc, seed: &rp::OrdinarySeed) -> (Value, Value, Value) {
     (initial, w2, formation)
 }
 
-fn material_basis(e: &Enc, capture: &rp::ProductCapture, raw: &Value, case_index: usize) -> Result<Value, ReceiptFailure> {
+/// The one material basis (D1.5) of the requested cases `0..cases` (B1 SP: every case's base
+/// selector; at c = 1 the one case).
+fn material_basis(e: &Enc, capture: &rp::ProductCapture, raw: &Value, cases: usize) -> Result<Value, ReceiptFailure> {
     let assoc = |p| fail(ReceiptCheck::Association, p);
-    let case = &raw["model"]["load_cases"][case_index];
-    // Grant 1 maps the base selector; a named or temperature basis is wider scope.
-    if !case.get("modulus_basis_ref").is_none_or(Value::is_null) || !case.get("modulus_basis_temperature").is_none_or(Value::is_null) {
-        return Err(fail(ReceiptCheck::Untranslated, "material_bases[].selector"));
+    for case_index in 0..cases {
+        let case = &raw["model"]["load_cases"][case_index];
+        // Grant 1 maps the base selector; a named or temperature basis is wider scope.
+        if !case.get("modulus_basis_ref").is_none_or(Value::is_null) || !case.get("modulus_basis_temperature").is_none_or(Value::is_null) {
+            return Err(fail(ReceiptCheck::Untranslated, "material_bases[].selector"));
+        }
     }
     if !capture.selections.is_empty() || capture.basis_record.is_some() {
         return Err(fail(ReceiptCheck::Untranslated, "material_bases[].materials[].selection"));
@@ -886,7 +899,7 @@ fn material_basis(e: &Enc, capture: &rp::ProductCapture, raw: &Value, case_index
         materials.push(json!({"input_index":i,"id":id,"elastic_modulus":e.bits(*modulus,P),"shear_modulus":e.bits(*shear,P),
             "shear_origin":{"kind":"explicit_g"},"selection":{"kind":"base"}}));
     }
-    Ok(json!({"index":0,"selector":{"kind":"base"},"materials":materials,"case_indices":[case_index]}))
+    Ok(json!({"index":0,"selector":{"kind":"base"},"materials":materials,"case_indices":(0..cases).collect::<Vec<_>>()}))
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -895,6 +908,8 @@ fn material_basis(e: &Enc, capture: &rp::ProductCapture, raw: &Value, case_index
 /// unavailable run (which must equal the registered identity bytes' owner).
 fn case_source(e: &Enc, capture: &rp::ProductCapture, source: &k::PrimitiveSource, inv: &k::RecordedInvocation,
     run: &k::RunOrigins, case_index: usize, case_id: &str, attempt: &rr::PreparedAttemptView<'_>) -> Result<Value, ReceiptFailure> {
+    // B1 SP (T-11): `sources[]` is in registration order, so a source's index is the kernel's
+    // id of the source its Run used (0 at c = 1).
     let assoc = |p| fail(ReceiptCheck::Association, p);
     const P: &str = "sources[]";
     let origin = inv.sources().get(run.source).ok_or(assoc("sources[].kernel_source_sha256"))?;
@@ -964,7 +979,7 @@ fn case_source(e: &Enc, capture: &rp::ProductCapture, source: &k::PrimitiveSourc
             "geometry":{"route":"preview","normalized_od":e.bits(f.diameter,P),"effective_wall":e.bits(f.effective_wall,P),"actual_radius":e.bits(f.radius,P),
                 "actual_second_moment":e.bits(f.second_moment,P),"actual_polar_moment":e.bits(f.torsion_constant,P)}}));
     }
-    Ok(json!({"index":0,"owner":{"kind":"case","case_index":case_index,"case_id":case_id},"material_basis_ref":0,
+    Ok(json!({"index":run.source,"owner":{"kind":"case","case_index":case_index,"case_id":case_id},"material_basis_ref":0,
         "kernel_source_sha256":sha_hex(&origin.identity),"stiffness_sha256":sha_hex(&origin.stiffness),
         "id_maps":{"nodes":nodes,"members":members,"springs":springs,"support_ids":support_ids},"body_membership":body_membership,
         "layout":layout,"stations":stations,"supports":supports,"constraints":constraints,"nodal_terms":nodal_terms,"section_terms":section_terms,
@@ -1212,7 +1227,7 @@ fn public_error(e: &Enc, f: &rr::FailureRef<'_>, capture: &rp::ProductCapture) -
         rr::FailureRef::Preparation { capture: c, section } => json!({"kind":"preparation","capture":capture_error(e,c),
             "section":section.map(|s|section_error(e,s))}),
         rr::FailureRef::Native(c) => match capture.native.as_ref() {
-            Some((_, case)) => json!({"kind":"native","run_ref":case.run}),
+            Some(case) => json!({"kind":"native","run_ref":case.run}),
             None => json!({"kind":"capture","cause":capture_error(e,c)}),
         },
         rr::FailureRef::Candidate(err) => match err {
@@ -1261,7 +1276,8 @@ fn proof_trace(e: &Enc, view: &rr::PreparedAttemptView<'_>, capture: &rp::Produc
         "capacities":p.capacities,"prepared_capacity_bytes":p.prepared_capacity_bytes,"completion":completion,
         "checks":{"certificate":check(e,&view.checks[0],capture),"observables":check(e,&view.checks[1],capture),"g5a":check(e,&view.checks[2],capture)},"summary_coverage":coverage})
 }
-fn product_attempt(e: &Enc, view: &rr::PreparedAttemptView<'_>, case_index: usize, source_ref: Option<usize>, run_ref: Option<usize>,
+#[allow(clippy::too_many_arguments)]
+fn product_attempt(e: &Enc, view: &rr::PreparedAttemptView<'_>, id: usize, case_index: usize, source_ref: Option<usize>, run_ref: Option<usize>,
     result: Value, capture: &rp::ProductCapture) -> Value {
     const PROPS: [&str; 5] = ["area", "second_moment", "polar_moment", "section_modulus", "radius"];
     const P: &str = "product_attempts[].preparation";
@@ -1292,7 +1308,7 @@ fn product_attempt(e: &Enc, view: &rr::PreparedAttemptView<'_>, case_index: usiz
         stages_v.insert((*n).into(), stage_name(e, *s));
     }
     let a = view.adapter;
-    json!({"id":0,"definition_id":DEFINITION_ID,"owner_ref":{"kind":"case","index":case_index},"ordinary_attempt_ref":case_index,"material_basis_ref":0,
+    json!({"id":id,"definition_id":DEFINITION_ID,"owner_ref":{"kind":"case","index":case_index},"ordinary_attempt_ref":case_index,"material_basis_ref":0,
         "source_ref":source_ref,"run_ref":run_ref,"result":result,"preparation":{"members":members},"stages":stages_v,"proof":proof_trace(e,view,capture),
         "adapter":{"counts":a.counts,"fault":a.fault.map(|rp::AdapterFault::Overflow(ev)|json!({"kind":"overflow","event":EVENTS.get(ev as usize).map_or_else(||e.untranslated("product_attempts[].adapter.fault.event"),|n|json!(n))})),
             "prepared_capacity_bytes":a.prepared_capacity_bytes,"observation_capacity_bytes":a.observation_capacity_bytes,"support_capacity_bytes":a.support_capacity_bytes},
@@ -1364,6 +1380,8 @@ fn kernel_outcome<'a>(e: &Enc, outcome: &'a k::ExecutionOutcome) -> (&'a [k::Att
     }
 }
 /// The Run (C1 §1, §4; C2 §4) for selected and unavailable kernel outcomes alike.
+/// `case_index` is the Run's owner as a request index (B1 SP, PLAN_v2 N-2: the kernel's
+/// batch ordinal mapped to the request).
 fn run_value(e: &Enc, run: &k::RunOrigins, records: &[k::AttemptRecord], terminal: Value, case_index: usize) -> Result<Value, ReceiptFailure> {
     // Only the first `physical_records` links describe actual records.
     if records.len() != run.physical_records || records.len() > run.records.len() {
@@ -1379,10 +1397,21 @@ fn run_value(e: &Enc, run: &k::RunOrigins, records: &[k::AttemptRecord], termina
         "invocation_increment":e.exact(run.work.invocation_increment(),"cases[].run.invocation_increment"),
         "invocation_after":e.exact(run.work.invocation_after(),"cases[].run.invocation_after")}))
 }
-/// The invocation's calls, groups and builds (C2 §4), and its exact final charge.
-fn invocation_arrays(e: &Enc, inv: &k::RecordedInvocation, run: &k::RunOrigins) -> Result<(Vec<Value>, Vec<Value>, Vec<Value>, u64), ReceiptFailure> {
+/// The invocation's calls, groups and builds (C2 §4), and its exact final charge, which
+/// `run`, the last Run, ends at. The kernel names a case owner by its batch ordinal;
+/// `requests[ordinal]` is its request index (B1 SP, PLAN_v2 N-2), so `calls[].owner_refs` name
+/// request indices.
+fn invocation_arrays(e: &Enc, inv: &k::RecordedInvocation, run: &k::RunOrigins, requests: &[usize])
+    -> Result<(Vec<Value>, Vec<Value>, Vec<Value>, u64), ReceiptFailure> {
+    let owner = |o: &k::NativeOwner| match o {
+        k::NativeOwner::Case(i) => requests.get(*i).map(|request| json!({"kind":"case","index":request})).unwrap_or_else(|| {
+            e.fail(ReceiptCheck::Association, "calls[].owner_refs");
+            Value::Null
+        }),
+        k::NativeOwner::Combination(i) => json!({"kind":"combination","index":i}),
+    };
     let calls: Vec<Value> = inv.calls().iter().map(|c| json!({"id":c.id,"kind":"case_batch",
-        "owner_refs":c.owners.iter().map(|o|match o { k::NativeOwner::Case(i)=>json!({"kind":"case","index":i}), k::NativeOwner::Combination(i)=>json!({"kind":"combination","index":i}) }).collect::<Vec<_>>(),
+        "owner_refs":c.owners.iter().map(owner).collect::<Vec<_>>(),
         "source_refs":c.sources,"run_refs":c.runs,"invocation_before":e.exact(c.invocation_before,"calls[].invocation_before"),
         "invocation_after":e.exact(c.invocation_after,"calls[].invocation_after"),"result":{"kind":"runs"}})).collect();
     let groups: Vec<Value> = inv.groups().iter().map(|g| {
@@ -1401,9 +1430,13 @@ fn invocation_arrays(e: &Enc, inv: &k::RecordedInvocation, run: &k::RunOrigins) 
     if inv.meter().limit() != INVOCATION_LIMIT {
         return Err(fail(ReceiptCheck::Association, "work.invocation_limit"));
     }
-    // C1 §4 body.work: charged equals the final after (before = 0).
+    // C1 §4 body.work: charged equals the final after (before = 0): the last Run's, and
+    // (DESIGN_v2 T-11) the call's `invocation_after`.
     let charged = e.exact(inv.meter().checked_charged(), "work.charged");
     if charged != e.exact(run.work.invocation_after(), "work.charged") {
+        return Err(fail(ReceiptCheck::WorkCounterInconsistent, "work.charged"));
+    }
+    if inv.calls().iter().any(|call| charged != e.exact(call.invocation_after, "work.charged")) {
         return Err(fail(ReceiptCheck::WorkCounterInconsistent, "work.charged"));
     }
     Ok((calls, groups, builds, charged))
@@ -1411,6 +1444,15 @@ fn invocation_arrays(e: &Enc, inv: &k::RecordedInvocation, run: &k::RunOrigins) 
 /// The ordinary attempt entry (G-b, G-c, G-l) and the case's quality index.
 fn ordinary_value(e: &Enc, env: &Value, case_id: &str, case_index: usize, mode: PreviewSolverMode, seed: &rp::OrdinarySeed, legacy: Value)
     -> Result<(Value, usize), ReceiptFailure> {
+    // D6a (decision 2): the diagnostics naming the case, once each, in envelope
+    // order, excluding RETAINED_PRECISION_* (a T1 (a) omission is already applied).
+    let [diagnostic_refs] = case_diagnostic_refs(env, &[case_id])?;
+    ordinary_entry(e, env, case_id, case_index, mode, seed, legacy, diagnostic_refs)
+}
+/// One requested case's ordinary attempt entry, with its D6a references already collected.
+#[allow(clippy::too_many_arguments)]
+fn ordinary_entry(e: &Enc, env: &Value, case_id: &str, case_index: usize, mode: PreviewSolverMode, seed: &rp::OrdinarySeed, legacy: Value,
+    diagnostic_refs: Vec<Value>) -> Result<(Value, usize), ReceiptFailure> {
     let assoc = |p| fail(ReceiptCheck::Association, p);
     let quality_index = env["numerical_quality"]["cases"].as_array().and_then(|q| {
         let found: Vec<usize> = q.iter().enumerate().filter(|(_, x)| x["basis_ref"]["ref_id"] == json!(case_id)).map(|(i, _)| i).collect();
@@ -1421,28 +1463,44 @@ fn ordinary_value(e: &Enc, env: &Value, case_id: &str, case_index: usize, mode: 
     if initial["kind"] == "report" && env["numerical_quality"]["cases"][quality_index]["solve_quality"] != initial["outcome"] {
         return Err(assoc("ordinary_attempts[].initial.outcome"));
     }
-    // D6a (decision 2): the diagnostics naming the case, once each, in envelope
-    // order, excluding RETAINED_PRECISION_* (a T1 (a) omission is already applied).
-    let diagnostic_refs: Vec<Value> = env["diagnostics"].as_array().ok_or(assoc("diagnostics"))?.iter()
-        .filter(|d| d["affected_refs"].as_array().is_some_and(|a| a.iter().any(|r| r == case_id)))
-        .filter(|d| !d["code"].as_str().is_some_and(|c| c.starts_with("RETAINED_PRECISION_")))
-        .map(|d| d["id"].clone()).collect();
     Ok((json!({"case_index":case_index,"case_id":case_id,"material_basis_ref":0,"requested_mode":mode.as_str(),
         "initial":initial,"w2":w2,"formation":formation,"legacy_source":legacy,"diagnostic_refs":diagnostic_refs}), quality_index))
+}
+/// D6a for each of `case_ids` in one pass over the diagnostics (B1 SP; I82's c² guidance):
+/// per case, the ids of the diagnostics naming it, once each, in envelope order, excluding
+/// RETAINED_PRECISION_*.
+fn case_diagnostic_refs<const N: usize>(env: &Value, case_ids: &[&str; N]) -> Result<[Vec<Value>; N], ReceiptFailure> {
+    let mut refs: [Vec<Value>; N] = std::array::from_fn(|_| Vec::new());
+    case_diagnostic_refs_into(env, case_ids, &mut refs)?;
+    Ok(refs)
+}
+fn case_diagnostic_refs_into(env: &Value, case_ids: &[&str], refs: &mut [Vec<Value>]) -> Result<(), ReceiptFailure> {
+    for d in env["diagnostics"].as_array().ok_or(fail(ReceiptCheck::Association, "diagnostics"))? {
+        if d["code"].as_str().is_some_and(|c| c.starts_with("RETAINED_PRECISION_")) {
+            continue;
+        }
+        let Some(affected) = d["affected_refs"].as_array() else { continue };
+        for (case_id, refs) in case_ids.iter().zip(refs.iter_mut()) {
+            if affected.iter().any(|r| r == *case_id) {
+                refs.push(d["id"].clone());
+            }
+        }
+    }
+    Ok(())
 }
 /// The body around its members, then the two hashes (C1 §3): publication over the
 /// final envelope without the receipt, then the body.
 #[allow(clippy::too_many_arguments)]
-fn finish(e: Enc, mut env: Value, invocation: &source_receipt::CapturedInvocation, charged: u64, execution_order: Value, case_v: Value,
-    sources: Vec<Value>, material: Value, (calls, groups, builds): (Vec<Value>, Vec<Value>, Vec<Value>), ordinary: Value, attempt: Value,
+fn finish(e: Enc, mut env: Value, invocation: &source_receipt::CapturedInvocation, charged: u64, execution_order: Value, cases: Vec<Value>,
+    sources: Vec<Value>, material: Value, (calls, groups, builds): (Vec<Value>, Vec<Value>, Vec<Value>), ordinary: Vec<Value>, attempts: Vec<Value>,
     legacy_source_work: Vec<Value>) -> Result<Value, ReceiptFailure> {
     let mut body = json!({"receipt_version":1,"policy":POLICY,"projection_policy":PROJECTION_POLICY,"work_policy":WORK_POLICY,
         "facade_policy":FACADE_POLICY,"canonicalization":CANONICALIZATION,
         "invocation":{"algorithm":"sha256","profile":CANONICALIZATION,"scope":"actual_request_and_solver_mode","domain":"source_blocks_invocation_v1","value":invocation.borrowed_digest()},
         "publication_sha256":"",
         "work":{"case_limit":CASE_LIMIT,"invocation_limit":INVOCATION_LIMIT,"charged":charged,"execution_order":execution_order},
-        "cases":[case_v],"combinations":[],"sources":sources,"material_bases":[material],"calls":calls,"groups":groups,"builds":builds,
-        "ordinary_attempts":[ordinary],"product_attempts":[attempt],"legacy_source_work":legacy_source_work});
+        "cases":cases,"combinations":[],"sources":sources,"material_bases":[material],"calls":calls,"groups":groups,"builds":builds,
+        "ordinary_attempts":ordinary,"product_attempts":attempts,"legacy_source_work":legacy_source_work});
     e.finish()?;
     if !safe_integers(&body) {
         return Err(fail(ReceiptCheck::Encoding, "body"));
@@ -1470,13 +1528,6 @@ pub(super) fn serialize_selected(candidate: &rp::PrivatePreparedCandidate, invoc
     serialize_selected_from(candidate, candidate.envelope(), invocation)
 }
 
-/// U3: the same serialization over the facade's frozen candidate, whose overlay
-/// lives in the staging copy `staged` while the ordinary owner stays intact.
-pub(super) fn serialize_frozen(candidate: &rp::FrozenCandidate, staged: &MechanicsEnvelope, invocation: &source_receipt::CapturedInvocation)
-    -> Result<Value, ReceiptFailure> {
-    serialize_selected_from(candidate, staged, invocation)
-}
-
 /// What the selected serialization reads from a certified candidate.
 pub(super) trait SelectedCandidate {
     fn capture(&self) -> &rp::ProductCapture;
@@ -1490,13 +1541,6 @@ impl SelectedCandidate for rp::PrivatePreparedCandidate {
         rp::PrivatePreparedCandidate::typed_trace(self, costs)
     }
 }
-impl SelectedCandidate for rp::FrozenCandidate {
-    fn capture(&self) -> &rp::ProductCapture { rp::FrozenCandidate::capture(self) }
-    fn certificate(&self) -> &k::CertifiedProductProof { rp::FrozenCandidate::certificate(self) }
-    fn typed_trace<'a>(&'a self, costs: &mut rr::ProjectionWork) -> Result<rr::PreparedAttemptView<'a>, rr::TraceProjectionError> {
-        rp::FrozenCandidate::typed_trace(self, costs)
-    }
-}
 
 fn serialize_selected_from(candidate: &impl SelectedCandidate, overlaid: &MechanicsEnvelope, invocation: &source_receipt::CapturedInvocation)
     -> Result<Value, ReceiptFailure> {
@@ -1507,7 +1551,7 @@ fn serialize_selected_from(candidate: &impl SelectedCandidate, overlaid: &Mechan
     let raw = invocation.borrowed_raw();
     let pc = candidate.capture();
     let (case_index, case_id, seed) = one_case(pc, invocation)?;
-    let (inv, case) = pc.native.as_ref().ok_or(assoc("cases[].run"))?;
+    let (inv, case) = pc.native_pair().ok_or(assoc("cases[].run"))?;
     let k::ExecutionOutcome::Selected(owner) = &case.outcome else { return Err(scope("cases[].status")) };
     // U2 (RV77-N4): the proof must have started on this selected owner's own solve.
     let certificate = candidate.certificate();
@@ -1540,7 +1584,7 @@ fn serialize_selected_from(candidate: &impl SelectedCandidate, overlaid: &Mechan
     let (records, terminal) = kernel_outcome(&e, &case.outcome);
     let run_v = run_value(&e, run, records, terminal, case_index)?;
     let mut source = case_source(&e, pc, owner.source(), inv, run, case_index, &case_id, &view)?;
-    let attempt = product_attempt(&e, &view, case_index, Some(run.source), Some(case.run), json!({"kind":"ready"}), pc);
+    let attempt = product_attempt(&e, &view, 0, case_index, Some(run.source), Some(case.run), json!({"kind":"ready"}), pc);
     bind_preparation(&mut source, &attempt, 0)?;
     let source_identity = {
         let mut binding = source.clone();
@@ -1551,10 +1595,10 @@ fn serialize_selected_from(candidate: &impl SelectedCandidate, overlaid: &Mechan
     let (ordinary, quality_index) = ordinary_value(&e, &env, &case_id, case_index, mode, seed, legacy)?;
     let case_v = json!({"basis_ref":{"ref_type":"load_case","ref_id":case_id},"ordinary":{"attempt_ref":case_index,"quality_binding":{"kind":"present","index":quality_index}},
         "product_attempt_ref":0,"status":"selected","method":METHOD,"run":run_v,"source_ref":run.source,"source_identity_sha256":source_identity,"selection":selection_v});
-    let (calls, groups, builds, charged) = invocation_arrays(&e, inv, run)?;
-    let material = material_basis(&e, pc, raw, case_index)?;
-    finish(e, env, invocation, charged, json!([{"kind":"case","index":case_index}]), case_v, vec![source], material,
-        (calls, groups, builds), ordinary, attempt, legacy_source_work)
+    let (calls, groups, builds, charged) = invocation_arrays(&e, inv, run, &[case_index])?;
+    let material = material_basis(&e, pc, raw, 1)?;
+    finish(e, env, invocation, charged, json!([{"kind":"case","index":case_index}]), vec![case_v], vec![source], material,
+        (calls, groups, builds), vec![ordinary], vec![attempt], legacy_source_work)
 }
 
 /// A refused one-case prepared attempt: the three actual refusal owners.
@@ -1576,9 +1620,13 @@ pub(super) const UNAVAILABLE_MESSAGE: &str = "Retained-precision recovery is una
 /// G-a for an unavailable case: identity and profile, no method token, the
 /// legacy disclosure kept, and the unavailable diagnostic.
 fn unavailable_envelope(env: &mut Value, case_id: &str) -> Result<String, ReceiptFailure> {
+    successor_identity(env);
+    unavailable_case_envelope(env, case_id)
+}
+/// One unavailable case's part of G-a: its unavailable-case diagnostic (appended); its
+/// legacy disclosure is kept.
+fn unavailable_case_envelope(env: &mut Value, case_id: &str) -> Result<String, ReceiptFailure> {
     let assoc = |p| fail(ReceiptCheck::Association, p);
-    env["producer"]["semantic_contract_id"] = json!(RETAINED_SEMANTIC_ID);
-    env["formulation_basis"]["profile_id"] = json!(RETAINED_PROFILE_ID);
     let diags = env["diagnostics"].as_array_mut().ok_or(assoc("diagnostics"))?;
     let id = format!("diagnostic:retained-precision:{case_id}:unavailable");
     if diags.iter().any(|d| d["id"] == json!(id)) {
@@ -1609,7 +1657,7 @@ pub(super) fn serialize_unavailable(refused: Refused<'_>, invocation: &source_re
         Refused::Candidate(r) => (r.capture(), &r.ordinary),
     };
     let (case_index, case_id, seed) = one_case(pc, invocation)?;
-    let selected_owner = pc.native.as_ref().and_then(|(_, case)| match &case.outcome { k::ExecutionOutcome::Selected(o) => Some(&**o), _ => None });
+    let selected_owner = pc.native_pair().and_then(|(_, case)| match &case.outcome { k::ExecutionOutcome::Selected(o) => Some(&**o), _ => None });
     // U2 on the failure path: refused proof work and any certificate bind to the
     // selected owner structurally (before any projection reads them).
     if let Refused::Candidate(r) = &refused {
@@ -1634,8 +1682,8 @@ pub(super) fn serialize_unavailable(refused: Refused<'_>, invocation: &source_re
     let diagnostic_ref = unavailable_envelope(&mut env, &case_id)?;
     let (ordinary, quality_index) = ordinary_value(&e, &env, &case_id, case_index, mode, seed, legacy)?;
     let error = public_error(&e, failure, pc);
-    let material = material_basis(&e, pc, raw, case_index)?;
-    let (case_v, attempt, sources, arrays, charged, order) = match pc.native.as_ref() {
+    let material = material_basis(&e, pc, raw, 1)?;
+    let (case_v, attempt, sources, arrays, charged, order) = match pc.native_pair() {
         // D38: no kernel schedule ran, so no Run, run_ref or execution entry.
         None => {
             // A source-constructor refusal carries C2's `source_decline` (constructor
@@ -1649,7 +1697,7 @@ pub(super) fn serialize_unavailable(refused: Refused<'_>, invocation: &source_re
                 return Err(fail(ReceiptCheck::Untranslated, "sources[].kernel_source_sha256"));
             }
             let code = ("source_unavailable", "preparation");
-            let attempt = product_attempt(&e, &view, case_index, None, None, json!({"kind":"unavailable","error":error}), pc);
+            let attempt = product_attempt(&e, &view, 0, case_index, None, None, json!({"kind":"unavailable","error":error}), pc);
             let case_v = json!({"basis_ref":{"ref_type":"load_case","ref_id":case_id},"ordinary":{"attempt_ref":case_index,"quality_binding":{"kind":"present","index":quality_index}},
                 "product_attempt_ref":0,"status":"unavailable","reason":{"code":code.0,"phase":code.1,"cause":{"kind":"prepared_product_failure","product_attempt_ref":0}},
                 "diagnostic_ref":diagnostic_ref,"run":null,"source_ref":null});
@@ -1669,18 +1717,292 @@ pub(super) fn serialize_unavailable(refused: Refused<'_>, invocation: &source_re
                 (_, "selected") => ("facade_certificate".to_owned(), "facade"),
                 (_, other) => (format!("kernel_{other}"), "kernel"),
             };
-            let attempt = product_attempt(&e, &view, case_index, Some(run.source), Some(case.run), json!({"kind":"unavailable","error":error}), pc);
+            let attempt = product_attempt(&e, &view, 0, case_index, Some(run.source), Some(case.run), json!({"kind":"unavailable","error":error}), pc);
             if view.members.iter().all(|m| matches!(m.result, rr::PreparationResult::Prepared(_))) {
                 bind_preparation(&mut source_v, &attempt, 0)?;
             }
             let case_v = json!({"basis_ref":{"ref_type":"load_case","ref_id":case_id},"ordinary":{"attempt_ref":case_index,"quality_binding":{"kind":"present","index":quality_index}},
                 "product_attempt_ref":0,"status":"unavailable","reason":{"code":code.0,"phase":code.1,"cause":{"kind":"prepared_product_failure","product_attempt_ref":0}},
                 "diagnostic_ref":diagnostic_ref,"run":run_v,"source_ref":run.source});
-            let (calls, groups, builds, charged) = invocation_arrays(&e, inv, run)?;
+            let (calls, groups, builds, charged) = invocation_arrays(&e, inv, run, &[case_index])?;
             (case_v, attempt, vec![source_v], (calls, groups, builds), charged, json!([{"kind":"case","index":case_index}]))
         }
     };
-    finish(e, env, invocation, charged, order, case_v, sources, material, arrays, ordinary, attempt, legacy_source_work)
+    finish(e, env, invocation, charged, order, vec![case_v], sources, material, arrays, vec![ordinary], vec![attempt], legacy_source_work)
+}
+
+/// B1 SP (DESIGN_v2 T-11): the successor of an invocation whose transaction has at least one
+/// selected (frozen) case. `staged` is the staging copy: the ordinary owner with the frozen
+/// cases' overlays. The receipt covers every requested case:
+/// - `cases[]`, in request order: `selected` (frozen), `unavailable` (in A and not frozen) or
+///   `not_required` (not in A, its published verdict `checks_passed`);
+/// - `ordinary_attempts[]`, one per requested case; `product_attempts[]`, in start order;
+///   `sources[]`, in the call's registration order; the one material basis (D1.5);
+/// - the one call, its groups and builds; `work.execution_order`, every Run in actual order;
+///   `work.charged`, the call's `invocation_after`;
+/// - every Run and call owner named by its request index: the kernel's batch ordinal `k` is the
+///   `k`-th prepared attempt (PLAN_v2 N-2);
+/// - each attempt's adapter snapshot as its trace recorded it, at its terminal stage.
+///
+/// The envelope (G-a; T1 (a)): the identity once; each selected case's method token, omitted
+/// legacy disclosure and selected diagnostic, in request order; then each unavailable case's
+/// diagnostic, in request order. At c = 1 these are `serialize_selected_from`'s bytes. Any
+/// refusal abandons the successor (decision 5).
+pub(super) fn serialize_cases(cases: &mut rp::PreparedCases, staged: &MechanicsEnvelope, invocation: &source_receipt::CapturedInvocation)
+    -> Result<Value, ReceiptFailure> {
+    let rp::PreparedCases { capture, attempts, .. } = cases;
+    let native = capture.native_invocation.take();
+    let serialized = serialize_cases_with(capture, attempts, native.as_ref(), staged, invocation);
+    capture.native_invocation = native;
+    serialized
+}
+
+/// One requested case's status in the successor.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum CaseStatus { Selected, Unavailable, NotRequired }
+
+fn serialize_cases_with(pc: &mut rp::ProductCapture, attempts: &[rp::CaseAttempt], inv: Option<&k::RecordedInvocation>,
+    staged: &MechanicsEnvelope, invocation: &source_receipt::CapturedInvocation) -> Result<Value, ReceiptFailure> {
+    let assoc = |p| fail(ReceiptCheck::Association, p);
+    let scope = |p| fail(ReceiptCheck::Scope, p);
+    let e = Enc::default();
+    let mode = invocation.mode();
+    let raw = invocation.borrowed_raw();
+    // G-j: the invocation this capture observed (RV82-S2), its requested cases with no
+    // combination, and one ordinary seed per case, in request order.
+    if pc.invocation_mode != Some(mode) || pc.invocation_digest.as_deref() != Some(invocation.borrowed_digest().as_str()) {
+        return Err(assoc("invocation"));
+    }
+    let request_cases = raw["model"]["load_cases"].as_array().ok_or(assoc("cases"))?;
+    let combinations = raw["model"]["combinations"].as_array().map_or(0, Vec::len);
+    let count = request_cases.len();
+    if count == 0 || count != pc.cases_seen() || combinations != 0 {
+        return Err(scope("cases"));
+    }
+    let case_ids = request_cases.iter().map(|case| case["id"].as_str()).collect::<Option<Vec<_>>>().ok_or(assoc("cases[].basis_ref"))?;
+    if pc.ordinary.len() != count {
+        return Err(scope("ordinary_attempts"));
+    }
+    if pc.ordinary.iter().zip(&case_ids).any(|(seed, id)| seed.case != *id) {
+        return Err(assoc("ordinary_attempts[].case_id"));
+    }
+    // Each requested case's attempt (A) and status; every attempt has ended.
+    let mut attempt_of: Vec<Option<&rp::CaseAttempt>> = vec![None; count];
+    for attempt in attempts {
+        let slot = attempt_of.get_mut(attempt.request).ok_or(assoc("product_attempts[].owner_ref"))?;
+        if slot.replace(attempt).is_some() {
+            return Err(assoc("product_attempts[].owner_ref"));
+        }
+    }
+    let status: Vec<CaseStatus> = attempt_of.iter().map(|attempt| match attempt.map(|a| &a.end) {
+        Some(rp::AttemptEnd::Frozen(_)) => CaseStatus::Selected,
+        Some(_) => CaseStatus::Unavailable,
+        None => CaseStatus::NotRequired,
+    }).collect();
+    if !status.contains(&CaseStatus::Selected) {
+        return Err(scope("cases[].status"));
+    }
+    // The call's batch ordinals: the prepared attempts, in request order.
+    let requests: Vec<usize> = attempts.iter().filter(|attempt| attempt.prepared).map(|attempt| attempt.request).collect();
+    let inv = inv.ok_or(assoc("calls"))?;
+    if inv.calls().len() != 1 || inv.runs().len() != requests.len() || inv.sources().len() != requests.len() {
+        return Err(scope("cases[].run"));
+    }
+    // D39: each case's legacy disposition, in request order (a selected case's disclosure is
+    // omitted and its work recorded).
+    let mut legacy_source_work = Vec::new();
+    let mut legacy = Vec::with_capacity(count);
+    for (index, seed) in pc.ordinary.iter().enumerate() {
+        legacy.push(legacy_source(&e, seed.legacy.as_ref(), index, &mut legacy_source_work, status[index] == CaseStatus::Selected)?);
+    }
+    // The successor envelope (G-a; T1 (a)).
+    let mut env = serde_json::to_value(staged).map_err(|_| fail(ReceiptCheck::Encoding, "envelope"))?;
+    successor_identity(&mut env);
+    let mut diagnostic_ids: Vec<Option<String>> = vec![None; count];
+    for (index, (_, omit)) in legacy.iter().enumerate() {
+        if status[index] == CaseStatus::Selected {
+            diagnostic_ids[index] = Some(selected_case_envelope(&mut env, case_ids[index], omit.as_deref())?);
+        }
+    }
+    for index in 0..count {
+        if status[index] == CaseStatus::Unavailable {
+            diagnostic_ids[index] = Some(unavailable_case_envelope(&mut env, case_ids[index])?);
+        }
+    }
+    // The ordinary attempts (G-b, G-c, G-l), with D6a's references in one pass.
+    let mut diagnostic_refs = vec![Vec::new(); count];
+    case_diagnostic_refs_into(&env, &case_ids, &mut diagnostic_refs)?;
+    let mut ordinary = Vec::with_capacity(count);
+    let mut quality = Vec::with_capacity(count);
+    for (index, ((seed, (legacy_v, _)), refs)) in pc.ordinary.iter().zip(legacy).zip(diagnostic_refs).enumerate() {
+        let (entry, quality_index) = ordinary_entry(&e, &env, case_ids[index], index, mode, seed, legacy_v, refs)?;
+        // DESIGN_v2 T-4: a requested case outside A is `not_required` by its published verdict.
+        if status[index] == CaseStatus::NotRequired && env["numerical_quality"]["cases"][quality_index]["solve_quality"] != "checks_passed" {
+            return Err(assoc("cases[].status"));
+        }
+        ordinary.push(entry);
+        quality.push(quality_index);
+    }
+    // Each product attempt, in start order, on its case's own slot.
+    let mut sources: Vec<Option<Value>> = vec![None; inv.sources().len()];
+    let mut product_attempts = Vec::with_capacity(attempts.len());
+    let mut case_parts: Vec<Option<Value>> = vec![None; count];
+    for attempt in attempts {
+        let request = attempt.request;
+        let ordinal = requests.iter().position(|r| *r == request).filter(|_| attempt.prepared);
+        let case_scope = pc.case_scope(request);
+        let diagnostic_ref = diagnostic_ids[request].clone();
+        let (attempt_v, source, part) = pc.with_case(request, |pc| {
+            serialize_attempt(&e, pc, attempt, inv, ordinal, &case_scope, staged, &env, case_ids[request], diagnostic_ref)
+        })?;
+        if let Some((index, source)) = source {
+            let slot = sources.get_mut(index).ok_or(assoc("sources[]"))?;
+            if slot.replace(source).is_some() {
+                return Err(assoc("sources[]"));
+            }
+        }
+        product_attempts.push(attempt_v);
+        case_parts[request] = Some(part);
+    }
+    let sources = sources.into_iter().collect::<Option<Vec<_>>>().ok_or(assoc("sources[]"))?;
+    // cases[]: one per requested case, in request order.
+    let mut cases_v = Vec::with_capacity(count);
+    for (index, part) in case_parts.into_iter().enumerate() {
+        let attempt_ref = attempt_of[index].map(|attempt| attempt.attempt);
+        let mut case_v = json!({"basis_ref":{"ref_type":"load_case","ref_id":case_ids[index]},
+            "ordinary":{"attempt_ref":index,"quality_binding":{"kind":"present","index":quality[index]}},"product_attempt_ref":attempt_ref});
+        let object = case_v.as_object_mut().ok_or(assoc("cases[]"))?;
+        match part {
+            Some(Value::Object(part)) => object.extend(part),
+            Some(_) => return Err(assoc("cases[]")),
+            None => {
+                object.insert("status".into(), json!("not_required"));
+            }
+        }
+        cases_v.push(case_v);
+    }
+    let last = inv.runs().last().ok_or(scope("cases[].run"))?;
+    let (calls, groups, builds, charged) = invocation_arrays(&e, inv, last, &requests)?;
+    let execution_order = inv.runs().iter().map(|run| match run.owner {
+        k::NativeOwner::Case(ordinal) => requests.get(ordinal).map(|request| json!({"kind":"case","index":request})),
+        k::NativeOwner::Combination(index) => Some(json!({"kind":"combination","index":index})),
+    }).collect::<Option<Vec<_>>>().ok_or(assoc("work.execution_order"))?;
+    let material = material_basis(&e, pc, raw, count)?;
+    finish(e, env, invocation, charged, json!(execution_order), cases_v, sources, material, (calls, groups, builds), ordinary,
+        product_attempts, legacy_source_work)
+}
+
+/// One case's Run in the invocation's one call (G-j): the kernel's Run for this case, owned by
+/// its batch ordinal.
+fn case_run<'a>(inv: &'a k::RecordedInvocation, case: &k::RecordedCase, ordinal: Option<usize>) -> Result<&'a k::RunOrigins, ReceiptFailure> {
+    let run = inv.runs().get(case.run).ok_or(fail(ReceiptCheck::Scope, "cases[].run"))?;
+    if run.id != case.run || run.call != 0 || !matches!((run.owner, ordinal), (k::NativeOwner::Case(i), Some(o)) if i == o) {
+        return Err(fail(ReceiptCheck::Association, "cases[].run.origin"));
+    }
+    Ok(run)
+}
+
+/// One product attempt's entries (T-11), on the capture with its case in place: its
+/// `product_attempts[]` entry, its `CaseSource` (by its index in `sources[]`) when it was
+/// submitted, and its case's status members.
+#[allow(clippy::too_many_arguments)]
+fn serialize_attempt(e: &Enc, pc: &rp::ProductCapture, attempt: &rp::CaseAttempt, inv: &k::RecordedInvocation, ordinal: Option<usize>,
+    case_scope: &rp::CaseScope, staged: &MechanicsEnvelope, env: &Value, case_id: &str, diagnostic_ref: Option<String>)
+    -> Result<(Value, Option<(usize, Value)>, Value), ReceiptFailure> {
+    let assoc = |p| fail(ReceiptCheck::Association, p);
+    let request = attempt.request;
+    let mut costs = rr::ProjectionWork::default();
+    if let rp::AttemptEnd::Frozen(frozen) = &attempt.end {
+        let case = pc.native.as_ref().ok_or(assoc("cases[].run"))?;
+        let k::ExecutionOutcome::Selected(owner) = &case.outcome else { return Err(fail(ReceiptCheck::Scope, "cases[].status")) };
+        // U2 (RV77-N4): the proof must have started on this selected owner's own solve.
+        let certificate = frozen.certificate();
+        if !certificate.owner_matches(owner) {
+            return Err(assoc("cases[].selection.owner"));
+        }
+        if !certificate.passed() {
+            return Err(assoc("cases[].selection.certificate"));
+        }
+        let run = case_run(inv, case, ordinal)?;
+        let view = attempt.typed_trace(pc, &mut costs).map_err(|_| assoc("product_attempts[]"))?;
+        // Row bindings: the producer's own QuantityId/recipe binding of the case's staged rows.
+        let rows = pc.bind_rows_scoped(staged, case_scope, owner).map_err(|_| assoc("cases[].selection.absolute_verified"))?;
+        let results = env["results"].as_array().ok_or(assoc("results"))?;
+        let results = results.get(case_scope.row_range(results.len())).ok_or(assoc("results"))?;
+        let row_ids: Vec<String> = results.iter().map(|r| r["id"].as_str().map(str::to_owned)).collect::<Option<_>>().ok_or(assoc("results[].id"))?;
+        if rows.len() != row_ids.len() || rows.iter().zip(&row_ids).any(|(r, id)| r.id != id.as_str()) {
+            return Err(assoc("cases[].selection.absolute_verified"));
+        }
+        let recipes: Vec<k::ProductRecipe> = rows.iter().map(|r| r.recipe).collect();
+        let (records, terminal) = kernel_outcome(e, &case.outcome);
+        let run_v = run_value(e, run, records, terminal, request)?;
+        let mut source = case_source(e, pc, owner.source(), inv, run, request, case_id, &view)?;
+        let attempt_v = product_attempt(e, &view, attempt.attempt, request, Some(run.source), Some(case.run), json!({"kind":"ready"}), pc);
+        bind_preparation(&mut source, &attempt_v, attempt.attempt)?;
+        let source_identity = {
+            let mut binding = source.clone();
+            binding.as_object_mut().ok_or(assoc("sources[]"))?.remove("index");
+            domain_hash("retained_precision_source_mp_v2", &binding).ok_or(fail(ReceiptCheck::Encoding, "cases[].source_identity_sha256"))?
+        };
+        let selection_v = selection(e, owner, pc, &view, certificate.verdicts(), &recipes, &row_ids)?;
+        let part = json!({"status":"selected","method":METHOD,"run":run_v,"source_ref":run.source,"source_identity_sha256":source_identity,"selection":selection_v});
+        return Ok((attempt_v, Some((run.source, source)), part));
+    }
+    let diagnostic_ref = diagnostic_ref.ok_or(assoc("cases[].diagnostic_ref"))?;
+    let selected_owner = pc.native.as_ref().and_then(|case| match &case.outcome { k::ExecutionOutcome::Selected(o) => Some(&**o), _ => None });
+    // U2 on the failure path: refused proof work and any certificate bind to the selected
+    // owner structurally (before any projection reads them).
+    if let rp::AttemptEnd::Candidate(refused) = &attempt.end {
+        let bound = |matches: &dyn Fn(&k::RetainedSolve) -> bool| selected_owner.is_some_and(matches);
+        if refused.proof_failure().is_some_and(|f| !bound(&|o| f.owner_matches(o))) {
+            return Err(assoc("product_attempts[].proof.owner"));
+        }
+        if refused.certificate().is_some_and(|c| !bound(&|o| c.owner_matches(o))) {
+            return Err(assoc("product_attempts[].proof.owner"));
+        }
+    }
+    let view = attempt.typed_trace(pc, &mut costs).map_err(|_| assoc("product_attempts[]"))?;
+    let rr::ResultRef::Unavailable(failure) = &view.result else { return Err(assoc("product_attempts[].result")) };
+    let error = public_error(e, failure, pc);
+    let cause = json!({"kind":"prepared_product_failure","product_attempt_ref":attempt.attempt});
+    match pc.native.as_ref() {
+        // T-7: preparation refused, so no CaseSource, Run or execution entry.
+        None => {
+            if matches!(failure, rr::FailureRef::Preparation { capture: rp::CaptureError::Source(_), .. }) {
+                return Err(fail(ReceiptCheck::Untranslated, "cases[].source_decline"));
+            }
+            if view.prepared_source.is_some() || ordinal.is_some() {
+                return Err(fail(ReceiptCheck::Untranslated, "sources[].kernel_source_sha256"));
+            }
+            let attempt_v = product_attempt(e, &view, attempt.attempt, request, None, None, json!({"kind":"unavailable","error":error}), pc);
+            let part = json!({"status":"unavailable","reason":{"code":"source_unavailable","phase":"preparation","cause":cause},
+                "diagnostic_ref":diagnostic_ref,"run":null,"source_ref":null});
+            Ok((attempt_v, None, part))
+        }
+        // T-8 (a Run not selected) or T-9 (refused after a selected Run).
+        Some(case) => {
+            let run = case_run(inv, case, ordinal)?;
+            let (records, terminal) = kernel_outcome(e, &case.outcome);
+            let kind = terminal["kind"].as_str().unwrap_or_default().to_owned();
+            let run_v = run_value(e, run, records, terminal, request)?;
+            let source = match selected_owner { Some(owner) => owner.source(), None => view.prepared_source.ok_or(assoc("sources[]"))? };
+            let mut source_v = case_source(e, pc, source, inv, run, request, case_id, &view)?;
+            // The readers' accepted D4d table (S06): a nonselected Run is the kernel's;
+            // after a selected Run, the facade's.
+            let code = match (error["kind"].as_str(), kind.as_str()) {
+                (Some("preparation"), _) => return Err(assoc("product_attempts[].result")),
+                (_, "selected") => ("facade_certificate".to_owned(), "facade"),
+                (_, other) => (format!("kernel_{other}"), "kernel"),
+            };
+            let attempt_v = product_attempt(e, &view, attempt.attempt, request, Some(run.source), Some(case.run), json!({"kind":"unavailable","error":error}), pc);
+            if view.members.iter().all(|m| matches!(m.result, rr::PreparationResult::Prepared(_))) {
+                bind_preparation(&mut source_v, &attempt_v, attempt.attempt)?;
+            }
+            let part = json!({"status":"unavailable","reason":{"code":code.0,"phase":code.1,"cause":cause},
+                "diagnostic_ref":diagnostic_ref,"run":run_v,"source_ref":run.source});
+            Ok((attempt_v, Some((run.source, source_v)), part))
+        }
+    }
 }
 
 /// Test access to the D39 mapping with its first-failure encoder.
@@ -1980,7 +2302,8 @@ pub(super) fn test_after_conserved(before: u64, increment: u64, after: u64) -> (
 #[cfg(test)]
 pub(super) fn test_invocation_arrays(inv: &k::RecordedInvocation, run: &k::RunOrigins) -> Result<u64, ReceiptFailure> {
     let e = Enc::default();
-    let (_, _, _, charged) = invocation_arrays(&e, inv, run)?;
+    // The one-case call: its one Run's owner is request index 0.
+    let (_, _, _, charged) = invocation_arrays(&e, inv, run, &[0])?;
     e.finish()?;
     Ok(charged)
 }

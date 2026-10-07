@@ -406,7 +406,9 @@ fn u3_n9_single_parse_custody() {
         "(None, Some(request)) => ordinary_dispatch(request, &capture, solver_mode, Some(report), Some(Err(W1Fallback::StackReservation))),",
         "run_linear_static_preview_observed(request, solver_mode, Some(capture), &mut budget, Some(&mut observer))",
         "Some(Ok(())) => retained_w1(observer, ordinary, capture),",
-        "retained_wire::serialize_frozen(&frozen, &staged, capture)",
+        // B1 SP (T-11): the n-case serializer over the transaction replaces the one-case
+        // `serialize_frozen`; the call still takes the parse's borrowed half.
+        "retained_wire::serialize_cases(&mut prepared, &staged, capture)",
         // ROOT's flag: the permitted work carries the armed test hooks, and (RV85 U2)
         // the caller re-arms the unfired ones after the hop.
         "on_reserved_stack(bytes, carry_test_hooks(move || {",
@@ -482,6 +484,11 @@ fn u3_capture_permit_is_linear() {
 /// and its classification and standing are unchanged: on the Sensitive milestone and
 /// on an exportable (checks-passed) solve. The negative control shows the same readers
 /// do refuse a malformed notice. `I61_R2_OUT` writes the bytes for the evidence lanes.
+///
+/// B1 SP (DESIGN_v2 T-12; RV105 N-4): W-C2's base carries several N1 notices, one per case in
+/// A (case-a's, then case-c's), plain, or with C1:68's detail on the selected case-a's notice
+/// only. The same readers accept it with the same contract and standing; the bytes are written
+/// out (`w_c2_noticed_*`) for SR-PY and SR-TS.
 #[test]
 fn u3_r2_base_readers_accept_the_unavailable_notice() {
     use open_pipe_stress_result_export::semantic_contract as sc;
@@ -495,8 +502,10 @@ fn u3_r2_base_readers_accept_the_unavailable_notice() {
         }
     }
     let mut standings = std::collections::BTreeSet::new();
-    for (label, raw) in [("milestone", raw()), ("exportable", exportable)] {
+    for (label, raw) in [("milestone", raw()), ("exportable", exportable), ("w_c2", w_c2())] {
         let case = raw["model"]["load_cases"][0]["id"].as_str().unwrap().to_owned();
+        // T-12: the notices of A, in request order (W-C2: A and C; otherwise the one case).
+        let noticed_cases: Vec<String> = if label == "w_c2" { vec!["case-a".into(), "case-c".into()] } else { vec![case.clone()] };
         let bases: Vec<Value> = raw["model"]["load_cases"].as_array().unwrap().iter().map(|c| json!({"ref_type":"load_case","ref_id":c["id"]})).collect();
         for mode in MODES {
             let base = serde_json::to_value(run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
@@ -506,7 +515,11 @@ fn u3_r2_base_readers_accept_the_unavailable_notice() {
             let receipt = format!("{PLAIN} Reason: receipt_encoding; detail: work_counter_inconsistent.");
             for message in [PLAIN, receipt.as_str()] {
                 let mut noticed = base.clone();
-                noticed["diagnostics"].as_array_mut().unwrap().push(notice(&case, message, json!([case])));
+                for (k, case) in noticed_cases.iter().enumerate() {
+                    // The detail goes only on the first (selected) case's notice.
+                    let text = if k == 0 { message } else { PLAIN };
+                    noticed["diagnostics"].as_array_mut().unwrap().push(notice(case, text, json!([case])));
+                }
                 assert_eq!(sc::for_source(&noticed), sc::for_source(&base), "{label} {mode:?}: admitted with the same contract");
                 assert_eq!(sc::standing_reason(&noticed), sc::standing_reason(&base));
                 let standing = sc::numerical_use_standing_with_context(&noticed, &bases, Some(&invocation));
@@ -1486,7 +1499,7 @@ fn b1_sp_t5_one_reserved_notice_per_case_in_a() {
         let before = serde_json::to_vec(&ordinary).unwrap();
         let notices = ReservedNotices::reserve(&mut ordinary, &ids[..count]).unwrap_or_else(|| panic!("{count} notices"));
         assert!(ordinary.diagnostics.capacity() >= ordinary.diagnostics.len() + count, "{count}: every slot reserved before W1");
-        let (published, cause) = notices.publish(ordinary, W1Fallback::Preparation);
+        let (published, cause) = notices.publish(ordinary, W1Fallback::Preparation, 0);
         assert_eq!(cause.err(), Some(W1Fallback::Preparation));
         let mut expected = before;
         for id in &ids[..count] {
@@ -1537,4 +1550,219 @@ fn b1_sp_domain_recheck_names_the_requested_cases() {
     let mut combined = raw();
     combined["model"]["combinations"] = json!([{"id":"combo","basis":"mechanics","terms":[{"load_case":"case","factor":1.0}]}]);
     assert_eq!(ids(&combined), None, "a combination");
+}
+
+// ---- B1 SP (I85): the n-case transaction, T-8 to T-13 -----------------------------------------
+//
+// PLAN_v2 §2.2's tests. Before I2 (`LOAD_CASES` = 1), W-C2 reaches the transaction only below
+// `retained_w1`, through `w1_transaction` (T-6 to T-11), which returns the cause and the selected
+// attempts that T-12 publishes with. After I2, the same input runs through `retained_w1` with its
+// notices (`b1_sp_w_c2_through_retained_w1_publishes_t12`). Before SR-RS (I3) the accepted Rust
+// reader refuses W-C2's successor at precommit, so its per-case outcomes are read from the
+// successor that precommit received (RV107 A1-N-1: `hooks::counted_with_successor`).
+
+/// The successor body's per-case facts that PLAN_v2's W-C2 and ordinal-mapping checks read.
+fn w_c2_body(successor: &Value) -> &Value {
+    &successor["retained_precision"]["body"]
+}
+fn case_ref(index: usize) -> Value {
+    json!({"kind":"case","index":index})
+}
+/// One kernel outcome's comparable facts (PLAN_v2 N-16): the terminal (kind and reason), the
+/// physical attempt count, and the selected precision.
+fn outcome_facts(outcome: &k::ExecutionOutcome) -> (String, usize, Option<u32>) {
+    match outcome {
+        k::ExecutionOutcome::Selected(owner) => ("selected".into(), owner.evidence().attempts.len(), Some(owner.evidence().selected_precision)),
+        k::ExecutionOutcome::Refused { refusal, attempts, .. } => (format!("refused {refusal:?}"), attempts.len(), None),
+        k::ExecutionOutcome::Unresolved { reason, attempts, .. } => (format!("unresolved {reason:?}"), attempts.len(), None),
+    }
+}
+/// The one-case native outcome of `raw` (one requested case), through the one-case private driver.
+fn one_case_outcome(raw: &Value, mode: PreviewSolverMode) -> (String, usize, Option<u32>) {
+    let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+    let mut prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|_| panic!("one-case preparation"));
+    let _ = prepared.solve_native();
+    outcome_facts(&prepared.capture().native.as_ref().expect("one Run").outcome)
+}
+
+/// W-C2 (PLAN_v2 §2.2, N-1, N-2, N-16) below `retained_w1`, both modes, with A = {A, C}:
+/// - T-8: one call over A's and C's prepared sources; A's Run ends `selected`, C's
+///   `unresolved {space: unresolved, tag: ceiling}`; T-9 freezes A.
+/// - Before SR-RS the precommit refuses (`G5`, `RETAINED_PRECISION_ATTEMPT_MISMATCH`: B's
+///   `not_required`), with A the selected attempt (bit 0), and the ordinary owner untouched.
+/// - The successor precommit received: A `selected`, B `not_required` (no product attempt), C
+///   `unavailable` (`kernel_unresolved`, its Run and source).
+/// - **The ordinal mapping (N-2):** the batch ordinals {0, 1} name request indices {0, 2} in the
+///   Runs' owners, the call's `owner_refs`, `work.execution_order`, the sources' owners and the
+///   product attempts; each source's preparation names its attempt (T-7's `attempt_ref`).
+/// - One material basis for every case, one group (one stiffness), and `charged` = the call's
+///   `invocation_after`.
+/// - **The record point (T-11):** C's snapshot is taken at its Run (T-8), before A's freeze, so
+///   it records fewer adapter events than A's, taken at A's last proof stage.
+/// - **N-16:** each Run's outcome equals the case's one-case outcome (terminal, physical attempts,
+///   selected precision); a difference would be a finding for ROOT, not a pin.
+/// - Staging order (T-11): A's selected diagnostic, then C's unavailable diagnostic, last.
+#[test]
+fn b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping() {
+    let raw = w_c2();
+    for mode in MODES {
+        let label = format!("{mode:?}");
+        let plain = plain(mode, &raw);
+        let (capture, observer, ordinary) = observed(mode, &raw);
+        let ((envelope, outcome), counts, successor) = hooks::counted_with_successor(|| w1_transaction(observer, ordinary, &capture, 3, &[0, 2]));
+        assert_eq!(counts, Counts { runs: 0, complete_gates: 0 }, "{label}: no ordinary run inside the transaction");
+        assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{label}: the ordinary owner is untouched");
+        assert_eq!(outcome.err(), Some((W1Fallback::Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH".into() }, 0b01)),
+            "{label}: before SR-RS, B's not_required fails G5; A was selected");
+        let successor = successor.unwrap_or_else(|| panic!("{label}: precommit received the successor"));
+        let body = w_c2_body(&successor);
+        let cases = body["cases"].as_array().unwrap();
+        assert_eq!(cases.iter().map(|c| c["status"].as_str().unwrap()).collect::<Vec<_>>(), ["selected", "not_required", "unavailable"], "{label}");
+        assert_eq!(cases.iter().map(|c| c["basis_ref"]["ref_id"].as_str().unwrap()).collect::<Vec<_>>(), W_C2_IDS, "{label}");
+        assert_eq!(cases.iter().map(|c| c["ordinary"]["attempt_ref"].clone()).collect::<Vec<_>>(), [json!(0), json!(1), json!(2)], "{label}");
+        assert_eq!(cases.iter().map(|c| c["product_attempt_ref"].clone()).collect::<Vec<_>>(), [json!(0), Value::Null, json!(1)], "{label}");
+        assert_eq!(cases[1].as_object().unwrap().len(), 4, "{label}: not_required carries basis, ordinary, attempt ref and status only");
+        assert_eq!(cases[0]["run"]["kernel_terminal"]["kind"], "selected", "{label}");
+        assert_eq!(cases[2]["run"]["kernel_terminal"], json!({"kind":"unresolved","reason":{"space":"unresolved","tag":"ceiling"}}), "{label}");
+        assert_eq!(cases[2]["reason"], json!({"code":"kernel_unresolved","phase":"kernel","cause":{"kind":"prepared_product_failure","product_attempt_ref":1}}), "{label}");
+        assert_eq!((cases[0]["source_ref"].clone(), cases[2]["source_ref"].clone()), (json!(0), json!(1)), "{label}");
+        // N-2: ordinals {0, 1} are request indices {0, 2}.
+        assert_eq!((cases[0]["run"]["origin"]["owner_ref"].clone(), cases[2]["run"]["origin"]["owner_ref"].clone()), (case_ref(0), case_ref(2)), "{label}");
+        assert_eq!(body["calls"].as_array().unwrap().len(), 1, "{label}: one CaseBatchCall");
+        assert_eq!(body["calls"][0]["owner_refs"], json!([case_ref(0), case_ref(2)]), "{label}");
+        assert_eq!(body["work"]["execution_order"], json!([case_ref(0), case_ref(2)]), "{label}");
+        let sources = body["sources"].as_array().unwrap();
+        assert_eq!(sources.iter().map(|s| (s["index"].clone(), s["owner"]["case_index"].clone(), s["owner"]["case_id"].clone(), s["preparation"]["attempt_ref"].clone()))
+            .collect::<Vec<_>>(), [(json!(0), json!(0), json!("case-a"), json!(0)), (json!(1), json!(2), json!("case-c"), json!(1))], "{label}: registration order, attempt refs");
+        let attempts = body["product_attempts"].as_array().unwrap();
+        assert_eq!(attempts.iter().map(|a| (a["id"].clone(), a["owner_ref"].clone(), a["ordinary_attempt_ref"].clone(), a["source_ref"].clone(), a["run_ref"].clone()))
+            .collect::<Vec<_>>(), [(json!(0), case_ref(0), json!(0), json!(0), cases[0]["run"]["id"].clone()), (json!(1), case_ref(2), json!(2), json!(1), cases[2]["run"]["id"].clone())],
+            "{label}: start order");
+        assert_eq!(body["ordinary_attempts"].as_array().unwrap().iter().map(|o| o["case_id"].as_str().unwrap()).collect::<Vec<_>>(), W_C2_IDS, "{label}");
+        assert_eq!(body["material_bases"].as_array().unwrap().len(), 1, "{label}");
+        assert_eq!(body["material_bases"][0]["case_indices"], json!([0, 1, 2]), "{label}");
+        assert_eq!(body["groups"].as_array().unwrap().len(), 1, "{label}: D1.5's one stiffness, one group");
+        assert_eq!(body["groups"][0]["source_refs"], json!([0, 1]), "{label}");
+        assert_eq!(body["work"]["charged"], body["calls"][0]["invocation_after"], "{label}");
+        // The record point: C's snapshot (its Run) precedes A's freeze.
+        let counts = |a: &Value| a["adapter"]["counts"].as_array().unwrap().iter().map(|n| n.as_u64().unwrap()).collect::<Vec<_>>();
+        let (a_counts, c_counts) = (counts(&attempts[0]), counts(&attempts[1]));
+        assert!(c_counts.iter().zip(&a_counts).all(|(c, a)| c <= a) && c_counts[1] < a_counts[1], "{label}: C {c_counts:?} before A {a_counts:?}");
+        assert_eq!(attempts[1]["stages"]["native"], "failed", "{label}");
+        assert_eq!(attempts[1]["stages"]["proof_start"], "not_entered", "{label}");
+        // Staging order: A's selected diagnostic, then C's unavailable one, last.
+        let diagnostics = successor["diagnostics"].as_array().unwrap();
+        let tail: Vec<_> = diagnostics[diagnostics.len() - 2..].iter().map(|d| d["id"].as_str().unwrap()).collect();
+        assert_eq!(tail, ["diagnostic:retained-precision:case-a:selected", "diagnostic:retained-precision:case-c:unavailable"], "{label}");
+        assert!(successor["results"].as_array().unwrap().iter().all(|r| r.get("recovery_method").is_some()
+            == (r["basis_ref"]["ref_id"] == "case-a")), "{label}: the method token on A's rows only");
+        // N-16: the batch Runs against the one-case Runs.
+        let (_, observer, ordinary) = observed(mode, &raw);
+        let mut prepared = observer.prepare_cases(ordinary, 3, &[0, 2]).unwrap_or_else(|f| panic!("{label}: {:?}", f.error));
+        prepared.native();
+        let batch_facts: Vec<_> = [0, 2].into_iter().map(|r| outcome_facts(&prepared.capture.with_case(r, |c| c.native.clone()).unwrap().outcome)).collect();
+        let single = [one_case_outcome(&u8_two_body_case_a(), mode), one_case_outcome(&w_c2_case_c(), mode)];
+        println!("B1_SP_N16 {label} batch={batch_facts:?} one_case={single:?}");
+        assert_eq!(batch_facts, single, "{label}: N-16, the batch Runs' outcomes are the one-case outcomes");
+        assert_eq!(batch_facts[1].0, "unresolved Ceiling", "{label}");
+        println!("B1_SP_WC2 {label} statuses={:?} owner_refs={} charged={} a_counts={a_counts:?} c_counts={c_counts:?}",
+            cases.iter().map(|c| c["status"].as_str().unwrap()).collect::<Vec<_>>(), body["calls"][0]["owner_refs"], body["work"]["charged"]);
+        assert!(hooks::armed_names().is_empty(), "{label}");
+    }
+}
+
+/// The W-C2 transaction's faults below `retained_w1` (sparse): each gives its T-12 cause and the
+/// selected attempts T-12 places C1:68's detail on (bit 0: A), with the ordinary owner untouched
+/// and every armed fault fired. Decision 5's abandonment set is each of them:
+/// - T-6 custody (case B's tampered observation): `Preparation`, nothing selected;
+/// - T-7 on C (`fail_preparation_of_case(2)`): A still selected, C `unavailable` at preparation,
+///   with no `CaseSource`, Run, run or source reference, and one call over A alone;
+/// - T-7 on A: only C's Run, which is not selected, so no case is selected: `Native` (T-10);
+/// - a T-8 call failure (the first prepared source withdrawn: D38's hook shape): `Native`;
+/// - staging, each serializer refusal, and precommit: A selected (bit 0);
+/// - the R-b′ limit (DESIGN_v2 N-5): B, not attempted, with `recovery_demoted`, abandons A's
+///   successor (`Untranslated`, `ordinary_attempts[].formation.recovery_finding`).
+#[test]
+fn b1_sp_w_c2_transaction_faults_and_abandonment() {
+    use super::retained_wire::{ReceiptCheck as C, ReceiptFailure};
+    let mode = PreviewSolverMode::SparseInteractive;
+    let raw = w_c2();
+    let plain = plain(mode, &raw);
+    let run = |prepare: &dyn Fn(&mut rp::ProductCapture)| {
+        let (capture, mut observer, ordinary) = observed(mode, &raw);
+        prepare(&mut observer);
+        let ((envelope, outcome), _, successor) = hooks::counted_with_successor(|| w1_transaction(observer, ordinary, &capture, 3, &[0, 2]));
+        assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "the ordinary owner is untouched");
+        assert!(hooks::armed_names().is_empty(), "every armed fault fired: {:?}", hooks::armed_names());
+        (outcome.err().expect("abandoned"), successor)
+    };
+    let tamper = |o: &mut rp::ProductCapture| o.with_case(1, |c| c.observations.as_mut().unwrap().mode_row.value_bits = 7f64.to_bits());
+    assert_eq!(run(&tamper).0, (W1Fallback::Preparation, 0), "T-6 custody");
+    // T-7 beside a selected case: C's preparation fails, A's successor goes on.
+    hooks::fail_preparation_of_case(2);
+    let (cause, successor) = run(&|_| ());
+    assert_eq!(cause, (W1Fallback::Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH".into() }, 0b01), "T-7 on C");
+    let successor = successor.expect("precommit received the successor");
+    let body = w_c2_body(&successor);
+    assert_eq!(body["cases"][2]["status"], "unavailable");
+    assert_eq!(body["cases"][2]["reason"], json!({"code":"source_unavailable","phase":"preparation","cause":{"kind":"prepared_product_failure","product_attempt_ref":1}}));
+    assert_eq!((body["cases"][2]["run"].clone(), body["cases"][2]["source_ref"].clone()), (Value::Null, Value::Null));
+    assert_eq!(body["sources"].as_array().unwrap().len(), 1, "no CaseSource for C");
+    assert_eq!(body["sources"][0]["owner"]["case_index"], 0);
+    assert_eq!((body["product_attempts"][1]["source_ref"].clone(), body["product_attempts"][1]["run_ref"].clone()), (Value::Null, Value::Null));
+    assert_eq!(body["product_attempts"][1]["stages"]["preparation"], "failed");
+    assert_eq!(body["product_attempts"][1]["result"]["error"]["kind"], "preparation");
+    assert_eq!((body["calls"][0]["owner_refs"].clone(), body["work"]["execution_order"].clone()), (json!([case_ref(0)]), json!([case_ref(0)])), "one call over A alone");
+    hooks::fail_preparation_of_case(0);
+    assert_eq!(run(&|_| ()).0, (W1Fallback::Native, 0), "T-7 on A: no case selected, C's Run reached");
+    hooks::withdraw_next_native_source();
+    assert_eq!(run(&|_| ()).0, (W1Fallback::Native, 0), "a T-8 call failure");
+    hooks::break_next_staging();
+    assert_eq!(run(&|_| ()).0, (W1Fallback::Staging(rp::StagingFault("pipe_stress_extrema[]")), 0b01), "staging");
+    for check in [C::WorkCounterRange, C::WorkCounterInconsistent, C::SaturationNotExcluded, C::PublicationHashRange, C::Encoding, C::Untranslated, C::Scope, C::Association] {
+        hooks::fail_next_serializer(check);
+        assert_eq!(run(&|_| ()).0, (W1Fallback::Serializer(ReceiptFailure { check, field_path: "cases[].run.invocation_after" }), 0b01), "serializer {check:?}");
+    }
+    hooks::corrupt_next_precommit();
+    let (cause, selected) = run(&|_| ()).0;
+    assert!(matches!(cause, W1Fallback::Precommit { gate: "G1", .. }) && selected == 0b01, "precommit: {cause:?}");
+    let demoted = |o: &mut rp::ProductCapture| o.ordinary[1].recovery_demoted = true;
+    assert_eq!(run(&demoted).0, (W1Fallback::Serializer(ReceiptFailure { check: C::Untranslated, field_path: "ordinary_attempts[].formation.recovery_finding" }), 0b01),
+        "the R-b′ limit: B's demotion abandons A's successor");
+}
+
+/// W-C2 through `retained_w1` (after I2: SA's C = 3). Before I2 the domain re-check refuses it
+/// (`Domain`, exact bytes; RV107 A1-S-2). After I2, both modes:
+/// - T-4: A = {A, C}; with `.all` for `.any` (RV109's R17) W-C2 would be `NoTriggeredCase`;
+/// - before SR-RS, the precommit's refusal publishes the ordinary bytes, then the two N1 notices
+///   (case-a's, then case-c's), both plain (T-12);
+/// - a serializer refusal with C1:68's detail puts it on A's notice only (selected), C's plain;
+///   one without a detail leaves both plain; a T-8 call failure leaves both plain.
+#[test]
+fn b1_sp_w_c2_through_retained_w1_publishes_t12() {
+    use super::retained_wire::ReceiptCheck as C;
+    let raw = w_c2();
+    for mode in MODES {
+        let plain = plain(mode, &raw);
+        let run = || {
+            let (capture, observer, ordinary) = observed(mode, &raw);
+            let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+            assert!(hooks::armed_names().is_empty(), "{mode:?}: every armed fault fired");
+            (String::from_utf8(serde_json::to_vec(&envelope).unwrap()).unwrap(), retained.err())
+        };
+        if crate::retained_memory::caps::LOAD_CASES < W_C2_IDS.len() {
+            assert_eq!(run(), (String::from_utf8(plain.clone()).unwrap(), Some(W1Fallback::Domain)), "{mode:?}: before I2");
+            continue;
+        }
+        let noticed = |detail: Option<&str>| String::from_utf8(with_notice(&with_notice(&plain, "case-a", detail), "case-c", None)).unwrap();
+        let (bytes, cause) = run();
+        assert_eq!(cause, Some(W1Fallback::Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH".into() }), "{mode:?}: not NoTriggeredCase (R17)");
+        assert_eq!(bytes, noticed(None), "{mode:?}: two plain notices");
+        hooks::fail_next_serializer(C::WorkCounterInconsistent);
+        assert_eq!(run().0, noticed(Some("work_counter_inconsistent")), "{mode:?}: the detail on A's notice only");
+        hooks::fail_next_serializer(C::Association);
+        assert_eq!(run().0, noticed(None), "{mode:?}: no detail");
+        hooks::withdraw_next_native_source();
+        assert_eq!(run(), (noticed(None), Some(W1Fallback::Native)), "{mode:?}: a T-8 call failure");
+    }
 }
