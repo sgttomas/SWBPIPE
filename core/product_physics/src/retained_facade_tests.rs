@@ -1140,8 +1140,9 @@ fn classified(quality: &NumericalQuality, seeds: &[rp::OrdinarySeed], ids: &[&st
 
 /// T-4's unit tests (PLAN_v2 §2.1's list): each published verdict; W2-published Passed; report
 /// Passed; the verdict, not the seed's `initial`, decides; each excluded tag with and without W2;
-/// the other failure tags; no seed; quality entries and seeds out of request order, which the
-/// case-id lookup reads correctly; and an entry or seed that is not unique.
+/// the other failure tags; no seed (in A, unless the verdict is Passed); quality entries and seeds
+/// out of request order, which the case-id lookup reads correctly; and an entry or seed that is
+/// not unique.
 #[test]
 fn b1_t4_classifier_reads_the_published_verdict_by_case_id() {
     use CaseTrigger::{Attempted, Excluded, NotRequired};
@@ -1195,6 +1196,8 @@ fn b1_t4_classifier_reads_the_published_verdict_by_case_id() {
     // (RR "I81's B1-0 probe verified…", ruling 2), and with no quality entry either.
     assert_eq!(one(Some(V::NotAssessed), None), Attempted, "no seed");
     assert_eq!(one(Some(V::Failed), None), Attempted, "no seed, Failed");
+    // A Passed verdict decides alone: with no seed the case is still `not_required` (RV109 N-1).
+    assert_eq!(one(Some(V::ChecksPassed), None), NotRequired, "Passed with no seed");
     assert_eq!(one(None, None), Attempted, "no entry and no seed");
     // Request order a, b, c, d; quality entries and seeds in other orders. Positions would read
     // c's verdict for a, a's for b and b's for c.
@@ -1215,50 +1218,81 @@ fn b1_t4_classifier_reads_the_published_verdict_by_case_id() {
     assert_eq!(classified(&quality_of(vec![verdict_entry("case", V::Failed)]), &[mechanism(), mechanism()], &["case"]), [Attempted], "two seeds for one case");
 }
 
+/// B1 ST (T-4; RR "I81's B1-0 probe verified…", ruling 4): a `NoTriggeredCase` pin on a real
+/// one-case input whose published verdict is `checks_passed`, in both modes. A is empty, so:
+/// - **The private driver, in every build:** `retained_w1` returns `NoTriggeredCase` with the
+///   ordinary owner's exact bytes, and no W1 stage runs (an armed native-stage fault stays armed).
+/// - **T-4 runs before R-2's reservation** (ST repair 1, RV109 SF-1). After `NoTriggeredCase` the
+///   owner's diagnostics capacity is unchanged and equal to its length: no slot was reserved. And
+///   when the base already carries the notice's id, the cause is still `NoTriggeredCase` with the
+///   exact bytes; a reservation ahead of T-4 would end at `NoticeReservation` there.
+/// - **The actual Direct entry:** in the registered build it is admitted and publishes the exact
+///   ordinary bytes, with no notice and no W1 work, from one ordinary run that reached G-C once. In
+///   any other build it publishes the plain bytes from one run.
+///
+/// `input_sha256` is the input's PROBE pin (`serde_json::to_vec`).
+pub(super) fn assert_no_triggered_case_pin(label: &str, raw: &Value, input_sha256: &str) {
+    assert_eq!(sha(&serde_json::to_vec(raw).unwrap()), input_sha256, "{label}: PROBE's input");
+    let case = raw["model"]["load_cases"][0]["id"].as_str().unwrap();
+    for mode in MODES {
+        let plain = plain(mode, raw);
+        // The private driver. The native-stage fault is a sentinel: it fires only if W1 reaches native.
+        let (capture, observer, ordinary) = observed(mode, raw);
+        assert_eq!(serde_json::to_vec(&ordinary).unwrap(), plain, "{label} {mode:?}: the observed run is the plain run");
+        assert_eq!(ordinary.numerical_quality.cases.iter().map(|c| (c.basis_ref.ref_id.as_str(), c.solve_quality)).collect::<Vec<_>>(),
+            [(case, NumericalQualityStatus::ChecksPassed)], "{label} {mode:?}: the published verdict");
+        let capacity = ordinary.diagnostics.capacity();
+        assert_eq!(capacity, ordinary.diagnostics.len(), "{label} {mode:?}: precondition: no spare diagnostics slot before W1");
+        hooks::withdraw_next_native_source();
+        let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+        assert_eq!(retained.err(), Some(W1Fallback::NoTriggeredCase), "{label} {mode:?}");
+        assert_eq!(String::from_utf8(serde_json::to_vec(&envelope).unwrap()).unwrap(), String::from_utf8(plain.clone()).unwrap(),
+            "{label} {mode:?}: the exact ordinary bytes, no notice");
+        assert_eq!((envelope.diagnostics.capacity(), envelope.diagnostics.len()), (capacity, capacity),
+            "{label} {mode:?}: T-4 precedes R-2: no diagnostics slot was reserved");
+        assert_eq!(hooks::armed_names(), ["native"], "{label} {mode:?}: no W1 stage ran");
+        hooks::disarm();
+        // The private driver, with the notice's id already in the base (R-2's collision).
+        let (capture, observer, mut ordinary) = observed(mode, raw);
+        ordinary.diagnostics.push(Diagnostic { id: format!("diagnostic:retained-precision:{case}:unavailable"), code: "X".into(),
+            severity: "info".into(), message: "m".into(), source: None, affected_refs: Vec::new() });
+        ordinary.diagnostics.shrink_to_fit();
+        let marked = serde_json::to_vec(&ordinary).unwrap();
+        let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+        assert_eq!(retained.err(), Some(W1Fallback::NoTriggeredCase), "{label} {mode:?}: T-4 precedes R-2's collision check");
+        assert_eq!(serde_json::to_vec(&envelope).unwrap(), marked, "{label} {mode:?}: the colliding base's exact bytes");
+        // The actual Direct entry.
+        hooks::withdraw_next_native_source();
+        let (output, counts) = direct(raw, mode);
+        if !registered() {
+            assert!(output.retained().is_none(), "{label} {mode:?}: no permit, no W1");
+            assert_eq!(counts, ONE_RUN, "{label} {mode:?}");
+        } else {
+            assert_eq!(output.admission().unwrap().law().refusal, None, "{label} {mode:?}: admitted (inside D1)");
+            assert_eq!(output.retained().and_then(|r| r.as_ref().err()), Some(&W1Fallback::NoTriggeredCase), "{label} {mode:?}");
+            assert!(output.successor().is_none(), "{label} {mode:?}");
+            assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{label} {mode:?}: one ordinary run, then G-C once");
+        }
+        assert_eq!(hooks::armed_names(), ["native"], "{label} {mode:?}: no W1 stage ran on the reserved-stack thread");
+        hooks::disarm();
+        let bytes = published(output);
+        assert_eq!(notices(&bytes), 0, "{label} {mode:?}: no notice");
+        assert_eq!(String::from_utf8(bytes).unwrap(), String::from_utf8(plain).unwrap(), "{label} {mode:?}: the exact ordinary bytes");
+    }
+}
+
 /// B1 ST (T-4; RR "I81's B1-0 probe verified…", ruling 4): two-body case B is W2-published with
 /// the published verdict `checks_passed` (PROBE §2.3), so it is `not_required` and A is empty:
-/// `NoTriggeredCase`. On the private driver, in every build, `retained_w1` returns that cause with
-/// the ordinary owner untouched and no W1 stage entered. On the actual Direct entry in the
-/// registered build it publishes the exact ordinary bytes, with no notice and no W1 work, from one
-/// ordinary run that reached G-C once; in any other build, the plain bytes from one run.
+/// the `NoTriggeredCase` pin above, on the private driver and the actual Direct entry.
 #[test]
 fn b1_t4_two_body_case_b_is_a_no_triggered_case_pin() {
     let raw = u8_two_body_case_b();
-    assert_eq!(sha(&serde_json::to_vec(&raw).unwrap()), TWO_BODY_B_INPUT_SHA256, "PROBE §2.3's two-body case B");
     for mode in MODES {
-        let plain = plain(mode, &raw);
-        // The private driver. The native-stage fault is a sentinel: it fires only if W1 reaches native.
-        let (capture, observer, ordinary) = observed(mode, &raw);
-        assert_eq!(serde_json::to_vec(&ordinary).unwrap(), plain, "{mode:?}: the observed run is the plain run");
-        assert_eq!(ordinary.numerical_quality.cases.iter().map(|c| (c.basis_ref.ref_id.as_str(), c.solve_quality)).collect::<Vec<_>>(),
-            [("case", NumericalQualityStatus::ChecksPassed)], "{mode:?}: the published verdict");
+        let (_, observer, _) = observed(mode, &raw);
         assert!(matches!(observer.ordinary.as_slice(), [rp::OrdinarySeed { initial: Some(rp::InitialSeed::StructuralFailure { .. }), w2: rp::W2Seed::Published { .. }, .. }]),
             "{mode:?}: W2-published");
-        hooks::withdraw_next_native_source();
-        let (envelope, retained) = retained_w1(observer, ordinary, &capture);
-        assert_eq!(retained.err(), Some(W1Fallback::NoTriggeredCase), "{mode:?}");
-        assert_eq!(String::from_utf8(serde_json::to_vec(&envelope).unwrap()).unwrap(), String::from_utf8(plain.clone()).unwrap(),
-            "{mode:?}: the exact ordinary bytes, no notice");
-        assert_eq!(hooks::armed_names(), ["native"], "{mode:?}: no W1 stage ran");
-        hooks::disarm();
-        // The actual Direct entry.
-        hooks::withdraw_next_native_source();
-        let (output, counts) = direct(&raw, mode);
-        if !registered() {
-            assert!(output.retained().is_none(), "{mode:?}: no permit, no W1");
-            assert_eq!(counts, ONE_RUN, "{mode:?}");
-        } else {
-            assert_eq!(output.admission().unwrap().law().refusal, None, "{mode:?}: admitted (inside D1)");
-            assert_eq!(output.retained().and_then(|r| r.as_ref().err()), Some(&W1Fallback::NoTriggeredCase), "{mode:?}");
-            assert!(output.successor().is_none(), "{mode:?}");
-            assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{mode:?}: one ordinary run, then G-C once");
-        }
-        assert_eq!(hooks::armed_names(), ["native"], "{mode:?}: no W1 stage ran on the reserved-stack thread");
-        hooks::disarm();
-        let bytes = published(output);
-        assert_eq!(notices(&bytes), 0, "{mode:?}: no notice");
-        assert_eq!(String::from_utf8(bytes).unwrap(), String::from_utf8(plain).unwrap(), "{mode:?}: the exact ordinary bytes");
     }
+    assert_no_triggered_case_pin("two-body B", &raw, TWO_BODY_B_INPUT_SHA256);
 }
 
 /// B1 ST (decision 21, and ruling 2 on a seedless case) through `retained_w1` on the private

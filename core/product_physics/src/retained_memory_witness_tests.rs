@@ -157,21 +157,28 @@ fn witness_w2_deep_milestone_publishes() {
 #[ignore]
 fn witness_w2b_cap_maximal_passed_report_no_triggered_case() {
     for mode in MODES {
-        let mut raw = super::law_tests::cap_maximal();
-        let supports = raw["model"]["supports"].as_array_mut().unwrap();
-        for (i, support) in supports.iter_mut().enumerate() {
-            // The milestone's support shapes: a rigid support without a family, and
-            // spring supports restraining exactly their stiffness DOF.
-            if i == 0 {
-                support.as_object_mut().unwrap().remove("stiffness");
-            } else {
-                support["family"] = json!("spring");
-                support["restraints"] = json!(["UY"]);
-            }
-        }
-        no_triggered_case_witness(&format!("W2b {mode:?}"), raw, mode, "d74d01ce1bc33244796877890ad134dd8476beb059bd82f26f2e004f8af619cb");
+        no_triggered_case_witness(&format!("W2b {mode:?}"), w2b_input(), mode, W2B_INPUT_SHA256);
     }
 }
+/// W2b's input: `law_tests::cap_maximal` with the milestone's support shapes.
+fn w2b_input() -> Value {
+    let mut raw = super::law_tests::cap_maximal();
+    let supports = raw["model"]["supports"].as_array_mut().unwrap();
+    for (i, support) in supports.iter_mut().enumerate() {
+        // The milestone's support shapes: a rigid support without a family, and
+        // spring supports restraining exactly their stiffness DOF.
+        if i == 0 {
+            support.as_object_mut().unwrap().remove("stiffness");
+        } else {
+            support["family"] = json!("spring");
+            support["restraints"] = json!(["UY"]);
+        }
+    }
+    raw
+}
+/// The PROBE pins (R/I81/b1_probe_01, `input_sha` lines) of W2b's and W6's PHYS-R4 inputs.
+const W2B_INPUT_SHA256: &str = "d74d01ce1bc33244796877890ad134dd8476beb059bd82f26f2e004f8af619cb";
+const W6_PHYS_R4_INPUT_SHA256: &str = "19a424c5ff064fa0010bcbb95b437e87092605e322f405e8252066995795e8f5";
 
 /// W3: an in-domain request whose legacy exact recovery selects (the X branch: T25's
 /// requested() calls, the commitment, the publication and body hashes).
@@ -254,8 +261,20 @@ fn witness_w6_force_scaled() {
 #[ignore]
 fn witness_w6_phys_r4_input_no_triggered_case() {
     for mode in MODES {
-        no_triggered_case_witness(&format!("W6-PHYS-R4 {mode:?}"), w6_input(), mode, "19a424c5ff064fa0010bcbb95b437e87092605e322f405e8252066995795e8f5");
+        no_triggered_case_witness(&format!("W6-PHYS-R4 {mode:?}"), w6_input(), mode, W6_PHYS_R4_INPUT_SHA256);
     }
+}
+
+/// B1 ST repair 1 (RV109 N-4): not a witness, and not `#[ignore]`. W2b's input (an ordinary
+/// Passed report at the cap-maximal counts) and W6's PHYS-R4 input (one-body, W2-published
+/// Passed) are `NoTriggeredCase` pins in the default suite, by the facade tests' pin: exact plain
+/// bytes, no notice, no reservation and no W1 work, on the private driver and the actual Direct
+/// entry, registered or Stale. They do no W1 work, so they carry no stack risk; the witnesses
+/// above keep them on the witness stack for G6.
+#[test]
+fn b1_t4_w2b_and_w6_phys_r4_inputs_are_no_triggered_case_pins() {
+    crate::retained_facade_tests::assert_no_triggered_case_pin("W2b's input", &w2b_input(), W2B_INPUT_SHA256);
+    crate::retained_facade_tests::assert_no_triggered_case_pin("W6's PHYS-R4 input", &w6_input(), W6_PHYS_R4_INPUT_SHA256);
 }
 
 /// W7: U3's fault-injection controls, carried onto the reserved thread: each stage's
