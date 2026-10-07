@@ -1196,6 +1196,7 @@ describe('B1 SR-TS: R-D38 (4b), F-1 text B per case and the not_required rule (r
       set(rb('ordinary_attempts', 1, 'initial'), { kind: 'structural_failure', error: { tag: 'range', detail: 'b1' }, diagnostic_ref: null }),
       set(rb('ordinary_attempts', 1, 'w2'), { kind: 'published', trigger: { tag: 'evaluation', error: { tag: 'range', detail: 'b1' } }, force_scale_exponent: 3, report_diagnostic_ref: report }),
     ];
+    const w2Failed = [w2[0], set(rb('ordinary_attempts', 1, 'w2'), { kind: 'failed', trigger: { tag: 'evaluation', error: { tag: 'range', detail: 'b1' } }, failure: { tag: 'not_engaged' }, diagnostic_ref: report })];
     const onDense = (rows: any[], extra: any[] = []) => entry(P_BASE, NOT_REQUIRED, [...dense, withRows(denseRows, rows), ...extra], toDense);
     const one = () => parityRow(UNAVAILABLE_ROW, 'result:b1:parity-1'), two = () => parityRow(UNAVAILABLE_ROW, 'result:b1:parity-2');
     const d = baseSource(DENSE), twice = { ...structuredClone(d.results[1]), id: 'result:b1:parity-twice' };
@@ -1207,6 +1208,8 @@ describe('B1 SR-TS: R-D38 (4b), F-1 text B per case and the not_required rule (r
       ['dense b = 0, no parity row on either case', onDense([]), { admitted: true }],
       ['dense b = 0, one parity row on the not_required case', onDense([one()]), { admitted: true }],
       ['dense, a W2-published not_required case without a parity row', onDense([], structuredClone(w2)), { admitted: true }],
+      // P4 reads published (b != 0), not triggered: a W2 that was triggered and failed published nothing, so b = 0.
+      ['dense b = 0, one parity row on a not_required case whose W2 failed', onDense([one()], structuredClone(w2Failed)), { admitted: true }],
       ['P2: two parity rows on the not_required case', onDense([one(), two()]), PREP],
       ['P4: a parity row on the W2-published not_required case', onDense([one()], structuredClone(w2)), PREP],
       ['P2: two parity rows on the dense selected case', entry(DENSE, null, [withRows(d, [twice])]), PREP],
