@@ -715,3 +715,82 @@ def test_r2_noticed_ordinary_envelope_keeps_its_base_behaviour(mode):
     assert record["analysis_run"]["diagnostics"][-1]["source_annotation"]["code"] == "RETAINED_PRECISION_UNAVAILABLE"
     assert "retained_precision" not in record["analysis_run"]
     assert all(c.rule_binding_refusal(noticed, row) is None for row in noticed["results"])
+
+
+# RV108 N1 (B1 SR-PY; RR "SR-PY prepared; the N1 guard in `_source_contract` ruled in"): a list- or
+# dict-valued enum in the base header. `_source_contract`'s membership tests raised TypeError on an
+# unhashable value; each now refuses a non-string with the base header code, as Rust and TS do.
+N1_FIELDS = [(["numerical_quality", "status"], "SOURCE_NUMERICAL_QUALITY_INVALID")] + [
+    (["numerical_quality", "cases", 0, key], "SOURCE_NUMERICAL_CASE_INVALID")
+    for key in ("solve_quality", "structural_status", "model_matrix_fidelity", "accuracy_evidence")]
+N1_UNHASHABLE = [[], {}, ["sensitive"], {"sensitive": 1}]
+
+
+def n1_edit(source, path, value):
+    source = deepcopy(source)
+    parent = source
+    for part in path[:-1]:
+        parent = parent[part]
+    parent[path[-1]] = deepcopy(value)
+    return source
+
+
+def value_error_only(fn, *args):
+    """A caller that catches ValueError only, as the v0.3 packager's own callers do: an escaping
+    TypeError fails the test instead of reading as a refusal."""
+    try:
+        fn(*args)
+    except ValueError as error:
+        return str(error)
+    return "ok"
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_rv108_n1_base_header_refuses_a_non_string_enum_with_its_code(mode):
+    """The base dispatch on the reader's projection (a preview-physics-1 envelope), raw and transport:
+    each unhashable enum value gives the base header code. Hashable non-strings and strings outside
+    the vocabulary read as before (the same codes); the unedited envelope is admitted."""
+    source, _ = milestone(mode)
+    base = projected(source)
+    assert c._source_contract(base)[0] == c.PREVIEW_PHYSICS_CONTRACT_ID
+    for path, code in N1_FIELDS:
+        for value in N1_UNHASHABLE + [None, 3, True, "estimated", ""]:
+            edited = n1_edit(base, path, value)
+            for check_receipt in (True, False):
+                assert value_error_only(lambda s: c._source_contract(s, check_receipt=check_receipt), edited) == code, (path, value, check_receipt)
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_rv108_n1_retained_reader_reports_the_base_header_code_at_g7(mode):
+    """The retained path: a hash-consistent successor with an unhashable enum in a header field that
+    no earlier gate reads is refused at G7 with the base header code (no longer the G7 fallback
+    SOURCE_PREVIEW_PHYSICS_INVALID), raw with and without its invocation, by the transport validator,
+    and by the raw and transport dispatch."""
+    source, invocation = milestone(mode)
+    # solve_quality is read at G5 first (a list is no verdict), so its G7 code is pinned on the base dispatch.
+    for path, code in [field for field in N1_FIELDS if field[0][-1] != "solve_quality"]:
+        for value in N1_UNHASHABLE:
+            edited = rehash(n1_edit(source, path, value))
+            for fn in (lambda s: rp.validate_retained_precision(s, deepcopy(invocation)), rp.validate_retained_precision, rp.validate_retained_precision_transport):
+                with pytest.raises(rp.RetainedPrecisionError) as error:
+                    fn(deepcopy(edited))
+                assert (error.value.gate, error.value.code, error.value.detail) == ("G7", code, code), (path, value)
+            for check_receipt in (True, False):
+                assert value_error_only(lambda s: c._source_contract(s, check_receipt=check_receipt), edited) == code, (path, value, check_receipt)
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_rv108_n1_stress_neutral_packager_validator_refuses_with_a_value_error(mode):
+    """The ValueError-only caller RV108 named: the v0.3 packager's validator on a preview-physics-1
+    package view. An unhashable enum is refused with the base header code, a ValueError; before, a
+    TypeError escaped it."""
+    from core.handoff.stress_neutral import package_v0_3 as sn
+    from tests.test_stress_neutral_physics_source import arguments
+    source, _ = milestone(mode)
+    base = projected(source)
+    record = build(base)
+    packet = sn.build_stress_neutral_export_package_v0_3(source_envelope=base, analysis_record=record, **arguments(base, record))
+    assert value_error_only(sn.validate_stress_neutral_export_package_v0_3, deepcopy(packet)) == "ok"
+    for path, code in N1_FIELDS:
+        for value in N1_UNHASHABLE:
+            assert value_error_only(sn.validate_stress_neutral_export_package_v0_3, n1_edit(packet, path, value)) == code, (path, value)

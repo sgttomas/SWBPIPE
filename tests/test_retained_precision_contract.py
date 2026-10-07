@@ -991,3 +991,255 @@ def test_producer_solved_bases_are_the_pinned_live_successors_d_u6_5():
         assert eligibility(public) == base["expected"] == {"invocation_bound": True, "numerical_eligible": True, "standing": "eligible"}
         assert public["classifications"] == base["expected_classifications"]
         assert [sum(1 for x in public["classifications"] if x["class"] == k) for k in ("relative_verified", "absolute_verified", "input_derived", "non_quantity")] == counts
+
+
+# ---------------------------------------------------------------------------------------------
+# B1 SR-PY (I91; PLAN_v2 §2.4; DESIGN_v2 §2 and §3.2-§3.3; RV108 N2): reader-local tests on
+# synthetic n-case receipts, derived from the shared two-case bases and 07j's must-pass entry. They
+# are not shared corpus entries: SC's 07n pins the shared ones (W-C2, `d38_beside_selected` with
+# m1-m8, F-1's five and `not_required`'s three).
+# ---------------------------------------------------------------------------------------------
+NOT_REQUIRED = "not_required_second_case_checks_passed"
+UNAVAILABLE_ROW = "case:unavailable-row"
+PREP = ("G8", "RETAINED_PRECISION_PREPARATION_MISMATCH")
+PRODUCT, ATTEMPT, WORK = (("G5", "RETAINED_PRECISION_" + x) for x in ("PRODUCT_ATTEMPT_MISMATCH", "ATTEMPT_MISMATCH", "WORK_MISMATCH"))
+
+
+def _b1_verdict(base, edits, invocation_edits=None, must=None):
+    """The reader's verdict on `base` after a must-pass entry's edits (when named) and `edits`,
+    rehashed as a shared entry: ("admitted", eligible, standing), or the first failure (gate, code)."""
+    prefix = []
+    if must is not None:
+        entry = next(e for e in corpus()["must_pass"] if e["id"] == must)
+        assert entry["base"] == base
+        prefix = deepcopy(entry["edits"])
+    source, invocation = apply_entry(_cases()[base], {"edits": prefix + edits, "invocation_edits": invocation_edits or [], "rehash": "all"})
+    try:
+        result = rp.validate_retained_precision(source, invocation)
+    except rp.RetainedPrecisionError as error:
+        return (error.gate, error.code)
+    return ("admitted", result["numerical_eligible"], result["standing"])
+
+
+def _b1_row(base, kind, case):
+    """The index of a base's row of `kind` for load case `case`."""
+    rows = _cases()[base]["source"]["results"]
+    return next(i for i, r in enumerate(rows) if r["kind"] == kind and r["basis_ref"]["ref_id"] == case)
+
+
+def _b1_parity_row(case, row_id):
+    """The dense base's parity row, moved to `case` with a fresh id; a non-selected case's row
+    carries no recovery method (G6)."""
+    rows = _cases()["ordinary_prepared_dense_synthetic"]["source"]["results"]
+    row = deepcopy(next(r for r in rows if r["kind"] == "sparse_live_path_dense_parity_relative_delta"))
+    row.pop("recovery_method", None)
+    return dict(row, id=row_id, basis_ref=dict(row["basis_ref"], ref_id=case))
+
+
+def _d38_edits():
+    """R-D38 (4b) (DESIGN_v2 §2) on F_BASE, as SC's `d38_beside_selected` rewrites W-C2's case C:
+    case 1 (unavailable, with its own registered CaseSource and a prepared attempt) failed its native
+    stage before any Run, beside selected case 0. Its Run, `execution_order` entry and Call and Group
+    entries go, the call's after-value and `charged` are recomputed (case 1's Run built nothing: it
+    reused case 0's builds), its cause is a typed CaptureError::Origin, and every hash is resealed."""
+    body = _cases()[F_BASE]["source"]["retained_precision"]["body"]
+    assert all(b["origin"]["run"] == 0 for b in body["builds"])
+    after = body["cases"][0]["run"]["invocation_after"]
+    stages = dict.fromkeys(rp.STAGE_ORDER, "not_entered")
+    stages.update(preparation="completed", native="failed")
+    return [
+        _set(B + ["cases", 1, "run"], None),
+        _set(B + ["cases", 1, "reason"], {"code": "source_unavailable", "phase": "preparation", "cause": {"kind": "prepared_product_failure", "product_attempt_ref": 1}}),
+        _set(A1 + ["run_ref"], None), _set(A1 + ["proof"], None), _set(A1 + ["stages"], stages),
+        _set(A1 + ["result"], {"kind": "unavailable", "error": {"kind": "capture", "cause": {"kind": "origin", "cause": {"kind": "capacity"}}}}),
+        _set(B + ["calls", 0, "owner_refs"], [{"kind": "case", "index": 0}]), _set(B + ["calls", 0, "source_refs"], [0]),
+        _set(B + ["calls", 0, "run_refs"], [0]), _set(B + ["calls", 0, "invocation_after"], after),
+        _set(B + ["groups", 0, "source_refs"], [0]), _set(B + ["work", "charged"], after),
+        _set(B + ["work", "execution_order"], [{"kind": "case", "index": 0}]),
+    ]
+
+
+def test_b1_d38_capture_before_any_run_beside_a_selected_case():
+    """R-D38 (4b) beside a selected case is admitted: G0-G8 pass, the standing is needs_recompute and
+    case 0's classifications are the base's. Before B1, Python refused it at G5 PRODUCT_ATTEMPT (an
+    entered native stage needed a Run). m1-m8 (DESIGN_v2 §2) and the other (4b) conjuncts are refused,
+    each at this reader's first failure."""
+    d38 = _d38_edits()
+    assert _b1_verdict(F_BASE, d38) == ("admitted", False, "needs_recompute")
+    source, invocation = apply_entry(_cases()[F_BASE], {"edits": d38, "rehash": "all"})
+    assert rp.validate_retained_precision(source, invocation)["classifications"] == _cases()[F_BASE]["expected_classifications"]
+    stages = dict.fromkeys(rp.STAGE_ORDER, "not_entered")
+    stages.update(preparation="completed", native="failed")
+    orphan = deepcopy(_cases()[F_BASE]["source"]["retained_precision"]["body"]["builds"])
+    orphan.append(dict(deepcopy(orphan[0]), id=len(orphan), origin={"call": 0, "run": 1, "physical_record": 0, "phase": "shared"}))
+    refused = {
+        "m1 error kind native": ([_set(A1 + ["result", "error"], {"kind": "native", "run_ref": 1})], PRODUCT),
+        "m2 native completed": ([_set(A1 + ["stages", "native"], "completed")], PRODUCT),
+        "m3 run_ref while the case has no Run": ([_set(A1 + ["run_ref"], 1)], PRODUCT),
+        "m4 execution_order still lists the case": ([_set(B + ["work", "execution_order"], [{"kind": "case", "index": 0}, {"kind": "case", "index": 1}])], ("G3", "RETAINED_PRECISION_COVERAGE_MISMATCH")),
+        "m5 proof_start completed": ([_set(A1 + ["stages", "proof_start"], "completed")], PRODUCT),
+        "m6 source_ref null with preparation completed": ([_set(A1 + ["source_ref"], None)], PRODUCT),
+        "m7 the case's source in the call's source_refs": ([_set(B + ["calls", 0, "source_refs"], [0, 1])], ATTEMPT),
+        "m7 the case's source in the group's source_refs": ([_set(B + ["groups", 0, "source_refs"], [0, 1])], ATTEMPT),
+        "m8 the case's source_ref differs from the attempt's": ([_set(B + ["cases", 1, "source_ref"], 0)], PRODUCT),
+        "a Build kept from the case's removed Run": ([_set(B + ["builds"], orphan)], WORK),
+        "both source references null": ([_set(A1 + ["source_ref"], None), _set(B + ["cases", 1, "source_ref"], None)], PRODUCT),
+        "result ready": ([_set(A1 + ["result"], {"kind": "ready"})], PRODUCT),
+        "preparation failed": ([_set(A1 + ["stages"], dict(stages, preparation="failed"))], PRODUCT),
+        "observables and G5a entered": ([_set(A1 + ["stages"], dict(stages, observables="failed", g5a="failed"))], PRODUCT),
+        "reason code kernel_unresolved": ([_set(B + ["cases", 1, "reason", "code"], "kernel_unresolved")], PRODUCT),
+        "reason phase kernel": ([_set(B + ["cases", 1, "reason", "phase"], "kernel")], PRODUCT),
+        "cause names the other attempt": ([_set(B + ["cases", 1, "reason", "cause", "product_attempt_ref"], 0)], PRODUCT),
+        "cause not a prepared product failure": ([_set(B + ["cases", 1, "reason", "cause"], {"kind": "receipt_failure", "check": "association", "field_path": "b1"})], PRODUCT),
+    }
+    got = {name: _b1_verdict(F_BASE, d38 + edits) for name, (edits, _) in refused.items()}
+    assert got == {name: want for name, (_, want) in refused.items()}
+
+
+def test_b1_d38_reader_logic_names_every_conjunct():
+    """The (4b) predicate itself, conjunct by conjunct, on the admitted attempt and case."""
+    source, _ = apply_entry(_cases()[F_BASE], {"edits": _d38_edits(), "rehash": "all"})
+    body = source["retained_precision"]["body"]
+    a, case = body["product_attempts"][1], body["cases"][1]
+    assert rp._d38_capture_before_run(a, case, 1)
+    assert not rp._d38_capture_before_run(a, case, 0)  # the cause names this attempt
+    breaks = [
+        lambda a, c: c.__setitem__("run", body["cases"][0]["run"]),
+        lambda a, c: a.__setitem__("proof", {}),
+        lambda a, c: a["result"].__setitem__("kind", "ready"),
+        lambda a, c: a["result"]["error"].__setitem__("kind", "native"),
+        lambda a, c: a["stages"].__setitem__("preparation", "failed"),
+        lambda a, c: a["stages"].__setitem__("native", "completed"),
+        lambda a, c: a["stages"].__setitem__("certificate", "failed"),
+        lambda a, c: c.__setitem__("status", "selected"),
+        lambda a, c: c["reason"]["cause"].__setitem__("kind", "receipt_failure"),
+        lambda a, c: c["reason"].__setitem__("code", "kernel_unresolved"),
+        lambda a, c: c["reason"].__setitem__("phase", "kernel"),
+        lambda a, c: (a.__setitem__("source_ref", None), c.__setitem__("source_ref", None)),
+        lambda a, c: c.__setitem__("source_ref", 0),
+    ]
+    for k, edit in enumerate(breaks):
+        a2, c2 = deepcopy(a), deepcopy(case)
+        edit(a2, c2)
+        assert not rp._d38_capture_before_run(a2, c2, 1), k
+
+
+def _w2_published(index, tag="evaluation"):
+    """Ordinary attempt `index` made W2-published (T-4's case B): an initial failure, then a W2
+    publication triggered by it, keeping the attempt's own report diagnostic."""
+    report = _cases()[P_BASE]["source"]["retained_precision"]["body"]["ordinary_attempts"][index]["initial"]["report_diagnostic_ref"]
+    if tag == "evaluation":
+        initial = {"kind": "structural_failure", "error": {"tag": "range", "detail": "b1"}, "diagnostic_ref": None}
+        trigger = {"tag": "evaluation", "error": {"tag": "range", "detail": "b1"}}
+    else:
+        initial = {"kind": "formation_failure", "error": {"tag": "numerical_range", "name": "b1"}, "basis_index": 0}
+        trigger = {"tag": "formation", "error": {"tag": "numerical_range", "name": "b1"}}
+    w2 = {"kind": "published", "trigger": trigger, "force_scale_exponent": 3, "report_diagnostic_ref": report}
+    return [_set(B + ["ordinary_attempts", index, "initial"], initial), _set(B + ["ordinary_attempts", index, "w2"], w2)]
+
+
+def test_b1_g5_not_required_admits_a_w2_published_case():
+    """G5's `not_required` rule (DESIGN_v2 §3.3, decision 9), on 07j's two-case statement (selected,
+    then not_required): a W2-published case with the verdict checks_passed (T-4's case B), by an
+    evaluation or a formation trigger, is admitted and the statement is eligible. Rust's three extra
+    conjuncts (a Passed report, W2 untriggered) are not Python's rule. A non-null product attempt,
+    `initial` not_attempted and another verdict stay refused, and a report keeps its outcome equality."""
+    for tag in ("evaluation", "formation"):
+        assert _b1_verdict(P_BASE, _w2_published(1, tag), must=NOT_REQUIRED) == ("admitted", True, "eligible"), tag
+    refused = {
+        "W2-published, verdict sensitive": (_w2_published(1) + [_set(["numerical_quality", "cases", 1, "solve_quality"], "sensitive")], ATTEMPT),
+        "initial not_attempted": ([_set(B + ["ordinary_attempts", 1, "initial"], {"kind": "not_attempted", "cause": "ineligible"})], ATTEMPT),
+        "report outcome differs from the verdict": ([_set(B + ["ordinary_attempts", 1, "initial", "outcome"], "sensitive")], ATTEMPT),
+        "product_attempt_ref non-null (G3 first)": ([_set(B + ["cases", 1, "product_attempt_ref"], 0)], ("G3", "RETAINED_PRECISION_COVERAGE_MISMATCH")),
+    }
+    got = {name: _b1_verdict(P_BASE, edits, must=NOT_REQUIRED) for name, (edits, _) in refused.items()}
+    assert got == {name: want for name, (_, want) in refused.items()}
+
+
+def test_b1_g8_mode_row_and_requested_mode_for_every_case():
+    """F-1 text B's P1 and the requested mode (DESIGN_v2 §3.2-§3.3), in G8's per-case loop: every case
+    is checked, here the second one, unavailable (F_BASE) or not_required (07j). Before B1 Python
+    checked neither, on any case."""
+    fm = _b1_row(F_BASE, "linear_solver_mode_basis", UNAVAILABLE_ROW)
+    pm = _b1_row(P_BASE, "linear_solver_mode_basis", UNAVAILABLE_ROW)
+    rows = _cases()[F_BASE]["source"]["results"]
+    duplicate = dict(deepcopy(rows[fm]), id="result:b1:duplicate-mode")
+    # The not_required case has no proof, so dropping its row moves no projection index (G3).
+    without = [r for i, r in enumerate(_cases()[P_BASE]["source"]["results"]) if i != pm]
+    cases = {
+        "unavailable case: dense code in sparse": (F_BASE, [_set(["results", fm, "value"], 2.0)], None),
+        "unavailable case: mode code 3": (F_BASE, [_set(["results", fm, "value"], 3.0)], None),
+        "unavailable case: two mode rows": (F_BASE, [_set(["results"], deepcopy(rows) + [duplicate])], None),
+        "unavailable case: requested mode flipped": (F_BASE, [_set(B + ["ordinary_attempts", 1, "requested_mode"], "dense_scrutiny")], None),
+        "not_required case: dense code in sparse": (P_BASE, [_set(["results", pm, "value"], 2.0)], NOT_REQUIRED),
+        "not_required case: requested mode flipped": (P_BASE, [_set(B + ["ordinary_attempts", 1, "requested_mode"], "dense_scrutiny")], NOT_REQUIRED),
+        "not_required case: no mode row": (P_BASE, [_set(["results"], deepcopy(without))], NOT_REQUIRED),
+    }
+    got = {name: _b1_verdict(base, edits, must=must) for name, (base, edits, must) in cases.items()}
+    assert got == dict.fromkeys(cases, PREP)
+    # The invocation's own mode is what each case's requested mode and mode code must match.
+    assert _b1_verdict(F_BASE, [], [_set(["solver_mode"], "dense_scrutiny")]) == PREP
+
+
+def test_b1_g8_parity_rows_p2_to_p4_for_every_case():
+    """F-1 text B's P2-P4 (DESIGN_v2 §3.2) for every case. 07j's two-case statement is made dense (the
+    invocation's mode, both requested modes and both mode rows; it has no parity row): the selected dense
+    case at b = 0 without a parity row is admitted, and so is the not_required case's single parity row
+    at b = 0. Two parity rows (P2), a parity row in sparse_interactive (P3) and a parity row on a
+    W2-published case (P4) are refused at G8."""
+    p = _cases()[P_BASE]["source"]
+    to_dense = [_set(["solver_mode"], "dense_scrutiny")]
+    dense = [_set(B + ["ordinary_attempts", k, "requested_mode"], "dense_scrutiny") for k in (0, 1)]
+    dense_rows = deepcopy(p["results"])
+    for case in ("case:six-component-load", UNAVAILABLE_ROW):
+        dense_rows[_b1_row(P_BASE, "linear_solver_mode_basis", case)]["value"] = 2.0
+    one, two = (_b1_parity_row(UNAVAILABLE_ROW, f"result:b1:parity-{k}") for k in (1, 2))
+    on_dense = lambda extra_rows, extra=(): _b1_verdict(P_BASE, dense + [_set(["results"], dense_rows + extra_rows)] + list(extra), to_dense, NOT_REQUIRED)
+    d = _cases()["ordinary_prepared_dense_synthetic"]["source"]
+    parity = next(i for i, r in enumerate(d["results"]) if r["kind"] == "sparse_live_path_dense_parity_relative_delta")
+    twice = dict(deepcopy(d["results"][parity]), id="result:b1:parity-twice")
+    d_report = _cases()["ordinary_prepared_dense_synthetic"]["source"]["retained_precision"]["body"]["ordinary_attempts"][0]["initial"]["report_diagnostic_ref"]
+    d_w2 = [_set(B + ["ordinary_attempts", 0, "initial"], {"kind": "structural_failure", "error": {"tag": "range", "detail": "b1"}, "diagnostic_ref": None}),
+            _set(B + ["ordinary_attempts", 0, "w2"], {"kind": "published", "trigger": {"tag": "evaluation", "error": {"tag": "range", "detail": "b1"}}, "force_scale_exponent": 3, "report_diagnostic_ref": d_report})]
+    f_rows = _cases()[F_BASE]["source"]["results"]
+    got = {
+        "dense b = 0, no parity row on either case": on_dense([]),
+        "dense b = 0, one parity row on the not_required case": on_dense([one]),
+        "dense, a W2-published not_required case without a parity row": on_dense([], _w2_published(1)),
+        "P2: two parity rows on the not_required case": on_dense([one, two]),
+        "P4: a parity row on the W2-published not_required case": on_dense([one], _w2_published(1)),
+        "P2: two parity rows on the dense selected case": _b1_verdict("ordinary_prepared_dense_synthetic", [_set(["results"], deepcopy(d["results"]) + [twice])]),
+        "P4: a parity row on a W2-published selected case": _b1_verdict("ordinary_prepared_dense_synthetic", d_w2),
+        "P3: a parity row on the sparse unavailable case": _b1_verdict(F_BASE, [_set(["results"], deepcopy(f_rows) + [_b1_parity_row(UNAVAILABLE_ROW, "result:b1:sparse-parity")])]),
+    }
+    assert got == {
+        "dense b = 0, no parity row on either case": ("admitted", True, "eligible"),
+        "dense b = 0, one parity row on the not_required case": ("admitted", True, "eligible"),
+        "dense, a W2-published not_required case without a parity row": ("admitted", True, "eligible"),
+        "P2: two parity rows on the not_required case": PREP,
+        "P4: a parity row on the W2-published not_required case": PREP,
+        "P2: two parity rows on the dense selected case": PREP,
+        "P4: a parity row on a W2-published selected case": PREP,
+        "P3: a parity row on the sparse unavailable case": PREP,
+    }
+
+
+def test_b1_rv108_n2_a_missing_verdict_is_g5_attempt():
+    """RV108 N2: a numerical_quality case without `solve_quality`, hash-consistent, fails G5 with
+    RETAINED_PRECISION_ATTEMPT_MISMATCH wherever an ordinary rule reads the verdict (a report's
+    outcome, not_required's checks_passed, selected's trigger verdicts), as Rust and TypeScript do;
+    before, a KeyError reached the fail-closed fallback (PRODUCT_ATTEMPT). A case for which no rule
+    reads the verdict still reaches G7's base header (SOURCE_NUMERICAL_CASE_INVALID)."""
+    drop = lambda i: _set(["numerical_quality", "cases", i, "solve_quality"], None) | {"op": "remove"}
+    got = {
+        "selected case, report": _b1_verdict(O_BASE, [drop(0)]),
+        "unavailable case, report": _b1_verdict(F_BASE, [drop(1)]),
+        "not_required case, report": _b1_verdict(P_BASE, [drop(1)], must=NOT_REQUIRED),
+        "not_required case, W2-published": _b1_verdict(P_BASE, _w2_published(1) + [drop(1)], must=NOT_REQUIRED),
+    }
+    assert got == dict.fromkeys(got, ATTEMPT)
+    # An unavailable case whose initial is a structural failure (W2 not triggered): no G5 rule reads its
+    # verdict. Present, the statement is admitted; absent, G7's base header refuses the case.
+    structural = [_set(B + ["ordinary_attempts", 1, "initial"], {"kind": "structural_failure", "error": {"tag": "range", "detail": "b1"}, "diagnostic_ref": None})]
+    assert _b1_verdict(F_BASE, structural) == ("admitted", False, "needs_recompute")
+    assert _b1_verdict(F_BASE, structural + [drop(1)]) == ("G7", "SOURCE_NUMERICAL_CASE_INVALID")
