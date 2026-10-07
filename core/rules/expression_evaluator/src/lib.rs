@@ -248,18 +248,22 @@ pub enum Expression {
         left: Box<Expression>,
         right: Box<Expression>,
     },
-    /// Boolean conjunction/disjunction. Evaluation is eager: both operands
-    /// are always evaluated, so diagnostics in either operand always surface.
+    /// Boolean conjunction/disjunction. Evaluation never short-circuits on a
+    /// value: the right operand is evaluated even when the left one decides
+    /// the result, so a blocking diagnostic in it still blocks. Operands are
+    /// evaluated left to right, and evaluation stops at the first operand
+    /// that blocks, so a later operand's diagnostics are not reported.
     Logical {
         operator: LogicalOperator,
         left: Box<Expression>,
         right: Box<Expression>,
     },
-    /// Eager conditional: condition, then-branch, and else-branch are all
-    /// evaluated (in that fixed order) regardless of the condition value, so
-    /// diagnostics in the unselected branch still block. Branches must both
-    /// be booleans or both be quantities of the same dimension with matching
-    /// unit references.
+    /// Eager conditional: the condition, then-branch and else-branch are
+    /// evaluated in that fixed order whatever the condition's value, so a
+    /// blocking diagnostic in the unselected branch still blocks. Evaluation
+    /// stops at the first of them that blocks, so a later one's diagnostics
+    /// are not reported. Branches must both be booleans or both be quantities
+    /// of the same dimension with matching unit references.
     Select {
         condition: Box<Expression>,
         then_branch: Box<Expression>,
@@ -306,9 +310,10 @@ pub enum FindingCode {
     DuplicateBinding,
     InvalidReference,
     MissingRequiredValue,
-    /// A value that must be finite is not: a variable binding, a literal, a
-    /// same-dimension quotient (ratio), a NaN interpolation or step-lookup
-    /// argument, or an interval binding end (interval mode). Always blocking.
+    /// A value that must be finite is not: a variable binding, a literal, an
+    /// arithmetic or interpolation result (an overflow), a same-dimension
+    /// quotient (ratio), a NaN interpolation or step-lookup argument, or an
+    /// interval binding end (interval mode). Always blocking.
     NonFiniteInput,
     DivisionByZero,
     UnitMetadataMissing,
@@ -555,7 +560,8 @@ fn eval_expression(
             left,
             right,
         } => {
-            // Eager: both operands always evaluated; no value short-circuit.
+            // No value short-circuit: the right operand is evaluated even
+            // when the left decides; evaluation stops at the first that blocks.
             let left = eval_expression(left, bindings, source_variable_ids, findings)?;
             let right = eval_expression(right, bindings, source_variable_ids, findings)?;
             eval_logical(*operator, left, right, findings)
@@ -565,8 +571,9 @@ fn eval_expression(
             then_branch,
             else_branch,
         } => {
-            // Eager: condition, then-branch, else-branch all evaluated in
-            // this fixed order regardless of the condition value.
+            // Eager: condition, then-branch, else-branch evaluated in this
+            // fixed order whatever the condition's value; evaluation stops at
+            // the first that blocks.
             let condition = eval_expression(condition, bindings, source_variable_ids, findings)?;
             let then_value = eval_expression(then_branch, bindings, source_variable_ids, findings)?;
             let else_value = eval_expression(else_branch, bindings, source_variable_ids, findings)?;
@@ -992,10 +999,15 @@ fn eval_table_expression(
                     .windows(2)
                     .find(|pair| pair[0].argument < x && x < pair[1].argument)
                     .expect("in-range interpolation always has a bracketing pair");
-                let (low, high) = (pair[0], pair[1]);
-                low.result
-                    + (high.result - low.result)
-                        * ((x - low.argument) / (high.argument - low.argument))
+                let Some(value) = interpolate_point(pair[0], pair[1], x) else {
+                    findings.push(EvaluationFinding::new(
+                        FindingCode::NonFiniteInput,
+                        &subject_id,
+                        NON_FINITE_INTERPOLATION,
+                    ));
+                    return None;
+                };
+                value
             }
         }
     };
@@ -1007,6 +1019,22 @@ fn eval_table_expression(
         unit_required: true,
         dimension_check_required: true,
     }))
+}
+
+/// The point interpolation `low + (high - low) * ((x - x_low) / (x_high -
+/// x_low))`, one floating step at a time (rise, offset, run, fraction,
+/// product, sum), as interval mode's `interpolate_segment` encloses it.
+/// `None` when any step is not finite (T3-SI1c, option D): with rows that
+/// span more than `f64::MAX` the run overflows, and the final value could
+/// otherwise be finite but wrong.
+fn interpolate_point(low: TableRow, high: TableRow, x: f64) -> Option<f64> {
+    let finite = |value: f64| value.is_finite().then_some(value);
+    let rise = finite(high.result - low.result)?;
+    let offset = finite(x - low.argument)?;
+    let run = finite(high.argument - low.argument)?;
+    let fraction = finite(offset / run)?;
+    let product = finite(rise * fraction)?;
+    finite(low.result + product)
 }
 
 fn table_out_of_range(
@@ -1029,7 +1057,9 @@ fn table_out_of_range(
 /// intermediate such as `inf - inf`) is neither inside nor outside the table
 /// range, so it blocks as a non-finite input. An infinite argument is outside
 /// the range and stays [`FindingCode::TableOutOfRange`]; an exact lookup
-/// keeps its own [`FindingCode::TableKeyNotFound`] block.
+/// keeps its own [`FindingCode::TableKeyNotFound`] block. Since T3-SI1c the
+/// operation that would produce such an argument blocks first, so these
+/// checks are kept only as guards.
 fn nan_table_argument(subject_id: impl Into<String>) -> EvaluationFinding {
     EvaluationFinding::new(
         FindingCode::NonFiniteInput,
@@ -1080,9 +1110,45 @@ fn add_or_subtract(
         findings.push(unit_mismatch("add_subtract", &left, &right));
         return None;
     }
-    Some(EvaluationValue::Quantity(
-        left.with_value(left.value + sign * right.value),
-    ))
+    let value = finite_result(
+        left.value + sign * right.value,
+        "add_subtract",
+        NON_FINITE_SUM,
+        findings,
+    )?;
+    Some(EvaluationValue::Quantity(left.with_value(value)))
+}
+
+/// T3-SI1c (option D): the finding messages of the producers below. From
+/// finite operands, a non-finite arithmetic or interpolation result can only
+/// be an overflow (no step can give NaN), and it blocks where it is produced.
+const NON_FINITE_SUM: &str = "sum or difference must be finite (it overflowed)";
+const NON_FINITE_PRODUCT: &str = "product must be finite (it overflowed)";
+const NON_FINITE_QUOTIENT: &str = "quotient must be finite (it overflowed)";
+const NON_FINITE_INTERPOLATION: &str =
+    "interpolated table value must be finite (a step of the interpolation overflowed)";
+
+/// Every arithmetic and interpolation result must be finite (T3-SI1c, option
+/// D). Bindings and literals are checked finite, so a non-finite result can
+/// only come from the operation itself; it blocks there with
+/// [`FindingCode::NonFiniteInput`], and no consumer (a comparison,
+/// `min`/`max`, `select`, a divisor, a table argument, the final value) ever
+/// sees an infinity or NaN. Called after the operation's structural checks.
+fn finite_result(
+    value: f64,
+    subject_id: &str,
+    message: &str,
+    findings: &mut Vec<EvaluationFinding>,
+) -> Option<f64> {
+    if value.is_finite() {
+        return Some(value);
+    }
+    findings.push(EvaluationFinding::new(
+        FindingCode::NonFiniteInput,
+        subject_id,
+        message,
+    ));
+    None
 }
 
 /// Enumerated dimension-product table over the closed [`Dimension`] enum
@@ -1230,20 +1296,40 @@ fn multiply(
     findings: &mut Vec<EvaluationFinding>,
 ) -> Option<EvaluationValue> {
     match (left.dimension, right.dimension) {
-        (Dimension::Dimensionless, _) => Some(EvaluationValue::Quantity(
-            right.with_value(left.value * right.value),
-        )),
-        (_, Dimension::Dimensionless) => Some(EvaluationValue::Quantity(
-            left.with_value(left.value * right.value),
-        )),
+        (Dimension::Dimensionless, _) => {
+            let value = finite_result(
+                left.value * right.value,
+                "multiply",
+                NON_FINITE_PRODUCT,
+                findings,
+            )?;
+            Some(EvaluationValue::Quantity(right.with_value(value)))
+        }
+        (_, Dimension::Dimensionless) => {
+            let value = finite_result(
+                left.value * right.value,
+                "multiply",
+                NON_FINITE_PRODUCT,
+                findings,
+            )?;
+            Some(EvaluationValue::Quantity(left.with_value(value)))
+        }
         (left_dim, right_dim) => match dimension_product(left_dim, right_dim) {
-            Some(product) => Some(EvaluationValue::Quantity(Quantity {
-                value: left.value * right.value,
-                unit_ref: derived_product_unit_ref(&left, &right, product),
-                dimension: product,
-                unit_required: true,
-                dimension_check_required: true,
-            })),
+            Some(product) => {
+                let value = finite_result(
+                    left.value * right.value,
+                    "multiply",
+                    NON_FINITE_PRODUCT,
+                    findings,
+                )?;
+                Some(EvaluationValue::Quantity(Quantity {
+                    value,
+                    unit_ref: derived_product_unit_ref(&left, &right, product),
+                    dimension: product,
+                    unit_required: true,
+                    dimension_check_required: true,
+                }))
+            }
             None => {
                 findings.push(EvaluationFinding::new(
                     FindingCode::UnsupportedExpressionForm,
@@ -1274,20 +1360,29 @@ fn divide(
     }
 
     match (left.dimension, right.dimension) {
-        (dim, Dimension::Dimensionless) => Some(EvaluationValue::Quantity(Quantity {
-            value: left.value / right.value,
-            dimension: dim,
-            unit_ref: left.unit_ref,
-            unit_required: left.unit_required,
-            dimension_check_required: left.dimension_check_required,
-        })),
+        (dim, Dimension::Dimensionless) => {
+            let value = finite_result(
+                left.value / right.value,
+                "divide",
+                NON_FINITE_QUOTIENT,
+                findings,
+            )?;
+            Some(EvaluationValue::Quantity(Quantity {
+                value,
+                dimension: dim,
+                unit_ref: left.unit_ref,
+                unit_required: left.unit_required,
+                dimension_check_required: left.dimension_check_required,
+            }))
+        }
         (left_dim, right_dim) if left_dim == right_dim => {
             if !quantity_units_match(&left, &right) {
                 findings.push(unit_mismatch("divide", &left, &right));
                 return None;
             }
-            // The ratio quantity must be finite: an overflowing quotient, or a
-            // non-finite operand carried from an earlier operation, blocks.
+            // The ratio quantity must be finite: an overflowing quotient blocks.
+            // (A non-finite operand is no longer carried here: since T3-SI1c
+            // the operation that produced it blocks first.)
             let ratio = left.value / right.value;
             if !ratio.is_finite() {
                 findings.push(EvaluationFinding::new(
@@ -1300,13 +1395,21 @@ fn divide(
             Some(EvaluationValue::Quantity(ratio_quantity(ratio)))
         }
         (left_dim, right_dim) => match dimension_quotient(left_dim, right_dim) {
-            DimensionQuotient::Unique(quotient) => Some(EvaluationValue::Quantity(Quantity {
-                value: left.value / right.value,
-                unit_ref: derived_quotient_unit_ref(&left, &right, quotient),
-                dimension: quotient,
-                unit_required: true,
-                dimension_check_required: true,
-            })),
+            DimensionQuotient::Unique(quotient) => {
+                let value = finite_result(
+                    left.value / right.value,
+                    "divide",
+                    NON_FINITE_QUOTIENT,
+                    findings,
+                )?;
+                Some(EvaluationValue::Quantity(Quantity {
+                    value,
+                    unit_ref: derived_quotient_unit_ref(&left, &right, quotient),
+                    dimension: quotient,
+                    unit_required: true,
+                    dimension_check_required: true,
+                }))
+            }
             DimensionQuotient::Ambiguous => {
                 findings.push(EvaluationFinding::new(
                     FindingCode::UnsupportedExpressionForm,
@@ -1520,9 +1623,9 @@ fn validate_finite(name: &'static str, value: f64) -> Result<(), EvaluationError
 // has no sound finite enclosure makes the whole result indeterminate, not
 // just that part: a value-dependent point-path block (a zero divisor, a table
 // argument out of range, an exact-lookup miss) possible somewhere in the box,
-// or a non-finite intermediate (where the point path computes infinities or
-// NaN, and can fail on them). Evaluation is eager, as in the point path, so
-// such a part decides the check even inside a branch that is not taken.
+// or a non-finite intermediate (where the point path blocks). Evaluation is
+// eager, as in the point path, so such a part decides the check even inside a
+// branch that is not taken.
 
 /// Kleene three-valued truth of an interval-mode predicate (D2 §4.11.3).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -2237,7 +2340,9 @@ fn eval_interval_expression(
             then_branch,
             else_branch,
         } => {
-            // Eager, as in the point path: all three are always evaluated.
+            // Eager, as in the point path: all three are evaluated in this
+            // fixed order whatever the condition; evaluation stops at the
+            // first that blocks.
             let condition = eval_interval_expression(condition, env, state)?;
             let then_value = eval_interval_expression(then_branch, env, state)?;
             let else_value = eval_interval_expression(else_branch, env, state)?;
@@ -3465,6 +3570,25 @@ mod tests {
         "same-dimension quotient (ratio) must be finite",
     );
 
+    // T3-SI1c (option D): each producer blocks where its result overflows.
+    const OVERFLOWED_SUM: (FindingCode, &str, &str) = (
+        FindingCode::NonFiniteInput,
+        "add_subtract",
+        "sum or difference must be finite (it overflowed)",
+    );
+    const OVERFLOWED_PRODUCT: (FindingCode, &str, &str) = (
+        FindingCode::NonFiniteInput,
+        "multiply",
+        "product must be finite (it overflowed)",
+    );
+    const OVERFLOWED_QUOTIENT: (FindingCode, &str, &str) = (
+        FindingCode::NonFiniteInput,
+        "divide",
+        "quotient must be finite (it overflowed)",
+    );
+    const OVERFLOWED_INTERPOLATION_MESSAGE: &str =
+        "interpolated table value must be finite (a step of the interpolation overflowed)";
+
     #[test]
     fn blocks_overflowing_same_dimension_quotient_instead_of_panicking() {
         let quotient = || {
@@ -3493,7 +3617,9 @@ mod tests {
             assert_eq!(result.source_variable_ids, vec!["actual", "limit"]);
         }
 
-        // A non-finite operand carried from an earlier operation: +inf, then NaN.
+        // A numerator that overflows (+inf, or NaN from inf - inf) is no
+        // longer carried to the quotient: since T3-SI1c it blocks at the
+        // multiply that overflows, before the quotient is formed.
         let infinite = || {
             binary(
                 BinaryOperator::Multiply,
@@ -3510,8 +3636,9 @@ mod tests {
                     binding("limit", 2.0, Dimension::Stress),
                 ],
             ));
-            assert_eq!(finding_records(&result), vec![NON_FINITE_RATIO]);
+            assert_eq!(finding_records(&result), vec![OVERFLOWED_PRODUCT]);
             assert_eq!(result.value, None);
+            assert_eq!(result.source_variable_ids, vec!["actual"]);
         }
     }
 
@@ -3549,7 +3676,8 @@ mod tests {
     }
 
     #[test]
-    fn same_dimension_quotients_that_did_not_panic_are_unchanged() {
+    fn same_dimension_quotients_of_finite_operands_are_unchanged() {
+        // SI1b's ratio block leaves these as they were on main.
         let quotient = |left: Expression| binary(BinaryOperator::Divide, left, variable("limit"));
         // The largest finite ratio still evaluates.
         let largest = evaluate(&input(
@@ -3563,27 +3691,6 @@ mod tests {
         assert_eq!(
             largest.value,
             Some(EvaluationValue::Quantity(ratio_quantity(f64::MAX)))
-        );
-        // A finite numerator over a carried infinite divisor is a finite 0.
-        let over_infinity = evaluate(&input(
-            binary(
-                BinaryOperator::Divide,
-                variable("limit"),
-                binary(
-                    BinaryOperator::Multiply,
-                    ratio_literal(1.0e300),
-                    variable("actual"),
-                ),
-            ),
-            vec![
-                binding("actual", 1.0e300, Dimension::Stress),
-                binding("limit", 2.0, Dimension::Stress),
-            ],
-        ));
-        assert!(over_infinity.findings.is_empty());
-        assert_eq!(
-            over_infinity.value,
-            Some(EvaluationValue::Quantity(ratio_quantity(0.0)))
         );
         // A unit mismatch is still reported first, and alone.
         let mismatch = evaluate(&input(
@@ -3608,10 +3715,36 @@ mod tests {
     }
 
     #[test]
-    fn non_finite_quotients_outside_the_ratio_arm_still_carry_their_value() {
-        // Only the same-dimension (ratio) arm panicked on main, so only it
-        // blocks. A dimensionless divisor and a derived quotient still carry
-        // an overflow through, with no finding, exactly as before.
+    fn a_same_dimension_quotient_over_an_overflowing_divisor_blocks_at_the_multiply() {
+        // A finite numerator over an overflowing divisor used to be the ratio
+        // 0 (the infinity absorbed; SI1b kept it). Since T3-SI1c the divisor
+        // blocks at the multiply that overflows, and the quotient is never
+        // formed.
+        let over_infinity = evaluate(&input(
+            binary(
+                BinaryOperator::Divide,
+                variable("limit"),
+                binary(
+                    BinaryOperator::Multiply,
+                    ratio_literal(1.0e300),
+                    variable("actual"),
+                ),
+            ),
+            vec![
+                binding("actual", 1.0e300, Dimension::Stress),
+                binding("limit", 2.0, Dimension::Stress),
+            ],
+        ));
+        assert_eq!(finding_records(&over_infinity), vec![OVERFLOWED_PRODUCT]);
+        assert_eq!(over_infinity.value, None);
+    }
+
+    #[test]
+    fn non_finite_quotients_outside_the_ratio_arm_block_at_divide() {
+        // SI1b blocked only the same-dimension (ratio) arm, and a dimensionless
+        // divisor or a derived quotient carried an overflow through. Since
+        // T3-SI1c both block at the divide, with the quotient message (the
+        // ratio arm keeps its own).
         let over_ratio = evaluate(&input(
             binary(
                 BinaryOperator::Divide,
@@ -3620,17 +3753,9 @@ mod tests {
             ),
             vec![binding("actual", 1.0e308, Dimension::Stress)],
         ));
-        assert!(over_ratio.findings.is_empty());
-        assert_eq!(
-            over_ratio.value,
-            Some(EvaluationValue::Quantity(Quantity {
-                value: f64::INFINITY,
-                dimension: Dimension::Stress,
-                unit_ref: "stress_unit".to_string(),
-                unit_required: true,
-                dimension_check_required: true,
-            }))
-        );
+        assert_eq!(finding_records(&over_ratio), vec![OVERFLOWED_QUOTIENT]);
+        assert_eq!(over_ratio.value, None);
+        assert_eq!(over_ratio.source_variable_ids, vec!["actual"]);
 
         let derived = evaluate(&input(
             binary(
@@ -3643,17 +3768,9 @@ mod tests {
                 binding("length", 1.0e-308, Dimension::Length),
             ],
         ));
-        assert!(derived.findings.is_empty());
-        assert_eq!(
-            derived.value,
-            Some(EvaluationValue::Quantity(Quantity {
-                value: f64::INFINITY,
-                dimension: Dimension::Force,
-                unit_ref: "moment_unit/length_unit".to_string(),
-                unit_required: true,
-                dimension_check_required: true,
-            }))
-        );
+        assert_eq!(finding_records(&derived), vec![OVERFLOWED_QUOTIENT]);
+        assert_eq!(derived.value, None);
+        assert_eq!(derived.source_variable_ids, vec!["length", "moment"]);
     }
 
     #[test]
@@ -3722,7 +3839,10 @@ mod tests {
     }
 
     #[test]
-    fn blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking() {
+    fn nan_forming_interpolation_and_step_arguments_block_at_the_multiply() {
+        // SI1b: these used to panic, then blocked at the NaN argument.
+        // The NaN argument (inf - inf) is never formed: since T3-SI1c its
+        // first `1e300 * 1e300` blocks at the multiply.
         for mode in [None, Some(LookupMode::Step)] {
             let result = evaluate(&input(
                 table_expression(mode, temperature_argument("nan")),
@@ -3730,12 +3850,7 @@ mod tests {
             ));
             assert_eq!(
                 finding_records(&result),
-                vec![(
-                    FindingCode::NonFiniteInput,
-                    "invented_lookup_table",
-                    "table argument must be finite: a NaN argument is neither inside nor \
-                     outside the table range",
-                )],
+                vec![OVERFLOWED_PRODUCT],
                 "{mode:?}"
             );
             assert_eq!(result.value, None);
@@ -3743,25 +3858,20 @@ mod tests {
     }
 
     #[test]
-    fn non_finite_table_arguments_that_did_not_panic_are_unchanged() {
-        // An exact lookup of NaN still misses every key.
-        let exact = evaluate(&input(
-            table_expression(Some(LookupMode::Exact), temperature_argument("nan")),
-            vec![],
-        ));
-        assert_eq!(exact.findings.len(), 1);
-        assert_eq!(exact.findings[0].code, FindingCode::TableKeyNotFound);
-        // An infinite argument is outside the range in every mode.
+    fn non_finite_table_arguments_block_at_the_overflowing_multiply() {
+        // SI1b left these as they were on main: an exact lookup of NaN missed
+        // every key, and an infinite argument was out of range. Since T3-SI1c
+        // the argument never becomes non-finite: in every mode it blocks at
+        // the multiply that overflows.
         for mode in [None, Some(LookupMode::Step), Some(LookupMode::Exact)] {
-            for kind in ["+inf", "-inf"] {
+            for kind in ["nan", "+inf", "-inf"] {
                 let result = evaluate(&input(
                     table_expression(mode, temperature_argument(kind)),
                     vec![],
                 ));
-                assert_eq!(result.findings.len(), 1, "{mode:?} {kind}");
                 assert_eq!(
-                    result.findings[0].code,
-                    FindingCode::TableOutOfRange,
+                    finding_records(&result),
+                    vec![OVERFLOWED_PRODUCT],
                     "{mode:?} {kind}"
                 );
                 assert_eq!(result.value, None);
@@ -3770,7 +3880,7 @@ mod tests {
     }
 
     #[test]
-    fn blocks_generated_nan_table_arguments() {
+    fn generated_nan_forming_table_arguments_block_at_their_producer() {
         // Differential inputs t_259_1 and t_2856_3 (I79's table-rooted set):
         // with z = 1e308, `z*z - (z+z) - z` and `|z|/|z| + ((z+z) - z*z)` are NaN.
         let table = UserTable {
@@ -3814,15 +3924,589 @@ mod tests {
                 ),
             )),
         };
-        for expression in [interpolated, stepped] {
+        // Since T3-SI1c each blocks at its first overflow: `z*z` in the
+        // first, `z+z` (evaluated before `z*z`) in the second.
+        for (expression, expected) in [
+            (interpolated, OVERFLOWED_PRODUCT),
+            (stepped, OVERFLOWED_SUM),
+        ] {
             let result = evaluate(&input(
                 expression,
                 vec![binding("z", 1.0e308, Dimension::Dimensionless)],
             ));
-            assert_eq!(result.findings.len(), 1);
-            assert_eq!(result.findings[0].code, FindingCode::NonFiniteInput);
-            assert_eq!(result.findings[0].subject_id, "diff_table");
+            assert_eq!(finding_records(&result), vec![expected]);
             assert_eq!(result.value, None);
+        }
+    }
+
+    // T3-SI1c (option D): every arithmetic and interpolation result must be
+    // finite. Each producer blocks where its result overflows, so no
+    // comparison, `not`/`and`/`or`, `select`, `min`/`max`, divisor, table
+    // argument or final value ever decides over an infinity or NaN.
+
+    fn literal(value: f64, dimension: Dimension) -> Expression {
+        Expression::Literal(
+            Quantity::new(value, dimension, unit_ref_for_dimension(dimension)).unwrap(),
+        )
+    }
+
+    fn compare(operator: ComparisonOperator, left: Expression, right: Expression) -> Expression {
+        Expression::Compare {
+            operator,
+            left: Box::new(left),
+            right: Box::new(right),
+        }
+    }
+
+    fn rows_table(table_id: &str, rows: &[(f64, f64)]) -> UserTable {
+        UserTable {
+            table_id: table_id.to_string(),
+            argument_dimension: Dimension::Dimensionless,
+            argument_unit_ref: "ratio".to_string(),
+            result_dimension: Dimension::Stress,
+            result_unit_ref: "stress_unit".to_string(),
+            rows: rows
+                .iter()
+                .map(|&(argument, result)| TableRow { argument, result })
+                .collect(),
+        }
+    }
+
+    /// `1e300 * x`: +inf for the stress binding `x = 1e300` (I79's reproducer).
+    fn overflowing_x() -> Expression {
+        binary(
+            BinaryOperator::Multiply,
+            ratio_literal(1.0e300),
+            variable("x"),
+        )
+    }
+
+    fn x_binding() -> Vec<VariableBinding> {
+        vec![binding("x", 1.0e300, Dimension::Stress)]
+    }
+
+    #[test]
+    fn each_producer_blocks_where_its_result_overflows() {
+        let interpolation = |rows: &[(f64, f64)], x: f64| Expression::Interpolate {
+            table: rows_table("si1c_table", rows),
+            argument: Box::new(ratio_literal(x)),
+        };
+        let interpolated = (
+            FindingCode::NonFiniteInput,
+            "si1c_table",
+            OVERFLOWED_INTERPOLATION_MESSAGE,
+        );
+        let cases = [
+            (
+                "sum",
+                binary(
+                    BinaryOperator::Add,
+                    literal(1.0e308, Dimension::Stress),
+                    literal(1.0e308, Dimension::Stress),
+                ),
+                OVERFLOWED_SUM,
+            ),
+            (
+                "difference (-inf)",
+                binary(
+                    BinaryOperator::Subtract,
+                    literal(-1.0e308, Dimension::Stress),
+                    literal(1.0e308, Dimension::Stress),
+                ),
+                OVERFLOWED_SUM,
+            ),
+            (
+                "ratio x stress (dimensionless-left arm)",
+                binary(
+                    BinaryOperator::Multiply,
+                    ratio_literal(1.0e200),
+                    literal(1.0e200, Dimension::Stress),
+                ),
+                OVERFLOWED_PRODUCT,
+            ),
+            (
+                "stress x ratio (dimensionless-right arm, -inf)",
+                binary(
+                    BinaryOperator::Multiply,
+                    literal(1.0e200, Dimension::Stress),
+                    ratio_literal(-1.0e200),
+                ),
+                OVERFLOWED_PRODUCT,
+            ),
+            (
+                "force x length (derived arm)",
+                binary(
+                    BinaryOperator::Multiply,
+                    literal(1.0e200, Dimension::Force),
+                    literal(1.0e200, Dimension::Length),
+                ),
+                OVERFLOWED_PRODUCT,
+            ),
+            (
+                "stress / ratio (dimensionless-divisor arm)",
+                binary(
+                    BinaryOperator::Divide,
+                    literal(1.0e308, Dimension::Stress),
+                    ratio_literal(1.0e-308),
+                ),
+                OVERFLOWED_QUOTIENT,
+            ),
+            (
+                "ratio / ratio (dimensionless-divisor arm)",
+                binary(
+                    BinaryOperator::Divide,
+                    ratio_literal(1.0e308),
+                    ratio_literal(1.0e-308),
+                ),
+                OVERFLOWED_QUOTIENT,
+            ),
+            (
+                "moment / length (derived arm)",
+                binary(
+                    BinaryOperator::Divide,
+                    literal(1.0e308, Dimension::Moment),
+                    literal(1.0e-308, Dimension::Length),
+                ),
+                OVERFLOWED_QUOTIENT,
+            ),
+            (
+                // RV104 probe 29's table: the rise 1e308 - (-1e308) overflows.
+                "interpolation rise",
+                interpolation(&[(0.0, -1.0e308), (1.0, 1.0e308)], 0.5),
+                interpolated,
+            ),
+            (
+                // The run MAX - (-MAX) overflows; the fraction would be
+                // MAX / inf = 0, and the result a finite but wrong 0 (not 5).
+                "interpolation run (absorbed before SI1c)",
+                interpolation(&[(-f64::MAX, 0.0), (f64::MAX, 10.0)], 0.0),
+                interpolated,
+            ),
+            (
+                // Both row results are finite, but the rise rounds up by one
+                // ulp, the fraction rounds to 1, and the sum ties past MAX.
+                "interpolation sum",
+                interpolation(&[(-1.0e20, 3.0 * 2f64.powi(970)), (1.0, f64::MAX)], 0.5),
+                interpolated,
+            ),
+        ];
+        for (name, expression, expected) in cases {
+            let result = evaluate(&input(expression, vec![]));
+            assert_eq!(finding_records(&result), vec![expected], "{name}");
+            assert_eq!(result.value, None, "{name}");
+        }
+    }
+
+    #[test]
+    fn the_carried_non_finite_reproducers_block_at_the_multiply() {
+        // I79's reproducers, each `true` with no finding before SI1c:
+        // not((inf - inf) > 100), (inf - inf) != 100 and inf >= 100.
+        let not_a_number = || binary(BinaryOperator::Subtract, overflowing_x(), overflowing_x());
+        let hundred = || literal(100.0, Dimension::Stress);
+        let cases = [
+            Expression::Unary {
+                operator: UnaryOperator::Not,
+                operand: Box::new(compare(
+                    ComparisonOperator::GreaterThan,
+                    not_a_number(),
+                    hundred(),
+                )),
+            },
+            compare(ComparisonOperator::NotEqual, not_a_number(), hundred()),
+            compare(
+                ComparisonOperator::GreaterThanOrEqual,
+                overflowing_x(),
+                hundred(),
+            ),
+        ];
+        for expression in cases {
+            let result = evaluate(&input(expression, x_binding()));
+            assert_eq!(finding_records(&result), vec![OVERFLOWED_PRODUCT]);
+            assert_eq!(result.value, None);
+            assert_eq!(result.source_variable_ids, vec!["x"]);
+        }
+    }
+
+    #[test]
+    fn absorbing_forms_block_instead_of_deciding() {
+        // Before SI1c each gave a finite value from a non-finite intermediate:
+        // max drops a NaN, min keeps the finite operand, a finite value over
+        // an infinity is 0, and select drops (or takes) the infinite branch.
+        let s = || literal(2.0, Dimension::Stress);
+        let not_a_number = || binary(BinaryOperator::Subtract, overflowing_x(), overflowing_x());
+        let select = |condition: bool, then_branch: Expression, else_branch: Expression| {
+            let operator = if condition {
+                ComparisonOperator::LessThan
+            } else {
+                ComparisonOperator::GreaterThan
+            };
+            Expression::Select {
+                condition: Box::new(compare(operator, s(), literal(3.0, Dimension::Stress))),
+                then_branch: Box::new(then_branch),
+                else_branch: Box::new(else_branch),
+            }
+        };
+        let cases = [
+            (
+                "max(NaN, s)",
+                Expression::Aggregate {
+                    function: AggregateFunction::Max,
+                    operands: vec![not_a_number(), s()],
+                },
+            ),
+            (
+                "min(inf, s)",
+                Expression::Aggregate {
+                    function: AggregateFunction::Min,
+                    operands: vec![overflowing_x(), s()],
+                },
+            ),
+            (
+                "s / inf (ratio arm)",
+                binary(BinaryOperator::Divide, s(), overflowing_x()),
+            ),
+            (
+                "s / inf (dimensionless-divisor arm)",
+                binary(
+                    BinaryOperator::Divide,
+                    s(),
+                    binary(
+                        BinaryOperator::Multiply,
+                        ratio_literal(1.0e300),
+                        ratio_literal(1.0e300),
+                    ),
+                ),
+            ),
+            (
+                "force / inf length (derived arm)",
+                binary(
+                    BinaryOperator::Divide,
+                    literal(2.0, Dimension::Force),
+                    binary(
+                        BinaryOperator::Multiply,
+                        ratio_literal(1.0e300),
+                        literal(1.0e300, Dimension::Length),
+                    ),
+                ),
+            ),
+            ("select taken", select(true, overflowing_x(), s())),
+            ("select untaken", select(false, overflowing_x(), s())),
+        ];
+        for (name, expression) in cases {
+            let result = evaluate(&input(expression, x_binding()));
+            assert_eq!(finding_records(&result), vec![OVERFLOWED_PRODUCT], "{name}");
+            assert_eq!(result.value, None, "{name}");
+        }
+    }
+
+    #[test]
+    fn the_comparison_truth_table_is_unreachable() {
+        // I87 §2.4: every row pairs a non-finite operand (or two) with a
+        // comparison. Each operand's producer now blocks first, so no row is
+        // decided; the finding is the first (left-hand) producer's.
+        let positive = || {
+            binary(
+                BinaryOperator::Add,
+                literal(f64::MAX, Dimension::Stress),
+                literal(f64::MAX, Dimension::Stress),
+            )
+        };
+        let negative = || {
+            binary(
+                BinaryOperator::Divide,
+                literal(-1.0e300, Dimension::Stress),
+                ratio_literal(1.0e-300),
+            )
+        };
+        let not_a_number = || {
+            binary(
+                BinaryOperator::Multiply,
+                ratio_literal(0.0),
+                overflowing_x(),
+            )
+        };
+        let finite = || literal(1.0, Dimension::Stress);
+        let rows: [(Expression, Expression, (FindingCode, &str, &str)); 8] = [
+            (not_a_number(), finite(), OVERFLOWED_PRODUCT),
+            (not_a_number(), not_a_number(), OVERFLOWED_PRODUCT),
+            (positive(), finite(), OVERFLOWED_SUM),
+            (negative(), finite(), OVERFLOWED_QUOTIENT),
+            (finite(), positive(), OVERFLOWED_SUM),
+            (finite(), negative(), OVERFLOWED_QUOTIENT),
+            (positive(), positive(), OVERFLOWED_SUM),
+            (positive(), negative(), OVERFLOWED_SUM),
+        ];
+        for (left, right, expected) in rows {
+            for operator in [
+                ComparisonOperator::LessThan,
+                ComparisonOperator::LessThanOrEqual,
+                ComparisonOperator::GreaterThan,
+                ComparisonOperator::GreaterThanOrEqual,
+                ComparisonOperator::Equal,
+                ComparisonOperator::NotEqual,
+            ] {
+                let result = evaluate(&input(
+                    compare(operator, left.clone(), right.clone()),
+                    x_binding(),
+                ));
+                assert_eq!(finding_records(&result), vec![expected], "{operator:?}");
+                assert_eq!(result.value, None);
+            }
+        }
+    }
+
+    #[test]
+    fn finite_boundaries_still_evaluate() {
+        let stress = |value: f64| Quantity::new(value, Dimension::Stress, "stress_unit").unwrap();
+        let half_max = f64::MAX / 2.0;
+        let cases = [
+            (
+                "MAX + 0",
+                binary(
+                    BinaryOperator::Add,
+                    literal(f64::MAX, Dimension::Stress),
+                    literal(0.0, Dimension::Stress),
+                ),
+                stress(f64::MAX),
+            ),
+            (
+                "MAX * 1",
+                binary(
+                    BinaryOperator::Multiply,
+                    ratio_literal(1.0),
+                    literal(f64::MAX, Dimension::Stress),
+                ),
+                stress(f64::MAX),
+            ),
+            (
+                "MAX/2 + MAX/2",
+                binary(
+                    BinaryOperator::Add,
+                    literal(half_max, Dimension::Stress),
+                    literal(half_max, Dimension::Stress),
+                ),
+                stress(f64::MAX),
+            ),
+            (
+                "underflow to a subnormal",
+                binary(
+                    BinaryOperator::Multiply,
+                    literal(1.0e-308, Dimension::Stress),
+                    ratio_literal(1.0e-10),
+                ),
+                stress(1.0e-308 * 1.0e-10),
+            ),
+            (
+                "underflow to 0",
+                binary(
+                    BinaryOperator::Multiply,
+                    literal(5.0e-324, Dimension::Stress),
+                    ratio_literal(0.5),
+                ),
+                stress(0.0),
+            ),
+            (
+                "-0 + -0",
+                binary(
+                    BinaryOperator::Add,
+                    literal(-0.0, Dimension::Stress),
+                    literal(-0.0, Dimension::Stress),
+                ),
+                stress(-0.0),
+            ),
+            (
+                "MAX / 1 (the largest ratio)",
+                binary(
+                    BinaryOperator::Divide,
+                    literal(f64::MAX, Dimension::Stress),
+                    literal(1.0, Dimension::Stress),
+                ),
+                ratio_quantity(f64::MAX),
+            ),
+            (
+                "5e-324 / MAX",
+                binary(
+                    BinaryOperator::Divide,
+                    literal(5.0e-324, Dimension::Stress),
+                    literal(f64::MAX, Dimension::Stress),
+                ),
+                ratio_quantity(0.0),
+            ),
+            (
+                "a wide but finite interpolation",
+                Expression::Interpolate {
+                    table: rows_table("si1c_table", &[(-1.0e307, 0.0), (1.0e307, 10.0)]),
+                    argument: Box::new(ratio_literal(0.0)),
+                },
+                stress(5.0),
+            ),
+        ];
+        for (name, expression, expected) in cases {
+            let result = evaluate(&input(expression, vec![]));
+            assert!(result.findings.is_empty(), "{name}: {result:?}");
+            let Some(EvaluationValue::Quantity(actual)) = &result.value else {
+                panic!("{name}: {result:?}");
+            };
+            assert_eq!(actual.value.to_bits(), expected.value.to_bits(), "{name}");
+            assert_eq!(actual, &expected, "{name}");
+        }
+    }
+
+    #[test]
+    fn a_producer_blocks_after_its_structural_checks_and_stops_the_expression() {
+        // Structural checks still come first, and alone.
+        let structural = [
+            (
+                binary(
+                    BinaryOperator::Add,
+                    literal(1.0e308, Dimension::Stress),
+                    Expression::Literal(
+                        Quantity::new(1.0e308, Dimension::Stress, "other_stress_unit").unwrap(),
+                    ),
+                ),
+                FindingCode::UnitMismatch,
+                "add_subtract",
+            ),
+            (
+                binary(
+                    BinaryOperator::Subtract,
+                    literal(1.0e308, Dimension::Stress),
+                    literal(-1.0e308, Dimension::Length),
+                ),
+                FindingCode::DimensionMismatch,
+                "add_subtract",
+            ),
+            (
+                binary(
+                    BinaryOperator::Multiply,
+                    literal(1.0e200, Dimension::Stress),
+                    literal(1.0e200, Dimension::Length),
+                ),
+                FindingCode::UnsupportedExpressionForm,
+                "multiply",
+            ),
+            (
+                binary(
+                    BinaryOperator::Divide,
+                    literal(1.0e308, Dimension::Stress),
+                    literal(1.0e-308, Dimension::Length),
+                ),
+                FindingCode::UnsupportedExpressionForm,
+                "divide",
+            ),
+            (
+                binary(
+                    BinaryOperator::Divide,
+                    literal(1.0e308, Dimension::Stress),
+                    ratio_literal(0.0),
+                ),
+                FindingCode::DivisionByZero,
+                "divide",
+            ),
+            (
+                binary(
+                    BinaryOperator::Divide,
+                    literal(1.0e308, Dimension::Moment),
+                    literal(-0.0, Dimension::Length),
+                ),
+                FindingCode::DivisionByZero,
+                "divide",
+            ),
+        ];
+        for (expression, code, subject) in structural {
+            let result = evaluate(&input(expression, vec![]));
+            assert_eq!(result.findings.len(), 1, "{result:?}");
+            assert_eq!(result.findings[0].code, code);
+            assert_eq!(result.findings[0].subject_id, subject);
+            assert_eq!(result.value, None);
+        }
+
+        // A block at the producer stops the enclosing expression: nothing
+        // after it runs or reports (no MissingVariable, no DivisionByZero).
+        let stopped = [
+            binary(BinaryOperator::Add, overflowing_x(), variable("missing")),
+            binary(
+                BinaryOperator::Divide,
+                overflowing_x(),
+                binary(BinaryOperator::Divide, variable("c"), variable("zero")),
+            ),
+            Expression::Logical {
+                operator: LogicalOperator::And,
+                left: Box::new(compare(
+                    ComparisonOperator::GreaterThan,
+                    overflowing_x(),
+                    literal(1.0, Dimension::Stress),
+                )),
+                right: Box::new(compare(
+                    ComparisonOperator::GreaterThan,
+                    variable("missing"),
+                    literal(1.0, Dimension::Stress),
+                )),
+            },
+        ];
+        for expression in stopped {
+            let result = evaluate(&input(
+                expression,
+                vec![
+                    binding("x", 1.0e300, Dimension::Stress),
+                    binding("c", 1.0, Dimension::Stress),
+                    binding("zero", 0.0, Dimension::Stress),
+                ],
+            ));
+            assert_eq!(finding_records(&result), vec![OVERFLOWED_PRODUCT]);
+            assert_eq!(result.value, None);
+            assert_eq!(result.source_variable_ids, vec!["x"]);
+        }
+    }
+
+    #[test]
+    fn interval_mode_still_reads_these_overflows_indeterminate_without_a_finding() {
+        // Interval mode is unchanged by SI1c: at the same point inputs it
+        // reads U with `non_finite_enclosure` and no finding, with no overlay
+        // and with an exact-point (b = 0) overlay.
+        let not_a_number = || binary(BinaryOperator::Subtract, overflowing_x(), overflowing_x());
+        let cases = [
+            compare(
+                ComparisonOperator::NotEqual,
+                not_a_number(),
+                literal(100.0, Dimension::Stress),
+            ),
+            Expression::Aggregate {
+                function: AggregateFunction::Max,
+                operands: vec![not_a_number(), literal(2.0, Dimension::Stress)],
+            },
+            binary(
+                BinaryOperator::Divide,
+                literal(2.0, Dimension::Stress),
+                overflowing_x(),
+            ),
+            Expression::Interpolate {
+                table: rows_table("si1c_table", &[(-f64::MAX, 0.0), (f64::MAX, 10.0)]),
+                argument: Box::new(ratio_literal(0.0)),
+            },
+        ];
+        for expression in cases {
+            let point = evaluate(&input(expression.clone(), x_binding()));
+            assert!(point.is_blocked());
+            for overlays in [
+                vec![],
+                vec![IntervalBinding {
+                    variable_id: "x".to_string(),
+                    enclosure: enclosure_from_bound(1.0e300, 0.0),
+                }],
+            ] {
+                let result = evaluate_interval(&input(expression.clone(), x_binding()), &overlays);
+                assert!(result.findings.is_empty(), "{result:?}");
+                assert!(result
+                    .notes
+                    .iter()
+                    .any(|note| note.code == IntervalNoteCode::NonFiniteEnclosure));
+                match result.value {
+                    Some(IntervalValue::Boolean(truth)) => assert_eq!(truth, Truth::Indeterminate),
+                    Some(IntervalValue::Quantity(quantity)) => assert_eq!(quantity.enclosure, None),
+                    None => panic!("{result:?}"),
+                }
+            }
         }
     }
 }
@@ -4328,8 +5012,8 @@ mod interval_tests {
             note_codes(&result),
             vec![IntervalNoteCode::NonFiniteEnclosure]
         );
-        // The point path computes infinities or NaN there (and can fail on
-        // them), so not even Kleene logic decides around it.
+        // The point path blocks there (T3-SI1c), and interval mode reads it
+        // indeterminate, so not even Kleene logic decides around it.
         let decided = run(
             logical(
                 LogicalOperator::Or,
@@ -4341,9 +5025,10 @@ mod interval_tests {
         assert_eq!(truth(&decided), Truth::Indeterminate);
     }
 
-    /// The ordinary point path panics on these inputs (an overflowing
+    /// The ordinary point path used to panic on these inputs (an overflowing
     /// same-dimension quotient; a NaN interpolation or step-lookup argument),
-    /// a pre-existing defect routed to T3-SI1b. Interval mode reads them
+    /// repaired by T3-SI1b; it now blocks them, at the ratio or at the
+    /// multiply that overflows (T3-SI1c). Interval mode reads them
     /// indeterminate and never panics, with point or interval inputs.
     #[test]
     fn interval_mode_never_panics_where_the_point_path_can() {
@@ -4357,8 +5042,8 @@ mod interval_tests {
             assert_eq!(truth(&result), Truth::Indeterminate);
             assert!(note_codes(&result).contains(&IntervalNoteCode::NonFiniteEnclosure));
         }
-        // (z * 1e300) * 1e300 - (z * 1e300) * 1e300 is inf - inf = NaN in the
-        // point path.
+        // (z * 1e300) * 1e300 - (z * 1e300) * 1e300 would be inf - inf = NaN;
+        // the point path blocks at the multiply that overflows (T3-SI1c).
         let huge = || {
             bin(
                 BinaryOperator::Multiply,
@@ -4912,10 +5597,9 @@ mod interval_tests {
                     statuses: vec![AnalysisStatus::MechanicsSolved],
                     declared_grammar_version: GRAMMAR_VERSION.to_string(),
                 };
-                // The point path can panic on a non-finite intermediate (a
-                // same-dimension quotient that overflows, or a NaN table
-                // argument); a panic is neither a pass nor a fail, so it
-                // counts as blocked here.
+                // The point path blocks on a non-finite intermediate (T3-SI1b,
+                // T3-SI1c); a panic, should one recur, is neither a pass nor
+                // a fail, so it counts as blocked here.
                 let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                     evaluate(&point_input)
                 }))

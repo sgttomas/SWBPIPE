@@ -160,11 +160,14 @@ def point_value(node: dict, env: dict, exact: bool):
                     raise Block
                 quotient = left / right
                 if not exact and not math.isfinite(quotient):
-                    # A same-dimension ratio blocks (NonFiniteInput); other quotients
-                    # carry the value, and Block stays the conservative reading.
+                    # A non-finite quotient blocks (NonFiniteInput) in every arm
+                    # (T3-SI1c; a same-dimension ratio since T3-SI1b).
                     raise Block
                 return quotient
-            return {"add": left + right, "subtract": left - right, "multiply": left * right}[operator]
+            result = {"add": left + right, "subtract": left - right, "multiply": left * right}[operator]
+            if not exact and not math.isfinite(result):
+                raise Block  # an overflowing sum, difference or product (T3-SI1c)
+            return result
         if kind == "compare":
             return {"less_than": left < right, "less_than_or_equal": left <= right,
                     "greater_than": left > right, "greater_than_or_equal": left >= right,
@@ -186,7 +189,9 @@ def point_value(node: dict, env: dict, exact: bool):
             rows = [(Fraction(a), Fraction(r)) for a, r in rows]
         x = point_value(node["argument"], env, exact)
         if not exact and math.isnan(x):
-            raise Block  # NonFiniteInput (interpolate, step); TableKeyNotFound (exact)
+            # NonFiniteInput (interpolate, step); TableKeyNotFound (exact). Since
+            # T3-SI1c a NaN argument is never formed (its producer blocks first).
+            raise Block
         first, last = rows[0][0], rows[-1][0]
         for argument, result in rows:
             if argument == x:
@@ -197,7 +202,20 @@ def point_value(node: dict, env: dict, exact: bool):
             return [r for a, r in rows if a <= x][-1]
         for (a0, r0), (a1, r1) in zip(rows, rows[1:]):
             if a0 < x < a1:
-                return r0 + (r1 - r0) * ((x - a0) / (a1 - a0))
+                if exact:
+                    return r0 + (r1 - r0) * ((x - a0) / (a1 - a0))
+                # Each floating step must be finite, or the point path blocks
+                # (NonFiniteInput, T3-SI1c): rise, offset, run, fraction,
+                # product and sum, in that order.
+                rise, offset, run = r1 - r0, x - a0, a1 - a0
+                if not all(map(math.isfinite, (rise, offset, run))):
+                    raise Block
+                fraction = offset / run
+                product = rise * fraction
+                value = r0 + product
+                if not all(map(math.isfinite, (fraction, product, value))):
+                    raise Block
+                return value
     raise Block
 
 

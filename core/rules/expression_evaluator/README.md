@@ -25,9 +25,16 @@ follow-up ruling (D-02b); no parser exists at this freeze.
   `ratio` for dimensionless) — this crate still owns no unit conversion
   (DEC-018 places conversion at the units-catalog boundary).
 - The six comparisons over compatible dimensions with matching unit refs.
-- Boolean `and`/`or`/`not` and the eager `select` conditional (all
-  subexpressions always evaluated; diagnostics in unselected branches block).
+- Boolean `and`/`or`/`not` and the eager `select` conditional (evaluation
+  never short-circuits on a value, so a blocking diagnostic in an operand the
+  result does not need, or in an unselected branch, still blocks; operands
+  are evaluated in a fixed order, and evaluation stops at the first that
+  blocks, so a later operand's diagnostics are not reported).
 - N-ary `min`/`max` over same-dimension, same-unit quantities.
+- An intermediate result that is not finite (an overflow of an arithmetic or
+  interpolation step) is a blocking `NonFiniteInput` finding at the operation
+  that produced it, so no comparison, `min`/`max`, `select`, divisor or table
+  argument ever decides over an infinity or NaN.
 - Piecewise-linear `interpolate` and exact/step `lookup` over user-supplied
   monotone tables; out-of-range arguments are blocking diagnostics — no
   extrapolation and no clamping, ever.
