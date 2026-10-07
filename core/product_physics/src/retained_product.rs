@@ -3802,7 +3802,8 @@ impl ProductCapture {
     /// - Each case's observations bound to the envelope (`bind_observations`, per case), and,
     ///   with several cases, each case's rows bound as its block (`bind_case_rows`).
     ///
-    /// At c = 1 this is `prepare_owned_case`'s prelude, with the same adapter events.
+    /// At c = 1 this is the old one-case prelude, with the same adapter events; the one-case
+    /// `prepare_case` runs it too (RV109 R3P-9).
     fn prepared_custody(&mut self,ordinary:&MechanicsEnvelope,requested:usize,attempted:&[usize])->Result<(),CaptureError> {
         if let Some(slot)=self.parked.iter_mut().find(|slot|slot.error.is_some()) {
             return Err(slot.error.take().expect("observed prior case cause"));
@@ -3946,36 +3947,35 @@ impl ProductCapture {
     pub(super) fn late_refusal(&self)->Option<&super::retained_memory::PhaseRefusal> {self.late_refusal.as_ref()}
     /// The facade's capture permit, owned by this observer (U3 grant 1b: linear), for G-C.
     pub(super) fn permit(&self)->Option<&super::retained_memory::CapturePermit> {self.permit.as_ref()}
-    /// Preparation over the single actual ordinary run's capture (U3 and tests).
+    /// Preparation over the single actual ordinary run's capture (the private driver and tests):
+    /// custody (T-6) and the one product attempt (T-7), through `prepare_cases` with the one
+    /// requested case, so that there is one custody prelude (RV109 R3P-9). A custody refusal is
+    /// the attempt's preparation failure: its trace enters and fails preparation, with its
+    /// snapshot, and the cause is the capture's error.
     pub(super) fn prepare_case(self,ordinary:MechanicsEnvelope)->Result<PreparedCase,PreparedCaseFailure> {self.prepare_owned_case(ordinary)}
-    fn prepare_owned_case(mut self, ordinary:MechanicsEnvelope) -> Result<PreparedCase,PreparedCaseFailure> {
-        let mut out=AttemptParts::default();
-        let mut trace=trace::PreparedTrace::default();trace.enter(trace::Stage::Preparation);
-        let outcome=(|| -> Result<(),CaptureError> {
-            let ordinary=&ordinary;
-            // A prior owned cause precedes fresh prelude/accounting checks.
-            // Move its owner without cloning payload text or clearing sticky work.
-            if self.error.is_some() {
-                trace.costs.record::<Option<CaptureError>>();
-                return Err(self.error.take().expect("observed prior capture cause"));
+    fn prepare_owned_case(self, ordinary:MechanicsEnvelope) -> Result<PreparedCase,PreparedCaseFailure> {
+        match self.prepare_cases(ordinary,1,&[0]) {
+            Err(CustodyFailure{ordinary,mut capture,error})=>{
+                let mut trace=trace::PreparedTrace::default();trace.enter(trace::Stage::Preparation);
+                trace.fail_entered();capture.error=Some(error);trace.freeze(&capture);
+                Err(PreparedCaseFailure{associations:Vec::new(),ordinary,capture,preparations:Vec::new(),preparation_work:Vec::new(),
+                    preparation_error:None,old_operational:Vec::new(),trace})
             }
-            self.adapter.require()?;
-            if !self.prepared_probe || self.final_calls!=1
-                || ordinary.source_block_recovery.is_some() || self.native.is_some() || self.native_invocation.is_some()
-                || ordinary.producer.semantic_contract_id!=preview_physics::ID || ordinary.status.mechanics!="MECHANICS_SOLVED" {
-                return Err("prepared case custody/permit".into());
+            Ok(PreparedCases{ordinary,capture,mut attempts})=>{
+                let CaseAttempt{prepared,parts,trace,..}=attempts.pop().expect("one attempt");
+                let AttemptParts{preparations,preparation_work,associations,old_operational,preparation_error}=parts;
+                if prepared {
+                    Ok(PreparedCase{ordinary:Some(ordinary),proof_attempted:false,overlay_work:ScalarWork::default(),associations,capture,
+                        preparations,preparation_work,old_operational,trace})
+                } else {
+                    Err(PreparedCaseFailure{associations,ordinary,capture,preparations,preparation_work,preparation_error,old_operational,trace})
+                }
             }
-            self.bind_observations(ordinary)?;
-            self.prepare_active_case(&mut trace,&mut out)
-        })();
-        let AttemptParts{preparations,preparation_work:work,associations,old_operational,preparation_error}=out;
-        match outcome { Ok(())=>Ok(PreparedCase{ordinary:Some(ordinary),proof_attempted:false,overlay_work:ScalarWork::default(),associations,capture:self,preparations,preparation_work:work,old_operational,trace}),
-            Err(e)=>{trace.fail_entered();self.error=Some(e);trace.freeze(&self); Err(PreparedCaseFailure{associations,ordinary,capture:self,preparations,
-                preparation_work:work,preparation_error,old_operational,trace})} }
+        }
     }
     /// The preparation of the case in the capture's own fields (DESIGN_v2 T-7, one attempt):
     /// the old source's custody, the closed annulus helper per member, and the prepared
-    /// source. Shared by the one-case `prepare_owned_case` and B1's `prepare_cases`; what it
+    /// source. Run by each attempt of `prepare_cases` (and so by the one-case `prepare_case`); what it
     /// allocates and returns goes into `out`, whether it succeeds or not.
     fn prepare_active_case(&mut self,trace:&mut trace::PreparedTrace,out:&mut AttemptParts)->Result<(),CaptureError> {
         let old=self.source.as_ref().ok_or("old source validation missing")?;
