@@ -1042,3 +1042,203 @@ describe('07k and 07m slices (B6): the G7 base header codes, shared with Python 
         'G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED': 1, 'G7 SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN': 1 });
   });
 });
+
+// B1 SR-TS (I92; PLAN_v2 §2.4; DESIGN_v2 §2 and §3.2-§3.3): reader-local tests on synthetic n-case receipts, derived
+// from the shared two-case bases and must-pass entries by edits and a full reseal, as Rust's b1_* tests (I90) derive
+// theirs. They are not shared corpus entries: SC's 07n pins those (W-C2, d38_beside_selected with m1-m8, F-1's five and
+// not_required's three). Each verdict is the reader's first failure, or { admitted: numerical_eligible }.
+describe('B1 SR-TS: R-D38 (4b), F-1 text B per case and the not_required rule (reader-local, synthetic n-case receipts)', () => {
+  const F_BASE = 'two_case_facade_after_certificate_synthetic', P_BASE = 'two_case_preparation_failure_synthetic', DENSE = 'ordinary_prepared_dense_synthetic';
+  const NOT_REQUIRED = 'not_required_second_case_checks_passed', UNAVAILABLE_ROW = 'case:unavailable-row', SELECTED_ROW = 'case:six-component-load';
+  const PREP = G('G8', 'PREPARATION_MISMATCH'), PRODUCT = G('G5', 'PRODUCT_ATTEMPT_MISMATCH'), ATTEMPT = G('G5', 'ATTEMPT_MISMATCH');
+  const rb = (...tail: (string | number)[]) => ['retained_precision', 'body', ...tail];
+  const set = (path: (string | number)[], value: unknown) => ({ path, op: 'set', value });
+  const baseSource = (id: string) => structuredClone(corpus.cases.find((c: any) => c.id === id).source);
+  /** An entry on `base`: a must-pass entry's edits (when named), then `edits`; invocation edits rebind the digest. */
+  const entry = (base: string, must: string | null, edits: any[], invocationEdits: any[] = []) => {
+    const pre = must === null ? null : corpus.must_pass.find((m: any) => m.id === must);
+    if (pre) expect(pre.base).toBe(base);
+    return { id: 'b1_probe', base, edits: [...structuredClone(pre?.edits ?? []), ...edits], invocation_edits: [...structuredClone(pre?.invocation_edits ?? []), ...invocationEdits], rehash: 'all' };
+  };
+  async function verdict(e: any): Promise<unknown> {
+    const { source, invocation } = await applyEntry(e);
+    try { return { admitted: (await validateRetainedPrecision(source, invocation)).numerical_eligible }; }
+    catch (error) { expect(error).toBeInstanceOf(RetainedPrecisionError); return { gate: (error as any).gate, code: (error as any).code }; }
+  }
+  async function table(cases: [string, any, unknown][]): Promise<void> {
+    const misses: string[] = [];
+    for (const [name, e, want] of cases) { const got = await verdict(e); if (JSON.stringify(got) !== JSON.stringify(want)) misses.push(`${name}: got ${JSON.stringify(got)} want ${JSON.stringify(want)}`); }
+    expect(misses).toEqual([]);
+  }
+  const rowIndex = (source: any, kind: string, caseId: string) => source.results.findIndex((r: any) => r.kind === kind && r.basis_ref.ref_id === caseId);
+  /** The dense base's parity row moved to `caseId` with a fresh id; a non-selected case's row carries no recovery method (G6). */
+  const parityRow = (caseId: string, id: string, keepMethod = false) => {
+    const row = baseSource(DENSE).results[1]; expect(row.kind).toBe('sparse_live_path_dense_parity_relative_delta');
+    row.id = id; row.basis_ref.ref_id = caseId; if (!keepMethod) delete row.recovery_method; return row;
+  };
+  const withRows = (source: any, extra: any[]) => set(['results'], [...source.results, ...extra]);
+  /** R-D38 (4b) on F_BASE, as SC's d38_beside_selected rewrites W-C2's case C (Rust's d38_edits): case 1's native stage
+   * failed before any Run, beside selected case 0. No Run, execution_order, Call or Group entry names it; the call's
+   * after-value and charged are recomputed (case 1's Run built nothing); a typed capture cause; every hash resealed. */
+  function d38Edits(): any[] {
+    const body = baseSource(F_BASE).retained_precision.body, after = body.cases[0].run.invocation_after;
+    expect(body.builds.every((b: any) => b.origin.run === 0)).toBe(true);
+    const stages: Record<string, string> = Object.fromEntries(['preparation', 'native', 'proof_start', 'projection', 'maxima', 'values', 'aliases', 'certificate', 'observables', 'g5a'].map(k => [k, 'not_entered']));
+    Object.assign(stages, { preparation: 'completed', native: 'failed' });
+    return [
+      set(rb('cases', 1, 'run'), null),
+      set(rb('cases', 1, 'reason'), { code: 'source_unavailable', phase: 'preparation', cause: { kind: 'prepared_product_failure', product_attempt_ref: 1 } }),
+      set(rb('product_attempts', 1, 'run_ref'), null),
+      set(rb('product_attempts', 1, 'proof'), null),
+      set(rb('product_attempts', 1, 'stages'), stages),
+      set(rb('product_attempts', 1, 'result'), { kind: 'unavailable', error: { kind: 'capture', cause: { kind: 'origin', cause: { kind: 'capacity' } } } }),
+      set(rb('calls', 0, 'owner_refs'), [{ kind: 'case', index: 0 }]),
+      set(rb('calls', 0, 'source_refs'), [0]),
+      set(rb('calls', 0, 'run_refs'), [0]),
+      set(rb('calls', 0, 'invocation_after'), after),
+      set(rb('groups', 0, 'source_refs'), [0]),
+      set(rb('work', 'charged'), after),
+      set(rb('work', 'execution_order'), [{ kind: 'case', index: 0 }]),
+    ];
+  }
+  it('R-D38 (4b): a capture failure before any Run beside a selected case is admitted (needs_recompute); m1-m8 and the other (4b) conjuncts are refused', async () => {
+    const d38 = entry(F_BASE, null, d38Edits());
+    const { source, invocation } = await applyEntry(d38);
+    const bound = await validateRetainedPrecision(source, invocation), unbound = await validateRetainedPrecision(structuredClone(source));
+    expect([bound.invocation_bound, bound.numerical_eligible, bound.standing]).toEqual([true, false, 'needs_recompute']);
+    expect([unbound.invocation_bound, unbound.numerical_eligible, unbound.standing]).toEqual([false, false, 'needs_recompute']);
+    // Case 0 stays selected with its base classifications; the unavailable case has none.
+    expect(bound.classifications).toEqual(corpus.cases.find((c: any) => c.id === F_BASE).expected_classifications);
+    const transported = structuredClone(source); delete transported.results;
+    expect((await validateRetainedPrecisionTransport(transported)).standing).toBe('needs_recompute');
+    const attempt = (...tail: (string | number)[]) => rb('product_attempts', 1, ...tail);
+    const variant = (...edits: any[]) => entry(F_BASE, null, [...d38Edits(), ...edits]);
+    // Rust's first failures (I90 RETURN §5 test 1), except where noted; m1 with only error.kind changed is I90's G1 note.
+    await table([
+      ['m1 error {kind: native, run_ref: 1}', variant(set(attempt('result', 'error'), { kind: 'native', run_ref: 1 })), PRODUCT],
+      ['m1 error.kind alone set to native (the capture cause stays)', variant(set(attempt('result', 'error', 'kind'), 'native')), G('G1', 'RECEIPT_MISMATCH')],
+      ['m2 native completed', variant(set(attempt('stages', 'native'), 'completed')), PRODUCT],
+      ['m3 run_ref while the case has no Run', variant(set(attempt('run_ref'), 1)), PRODUCT],
+      ['m4 execution_order still lists the case', variant(set(rb('work', 'execution_order'), [{ kind: 'case', index: 0 }, { kind: 'case', index: 1 }])), G('G3', 'COVERAGE_MISMATCH')],
+      ['m5 proof_start completed', variant(set(attempt('stages', 'proof_start'), 'completed')), PRODUCT],
+      ['m6 source_ref null with preparation completed', variant(set(attempt('source_ref'), null)), PRODUCT],
+      ["m7 the case's source in the call's source_refs", variant(set(rb('calls', 0, 'source_refs'), [0, 1])), ATTEMPT],
+      ["m7 the case's source in the group's source_refs", variant(set(rb('groups', 0, 'source_refs'), [0, 1])), ATTEMPT],
+      ["m8 the case's source_ref differs from the attempt's", variant(set(rb('cases', 1, 'source_ref'), 0)), PRODUCT],
+      ['result ready', variant(set(attempt('result'), { kind: 'ready' })), PRODUCT],
+      ['preparation failed', variant(set(attempt('stages', 'preparation'), 'failed')), PRODUCT],
+      ['observables and G5a entered', variant(set(attempt('stages', 'observables'), 'failed'), set(attempt('stages', 'g5a'), 'failed')), PRODUCT],
+      ['reason code kernel_unresolved', variant(set(rb('cases', 1, 'reason', 'code'), 'kernel_unresolved')), PRODUCT],
+      ['reason phase kernel', variant(set(rb('cases', 1, 'reason', 'phase'), 'kernel')), PRODUCT],
+      ['the cause names the other attempt', variant(set(rb('cases', 1, 'reason', 'cause', 'product_attempt_ref'), 0)), PRODUCT],
+      // TS's ordinary class (G5, before the product class, as in Rust) also checks C2's cause branches: a receipt_failure
+      // cause needs phase receipt. So this compound variant is G5 ATTEMPT here; Rust has no such branch rule and reports
+      // G5 PRODUCT_ATTEMPT (D19; I90 RETURN §5). With the branch satisfied, TS too reports D19's PRODUCT_ATTEMPT.
+      ['the cause is a receipt_failure (phase preparation)', variant(set(rb('cases', 1, 'reason', 'cause'), { kind: 'receipt_failure', check: 'association', field_path: 'b1' })), ATTEMPT],
+      ['the cause is a receipt_failure (phase receipt, code receipt_encoding)', variant(set(rb('cases', 1, 'reason'), { code: 'receipt_encoding', phase: 'receipt', cause: { kind: 'receipt_failure', check: 'association', field_path: 'b1' } })), PRODUCT],
+    ]);
+  });
+  it('G5 not_required (DESIGN_v2 §3.3, decision 9): a W2-published case with the verdict checks_passed is admitted and eligible', async () => {
+    const report = baseSource(P_BASE).retained_precision.body.ordinary_attempts[1].initial.report_diagnostic_ref;
+    const ordinary = (key: string) => rb('ordinary_attempts', 1, key);
+    const evaluation = [
+      set(ordinary('initial'), { kind: 'structural_failure', error: { tag: 'range', detail: 'b1' }, diagnostic_ref: null }),
+      set(ordinary('w2'), { kind: 'published', trigger: { tag: 'evaluation', error: { tag: 'range', detail: 'b1' } }, force_scale_exponent: 3, report_diagnostic_ref: report }),
+    ];
+    const formation = [
+      set(ordinary('initial'), { kind: 'formation_failure', error: { tag: 'numerical_range', name: 'b1' }, basis_index: 0 }),
+      set(ordinary('w2'), { kind: 'published', trigger: { tag: 'formation', error: { tag: 'numerical_range', name: 'b1' } }, force_scale_exponent: -2, report_diagnostic_ref: report }),
+    ];
+    for (const [name, edits] of [['evaluation', evaluation], ['formation', formation]] as const) {
+      const { source, invocation } = await applyEntry(entry(P_BASE, NOT_REQUIRED, structuredClone(edits)));
+      const result = await validateRetainedPrecision(source, invocation);
+      expect([result.invocation_bound, result.numerical_eligible, result.standing], name).toEqual([true, true, 'eligible']);
+      expect(() => ordinaryAttempts(source.retained_precision.body, source), name).not.toThrow();
+    }
+    await table([
+      ['W2-published, verdict sensitive', entry(P_BASE, NOT_REQUIRED, [...structuredClone(evaluation), set(['numerical_quality', 'cases', 1, 'solve_quality'], 'sensitive')]), ATTEMPT],
+      ['initial not_attempted', entry(P_BASE, NOT_REQUIRED, [set(ordinary('initial'), { kind: 'not_attempted', cause: 'ineligible' })]), ATTEMPT],
+      ['a report whose outcome differs from the verdict (the kept equality)', entry(P_BASE, NOT_REQUIRED, [set(rb('ordinary_attempts', 1, 'initial', 'outcome'), 'sensitive')]), ATTEMPT],
+      // It names case 0's attempt, which G3's ownership check refuses first (as in Rust; I90's note).
+      ['product_attempt_ref non-null', entry(P_BASE, NOT_REQUIRED, [set(rb('cases', 1, 'product_attempt_ref'), 0)]), G('G3', 'COVERAGE_MISMATCH')],
+    ]);
+  });
+  it('G8 P1 and the requested mode, for every case, report PREPARATION; mode code 3 is refused', async () => {
+    const f = baseSource(F_BASE), p = (await applyEntry(entry(P_BASE, NOT_REQUIRED, []))).source;
+    const fm = rowIndex(f, 'linear_solver_mode_basis', UNAVAILABLE_ROW), fs = rowIndex(f, 'linear_solver_mode_basis', SELECTED_ROW), pm = rowIndex(p, 'linear_solver_mode_basis', UNAVAILABLE_ROW);
+    const duplicate = { ...structuredClone(f.results[fm]), id: 'result:b1:duplicate-mode' };
+    await table([
+      ['unavailable case: the dense code in sparse_interactive', entry(F_BASE, null, [set(['results', fm, 'value'], 2)]), PREP],
+      ['unavailable case: mode code 3', entry(F_BASE, null, [set(['results', fm, 'value'], 3)]), PREP],
+      ['unavailable case: two mode rows', entry(F_BASE, null, [withRows(f, [duplicate])]), PREP],
+      ['not_required case: no mode row', entry(P_BASE, NOT_REQUIRED, [{ path: ['results', pm], op: 'remove' }]), PREP],
+      ['unavailable case: the requested mode flipped', entry(F_BASE, null, [set(rb('ordinary_attempts', 1, 'requested_mode'), 'dense_scrutiny')]), PREP],
+      ['not_required case: the dense code in sparse_interactive', entry(P_BASE, NOT_REQUIRED, [set(['results', pm, 'value'], 2)]), PREP],
+      ['not_required case: mode code 3', entry(P_BASE, NOT_REQUIRED, [set(['results', pm, 'value'], 3)]), PREP],
+      ['selected case: mode code 3', entry(F_BASE, null, [set(['results', fs, 'value'], 3)]), PREP],
+      ['selected case: the requested mode flipped', entry('ordinary_prepared_synthetic', null, [set(rb('ordinary_attempts', 0, 'requested_mode'), 'dense_scrutiny')]), PREP],
+      ['selected dense case: the sparse code', entry(DENSE, null, [set(['results', rowIndex(baseSource(DENSE), 'linear_solver_mode_basis', SELECTED_ROW), 'value'], 1)]), PREP],
+    ]);
+  });
+  it('G8 P2-P4 for every case: at most one parity row, none in sparse_interactive, none on a W2-published case; a dense b = 0 case may lack one', async () => {
+    const p = (await applyEntry(entry(P_BASE, NOT_REQUIRED, []))).source, report = p.retained_precision.body.ordinary_attempts[1].initial.report_diagnostic_ref;
+    // 07j's two-case statement made dense: the invocation's mode, both requested modes and both mode rows (no parity row).
+    const denseRows = structuredClone(p); for (const id of [SELECTED_ROW, UNAVAILABLE_ROW]) denseRows.results[rowIndex(p, 'linear_solver_mode_basis', id)].value = 2;
+    const dense = [set(rb('ordinary_attempts', 0, 'requested_mode'), 'dense_scrutiny'), set(rb('ordinary_attempts', 1, 'requested_mode'), 'dense_scrutiny')];
+    const toDense = [set(['solver_mode'], 'dense_scrutiny')];
+    const w2 = [
+      set(rb('ordinary_attempts', 1, 'initial'), { kind: 'structural_failure', error: { tag: 'range', detail: 'b1' }, diagnostic_ref: null }),
+      set(rb('ordinary_attempts', 1, 'w2'), { kind: 'published', trigger: { tag: 'evaluation', error: { tag: 'range', detail: 'b1' } }, force_scale_exponent: 3, report_diagnostic_ref: report }),
+    ];
+    const onDense = (rows: any[], extra: any[] = []) => entry(P_BASE, NOT_REQUIRED, [...dense, withRows(denseRows, rows), ...extra], toDense);
+    const one = () => parityRow(UNAVAILABLE_ROW, 'result:b1:parity-1'), two = () => parityRow(UNAVAILABLE_ROW, 'result:b1:parity-2');
+    const d = baseSource(DENSE), twice = { ...structuredClone(d.results[1]), id: 'result:b1:parity-twice' };
+    const denseW2 = [
+      set(rb('ordinary_attempts', 0, 'initial'), { kind: 'structural_failure', error: { tag: 'range', detail: 'b1' }, diagnostic_ref: null }),
+      set(rb('ordinary_attempts', 0, 'w2'), { kind: 'published', trigger: { tag: 'evaluation', error: { tag: 'range', detail: 'b1' } }, force_scale_exponent: 3, report_diagnostic_ref: d.retained_precision.body.ordinary_attempts[0].initial.report_diagnostic_ref }),
+    ];
+    await table([
+      ['dense b = 0, no parity row on either case', onDense([]), { admitted: true }],
+      ['dense b = 0, one parity row on the not_required case', onDense([one()]), { admitted: true }],
+      ['dense, a W2-published not_required case without a parity row', onDense([], structuredClone(w2)), { admitted: true }],
+      ['P2: two parity rows on the not_required case', onDense([one(), two()]), PREP],
+      ['P4: a parity row on the W2-published not_required case', onDense([one()], structuredClone(w2)), PREP],
+      ['P2: two parity rows on the dense selected case', entry(DENSE, null, [withRows(d, [twice])]), PREP],
+      ['P4: a parity row on a W2-published selected case', entry(DENSE, null, denseW2), PREP],
+      ['P3: a parity row on the sparse unavailable case', entry(F_BASE, null, [withRows(baseSource(F_BASE), [parityRow(UNAVAILABLE_ROW, 'result:b1:sparse-parity')])]), PREP],
+      ['P3: a parity row on the sparse selected case', entry('ordinary_prepared_synthetic', null, [withRows(baseSource('ordinary_prepared_synthetic'), [parityRow(SELECTED_ROW, 'result:b1:sparse-selected-parity', true)])]), PREP],
+      // I90's note: a parity row copied onto a non-selected case with its recovery method is G6 ROW_METHOD first.
+      ['a non-selected case\'s parity row keeping recovery_method', onDense([parityRow(UNAVAILABLE_ROW, 'result:b1:parity-method', true)]), G('G6', 'ROW_METHOD_MISMATCH')],
+    ]);
+  });
+  it('RV108 N4: transport reads no rows, so a non-object results entry is admitted on transport (as in Rust and Python); the full reader refuses it at G1', async () => {
+    const bases: [string, any][] = [['ordinary_prepared_synthetic', baseSource('ordinary_prepared_synthetic')], ['milestone_sparse_interactive', JSON.parse(milestoneSparseText).source], ['milestone_dense_scrutiny', JSON.parse(milestoneDenseText).source]];
+    const forms: [string, (rows: any[]) => void][] = [['results[0]=null', r => { r[0] = null; }], ['results+=null', r => { r.push(null); }], ['results[0]=1', r => { r[0] = 1; }], ['results[0]="row"', r => { r[0] = 'row'; }], ['results[0]=[]', r => { r[0] = []; }]];
+    for (const [name, source] of bases) {
+      const plain = await validateRetainedPrecisionTransport(structuredClone(source));
+      expect([plain.numerical_eligible, plain.standing, plain.publication_sha256], name).toEqual([false, 'needs_recompute', source.retained_precision.body.publication_sha256]);
+      for (const [form, edit] of forms) {
+        const t = structuredClone(source); edit(t.results);
+        expect(await validateRetainedPrecisionTransport(t), `${name} ${form}`).toEqual(plain);
+        expect(await firstFailure(t), `${name} ${form}`).toEqual(G('G1', 'RECEIPT_MISMATCH'));
+      }
+      // RV108's other row forms were already admitted on transport; they stay so.
+      for (const [form, value] of [['results="rows"', 'rows'], ['results=null', null], ['results=[]', []]] as const) {
+        const t = structuredClone(source); t.results = structuredClone(value);
+        expect(await validateRetainedPrecisionTransport(t), `${name} ${form}`).toEqual(plain);
+      }
+    }
+  });
+  it('RV108 N6: the G7 header codes named by baseHeaderCode\'s doc, for list- and dict-valued enums and the two documented differences', async () => {
+    const at = async (edits: any[]) => { const { source, invocation } = await applyEntry(entry('ordinary_prepared_synthetic', null, edits)); return firstFailure(source, invocation); };
+    // A list- or dict-valued enum: TS gives the header code Rust gives (and Python with SR-PY's RV108 N1 guard).
+    for (const value of [['passive_model_basis'], { value: 'passive_model_basis' }]) {
+      for (const field of ['structural_status', 'model_matrix_fidelity', 'accuracy_evidence']) expect(await at([set(['numerical_quality', 'cases', 0, field], value)]), field).toEqual({ gate: 'G7', code: 'SOURCE_NUMERICAL_CASE_INVALID' });
+      expect(await at([set(['numerical_quality', 'status'], value)]), 'status').toEqual({ gate: 'G7', code: 'SOURCE_NUMERICAL_QUALITY_INVALID' });
+    }
+    // The declared carrier_evidence class (Rust's header does not read it): TS, like Python, keeps the producer code.
+    expect(await at([set(['carrier_evidence'], {}), set(['numerical_quality', 'cases', 0, 'structural_status'], ['x'])])).toEqual({ gate: 'G7', code: 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED' });
+    // Two header defects: TS, like Python, reports contract_evidence first (Rust reports source_block_recovery; inherited).
+    expect(await at([set(['contract_evidence'], null), set(['source_block_recovery'], {})])).toEqual({ gate: 'G7', code: 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED' });
+  });
+});
