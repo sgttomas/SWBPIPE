@@ -604,6 +604,7 @@ def _g5_native_checks(body, runs, fail, wf):
     for item in runs + body["builds"] + [g["preparation"] for g in body["groups"]]:
         fail(not any(o.get("tag") == "work_accounting" for o in _objects(item)))
     current = 0
+    built_refs = set()  # builds referenced by their building record (R-D38 (4b)'s Build conjunct)
     for call_id, call in enumerate(body["calls"]):
         fail(call["id"] == call_id and call["invocation_before"] == current, "WORK_MISMATCH")
         fail(len(call["run_refs"]) == len(call["source_refs"]) == len(call["owner_refs"]))
@@ -668,7 +669,9 @@ def _g5_native_checks(body, runs, fail, wf):
                     fail(build["work"] == cost and build["group"] == run["origin"]["group"], "WORK_MISMATCH")
                     fail(build["slot"] == ("s" if part == "shared" else "v") + str(r["precision"]), "WORK_MISMATCH")
                     for key, count in build["stages"].items(): shared_stages[key] += count
-                    if built: fail(build["origin"] == {"call": call_id, "run": ri, "physical_record": r["index"], "phase": part}, "WORK_MISMATCH")
+                    if built:
+                        fail(build["origin"] == {"call": call_id, "run": ri, "physical_record": r["index"], "phase": part}, "WORK_MISMATCH")
+                        built_refs.add(int(bi))
                     else: fail(build["origin"]["run"] < ri or (build["origin"]["run"] == ri and build["origin"]["physical_record"] < r["index"]), "WORK_MISMATCH")
                 fail(shared_stages == w["shared_stages"], "WORK_MISMATCH")
             fragments = []
@@ -738,6 +741,10 @@ def _g5_native_checks(body, runs, fail, wf):
         call = _ref(body["calls"], group["call"])
         fail(call is not None and len(set(group["source_refs"])) == len(group["source_refs"]) and all(si in call["source_refs"] for si in group["source_refs"]))
     fail(body["work"]["charged"] == current, "WORK_MISMATCH")
+    # Every Build is referenced by its building record (C1 build provenance; WORK), as Rust's
+    # `builds_seen` and TypeScript's `seenBuilds` require. So no Build outlives its Run, and none
+    # names a case whose native stage failed before any Run (R-D38 (4b), DESIGN_v2 §2).
+    fail(built_refs == set(range(len(body["builds"]))), "WORK_MISMATCH")
     for call_id, call in enumerate(body["calls"]):
         # C2:143 call-local groups at first equality of full stiffness bytes, first-seen order;
         # an idle (group-null) run never formed a group (adaptive.rs `solve_cases_projected`).
@@ -816,7 +823,34 @@ def _conversion_kind_ok(outcome):
 STAGE_ORDER = ["preparation", "native", "proof_start", "projection", "maxima", "values", "aliases", "certificate", "observables", "g5a"]
 
 
-def _g5_stages(a, case, fail):
+def _d38_capture_before_run(a, case, ai):
+    """R-D38 (4b) (DESIGN_v2 §2; RR:8823; C1:103, C3:167): a native capture failure before any Run,
+    beside a registered prepared source (C2 §3 registers a CaseSource once it is constructed and its
+    maps validate, whatever the outcome). G5 PRODUCT_ATTEMPT. The conjuncts here: the case has no Run
+    and the attempt no proof; an unavailable `capture` result; the stage record done(1, [failed]),
+    preparation completed, native failed and every later stage not_entered; the case unavailable with
+    `prepared_product_failure` naming this attempt and reason (source_unavailable, preparation), D4d's
+    mapping for a capture with no Run; and a non-null source reference equal to the case's own
+    ([r01: N-6]; TS already requires it). The caller's branch gives `run_ref` null.
+
+    The rest of (4b) holds for every receipt elsewhere: `_g5_products` resolves a non-null source
+    reference to a CaseSource whose preparation binds this attempt; G3 binds `execution_order` to
+    the cases' Runs; G5's native class binds every Call position to its Run's own case and source,
+    every Group source to its Call, and every Build to its building record (`_g5_native_checks`)."""
+    st = a["stages"]
+    reason = case.get("reason") or {}
+    cause = reason.get("cause") or {}
+    return (case.get("run") is None and a["proof"] is None
+            and a["result"]["kind"] == "unavailable" and a["result"]["error"]["kind"] == "capture"
+            and st["preparation"] == "completed" and st["native"] == "failed"
+            and all(st[k] == "not_entered" for k in STAGE_ORDER[2:])
+            and case["status"] == "unavailable" and cause.get("kind") == "prepared_product_failure"
+            and cause.get("product_attempt_ref") == ai
+            and (reason.get("code"), reason.get("phase")) == ("source_unavailable", "preparation")
+            and a["source_ref"] is not None and a["source_ref"] == case.get("source_ref"))
+
+
+def _g5_stages(a, case, fail, ai):
     """Checklist P2, P6, P11 (C3:196-201, 253-257; retained_receipt.rs `PreparedTrace::enter` through `PreparedTrace::checked`, `project`)."""
     st, proof = a["stages"], a["proof"]
     pipeline = [st[k] for k in STAGE_ORDER[:8]]
@@ -833,6 +867,10 @@ def _g5_stages(a, case, fail):
     run = case.get("run")
     if st["native"] == "not_entered":
         fail(a["run_ref"] is None)
+    elif st["native"] == "failed" and a["run_ref"] is None:
+        # R-D38 (DESIGN_v2 §2; RR:8823): an entered native stage has a Run (4a, below), except a
+        # native capture failure before any Run beside a registered prepared source (4b).
+        fail(_d38_capture_before_run(a, case, ai))
     else:
         fail(a["run_ref"] is not None and run is not None and (st["native"] == "completed") == (run["kernel_terminal"]["kind"] == "selected"))
     fail((st["preparation"] == "completed") == (a["source_ref"] is not None) or st["preparation"] == "not_entered" and a["source_ref"] is None)
@@ -1032,7 +1070,7 @@ def _g5_products(body, rows_by_case):
                     value = 0.0 if outcome["kind"] == "underflow" else from_bits(outcome["value"])
                     fail(bits(float(row["value"])) == bits(value if value != 0 else 0.0))
         _g5_coverage(a, case, source, fail)
-        _g5_stages(a, case, fail)
+        _g5_stages(a, case, fail, ai)
         for ok in _accounting_rules(a): wf(ok)
         if a["result"]["kind"] == "ready":
             fail(source is not None and a["run_ref"] is not None and case["run"]["kernel_terminal"]["kind"] == "selected")
@@ -1425,6 +1463,24 @@ def _g8(body, source, invocation):
     nodes, pipes, supports = model["nodes"], model["pipe_segments"], model["supports"]
     need(len({x["id"] for x in nodes}) == len(nodes) and len({x["id"] for x in pipes}) == len(pipes) and len({x["id"] for x in supports}) == len(supports))
     materials = request.get("materials") or model.get("materials", [])
+    # F-1 text B (DESIGN_v2 §3.2-§3.3, decision 8): after the invocation, project and model-scope
+    # checks, one loop in request order over every case (selected, unavailable or not_required:
+    # every case's rows come from the one ordinary run). G3 binds case i to ordinary attempt i and
+    # to the invocation's case i. Each check is PREPARATION_MISMATCH.
+    mode = invocation.get("solver_mode")
+    mode_code = {"sparse_interactive": 1, "dense_scrutiny": 2}.get(mode) if isinstance(mode, str) else None
+    for i, case in enumerate(body["cases"]):
+        o = body["ordinary_attempts"][i]
+        need(o["requested_mode"] == mode)
+        case_rows = [r for r in source["results"] if r["basis_ref"]["ref_id"] == case["basis_ref"]["ref_id"]]
+        modes = [r for r in case_rows if r["kind"] == "linear_solver_mode_basis"]
+        # P1: exactly one mode row, valued with the mode code (1 sparse, 2 dense).
+        need(len(modes) == 1 and mode_code is not None and type(modes[0]["value"]) in (int, float) and modes[0]["value"] == mode_code)
+        parity = sum(1 for r in case_rows if r["kind"] == "sparse_live_path_dense_parity_relative_delta")
+        # P2: at most one parity row. P3: none in sparse_interactive. P4: none when W2 published
+        # (b != 0; OQ5). A dense b = 0 case may lack it (a failed observation lane); that deletion
+        # is the disclosed limit.
+        need(parity <= 1 and (parity == 0 or mode == "dense_scrutiny") and (parity == 0 or o["w2"]["kind"] != "published"))
     from core.units.adapter import convert_quantities_to_canonical
     def unit(q, dimension):
         values = convert_quantities_to_canonical([{"id":"v","value":q["value"],"unit":q["unit"],"dimension":dimension}])
