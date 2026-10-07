@@ -1999,6 +1999,42 @@ fn reason_table(c: &Value, a: &Value) -> VResult {
     }
     Ok(())
 }
+/// R-D38 (4b) (DESIGN_v2 §2; RR:8823; C1:103, C3:167), for an attempt whose
+/// native stage failed with no Run: a native capture failure before any Run,
+/// beside a registered prepared source (C2 §3 registers a CaseSource once it
+/// is constructed and its maps validate, whatever the outcome). G5
+/// PRODUCT_ATTEMPT. The conjuncts here: an unavailable `capture` result; the
+/// stage record done(1, [failed]), preparation completed and every stage after
+/// native not_entered; the case unavailable with `prepared_product_failure`
+/// naming this attempt and reason (source_unavailable, preparation), D4d's
+/// mapping for a capture with no Run; and a non-null source reference equal to
+/// the case's own (TS already requires it; [r01: N-6]).
+/// The rest of (4b) holds at the call site: `run_ref` is null (the branch),
+/// so the case's Run is null and `proof` is null (both refused above
+/// otherwise), and a non-null source reference resolves to a CaseSource whose
+/// preparation binds this attempt (checked above for every attempt). That no
+/// Run, Call or Group `source_refs` entry, Build or `execution_order` entry
+/// names this case or its source holds for every receipt: G3 binds
+/// `execution_order` to the cases' Runs, and G5's native class binds every
+/// Call position to its Run's own case and source, every Group source to its
+/// Call, and every Build to its building record.
+fn d38_capture_before_run(c: &Value, a: &Value, ai: usize) -> bool {
+    let st = &a["stages"];
+    a["result"]["kind"] == "unavailable"
+        && a["result"]["error"]["kind"] == "capture"
+        && st["preparation"] == "completed"
+        && STAGE8[2..]
+            .iter()
+            .chain(&["observables", "g5a"])
+            .all(|k| st[*k] == "not_entered")
+        && c["status"] == "unavailable"
+        && c["reason"]["cause"]["kind"] == "prepared_product_failure"
+        && u(&c["reason"]["cause"]["product_attempt_ref"]) == ai as u64
+        && c["reason"]["code"] == "source_unavailable"
+        && c["reason"]["phase"] == "preparation"
+        && !a["source_ref"].is_null()
+        && a["source_ref"] == c["source_ref"]
+}
 fn g5_products(source: &Value) -> VResult {
     let b = &source["retained_precision"]["body"];
     let pf = |ok| need(ok, "G5", "PRODUCT_ATTEMPT_MISMATCH");
@@ -2243,7 +2279,14 @@ fn g5_products(source: &Value) -> VResult {
             pf(c["run"]["kernel_terminal"]["kind"] == "selected")?;
         }
         if st["native"] != "not_entered" {
-            pf(!a["run_ref"].is_null() && st["preparation"] == "completed")?;
+            // R-D38 (DESIGN_v2 §2; RR:8823): an entered native stage has a Run
+            // (4a), except a native capture failure before any Run beside a
+            // registered prepared source (4b).
+            if st["native"] == "failed" && a["run_ref"].is_null() {
+                pf(d38_capture_before_run(c, a, ai))?;
+            } else {
+                pf(!a["run_ref"].is_null() && st["preparation"] == "completed")?;
+            }
             pf((st["native"] == "completed")
                 == (c["run"]["kernel_terminal"]["kind"] == "selected"))?;
         } else {
@@ -3510,27 +3553,37 @@ fn g8(source: &Value, inv: &Value) -> VResult {
             "PREPARATION_MISMATCH",
         )?;
         fail(o["requested_mode"] == mode && u(&o["material_basis_ref"]) == index as u64)?;
+        // F-1 text B (DESIGN_v2 §3.2-§3.3, decision 8): for every case, selected,
+        // unavailable or not_required, since every case's rows come from the one
+        // ordinary run. `o` is the case's own ordinary attempt (G3 binds
+        // `ordinary.attempt_ref` to the case index).
         let rows = rows_for(source, &b["cases"][i]);
         let modes: Vec<_> = rows
             .iter()
             .filter(|r| r["kind"] == "linear_solver_mode_basis")
             .collect();
-        if b["cases"][i]["status"] == "selected" {
-            fail(
-                modes.len() == 1
-                    && modes[0]["value"].as_f64()
-                        == Some(if mode == "sparse_interactive" {
-                            1.0
-                        } else {
-                            2.0
-                        }),
-            )?;
-            let parity = rows
-                .iter()
-                .filter(|r| r["kind"] == "sparse_live_path_dense_parity_relative_delta")
-                .count();
-            fail(parity == usize::from(mode == "dense_scrutiny"))?;
-        }
+        // P1: exactly one mode row, valued with the mode code (1 sparse, 2 dense).
+        fail(
+            modes.len() == 1
+                && modes[0]["value"].as_f64()
+                    == Some(if mode == "sparse_interactive" {
+                        1.0
+                    } else {
+                        2.0
+                    }),
+        )?;
+        let parity = rows
+            .iter()
+            .filter(|r| r["kind"] == "sparse_live_path_dense_parity_relative_delta")
+            .count();
+        // P2: at most one parity row. P3: none in sparse_interactive. P4: none
+        // when W2 published (b != 0; OQ5). A dense b = 0 case may lack it (a
+        // failed observation lane); that deletion is the disclosed limit.
+        fail(
+            parity <= 1
+                && (parity == 0 || mode == "dense_scrutiny")
+                && (parity == 0 || o["w2"]["kind"] != "published"),
+        )?;
     }
     fail(list(&b["material_bases"]).len() == expected_selectors.len())?;
     for (mi, mb) in list(&b["material_bases"]).iter().enumerate() {
@@ -4160,15 +4213,17 @@ fn g5_ordinary(source: &Value) -> VResult {
         if matches!(text(&c["status"]), "selected" | "not_required") {
             fail(o["initial"]["kind"] != "not_attempted")?;
         }
+        // B1 (DESIGN_v2 §3.3, decision 9; C1:101): a not_required case has no
+        // product attempt, an attempted ordinary run (above) and the published
+        // verdict checks_passed. Its initial need not be a Passed report, nor
+        // its W2 untriggered: a W2-published case with that verdict is
+        // not_required (T-4). PY `_g5_ordinary` and TS `ordinaryAttempts`
+        // apply the same rule.
         if c["status"] == "not_required" {
-            fail(
-                c["product_attempt_ref"].is_null()
-                    && quality["solve_quality"] == "checks_passed"
-                    && o["initial"]["kind"] == "report"
-                    && o["initial"]["outcome"] == "checks_passed"
-                    && o["w2"]["kind"] == "not_triggered",
-            )?;
+            fail(c["product_attempt_ref"].is_null() && quality["solve_quality"] == "checks_passed")?;
         }
+        // The report-outcome equality is kept; its W2 guard is equivalent
+        // under D6c, since W2 runs only after a failed ordinary attempt.
         if o["initial"]["kind"] == "report" && o["w2"]["kind"] == "not_triggered" {
             fail(o["initial"]["outcome"] == quality["solve_quality"])?;
         }
