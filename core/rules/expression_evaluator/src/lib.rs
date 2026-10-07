@@ -306,6 +306,9 @@ pub enum FindingCode {
     DuplicateBinding,
     InvalidReference,
     MissingRequiredValue,
+    /// A value that must be finite is not: a variable binding, a literal, a
+    /// same-dimension quotient (ratio), a NaN interpolation or step-lookup
+    /// argument, or an interval binding end (interval mode). Always blocking.
     NonFiniteInput,
     DivisionByZero,
     UnitMetadataMissing,
@@ -956,6 +959,10 @@ fn eval_table_expression(
             }
         }
         Some(LookupMode::Step) => {
+            if x.is_nan() {
+                findings.push(nan_table_argument(&subject_id));
+                return None;
+            }
             if x < first || x > last {
                 findings.push(table_out_of_range(&subject_id, x, first, last));
                 return None;
@@ -969,6 +976,10 @@ fn eval_table_expression(
                 .result
         }
         None => {
+            if x.is_nan() {
+                findings.push(nan_table_argument(&subject_id));
+                return None;
+            }
             if x < first || x > last {
                 findings.push(table_out_of_range(&subject_id, x, first, last));
                 return None;
@@ -1011,6 +1022,20 @@ fn table_out_of_range(
             "table argument {argument} is outside the table range [{first}, {last}]; \
              extrapolation and clamping are not permitted"
         ),
+    )
+}
+
+/// A NaN interpolation or step-lookup argument (from a non-finite
+/// intermediate such as `inf - inf`) is neither inside nor outside the table
+/// range, so it blocks as a non-finite input. An infinite argument is outside
+/// the range and stays [`FindingCode::TableOutOfRange`]; an exact lookup
+/// keeps its own [`FindingCode::TableKeyNotFound`] block.
+fn nan_table_argument(subject_id: impl Into<String>) -> EvaluationFinding {
+    EvaluationFinding::new(
+        FindingCode::NonFiniteInput,
+        subject_id,
+        "table argument must be finite: a NaN argument is neither inside nor outside \
+         the table range",
     )
 }
 
@@ -1261,9 +1286,18 @@ fn divide(
                 findings.push(unit_mismatch("divide", &left, &right));
                 return None;
             }
-            Some(EvaluationValue::Quantity(ratio_quantity(
-                left.value / right.value,
-            )))
+            // The ratio quantity must be finite: an overflowing quotient, or a
+            // non-finite operand carried from an earlier operation, blocks.
+            let ratio = left.value / right.value;
+            if !ratio.is_finite() {
+                findings.push(EvaluationFinding::new(
+                    FindingCode::NonFiniteInput,
+                    "divide",
+                    "same-dimension quotient (ratio) must be finite",
+                ));
+                return None;
+            }
+            Some(EvaluationValue::Quantity(ratio_quantity(ratio)))
         }
         (left_dim, right_dim) => match dimension_quotient(left_dim, right_dim) {
             DimensionQuotient::Unique(quotient) => Some(EvaluationValue::Quantity(Quantity {
@@ -3397,6 +3431,399 @@ mod tests {
             vec![],
         ));
         assert_eq!(unit_mismatch.findings[0].code, FindingCode::UnitMismatch);
+    }
+
+    // T3-SI1b: inputs on which the point path used to panic now block.
+
+    fn ratio_literal(value: f64) -> Expression {
+        Expression::Literal(Quantity::dimensionless(value, "ratio").unwrap())
+    }
+
+    fn binary(operator: BinaryOperator, left: Expression, right: Expression) -> Expression {
+        Expression::Binary {
+            operator,
+            left: Box::new(left),
+            right: Box::new(right),
+        }
+    }
+
+    fn variable(id: &str) -> Expression {
+        Expression::VariableRef(id.to_string())
+    }
+
+    fn finding_records(result: &EvaluationResult) -> Vec<(FindingCode, &str, &str)> {
+        result
+            .findings
+            .iter()
+            .map(|f| (f.code, f.subject_id.as_str(), f.message.as_str()))
+            .collect()
+    }
+
+    const NON_FINITE_RATIO: (FindingCode, &str, &str) = (
+        FindingCode::NonFiniteInput,
+        "divide",
+        "same-dimension quotient (ratio) must be finite",
+    );
+
+    #[test]
+    fn blocks_overflowing_same_dimension_quotient_instead_of_panicking() {
+        let quotient = || {
+            binary(
+                BinaryOperator::Divide,
+                variable("actual"),
+                variable("limit"),
+            )
+        };
+        // Smallest reproducer: two finite stresses whose ratio overflows, either sign.
+        for (actual, limit) in [(1.0e308, 1.0e-308), (-1.0e308, 1.0e-308), (f64::MAX, 0.5)] {
+            let result = evaluate(&input(
+                quotient(),
+                vec![
+                    binding("actual", actual, Dimension::Stress),
+                    binding("limit", limit, Dimension::Stress),
+                ],
+            ));
+            assert_eq!(
+                finding_records(&result),
+                vec![NON_FINITE_RATIO],
+                "{actual} / {limit}"
+            );
+            assert_eq!(result.value, None);
+            assert_eq!(result.statuses, vec![AnalysisStatus::MechanicsSolved]);
+            assert_eq!(result.source_variable_ids, vec!["actual", "limit"]);
+        }
+
+        // A non-finite operand carried from an earlier operation: +inf, then NaN.
+        let infinite = || {
+            binary(
+                BinaryOperator::Multiply,
+                ratio_literal(1.0e300),
+                variable("actual"),
+            )
+        };
+        let not_a_number = binary(BinaryOperator::Subtract, infinite(), infinite());
+        for numerator in [infinite(), not_a_number] {
+            let result = evaluate(&input(
+                binary(BinaryOperator::Divide, numerator, variable("limit")),
+                vec![
+                    binding("actual", 1.0e300, Dimension::Stress),
+                    binding("limit", 2.0, Dimension::Stress),
+                ],
+            ));
+            assert_eq!(finding_records(&result), vec![NON_FINITE_RATIO]);
+            assert_eq!(result.value, None);
+        }
+    }
+
+    #[test]
+    fn blocks_an_i73_differential_quotient_input() {
+        // I73's differential input gen_400_5: (z*y - 1e300) / y, y = 1e-300.
+        let stress = |value: f64| {
+            Expression::Literal(
+                Quantity::new(value, Dimension::Stress, "invented_stress_unit").unwrap(),
+            )
+        };
+        let expression = binary(
+            BinaryOperator::Divide,
+            binary(
+                BinaryOperator::Subtract,
+                binary(BinaryOperator::Multiply, variable("z"), variable("y")),
+                stress(1.0e300),
+            ),
+            variable("y"),
+        );
+        let result = evaluate(&EvaluationInput {
+            expression,
+            bindings: vec![
+                binding_with_unit("x", 1.0, Dimension::Stress, "invented_stress_unit"),
+                binding_with_unit("y", 1.0e-300, Dimension::Stress, "invented_stress_unit"),
+                binding("z", 2.0, Dimension::Dimensionless),
+            ],
+            required_variable_ids: vec![],
+            statuses: vec![],
+            declared_grammar_version: GRAMMAR_VERSION.to_string(),
+        });
+        assert_eq!(finding_records(&result), vec![NON_FINITE_RATIO]);
+        assert_eq!(result.value, None);
+        assert_eq!(result.statuses, vec![AnalysisStatus::RuleInputsIncomplete]);
+    }
+
+    #[test]
+    fn same_dimension_quotients_that_did_not_panic_are_unchanged() {
+        let quotient = |left: Expression| binary(BinaryOperator::Divide, left, variable("limit"));
+        // The largest finite ratio still evaluates.
+        let largest = evaluate(&input(
+            quotient(variable("actual")),
+            vec![
+                binding("actual", f64::MAX, Dimension::Stress),
+                binding("limit", 1.0, Dimension::Stress),
+            ],
+        ));
+        assert!(largest.findings.is_empty());
+        assert_eq!(
+            largest.value,
+            Some(EvaluationValue::Quantity(ratio_quantity(f64::MAX)))
+        );
+        // A finite numerator over a carried infinite divisor is a finite 0.
+        let over_infinity = evaluate(&input(
+            binary(
+                BinaryOperator::Divide,
+                variable("limit"),
+                binary(
+                    BinaryOperator::Multiply,
+                    ratio_literal(1.0e300),
+                    variable("actual"),
+                ),
+            ),
+            vec![
+                binding("actual", 1.0e300, Dimension::Stress),
+                binding("limit", 2.0, Dimension::Stress),
+            ],
+        ));
+        assert!(over_infinity.findings.is_empty());
+        assert_eq!(
+            over_infinity.value,
+            Some(EvaluationValue::Quantity(ratio_quantity(0.0)))
+        );
+        // A unit mismatch is still reported first, and alone.
+        let mismatch = evaluate(&input(
+            quotient(variable("actual")),
+            vec![
+                binding_with_unit("actual", 1.0e308, Dimension::Stress, "stress_unit"),
+                binding_with_unit("limit", 1.0e-308, Dimension::Stress, "other_stress_unit"),
+            ],
+        ));
+        assert_eq!(mismatch.findings.len(), 1);
+        assert_eq!(mismatch.findings[0].code, FindingCode::UnitMismatch);
+        // A zero divisor is still a division by zero.
+        let by_zero = evaluate(&input(
+            quotient(variable("actual")),
+            vec![
+                binding("actual", 1.0e308, Dimension::Stress),
+                binding("limit", 0.0, Dimension::Stress),
+            ],
+        ));
+        assert_eq!(by_zero.findings.len(), 1);
+        assert_eq!(by_zero.findings[0].code, FindingCode::DivisionByZero);
+    }
+
+    #[test]
+    fn non_finite_quotients_outside_the_ratio_arm_still_carry_their_value() {
+        // Only the same-dimension (ratio) arm panicked on main, so only it
+        // blocks. A dimensionless divisor and a derived quotient still carry
+        // an overflow through, with no finding, exactly as before.
+        let over_ratio = evaluate(&input(
+            binary(
+                BinaryOperator::Divide,
+                variable("actual"),
+                ratio_literal(1.0e-308),
+            ),
+            vec![binding("actual", 1.0e308, Dimension::Stress)],
+        ));
+        assert!(over_ratio.findings.is_empty());
+        assert_eq!(
+            over_ratio.value,
+            Some(EvaluationValue::Quantity(Quantity {
+                value: f64::INFINITY,
+                dimension: Dimension::Stress,
+                unit_ref: "stress_unit".to_string(),
+                unit_required: true,
+                dimension_check_required: true,
+            }))
+        );
+
+        let derived = evaluate(&input(
+            binary(
+                BinaryOperator::Divide,
+                variable("moment"),
+                variable("length"),
+            ),
+            vec![
+                binding("moment", 1.0e308, Dimension::Moment),
+                binding("length", 1.0e-308, Dimension::Length),
+            ],
+        ));
+        assert!(derived.findings.is_empty());
+        assert_eq!(
+            derived.value,
+            Some(EvaluationValue::Quantity(Quantity {
+                value: f64::INFINITY,
+                dimension: Dimension::Force,
+                unit_ref: "moment_unit/length_unit".to_string(),
+                unit_required: true,
+                dimension_check_required: true,
+            }))
+        );
+    }
+
+    #[test]
+    fn a_blocked_ratio_stops_the_enclosing_expression() {
+        // `a/b` overflows. The ratio block returns no value, so evaluation
+        // stops there: nothing after it runs or reports, neither the zero
+        // divisor in `c/d` nor the unbound `missing`.
+        let overflowing = || binary(BinaryOperator::Divide, variable("a"), variable("b"));
+        let bindings = || {
+            vec![
+                binding("a", 1.0e308, Dimension::Stress),
+                binding("b", 1.0e-308, Dimension::Stress),
+                binding("c", 1.0, Dimension::Stress),
+                binding("d", 0.0, Dimension::Stress),
+            ]
+        };
+        let over_zero_divisor = binary(
+            BinaryOperator::Divide,
+            overflowing(),
+            binary(BinaryOperator::Divide, variable("c"), variable("d")),
+        );
+        let plus_missing = binary(BinaryOperator::Add, overflowing(), variable("missing"));
+        for expression in [over_zero_divisor, plus_missing] {
+            let result = evaluate(&input(expression, bindings()));
+            assert_eq!(finding_records(&result), vec![NON_FINITE_RATIO]);
+            assert_eq!(result.value, None);
+            assert_eq!(result.source_variable_ids, vec!["a", "b"]);
+        }
+    }
+
+    /// A temperature argument for `invented_table`: `1e300 * 1e300` is +inf,
+    /// its negation -inf, and `inf - inf` NaN.
+    fn temperature_argument(kind: &str) -> Box<Expression> {
+        let temperature = Expression::Literal(
+            Quantity::new(1.0e300, Dimension::Temperature, "invented_temperature_unit").unwrap(),
+        );
+        let infinite = || {
+            binary(
+                BinaryOperator::Multiply,
+                ratio_literal(1.0e300),
+                temperature.clone(),
+            )
+        };
+        Box::new(match kind {
+            "nan" => binary(BinaryOperator::Subtract, infinite(), infinite()),
+            "+inf" => infinite(),
+            _ => Expression::Unary {
+                operator: UnaryOperator::Negate,
+                operand: Box::new(infinite()),
+            },
+        })
+    }
+
+    fn table_expression(mode: Option<LookupMode>, argument: Box<Expression>) -> Expression {
+        match mode {
+            None => Expression::Interpolate {
+                table: invented_table(),
+                argument,
+            },
+            Some(mode) => Expression::Lookup {
+                table: invented_table(),
+                mode,
+                argument,
+            },
+        }
+    }
+
+    #[test]
+    fn blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking() {
+        for mode in [None, Some(LookupMode::Step)] {
+            let result = evaluate(&input(
+                table_expression(mode, temperature_argument("nan")),
+                vec![],
+            ));
+            assert_eq!(
+                finding_records(&result),
+                vec![(
+                    FindingCode::NonFiniteInput,
+                    "invented_lookup_table",
+                    "table argument must be finite: a NaN argument is neither inside nor \
+                     outside the table range",
+                )],
+                "{mode:?}"
+            );
+            assert_eq!(result.value, None);
+        }
+    }
+
+    #[test]
+    fn non_finite_table_arguments_that_did_not_panic_are_unchanged() {
+        // An exact lookup of NaN still misses every key.
+        let exact = evaluate(&input(
+            table_expression(Some(LookupMode::Exact), temperature_argument("nan")),
+            vec![],
+        ));
+        assert_eq!(exact.findings.len(), 1);
+        assert_eq!(exact.findings[0].code, FindingCode::TableKeyNotFound);
+        // An infinite argument is outside the range in every mode.
+        for mode in [None, Some(LookupMode::Step), Some(LookupMode::Exact)] {
+            for kind in ["+inf", "-inf"] {
+                let result = evaluate(&input(
+                    table_expression(mode, temperature_argument(kind)),
+                    vec![],
+                ));
+                assert_eq!(result.findings.len(), 1, "{mode:?} {kind}");
+                assert_eq!(
+                    result.findings[0].code,
+                    FindingCode::TableOutOfRange,
+                    "{mode:?} {kind}"
+                );
+                assert_eq!(result.value, None);
+            }
+        }
+    }
+
+    #[test]
+    fn blocks_generated_nan_table_arguments() {
+        // Differential inputs t_259_1 and t_2856_3 (I79's table-rooted set):
+        // with z = 1e308, `z*z - (z+z) - z` and `|z|/|z| + ((z+z) - z*z)` are NaN.
+        let table = UserTable {
+            table_id: "diff_table".to_string(),
+            argument_dimension: Dimension::Dimensionless,
+            argument_unit_ref: "ratio".to_string(),
+            result_dimension: Dimension::Stress,
+            result_unit_ref: "invented_stress_unit".to_string(),
+            rows: [(-2.0, 1.0), (0.0, -3.0), (0.5, 4.0), (3.0, 4.5)]
+                .iter()
+                .map(|&(argument, result)| TableRow { argument, result })
+                .collect(),
+        };
+        let z = || variable("z");
+        let abs_z = || Expression::Unary {
+            operator: UnaryOperator::Abs,
+            operand: Box::new(z()),
+        };
+        let interpolated = Expression::Interpolate {
+            table: table.clone(),
+            argument: Box::new(binary(
+                BinaryOperator::Subtract,
+                binary(
+                    BinaryOperator::Subtract,
+                    binary(BinaryOperator::Multiply, z(), z()),
+                    binary(BinaryOperator::Add, z(), z()),
+                ),
+                z(),
+            )),
+        };
+        let stepped = Expression::Lookup {
+            table,
+            mode: LookupMode::Step,
+            argument: Box::new(binary(
+                BinaryOperator::Add,
+                binary(BinaryOperator::Divide, abs_z(), abs_z()),
+                binary(
+                    BinaryOperator::Subtract,
+                    binary(BinaryOperator::Add, z(), z()),
+                    binary(BinaryOperator::Multiply, z(), z()),
+                ),
+            )),
+        };
+        for expression in [interpolated, stepped] {
+            let result = evaluate(&input(
+                expression,
+                vec![binding("z", 1.0e308, Dimension::Dimensionless)],
+            ));
+            assert_eq!(result.findings.len(), 1);
+            assert_eq!(result.findings[0].code, FindingCode::NonFiniteInput);
+            assert_eq!(result.findings[0].subject_id, "diff_table");
+            assert_eq!(result.value, None);
+        }
     }
 }
 

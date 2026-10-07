@@ -630,7 +630,8 @@ describe("the downgrade guard (F-5)", () => {
 // one or more forms) with TypeScript's own expectations (RR "RV88 on U6a, U6c, U6b
 // (and U6d)…" and "RV92 (U6f) on the whole of U6…"). Rust and Python assert theirs
 // from the same forms; any other difference is a defect.
-const DECLARED = ["D-U7-4:ts_requires_live_native_capture", "F-U6b-2:python_refuses_transport", "F5:refused_statement_binding", "I67-F1:unregistered_invalid_statement", "I67-F2:display_only_binding_precheck", "RV92-N2-N5:ts_refuses_token_rows_at_the_header"];
+// B6 removes F-U6b-2: Python's transport dispatch now runs the reader's transport validator, as TS and Rust do.
+const DECLARED = ["D-U7-4:ts_requires_live_native_capture", "F5:refused_statement_binding", "I67-F1:unregistered_invalid_statement", "I67-F2:display_only_binding_precheck", "RV92-N2-N5:ts_refuses_token_rows_at_the_header"];
 const NOTICES: Record<string, string> = { N_RP_UNVALIDATED };
 /** The shared 'summary' vocabulary, counted here from the reader's classes, not through the
  * seam: per receipt case, interval_bindable 0; `withheld` is every quantity row, or when
@@ -643,7 +644,7 @@ const expectedSummary = (classes: readonly RowClassification[], source: Json, cu
 const SUMMARY_KIND = "open_formula_stress_summary";
 const declaredForms = (caseFile.declared_differences as Json[]).flatMap(e => (e.forms as Json[]).flatMap(form => (form.fixtures as string[]).map(f => [`${e.id} / ${form.label}`, f, form] as [string, string, Json])));
 describe("the declared differences, with TypeScript's expectations", () => {
-  it("are exactly the six ruled entries, each with a ruling, forms and one expectation per language, in closed field sets", () => {
+  it("are exactly the five ruled entries, each with a ruling, forms and one expectation per language, in closed field sets", () => {
     const entries = caseFile.declared_differences as Json[];
     expect(entries.map(e => e.id).sort()).toStrictEqual(DECLARED);
     const subjects = new Set<string>(), v4 = new Set<string>();
@@ -682,8 +683,12 @@ describe("the declared differences, with TypeScript's expectations", () => {
     expect(caseFile.scope).toMatch(/no carrier authenticates producer origin/);
     // I66 U7 slice F observation 3: a blocked envelope is refused at G7 with each language's own base code.
     expect(caseFile.scope).toMatch(/a blocked envelope is refused at G7 with each language's own base code[^.]*TS SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID/);
-    // RV94 N-3 (U7 repair): an invalid enum value in a not_required case's quality, TS's G7 contract check first.
-    expect(caseFile.scope).toMatch(/An invalid enum value in a not_required case's quality is refused at G7 with each language's own code[^.]*TS SOURCE_PRODUCER_CONTRACT_UNSUPPORTED/);
+    // RV94 N-3 (B6; PLAN decision 11): TS's G7 refusal now carries the base readers' header code, so no
+    // language-specific code is declared for an invalid numerical_quality case.
+    expect(caseFile.scope).not.toMatch(/An invalid enum value in a not_required case's quality|SOURCE_NUMERICAL_CASE_INVALID/);
+    // F-U6b-2 (B6): Python's transport refusals carry the reader's codes, as Rust's; TS's header code stays its own.
+    expect(caseFile.scope).toMatch(/TS SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED; Rust and Python the reader's G0 code or their base header code/);
+    expect(caseFile.scope).not.toMatch(/Python F-U6b-2's code/);
   });
   it.each<[string, string, Json]>(declaredForms)("%s on %s", async (_id, fixtureId, form) => {
     const expected = form.expected.typescript;

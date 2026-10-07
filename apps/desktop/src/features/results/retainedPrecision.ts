@@ -1303,6 +1303,38 @@ function projection(source: Obj): Obj {
   if (Array.isArray(p.results)) for (const row of p.results) if (Object.hasOwn(row, 'recovery_method')) delete row.recovery_method;
   return p;
 }
+const QUALITY_STATUSES = ['not_assessed', 'checks_passed', 'sensitive', 'unresolved', 'failed'];
+/** RV94 N-3 (B6; PLAN decision 11): when TS's header dispatch refuses the projected base at G7, the refusal carries the
+ * base readers' own header code, in their order (Python `_source_contract`, Rust `semantic_contract::for_source`), so the
+ * G7 code agrees across the languages: an invalid numerical_quality case of any status is SOURCE_NUMERICAL_CASE_INVALID,
+ * and so on. Any other header refusal keeps TS's SOURCE_PRODUCER_CONTRACT_UNSUPPORTED. The projection fixes the base
+ * identity and profile, and G0 the schema and component versions. Read only after the dispatch has refused. */
+function baseHeaderCode(p: Obj): string {
+  const exact = (v: unknown, keys: string[]): v is Obj => isObj(v) && Object.keys(v).length === keys.length && keys.every(k => Object.hasOwn(v, k));
+  const text = (v: unknown) => typeof v === 'string' && v.length > 0;
+  if (Object.hasOwn(p, 'carrier_evidence')) return 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED';
+  if (p.schema_version !== '0.2.0') return 'SOURCE_SCHEMA_VERSION_UNSUPPORTED';
+  const producer = p.producer;
+  if (!exact(producer, ['component_name', 'component_version', 'semantic_contract_id']) || producer.component_name !== 'open_pipe_stress_product_physics'
+    || producer.component_version !== '0.2.0' || producer.semantic_contract_id !== BASE_ID) return 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED';
+  if (!isObj(p.contract_evidence)) return 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED';
+  if (Object.hasOwn(p, 'source_block_recovery')) return 'SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN';
+  const q = p.numerical_quality;
+  if (!exact(q, ['value_representation', 'publication_quantization', 'integrity_policy', 'status', 'cases']) || q.value_representation !== 'finite_binary64'
+    || q.publication_quantization !== 'none' || q.integrity_policy !== 'M03-INTEGRITY-v1' || !QUALITY_STATUSES.includes(q.status) || !Array.isArray(q.cases)) return 'SOURCE_NUMERICAL_QUALITY_INVALID';
+  for (const c of q.cases) {
+    if (!exact(c, ['basis_ref', 'structural_status', 'solve_quality', 'model_matrix_fidelity', 'accuracy_evidence', 'evidence_refs'])
+      || !exact(c.basis_ref, ['ref_type', 'ref_id']) || !text(c.basis_ref.ref_type) || !text(c.basis_ref.ref_id) || !QUALITY_STATUSES.includes(c.solve_quality)
+      || !['passive_model_basis', 'physical_mechanism_witnessed', 'negative_energy_witnessed', 'numerically_unresolved'].includes(c.structural_status)
+      || !['represented_equations_retained', 'assembly_loss_detected', 'assembly_uncertainty', 'not_assessed'].includes(c.model_matrix_fidelity)
+      || !['not_claimed', 'reference_verified', 'unresolved'].includes(c.accuracy_evidence)
+      || !Array.isArray(c.evidence_refs) || !c.evidence_refs.every(text)) return 'SOURCE_NUMERICAL_CASE_INVALID';
+  }
+  const f = p.formulation_basis;
+  if (!exact(f, ['profile_id', 'limitations']) || f.profile_id !== 'product_preview_mechanics_v1' || !Array.isArray(f.limitations) || !f.limitations.length
+    || !f.limitations.every(text)) return 'SOURCE_FORMULATION_BASIS_UNSUPPORTED';
+  return 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED';
+}
 const defaultErrors: Record<string, string> = { G0: 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED', G1: 'RETAINED_PRECISION_RECEIPT_MISMATCH', G2: 'RETAINED_PRECISION_ENCODING_MISMATCH', G3: 'RETAINED_PRECISION_COVERAGE_MISMATCH', G4: 'RETAINED_PRECISION_DIAGNOSTIC_MISMATCH', G5: 'RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH', G5a: 'RETAINED_PRECISION_SCALE_MISMATCH', G5b: 'RETAINED_PRECISION_SCALE_MISMATCH', G5c: 'RETAINED_PRECISION_CLASSIFICATION_MISMATCH', G6: 'RETAINED_PRECISION_ROW_METHOD_MISMATCH', G7: 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID', G8: 'RETAINED_PRECISION_PREPARATION_MISMATCH' };
 /** The accepted ordered reader (G0-G8). D-U6-1: every gate runs; since U7 a valid invocation-bound statement of a solved model whose cases are selected or not_required reads eligible.
  * Standing comes from the carriers (D2 4.9.4). Hashes bind the supplied statements; they do not establish producer origin (D-U7-6). No registration, mutable eligibility cache, or private proof replay. */
@@ -1321,7 +1353,7 @@ export async function validateRetainedPrecision(source: unknown, invocation?: un
     gate = 'G5b'; numericalScales(numeric, s);
     gate = 'G5c'; const classes = classifications(numeric, s);
     gate = 'G6'; for (const c of b.cases) for (const row of rows.get(c.basis_ref.ref_id)!) need(c.status === 'selected' ? row.recovery_method === RETAINED_METHOD : !Object.hasOwn(row, 'recovery_method'), gate, 'ROW_METHOD_MISMATCH');
-    gate = 'G7'; const base = projection(s); need(sourceContract(base as MechanicsResult) === 'preview_physics', gate, 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED');
+    gate = 'G7'; const base = projection(s); if (sourceContract(base as MechanicsResult) !== 'preview_physics') throw new RetainedPrecisionError(gate, baseHeaderCode(base));
     try { validatePreviewPhysicsEvidence(base as MechanicsResult); } catch (error) { throw baseError(gate, error, defaultErrors.G7); }
     gate = 'G8'; if (actual) await invocationBinding(b, s, actual);
     const eligible = SUMMARY_COVERAGE_COMPLETE && actual !== undefined && s.status?.mechanics === 'MECHANICS_SOLVED' && b.cases.every((c: Obj) => ['selected', 'not_required'].includes(c.status));

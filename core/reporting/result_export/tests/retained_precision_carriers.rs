@@ -134,6 +134,45 @@ fn out_dir() -> Option<std::path::PathBuf> {
     std::env::var("I66_U6A_OUT").ok().map(std::path::PathBuf::from)
 }
 
+/// F-U6b-2 (B6): RV92's ten tampered transported successors (R/REVIEW_RV92/u6f_01:
+/// these five forms in both modes; the no-invocation twin is the same bytes, since
+/// transport reads no invocation), the refusal set Python's new transport validator
+/// and TS's sourceContractTransport share, each with this crate's code; the
+/// untampered statement, with or without raw rows, resolves and is never eligible.
+#[test]
+fn b6_transport_refuses_rv92_tampered_successors() {
+    fn zero_hash(s: &mut Value) {
+        s["retained_precision"]["receipt_sha256"] = json!("0".repeat(64));
+    }
+    let forms: [(&str, fn(&mut Value), &str); 5] = [
+        ("receipt_sha_zero", zero_hash, "RETAINED_PRECISION_RECEIPT_MISMATCH"),
+        ("receipt_sha_zero_no_invocation", zero_hash, "RETAINED_PRECISION_RECEIPT_MISMATCH"),
+        ("receipt_body_edit (unsealed)", |s| {
+            let charged = s["retained_precision"]["body"]["work"]["charged"].as_u64().unwrap();
+            s["retained_precision"]["body"]["work"]["charged"] = json!(charged + 1);
+        }, "RETAINED_PRECISION_RECEIPT_MISMATCH"),
+        ("receipt_empty", |s| s["retained_precision"] = json!({}), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
+        ("transport_no_results_receipt_zero", |s| {
+            s.as_object_mut().unwrap().remove("results");
+            zero_hash(s);
+        }, "RETAINED_PRECISION_RECEIPT_MISMATCH"),
+    ];
+    for m in milestones() {
+        for (label, edit, code) in forms {
+            let mut tampered = m.source.clone();
+            edit(&mut tampered);
+            assert_eq!(s::for_source_metadata(&tampered).unwrap_err(), code, "{} {label}", m.mode);
+        }
+        let mut header = m.source.clone();
+        header.as_object_mut().unwrap().remove("results");
+        for statement in [&m.source, &header] {
+            assert_eq!(s::for_source_metadata(statement).unwrap().0["semantic_contract_id"], s::PREVIEW_PHYSICS_RETAINED_ID);
+            let transport = rp::validate_transport_metadata(statement).unwrap();
+            assert!(!transport.invocation_bound && !transport.numerical_eligible && transport.classifications.is_empty());
+        }
+    }
+}
+
 #[test]
 fn u6a_dispatch_admits_the_successor_through_the_accepted_reader_only() {
     for m in milestones() {
@@ -647,11 +686,11 @@ const CASES: &str = include_str!("../../../../fixtures/results/retained_precisio
 /// languages' carriers (and F5's shared semantics); any other is a defect. RR
 /// "RV92 (U6f) on the whole of U6" adds the fifth (N-2, with N-5) and widens
 /// I67-F2 (N-3). RR "The memory branch merged into NUM; U7 slices T and P
-/// committed" adds D-U7-4 (format v4).
-const DECLARED: [&str; 6] = [
+/// committed" adds D-U7-4 (format v4). B6 removes F-U6b-2: Python's transport
+/// dispatch now runs the reader's transport validator, as this crate's does.
+const DECLARED: [&str; 5] = [
     "I67-F1:unregistered_invalid_statement",
     "I67-F2:display_only_binding_precheck",
-    "F-U6b-2:python_refuses_transport",
     "F5:refused_statement_binding",
     "RV92-N2-N5:ts_refuses_token_rows_at_the_header",
     "D-U7-4:ts_requires_live_native_capture",
@@ -819,7 +858,11 @@ fn expected_binding(source: &Value, expected: &str) -> Vec<Option<String>> {
 #[test]
 fn u6_declared_differences_rust() {
     let cases: Value = serde_json::from_str(CASES).unwrap();
-    assert!(["G7 parity compares the reader's (gate, code)", "parity there compares only accept against refuse", "no carrier authenticates producer origin", "a blocked envelope is refused at G7 with each language's own base code", "Rust SOURCE_PREVIEW_PHYSICS_BLOCKED_ENVELOPE", "An invalid enum value in a not_required case's quality is refused at G7 with each language's own code", "Rust SOURCE_NUMERICAL_CASE_INVALID"].iter().all(|p| cases["scope"].as_str().unwrap().contains(p)));
+    assert!(["G7 parity compares the reader's (gate, code)", "parity there compares only accept against refuse", "no carrier authenticates producer origin", "a blocked envelope is refused at G7 with each language's own base code", "Rust SOURCE_PREVIEW_PHYSICS_BLOCKED_ENVELOPE", "Rust and Python the reader's G0 code or their base header code"].iter().all(|p| cases["scope"].as_str().unwrap().contains(p)));
+    // RV94 N-3 (B6; PLAN decision 11): TS aligned to this reader's G7 code, so no
+    // language-specific code is declared for an invalid numerical_quality case,
+    // and Python's transport is no longer a declared refusal (F-U6b-2).
+    assert!(!["An invalid enum value in a not_required case's quality", "SOURCE_NUMERICAL_CASE_INVALID", "Python F-U6b-2's code"].iter().any(|p| cases["scope"].as_str().unwrap().contains(p)));
     let fixtures = shared_fixtures(&cases);
     let entries = cases["declared_differences"].as_array().unwrap();
     let mut ids: Vec<&str> = entries.iter().map(|e| e["id"].as_str().unwrap()).collect();

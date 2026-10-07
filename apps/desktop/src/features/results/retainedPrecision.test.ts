@@ -958,17 +958,18 @@ describe('07g round (I61 U6e): F5 and RV79-N1', () => {
       }
     }
   });
-  it('RV94 N-3: an invalid enum value in a not_required case\'s quality is refused at G7 with TS\'s own code', async () => {
-    // The scope clause's class on 07j's not_required entry (TS's G7 contract check fires before the base validator);
-    // the shared corpus probe g7_not_required_quality_enum_invalid is accuracy_evidence.
+  it('RV94 N-3 (B6, PLAN decision 11): an invalid enum value in a not_required case\'s quality is refused at G7 with the base readers\' code', async () => {
+    // The class on 07j's not_required entry: TS's G7 header refusal now carries the base readers' own header code
+    // (Python and Rust SOURCE_NUMERICAL_CASE_INVALID); the shared corpus probe g7_not_required_quality_enum_invalid
+    // is accuracy_evidence, and 07m pins the class's other statuses and parts.
     const nr = corpus.must_pass.find((m: any) => m.id === 'not_required_second_case_checks_passed');
     const accepted = await applyEntry(nr); expect((await validateRetainedPrecision(accepted.source, accepted.invocation)).numerical_eligible).toBe(true);
     for (const [field, value] of [['accuracy_evidence', 'estimated'], ['structural_status', 'mechanism_detected'], ['model_matrix_fidelity', 'reduced']]) {
       const { source, invocation } = await applyEntry({ ...structuredClone(nr), id: 'rv94_n3_' + field, edits: [...structuredClone(nr.edits), { path: ['numerical_quality', 'cases', 1, field], op: 'set', value }] });
-      expect(await firstFailure(source, invocation), field).toEqual({ gate: 'G7', code: 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED' });
+      expect(await firstFailure(source, invocation), field).toEqual({ gate: 'G7', code: 'SOURCE_NUMERICAL_CASE_INVALID' });
     }
     const probe = corpus.mutations.find((m: any) => m.id === 'g7_not_required_quality_enum_invalid');
-    expect(probe.expected_by_reader.typescript).toEqual({ gate: 'G7', code: 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED' });
+    expect(probe.expected_by_reader).toEqual(Object.fromEntries(['python', 'typescript', 'rust'].map(k => [k, { gate: 'G7', code: 'SOURCE_NUMERICAL_CASE_INVALID' }])));
   });
 });
 
@@ -981,8 +982,8 @@ describe('07l round (U8-2): counts and the appended producer-solved L = 0 entrie
   const l0 = (names: string[]) => MODES.flatMap(mode => names.map(name => `${name}_${mode}`));
   const baseOf = (id: string) => `u8_l0_isolated_node_${MODES.find(mode => id.endsWith('_' + mode))}`;
   const eligibility = (r: any) => ({ invocation_bound: r.invocation_bound, numerical_eligible: r.numerical_eligible, standing: r.standing });
-  it('07l: 17 cases, 286 mutations and 28 must-pass entries; 15 bases and 18 must-pass entries are eligible', () => {
-    expect([corpus.cases.length, corpus.mutations.length, corpus.must_pass.length]).toEqual([17, 286, 28]);
+  it('07l: 17 cases, 286 mutations and 28 must-pass entries (07m: 294 mutations); 15 bases and 18 must-pass entries are eligible', () => {
+    expect([corpus.cases.length, corpus.mutations.length, corpus.must_pass.length]).toEqual([17, 294, 28]);
     expect([corpus.cases.filter((c: any) => c.expected.numerical_eligible).length, corpus.must_pass.filter((m: any) => m.expected_eligibility.numerical_eligible).length]).toEqual([15, 18]);
   });
   it('07l: the two appended producer-solved bases are eligible, with the class counts all three readers observed (I68)', async () => {
@@ -996,7 +997,7 @@ describe('07l round (U8-2): counts and the appended producer-solved L = 0 entrie
     }
   });
   it('07l: the 8 appended mutations are refused at G5a SCALE', async () => {
-    const appended = corpus.mutations.slice(278);
+    const appended = corpus.mutations.slice(278, 286);
     expect(appended.map((m: any) => m.id)).toEqual([...l0(['isolated_rotation_stop', 'isolated_has_data', 'isolated_estimate_coupled']), ...l0(['isolated_translation_rotation_stop'])]);
     for (const m of appended) {
       expect([m.base, m.expected, m.expected_by_reader], m.id).toEqual([baseOf(m.id), SCALE, undefined]);
@@ -1014,5 +1015,30 @@ describe('07l round (U8-2): counts and the appended producer-solved L = 0 entrie
       expect(eligibility(result), m.id).toEqual(ELIGIBLE);
       expect(result.classifications, m.id).toEqual(base.expected_classifications);
     }
+  });
+});
+
+// B6: mutation 277 (RV94 N-3's G7 probe, 07k) as its own one-entry slice, and 07m's eight appended G7 mutations,
+// each observed by this reader against its own expectation and tallied against a literal, so a dropped, moved or
+// re-expected entry fails even though the per-entry tests above follow the corpus's own expectation.
+describe('07k and 07m slices (B6): the G7 base header codes, shared with Python and Rust (PLAN decision 11)', () => {
+  async function slice(start: number, stop: number, ids: string[], want: Record<string, number>) {
+    const entries = corpus.mutations.slice(start, stop), tally: Record<string, number> = {};
+    expect(entries.map((m: any) => m.id)).toEqual(ids);
+    for (const m of entries) {
+      const { source, invocation } = await applyEntry(m), observed = await firstFailure(source, invocation);
+      expect(observed, m.id).toEqual(m.expected_by_reader?.typescript ?? m.expected);
+      const key = observed === 'pass' ? 'pass' : `${observed.gate} ${observed.code}`; tally[key] = (tally[key] ?? 0) + 1;
+    }
+    expect(tally).toEqual(want);
+  }
+  it('07k: mutation 277 is refused at G7 SOURCE_NUMERICAL_CASE_INVALID', async () => {
+    await slice(277, 278, ['g7_not_required_quality_enum_invalid'], { 'G7 SOURCE_NUMERICAL_CASE_INVALID': 1 });
+  });
+  it('07m: the N-3 class at its full width, then the sibling header classes, each with the base readers\' code', async () => {
+    await slice(286, 294, ['g7_selected_quality_enum_invalid', 'g7_unavailable_quality_enum_invalid', 'g7_quality_case_evidence_ref_empty', 'g7_quality_case_extra_member',
+      'g7_quality_status_invalid', 'g7_formulation_limitations_empty', 'g7_contract_evidence_null', 'g7_source_block_recovery_present'],
+      { 'G7 SOURCE_NUMERICAL_CASE_INVALID': 4, 'G7 SOURCE_NUMERICAL_QUALITY_INVALID': 1, 'G7 SOURCE_FORMULATION_BASIS_UNSUPPORTED': 1,
+        'G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED': 1, 'G7 SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN': 1 });
   });
 });
