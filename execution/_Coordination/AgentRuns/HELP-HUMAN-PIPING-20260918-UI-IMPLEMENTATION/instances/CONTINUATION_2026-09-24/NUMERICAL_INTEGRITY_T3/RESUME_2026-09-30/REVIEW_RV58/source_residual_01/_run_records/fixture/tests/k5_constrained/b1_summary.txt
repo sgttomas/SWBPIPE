@@ -1,0 +1,11 @@
+K5 B1 summary (gen_k5_vectors.py)
+seed=20260928
+records=4000 committed_sample=1000
+full_sha256=1a7c947e963c32e49ba04aebf401912120003d0c8b80473dc8d2d6cd40cbbca0
+sample_sha256=533bd223cf3e2ef9e345e3ed075fb1c3c65c054eac6a170b81237d0dc534cc9f
+rejected_null_attempts=161 rejected_random_band=0
+class null:W 1334
+class random:D 413
+class random:M 573
+class random:R 1678
+class random:U 2
