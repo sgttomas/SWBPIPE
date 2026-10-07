@@ -1656,6 +1656,17 @@ fn b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping() {
         assert_eq!(tail, ["diagnostic:retained-precision:case-a:selected", "diagnostic:retained-precision:case-c:unavailable"], "{label}");
         assert!(successor["results"].as_array().unwrap().iter().all(|r| r.get("recovery_method").is_some()
             == (r["basis_ref"]["ref_id"] == "case-a")), "{label}: the method token on A's rows only");
+        // T-11 staging, c ≥ 2: each summary headline is the staged rows' maximum of its kind, a tie
+        // going to the smaller case id, then the smaller location.
+        for (kind, headline) in [("displacement_magnitude", "max_displacement"), ("pipe_elastic_normal_stress_maximum_v2", "max_open_formula_stress")] {
+            let best = successor["results"].as_array().unwrap().iter().filter(|r| r["kind"] == kind)
+                .max_by(|a, b| a["value"].as_f64().unwrap().total_cmp(&b["value"].as_f64().unwrap())
+                    .then_with(|| b["basis_ref"]["ref_id"].as_str().cmp(&a["basis_ref"]["ref_id"].as_str()))
+                    .then_with(|| b["entity_ref"].as_str().cmp(&a["entity_ref"].as_str()))).unwrap();
+            assert_eq!(successor["summary"][headline], json!({"value":best["value"],"unit":best["unit"],"location_ref":best["entity_ref"],"result_ref":best["id"]}),
+                "{label}: the {headline} headline");
+            println!("B1_SP_HEADLINE {label} {headline} case={} ordinary={}", best["basis_ref"]["ref_id"], serde_json::to_value(&envelope.summary).unwrap()[headline]);
+        }
         // N-16: the batch Runs against the one-case Runs.
         let (_, observer, ordinary) = observed(mode, &raw);
         let mut prepared = observer.prepare_cases(ordinary, 3, &[0, 2]).unwrap_or_else(|f| panic!("{label}: {:?}", f.error));
@@ -1764,5 +1775,86 @@ fn b1_sp_w_c2_through_retained_w1_publishes_t12() {
         assert_eq!(run().0, noticed(None), "{mode:?}: no detail");
         hooks::withdraw_next_native_source();
         assert_eq!(run(), (noticed(None), Some(W1Fallback::Native)), "{mode:?}: a T-8 call failure");
+    }
+}
+
+/// T-13 on the actual Direct entry, W-C2, both modes: one ordinary run, and G-C reached once
+/// (`ONE_RUN_THROUGH_G_C`), with no hook armed. In the registered build after I2 (C = 3) the
+/// transaction runs: before SR-RS the precommit refuses, and the publication is the ordinary
+/// bytes then case-a's and case-c's plain notices. Before I2, G-A refuses W-C2 at D1.4: exactly
+/// the ordinary bytes, from one run. In any other build (Stale), exactly the plain bytes.
+#[test]
+fn b1_sp_w_c2_direct_entry_counts_one_run_through_g_c() {
+    let raw = w_c2();
+    for mode in MODES {
+        let plain = plain(mode, &raw);
+        assert!(hooks::armed_names().is_empty(), "{mode:?}: no hook armed");
+        let (output, counts) = direct(&raw, mode);
+        assert_eq!(serde_json::to_vec(output.envelope()).unwrap(), plain, "{mode:?}: the ordinary envelope is the plain run");
+        if !registered() {
+            assert!(output.retained().is_none(), "{mode:?}: Stale, no W1");
+            assert_eq!((counts, published(output)), (ONE_RUN, plain), "{mode:?}: Stale's plain bytes");
+            continue;
+        }
+        if crate::retained_memory::caps::LOAD_CASES < W_C2_IDS.len() {
+            assert!(output.admission().unwrap().law().refusal.is_some(), "{mode:?}: before I2, G-A refuses c = 3");
+            assert_eq!((counts, published(output)), (ONE_RUN, plain), "{mode:?}: before I2");
+            continue;
+        }
+        assert_eq!(output.admission().unwrap().law().refusal, None, "{mode:?}: admitted");
+        assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{mode:?}: T-13");
+        assert_eq!(output.retained().and_then(|r| r.as_ref().err()),
+            Some(&W1Fallback::Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH".into() }), "{mode:?}: before SR-RS");
+        let bytes = published(output);
+        assert_eq!(notices(&bytes), 2, "{mode:?}: one notice per case in A");
+        assert_eq!(String::from_utf8(bytes).unwrap(), String::from_utf8(with_notice(&with_notice(&plain, "case-a", None), "case-c", None)).unwrap(),
+            "{mode:?}: the ordinary bytes, then the notices in request order");
+        assert!(hooks::armed_names().is_empty(), "{mode:?}");
+    }
+}
+
+/// Multi-case coexistence (PLAN_v2 §2.2, N-5; decision 26, RV107 A1-N-7): n05's source-block
+/// request with a second case (a copy of its one case, `case-2`, its load id suffixed `:2`).
+fn n05_two_cases() -> Value {
+    let mut raw: Value = serde_json::from_str(include_str!("../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json")).unwrap();
+    let mut second = raw["model"]["load_cases"][0].clone();
+    second["id"] = json!("case-2");
+    for load in second["primitive_loads"].as_array_mut().unwrap() {
+        load["id"] = json!(format!("{}:2", load["id"].as_str().unwrap()));
+    }
+    raw["model"]["load_cases"].as_array_mut().unwrap().push(second);
+    raw
+}
+
+/// The multi-case coexistence pin, both modes: exact-block selection settles n05 with two cases,
+/// so W1 is not attempted for any case (T-3 (c)): `Coexistence`, exactly the ordinary bytes, no
+/// notice and no reservation, on the private driver; and on the actual Direct entry one ordinary
+/// run with G-C not consulted (`{runs: 1, complete_gates: 0}`), exactly the ordinary bytes. Before
+/// I2 the Direct entry's G-A refuses c = 2 (D1.4), with the same bytes and count.
+#[test]
+fn b1_sp_multi_case_coexistence_pin() {
+    let raw = n05_two_cases();
+    for mode in MODES {
+        let plain = plain(mode, &raw);
+        let value: Value = serde_json::from_slice(&plain).unwrap();
+        assert!(value["source_block_recovery"].is_object(), "{mode:?}: exact blocks selected: {}", value["status"]);
+        assert_eq!(value["summary"]["load_case_count"], 2, "{mode:?}");
+        let (capture, observer, ordinary) = observed(mode, &raw);
+        let capacity = ordinary.diagnostics.capacity();
+        let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+        assert_eq!(retained.err(), Some(W1Fallback::Coexistence), "{mode:?}: private driver");
+        assert_eq!(envelope.diagnostics.capacity(), capacity, "{mode:?}: no reservation");
+        assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{mode:?}: exact bytes, no notice");
+        let (output, counts) = direct(&raw, mode);
+        if registered() && crate::retained_memory::caps::LOAD_CASES >= 2 {
+            assert_eq!(output.admission().unwrap().law().refusal, None, "{mode:?}: admitted");
+            assert_eq!(output.retained().and_then(|r| r.as_ref().err()), Some(&W1Fallback::Coexistence), "{mode:?}");
+        } else if registered() {
+            assert!(output.admission().unwrap().law().refusal.is_some(), "{mode:?}: before I2, G-A refuses c = 2");
+        }
+        assert_eq!(counts, ONE_RUN, "{mode:?}: G-C not consulted");
+        let bytes = published(output);
+        assert_eq!(notices(&bytes), 0, "{mode:?}");
+        assert_eq!(bytes, plain, "{mode:?}: exactly the ordinary bytes");
     }
 }

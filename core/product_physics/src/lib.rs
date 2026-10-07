@@ -3451,11 +3451,12 @@ pub(crate) mod retained_tests_hooks {
             prepared.test_break_overlay();
         }
     }
+    /// Reached before the call; it fires only when a case was prepared (as before T-8, where
+    /// the one-case hook ran only after a successful preparation).
     pub(crate) fn before_native(prepared: &mut super::retained_product::PreparedCases) {
+        let Some(request) = prepared.attempts.iter().find(|attempt| attempt.prepared).map(|attempt| attempt.request) else { return };
         if consume(|a| std::mem::take(&mut a.withdraw)) {
-            if let Some(request) = prepared.attempts.iter().find(|attempt| attempt.prepared).map(|attempt| attempt.request) {
-                prepared.capture.with_case(request, |capture| capture.source = None);
-            }
+            prepared.capture.with_case(request, |capture| capture.source = None);
         }
     }
     pub(crate) fn after_serialize(serialized: Result<serde_json::Value, ReceiptFailure>) -> Result<serde_json::Value, ReceiptFailure> {
