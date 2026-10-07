@@ -1303,3 +1303,39 @@ def test_b1_repair01_g8_material_basis_of_every_case_and_exact_case_indices():
     # Controls: the unedited statements are admitted, and so is each base's own basis list.
     assert _b1_verdict(P_BASE, [], must=NOT_REQUIRED) == ("admitted", True, "eligible")
     assert _b1_verdict(two_groups, [_set(B + ["material_bases"], tg)]) == ("admitted", True, "eligible")
+
+
+def test_b1_repair01_g8_every_material_basis_has_its_materials_checked():
+    """(e) A material basis used only by cases without a CaseSource has its materials checked like any
+    other: the used materials in input order, each selected for the basis's cases (id, selection,
+    explicit G, E and G). Rust: `g8`'s material bases loop (`list(&mb["materials"])…eq(expected_material_
+    indices…)` and, per material, `selected_material(raw, &cases[ci])`); TS: `b.material_bases.forEach`
+    (`same(mb.materials.map(…input_index), …)` and `selectedMaterial(raw, cases[ci])` for each case);
+    all PREPARATION_MISMATCH. Python checked a basis only through a CaseSource, so 07j's not_required case
+    on its own named basis was admitted with any material list."""
+    base_mb = deepcopy(_cases()[P_BASE]["source"]["retained_precision"]["body"]["material_bases"][0])
+    point = {"id": "tp:b1", "temperature": {"value": 400, "unit": "K"}, "elastic_modulus": {"value": 400000000000.0, "unit": "Pa"},
+             "shear_modulus": {"value": 154000000000.0, "unit": "Pa"}, "thermal_expansion_coefficient": {"value": 1e-05, "unit": "1/K"}}
+    named = {"index": 1, "selector": {"kind": "named", "id": "tp:b1"}, "case_indices": [1], "materials": [dict(
+        deepcopy(base_mb["materials"][0]), elastic_modulus=rp.bits(4e11), shear_modulus=rp.bits(1.54e11), selection={"kind": "named_point", "point_id": "tp:b1"})]}
+    invocation = [_set(["request", "model", "materials", 0, "temperature_points"], [point]), _set(["request", "model", "load_cases", 1, "modulus_basis_ref"], "tp:b1")]
+
+    def verdict(second):
+        return _b1_verdict(P_BASE, [_set(B + ["ordinary_attempts", 1, "material_basis_ref"], 1),
+                                    _set(B + ["material_bases"], [dict(base_mb, case_indices=[0]), second])], invocation, NOT_REQUIRED)
+
+    def edited(change):
+        second = deepcopy(named)
+        change(second)
+        return verdict(second)
+
+    assert verdict(named) == ("admitted", True, "eligible")
+    got = {
+        "its elastic modulus wrong": edited(lambda m: m["materials"][0].__setitem__("elastic_modulus", rp.bits(3e11))),
+        "its shear modulus wrong": edited(lambda m: m["materials"][0].__setitem__("shear_modulus", rp.bits(1e11))),
+        "its material selection the base's": edited(lambda m: m["materials"][0].__setitem__("selection", {"kind": "base"})),
+        "its material another id": edited(lambda m: m["materials"][0].__setitem__("id", "material:other")),
+        "its shear origin derived": edited(lambda m: m["materials"][0].__setitem__("shear_origin", {"kind": "derived_e_nu", "poisson_ratio": rp.bits(0.3), "constitutive_basis": "homogeneous_isotropic_E_nu_v1"})),
+        "no material listed": edited(lambda m: m.__setitem__("materials", [])),
+    }
+    assert got == dict.fromkeys(got, PREP)

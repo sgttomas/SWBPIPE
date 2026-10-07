@@ -1540,8 +1540,17 @@ def _g8(body, source, invocation):
     # One material basis per distinct selector, in first-seen order, each listing exactly the cases
     # that use it (I91 repair 01, finding c), as Rust's `g8` and TS's `invocationBinding` require.
     need(len(body["material_bases"]) == len(selectors))
+    used = {p["material"] for p in pipes}
     for mi, mb in enumerate(body["material_bases"]):
         need(mb["selector"] == selectors[mi] and mb["case_indices"] == [i for i, k in enumerate(case_bases) if k == mi])
+        # Every basis's materials, whether or not a CaseSource uses it (I91 repair 01, finding e): the used
+        # materials in input order, each selected for the basis's cases, as Rust's `g8` (its material
+        # bases loop) and TS's `invocationBinding` (`b.material_bases.forEach`) check them. A basis used
+        # only by cases without a source (a not_required case) was never checked before.
+        need([m["input_index"] for m in mb["materials"]] == [j for j, m in enumerate(materials) if m["id"] in used])
+        for m in mb["materials"]:
+            raw = materials[int(m["input_index"])]; pair, selection = selected_material(raw, model["load_cases"][mb["case_indices"][0]])
+            need(m["id"] == raw["id"] and m["selection"] == selection and m["shear_origin"] == {"kind":"explicit_g"} and [m["elastic_modulus"],m["shear_modulus"]] == [bits(v) for v in pair])
     for si, s in enumerate(body["sources"]):
         need(s["index"] == si and s["owner"]["kind"] == "case")
         for include_loads, field in ((True, "kernel_source_sha256"), (False, "stiffness_sha256")):
