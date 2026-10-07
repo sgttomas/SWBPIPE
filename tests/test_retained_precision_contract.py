@@ -1330,6 +1330,10 @@ def test_b1_repair01_g8_every_material_basis_has_its_materials_checked():
         return verdict(second)
 
     assert verdict(named) == ("admitted", True, "eligible")
+    # (c)'s count: without its second basis, the sourceless case's basis is checked by nothing else
+    # (Rust's `len() == expected_selectors.len()`; TS's `material_bases[bi]?.case_indices.includes(ci)`).
+    assert _b1_verdict(P_BASE, [_set(B + ["ordinary_attempts", 1, "material_basis_ref"], 1),
+                                _set(B + ["material_bases"], [dict(base_mb, case_indices=[0])])], invocation, NOT_REQUIRED) == PREP
     got = {
         "its elastic modulus wrong": edited(lambda m: m["materials"][0].__setitem__("elastic_modulus", rp.bits(3e11))),
         "its shear modulus wrong": edited(lambda m: m["materials"][0].__setitem__("shear_modulus", rp.bits(1e11))),
