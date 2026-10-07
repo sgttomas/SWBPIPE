@@ -1594,8 +1594,31 @@ def validate_retained_precision(source: Any, invocation: Any = None) -> dict[str
     return _validate_draft(source, invocation)
 
 
-def _validate_draft(source: Any, invocation: Any = None) -> dict[str, Any]:
-    """The ordered checks behind the public entry (D-U6-1)."""
+def validate_retained_precision_transport(source: Any) -> dict[str, Any]:
+    """F-U6b-2 (B6): G0-G2 and the unchanged base transport metadata only, the twin of Rust
+    `validate_transport_metadata` and TS `validateRetainedPrecisionTransport`. Omitted raw publication
+    bytes are never reconstructed or verified, so a transported statement is never eligible."""
+    return _validate_draft(source, None, raw=False)
+
+
+def _transport_g7(snapshot: dict[str, Any]) -> None:
+    """The base transport metadata check on the reader's projection (no rows are read). A failure keeps
+    the base validator's leading code, with its full text as detail, as at the raw G7."""
+    projected=deepcopy(snapshot);del projected["retained_precision"]
+    projected["producer"]["semantic_contract_id"]="openpipestress.result_semantics/0.3.0/preview-physics-1";projected["formulation_basis"]["profile_id"]="product_preview_mechanics_v1"
+    for row in projected["results"] if type(projected.get("results")) is list else []:
+        if type(row) is dict:row.pop("recovery_method",None)
+    from .compatibility import _source_contract
+    try:_source_contract(projected,check_receipt=False)
+    except ValueError as exc:
+        text=str(exc);match=re.match(r"[A-Z][A-Z0-9_]*",text)
+        error=RetainedPrecisionError("G7",match.group(0) if match else "SOURCE_PREVIEW_PHYSICS_INVALID");error.detail=text
+        raise error from exc
+
+
+def _validate_draft(source: Any, invocation: Any = None, *, raw: bool = True) -> dict[str, Any]:
+    """The ordered checks behind the public entry (D-U6-1). With raw=False, the transport checks
+    (F-U6b-2): G1 skips the raw rows and the publication digest, as Rust's g1(source, false)."""
     gate="G0"
     try:
         producer=source.get("producer") if type(source) is dict else None;basis=source.get("formulation_basis") if type(source) is dict else None
@@ -1619,10 +1642,10 @@ def _validate_draft(source: Any, invocation: Any = None) -> dict[str, Any]:
             _need(type(w) is dict and _integral(w.get("case_limit"))==20_000_000_000 and _integral(w.get("invocation_limit"))==60_000_000_000,gate,"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
             for attempt in b.get("product_attempts",[]) if type(b.get("product_attempts")) is list else []:
                 if type(attempt) is dict:_need(attempt.get("definition_id")==DEFINITION_ID,gate,"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
-        gate="G1";_need(_shape(receipt,schema) and type(snapshot.get("results")) is list and all(_shape(r,schema["$defs"]["RawRow"]) for r in snapshot["results"]),gate,"RECEIPT_MISMATCH")
+        gate="G1";_need(_shape(receipt,schema) and (not raw or (type(snapshot.get("results")) is list and all(_shape(r,schema["$defs"]["RawRow"]) for r in snapshot["results"]))),gate,"RECEIPT_MISMATCH")
         body=receipt["body"]
         _need(_hash("retained_precision_receipt_mp_v2",body)==receipt["receipt_sha256"],gate,"RECEIPT_MISMATCH")
-        _need(_hash("retained_precision_publication_mp_v2",{k:v for k,v in snapshot.items() if k!="retained_precision"})==body["publication_sha256"],gate,"RECEIPT_MISMATCH")
+        if raw:_need(_hash("retained_precision_publication_mp_v2",{k:v for k,v in snapshot.items() if k!="retained_precision"})==body["publication_sha256"],gate,"RECEIPT_MISMATCH")
         # Integrity is G1. Invalid reference representation/coverage is left for
         # G2/G3; only already-addressable records have an integrity comparison.
         for c in body["cases"]:
@@ -1638,6 +1661,9 @@ def _validate_draft(source: Any, invocation: Any = None) -> dict[str, Any]:
                     if all(m["result"]["kind"]=="prepared" for m in a["preparation"]["members"]):
                         _need(prep["sha256"]==_hash("retained_precision_preparation_v1",_preparation_payload(a)),gate,"RECEIPT_MISMATCH")
         gate="G2";_encoding(receipt,schema);_need(not _negative_zero(receipt),gate,"ENCODING_MISMATCH");_normalize_integrals(receipt)  # D34, then D32
+        if not raw:
+            gate="G7";_transport_g7(snapshot)
+            return {"invocation_bound":False,"numerical_eligible":False,"standing":"needs_recompute","publication_sha256":body["publication_sha256"],"classifications":[]}
         gate="G3";cases=body["cases"];quality=snapshot["numerical_quality"]["cases"]
         ids=[c["basis_ref"]["ref_id"] for c in cases]
         _need(len(set(ids))==len(ids) and [c["basis_ref"] for c in cases]==[q["basis_ref"] for q in quality] and any(c["status"]=="selected" for c in cases),gate,"COVERAGE_MISMATCH")

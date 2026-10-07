@@ -100,8 +100,78 @@ def test_dispatch_admits_the_successor_through_the_accepted_reader_only(mode):
         rp.validate_retained_precision(unit)
     assert reader.value.gate == "G7" and reader.value.detail and reader.value.detail != reader.value.code
     raises(reader.value.detail, c._source_contract, unit)
-    # The Python reader has no transport validator: a transported successor is refused.
-    raises("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", lambda s: c._source_contract(s, check_receipt=False), source)
+    # F-U6b-2 (B6): the transport dispatch runs the reader's transport validator, as Rust's
+    # for_source_metadata and TS's sourceContractTransport do: the successor resolves, and a
+    # statement the reader refuses is refused with its first code, raw and transport alike.
+    contract, sha, path = c._source_contract(source, check_receipt=False)
+    assert (contract, sha, path.name) == (SUCC, c.PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, "semantic_contract_v0_3_preview_physics_retained_1.json")
+    raises("RETAINED_PRECISION_RECEIPT_MISMATCH", lambda s: c._source_contract(s, check_receipt=False), broken)
+
+
+# F-U6b-2 (B6): RV92's ten tampered transported successors (R/REVIEW_RV92/u6f_01: these five forms in
+# both modes; the no-invocation twin is the same bytes, since transport reads no invocation), the shared
+# refusal set that Rust's for_source_metadata and TS's sourceContractTransport refuse with these codes.
+TAMPERED_TRANSPORT = [
+    ("receipt_sha_zero", lambda s: s["retained_precision"].__setitem__("receipt_sha256", "0" * 64), "RETAINED_PRECISION_RECEIPT_MISMATCH"),
+    ("receipt_sha_zero_no_invocation", lambda s: s["retained_precision"].__setitem__("receipt_sha256", "0" * 64), "RETAINED_PRECISION_RECEIPT_MISMATCH"),
+    ("receipt_body_edit (unsealed)", lambda s: s["retained_precision"]["body"]["work"].__setitem__("charged", s["retained_precision"]["body"]["work"]["charged"] + 1), "RETAINED_PRECISION_RECEIPT_MISMATCH"),
+    ("receipt_empty", lambda s: s.__setitem__("retained_precision", {}), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
+    ("transport_no_results_receipt_zero", lambda s: (s.pop("results"), s["retained_precision"].__setitem__("receipt_sha256", "0" * 64)), "RETAINED_PRECISION_RECEIPT_MISMATCH"),
+]
+
+
+@pytest.mark.parametrize("mode", MODES)
+@pytest.mark.parametrize("label,edit,code", TAMPERED_TRANSPORT, ids=[form[0] for form in TAMPERED_TRANSPORT])
+def test_transport_refuses_rv92_tampered_successors(mode, label, edit, code):
+    source, _ = milestone(mode)
+    tampered = deepcopy(source)
+    edit(tampered)
+    raises(code, lambda s: c._source_contract(s, check_receipt=False), tampered)
+    with pytest.raises(rp.RetainedPrecisionError) as error:
+        rp.validate_retained_precision_transport(tampered)
+    assert error.value.code == code, label
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_transport_admits_the_untampered_successor_with_or_without_rows_and_never_eligible(mode):
+    """F-U6b-2 (B6): G0-G2 and the base transport metadata on the projection, as Rust and TS; the raw
+    rows are neither required nor verified, and a transported statement is never eligible."""
+    source, invocation = milestone(mode)
+    header = deepcopy(source)
+    header.pop("results")
+    for statement in (source, header):
+        assert c._source_contract(deepcopy(statement), check_receipt=False)[0] == SUCC
+        transport = rp.validate_retained_precision_transport(deepcopy(statement))
+        assert transport == {"invocation_bound": False, "numerical_eligible": False, "standing": "needs_recompute",
+                             "publication_sha256": source["retained_precision"]["body"]["publication_sha256"], "classifications": []}
+    # The raw path still requires and binds the rows: the header-only form is refused there.
+    raises("RETAINED_PRECISION_RECEIPT_MISMATCH", c._source_contract, header)
+    assert rp.validate_retained_precision(source, invocation)["numerical_eligible"]
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_transport_refuses_a_receipt_consistent_base_inconsistent_statement_at_g7(mode):
+    """As TS's transport route: the base transport metadata check runs on the reader's projection."""
+    source, _ = milestone(mode)
+    bad = deepcopy(source)
+    bad["contract_evidence"]["combination_gates"] = "not-an-array"
+    with pytest.raises(rp.RetainedPrecisionError) as error:
+        rp.validate_retained_precision_transport(bad)
+    assert error.value.gate == "G7" and error.value.code == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID" and error.value.detail
+    raises(error.value.detail, lambda s: c._source_contract(s, check_receipt=False), bad)
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_transport_applies_g2_negative_zero_d34(mode):
+    """As Rust's transport D34 test (RV80-N1): a resealed receipt carrying -0 is refused at G2."""
+    source, _ = milestone(mode)
+    bad = deepcopy(source)
+    bad["retained_precision"]["body"]["cases"][0]["run"]["records"][0]["corrections"] = -0.0
+    bad["retained_precision"]["receipt_sha256"] = rp._hash("retained_precision_receipt_mp_v2", bad["retained_precision"]["body"])
+    with pytest.raises(rp.RetainedPrecisionError) as error:
+        rp.validate_retained_precision_transport(bad)
+    assert (error.value.gate, error.value.code) == ("G2", "RETAINED_PRECISION_ENCODING_MISMATCH")
+    raises("RETAINED_PRECISION_ENCODING_MISMATCH", lambda s: c._source_contract(s, check_receipt=False), bad)
 
 
 @pytest.mark.parametrize("mode", MODES)
@@ -200,8 +270,9 @@ CASES = ROOT / "fixtures/results/retained_precision_carrier_cases.json"
 # languages' carriers; any other difference is a defect.
 # RR "RV92 (U6f) on the whole of U6" adds the fifth (N-2, with N-5) and widens I67-F2 (N-3).
 # RR "The memory branch merged into NUM; U7 slices T and P committed" adds D-U7-4 (format v4).
+# B6 removes F-U6b-2: Python's transport dispatch now runs the reader's transport validator.
 DECLARED = {"I67-F1:unregistered_invalid_statement", "I67-F2:display_only_binding_precheck",
-            "F-U6b-2:python_refuses_transport", "F5:refused_statement_binding",
+            "F5:refused_statement_binding",
             "RV92-N2-N5:ts_refuses_token_rows_at_the_header", "D-U7-4:ts_requires_live_native_capture"}
 # Every field a v4 form may carry; any other field is a defect, never silently ignored.
 FORM_FIELDS = {"label", "fixtures", "invocation", "capture", "requested", "edits", "current_model_edits", "subject", "expected"}
@@ -288,7 +359,12 @@ def test_declared_differences_python():
     asserts its own from the same entries, and TS (I67) its own."""
     cases, docs = shared_cases()
     assert all(p in cases["scope"] for p in ("G7 parity compares the reader's (gate, code)", "parity there compares only accept against refuse",
-                                              "no carrier authenticates producer origin", "a blocked envelope is refused at G7 with each language's own base code", "Python SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", "An invalid enum value in a not_required case's quality is refused at G7 with each language's own code", "Python SOURCE_NUMERICAL_CASE_INVALID"))
+                                              "no carrier authenticates producer origin", "a blocked envelope is refused at G7 with each language's own base code", "Python SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
+                                              # F-U6b-2 (B6): Python's transport refusals carry the reader's codes, as Rust's.
+                                              "Rust and Python the reader's G0 code or their base header code"))
+    # RV94 N-3 (B6; PLAN decision 11): TS aligned, so no language-specific G7 code is declared for an
+    # invalid numerical_quality case, and Python's transport is no longer a declared refusal.
+    assert not any(p in cases["scope"] for p in ("An invalid enum value in a not_required case's quality", "SOURCE_NUMERICAL_CASE_INVALID", "Python F-U6b-2's code"))
     entries = cases["declared_differences"]
     assert {entry["id"] for entry in entries} == DECLARED and len(entries) == len(DECLARED)
     seen = set()

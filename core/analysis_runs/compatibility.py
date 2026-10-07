@@ -276,12 +276,24 @@ def _retained_validation(source: Mapping[str, Any], invocation: Any = None) -> d
         raise ValueError(error.detail or error.code) from error
 
 
+def _retained_transport(source: Mapping[str, Any]) -> dict[str, Any]:
+    """F-U6b-2 (B6): the accepted reader's transport checks on a successor (G0-G2 and
+    the unchanged base transport metadata on its projection), as Rust's
+    for_source_metadata and TS's sourceContractTransport run theirs; never eligible.
+    A G7 failure keeps the base validator's own text, every other gate its code."""
+    from .retained_precision import RetainedPrecisionError, validate_retained_precision_transport
+    try:
+        return validate_retained_precision_transport(source)
+    except RetainedPrecisionError as error:
+        raise ValueError(error.detail or error.code) from error
+
+
 def _retained_contract(source: Mapping[str, Any], *, check_receipt: bool) -> tuple[str, str, Path]:
     if not check_receipt:
-        # The Python reader has no transport-metadata validator (Rust and TS
-        # have one): a receipt without raw rows cannot be checked here, so a
-        # transported successor is refused rather than admitted unchecked.
-        raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+        # F-U6b-2 (B6): a transported successor (its receipt, with or without raw
+        # rows) is checked by the reader's transport validator, never admitted unchecked.
+        _retained_transport(source)
+        return PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH
     _retained_validation(source)
     return PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH
 

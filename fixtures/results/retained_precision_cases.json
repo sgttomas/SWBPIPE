@@ -146614,7 +146614,7 @@
         },
         "typescript": {
           "gate": "G7",
-          "code": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+          "code": "SOURCE_NUMERICAL_CASE_INVALID"
         },
         "rust": {
           "gate": "G7",
@@ -147324,6 +147324,166 @@
       "expected": {
         "gate": "G5a",
         "code": "RETAINED_PRECISION_SCALE_MISMATCH"
+      }
+    },
+    {
+      "id": "g7_selected_quality_enum_invalid",
+      "base": "ordinary_prepared_synthetic",
+      "edits": [
+        {
+          "path": [
+            "numerical_quality",
+            "cases",
+            0,
+            "structural_status"
+          ],
+          "op": "set",
+          "value": "mechanism_detected"
+        }
+      ],
+      "rehash": "all",
+      "expected": {
+        "gate": "G7",
+        "code": "SOURCE_NUMERICAL_CASE_INVALID"
+      }
+    },
+    {
+      "id": "g7_unavailable_quality_enum_invalid",
+      "base": "two_case_preparation_failure_synthetic",
+      "edits": [
+        {
+          "path": [
+            "numerical_quality",
+            "cases",
+            1,
+            "model_matrix_fidelity"
+          ],
+          "op": "set",
+          "value": "reduced"
+        }
+      ],
+      "rehash": "all",
+      "expected": {
+        "gate": "G7",
+        "code": "SOURCE_NUMERICAL_CASE_INVALID"
+      }
+    },
+    {
+      "id": "g7_quality_case_evidence_ref_empty",
+      "base": "ordinary_prepared_synthetic",
+      "edits": [
+        {
+          "path": [
+            "numerical_quality",
+            "cases",
+            0,
+            "evidence_refs"
+          ],
+          "op": "set",
+          "value": [
+            ""
+          ]
+        }
+      ],
+      "rehash": "all",
+      "expected": {
+        "gate": "G7",
+        "code": "SOURCE_NUMERICAL_CASE_INVALID"
+      }
+    },
+    {
+      "id": "g7_quality_case_extra_member",
+      "base": "ordinary_prepared_synthetic",
+      "edits": [
+        {
+          "path": [
+            "numerical_quality",
+            "cases",
+            0,
+            "extra"
+          ],
+          "op": "set",
+          "value": 1
+        }
+      ],
+      "rehash": "all",
+      "expected": {
+        "gate": "G7",
+        "code": "SOURCE_NUMERICAL_CASE_INVALID"
+      }
+    },
+    {
+      "id": "g7_quality_status_invalid",
+      "base": "ordinary_prepared_synthetic",
+      "edits": [
+        {
+          "path": [
+            "numerical_quality",
+            "status"
+          ],
+          "op": "set",
+          "value": "estimated"
+        }
+      ],
+      "rehash": "all",
+      "expected": {
+        "gate": "G7",
+        "code": "SOURCE_NUMERICAL_QUALITY_INVALID"
+      }
+    },
+    {
+      "id": "g7_formulation_limitations_empty",
+      "base": "ordinary_prepared_synthetic",
+      "edits": [
+        {
+          "path": [
+            "formulation_basis",
+            "limitations"
+          ],
+          "op": "set",
+          "value": []
+        }
+      ],
+      "rehash": "all",
+      "expected": {
+        "gate": "G7",
+        "code": "SOURCE_FORMULATION_BASIS_UNSUPPORTED"
+      }
+    },
+    {
+      "id": "g7_contract_evidence_null",
+      "base": "ordinary_prepared_synthetic",
+      "edits": [
+        {
+          "path": [
+            "contract_evidence"
+          ],
+          "op": "set",
+          "value": null
+        }
+      ],
+      "rehash": "all",
+      "expected": {
+        "gate": "G7",
+        "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
+      }
+    },
+    {
+      "id": "g7_source_block_recovery_present",
+      "base": "ordinary_prepared_synthetic",
+      "edits": [
+        {
+          "path": [
+            "source_block_recovery"
+          ],
+          "op": "set",
+          "value": null
+        }
+      ],
+      "rehash": "all",
+      "expected": {
+        "gate": "G7",
+        "code": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
       }
     }
   ],
