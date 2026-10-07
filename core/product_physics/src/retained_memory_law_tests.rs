@@ -101,6 +101,48 @@ pub(super) fn cap_maximal() -> Value {
     })
 }
 
+/// B1 SA: `raw` with `cases` load cases, each a copy of its first case, with the ids
+/// `case-1`, `case-2`, … and its loads' ids suffixed `~1`, `~2`, … (the ordinary route
+/// requires primitive-load ids unique across cases). `cases` = 0 leaves no case.
+fn with_cases(mut raw: Value, cases: usize) -> Value {
+    let first = raw["model"]["load_cases"][0].clone();
+    let list = raw["model"]["load_cases"].as_array_mut().unwrap();
+    list.clear();
+    for ordinal in 1..=cases {
+        let mut case = first.clone();
+        case["id"] = json!(format!("case-{ordinal}"));
+        for load in case["primitive_loads"].as_array_mut().unwrap() {
+            load["id"] = json!(format!("{}~{ordinal}", load["id"].as_str().unwrap()));
+        }
+        list.push(case);
+    }
+    raw
+}
+/// The milestone with `cases` load cases (B1 SA's c = 0 to C + 1 oracles).
+fn milestone_cases(cases: usize) -> Value {
+    with_cases(milestone(), cases)
+}
+/// The cap-maximal request with `cases` load cases of 128 loads each: at C = 3 it is the
+/// cap-maximal three-case shape (every case at l, Σ l_i = L).
+pub(super) fn cap_maximal_cases(cases: usize) -> Value {
+    with_cases(cap_maximal(), cases)
+}
+/// A cap-maximal request whose ordinary solve publishes (W2b's construction in
+/// `witness_tests::w2b_input`: `cap_maximal` with the milestone's support shapes), with
+/// `cases` load cases of 128 loads each.
+fn solvable_cap_maximal_cases(cases: usize) -> Value {
+    let mut raw = cap_maximal();
+    for (i, support) in raw["model"]["supports"].as_array_mut().unwrap().iter_mut().enumerate() {
+        if i == 0 {
+            support.as_object_mut().unwrap().remove("stiffness");
+        } else {
+            support["family"] = json!("spring");
+            support["restraints"] = json!(["UY"]);
+        }
+    }
+    with_cases(raw, cases)
+}
+
 // ---- D-6 -------------------------------------------------------------------
 
 #[test]
@@ -317,14 +359,12 @@ fn admit_grants_a_permit_for_the_milestone_in_the_registered_build() {
         let id = String::from("g6");
         let headless = admit(&capture, &request, Entry::Headless(RetainedHeadlessContext::from_borrowed_roots(&raw, &invocation, &id)));
         assert_eq!(headless.err().unwrap().law().refusal, Some(AdmissionRefusal::Caller(RetainedCaller::Headless)));
-        // An out-of-domain request (a second load case) is refused at its D1 clause.
-        // (G6: the blocked examples and the failed attempt are in
-        // `registered_g_c_declines_only_unattempted_solves`.)
-        let mut out = milestone();
-        let case = out["model"]["load_cases"][0].clone();
-        out["model"]["load_cases"].as_array_mut().unwrap().push(case);
-        let (request, capture) = CapturedInvocation::parse(out, mode).unwrap();
-        assert!(matches!(admit(&capture, &request, Entry::Direct).err().unwrap().law().refusal, Some(AdmissionRefusal::Family(..))));
+        // An out-of-domain request (B1, PLAN_v2 §2.3 and RV107 SF-2: C + 1 load cases) is
+        // refused at its D1 clause, D1.4. (G6: the blocked examples and the failed attempt
+        // are in `registered_g_c_declines_only_unattempted_solves`.)
+        let (request, capture) = CapturedInvocation::parse(milestone_cases(caps::LOAD_CASES + 1), mode).unwrap();
+        assert_eq!(admit(&capture, &request, Entry::Direct).err().unwrap().law().refusal,
+            family(D1Clause::Invocation, FamilyFact::LoadCases), "C + 1 cases");
     }
 }
 
@@ -353,7 +393,7 @@ fn nested_typed_census_reads_the_roster() {
     let request: LinearStaticPreviewRequest = serde_json::from_value(raw).unwrap();
     let f = nested_typed_census(&request);
     assert_eq!(f.status, CensusStatus::Complete);
-    assert_eq!((f.restraints, f.springs, f.primitive_loads.length), (192, 32, 128));
+    assert_eq!((f.restraints, f.springs, f.primitive_loads.length, f.total_loads), (192, 32, 128, 128));
     assert_eq!(f.max_temperature_points.length, 16);
     assert_eq!(f.max_string_bytes, 128, "the project id");
     assert!(f.max_string_capacity >= 128 && f.string_capacity_bytes >= f.strings);
@@ -365,6 +405,19 @@ fn nested_typed_census_reads_the_roster() {
     let milestone: LinearStaticPreviewRequest = serde_json::from_value(milestone()).unwrap();
     let m = nested_typed_census(&milestone);
     assert_eq!((m.status, m.primitive_loads.length, m.restraints), (CensusStatus::Complete, 3, 6));
+    // B1 SA: the per-case load facts are the maxima over every case, and the total is their sum.
+    let three: LinearStaticPreviewRequest = serde_json::from_value(cap_maximal_cases(3)).unwrap();
+    let t = nested_typed_census(&three);
+    assert_eq!((t.status, t.primitive_loads.length, t.primitive_loads.capacity, t.total_loads), (CensusStatus::Complete, 128, 128, 384));
+    let mut uneven = milestone_cases(3);
+    let extra = uneven["model"]["load_cases"][0]["primitive_loads"][0].clone();
+    uneven["model"]["load_cases"][1]["primitive_loads"].as_array_mut().unwrap().push(extra);
+    let mut uneven: LinearStaticPreviewRequest = serde_json::from_value(uneven).unwrap();
+    uneven.model.load_cases[2].primitive_loads.reserve_exact(40);
+    let u = nested_typed_census(&uneven);
+    assert_eq!((u.primitive_loads.length, u.total_loads), (4, 3 + 4 + 3), "the second case is the longest");
+    assert_eq!(u.primitive_loads.capacity, uneven.model.load_cases[2].primitive_loads.capacity(), "the third case has the largest capacity");
+    assert!(u.primitive_loads.capacity >= 43);
 }
 
 // ---- D1 --------------------------------------------------------------------
@@ -407,9 +460,9 @@ fn every_family_clause_refuses_with_its_fact() {
     assert_eq!(with(&|r| r["model"]["sections"] = json!([{"id": "s", "name": "s", "section_type": "pipe", "properties": {}, "provenance": null}])),
         family(C::Namespace, F::Sections));
     assert_eq!(with(&|r| r["model"]["pipe_segments"][0]["section_ref"] = json!("s")), family(C::Namespace, F::SectionRef));
-    assert_eq!(with(&|r| { let case = r["model"]["load_cases"][0].clone(); r["model"]["load_cases"].as_array_mut().unwrap().push(case) }),
-        family(C::Invocation, F::LoadCases));
-    assert_eq!(with(&|r| r["model"]["load_cases"] = json!([])), family(C::Invocation, F::LoadCases));
+    // D1.4 (B1 SA, PLAN_v2 §2.3 and RV107 SF-2): C + 1 cases and 0 cases refuse.
+    assert_eq!(with(&|r| *r = with_cases(r.clone(), caps::LOAD_CASES + 1)), family(C::Invocation, F::LoadCases), "C + 1 cases");
+    assert_eq!(with(&|r| r["model"]["load_cases"] = json!([])), family(C::Invocation, F::LoadCases), "0 cases");
     assert_eq!(with(&|r| r["model"]["combinations"] = json!([{"id": "c", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 1.0}]}])),
         family(C::Invocation, F::Combinations));
     assert_eq!(with(&|r| r["model"]["components"] = json!([{"id": "k", "kind": "elbow", "node": "N0"}])), family(C::Invocation, F::Components));
@@ -437,6 +490,30 @@ fn every_family_clause_refuses_with_its_fact() {
     for provenance in ["x{", "[{}]", "\"{\"", ""] {
         assert_eq!(with(&load("provenance", json!(provenance))), None, "{provenance:?}");
     }
+    // B1 SA: D1.5 and D1.7 apply to every case. Each fact on the last of C cases refuses
+    // with its own fact, and the same request with the fact removed is inside D1.
+    let last = caps::LOAD_CASES - 1;
+    let on_last = |field: &'static str, value: Value| move |r: &mut Value| {
+        *r = with_cases(r.clone(), caps::LOAD_CASES);
+        r["model"]["load_cases"][last][field] = value.clone();
+    };
+    assert_eq!(with(&|r| *r = with_cases(r.clone(), caps::LOAD_CASES)), None, "C cases: inside D1");
+    for (field, value, fact) in [
+        ("pressure_regions", json!([]), F::PressureRegions),
+        ("equivalent_static", json!({}), F::EquivalentStatic),
+        ("modulus_basis_ref", json!("T0"), F::ModulusBasisRef),
+        ("modulus_basis_temperature", json!({"value": 20.0, "unit": "degC"}), F::ModulusBasisTemperature),
+        ("analysis_state", Value::Null, F::AnalysisState),
+    ] {
+        assert_eq!(with(&on_last(field, value)), family(C::Case, fact), "D1.5 on case {last}: {field}");
+    }
+    let load_on_last = |field: &'static str, value: Value| move |r: &mut Value| {
+        *r = with_cases(r.clone(), caps::LOAD_CASES);
+        r["model"]["load_cases"][last]["primitive_loads"][2][field] = value.clone();
+    };
+    assert_eq!(with(&load_on_last("target", json!({"type": "element", "pipe": "M1"}))), family(C::Loads, F::LoadTarget), "D1.7 on case {last}");
+    assert_eq!(with(&load_on_last("dimension", json!("pressure"))), family(C::Loads, F::LoadDimension), "D1.7 on case {last}");
+    assert_eq!(with(&load_on_last("provenance", json!("{"))), family(C::Provenance, F::ObjectProvenance), "D1.10 on case {last}");
     // D1.8 restates D1.4 (straight members only when no components exist).
     assert!(include_str!("retained_memory.rs").contains("return refuse(C::Members, F::Components);"));
     for clause in [C::Namespace, C::Invocation, C::Case, C::Supports, C::Loads, C::Members, C::Provenance] {
@@ -478,6 +555,23 @@ fn every_cap_row_admits_its_cap_and_refuses_cap_plus_one() {
         assert_eq!(observed, cap, "{fact:?}");
     }
     assert_eq!(at(CapFact::LoadsCapacity).1, 128, "l ≤ 128 (RR \"U4 G4\")");
+    // B1 SA (option S3): the cap-maximal C-case input is inside D1, with C cases of l loads
+    // each, so `LoadCasesCapacity` and `TotalLoads` sit at their caps too.
+    assert_eq!((caps::LOAD_CASES, caps::TOTAL_LOADS), (3, 384), "C = 3 and L = 384 (RR \"I82's addendum…\")");
+    assert_eq!(caps::TOTAL_LOADS, caps::LOAD_CASES * caps::LOADS, "L = C·l: stated, not binding (ADDENDUM_01 §2)");
+    let report = admitted(cap_maximal_cases(caps::LOAD_CASES));
+    assert_eq!(report.law().domain, None, "the cap-maximal C-case input is inside D1");
+    let law = report.law();
+    let facts = DomainFacts { raw: &report.raw, raw_text: &law.raw_text, typed: &report.typed, nested: &law.nested, headless: None, digest: &report.captured_digest };
+    let rows = cap_rows(&facts);
+    let at = |fact| rows.iter().find(|r| r.fact == fact).map(|r| (r.observed, r.cap)).unwrap();
+    for (fact, cap) in [(CapFact::LoadCasesCapacity, 3), (CapFact::Loads, 128), (CapFact::LoadsCapacity, 128), (CapFact::TotalLoads, 384)] {
+        assert_eq!(at(fact), (cap, cap), "{fact:?} at its cap");
+    }
+    let order: Vec<CapFact> = rows.iter().map(|r| r.fact).collect();
+    let loads = order.iter().position(|f| *f == CapFact::Loads).unwrap();
+    assert_eq!(order[loads..loads + 3], [CapFact::Loads, CapFact::LoadsCapacity, CapFact::TotalLoads], "D1.9's load rows together");
+    assert_eq!(order[CAP_ROWS - 1], CapFact::ControlBytes, "D1.11 stays the last row");
 }
 
 #[test]
@@ -499,6 +593,19 @@ fn actual_inputs_map_each_cap_fact() {
         let l = r["model"]["load_cases"][0]["primitive_loads"][0].clone();
         r["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(l)
     })));
+    // B1 SA: every case is bounded by l, not only the first. Case 0 keeps the milestone's 3
+    // loads while a later case holds l or l + 1 (Σ stays far below L).
+    let later = |loads: usize| {
+        let mut raw = milestone_cases(caps::LOAD_CASES);
+        let load = raw["model"]["load_cases"][0]["primitive_loads"][0].clone();
+        let last = &mut raw["model"]["load_cases"][caps::LOAD_CASES - 1]["primitive_loads"];
+        *last = Value::Array((0..loads).map(|i| { let mut l = load.clone(); l["id"] = json!(format!("load:later:{i}")); l }).collect());
+        admitted(raw)
+    };
+    assert_eq!(later(caps::LOADS).law().domain, None, "a later case at l");
+    let report = later(caps::LOADS + 1);
+    assert_eq!(report.law().domain, Some(AdmissionRefusal::Cap { fact: CapFact::Loads, observed: 129, cap: 128 }), "a later case at l + 1");
+    assert_eq!(report.law().nested.total_loads as usize, (caps::LOAD_CASES - 1) * 3 + 129);
     assert!(cap(CapFact::ModelMaterials)(over(&|r| { let m = r["model"]["materials"][0].clone(); model(r)["materials"].as_array_mut().unwrap().push(m) })));
     assert!(cap(CapFact::RequestMaterials)(over(&|r| { let m = r["materials"][0].clone(); r["materials"].as_array_mut().unwrap().push(m) })));
     assert!(cap(CapFact::TemperaturePoints)(over(&|r| {
@@ -570,7 +677,8 @@ fn typed_capacity_and_units_rows_read_the_actual_owners() {
         (CapFact::ModelMaterialsCapacity, Box::new(|r| r.model.materials.reserve_exact(1))),
         (CapFact::RequestMaterialsCapacity, Box::new(|r| r.materials.reserve_exact(1))),
         (CapFact::TemperaturePointsCapacity, Box::new(|r| r.model.materials[0].temperature_points.reserve_exact(1))),
-        (CapFact::LoadCasesCapacity, Box::new(|r| r.model.load_cases.reserve_exact(1))),
+        // B1 SA: the typed capacity is capped by C, so one case with room for C more refuses.
+        (CapFact::LoadCasesCapacity, Box::new(|r| r.model.load_cases.reserve_exact(caps::LOAD_CASES))),
         (CapFact::SectionsCapacity, Box::new(|r| r.model.sections.reserve_exact(1))),
         (CapFact::ComponentsCapacity, Box::new(|r| r.model.components.reserve_exact(1))),
         (CapFact::CombinationsCapacity, Box::new(|r| r.model.combinations.reserve_exact(1))),
@@ -600,6 +708,17 @@ fn typed_capacity_and_units_rows_read_the_actual_owners() {
         let report = admitted_typed(cap_maximal(), |r| change(r));
         assert!(cap(fact)(report.law().domain), "{fact:?}: {:?}", report.law().domain);
     }
+    // B1 SA: C cases with exactly C slots are inside D1; one more slot refuses. A later
+    // case's spare load capacity is read as its own (every case ≤ l).
+    let report = admitted_typed(cap_maximal_cases(caps::LOAD_CASES), |r| r.model.load_cases.shrink_to_fit());
+    assert_eq!(report.law().domain, None);
+    let report = admitted_typed(cap_maximal_cases(caps::LOAD_CASES), |r| r.model.load_cases.reserve_exact(1));
+    assert_eq!(report.law().domain, Some(AdmissionRefusal::Cap { fact: CapFact::LoadCasesCapacity, observed: report.typed.load_cases.capacity, cap: 3 }));
+    let report = admitted_typed(milestone_cases(caps::LOAD_CASES), |r| r.model.load_cases[caps::LOAD_CASES - 1].primitive_loads.reserve_exact(126));
+    assert_eq!(report.law().domain, Some(AdmissionRefusal::Cap { fact: CapFact::LoadsCapacity, observed: report.law().nested.primitive_loads.capacity, cap: 128 }),
+        "the last case's capacity");
+    let report = admitted_typed(milestone_cases(caps::LOAD_CASES), |r| r.model.load_cases[caps::LOAD_CASES - 1].primitive_loads.reserve_exact(125));
+    assert_eq!(report.law().domain, None, "the last case's capacity at 128");
     // A units Value past the census limits is D1.2, before its cap rows.
     let report = admitted_typed(cap_maximal(), |r| r.model.project.units = Value::Array(vec![Value::Null; caps::RAW_VALUES]));
     assert_eq!(report.law().domain, Some(AdmissionRefusal::Census(CensusPart::TypedNested, CensusStatus::ValueLimit)));
@@ -772,7 +891,7 @@ fn refusal_kinds_are_the_schema_preconditions() {
 fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     let caps = phase_caps();
     let late: [PhaseFact; LATE_FACTS] = [PhaseFact::BuiltNodes, PhaseFact::BuiltMembers, PhaseFact::BuiltFrameElements, PhaseFact::BuiltSupports,
-        PhaseFact::CaseLoads, PhaseFact::Restrained, PhaseFact::Springs, PhaseFact::Materials, PhaseFact::LateObservationBytes];
+        PhaseFact::CaseLoads, PhaseFact::CaseLoadsTotal, PhaseFact::Restrained, PhaseFact::Springs, PhaseFact::Materials, PhaseFact::LateObservationBytes];
     let observed = |facts: &[PhaseFact], values: &[u64]| facts.iter().zip(values).map(|(f, v)| PhaseObservation { fact: *f, observed: *v }).collect::<Vec<_>>();
     let at: [PhaseObservation; LATE_FACTS] = observed(&late, &caps.late).try_into().unwrap();
     assert_eq!(check_phase(PhaseGate::Late, &at, &caps.late), Ok(()));
@@ -782,16 +901,24 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
         assert_eq!(check_phase(PhaseGate::Late, &over, &caps.late),
             Err(PhaseRefusal { gate: PhaseGate::Late, fact: late[i], observed: caps.late[i] + 1, cap: caps.late[i] }));
     }
-    assert_eq!(caps.late[..8], [32, 32, 32, 32, 128, 192, 192, 8], "D1's counts: n, m, m, g, l, k = min(6n, r), s, 4 + 4");
+    assert_eq!(caps.late[..9], [32, 32, 32, 32, 128, 384, 192, 192, 8], "D1's counts: n, m, m, g, l, L (B1 SA), k = min(6n, r), s, 4 + 4");
     assert_eq!(P_FINAL, 2_115);
-    assert_eq!(caps.complete[2], 2 * 2_115 * 11_474, "2·P_final·Text(row)");
+    // B1 SA (option S3, C = 3): the bounds that read the regenerated profile are asserted as
+    // expressions (SF-4's back edge: SQ fixes their values; RV-Q round 1 reviews these).
+    let c = caps::LOAD_CASES as u64;
+    assert_eq!(caps.complete[2], 2 * c * P_FINAL * text_atoms::ROW, "2·C·P_final·Text(row)");
     assert_eq!(caps.complete[5], 2 * profile::TEXT_TEXT_DIAG_ENV, "2·Text(diag_env) at l ≤ 128 (API_G4.md, S-6(d))");
     assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 68_720_236, "the part-2 text closure (1e323058f3, R-4 graph, RV87 S-2)");
-    assert_eq!((caps.complete[1], caps.complete[4]), (4_096, 16_384), "PushCap(P_final), PushCap(D_env)");
+    assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_115, 8_192), "C·P_final, PushCap(C·P_final)");
+    assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
     assert!(caps.late[LATE_FACTS - 1] > 0 && caps.late[LATE_FACTS - 1] < caps.complete[15], "T11 without its late capture < T11");
     assert!(caps.complete[16] > 0 && caps.complete[16] < caps.complete[15], "T11.4 < T11");
-    assert_eq!((caps.complete[6], caps.complete[7]), (2_599_962, 2_330), "L_PUB (RV84 C-N1) and L_DIAGID (RV87 N-3)");
-    assert_eq!(caps.complete[17], 97 * 16_384, "(3m + 1)·Text(err)");
+    assert_eq!((caps.complete[6], caps.complete[7]), (text_atoms::L_PUB, text_atoms::L_DIAGID), "L_PUB (RV84 C-N1) and L_DIAGID (RV87 N-3)");
+    assert_eq!(caps.complete[17], c * (3 * 32 + 1) * text_atoms::ERR, "C·(3m + 1)·Text(err)");
+    // The atoms' values in the profile as registered at G6 (c = 1). SQ re-pins them with the
+    // regenerated profile; until then they are unchanged by SA.
+    assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, push_capacity(text_atoms::D_ENV)), (2_599_962, 2_330, 16_384, 16_384),
+        "L_PUB, L_DIAGID, Text(err) and PushCap(D_env) as registered");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
     assert_eq!(check_phase(PhaseGate::Complete, &at, &caps.complete), Ok(()));
@@ -902,8 +1029,10 @@ fn structural_budgets_are_u3s() {
     assert_eq!(b.reserved_stack_bytes, RESERVED_STACK_BYTES as u64);
     assert_eq!(b.thread_heap_bytes, 8192 + std::mem::size_of::<crate::RetainedPreviewOutput>() as u64);
     let diagnostic = std::mem::size_of::<crate::Diagnostic>() as u64;
-    assert!(b.notice_reserve_bytes >= diagnostic + 196, "the slot and the 196-byte message reservation");
-    assert!(b.notice_reserve_bytes <= 2_048, "G4's push-growth figure tightened to grant 1b's exact reservation");
+    // B1 SA (B-6; I82 STUDY §4.3): one notice reserve per case in A, |A| ≤ C.
+    assert_eq!(b.notice_reserve_bytes, NOTICE_RESERVE_BYTES * caps::LOAD_CASES as u64, "B-6 = NOTICE_RESERVE_BYTES × C");
+    assert!(NOTICE_RESERVE_BYTES >= diagnostic + 196, "the slot and the 196-byte message reservation");
+    assert!(NOTICE_RESERVE_BYTES <= 2_048, "G4's push-growth figure tightened to grant 1b's exact reservation");
     // Part 2: every byte budget is a priced in-build form.
     for (name, bytes) in [("staged", b.staged_copy_bytes), ("successor", b.successor_bytes), ("invocation", b.precommit_invocation_bytes),
         ("reader", b.precommit_reader_bytes), ("statics", b.reader_statics_bytes)] {
@@ -942,6 +1071,9 @@ fn late_facts_read_the_actual_owners() {
     assert_eq!(get(PhaseFact::BuiltFrameElements), built.frame_elements.len() as u64);
     assert_eq!(get(PhaseFact::BuiltSupports), built.supports.len() as u64);
     assert_eq!(get(PhaseFact::CaseLoads), 3);
+    // B1 SA: the running total is the capture's own (`late_loads_total`); this observer has no
+    // permit, so its late hook never reached G-B and the total stayed 0.
+    assert_eq!((get(PhaseFact::CaseLoadsTotal), observer.late_loads_total), (0, 0));
     assert_eq!(get(PhaseFact::Restrained), 7);
     assert_eq!(get(PhaseFact::Springs), 0);
     assert_eq!(get(PhaseFact::Materials), materials.len() as u64);
@@ -1333,7 +1465,7 @@ fn g_c_declines_w1_when_the_ordinary_solve_was_not_attempted() {
                 assert_eq!(assess(&capture, &request, Entry::Direct).law().domain, None, "{label}: inside D1");
                 let mut observer = crate::retained_product::ProductCapture::prepared_probe();
                 let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::SourceRecoveryBudget::default(), Some(&mut observer));
-                assert_eq!(ordinary_solve_attempted(&observer), attempted, "{label} {mode:?}");
+                assert_eq!(ordinary_solve_attempted(&observer, 1), attempted, "{label} {mode:?}");
                 if label == DEFERRED_FORMATION {
                     // RV89 G6 S-2: the deferred-formation arm is the one this example reaches.
                     assert_eq!(observer.ordinary.len(), 1, "{label} {mode:?}");
@@ -1356,13 +1488,13 @@ fn g_c_declines_w1_when_the_ordinary_solve_was_not_attempted() {
     // The predicate reads the observer, not the envelope: no seed, or a seed whose
     // attempt outcome is unset, is not attempted.
     let mut empty = crate::retained_product::ProductCapture::prepared_probe();
-    assert!(!ordinary_solve_attempted(&empty));
+    assert!(!ordinary_solve_attempted(&empty, 1));
     let raw = milestone();
     let (request, capture) = CapturedInvocation::parse(raw, PreviewSolverMode::SparseInteractive).unwrap();
     let _ = crate::run_linear_static_preview_observed(request, PreviewSolverMode::SparseInteractive, Some(&capture), &mut crate::SourceRecoveryBudget::default(), Some(&mut empty));
-    assert!(ordinary_solve_attempted(&empty));
+    assert!(ordinary_solve_attempted(&empty, 1));
     empty.ordinary[0].initial = None;
-    assert!(!ordinary_solve_attempted(&empty), "a seed without an attempt outcome");
+    assert!(!ordinary_solve_attempted(&empty, 1), "a seed without an attempt outcome");
 }
 
 /// G6 (ROOT's ruling 2(a)), in the registered build: a D1 request whose ordinary route
@@ -1397,4 +1529,295 @@ fn registered_g_c_declines_only_unattempted_solves() {
             }
         }
     }
+}
+
+// ---- B1 SA: admission at option S3 (PLAN_v2 §2.3) ----------------------------------
+
+/// D1.4 admits 1 ≤ c ≤ C load cases. c = 0 and c = C + 1 refuse with `(Invocation,
+/// LoadCases)`; c = 1, 2 and 3 are inside D1, and the registered build grants each a permit,
+/// in both modes. (A permit is not a solve: nothing runs here.)
+#[test]
+fn b1_sa_d1_4_admits_one_to_c_load_cases() {
+    assert_eq!(caps::LOAD_CASES, 3, "C = 3 (option S3)");
+    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    for c in 0..=caps::LOAD_CASES + 1 {
+        let expected = if (1..=caps::LOAD_CASES).contains(&c) { None } else { family(D1Clause::Invocation, FamilyFact::LoadCases) };
+        for mode in MODES {
+            let (request, capture) = CapturedInvocation::parse(milestone_cases(c), mode).unwrap();
+            let admitted = admit(&capture, &request, Entry::Direct);
+            let report = match &admitted {
+                Ok((_, report)) | Err(report) => *report,
+            };
+            assert_eq!((report.typed.load_cases.length, report.typed.load_cases.capacity), (c, c), "c = {c}");
+            assert_eq!(report.law().domain, expected, "c = {c} {mode:?}");
+            assert_eq!(report.law().refusal, d1_1_refusal().or(expected), "c = {c} {mode:?}: D1.1 first, then D1.4");
+            assert_eq!(admitted.is_ok(), registered && expected.is_none(), "c = {c} {mode:?}: a permit only inside D1, in the registered build");
+        }
+    }
+}
+
+/// PLAN_v2 §2.3 and RV107 SF-2: the runner's out-of-domain oracle
+/// (`core/runner/headless/tests/retained_precision_admission.rs`,
+/// `explicit_headless_refusal_preserves_output_and_completion_fields_both_modes`) cannot read
+/// `pub(crate)` `caps::LOAD_CASES`, and no D1 item's visibility changes for a test, so it builds
+/// a literal 4 load cases. This test ties that literal to the producer: 4 is `LOAD_CASES + 1`,
+/// and `admit` refuses `LOAD_CASES + 1` cases at D1.4 with `(Invocation, LoadCases)`. If C
+/// changes, this test fails first and names the runner test to re-base.
+#[test]
+fn b1_sa_runner_oracle_literal_is_load_cases_plus_one() {
+    const RUNNER_LITERAL: usize = 4;
+    assert_eq!(caps::LOAD_CASES + 1, RUNNER_LITERAL, "re-base the runner's literal (explicit_headless_refusal_preserves_output_and_completion_fields_both_modes)");
+    for mode in MODES {
+        let (request, capture) = CapturedInvocation::parse(milestone_cases(caps::LOAD_CASES + 1), mode).unwrap();
+        let report = admit(&capture, &request, Entry::Direct).err().expect("C + 1 cases are refused in every build");
+        assert_eq!(report.typed.load_cases.length, RUNNER_LITERAL);
+        assert_eq!(report.law().domain, family(D1Clause::Invocation, FamilyFact::LoadCases), "{mode:?}");
+        assert_eq!(report.law().refusal, d1_1_refusal().or(family(D1Clause::Invocation, FamilyFact::LoadCases)), "{mode:?}");
+    }
+}
+
+/// D1.9's new `TotalLoads` row (Σ l_i ≤ L) at its cap and at cap + 1. Every case ≤ l and
+/// c ≤ C give Σ ≤ C·l = L, so no request reaches L + 1 (the row is stated, not binding);
+/// cap + 1 is shown on the actual census of the cap-maximal C-case input with its total raised.
+#[test]
+fn b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one() {
+    let raw = cap_maximal_cases(caps::LOAD_CASES);
+    let request: LinearStaticPreviewRequest = serde_json::from_value(raw.clone()).unwrap();
+    let report = admitted(raw);
+    let law = report.law();
+    assert_eq!((law.nested.total_loads as usize, law.nested.primitive_loads.length), (caps::TOTAL_LOADS, caps::LOADS));
+    let mut nested = law.nested;
+    for (total, expected) in [
+        (caps::TOTAL_LOADS, Ok(())),
+        (caps::TOTAL_LOADS + 1, Err(AdmissionRefusal::Cap { fact: CapFact::TotalLoads, observed: 385, cap: 384 })),
+    ] {
+        nested.total_loads = total as u32;
+        let facts = DomainFacts { raw: &report.raw, raw_text: &law.raw_text, typed: &report.typed, nested: &nested, headless: None, digest: &report.captured_digest };
+        assert_eq!(domain_clauses(&facts, &request), expected, "Σ l_i = {total}");
+    }
+}
+
+/// G-B (PLAN_v2 §2.3; RV107 SF-4; RV109 N-3): `CaseLoads` reads the case at hand (≤ l) and the
+/// new `CaseLoadsTotal` the capture's running total `late_loads_total` (ST's seam; ≤ L), so G-B
+/// at case k bounds Σ_{i≤k} l_i. Each refuses one above its cap whatever the other reads, in
+/// table order. A saturated total (`usize::MAX`, the reading a saturating seam would give on
+/// overflow) is above every bound, so G-B refuses typed. In the registered build, the actual
+/// seam has added the one case's loads by G-B: Σ = l_0 at c = 1.
+#[test]
+fn b1_sa_g_b_reads_each_case_and_the_running_total() {
+    let late = phase_caps().late;
+    assert_eq!((late[4], late[5]), (caps::LOADS as u64, caps::TOTAL_LOADS as u64), "CaseLoads ≤ l, CaseLoadsTotal ≤ L");
+    let mode = PreviewSolverMode::SparseInteractive;
+    let (request, _) = CapturedInvocation::parse(milestone(), mode).unwrap();
+    let mut diagnostics = Vec::new();
+    let built = crate::build_model(&request.model, &request.model.materials, &mut diagnostics).expect("the milestone builds");
+    let model = request.model;
+    let restrained = [0usize, 1, 2, 3, 4, 5, 6];
+    let springs: [crate::SpringEntry; 0] = [];
+    let load = model.load_cases[0].primitive_loads[0].clone();
+    // LateObservationBytes is not under test here.
+    let mut bounds = late;
+    bounds[LATE_FACTS - 1] = u64::MAX;
+    let gate = |case_loads: usize, total: usize| {
+        let mut case = model.load_cases[0].clone();
+        case.primitive_loads = vec![load.clone(); case_loads];
+        let mut capture = crate::retained_product::ProductCapture::prepared_probe();
+        capture.late_loads_total = total;
+        let o = late_observations(&LateFacts { model: &model, built: &built, materials: &model.materials, case: &case, restrained: &restrained, springs: &springs, capture: &capture });
+        assert_eq!(o.map(|x| x.fact), [PhaseFact::BuiltNodes, PhaseFact::BuiltMembers, PhaseFact::BuiltFrameElements, PhaseFact::BuiltSupports,
+            PhaseFact::CaseLoads, PhaseFact::CaseLoadsTotal, PhaseFact::Restrained, PhaseFact::Springs, PhaseFact::Materials,
+            PhaseFact::LateObservationBytes], "G-B's facts, in table order");
+        let get = |fact| o.iter().find(|x| x.fact == fact).unwrap().observed;
+        assert_eq!((get(PhaseFact::CaseLoads), get(PhaseFact::CaseLoadsTotal)), (case_loads as u64, total as u64));
+        check_phase(PhaseGate::Late, &o, &bounds).map_err(|r| (r.fact, r.observed, r.cap))
+    };
+    // The case at hand, and the running total over the cases so far.
+    assert_eq!(gate(3, 3), Ok(()), "c = 1: the milestone's own case");
+    assert_eq!(gate(3, 3 + 3 + 3), Ok(()), "case 2 of the milestone's three cases");
+    assert_eq!(gate(128, 384), Ok(()), "case 2 of the cap-maximal three: l and L");
+    assert_eq!(gate(3, 384), Ok(()));
+    assert_eq!(gate(3, 385), Err((PhaseFact::CaseLoadsTotal, 385, 384)), "the total over L although the case at hand is small");
+    assert_eq!(gate(129, 129), Err((PhaseFact::CaseLoads, 129, 128)), "the case at hand over l although the total is small");
+    assert_eq!(gate(129, 385), Err((PhaseFact::CaseLoads, 129, 128)), "table order: the case before the total");
+    assert_eq!(gate(3, usize::MAX), Err((PhaseFact::CaseLoadsTotal, u64::MAX, 384)), "a saturated total refuses at G-B");
+    // The actual seam, in the registered build: by G-B the capture holds the case's loads.
+    if COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity) {
+        for mode in MODES {
+            let (request, capture) = CapturedInvocation::parse(milestone(), mode).unwrap();
+            let (permit, _report) = admit(&capture, &request, Entry::Direct).unwrap_or_else(|r| panic!("{mode:?}: {:?}", r.law().refusal));
+            let mut observer = crate::retained_product::ProductCapture::permitted_probe(permit);
+            let _ = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::SourceRecoveryBudget::default(), Some(&mut observer));
+            assert!(observer.late_refusal().is_none(), "{mode:?}: G-B admitted the milestone");
+            assert_eq!(observer.late_loads_total, 3, "{mode:?}: Σ l_i = l_0 at G-B");
+        }
+    }
+}
+
+/// G-C (RV107 N-13): the result rows, their capacity and their text are bounded per invocation
+/// by C·P_final, PushCap(C·P_final) and 2·C·P_final·Text(row). The gate admits C·P_final rows
+/// and refuses one more. A real C-case run of a solvable cap-maximal model (W2b's shape) has
+/// more rows than one case's P_final allows, so a P_final bound would decline an input inside D1.
+#[test]
+fn b1_sa_envelope_results_bound_is_c_times_p_final() {
+    let caps = phase_caps().complete;
+    let c = caps::LOAD_CASES as u64;
+    assert_eq!((caps[0], caps[1], caps[2]), (c * P_FINAL, push_capacity(c * P_FINAL), 2 * c * P_FINAL * text_atoms::ROW));
+    let base = complete_observations_of_milestone();
+    assert_eq!(base[0].fact, PhaseFact::EnvelopeResults);
+    for (rows, expected) in [(c * P_FINAL, Ok(())), (c * P_FINAL + 1, Err((PhaseFact::EnvelopeResults, c * P_FINAL + 1, c * P_FINAL)))] {
+        let mut o = base;
+        o[0].observed = rows;
+        assert_eq!(check_phase(PhaseGate::Complete, &o, &caps).map_err(|r| (r.fact, r.observed, r.cap)), expected, "{rows} rows");
+    }
+    for mode in MODES {
+        let rows = |cases: usize| {
+            let (request, capture) = CapturedInvocation::parse(solvable_cap_maximal_cases(cases), mode).unwrap();
+            let mut observer = crate::retained_product::ProductCapture::prepared_probe();
+            let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::SourceRecoveryBudget::default(), Some(&mut observer));
+            assert_eq!(ordinary.status.mechanics, "MECHANICS_SOLVED", "{mode:?}, {cases} cases");
+            let o = complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &observer, requested_cases: cases });
+            let get = |fact| o.iter().find(|x| x.fact == fact).unwrap().observed;
+            (get(PhaseFact::EnvelopeResults), get(PhaseFact::EnvelopeResultCapacity), get(PhaseFact::EnvelopeResultTextBytes))
+        };
+        let (one, three) = (rows(1), rows(caps::LOAD_CASES));
+        println!("I89_B1_SA_ENVELOPE_RESULTS mode={} one={:?} three={:?} p_final={P_FINAL}", mode.as_str(), one, three);
+        assert!(one.0 <= P_FINAL && one.1 <= caps[1] && one.2 <= caps[2], "{mode:?}: one case within one case's rows");
+        assert!(three.0 > P_FINAL, "{mode:?}: C cases exceed one case's P_final ({} rows)", three.0);
+        assert!(three.0 <= caps[0] && three.1 <= caps[1] && three.2 <= caps[2], "{mode:?}: C cases within C·P_final");
+    }
+}
+
+/// T-3 (e) (DESIGN_v2 §1.2; RV105 N-1): G-C's attempt fact counts the requested cases. It holds
+/// exactly when c ≥ 1, the capture has one seed per requested case, and every seed's `initial`
+/// is set. A run that blocks at case k < c − 1 leaves the later cases unseeded although every
+/// seed it left is attempted: G-C declines it, and Direct publishes the exact ordinary bytes
+/// with no notice.
+#[test]
+fn b1_sa_t3_e_counts_the_requested_cases() {
+    use crate::retained_product::ProductCapture;
+    let mode = PreviewSolverMode::SparseInteractive;
+    let (request, capture) = CapturedInvocation::parse(milestone(), mode).unwrap();
+    let mut one = ProductCapture::prepared_probe();
+    let _ = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::SourceRecoveryBudget::default(), Some(&mut one));
+    let attempted = one.ordinary[0].clone();
+    assert!(attempted.initial.is_some());
+    let mut unattempted = attempted.clone();
+    unattempted.initial = None;
+    let seeds = |seeds: Vec<crate::retained_product::OrdinarySeed>| {
+        let mut capture = ProductCapture::prepared_probe();
+        capture.ordinary = seeds;
+        capture
+    };
+    assert!(!ordinary_solve_attempted(&seeds(vec![]), 0), "no requested case");
+    assert!(!ordinary_solve_attempted(&seeds(vec![]), 1), "no seed");
+    for requested in 1..=caps::LOAD_CASES {
+        assert!(ordinary_solve_attempted(&seeds(vec![attempted.clone(); requested]), requested), "{requested}: one attempted seed per case");
+        assert!(!ordinary_solve_attempted(&seeds(vec![attempted.clone(); requested - 1]), requested), "{requested}: a requested case without a seed");
+        assert!(!ordinary_solve_attempted(&seeds(vec![attempted.clone(); requested + 1]), requested), "{requested}: more seeds than requested cases");
+        let mut last_unattempted = vec![attempted.clone(); requested];
+        last_unattempted[requested - 1] = unattempted.clone();
+        assert!(!ordinary_solve_attempted(&seeds(last_unattempted), requested), "{requested}: a seed without an attempt outcome");
+    }
+    // Actual runs of C cases that block at case k < c − 1 (the private route: no admission).
+    let mut failed = milestone();
+    failed["model"]["supports"][1]["stiffness"]["value"]["value"] = json!(1e-300);
+    let failed_first = with_cases(failed, caps::LOAD_CASES);
+    let mut invalid_second = milestone_cases(caps::LOAD_CASES);
+    invalid_second["model"]["load_cases"][1]["primitive_loads"][0]["category"] = json!("not_a_category");
+    let blocked = [("case 0's attempt fails and blocks", failed_first, 1), ("case 1 blocks before its attempt", invalid_second, 1)];
+    let complete_caps = phase_caps().complete;
+    for (label, raw, left) in &blocked {
+        for mode in MODES {
+            let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
+            assert_eq!(assess(&capture, &request, Entry::Direct).law().domain, None, "{label}: inside D1");
+            let mut observer = ProductCapture::prepared_probe();
+            let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::SourceRecoveryBudget::default(), Some(&mut observer));
+            assert_eq!(ordinary.status.mechanics, "MODEL_INCOMPLETE", "{label} {mode:?}: a blocked envelope");
+            assert_eq!(observer.ordinary.len(), *left, "{label} {mode:?}: the later cases are unseeded");
+            assert!(observer.ordinary.iter().all(|seed| seed.initial.is_some()), "{label} {mode:?}: every seed it left is attempted");
+            assert!(!ordinary_solve_attempted(&observer, caps::LOAD_CASES), "{label} {mode:?}");
+            let o = complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &observer, requested_cases: caps::LOAD_CASES });
+            assert_eq!(check_phase(PhaseGate::Complete, &o, &complete_caps),
+                Err(PhaseRefusal { gate: PhaseGate::Complete, fact: PhaseFact::OrdinarySolveNotAttempted, observed: 1, cap: 0 }), "{label} {mode:?}");
+        }
+    }
+    // Every case attempted: the milestone with C cases passes the fact.
+    for mode in MODES {
+        let (request, capture) = CapturedInvocation::parse(milestone_cases(caps::LOAD_CASES), mode).unwrap();
+        let mut observer = ProductCapture::prepared_probe();
+        let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::SourceRecoveryBudget::default(), Some(&mut observer));
+        assert_eq!(observer.ordinary.len(), caps::LOAD_CASES, "{mode:?}");
+        assert!(ordinary_solve_attempted(&observer, caps::LOAD_CASES), "{mode:?}");
+        let o = complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &observer, requested_cases: caps::LOAD_CASES });
+        assert_eq!(o[COMPLETE_FACTS - 1], PhaseObservation { fact: PhaseFact::OrdinarySolveNotAttempted, observed: 0 }, "{mode:?}");
+    }
+    // Direct, in the registered build: admitted (c = C is inside D1), G-C declines, and the
+    // published bytes are exactly the value route's, with no notice and no successor.
+    if COMPILED_IDENTITY != Some(REGISTERED_PROFILES[0].identity) {
+        return;
+    }
+    for (label, raw, _) in blocked {
+        for mode in MODES {
+            let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
+            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
+            assert_eq!(direct.admission().unwrap().law().refusal, None, "{label} {mode:?}: admitted");
+            match direct.retained() {
+                Some(Err(crate::W1Fallback::CompleteGate(r))) => assert_eq!((r.gate, r.fact, r.observed, r.cap),
+                    (PhaseGate::Complete, PhaseFact::OrdinarySolveNotAttempted, 1, 0), "{label} {mode:?}"),
+                other => panic!("{label} {mode:?}: expected G-C's decline, got {other:?}"),
+            }
+            assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain, "{label} {mode:?}: exact bytes, no notice");
+            assert!(direct.successor().is_none(), "{label} {mode:?}");
+        }
+    }
+}
+
+/// SF-4's back edge (PLAN_v2 §2.3): every gate bound at C = 3, by its fact. The bounds that read
+/// the regenerated profile (`profile::F_T11`, `F_T11_LATE_CAPTURE`, `F_T11_ORDINARY_SEED`,
+/// `text_atoms::*`) are asserted as expressions: the named form, or the atom times its count.
+/// SQ fixes their values; RV-Q round 1 reviews these expressions. The bounds that read only D1's
+/// caps are asserted by value.
+#[test]
+fn b1_sa_gate_bounds_at_c_are_the_stated_expressions() {
+    use profile::{F_T11, F_T11_LATE_CAPTURE, F_T11_ORDINARY_SEED};
+    use text_atoms as t;
+    let p = phase_caps();
+    let (n, m, g, c) = (32u64, 32u64, 32u64, caps::LOAD_CASES as u64);
+    // G-B's facts are in `late_observations`' order (b1_sa_g_b_reads_each_case_and_the_running_total).
+    let late = [n, m, m, g, 128, 384, 192, 192, 8, profile_bytes(F_T11).saturating_sub(profile_bytes(F_T11_LATE_CAPTURE))];
+    assert_eq!(p.late, late, "G-B: n, m, m, g, l, L, min(6n, Σr), s, 4 + 4, T11 − T11_late_capture");
+    let observed: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
+    use PhaseFact as F;
+    let complete: [(PhaseFact, u64); COMPLETE_FACTS] = [
+        (F::EnvelopeResults, c * P_FINAL),
+        (F::EnvelopeResultCapacity, push_capacity(c * P_FINAL)),
+        (F::EnvelopeResultTextBytes, 2 * c * P_FINAL * t::ROW),
+        (F::EnvelopeDiagnostics, t::D_ENV),
+        (F::EnvelopeDiagnosticCapacity, push_capacity(t::D_ENV)),
+        (F::EnvelopeDiagnosticTextBytes, 2 * t::DIAG_ENV),
+        (F::EnvelopeMaxStringBytes, t::L_PUB),
+        (F::DiagnosticIdMaxBytes, t::L_DIAGID),
+        (F::ContractEvidenceStatus, 0),
+        (F::ContractEvidenceArrayElements, c * 160),
+        (F::ContractEvidenceObjects, c * 67),
+        (F::ContractEvidenceEntries, c * 553),
+        (F::ContractEvidenceStringBytes, c * 66_816),
+        (F::ContractEvidenceKeyBytes, c * 22_120),
+        (F::SourceBlockRecovery, 0),
+        (F::ObservationBytes, profile_bytes(F_T11)),
+        (F::OrdinarySeedBytes, profile_bytes(F_T11_ORDINARY_SEED)),
+        (F::RetainedErrorTextBytes, c * (3 * m + 1) * t::ERR),
+        (F::OrdinarySolveNotAttempted, 0),
+    ];
+    assert_eq!(observed, complete.map(|(fact, _)| fact), "G-C's facts, in table order");
+    assert_eq!(p.complete, complete.map(|(_, bound)| bound), "G-C at C = 3");
+    // The per-case contract-evidence facts, at D1's caps (ordinary_caps.py's PREVIEW facts).
+    assert_eq!((3 * m + 2 * g, 3 + m + g, 9 + 15 * m + 2 * g), (160, 67, 553));
+    assert_eq!((m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64), (9 + 15 * m + 2 * g) * 40), (66_816, 22_120));
+    // The budgets keep the profile's forms; B-6 is one notice reserve per case in A (|A| ≤ C).
+    let b = PHASE_BUDGETS;
+    assert_eq!((b.staged_copy_bytes, b.successor_bytes, b.precommit_invocation_bytes, b.reader_statics_bytes),
+        (profile_bytes(profile::F_STAGED), profile_bytes(profile::F_SUCC), profile_bytes(profile::F_INVOC), profile_bytes(profile::F_STATICS)));
+    assert_eq!(b.precommit_reader_bytes, checked_or_zero(profile::t17(&profile::ATOM_VALUES)));
+    assert_eq!(b.notice_reserve_bytes, c * NOTICE_RESERVE_BYTES);
 }

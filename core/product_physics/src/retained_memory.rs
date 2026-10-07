@@ -310,8 +310,14 @@ pub(super) struct NestedTypedFacts {
     pub(super) springs: usize,
     /// The largest `temperature_points` length and capacity over both material lists.
     pub(super) max_temperature_points: CapacityFact,
-    /// l: the first load case's `primitive_loads`.
+    /// l (B1 SA): the largest `primitive_loads` length and the largest capacity over every
+    /// load case, so that each case is bounded by `l`.
     pub(super) primitive_loads: CapacityFact,
+    /// Σ l_i (B1 SA): the primitive loads over every load case. A `u32` (an in-domain total
+    /// is at most L = 384; a total that does not fit is D1.2's `ArithmeticOverflow`) so that
+    /// it sits in `status`'s padding: this struct, inside the report that the profile's
+    /// `s(ThreadPacketOutput)` atom prices, keeps its size until SQ re-derives the profile.
+    pub(super) total_loads: u32,
     /// The typed `project.units` Value: a separate owner, within the raw caps.
     pub(super) units: BorrowedValueFacts,
     pub(super) units_text: RawTextFacts,
@@ -403,12 +409,14 @@ impl TypedWalk {
                 self.quantity(&stiffness.value)?;
             }
         }
-        for (index, case) in m.load_cases.iter().enumerate() {
+        for case in &m.load_cases {
             self.string(&case.id)?;
             self.optional(&case.provenance)?;
-            if index == 0 {
-                self.facts.primitive_loads = CapacityFact::vector(&case.primitive_loads);
-            }
+            let loads = &mut self.facts.primitive_loads;
+            loads.length = loads.length.max(case.primitive_loads.len());
+            loads.capacity = loads.capacity.max(case.primitive_loads.capacity());
+            let total = u32::try_from(case.primitive_loads.len()).ok().and_then(|l| self.facts.total_loads.checked_add(l));
+            self.facts.total_loads = total.ok_or(CensusStatus::ArithmeticOverflow)?;
             for load in &case.primitive_loads {
                 for text in [&load.id, &load.category, &load.direction, &load.dimension] {
                     self.string(text)?;
@@ -447,6 +455,7 @@ pub(super) fn nested_typed_census(request: &LinearStaticPreviewRequest) -> Neste
             springs: 0,
             max_temperature_points: empty,
             primitive_loads: empty,
+            total_loads: 0,
             units: BorrowedValueFacts::empty(),
             units_text: raw_text_census(&Value::Null),
         },
@@ -462,16 +471,25 @@ pub(super) fn nested_typed_census(request: &LinearStaticPreviewRequest) -> Neste
 /// D1's cap table: DOMAIN.md §2, with G2_AMENDMENTS.md §2 (S-3 typed capacities)
 /// and §3 (S-4: sections = 0), and `l ≤ 128` (RR "U4 G4: the margin rule trips";
 /// ADDENDUM_L128.md §4). Every pricing formula is evaluated at these caps.
+/// B1 (option S3; RR "I82's addendum: B1's target is S3…"; PLAN_v2 §2.3): one tier at
+/// these model caps with C = 3 load cases, every case `l_i ≤ 128`, and a stated
+/// `Σ l_i ≤ L = 384` that does not bind (ADDENDUM_01 §2). `LOAD_CASES` and `TOTAL_LOADS`
+/// change here, at SA (RV107 A1-N-11); SQ's registration re-prices the profile at them.
 pub(super) mod caps {
     pub(crate) const NODES: usize = 32;
     pub(crate) const MEMBERS: usize = 32;
     pub(crate) const SUPPORTS: usize = 32;
     pub(crate) const RESTRAINTS: usize = 192;
     pub(crate) const SPRINGS: usize = 192;
+    /// l: the primitive loads of each load case.
     pub(crate) const LOADS: usize = 128;
     pub(crate) const MATERIALS: usize = 4;
     pub(crate) const TEMPERATURE_POINTS: usize = 16;
-    pub(crate) const LOAD_CASES: usize = 1;
+    /// C: the load cases of one invocation (D1.4: 1 ≤ c ≤ C).
+    pub(crate) const LOAD_CASES: usize = 3;
+    /// L: the primitive loads over every load case (Σ l_i ≤ L). At option S3 it equals
+    /// C·l, so it is stated and does not bind.
+    pub(crate) const TOTAL_LOADS: usize = 384;
     pub(crate) const TEXT_BYTES: usize = 128;
     pub(crate) const RAW_VALUES: usize = 16_384;
     pub(crate) const RAW_DEPTH: usize = 16;
@@ -590,6 +608,8 @@ pub(super) enum CapFact {
     Springs,
     Loads,
     LoadsCapacity,
+    /// B1 SA: Σ l_i over every load case.
+    TotalLoads,
     ModelMaterials,
     ModelMaterialsCapacity,
     RequestMaterials,
@@ -725,8 +745,8 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     if m.pipe_segments.iter().any(|pipe| pipe.section_ref.is_some()) {
         return refuse(C::Namespace, F::SectionRef);
     }
-    // D1.4: one load case, no combinations or components.
-    if m.load_cases.len() != 1 {
+    // D1.4 (B1 SA): 1 ≤ c ≤ C load cases, no combinations or components.
+    if m.load_cases.is_empty() || m.load_cases.len() > caps::LOAD_CASES {
         return refuse(C::Invocation, F::LoadCases);
     }
     if !m.combinations.is_empty() {
@@ -735,22 +755,23 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     if !m.components.is_empty() {
         return refuse(C::Invocation, F::Components);
     }
-    // D1.5: the one case.
-    let case = &m.load_cases[0];
-    if case.pressure_regions.is_some() {
-        return refuse(C::Case, F::PressureRegions);
-    }
-    if case.equivalent_static.is_some() {
-        return refuse(C::Case, F::EquivalentStatic);
-    }
-    if case.modulus_basis_ref.is_some() {
-        return refuse(C::Case, F::ModulusBasisRef);
-    }
-    if case.modulus_basis_temperature.is_some() {
-        return refuse(C::Case, F::ModulusBasisTemperature);
-    }
-    if !matches!(case.analysis_state, Authored::Absent) {
-        return refuse(C::Case, F::AnalysisState);
+    // D1.5 (B1 SA): every case, in request order.
+    for case in &m.load_cases {
+        if case.pressure_regions.is_some() {
+            return refuse(C::Case, F::PressureRegions);
+        }
+        if case.equivalent_static.is_some() {
+            return refuse(C::Case, F::EquivalentStatic);
+        }
+        if case.modulus_basis_ref.is_some() {
+            return refuse(C::Case, F::ModulusBasisRef);
+        }
+        if case.modulus_basis_temperature.is_some() {
+            return refuse(C::Case, F::ModulusBasisTemperature);
+        }
+        if !matches!(case.analysis_state, Authored::Absent) {
+            return refuse(C::Case, F::AnalysisState);
+        }
     }
     // D1.6: rigid restraints and one scalar spring only; exact family strings.
     for support in &m.supports {
@@ -766,8 +787,8 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
             }
         }
     }
-    // D1.7: nodal force and moment primitives only.
-    for load in &case.primitive_loads {
+    // D1.7: nodal force and moment primitives only, in every case (B1 SA).
+    for load in m.load_cases.iter().flat_map(|case| &case.primitive_loads) {
         if !matches!(load.target, crate::LoadTargetInput::Node { .. }) {
             return refuse(C::Loads, F::LoadTarget);
         }
@@ -789,8 +810,10 @@ pub(super) struct CapRow {
     pub(super) observed: usize,
     pub(super) cap: usize,
 }
-pub(super) const CAP_ROWS: usize = 46;
-/// D1.9's rows in DOMAIN.md §2 order, then D1.11's (the last row).
+pub(super) const CAP_ROWS: usize = 47;
+/// D1.9's rows in DOMAIN.md §2 order, then D1.11's (the last row). B1 SA: `Loads` and
+/// `LoadsCapacity` bound every case (the census's maxima over cases), `TotalLoads` bounds
+/// Σ l_i, and `LoadCasesCapacity` is capped by C.
 pub(super) fn cap_rows(f: &DomainFacts<'_>) -> [CapRow; CAP_ROWS] {
     use caps::*;
     use CapFact as K;
@@ -809,6 +832,7 @@ pub(super) fn cap_rows(f: &DomainFacts<'_>) -> [CapRow; CAP_ROWS] {
         row(K::Springs, n.springs, SPRINGS),
         row(K::Loads, n.primitive_loads.length, LOADS),
         row(K::LoadsCapacity, n.primitive_loads.capacity, LOADS),
+        row(K::TotalLoads, n.total_loads as usize, TOTAL_LOADS),
         row(K::ModelMaterials, t.model_materials.length, MATERIALS),
         row(K::ModelMaterialsCapacity, t.model_materials.capacity, MATERIALS),
         row(K::RequestMaterials, t.request_materials.length, MATERIALS),
@@ -2349,7 +2373,9 @@ pub(super) struct AdmissionLaw {
 // path. The gates cross-check the derivation; they are not the memory bound.
 
 /// G-B facts: the live ordinary owners at the late old-source capture, borrowed,
-/// and the observer's own capture so far (RV84 S-6(c)).
+/// and the observer's own capture so far (RV84 S-6(c)). B1 SA: G-B reads the case's own
+/// loads from `case`, and the running total Σ_{i≤k} l_i from the capture's
+/// `late_loads_total` (ST's seam, added immediately before G-B at case k).
 pub(super) struct LateFacts<'a> {
     /// Borrowed for the gate's site; no G-B fact reads it (API_G4.md §2).
     #[allow(dead_code)]
@@ -2368,8 +2394,7 @@ pub(super) struct CompleteFacts<'a> {
     pub(super) capture: &'a crate::retained_product::ProductCapture,
     /// B1 seam (PLAN_v2 §2.1; RV107 SF-4): the typed request's `model.load_cases.len()`,
     /// which `permitted_run` reads before the request moves into the observed run. T-3
-    /// (e)'s requested count; no G-C fact reads it until B1's SA.
-    #[allow(dead_code)]
+    /// (e)'s requested count: `OrdinarySolveNotAttempted` reads it (B1 SA).
     pub(super) requested_cases: usize,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -2385,6 +2410,8 @@ pub(super) enum PhaseFact {
     BuiltFrameElements,
     BuiltSupports,
     CaseLoads,
+    /// B1 SA: the running total of the requested cases' loads at G-B (Σ_{i≤k} l_i).
+    CaseLoadsTotal,
     Restrained,
     Springs,
     Materials,
@@ -2408,7 +2435,8 @@ pub(super) enum PhaseFact {
     OrdinarySeedBytes,
     RetainedErrorTextBytes,
     /// G6 (ROOT, C1:64, ROUTING:98): 1 when the ordinary route returned without
-    /// attempting the case's solve; its bound is 0, so G-C declines W1 there.
+    /// attempting a requested case's solve (B1 SA: T-3 (e), over every requested case);
+    /// its bound is 0, so G-C declines W1 there.
     OrdinarySolveNotAttempted,
 }
 /// A gate's refusal: the gate, the first fact above its bound, the observed
@@ -2425,7 +2453,7 @@ pub(super) struct PhaseObservation {
     pub(super) fact: PhaseFact,
     pub(super) observed: u64,
 }
-pub(super) const LATE_FACTS: usize = 9;
+pub(super) const LATE_FACTS: usize = 10;
 pub(super) const COMPLETE_FACTS: usize = 19;
 /// The bound for each fact, in `late_observations`/`complete_observations` order.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -2526,6 +2554,7 @@ pub(super) fn late_observations(f: &LateFacts<'_>) -> [PhaseObservation; LATE_FA
         o(P::BuiltFrameElements, count(f.built.frame_elements.len())),
         o(P::BuiltSupports, count(f.built.supports.len())),
         o(P::CaseLoads, count(f.case.primitive_loads.len())),
+        o(P::CaseLoadsTotal, count(f.capture.late_loads_total)),
         o(P::Restrained, count(f.restrained.len())),
         o(P::Springs, count(f.springs.len())),
         o(P::Materials, count(f.materials.len())),
@@ -2564,7 +2593,7 @@ pub(super) fn complete_observations(f: &CompleteFacts<'_>) -> [PhaseObservation;
         o(P::ObservationBytes, capture_bytes(f.capture)),
         o(P::OrdinarySeedBytes, seeds.get()),
         o(P::RetainedErrorTextBytes, retained_error_text(f.capture).get()),
-        o(P::OrdinarySolveNotAttempted, u64::from(!ordinary_solve_attempted(f.capture))),
+        o(P::OrdinarySolveNotAttempted, u64::from(!ordinary_solve_attempted(f.capture, f.requested_cases))),
     ]
 }
 /// G6 (ROOT's ruling on D1's blocked ordinary runs; C1:64 declines W1 before execution,
@@ -2579,9 +2608,13 @@ pub(super) fn complete_observations(f: &CompleteFacts<'_>) -> [PhaseObservation;
 /// before the attempt (validation's `blocked_envelope`s in
 /// `run_linear_static_preview_observed`; the load-input, ledger and reduction exits of
 /// `solve_load_case_observed`, :3918, :4011, :4042, :4098) leaves no seed or a seed
-/// with `initial` None. D1.4 admits one case, so one seed. Allocates nothing.
-pub(super) fn ordinary_solve_attempted(capture: &crate::retained_product::ProductCapture) -> bool {
-    !capture.ordinary.is_empty() && capture.ordinary.iter().all(|seed| seed.initial.is_some())
+/// with `initial` None. B1 SA (T-3 (e); DESIGN_v2 §1.2, RV105 N-1): the fact counts the
+/// `requested` cases (`CompleteFacts::requested_cases`): it holds exactly when at least one
+/// case is requested, the capture has one seed per requested case, and every seed's
+/// `initial` is set. A run that blocks at case k < c − 1 leaves the later cases unseeded,
+/// so it is not attempted, although every seed it left is. Allocates nothing.
+pub(super) fn ordinary_solve_attempted(capture: &crate::retained_product::ProductCapture, requested: usize) -> bool {
+    requested >= 1 && capture.ordinary.len() == requested && capture.ordinary.iter().all(|seed| seed.initial.is_some())
 }
 /// The first observation above its bound. Pure.
 pub(super) fn check_phase<const N: usize>(gate: PhaseGate, observations: &[PhaseObservation; N], caps: &[u64; N]) -> Result<(), PhaseRefusal> {
@@ -2630,38 +2663,44 @@ pub(super) const fn push_capacity(h: u64) -> u64 {
     }
     c
 }
-/// P_final ≤ 7n + 51m + 8g + 3 (DOMAIN.md §2, derived).
+/// P_final ≤ 7n + 51m + 8g + 3 (DOMAIN.md §2, derived): one case's result rows.
 pub(super) const P_FINAL: u64 = (7 * caps::NODES + 51 * caps::MEMBERS + 8 * caps::SUPPORTS + 3) as u64;
 /// The gate bounds. Count bounds are D1's caps; text bounds are 2× the G4 text
 /// atoms (exact-capacity copies at most double: API_G4.md §2); the preview tree
 /// bounds are ordinary_caps.py's PREVIEW facts at the caps. The byte bounds (T11, T11
 /// without its late capture, T11.4) are the generated profile's in-build forms.
+/// B1 SA (option S3; I82 STUDY §4.3; PLAN_v2 §2.3), at C = `LOAD_CASES`: G-B bounds each
+/// case's loads by l and their running total by L; G-C bounds the result rows, their
+/// capacity and text by C·P_final (RV107 N-13), the contract-evidence facts by C times
+/// the per-case preview facts, and the retained error text by C·(3m + 1)·Text(err) (I82's
+/// assumption, checked against SP's producer in phase 4). The diagnostic, string and byte
+/// bounds read the profile's text atoms and forms, which SQ regenerates at C = 3.
 pub(super) const fn phase_caps() -> PhaseCaps {
     use caps::*;
-    let (n, m, g) = (NODES as u64, MEMBERS as u64, SUPPORTS as u64);
+    let (n, m, g, c) = (NODES as u64, MEMBERS as u64, SUPPORTS as u64, LOAD_CASES as u64);
     let k = if 6 * n < RESTRAINTS as u64 { 6 * n } else { RESTRAINTS as u64 };
     PhaseCaps {
-        late: [n, m, m, g, LOADS as u64, k, SPRINGS as u64, 2 * MATERIALS as u64,
+        late: [n, m, m, g, LOADS as u64, TOTAL_LOADS as u64, k, SPRINGS as u64, 2 * MATERIALS as u64,
             profile_bytes(profile::F_T11).saturating_sub(profile_bytes(profile::F_T11_LATE_CAPTURE))],
         complete: [
-            P_FINAL,
-            push_capacity(P_FINAL),
-            2 * P_FINAL * text_atoms::ROW,
+            c * P_FINAL,
+            push_capacity(c * P_FINAL),
+            2 * c * P_FINAL * text_atoms::ROW,
             text_atoms::D_ENV,
             push_capacity(text_atoms::D_ENV),
             2 * text_atoms::DIAG_ENV,
             text_atoms::L_PUB,
             text_atoms::L_DIAGID,
             0,
-            3 * m + 2 * g,
-            3 + m + g,
-            9 + 15 * m + 2 * g,
-            m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64),
-            (9 + 15 * m + 2 * g) * 40,
+            c * (3 * m + 2 * g),
+            c * (3 + m + g),
+            c * (9 + 15 * m + 2 * g),
+            c * (m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64)),
+            c * ((9 + 15 * m + 2 * g) * 40),
             0,
             profile_bytes(profile::F_T11),
             profile_bytes(profile::F_T11_ORDINARY_SEED),
-            (3 * m + 1) * text_atoms::ERR,
+            c * (3 * m + 1) * text_atoms::ERR,
             0,
         ],
     }
@@ -2684,7 +2723,8 @@ pub(super) struct PhaseBudgets {
     /// B-5: the precommit reader's peak, and its process-lifetime statics.
     pub(super) precommit_reader_bytes: u64,
     pub(super) reader_statics_bytes: u64,
-    /// B-6: the N1 notice reserve, made before W1 starts.
+    /// B-6: the N1 notice reserve, made before W1 starts (B1 SA: one per case in A, so
+    /// at most C reserves; I82 STUDY §4.3).
     pub(super) notice_reserve_bytes: u64,
     /// B-7: fallible allocations after the first mutation of a published owner.
     pub(super) fallible_allocations_after_first_mutation: u32,
@@ -2712,7 +2752,7 @@ static PHASE_BUDGETS: PhaseBudgets = PhaseBudgets {
     precommit_invocation_bytes: profile_bytes(profile::F_INVOC),
     precommit_reader_bytes: checked_or_zero(profile::t17(&profile::ATOM_VALUES)),
     reader_statics_bytes: profile_bytes(profile::F_STATICS),
-    notice_reserve_bytes: NOTICE_RESERVE_BYTES,
+    notice_reserve_bytes: NOTICE_RESERVE_BYTES * caps::LOAD_CASES as u64,
     fallible_allocations_after_first_mutation: 0,
     thread_heap_bytes: (8 << 10) + std::mem::size_of::<crate::RetainedPreviewOutput>() as u64,
     reserved_stack_bytes: RESERVED_STACK_BYTES as u64,
@@ -2976,14 +3016,20 @@ pub(super) mod tests {
     #[test]
     fn actual_retained_entry_dispatches_ordinary_once() {
         // G6: the counted dispatch is the unpermitted one; the milestone is made out of D1
-        // (a second load case, D1.4) so no build admits it. The permitted path's single
-        // ordinary run (U3's B-1) is not counted by this hook (QUALIFICATION.md §7).
+        // (B1, PLAN_v2 §2.3 and RV107 SF-2: C + 1 load cases, D1.4) so no build admits it.
+        // The permitted path's single ordinary run (U3's B-1) is not counted by this hook
+        // (QUALIFICATION.md §7).
         let mut raw: Value = serde_json::from_str(include_str!(
             "../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json"
         ))
         .unwrap();
         let case = raw["model"]["load_cases"][0].clone();
-        raw["model"]["load_cases"].as_array_mut().unwrap().push(case);
+        for ordinal in 2..=caps::LOAD_CASES + 1 {
+            let mut copy = case.clone();
+            copy["id"] = Value::String(format!("case-{ordinal}"));
+            raw["model"]["load_cases"].as_array_mut().unwrap().push(copy);
+        }
+        assert_eq!(raw["model"]["load_cases"].as_array().unwrap().len(), caps::LOAD_CASES + 1);
         for mode in [
             crate::PreviewSolverMode::SparseInteractive,
             crate::PreviewSolverMode::DenseScrutiny,
@@ -2996,6 +3042,11 @@ pub(super) mod tests {
             // any other build is Stale. Either way the ordinary run is dispatched once.
             let expected = build_status().map_or_else(|status| status, |_| ProfileStatus::Registered);
             assert_eq!(result.admission().unwrap().profile, expected);
+            assert_eq!(
+                result.admission().unwrap().law().domain,
+                Some(AdmissionRefusal::Family(D1Clause::Invocation, FamilyFact::LoadCases)),
+                "C + 1 cases: outside D1 at D1.4"
+            );
             DISPATCH_COUNT.with(|c| {
                 assert_eq!(c.get(), Some(1));
                 c.set(None);
