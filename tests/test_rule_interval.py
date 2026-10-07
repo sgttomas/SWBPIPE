@@ -134,7 +134,7 @@ def test_reference_evaluator_matches_the_shared_case(case):
 # -- the independent oracle -----------------------------------------------------
 
 class Block(Exception):
-    """The point path blocks (or panics) at this point: neither pass nor fail."""
+    """The point path blocks at this point: neither pass nor fail."""
 
 
 def point_value(node: dict, env: dict, exact: bool):
@@ -160,7 +160,9 @@ def point_value(node: dict, env: dict, exact: bool):
                     raise Block
                 quotient = left / right
                 if not exact and not math.isfinite(quotient):
-                    raise Block  # the point path can panic on a non-finite quotient
+                    # A same-dimension ratio blocks (NonFiniteInput); other quotients
+                    # carry the value, and Block stays the conservative reading.
+                    raise Block
                 return quotient
             return {"add": left + right, "subtract": left - right, "multiply": left * right}[operator]
         if kind == "compare":
@@ -184,7 +186,7 @@ def point_value(node: dict, env: dict, exact: bool):
             rows = [(Fraction(a), Fraction(r)) for a, r in rows]
         x = point_value(node["argument"], env, exact)
         if not exact and math.isnan(x):
-            raise Block  # the point path panics on a NaN table argument
+            raise Block  # NonFiniteInput (interpolate, step); TableKeyNotFound (exact)
         first, last = rows[0][0], rows[-1][0]
         for argument, result in rows:
             if argument == x:
