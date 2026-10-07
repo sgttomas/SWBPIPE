@@ -1,6 +1,6 @@
 {
   "schema": "u9-citation-index-v1",
-  "about": "Resolves every record and design-document citation that T3-SI1c's PR adds to maintained source (the 5 files of main..SI1c). SI1c adds no citation in a form this checker parses. One test comment cites \"I87 §2.4\", meaning R/I87/si1c_plan_01/PLAN.md §2.4 (the plan's consumer-row table), which resolves at num_commit. Record names in comments (I79's reproducers, RV104's probe 29, RV111's input) are evidence labels, not document citations. Verify with main's check_citations.py.",
+  "about": "Resolves every record and design-document citation that T3-SI1c's PR adds to maintained source (the 5 files of main..SI1c). SI1c adds no citation in a form this checker parses. One test comment cites \"I87 §2.4\", meaning R/I87/si1c_plan_01/PLAN.md §2.4 (the plan's comparison truth table), which resolves at num_commit. Record names in comments (I79's reproducers, RV104's probe 29, RV111's input) are evidence labels, not document citations. Verify with main's check_citations.py.",
   "num_branch": "codex/piping-numerical-integrity-20260926",
   "num_commit": "769d0d0f4638d817749d3c9fe5d861cc36fd2ba3",
   "github": "https://github.com/sgttomas/chirality",

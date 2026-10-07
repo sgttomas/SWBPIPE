@@ -1,17 +1,17 @@
 **piping(T3 SI1c): point-path rule evaluation blocks at an overflowing or NaN intermediate instead of deciding on it**
 
-On the ordinary point path, a rule formula whose arithmetic overflowed or produced NaN could still decide a pass or a fail. For example, `NaN ≠ 100` and `inf ≥ 100` read as decided. Interval mode reads the same formulas as indeterminate. This PR makes the point path block, with the existing `NonFiniteInput` finding, at the operation whose result is not finite. This is the owner's decision (option D, a repair within grammar 1.0.0). Every other input gives byte-identical results.
+On the ordinary point path, a rule formula whose arithmetic overflowed or produced NaN could still decide a pass or a fail. For example, `NaN ≠ 100` and `inf ≥ 100` read as decided. Interval mode reads the same formulas as indeterminate. This PR makes the point path block, with the existing `NonFiniteInput` finding, at the operation whose result is not finite. This is the owner's decision (option D, a repair within grammar 1.0.0). It also names a non-finite caller value or limit in the runner (N-4). Every other input gives byte-identical results.
 
 ## What changes
 
 - **`expression_evaluator`:** every arithmetic and interpolation producer checks that its result is finite. If it is not, the producer blocks with `NonFiniteInput` and a message naming the operation. The producers are add and subtract, multiply, divide, and each interpolation step. SI1b's ratio block is kept.
-- **`rule_check_runner`:** a caller-supplied value or a value-slot limit that is NaN or infinite, before or after unit normalization, is named with one blocking `NonFiniteInput`, never bound, and noted. An existing note keeps its place, and the N-4 note follows it. No status changes.
+- **`rule_check_runner`:** a caller-supplied value that is NaN or infinite, before or after unit normalization, is named with one blocking `NonFiniteInput`, never bound, and noted. An existing note keeps its place, and the N-4 note follows it. A non-finite value-slot limit is named with the slot as the finding's subject. This applies in point and bounded runs alike. No status changes.
 - **Comments and the README** state the `Logical` and `Select` evaluation order. The Python point-path oracle in `tests/test_rule_interval.py` follows the same rule.
 
 ## What stays the same
 
-- **Every input with no non-finite intermediate gives byte-identical results,** in the evaluator and in `run_rule_checks`. Two independent differentials checked this, over about 370,000 point-path evaluator lines and 400,000 runner lines in all.
-- **Interval mode is unchanged:** all 433,221 interval lines in the independent differential are identical.
+- **Every input with no non-finite intermediate and no non-finite caller value or limit gives byte-identical results,** in the evaluator and in `run_rule_checks`. Two independent differentials checked this, over about 370,000 point-path evaluator lines and 400,000 runner lines in all.
+- **The interval evaluator is unchanged:** all 433,221 interval evaluation lines in the independent differential are identical. Bounded rule checks change only where N-4 applies.
 - **No new finding code, and no grammar version, conformance-corpus, schema, dependency or lock change.**
 - **The rules crates are outside the F2a D1 milestone's build,** so the registered identity is untouched.
 
