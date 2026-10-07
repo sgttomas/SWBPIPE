@@ -79,14 +79,15 @@ pub(crate) fn fail_next_late_gate() { arm(|a| a.late_gate = true); }
 /// complete gate refuses (`ObservationBytes`).
 pub(crate) fn fail_next_complete_gate() { arm(|a| a.complete_gate = true); }
 /// Preparation fault (the private driver's trigger: the closed annulus helper refuses a
-/// zero diameter).
+/// zero diameter). It is applied at G-C to the case in the capture's own fields: at c ≥ 2 the
+/// last requested case (RV109 R3P-6).
 pub(crate) fn fail_next_preparation() { arm(|a| a.preparation = true); }
 /// Candidate fault: the proof trace faults at this point.
 pub(crate) fn fault_next_candidate(fault: crate::retained_receipt::TraceFault) { arm(|a| a.candidate = Some(fault)); }
 /// B1 SP (decision 23; RV107 A1-N-6): the preparation of request case `index` fails (the closed
 /// annulus helper refuses a zero diameter), on the private driver and the actual entry alike. Its
 /// attempt alone fails; the other cases' attempts continue (DESIGN_v2 T-7). `fail_next_preparation`
-/// would fail the first attempted case instead.
+/// would fail the last requested case instead, the one in the capture's own fields at G-C.
 pub(crate) fn fail_preparation_of_case(index: usize) { arm(|a| a.preparation_of_case = Some(index)); }
 /// At each product attempt, before its preparation (retained_product.rs, `prepare_attempt`), on the
 /// case in the capture's own fields.

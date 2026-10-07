@@ -3792,8 +3792,10 @@ impl CaseAttempt {
     }
 }
 impl ProductCapture {
-    /// B1 SP (DESIGN_v2 T-6): invocation custody, checked once for every requested case.
-    /// - A prior capture error of any case, the first in request order, is the cause.
+    /// B1 SP (DESIGN_v2 T-6): invocation custody, checked once for every requested case, before
+    /// any attempt.
+    /// - A prior capture error of any case, the first in request order, is the cause: the parked
+    ///   cases' (0 to c − 2), then the last case's, in the capture's own fields (RV109 R3P-3).
     /// - The ordinary preconditions: one final hook, the preview contract, `MECHANICS_SOLVED`,
     ///   no exact-block selection, and no native work yet.
     /// - One complete late capture per requested case.
@@ -3801,12 +3803,12 @@ impl ProductCapture {
     ///   with several cases, each case's rows bound as its block (`bind_case_rows`).
     ///
     /// At c = 1 this is `prepare_owned_case`'s prelude, with the same adapter events.
-    fn prepared_custody(&mut self,ordinary:&MechanicsEnvelope,requested:usize)->Result<(),CaptureError> {
-        if self.error.is_some() {
-            return Err(self.error.take().expect("observed prior capture cause"));
-        }
+    fn prepared_custody(&mut self,ordinary:&MechanicsEnvelope,requested:usize,attempted:&[usize])->Result<(),CaptureError> {
         if let Some(slot)=self.parked.iter_mut().find(|slot|slot.error.is_some()) {
             return Err(slot.error.take().expect("observed prior case cause"));
+        }
+        if self.error.is_some() {
+            return Err(self.error.take().expect("observed prior capture cause"));
         }
         self.adapter.require()?;
         if !self.prepared_probe || self.final_calls!=1
@@ -3817,6 +3819,10 @@ impl ProductCapture {
         }
         if self.cases_seen()!=requested {
             return Err("prepared case count".into());
+        }
+        // A's request indices: each in the request, strictly increasing (RV109 R3P-2).
+        if attempted.iter().any(|&request|request>=requested) || attempted.windows(2).any(|pair|pair[0]>=pair[1]) {
+            return Err("attempted cases outside the request or out of order".into());
         }
         if self.parked.is_empty() {
             return self.bind_observations(ordinary);
@@ -3854,19 +3860,17 @@ impl ProductCapture {
         Ok(())
     }
     /// B1 SP (DESIGN_v2 T-6, then T-7): custody once, then one product attempt per case in
-    /// A (`attempted`, request indices in request order), each preparing its own case. An
+    /// A (`attempted`: request indices, strictly increasing, validated by custody), each
+    /// preparing its own case. An
     /// attempt's preparation failure makes only that case unavailable: it keeps no prepared
     /// source, its error is in its slot, and its trace's terminal snapshot is preparation's.
     /// The other cases continue. Attempt ids are the actual start order.
     pub(super) fn prepare_cases(mut self,ordinary:MechanicsEnvelope,requested:usize,attempted:&[usize])->Result<PreparedCases,CustodyFailure> {
-        if let Err(error)=self.prepared_custody(&ordinary,requested) {
+        if let Err(error)=self.prepared_custody(&ordinary,requested,attempted) {
             return Err(CustodyFailure{ordinary,capture:self,error});
         }
         let mut attempts=Vec::with_capacity(attempted.len());
         for (attempt,&request) in attempted.iter().enumerate() {
-            if request>=requested {
-                return Err(CustodyFailure{ordinary,capture:self,error:"attempted case outside the request".into()});
-            }
             attempts.push(self.with_case(request,|capture|capture.prepare_attempt(request,attempt)));
         }
         Ok(PreparedCases{ordinary,capture:self,attempts})

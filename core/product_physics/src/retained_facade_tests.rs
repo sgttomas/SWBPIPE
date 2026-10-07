@@ -1858,3 +1858,135 @@ fn b1_sp_multi_case_coexistence_pin() {
         assert_eq!(bytes, plain, "{mode:?}: exactly the ordinary bytes");
     }
 }
+
+/// W-C2's cases `ids`, in that order, as one request (two-case requests for RV109's R3P-1).
+fn w_c2_cases(ids: &[&str]) -> Value {
+    let mut raw = w_c2();
+    let all = raw["model"]["load_cases"].as_array().unwrap().clone();
+    raw["model"]["load_cases"] = json!(ids.iter().map(|id| all.iter().find(|c| c["id"] == *id).unwrap().clone()).collect::<Vec<_>>());
+    raw
+}
+
+/// RV109 R3P-1: a multi-case invocation with one case in A takes the n-case transaction on that
+/// case's own slot, never the one-case path on the last requested case's fields (`into_single` is
+/// retired: c = 1 and c ≥ 2 run the same T-8 to T-11). Both modes, below `retained_w1` (and through
+/// it after I2, with A's one notice):
+/// - (A, B), A = {0}: A, the first case, is attempted, solved and frozen on its own source (the call
+///   and the one source are A's); B is `not_required`; before SR-RS the precommit refuses (G5) with A
+///   selected;
+/// - (B, A), A = {1}: the same with A second (case-qualified ids in its freeze);
+/// - (C, B), A = {0}: C's own Run ends at Ceiling, so no case is selected: `Native`, with nothing
+///   selected (not B's unprepared source).
+#[test]
+fn b1_sp_r3p_1_one_case_in_a_runs_on_its_own_slot() {
+    for mode in MODES {
+        for (ids, attempted, request) in [(["case-a", "case-b"], 0usize, 0usize), (["case-b", "case-a"], 1, 1), (["case-c", "case-b"], 0, 0)] {
+            let label = format!("{mode:?} {ids:?}");
+            let raw = w_c2_cases(&ids);
+            let plain = plain(mode, &raw);
+            let (capture, observer, ordinary) = observed(mode, &raw);
+            assert_eq!(classified(&ordinary.numerical_quality, &observer.ordinary, &ids).iter().filter(|t| **t == CaseTrigger::Attempted).count(), 1, "{label}: |A| = 1");
+            let ((envelope, outcome), _, successor) = hooks::counted_with_successor(|| w1_transaction(observer, ordinary, &capture, 2, &[attempted]));
+            assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{label}: the ordinary owner is untouched");
+            if ids[0] == "case-c" {
+                assert_eq!(outcome.err(), Some((W1Fallback::Native, 0)), "{label}: C's own Run, not selected");
+                assert!(successor.is_none(), "{label}");
+                continue;
+            }
+            assert_eq!(outcome.err(), Some((W1Fallback::Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH".into() }, 0b1)), "{label}");
+            let successor = successor.unwrap();
+            let body = w_c2_body(&successor);
+            let statuses: Vec<_> = body["cases"].as_array().unwrap().iter().map(|c| c["status"].as_str().unwrap()).collect();
+            let mut expected = ["not_required", "not_required"];
+            expected[request] = "selected";
+            assert_eq!(statuses, expected, "{label}");
+            assert_eq!((body["sources"].as_array().unwrap().len(), body["sources"][0]["owner"]["case_id"].clone()), (1, json!("case-a")), "{label}: A's own source");
+            assert_eq!(body["sources"][0]["nodal_terms"].as_array().unwrap().len(), 3, "{label}: A's three loads, not B's two");
+            assert_eq!(body["calls"][0]["owner_refs"], json!([case_ref(request)]), "{label}");
+        }
+        if crate::retained_memory::caps::LOAD_CASES >= 2 {
+            let raw = w_c2_cases(&["case-a", "case-b"]);
+            let plain = plain(mode, &raw);
+            let (capture, observer, ordinary) = observed(mode, &raw);
+            let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+            assert_eq!(retained.err(), Some(W1Fallback::Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH".into() }), "{mode:?}");
+            assert_eq!(serde_json::to_vec(&envelope).unwrap(), with_notice(&plain, "case-a", None), "{mode:?}: A's one notice");
+        }
+    }
+}
+
+/// RV109 R3P-2 and R3P-3: custody validates A (`attempted`) before any attempt: each index in the
+/// request and strictly increasing; and a prior capture error is taken in request order (case 0's
+/// before case 2's, though case 2 is the one in the capture's own fields).
+#[test]
+fn b1_sp_r3p_2_3_custody_validates_a_and_orders_prior_errors() {
+    use super::retained_product::CaptureError;
+    let mode = PreviewSolverMode::SparseInteractive;
+    let raw = w_c2();
+    let refused = |observer: rp::ProductCapture, ordinary: MechanicsEnvelope, attempted: &[usize]| -> String {
+        match observer.prepare_cases(ordinary, 3, attempted) {
+            Ok(_) => panic!("custody passed: {attempted:?}"),
+            Err(failure) => {
+                assert!(failure.capture.prepared_capacity_bytes == [0; 16], "no attempt started: {attempted:?}");
+                match failure.error { CaptureError::Association(text) => text, other => format!("{other:?}") }
+            }
+        }
+    };
+    for attempted in [&[0, 3][..], &[3], &[2, 0], &[0, 0], &[2, 2]] {
+        let (_, observer, ordinary) = observed(mode, &raw);
+        assert_eq!(refused(observer, ordinary, attempted), "attempted cases outside the request or out of order", "{attempted:?}");
+    }
+    let (_, mut observer, ordinary) = observed(mode, &raw);
+    observer.with_case(0, |c| c.error = Some("case 0's cause".into()));
+    observer.with_case(2, |c| c.error = Some("case 2's cause".into()));
+    assert_eq!(refused(observer, ordinary, &[0, 2]), "case 0's cause", "the first in request order");
+}
+
+/// RV109 R3P-7: T-6's c ≥ 2 checks, each a refusal before any attempt, on W-C2:
+/// - per-case final presence: a case missing its final mode row, or carrying two;
+/// - a parked case whose late capture did not complete (`finish` checks every slot);
+/// - native work in a parked slot.
+#[test]
+fn b1_sp_r3p_7_custody_per_case_presence_parked_capture_and_native() {
+    use super::retained_product::CaptureError;
+    let mode = PreviewSolverMode::DenseScrutiny;
+    let raw = w_c2();
+    let refused = |observer: rp::ProductCapture, ordinary: MechanicsEnvelope| -> String {
+        match observer.prepare_cases(ordinary, 3, &[0, 2]) {
+            Ok(_) => panic!("custody passed"),
+            Err(failure) => {
+                assert!(failure.capture.prepared_capacity_bytes == [0; 16], "no attempt started");
+                match failure.error { CaptureError::Association(text) => text, other => format!("{other:?}") }
+            }
+        }
+    };
+    let is_mode_of = |r: &ResultItem, case: &str| r.kind == "linear_solver_mode_basis" && r.basis_ref.as_ref().is_some_and(|b| b.ref_id == case);
+    // Case B's final mode row missing.
+    let (_, observer, mut ordinary) = observed(mode, &raw);
+    ordinary.results.retain(|r| !is_mode_of(r, "case-b"));
+    assert_eq!(refused(observer, ordinary), "observation final presence", "B without its mode row");
+    // Case A's final mode row twice.
+    let (_, observer, mut ordinary) = observed(mode, &raw);
+    let at = ordinary.results.iter().position(|r| is_mode_of(r, "case-a")).unwrap();
+    let copy = ordinary.results[at].clone();
+    ordinary.results.insert(at, copy);
+    assert_eq!(refused(observer, ordinary), "observation final presence", "A with two mode rows");
+    // A parked case's late capture did not complete: `finish` (here re-entered once) refuses it.
+    let (_, mut observer, ordinary) = observed(mode, &raw);
+    observer.with_case(0, |c| {
+        c.prepared_late_calls = 0;
+        c.source_capture_entries = 0;
+        c.source = None;
+    });
+    observer.final_calls = 0;
+    observer.finish(&ordinary);
+    assert_eq!(refused(observer, ordinary), "missing successful prepared late source hook", "a parked case without its late capture");
+    // Native work in a parked slot.
+    let (request, capture) = source_receipt::CapturedInvocation::parse(u8_two_body_case_a(), mode).unwrap();
+    let mut one = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|_| panic!("one-case preparation"));
+    let _ = one.solve_native();
+    let run = one.test_capture_mut().native.take();
+    let (_, mut observer, ordinary) = observed(mode, &raw);
+    observer.with_case(1, |c| c.native = run);
+    assert_eq!(refused(observer, ordinary), "prepared case custody/permit", "native work in a parked slot");
+}
