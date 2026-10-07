@@ -2535,7 +2535,10 @@ fn diagnostic_text(d: &crate::Diagnostic) -> Bytes {
 fn capture_bytes(capture: &crate::retained_product::ProductCapture) -> u64 {
     capture.adapter.counts.get()[crate::retained_product::AdapterEvent::RustCapacityBytes as usize]
 }
-/// C-N4: the text owned by `error`, `observable_error` and `g5a_error`.
+/// C-N4: the text owned by `error`, `observable_error` and `g5a_error`, over every requested
+/// case's slot (B1 SA after SP's T-2; ROOT's note after R3′): the case in the capture's own
+/// fields and, at c ≥ 2, the earlier cases' parked slots (`parked_cases()`). Its bound is
+/// C·(3m + 1)·Text(err), one retained error set per case (I82's assumption; phase 4 checks it).
 fn retained_error_text(capture: &crate::retained_product::ProductCapture) -> Bytes {
     use crate::retained_product::CaptureError;
     let text = |e: &Option<CaptureError>| match e {
@@ -2543,7 +2546,8 @@ fn retained_error_text(capture: &crate::retained_product::ProductCapture) -> Byt
         _ => 0,
     };
     // `G5aFailure` holds only `&'static str` and integer facts.
-    Bytes::ZERO.add(text(&capture.error)).add(text(&capture.observable_error))
+    let own = Bytes::ZERO.add(text(&capture.error)).add(text(&capture.observable_error));
+    capture.parked_cases().iter().fold(own, |sum, slot| sum.add(text(&slot.error)).add(text(&slot.observable_error)))
 }
 pub(super) fn late_observations(f: &LateFacts<'_>) -> [PhaseObservation; LATE_FACTS] {
     use PhaseFact as P;
