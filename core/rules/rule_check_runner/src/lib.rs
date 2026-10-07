@@ -66,8 +66,8 @@ pub use open_pipe_stress_expression_evaluator::AnalysisStatus;
 use open_pipe_stress_expression_evaluator::{
     enclosure_from_bound, evaluate, evaluate_interval, BindingSource, ComparisonOperator,
     Dimension as EvalDimension, Enclosure, EvaluationInput, EvaluationValue, Expression,
-    IntervalBinding, IntervalEvaluationResult, IntervalNoteCode, IntervalValue, Quantity, Truth,
-    VariableBinding,
+    FindingCode, IntervalBinding, IntervalEvaluationResult, IntervalNoteCode, IntervalValue,
+    Quantity, Truth, VariableBinding,
 };
 use open_pipe_stress_rule_pack_document::{decode_dimension, decode_expression, encode_dimension};
 use open_pipe_stress_units::{convert_for_dimension, unit_by_symbol, Dimension as UnitDimension};
@@ -395,6 +395,7 @@ struct RunContext<'a> {
 
 /// A value resolved for a required input, ready to bind into the evaluator.
 struct ResolvedValue {
+    /// In the declared unit. A value that is not finite is never bound (N-4).
     value: f64,
     unit: String,
     eval_dimension: Option<EvalDimension>,
@@ -649,7 +650,20 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                 )
             }
         };
+        // N-4 (T3-SI1c): a supplied value that is not finite (NaN or ±inf),
+        // raw or after unit normalization, is never bound, and a finding
+        // names it. The raw value is tested before normalization, which would
+        // otherwise report a unit mismatch; such a value stays unsupplied, as
+        // before, so completeness still blocks the check.
+        let raw_non_finite_to_convert = matches!(
+            (raw_value, raw_unit.as_deref()),
+            (Some(v), Some(u)) if !v.is_finite() && u.trim() != unit_ref.trim()
+        );
         let (value, unit) = match (raw_value, raw_unit) {
+            _ if raw_non_finite_to_convert => {
+                evaluator_findings.push(non_finite_input_finding(ref_id));
+                (None, None)
+            }
             (Some(v), Some(u)) => {
                 match normalize_value_to_declared_unit(v, &u, &unit_ref, dimension_token, ref_id) {
                     Ok((normalized_value, normalized_unit)) => {
@@ -663,15 +677,23 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
             }
             (value, unit) => (value, unit),
         };
+        let non_finite = raw_non_finite_to_convert || value.is_some_and(|v| !v.is_finite());
 
         bound_inputs.push(BoundInput {
             input_id: ref_id.to_string(),
             source_kind: source_token.to_string(),
             supplied: value.is_some(),
-            value,
+            value: value.filter(|v| v.is_finite()),
             unit: unit.clone(),
             result_id,
-            note,
+            // N-4's note follows any note already there (a library's
+            // provenance, or "interval ±b from receipt"), which says where the
+            // value came from.
+            note: match (non_finite, note) {
+                (false, note) => note,
+                (true, None) => Some(NON_FINITE_INPUT_NOTE.to_string()),
+                (true, Some(existing)) => Some(format!("{existing}; {NON_FINITE_INPUT_NOTE}")),
+            },
         });
 
         // A supplied value with a known dimension passes the completeness gates
@@ -817,6 +839,7 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
     let mut bindings: Vec<VariableBinding> = Vec::new();
     let mut required_variable_ids: Vec<String> = Vec::new();
     let mut intervals: Vec<IntervalBinding> = Vec::new();
+    let mut non_finite_inputs: Vec<&str> = Vec::new();
     for fr in &formula_input_refs {
         let id = fr
             .pointer("/ref_id")
@@ -827,6 +850,14 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
         }
         required_variable_ids.push(id.to_string());
         match resolved.get(id) {
+            // N-4: one blocking finding per formula input whose value is not
+            // finite; the evaluator is not called (below).
+            Some(rv) if !rv.value.is_finite() => {
+                if !non_finite_inputs.contains(&id) {
+                    non_finite_inputs.push(id);
+                    evaluator_findings.push(non_finite_input_finding(id));
+                }
+            }
             Some(rv) => match rv.eval_dimension {
                 Some(dim) => match Quantity::new(rv.value, dim, rv.unit.clone()) {
                     Ok(q) => {
@@ -849,6 +880,21 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                 BindingSource::RulePackRequiredInput,
             )),
         }
+    }
+
+    // N-4: a formula input that is not finite blocks the check in either
+    // mode, before any evaluation (status and diagnostic as for any
+    // evaluator block).
+    if !non_finite_inputs.is_empty() {
+        return blocked_after_completeness(
+            check_id,
+            bound_inputs,
+            completeness_findings,
+            evaluator_findings,
+            &mut diagnostic_codes,
+            diagnostic_policy,
+            &result_statuses,
+        );
     }
 
     // A check with at least one interval input runs in interval mode (D2
@@ -1126,6 +1172,12 @@ fn resolve_limit(
                 .and_then(|slot| slot.pointer("/quantity_intent/unit_ref"))
                 .and_then(Value::as_str)
                 .unwrap_or(binding.unit.as_str());
+            // N-4 (T3-SI1c): a limit that is not finite, raw (before
+            // normalization) or normalized, blocks with a finding naming the
+            // slot, in both the point and the interval limit blocks.
+            if !binding.value.is_finite() {
+                return Err(non_finite_limit_finding(slot_id));
+            }
             let (value, unit) = normalize_value_to_declared_unit(
                 binding.value,
                 &binding.unit,
@@ -1133,6 +1185,9 @@ fn resolve_limit(
                 declared_dimension,
                 slot_id,
             )?;
+            if !value.is_finite() {
+                return Err(non_finite_limit_finding(slot_id));
+            }
             return Ok(Some((value, unit, decode_dimension(declared_dimension))));
         }
     }
@@ -1198,6 +1253,34 @@ fn normalize_value_to_declared_unit(
         )
     })?;
     Ok((normalized, declared.to_string()))
+}
+
+/// N-4 (T3-SI1c): the note on a supplied input whose value is not finite,
+/// appended after "; " to a note the input already carries.
+const NON_FINITE_INPUT_NOTE: &str =
+    "non-finite value (NaN or ±inf, after unit normalization): not bound";
+
+/// N-4 (T3-SI1c): a supplied input value that is not finite, raw or after
+/// unit normalization. It names the input; the value is never bound.
+fn non_finite_input_finding(input_id: &str) -> RunFinding {
+    RunFinding {
+        code: format!("{:?}", FindingCode::NonFiniteInput),
+        severity: "blocking".to_string(),
+        subject_id: input_id.to_string(),
+        message: "supplied value must be finite (NaN or ±inf after unit normalization)".to_string(),
+    }
+}
+
+/// N-4 (T3-SI1c): a value-slot limit that is not finite, raw or after unit
+/// normalization. It names the slot.
+fn non_finite_limit_finding(slot_id: &str) -> RunFinding {
+    RunFinding {
+        code: format!("{:?}", FindingCode::NonFiniteInput),
+        severity: "blocking".to_string(),
+        subject_id: slot_id.to_string(),
+        message: "value-slot limit must be finite (NaN or ±inf after unit normalization)"
+            .to_string(),
+    }
 }
 
 fn unit_mismatch_finding(
