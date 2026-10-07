@@ -3504,7 +3504,9 @@ impl ProductCapture {
     pub(super) fn prepared_case_source(&mut self,source_selected:bool,model:&PreviewModel,
         built:&BuiltModel,materials:&[MaterialInput],case:&PreviewLoadCase,restrained:&[usize],
         springs:&[SpringEntry],application:&LoadApplication,thermal:&[ThermalElementLoad],pressure:&[PressureThrustLoad]) {
-        if !self.prepared_probe || self.error.is_some() {return;}
+        // B1 (RV112 N-4): after a G-B refusal, a later case's late hook does nothing: the first
+        // refusal stands, and no later G-B check, running total or late capture follows.
+        if !self.prepared_probe || self.error.is_some() || self.late_refusal.is_some() {return;}
         let checked=(||->Result<(),CaptureError>{
             self.adapter.require()?;
             let count=self.prepared_late_calls.checked_add(1).ok_or(CaptureError::CountRange("prepared late hooks"))?;

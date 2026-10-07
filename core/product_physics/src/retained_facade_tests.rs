@@ -1554,10 +1554,10 @@ fn b1_sp_domain_recheck_names_the_requested_cases() {
 
 // ---- B1 SP (I85): the n-case transaction, T-8 to T-13 -----------------------------------------
 //
-// PLAN_v2 §2.2's tests. Before I2 (`LOAD_CASES` = 1), W-C2 reaches the transaction only below
-// `retained_w1`, through `w1_transaction` (T-6 to T-11), which returns the cause and the selected
-// attempts that T-12 publishes with. After I2, the same input runs through `retained_w1` with its
-// notices (`b1_sp_w_c2_through_retained_w1_publishes_t12`). Before SR-RS (I3) the accepted Rust
+// PLAN_v2 §2.2's tests. Below `retained_w1`, `w1_transaction` (T-6 to T-11) returns the cause and
+// the selected attempts that T-12 publishes with (written before I2, when `LOAD_CASES` = 1). Since
+// I2 the same inputs also run through `retained_w1` with their notices
+// (`b1_sp_w_c2_through_retained_w1_publishes_t12`) and the Direct entry. Before SR-RS (I3) the accepted Rust
 // reader refuses W-C2's successor at precommit, so its per-case outcomes are read from the
 // successor that precommit received (RV107 A1-N-1: `hooks::counted_with_successor`).
 
@@ -1748,8 +1748,7 @@ fn b1_sp_w_c2_transaction_faults_and_abandonment() {
         "the R-b′ limit: B's demotion abandons A's successor");
 }
 
-/// W-C2 through `retained_w1` (after I2: SA's C = 3). Before I2 the domain re-check refuses it
-/// (`Domain`, exact bytes; RV107 A1-S-2). After I2, both modes:
+/// W-C2 through `retained_w1` (since I2: SA's C = 3; RV107 A1-S-2), both modes:
 /// - T-4: A = {A, C}; with `.all` for `.any` (RV109's R17) W-C2 would be `NoTriggeredCase`;
 /// - before SR-RS, the precommit's refusal publishes the ordinary bytes, then the two N1 notices
 ///   (case-a's, then case-c's), both plain (T-12);
@@ -1767,10 +1766,7 @@ fn b1_sp_w_c2_through_retained_w1_publishes_t12() {
             assert!(hooks::armed_names().is_empty(), "{mode:?}: every armed fault fired");
             (String::from_utf8(serde_json::to_vec(&envelope).unwrap()).unwrap(), retained.err())
         };
-        if crate::retained_memory::caps::LOAD_CASES < W_C2_IDS.len() {
-            assert_eq!(run(), (String::from_utf8(plain.clone()).unwrap(), Some(W1Fallback::Domain)), "{mode:?}: before I2");
-            continue;
-        }
+        assert_eq!(crate::retained_memory::caps::LOAD_CASES, W_C2_IDS.len(), "I2: C = 3");
         let noticed = |detail: Option<&str>| String::from_utf8(with_notice(&with_notice(&plain, "case-a", detail), "case-c", None)).unwrap();
         let (bytes, cause) = run();
         assert_eq!(cause, Some(W1Fallback::Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH".into() }), "{mode:?}: not NoTriggeredCase (R17)");
@@ -1785,10 +1781,10 @@ fn b1_sp_w_c2_through_retained_w1_publishes_t12() {
 }
 
 /// T-13 on the actual Direct entry, W-C2, both modes: one ordinary run, and G-C reached once
-/// (`ONE_RUN_THROUGH_G_C`), with no hook armed. In the registered build after I2 (C = 3) the
+/// (`ONE_RUN_THROUGH_G_C`), with no hook armed. In the registered build (since I2, C = 3) the
 /// transaction runs: before SR-RS the precommit refuses, and the publication is the ordinary
-/// bytes then case-a's and case-c's plain notices. Before I2, G-A refuses W-C2 at D1.4: exactly
-/// the ordinary bytes, from one run. In any other build (Stale), exactly the plain bytes.
+/// bytes then case-a's and case-c's plain notices. In any other build (Stale), exactly the plain
+/// bytes.
 #[test]
 fn b1_sp_w_c2_direct_entry_counts_one_run_through_g_c() {
     let raw = w_c2();
@@ -1796,17 +1792,12 @@ fn b1_sp_w_c2_direct_entry_counts_one_run_through_g_c() {
         let plain = plain(mode, &raw);
         assert!(hooks::armed_names().is_empty(), "{mode:?}: no hook armed");
         let (output, counts) = direct(&raw, mode);
-        assert_eq!(serde_json::to_vec(output.envelope()).unwrap(), plain, "{mode:?}: the ordinary envelope is the plain run");
         if !registered() {
             assert!(output.retained().is_none(), "{mode:?}: Stale, no W1");
             assert_eq!((counts, published(output)), (ONE_RUN, plain), "{mode:?}: Stale's plain bytes");
             continue;
         }
-        if crate::retained_memory::caps::LOAD_CASES < W_C2_IDS.len() {
-            assert!(output.admission().unwrap().law().refusal.is_some(), "{mode:?}: before I2, G-A refuses c = 3");
-            assert_eq!((counts, published(output)), (ONE_RUN, plain), "{mode:?}: before I2");
-            continue;
-        }
+        assert_eq!(crate::retained_memory::caps::LOAD_CASES, W_C2_IDS.len(), "I2: C = 3");
         assert_eq!(output.admission().unwrap().law().refusal, None, "{mode:?}: admitted");
         assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{mode:?}: T-13");
         assert_eq!(output.retained().and_then(|r| r.as_ref().err()),
@@ -1835,8 +1826,8 @@ fn n05_two_cases() -> Value {
 /// The multi-case coexistence pin, both modes: exact-block selection settles n05 with two cases,
 /// so W1 is not attempted for any case (T-3 (c)): `Coexistence`, exactly the ordinary bytes, no
 /// notice and no reservation, on the private driver; and on the actual Direct entry one ordinary
-/// run with G-C not consulted (`{runs: 1, complete_gates: 0}`), exactly the ordinary bytes. Before
-/// I2 the Direct entry's G-A refuses c = 2 (D1.4), with the same bytes and count.
+/// run with G-C not consulted (`{runs: 1, complete_gates: 0}`), exactly the ordinary bytes (since
+/// I2, C = 3, G-A admits it; in Stale, the same bytes and count without a permit).
 #[test]
 fn b1_sp_multi_case_coexistence_pin() {
     let raw = n05_two_cases();
@@ -1852,11 +1843,11 @@ fn b1_sp_multi_case_coexistence_pin() {
         assert_eq!(envelope.diagnostics.capacity(), capacity, "{mode:?}: no reservation");
         assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{mode:?}: exact bytes, no notice");
         let (output, counts) = direct(&raw, mode);
-        if registered() && crate::retained_memory::caps::LOAD_CASES >= 2 {
+        if registered() {
             assert_eq!(output.admission().unwrap().law().refusal, None, "{mode:?}: admitted");
             assert_eq!(output.retained().and_then(|r| r.as_ref().err()), Some(&W1Fallback::Coexistence), "{mode:?}");
-        } else if registered() {
-            assert!(output.admission().unwrap().law().refusal.is_some(), "{mode:?}: before I2, G-A refuses c = 2");
+        } else {
+            assert!(output.retained().is_none(), "{mode:?}: Stale, no W1");
         }
         assert_eq!(counts, ONE_RUN, "{mode:?}: G-C not consulted");
         let bytes = published(output);
@@ -1876,7 +1867,7 @@ fn w_c2_cases(ids: &[&str]) -> Value {
 /// RV109 R3P-1: a multi-case invocation with one case in A takes the n-case transaction on that
 /// case's own slot, never the one-case path on the last requested case's fields (`into_single` is
 /// retired: c = 1 and c ≥ 2 run the same T-8 to T-11). Both modes, below `retained_w1` (and through
-/// it after I2, with A's one notice):
+/// it, since I2, with A's one notice):
 /// - (A, B), A = {0}: A, the first case, is attempted, solved and frozen on its own source (the call
 ///   and the one source are A's); B is `not_required`; before SR-RS the precommit refuses (G5) with A
 ///   selected;
@@ -1910,7 +1901,7 @@ fn b1_sp_r3p_1_one_case_in_a_runs_on_its_own_slot() {
             assert_eq!(body["sources"][0]["nodal_terms"].as_array().unwrap().len(), 3, "{label}: A's three loads, not B's two");
             assert_eq!(body["calls"][0]["owner_refs"], json!([case_ref(request)]), "{label}");
         }
-        if crate::retained_memory::caps::LOAD_CASES >= 2 {
+        {
             let raw = w_c2_cases(&["case-a", "case-b"]);
             let plain = plain(mode, &raw);
             let (capture, observer, ordinary) = observed(mode, &raw);
@@ -1995,4 +1986,70 @@ fn b1_sp_r3p_7_custody_per_case_presence_parked_capture_and_native() {
     let (_, mut observer, ordinary) = observed(mode, &raw);
     observer.with_case(1, |c| c.native = run);
     assert_eq!(refused(observer, ordinary), "prepared case custody/permit", "native work in a parked slot");
+}
+
+/// The seam's saturation (RR "I89's SA verified and ruled…", ruling 2; R3 ruling 2; RV109 N-3):
+/// `late_loads_total` saturates instead of failing the capture, so an overflow is G-B's typed
+/// refusal on `CaseLoadsTotal` (observed `u64::MAX`, cap L = 384): the late capture is skipped, no
+/// capture error is recorded, and (as for any G-B refusal) the ordinary run is untouched. In the
+/// registered build: a permitted probe with the total preset to `usize::MAX`, both modes.
+#[test]
+fn b1_sp_seam_overflow_is_a_typed_g_b_refusal() {
+    use super::retained_memory::{admit, Entry, PhaseFact};
+    if !registered() {
+        return;
+    }
+    let raw = raw();
+    for mode in MODES {
+        let plain = plain(mode, &raw);
+        let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+        let (permit, _report) = admit(&capture, &request, Entry::Direct).unwrap_or_else(|r| panic!("{mode:?}: {:?}", r.law().refusal));
+        let mut observer = rp::ProductCapture::permitted_probe(permit);
+        observer.late_loads_total = usize::MAX;
+        let ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
+        let refusal = observer.late_refusal().cloned().unwrap_or_else(|| panic!("{mode:?}: G-B refused"));
+        assert_eq!((refusal.fact, refusal.observed, refusal.cap), (PhaseFact::CaseLoadsTotal, u64::MAX, 384), "{mode:?}");
+        // The seam records no capture error (before the ruling: CountRange("late loads total")).
+        // As after any G-B refusal, the skipped late capture is what `finish` then reports.
+        assert_eq!(observer.error.as_ref().map(|e| format!("{e:?}")), Some("Association(\"missing successful prepared late source hook\")".to_owned()),
+            "{mode:?}: only the skipped capture's report");
+        assert_eq!(observer.late_loads_total, usize::MAX, "{mode:?}: saturated");
+        assert_eq!(serde_json::to_vec(&ordinary).unwrap(), plain, "{mode:?}: the ordinary run is untouched");
+    }
+}
+
+/// RV112 N-4: at c ≥ 2 the first G-B refusal stands, and no later case's late hook runs (no later
+/// G-B check, running total or late capture). Registered build, W-C2, both modes, with G-B's
+/// fault armed (consumed at case A's late hook): the refusal is A's, the running total holds A's
+/// three loads only (not 3 + 2 + 5), and no case has a late capture. The Direct entry publishes
+/// exactly the ordinary bytes (`LateGate`), with G-C not consulted.
+#[test]
+fn b1_sp_first_g_b_refusal_stands_and_stops_later_late_hooks() {
+    use super::retained_memory::{admit, Entry};
+    if !registered() {
+        return;
+    }
+    let raw = w_c2();
+    for mode in MODES {
+        let plain = plain(mode, &raw);
+        let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+        let (permit, _report) = admit(&capture, &request, Entry::Direct).unwrap_or_else(|r| panic!("{mode:?}: {:?}", r.law().refusal));
+        let mut observer = rp::ProductCapture::permitted_probe(permit);
+        hooks::fail_next_late_gate();
+        let ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
+        assert!(hooks::armed_names().is_empty(), "{mode:?}: the fault fired");
+        assert!(observer.late_refusal().is_some(), "{mode:?}: G-B refused");
+        assert_eq!(observer.late_loads_total, 3, "{mode:?}: G-B ran once, at case A (3 loads)");
+        assert_eq!(observer.cases_seen(), 3, "{mode:?}: every case's early hook ran");
+        for index in 0..3 {
+            let (late_calls, entries, source) = observer.with_case(index, |c| (c.prepared_late_calls, c.source_capture_entries, c.source.is_some()));
+            assert_eq!((entries, source), (0, false), "{mode:?} case {index}: no late capture");
+            assert_eq!(late_calls, usize::from(index == 0), "{mode:?} case {index}: only A's late hook ran");
+        }
+        assert_eq!(serde_json::to_vec(&ordinary).unwrap(), plain, "{mode:?}: the ordinary run is untouched");
+        hooks::fail_next_late_gate();
+        let (output, counts) = direct(&raw, mode);
+        assert!(matches!(output.retained(), Some(Err(W1Fallback::LateGate(_)))), "{mode:?}: {:?}", output.retained());
+        assert_eq!((counts, published(output)), (ONE_RUN, plain), "{mode:?}: exact bytes, G-C not consulted");
+    }
 }

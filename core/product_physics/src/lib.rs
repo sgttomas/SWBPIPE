@@ -2994,7 +2994,8 @@ fn permitted_run(
     }
     let mut budget = SourceRecoveryBudget::default();
     // B1 seam (PLAN_v2 §2.1; RV107 SF-4): T-3 (e)'s requested count, read before the
-    // request moves into the observed run. G-C carries it; no G-C fact reads it yet.
+    // request moves into the observed run. G-C carries it, and its attempt fact counts the
+    // requested cases (B1 SA, T-3 (e)).
     let requested_cases = request.model.load_cases.len();
     // The permit moves into the observer, which checks G-B with it.
     let mut observer = retained_product::ProductCapture::permitted_probe(permit);
