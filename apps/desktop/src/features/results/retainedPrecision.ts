@@ -653,6 +653,25 @@ export function errorStageRecordAgrees(kind: string, stages: Obj): boolean {
   const record = STAGE_ORDER.map(k => STAGE_MARK[stages[k]]).join('');
   return NATIVE_STAGE_RECORDS[kind]?.some(pattern => stageRecordMatches(pattern, record)) === true;
 }
+/** R-D38 (4b) (B1; DESIGN_v2 §2; RR:8823; C1:103, C3:167), for an attempt whose native stage failed with no Run: a native
+ * capture failure before any Run, beside a registered prepared source (C2 §3 registers a CaseSource once it is constructed
+ * and its maps validate). G5 PRODUCT_ATTEMPT. The conjuncts are Rust's `d38_capture_before_run`: an unavailable `capture`
+ * result; the stage record done(1, [failed]), preparation completed and every stage after native not_entered; the case
+ * unavailable with `prepared_product_failure` naming this attempt and reason (source_unavailable, preparation), D4d's
+ * mapping for a capture with no Run; and a source that binds this attempt and is the case's own.
+ * Each conjunct is also enforced by a later check of `productAttempts` (D19, D4d's reason table, D37, the stage order,
+ * the source association), with the same gate and code; it is kept so that (4b) reads as one predicate and does not
+ * widen if one of those changes. The rest of (4b) holds for every receipt: the case's Run and the proof are null (the
+ * association above), and no Run, Call or Group `source_refs` entry, Build or `execution_order` entry names the case or
+ * its source (G3's execution order; G5 class 1's Call positions, Group sources and Builds). */
+function d38CaptureBeforeRun(a: Obj, c: Obj, s: Obj | null): boolean {
+  const stage = a.stages;
+  return a.result.kind === 'unavailable' && a.result.error?.kind === 'capture'
+    && stage.preparation === 'completed' && STAGE_ORDER.slice(2).every(k => stage[k] === 'not_entered')
+    && c.status === 'unavailable' && c.reason?.cause?.kind === 'prepared_product_failure' && c.reason.cause.product_attempt_ref === a.id
+    && c.reason.code === 'source_unavailable' && c.reason.phase === 'preparation'
+    && s !== null && s.preparation?.attempt_ref === a.id && a.source_ref === c.source_ref;
+}
 /** @internal Exported only for the reader-logic D30 test (no faithful nonselected-Run base); not a public entry point. */
 export function productAttempts(b: Obj, rows: Map<string, Obj[]>): void {
   // A later product association/check defect precedes product work consistency.
@@ -681,7 +700,9 @@ export function productAttempts(b: Obj, rows: Map<string, Obj[]>): void {
     fail(a.ordinary_attempt_ref === c.ordinary.attempt_ref && a.material_basis_ref === ordinary.material_basis_ref);
     if (s) fail(s.owner.case_index === a.owner_ref.index && s.material_basis_ref === a.material_basis_ref && s.preparation?.attempt_ref === a.id && c.source_ref === a.source_ref);
     fail((a.run_ref === null) === !c.run); if (c.run) fail(c.run.id === a.run_ref && c.run.origin.source_ref === a.source_ref && same(c.run.origin.owner_ref, a.owner_ref));
-    fail((stage.native === 'not_entered') === (a.run_ref === null));
+    // R-D38 (B1; DESIGN_v2 §2): a native stage not entered has no Run (rule 2), a completed one has a Run (rule 3, its
+    // terminal checked below), and a failed one has a non-selected Run (4a) or is D38's capture before any Run (4b).
+    fail(stage.native === 'not_entered' ? a.run_ref === null : a.run_ref !== null || (stage.native === 'failed' && d38CaptureBeforeRun(a, c, s)));
     // D1 captured_prefix association (F1:97, 130-131): no source, no Run, an unavailable result.
     if (a.operational.old_coverage === 'captured_prefix') fail(a.source_ref === null && a.run_ref === null && a.result.kind === 'unavailable');
     if (a.run_ref !== null) fail(stage.native === (c.run.kernel_terminal.kind === 'selected' ? 'completed' : 'failed'));
@@ -1147,12 +1168,24 @@ async function invocationBinding(b: Obj, source: Obj, invocation: Obj): Promise<
   const geometry = pipes.map(p => { fail(p.arc == null && p.curve == null); const od = convert(p.section.outside_diameter, 'length'), wall = convert(p.section.wall_thickness, 'length') - (p.section.mill_tolerance != null ? convert(p.section.mill_tolerance, 'length') : 0); fail(Number.isFinite(od) && 0 < wall && wall < od / 2); return [binary64Bits(od), binary64Bits(wall)]; });
   const selectors = cases.map(c => c.modulus_basis_ref != null ? { kind: 'named', id: c.modulus_basis_ref } : c.modulus_basis_temperature != null ? { kind: 'temperature', kelvin: binary64Bits(convert(c.modulus_basis_temperature, 'temperature')) } : { kind: 'base' });
   const knownSelectors: Obj[] = [];
+  // B1 (DESIGN_v2 §3.2-§3.3, decisions 8 and 9; F-1 text B): for every case, in request order, the requested mode, the
+  // material basis, P1 and P2-P4, each G8 PREPARATION. The case's ordinary attempt is ordinary_attempts[ci] (G3 binds
+  // cases[ci].ordinary.attempt_ref to ci). Selected, unavailable and not_required cases alike: their rows all come from
+  // the one ordinary run.
   for (let ci = 0; ci < cases.length; ci++) {
-    const c = cases[ci], ordinary = b.ordinary_attempts[ci]; fail(ordinary.requested_mode === invocation.solver_mode, 'INVOCATION_MISMATCH');
-    const modeRows = source.results.filter((r: Obj) => r.basis_ref?.ref_id === c.id && r.kind === 'linear_solver_mode_basis');
-    fail(modeRows.length === 1 && (invocation.solver_mode === 'dense_scrutiny' ? modeRows[0].value === 2 : [1, 3].includes(modeRows[0].value)), 'INVOCATION_MISMATCH');
+    const c = cases[ci], ordinary = b.ordinary_attempts[ci]; fail(ordinary.requested_mode === invocation.solver_mode);
     let bi = knownSelectors.findIndex(x => same(x, selectors[ci])); if (bi < 0) { bi = knownSelectors.length; knownSelectors.push(selectors[ci]); }
     fail(ordinary.material_basis_ref === bi && b.material_bases[bi]?.case_indices.includes(ci));
+    const own = (kind: string) => source.results.filter((r: Obj) => r.basis_ref?.ref_id === c.id && r.kind === kind);
+    // P1: exactly one mode row, valued 1 in sparse_interactive and 2 in dense_scrutiny.
+    const modeRows = own('linear_solver_mode_basis');
+    fail(modeRows.length === 1 && modeRows[0].value === (invocation.solver_mode === 'dense_scrutiny' ? 2 : 1));
+    // P2-P4: at most one parity row (P2); none in sparse_interactive (P3); none when the ordinary W2 published, b != 0
+    // (P4; OQ5). An absent parity row in dense mode at b = 0 is admitted (the disclosed limit; P5 deferred).
+    const parityRows = own('sparse_live_path_dense_parity_relative_delta');
+    fail(parityRows.length <= 1);
+    fail(!parityRows.length || invocation.solver_mode === 'dense_scrutiny');
+    fail(!parityRows.length || ordinary.w2?.kind !== 'published');
   }
   fail(b.material_bases.length === knownSelectors.length);
   b.material_bases.forEach((mb: Obj, bi: number) => {
@@ -1298,17 +1331,28 @@ function conversionEncoding(b: Obj): void {
     for (const e of a.proof?.summary_coverage ?? []) uint(e.body); // I57 §4 G2: body is a safe U.
   }
 }
+/** The base (preview-physics-1) view of a successor. RV108 N4 (B1 SR-TS): only object rows lose `recovery_method`; any
+ * other `results` entry (null, a number, a string, an array) is left as it is. The full reader has already refused such
+ * an entry at G1 (RawRow). The transport reading reads no rows, as Rust's transport does, so a transported successor
+ * whose `results` holds one is admitted (Python's `_transport_g7` likewise skips a non-dict row). */
 function projection(source: Obj): Obj {
   const p = structuredClone(source); delete p.retained_precision; p.producer.semantic_contract_id = BASE_ID; p.formulation_basis.profile_id = 'product_preview_mechanics_v1';
-  if (Array.isArray(p.results)) for (const row of p.results) if (Object.hasOwn(row, 'recovery_method')) delete row.recovery_method;
+  if (Array.isArray(p.results)) for (const row of p.results) if (isObj(row) && Object.hasOwn(row, 'recovery_method')) delete row.recovery_method;
   return p;
 }
 const QUALITY_STATUSES = ['not_assessed', 'checks_passed', 'sensitive', 'unresolved', 'failed'];
 /** RV94 N-3 (B6; PLAN decision 11): when TS's header dispatch refuses the projected base at G7, the refusal carries the
- * base readers' own header code, in their order (Python `_source_contract`, Rust `semantic_contract::for_source`), so the
- * G7 code agrees across the languages: an invalid numerical_quality case of any status is SOURCE_NUMERICAL_CASE_INVALID,
- * and so on. Any other header refusal keeps TS's SOURCE_PRODUCER_CONTRACT_UNSUPPORTED. The projection fixes the base
- * identity and profile, and G0 the schema and component versions. Read only after the dispatch has refused. */
+ * base readers' header code, branch by branch in Python's `_source_contract` order: an invalid numerical_quality case of
+ * any status is SOURCE_NUMERICAL_CASE_INVALID, and so on. Any other header refusal keeps TS's
+ * SOURCE_PRODUCER_CONTRACT_UNSUPPORTED. The projection fixes the base identity and profile, and G0 the schema and component
+ * versions. Read only after the dispatch has refused.
+ * What agrees (RV108 §1, N1 and its N6 ruling; reworded in B1 SR-TS):
+ * - Rust (`semantic_contract::for_source`) gives the same code on every single-defect header refusal except the declared
+ *   inherited `carrier_evidence` class, which Rust's header does not read. With both a `contract_evidence` and a
+ *   `source_block_recovery` defect, Rust reports the latter (I83 mutant T9; inherited).
+ * - Python gives the same code on every header refusal, except that a list- or dict-valued enum raised TypeError in
+ *   `_source_contract` (Python's G7 fallback, SOURCE_PREVIEW_PHYSICS_INVALID) until B1 SR-PY's type guard (RV108 N1);
+ *   with that guard Python gives this code there too. */
 function baseHeaderCode(p: Obj): string {
   const exact = (v: unknown, keys: string[]): v is Obj => isObj(v) && Object.keys(v).length === keys.length && keys.every(k => Object.hasOwn(v, k));
   const text = (v: unknown) => typeof v === 'string' && v.length > 0;
