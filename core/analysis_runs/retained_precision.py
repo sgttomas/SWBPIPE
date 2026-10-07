@@ -953,13 +953,19 @@ def _g5_ordinary(body, cases, diags, quality):
         fail(refs == [d["id"] for d in diags if isinstance(d.get("affected_refs"), list) and name in d["affected_refs"]
                       and not str(d.get("code")).startswith("RETAINED_PRECISION_")])
         fail(o["initial"]["kind"] != "not_attempted" if c["status"] in ("selected", "not_required") else True)
+        # RV108 N2: a quality case without `solve_quality` has no published verdict. Each rule
+        # below that reads the verdict then fails with its own G5 ATTEMPT code, as Rust's null and
+        # TypeScript's undefined do, never through the fail-closed fallback's PRODUCT_ATTEMPT code.
+        # A case for which no rule here reads the verdict passes this pass unchanged, and G7's base
+        # header then refuses the missing member (SOURCE_NUMERICAL_CASE_INVALID), as before.
+        verdict = quality[i]["solve_quality"] if "solve_quality" in quality[i] else None
         if o["initial"]["kind"] == "report":
-            fail(o["initial"]["report_diagnostic_ref"] in by_id and o["initial"]["outcome"] == quality[i]["solve_quality"])
+            fail(o["initial"]["report_diagnostic_ref"] in by_id and o["initial"]["outcome"] == verdict)
         if c["status"] == "not_required":
-            fail(c["product_attempt_ref"] is None and quality[i]["solve_quality"] == "checks_passed")
+            fail(c["product_attempt_ref"] is None and verdict == "checks_passed")
         if c["status"] == "selected":
             # D6b (C1:101; C2:153, :164; source_receipt.rs `OrdinaryAttempt::wire`): only an attempted trigger selects.
-            fail(quality[i]["solve_quality"] in ("sensitive", "unresolved", "failed"))
+            fail(verdict in ("sensitive", "unresolved", "failed"))
             fail(c["selection"]["rcond_label"] == RCOND_LABEL)
         listed = set(refs)
         cid = c["basis_ref"]["ref_id"]
