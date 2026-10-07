@@ -1,0 +1,10 @@
+# RV101 ADDENDUM_01: product rustLowerExp (fdcdb5e024), the pre-repair form and the 17-digit rule, against Rust {:e} (RV101 standalone oracle)
+list | words | product != Rust | pre-repair != Rust | 17-digit rule != Rust | shortest-length ties (16 / 17) | power-of-two fallbacks
+rv101_random | 60000 | 0 | 9 | 0 | 5 / 14 |
+rv101_ties17 | 21332 | 0 | 5262 | 0 | 0 / 10740 |
+rv101_ties16 | 57124 | 0 | 9818 | 9818 | 19702 / 0 |
+rv101_small | 104 | 0 | 16 | 2 | 6 / 28 |
+rv101_pow2 | 16772 | 0 | 6 | 2 | 4 / 6 |
+i75_ties16 | 30000 | 0 | 1148 | 1148 | 2280 / 0 |
+vectors | 69 | 0 | 29 | 8 | 14 / 27 |
+TOTAL {'words': 185401, 'product': 0, 'pre': 16288, 'rule17': 10978}

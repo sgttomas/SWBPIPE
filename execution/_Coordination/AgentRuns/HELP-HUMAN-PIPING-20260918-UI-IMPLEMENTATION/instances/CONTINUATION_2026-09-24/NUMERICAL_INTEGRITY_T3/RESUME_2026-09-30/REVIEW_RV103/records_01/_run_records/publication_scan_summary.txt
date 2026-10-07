@@ -1,0 +1,34 @@
+M=f8ed4f055126cf19315d2d8b06d7d11796786a82
+H=3f8a405c3352da3eba8c4a3b1132abb9d747b2bf
+changed paths: 106
+lines scanned: 8424
+ghp_	24 hits	2 files
+gho_	24 hits	2 files
+ghs_/ghu_/ghr_	0 hits	0 files
+github_pat_	24 hits	2 files
+sk- (any)	27 hits	2 files
+sk- token-shaped	0 hits	0 files
+AKIA	24 hits	2 files
+PRIVATE KEY	22 hits	1 files
+password	24 hits	2 files
+secret	89 hits	3 files
+token=	24 hits	2 files
+Authorization:	15 hits	2 files
+Bearer	0 hits	0 files
+slack token	0 hits	0 files
+cred vars	2 hits	1 files
+api_key	2 hits	1 files
+email	0 hits	0 files
+owner name	0 hits	0 files
+Applications	2 hits	1 files
+apps	4 hits	2 files
+session ids	2 hits	1 files
+uuid	0 hits	0 files
+toolcall ids	0 hits	0 files
+transcripts	0 hits	0 files
+system paths	3 hits	1 files
+host names	3 hits	1 files
+ps headers	0 hits	0 files
+ps/pgrep/lsof	0 hits	0 files
+home path	6 hits	3 files
+tilde home	1 hits	1 files

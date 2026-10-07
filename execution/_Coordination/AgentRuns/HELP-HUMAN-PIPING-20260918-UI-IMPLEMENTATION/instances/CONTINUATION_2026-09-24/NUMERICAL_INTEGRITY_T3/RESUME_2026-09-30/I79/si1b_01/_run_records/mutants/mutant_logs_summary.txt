@@ -1,0 +1,87 @@
+## mut_I1_interpolate_nan_check_removed_ee_lib
+test tests::blocks_generated_nan_table_arguments ... FAILED
+test tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking ... FAILED
+test result: FAILED. 53 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s
+== mut_I1_interpolate_nan_check_removed_ee_lib exit=101 2026-10-06T18:01:35Z
+## mut_I1_interpolate_nan_check_removed_rcr
+test a_nan_table_argument_check_blocks ... FAILED
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== mut_I1_interpolate_nan_check_removed_rcr exit=101 2026-10-06T18:01:36Z
+## mut_I2_interpolate_check_all_non_finite_ee_lib
+test tests::non_finite_table_arguments_that_did_not_panic_are_unchanged ... FAILED
+test result: FAILED. 54 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
+== mut_I2_interpolate_check_all_non_finite_ee_lib exit=101 2026-10-06T18:01:37Z
+## mut_I2_interpolate_check_all_non_finite_rcr
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== mut_I2_interpolate_check_all_non_finite_rcr exit=0 2026-10-06T18:01:38Z
+## mut_Q1_quotient_check_removed_ee_lib
+test tests::blocks_an_i73_differential_quotient_input ... FAILED
+test tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking ... FAILED
+test result: FAILED. 53 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s
+== mut_Q1_quotient_check_removed_ee_lib exit=101 2026-10-06T18:01:23Z
+## mut_Q1_quotient_check_removed_rcr
+test an_overflowing_ratio_check_blocks_and_the_run_carries_on ... FAILED
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== mut_Q1_quotient_check_removed_rcr exit=101 2026-10-06T18:01:24Z
+## mut_Q2_quotient_check_infinite_only_ee_lib
+test tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking ... FAILED
+test result: FAILED. 54 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s
+== mut_Q2_quotient_check_infinite_only_ee_lib exit=101 2026-10-06T18:01:25Z
+## mut_Q2_quotient_check_infinite_only_rcr
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== mut_Q2_quotient_check_infinite_only_rcr exit=0 2026-10-06T18:01:26Z
+## mut_Q3_quotient_code_division_by_zero_ee_lib
+test tests::blocks_an_i73_differential_quotient_input ... FAILED
+test tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking ... FAILED
+test result: FAILED. 53 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
+== mut_Q3_quotient_code_division_by_zero_ee_lib exit=101 2026-10-06T18:01:27Z
+## mut_Q3_quotient_code_division_by_zero_rcr
+test an_overflowing_ratio_check_blocks_and_the_run_carries_on ... FAILED
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== mut_Q3_quotient_code_division_by_zero_rcr exit=101 2026-10-06T18:01:27Z
+## mut_Q4_quotient_check_before_unit_check_ee_lib
+test tests::same_dimension_quotients_that_did_not_panic_are_unchanged ... FAILED
+test result: FAILED. 54 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+== mut_Q4_quotient_check_before_unit_check_ee_lib exit=101 2026-10-06T18:01:28Z
+## mut_Q4_quotient_check_before_unit_check_rcr
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== mut_Q4_quotient_check_before_unit_check_rcr exit=0 2026-10-06T18:01:29Z
+## mut_S1_step_nan_check_removed_ee_lib
+test tests::blocks_generated_nan_table_arguments ... FAILED
+test tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking ... FAILED
+test result: FAILED. 53 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+== mut_S1_step_nan_check_removed_ee_lib exit=101 2026-10-06T18:01:30Z
+## mut_S1_step_nan_check_removed_rcr
+test a_nan_table_argument_check_blocks ... FAILED
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== mut_S1_step_nan_check_removed_rcr exit=101 2026-10-06T18:01:31Z
+## mut_S2_step_check_all_non_finite_ee_lib
+test tests::non_finite_table_arguments_that_did_not_panic_are_unchanged ... FAILED
+test result: FAILED. 54 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
+== mut_S2_step_check_all_non_finite_ee_lib exit=101 2026-10-06T18:01:33Z
+## mut_S2_step_check_all_non_finite_rcr
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== mut_S2_step_check_all_non_finite_rcr exit=0 2026-10-06T18:01:34Z
+## mut_T1_nan_argument_code_out_of_range_ee_lib
+test tests::blocks_generated_nan_table_arguments ... FAILED
+test tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking ... FAILED
+test result: FAILED. 53 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+== mut_T1_nan_argument_code_out_of_range_ee_lib exit=101 2026-10-06T18:01:39Z
+## mut_T1_nan_argument_code_out_of_range_rcr
+test a_nan_table_argument_check_blocks ... FAILED
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== mut_T1_nan_argument_code_out_of_range_rcr exit=101 2026-10-06T18:01:40Z
+## mut_T2_exact_lookup_also_blocks_nan_ee_lib
+test tests::non_finite_table_arguments_that_did_not_panic_are_unchanged ... FAILED
+test result: FAILED. 54 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+== mut_T2_exact_lookup_also_blocks_nan_ee_lib exit=101 2026-10-06T18:01:41Z
+## mut_T2_exact_lookup_also_blocks_nan_rcr
+test a_nan_table_argument_check_blocks ... FAILED
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== mut_T2_exact_lookup_also_blocks_nan_rcr exit=101 2026-10-06T18:01:42Z
+## mut_UNMUTATED_ee_lib
+test result: ok. 55 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+== mut_UNMUTATED_ee_lib exit=0 2026-10-06T18:01:17Z
+## mut_UNMUTATED_rcr
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== mut_UNMUTATED_rcr exit=0 2026-10-06T18:01:22Z

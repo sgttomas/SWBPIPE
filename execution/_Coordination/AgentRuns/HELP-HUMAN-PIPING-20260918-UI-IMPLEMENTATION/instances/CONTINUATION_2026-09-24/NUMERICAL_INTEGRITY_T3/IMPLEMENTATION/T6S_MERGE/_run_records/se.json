@@ -1,0 +1,209 @@
+{
+ "base": "d8c88774d0a73bc99fe9c6e906db6296162f8953",
+ "checks": {
+  "check1": {
+   "detail": "PR non-execution paths equal S",
+   "pass": true
+  },
+  "check2": {
+   "detail": "19 paths identical in blob and mode",
+   "pass": true
+  },
+  "check3": {
+   "detail": {
+    "rules_not_needed": [
+     "projects/chirality-piping/core/analysis_runs/compatibility.py"
+    ]
+   },
+   "pass": true
+  },
+  "check4": {
+   "detail": {
+    "execution_files": 4,
+    "outside_package": [],
+    "sha256_mismatch": []
+   },
+   "pass": true
+  },
+  "check5": {
+   "detail": "19 rows; 19 equal; 0 recorded three-way merge(s); unexplained []",
+   "pass": true
+  }
+ },
+ "int": "0416b3b2ce336ab88b8683ec7b4810964389fa4b",
+ "main": "d8c88774d0a73bc99fe9c6e906db6296162f8953",
+ "pr": "d953e121872576dfa998c676f51ac803d48426be",
+ "table": [
+  {
+   "equal": true,
+   "int_blob": "649c672aeeec24a7d16410fc29df4894f094fe1b",
+   "int_last_commit": "2033260c57c0606978fd72184472166da23e8eff",
+   "mode": "100644",
+   "path": "projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+   "pr_blob": "649c672aeeec24a7d16410fc29df4894f094fe1b",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "74b4111de6f3ae549d71b851ccba97014209dc12",
+   "int_last_commit": "2033260c57c0606978fd72184472166da23e8eff",
+   "mode": "100644",
+   "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+   "pr_blob": "74b4111de6f3ae549d71b851ccba97014209dc12",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "c591bb7ea90c7f1a7977c10a81e9f23f9cee2f74",
+   "int_last_commit": "2033260c57c0606978fd72184472166da23e8eff",
+   "mode": "100644",
+   "path": "projects/chirality-piping/apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx",
+   "pr_blob": "c591bb7ea90c7f1a7977c10a81e9f23f9cee2f74",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "f79f9a54b05cfb44726402d609d33095d5e3c9be",
+   "int_last_commit": "2033260c57c0606978fd72184472166da23e8eff",
+   "mode": "100644",
+   "path": "projects/chirality-piping/apps/desktop/src/features/results/knownSemanticLimitations.ts",
+   "pr_blob": "f79f9a54b05cfb44726402d609d33095d5e3c9be",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "d362425a1c79e2d9c95aec40df036f7cd55acbc1",
+   "int_last_commit": "2033260c57c0606978fd72184472166da23e8eff",
+   "mode": "100644",
+   "path": "projects/chirality-piping/apps/desktop/src/features/results/loadReferenceOutputAvailability.ts",
+   "pr_blob": "d362425a1c79e2d9c95aec40df036f7cd55acbc1",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "0388e1aefeb8370dd8563481f6d5a47c143c9411",
+   "int_last_commit": "2033260c57c0606978fd72184472166da23e8eff",
+   "mode": "100644",
+   "path": "projects/chirality-piping/apps/desktop/src/features/results/outputPolicy.test.ts",
+   "pr_blob": "0388e1aefeb8370dd8563481f6d5a47c143c9411",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "2cc07b4985f6c15f7bf9c12eb3f6465787738873",
+   "int_last_commit": "2033260c57c0606978fd72184472166da23e8eff",
+   "mode": "100644",
+   "path": "projects/chirality-piping/apps/desktop/src/features/results/outputPolicy.ts",
+   "pr_blob": "2cc07b4985f6c15f7bf9c12eb3f6465787738873",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "c7dfcc9e46ad0c5c50dc2859a3dfa4fdd3c94c9f",
+   "int_last_commit": "fdcdb5e024c09e87c4df7e37302112f21a837e57",
+   "mode": "100644",
+   "path": "projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionDisclosure.ts",
+   "pr_blob": "c7dfcc9e46ad0c5c50dc2859a3dfa4fdd3c94c9f",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "fabbc5993c29d78ed585aabae3faf8ca70ed7af6",
+   "int_last_commit": "2033260c57c0606978fd72184472166da23e8eff",
+   "mode": "100644",
+   "path": "projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx",
+   "pr_blob": "fabbc5993c29d78ed585aabae3faf8ca70ed7af6",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "70d68b58c7ae72be3b0e58e15e4c33610804f713",
+   "int_last_commit": "2033260c57c0606978fd72184472166da23e8eff",
+   "mode": "100644",
+   "path": "projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx",
+   "pr_blob": "70d68b58c7ae72be3b0e58e15e4c33610804f713",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "013fb90ba2e42b018d027794b3a2a13ce2e6230c",
+   "int_last_commit": "2033260c57c0606978fd72184472166da23e8eff",
+   "mode": "100644",
+   "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+   "pr_blob": "013fb90ba2e42b018d027794b3a2a13ce2e6230c",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "655d0984442003f90ba6665f583966b68d894b89",
+   "int_last_commit": "fdcdb5e024c09e87c4df7e37302112f21a837e57",
+   "mode": "100644",
+   "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx",
+   "pr_blob": "655d0984442003f90ba6665f583966b68d894b89",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "7a2085a656a762bef0dc0d224a6d0bca6da20bea",
+   "int_last_commit": "055ee0c0bc7426d6df8ad88add86976b2076d47d",
+   "mode": "100644",
+   "path": "projects/chirality-piping/core/reporting/result_export/tests/retained_precision_derivative_golden.rs",
+   "pr_blob": "7a2085a656a762bef0dc0d224a6d0bca6da20bea",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "56859f90c453a33352c38dadad6db3fda35cd60e",
+   "int_last_commit": "055ee0c0bc7426d6df8ad88add86976b2076d47d",
+   "mode": "100644",
+   "path": "projects/chirality-piping/core/reporting/result_export/tests/source_blocks.rs",
+   "pr_blob": "56859f90c453a33352c38dadad6db3fda35cd60e",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "f99ad3b2b6e025690a36a8223b895d421099589b",
+   "int_last_commit": "055ee0c0bc7426d6df8ad88add86976b2076d47d",
+   "mode": "100644",
+   "path": "projects/chirality-piping/fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json",
+   "pr_blob": "f99ad3b2b6e025690a36a8223b895d421099589b",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "c64fdbbf4a27360302538b4c8ede1bb4010d2a33",
+   "int_last_commit": "055ee0c0bc7426d6df8ad88add86976b2076d47d",
+   "mode": "100644",
+   "path": "projects/chirality-piping/fixtures/results/retained_precision_successor_derivative_sparse_interactive.json",
+   "pr_blob": "c64fdbbf4a27360302538b4c8ede1bb4010d2a33",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "4fc1deb9cca3e6d71b5d48c87848d2ef28461923",
+   "int_last_commit": "055ee0c0bc7426d6df8ad88add86976b2076d47d",
+   "mode": "100644",
+   "path": "projects/chirality-piping/schemas/results.schema.yaml",
+   "pr_blob": "4fc1deb9cca3e6d71b5d48c87848d2ef28461923",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "7f7bc16515b4354a0e75d73e7fa5c4e40b19f25b",
+   "int_last_commit": "055ee0c0bc7426d6df8ad88add86976b2076d47d",
+   "mode": "100644",
+   "path": "projects/chirality-piping/tests/test_result_export_v0_2.py",
+   "pr_blob": "7f7bc16515b4354a0e75d73e7fa5c4e40b19f25b",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "ccd6bf7717ca92ea55a2092a7c0f3ffed4640782",
+   "int_last_commit": "055ee0c0bc7426d6df8ad88add86976b2076d47d",
+   "mode": "100644",
+   "path": "projects/chirality-piping/tests/test_results_dispatcher_v0_3.py",
+   "pr_blob": "ccd6bf7717ca92ea55a2092a7c0f3ffed4640782",
+   "resolution": null
+  }
+ ]
+}

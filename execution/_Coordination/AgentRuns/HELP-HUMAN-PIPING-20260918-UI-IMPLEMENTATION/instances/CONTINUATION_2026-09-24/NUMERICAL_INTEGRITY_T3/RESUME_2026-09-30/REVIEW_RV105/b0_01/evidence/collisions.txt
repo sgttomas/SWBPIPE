@@ -1,0 +1,37 @@
+# RV105: collision recheck, git grep -F, outside projects/chirality-piping/execution (counts of matching lines)
+== ecb541d63f
+0.3.0/physics-retained-1 (excluding preview-physics-retained-1 lines): 0
+physics-retained-1 (excluding preview-physics-retained-1 lines): 0
+exact_straight_retained_w1a_v2 (excluding preview-physics-retained-1 lines): 0
+OperandPreparation (excluding preview-physics-retained-1 lines): 0
+operand_preparation (excluding preview-physics-retained-1 lines): 0
+combination_operand (excluding preview-physics-retained-1 lines): 7
+operand_preparation_failure (excluding preview-physics-retained-1 lines): 0
+retained_precision_operand_preparation_v1 (excluding preview-physics-retained-1 lines): 0
+RP-PREPARED-EXACT-DUAL-v1 (excluding preview-physics-retained-1 lines): 0
+NotRequired (excluding preview-physics-retained-1 lines): 5
+== f12fed9d69
+0.3.0/physics-retained-1 (excluding preview-physics-retained-1 lines): 0
+physics-retained-1 (excluding preview-physics-retained-1 lines): 1
+exact_straight_retained_w1a_v2 (excluding preview-physics-retained-1 lines): 0
+OperandPreparation (excluding preview-physics-retained-1 lines): 0
+operand_preparation (excluding preview-physics-retained-1 lines): 0
+combination_operand (excluding preview-physics-retained-1 lines): 7
+operand_preparation_failure (excluding preview-physics-retained-1 lines): 0
+retained_precision_operand_preparation_v1 (excluding preview-physics-retained-1 lines): 0
+RP-PREPARED-EXACT-DUAL-v1 (excluding preview-physics-retained-1 lines): 0
+NotRequired (excluding preview-physics-retained-1 lines): 5
+== hits at f12fed9d69 for bare physics-retained-1 (excluding the preview successor), combination_operand, NotRequired
+f12fed9d69:projects/chirality-piping/apps/desktop/src/features/results/outputPolicy.ts:5: * refuses a route without one (B3's `physics-retained-1` will not compile until it
+f12fed9d69:projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs:5465:fn check_combination_operand_load_case(
+f12fed9d69:projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs:5620:    check_combination_operand_load_case(model, minuend_id, target_r
+f12fed9d69:projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs:5621:    check_combination_operand_load_case(model, subtrahend_id, targe
+f12fed9d69:projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs:5692:        check_combination_operand_load_case(model, operand_ref, tar
+f12fed9d69:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs:37:        combination_operand_lengths: &[usize],
+f12fed9d69:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs:46:        for &n in combination_operand_lengths {
+f12fed9d69:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/origins.rs:51:        let combinations = combination_operand_lengths.len()
+f12fed9d69:projects/chirality-piping/core/product_physics/src/retained_product.rs:199:    NotRequired,
+f12fed9d69:projects/chirality-piping/core/product_physics/src/retained_product.rs:263:            seed.legacy = Some(LegacySeed::NotRequired);
+f12fed9d69:projects/chirality-piping/core/product_physics/src/retained_wire.rs:796:        Some(rp::LegacySeed::NotRequired) => (json!({"disposition":"not_requi
+f12fed9d69:projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs:323:        (rp::LegacySeed::NotRequired, json!({"disposition":"not_require
+f12fed9d69:projects/chirality-piping/core/product_physics/src/retained_wire_tests.rs:367:    assert!(matches!(route(true, false, false), Some(rp::LegacySeed::No

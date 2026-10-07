@@ -1,0 +1,20 @@
+# RV105: VENV/bin/python evidence/probe_quality.py I68/u8_probe_01/_run_records/probe_run2.log I68/u8_probe_01/_run_records/precommit_refused_dense_scrutiny_bb6c23865eb8.json (cwd R)
+{"input": "milestone", "mode": "sparse_interactive", "mechanics": "MECHANICS_SOLVED", "integrity": ["NUMERICAL_INTEGRITY_SENSITIVE"], "legacy_source_unavailable": true, "inferred": "-"}
+{"input": "milestone", "mode": "dense_scrutiny", "mechanics": "MECHANICS_SOLVED", "integrity": ["NUMERICAL_INTEGRITY_SENSITIVE"], "legacy_source_unavailable": true, "inferred": "-"}
+{"input": "first_load_only", "mode": "sparse_interactive", "mechanics": "MECHANICS_SOLVED", "integrity": ["NUMERICAL_INTEGRITY_SENSITIVE"], "legacy_source_unavailable": true, "inferred": "-"}
+{"input": "tiny_spring", "mode": "sparse_interactive", "mechanics": "MODEL_INCOMPLETE", "integrity": ["NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED"], "legacy_source_unavailable": true, "inferred": "-"}
+{"input": "first_load_only", "mode": "dense_scrutiny", "mechanics": "MECHANICS_SOLVED", "integrity": ["NUMERICAL_INTEGRITY_SENSITIVE"], "legacy_source_unavailable": true, "inferred": "-"}
+{"input": "tiny_spring", "mode": "dense_scrutiny", "mechanics": "MODEL_INCOMPLETE", "integrity": ["NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED"], "legacy_source_unavailable": true, "inferred": "-"}
+{"input": "w6", "mode": "sparse_interactive", "mechanics": "MECHANICS_SOLVED", "integrity": ["NUMERICAL_INTEGRITY_CHECKS_PASSED"], "legacy_source_unavailable": true, "inferred": "W2-published, CHECKS_PASSED"}
+{"input": "w6", "mode": "dense_scrutiny", "mechanics": "MECHANICS_SOLVED", "integrity": ["NUMERICAL_INTEGRITY_CHECKS_PASSED"], "legacy_source_unavailable": true, "inferred": "W2-published, CHECKS_PASSED"}
+{"input": "l0_isolated_node", "mode": "sparse_interactive", "mechanics": "MECHANICS_SOLVED", "integrity": ["NUMERICAL_INTEGRITY_SENSITIVE"], "legacy_source_unavailable": true, "inferred": "-"}
+{"input": "l0_isolated_node", "mode": "dense_scrutiny", "mechanics": "MECHANICS_SOLVED", "integrity": ["NUMERICAL_INTEGRITY_SENSITIVE"], "legacy_source_unavailable": true, "inferred": "-"}
+{"input": "two_body_a", "mode": "sparse_interactive", "mechanics": "MECHANICS_SOLVED", "integrity": ["NUMERICAL_INTEGRITY_SENSITIVE"], "legacy_source_unavailable": true, "inferred": "-"}
+{"input": "two_body_b", "mode": "sparse_interactive", "mechanics": "MECHANICS_SOLVED", "integrity": ["NUMERICAL_INTEGRITY_CHECKS_PASSED"], "legacy_source_unavailable": true, "inferred": "W2-published, CHECKS_PASSED"}
+{"input": "one_body_a_axial", "mode": "sparse_interactive", "mechanics": "MECHANICS_SOLVED", "integrity": ["NUMERICAL_INTEGRITY_CHECKS_PASSED"], "legacy_source_unavailable": true, "inferred": "W2-published, CHECKS_PASSED"}
+{"input": "one_body_b_transverse", "mode": "sparse_interactive", "mechanics": "MECHANICS_SOLVED", "integrity": ["NUMERICAL_INTEGRITY_CHECKS_PASSED"], "legacy_source_unavailable": true, "inferred": "W2-published, CHECKS_PASSED"}
+{"input": "two_body_a", "mode": "dense_scrutiny", "mechanics": "MECHANICS_SOLVED", "integrity": ["NUMERICAL_INTEGRITY_SENSITIVE"], "legacy_source_unavailable": true, "inferred": "-"}
+{"input": "two_body_b", "mode": "dense_scrutiny", "mechanics": "MECHANICS_SOLVED", "integrity": ["NUMERICAL_INTEGRITY_CHECKS_PASSED"], "legacy_source_unavailable": true, "inferred": "W2-published, CHECKS_PASSED"}
+{"input": "one_body_a_axial", "mode": "dense_scrutiny", "mechanics": "MECHANICS_SOLVED", "integrity": ["NUMERICAL_INTEGRITY_CHECKS_PASSED"], "legacy_source_unavailable": true, "inferred": "W2-published, CHECKS_PASSED"}
+{"input": "one_body_b_transverse", "mode": "dense_scrutiny", "mechanics": "MECHANICS_SOLVED", "integrity": ["NUMERICAL_INTEGRITY_CHECKS_PASSED"], "legacy_source_unavailable": true, "inferred": "W2-published, CHECKS_PASSED"}
+two_body_a dense dump: initial {"diagnostic_ref": null, "error": {"detail": "arithmetic outside normal range", "tag": "range"}, "kind": "structural_failure"} w2 published 518 quality sensitive

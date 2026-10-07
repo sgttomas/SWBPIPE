@@ -1,0 +1,33 @@
+
+ RUN  v4.1.10 WT/scratch/i75_t6s/probe/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx (15 tests | 1 failed) 3516ms
+     × prints b as Rust's {:e} does: shortest round-trip digits, exact ties rounded up, and no '+' in the exponent 6ms
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 31 passed (32)
+   Start at  10:46:23
+   Duration  4.10s (transform 449ms, setup 101ms, import 625ms, tests 5.70s, environment 316ms)
+
+
+--- stderr ---
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx > the disclosure texts are Rust derivative's (D-U6-2; CQ-1) > prints b as Rust's {:e} does: shortest round-trip digits, exact ties rounded up, and no '+' in the exponent
+AssertionError: expected [ '4308628432e3716a', …(1) ] to strictly equal [ '4308628432e3716a', …(1) ]
+
+- Expected
++ Received
+
+  [
+    "4308628432e3716a",
+-   "8.579649212534213e14",
++   "8.579649212534212e14",
+  ]
+
+ ❯ src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:183:93
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

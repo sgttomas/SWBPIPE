@@ -1,0 +1,5 @@
+ Test Files  141 passed (141)
+      Tests  3590 passed (3590)
+   Duration  79.48s (transform 19.71s, setup 7.55s, import 36.83s, tests 418.25s, environment 31.89s)
+JSON report written to WT/scratch/i75_t6s/repair_out/repair_vitest.json
+rc=0 (times.txt: full rc=0)

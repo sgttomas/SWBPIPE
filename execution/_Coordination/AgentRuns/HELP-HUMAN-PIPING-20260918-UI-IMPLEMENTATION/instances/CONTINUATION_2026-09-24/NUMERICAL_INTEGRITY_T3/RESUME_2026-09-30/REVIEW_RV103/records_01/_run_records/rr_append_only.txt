@@ -1,0 +1,5 @@
+main RR: bytes 1121319 sha256 b66c5bd0308c8a1b380037ab075485688af41def361c7cbeaffe1a6f176af0d6 lines 13108
+head RR: bytes 1129719 sha256 5f39fea65aaae77a050e2082576e7edd3013771c2c0090daa9b5773a3a206a94 lines 13208
+main is byte prefix of head: True
+appended bytes 8400 appended lines 100
+main blob 4ecd3865c832bcb8f07c5690f7e8acef86514e22 head blob d46bb3143608c8d2ceb7667adf4fe260d4c52bc1 NUM N blob d46bb3143608c8d2ceb7667adf4fe260d4c52bc1

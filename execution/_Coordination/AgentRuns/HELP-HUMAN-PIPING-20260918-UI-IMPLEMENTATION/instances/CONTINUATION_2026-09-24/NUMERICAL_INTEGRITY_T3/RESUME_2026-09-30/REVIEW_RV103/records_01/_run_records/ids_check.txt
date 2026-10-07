@@ -1,0 +1,18 @@
+folders under R at N matching I7x/I8x/REVIEW_RV10x:
+I70 I71 I72 I73 I74 I75 I76 I77 REVIEW_RV100 REVIEW_RV101 REVIEW_RV102 REVIEW_RV90 REVIEW_RV91 REVIEW_RV92 REVIEW_RV93 REVIEW_RV94 REVIEW_RV95 REVIEW_RV96 REVIEW_RV97 REVIEW_RV98 REVIEW_RV99 
+I78: T3 files mentioning at N: 6
+I79: T3 files mentioning at N: 3
+I80: T3 files mentioning at N: 3
+I81: T3 files mentioning at N: 1
+RV102: T3 files mentioning at N: 15
+RV103: T3 files mentioning at N: 3
+RV104: T3 files mentioning at N: 0
+I80/RV103 mentions at N (path:line):
+T3/RESUME_2026-09-30/REVIEW_RV102/records_01/ADDENDUM_01.md:35:| A-2 | NOTE | WG:591 ("Assignment IDs") | It reads "Dispatched on 2026-10-06: I68–I77 and RV97–RV102". **RV100 was dispatched on 202
+T3/RESUME_2026-09-30/REVIEW_RV102/records_01/ADDENDUM_01.md:98:**Assignment IDs:** I68–I77 is right, and the next unused, **I78 and RV103**, are right: RV102 is used. The RV range includes RV100 (A-
+T3/ROOT_RULINGS_V1.md:13067:**IDs:** RV102 is used. The next unused are **I78 and RV103**.
+T3/ROOT_RULINGS_V1.md:13208:- **The next unused IDs** are I80 and RV103.
+projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md:592:**Assignment IDs.** Dispatched on 2026-10-06: I68–I79, RV97–RV99, RV101 
+projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md:626:2. A records-only PR for U8's merge record and this session's rulings (a fre
+briefs at N:
+B0_CONTRACT_AND_IDENTITIES.md I69_I70_I71_U8_CORPUS_AND_READERS.md I72_U8_PASS_B.md I73_S_I1.md I74_T6_SUCCESSOR_SLICE_PLAN.md I75_T6S_TS.md I76_T6S_SCHEMA_TESTS.md RV100_RECORDS_PR2_REVIEW.md RV101_T6S_REVIEW.md RV102_RECORDS_PR3_REVIEW.md SI1B_POINT_PATH_PANICS.md 

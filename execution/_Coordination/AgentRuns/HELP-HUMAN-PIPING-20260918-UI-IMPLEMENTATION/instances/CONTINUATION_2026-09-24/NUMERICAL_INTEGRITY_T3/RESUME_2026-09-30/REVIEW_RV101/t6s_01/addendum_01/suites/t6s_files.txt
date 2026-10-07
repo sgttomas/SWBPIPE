@@ -1,0 +1,13 @@
+ Test Files  10 passed (10)
+      Tests  430 passed (430)
+vitest rc=0
+src/features/result-export/ResultExportPanel.test.tsx 9 / 9
+src/features/result-export/physicsResultExport.test.ts 30 / 30
+src/features/result-export/resultExportAdapter.test.ts 27 / 27
+src/features/result-export/retainedPrecisionResultExport.test.tsx 17 / 17
+src/features/results/loadReferenceOutputRefusal.test.tsx 64 / 64
+src/features/results/outputPolicy.test.ts 6 / 6
+src/features/results/retainedPrecisionIntegration.test.tsx 182 / 182
+src/features/results/retainedPrecisionOutputRefusal.test.tsx 64 / 64
+src/features/stress-neutral/StressNeutralExportPanel.test.tsx 16 / 16
+src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx 15 / 15

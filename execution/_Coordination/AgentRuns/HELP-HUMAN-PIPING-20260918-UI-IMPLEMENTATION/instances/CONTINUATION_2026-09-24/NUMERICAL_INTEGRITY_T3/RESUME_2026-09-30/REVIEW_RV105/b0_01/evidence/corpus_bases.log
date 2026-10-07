@@ -1,0 +1,21 @@
+# RV105: VENV/bin/python evidence/corpus_bases.py fixtures/results/retained_precision_cases.json (cwd P)
+# CORPUS sha256 5ac13296c69745ae837e41b93c42e4daa0c4100dc863229f8e6a4cdbe2692ccd
+# bases 17 mutations 286 must_pass 28
+ordinary_prepared_synthetic sparse_interactive [('selected', 'sensitive', 'report', 'not_triggered')] parity_rows 0
+ordinary_prepared_dense_synthetic dense_scrutiny [('selected', 'sensitive', 'report', 'not_triggered')] parity_rows 1
+ordinary_prepared_no_data_synthetic sparse_interactive [('selected', 'sensitive', 'report', 'not_triggered')] parity_rows 0
+ordinary_prepared_cancelled_loads_synthetic sparse_interactive [('selected', 'sensitive', 'report', 'not_triggered')] parity_rows 0
+two_case_facade_after_certificate_synthetic sparse_interactive [('selected', 'sensitive', 'report', 'not_triggered'), ('unavailable', 'sensitive', 'report', 'not_triggered')] parity_rows 0
+two_case_preparation_failure_synthetic sparse_interactive [('selected', 'sensitive', 'report', 'not_triggered'), ('unavailable', 'sensitive', 'report', 'not_triggered')] parity_rows 0
+two_body_synthetic sparse_interactive [('selected', 'sensitive', 'report', 'not_triggered')] parity_rows 0
+p512_ladder_synthetic sparse_interactive [('selected', 'sensitive', 'report', 'not_triggered')] parity_rows 0
+two_case_synthetic sparse_interactive [('selected', 'sensitive', 'report', 'not_triggered'), ('selected', 'sensitive', 'report', 'not_triggered')] parity_rows 0
+candidate_failure_skip_synthetic sparse_interactive [('selected', 'sensitive', 'report', 'not_triggered')] parity_rows 0
+verification_failure_skip_synthetic sparse_interactive [('selected', 'sensitive', 'report', 'not_triggered')] parity_rows 0
+two_case_shared_failed_cache_synthetic sparse_interactive [('selected', 'sensitive', 'report', 'not_triggered'), ('selected', 'sensitive', 'report', 'not_triggered')] parity_rows 0
+two_case_two_groups_synthetic sparse_interactive [('selected', 'sensitive', 'report', 'not_triggered'), ('selected', 'sensitive', 'report', 'not_triggered')] parity_rows 0
+ordinary_prepared_interpolated_material_synthetic sparse_interactive [('selected', 'sensitive', 'report', 'not_triggered')] parity_rows 0
+ordinary_prepared_mm_units_synthetic sparse_interactive [('selected', 'sensitive', 'report', 'not_triggered')] parity_rows 0
+u8_l0_isolated_node_sparse_interactive sparse_interactive [('selected', 'sensitive', 'report', 'not_triggered')] parity_rows 0
+u8_l0_isolated_node_dense_scrutiny dense_scrutiny [('selected', 'sensitive', 'report', 'not_triggered')] parity_rows 1
+# entries editing a case to not_required: ['not_required_second_case_checks_passed', 'g7_not_required_quality_enum_invalid']

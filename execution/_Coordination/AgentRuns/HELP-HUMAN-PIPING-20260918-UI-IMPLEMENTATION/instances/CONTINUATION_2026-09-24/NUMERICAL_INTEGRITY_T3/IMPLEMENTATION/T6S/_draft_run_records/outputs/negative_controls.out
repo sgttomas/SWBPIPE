@@ -1,0 +1,4 @@
+nc1_missing_entry: rc=1 (want 1) as expected; UNRESOLVED projects/chirality-piping/apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:47 [record_path] R/I76/t6s_01/inputs | RESULT FAIL
+nc2_pin_before_rv101_records: rc=1 (want 1) as expected; FAILED review_path 'REVIEW_RV101/t6s_01/evidence/oracle/exp_differences.txt': missing at NUM: REVIEW_RV101/t6s_01/evidence/oracle/exp_differences.txt | RESULT FAIL
+nc3_wrong_num_path: rc=1 (want 1) as expected; FAILED review_path 'REVIEW_RV101/t6s_01/evidence/oracle/exp_differences.txt': missing at NUM: REVIEW_RV101/t6s_01/evidence/oracle/exp_difference.txt | RESULT FAIL
+NEGATIVE CONTROLS ALL AS EXPECTED

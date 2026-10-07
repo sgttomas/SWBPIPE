@@ -1,0 +1,44 @@
+{
+ "random": {
+  "words": 60000,
+  "pre_repair_mismatches": 7,
+  "repaired_mismatches": 0,
+  "plus_signs": 0,
+  "first_repaired_mismatches": []
+ },
+ "ties": {
+  "words": 21000,
+  "pre_repair_mismatches": 5227,
+  "repaired_mismatches": 0,
+  "plus_signs": 0,
+  "first_repaired_mismatches": []
+ },
+ "rv101_differences": {
+  "words": 9,
+  "pre_repair_mismatches": 9,
+  "repaired_mismatches": 0,
+  "plus_signs": 0,
+  "first_repaired_mismatches": []
+ },
+ "edges": {
+  "words": 18,
+  "pre_repair_mismatches": 0,
+  "repaired_mismatches": 0,
+  "plus_signs": 0,
+  "first_repaired_mismatches": []
+ },
+ "ties16": {
+  "words": 30000,
+  "pre_repair_mismatches": 1148,
+  "repaired_mismatches": 0,
+  "plus_signs": 0,
+  "first_repaired_mismatches": []
+ },
+ "pow2": {
+  "words": 12580,
+  "pre_repair_mismatches": 4,
+  "repaired_mismatches": 0,
+  "plus_signs": 0,
+  "first_repaired_mismatches": []
+ }
+}

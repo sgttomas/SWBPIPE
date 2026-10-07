@@ -1,0 +1,8 @@
+$ check_citations.py --repo NUM --base d8c88774d0a73bc99fe9c6e906db6296162f8953 --head 2b1f244fafa88e7d4441f72327e231d938d4c348 --index T6S/citations.json --package T6S --list
+# S: 19 maintained paths in the two-dot diff
+COUNTS resolved 2; ambiguous 0; unresolved 0
+  records/RR: occurrences 2, distinct 2, unresolved 0; documents: 0 citations (0 resolved, 0 ambiguous, 0 unresolved); verification failures 0; unused index entries 0; code lines: 0 (0 pinned in code_anchors, 0 unresolved)
+  projects/chirality-piping/apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:47	record_path	R/I76/t6s_01/inputs
+  projects/chirality-piping/apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx:146	review_path	REVIEW_RV101/t6s_01/evidence/oracle/exp_differences.txt
+RESULT PASS
+rc=0

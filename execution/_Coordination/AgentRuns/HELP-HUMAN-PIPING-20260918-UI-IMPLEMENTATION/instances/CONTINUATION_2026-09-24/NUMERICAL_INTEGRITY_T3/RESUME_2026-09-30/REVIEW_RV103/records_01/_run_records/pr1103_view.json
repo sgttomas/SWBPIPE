@@ -1,0 +1,23 @@
+{
+ "baseRefName": "main",
+ "commits": [
+  {
+   "authors": [
+    "sgttomas",
+    "claude"
+   ],
+   "messageHeadline": "piping(T3): records after #1102 (records only)",
+   "oid": "3f8a405c3352da3eba8c4a3b1132abb9d747b2bf"
+  }
+ ],
+ "headRefName": "codex/piping-t3-records-20261006b",
+ "headRefOid": "3f8a405c3352da3eba8c4a3b1132abb9d747b2bf",
+ "isDraft": true,
+ "mergeStateStatus": "BLOCKED",
+ "mergeable": "MERGEABLE",
+ "ncommits": 1,
+ "nfiles": 100,
+ "number": 1103,
+ "state": "OPEN",
+ "title": "piping(T3): records after #1102 (records only)"
+}

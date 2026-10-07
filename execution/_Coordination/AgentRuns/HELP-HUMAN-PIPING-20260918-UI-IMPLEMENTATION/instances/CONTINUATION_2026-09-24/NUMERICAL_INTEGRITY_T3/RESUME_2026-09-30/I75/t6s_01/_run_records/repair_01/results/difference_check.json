@@ -1,0 +1,43 @@
+{
+ "random": {
+  "differences": 7,
+  "not_a_tie_rounded_up": 0,
+  "by_digits": {
+   "17": 5,
+   "16": 2
+  }
+ },
+ "ties": {
+  "differences": 5227,
+  "not_a_tie_rounded_up": 0,
+  "by_digits": {
+   "17": 5227
+  }
+ },
+ "rv101_differences": {
+  "differences": 9,
+  "not_a_tie_rounded_up": 0,
+  "by_digits": {
+   "17": 9
+  }
+ },
+ "edges": {
+  "differences": 0,
+  "not_a_tie_rounded_up": 0,
+  "by_digits": {}
+ },
+ "ties16": {
+  "differences": 1148,
+  "not_a_tie_rounded_up": 0,
+  "by_digits": {
+   "16": 1148
+  }
+ },
+ "pow2": {
+  "differences": 4,
+  "not_a_tie_rounded_up": 0,
+  "by_digits": {
+   "17": 4
+  }
+ }
+}

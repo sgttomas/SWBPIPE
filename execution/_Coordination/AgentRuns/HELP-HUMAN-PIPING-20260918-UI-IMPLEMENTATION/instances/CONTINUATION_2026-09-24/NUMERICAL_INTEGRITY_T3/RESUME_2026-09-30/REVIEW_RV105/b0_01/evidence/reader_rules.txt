@@ -1,0 +1,58 @@
+# RV105: not_required and D6b rules in the three readers at NUM f12fed9d69 (identical to ecb541d63f outside P/execution for these files)
+## P/core/reporting/result_export/src/retained_precision.rs  blob c64fc2153bb4ce340863cb825891e541ef69de64 (ecb541d63f: c64fc2153bb4ce340863cb825891e541ef69de64)
+## P/core/analysis_runs/retained_precision.py  blob 8aaeed4726d793aa596252fad4d71aa1352ffef7 (ecb541d63f: 8aaeed4726d793aa596252fad4d71aa1352ffef7)
+## P/apps/desktop/src/features/results/retainedPrecision.ts  blob ccb1e8526981ae8f263b7007ef9b1fb98ff4f734 (ecb541d63f: ccb1e8526981ae8f263b7007ef9b1fb98ff4f734)
+## RS (not_required; report/outcome binding; D6b)
+        if matches!(text(&c["status"]), "selected" | "not_required") {
+            fail(o["initial"]["kind"] != "not_attempted")?;
+        }
+        if c["status"] == "not_required" {
+            fail(
+                c["product_attempt_ref"].is_null()
+                    && quality["solve_quality"] == "checks_passed"
+                    && o["initial"]["kind"] == "report"
+                    && o["initial"]["outcome"] == "checks_passed"
+                    && o["w2"]["kind"] == "not_triggered",
+            )?;
+        }
+        if o["initial"]["kind"] == "report" && o["w2"]["kind"] == "not_triggered" {
+            fail(o["initial"]["outcome"] == quality["solve_quality"])?;
+        }
+        // D6b (C1:101; C2:164; checkpoint-A ruling): a selected case's ordinary
+        // quality routes to retained precision: sensitive, unresolved or failed
+        // (not checks_passed, not not_assessed).
+        if c["status"] == "selected" {
+            fail(matches!(
+                text(&quality["solve_quality"]),
+                "sensitive" | "unresolved" | "failed"
+            ))?;
+        }
+## PY _g5_ordinary
+        fail(o["initial"]["kind"] != "not_attempted" if c["status"] in ("selected", "not_required") else True)
+        if o["initial"]["kind"] == "report":
+            fail(o["initial"]["report_diagnostic_ref"] in by_id and o["initial"]["outcome"] == quality[i]["solve_quality"])
+        if c["status"] == "not_required":
+            fail(c["product_attempt_ref"] is None and quality[i]["solve_quality"] == "checks_passed")
+        if c["status"] == "selected":
+            # D6b (C1:101; C2:153, :164; source_receipt.rs `OrdinaryAttempt::wire`): only an attempted trigger selects.
+            fail(quality[i]["solve_quality"] in ("sensitive", "unresolved", "failed"))
+            fail(c["selection"]["rcond_label"] == RCOND_LABEL)
+## TS ordinaryAttempts
+    if (c.status === 'not_required') fail(c.product_attempt_ref === null && a.initial.kind !== 'not_attempted' && q.solve_quality === 'checks_passed');
+    // D20: the selected case's C3 attempt is checked in the C3 association pass (PRODUCT_ATTEMPT), not here.
+    if (c.status === 'selected') fail(a.initial.kind !== 'not_attempted' && ['sensitive', 'unresolved', 'failed'].includes(q.solve_quality));
+## PY _g5_stages (preparation completed iff source)
+    if st["native"] == "not_entered":
+        fail(a["run_ref"] is None)
+    else:
+        fail(a["run_ref"] is not None and run is not None and (st["native"] == "completed") == (run["kernel_terminal"]["kind"] == "selected"))
+    fail((st["preparation"] == "completed") == (a["source_ref"] is not None) or st["preparation"] == "not_entered" and a["source_ref"] is None)
+## TS productAttempts (source => case.source_ref equal; source => preparation completed)
+    if (s) fail(s.owner.case_index === a.owner_ref.index && s.material_basis_ref === a.material_basis_ref && s.preparation?.attempt_ref === a.id && c.source_ref === a.source_ref);
+    fail((a.run_ref === null) === !c.run); if (c.run) fail(c.run.id === a.run_ref && c.run.origin.source_ref === a.source_ref && same(c.run.origin.owner_ref, a.owner_ref));
+    fail((stage.native === 'not_entered') === (a.run_ref === null));
+    // D1 captured_prefix association (F1:97, 130-131): no source, no Run, an unavailable result.
+    if (a.operational.old_coverage === 'captured_prefix') fail(a.source_ref === null && a.run_ref === null && a.result.kind === 'unavailable');
+    if (a.run_ref !== null) fail(stage.native === (c.run.kernel_terminal.kind === 'selected' ? 'completed' : 'failed'));
+    if (s) fail(stage.preparation === 'completed' && pm.length === s.id_maps.members.length && fresh.length === pm.length && a.operational.old_coverage === 'complete');
+    if (stage.native !== 'not_entered') fail(stage.preparation === 'completed');

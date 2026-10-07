@@ -1,0 +1,45 @@
+== fmt_check_base_rcr start 2026-10-06T17:57:40Z dir=WT/scratch/i79_si1b/fmtbase/rule_check_runner
+Diff in WT/scratch/i79_si1b/fmtbase/rule_check_runner/src/lib.rs:2035:
+             library_values: Vec::new(),
+             current_statuses: vec![AnalysisStatus::MechanicsSolved],
+         });
+-        assert_eq!(result.aggregate_status, RuleCheckStatus::RuleInputsIncomplete);
++        assert_eq!(
++            result.aggregate_status,
++            RuleCheckStatus::RuleInputsIncomplete
++        );
+         let check = &result.checks[0];
+         assert_eq!(check.status, RuleCheckStatus::RuleInputsIncomplete);
+         assert!(check.computed_value.is_none());
+Diff in WT/scratch/i79_si1b/fmtbase/rule_check_runner/src/lib.rs:2042:
+-        assert!(check.completeness_findings.iter().any(|f| f.code
+-            == "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"
+-            && f.severity == "blocking"
+-            && f.subject_id == "actual"));
+-        let bound = check.bound_inputs.iter().find(|b| b.input_id == "actual").unwrap();
++        assert!(check
++            .completeness_findings
++            .iter()
++            .any(|f| f.code == "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"
++                && f.severity == "blocking"
++                && f.subject_id == "actual"));
++        let bound = check
++            .bound_inputs
++            .iter()
++            .find(|b| b.input_id == "actual")
++            .unwrap();
+         assert!(!bound.supplied);
+-        assert_eq!(bound.note.as_deref(), Some("refused: RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"));
++        assert_eq!(
++            bound.note.as_deref(),
++            Some("refused: RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE")
++        );
+         let wire = serde_json::to_value(&result).unwrap();
+-        assert!(wire.to_string().contains("RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"));
++        assert!(wire
++            .to_string()
++            .contains("RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"));
+     }
+ 
+     #[test]
+== fmt_check_base_rcr exit=1 2026-10-06T17:57:41Z

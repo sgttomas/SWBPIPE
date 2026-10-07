@@ -1,0 +1,32 @@
+# RV105 ADDENDUM_01 checks at NUM 77bac7532f (read-only)
+## code outside P/execution unchanged since f12fed9d69: 0 files differ
+## collision recheck (git grep -F, outside P/execution, line counts)
+NoTriggeredCase: 0
+openpipestress.result_semantics/0.3.0/physics-retained-1: 0
+exact_straight_retained_w1a_v2: 0
+OperandPreparation: 0
+operand_preparations: 0
+operand_preparation_failure: 0
+retained_precision_operand_preparation_v1: 0
+RP-PREPARED-EXACT-DUAL-v1: 0
+combination_operand: 7
+bare physics-retained-1 outside the preview successor: 1
+## M arithmetic (6.0 GiB; QUAL §3 E_mov,max + R: dense 3,595,488,734 B, sparse 3,575,778,286 B)
+M 6442450944 0.9M floor 5798205849 dense headroom 2202717115 sparse headroom 2222427563
+## registered threshold today (PP retained_memory.rs REGISTERED_PROFILES)
+942:    threshold_bytes: u64,
+960:    threshold_bytes: 4_026_531_840,
+2940:        let bound = admission_bound(cap_priced_maximum(mode), REGISTERED_PROFILES[index].threshold_bytes);
+## decision 21: integrity failures are blocking (PP lib.rs append_integrity_failure) and has_blocking returns the blocked envelope
+8:1327-    diagnostics.push(diag(&integrity_diagnostic_id(case_id), code, "blocking", format!("Load case {case_id}: {error}; global_dof_map={:?}; no structural rejection is bypassed by generic LU or output quantization", integrity_dof_map(model)), vec![case_id.to_string()]));
+13967:fn has_blocking(diagnostics: &[Diagnostic]) -> bool {
+13968-    diagnostics.iter().any(|d| d.severity == "blocking")
+13969-}
+## decision 21: W2 triggers only on Range/NumericalRange (PP lib.rs ordinary_range_trigger)
+4:1350-            Some(RangeTrigger::Formation(error.clone()))
+7:1353-            Some(RangeTrigger::Evaluation(error.clone()))
+9:1355-        _ => None,
+## SCHEMA StructuralError tags
+['invalid_input', 'range', 'asymmetric', 'numerically_unresolved', 'negative_energy', 'mechanism']
+## RR F3 (R-b' wire representation) line
+9013:- **F3, fail-closed, held.** A case demoted after the report by R-b′ is r

@@ -1,0 +1,33 @@
+{
+ "changed_paths": 23,
+ "statuses": [
+  "A",
+  "M"
+ ],
+ "changed_in_crate_src": [],
+ "changed_under_crate_roots": [
+  "projects/chirality-piping/core/reporting/result_export/tests/retained_precision_derivative_golden.rs",
+  "projects/chirality-piping/core/reporting/result_export/tests/source_blocks.rs"
+ ],
+ "changed_manifests_locks_build": [],
+ "include_literals": 142,
+ "include_targets": 71,
+ "embedded_changed": [],
+ "embedded_blob_differs_main_vs_head": [],
+ "reviewed_inputs_listed": 14,
+ "reviewed_inputs_touched": [],
+ "reader_files_changed": [],
+ "python_readers_changed": [],
+ "pp_changed": [],
+ "src_tauri_or_e2e_plan_changed": [],
+ "schemas_changed": [
+  "schemas/results.schema.yaml"
+ ],
+ "dispatcher_defs_identical": true,
+ "dispatcher_other_keys_identical": true,
+ "dispatcher_oneOf_0_1_identical": true,
+ "dispatcher_oneOf_2_head": {
+  "$ref": "results.v0.3.schema.yaml"
+ },
+ "version_file_blob_equal": true
+}

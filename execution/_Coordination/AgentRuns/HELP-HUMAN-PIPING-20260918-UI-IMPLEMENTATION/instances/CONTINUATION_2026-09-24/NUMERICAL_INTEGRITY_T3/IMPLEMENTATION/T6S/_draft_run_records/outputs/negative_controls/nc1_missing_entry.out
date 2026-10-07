@@ -1,0 +1,4 @@
+UNRESOLVED projects/chirality-piping/apps/desktop/src/features/result-export/retainedPrecisionResultExport.test.tsx:47 [record_path] R/I76/t6s_01/inputs
+COUNTS resolved 1; ambiguous 0; unresolved 1
+  records/RR: occurrences 2, distinct 2, unresolved 1; documents: 0 citations (0 resolved, 0 ambiguous, 0 unresolved); verification failures 0; unused index entries 0; code lines: 0 (0 pinned in code_anchors, 0 unresolved)
+RESULT FAIL
