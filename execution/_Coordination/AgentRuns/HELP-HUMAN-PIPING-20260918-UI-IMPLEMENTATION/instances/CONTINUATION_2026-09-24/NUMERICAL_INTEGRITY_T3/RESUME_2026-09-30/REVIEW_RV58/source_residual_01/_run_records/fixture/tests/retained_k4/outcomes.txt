@@ -1,1 +1,141 @@
-/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/f2a-arithmetic/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/outcomes.txt
+outcome N01 128 128:accepted 256:verified
+outcome N08-0 128 128:accepted 256:verified
+outcome N08-1 128 128:accepted 256:verified
+outcome N08-2 128 128:accepted 256:verified
+outcome N08-3 128 128:accepted 256:verified
+outcome N09-B 128 128:accepted 256:verified
+outcome N09-T 128 128:accepted 256:verified
+outcome N05 128 128:accepted 256:verified
+outcome N06 128 128:accepted 256:verified
+outcome N05-TRANSVERSE 128 128:accepted 256:verified
+outcome SKEW-K1E-28 256 128:failed:Condition 256:accepted 512:verified
+outcome SKEW6-K1E-12 256 128:rejected:stop_rule:3 256:accepted 512:verified
+outcome SKEW-K1E-12 128 128:accepted 256:verified
+outcome SKEW-K1E-4 128 128:accepted 256:verified
+outcome AXIS-K1E-4 128 128:accepted 256:verified
+outcome OBLIQUE-K1E-4 128 128:accepted 256:verified
+outcome B1-L 128 128:accepted 256:verified
+outcome B1-C-A 128 128:accepted 256:verified
+outcome B1-C-B 128 128:accepted 256:verified
+outcome B1-C-A2 128 128:accepted 256:verified
+outcome B1-E-A 128 128:accepted 256:verified
+outcome B1-E-B 128 128:accepted 256:verified
+outcome B1-E-NET 128 128:accepted 256:verified
+outcome B1-C-NET 128 128:accepted 256:verified
+outcome S8-W-1e-10 128 128:accepted 256:verified
+outcome S8-W-1e-14 128 128:accepted 256:verified
+outcome DUPLICATE 128 128:accepted 256:verified
+outcome PRESCRIBED 128 128:accepted 256:verified
+outcome PIVOT 256 128:failed:Pivot 256:accepted 512:verified
+outcome REACTIONS-ONLY 256 128:rejected:stop_rule:46 256:accepted 512:verified
+outcome RIGID-UNLOADED 512 128:rejected:stop_rule:28 256:rejected:stop_rule:28 512:accepted 1024:verified
+outcome TWO-SPAN 128 128:accepted 256:verified
+outcome ZERO-TORSION-345 128 128:accepted 256:verified
+outcome ALL-ZERO-BODY 128 128:accepted 256:verified
+outcome DIRECTIONAL-SPAN - 128:rejected:stop_rule:3 256:rejected:verification_estimate:26 512:rejected:verification_estimate:26
+outcome N02 - 128:failed:Pivot 256:failed:Pivot 512:failed:Pivot
+outcome N03-RX 128 128:accepted 256:verified
+outcome N03-RZ - 128:failed:Pivot 256:failed:Pivot 512:failed:Pivot
+outcome N04 - 128:failed:Pivot 256:failed:Pivot 512:failed:Pivot
+outcome SKEW-K1E-60 512 128:failed:Pivot 256:rejected:stop_rule:3 512:accepted 1024:verified
+outcome SKEW-K1E-300 - 128:failed:Pivot 256:failed:Pivot 512:failed:Pivot
+outcome SKEW-K1E-28-AXIAL 256 128:failed:Condition 256:accepted 512:verified
+outcome CEIL-A - 128:rejected:verification_failed 256:failed:ResolutionScale
+outcome CEIL-B - 128:rejected:verification_failed 256:failed:ResolutionScale
+outcome CEIL-NET 128 128:accepted 256:verified
+outcome PROBE_D 128 128:accepted 256:verified
+outcome PROBE_C 128 128:accepted 256:verified
+outcome BENDING_SOFT 128 128:accepted 256:verified
+outcome SPRING-CARRIED 128 128:accepted 256:verified
+outcome CHARGE-SLENDER 128 128:accepted 256:verified
+outcome HH-FOOL-m40 128 128:accepted 256:verified
+outcome HH-FOOL-m40-LOADED 128 128:accepted 256:verified
+outcome HH-FOOL-m100 128 128:accepted 256:verified
+outcome HH-FOOL-m100-LOADED 256 128:rejected:stop_rule:0 256:accepted 512:verified
+outcome HH-SLENDER-m40 128 128:accepted 256:verified
+outcome THETA-ZERO-BODY 128 128:accepted 256:verified
+outcome G-FIXED-MEMBER 128 128:accepted 256:verified
+outcome THETA-STUB 128 128:accepted 256:verified
+outcome THETA-STUB-COUPLED 256 128:rejected:theta:0 256:accepted 512:verified
+outcome G-PRESC-MEMBER 256 128:rejected:g_validity:2 256:accepted 512:verified
+outcome BLOCK-PRESC 128 128:accepted 256:verified
+outcome F-2 512 128:rejected:stop_rule:14 256:rejected:stop_rule:14 512:accepted 1024:verified
+outcome F-2-CEIL 512 128:rejected:stop_rule:14 256:rejected:stop_rule:14 512:accepted 1024:verified
+outcome F-3-FREE 512 128:rejected:stop_rule:28 256:rejected:stop_rule:28 512:accepted 1024:verified
+outcome F-3-ROT 512 128:rejected:stop_rule:21 256:rejected:stop_rule:21 512:accepted 1024:verified
+outcome F-2-SPOS 512 128:rejected:stop_rule:21 256:rejected:stop_rule:21 512:accepted 1024:verified
+outcome PT-A 512 128:rejected:stop_rule:14 256:rejected:stop_rule:14 512:accepted 1024:verified
+outcome PT-B 128 128:accepted 256:verified
+outcome PTF-A 512 128:rejected:stop_rule:21 256:rejected:stop_rule:21 512:accepted 1024:verified
+outcome PTF-B 128 128:accepted 256:verified
+outcome MIXED-2^-200 512 128:rejected:stop_rule:21 256:rejected:stop_rule:34 512:accepted 1024:verified
+outcome DEMOTION2 512 128:rejected:stop_rule:13 256:rejected:stop_rule:21 512:accepted 1024:verified
+outcome ASSEMBLY-SAT 512 128:rejected:stop_rule:21 256:rejected:stop_rule:21 512:accepted 1024:verified
+outcome LOADONLY-y345 128 128:accepted 256:verified
+outcome LOADONLY-y001 128 128:accepted 256:verified
+outcome GS-TRANS-y345 512 128:rejected:stop_rule:28 256:rejected:stop_rule:28 512:accepted 1024:verified
+outcome GS-ROT-y345 512 128:rejected:stop_rule:28 256:rejected:stop_rule:28 512:accepted 1024:verified
+outcome GS-ROT-y345-LOADED 128 128:accepted 256:verified
+outcome LEDGER-AT-RESTRAINT 128 128:accepted 256:verified
+outcome SEEDED-COMMON - 128:rejected:verification_estimate:16 256:rejected:verification_estimate:16 512:rejected:verification_estimate:16
+outcome M7-GS1 512 128:rejected:stop_rule:14 256:rejected:stop_rule:14 512:accepted 1024:verified
+outcome M10-ANISO 512 128:rejected:stop_rule:21 256:rejected:stop_rule:21 512:accepted 1024:verified
+outcome M10-G 256 128:rejected:stop_rule:21 256:accepted 512:verified
+outcome EXACT-RIGID 512 128:rejected:stop_rule:14 256:rejected:stop_rule:14 512:accepted 1024:verified
+outcome SEEDED-SOFT - 128:rejected:stop_rule:12 256:rejected:stop_rule:12 512:rejected:stop_rule:12
+outcome R115-SEED3 512 128:failed:Pivot 256:rejected:stop_rule:28 512:accepted 1024:verified
+outcome LEVER2-k90-s40 - 128:failed:Pivot 256:rejected:verification_estimate:37 512:rejected:stop_rule:37
+outcome LEVER2-k100-s40 - 128:failed:Pivot 256:rejected:verification_estimate:37 512:rejected:stop_rule:37
+outcome LEVER2-k110-s20 - 128:failed:Pivot 256:rejected:verification_estimate:37 512:rejected:stop_rule:37
+outcome TILT-LEVER-k90-s40 - 128:failed:Pivot 256:rejected:stop_rule:37 512:rejected:stop_rule:37
+outcome TILT-LEVER-k100-s40 - 128:failed:Pivot 256:rejected:stop_rule:37 512:rejected:stop_rule:37
+outcome TILT-LEVER-k110-s20 - 128:failed:Pivot 256:rejected:stop_rule:37 512:rejected:stop_rule:37
+outcome CEIL5A3-A 512 128:failed:Pivot 256:rejected:verification_estimate:37 512:accepted 1024:verified
+outcome CEIL5A3-B 512 128:failed:Pivot 256:rejected:verification_estimate:37 512:accepted 1024:verified
+outcome DIRECTIONAL-WELL 128 128:accepted 256:verified
+outcome EHAT-OVERFLOW - 128:rejected:verification_failed 256:failed:ResolutionScale
+outcome CEIL-S-A 128 128:accepted 256:verified
+outcome CEIL-S-B 128 128:accepted 256:verified
+outcome CEIL-S-NET 128 128:accepted 256:verified
+outcome PROBE-y345-m1-general 128 128:accepted 256:verified
+outcome PROBE-y345-m1-inplane 128 128:accepted 256:verified
+outcome PROBE-y345-m1-outofplane 128 128:accepted 256:verified
+outcome PROBE-y345-m1-axial 128 128:accepted 256:verified
+outcome PROBE-y345-m1-torque 128 128:accepted 256:verified
+outcome PROBE-y345-m3-general 128 128:accepted 256:verified
+outcome PROBE-y345-m3-inplane 128 128:accepted 256:verified
+outcome PROBE-y345-m3-outofplane 128 128:accepted 256:verified
+outcome PROBE-y345-m3-axial 128 128:accepted 256:verified
+outcome PROBE-y345-m3-torque 128 128:accepted 256:verified
+outcome PROBE-y001-m1-general 128 128:accepted 256:verified
+outcome PROBE-y001-m1-inplane 128 128:accepted 256:verified
+outcome PROBE-y001-m1-outofplane 128 128:accepted 256:verified
+outcome PROBE-y001-m1-axial 128 128:accepted 256:verified
+outcome PROBE-y001-m1-torque 128 128:accepted 256:verified
+outcome PROBE-y001-m3-general 128 128:accepted 256:verified
+outcome PROBE-y001-m3-inplane 128 128:accepted 256:verified
+outcome PROBE-y001-m3-outofplane 128 128:accepted 256:verified
+outcome PROBE-y001-m3-axial 128 128:accepted 256:verified
+outcome PROBE-y001-m3-torque 128 128:accepted 256:verified
+outcome RF-LARGE-CHAIN-n00010-AX 128 128:accepted 256:verified
+outcome RF-LARGE-CHAIN-n00010-ROT 128 128:accepted 256:verified
+outcome RF-LARGE-TREE-n00010-AX 128 128:accepted 256:verified
+outcome RF-LARGE-TREE-n00010-ROT 128 128:accepted 256:verified
+outcome RF-LARGE-CONT-n00010-AX 128 128:accepted 256:verified
+outcome RF-LARGE-CONT-n00010-ROT 128 128:accepted 256:verified
+outcome RF-LARGE-CHAIN-n00100-AX 128 128:accepted 256:verified
+outcome RF-LARGE-CHAIN-n00100-ROT 128 128:accepted 256:verified
+outcome RF-LARGE-TREE-n00100-AX 128 128:accepted 256:verified
+outcome RF-LARGE-TREE-n00100-ROT 128 128:accepted 256:verified
+outcome RF-LARGE-CONT-n00100-AX 128 128:accepted 256:verified
+outcome RF-LARGE-CONT-n00100-ROT 128 128:accepted 256:verified
+outcome OVF-ROT-928 - 128:rejected:stop_rule:8 256:rejected:stop_rule:8 512:rejected:stop_rule:8
+outcome OVF-ROT-900 128 128:accepted 256:verified
+outcome TINY-S-995 128 128:accepted 256:verified
+outcome TINY-S-900 128 128:accepted 256:verified
+outcome GROUP-DIR 128 128:accepted 256:verified
+outcome GROUP-DIR-X 128 128:accepted 256:verified
+outcome PRESCRIBED-TAIL 512 128:rejected:stop_rule:14 256:rejected:stop_rule:14 512:accepted 1024:verified
+outcome PRESCRIBED-TAIL-FREE 512 128:rejected:stop_rule:21 256:rejected:stop_rule:21 512:accepted 1024:verified
+outcome CEIL5A3 - 128:failed:Pivot 256:rejected:verification_estimate:37 512:rejected:stop_rule:37
+outcome CEILING-S 128 128:accepted 256:verified
