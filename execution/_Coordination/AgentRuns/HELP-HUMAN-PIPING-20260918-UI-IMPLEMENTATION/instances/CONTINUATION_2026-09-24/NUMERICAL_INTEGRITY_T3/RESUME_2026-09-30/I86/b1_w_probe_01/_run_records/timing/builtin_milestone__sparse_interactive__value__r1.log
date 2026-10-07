@@ -1,0 +1,28 @@
+
+running 1 test
+test retained_memory::zz_i86_probe::zz_i86_once ... I86_FILE builtin_milestone file_sha=dcdc8e652edcddf656fae37fc70720f98c3d604b0f5100d6cdde356fa699140b
+I86_MARK call_start t_us=1791344505061994
+I86_MARK call_end t_us=1791344505095196
+I86_ONCE builtin_milestone sparse_interactive path=value outcome=value status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} phase=none (no W1 phase work) elapsed_ms=33
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 560 filtered out; finished in 0.04s
+
+        0.04 real         0.00 user         0.01 sys
+            15958016  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 534  page reclaims
+                 679  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   6  voluntary context switches
+                 298  involuntary context switches
+           148226537  instructions retired
+            65407090  cycles elapsed
+             3752320  peak memory footprint

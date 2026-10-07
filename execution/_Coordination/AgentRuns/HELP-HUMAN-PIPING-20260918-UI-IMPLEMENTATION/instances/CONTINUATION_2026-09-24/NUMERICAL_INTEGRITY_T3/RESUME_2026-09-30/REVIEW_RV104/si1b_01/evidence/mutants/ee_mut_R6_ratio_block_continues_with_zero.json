@@ -1,0 +1,1492 @@
+{
+ "base_panic_sites": {
+  "b:ratio": 6,
+  "g:ratio": 682,
+  "interpolate": 904,
+  "q:ratio": 2955,
+  "ratio": 3893,
+  "step": 1080,
+  "t:interpolate": 904,
+  "t:ratio": 250,
+  "t:step": 1080
+ },
+ "cand_lines": 626721,
+ "counts": {
+  "I_identical": 501588,
+  "I_total": 501588,
+  "P_base_panic_now_blocked": 5432,
+  "P_base_panic_with_earlier_findings": 189,
+  "P_identical": 119256,
+  "P_identical_blocked": 81619,
+  "P_total": 125133,
+  "prior:DuplicateBinding": 4,
+  "prior:DuplicateBinding,NonFiniteInput,StatusBoundaryViolation": 3,
+  "prior:DuplicateBinding,StatusBoundaryViolation": 4,
+  "prior:MissingRequiredValue": 2,
+  "prior:MissingRequiredValue,NonFiniteInput": 3,
+  "prior:MissingRequiredValue,StatusBoundaryViolation": 2,
+  "prior:NonFiniteInput": 69,
+  "prior:NonFiniteInput,StatusBoundaryViolation": 20,
+  "prior:NonFiniteInput,UnsupportedGrammarVersion": 1,
+  "prior:StatusBoundaryViolation": 77,
+  "prior:StatusBoundaryViolation,UnsupportedGrammarVersion": 1,
+  "prior:UnsupportedGrammarVersion": 3
+ },
+ "examples": {
+  "interpolate": [
+   {
+    "base": "PANIC(in-range interpolation always has a bracketing pair)",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"t_reg\", message: \"table argument must be finite: a NaN argument is neither inside nor outside the table range\" }] }",
+    "label": "t_0_0_4_5_0"
+   },
+   {
+    "base": "PANIC(in-range interpolation always has a bracketing pair)",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"t_reg\", message: \"table argument must be finite: a NaN argument is neither inside nor outside the table range\" }] }",
+    "label": "t_0_0_4_5_1"
+   },
+   {
+    "base": "PANIC(in-range interpolation always has a bracketing pair)",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"s\", \"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"t_reg\", message: \"table argument must be finite: a NaN argument is neither inside nor outside the table range\" }] }",
+    "label": "t_0_0_4_5_2"
+   }
+  ],
+  "ratio": [
+   {
+    "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+    "label": "q_vv_0_9_2"
+   },
+   {
+    "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+    "label": "q_vv_0_9_3"
+   },
+   {
+    "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+    "label": "q_vv_0_10_2"
+   }
+  ],
+  "step": [
+   {
+    "base": "PANIC(in-range step lookup always has a governing row)",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"t_reg\", message: \"table argument must be finite: a NaN argument is neither inside nor outside the table range\" }] }",
+    "label": "t_0_1_4_5_0"
+   },
+   {
+    "base": "PANIC(in-range step lookup always has a governing row)",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"t_reg\", message: \"table argument must be finite: a NaN argument is neither inside nor outside the table range\" }] }",
+    "label": "t_0_1_4_5_1"
+   },
+   {
+    "base": "PANIC(in-range step lookup always has a governing row)",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"s\", \"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"t_reg\", message: \"table argument must be finite: a NaN argument is neither inside nor outside the table range\" }] }",
+    "label": "t_0_1_4_5_2"
+   }
+  ]
+ },
+ "lines": 626721,
+ "unexpected": [
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_0",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_26",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_111",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_112",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_114",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_134",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_165",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_195",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_319",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_423",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_562",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_570",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_587",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_650",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_721",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_723",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_733",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_749",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_761",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_767",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_792",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_808",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_817",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_842",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1014",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1024",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1049",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1056",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1141",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1210",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1315",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1330",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1352",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1394",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1398",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1424",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1442",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1527",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1611",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1616",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1660",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1667",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1670",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1742",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1746",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1758",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1916",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1939",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1953",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1962",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_1991",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2006",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2037",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2073",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2089",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2105",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2136",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2159",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2173",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2235",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2252",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2309",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2314",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2375",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2414",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2416",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2443",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2494",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2588",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2635",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2647",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2662",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2671",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2751",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2757",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2783",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2860",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_2977",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3007",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3078",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3108",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3112",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3157",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3174",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3185",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3216",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3293",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3297",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3324",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3339",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3353",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3358",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3422",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3473",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3521",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3565",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3582",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3667",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3673",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3694",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3743",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3758",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3764",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3782",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3836",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3897",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3917",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3922",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3930",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_3955",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4012",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4046",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4096",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4218",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4235",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4240",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4249",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4303",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4322",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4373",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4427",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4502",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4549",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4581",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4625",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4630",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4661",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4687",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4766",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4778",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4841",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4908",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4919",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4923",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4939",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4942",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4943",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4945",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4968",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_4990",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5041",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5047",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5145",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5195",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5217",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5223",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5273",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5314",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5321",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5354",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5469",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5492",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5543",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5591",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5615",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5659",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5705",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5839",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5854",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5861",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\", \"c\", \"d\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "q_nest_5933",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [RuleInputsIncomplete], source_variable_ids: [\"s2\", \"t1\", \"z1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_22_3",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [HumanReviewRequired, MechanicsSolved], source_variable_ids: [\"l1\", \"s3\", \"z1\", \"z2\"], findings: [EvaluationFinding { code: StatusBoundaryViolation, subject_id: \"analysis_status\", message: \"human approval is an external project record, not an evaluator output\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"l2\", message: \"variable binding quantity must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject",
+   "label": "g_129_0",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [RuleInputsIncomplete], source_variable_ids: [\"f1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"l1\", message: \"variable binding quantity must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: MissingVariable, subject_id: \"l1\", message: \"variable reference is not bound\" }] }",
+   "label": "g_131_2",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a1\", \"f1\", \"m1\", \"z1\", \"z2\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_163_1",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"l2\", \"z1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"m1\", message: \"variable binding quantity must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_191_3",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [RuleInputsIncomplete], source_variable_ids: [\"t1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_274_3",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [ModelIncomplete], source_variable_ids: [\"l1\", \"s2\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_296_1",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [RuleInputsIncomplete], source_variable_ids: [\"t1\", \"z1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_387_4",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [ModelIncomplete], source_variable_ids: [\"s1\", \"s2\", \"z2\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"s3\", message: \"variable binding quantity must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: MissingVariable, subject_id: \"s3\", message: \"variable reference is not bound\" }] }",
+   "label": "g_433_2",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [RuleInputsIncomplete], source_variable_ids: [\"f1\", \"l1\", \"l2\", \"z1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_566_4",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"z1\", message: \"variable binding quantity must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_608_1",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [RuleInputsIncomplete], source_variable_ids: [\"a1\"], findings: [EvaluationFinding { code: DuplicateBinding, subject_id: \"s1\", message: \"duplicate variable binding\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_608_3",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_608_4",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"f1\", \"l1\", \"l2\", \"t1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_687_1",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [HumanReviewRequired, MechanicsSolved], source_variable_ids: [\"s3\", \"t1\", \"z2\"], findings: [EvaluationFinding { code: StatusBoundaryViolation, subject_id: \"analysis_status\", message: \"human approval is an external project record, not an evaluator output\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_779_0",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [RuleInputsIncomplete], source_variable_ids: [\"a1\", \"z1\", \"z2\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_829_0",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [ModelIncomplete], source_variable_ids: [\"a1\", \"z1\", \"z2\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_829_1",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [HumanReviewRequired, MechanicsSolved], source_variable_ids: [\"a1\", \"z1\", \"z2\"], findings: [EvaluationFinding { code: StatusBoundaryViolation, subject_id: \"analysis_status\", message: \"human approval is an external project record, not an evaluator output\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_829_2",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [RuleInputsIncomplete], source_variable_ids: [\"a1\", \"z1\", \"z2\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_829_4",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [HumanReviewRequired, MechanicsSolved], source_variable_ids: [\"f1\", \"l1\", \"l2\", \"s3\", \"z1\"], findings: [EvaluationFinding { code: StatusBoundaryViolation, subject_id: \"analysis_status\", message: \"human approval is an external project record, not an evaluator output\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_857_2",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"l2\", \"s3\", \"t1\", \"z1\", \"z2\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_901_2",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [RuleInputsIncomplete], source_variable_ids: [\"f1\", \"z1\"], findings: [EvaluationFinding { code: UnsupportedGrammarVersion, subject_id: \"grammar_version\", message: \"declared grammar version '2.0.0' is not supported by this evaluator (supported: [\\\"1.0.0\\\"])\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"s3\", message: \"variable binding quantity must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: MissingVariable, subject_i",
+   "label": "g_904_3",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [ModelIncomplete], source_variable_ids: [\"f1\", \"t1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: UnsupportedExpressionForm, subject_id: \"min\", message: \"min/max requires at least one operand\" }] }",
+   "label": "g_932_1",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"f1\", \"t1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"l1\", message: \"variable binding quantity must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: UnsupportedExpressionForm, subject_id: \"min\", message: \"min/max requires at least one operand\" }] }",
+   "label": "g_932_3",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [ModelIncomplete], source_variable_ids: [\"l1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DimensionMismatch, subject_id: \"add_subtract\", message: \"dimension mismatch: left=Dimensionless, right=Temperature\" }] }",
+   "label": "g_964_0",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"l1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DimensionMismatch, subject_id: \"add_subtract\", message: \"dimension mismatch: left=Dimensionless, right=Temperature\" }] }",
+   "label": "g_964_2",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [ModelIncomplete], source_variable_ids: [\"a1\", \"s3\"], findings: [EvaluationFinding { code: DuplicateBinding, subject_id: \"s1\", message: \"duplicate variable binding\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_985_2",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [HumanReviewRequired, MechanicsSolved], source_variable_ids: [\"a1\", \"s3\"], findings: [EvaluationFinding { code: StatusBoundaryViolation, subject_id: \"analysis_status\", message: \"human approval is an external project record, not an evaluator output\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_985_3",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [ModelIncomplete], source_variable_ids: [\"a1\", \"f1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_1241_2",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [HumanReviewRequired, MechanicsSolved], source_variable_ids: [\"a1\", \"f1\"], findings: [EvaluationFinding { code: StatusBoundaryViolation, subject_id: \"analysis_status\", message: \"human approval is an external project record, not an evaluator output\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_1241_3",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [RuleInputsIncomplete], source_variable_ids: [\"a1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_1248_0",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [ModelIncomplete], source_variable_ids: [\"a1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"s2\", message: \"variable binding quantity must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_1248_4",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [RuleInputsIncomplete], source_variable_ids: [\"a1\", \"m1\", \"s3\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_1270_0",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [HumanReviewRequired, MechanicsSolved], source_variable_ids: [\"a1\", \"m1\", \"s3\", \"z1\"], findings: [EvaluationFinding { code: StatusBoundaryViolation, subject_id: \"analysis_status\", message: \"human approval is an external project record, not an evaluator output\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_1270_4",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [ModelIncomplete], source_variable_ids: [\"f1\", \"l1\", \"s1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: DivisionByZero, subject_id: \"divide\", message: \"division by zero is not permitted\" }] }",
+   "label": "g_1375_0",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [RuleInputsIncomplete], source_variable_ids: [\"a1\", \"f1\", \"t1\", \"z1\", \"z2\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: TypeMismatch, subject_id: \"binary_expression\", message: \"binary arithmetic requires numeric quantities\" }] }",
+   "label": "g_1407_3",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [ModelIncomplete], source_variable_ids: [\"a1\", \"f1\", \"t1\", \"z1\", \"z2\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: TypeMismatch, subject_id: \"binary_expression\", message: \"binary arithmetic requires numeric quantities\" }] }",
+   "label": "g_1407_4",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [ModelIncomplete], source_variable_ids: [\"s1\", \"s3\", \"z1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"literal\", message: \"literal quantity must be finite\" }] }",
+   "label": "g_1429_2",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  },
+  {
+   "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+   "cand": "none|EvaluationResult { value: None, statuses: [ModelIncomplete], source_variable_ids: [\"s1\", \"s3\", \"z1\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"f1\", message: \"variable binding quantity must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }, EvaluationFinding { code: NonFiniteInput, subject_id: \"literal\", message: \"literal quantity must be finite\" }] }",
+   "label": "g_1429_3",
+   "mode": "P",
+   "why": "base panic, candidate not the site's finding"
+  }
+ ],
+ "unexpected_count": 445
+}

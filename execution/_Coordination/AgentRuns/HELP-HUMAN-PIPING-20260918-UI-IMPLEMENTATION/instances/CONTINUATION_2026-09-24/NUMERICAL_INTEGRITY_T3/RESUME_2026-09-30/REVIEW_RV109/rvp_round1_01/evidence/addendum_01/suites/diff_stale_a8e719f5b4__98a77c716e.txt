@@ -1,0 +1,3 @@
+lib.rs: base {'ok': 548, 'FAILED': 1, 'ignored': 11} cand {'ok': 549, 'FAILED': 1, 'ignored': 11}
+  DIFF retained_memory::witness_tests::b1_t4_w2b_and_w6_phys_r4_inputs_are_no_triggered_case_pins: base=None cand=ok
+TOTAL_DIFFERENCES 1

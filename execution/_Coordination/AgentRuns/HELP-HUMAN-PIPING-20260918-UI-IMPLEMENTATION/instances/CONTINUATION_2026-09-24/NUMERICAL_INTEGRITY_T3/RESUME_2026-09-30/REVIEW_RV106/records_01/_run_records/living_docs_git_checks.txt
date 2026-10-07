@@ -1,0 +1,65 @@
+## #1103 squash d8c88774d0
+tree d8c88774d0: 4457bbedf0065abfb5456ea269b4b4d607871b9f  tree 3f8a405c33: 4457bbedf0065abfb5456ea269b4b4d607871b9f
+d8c88774d0 date: 2026-10-06T17:19:13-06:00
+squash body (after subject line) == SQUASH_BODY.txt: yes
+name-status f8ed4f0551..d8c88774d0:  104 A    2 M 
+outside execution: 0
+tree d8c88774d0 == ea0e288e8a tree? yes
+## NUM absorbed main as 8afdf47153
+8afdf47153a5565e334b7253c67fbf051d64dd53 8eaa4403a6e876f283d30810c3e470fd945a63c5 d8c88774d0a73bc99fe9c6e906db6296162f8953
+8afdf47153 tree == first parent tree? yes
+## CI runs on 3f8a405c33
+37498561195 Harness Pre-merge Validation pull_request success 3f8a405c33
+37498561249 Piping Desktop E2E pull_request success 3f8a405c33
+37498560972 pec-tests pull_request success 3f8a405c33
+37498561197 governance-harness pull_request success 3f8a405c33
+
+## #1104 merge bfb26596bf
+parents: bfb26596bf81a90f98bfde06051f9a3b9907783a d8c88774d0a73bc99fe9c6e906db6296162f8953 d953e121872576dfa998c676f51ac803d48426be
+commit date: 2026-10-06T18:17:28-06:00
+M^1..M name-status:   13 A   10 M   shortstat:  23 files changed, 3177 insertions(+), 1903 deletions(-)
+M^1..M execution paths: T3/IMPLEMENTATION/T6S/CHANGE_RECORD.md T3/IMPLEMENTATION/T6S/PR_BODY.md T3/IMPLEMENTATION/T6S/SHA256SUMS T3/IMPLEMENTATION/T6S/citations.json 
+d953e12187 parent: d953e121872576dfa998c676f51ac803d48426be d8c88774d0a73bc99fe9c6e906db6296162f8953
+slice files: 19 from fdcdb5e024? diff d953e12187 vs fdcdb5e024 on the 19 paths:
+  |S| = 19
+  differing blobs: 0
+## NUM absorbed main as 25c4fa3e6a
+parents: 25c4fa3e6aa8c36378a0089d84406f009d047e46 22438afd01fc45988702ff7bce87710d1463627e bfb26596bf81a90f98bfde06051f9a3b9907783a
+25c4fa3e6a tree == first parent tree? yes
+non-execution diff 25c4fa3e6a vs main bfb26596bf: 0
+## fdcdb5e024 (I75 repair on T6 branch)
+fdcdb5e024c09e87c4df7e37302112f21a837e57 parent 2033260c57c0606978fd72184472166da23e8eff piping(T3 T6S): rustLowerExp matches Rust's {:e} on 16- and 17-digit ties (RV101 SF-1)
+files: projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionDisclosure.ts projects/chirality-piping/apps/desktop/src/features/stress-neutral/retainedPrecisionStressNeutral.test.tsx 
+on branch codex/piping-t6-successor-outputs-20261005 (origin)? 1
+## SI1b branch
+origin tip: 966113396e7e2f5f3497ccc75f0cc11262559585	refs/heads/codex/piping-t3-si1b-20261006
+966113396e: 966113396e7e2f5f3497ccc75f0cc11262559585
+commits over f8ed4f0551: 3
+  966113396e Align the Python point-path oracle's comments with the panic repair
+  da0758064e Test that a non-finite point-path check blocks without aborting the run
+  90d2c1ebf8 Block point-path panics on non-finite ratios and NaN table arguments
+files: 
+353	3	projects/chirality-piping/core/rules/expression_evaluator/src/lib.rs
+233	0	projects/chirality-piping/core/rules/rule_check_runner/tests/point_path_non_finite_run.rs
+5	3	projects/chirality-piping/tests/test_rule_interval.py
+## T6S NUM merge (T6S merged into NUM --no-ff)
+25c4fa3e6a 22438afd01fc45988702ff7bce87710d1463627e bfb26596bf81a90f98bfde06051f9a3b9907783a Merge remote-tracking branch 'origin/main' into codex/piping-numerical-integrity-20260926
+bfb26596bf d8c88774d0a73bc99fe9c6e906db6296162f8953 d953e121872576dfa998c676f51ac803d48426be Merge pull request #1104 from sgttomas/codex/piping-t3-t6s-pr-20261006
+8afdf47153 8eaa4403a6e876f283d30810c3e470fd945a63c5 d8c88774d0a73bc99fe9c6e906db6296162f8953 Merge remote-tracking branch 'origin/main' into codex/piping-numerical-integrity-20260926
+8eaa4403a6 7e953fd83765c2b1b61057e50e19809cd9c7eaaf fdcdb5e024c09e87c4df7e37302112f21a837e57 Merge T6S (codex/piping-t6-successor-outputs-20261005 at fdcdb5e024) into NUM for its PR's source equality
+## T6S 19 files vs main changes after c1bfc460fc
+overlap with c1bfc460fc..d8c88774d0 changes: 0
+8eaa4403a6 (T6S into NUM): parents 7e953fd83765c2b1b61057e50e19809cd9c7eaaf fdcdb5e024c09e87c4df7e37302112f21a837e57
+## I80 package pin 2b1f244faf: commit ancestor of N
+package files equal at 2b1f244faf vs main bfb26596bf?
+  CHANGE_RECORD.md: 2b1f244faf=2b1f244faf 0416b3b2ce=4ac511e5f3 main=4ac511e5f3 H=4ac511e5f3
+  PR_BODY.md: 2b1f244faf=2b1f244faf 0416b3b2ce=c2462cc85c main=c2462cc85c H=c2462cc85c
+  citations.json: 2b1f244faf=2b1f244faf 0416b3b2ce=8cd2f12581 main=8cd2f12581 H=8cd2f12581
+  SHA256SUMS: 2b1f244faf=2b1f244faf 0416b3b2ce=d42089d6e7 main=d42089d6e7 H=d42089d6e7
+## lineage of the two modified paths
+WORK_GRAPH.md: main=dab8b204f6 ea0e288e8a=dab8b204f6 d8c88774d0=dab8b204f6 N=8ba1e1c333 H=8ba1e1c333
+  NUM commits touching it in ea0e288e8a..N (first-parent): 4
+  main commits touching it in d8c88774d0..bfb26596bf: 0
+ROOT_RULINGS_V1.md: main=d46bb31436 ea0e288e8a=d46bb31436 d8c88774d0=d46bb31436 N=3117de0f48 H=3117de0f48
+  NUM commits touching it in ea0e288e8a..N (first-parent): 9
+  main commits touching it in d8c88774d0..bfb26596bf: 0

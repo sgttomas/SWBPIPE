@@ -1,0 +1,44 @@
+== 025c1cf326 parents: 47a3bdfcf5a37e856465c45cf904383f10181498 b4f22e6ce7ccc705df919a4eb3f7bc26861dbb83 | 2026-10-06T21:00:18-06:00 | Merge pull request #1106 from sgttomas/codex/piping-t3-si1b-pr-20261007
+first-parent diff:  7 files changed, 974 insertions(+), 6 deletions(-)
+   5 A    2 M 
+== 2007709549 parents: 025c1cf326f1b9ef827626f27d0e2b9cf5b415fe 1199726f695f92ddeccc36f7b47079dedf5b9854 | 2026-10-07T07:15:14-06:00 | Merge pull request #1107 from sgttomas/codex/piping-t3-b6-pr-20261007
+first-parent diff:  15 files changed, 900 insertions(+), 71 deletions(-)
+   4 A   11 M 
+== 47a3bdfcf5 (squash #1105): parents bfb26596bf81a90f98bfde06051f9a3b9907783a
+47a3bdfcf5 tree 6efac947ce9d4cdb375431b4b48b1bba9eab909f; 736f3fb7b2 tree 6efac947ce9d4cdb375431b4b48b1bba9eab909f; 030020aca3 tree 6efac947ce9d4cdb375431b4b48b1bba9eab909f
+ 220 files changed, 15409 insertions(+), 15 deletions(-)
+ 218 A    2 M 
+non-exec paths changed by squash:        0
+## SI1b
+0730c87aef parents: 966113396e; diff 966113396e..0730c87aef:  1 file changed, 79 insertions(+), 2 deletions(-)
+9e09bc2a35: a53877d48b61eaa67a317eb650265c9f09030660 0730c87aef796ebb6213b327d433e22b687fa529 | Merge T3-SI1b (codex/piping-t3-si1b-20261006 at 0730c87aef) into NUM for its PR's source equality
+  projects/chirality-piping/core/rules/expression_evaluator/src/lib.rs: NUM 9e09bc2a35 blob == 0730c87aef: yes; main 025c1cf326 == : yes
+  projects/chirality-piping/core/rules/rule_check_runner/tests/point_path_non_finite_run.rs: NUM 9e09bc2a35 blob == 0730c87aef: yes; main 025c1cf326 == : yes
+  projects/chirality-piping/tests/test_rule_interval.py: NUM 9e09bc2a35 blob == 0730c87aef: yes; main 025c1cf326 == : yes
+b4f22e6ce7 parents: 47a3bdfcf5; files: 7
+1527594642: 97f31c0f03e655edd9c27cbba90f71bdb2984b26 47a3bdfcf5a37e856465c45cf904383f10181498 | Merge remote-tracking branch 'origin/main' into codex/piping-numerical-integrity-20260926
+  tree == first parent: yes
+## B6
+a7de2a918f: commits over bfb26596bf: 3;  11 files changed, 535 insertions(+), 71 deletions(-)
+  files in PP src / D1 src / schemas: 0
+  overlap with main's later changes (bfb26596bf..025c1cf326): 0
+1732ba108e: 81d9d0fa0b269d9b062efa43c2d5255c13858899 a7de2a918ff3332133ce1f9d06e205fb87aae3d9 | piping(T3): merge B6 (the reader items) at a7de2a918f into the integration branch
+c698a0b9a5 parent: 1732ba108e; files: B6/CHANGE_RECORD.md B6/PR_BODY.md B6/SHA256SUMS B6/citations.json 
+1199726f69 parents: 025c1cf326; files: 15
+  11 slice blobs at 1199726f69 == a7de2a918f: checked
+  07m sha256: c21112fd; carrier case: 98a7213a
+## ST / I1
+a8e719f5b4 over 47a3bdfcf5: 2 commits: a8e719f5b4 4a51783e65 ;  6 files changed, 402 insertions(+), 53 deletions(-)
+  outside PP src: 0
+98a77c716e parent: a8e719f5b4; files: retained_facade_tests.rs retained_memory_witness_tests.rs 
+  PP lib.rs at 98a77c716e: 84fba5ca; at a8e719f5b4: 84fba5ca
+262bd687f0: 98a77c716ef0bf1126c855d1f99ccb0778a5457a 2007709549e9701b302e0eb62a1474d82acc1c40 | piping(T3 B1): I1 (= I1′): ST with repair round 1, confirmed by RV109; absorb main 2007709549 (#1106 SI1b, #1107 B6)
+  maintained diff from main 2007709549: 6 files, outside PP src: 0; equals ST's set as of 98a77c716e: yes
+  b1 / b1-a branch heads: 262bd687f0 262bd687f0
+## NUM absorbs #1107
+f40d8b7ded: 32d3f4fd91e5cdbf14b9b9853b1e44c9b5ed1443 2007709549e9701b302e0eb62a1474d82acc1c40
+  tree == first parent: yes
+  non-exec tree == main's: 0 paths differ
+f40d8b7ded36b2bee0ea61272bbf972d2cc79b6f absorbs 2007709549: tree==p1 yes; non-exec diff vs 2007709549: 0
+35cf618558d7784d53d64a53745758da2df186cf absorbs 025c1cf326: tree==p1 yes; non-exec diff vs 025c1cf326: 0
+152759464297c2f7902400618bc2ec480ec7ae8e absorbs 47a3bdfcf5: tree==p1 yes; non-exec diff vs 47a3bdfcf5: 0

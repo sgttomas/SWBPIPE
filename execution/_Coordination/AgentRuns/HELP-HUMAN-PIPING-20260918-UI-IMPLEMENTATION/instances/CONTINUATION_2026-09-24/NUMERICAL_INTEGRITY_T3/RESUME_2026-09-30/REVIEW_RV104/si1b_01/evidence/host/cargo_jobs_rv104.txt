@@ -1,0 +1,159 @@
+2026-10-06T23:30:17Z WAIT pid=70064 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_ee_diff
+2026-10-07T00:16:58Z START pid=54665 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_ee_diff
+2026-10-07T00:17:10Z END rc=0 pid=54665 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:17:23Z WAIT pid=55275 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_run_diff
+2026-10-07T00:17:36Z START pid=55665 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_run_diff
+2026-10-07T00:18:03Z END rc=0 pid=55665 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:18:03Z WAIT pid=56044 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_ee_diff
+2026-10-07T00:18:57Z START pid=56550 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_ee_diff
+2026-10-07T00:19:09Z END rc=0 pid=56550 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:19:09Z WAIT pid=57911 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_run_diff
+2026-10-07T00:19:09Z START pid=57915 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_run_diff
+2026-10-07T00:19:35Z END rc=0 pid=57915 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:20:26Z WAIT pid=59372 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_run_diff
+2026-10-07T00:20:31Z START pid=59396 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_run_diff
+2026-10-07T00:21:00Z END rc=0 pid=59396 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:21:00Z WAIT pid=59731 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_run_diff
+2026-10-07T00:21:50Z START pid=60250 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_run_diff
+2026-10-07T00:22:19Z END rc=0 pid=60250 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:22:35Z WAIT pid=61629 cwd=WT/rv104/base/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked
+2026-10-07T00:22:35Z START pid=61632 cwd=WT/rv104/base/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked
+2026-10-07T00:22:37Z END rc=0 pid=61632 cwd=WT/rv104/base/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:22:37Z WAIT pid=61682 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked
+2026-10-07T00:22:37Z START pid=61685 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked
+2026-10-07T00:22:39Z END rc=0 pid=61685 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:22:39Z WAIT pid=61761 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_pack_document args: test --offline --locked
+2026-10-07T00:22:39Z START pid=61767 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_pack_document args: test --offline --locked
+2026-10-07T00:22:40Z END rc=0 pid=61767 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_pack_document
+2026-10-07T00:22:40Z WAIT pid=61830 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked
+2026-10-07T00:22:40Z START pid=61833 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked
+2026-10-07T00:22:41Z END rc=0 pid=61833 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:22:41Z WAIT pid=61871 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked
+2026-10-07T00:22:41Z START pid=61874 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked
+2026-10-07T00:22:43Z END rc=0 pid=61874 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:22:43Z WAIT pid=61992 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_pack_document args: test --offline --locked
+2026-10-07T00:22:43Z START pid=61995 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_pack_document args: test --offline --locked
+2026-10-07T00:22:44Z END rc=0 pid=61995 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_pack_document
+2026-10-07T00:22:44Z WAIT pid=62051 cwd=WT/rv104/graft/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:22:44Z START pid=62055 cwd=WT/rv104/graft/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:22:45Z END rc=101 pid=62055 cwd=WT/rv104/graft/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:22:45Z WAIT pid=62086 cwd=WT/rv104/graft/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:22:45Z START pid=62089 cwd=WT/rv104/graft/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:22:49Z END rc=101 pid=62089 cwd=WT/rv104/graft/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:22:49Z WAIT pid=62448 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/expression_evaluator args: fmt --check
+2026-10-07T00:22:49Z START pid=62454 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/expression_evaluator args: fmt --check
+2026-10-07T00:22:49Z END rc=0 pid=62454 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:23:07Z WAIT pid=63181 cwd=WT/rv104/base/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked -- --list
+2026-10-07T00:23:07Z START pid=63187 cwd=WT/rv104/base/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked -- --list
+2026-10-07T00:23:07Z END rc=0 pid=63187 cwd=WT/rv104/base/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:23:07Z WAIT pid=63195 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked -- --list
+2026-10-07T00:23:07Z START pid=63201 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked -- --list
+2026-10-07T00:23:07Z END rc=0 pid=63201 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:23:07Z WAIT pid=63212 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_pack_document args: test --offline --locked -- --list
+2026-10-07T00:23:07Z START pid=63218 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_pack_document args: test --offline --locked -- --list
+2026-10-07T00:23:08Z END rc=0 pid=63218 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_pack_document
+2026-10-07T00:23:08Z WAIT pid=63227 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked -- --list
+2026-10-07T00:23:08Z START pid=63233 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked -- --list
+2026-10-07T00:23:08Z END rc=0 pid=63233 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:23:08Z WAIT pid=63241 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked -- --list
+2026-10-07T00:23:08Z START pid=63248 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked -- --list
+2026-10-07T00:23:08Z END rc=0 pid=63248 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:23:08Z WAIT pid=63260 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_pack_document args: test --offline --locked -- --list
+2026-10-07T00:23:08Z START pid=63266 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_pack_document args: test --offline --locked -- --list
+2026-10-07T00:23:08Z END rc=0 pid=63266 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_pack_document
+2026-10-07T00:23:42Z WAIT pid=63758 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:42Z START pid=63761 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:44Z END rc=0 pid=63761 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:23:44Z WAIT pid=63808 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:23:44Z START pid=63811 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:23:48Z END rc=0 pid=63811 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:23:48Z WAIT pid=63981 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:48Z START pid=63984 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:49Z END rc=101 pid=63984 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:23:49Z WAIT pid=64016 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:23:49Z START pid=64019 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:23:49Z END rc=101 pid=64019 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:23:49Z WAIT pid=64052 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:49Z START pid=64055 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:50Z END rc=0 pid=64055 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:23:50Z WAIT pid=64075 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:23:50Z START pid=64078 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:23:51Z END rc=0 pid=64078 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:23:51Z WAIT pid=64105 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:51Z START pid=64108 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:52Z END rc=0 pid=64108 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:23:52Z WAIT pid=64126 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:23:52Z START pid=64129 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:23:53Z END rc=0 pid=64129 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:23:53Z WAIT pid=64161 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:53Z START pid=64164 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:54Z END rc=101 pid=64164 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:23:54Z WAIT pid=64185 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:23:54Z START pid=64188 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:23:54Z END rc=101 pid=64188 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:23:54Z WAIT pid=64212 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:54Z START pid=64215 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:55Z END rc=101 pid=64215 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:23:55Z WAIT pid=64243 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:23:55Z START pid=64249 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:23:56Z END rc=101 pid=64249 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:23:56Z WAIT pid=64270 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:56Z START pid=64275 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:57Z END rc=0 pid=64275 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:23:57Z WAIT pid=64301 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:23:57Z START pid=64306 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:23:57Z END rc=0 pid=64306 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:23:57Z WAIT pid=64337 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:57Z START pid=64348 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:58Z END rc=101 pid=64348 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:23:58Z WAIT pid=64383 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:23:58Z START pid=64386 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:23:59Z END rc=101 pid=64386 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:23:59Z WAIT pid=64409 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:23:59Z START pid=64412 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:24:00Z END rc=101 pid=64412 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:24:00Z WAIT pid=64436 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:24:00Z START pid=64439 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:24:01Z END rc=101 pid=64439 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:24:01Z WAIT pid=64462 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:24:01Z START pid=64465 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:24:01Z END rc=101 pid=64465 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:24:01Z WAIT pid=64485 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:24:01Z START pid=64488 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:24:02Z END rc=101 pid=64488 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:24:02Z WAIT pid=64508 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:24:02Z START pid=64511 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:24:03Z END rc=101 pid=64511 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:24:03Z WAIT pid=64531 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:24:03Z START pid=64534 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:24:04Z END rc=101 pid=64534 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:24:04Z WAIT pid=64557 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:24:04Z START pid=64560 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --offline --locked --lib
+2026-10-07T00:24:05Z END rc=101 pid=64560 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T00:24:05Z WAIT pid=64591 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:24:05Z START pid=64594 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test point_path_non_finite_run
+2026-10-07T00:24:05Z END rc=0 pid=64594 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:24:24Z WAIT pid=64953 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_ee_diff
+2026-10-07T00:24:24Z START pid=64956 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_ee_diff
+2026-10-07T00:24:32Z END rc=0 pid=64956 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:24:32Z WAIT pid=65047 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_run_diff
+2026-10-07T00:24:36Z START pid=65091 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_run_diff
+2026-10-07T00:25:04Z END rc=0 pid=65091 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:25:04Z WAIT pid=65843 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_ee_diff
+2026-10-07T00:25:04Z START pid=65846 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_ee_diff
+2026-10-07T00:25:12Z END rc=0 pid=65846 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:25:12Z WAIT pid=65926 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_run_diff
+2026-10-07T00:25:12Z START pid=65929 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_run_diff
+2026-10-07T00:25:40Z END rc=0 pid=65929 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:25:40Z WAIT pid=67101 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_ee_diff
+2026-10-07T00:25:40Z START pid=67107 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_ee_diff
+2026-10-07T00:25:48Z END rc=0 pid=67107 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:25:48Z WAIT pid=68157 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_run_diff
+2026-10-07T00:25:48Z START pid=68166 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_run_diff
+2026-10-07T00:26:16Z END rc=0 pid=68166 cwd=WT/rv104/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:27:47Z WAIT pid=71856 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_probe -- --nocapture
+2026-10-07T00:27:47Z START pid=71859 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_probe -- --nocapture
+2026-10-07T00:27:48Z END rc=0 pid=71859 cwd=WT/rv104/base/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T00:27:48Z WAIT pid=71888 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_probe -- --nocapture
+2026-10-07T00:27:48Z START pid=71891 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --offline --locked --test rv104_probe -- --nocapture
+2026-10-07T00:27:49Z END rc=0 pid=71891 cwd=WT/rv104/cand/projects/chirality-piping/core/rules/rule_check_runner

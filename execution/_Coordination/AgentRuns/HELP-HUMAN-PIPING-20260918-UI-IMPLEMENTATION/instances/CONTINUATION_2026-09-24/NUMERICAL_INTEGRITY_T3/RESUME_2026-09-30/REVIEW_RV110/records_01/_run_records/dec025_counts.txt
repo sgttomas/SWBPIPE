@@ -1,0 +1,14 @@
+# DEC-025 counts: committed extracts vs the host outputs (WT/scratch/u9_dec025/<label>/)
+== SI1B_MERGE (label SI1b_b4f22e6ce7)
+vitest_tail.txt == the host log's 'Test Files'/'Tests' lines: yes:  Test Files 141 passed (141); Tests 3612 passed (3612);
+pytest_tail.txt last line: 3773 passed, 32 skipped, 130 subtests passed in 1073.44s (0:17:53)
+host builds: wasm build log 'error' lines 0; production build log error lines 0
+meta: start 2026-10-07T02:27:58Z head b4f22e6ce7ccc705df919a4eb3f7bc26861dbb83;sweep exit 1 2026-10-07T02:28:26Z;suites done 2026-10-07T02:40:42Z;ALL-DONE 2026-10-07T02:59:56Z;
+== B6_MERGE (label B6_1199726f69)
+vitest_tail.txt == the host log's 'Test Files'/'Tests' lines: yes:  Test Files 141 passed (141); Tests 3620 passed (3620);
+pytest_tail.txt last line: 3799 passed, 32 skipped, 130 subtests passed in 1140.41s (0:19:00)
+host builds: wasm build log 'error' lines 0; production build log error lines 0
+meta: start 2026-10-07T12:41:02Z head 1199726f695f92ddeccc36f7b47079dedf5b9854;sweep exit 1 2026-10-07T12:41:31Z;suites done 2026-10-07T12:54:01Z;ALL-DONE 2026-10-07T13:14:22Z;
+== expression_evaluator per test target (SI1b base / candidate): lib unittests 49 -> 57, conformance_corpus 1 -> 1, doctests 0 -> 0 (manifest total 50 -> 58)
+SI1b_b4f22e6ce7_base: 49 1 0 
+SI1b_b4f22e6ce7: 57 1 0 

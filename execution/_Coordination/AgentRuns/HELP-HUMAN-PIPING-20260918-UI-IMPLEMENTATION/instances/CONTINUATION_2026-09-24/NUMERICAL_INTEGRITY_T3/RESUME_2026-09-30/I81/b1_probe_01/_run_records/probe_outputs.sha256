@@ -1,0 +1,12 @@
+# I81: sha256 of the unsanitized outputs (kept outside NUM at WT/scratch/i81_b1_probe/logs and /out; the archive and target are deleted).
+# The F-1 dump is byte-identical to R/I68/u8_probe_01/_run_records/precommit_refused_dense_scrutiny_bb6c23865eb8.json, so it is not copied here.
+8b2cbd42c57ed743951b0002a758be345d31ae5e2fda0a353a72587adcecc959  logs/build_pp_lib.log
+30fc22857c53f1a24dd962406f69840a8c399d33310bc1404b82a91d7c12e6ec  logs/probe_item4_witness_path.log
+044a341793860124d40c41d0d5b8b5a9bd947ac7019f8385a929d40fd8f17ce1  logs/probe_run1.log
+eddcb446e29a8938be3f7254d767bd035c42c902f5fb3d00a796733f749661eb  logs/probe_run2.log
+01eb5d9aa3781c049fbc00945a59dc42b7a2b21d24799a7e0f777d422a132d79  logs/witness_run.log
+540ee2b844e168ca832e25a8eeb089510cf5a57e2398b5c32ab74c50458b85f5  out/precommit_refused_dense_scrutiny_bb6c23865eb8.json
+# The three production files before instrumentation (equal to main d8c88774d0's blobs a1990c9f58, b73225304e, 843b7ec59f):
+4c33c25031622db865bb50df1d45ad41429d16de1b7143b9ac6a22915d399763  orig/lib.rs.orig
+f536bfe786684baa0246552e013f668c544acdcab810580496991f5d26aba794  orig/retained_product.rs.orig
+fbc7c9db1e8aae3e3c058159f07f89b35317af5d7cb229cf0ed72e81b7b6c7b4  orig/retained_memory.rs.orig

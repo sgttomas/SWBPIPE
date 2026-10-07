@@ -1,0 +1,4 @@
+c1 (law cap_maximal)       values=3,304/16,384  string_bytes=25,172/65,536  key_bytes=16,751/65,536  array_elements=553/32,768
+c1 escaped (W2-style)      values=3,304/16,384  string_bytes=31,497/65,536  key_bytes=16,751/65,536  array_elements=553/32,768
+c3 x 128 loads             values=6,384/16,384  string_bytes=49,428/65,536  key_bytes=34,725/65,536  array_elements=811/32,768
+c3 x 128 loads escaped     values=6,384/16,384  string_bytes=57,043/65,536  key_bytes=34,725/65,536  array_elements=811/32,768

@@ -1,0 +1,492 @@
+{
+ "patches": [
+  [
+   "g3lib.py",
+   "    c.update(o)     n, m, g, s_, r, l = c[\"n\"], c[\"m\"], c[\"g\"], c[\"s\"]",
+   1
+  ],
+  [
+   "g3lib.py",
+   "             Q=7 * n + 30 * m + s_ + min(N, r) + 2 * g)     return c",
+   1
+  ],
+  [
+   "text_budget.py",
+   "    for _k in (\"n\", \"m\", \"g\", \"s\", \"k\", \"r\", \"l\", \"N\", \"F\", \"Z\", \"C\", ",
+   1
+  ],
+  [
+   "sens.py",
+   "D = 25_544 for _ in range(4):                                   # the ",
+   1
+  ],
+  [
+   "sens.py",
+   "summary = {\"caps\": json.loads(caps), \"eps\": int(eps), \"text_complete\":",
+   1
+  ],
+  [
+   "ordinary_caps.py",
+   "ID = __import__(\"g3lib\").g4_caps()[\"ident\"] if which == \"caps\" else 12",
+   1
+  ],
+  [
+   "ordinary_caps.py",
+   "strings = (mats * (7 + pts * 7) + 6 + 2 * n + 12 * m + 6 * g + r + 2 +",
+   1
+  ],
+  [
+   "ordinary_caps.py",
+   "+ Xc(\"PreviewLoadCase\", 1)      + Xc(\"PrimitiveLoadInput\", l)",
+   1
+  ],
+  [
+   "ordinary_caps.py",
+   "    (Xc(\"ResultItem\", P) + tx(\"row\") * P) * 2 + X({\"Node(String,BTreeM",
+   1
+  ],
+  [
+   "ordinary_caps.py",
+   "out = {\"which\": which, \"counts\": dict(n=n, m=m, g=g, s=sp, r=r, l=l, N",
+   1
+  ],
+  [
+   "ordinary_caps.py",
+   "    rows.update({f\"Typed core [{mode}]: {k_}\": v for k_, v in core.ite",
+   1
+  ],
+  [
+   "producer_caps.py",
+   "    _c = _gc(); n, m, sp, r, l, g = _c[\"n\"], _c[\"m\"], _c[\"s\"], _c[\"r\"]",
+   1
+  ],
+  [
+   "producer_caps.py",
+   "    n, m, sp, r, l, g = 2, 1, 3, 6, 3, 4 d = 0",
+   1
+  ],
+  [
+   "producer_caps.py",
+   "out = {\"which\": which, \"counts\": dict(n=n, m=m, s=sp, r=r, l=l, g=g, N",
+   1
+  ],
+  [
+   "t25_g4.py",
+   "    n, m, g, sp, r, l = (CAPS.get(k_, v_) for k_, v_ in ((\"n\", 32), (\"",
+   1
+  ],
+  [
+   "t25_g4.py",
+   "strings_typed = 8 * (7 + 16 * 7) + 6 + 2 * n + 12 * m + 6 * g + r + 2 ",
+   1
+  ],
+  [
+   "t25_g4.py",
+   "+ Xc(\"PreviewLoadCase\", 1) + Xc(\"PrimitiveLoadInput\", l)",
+   1
+  ],
+  [
+   "t25_g4.py",
+   "env_vf = (VF(arr=P + 4 * P, obj=3 * P, ent=15 * P, strb=P * ROW, keyb=",
+   1
+  ],
+  [
+   "t25_g4.py",
+   "               keyb=(9 + 15 * m + 2 * g) * 40, nums=10 * m, depth=6)  ",
+   1
+  ],
+  [
+   "t25_g4.py",
+   "rows[\"T25.8 ids set, accounted set, observations\"] = (X({\"Node(&str,()",
+   1
+  ],
+  [
+   "t25_g4.py",
+   "rows[\"T25.9 per case: actual rows clone + serialized(actual) + wire en",
+   1
+  ],
+  [
+   "t25_g4.py",
+   "out[\"stage_forms\"] = {\"carried_case\": dict(carried_case),",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "Q = 7 * n + 30 * m + sp + k + 2 * g ID, RID, KB",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "ENV = (VF(arr=P + 4 * P, obj=3 * P, ent=15 * P, strb=P * ROW, keyb=15 ",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "            nums=10 * m, depth=6)        + VF(arr=64, obj=24, ent=160,",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "SUCC_DELTA = (VF(ent=P, strb=P * 41, keyb=P * 15)               + VF(a",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "          + rec(m, slots=1, obj=2, ent=13, strb=TOK + 10 * BITS, nums=",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "CASE = rec(1, obj=4, ent=16, strb=4 * TOK + ID + SHA, nums=4) + RUN + ",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "ATTEMPT = rec(1, obj=8, ent=40, strb=4 * TOK + 10 * TOK, nums=20) + PR",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "ORDINARY = rec(1, obj=6, ent=20, strb=2 * TOK + ID + 4 * L_DIAGID) + V",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "CALLS = rec(1, slots=4, obj=3, ent=11, strb=2 * TOK, nums=6) + rec(1, ",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "STAGED = (s(\"MechanicsEnvelope\") + Xc(\"ResultItem\", P) + B(P * ROW) + ",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "LOCALS16 = (s(\"PreparedAttemptView\") + B(8 * (4 * m + P + 64))        ",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "THIRD = RUN.tree() + SELECTION.tree()",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "SETS = (X({\"Node(&str,())\": tree_nodes(P) + 2 * tree_nodes(DENV) + tre",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "        + s(\"&Value\") * (8 * P) + B(8 * 4 * n)                        ",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "G5C = VF(arr=2 * P, obj=P, ent=2 * P, strb=P * (RID + BITS), keyb=P * ",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "G8_VALUES = SOURCE.tree() * 2 + VF(arr=Q, obj=3 * Q, ent=11 * Q, strb=",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "T17 = T17v + Xc(\"Validation\", 1) + Xc(\"RowClassification\", pushcap(P))",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "form(\"T17_output\", Xc(\"Validation\", 1) + Xc(\"RowClassification\", pushc",
+   1
+  ],
+  [
+   "g4_caps.py",
+   "NOTICE = B(2 * (30 + ID + 12) + 30 + 4 + 196 + 20 + ID) + s(\"String\") ",
+   1
+  ]
+ ],
+ "loop_rebinds": [
+  {
+   "index": 22,
+   "re": "^for\\ a\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)$",
+   "old": "1",
+   "new": "cases",
+   "why": "G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attem"
+  },
+  {
+   "index": 23,
+   "re": "^for\\ \\(ai,\\ a\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "old": "1",
+   "new": "cases",
+   "why": "G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attem"
+  },
+  {
+   "index": 24,
+   "re": "^for\\ \\(si,\\ s\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "old": "1",
+   "new": "cases",
+   "why": "G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attem"
+  },
+  {
+   "index": 25,
+   "re": "^for\\ \\(mi,\\ mb\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "old": "1",
+   "new": "cases",
+   "why": "G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attem"
+  },
+  {
+   "index": 26,
+   "re": "^for\\ \\(i,\\ c\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "old": "1",
+   "new": "cases",
+   "why": "G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attem"
+  },
+  {
+   "index": 27,
+   "re": "^for\\ \\(i,\\ a\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "old": "1",
+   "new": "cases",
+   "why": "G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attem"
+  },
+  {
+   "index": 28,
+   "re": "^for\\ \\(call_id,\\ call\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "old": "1",
+   "new": "cases",
+   "why": "G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attem"
+  },
+  {
+   "index": 29,
+   "re": "^for\\ \\(i,\\ g\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "old": "1",
+   "new": "cases",
+   "why": "G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attem"
+  },
+  {
+   "index": 31,
+   "re": "^for\\ c\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\ \\.iter\\(\\)\\ \\.filter\\(\\|c\\|\\ c\\[\"\\ \"\\]\\ ==\\ \"\\ \"\\)$",
+   "old": "1",
+   "new": "cases",
+   "why": "G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attem"
+  },
+  {
+   "index": 32,
+   "re": "^for\\ c\\ in\\ list\\(\\&body\\[\"\\ \"\\]\\)$",
+   "old": "1",
+   "new": "cases",
+   "why": "G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attem"
+  },
+  {
+   "index": 33,
+   "re": "^for\\ s\\ in\\ list\\(\\&r\\[\"\\ \"\\]\\[\"\\ \"\\]\\)$",
+   "old": "1",
+   "new": "cases",
+   "why": "G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attem"
+  },
+  {
+   "index": 34,
+   "re": "^for\\ c\\ in\\ list\\(\\&r\\[\"\\ \"\\]\\[\"\\ \"\\]\\)$",
+   "old": "1",
+   "new": "cases",
+   "why": "G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attem"
+  },
+  {
+   "index": 35,
+   "re": "^for\\ \\(position,\\ ri\\)\\ in\\ list\\(\\&call\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "old": "1",
+   "new": "att",
+   "why": "G4 (T17 precommit reader at b1f80234dc): run refs of the one call"
+  },
+  {
+   "index": 36,
+   "re": "^for\\ \\(ri,\\ si\\)\\ in\\ list\\(\\&call\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.zip\\(list\\(\\&call\\[\"\\ \"\\]\\)\\)$",
+   "old": "1",
+   "new": "att",
+   "why": "G4 (T17 precommit reader at b1f80234dc): run/source refs of the one call"
+  },
+  {
+   "index": 37,
+   "re": "^for\\ si\\ in\\ list\\(\\&g\\[\"\\ \"\\]\\)$",
+   "old": "1",
+   "new": "att",
+   "why": "G4 (T17 precommit reader at b1f80234dc): source refs of the one group"
+  },
+  {
+   "index": 52,
+   "re": "^for\\ c\\ in\\ cases$",
+   "old": "1",
+   "new": "cases",
+   "why": "G4 (T17 precommit reader at b1f80234dc): numeric cases: one case"
+  },
+  {
+   "index": 53,
+   "re": "^for\\ \\(i,\\ c\\)\\ in\\ cs\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "old": "1",
+   "new": "cases",
+   "why": "G4 (T17 precommit reader at b1f80234dc): one case"
+  },
+  {
+   "index": 54,
+   "re": "^for\\ \\(i,\\ case\\)\\ in\\ cases\\.iter\\(\\)\\.enumerate\\(\\)$",
+   "old": "1",
+   "new": "cases",
+   "why": "G4 (T17 precommit reader at b1f80234dc): one load case (D1.4)"
+  },
+  {
+   "index": 65,
+   "re": "^for\\ row\\ in\\ rows_list$",
+   "old": "P",
+   "new": "Pall",
+   "why": "G4 (T17 precommit reader at b1f80234dc): published rows <= P"
+  },
+  {
+   "index": 212,
+   "re": "flat_map\\(\\|case\\| case\\.primitive_loads",
+   "old": "l",
+   "new": "L",
+   "why": "loads over the one case: l"
+  },
+  {
+   "index": 250,
+   "re": "for id in ids",
+   "old": "l",
+   "new": "max(l, L)",
+   "why": "entity id iterator: <= the largest D1 entity list (l = 192)"
+  },
+  {
+   "index": 258,
+   "re": "sources\\.iter\\(\\)\\.enumerate\\(\\)",
+   "old": "1",
+   "new": "att",
+   "why": "D1.4: one case source, no combination sources"
+  }
+ ],
+ "edge_per_call_added": [
+  [
+   "lib.rs:3102:retained_w1",
+   "lib.rs:3041:reserve",
+   "att"
+  ],
+  [
+   "lib.rs:3102:retained_w1",
+   "lib.rs:3063:publish",
+   "6*att"
+  ],
+  [
+   "lib.rs:3102:retained_w1",
+   "retained_product.rs:3310:prepare_case",
+   "att"
+  ],
+  [
+   "lib.rs:3102:retained_w1",
+   "retained_product.rs:3652:freeze_candidate",
+   "att"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_wire.rs:1130:selection",
+   "att"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_wire.rs:1264:product_attempt",
+   "att"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_wire.rs:1348:one_run",
+   "att"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_wire.rs:1359:kernel_outcome",
+   "att"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_wire.rs:1367:run_value",
+   "att"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_wire.rs:1457:bind_preparation",
+   "att"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_wire.rs:896:case_source",
+   "att"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_product.rs:3816:typed_trace",
+   "att"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_product.rs:3879:typed_trace",
+   "att"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_product.rs:3893:typed_trace",
+   "att"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_product.rs:3900:typed_trace",
+   "att"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_wire.rs:1488:typed_trace",
+   "att"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_wire.rs:1495:typed_trace",
+   "att"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_product.rs:1742:bind_rows",
+   "att"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_wire.rs:194:domain_hash",
+   "att"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_wire.rs:1321:one_case",
+   "cases"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_wire.rs:1412:ordinary_value",
+   "cases"
+  ],
+  [
+   "retained_wire.rs:1500:serialize_selected_from",
+   "retained_wire.rs:776:legacy_source",
+   "cases"
+  ]
+ ],
+ "per_case_ordinary_families": [
+  "Primitive loads and application",
+  "AssembledForce, nodal family",
+  "Sparse reduction (+ caller prescribed, observation force)",
+  "Formation-guard Bodies (build + resident)",
+  "Legacy profile observation",
+  "Straight member recovery (+ stress supplement)",
+  "Formation-guard late maps and RecoveryFinding",
+  "Ordinary scalar maximum (one helper at a time)",
+  "Source row qualification",
+  "Existing ordinary/failed source case (FinalizedSourceBlockCase::ordinary)",
+  "Preview rewrite",
+  "Preview tree final copy (envelope evidence)",
+  "T07 generic deep legacy-exact (RESIDUALS_G3 T07)"
+ ]
+}

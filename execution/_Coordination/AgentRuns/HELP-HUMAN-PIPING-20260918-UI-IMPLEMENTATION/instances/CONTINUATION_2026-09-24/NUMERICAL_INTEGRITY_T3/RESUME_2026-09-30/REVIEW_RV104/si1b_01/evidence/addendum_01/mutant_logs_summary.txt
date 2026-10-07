@@ -1,0 +1,122 @@
+== I1_interpolate_nan_silent_first_row_ee_lib.log
+---- tests::blocks_generated_nan_table_arguments stdout ----
+thread 'tests::blocks_generated_nan_table_arguments' (82377628) panicked at src/lib.rs:3821:13:
+---- tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking stdout ----
+thread 'tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking' (82377631) panicked at src/lib.rs:3730:13:
+test result: FAILED. 55 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+error: test failed, to rerun pass `--lib`
+== I1_interpolate_nan_silent_first_row_rcr.log
+---- a_nan_table_argument_check_blocks stdout ----
+thread 'a_nan_table_argument_check_blocks' (82378083) panicked at tests/point_path_non_finite_run.rs:213:9:
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+error: test failed, to rerun pass `--test point_path_non_finite_run`
+== I2_interpolate_pushes_but_continues_ee_lib.log
+---- tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking stdout ----
+thread 'tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking' (82378322) panicked at src/lib.rs:993:22:
+---- tests::blocks_generated_nan_table_arguments stdout ----
+thread 'tests::blocks_generated_nan_table_arguments' (82378319) panicked at src/lib.rs:993:22:
+test result: FAILED. 55 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+error: test failed, to rerun pass `--lib`
+== I2_interpolate_pushes_but_continues_rcr.log
+---- a_nan_table_argument_check_blocks stdout ----
+thread 'a_nan_table_argument_check_blocks' (82378719) panicked at WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator/src/lib.rs:993:22:
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+error: test failed, to rerun pass `--test point_path_non_finite_run`
+== N1_nan_message_changed_ee_lib.log
+---- tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking stdout ----
+thread 'tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking' (82378947) panicked at src/lib.rs:3731:13:
+test result: FAILED. 56 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+error: test failed, to rerun pass `--lib`
+== N1_nan_message_changed_rcr.log
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== R1_ratio_check_nan_only_ee_lib.log
+---- tests::blocks_an_i73_differential_quotient_input stdout ----
+thread 'tests::blocks_an_i73_differential_quotient_input' (82371951) panicked at src/lib.rs:1491:45:
+---- tests::a_blocked_ratio_stops_the_enclosing_expression stdout ----
+thread 'tests::a_blocked_ratio_stops_the_enclosing_expression' (82371950) panicked at src/lib.rs:1491:45:
+---- tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking stdout ----
+thread 'tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking' (82371958) panicked at src/lib.rs:1491:45:
+test result: FAILED. 54 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+error: test failed, to rerun pass `--lib`
+== R1_ratio_check_nan_only_rcr.log
+---- an_overflowing_ratio_check_blocks_and_the_run_carries_on stdout ----
+thread 'an_overflowing_ratio_check_blocks_and_the_run_carries_on' (82372409) panicked at WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator/src/lib.rs:1491:45:
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+error: test failed, to rerun pass `--test point_path_non_finite_run`
+== R2_overblock_dimensionless_divisor_ee_lib.log
+---- tests::non_finite_quotients_outside_the_ratio_arm_still_carry_their_value stdout ----
+thread 'tests::non_finite_quotients_outside_the_ratio_arm_still_carry_their_value' (82372668) panicked at src/lib.rs:3627:9:
+test result: FAILED. 56 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+error: test failed, to rerun pass `--lib`
+== R2_overblock_dimensionless_divisor_rcr.log
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== R3_overblock_derived_quotient_ee_lib.log
+---- tests::non_finite_quotients_outside_the_ratio_arm_still_carry_their_value stdout ----
+thread 'tests::non_finite_quotients_outside_the_ratio_arm_still_carry_their_value' (82373355) panicked at src/lib.rs:3650:9:
+test result: FAILED. 56 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+error: test failed, to rerun pass `--lib`
+== R3_overblock_derived_quotient_rcr.log
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== R4_ratio_subject_changed_ee_lib.log
+---- tests::a_blocked_ratio_stops_the_enclosing_expression stdout ----
+thread 'tests::a_blocked_ratio_stops_the_enclosing_expression' (82374106) panicked at src/lib.rs:3681:13:
+---- tests::blocks_an_i73_differential_quotient_input stdout ----
+thread 'tests::blocks_an_i73_differential_quotient_input' (82374107) panicked at src/lib.rs:3546:9:
+---- tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking stdout ----
+thread 'tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking' (82374114) panicked at src/lib.rs:3486:13:
+test result: FAILED. 54 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+error: test failed, to rerun pass `--lib`
+== R4_ratio_subject_changed_rcr.log
+---- an_overflowing_ratio_check_blocks_and_the_run_carries_on stdout ----
+thread 'an_overflowing_ratio_check_blocks_and_the_run_carries_on' (82374502) panicked at tests/point_path_non_finite_run.rs:169:5:
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+error: test failed, to rerun pass `--test point_path_non_finite_run`
+== R5_ratio_message_changed_ee_lib.log
+---- tests::blocks_an_i73_differential_quotient_input stdout ----
+thread 'tests::blocks_an_i73_differential_quotient_input' (82374729) panicked at src/lib.rs:3546:9:
+---- tests::a_blocked_ratio_stops_the_enclosing_expression stdout ----
+thread 'tests::a_blocked_ratio_stops_the_enclosing_expression' (82374728) panicked at src/lib.rs:3681:13:
+---- tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking stdout ----
+thread 'tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking' (82374736) panicked at src/lib.rs:3486:13:
+test result: FAILED. 54 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+error: test failed, to rerun pass `--lib`
+== R5_ratio_message_changed_rcr.log
+---- an_overflowing_ratio_check_blocks_and_the_run_carries_on stdout ----
+thread 'an_overflowing_ratio_check_blocks_and_the_run_carries_on' (82375164) panicked at tests/point_path_non_finite_run.rs:177:5:
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+error: test failed, to rerun pass `--test point_path_non_finite_run`
+== R6_ratio_block_continues_with_zero_ee_lib.log
+---- tests::a_blocked_ratio_stops_the_enclosing_expression stdout ----
+thread 'tests::a_blocked_ratio_stops_the_enclosing_expression' (82375386) panicked at src/lib.rs:3681:13:
+test result: FAILED. 56 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+error: test failed, to rerun pass `--lib`
+== R6_ratio_block_continues_with_zero_rcr.log
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== S1_step_subject_changed_ee_lib.log
+---- tests::blocks_generated_nan_table_arguments stdout ----
+thread 'tests::blocks_generated_nan_table_arguments' (82376006) panicked at src/lib.rs:3824:13:
+---- tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking stdout ----
+thread 'tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking' (82376009) panicked at src/lib.rs:3731:13:
+test result: FAILED. 55 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+error: test failed, to rerun pass `--lib`
+== S1_step_subject_changed_rcr.log
+---- a_nan_table_argument_check_blocks stdout ----
+thread 'a_nan_table_argument_check_blocks' (82376689) panicked at tests/point_path_non_finite_run.rs:218:9:
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+error: test failed, to rerun pass `--test point_path_non_finite_run`
+== S2_step_pushes_but_continues_ee_lib.log
+---- tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking stdout ----
+thread 'tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking' (82376934) panicked at src/lib.rs:974:18:
+---- tests::blocks_generated_nan_table_arguments stdout ----
+thread 'tests::blocks_generated_nan_table_arguments' (82376931) panicked at src/lib.rs:974:18:
+test result: FAILED. 55 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+error: test failed, to rerun pass `--lib`
+== S2_step_pushes_but_continues_rcr.log
+---- a_nan_table_argument_check_blocks stdout ----
+thread 'a_nan_table_argument_check_blocks' (82377384) panicked at WT/rv104/mut/projects/chirality-piping/core/rules/expression_evaluator/src/lib.rs:974:18:
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+error: test failed, to rerun pass `--test point_path_non_finite_run`
+== UNMUTATED_ee_lib.log
+test result: ok. 57 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+== UNMUTATED_rcr.log
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

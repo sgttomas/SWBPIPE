@@ -1,0 +1,25 @@
+# RV103 S-1 extract vs the host log (read-only). Log: WT/scratch/u9_dec025/U8_61c35f56a8/suites/007_core_model_operations_operation_applier_Cargo.toml.log
+log sha256: c2ec8ce9772f1227169f96e33ecf009c6835270889dfc330f62fdfa6fd1e067b  (extract records c2ec8ce9772f1227169f96e33ecf009c6835270889dfc330f62fdfa6fd1e067b)
+## error codes
+  26 error[E0277]
+ 244 error[E0308]
+   9 error[E0631]
+total: 279
+## version notes
+   8 multiple different versions of crate `serde_core`
+ 355 multiple different versions of crate `serde_json`
+## registry sources (home prefix replaced)
+   8 CARGO_REGISTRY/serde_core-1.0.228/
+   8 CARGO_REGISTRY/serde_core-1.0.229/
+ 348 CARGO_REGISTRY/serde_json-1.0.150/
+ 339 CARGO_REGISTRY/serde_json-1.0.151/
+## failing test targets
+   1 error: could not compile `open_pipe_stress_operation_applier` (test "canonical_hash_parity") due to 1 previous error
+   1 error: could not compile `open_pipe_stress_operation_applier` (test "contract_corpus") due to 7 previous errors
+   1 error: could not compile `open_pipe_stress_operation_applier` (test "create_pipe_section_inputs") due to 24 previous errors
+   1 error: could not compile `open_pipe_stress_operation_applier` (test "exact_authoring") due to 61 previous errors
+   1 error: could not compile `open_pipe_stress_operation_applier` (test "generated_self_weight") due to 82 previous errors
+   1 error: could not compile `open_pipe_stress_operation_applier` (test "load_state_authoring") due to 67 previous errors
+   1 error: could not compile `open_pipe_stress_operation_applier` (test "load_state_delete_control") due to 19 previous errors
+   1 error: could not compile `open_pipe_stress_operation_applier` (test "support_authoring_conflicts") due to 18 previous errors
+ALL COUNT LINES IDENTICAL

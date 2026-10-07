@@ -1,0 +1,28 @@
+
+running 1 test
+test retained_memory::zz_i86_probe::zz_i86_once ... I86_FILE i3_c1_case_c file_sha=b6e8138fba2f12716874f60d236f8d2dd58390a2275277ad081b162bcea7a997
+I86_MARK call_start t_us=1791345896685259
+I86_MARK call_end t_us=1791345896816175
+I86_ONCE i3_c1_case_c dense_scrutiny path=value outcome=value status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} phase=none (no W1 phase work) elapsed_ms=130
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 560 filtered out; finished in 0.14s
+
+        0.13 real         0.13 user         0.00 sys
+            35487744  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                2405  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  32  involuntary context switches
+          2511408309  instructions retired
+           601821189  cycles elapsed
+            23200152  peak memory footprint

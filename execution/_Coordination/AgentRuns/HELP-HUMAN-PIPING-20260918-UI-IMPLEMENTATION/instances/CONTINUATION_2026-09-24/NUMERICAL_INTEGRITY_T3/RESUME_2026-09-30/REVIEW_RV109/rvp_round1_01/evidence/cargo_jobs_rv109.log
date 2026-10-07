@@ -1,0 +1,96 @@
+2026-10-07T04:23:18Z WAIT pid=3636 cwd=WT/rv109/base/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast
+2026-10-07T04:23:18Z START pid=3639 cwd=WT/rv109/base/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast
+2026-10-07T04:24:59Z END rc=101 pid=3639 cwd=WT/rv109/base/projects/chirality-piping/core/product_physics
+2026-10-07T04:24:59Z WAIT pid=5089 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast
+2026-10-07T04:25:02Z START pid=5259 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast
+2026-10-07T04:26:43Z END rc=101 pid=5259 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T04:26:43Z WAIT pid=6640 cwd=WT/rv109/base/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib witness_ -- --ignored --nocapture --test-threads=1
+2026-10-07T04:26:46Z START pid=6798 cwd=WT/rv109/base/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib witness_ -- --ignored --nocapture --test-threads=1
+2026-10-07T04:27:35Z END rc=0 pid=6798 cwd=WT/rv109/base/projects/chirality-piping/core/product_physics
+2026-10-07T04:27:35Z WAIT pid=10828 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib witness_ -- --ignored --nocapture --test-threads=1
+2026-10-07T04:29:18Z START pid=29000 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib witness_ -- --ignored --nocapture --test-threads=1
+2026-10-07T04:29:27Z END rc=0 pid=29000 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T04:29:27Z WAIT pid=30686 cwd=WT/rv109/base/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib
+2026-10-07T04:31:30Z START pid=47969 cwd=WT/rv109/base/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib
+2026-10-07T04:32:26Z END rc=101 pid=47969 cwd=WT/rv109/base/projects/chirality-piping/core/product_physics
+2026-10-07T04:32:26Z WAIT pid=58949 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib
+2026-10-07T04:32:31Z START pid=59798 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib
+2026-10-07T04:33:27Z END rc=101 pid=59798 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T04:33:27Z WAIT pid=69708 cwd=WT/rv109/base/projects/chirality-piping/core/runner/headless args: test --locked --offline --no-fail-fast
+2026-10-07T04:34:42Z START pid=70905 cwd=WT/rv109/base/projects/chirality-piping/core/runner/headless args: test --locked --offline --no-fail-fast
+2026-10-07T04:35:43Z END rc=101 pid=70905 cwd=WT/rv109/base/projects/chirality-piping/core/runner/headless
+2026-10-07T04:35:43Z WAIT pid=71767 cwd=WT/rv109/cand/projects/chirality-piping/core/runner/headless args: test --locked --offline --no-fail-fast
+2026-10-07T04:36:58Z START pid=76707 cwd=WT/rv109/cand/projects/chirality-piping/core/runner/headless args: test --locked --offline --no-fail-fast
+2026-10-07T04:37:59Z END rc=101 pid=76707 cwd=WT/rv109/cand/projects/chirality-piping/core/runner/headless
+2026-10-07T04:37:59Z WAIT pid=90849 cwd=WT/rv109/cand/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --no-fail-fast --test retained_precision_carriers
+2026-10-07T04:38:03Z START pid=91607 cwd=WT/rv109/cand/projects/chirality-piping/core/reporting/result_export args: test --locked --offline --no-fail-fast --test retained_precision_carriers
+2026-10-07T04:38:41Z END rc=0 pid=91607 cwd=WT/rv109/cand/projects/chirality-piping/core/reporting/result_export
+2026-10-07T04:39:04Z WAIT pid=93730 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib witness_ -- --ignored --nocapture --test-threads=1
+2026-10-07T04:52:50Z START pid=53865 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib witness_ -- --ignored --nocapture --test-threads=1
+2026-10-07T04:52:59Z END rc=0 pid=53865 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T04:52:59Z WAIT pid=56797 cwd=WT/rv109/base/projects/chirality-piping/core/product_physics args: test --locked --offline --lib zz_rv109_probe_all -- --ignored --nocapture --test-threads=1
+2026-10-07T04:54:14Z START pid=76666 cwd=WT/rv109/base/projects/chirality-piping/core/product_physics args: test --locked --offline --lib zz_rv109_probe_all -- --ignored --nocapture --test-threads=1
+2026-10-07T04:59:06Z END rc=0 pid=76666 cwd=WT/rv109/base/projects/chirality-piping/core/product_physics
+2026-10-07T04:59:07Z WAIT pid=42717 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --lib zz_rv109_probe_all -- --ignored --nocapture --test-threads=1
+2026-10-07T05:13:05Z START pid=83815 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --lib zz_rv109_probe_all -- --ignored --nocapture --test-threads=1
+2026-10-07T05:16:31Z END rc=0 pid=83815 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:16:53Z WAIT pid=85323 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:30:25Z START pid=12696 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:31:33Z END rc=101 pid=12696 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:31:33Z WAIT pid=13301 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:32:30Z START pid=13716 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:33:25Z END rc=101 pid=13716 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:33:25Z WAIT pid=14043 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:34:23Z START pid=14371 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:35:19Z END rc=101 pid=14371 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:35:19Z WAIT pid=14712 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:36:17Z START pid=15053 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:37:12Z END rc=101 pid=15053 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:37:12Z WAIT pid=15371 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:37:49Z START pid=15607 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:38:44Z END rc=101 pid=15607 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:38:44Z WAIT pid=15927 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:39:42Z START pid=16264 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:40:37Z END rc=101 pid=16264 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:40:37Z WAIT pid=16648 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:41:35Z START pid=17004 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:42:31Z END rc=101 pid=17004 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:42:31Z WAIT pid=17326 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:43:27Z START pid=17669 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:44:23Z END rc=101 pid=17669 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:44:23Z WAIT pid=18002 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:45:22Z START pid=18343 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:46:17Z END rc=101 pid=18343 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:46:17Z WAIT pid=18673 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:46:54Z START pid=18895 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:47:49Z END rc=101 pid=18895 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:47:49Z WAIT pid=19211 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:48:23Z START pid=19435 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:49:19Z END rc=101 pid=19435 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:49:19Z WAIT pid=19872 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:49:19Z START pid=19875 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:50:15Z END rc=101 pid=19875 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:50:15Z WAIT pid=20426 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:50:15Z START pid=20429 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:51:11Z END rc=101 pid=20429 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:51:11Z WAIT pid=20843 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:51:11Z START pid=20846 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:52:06Z END rc=101 pid=20846 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:52:06Z WAIT pid=21375 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:52:06Z START pid=21378 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:53:02Z END rc=101 pid=21378 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:53:02Z WAIT pid=21756 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:53:02Z START pid=21759 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:54:07Z END rc=101 pid=21759 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:54:07Z WAIT pid=22123 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:54:07Z START pid=22126 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:55:03Z END rc=101 pid=22126 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:55:03Z WAIT pid=22435 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:55:03Z START pid=22438 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib -- --include-ignored
+2026-10-07T05:55:58Z END rc=101 pid=22438 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:56:37Z WAIT pid=23013 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --lib zz_rv109_r10_discriminator -- --ignored --nocapture --test-threads=1
+2026-10-07T05:56:37Z START pid=23016 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --lib zz_rv109_r10_discriminator -- --ignored --nocapture --test-threads=1
+2026-10-07T05:56:41Z END rc=0 pid=23016 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics
+2026-10-07T05:56:41Z WAIT pid=23058 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --lib zz_rv109_r10_discriminator -- --ignored --nocapture --test-threads=1
+2026-10-07T05:56:41Z START pid=23082 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics args: test --locked --offline --lib zz_rv109_r10_discriminator -- --ignored --nocapture --test-threads=1
+2026-10-07T05:56:44Z END rc=0 pid=23082 cwd=WT/rv109/cand/projects/chirality-piping/core/product_physics

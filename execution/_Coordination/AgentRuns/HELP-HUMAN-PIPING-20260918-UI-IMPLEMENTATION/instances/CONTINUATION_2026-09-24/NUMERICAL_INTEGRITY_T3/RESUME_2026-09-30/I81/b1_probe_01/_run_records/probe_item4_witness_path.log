@@ -1,0 +1,134 @@
+warning: function `derived` is never used
+   --> ARCH/projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+   Compiling open_pipe_stress_product_physics v0.2.0 (ARCH/projects/chirality-piping/core/product_physics)
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1607:27
+     |
+1607 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+1607 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+1607 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1608:27
+     |
+1608 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+help: remove these parentheses
+     |
+1608 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+1608 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+     |
+
+warning: function `is_exact_pressure_result_kind` is never used
+     --> src/lib.rs:10328:4
+      |
+10328 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      |
+      = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   --> src/source_recovery.rs:146:9
+    |
+145 | pub(super) struct SpringAction {
+    |                   ------------ fields in this struct
+146 |     pub support_id: String,
+    |         ^^^^^^^^^^
+147 |     pub global_dof: usize,
+    |         ^^^^^^^^^^
+148 |     pub value: f64,
+    |         ^^^^^
+149 |     pub functional_index: usize,
+    |         ^^^^^^^^^^^^^^^^
+    |
+    = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:171:9
+    |
+170 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+171 |     pub dofs: usize,
+    |         ^^^^
+172 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+173 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+174 |     pub blocks: usize,
+    |         ^^^^^^
+175 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+176 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+177 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+178 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+179 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+180 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+181 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+182 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+183 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+184 |     pub max_relative_projection_error: f64,
+185 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:198:5
+    |
+192 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+198 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:224:12
+    |
+207 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+224 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 7 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 2 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.81s
+     Running unittests src/lib.rs (WT/targets/i81-b1-probe/debug/deps/open_pipe_stress_product_physics-1e94d038ccd131a6)
+
+running 1 test
+test retained_memory::zz_i81_probe::zz_i81_item4_case_c_on_the_w6_witness_path ... I81_WITNESS_INPUT case_c force_scaled=true
+I81_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case","solve_quality":"sensitive"}] seeds=[{"case":"case","d5_ref":"diagnostic:numerical-integrity:case","initial":{"diagnostic_ref":null,"error":"Range(\"arithmetic outside normal range\")","kind":"structural_failure","tag":"range"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"force_scale_exponent":518,"kind":"published","report_ref":"diagnostic:numerical-integrity:case","trigger":"Evaluation(Range(\"arithmetic outside normal range\"))"}}]
+I81_W1_START case=case
+I81_NATIVE_OUTCOME Unresolved reason=Ceiling attempts=[(128, "Candidate", "Rejected(StopRule { quantity: Displacement(Dof { node: 3, component: Uy }), body: 1, kind: Translation })"), (256, "VerificationThenCandidate", "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 1, kind: Force })"), (512, "VerificationThenCandidate", "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 1, kind: Force })"), (1024, "Verification", "Solved")]
+I81_WITNESS case_c SparseInteractive stack=4194304 ran=Fallback(Native)
+I81_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case","solve_quality":"sensitive"}] seeds=[{"case":"case","d5_ref":"diagnostic:numerical-integrity:case","initial":{"diagnostic_ref":null,"error":"Range(\"arithmetic outside normal range\")","kind":"structural_failure","tag":"range"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"force_scale_exponent":518,"kind":"published","report_ref":"diagnostic:numerical-integrity:case","trigger":"Evaluation(Range(\"arithmetic outside normal range\"))"}}]
+I81_W1_START case=case
+I81_NATIVE_OUTCOME Unresolved reason=Ceiling attempts=[(128, "Candidate", "Rejected(StopRule { quantity: Displacement(Dof { node: 3, component: Uy }), body: 1, kind: Translation })"), (256, "VerificationThenCandidate", "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 1, kind: Force })"), (512, "VerificationThenCandidate", "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 1, kind: Force })"), (1024, "Verification", "Solved")]
+I81_WITNESS case_c DenseScrutiny stack=4194304 ran=Fallback(Native)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 560 filtered out; finished in 0.39s
+

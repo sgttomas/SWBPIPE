@@ -1,0 +1,108 @@
+2026-10-07T03:38:32Z begin floor_r1
+2026-10-07T03:40:29Z end floor_r1 rc=0
+2026-10-07T03:40:29Z begin builtin_milestone__sparse_interactive__value__r1
+2026-10-07T03:41:45Z end builtin_milestone__sparse_interactive__value__r1 rc=0
+2026-10-07T03:41:45Z begin builtin_milestone__sparse_interactive__direct__r1
+2026-10-07T03:43:52Z end builtin_milestone__sparse_interactive__direct__r1 rc=0
+2026-10-07T03:43:52Z begin builtin_milestone__sparse_interactive__witness__r1
+2026-10-07T03:46:03Z end builtin_milestone__sparse_interactive__witness__r1 rc=0
+2026-10-07T03:46:03Z begin builtin_milestone__dense_scrutiny__value__r1
+2026-10-07T03:47:14Z end builtin_milestone__dense_scrutiny__value__r1 rc=0
+2026-10-07T03:47:14Z begin builtin_milestone__dense_scrutiny__direct__r1
+2026-10-07T03:48:27Z end builtin_milestone__dense_scrutiny__direct__r1 rc=0
+2026-10-07T03:48:27Z begin builtin_milestone__dense_scrutiny__witness__r1
+2026-10-07T03:50:35Z end builtin_milestone__dense_scrutiny__witness__r1 rc=0
+2026-10-07T03:50:35Z begin builtin_w2__sparse_interactive__value__r1
+2026-10-07T03:51Z note: stopped by I86 while waiting for the lock (builtin_w2 sparse value had not started; its empty log removed); restarted with one lock per input
+2026-10-07T03:51:26Z lock-wait builtin_w2
+2026-10-07T03:52:27Z begin builtin_w2__sparse_interactive__value__r1
+2026-10-07T03:52:27Z end builtin_w2__sparse_interactive__value__r1 rc=0
+2026-10-07T03:52:27Z begin builtin_w2__sparse_interactive__direct__r1
+2026-10-07T03:52:27Z end builtin_w2__sparse_interactive__direct__r1 rc=0
+2026-10-07T03:52:27Z begin builtin_w2__sparse_interactive__witness__r1
+2026-10-07T03:52:27Z end builtin_w2__sparse_interactive__witness__r1 rc=0
+2026-10-07T03:52:27Z begin builtin_w2__dense_scrutiny__value__r1
+2026-10-07T03:52:27Z end builtin_w2__dense_scrutiny__value__r1 rc=0
+2026-10-07T03:52:27Z begin builtin_w2__dense_scrutiny__direct__r1
+2026-10-07T03:52:27Z end builtin_w2__dense_scrutiny__direct__r1 rc=0
+2026-10-07T03:52:27Z begin builtin_w2__dense_scrutiny__witness__r1
+2026-10-07T03:52:27Z end builtin_w2__dense_scrutiny__witness__r1 rc=0
+2026-10-07T03:52:27Z lock-wait a_s0.1
+2026-10-07T03:53:18Z begin a_s0.1__sparse_interactive__value__r1
+2026-10-07T03:53:18Z end a_s0.1__sparse_interactive__value__r1 rc=0
+2026-10-07T03:53:18Z begin a_s0.1__sparse_interactive__direct__r1
+2026-10-07T03:53:39Z end a_s0.1__sparse_interactive__direct__r1 rc=0
+2026-10-07T03:53:39Z begin a_s0.1__sparse_interactive__witness__r1
+2026-10-07T03:53:59Z end a_s0.1__sparse_interactive__witness__r1 rc=0
+2026-10-07T03:53:59Z begin a_s0.1__dense_scrutiny__value__r1
+2026-10-07T03:53:59Z end a_s0.1__dense_scrutiny__value__r1 rc=0
+2026-10-07T03:53:59Z begin a_s0.1__dense_scrutiny__direct__r1
+2026-10-07T03:54:20Z end a_s0.1__dense_scrutiny__direct__r1 rc=0
+2026-10-07T03:54:20Z begin a_s0.1__dense_scrutiny__witness__r1
+2026-10-07T03:54:40Z end a_s0.1__dense_scrutiny__witness__r1 rc=0
+2026-10-07T03:54:40Z lock-wait b2_k1e3
+2026-10-07T03:55:31Z begin b2_k1e3__sparse_interactive__value__r1
+2026-10-07T03:55:31Z end b2_k1e3__sparse_interactive__value__r1 rc=0
+2026-10-07T03:55:31Z begin b2_k1e3__sparse_interactive__direct__r1
+2026-10-07T03:55:51Z end b2_k1e3__sparse_interactive__direct__r1 rc=0
+2026-10-07T03:55:51Z begin b2_k1e3__sparse_interactive__witness__r1
+2026-10-07T03:56:12Z end b2_k1e3__sparse_interactive__witness__r1 rc=0
+2026-10-07T03:56:12Z begin b2_k1e3__dense_scrutiny__value__r1
+2026-10-07T03:56:12Z end b2_k1e3__dense_scrutiny__value__r1 rc=0
+2026-10-07T03:56:12Z begin b2_k1e3__dense_scrutiny__direct__r1
+2026-10-07T03:56:32Z end b2_k1e3__dense_scrutiny__direct__r1 rc=0
+2026-10-07T03:56:32Z begin b2_k1e3__dense_scrutiny__witness__r1
+2026-10-07T03:56:52Z end b2_k1e3__dense_scrutiny__witness__r1 rc=0
+2026-10-07T03:56:52Z lock-wait c1
+2026-10-07T03:57:42Z begin c1__sparse_interactive__value__r1
+2026-10-07T03:57:43Z end c1__sparse_interactive__value__r1 rc=0
+2026-10-07T03:57:43Z begin c1__sparse_interactive__direct__r1
+2026-10-07T03:58:00Z end c1__sparse_interactive__direct__r1 rc=0
+2026-10-07T03:58:00Z begin c1__sparse_interactive__witness__r1
+2026-10-07T03:58:17Z end c1__sparse_interactive__witness__r1 rc=0
+2026-10-07T03:58:17Z begin c1__dense_scrutiny__value__r1
+2026-10-07T03:58:17Z end c1__dense_scrutiny__value__r1 rc=0
+2026-10-07T03:58:17Z begin c1__dense_scrutiny__direct__r1
+2026-10-07T03:58:34Z end c1__dense_scrutiny__direct__r1 rc=0
+2026-10-07T03:58:34Z begin c1__dense_scrutiny__witness__r1
+2026-10-07T03:58:51Z end c1__dense_scrutiny__witness__r1 rc=0
+2026-10-07T03:58:51Z lock-wait i3_c1_case_a
+2026-10-07T04:00:08Z begin i3_c1_case_a__sparse_interactive__value__r1
+2026-10-07T04:00:08Z end i3_c1_case_a__sparse_interactive__value__r1 rc=0
+2026-10-07T04:00:08Z begin i3_c1_case_a__sparse_interactive__direct__r1
+2026-10-07T04:00:25Z end i3_c1_case_a__sparse_interactive__direct__r1 rc=0
+2026-10-07T04:00:25Z begin i3_c1_case_a__sparse_interactive__witness__r1
+2026-10-07T04:00:42Z end i3_c1_case_a__sparse_interactive__witness__r1 rc=0
+2026-10-07T04:00:42Z begin i3_c1_case_a__dense_scrutiny__value__r1
+2026-10-07T04:00:42Z end i3_c1_case_a__dense_scrutiny__value__r1 rc=0
+2026-10-07T04:00:42Z begin i3_c1_case_a__dense_scrutiny__direct__r1
+2026-10-07T04:00:59Z end i3_c1_case_a__dense_scrutiny__direct__r1 rc=0
+2026-10-07T04:00:59Z begin i3_c1_case_a__dense_scrutiny__witness__r1
+2026-10-07T04:01:16Z end i3_c1_case_a__dense_scrutiny__witness__r1 rc=0
+2026-10-07T04:01:16Z lock-wait i3_c1_case_b
+2026-10-07T04:02:22Z begin i3_c1_case_b__sparse_interactive__value__r1
+2026-10-07T04:02:22Z end i3_c1_case_b__sparse_interactive__value__r1 rc=0
+2026-10-07T04:02:22Z begin i3_c1_case_b__sparse_interactive__direct__r1
+2026-10-07T04:02:39Z end i3_c1_case_b__sparse_interactive__direct__r1 rc=0
+2026-10-07T04:02:39Z begin i3_c1_case_b__sparse_interactive__witness__r1
+2026-10-07T04:02:56Z end i3_c1_case_b__sparse_interactive__witness__r1 rc=0
+2026-10-07T04:02:56Z begin i3_c1_case_b__dense_scrutiny__value__r1
+2026-10-07T04:02:56Z end i3_c1_case_b__dense_scrutiny__value__r1 rc=0
+2026-10-07T04:02:56Z begin i3_c1_case_b__dense_scrutiny__direct__r1
+2026-10-07T04:03:13Z end i3_c1_case_b__dense_scrutiny__direct__r1 rc=0
+2026-10-07T04:03:13Z begin i3_c1_case_b__dense_scrutiny__witness__r1
+2026-10-07T04:03:30Z end i3_c1_case_b__dense_scrutiny__witness__r1 rc=0
+2026-10-07T04:03:30Z lock-wait i3_c1_case_c
+2026-10-07T04:04:22Z begin i3_c1_case_c__sparse_interactive__value__r1
+2026-10-07T04:04:22Z end i3_c1_case_c__sparse_interactive__value__r1 rc=0
+2026-10-07T04:04:22Z begin i3_c1_case_c__sparse_interactive__direct__r1
+2026-10-07T04:04:39Z end i3_c1_case_c__sparse_interactive__direct__r1 rc=0
+2026-10-07T04:04:39Z begin i3_c1_case_c__sparse_interactive__witness__r1
+2026-10-07T04:04:56Z end i3_c1_case_c__sparse_interactive__witness__r1 rc=0
+2026-10-07T04:04:56Z begin i3_c1_case_c__dense_scrutiny__value__r1
+2026-10-07T04:04:56Z end i3_c1_case_c__dense_scrutiny__value__r1 rc=0
+2026-10-07T04:04:56Z begin i3_c1_case_c__dense_scrutiny__direct__r1
+2026-10-07T04:05:13Z end i3_c1_case_c__dense_scrutiny__direct__r1 rc=0
+2026-10-07T04:05:13Z begin i3_c1_case_c__dense_scrutiny__witness__r1
+2026-10-07T04:05:30Z end i3_c1_case_c__dense_scrutiny__witness__r1 rc=0
+2026-10-07T04:05:30Z all done

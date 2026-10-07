@@ -1,0 +1,9 @@
+headless_preview_runner.rs: base {'ok': 1, 'FAILED': 0, 'ignored': 0} cand {'ok': 1, 'FAILED': 0, 'ignored': 0}
+lib.rs: base {'ok': 50, 'FAILED': 1, 'ignored': 0} cand {'ok': 50, 'FAILED': 1, 'ignored': 0}
+load_reference_cli.rs: base {'ok': 6, 'FAILED': 1, 'ignored': 0} cand {'ok': 6, 'FAILED': 1, 'ignored': 0}
+openpipestress-runner.rs: base {'ok': 18, 'FAILED': 0, 'ignored': 0} cand {'ok': 18, 'FAILED': 0, 'ignored': 0}
+physics_source_connected.rs: base {'ok': 1, 'FAILED': 0, 'ignored': 0} cand {'ok': 1, 'FAILED': 0, 'ignored': 0}
+preview_physics_admission.rs: base {'ok': 5, 'FAILED': 0, 'ignored': 0} cand {'ok': 5, 'FAILED': 0, 'ignored': 0}
+retained_precision_admission.rs: base {'ok': 3, 'FAILED': 0, 'ignored': 0} cand {'ok': 3, 'FAILED': 0, 'ignored': 0}
+s11g_zero_work_receipt.rs: base {'ok': 1, 'FAILED': 0, 'ignored': 0} cand {'ok': 1, 'FAILED': 0, 'ignored': 0}
+TOTAL_DIFFERENCES 0

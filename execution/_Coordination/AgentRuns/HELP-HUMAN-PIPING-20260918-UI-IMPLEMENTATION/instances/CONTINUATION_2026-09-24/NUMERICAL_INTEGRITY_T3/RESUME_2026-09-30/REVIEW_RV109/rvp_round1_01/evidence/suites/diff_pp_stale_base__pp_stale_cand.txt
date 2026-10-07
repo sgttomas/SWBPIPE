@@ -1,0 +1,8 @@
+lib.rs: base {'ok': 545, 'FAILED': 1, 'ignored': 10} cand {'ok': 548, 'FAILED': 1, 'ignored': 11}
+  DIFF retained_facade_tests::b1_t4_classifier_reads_the_published_verdict_by_case_id: base=None cand=ok
+  DIFF retained_facade_tests::b1_t4_retained_w1_applies_decision_21_and_keeps_a_seedless_case: base=None cand=ok
+  DIFF retained_facade_tests::b1_t4_two_body_case_b_is_a_no_triggered_case_pin: base=None cand=ok
+  DIFF retained_memory::witness_tests::witness_w2b_cap_maximal_passed_report_no_triggered_case: base=None cand=ignored
+  DIFF retained_memory::witness_tests::witness_w2b_cap_maximal_solvable: base=ignored cand=None
+  DIFF retained_memory::witness_tests::witness_w6_phys_r4_input_no_triggered_case: base=None cand=ignored
+TOTAL_DIFFERENCES 6

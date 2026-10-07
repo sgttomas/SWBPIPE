@@ -1,0 +1,111 @@
+pattern	path	line	text
+ghp_	T3/RESUME_2026-09-30/BRIEFS/RV103_RECORDS_PR4_REVIEW.md	30	- No credentials, tokens or key material. Search at least `ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=` and `Authorization:`.
+ghp_	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	92	- The name patterns (`ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=`, `Authorization:`, credential variables) hit only 2 files:
+ghp_	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	26	"ghp_": r"ghp_", "gho_": r"gho_", "ghs_/ghu_/ghr_": r"gh[sur]_[A-Za-z0-9]{8,}", "github_pat_": r"github_pat_",
+ghp_	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan_summary.txt	5	ghp_	24 hits	2 files
+gho_	T3/RESUME_2026-09-30/BRIEFS/RV103_RECORDS_PR4_REVIEW.md	30	- No credentials, tokens or key material. Search at least `ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=` and `Authorization:`.
+gho_	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	92	- The name patterns (`ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=`, `Authorization:`, credential variables) hit only 2 files:
+gho_	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	26	"ghp_": r"ghp_", "gho_": r"gho_", "ghs_/ghu_/ghr_": r"gh[sur]_[A-Za-z0-9]{8,}", "github_pat_": r"github_pat_",
+gho_	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan_summary.txt	6	gho_	24 hits	2 files
+github_pat_	T3/RESUME_2026-09-30/BRIEFS/RV103_RECORDS_PR4_REVIEW.md	30	- No credentials, tokens or key material. Search at least `ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=` and `Authorization:`.
+github_pat_	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	92	- The name patterns (`ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=`, `Authorization:`, credential variables) hit only 2 files:
+github_pat_	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	96	- **Token-shaped patterns** run over every changed file in full find **0**: GitHub tokens of real length, `github_pat_` bodies, `sk-` keys, `AKIA` + 16, PEM blocks, password/token values, Authorization header values, Sla
+github_pat_	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	26	"ghp_": r"ghp_", "gho_": r"gho_", "ghs_/ghu_/ghr_": r"gh[sur]_[A-Za-z0-9]{8,}", "github_pat_": r"github_pat_",
+github_pat_	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan_summary.txt	8	github_pat_	24 hits	2 files
+github_pat_	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/token_shape_scan.py	9	"github_pat token": r"\bgithub_pat_[A-Za-z0-9_]{50,}",
+sk- (any)	T3/RESUME_2026-09-30/BRIEFS/RV103_RECORDS_PR4_REVIEW.md	30	- No credentials, tokens or key material. Search at least `ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=` and `Authorization:`.
+sk- (any)	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	92	- The name patterns (`ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=`, `Authorization:`, credential variables) hit only 2 files:
+sk- (any)	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	96	- **Token-shaped patterns** run over every changed file in full find **0**: GitHub tokens of real length, `github_pat_` bodies, `sk-` keys, `AKIA` + 16, PEM blocks, password/token values, Authorization header values, Sla
+sk- (any)	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	99	- The bare `sk-` occurs 28 times, in RV102's two files above and once in WG. The WG line is WG:515 ("task-management" in a link), which is in main's text (main's WG has the same 1 occurrence), not in the added lines.
+sk- (any)	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	27	"sk- (any)": r"sk-", "sk- token-shaped": r"\bsk-[A-Za-z0-9_-]{16,}", "AKIA": r"AKIA[0-9A-Z]{8,}|AKIA",
+sk- (any)	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan_summary.txt	9	sk- (any)	27 hits	2 files
+sk- (any)	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan_summary.txt	10	sk- token-shaped	0 hits	0 files
+sk- (any)	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/token_shape_scan.py	10	"sk- key": r"\bsk-(?:ant-|proj-)?[A-Za-z0-9_-]{20,}",
+sk- (any)	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/token_shape_scan.py	18	"sk- anywhere": r"sk-",
+sk- (any)	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/token_shape_scan.txt	3	sk- key	0	[]
+sk- (any)	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/token_shape_scan.txt	11	sk- anywhere	28	[('WORK_GRAPH.md', 'M'), ('publication_hits_delta.tsv', 'A'), ('publication_scan_delta_summary.txt', 'A')]
+sk- (any)	T3/ROOT_RULINGS_V1.md	13215	- **ROOT's screen** found only scan vocabulary, the `/U-sers/<user>` placeholder that main already carries (RR:11998), and one `sk-` pattern false positive ("task-management").
+AKIA	T3/RESUME_2026-09-30/BRIEFS/RV103_RECORDS_PR4_REVIEW.md	30	- No credentials, tokens or key material. Search at least `ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=` and `Authorization:`.
+AKIA	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	92	- The name patterns (`ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=`, `Authorization:`, credential variables) hit only 2 files:
+AKIA	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	96	- **Token-shaped patterns** run over every changed file in full find **0**: GitHub tokens of real length, `github_pat_` bodies, `sk-` keys, `AKIA` + 16, PEM blocks, password/token values, Authorization header values, Sla
+AKIA	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	27	"sk- (any)": r"sk-", "sk- token-shaped": r"\bsk-[A-Za-z0-9_-]{16,}", "AKIA": r"AKIA[0-9A-Z]{8,}|AKIA",
+AKIA	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan_summary.txt	11	AKIA	24 hits	2 files
+AKIA	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/token_shape_scan.py	11	"AKIA key": r"\bAKIA[0-9A-Z]{16}\b",
+AKIA	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/token_shape_scan.txt	4	AKIA key	0	[]
+PRIVATE KEY	T3/RESUME_2026-09-30/BRIEFS/RV103_RECORDS_PR4_REVIEW.md	30	- No credentials, tokens or key material. Search at least `ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=` and `Authorization:`.
+PRIVATE KEY	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	92	- The name patterns (`ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=`, `Authorization:`, credential variables) hit only 2 files:
+PRIVATE KEY	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	28	"PRIVATE KEY": r"BEGIN .*PRIVATE KEY", "password": r"(?i)password", "secret": r"(?i)secret",
+PRIVATE KEY	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/token_shape_scan.py	12	"PEM block": r"-----BEGIN [A-Z ]*PRIVATE KEY-----",
+password	T3/RESUME_2026-09-30/BRIEFS/RV103_RECORDS_PR4_REVIEW.md	30	- No credentials, tokens or key material. Search at least `ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=` and `Authorization:`.
+password	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	92	- The name patterns (`ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=`, `Authorization:`, credential variables) hit only 2 files:
+password	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	96	- **Token-shaped patterns** run over every changed file in full find **0**: GitHub tokens of real length, `github_pat_` bodies, `sk-` keys, `AKIA` + 16, PEM blocks, password/token values, Authorization header values, Sla
+password	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	28	"PRIVATE KEY": r"BEGIN .*PRIVATE KEY", "password": r"(?i)password", "secret": r"(?i)secret",
+password	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	35	"Applications": r"/Applications/", "apps": r"(?i)\b(Microsoft Teams|Parallels|ChatGPT|Claude\.app|Messages\.app|Mail\.app|Slack|Google Chrome|Safari|Spotify|Dropbox|Docker Desktop|Zoom\.us|1Password|Discord|WhatsApp|Fire
+password	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan_summary.txt	13	password	24 hits	2 files
+password	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/token_shape_scan.py	13	"password=value": r"(?i)password\s*[:=]\s*['\"]?[^\s'\"<>{}$]{6,}",
+password	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/token_shape_scan.txt	6	password=value	0	[]
+secret	T3/RESUME_2026-09-30/BRIEFS/RV103_RECORDS_PR4_REVIEW.md	30	- No credentials, tokens or key material. Search at least `ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=` and `Authorization:`.
+secret	T3/RESUME_2026-09-30/I75/t6s_01/_run_records/repair_01/suites/repair_tests.tsv	520	passed	src/features/redaction-controls/ControlledExportLink.test.tsx	canonical local result link source intent cannot grant access and policy-blocked protected/rejected/quarantined/secret facts remain blocked
+secret	T3/RESUME_2026-09-30/I75/t6s_01/_run_records/repair_01/suites/repair_tests.tsv	521	passed	src/features/redaction-controls/ControlledExportLink.test.tsx	native canonical save control blocked/protected/rejected/quarantined/secret and intent-stripped native materialization never invoke
+secret	T3/RESUME_2026-09-30/I75/t6s_01/_run_records/repair_01/suites/repair_tests.tsv	559	passed	src/features/redaction-controls/redactionExportControls.test.ts	redactionExportControls parity with the core python contract matches the core decision for secret-material-key-blocks
+secret	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	92	- The name patterns (`ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=`, `Authorization:`, credential variables) hit only 2 files:
+secret	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	95	- Every hit is scan vocabulary: RV102's own pattern table, its summary counts, its review prose and its brief. `secret` adds one prose line in RV102's `ADDENDUM_01.md`.
+secret	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	28	"PRIVATE KEY": r"BEGIN .*PRIVATE KEY", "password": r"(?i)password", "secret": r"(?i)secret",
+secret	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	30	"slack token": r"xox[abprs]-", "cred vars": r"GH_TOKEN|GITHUB_TOKEN|ANTHROPIC_API_KEY|OPENAI_API_KEY|AWS_SECRET|SSH_AUTH_SOCK|NPM_TOKEN",
+secret	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan_summary.txt	14	secret	89 hits	3 files
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	34	dict(token="RR decisions 2, 3, 4, 5, 6, 11 and 12", kind="rr_decision", site_regex=r"RR decisions? [0-9]",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	38	dict(token="I74 PLAN 1.1, 1.2, 1.3 and 4.3", kind="document_section", site_regex=r"PLAN [0-9]",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	42	dict(token="D2 4.9.4, 4.9.7 and 4.9.9", kind="document_section", site_regex=r"\bD2 4\.9\.[0-9]",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	46	dict(token="D-U6-2", kind="decision", site_regex=r"D-U6-2",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	49	dict(token="D-U6-5", kind="decision", site_regex=r"D-U6-5",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	52	dict(token="D-U7-4", kind="decision", site_regex=r"D-U7-4",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	54	dict(token="D-U7-6", kind="decision", site_regex=r"D-U7-6",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	56	dict(token="CQ-1, CQ-4, CQ-5, CQ-7, CQ-10 and CQ-11", kind="plan_question", site_regex=r"\bCQ-(?:1|4|5|7|10|11)\b",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	60	dict(token="RV101 SF-1", kind="review_finding", site_regex=r"RV101 SF-1",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	64	dict(token="REPAIR_01", kind="record", site_regex=r"REPAIR_01",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	67	dict(token="I67's F4", kind="finding", site_regex=r"I67's F4",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	69	dict(token="checkpoint readings R-1 and R-5", kind="ruling", site_regex=r"reading R-[15]\b",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	72	dict(token="I76's CHECKPOINT_1 section 2", kind="record_anchor", site_regex=r"CHECKPOINT_1 section 2",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	74	dict(token="RV91 N-5", kind="review_finding", site_regex=r"RV91 N-5",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	77	dict(token="RV95 N-5", kind="review_finding", site_regex=r"RV95 N-5",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	80	dict(token="F-U6c-2", kind="finding", site_regex=r"F-U6c-2",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	82	dict(token="T6S-1 to T6S-5; I75 and I76", kind="attribution", site_regex=r"T6S-[1-5]|\bI7[56]\b",
+token=	T3/IMPLEMENTATION/T6S/_draft_run_records/scripts/build_index.py	86	dict(token="055ee0c0bc", kind="commit", site_regex=r"\b055ee0c0bc\b",
+token=	T3/RESUME_2026-09-30/BRIEFS/RV103_RECORDS_PR4_REVIEW.md	30	- No credentials, tokens or key material. Search at least `ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=` and `Authorization:`.
+token=	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	92	- The name patterns (`ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=`, `Authorization:`, credential variables) hit only 2 files:
+token=	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	29	"token=": r"(?i)token=", "Authorization:": r"(?i)Authorization:", "Bearer": r"Bearer [A-Za-z0-9._-]{12,}",
+token=	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan_summary.txt	15	token=	24 hits	2 files
+token=	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/token_shape_scan.py	14	"token=value": r"(?i)token=[A-Za-z0-9._-]{12,}",
+token=	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/token_shape_scan.txt	7	token=value	0	[]
+Authorization:	T3/RESUME_2026-09-30/BRIEFS/RV103_RECORDS_PR4_REVIEW.md	30	- No credentials, tokens or key material. Search at least `ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=` and `Authorization:`.
+Authorization:	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	92	- The name patterns (`ghp_`, `gho_`, `github_pat_`, `sk-`, `AKIA`, `BEGIN .* PRIVATE KEY`, `password`, `secret`, `token=`, `Authorization:`, credential variables) hit only 2 files:
+Authorization:	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	29	"token=": r"(?i)token=", "Authorization:": r"(?i)Authorization:", "Bearer": r"Bearer [A-Za-z0-9._-]{12,}",
+Authorization:	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan_summary.txt	16	Authorization:	15 hits	2 files
+Authorization:	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/token_shape_scan.py	15	"Authorization header value": r"(?i)Authorization:\s*(Bearer|token|Basic)\s+[A-Za-z0-9._=-]{12,}",
+cred vars	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	30	"slack token": r"xox[abprs]-", "cred vars": r"GH_TOKEN|GITHUB_TOKEN|ANTHROPIC_API_KEY|OPENAI_API_KEY|AWS_SECRET|SSH_AUTH_SOCK|NPM_TOKEN",
+api_key	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	30	"slack token": r"xox[abprs]-", "cred vars": r"GH_TOKEN|GITHUB_TOKEN|ANTHROPIC_API_KEY|OPENAI_API_KEY|AWS_SECRET|SSH_AUTH_SOCK|NPM_TOKEN",
+api_key	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	31	"api_key": r"(?i)api[_-]?key",
+api_key	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan_summary.txt	20	api_key	2 hits	1 files
+email	T3/IMPLEMENTATION/RECORDS_MERGE_2026-10-06B/_run_records/SQUASH_BODY.txt	12	Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+owner name	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	33	"email": r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", "owner name": r"(?i)ryan|tufts",
+Applications	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	35	"Applications": r"/Applications/", "apps": r"(?i)\b(Microsoft Teams|Parallels|ChatGPT|Claude\.app|Messages\.app|Mail\.app|Slack|Google Chrome|Safari|Spotify|Dropbox|Docker Desktop|Zoom\.us|1Password|Discord|WhatsApp|Fire
+apps	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	96	- **Token-shaped patterns** run over every changed file in full find **0**: GitHub tokens of real length, `github_pat_` bodies, `sk-` keys, `AKIA` + 16, PEM blocks, password/token values, Authorization header values, Sla
+apps	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	30	"slack token": r"xox[abprs]-", "cred vars": r"GH_TOKEN|GITHUB_TOKEN|ANTHROPIC_API_KEY|OPENAI_API_KEY|AWS_SECRET|SSH_AUTH_SOCK|NPM_TOKEN",
+apps	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	35	"Applications": r"/Applications/", "apps": r"(?i)\b(Microsoft Teams|Parallels|ChatGPT|Claude\.app|Messages\.app|Mail\.app|Slack|Google Chrome|Safari|Spotify|Dropbox|Docker Desktop|Zoom\.us|1Password|Discord|WhatsApp|Fire
+apps	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan_summary.txt	18	slack token	0 hits	0 files
+apps	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/token_shape_scan.py	16	"slack": r"xox[abprs]-[A-Za-z0-9-]{10,}",
+apps	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/token_shape_scan.txt	9	slack	0	[]
+session ids	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	36	"session ids": r"--resume|--session-id|session_id|sessionId|user-data-dir|conversation[_-]?id",
+transcripts	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	39	"transcripts": r"\.claude/projects/|\.jsonl\b.*transcript|/\.codex/sessions|rollout-",
+system paths	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	40	"system paths": r"/System/Library|/usr/libexec|launchd|" + "/" + "private/var/|" + "/" + "var/folders/",
+host names	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	41	"host names": r"(?i)MacBook|\b[\w-]+\.local\b",
+ps headers	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	42	"ps headers": r"\bPID\s+(TTY|PPID|USER)|\bUSER\s+PID\b|%CPU|%MEM",
+ps/pgrep/lsof	T3/RESUME_2026-09-30/I79/si1b_01/_run_records/tools/run_py.sh	7	pgrep -f "$WT/guard/memguard.sh" >/dev/null || { echo "MEMGUARD NOT RUNNING"; exit 9; }
+ps/pgrep/lsof	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	108	- **0** hits for: application paths, named non-toolchain apps, session or resume flags, UUIDs, tool-call or message ids, transcript paths, system paths, host names, process-table headers, and `ps`, `pgrep` or `lsof` invo
+ps/pgrep/lsof	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan.py	43	"ps/pgrep/lsof": r"\bps (aux|-e|-ax|-A)|\bpgrep\b|\blsof\b|\btop -l",
+ps/pgrep/lsof	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/publication_scan_summary.txt	32	ps/pgrep/lsof	0 hits	0 files
+home path	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	100	- `/U-sers/<user>` occurs only in placeholder form, and RR:11998 is in main's prefix.
+home path	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	142	| Broad pattern (user-home, private-temp, var-folders, tmp, Volumes, Linux home, drive letters, `~/` homes) | 8 lines: 7 in added text, all placeholders or quotations inside RV102's ADDENDUM_01 evidence (`/U-sers/<user>` 
+home path	T3/ROOT_RULINGS_V1.md	13215	- **ROOT's screen** found only scan vocabulary, the `/U-sers/<user>` placeholder that main already carries (RR:11998), and one `sk-` pattern false positive ("task-management").
+tilde home	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/REVIEW.md	142	| Broad pattern (user-home, private-temp, var-folders, tmp, Volumes, Linux home, drive letters, `~/` homes) | 8 lines: 7 in added text, all placeholders or quotations inside RV102's ADDENDUM_01 evidence (`/U-sers/<user>` 
+tilde home	T3/RESUME_2026-09-30/REVIEW_RV103/records_01/_run_records/abs_paths_by_file.tsv	4	0	3	0	3	A	T3/RESUME_2026-09-30/REVIEW_RV102/records_01/_run_records/addendum_01/publication_hits_delta.tsv	127:~/dev;128:/U-sers/<user>;129:/U-sers/<user>

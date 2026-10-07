@@ -1,0 +1,4 @@
+merge 2007709549e9701b302e0eb62a1474d82acc1c40
+parents 025c1cf326f1b9ef827626f27d0e2b9cf5b415fe 1199726f695f92ddeccc36f7b47079dedf5b9854
+date 2026-10-07T07:15:14-06:00
+subject Merge pull request #1107 from sgttomas/codex/piping-t3-b6-pr-20261007

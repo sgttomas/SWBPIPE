@@ -1,0 +1,37 @@
+
+running 1 test
+test retained_memory::zz_i86_probe::zz_i86_once ... I86_FILE b2_k1e3 file_sha=89b056190f253661aabe5963493b88e2c2ca12956ca6e52364b6db0b0a5efd91
+I86_MARK call_start t_us=1791345392647270
+I86_MARK witness_ordinary_done t_us=1791345392814330
+I86_W1_START case=case
+I86_MARK w1_start t_us=1791345392814377
+I86_MARK prepared t_us=1791345392831990
+I86_NATIVE_OUTCOME Selected
+I86_MARK native_selected t_us=1791345393937879
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +83126e978d4fdf3b645a1cac083126e978d4fdf3b645a1cac083126e978d4fdf3b63fb7d779d1a6d6a0913197c5a73c54f9e450317332b2a8ca09f1c49b7f79106829ab81c48cf5b4a8a07d1a123f7a5e28cba590cd2c7b26681b8426cbf847a1bb436ba0e7725ae2b1726a18c781710a9d4a102eb4d9174ee5549108323eb22p-4, hi: +83126e978d4fdf3b645a1cac083126e978d4fdf3b645a1cac083126e978d4fdf3b64b8bad304ff9295f6ece683a58c3ab061bafce8ccd4d5735f60e3b648086ef97d6547e3b730a4b575f82e5edc085a1d7345a6f32d384d997e47bd93407b85e44bc945f188da51d4e8d95e7387e8ef562b5efd14b26e8b11aab6ef7cdc14dep-4 }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +f9192bde5fae3d0328c7f3b78e14bcf51a82d8b3b452606634ea6a9633f3cfc596254ff9aa7384122632f8b4e78a9f3c8a062e66565519413e38936fef220d05357038919eb695140fa34247ef4bc51974b219a5...[cut by sanitize.py: 1363187 bytes, sha256 08e2f495e7327f685bbde521eef731c5e48d738bd5f4f22edd9b83f1575c2336]
+I51_FROZEN_REFUSAL {"g5a":"None","maxima":[{"member":0,"numbers":[0.0,0,0.0,122609.30463514889,122609.30463514903,122609.30463514903,1.4551915228366854e-10,0],"row":532},{"member":1,"numbers":[0.0,0,0.0,104325.36725539621,104325.36725539633,104325.36725539633,1.1641532182693484e-10,0],"row":583},{"member":2,"numbers":[0.0,0,0.0,96251.23194533138,96251.2319453315,96251.2319453315,1.1641532182693484e-10,0],"row":634},{"member":3,"numbers":[0.0,0,0.0,73980.82119940675,73980.82119940687,73980.82119940687,1.1641532182693484e-10,0],"row":685},{"member":4,"numbers":[0.0,0,0.0,61969.6382838554,61969.63828385547,61969.63828385547,7.275957614183427e-11,0],"row":736},{"member":5,"numbers":[0.0,0,0.0,40638.929213165735,40638.929213165786,40638.929213165786,5.093170329928399e-11,0],"row":787},{"member":6,"numbers":[0.0,0,0.0,27512.38232539252,27512.38232539255,27512.38232539255,3.274180926382542e-11,0],"row":838},{"member":7,"numbers":[0.0,0,0.0,12198.688115299108,12198.688115299125,12198.688115299...[cut by sanitize.py: 709029 bytes, sha256 51d9f307ccc3cadcc86b4e7a2d8538a13f27abe86bb6451a21a1dfb676831503]
+I86_CANDIDATE_REFUSAL len=553743 error=Proof(ProductProofFailure { failure: ProductFailure { cause: Predicate { row: 7, predicate: SharperExact } }, work: ProductCertificateSpent { rows: [], verdicts: [ProductRowVerdict { row: 0, normalized_bits: 4611686018427387904, scale_bits: 0, class: None, passed: true, failed: None, predicates: [None, None, None, None] }, ProductRowVerdict { row: 1, normalized_bits: 4469837451824516362, scale_bits: 0, class: None, passed: true, failed: None, predicates: [None, None, None, None] }, ProductRowVerdict { row: 2, normalized_bits: 0, scale_bits: 4610838635807894461, class: Some(AbsoluteVerified { bound_bits: 4322608259656182717 }), passed: true, failed: None, predicates: [Some(true), None, None, None] }, ProductRowVerdict { row: 3, normalized_bits: 4593662199995971325, scale_bits: 4610838635807894461, class: Some(RelativeVerified), passed: true, failed: None, predicates: [Some(true), Some(true), Some(true), Some(true)] }, ProductRowVerdict { row: 4, normalized_bits: 4597993711854612641, scale_bits: 4610838635807894461, class: Some(RelativeVerified), passed: true, failed: None, predicates: [Some(true), Some(true), Some(true), Some(true)] }, ProductRowVerdict { row: 5, normalized_bits: 4600078648199153496, scale_bits: 4610838635807894461, class: Some(RelativeVerified), passed: true, failed: None, predicates: [Some(true), Some(true), Some(true), Some(true)] }, ProductRowVerdict { row: 6, normalized_bits: 4601826917580793340, scale_bits: 4610838635807894461, class: Some(RelativeVerifi
+I86_MARK call_end t_us=1791345412947265
+I86_ONCE b2_k1e3 dense_scrutiny path=witness outcome=Fallback(Candidate) phase=W2 elapsed_ms=20300
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 560 filtered out; finished in 20.30s
+
+       20.30 real        20.19 user         0.09 sys
+            45187072  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                3001  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                2816  involuntary context switches
+        360289307343  instructions retired
+         88059791347  cycles elapsed
+            31130008  peak memory footprint

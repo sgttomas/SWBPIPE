@@ -1,0 +1,29 @@
+== run 37555520168
+2026-10-07T01:07:44.3684991Z   "event": "workflow_dispatch",
+2026-10-07T01:07:44.3685258Z   "base": "47a3bdfcf5a37e856465c45cf904383f10181498",
+2026-10-07T01:07:44.3685457Z   "target_base": "47a3bdfcf5a37e856465c45cf904383f10181498",
+2026-10-07T01:07:44.3685734Z   "head": "b4f22e6ce7ccc705df919a4eb3f7bc26861dbb83",
+2026-10-07T01:07:43.8990150Z test_invalid_candidate_still_writes_failure_evidence (test_ci_numerical.NumericalTests.test_invalid_candidate_still_writes_failure_
+== run 37620732340
+2026-10-07T12:24:30.4242373Z   "event": "workflow_dispatch",
+2026-10-07T12:24:30.4243507Z   "base": "025c1cf326f1b9ef827626f27d0e2b9cf5b415fe",
+2026-10-07T12:24:30.4244089Z   "target_base": "025c1cf326",
+2026-10-07T12:24:30.4244609Z   "head": "1199726f695f92ddeccc36f7b47079dedf5b9854",
+2026-10-07T12:24:29.7291702Z test_invalid_candidate_still_writes_failure_evidence (test_ci_numerical.NumericalTests.test_invalid_candidate_still_writes_failure_
+2026-10-07T12:24:30.5663249Z     raise ValueError('Update the PR base: event target base is missing, unavailable or not integrated into head') from None
+2026-10-07T12:24:30.5664987Z ValueError: Update the PR base: event target base is missing, unavailable or not integrated into head
+== run 37621653258
+2026-10-07T12:32:09.7632224Z   "event": "workflow_dispatch",
+2026-10-07T12:32:09.7632959Z   "base": "025c1cf326f1b9ef827626f27d0e2b9cf5b415fe",
+2026-10-07T12:32:09.7633547Z   "target_base": "025c1cf326f1b9ef827626f27d0e2b9cf5b415fe",
+2026-10-07T12:32:09.7634333Z   "head": "1199726f695f92ddeccc36f7b47079dedf5b9854",
+2026-10-07T12:32:08.9456810Z test_invalid_candidate_still_writes_failure_evidence (test_ci_numerical.NumericalTests.test_invalid_candidate_still_writes_failure_
+== e2e_plan.py (main 2007709549) lines 279-286
+        try:
+            if not plan['target_base']:
+                raise ValueError('Missing event target base')
+            if plan['event'] == 'workflow_dispatch' and not re.fullmatch(r'[0-9a-fA-F]{40}', plan['target_base']):
+                raise ValueError('Manual target must be an immutable commit SHA')
+            target = git(root, 'rev-parse', '--verify', plan['target_base'] + '^{commit}').strip()
+            git(root, 'merge-base', '--is-ancestor', target, plan['head'])
+        except (subprocess.CalledProcessError, ValueError):

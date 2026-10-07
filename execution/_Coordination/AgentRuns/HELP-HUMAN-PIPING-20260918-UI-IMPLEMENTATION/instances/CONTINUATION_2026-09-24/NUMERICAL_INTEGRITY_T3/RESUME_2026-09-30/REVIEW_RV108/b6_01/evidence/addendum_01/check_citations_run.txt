@@ -1,0 +1,10 @@
+COUNTS resolved 7; ambiguous 0; unresolved 0
+  records/RR: occurrences 7, distinct 7, unresolved 0; documents: 0 citations (0 resolved, 0 ambiguous, 0 unresolved); verification failures 0; unused index entries 0; code lines: 0 (0 pinned in code_anchors, 0 unresolved)
+  projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json:4	run	RV92 u6f_01
+  projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json:4	run	RV92 u6f_02
+  projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json:4	run	I66 u7_slice_f_01
+  projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json:4	run	I67 u7_slice_f_01
+  projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json:4	rr_title	RV92 (U6f) on the whole of U6: PASS; the post-U6f repair round; U7 preconditions
+  projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json:4	rr_title	RV92 on the post-U6f round: one transport residue, declared by a scope sentence
+  projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json:4	rr_title	RV93 on U3 grant 2: PASS; RV89 confirms the final basis re-qualified; U7 planned and ruled
+RESULT PASS

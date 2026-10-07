@@ -1,0 +1,4 @@
+base 177 {'ok': 177} | head 180 {'ok': 180}
+removed: []
+added: ['tests/retained_precision_carriers.rs::b6_transport_refuses_rv92_tampered_successors', 'tests/retained_precision_contract.rs::snapshot_07k_mutation_outcomes', 'tests/retained_precision_contract.rs::snapshot_07m_mutation_outcomes']
+changed outcome: []

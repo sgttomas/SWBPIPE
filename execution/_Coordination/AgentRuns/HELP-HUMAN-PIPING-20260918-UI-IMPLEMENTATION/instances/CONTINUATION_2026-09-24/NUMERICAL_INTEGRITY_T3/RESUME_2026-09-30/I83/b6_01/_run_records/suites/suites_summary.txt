@@ -1,0 +1,20 @@
+I83 B6 suites, BASE bfb26596bf against HEAD a79dbd2e4a, both in WT/b6 (BASE before any edit; HEAD after commit B's files were in place).
+
+Python (the 24-file sweep plus the retained schema, carrier and contract tests and the v0.3 dispatcher test; scripts/suites.sh):
+  BASE: 1896 passed, 30 skipped in 932.64s (0:15:32)
+  HEAD: 1922 passed, 30 skipped in 992.90s (0:16:32)
+
+Rust result_export, cargo test --locked --offline --no-fail-fast (all targets):
+  BASE: 177 passed, 0 failed, 0 ignored, in 13 test binaries
+  HEAD: 180 passed, 0 failed, 0 ignored, in 13 test binaries
+
+vitest, full desktop suite (P/apps/desktop):
+  BASE: Test Files 141 passed (141); Tests 3612 passed (3612)
+  HEAD: Test Files 141 passed (141); Tests 3620 passed (3620)
+
+tsc --noEmit -p tsconfig.json (P/apps/desktop): BASE tsc rc=0, output 0 B; HEAD tsc rc=0, output 0 B
+
+Test by test: suites_compare.json (added, removed, changed outcome).
+
+Commit C (a7de2a918f; RE's contract test only), Rust result_export in full on its tree:
+  180 passed, 0 failed, 0 ignored, in 13 test binaries

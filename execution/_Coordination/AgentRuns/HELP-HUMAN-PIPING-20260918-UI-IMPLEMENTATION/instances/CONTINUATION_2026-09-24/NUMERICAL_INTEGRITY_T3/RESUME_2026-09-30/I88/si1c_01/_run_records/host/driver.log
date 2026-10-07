@@ -1,0 +1,60 @@
+2026-10-07T12:54:27Z begin wt_expression_evaluator
+2026-10-07T13:15:33Z end wt_expression_evaluator rc=0
+2026-10-07T13:15:33Z begin wt_rule_check_runner
+2026-10-07T13:15:47Z end wt_rule_check_runner rc=0
+2026-10-07T13:15:47Z begin wt_rule_pack_document
+2026-10-07T13:16:21Z end wt_rule_pack_document rc=0
+2026-10-07T13:17:40Z begin dumps_base_ee
+2026-10-07T13:18:12Z end dumps_base_ee rc=0
+2026-10-07T13:18:12Z begin dumps_base_rcr
+2026-10-07T13:19:49Z end dumps_base_rcr rc=0
+2026-10-07T13:19:49Z begin dumps_ibase_ee
+2026-10-07T13:20:44Z end dumps_ibase_ee rc=0
+2026-10-07T13:20:44Z begin dumps_ibase_rcr
+2026-10-07T13:22:21Z end dumps_ibase_rcr rc=0
+2026-10-07T13:22:21Z begin dumps_cand_ee
+2026-10-07T13:23:15Z end dumps_cand_ee rc=0
+2026-10-07T13:23:15Z begin dumps_cand_rcr
+2026-10-07T13:24:52Z end dumps_cand_rcr rc=0
+2026-10-07T13:24:52Z begin suite_base_expression_evaluator
+2026-10-07T13:25:45Z end suite_base_expression_evaluator rc=0
+2026-10-07T13:25:45Z begin list_base_expression_evaluator
+2026-10-07T13:25:45Z end list_base_expression_evaluator rc=0
+2026-10-07T13:25:45Z begin suite_base_rule_check_runner
+2026-10-07T13:25:47Z end suite_base_rule_check_runner rc=0
+2026-10-07T13:25:47Z begin list_base_rule_check_runner
+2026-10-07T13:25:47Z end list_base_rule_check_runner rc=0
+2026-10-07T13:25:47Z begin suite_base_rule_pack_document
+2026-10-07T13:25:48Z end suite_base_rule_pack_document rc=0
+2026-10-07T13:25:48Z begin list_base_rule_pack_document
+2026-10-07T13:25:48Z end list_base_rule_pack_document rc=0
+2026-10-07T13:25:48Z begin suite_cand_expression_evaluator
+2026-10-07T13:25:49Z end suite_cand_expression_evaluator rc=0
+2026-10-07T13:25:49Z begin list_cand_expression_evaluator
+2026-10-07T13:25:49Z end list_cand_expression_evaluator rc=0
+2026-10-07T13:25:49Z begin suite_cand_rule_check_runner
+2026-10-07T13:25:51Z end suite_cand_rule_check_runner rc=0
+2026-10-07T13:25:51Z begin list_cand_rule_check_runner
+2026-10-07T13:25:51Z end list_cand_rule_check_runner rc=0
+2026-10-07T13:25:51Z begin suite_cand_rule_pack_document
+2026-10-07T13:25:52Z end suite_cand_rule_pack_document rc=0
+2026-10-07T13:25:52Z begin list_cand_rule_pack_document
+2026-10-07T13:25:52Z end list_cand_rule_pack_document rc=0
+2026-10-07T13:25:52Z begin fmt_cand_ee
+2026-10-07T13:25:52Z end fmt_cand_ee rc=0
+2026-10-07T13:25:52Z driver done: dumps:base dumps:ibase dumps:cand suites:base suites:cand fmt:cand
+2026-10-07T13:28:38Z begin full_base_rcr
+2026-10-07T13:29:06Z end full_base_rcr rc=0
+2026-10-07T13:29:06Z begin full_ibase_rcr
+2026-10-07T13:29:34Z end full_ibase_rcr rc=0
+2026-10-07T13:29:34Z begin full_cand_rcr
+2026-10-07T13:30:01Z end full_cand_rcr rc=0
+2026-10-07T13:30:01Z begin bins_checked_json
+2026-10-07T13:30:05Z end bins_checked_json rc=0
+2026-10-07T13:30:05Z begin bins_units
+2026-10-07T13:30:05Z end bins_units rc=0
+2026-10-07T13:30:05Z begin pytest_base
+2026-10-07T13:30:06Z end pytest_base rc=0
+2026-10-07T13:30:06Z begin pytest_cand
+2026-10-07T13:30:07Z end pytest_cand rc=0
+2026-10-07T13:30:07Z driver done: full:base full:ibase full:cand bins pytest:base pytest:cand

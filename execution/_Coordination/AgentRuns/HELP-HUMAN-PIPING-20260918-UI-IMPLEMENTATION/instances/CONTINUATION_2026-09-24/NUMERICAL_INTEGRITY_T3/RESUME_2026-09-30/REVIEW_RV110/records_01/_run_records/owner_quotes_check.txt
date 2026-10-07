@@ -1,0 +1,8 @@
+64 GiB: RR appended lines [13694]; WG lines [589]
+12 GiB: RR appended lines [13721]; WG lines [588]
+12 GiB (first words): RR appended lines [13719]; WG lines []
+SI1c remedy: RR appended lines [14063]; WG lines [587]
+SI1c DEC-022: RR appended lines [14064]; WG lines [587]
+6.0 GiB (2026-10-06): RR appended lines [13610]; WG lines [590]
+RR 13694: **The owner, in chat:** "you will be working on this macbook pro with 128 GB of ram, so if you need to allocated 32 GiB it will be available. If you need more than 64 GiB we should negotiate."
+RR 13721: - **The owner decided:** "use 12 GiB, target is 32 GB workstations but 16 GB workstations still solving within practical timeframes."

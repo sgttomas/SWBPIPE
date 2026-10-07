@@ -1,0 +1,40 @@
+
+running 1 test
+test retained_memory::zz_i86_probe::zz_i86_once ... I86_FILE i3_c1_case_b file_sha=544330c8a2ee1c467823ada935b9dc408f4bd07aa2f23dbe458e6ebfa1345651
+I86_MARK call_start t_us=1791345793335044
+I86_MARK witness_ordinary_done t_us=1791345793470035
+I86_W1_START case=case:b
+I86_MARK w1_start t_us=1791345793470075
+I86_MARK prepared t_us=1791345793487687
+I86_NATIVE_OUTCOME Selected
+I86_MARK native_selected t_us=1791345794089202
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: -8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabf4dca3d9c99aec256413abb396e5c4fd862f22c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f37953e18cp-15, hi: -8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa960c49ca6366513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0c86ac1e74p-15 }, Enclosure { lo: -a4ed3f1b0e725c3dee78183f91e646f156191148fd9fd36f7e3d1cc100e6afcce1c6cc61e3abdd9aec256413abb396e5c4fd862f22c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba78194...[cut by sanitize.py: 443989 bytes, sha256 8739ab4552905a0b161b0ddcdfa480e2c8c63fa45ffb333564b76e380df0d1da]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"4000000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":2.0},{"bits":"3e2c76280d1333f1","id":"result:sparse-live:dense-parity-relative-delta","kind":"sparse_live_path_dense_parity_relative_delta","unit":"unitless","value":3.31336034355847e-9},{"bits":"0000000000000000","id":"result:disp:C0-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fb821e751965334","id":"result:disp:C0-N1","kind":"displacement_magnitude","unit":"mm","value":0.09426732770800755},{"bits":"0000000000000000","id":"result:disp:C1-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fb821e751965334","id":"result:disp:C1-N1","kind":"displacement_magnitude","unit":"mm","value":0.09426732770800755},{"bits":"0000000000000000","id":"result:disp:C2-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fb821e75196533...[cut by sanitize.py: 704498 bytes, sha256 3827aa011fdf9d6b00b4557546900b2353933ecb68ecc66c5bebcd7e42b037d8]
+I86_MARK candidate t_us=1791345808963812
+I86_MARK staged t_us=1791345808964372
+I86_MARK serialized t_us=1791345809330078
+I86_MARK precommit_ok t_us=1791345810209723
+I86_MARK call_end t_us=1791345810215894
+I86_ONCE i3_c1_case_b dense_scrutiny path=witness outcome=Successor phase=E_mov,max (successor) elapsed_ms=16881
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 560 filtered out; finished in 16.89s
+
+       16.88 real        16.79 user         0.07 sys
+            80199680  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                5232  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                2359  involuntary context switches
+        297787035375  instructions retired
+         73511023466  cycles elapsed
+            62013896  peak memory footprint
