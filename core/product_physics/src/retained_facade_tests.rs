@@ -2240,9 +2240,9 @@ fn b1_sp_sf2_selected_not_first_and_two_selected_pins() {
             let (capture, observer, ordinary) = observed(mode, &raw);
             let ((envelope, retained), counts, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
             assert_eq!(counts, Counts { runs: 0, complete_gates: 0 }, "{label}");
-            assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{label}: the ordinary owner is untouched");
-            // The structure is asserted on the successor precommit received, before its validation,
-            // so that a defect the reader also refuses is killed here by its own assertion.
+            // The structure is asserted on the successor precommit received, before its validation
+            // and before the outcome (a refused successor leaves a fallback notice on the ordinary
+            // owner), so that a defect the reader also refuses is killed here by its own assertion.
             let successor = captured.unwrap_or_else(|| panic!("{label}: precommit received the successor"));
             let body = w_c2_body(&successor);
             let cases = body["cases"].as_array().unwrap();
@@ -2278,6 +2278,7 @@ fn b1_sp_sf2_selected_not_first_and_two_selected_pins() {
                     "{label}: the {headline} headline (M28, M32)");
                 println!("B1_SP_SF2_HEADLINE {label} {headline} successor={} ordinary={}", successor["summary"][headline], ordinary["summary"][headline]);
             }
+            assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{label}: the ordinary owner is untouched");
             let validated = retained.unwrap_or_else(|f| panic!("{label}: {f:?}")).value().clone();
             assert_eq!(validated, successor, "{label}: the successor precommit validated");
             let invocation = json!({"request": raw, "solver_mode": mode_name});
