@@ -62,12 +62,23 @@ pub(super) fn merge(a: &mut Armed, faults: &Armed) {
     a.preparation |= faults.preparation;
     a.candidate = a.candidate.or(faults.candidate);
     a.preparation_of_case = a.preparation_of_case.or(faults.preparation_of_case);
+    a.exact_capture |= faults.exact_capture;
+    a.section_staging |= faults.section_staging;
 }
 /// `armed_names`: this grant's faults.
-pub(super) fn names(a: &Armed) -> [(bool, &'static str); 5] {
+pub(super) fn names(a: &Armed) -> [(bool, &'static str); 7] {
     [(a.late_gate, "late_gate"), (a.complete_gate, "complete_gate"), (a.preparation, "preparation"), (a.candidate.is_some(), "candidate"),
-        (a.preparation_of_case.is_some(), "preparation_of_case")]
+        (a.preparation_of_case.is_some(), "preparation_of_case"), (a.exact_capture, "exact_capture"), (a.section_staging, "section_staging")]
 }
+/// B3b-P (B3-D P-12): the exact route's material capture refuses: its Ĝ check (retained_product.rs
+/// `exact_material_nu`) sees the represented Ĝ one ulp up, so the capture records a typed
+/// association error and W1 falls back at preparation (custody).
+pub(crate) fn fault_next_exact_capture() { arm(|a| a.exact_capture = true); }
+/// At the exact route's Ĝ check: whether the armed exact-capture fault fires here (consumed).
+pub(crate) fn exact_capture_fault() -> bool { consume(|a| std::mem::take(&mut a.exact_capture)) }
+/// B3b-P (B3-D P-12): an evidence-overlay fault: the next frozen exact case's first section patch
+/// names an index past its `pipe_sections`, so staging refuses (`StagingFault("pipe_sections[]")`).
+pub(crate) fn break_next_section_overlay() { arm(|a| a.section_staging = true); }
 /// `run_linear_static_preview_observed`'s first statement: one ordinary run.
 pub(crate) fn ordinary_run_entered() {
     if let Some(t) = tally() { t.runs.fetch_add(1, SeqCst); }

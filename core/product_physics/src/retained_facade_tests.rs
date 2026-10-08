@@ -31,8 +31,11 @@ fn plain(mode: PreviewSolverMode, raw: &Value) -> Vec<u8> {
 /// notice's slot (the publish-time check would otherwise fire).
 fn observed(mode: PreviewSolverMode, raw: &Value) -> (source_receipt::CapturedInvocation, rp::ProductCapture, MechanicsEnvelope) {
     let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
-    let mut observer = rp::ProductCapture::prepared_probe();
-    let mut ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
+    // B3b-P (P-1, P-2): the route and its exact-block budget, as `permitted_run` decides them
+    // (the preview route's are the default observer and budget, as before).
+    let route = w1_route(&request.model).unwrap_or_default();
+    let mut observer = rp::ProductCapture::prepared_probe_on(route);
+    let mut ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut w1_budget(route), Some(&mut observer));
     ordinary.diagnostics.shrink_to_fit();
     (capture, observer, ordinary)
 }
@@ -471,7 +474,9 @@ fn u3_capture_permit_is_linear() {
     }
     let lib = include_str!("lib.rs");
     let run = &lib[lib.find("fn permitted_run(").unwrap()..lib.find("pub(crate) const RETAINED_UNAVAILABLE_NOTICE").unwrap()];
-    assert!(run.contains("ProductCapture::permitted_probe(permit);"), "the permit moves into the observer");
+    // B3b-P (B3-D P-1): the observer is constructed on the invocation's route, decided once just
+    // before; the permit still moves into it, unchanged.
+    assert!(run.contains("ProductCapture::permitted_probe_on(permit, route);"), "the permit moves into the observer");
     assert!(run.contains("observer.permit().map(|permit| permit.check_complete("), "G-C borrows the observer's permit");
     assert!(!run.contains("permit.check_complete(&retained_memory::CompleteFacts { ordinary: &ordinary }) {"), "no use of a moved permit");
     let product = include_str!("retained_product.rs");
@@ -2339,5 +2344,733 @@ fn b1_sp_constructor_ordinal_is_the_authored_index() {
         } else {
             assert_eq!((counts, published(output)), (ONE_RUN, plain), "{name}: Stale's plain bytes");
         }
+    }
+}
+
+// ---- B3b-P: the exact route under `physics-retained-1` (I93 PLAN §1.4; B3-D with REVISION_01) ----
+//
+// RR "I99's B3-W verified; B3's witnesses selected; …": the exact successor is `m3x` (the
+// milestone authored as 0.3.0 exact), the coexistence pins are n05 and n06 (with `fields` for
+// P-2), and the mixed exact base is `m3x_mix_anchor`. B3a's `m3l` needs no producer change.
+
+/// `raw` authored as 0.3.0 exact (I99's `gen_inputs.py`, item 1): the exact contract; each
+/// material's shear modulus removed, with the common E/ν basis and ν = 0.25; explicitly empty
+/// pressure regions on every case. On the milestone this is B3-W's `m3x`.
+fn exact3(mut raw: Value) -> Value {
+    let m = &mut raw["model"];
+    m["schema_version"] = json!("0.3.0");
+    m["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
+    for material in m["materials"].as_array_mut().unwrap() {
+        material.as_object_mut().unwrap().remove("shear_modulus");
+        material["constitutive_basis"] = json!("homogeneous_isotropic_E_nu_v1");
+        material["poisson_ratio"] = json!({"value": 0.25, "unit": "1"});
+    }
+    for case in m["load_cases"].as_array_mut().unwrap() {
+        case["pressure_regions"] = json!([]);
+    }
+    raw
+}
+/// B3-W's `m3x`.
+fn m3x() -> Value { exact3(raw()) }
+
+/// B3-W's mixed exact base `m3x_mix_anchor` (I99 item 2, variant 2): the milestone with a second
+/// case `case:b`, a 1 N global-X force on N0, whose translations are rigid (a zero response, so
+/// `case:b` is `checks_passed`: `not_required`), authored as 0.3.0 exact.
+fn m3x_mix_anchor() -> Value {
+    let mut raw = raw();
+    raw["model"]["load_cases"].as_array_mut().unwrap().push(json!({"id": "case:b", "label": "I99 B3-W second case (anchor)",
+        "kind": "primitive_user_load", "primitive_loads": [{"id": "load:b:0", "category": "concentrated_force", "target": {"type": "node", "node": "N0"},
+        "direction": "global_x", "magnitude": {"value": 1.0, "unit": "N"}, "dimension": "force", "provenance": "invented_t3_p1_detection_input_no_library_data"}],
+        "provenance": "invented_t3_p1_detection_input_no_library_data"}));
+    exact3(raw)
+}
+/// B3-W's `m3l` (B3a): the milestone authored as 0.3.0 `legacy_pressure_v1` with zero pressure.
+fn m3l() -> Value {
+    let mut raw = raw();
+    raw["model"]["schema_version"] = json!("0.3.0");
+    raw["model"]["pressure_contract"] = json!({"version": "1.0.0", "mode": "legacy_pressure_v1"});
+    raw
+}
+/// The committed physics-source requests: B3b's coexistence pins n05 and n06, and P-2's
+/// selection discriminator `fields` (RR "I99's B3-W verified; …", rulings 1 and 2).
+const N05_EXACT: &str = include_str!("../../../fixtures/product_preview/physics_source/n05.request.json");
+const N06_EXACT: &str = include_str!("../../../fixtures/product_preview/physics_source/n06.request.json");
+const FIELDS_EXACT: &str = include_str!("../../../fixtures/product_preview/physics_source/fields.request.json");
+fn model_of(raw: &Value) -> PreviewModel {
+    source_receipt::CapturedInvocation::parse(raw.clone(), PreviewSolverMode::SparseInteractive).unwrap().0.model
+}
+
+/// The witnesses are B3-W's (I99 §2: the Value sha256 of each built input; the committed
+/// requests' file sha256), and P-1's route is decided from the namespace branch: L and L3 on the
+/// preview route, E on the exact route, a load-state or 0.4.0 model on none.
+#[test]
+fn b3b_witness_inputs_and_routes() {
+    use rp::W1Route as R;
+    let value_sha = |v: &Value| sha(&serde_json::to_vec(v).unwrap());
+    assert_eq!(value_sha(&m3x()), "c920a96dc542c3ecadb63f724cfcf243d73d5dd71692e4f48827a620bb0e5497", "m3x");
+    assert_eq!(value_sha(&m3x_mix_anchor()), "6ca777a6e3ed658bcf58813d277e839033ac07f0b84efb8526351a20c67d1ee0", "m3x_mix_anchor");
+    assert_eq!(value_sha(&m3l()), "2f5ff465bfa97005a581d88e02c0a5478ea24da3bdc1c2eb9fcda491803fc0c3", "m3l");
+    for (name, text, file_sha) in [("n05", N05_EXACT, "332319ee6f47870a074a6c16fbf2f43c0171e376a0b4cd1cb7f7ad8b59254b00"),
+        ("n06", N06_EXACT, "5551f164b9e8ab88f04f3abce810e1e1b1ff47236bba6a296e32905f628be931"),
+        ("fields", FIELDS_EXACT, "7f8ff9d5e23712cedd6ca58a86a690517a8e820b9b072962ca43ad60be286002")] {
+        assert_eq!(sha(text.as_bytes()), file_sha, "{name}");
+        assert_eq!(w1_route(&model_of(&serde_json::from_str(text).unwrap())), Some(R::Exact), "{name}");
+    }
+    assert_eq!(w1_route(&model_of(&raw())), Some(R::Preview), "L");
+    assert_eq!(w1_route(&model_of(&m3l())), Some(R::Preview), "L3");
+    assert_eq!(w1_route(&model_of(&m3x())), Some(R::Exact), "E");
+    assert_eq!(w1_route(&model_of(&m3x_mix_anchor())), Some(R::Exact), "E, two cases");
+    let mut four = m3x();
+    four["model"]["schema_version"] = json!("0.4.0");
+    assert_eq!(w1_route(&model_of(&four)), None, "0.4.0 (a load-state document): no W1 route");
+    let mut contractless = m3x();
+    contractless["model"]["pressure_contract"] = Value::Null;
+    assert_eq!(w1_route(&model_of(&contractless)), None, "0.3.0 without a contract: no branch");
+    // P-2: the exact route's budget is the ordinary route's.
+    assert_eq!(w1_budget(R::Exact).per_case_limit, PHYSICS_SOURCE_WORK_LIMIT);
+    assert_eq!(w1_budget(R::Preview).per_case_limit, SourceRecoveryBudget::default().per_case_limit);
+}
+
+/// RS's precommit gates publication (decision 5). Until B3's readers land (BRIEFS/B3_READERS.md),
+/// the accepted Rust reader refuses every `physics-retained-1` successor at its first G0 check,
+/// so W1 falls back with the ordinary bytes and one N1 notice per case in A. The tests below
+/// accept that refusal, or the validated successor once the readers land, and say which.
+const EXACT_PRECOMMIT_TODAY: (&str, &str) = ("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED");
+/// The exact successor's pinned bytes, both modes: (mode, receipt sha256, successor bytes sha256,
+/// fixture document sha256).
+const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
+    ("sparse_interactive", "b1b4a6682260ca6bc499950b30f0f7179a77c038e266cc4b42045ed86ed3896f", "f18227f7c5eb10d849b0499c7afd139ba2aab493bbdc581805db3ba3ebd4b20d", "02465c6c92ac2e4360a77910cb54803590b5a11042dfddb223bf78f9e856e5d6"),
+    ("dense_scrutiny", "eabd2fc57b42158ad415ae664e7c712c1c4db21258b667251758172f3a5b776d", "e31f03a45d8028f32ae518d2004e97423d33139c3c807700755bcbe0113cdb2a", "31f10f04f6f335dfb1a7e5f904198972903bfc9208660031bbfaa5c547d347cc"),
+];
+/// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "71703ab120645b7c7b903a072b5e2cc95b72e0a0759db75f3b4b7bcfbe7cb29f", "ca2cd75096cee1fe318d2623ae5c4737438e300ab92dbe8f0f61310d19c4a53b"), ("dense_scrutiny", "b5cf5a4f42bc4e4d1b576250096cf18875c8601fb29b92e6ce0f2fdd86a0eec3", "a50c530faba48a8d0afe87b79ac7c85771a529fd3ce4fbef251189f13c621337")];
+/// The exact successor's fixture document (D-U6-5's form).
+fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
+    serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
+        "invocation":{"request":raw,"solver_mode":mode.as_str()}})).unwrap()
+}
+/// The private driver's exact transaction (`retained_w1` after the observed run, as the facade
+/// runs it): the ordinary owner it returns, W1's result, and the successor precommit received.
+fn exact_w1(raw: &Value, mode: PreviewSolverMode) -> (MechanicsEnvelope, Result<RetainedSuccessor, W1Fallback>, Option<Value>) {
+    let (capture, observer, ordinary) = observed(mode, raw);
+    let ((envelope, retained), counts, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+    assert_eq!(counts, Counts { runs: 0, complete_gates: 0 });
+    (envelope, retained, captured)
+}
+/// W1's result against today's readers: the validated successor (then equal to the one precommit
+/// received), or exactly `EXACT_PRECOMMIT_TODAY` (then the ordinary owner carries one notice per
+/// case in A). Returns whether the successor was published.
+fn exact_outcome(label: &str, retained: &Result<RetainedSuccessor, W1Fallback>, captured: &Value, envelope: &MechanicsEnvelope,
+    plain: &[u8], noticed: &[&str]) -> bool {
+    match retained {
+        Ok(successor) => {
+            assert_eq!(successor.value(), captured, "{label}: the validated successor is the one precommit received");
+            assert_eq!(serde_json::to_vec(envelope).unwrap(), plain, "{label}: the ordinary owner is untouched");
+            println!("B3B_PRECOMMIT {label} validated");
+            true
+        }
+        Err(W1Fallback::Precommit { gate, code }) => {
+            assert_eq!((*gate, code.as_str()), EXACT_PRECOMMIT_TODAY, "{label}: today's reader");
+            let mut expected = plain.to_vec();
+            for case in noticed {
+                expected = with_notice(&expected, case, None);
+            }
+            assert_eq!(String::from_utf8(serde_json::to_vec(envelope).unwrap()).unwrap(), String::from_utf8(expected).unwrap(),
+                "{label}: the ordinary bytes, then the notices (T-12)");
+            println!("B3B_PRECOMMIT {label} {gate} {code}");
+            false
+        }
+        Err(other) => panic!("{label}: {other:?}"),
+    }
+}
+/// RN64(E/(2·RN64(1+ν))) (B3-D §1.2).
+fn derived_g(e: f64, nu: f64) -> f64 { e / (2.0 * (1.0 + nu)) }
+fn hex_bits(v: &Value) -> u64 { u64::from_str_radix(v.as_str().unwrap(), 16).unwrap() }
+fn num_bits(v: &Value) -> u64 { v.as_f64().unwrap().to_bits() }
+/// C3 §2's preparation payload of a product attempt, with the definition hash `h` (built here
+/// from the receipt, independently of the serializer).
+fn preparation_hash(attempt: &Value, h: &str) -> String {
+    let members: Vec<Value> = attempt["preparation"]["members"].as_array().unwrap().iter().map(|m| json!({
+        "member":m["member"],"old_source":m["old_source"],"old_facts":m["old_facts"],"section":m["result"]["section"]})).collect();
+    super::retained_wire::domain_hash("retained_precision_preparation_v1", &json!({"definition_id":attempt["definition_id"],"definition_sha256":h,
+        "owner_ref":attempt["owner_ref"],"ordinary_attempt_ref":attempt["ordinary_attempt_ref"],"material_basis_ref":attempt["material_basis_ref"],"members":members})).unwrap()
+}
+/// B3-D's producer requirements on one exact successor (P-3, P-5 to P-9, P-11; §1.4; REVISION_01
+/// S-1, S-2 and N-6), against the ordinary exact envelope `plain` of the same invocation.
+/// `statuses` are the cases' receipt statuses in request order.
+fn assert_exact_successor(label: &str, successor: &Value, plain: &Value, statuses: &[&str]) {
+    use super::retained_wire as wire;
+    // P-9: the identity and profile; the profile's limitations are the base producer's.
+    assert_eq!(successor["producer"]["semantic_contract_id"], json!(wire::EXACT_SEMANTIC_ID), "{label}");
+    assert_eq!(successor["formulation_basis"]["profile_id"], json!(wire::EXACT_PROFILE_ID), "{label}");
+    assert_eq!(successor["formulation_basis"]["limitations"], plain["formulation_basis"]["limitations"], "{label}: limitations unchanged");
+    let body = &successor["retained_precision"]["body"];
+    let cases = body["cases"].as_array().unwrap();
+    assert_eq!(cases.iter().map(|c| c["status"].as_str().unwrap()).collect::<Vec<_>>(), statuses, "{label}");
+    // P-9 and S-1: every attempt is DEF-E's, and every prepared source's preparation hash is made
+    // with DEF-E's H, not DEF-O's.
+    for attempt in body["product_attempts"].as_array().unwrap() {
+        assert_eq!(attempt["definition_id"], json!(wire::EXACT_DEFINITION_ID), "{label}");
+    }
+    for source in body["sources"].as_array().unwrap() {
+        let attempt = &body["product_attempts"][source["preparation"]["attempt_ref"].as_u64().unwrap() as usize];
+        assert_eq!(source["preparation"]["sha256"], json!(preparation_hash(attempt, wire::EXACT_DEFINITION_SHA256)), "{label}: S-1");
+        assert_ne!(source["preparation"]["sha256"], json!(preparation_hash(attempt, wire::DEFINITION_SHA256)), "{label}: not DEF-O's H");
+        for term in source["section_terms"].as_array().unwrap() {
+            assert_eq!(term["geometry"]["route"], json!("exact"), "{label}: P-9");
+        }
+    }
+    // P-3 and P-9: the material basis: E, Ĝ = RN64(E/(2·RN64(1+ν))) and the derived origin.
+    let materials = body["material_bases"][0]["materials"].as_array().unwrap();
+    assert!(!materials.is_empty(), "{label}");
+    for m in materials {
+        let input = &plain["contract_evidence"]["exact_cases"][0]["pipe_materials"].as_array().unwrap().iter()
+            .find(|x| x["material_id"] == m["id"]).unwrap().clone();
+        let (e, nu) = (input["E_pa"].as_f64().unwrap(), input["nu"].as_f64().unwrap());
+        assert_eq!(hex_bits(&m["elastic_modulus"]), e.to_bits(), "{label}");
+        assert_eq!(hex_bits(&m["shear_modulus"]), derived_g(e, nu).to_bits(), "{label}: Ĝ");
+        assert_eq!(m["shear_origin"], json!({"kind":"derived_e_nu","poisson_ratio":format!("{:016x}", nu.to_bits()),
+            "constitutive_basis":"homogeneous_isotropic_E_nu_v1"}), "{label}");
+        assert_eq!(m["selection"], json!({"kind":"base"}), "{label}");
+    }
+    // P-11 (and C2 D39): every legacy exact-block attempt is physics-source-1's, under P-2's budget.
+    for work in body["legacy_source_work"].as_array().unwrap() {
+        assert_eq!(work["limit"], json!(PHYSICS_SOURCE_WORK_LIMIT), "{label}: P-2's limit in the receipt");
+    }
+    // The evidence (B3D-4, S-2): pressure and connector unchanged; each case's entry, located by
+    // its load case id.
+    let (ev, base) = (&successor["contract_evidence"], &plain["contract_evidence"]);
+    assert_eq!((&ev["pressure"], &ev["connector"]), (&base["pressure"], &base["connector"]), "{label}");
+    assert_eq!(ev.as_object().unwrap().keys().collect::<Vec<_>>(), base.as_object().unwrap().keys().collect::<Vec<_>>(), "{label}");
+    for (index, case) in cases.iter().enumerate() {
+        let id = case["basis_ref"]["ref_id"].as_str().unwrap();
+        let entry = |e: &Value| e["exact_cases"].as_array().unwrap().iter().find(|c| c["load_case_id"] == id).unwrap().clone();
+        let (now, was) = (entry(ev), entry(base));
+        if case["status"] != "selected" {
+            assert_eq!(now, was, "{label} {id}: an unselected case's entry is byte-identical (S-2)");
+            assert!(successor["results"].as_array().unwrap().iter().filter(|r| r["basis_ref"]["ref_id"] == id).all(|r| r.get("recovery_method").is_none()));
+            continue;
+        }
+        for key in was.as_object().unwrap().keys().filter(|k| !["pipe_sections", "pipe_stress_extrema"].contains(&k.as_str())) {
+            assert_eq!(now[key], was[key], "{label} {id}: `{key}` byte-identical (DEF-E evidence.unchanged)");
+        }
+        assert!(now.get("recovery_method").is_none(), "{label} {id}");
+        // N-6: the published G is the receipt's Ĝ, bit for bit.
+        for x in now["pipe_materials"].as_array().unwrap() {
+            let m = materials.iter().find(|m| m["id"] == x["material_id"]).unwrap();
+            assert_eq!(num_bits(&x["G_pa"]), hex_bits(&m["shear_modulus"]), "{label} {id}: N-6");
+        }
+        // P-8 and G5b: each section is the prepared one, equal to the receipt's section terms; OD,
+        // wall, the radii, Ai, the basis and the order are unchanged.
+        let source = &body["sources"][case["source_ref"].as_u64().unwrap() as usize];
+        let attempt = &body["product_attempts"][case["product_attempt_ref"].as_u64().unwrap() as usize];
+        let (sections, old) = (now["pipe_sections"].as_array().unwrap(), was["pipe_sections"].as_array().unwrap());
+        assert_eq!(sections.len(), old.len(), "{label}");
+        for (s, o) in sections.iter().zip(old) {
+            for key in o.as_object().unwrap().keys().filter(|k| !["As_m2", "I_m4", "J_m4", "Z_m3"].contains(&k.as_str())) {
+                assert_eq!(s[key], o[key], "{label} {id}: pipe_sections `{key}` unchanged");
+            }
+            let member = source["id_maps"]["members"].as_array().unwrap().iter().find(|m| m["id"] == s["pipe_id"]).unwrap()["kernel_member"].as_u64().unwrap();
+            let term = &source["section_terms"][member as usize];
+            let prepared = &attempt["preparation"]["members"].as_array().unwrap().iter().find(|m| m["member"] == json!(member)).unwrap()["result"]["section"];
+            let g = &term["geometry"];
+            for (key, bits) in [("As_m2", hex_bits(&term["area"])), ("Z_m3", hex_bits(&term["section_modulus"])), ("I_m4", hex_bits(&g["actual_second_moment"])),
+                ("J_m4", hex_bits(&g["actual_polar_moment"])), ("outside_diameter_m", hex_bits(&g["normalized_od"])),
+                ("effective_wall_thickness_m", hex_bits(&g["effective_wall"])), ("ro_m", hex_bits(&g["actual_radius"]))] {
+                assert_eq!(num_bits(&s[key]), bits, "{label} {id}: G5b `{key}`");
+            }
+            for (k, key) in ["As_m2", "I_m4", "J_m4", "Z_m3"].into_iter().enumerate() {
+                assert_eq!(num_bits(&s[key]), hex_bits(&prepared[k]), "{label} {id}: `{key}` is the prepared value");
+            }
+            println!("B3B_SECTION {label} {id} {} old=[{:016x},{:016x},{:016x},{:016x}] prepared=[{:016x},{:016x},{:016x},{:016x}]", s["pipe_id"],
+                num_bits(&o["As_m2"]), num_bits(&o["I_m4"]), num_bits(&o["J_m4"]), num_bits(&o["Z_m3"]),
+                num_bits(&s["As_m2"]), num_bits(&s["I_m4"]), num_bits(&s["J_m4"]), num_bits(&s["Z_m3"]));
+        }
+        // P-7: one extremum per member, its other keys unchanged; its row's value is the midpoint.
+        let (extrema, old) = (now["pipe_stress_extrema"].as_array().unwrap(), was["pipe_stress_extrema"].as_array().unwrap());
+        assert_eq!(extrema.len(), old.len(), "{label}");
+        for (x, o) in extrema.iter().zip(old) {
+            for key in o.as_object().unwrap().keys().filter(|k| !PREPARED_MAX_KEYS_TEST.contains(&k.as_str())) {
+                assert_eq!(x[key], o[key], "{label} {id}: pipe_stress_extrema `{key}` unchanged");
+            }
+            let row = successor["results"].as_array().unwrap().iter().find(|r| r["id"] == x["result_id"]).unwrap();
+            let (lo, hi) = (x["value_lower_pa"].as_f64().unwrap(), x["value_upper_pa"].as_f64().unwrap());
+            assert_eq!(row["value"].as_f64().unwrap().to_bits(), (lo + 0.5 * (hi - lo)).to_bits(), "{label} {id}: the maximum is the midpoint");
+        }
+        // The rows (C1 §4) and diagnostics (G-a; T1 (a), P-11).
+        assert!(successor["results"].as_array().unwrap().iter().filter(|r| r["basis_ref"]["ref_id"] == id)
+            .all(|r| r["recovery_method"] == json!(wire::METHOD)), "{label} {id}");
+        let diagnostics = successor["diagnostics"].as_array().unwrap();
+        assert!(!diagnostics.iter().any(|d| d["code"] == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE" && d["affected_refs"].as_array().unwrap().iter().any(|r| r == id)),
+            "{label} {id}: P-11 omits the legacy disclosure of a selected case");
+        assert_eq!(diagnostics.iter().filter(|d| d["code"] == wire::SELECTED_CODE && d["affected_refs"] == json!([id])).count(), 1, "{label} {id}");
+        let _ = index;
+    }
+}
+const PREPARED_MAX_KEYS_TEST: [&str; 8] = ["station_fraction", "span_index", "local_fraction", "value_lower_pa", "value_upper_pa",
+    "global_upper_bound_pa", "certified_gap_pa", "subdivisions"];
+
+/// B3b-P's exact successor (P-13; B3-D §5 and REVISION_01): `m3x` in both modes, through the
+/// private driver. Its one case is `selected` (native Selected, the dual-readout certificate, the
+/// observables and G5a pass), and the successor precommit receives meets B3-D's requirements and
+/// is pinned; the ordinary owner is untouched. Today RS refuses it at G0 (no reader yet), so W1
+/// falls back with one notice; the pins hold either way. `I105_B3B_OUT` writes the documents.
+#[test]
+fn b3b_exact_successor_is_pinned_in_both_modes() {
+    let out = std::env::var("I105_B3B_OUT").ok().map(std::path::PathBuf::from);
+    for (mode, (name, receipt_sha, bytes_sha, document_sha)) in MODES.into_iter().zip(EXACT_PINNED) {
+        assert_eq!(mode.as_str(), name);
+        let raw = m3x();
+        let plain = plain(mode, &raw);
+        let plain_value: Value = serde_json::from_slice(&plain).unwrap();
+        assert_eq!(plain_value["producer"]["semantic_contract_id"], json!(PHYSICS_SEMANTIC_CONTRACT_ID), "{name}: the physics-1 base");
+        assert!(plain_value["source_block_recovery"].is_null(), "{name}: no exact-block selection (T-3 (c) does not fire)");
+        let (envelope, retained, captured) = exact_w1(&raw, mode);
+        let successor = captured.unwrap_or_else(|| panic!("{name}: {retained:?}"));
+        exact_outcome(name, &retained, &successor, &envelope, &plain, &["case"]);
+        assert_exact_successor(name, &successor, &plain_value, &["selected"]);
+        assert_eq!(successor["results"].as_array().unwrap().len(), if mode == PreviewSolverMode::DenseScrutiny { 99 } else { 98 }, "{name}: I96 §3's rows");
+        let bytes = serde_json::to_vec(&successor).unwrap();
+        let document = exact_document(&raw, mode, &successor);
+        println!("B3B_EXACT_PIN {name} {} {} {}", successor["retained_precision"]["receipt_sha256"].as_str().unwrap(), sha(&bytes), sha(document.as_bytes()));
+        assert_eq!((successor["retained_precision"]["receipt_sha256"].as_str(), sha(&bytes).as_str(), sha(document.as_bytes()).as_str()),
+            (Some(receipt_sha), bytes_sha, document_sha), "{name}: the pinned exact successor");
+        if let Some(dir) = &out {
+            std::fs::write(dir.join(format!("retained_precision_exact_successor_{name}.json")), &document).unwrap();
+        }
+        assert!(hooks::armed_names().is_empty());
+    }
+}
+
+/// D-U6-5's form for the new fixtures: `retained_precision_exact_successor_{mode}.json` are,
+/// byte for byte, the live exact successor documents (the successor the transaction produces,
+/// on the private driver; on the registered Direct entry the same bytes reach precommit).
+#[test]
+fn b3b_exact_successor_fixtures_are_the_live_successors() {
+    const FIXTURES: [&str; 2] = [
+        include_str!("../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
+        include_str!("../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
+    ];
+    for ((mode, (name, _, _, document_sha)), fixture) in MODES.into_iter().zip(EXACT_PINNED).zip(FIXTURES) {
+        let raw = m3x();
+        let (_, _, captured) = exact_w1(&raw, mode);
+        let document = exact_document(&raw, mode, &captured.unwrap());
+        assert!(document == fixture, "{name}: the fixture is the live exact successor document, byte for byte");
+        assert_eq!(sha(fixture.as_bytes()), document_sha, "{name}");
+    }
+}
+
+/// The exact route on the actual Direct entry (registered: admitted at J2 by B3b-A): one
+/// ordinary run, G-C once, then W1 on the exact route; the successor precommit receives is the
+/// private driver's, byte for byte (P-1 and P-2 decided alike). Today RS refuses it at G0, so the
+/// publication is the ordinary physics-1 bytes plus `case`'s N1 notice, which physics-1's Rust
+/// base readers accept with the same contract and standing (N-11's acceptance, here on the
+/// ordinary fallback). Stale: the plain bytes from one run.
+#[test]
+fn b3b_direct_entry_runs_the_exact_route() {
+    for mode in MODES {
+        let raw = m3x();
+        let plain = plain(mode, &raw);
+        let (_, _, private) = exact_w1(&raw, mode);
+        let direct_raw = raw.clone();
+        let (output, counts, captured) = hooks::counted_with_successor(move || run_linear_static_preview_value_with_retained_direct(direct_raw, mode).unwrap());
+        if !registered() {
+            assert!(output.retained().is_none() && captured.is_none(), "{mode:?}: no permit, no W1");
+            assert_eq!(counts, ONE_RUN, "{mode:?}");
+            assert_eq!(published(output), plain, "{mode:?}: the ordinary route");
+            continue;
+        }
+        assert_eq!(output.admission().unwrap().law().refusal, None, "{mode:?}: admitted (branch E)");
+        assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{mode:?}: one ordinary run, then G-C once");
+        let captured = captured.expect("precommit received the successor");
+        assert_eq!(captured, private.unwrap(), "{mode:?}: the Direct entry's successor is the private driver's, byte for byte");
+        let envelope = output.envelope().clone();
+        let retained = output.retained().unwrap().clone();
+        if !exact_outcome(&format!("direct {mode:?}"), &retained, &captured, &envelope, &plain, &["case"]) {
+            let bytes = published(output);
+            assert_eq!(notices(&bytes), 1, "{mode:?}");
+            n11_base_readers_accept(&raw, mode, &plain, &bytes, &format!("direct {mode:?}"));
+        } else {
+            assert_eq!(published(output), serde_json::to_vec(&captured).unwrap(), "{mode:?}: the one publication is the successor");
+        }
+    }
+}
+
+/// N-11's acceptance: physics-1's Rust base readers accept the noticed ordinary envelope with the
+/// same contract and standing as the plain one (`I105_N11_OUT` writes both for PY and TS).
+fn n11_base_readers_accept(raw: &Value, mode: PreviewSolverMode, plain: &[u8], noticed: &[u8], label: &str) {
+    use open_pipe_stress_result_export::semantic_contract as sc;
+    let (base, noticed): (Value, Value) = (serde_json::from_slice(plain).unwrap(), serde_json::from_slice(noticed).unwrap());
+    assert_eq!(base["producer"]["semantic_contract_id"], json!(PHYSICS_SEMANTIC_CONTRACT_ID), "{label}");
+    assert!(sc::for_source(&base).is_ok(), "{label}: precondition, the base is admitted");
+    assert_eq!(sc::for_source(&noticed), sc::for_source(&base), "{label}: admitted with the same contract");
+    assert_eq!(sc::standing_reason(&noticed), sc::standing_reason(&base), "{label}");
+    let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
+    let bases: Vec<Value> = raw["model"]["load_cases"].as_array().unwrap().iter().map(|c| json!({"ref_type":"load_case","ref_id":c["id"]})).collect();
+    let standing = sc::numerical_use_standing_with_context(&noticed, &bases, Some(&invocation));
+    assert_eq!(standing, sc::numerical_use_standing_with_context(&base, &bases, Some(&invocation)), "{label}");
+    println!("B3B_N11_RUST {label} for_source=ok standing={standing}");
+    if let Ok(dir) = std::env::var("I105_N11_OUT") {
+        let dir = std::path::Path::new(&dir);
+        let tag = label.replace(' ', "_").replace(['(', ')', ':', '"'], "");
+        std::fs::write(dir.join(format!("{tag}_noticed.json")), serde_json::to_vec(&noticed).unwrap()).unwrap();
+        std::fs::write(dir.join(format!("{tag}_base.json")), plain).unwrap();
+        std::fs::write(dir.join(format!("{tag}_invocation.json")), serde_json::to_vec(&invocation).unwrap()).unwrap();
+    }
+}
+
+/// N-11 (B3-D REVISION_01 §9): an exact invocation whose W1 ran and was abandoned after W1 work
+/// started (a serializer refusal with C1:68's detail, an evidence-overlay staging fault, a
+/// precommit corruption) publishes the ordinary physics-1 envelope byte for byte, plus `case`'s N1
+/// notice (the detail only on the serializer's), which physics-1's Rust base readers accept with
+/// the same contract and standing. Registered: the actual Direct entry; Stale: the private driver.
+#[test]
+fn b3b_n11_abandoned_exact_w1_publishes_physics_1_with_the_notice() {
+    use super::retained_wire::{ReceiptCheck as C, ReceiptFailure};
+    let faults: Vec<(&str, fn(), W1Fallback, Option<&str>)> = vec![
+        ("serializer", || hooks::fail_next_serializer(C::WorkCounterInconsistent),
+            W1Fallback::Serializer(ReceiptFailure { check: C::WorkCounterInconsistent, field_path: "cases[].run.invocation_after" }), Some("work_counter_inconsistent")),
+        ("section overlay", hooks::break_next_section_overlay, W1Fallback::Staging(rp::StagingFault("pipe_sections[]")), None),
+        ("precommit", hooks::corrupt_next_precommit, W1Fallback::Precommit { gate: "G0", code: "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into() }, None),
+    ];
+    for mode in MODES {
+        let raw = m3x();
+        let plain = plain(mode, &raw);
+        for (label, arm, cause, detail) in &faults {
+            let label = format!("{label} {mode:?}");
+            arm();
+            let (envelope, retained) = if registered() {
+                let (output, counts) = direct(&raw, mode);
+                assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{label}");
+                let retained = output.retained().unwrap().clone().map(|_| ());
+                (output.envelope().clone(), retained)
+            } else {
+                let (envelope, retained, _) = exact_w1(&raw, mode);
+                (envelope, retained.map(|_| ()))
+            };
+            assert!(hooks::armed_names().is_empty(), "{label}: fired");
+            match (&retained, cause) {
+                // Today's reader refuses at G0 before the corrupted receipt hash is read.
+                (Err(W1Fallback::Precommit { .. }), W1Fallback::Precommit { .. }) => {}
+                (Err(actual), expected) => assert_eq!(actual, expected, "{label}"),
+                (Ok(()), _) => panic!("{label}: a fault was armed"),
+            }
+            let bytes = serde_json::to_vec(&envelope).unwrap();
+            assert_eq!(String::from_utf8(bytes.clone()).unwrap(), String::from_utf8(with_notice(&plain, "case", *detail)).unwrap(),
+                "{label}: the ordinary physics-1 bytes, then the notice");
+            n11_base_readers_accept(&raw, mode, &plain, &bytes, &label);
+        }
+    }
+}
+
+/// P-2 and the coexistence pins (P-13; RR "I99's B3-W verified; …", rulings 1 and 2): n05 and n06
+/// select exact blocks under physics-source-1, and so does `fields` under the exact route's
+/// 8,000,000 budget (not under the default 4,000,000). Through the private driver W1 is never
+/// attempted (`Coexistence`) and the ordinary owner is the ordinary route's bytes; through the
+/// registered Direct entry the publication is exactly the ordinary route's bytes, from one run with
+/// G-C not consulted (Stale: the same bytes, one run).
+#[test]
+fn b3b_coexistence_publishes_the_exact_ordinary_bytes_under_p2() {
+    for (name, text) in [("n05", N05_EXACT), ("n06", N06_EXACT), ("fields", FIELDS_EXACT)] {
+        let raw: Value = serde_json::from_str(text).unwrap();
+        for mode in MODES {
+            let label = format!("{name} {mode:?}");
+            let plain = plain(mode, &raw);
+            let value: Value = serde_json::from_slice(&plain).unwrap();
+            assert!(value["source_block_recovery"].is_object(), "{label}: exact blocks selected (physics-source-1)");
+            // The discriminator: the default budget does not select `fields` (its finalization
+            // replay exceeds it), so a W1 budget other than the ordinary route's would lose T-3 (c).
+            let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+            let at_default = run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), None);
+            assert_eq!(at_default.source_block_recovery.is_some(), name != "fields", "{label}: selection at 4,000,000");
+            assert_ne!(serde_json::to_vec(&at_default).unwrap(), plain, "{label}: the default budget's bytes differ (work.limit at least)");
+            let (capture, observer, ordinary) = observed(mode, &raw);
+            assert_eq!(serde_json::to_vec(&ordinary).unwrap(), plain, "{label}: the private driver's run is the ordinary route's (P-2)");
+            let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+            assert_eq!(retained.err(), Some(W1Fallback::Coexistence), "{label}");
+            assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{label}: exact bytes");
+            let (output, counts) = direct(&raw, mode);
+            if registered() {
+                assert_eq!(output.admission().unwrap().law().refusal, None, "{label}: admitted");
+                assert_eq!(output.retained().and_then(|r| r.as_ref().err()), Some(&W1Fallback::Coexistence), "{label}");
+            }
+            assert_eq!(counts, ONE_RUN, "{label}: G-C not consulted");
+            assert_eq!(published(output), plain, "{label}: exactly the ordinary route's bytes");
+        }
+    }
+}
+
+/// B3-W's mixed exact base (P-13; RR ruling 1): `m3x_mix_anchor`'s `case` is `selected` beside its
+/// zero-response `case:b`, `not_required`; `case:b`'s evidence entry and rows stay ordinary. The
+/// successor precommit receives meets B3-D's requirements and is pinned; the Direct entry's is
+/// the same (registered), with `case`'s notice only while RS refuses it at G0.
+#[test]
+fn b3b_mixed_exact_base_selects_case_beside_not_required() {
+    for (mode, (name, receipt_sha, bytes_sha)) in MODES.into_iter().zip(MIX_PINNED) {
+        let raw = m3x_mix_anchor();
+        let plain = plain(mode, &raw);
+        let plain_value: Value = serde_json::from_slice(&plain).unwrap();
+        assert_eq!(plain_value["numerical_quality"]["cases"].as_array().unwrap().iter().map(|c| c["solve_quality"].as_str().unwrap()).collect::<Vec<_>>(),
+            ["sensitive", "checks_passed"], "{name}: B3-W's verdicts");
+        let (envelope, retained, captured) = exact_w1(&raw, mode);
+        let successor = captured.unwrap_or_else(|| panic!("{name}: {retained:?}"));
+        exact_outcome(name, &retained, &successor, &envelope, &plain, &["case"]);
+        assert_exact_successor(name, &successor, &plain_value, &["selected", "not_required"]);
+        let bytes = serde_json::to_vec(&successor).unwrap();
+        println!("B3B_MIX_PIN {name} {} {}", successor["retained_precision"]["receipt_sha256"].as_str().unwrap(), sha(&bytes));
+        assert_eq!((successor["retained_precision"]["receipt_sha256"].as_str(), sha(&bytes).as_str()), (Some(receipt_sha), bytes_sha), "{name}: the pinned mixed successor");
+        let direct_raw = raw.clone();
+        let (output, counts, direct_captured) = hooks::counted_with_successor(move || run_linear_static_preview_value_with_retained_direct(direct_raw, mode).unwrap());
+        if registered() {
+            assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{name}");
+            assert_eq!(direct_captured.as_ref(), Some(&successor), "{name}: the Direct entry's successor");
+            let retained = output.retained().unwrap().clone();
+            exact_outcome(&format!("direct {name}"), &retained, &successor, output.envelope(), &plain, &["case"]);
+        } else {
+            assert_eq!((counts, published(output)), (ONE_RUN, plain), "{name}: Stale");
+        }
+    }
+}
+
+/// P-12's exact-route faults, both modes: an exact-capture fault (the Ĝ check refuses) makes the
+/// attempt fail at preparation (custody: the capture's typed error), and an evidence-overlay fault
+/// (a section patch past `pipe_sections`) makes staging refuse; each falls back with the ordinary
+/// bytes and one notice. Registered: through the Direct entry; Stale: the private driver.
+#[test]
+fn b3b_exact_route_faults_fall_back_with_one_notice() {
+    let faults: Vec<(&str, fn(), W1Fallback)> = vec![
+        ("exact capture", hooks::fault_next_exact_capture, W1Fallback::Preparation),
+        ("section overlay", hooks::break_next_section_overlay, W1Fallback::Staging(rp::StagingFault("pipe_sections[]"))),
+    ];
+    for mode in MODES {
+        let raw = m3x();
+        let plain = plain(mode, &raw);
+        for (label, arm, cause) in &faults {
+            arm();
+            let (envelope, retained) = if registered() {
+                let (output, counts) = direct(&raw, mode);
+                assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{label} {mode:?}");
+                (output.envelope().clone(), output.retained().unwrap().clone().map(|_| ()))
+            } else {
+                let (envelope, retained, _) = exact_w1(&raw, mode);
+                (envelope, retained.map(|_| ()))
+            };
+            assert!(hooks::armed_names().is_empty(), "{label} {mode:?}: fired");
+            assert_eq!(retained.err().as_ref(), Some(cause), "{label} {mode:?}");
+            assert_eq!(String::from_utf8(serde_json::to_vec(&envelope).unwrap()).unwrap(), String::from_utf8(with_notice(&plain, "case", None)).unwrap(),
+                "{label} {mode:?}: the ordinary bytes, then the notice");
+        }
+        // The exact-capture fault is the capture's typed error at preparation (custody).
+        hooks::fault_next_exact_capture();
+        let (_, observer, ordinary) = observed(mode, &raw);
+        assert!(hooks::armed_names().is_empty());
+        let failure = match observer.prepare_cases(ordinary, 1, &[0]) { Err(f) => f, Ok(_) => panic!("custody refuses") };
+        assert_eq!(failure.error.to_string(), "exact material derived shear modulus", "{mode:?}");
+    }
+}
+
+/// P-6's exact observables, each check on its own: one tamper of the ordinary exact evidence
+/// between the run and the transaction, then custody, the native call and the freeze. Each is
+/// refused where its check sits: at the observables (`facade_certificate`, observable), or for
+/// the section identity first at the maxima stage (P-8's own check).
+#[test]
+fn b3b_exact_observables_refuse_each_evidence_defect() {
+    let mode = PreviewSolverMode::SparseInteractive;
+    let raw = m3x();
+    let freeze_with = |tamper: &dyn Fn(&mut Value)| -> String {
+        let (_, observer, mut ordinary) = observed(mode, &raw);
+        tamper(ordinary.contract_evidence.as_mut().unwrap());
+        let mut prepared = match observer.prepare_cases(ordinary, 1, &[0]) { Ok(p) => p, Err(f) => return format!("custody: {}", f.error) };
+        prepared.native();
+        prepared.freeze();
+        match &prepared.attempts[0].end {
+            rp::AttemptEnd::Frozen(_) => "frozen".to_owned(),
+            rp::AttemptEnd::Candidate(refused) => match &refused.error {
+                rp::PreparedCandidateError::Observable => format!("observable: {}", prepared.capture.observable_error.as_ref().unwrap()),
+                rp::PreparedCandidateError::Abandoned { cause, .. } => format!("abandoned: {cause}"),
+                other => format!("{other:?}"),
+            },
+            _ => "other".to_owned(),
+        }
+    };
+    assert_eq!(freeze_with(&|_| {}), "frozen", "control: the untampered evidence freezes");
+    // The ordinary view (no overlay) reads the same route's evidence: its extrema numbers come
+    // from `exact_cases`, so the untampered ordinary envelope passes the observables too.
+    // Its section-record coverage is its own check there (in the freeze, P-8's prepared-section
+    // domain refuses a missing section first: "a missing section" below).
+    {
+        let (_, observer, mut ordinary) = observed(mode, &raw);
+        observer.observables(&ordinary).expect("control: the ordinary view of the exact evidence passes");
+        ordinary.contract_evidence.as_mut().unwrap()["exact_cases"][0]["pipe_sections"] = json!([]);
+        assert_eq!(observer.observables(&ordinary).unwrap_err().to_string(), "exact section/material coverage", "ordinary view, a missing section");
+    }
+    let cases: Vec<(&str, Box<dyn Fn(&mut Value)>, &str)> = vec![
+        ("an extra evidence member", Box::new(|e: &mut Value| { e["preview_cases"] = json!([]); }), "observable: evidence shape"),
+        ("pressure evidence", Box::new(|e: &mut Value| { e["pressure"] = json!([{}]); }), "observable: exact pressure/connector evidence"),
+        ("connector evidence", Box::new(|e: &mut Value| { e["connector"] = json!([{}]); }), "observable: exact pressure/connector evidence"),
+        ("a second exact case", Box::new(|e: &mut Value| { let c = e["exact_cases"][0].clone(); e["exact_cases"].as_array_mut().unwrap().push(c); }), "observable: evidence case"),
+        ("recovery_method", Box::new(|e: &mut Value| { e["exact_cases"][0]["recovery_method"] = json!("x"); }), "observable: case shape"),
+        ("load case id", Box::new(|e: &mut Value| { e["exact_cases"][0]["load_case_id"] = json!("other"); }), "observable: evidence case"),
+        ("profile mode", Box::new(|e: &mut Value| { e["exact_cases"][0]["profile_mode"] = json!("legacy_pressure_v1"); }), "observable: exact profile/material basis"),
+        ("material basis", Box::new(|e: &mut Value| { e["exact_cases"][0]["material_basis"] = json!("resolved_per_member_load_reference_state_v1"); }), "observable: exact profile/material basis"),
+        ("incomplete coverage", Box::new(|e: &mut Value| { e["exact_cases"][0]["stress_maximum_coverage"]["complete"] = json!(false); }), "observable: maximum coverage"),
+        ("an unavailable pipe", Box::new(|e: &mut Value| { e["exact_cases"][0]["stress_maximum_coverage"]["unavailable_pipe_ids"] = json!(["M1"]); }), "observable: maximum coverage"),
+        ("a coverage member", Box::new(|e: &mut Value| { e["exact_cases"][0]["stress_maximum_coverage"]["outside_domain_pipe_ids"] = json!([]); }), "observable: stress coverage shape"),
+        ("an assembly group", Box::new(|e: &mut Value| { e["exact_cases"][0]["pressure_rhs_assembly"]["groups"] = json!([{}]); }), "observable: exact pressure assembly groups"),
+        ("a nonzero assembled entry", Box::new(|e: &mut Value| { e["exact_cases"][0]["pressure_rhs_assembly"]["assembled_pressure_rhs_global"][3] = json!(1.0); }), "observable: exact pressure assembly vector"),
+        ("a nonzero cap entry", Box::new(|e: &mut Value| { e["exact_cases"][0]["pressure_rhs_assembly"]["rounded_cap_rhs_global"][0] = json!(-1e-300); }), "observable: exact pressure assembly vector"),
+        ("a negative-zero Poisson entry", Box::new(|e: &mut Value| { e["exact_cases"][0]["pressure_rhs_assembly"]["rounded_poisson_rhs_global"][0] = json!(-0.0); }), "observable: exact pressure assembly vector"),
+        ("a missing material record", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_materials"] = json!([]); }), "observable: exact section/material coverage"),
+        ("the section's OD", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_sections"][0]["outside_diameter_m"] = json!(0.25); }), "observable: exact section geometry"),
+        ("the section's wall", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_sections"][0]["effective_wall_thickness_m"] = json!(0.0125); }), "observable: exact section geometry"),
+        ("the material's G", Box::new(|e: &mut Value| { let g = e["exact_cases"][0]["pipe_materials"][0]["G_pa"].as_f64().unwrap(); e["exact_cases"][0]["pipe_materials"][0]["G_pa"] = json!(f64::from_bits(g.to_bits() + 1)); }), "observable: exact material values"),
+        ("the material's nu", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_materials"][0]["nu"] = json!(0.3); }), "observable: exact material values"),
+        ("the material's E", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_materials"][0]["E_pa"] = json!(2.1e11); }), "observable: exact material values"),
+        ("the material's pipe", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_materials"][0]["pipe_id"] = json!("M9"); }), "observable: exact material identity"),
+        ("the section's pipe", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_sections"][0]["pipe_id"] = json!("M9"); }), "abandoned: prepared section identity"),
+        ("a missing section", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_sections"] = json!([]); }), "abandoned: prepared section complete domain"),
+        ("a section's numeric slot", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_sections"][0]["J_m4"] = json!("x"); }), "abandoned: prepared section numeric slot"),
+    ];
+    for (label, tamper, expected) in &cases {
+        assert_eq!(freeze_with(tamper.as_ref()), *expected, "{label}");
+    }
+}
+
+/// B3a (`m3l`; RR "I99's B3-W verified; …", ruling 3): the producer needs no change. Its W1 runs
+/// on the preview route to precommit; the successor precommit receives differs from the 0.1.0
+/// milestone's pinned successor in exactly the invocation hash (the model echo),
+/// `legacy_source_work[0].charged` and the receipt hash, and its ordinary bytes from the
+/// milestone's in exactly the one legacy exact-block message. Today RS's G8 refuses its contract
+/// (the readers' B3a is pending), so W1 falls back with one notice; or the reader admits it.
+#[test]
+fn b3a_m3l_needs_no_producer_change() {
+    const MILESTONE_FIXTURES: [&str; 2] = [
+        include_str!("../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json"),
+        include_str!("../../../fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json"),
+    ];
+    fn paths(a: &Value, b: &Value, at: String, out: &mut Vec<String>) {
+        match (a, b) {
+            (Value::Object(x), Value::Object(y)) if x.keys().eq(y.keys()) => for (k, v) in x { paths(v, &y[k], format!("{at}.{k}"), out) },
+            (Value::Array(x), Value::Array(y)) if x.len() == y.len() => for (i, (v, w)) in x.iter().zip(y).enumerate() { paths(v, w, format!("{at}[{i}]"), out) },
+            _ if a != b => out.push(at),
+            _ => {}
+        }
+    }
+    for (mode, fixture) in MODES.into_iter().zip(MILESTONE_FIXTURES) {
+        let raw = m3l();
+        let plain = plain(mode, &raw);
+        let mut ordinary_paths = Vec::new();
+        paths(&serde_json::from_slice(&plain).unwrap(), &serde_json::from_slice(&self::plain(mode, &self::raw())).unwrap(), "$".into(), &mut ordinary_paths);
+        assert_eq!(ordinary_paths, ["$.diagnostics[3].message"], "{mode:?}: the ordinary bytes");
+        let (envelope, retained, captured) = exact_w1(&raw, mode);
+        let successor = captured.unwrap_or_else(|| panic!("{mode:?}: {retained:?}"));
+        let milestone: Value = serde_json::from_str::<Value>(fixture).unwrap()["source"].clone();
+        let mut successor_paths = Vec::new();
+        paths(&successor, &milestone, "$".into(), &mut successor_paths);
+        assert_eq!(successor_paths, ["$.retained_precision.body.invocation.value", "$.retained_precision.body.legacy_source_work[0].charged",
+            "$.retained_precision.receipt_sha256"], "{mode:?}: the successor");
+        match &retained {
+            Ok(validated) => assert_eq!(validated.value(), &successor, "{mode:?}"),
+            Err(W1Fallback::Precommit { gate, code }) => {
+                assert_eq!((*gate, code.as_str()), ("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH"), "{mode:?}: today's reader");
+                assert_eq!(serde_json::to_vec(&envelope).unwrap(), with_notice(&plain, "case", None), "{mode:?}");
+            }
+            Err(other) => panic!("{mode:?}: {other:?}"),
+        }
+        println!("B3A_M3L {mode:?} precommit={:?}", retained.as_ref().err());
+    }
+}
+
+/// P-13's refusals: an exact request outside D1's exact branch (regions absent or non-empty, a
+/// combination, schema 0.4.0, a named point basis) is refused at G-A and takes the ordinary route:
+/// the plain bytes, no W1, one run.
+#[test]
+fn b3b_refused_exact_requests_take_the_ordinary_route() {
+    let variants: Vec<(&str, Box<dyn Fn(&mut Value)>)> = vec![
+        ("regions absent", Box::new(|r: &mut Value| { r["model"]["load_cases"][0].as_object_mut().unwrap().remove("pressure_regions"); })),
+        ("one region", Box::new(|r: &mut Value| r["model"]["load_cases"][0]["pressure_regions"] = json!([{"id": "region", "member_pipe_ids": ["M1"],
+            "pressure_basis": "gauge", "pressure": {"value": 0.0, "unit": "Pa"}}]))),
+        ("a combination", Box::new(|r: &mut Value| r["model"]["combinations"] = json!([{"id": "combination", "basis": "mechanics",
+            "terms": [{"load_case": "case", "factor": 1.0}], "provenance": "invented_t3_p1_detection_input_no_library_data"}]))),
+        ("schema 0.4.0", Box::new(|r: &mut Value| r["model"]["schema_version"] = json!("0.4.0"))),
+        ("a named point basis", Box::new(|r: &mut Value| r["model"]["load_cases"][0]["modulus_basis_ref"] = json!("T0"))),
+    ];
+    for (label, change) in &variants {
+        for mode in MODES {
+            let mut raw = m3x();
+            change(&mut raw);
+            let plain = plain(mode, &raw);
+            let (output, counts) = direct(&raw, mode);
+            assert!(output.admission().unwrap().law().refusal.is_some(), "{label} {mode:?}: G-A refuses");
+            assert!(output.retained().is_none(), "{label} {mode:?}: no W1");
+            assert_eq!(counts, ONE_RUN, "{label} {mode:?}");
+            assert_eq!(published(output), plain, "{label} {mode:?}: the ordinary route's bytes");
+        }
+    }
+}
+
+/// B3b-P (B3-D P-5; D1.5-exact, DEF-E `scope.materials`): the exact route's capture admits the
+/// base common E/ν selection only. A named point basis on the exact route (which the ordinary
+/// route publishes, and G-A refuses with `ModulusBasisRef`) reaches the private driver's capture,
+/// which refuses it typed, so the attempt fails at preparation (custody) and W1 falls back.
+#[test]
+fn b3b_exact_capture_refuses_a_selected_basis() {
+    for mode in MODES {
+        let mut raw = m3x();
+        raw["model"]["materials"][0]["temperature_points"] = json!([{"id": "T0", "temperature": {"value": 20, "unit": "degC"},
+            "elastic_modulus": {"value": 2.0e11, "unit": "Pa"}, "poisson_ratio": {"value": 0.25, "unit": "1"}}]);
+        raw["model"]["load_cases"][0]["modulus_basis_ref"] = json!("T0");
+        let ordinary_value: Value = serde_json::from_slice(&plain(mode, &raw)).unwrap();
+        assert_eq!(ordinary_value["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{mode:?}: the ordinary route solves it");
+        assert!(ordinary_value["results"].as_array().unwrap().iter().any(|r| r["kind"] == "modulus_basis_record"), "{mode:?}");
+        let (_, observer, ordinary) = observed(mode, &raw);
+        let failure = match observer.prepare_cases(ordinary, 1, &[0]) { Err(f) => f, Ok(_) => panic!("{mode:?}: custody refuses") };
+        assert_eq!(failure.error.to_string(), "exact route: base common E/nu selection only", "{mode:?}");
+    }
+}
+
+/// B3-D P-4 (I95's ruling 2): W1 never calls the pressure runtime's builders. The capture reads
+/// D1.5-exact from the model and the ordinary run's own outputs; no retained file, and no W1
+/// function of lib.rs's retained section, names `build_pressure_case`, `finish_source_groups` or
+/// `traverse_region` (the ordinary route calls them once per case, unchanged).
+#[test]
+fn b3b_p4_w1_calls_no_pressure_runtime_builder() {
+    let lib = include_str!("lib.rs");
+    let w1 = &lib[lib.find("fn permitted_dispatch(").unwrap()..lib.find("pub(crate) mod retained_tests_hooks {").unwrap()];
+    for (name, text) in [("retained_product.rs", include_str!("retained_product.rs")), ("retained_wire.rs", include_str!("retained_wire.rs")),
+        ("retained_receipt.rs", include_str!("retained_receipt.rs")), ("lib.rs W1", w1)] {
+        for builder in ["build_pressure_case", "finish_source_groups", "traverse_region", "pressure_runtime::build", "pressure_material::resolve"] {
+            assert!(!text.contains(builder), "{name}: {builder}");
+        }
+    }
+    assert!(w1.contains("fn w1_route(") && w1.contains("fn w1_budget("), "the route and budget are decided in the W1 section");
+}
+
+/// The exact route at c = 2 with both cases selected: `m3x` with a copy of its case (`case-2`, its
+/// load ids suffixed). Each selected case's attempt regenerates its own `exact_cases` entry only
+/// (DEF-E `evidence`, S-2's "owner case"), at evidence index 0 and 1, with case-qualified row ids
+/// after the first; the successor meets B3-D's requirements (no pin: not a selected witness).
+#[test]
+fn b3b_two_selected_exact_cases_each_regenerate_their_own_entry() {
+    let mut raw = raw();
+    let mut second = raw["model"]["load_cases"][0].clone();
+    second["id"] = json!("case-2");
+    for load in second["primitive_loads"].as_array_mut().unwrap() {
+        load["id"] = json!(format!("{}:2", load["id"].as_str().unwrap()));
+    }
+    raw["model"]["load_cases"].as_array_mut().unwrap().push(second);
+    let raw = exact3(raw);
+    for mode in MODES {
+        let label = format!("two cases {mode:?}");
+        let plain = plain(mode, &raw);
+        let plain_value: Value = serde_json::from_slice(&plain).unwrap();
+        let (envelope, retained, captured) = exact_w1(&raw, mode);
+        let successor = captured.unwrap_or_else(|| panic!("{label}: {retained:?}"));
+        exact_outcome(&label, &retained, &successor, &envelope, &plain, &["case", "case-2"]);
+        assert_exact_successor(&label, &successor, &plain_value, &["selected", "selected"]);
+        let entries = successor["contract_evidence"]["exact_cases"].as_array().unwrap();
+        assert_eq!(entries.iter().map(|e| e["load_case_id"].as_str().unwrap()).collect::<Vec<_>>(), ["case", "case-2"], "{label}");
+        assert_eq!(entries[0]["pipe_sections"], entries[1]["pipe_sections"], "{label}: the same prepared section in both entries");
+        assert!(successor["results"].as_array().unwrap().iter().any(|r| r["id"].as_str().unwrap().starts_with("result:loadcase:case-2:")), "{label}: qualified ids");
     }
 }

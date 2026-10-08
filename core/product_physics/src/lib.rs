@@ -2202,7 +2202,8 @@ impl RetainedSuccessor {
 /// U3: why a permitted invocation published the untouched ordinary bytes.
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum W1Fallback {
-    /// Load-state or exact-pressure model: outside D1 (D1.3), the ordinary route.
+    /// No W1 work: a model on no W1 route (a load state or 0.4.0; B3b-P's `w1_route`), or a
+    /// request outside W1's case domain (`w1_case_ids`); the ordinary route.
     Domain,
     /// The reserved-stack thread could not be spawned (STACK_PLAN §1).
     StackReservation,
@@ -2987,18 +2988,20 @@ fn permitted_run(
     capture: &source_receipt::CapturedInvocation,
     solver_mode: PreviewSolverMode,
 ) -> Result<RetainedPreviewOutput, String> {
-    // D1.3: load-state and exact-pressure models never reach W1; defensively, a
-    // permit for one takes the unchanged ordinary route (with its SF-1 logic).
-    if case_state::is_load_state(&request.model) || pressure_runtime::is_exact(&request.model) {
+    // B3b-P (B3-D P-1): the route, decided once from the admitted model's namespace branch.
+    // Defensively, a permit for a model on no W1 route (load states, 0.4.0) takes the unchanged
+    // ordinary route (with its SF-1 logic).
+    let Some(route) = w1_route(&request.model) else {
         return ordinary_dispatch(request, capture, solver_mode, Some(report), Some(Err(W1Fallback::Domain)));
-    }
-    let mut budget = SourceRecoveryBudget::default();
+    };
+    // B3b-P (P-2): the route's exact-block budget, as the ordinary route's.
+    let mut budget = w1_budget(route);
     // B1 seam (PLAN_v2 §2.1; RV107 SF-4): T-3 (e)'s requested count, read before the
     // request moves into the observed run. G-C carries it, and its attempt fact counts the
     // requested cases (B1 SA, T-3 (e)).
     let requested_cases = request.model.load_cases.len();
     // The permit moves into the observer, which checks G-B with it.
-    let mut observer = retained_product::ProductCapture::permitted_probe(permit);
+    let mut observer = retained_product::ProductCapture::permitted_probe_on(permit, route);
     let ordinary = run_linear_static_preview_observed(request, solver_mode, Some(capture), &mut budget, Some(&mut observer));
     if source_finalization_failed(&ordinary) {
         return Err("SOURCE_BLOCKS_FINALIZATION_FAILED".into());
@@ -3019,6 +3022,35 @@ fn permitted_run(
         }
     };
     Ok(RetainedPreviewOutput { envelope, admission: Some(report), retained: Some(retained) })
+}
+
+/// B3b-P (B3-D P-1; I95's ruling 1): an admitted model's W1 route, decided once, from its D1.3
+/// namespace branch: L and L3 take the preview route (preview-physics-1 base), E the exact route
+/// (physics-1 base, `physics-retained-1`). `None` (no W1: `Domain`) for a load-state model and
+/// any model on no branch (0.4.0 included).
+fn w1_route(model: &PreviewModel) -> Option<retained_product::W1Route> {
+    use retained_memory::NamespaceBranch as B;
+    if case_state::is_load_state(model) {
+        return None;
+    }
+    match retained_memory::namespace_branch(model) {
+        Ok(B::Legacy | B::LegacyPressure) => Some(retained_product::W1Route::Preview),
+        Ok(B::Exact) => Some(retained_product::W1Route::Exact),
+        Err(_) => None,
+    }
+}
+
+/// B3b-P (B3-D P-2; RR "I99's B3-W verified; …", ruling 2): W1's exact-block budget is the
+/// ordinary route's (`ordinary_dispatch`): `PHYSICS_SOURCE_WORK_LIMIT` per case on the exact
+/// route, the default elsewhere. physics-source-1 then selects on the Direct entry exactly as on
+/// the ordinary route, so T-3 (c) publishes the exact ordinary bytes, and the receipt's
+/// `legacy_source_work[].limit` is that budget.
+fn w1_budget(route: retained_product::W1Route) -> SourceRecoveryBudget {
+    let mut budget = SourceRecoveryBudget::default();
+    if route == retained_product::W1Route::Exact {
+        budget.per_case_limit = PHYSICS_SOURCE_WORK_LIMIT;
+    }
+    budget
 }
 
 /// R-2 (ROOT, NUM efde9ca2d1, N1): the fixed product text of the base publication's
@@ -3357,6 +3389,11 @@ pub(crate) mod retained_tests_hooks {
         staging: bool, late_gate: bool, complete_gate: bool, preparation: bool, candidate: Option<super::retained_receipt::TraceFault>,
         /// B1 SP (decision 23; RV107 A1-N-6): the request index of the case whose preparation fails.
         preparation_of_case: Option<usize>,
+        /// B3b-P (P-12): the exact route's material capture refuses (its Ĝ check sees Ĝ + 1 ulp).
+        exact_capture: bool,
+        /// B3b-P (P-12): the next frozen exact case's first section patch names an index past
+        /// its `pipe_sections`.
+        section_staging: bool,
         /// lib.rs's dense-scrutiny ceiling override (F1b), read by the ordinary run.
         ceiling: Option<u128>,
     }
@@ -3450,6 +3487,9 @@ pub(crate) mod retained_tests_hooks {
     pub(crate) fn before_staging(prepared: &mut super::retained_product::PreparedCases) {
         if consume(|a| std::mem::take(&mut a.staging)) {
             prepared.test_break_overlay();
+        }
+        if consume(|a| std::mem::take(&mut a.section_staging)) {
+            prepared.test_break_section_overlay();
         }
     }
     /// Reached before the call; it fires only when a case was prepared (as before T-8, where
