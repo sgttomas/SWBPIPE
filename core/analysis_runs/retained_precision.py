@@ -931,6 +931,12 @@ ERROR_STAGE_RECORDS = _error_stage_records()
 
 
 RCOND_LABEL = "sensitivity to matrix-entry perturbation, not to authored parameters"
+# C2's cause table (the alignment set, item 3): a receipt failure's codes, as a set (C2 does not key them to
+# `check`); an unavailable precondition's code, keyed one to one by `precondition`.
+RECEIPT_FAILURE_CODES = ("receipt_encoding", "publication_hash_range", "invocation_not_representable")
+PRECONDITION_CODES = {"caller": "caller_not_qualified", "resource_admission": "resource_admission_not_available",
+                      "upstream_no_wrap": "upstream_no_wrap_not_established", "capture": "source_unavailable",
+                      "source_family": "source_unavailable"}
 
 
 def _g5_ordinary(body, cases, diags, quality):
@@ -942,6 +948,10 @@ def _g5_ordinary(body, cases, diags, quality):
     ids = set(by_id)
     for i, c in enumerate(cases):
         o = body["ordinary_attempts"][i]
+        # The ordinary attempt's material basis resolves to a basis that lists its case (the alignment set,
+        # item 1; TS `ordinaryAttempts`), the ordinary class's reference rule, as D4b is the product class's.
+        basis = _ref(body["material_bases"], o["material_basis_ref"])
+        fail(basis is not None and i in basis["case_indices"])
         refs = o["diagnostic_refs"]
         # D6a (C1:100, C1:148, C2:166): untyped refs are unique and resolve.
         fail(len(set(refs)) == len(refs) and all(x in by_id for x in refs))
@@ -967,6 +977,26 @@ def _g5_ordinary(body, cases, diags, quality):
             # D6b (C1:101; C2:153, :164; source_receipt.rs `OrdinaryAttempt::wire`): only an attempted trigger selects.
             fail(verdict in ("sensitive", "unresolved", "failed"))
             fail(c["selection"]["rcond_label"] == RCOND_LABEL)
+        cause = c["reason"]["cause"] if c["status"] == "unavailable" else None
+        if cause is not None and cause.get("kind") != "prepared_product_failure":
+            # C2's cause table (CONTRACT_DELTA:72-74), for every unavailable case whose cause is not a
+            # prepared product failure (the alignment set, item 3; TS `ordinaryAttempts`, with the
+            # precondition keying). D4d's table covers prepared_product_failure in the product class.
+            phase, code, run = c["reason"]["phase"], c["reason"]["code"], c.get("run")
+            if cause.get("kind") == "source_error":
+                fail(phase == "preparation" and code == "source_unavailable" and run is None
+                     and c.get("source_decline") is not None and _same(c["source_decline"]["error"], cause["error"]))
+            elif cause.get("kind") == "receipt_failure":
+                fail(phase == "receipt" and code in RECEIPT_FAILURE_CODES)
+            elif cause.get("kind") == "facade_failure":
+                fail(phase == "facade" and code == "facade_certificate" and run is not None and run["kernel_terminal"]["kind"] == "selected"
+                     and _same(cause["owner_ref"], {"kind": "case", "index": i}))
+            elif cause.get("kind") == "unavailable_precondition":
+                fail(phase in ("routing", "preparation") and run is None and code == PRECONDITION_CODES.get(cause["precondition"]))
+            else:
+                # A kernel reason: the cause is the case's own Run's terminal reason.
+                fail(phase == "kernel" and run is not None and code == "kernel_" + run["kernel_terminal"]["kind"]
+                     and _same(cause, run["kernel_terminal"]["reason"]))
         listed = set(refs)
         cid = c["basis_ref"]["ref_id"]
         resolves = lambda ref: ref is None or (ref in listed and ref in by_id and cid in (by_id[ref].get("affected_refs") or []))
@@ -1468,8 +1498,10 @@ def _g8(body, source, invocation):
     except (ValueError, RuntimeError): need(False, "INVOCATION_MISMATCH")
     request = invocation["request"]; model = request["model"]
     need(model["project"]["id"] == source["model_ref"], "INVOCATION_MISMATCH")
-    need(model.get("schema_version") in ("0.1.0", "0.2.0", "0.3.0") and not model.get("pressure_contract") and not model.get("combinations"), "INVOCATION_MISMATCH")
-    need(not model.get("components"), "INVOCATION_MISMATCH")
+    # The model scope, as PP accepts it (the alignment set, item 2): no reference_configurations member (null
+    # included); pressure_contract absent or null; combinations and components absent or [].
+    need(model.get("schema_version") in ("0.1.0", "0.2.0", "0.3.0") and model.get("pressure_contract") is None and model.get("combinations", []) == [], "INVOCATION_MISMATCH")
+    need(model.get("components", []) == [] and "reference_configurations" not in model, "INVOCATION_MISMATCH")
     nodes, pipes, supports = model["nodes"], model["pipe_segments"], model["supports"]
     need(len({x["id"] for x in nodes}) == len(nodes) and len({x["id"] for x in pipes}) == len(pipes) and len({x["id"] for x in supports}) == len(supports))
     materials = request.get("materials") or model.get("materials", [])
@@ -1552,11 +1584,11 @@ def _g8(body, source, invocation):
             raw = materials[int(m["input_index"])]; pair, selection = selected_material(raw, model["load_cases"][mb["case_indices"][0]])
             need(m["id"] == raw["id"] and m["selection"] == selection and m["shear_origin"] == {"kind":"explicit_g"} and [m["elastic_modulus"],m["shear_modulus"]] == [bits(v) for v in pair])
     for si, s in enumerate(body["sources"]):
-        need(s["index"] == si and s["owner"]["kind"] == "case")
+        # The source's index and owner are G3's (the alignment set, item 1); here, the invocation's facts.
         for include_loads, field in ((True, "kernel_source_sha256"), (False, "stiffness_sha256")):
             need(hashlib.sha256(_native_source_encoding(s, include_loads)).hexdigest() == s[field])
         ci = int(s["owner"]["case_index"]); case = model["load_cases"][ci]
-        need(case["id"] == s["owner"]["case_id"] and not case.get("pressure_regions") and case.get("equivalent_static") is None)
+        need(not case.get("pressure_regions") and case.get("equivalent_static") is None)
         maps = s["id_maps"]
         need(len(maps["nodes"]) == len(nodes) and len(maps["members"]) == len(pipes) and len(maps["support_ids"]) == len(supports))
         need(len(nodes)*6 <= 0xffffffff and len(pipes)*3 <= 0xffffffff)
@@ -1770,6 +1802,14 @@ def _validate_draft(source: Any, invocation: Any = None, *, raw: bool = True) ->
             seen.add(row["id"]);rows[row["basis_ref"]["ref_id"]].append(row)
         _need(len(body["ordinary_attempts"])==len(cases),gate,"COVERAGE_MISMATCH")
         for s in body["sources"]:_need(len(s["body_membership"])>0,gate,"COVERAGE_MISMATCH")  # D29
+        # The receipt's own references, bound and unbound (RR "RV113's three returns verified; ...; the three-reader
+        # alignment set ruled", item 1; TS `coverage`): each source and each material basis sits at its index, a
+        # source's owner is its own case, and a basis's case list is unique and in range.
+        for si,s in enumerate(body["sources"]):
+            ci=_integral(s["owner"]["case_index"])
+            _need(s["index"]==si and s["owner"]["kind"]=="case" and ci is not None and 0<=ci<len(cases) and ids[ci]==s["owner"]["case_id"],gate,"COVERAGE_MISMATCH")
+        for mi,mb in enumerate(body["material_bases"]):
+            _need(mb["index"]==mi and len(set(mb["case_indices"]))==len(mb["case_indices"]) and all(x<len(cases) for x in mb["case_indices"]),gate,"COVERAGE_MISMATCH")
         refs=[c["product_attempt_ref"] for c in cases if c["product_attempt_ref"] is not None]
         _need(sorted(refs)==list(range(len(body["product_attempts"]))),gate,"COVERAGE_MISMATCH")
         for ai,a in enumerate(body["product_attempts"]):
