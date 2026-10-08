@@ -2443,7 +2443,7 @@ impl ProductCapture {
                     if found.is_some(){return Err("support magnitude identity".into());}found=Some(*r.value);
                 }
                 let y=found.ok_or("support magnitude identity")?;
-                if (y - v[0].hypot(v[1]).hypot(v[2])).abs()
+                if (y - norm3(v[0], v[1], v[2])).abs()
                     > 64.0 * f64::EPSILON * y.abs().max(f64::MIN_POSITIVE)
                 {
                     return Err("support guard".into());

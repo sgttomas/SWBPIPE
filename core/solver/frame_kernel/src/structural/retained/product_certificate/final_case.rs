@@ -1844,10 +1844,11 @@ fn support_hypot(specs:&[ProductRowSpec<'_>],values:&[f64],support:u32,first:usi
     }
     work.visit()?;work.scalar_operations=work.scalar_operations.add(WorkTotal::exact_count(1));
     if let Some(f)=work.status().fault(){return Err(ProductFailure{cause:Cause::Accounting(f)});}
-    let xy=v[0].hypot(v[1]);
     work.visit()?;work.scalar_operations=work.scalar_operations.add(WorkTotal::exact_count(1));
     if let Some(f)=work.status().fault(){return Err(ProductFailure{cause:Cause::Accounting(f)});}
-    let value=xy.hypot(v[2]);
+    // I109: one correctly rounded 3-norm (platform-independent), still charged as the two
+    // scalar operations of the former `hypot` chain.
+    let value=crate::correct_norm::norm3(v[0],v[1],v[2]);
     if !value.is_finite() || value<0.0{return Err(bad("support projection hypot range"));}
     Ok(if value==0.0{0.0}else{value})
 }

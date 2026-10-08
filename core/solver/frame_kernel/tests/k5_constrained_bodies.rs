@@ -884,24 +884,26 @@ fn forbidden_calls(code: &str) -> Vec<String> {
 }
 
 /// B10 (ROOT's K5 ruling Q4(b)): K5's new code in `rigid_body.rs` calls no
-/// function of unspecified precision. The scan excludes `assess_rigid_body`
-/// and `original_rigid_witness` (unchanged; their `hypot` is on the T3-close
-/// list) and the test modules. A control shows the scanner finds the `hypot`
-/// in the excluded function. It is a source scan: it does not see a call made
-/// through another function (K5 calls FK's existing `Expansion`, whose
-/// `exact_radix` uses `2.0_f64.powi(step)` with a round-trip self-check).
+/// function of unspecified precision. The T3-close item on `assess_rigid_body`'s
+/// two `hypot` calls is closed by I109 (correctly rounded `correct_norm`), so the
+/// scan now covers the whole module except its test modules. Controls show the
+/// scanner finds a `hypot` in code and skips comments, strings and lifetimes.
+/// It is a source scan: it does not see a call made through another function
+/// (K5 calls FK's existing `Expansion`, whose `exact_radix` uses
+/// `2.0_f64.powi(step)` with a round-trip self-check).
 #[test]
 fn k5_b10_libm_free_source_scan() {
     let code = lex(SOURCE);
-    // Control: the unchanged screen's `hypot` is found.
-    assert!(forbidden_calls(&code).contains(&"hypot".to_string()));
+    // Controls: a `hypot` call is found; comments, strings and lifetimes are not calls.
+    let control = lex("let t = s / (z.abs() + z.hypot(1.0));");
+    assert_eq!(forbidden_calls(&control), vec!["hypot".to_string()]);
     let probe = lex("// x.hypot(1.0)\nlet s = \"sin(\"; let c = 'a'; fn f<'a>() { y.cos() }");
     assert_eq!(forbidden_calls(&probe), vec!["cos".to_string()]);
-    let scanned = without_test_modules(&without_function(
-        &without_function(&code, "assess_rigid_body"),
-        "original_rigid_witness",
-    ));
+    assert!(without_function(&code, "assess_rigid_body").len() < code.len());
+    let scanned = without_test_modules(&code);
     for name in [
+        "assess_rigid_body",
+        "original_rigid_witness",
         "assess_constrained_bodies",
         "reduce_constrained_body",
         "root_one_plus_square",

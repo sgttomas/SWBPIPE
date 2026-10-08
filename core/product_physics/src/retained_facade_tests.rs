@@ -1843,42 +1843,14 @@ fn b1_sp_w_c2_through_retained_w1_publishes_t12() {
 }
 
 /// The pinned W-C2 successors (PLAN_v2 §2.2, after I3): (name, document sha256, receipt sha256,
-/// published bytes' sha256).
+/// published bytes' sha256). One pin for every platform: support magnitudes are correctly rounded
+/// norms (`correct_norm`, I109), so the bytes no longer depend on the platform's libm. Dense was
+/// re-pinned by I109 (PR-N): case C's `rigid:N0` support force magnitude is the correctly rounded
+/// 1.6258317075882523e-12, one ulp above macOS libm's `hypot` chain (glibc's value).
 const W_C2_PINNED: [(&str, &str, &str, &str); 2] = [
     ("sparse_interactive", "7922e3e5278d0d87dc5faf79dfbc1f2a384899e97df306cc742355cdacdb6269", "cccb9664e1c58f0582348df3348d8b6e0b0941bcb0294a5b351a4d092ed18886", "c7a1859330e9e36e18f5572838dbad72ea251a817241acc6968f8f83b70170fa"),
-    ("dense_scrutiny", "f2800bd4f2b4c90217918a6e1287f98305a1b6b07893295b5790f387c075d3a3", "612e23ca4b90604b3d2351fd7465d2e3cefb0f3fbb36bdea39efaa82a68bc07a", "a77c010b4ae7ffa9c535c31305b8a91fcc3c05e8a512075fa5b4694dbae3062c"),
+    ("dense_scrutiny", "c11f7566f1f0c469bc0a2808466dd9dd137ea64abed327fb9e4d35ff92ded22f", "ca6a62a6187a08d7b2e2643911fd232b02076b9032be1455754ff780540995f2", "604e4a3380b28d3757d7a7f20aa5d72eae8a93bdc9e24dc966afe6b48fafca3f"),
 ];
-/// Where glibc's libm differs from macOS's (T3, 2026-10-08; the hosted CI runs on glibc). The
-/// ordinary route forms support and member force magnitudes with `f64::hypot`, which is not correctly
-/// rounded, and on W-C2's case C the two libms differ by one ulp in `rigid:N0`'s support force
-/// magnitude (about 1.6e-12 N, dense mode). The committed W-C2 fixtures and pins are macOS's. On
-/// glibc, the dense document must equal the committed fixture with exactly these three replacements
-/// (the value and the two hashes over it), and its receipt is `W_C2_DENSE_GLIBC_RECEIPT`. Each
-/// platform must produce its own bytes exactly; nothing is compared with a tolerance.
-const GLIBC: bool = cfg!(all(target_os = "linux", target_env = "gnu"));
-const W_C2_DENSE_GLIBC: [(&str, &str); 3] = [
-    ("\"value\": 1.6258317075882521e-12", "\"value\": 1.6258317075882523e-12"),
-    (
-        "\"publication_sha256\": \"57624d75437e678852dfc7657a19d31ee133340435e9d5ce3a31b295cbebc718\"",
-        "\"publication_sha256\": \"35fa7acae6fbd731ff50b611aec588e673f32978af80a9bb89a7c27f66e88fd7\"",
-    ),
-    (
-        "\"receipt_sha256\": \"612e23ca4b90604b3d2351fd7465d2e3cefb0f3fbb36bdea39efaa82a68bc07a\"",
-        "\"receipt_sha256\": \"ca6a62a6187a08d7b2e2643911fd232b02076b9032be1455754ff780540995f2\"",
-    ),
-];
-const W_C2_DENSE_GLIBC_RECEIPT: &str = "ca6a62a6187a08d7b2e2643911fd232b02076b9032be1455754ff780540995f2";
-/// The committed W-C2 fixture as this platform's libm produces it, and its receipt sha256.
-fn w_c2_on_this_platform(name: &str, fixture: &str, receipt_sha: &'static str) -> (String, &'static str) {
-    if !(GLIBC && name == "dense_scrutiny") {
-        return (fixture.to_owned(), receipt_sha);
-    }
-    let document = W_C2_DENSE_GLIBC.iter().fold(fixture.to_owned(), |document, (macos, glibc)| {
-        assert_eq!(document.matches(macos).count(), 1, "{name}: {macos}");
-        document.replacen(macos, glibc, 1)
-    });
-    (document, W_C2_DENSE_GLIBC_RECEIPT)
-}
 /// The W-C2 successor document, in U1's form.
 fn w_c2_document(name: &str, raw: &Value, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id": format!("w_c2_{name}"), "source": successor,
@@ -2206,8 +2178,7 @@ fn b1_sp_w_c2_fixtures_are_the_live_successors() {
             let (capture, observer, ordinary) = observed(mode, &raw);
             retained_w1(observer, ordinary, &capture).1.unwrap_or_else(|f| panic!("{name}: {f:?}")).value().clone()
         };
-        let (expected, receipt_sha) = w_c2_on_this_platform(name, fixture, receipt_sha);
-        assert!(w_c2_document(name, &raw, &successor) == expected, "{name}: the W-C2 fixture is the live successor document, byte for byte");
+        assert!(w_c2_document(name, &raw, &successor) == fixture, "{name}: the W-C2 fixture is the live successor document, byte for byte");
         assert_eq!((sha(fixture.as_bytes()).as_str(), successor["retained_precision"]["receipt_sha256"].as_str()), (file_sha, Some(receipt_sha)),
             "{name}: the pinned W-C2 hashes");
     }
@@ -2234,12 +2205,9 @@ fn w_c2_plus_a2(ids: &[&str]) -> Value {
 /// The pinned successors of RV109's SF-2 inputs: (mode, receipt sha256, successor bytes sha256).
 const CBA_PINNED: [(&str, &str, &str); 2] = [
     ("sparse_interactive", "863d692fa90d450240cbfacec1628937b8ccc9af2396637d4f913cc0bc416e80", "ea9a484657ca3de9a831a737b6a682966cc4b1a8783114b26298f34571cc7ebb"),
-    ("dense_scrutiny", "7aeecbac57426a2104c3b9f958862daf3e9b2c0f00582599c0210121681db6a1", "c719bd8d3281d3bd3c0a731e8ba5ede8901938d10634db8078c6f6fa96d0b6d8"),
+    // Re-pinned by I109 (PR-N): W-C2 case C's correctly rounded `rigid:N0` magnitude; every platform.
+    ("dense_scrutiny", "255785d20cf0aa9f497ea324d744eb3e946871d5aac863ed8d0081d0521e8c92", "a320a5d33707c1fc8c12a35de624720dddbc35084979522c96ab1906e17c708f"),
 ];
-/// (C, B, A)'s dense successor on glibc (`GLIBC`): the same `rigid:N0` support force magnitude as
-/// W-C2's case C differs by one ulp there.
-const CBA_DENSE_GLIBC: (&str, &str) =
-    ("255785d20cf0aa9f497ea324d744eb3e946871d5aac863ed8d0081d0521e8c92", "a320a5d33707c1fc8c12a35de624720dddbc35084979522c96ab1906e17c708f");
 const AA2_PINNED: [(&str, &str, &str); 2] = [
     ("sparse_interactive", "41f330856d4c6e94e2e1308fcd467818604c8f7e999ce499c8f3b49e26ef0d56", "529233eb989aca3553bdedfc9d1813ab3287675748ff076c27cb024c2b7fef63"),
     ("dense_scrutiny", "30001ccf42ad12acd9dbb458392fee514946c1a52aa0d4e5f0b20bde5b09ea71", "f4075cdc80eff27099a28f787cec07080b745eca2d598eb3381a84ec03964176"),
@@ -2272,8 +2240,6 @@ fn b1_sp_sf2_selected_not_first_and_two_selected_pins() {
         for (mode, (mode_name, receipt_sha, bytes_sha)) in MODES.into_iter().zip(pins) {
             assert_eq!(mode.as_str(), mode_name);
             let label = format!("{name} {mode_name}");
-            let (receipt_sha, bytes_sha) =
-                if GLIBC && label == "c_b_a dense_scrutiny" { CBA_DENSE_GLIBC } else { (receipt_sha, bytes_sha) };
             let plain = plain(mode, &raw);
             let (capture, observer, ordinary) = observed(mode, &raw);
             let ((envelope, retained), counts, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));

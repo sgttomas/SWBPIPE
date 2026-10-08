@@ -10,6 +10,7 @@ use super::{
     normalize_quantity, stable_suffix, BuiltModel, Diagnostic, LoadTargetInput, MaterialInput,
     PreviewLoadCase, PreviewModel, Quantity, DOF_PER_NODE,
 };
+use open_pipe_stress_frame_kernel::correct_norm::norm3;
 use open_pipe_stress_units::Dimension;
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -1078,7 +1079,7 @@ fn traverse_region(
     let origin = built.nodes.get(terminal_nodes[0])?.coordinates;
     let end = built.nodes.get(terminal_nodes[1])?.coordinates;
     let chord = std::array::from_fn::<_, 3, _>(|axis| end[axis] - origin[axis]);
-    let length = chord[0].hypot(chord[1]).hypot(chord[2]);
+    let length = norm3(chord[0], chord[1], chord[2]);
     if !length.is_finite() || length <= 0.0 {
         problem(
             diagnostics,
@@ -1096,7 +1097,7 @@ fn traverse_region(
         let projection = delta.iter().zip(direction).map(|(a, b)| a * b).sum::<f64>();
         let normal =
             std::array::from_fn::<_, 3, _>(|axis| delta[axis] - projection * direction[axis]);
-        let residual = normal[0].hypot(normal[1]).hypot(normal[2]);
+        let residual = norm3(normal[0], normal[1], normal[2]);
         if !projection.is_finite()
             || !residual.is_finite()
             || residual > REPRESENTATION_GUARD

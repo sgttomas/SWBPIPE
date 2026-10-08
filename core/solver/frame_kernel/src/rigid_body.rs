@@ -49,7 +49,8 @@ pub fn assess_rigid_body(
         if r.iter().any(|v| !v.is_finite()) {
             return Err(StructuralError::Range("relative coordinates"));
         }
-        length = length.max(r[0].hypot(r[1]).hypot(r[2]));
+        // I109: correctly rounded norms (platform-independent), not libm `hypot`.
+        length = length.max(crate::correct_norm::norm3(r[0], r[1], r[2]));
         relative.push(r);
     }
     if !length.is_finite() {
@@ -105,7 +106,7 @@ pub fn assess_rigid_body(
                     continue;
                 }
                 let zeta = (beta - alpha) / (2.0 * cross);
-                let t = zeta.signum() / (zeta.abs() + zeta.hypot(1.0));
+                let t = zeta.signum() / (zeta.abs() + crate::correct_norm::norm2(zeta, 1.0));
                 let t = if zeta == 0.0 { 1.0 } else { t };
                 let c = 1.0 / (1.0 + t * t).sqrt();
                 let s = c * t;
@@ -256,7 +257,8 @@ fn original_rigid_witness(
 // ROOT's K5 ruling Q4(b): the new screen calls no function of unspecified
 // precision. It uses IEEE +, -, *, /, sqrt, the exact `Expansion` (TwoProduct
 // through `mul_add`) and integer operations on the bits. `assess_rigid_body`
-// and `original_rigid_witness` above are unchanged.
+// and `original_rigid_witness` above are K5-unchanged; I109 replaced the former's
+// two `hypot` calls with `correct_norm`'s correctly rounded norms.
 
 use crate::UserStiffnessElement;
 

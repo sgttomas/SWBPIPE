@@ -131,18 +131,27 @@ pub(super) fn cap_maximal() -> Value {
 }
 
 /// `CAP_MAXIMAL_RING` is the ring `cap_maximal` was pinned on: each coordinate is within one ulp of
-/// 10·cos t or 10·sin t as this platform's libm computes it.
+/// 10·cos t or 10·sin t as this platform's libm computes it, except the near-zero residues.
 #[test]
 fn cap_maximal_ring_is_the_trigonometric_ring() {
     let ulps = |a: f64, b: f64| (a.to_bits() as i64 - b.to_bits() as i64).unsigned_abs();
+    let mut residues = 0;
     for (i, &(x, y)) in CAP_MAXIMAL_RING.iter().enumerate() {
         let t = 2.0 * std::f64::consts::PI * i as f64 / 32.0;
         let (cx, cy) = (10.0 * t.cos(), 10.0 * t.sin());
-        // Near zero (i = 8, 16, 24) the coordinate is a rounding residue of π; compare absolutely.
         for (pinned, computed) in [(f64::from_bits(x), cx), (f64::from_bits(y), cy)] {
-            assert!(ulps(pinned, computed) <= 1 || (pinned - computed).abs() <= 1e-14, "N{i}: {pinned:e} against {computed:e}");
+            // Near zero (i = 8, 16, 24) the coordinate is a rounding residue of π, compared
+            // absolutely (RV125 A1-N1); every other coordinate, N0's exact 0 included, is
+            // within one ulp.
+            if pinned != 0.0 && pinned.abs() < 1e-14 {
+                residues += 1;
+                assert!((pinned - computed).abs() <= 1e-14, "N{i}: {pinned:e} against {computed:e}");
+            } else {
+                assert!(ulps(pinned, computed) <= 1, "N{i}: {pinned:e} against {computed:e}");
+            }
         }
     }
+    assert_eq!(residues, 3, "the residues are N8's x, N16's y and N24's x");
 }
 
 /// B1 SA: `raw` with `cases` load cases, each a copy of its first case, with the ids

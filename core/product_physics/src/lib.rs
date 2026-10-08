@@ -35,6 +35,8 @@ mod s11g_tests;
 mod source_budget_tests;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
+// I109: published norms are correctly rounded (platform-independent), never libm `hypot`.
+use open_pipe_stress_frame_kernel::correct_norm::{norm2, norm3};
 use open_pipe_stress_frame_kernel::exact_sum::{exact_rounded_sum, ExactAccumulator};
 use open_pipe_stress_frame_kernel::load_ledger::{
     gamma, product_upward, AssembledForce, Formation, LoadLedger,
@@ -4923,7 +4925,7 @@ fn solve_load_case_observed(
             let magnitude = if selected_source.is_some() {
                 source_receipt::scaled_norm(force_vector)
             } else {
-                force_vector[0].hypot(force_vector[1]).hypot(force_vector[2])
+                norm3(force_vector[0], force_vector[1], force_vector[2])
             };
             support_force_vectors.insert(support.id.clone(), [vector[0], vector[1], vector[2]]);
             if pressure_runtime::is_exact(model) {
@@ -5119,7 +5121,7 @@ fn solve_load_case_observed(
                 .map_err(|error| error.to_string());
             let end = |offset: usize, index: usize| {
                 (
-                    corrected_local_forces[offset + RY].hypot(corrected_local_forces[offset + RZ]),
+                    norm2(corrected_local_forces[offset + RY], corrected_local_forces[offset + RZ]),
                     bounds.clone().map(|b| b[index]),
                 )
             };
@@ -11871,13 +11873,13 @@ fn append_signed_support_results(
     append(
         "force_magnitude",
         "support_reaction_force_magnitude_v2",
-        action[0].hypot(action[1]).hypot(action[2]),
+        norm3(action[0], action[1], action[2]),
         "N",
     );
     append(
         "moment_magnitude",
         "support_reaction_moment_magnitude_v2",
-        action[3].hypot(action[4]).hypot(action[5]),
+        norm3(action[3], action[4], action[5]),
         "N*m",
     );
 }
@@ -13506,7 +13508,7 @@ fn append_combined_vector_magnitude(
     }
     let mut combined = reference.clone();
     combined.id = qualified_combination_result_id(&combination.id, base_id);
-    combined.value = vector[0].hypot(vector[1]).hypot(vector[2]);
+    combined.value = norm3(vector[0], vector[1], vector[2]);
     combined.basis_ref = Some(ResultBasisRef {
         ref_type: "combination".to_string(),
         ref_id: combination.id.clone(),

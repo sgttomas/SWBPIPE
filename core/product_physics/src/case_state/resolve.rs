@@ -15,6 +15,7 @@ use crate::{
     stable_suffix, Diagnostic, MaterialInput, PreviewLoadCase, PreviewModel, PreviewSupport,
     Quantity, DOF_PER_NODE,
 };
+use open_pipe_stress_frame_kernel::correct_norm::norm3;
 use open_pipe_stress_linear_supports::FrameDof;
 use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
 use serde_json::{json, Value};
@@ -895,9 +896,7 @@ pub(crate) fn resolve_case(
         ) else {
             continue;
         };
-        let length = (to[0] - from[0])
-            .hypot(to[1] - from[1])
-            .hypot(to[2] - from[2]);
+        let length = norm3(to[0] - from[0], to[1] - from[1], to[2] - from[2]);
         let (fit_input, fit_kind, fit_value) = match &reference.fit {
             FitReferenceInput::NoFit {} => (FitInput::None, "none", Value::Null),
             FitReferenceInput::NaturalLengthChange { length_change } => {

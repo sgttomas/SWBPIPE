@@ -1741,13 +1741,15 @@ def test_i4p_ruling5_kernel_reason_without_a_run_is_g5_attempt_in_the_reader():
 # `expected_classifications`. Detail texts are not pinned.
 # ---------------------------------------------------------------------------------------------
 N07_W_C2 = {"sparse_interactive": ("7922e3e5278d0d87dc5faf79dfbc1f2a384899e97df306cc742355cdacdb6269", "cccb9664e1c58f0582348df3348d8b6e0b0941bcb0294a5b351a4d092ed18886"),
-            "dense_scrutiny": ("f2800bd4f2b4c90217918a6e1287f98305a1b6b07893295b5790f387c075d3a3", "612e23ca4b90604b3d2351fd7465d2e3cefb0f3fbb36bdea39efaa82a68bc07a")}
+            "dense_scrutiny": ("c11f7566f1f0c469bc0a2808466dd9dd137ea64abed327fb9e4d35ff92ded22f", "ca6a62a6187a08d7b2e2643911fd232b02076b9032be1455754ff780540995f2")}
+# PR-N (I109): the dense W-C2 and (C, B, A) successors re-pinned at the correctly rounded `rigid:N0`
+# support force magnitude (one ulp above macOS libm's hypot chain), one pin for every platform.
 # PP `retained_facade_tests.rs` REVERSED_PINNED, CBA_PINNED and AA2_PINNED: (receipt sha256, successor bytes sha256).
 N07_PP_PINNED = {
     "cause_milestone_reversed_sparse_interactive": ("b79f691a4a899e3ed4a7d13957f74d4c4ee7430ee3062396214261144cbabd82", "93aa043538bbc01e0a7bcef4e381f88468edfd6792769b7041d7f6483ad959b1"),
     "cause_milestone_reversed_dense_scrutiny": ("c6b03683c8a2591f4d59429407608a6aafd0abf25663c7d771de60f221135832", "b70edc6d002c92692f00a247702353f79e6410acf17eb385b3d2c2500ca76d8e"),
     "sf2_c_b_a_sparse_interactive": ("863d692fa90d450240cbfacec1628937b8ccc9af2396637d4f913cc0bc416e80", "ea9a484657ca3de9a831a737b6a682966cc4b1a8783114b26298f34571cc7ebb"),
-    "sf2_c_b_a_dense_scrutiny": ("7aeecbac57426a2104c3b9f958862daf3e9b2c0f00582599c0210121681db6a1", "c719bd8d3281d3bd3c0a731e8ba5ede8901938d10634db8078c6f6fa96d0b6d8"),
+    "sf2_c_b_a_dense_scrutiny": ("255785d20cf0aa9f497ea324d744eb3e946871d5aac863ed8d0081d0521e8c92", "a320a5d33707c1fc8c12a35de624720dddbc35084979522c96ab1906e17c708f"),
     "sf2_a_a2_sparse_interactive": ("41f330856d4c6e94e2e1308fcd467818604c8f7e999ce499c8f3b49e26ef0d56", "529233eb989aca3553bdedfc9d1813ab3287675748ff076c27cb024c2b7fef63"),
     "sf2_a_a2_dense_scrutiny": ("30001ccf42ad12acd9dbb458392fee514946c1a52aa0d4e5f0b20bde5b09ea71", "f4075cdc80eff27099a28f787cec07080b745eca2d598eb3381a84ec03964176"),
 }

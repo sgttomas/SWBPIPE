@@ -462,7 +462,7 @@ fn tangent_diagnostics(model: &PreviewModel, built: &BuiltModel, diagnostics: &m
                     d[2] * tangent[0] - d[0] * tangent[2],
                     d[0] * tangent[1] - d[1] * tangent[0],
                 ];
-                let angle = cross[0].hypot(cross[1]).hypot(cross[2]).atan2(dot);
+                let angle = norm3(cross[0], cross[1], cross[2]).atan2(dot);
                 if angle.is_finite() && closest.is_none_or(|(best, _)| angle < best) {
                     closest = Some((angle, pipe));
                 }
@@ -631,7 +631,7 @@ pub(crate) fn render(
                 for association in associations(model, node, &member.pipe_id) {
                     let resultants = member.end_resultants[end_index];
                     let (my, mz) = (resultants[4], resultants[5]);
-                    let value = association.sif * (my.hypot(mz) / member.section_modulus);
+                    let value = association.sif * (norm2(my, mz) / member.section_modulus);
                     let endpoint = endpoint_id_location(location);
                     let base_id = format!(
                         "result:intensified-bending:{}:{}:{endpoint}",
@@ -963,8 +963,8 @@ pub(crate) fn append_combination_results(
                 continue;
             }
             for (component, value) in [
-                ("force_magnitude", combined[0].hypot(combined[1]).hypot(combined[2])),
-                ("moment_magnitude", combined[3].hypot(combined[4]).hypot(combined[5])),
+                ("force_magnitude", norm3(combined[0], combined[1], combined[2])),
+                ("moment_magnitude", norm3(combined[3], combined[4], combined[5])),
             ] {
                 let sources: Vec<&ResultItem> = operands.iter().filter_map(|case| find(case, component)).collect();
                 let value = if range {
