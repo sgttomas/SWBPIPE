@@ -1722,17 +1722,20 @@ def validate_retained_precision_transport(source: Any) -> dict[str, Any]:
     """F-U6b-2 (B6): G0-G2, then the unchanged base step on the transport projection (no rows read).
     On G0-G2 this is the twin of Rust `validate_transport_metadata` and TS
     `validateRetainedPrecisionTransport`: the same checks, gates and codes. At the base step it runs
-    both of theirs (RV108 N6(a)): the base header check, which Rust runs alone (reported as G2), and
-    the preview-physics transport metadata check, which TS runs alone. Python reports either at G7 (RV113
-    N-1; the alignment set's item 4 moves the header check to G2), so a header or evidence defect there
-    can carry a different reader-level gate or code in each language. Omitted raw publication bytes are
-    never reconstructed or verified, so a transported statement is never eligible."""
+    both of theirs, and every reader runs both (RV108 N6(a); the alignment set, item 4): the base header
+    check, reported here at G2 with the header's code, as Rust reports it (RV113 N-1); then the
+    preview-physics transport metadata check, reported at G7 (SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID).
+    Omitted raw publication bytes are never reconstructed or verified, so a transported statement is
+    never eligible."""
     return _validate_draft(source, None, raw=False)
 
 
-def _transport_g7(snapshot: dict[str, Any]) -> None:
-    """The base transport metadata check on the reader's projection (no rows are read). A failure keeps
-    the base validator's leading code, with its full text as detail, as at the raw G7."""
+def _transport_base(snapshot: dict[str, Any]) -> None:
+    """The base step on the reader's transport projection (no rows are read): `_source_contract` runs the base
+    header check, then the preview-physics transport metadata check. A failure keeps the base validator's
+    leading code, with its full text as detail, as at the raw G7. Its gate (the alignment set, item 4): the
+    metadata check raises only SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID, and the header check never does
+    (it runs first, and every header code differs), so that code is G7's and every other is the header's, G2."""
     projected=deepcopy(snapshot);del projected["retained_precision"]
     projected["producer"]["semantic_contract_id"]="openpipestress.result_semantics/0.3.0/preview-physics-1";projected["formulation_basis"]["profile_id"]="product_preview_mechanics_v1"
     for row in projected["results"] if type(projected.get("results")) is list else []:
@@ -1741,7 +1744,8 @@ def _transport_g7(snapshot: dict[str, Any]) -> None:
     try:_source_contract(projected,check_receipt=False)
     except ValueError as exc:
         text=str(exc);match=re.match(r"[A-Z][A-Z0-9_]*",text)
-        error=RetainedPrecisionError("G7",match.group(0) if match else "SOURCE_PREVIEW_PHYSICS_INVALID");error.detail=text
+        code=match.group(0) if match else "SOURCE_PREVIEW_PHYSICS_INVALID"
+        error=RetainedPrecisionError("G7" if code in ("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID","SOURCE_PREVIEW_PHYSICS_INVALID") else "G2",code);error.detail=text
         raise error from exc
 
 
@@ -1791,7 +1795,7 @@ def _validate_draft(source: Any, invocation: Any = None, *, raw: bool = True) ->
                         _need(prep["sha256"]==_hash("retained_precision_preparation_v1",_preparation_payload(a)),gate,"RECEIPT_MISMATCH")
         gate="G2";_encoding(receipt,schema);_need(not _negative_zero(receipt),gate,"ENCODING_MISMATCH");_normalize_integrals(receipt)  # D34, then D32
         if not raw:
-            gate="G7";_transport_g7(snapshot)
+            gate="G7";_transport_base(snapshot)  # a header failure is raised at G2 (item 4); an escape still falls back at G7
             return {"invocation_bound":False,"numerical_eligible":False,"standing":"needs_recompute","publication_sha256":body["publication_sha256"],"classifications":[]}
         gate="G3";cases=body["cases"];quality=snapshot["numerical_quality"]["cases"]
         ids=[c["basis_ref"]["ref_id"] for c in cases]

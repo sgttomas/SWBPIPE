@@ -766,18 +766,18 @@ def test_rv108_n1_base_header_refuses_a_non_string_enum_with_its_code(mode):
 @pytest.mark.parametrize("mode", MODES)
 def test_rv108_n1_retained_reader_reports_the_base_header_code_at_g7(mode):
     """The retained path: a hash-consistent successor with an unhashable enum in a header field that
-    no earlier gate reads is refused at G7 with the base header code (no longer the G7 fallback
-    SOURCE_PREVIEW_PHYSICS_INVALID), raw with and without its invocation, by the transport validator,
-    and by the raw and transport dispatch."""
+    no earlier gate reads is refused with the base header code (no longer the G7 fallback
+    SOURCE_PREVIEW_PHYSICS_INVALID): at G7 raw, with and without its invocation; at G2 by the transport
+    validator (repair 02, the alignment set's item 4); and by the raw and transport dispatch."""
     source, invocation = milestone(mode)
     # solve_quality is read at G5 first (a list is no verdict), so its G7 code is pinned on the base dispatch.
     for path, code in [field for field in N1_FIELDS if field[0][-1] != "solve_quality"]:
         for value in N1_UNHASHABLE:
             edited = rehash(n1_edit(source, path, value))
-            for fn in (lambda s: rp.validate_retained_precision(s, deepcopy(invocation)), rp.validate_retained_precision, rp.validate_retained_precision_transport):
+            for fn, gate in ((lambda s: rp.validate_retained_precision(s, deepcopy(invocation)), "G7"), (rp.validate_retained_precision, "G7"), (rp.validate_retained_precision_transport, "G2")):
                 with pytest.raises(rp.RetainedPrecisionError) as error:
                     fn(deepcopy(edited))
-                assert (error.value.gate, error.value.code, error.value.detail) == ("G7", code, code), (path, value)
+                assert (error.value.gate, error.value.code, error.value.detail) == (gate, code, code), (path, value)
             for check_receipt in (True, False):
                 assert value_error_only(lambda s: c._source_contract(s, check_receipt=check_receipt), edited) == code, (path, value, check_receipt)
 
@@ -797,3 +797,38 @@ def test_rv108_n1_stress_neutral_packager_validator_refuses_with_a_value_error(m
     for path, code in N1_FIELDS:
         for value in N1_UNHASHABLE:
             assert value_error_only(sn.validate_stress_neutral_export_package_v0_3, n1_edit(packet, path, value)) == code, (path, value)
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_repair02_transport_reports_the_header_at_g2_and_the_metadata_at_g7(mode):
+    """The alignment set, item 4 (RR "RV113's three returns verified; …"): on transport, the base header check
+    is G2 with the header's code (Rust's gate), and the preview-physics metadata check stays G7. Both run. Raw
+    reads keep both at G7. RV113 N-1 and SR-TS N-1."""
+    source, invocation = milestone(mode)
+    header = rehash(n1_edit(source, ["numerical_quality", "status"], "estimated"))
+    case = rehash(n1_edit(source, ["numerical_quality", "cases", 0, "accuracy_evidence"], "estimated"))
+    formulation = rehash(n1_edit(source, ["formulation_basis", "limitations"], []))
+    metadata = deepcopy(source)
+    metadata["contract_evidence"]["combination_gates"] = "not-an-array"
+    metadata = rehash(metadata)
+    limitations = rehash(n1_edit(source, ["formulation_basis", "limitations"], ["another non-empty limitation"]))
+
+    def transport(s):
+        with pytest.raises(rp.RetainedPrecisionError) as error:
+            rp.validate_retained_precision_transport(deepcopy(s))
+        return error.value.gate, error.value.code
+
+    def raw(s):
+        with pytest.raises(rp.RetainedPrecisionError) as error:
+            rp.validate_retained_precision(deepcopy(s), deepcopy(invocation))
+        return error.value.gate, error.value.code
+
+    assert transport(header) == ("G2", "SOURCE_NUMERICAL_QUALITY_INVALID")
+    assert transport(case) == ("G2", "SOURCE_NUMERICAL_CASE_INVALID")
+    assert transport(formulation) == ("G2", "SOURCE_FORMULATION_BASIS_UNSUPPORTED")
+    assert transport(metadata) == ("G7", "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID")
+    assert transport(limitations) == ("G7", "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID")
+    assert raw(header) == ("G7", "SOURCE_NUMERICAL_QUALITY_INVALID")
+    assert raw(metadata)[0] == "G7"
+    # The dispatch's text is unchanged by the gate: the reader's code (header) or full text (metadata).
+    assert value_error_only(lambda s: c._source_contract(s, check_receipt=False), header) == "SOURCE_NUMERICAL_QUALITY_INVALID"
