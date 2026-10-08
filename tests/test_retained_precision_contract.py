@@ -1435,6 +1435,11 @@ def test_b1_repair02_receipt_references_at_g3_and_the_ordinary_basis_at_g5():
         "source 1's owner index out of range": _b1_both(two_case, [_set(B + ["sources", 1, "owner", "case_index"], 2)]),
     }
     assert got == dict.fromkeys(got, (COVERAGE, COVERAGE))
+    # D16: an owner index out of range is refused by the check itself, not by the fallback an IndexError reaches.
+    source, _ = apply_entry(_cases()[two_case], {"edits": [_set(B + ["sources", 1, "owner", "case_index"], 2)], "rehash": "all"})
+    with pytest.raises(rp.RetainedPrecisionError) as error:
+        rp.validate_retained_precision(source)
+    assert (error.value.gate, error.value.code, error.value.__cause__) == (*COVERAGE, None)
     ordinary = {
         "the not_required case's basis 7": _b1_both(P_BASE, [_set(B + ["ordinary_attempts", 1, "material_basis_ref"], 7)], NOT_REQUIRED),
         "its basis omits it": _b1_both(P_BASE, [_set(B + ["material_bases", 0, "case_indices"], [0])], NOT_REQUIRED),
