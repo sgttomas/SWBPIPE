@@ -726,9 +726,32 @@ fn g3(source: &Value, inv: Option<&Value>) -> VResult {
         )?;
     }
     // D29 (source.rs `PrimitiveSource::new` NoNodes; I57 s1): every CaseSource has a
-    // non-empty body inventory.
-    for s in list(&b["sources"]) {
-        fail(!list(&s["body_membership"]).is_empty())?;
+    // non-empty body inventory. B1's alignment set, item 1 (f): a source's index is
+    // its position and its owner is its own case (the case at `owner.case_index`
+    // has `owner.case_id`); a material basis's index is its position and its
+    // `case_indices` are unique and name cases. These facts are internal to the
+    // receipt, so they are checked bound and unbound; G8 keeps the facts derived
+    // from the invocation.
+    for (si, s) in list(&b["sources"]).iter().enumerate() {
+        let owner = &s["owner"];
+        fail(
+            !list(&s["body_membership"]).is_empty()
+                && u(&s["index"]) == si as u64
+                && owner["kind"] == "case"
+                && usize::try_from(u(&owner["case_index"]))
+                    .ok()
+                    .and_then(|ci| cs.get(ci))
+                    .is_some_and(|c| c["basis_ref"]["ref_id"] == owner["case_id"]),
+        )?;
+    }
+    for (mi, mb) in list(&b["material_bases"]).iter().enumerate() {
+        let mut seen = BTreeSet::new();
+        fail(
+            u(&mb["index"]) == mi as u64
+                && list(&mb["case_indices"])
+                    .iter()
+                    .all(|ci| u(ci) < cs.len() as u64 && seen.insert(u(ci))),
+        )?;
     }
     for (i, a) in list(&b["product_attempts"]).iter().enumerate() {
         fail(u(&a["id"]) == i as u64)?;
@@ -955,9 +978,9 @@ fn g5_native(b: &Value) -> VResult {
                 && r["origin"]["owner_ref"]["kind"] == "case"
                 && *oi == json!({"kind":"case","index":ci})
                 && c["source_ref"] == *si)?;
+            // The source's owner id is bound to its case index at G3 (item 1 (f)).
             let src = at(&b["sources"], si, "G5", "ATTEMPT_MISMATCH")?;
-            af(src["owner"]["case_index"] == oi["index"]
-                && src["owner"]["case_id"] == c["basis_ref"]["ref_id"])?;
+            af(src["owner"]["case_index"] == oi["index"])?;
             let records = list(&r["records"]);
             let attempts = list(&r["attempts"]);
             af(records.len() <= 4 && attempts.len() <= 3)?;
@@ -3490,9 +3513,13 @@ fn g8(source: &Value, inv: &Value) -> VResult {
         // D31: the producer treats model 0.1.0 and 0.2.0 on one branch
         // (pressure_runtime.rs `validate_profile`); 0.4.0 stays excluded.
         matches!(text(&model["schema_version"]), "0.1.0" | "0.2.0" | "0.3.0")
+            // B1's alignment set, item 2 (g), PP's acceptance: no
+            // `reference_configurations` member (null included); `pressure_contract`
+            // absent or null; `combinations` and `components` absent or [].
             && model["pressure_contract"].is_null()
-            && list(&model["combinations"]).is_empty()
-            && list(&model["components"]).is_empty()
+            && ["combinations", "components"]
+                .iter()
+                .all(|k| model.get(*k).is_none_or(|v| v.as_array().is_some_and(Vec::is_empty)))
             && !model
                 .as_object()
                 .is_some_and(|m| m.contains_key("reference_configurations")),
@@ -3587,9 +3614,9 @@ fn g8(source: &Value, inv: &Value) -> VResult {
     }
     fail(list(&b["material_bases"]).len() == expected_selectors.len())?;
     for (mi, mb) in list(&b["material_bases"]).iter().enumerate() {
+        // A basis's index is G3's (item 1 (f)); its selector and cases come from the invocation.
         fail(
-            u(&mb["index"]) == mi as u64
-                && mb["selector"] == expected_selectors[mi]
+            mb["selector"] == expected_selectors[mi]
                 && mb["case_indices"]
                     == json!(case_bases
                         .iter()
@@ -3702,16 +3729,15 @@ fn g8(source: &Value, inv: &Value) -> VResult {
     }
     let constraints:Vec<_>=fixed.iter().map(|((n,d),ids)|json!({"dof":{"node":n,"component":DOFS[*d]},"value":"0000000000000000","support_indices":ids})).collect();
     let stations:Vec<_>=pipes.iter().enumerate().flat_map(|(i,_)|[("quarter_1",0.25),("midspan",0.5),("quarter_3",0.75)].into_iter().enumerate().map(move |(j,(location,fraction))|json!({"id":3*i+j,"member":i,"location":location,"fraction":bits(fraction)}))).collect();
-    for (si, s) in list(&b["sources"]).iter().enumerate() {
+    for s in list(&b["sources"]) {
         let ci = u(&s["owner"]["case_index"]) as usize;
         let case = cases
             .get(ci)
             .ok_or_else(|| error("G8", "PREPARATION_MISMATCH"))?;
         let maps = &s["id_maps"];
+        // A source's index and owner kind are G3's (item 1 (f)).
         fail(
-            u(&s["index"]) == si as u64
-                && s["owner"]["kind"] == "case"
-                && s["owner"]["case_id"] == case["id"]
+            s["owner"]["case_id"] == case["id"]
                 && u(&s["material_basis_ref"]) == case_bases[ci] as u64,
         )?;
         fail(
@@ -4180,6 +4206,19 @@ fn g5_ordinary(source: &Value) -> VResult {
                 .find(|d| d["id"] == *id && list(&d["affected_refs"]).contains(cid))
                 .ok_or_else(|| error("G5", "ATTEMPT_MISMATCH"))
         };
+        // B1's alignment set, item 1: the ordinary attempt's basis reference
+        // resolves to a material basis that lists this case (the ordinary class's
+        // reference rule, as D4b's for a product attempt). G8 binds the basis to
+        // the invocation's selector.
+        fail(
+            at(
+                &b["material_bases"],
+                &o["material_basis_ref"],
+                "G5",
+                "ATTEMPT_MISMATCH",
+            )
+            .is_ok_and(|mb| list(&mb["case_indices"]).iter().any(|x| u(x) == i as u64)),
+        )?;
         // D6a (checkpoint-A ruling): the untyped diagnostic_refs are unique and
         // resolve. Typed references below must be listed and name the case (C2:166).
         let mut refs = BTreeSet::new();
@@ -4279,6 +4318,61 @@ fn g5_ordinary(source: &Value) -> VResult {
                     && list(&mb["case_indices"]).iter().any(|x| u(x) == i as u64),
             )?;
         }
+        // B1's alignment set, item 3: C2's cause table (C2 §2: each cause has its
+        // own phase and codes, one-to-one), for every unavailable case whose cause
+        // is not a prepared product failure (that one is D4d's, in the product
+        // class). TS's form, with an `unavailable_precondition` code keyed by its
+        // precondition; `receipt_failure` codes stay a set (C2 keys none to `check`).
+        if c["status"] == "unavailable"
+            && c["reason"]["cause"]["kind"] != "prepared_product_failure"
+        {
+            let (reason, run) = (&c["reason"], &c["run"]);
+            let cause = &reason["cause"];
+            let (phase, code) = (text(&reason["phase"]), text(&reason["code"]));
+            fail(match text(&cause["kind"]) {
+                "source_error" => {
+                    phase == "preparation"
+                        && code == "source_unavailable"
+                        && run.is_null()
+                        && !decline.is_null()
+                        && decline["error"] == cause["error"]
+                }
+                "unavailable_precondition" => {
+                    matches!(phase, "routing" | "preparation")
+                        && run.is_null()
+                        && match text(&cause["precondition"]) {
+                            "caller" => code == "caller_not_qualified",
+                            "resource_admission" => code == "resource_admission_not_available",
+                            "upstream_no_wrap" => code == "upstream_no_wrap_not_established",
+                            "capture" | "source_family" => code == "source_unavailable",
+                            _ => false,
+                        }
+                }
+                "receipt_failure" => {
+                    phase == "receipt"
+                        && matches!(
+                            code,
+                            "receipt_encoding"
+                                | "publication_hash_range"
+                                | "invocation_not_representable"
+                        )
+                }
+                "facade_failure" => {
+                    phase == "facade"
+                        && code == "facade_certificate"
+                        && run["kernel_terminal"]["kind"] == "selected"
+                        && cause["owner_ref"] == json!({"kind": "case", "index": i})
+                }
+                // A kernel reason: the case's own Run, its terminal kind in the
+                // code, and the cause equal to the terminal's reason.
+                _ => {
+                    phase == "kernel"
+                        && !run.is_null()
+                        && code == format!("kernel_{}", text(&run["kernel_terminal"]["kind"]))
+                        && *cause == run["kernel_terminal"]["reason"]
+                }
+            })?;
+        }
         // D6b (C1:101; C2:164; checkpoint-A ruling): a selected case's ordinary
         // quality routes to retained precision: sensitive, unresolved or failed
         // (not checks_passed, not not_assessed).
@@ -4374,6 +4468,286 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> VResult<Va
         classifications,
     })
 }
+/// The preview-physics-1 transport metadata check on the reader's projection (B1's
+/// alignment set, item 4): the closed statement shape and its internal
+/// consistency, with no row read. It is TS's `validatePreviewPhysicsTransportMetadata`
+/// (and PY's `preview_physics_evidence.validate_transport_metadata`) check for check:
+/// no foreign namespace; the formulation basis exactly the profile and the table's
+/// limitations; the closed `contract_evidence`; then each preview case (its shape,
+/// unique id, maximum coverage, support attribution, extrema and intensified
+/// measures) and each combination gate. The Rust base reader has no metadata-only
+/// entry: `validate_preview_physics_evidence` joins rows throughout. A JSON number
+/// read here is always finite, so TS's finite-tree walk has nothing to refuse.
+fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
+    fn demand(ok: bool, detail: &str) -> Result<(), String> {
+        if ok {
+            Ok(())
+        } else {
+            Err(format!("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: {detail}"))
+        }
+    }
+    fn shape(v: &Value, keys: &[&str]) -> bool {
+        v.as_object()
+            .is_some_and(|o| o.len() == keys.len() && keys.iter().all(|k| o.contains_key(*k)))
+    }
+    let nonempty = |v: &Value| v.as_str().is_some_and(|t| !t.is_empty());
+    let strings = |v: &Value| {
+        v.as_array().is_some_and(|a| {
+            let mut seen = BTreeSet::new();
+            a.iter().all(|x| nonempty(x) && seen.insert(text(x)))
+        })
+    };
+    let number = |v: &Value| v.as_f64().filter(|_| v.is_number());
+    let safe_integer = |v: &Value| number(v).filter(|n| n.fract() == 0.0 && n.abs() <= SAFE as f64);
+    let table = crate::semantic_contract::preview_physics_contract();
+    demand(
+        p.get("source_block_recovery").is_none() && p.get("carrier_evidence").is_none(),
+        "unsupported source namespace",
+    )?;
+    let f = &p["formulation_basis"];
+    demand(
+        shape(f, &["profile_id", "limitations"]),
+        "formulation basis",
+    )?;
+    demand(
+        f["profile_id"] == "product_preview_mechanics_v1"
+            && f["limitations"].is_array()
+            && f["limitations"] == table["supported_profile_limitations"],
+        "formulation profile or limitations",
+    )?;
+    let evidence = &p["contract_evidence"];
+    demand(
+        shape(evidence, &["preview_cases", "combination_gates"]),
+        "transport evidence shape",
+    )?;
+    demand(
+        evidence["preview_cases"].is_array() && evidence["combination_gates"].is_array(),
+        "transport evidence shape",
+    )?;
+    const CASE: [&str; 5] = [
+        "load_case_id",
+        "pipe_stress_extrema",
+        "stress_maximum_coverage",
+        "support_attribution",
+        "intensified_measures",
+    ];
+    const EXTREMA: [&str; 13] = [
+        "pipe_id",
+        "result_id",
+        "station_fraction",
+        "span_index",
+        "local_fraction",
+        "value_lower_pa",
+        "value_upper_pa",
+        "global_upper_bound_pa",
+        "certified_gap_pa",
+        "subdivisions",
+        "approximation",
+        "coefficient_basis",
+        "enclosure_scope",
+    ];
+    const MEASURE: [&str; 10] = [
+        "result_id",
+        "component_id",
+        "pipe_id",
+        "location",
+        "factor_role",
+        "sif",
+        "sif_source_reference",
+        "section_modulus_m3",
+        "bending_moment_y_n_m",
+        "bending_moment_z_n_m",
+    ];
+    const WITHHELD: [&str; 2] = [
+        "SUPPORT_ACTION_ATTRIBUTION_WITHHELD",
+        "CONSTANT_EFFORT_NOT_CONSUMED",
+    ];
+    const GATES: [&str; 3] = [
+        "NONLINEAR_COMBINATION_REQUIRES_SOLVE",
+        "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE",
+        "COMBINATION_MODULUS_BASIS_MIXED",
+    ];
+    // MAX_SUBDIVISIONS of core/loads/stress_recovery/src/elastic_extrema.rs.
+    const MAX_SUBDIVISIONS: f64 = 131072.0;
+    let mut ids = BTreeSet::new();
+    let mut attribution_sets = BTreeSet::new();
+    let (mut extrema_ids, mut measure_ids) = (Vec::new(), Vec::new());
+    for c in list(&evidence["preview_cases"]) {
+        demand(shape(c, &CASE), "preview case shape")?;
+        demand(
+            nonempty(&c["load_case_id"]) && ids.insert(text(&c["load_case_id"])),
+            "preview case identity",
+        )?;
+        demand(
+            c["pipe_stress_extrema"].is_array() && c["intensified_measures"].is_array(),
+            "preview case lists",
+        )?;
+        let coverage = &c["stress_maximum_coverage"];
+        demand(
+            shape(
+                coverage,
+                &[
+                    "complete",
+                    "unavailable_pipe_ids",
+                    "outside_domain_pipe_ids",
+                ],
+            ),
+            "maximum coverage shape",
+        )?;
+        let (unavailable, outside) = (
+            &coverage["unavailable_pipe_ids"],
+            &coverage["outside_domain_pipe_ids"],
+        );
+        demand(
+            coverage["complete"].is_boolean() && strings(unavailable) && strings(outside),
+            "maximum coverage values",
+        )?;
+        demand(
+            !list(unavailable).iter().any(|x| list(outside).contains(x)),
+            "maximum coverage overlap",
+        )?;
+        demand(
+            coverage["complete"].as_bool()
+                == Some(list(unavailable).is_empty() && list(outside).is_empty()),
+            "maximum coverage completeness",
+        )?;
+        let attribution = &c["support_attribution"];
+        demand(
+            shape(attribution, &["attributed_support_ids", "withheld"]),
+            "support attribution shape",
+        )?;
+        let attributed = &attribution["attributed_support_ids"];
+        demand(
+            strings(attributed) && attribution["withheld"].is_array(),
+            "support attribution values",
+        )?;
+        let mut withheld = Vec::new();
+        for record in list(&attribution["withheld"]) {
+            demand(
+                shape(record, &["support_id", "reason"]),
+                "withheld support shape",
+            )?;
+            demand(
+                nonempty(&record["support_id"]) && WITHHELD.contains(&text(&record["reason"])),
+                "withheld support values",
+            )?;
+            withheld.push((text(&record["support_id"]), text(&record["reason"])));
+        }
+        demand(
+            !list(attributed)
+                .iter()
+                .any(|x| withheld.iter().any(|(id, _)| text(x) == *id)),
+            "support both attributed and withheld",
+        )?;
+        for x in list(&c["pipe_stress_extrema"]) {
+            demand(shape(x, &EXTREMA), "extrema shape")?;
+            demand(
+                nonempty(&x["pipe_id"])
+                    && nonempty(&x["result_id"])
+                    && x["approximation"] == "piecewise_quadratic_straight_section_statics"
+                    && x["coefficient_basis"] == "j_side_section_equilibrium_binary64"
+                    && x["enclosure_scope"]
+                        == "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+                "extrema identity or basis",
+            )?;
+            demand(
+                ["station_fraction", "local_fraction"]
+                    .iter()
+                    .all(|k| number(&x[*k]).is_some_and(|n| (0.0..=1.0).contains(&n))),
+                "extrema fractions",
+            )?;
+            demand(
+                safe_integer(&x["span_index"]).is_some_and(|n| n >= 0.0)
+                    && safe_integer(&x["subdivisions"])
+                        .is_some_and(|n| (0.0..=MAX_SUBDIVISIONS).contains(&n)),
+                "extrema integers",
+            )?;
+            let (lower, upper) = (number(&x["value_lower_pa"]), number(&x["value_upper_pa"]));
+            demand(
+                lower.zip(upper).is_some_and(|(l, h)| l >= 0.0 && l <= h),
+                "extrema bounds",
+            )?;
+            extrema_ids.push(text(&x["result_id"]));
+        }
+        let pipes: Vec<&str> = list(&c["pipe_stress_extrema"])
+            .iter()
+            .map(|x| text(&x["pipe_id"]))
+            .collect();
+        demand(
+            pipes.iter().collect::<BTreeSet<_>>().len() == pipes.len()
+                && !pipes.iter().any(|p| {
+                    list(unavailable)
+                        .iter()
+                        .chain(list(outside))
+                        .any(|x| text(x) == *p)
+                }),
+            "extrema member partition",
+        )?;
+        for m in list(&c["intensified_measures"]) {
+            demand(shape(m, &MEASURE), "intensified measure shape")?;
+            demand(
+                nonempty(&m["result_id"])
+                    && nonempty(&m["component_id"])
+                    && nonempty(&m["pipe_id"])
+                    && matches!(text(&m["location"]), "end_i" | "end_j")
+                    && matches!(
+                        text(&m["factor_role"]),
+                        "bend" | "branch_header" | "branch_branch"
+                    )
+                    && nonempty(&m["sif_source_reference"]),
+                "intensified measure identity",
+            )?;
+            demand(
+                [
+                    "sif",
+                    "section_modulus_m3",
+                    "bending_moment_y_n_m",
+                    "bending_moment_z_n_m",
+                ]
+                .iter()
+                .all(|k| number(&m[*k]).is_some())
+                    && number(&m["sif"]).is_some_and(|n| n > 0.0)
+                    && number(&m["section_modulus_m3"]).is_some_and(|n| n > 0.0),
+                "intensified measure inputs",
+            )?;
+            measure_ids.push(text(&m["result_id"]));
+        }
+        let mut sorted_attributed: Vec<&str> = list(attributed).iter().map(text).collect();
+        sorted_attributed.sort_unstable();
+        withheld.sort_unstable();
+        attribution_sets.insert((sorted_attributed, withheld));
+    }
+    // The attributed and withheld sets are the same in every case.
+    demand(
+        attribution_sets.len() <= 1,
+        "attribution sets differ between cases",
+    )?;
+    demand(
+        extrema_ids.iter().collect::<BTreeSet<_>>().len() == extrema_ids.len()
+            && measure_ids.iter().collect::<BTreeSet<_>>().len() == measure_ids.len(),
+        "duplicate evidence result binding",
+    )?;
+    let mut gates = BTreeSet::new();
+    for gate in list(&evidence["combination_gates"]) {
+        demand(
+            shape(gate, &["combination_id", "withheld", "reason"]),
+            "combination gate shape",
+        )?;
+        demand(
+            nonempty(&gate["combination_id"]) && gates.insert(text(&gate["combination_id"])),
+            "combination gate identity",
+        )?;
+        demand(
+            match gate["withheld"].as_bool() {
+                Some(true) => GATES.contains(&text(&gate["reason"])),
+                Some(false) => gate["reason"].is_null(),
+                None => false,
+            },
+            "combination gate reason",
+        )?;
+    }
+    Ok(())
+}
 /// Metadata-only transport checks cannot reconstitute or verify omitted raw rows.
 /// The publication digest is retained as a statement, never authenticated here.
 pub fn validate_transport_metadata(source: &Value) -> VResult<Validation> {
@@ -4389,6 +4763,9 @@ pub fn validate_transport_metadata(source: &Value) -> VResult<Validation> {
             code,
             detail: None,
         })?;
+    // B1's alignment set, item 4: the header check stays at G2; the preview-physics
+    // transport metadata check runs at G7, as PY and TS run it.
+    preview_physics_transport_metadata(&projected).map_err(base_error)?;
     Ok(Validation {
         invocation_bound: false,
         numerical_eligible: false,
