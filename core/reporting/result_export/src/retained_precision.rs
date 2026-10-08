@@ -4470,12 +4470,16 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> VResult<Va
 }
 /// The preview-physics-1 transport metadata check on the reader's projection (B1's
 /// alignment set, item 4): the closed statement shape and its internal
-/// consistency, with no row read. It is TS's `validatePreviewPhysicsTransportMetadata`
-/// (and PY's `preview_physics_evidence.validate_transport_metadata`) check for check:
-/// no foreign namespace; the formulation basis exactly the profile and the table's
-/// limitations; the closed `contract_evidence`; then each preview case (its shape,
-/// unique id, maximum coverage, support attribution, extrema and intensified
-/// measures) and each combination gate. The Rust base reader has no metadata-only
+/// consistency, with no row read. It is TS's `validatePreviewPhysicsTransportMetadata`,
+/// check for check, in TS's order and with TS's detail texts: no foreign namespace;
+/// the formulation basis exactly the profile and the table's limitations; the closed
+/// `contract_evidence`; then each preview case (its shape, unique id, maximum
+/// coverage, support attribution, extrema and intensified measures) and each
+/// combination gate. Since RR "I4 made at `30f3d1b24a`; …" ruling 2, TS's check and
+/// this one share PY's extrema-number demand (`preview_physics_evidence`'s "extrema
+/// numbers"): each extremum's `global_upper_bound_pa` and `certified_gap_pa` is a JSON
+/// number. TS's check with that demand is the ruled shared form; this comment claims
+/// no other agreement with PY's check. The Rust base reader has no metadata-only
 /// entry: `validate_preview_physics_evidence` joins rows throughout. A JSON number
 /// read here is always finite, so TS's finite-tree walk has nothing to refuse.
 fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
@@ -4649,6 +4653,14 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
                     && x["enclosure_scope"]
                         == "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
                 "extrema identity or basis",
+            )?;
+            // Ruling 2 (RR "I4 made at `30f3d1b24a`; …"): PY's extrema-number demand, at
+            // PY's place and with PY's detail; the other four numbers are typed below.
+            demand(
+                ["global_upper_bound_pa", "certified_gap_pa"]
+                    .iter()
+                    .all(|k| number(&x[*k]).is_some()),
+                "extrema numbers",
             )?;
             demand(
                 ["station_fraction", "local_fraction"]

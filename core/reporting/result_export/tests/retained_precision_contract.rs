@@ -4708,3 +4708,128 @@ fn b1_r2_transport_metadata_at_g7() {
         |e| b1_transport(&shared, e),
     );
 }
+
+// ---------------------------------------------------------------------------
+// B1's reader follow-up toward I4' (I101; RR "I4 made at `30f3d1b24a`; …", rulings 2
+// and 4): reader-local rows on synthetic receipts. SC's 07n pins the shared ones.
+
+/// The transport verdict with the refusal's detail: `{"admitted": false}`, or the first
+/// failure's gate, code and detail.
+fn b1_transport_detail(shared: &Value, entry: &Value) -> Value {
+    let (source, _) = apply_entry(shared, entry);
+    match rp::validate_transport_metadata(&source) {
+        Ok(v) => serde_json::json!({"admitted": v.numerical_eligible}),
+        Err(e) => serde_json::json!({"gate": e.gate, "code": e.code, "detail": e.detail}),
+    }
+}
+/// The metadata check's refusal of one demand, as `b1_transport_detail` reports it.
+fn b1_metadata_refusal(demand: &str) -> Value {
+    serde_json::json!({
+        "gate": "G7",
+        "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
+        "detail": format!("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: {demand}"),
+    })
+}
+
+/// Ruling 2, RS's side: PY's extrema-number demand in the transport metadata check. An
+/// extremum whose `global_upper_bound_pa` or `certified_gap_pa` is not a JSON number
+/// (null included) is refused at G7 `SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID`, "extrema
+/// numbers", at PY's place (before the fractions); a JSON integer is a number. The raw
+/// path is unchanged: RS's base reader refuses RV113's two shapes at G7 with its own raw
+/// code, `SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID` (a declared per-reader raw code).
+#[test]
+fn b1_i4p_transport_extrema_numbers_at_g7() {
+    use serde_json::json;
+    let shared = corpus();
+    let x = |k: &str| {
+        json!([
+            "contract_evidence",
+            "preview_cases",
+            0,
+            "pipe_stress_extrema",
+            0,
+            k
+        ])
+    };
+    let on = |edits: Vec<Value>| b1_entry(&shared, ORD, None, edits, vec![]);
+    let shapes = [
+        (
+            "global_upper_bound_pa a string",
+            "global_upper_bound_pa",
+            json!("x"),
+        ),
+        (
+            "global_upper_bound_pa null",
+            "global_upper_bound_pa",
+            Value::Null,
+        ),
+        (
+            "global_upper_bound_pa a boolean",
+            "global_upper_bound_pa",
+            json!(true),
+        ),
+        ("certified_gap_pa null", "certified_gap_pa", Value::Null),
+        ("certified_gap_pa a string", "certified_gap_pa", json!("0")),
+        ("certified_gap_pa a list", "certified_gap_pa", json!([0.0])),
+    ];
+    let mut rows: Vec<(&str, Value, Value)> = shapes
+        .iter()
+        .map(|(name, k, v)| {
+            (
+                *name,
+                on(vec![set(x(k), v.clone())]),
+                b1_metadata_refusal("extrema numbers"),
+            )
+        })
+        .collect();
+    rows.extend([
+        ("the base", on(vec![]), admitted(false)),
+        (
+            "both members JSON integers",
+            on(vec![
+                set(x("global_upper_bound_pa"), json!(41354909)),
+                set(x("certified_gap_pa"), json!(0)),
+            ]),
+            admitted(false),
+        ),
+        (
+            "a string bound beside a fraction above 1 (the demand comes first)",
+            on(vec![
+                set(x("global_upper_bound_pa"), json!("x")),
+                set(x("station_fraction"), json!(2.0)),
+            ]),
+            b1_metadata_refusal("extrema numbers"),
+        ),
+        (
+            "a fraction above 1 alone",
+            on(vec![set(x("station_fraction"), json!(2.0))]),
+            b1_metadata_refusal("extrema fractions"),
+        ),
+    ]);
+    b1_table(rows, |e| b1_transport_detail(&shared, e));
+    let raw = gate("G7", "SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID");
+    let rv113 = [
+        (
+            "t_extrema_global_upper_string",
+            on(vec![set(x("global_upper_bound_pa"), json!("x"))]),
+        ),
+        (
+            "t_extrema_certified_gap_null",
+            on(vec![set(x("certified_gap_pa"), Value::Null)]),
+        ),
+    ];
+    b1_table(
+        rv113
+            .iter()
+            .map(|(n, e)| (*n, e.clone(), raw.clone()))
+            .collect(),
+        |e| b1_verdict(&shared, e),
+    );
+    b1_table(
+        rv113
+            .iter()
+            .map(|(n, e)| (*n, e.clone(), raw.clone()))
+            .collect(),
+        |e| b1_unbound(&shared, e),
+    );
+}
