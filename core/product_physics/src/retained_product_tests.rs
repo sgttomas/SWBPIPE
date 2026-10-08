@@ -3204,3 +3204,40 @@ fn rv77_stage_rules_null_and_non_null_prerequisites() {
     println!("RV77_PP_STAGE_RULES ok");
 }
 }
+
+/// B3b-P (B3-D P-3; §1.2): the exact route's material check of one used material, each refusal on
+/// its own: the constitutive basis absent or another; ν absent; the represented Ĝ absent, one ulp
+/// off RN64(E/(2·RN64(1+ν))), or subnormal (equal to that expression). An admitted material
+/// returns its ν; the check counts its adapter events, and the preview route never runs it.
+#[test]
+fn b3b_exact_material_check_refuses_each_defect() {
+    use super::retained_product::W1Route;
+    let capture = ProductCapture::prepared_probe_on(W1Route::Exact);
+    let material = |e: f64, nu: Option<f64>, g: Option<f64>, basis: Option<&str>| -> MaterialInput {
+        let mut m = serde_json::json!({"id":"mat","elastic_modulus":{"value":e,"unit":"Pa"}});
+        if let Some(nu) = nu { m["poisson_ratio"] = serde_json::json!({"value":nu,"unit":"1"}); }
+        if let Some(g) = g { m["shear_modulus"] = serde_json::json!({"value":g,"unit":"Pa"}); }
+        if let Some(b) = basis { m["constitutive_basis"] = serde_json::json!(b); }
+        serde_json::from_value(m).unwrap()
+    };
+    const B: Option<&str> = Some("homogeneous_isotropic_E_nu_v1");
+    let g = |e: f64, nu: f64| e / (2.0 * (1.0 + nu));
+    assert_eq!(capture.exact_material_nu(&material(2e11, Some(0.25), Some(8e10), B)).unwrap(), 0.25);
+    // ν = 0.3: Ĝ is not E/2.6 exactly, and only its RN64 value is admitted.
+    assert_eq!(capture.exact_material_nu(&material(2e11, Some(0.3), Some(g(2e11, 0.3)), B)).unwrap(), 0.3);
+    let err = |m: MaterialInput| capture.exact_material_nu(&m).unwrap_err().to_string();
+    assert_eq!(err(material(2e11, Some(0.25), Some(8e10), None)), "exact material constitutive basis");
+    assert_eq!(err(material(2e11, Some(0.25), Some(8e10), Some("homogeneous_isotropic_E_G_v1"))), "exact material constitutive basis");
+    assert_eq!(err(material(2e11, None, Some(8e10), B)), "exact material Poisson ratio");
+    assert_eq!(err(material(2e11, Some(0.25), None, B)), "exact material derived shear modulus");
+    assert_eq!(err(material(2e11, Some(0.3), Some(f64::from_bits(g(2e11, 0.3).to_bits() + 1)), B)), "exact material derived shear modulus");
+    assert_eq!(err(material(2e11, Some(0.3), Some(f64::from_bits(g(2e11, 0.3).to_bits() - 1)), B)), "exact material derived shear modulus");
+    let tiny = 1e-310;
+    assert!(g(tiny, 0.25).is_subnormal());
+    assert_eq!(err(material(tiny, Some(0.25), Some(g(tiny, 0.25)), B)), "exact material derived shear modulus");
+    // Each check is counted: the admitted call's ValidationEntry, KeyProbe and identity bytes.
+    let counted = ProductCapture::prepared_probe_on(W1Route::Exact);
+    counted.exact_material_nu(&material(2e11, Some(0.25), Some(8e10), B)).unwrap();
+    let counts = counted.adapter.counts.get();
+    assert_eq!((counts[3], counts[5], counts[4]), (2, 1, 2 * "homogeneous_isotropic_E_nu_v1".len() as u64), "{counts:?}");
+}

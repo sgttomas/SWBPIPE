@@ -64,6 +64,36 @@ pub(super) struct SolverObservations {
     pub parity_produced: bool,
     pub parity: Option<ObservationValue>,
 }
+/// B3b-P (B3-D P-1): the invocation's W1 route, decided once (`lib.rs` `w1_route`, in
+/// `permitted_run` and the private driver) from the admitted model's namespace branch: the
+/// preview successor over preview-physics-1, or the exact successor (`physics-retained-1`,
+/// DEF-E) over physics-1 (schema 0.3.0, `exact_straight_pressure_v2`, explicitly empty
+/// pressure regions). The route-specific steps (capture, observables, maxima, overlay and
+/// the wire's identity) each call their own named function (I95's ruling 1).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub(super) enum W1Route {
+    #[default]
+    Preview,
+    Exact,
+}
+impl W1Route {
+    /// The ordinary base publication's semantic contract on this route.
+    pub(super) fn base_contract(self) -> &'static str {
+        match self {
+            Self::Preview => preview_physics::ID,
+            Self::Exact => PHYSICS_SEMANTIC_CONTRACT_ID,
+        }
+    }
+    /// The base publication's `contract_evidence` member that holds one entry per case.
+    pub(super) fn evidence_cases(self) -> &'static str {
+        match self {
+            Self::Preview => "preview_cases",
+            Self::Exact => "exact_cases",
+        }
+    }
+}
+/// B3b-P (B3-D §1.2, P-3): the exact route's constitutive basis of every used material.
+pub(super) const EXACT_CONSTITUTIVE_BASIS: &str = "homogeneous_isotropic_E_nu_v1";
 #[derive(Debug, Clone)]
 pub(super) enum CaptureError {
     Association(String),
@@ -161,6 +191,13 @@ pub(super) struct ProductCapture {
     /// order. The capture's per-case fields hold the case being captured (or attempted); a
     /// later case's early hook parks them here. Empty at c = 1, where nothing is parked.
     parked: Vec<CaseSlot>,
+    /// B3b-P (P-1): the invocation's route, fixed at construction (Preview by default).
+    route: W1Route,
+    /// B3b-P (P-3): on the exact route, each normalized material's Poisson's ratio, in
+    /// `materials` order: `Some` for a material a member uses (its derived Ĝ checked), `None`
+    /// otherwise. Allocated through the adapter on the exact route only; empty on the preview
+    /// route (no event).
+    pub material_nu: Vec<Option<f64>>,
 }
 /// B1 SP (DESIGN_v2 T-2): declares `CaseSlot`, the per-case part of `ProductCapture`, and the
 /// swap that moves it in and out of the capture's own fields. Every per-case field of
@@ -263,15 +300,17 @@ impl ProductCapture {
     pub(super) fn case_scope(&self, index: usize) -> CaseScope {
         let cases = self.cases_seen();
         if cases == 1 {
-            return CaseScope::WHOLE;
+            return CaseScope::whole(self.route);
         }
         let rows = match index.cmp(&self.parked.len()) {
             std::cmp::Ordering::Less => self.parked[index].scope_rows.clone(),
             std::cmp::Ordering::Equal => self.scope_rows.clone(),
             std::cmp::Ordering::Greater => 0..0,
         };
-        CaseScope { rows: Some(rows), evidence: index, cases, qualified: index > 0 }
+        CaseScope { rows: Some(rows), evidence: index, cases, qualified: index > 0, route: self.route }
     }
+    /// B3b-P (P-1): the invocation's W1 route.
+    pub(super) fn route(&self) -> W1Route { self.route }
     /// B1 SP (T-2): a later requested case's early hook parks the case in the capture's
     /// fields. The first park reserves room for every earlier case, through the adapter
     /// (one allocation, its capacity recorded); each park is one map write. Never at c = 1.
@@ -498,7 +537,8 @@ impl ProductCapture {
             return;
         }
         self.request_materials = request_materials;
-        if pressure_runtime::is_exact(model)
+        // B3b-P (P-3): an exact model is in scope on the exact route only, and only there.
+        if pressure_runtime::is_exact(model) != (self.route == W1Route::Exact)
             || case_state::is_load_state(model)
             || !model.combinations.is_empty()
             || !model.components.is_empty()
@@ -574,11 +614,54 @@ impl ProductCapture {
                 }
                 self.materials.push(record);
             }
+            if self.route == W1Route::Exact {
+                self.capture_exact_materials(model, materials)?;
+            }
             Ok(())
         })();
         if let Err(e) = captured {
             self.error = Some(e);
         }
+    }
+    /// B3b-P (B3-D P-3; §1.2): on the exact route, each material's Poisson's ratio, in
+    /// `materials` order. A material a member uses must carry the exact constitutive basis and a
+    /// ratio, and its represented shear modulus (`resolve_base`'s Ĝ) must be a positive normal
+    /// binary64 equal to RN64(E/(2·RN64(1+ν))), else a typed capture error (defensive: RV116
+    /// N-1 proves the equality for every normal Ĝ). An unused material keeps `None`.
+    fn capture_exact_materials(&mut self, model: &PreviewModel, materials: &[MaterialInput]) -> Result<(), CaptureError> {
+        self.material_nu = self.adapter.reserve(materials.len())?;
+        for m in materials {
+            self.capture_entry(AdapterEvent::SourceVisit)?;
+            let mut used = false;
+            for pipe in &model.pipe_segments {
+                self.capture_entry(AdapterEvent::SourceVisit)?;
+                if self.checked_same(&pipe.material, &m.id)? {
+                    used = true;
+                    break;
+                }
+            }
+            let nu = if used { Some(self.exact_material_nu(m)?) } else { None };
+            self.capture_entry(AdapterEvent::MapWrite)?;
+            self.material_nu.push(nu);
+        }
+        Ok(())
+    }
+    /// One used material's ν, with its basis and Ĝ checked (P-3).
+    pub(super) fn exact_material_nu(&self, m: &MaterialInput) -> Result<f64, CaptureError> {
+        self.capture_entry(AdapterEvent::ValidationEntry)?;
+        let basis = m.constitutive_basis.as_deref().ok_or("exact material constitutive basis")?;
+        if !self.checked_same(basis, EXACT_CONSTITUTIVE_BASIS)? {
+            return Err("exact material constitutive basis".into());
+        }
+        let nu = m.poisson_ratio.as_ref().ok_or("exact material Poisson ratio")?.value;
+        let g = m.shear_modulus.as_ref().ok_or("exact material derived shear modulus")?.value;
+        #[cfg(test)]
+        let g = if crate::retained_tests_hooks::exact_capture_fault() { f64::from_bits(g.to_bits().wrapping_add(1)) } else { g };
+        let derived = m.elastic_modulus.value / (2.0 * (1.0 + nu));
+        if !(g.is_normal() && g > 0.0 && g.to_bits() == derived.to_bits()) {
+            return Err("exact material derived shear modulus".into());
+        }
+        Ok(nu)
     }
     pub fn selection(
         &mut self,
@@ -1552,6 +1635,11 @@ impl ProductCapture {
             self.fail("private witness has exactly one actual case");
             return;
         }
+        // B3b-P (P-5; D1.5-exact, DEF-E `scope.materials`): the exact route's base common E/ν only.
+        if self.route == W1Route::Exact && load_case_selector(case).is_some() {
+            self.fail("exact route: base common E/nu selection only");
+            return;
+        }
         if let Err(e) = self.basis_source_case(case) {
             self.error = Some(e);
             return;
@@ -1666,9 +1754,20 @@ impl ProductCapture {
             };
             let material =
                 if case.modulus_basis_ref.is_none() && case.modulus_basis_temperature.is_none() {
-                    k::ProductMaterial::Base {
-                        e: self.materials[mi].1,
-                        g: self.materials[mi].2,
+                    match self.route {
+                        W1Route::Preview => k::ProductMaterial::Base {
+                            e: self.materials[mi].1,
+                            g: self.materials[mi].2,
+                        },
+                        // B3b-P (P-5): the exact route's base common E/ν (B3-K's BaseENu); the
+                        // source lane encloses G = E/(2(1+ν)) from E and ν (DEF-E `lanes`).
+                        W1Route::Exact => match self.material_nu.get(mi).copied().flatten() {
+                            Some(nu) => k::ProductMaterial::BaseENu { e: self.materials[mi].1, nu },
+                            None => {
+                                self.fail("exact material Poisson ratio");
+                                return;
+                            }
+                        },
                     }
                 } else {
                     let Some(s) = self.selections.iter().find(|s| {
@@ -1921,7 +2020,7 @@ impl ProductCapture {
             self.fail("final hook repeated");
             return;
         }
-        if envelope.producer.semantic_contract_id != preview_physics::ID
+        if envelope.producer.semantic_contract_id != self.route.base_contract()
             || envelope.source_block_recovery.is_some()
             || envelope.status.mechanics != "MECHANICS_SOLVED"
         {
@@ -2010,7 +2109,7 @@ impl ProductCapture {
         e: &'a MechanicsEnvelope,
         owner: &k::RetainedSolve,
     ) -> Result<Vec<k::ProductFinalRow<'a>>, CaptureError> {
-        self.bind_rows_view(ProductCaseView::of(e,&CaseScope::WHOLE),owner)
+        self.bind_rows_view(ProductCaseView::of(e,CaseScope::whole_ref(self.route)),owner)
     }
     /// `bind_rows` within one requested case's scope (B1 SP, T-11's serializer).
     pub(super) fn bind_rows_scoped<'a>(&self,e:&'a MechanicsEnvelope,scope:&'a CaseScope,owner:&k::RetainedSolve)
@@ -2249,9 +2348,114 @@ impl ProductCapture {
         Ok(out)
     }
     pub(super) fn observables(&self, e: &MechanicsEnvelope) -> Result<(), CaptureError> {
-        self.observables_view(ProductCaseView::of(e,&CaseScope::WHOLE))
+        self.observables_view(ProductCaseView::of(e,&CaseScope::whole(self.route)))
     }
+    /// The case's observables: its route's evidence entry (B3-D P-6 on the exact route), then
+    /// the shared checks of its `pipe_stress_extrema`, support magnitudes and headlines.
     fn observables_view(&self,view:ProductCaseView<'_>)->Result<(),CaptureError> {
+        let extrema = match view.scope.route {
+            W1Route::Preview => self.preview_case_evidence(view)?,
+            W1Route::Exact => self.exact_case_evidence(view)?,
+        };
+        self.case_observables(view, extrema)
+    }
+    /// B3b-P (B3-D P-6): the exact route's closed physics-1 evidence and the case's entry:
+    /// `{pressure: [], connector: [], exact_cases}`; the entry's eight keys (no
+    /// `recovery_method`), its case, `profile_mode`, the base common E/ν basis, complete
+    /// `stress_maximum_coverage`, `pressure_rhs_assembly` with no groups and all-zero vectors,
+    /// and `pipe_sections` and `pipe_materials` covering every member, each bound to the
+    /// captured normalized OD and effective wall, and to the captured E, ν and Ĝ. Returns the
+    /// entry's `pipe_stress_extrema`.
+    fn exact_case_evidence<'a>(&self,view:ProductCaseView<'a>)->Result<&'a [serde_json::Value],CaptureError> {
+        let e=view.ordinary();
+        self.adapter.require()?;
+        self.adapter.enter(AdapterEvent::LibraryBoundary, 1); // Closed evidence inspection; serde/number internals remain unqualified.
+        let evidence = e.contract_evidence.as_ref().ok_or("exact evidence")?;
+        self.adapter.closed_keys(evidence, &["pressure", "connector", "exact_cases"], "evidence shape")?;
+        self.capture_entry(AdapterEvent::ValidationEntry)?;
+        if evidence["pressure"].as_array().is_none_or(|v| !v.is_empty()) || evidence["connector"].as_array().is_none_or(|v| !v.is_empty()) {
+            return Err("exact pressure/connector evidence".into());
+        }
+        let cases = evidence["exact_cases"].as_array().ok_or("exact cases")?;
+        if cases.len() != view.scope.cases {
+            return Err("evidence case".into());
+        }
+        let c = cases.get(view.scope.evidence).ok_or("evidence case")?;
+        self.adapter.closed_keys(c, &["load_case_id", "profile_mode", "material_basis", "pressure_rhs_assembly", "pipe_sections",
+            "pipe_stress_extrema", "stress_maximum_coverage", "pipe_materials"], "case shape")?;
+        let case_id = c["load_case_id"].as_str().ok_or("evidence case")?;
+        if !self.checked_same(case_id, &self.case_id)? {
+            return Err("evidence case".into());
+        }
+        if !self.checked_same(c["profile_mode"].as_str().ok_or("exact profile mode")?, "exact_straight_pressure_v2")?
+            || !self.checked_same(c["material_basis"].as_str().ok_or("exact material basis")?, "base_material_common_E_nu")? {
+            return Err("exact profile/material basis".into());
+        }
+        self.adapter.closed_keys(&c["stress_maximum_coverage"], &["complete", "unavailable_pipe_ids"], "stress coverage shape")?;
+        if c["stress_maximum_coverage"]["complete"] != true
+            || c["stress_maximum_coverage"]["unavailable_pipe_ids"].as_array().is_none_or(|v| !v.is_empty()) {
+            return Err("maximum coverage".into());
+        }
+        // No pressure region (D1.5-exact): no assembly group, and every assembled vector +0.
+        let assembly = &c["pressure_rhs_assembly"];
+        self.capture_entry(AdapterEvent::ValidationEntry)?;
+        if assembly["groups"].as_array().is_none_or(|v| !v.is_empty()) {
+            return Err("exact pressure assembly groups".into());
+        }
+        for key in ["assembled_pressure_rhs_global", "rounded_cap_rhs_global", "rounded_poisson_rhs_global"] {
+            for v in assembly[key].as_array().ok_or("exact pressure assembly vector")? {
+                self.capture_entry(AdapterEvent::RowVisit)?;
+                if v.as_f64().is_none_or(|x| x.to_bits() != 0) {
+                    return Err("exact pressure assembly vector".into());
+                }
+            }
+        }
+        let sections = c["pipe_sections"].as_array().ok_or("exact pipe sections")?;
+        let materials = c["pipe_materials"].as_array().ok_or("exact pipe materials")?;
+        if sections.len() != self.members.len() || materials.len() != self.members.len() {
+            return Err("exact section/material coverage".into());
+        }
+        for (mi, member) in self.members.iter().enumerate() {
+            self.capture_entry(AdapterEvent::SourceVisit)?;
+            let f = self.facts.get(mi).ok_or("exact section facts")?;
+            let mut section = None;
+            for s in sections {
+                self.capture_entry(AdapterEvent::RowVisit)?;
+                if self.checked_same(s["pipe_id"].as_str().ok_or("exact section id")?, &member.id)? {
+                    if section.is_some() {
+                        return Err("exact section identity".into());
+                    }
+                    section = Some(s);
+                }
+            }
+            let s = section.ok_or("exact section identity")?;
+            let bits = |key: &str| s[key].as_f64().map(f64::to_bits);
+            if bits("outside_diameter_m") != Some(f.diameter.to_bits()) || bits("effective_wall_thickness_m") != Some(f.effective_wall.to_bits()) {
+                return Err("exact section geometry".into());
+            }
+            let (_, e_pa, g_pa) = self.materials.get(member.material).ok_or("exact material")?;
+            let nu = self.material_nu.get(member.material).copied().flatten().ok_or("exact material Poisson ratio")?;
+            let mut material = None;
+            for x in materials {
+                self.capture_entry(AdapterEvent::RowVisit)?;
+                if self.checked_same(x["pipe_id"].as_str().ok_or("exact material id")?, &member.id)? {
+                    if material.is_some() {
+                        return Err("exact material identity".into());
+                    }
+                    material = Some(x);
+                }
+            }
+            let x = material.ok_or("exact material identity")?;
+            let bits = |key: &str| x[key].as_f64().map(f64::to_bits);
+            if bits("E_pa") != Some(e_pa.to_bits()) || bits("nu") != Some(nu.to_bits()) || bits("G_pa") != Some(g_pa.to_bits()) {
+                return Err("exact material values".into());
+            }
+        }
+        Ok(c["pipe_stress_extrema"].as_array().ok_or("extrema")?)
+    }
+    /// The preview route's closed preview-physics-1 evidence and the case's entry. Returns the
+    /// entry's `pipe_stress_extrema`.
+    fn preview_case_evidence<'a>(&self,view:ProductCaseView<'a>)->Result<&'a [serde_json::Value],CaptureError> {
         let e=view.ordinary();
         self.adapter.require()?;
         self.adapter.enter(AdapterEvent::LibraryBoundary, 1); // Closed evidence inspection; serde/number internals remain unqualified.
@@ -2341,7 +2545,12 @@ impl ProductCapture {
                 return Err("support attribution identity".into());
             }
         }
-        let extrema = c["pipe_stress_extrema"].as_array().ok_or("extrema")?;
+        Ok(c["pipe_stress_extrema"].as_array().ok_or("extrema")?)
+    }
+    /// The route-independent observables of a case, after its evidence entry: one
+    /// `pipe_stress_extrema` record per member bound to its maximum row (midpoint), the support
+    /// magnitude guard, and the two headlines (the case's aliases).
+    fn case_observables(&self,view:ProductCaseView<'_>,extrema:&[serde_json::Value])->Result<(),CaptureError> {
         if extrema.len() != self.members.len() {
             return Err("extrema coverage".into());
         }
@@ -3765,6 +3974,14 @@ impl PreparedCases {
             frozen.payload.maxima.first_mut().expect("the milestone has maxima patches").evidence_index = usize::MAX;
         }
     }
+    /// B3b-P (P-12) test-only staging fault: the first frozen case's first section patch names
+    /// an index past its `pipe_sections` (exact route).
+    #[cfg(test)]
+    pub(super) fn test_break_section_overlay(&mut self) {
+        if let Some(AttemptEnd::Frozen(frozen)) = self.attempts.iter_mut().map(|attempt| &mut attempt.end).find(|end| matches!(end, AttemptEnd::Frozen(_))) {
+            frozen.payload.sections.first_mut().expect("an exact case has section patches").evidence_index = usize::MAX;
+        }
+    }
 }
 impl CaseAttempt {
     /// The attempt's typed C3 view (I57), over the capture with its case in the capture's own
@@ -3798,7 +4015,8 @@ impl ProductCapture {
     /// any attempt.
     /// - A prior capture error of any case, the first in request order, is the cause: the parked
     ///   cases' (0 to c − 2), then the last case's, in the capture's own fields (RV109 R3P-3).
-    /// - The ordinary preconditions: one final hook, the preview contract, `MECHANICS_SOLVED`,
+    /// - The ordinary preconditions: one final hook, the route's base contract (preview-physics-1,
+    ///   or physics-1 on the exact route: B3b-P), `MECHANICS_SOLVED`,
     ///   no exact-block selection, and no native work yet.
     /// - One complete late capture per requested case.
     /// - Each case's observations bound to the envelope (`bind_observations`, per case), and,
@@ -3817,7 +4035,7 @@ impl ProductCapture {
         if !self.prepared_probe || self.final_calls!=1
             || ordinary.source_block_recovery.is_some() || self.native.is_some() || self.native_invocation.is_some()
             || self.parked.iter().any(|slot|slot.native.is_some())
-            || ordinary.producer.semantic_contract_id!=preview_physics::ID || ordinary.status.mechanics!="MECHANICS_SOLVED" {
+            || ordinary.producer.semantic_contract_id!=self.route.base_contract() || ordinary.status.mechanics!="MECHANICS_SOLVED" {
             return Err("prepared case custody/permit".into());
         }
         if self.cases_seen()!=requested {
@@ -3942,9 +4160,16 @@ impl ProductCapture {
 }
 impl ProductCapture {
     pub(super) fn prepared_probe() -> Self { Self {prepared_probe:true,..Self::default()} }
-    /// U3: the facade's observer, bound to its capture permit for G-B.
+    /// B3b-P (P-1): the private driver's observer on `route`.
+    pub(super) fn prepared_probe_on(route:W1Route) -> Self { Self {prepared_probe:true,route,..Self::default()} }
+    /// U3: the facade's observer, bound to its capture permit for G-B (the preview route).
     pub(super) fn permitted_probe(permit:super::retained_memory::CapturePermit) -> Self {
-        Self {prepared_probe:true,permit:Some(permit),..Self::default()}
+        Self::permitted_probe_on(permit,W1Route::Preview)
+    }
+    /// B3b-P (P-1): the facade's observer on the invocation's route, decided once in
+    /// `permitted_run`.
+    pub(super) fn permitted_probe_on(permit:super::retained_memory::CapturePermit,route:W1Route) -> Self {
+        Self {prepared_probe:true,permit:Some(permit),route,..Self::default()}
     }
     pub(super) fn late_refusal(&self)->Option<&super::retained_memory::PhaseRefusal> {self.late_refusal.as_ref()}
     /// The facade's capture permit, owned by this observer (U3 grant 1b: linear), for G-C.
@@ -4087,8 +4312,10 @@ impl PreparedCase {
     pub(super) fn test_capture_mut(&mut self)->&mut ProductCapture {&mut self.capture}
     pub(super) fn prepare_observed(request:LinearStaticPreviewRequest,mode:PreviewSolverMode,
         capture:&source_receipt::CapturedInvocation)->Result<Self,PreparedCaseFailure> {
-        let mut observer=ProductCapture::prepared_probe();
-        let ordinary=run_linear_static_preview_observed(request,mode,Some(capture),&mut SourceRecoveryBudget::default(),Some(&mut observer));
+        // B3b-P (P-1, P-2): the route and its exact-block budget, as `permitted_run` decides them.
+        let route=super::w1_route(&request.model).unwrap_or_default();
+        let mut observer=ProductCapture::prepared_probe_on(route);
+        let ordinary=run_linear_static_preview_observed(request,mode,Some(capture),&mut super::w1_budget(route),Some(&mut observer));
         observer.prepare_owned_case(ordinary)
     }
     pub(super) fn ordinary(&self)->&MechanicsEnvelope {self.ordinary.as_ref().expect("owned ordinary before attempt")}
@@ -4118,8 +4345,13 @@ impl PreparedCase {
 const PREPARED_MAX_KEYS:[&str;8]=["station_fraction","span_index","local_fraction","value_lower_pa",
     "value_upper_pa","global_upper_bound_pa","certified_gap_pa","subdivisions"];
 struct PreparedMaximumPatch { evidence_index:usize, row:usize, member:u32, numbers:[serde_json::Number;8] }
+/// B3b-P (B3-D §1.4, B3D-4): the exact route's regenerated section evidence of one member in
+/// the owner case's `exact_cases` entry: `pipe_sections[evidence_index]`'s four values.
+const PREPARED_SECTION_KEYS:[&str;4]=["As_m2","I_m4","J_m4","Z_m3"];
+struct PreparedSectionPatch { evidence_index:usize, member:u32, numbers:[serde_json::Number;4] }
+/// `sections` is empty on the preview route (no allocation, no event).
 struct PreparedPayload { values:k::FrozenProductValues, maxima:Vec<PreparedMaximumPatch>,
-    displacement:LocatedQuantity, stress:LocatedQuantity }
+    displacement:LocatedQuantity, stress:LocatedQuantity, sections:Vec<PreparedSectionPatch> }
 #[derive(Clone,Copy)]
 struct ProductRowView<'a> { original:&'a ResultItem, value:&'a f64 }
 impl std::ops::Deref for ProductRowView<'_> {type Target=ResultItem;fn deref(&self)->&ResultItem{self.original}}
@@ -4127,10 +4359,18 @@ impl std::ops::Deref for ProductRowView<'_> {type Target=ResultItem;fn deref(&se
 /// its rows, its `contract_evidence.preview_cases[]` entry (of `cases`), and whether its row
 /// ids are case-qualified (a case after the first; lib.rs `qualified_load_case_result_id`).
 /// One requested case owns the whole envelope (`WHOLE`: the one-case scope, unchanged).
+/// B3b-P: `route` names the base evidence's per-case array (`preview_cases` or `exact_cases`)
+/// and whether the exact route's section evidence is overlaid (B3-D P-6 to P-8).
 #[derive(Debug,Clone,PartialEq,Eq)]
-pub(super) struct CaseScope {rows:Option<std::ops::Range<usize>>,evidence:usize,cases:usize,qualified:bool}
+pub(super) struct CaseScope {rows:Option<std::ops::Range<usize>>,evidence:usize,cases:usize,qualified:bool,route:W1Route}
 impl CaseScope {
-    pub(super) const WHOLE:Self=Self{rows:None,evidence:0,cases:1,qualified:false};
+    pub(super) const WHOLE:Self=Self{rows:None,evidence:0,cases:1,qualified:false,route:W1Route::Preview};
+    /// The one-case scope on the exact route.
+    pub(super) const WHOLE_EXACT:Self=Self{route:W1Route::Exact,..Self::WHOLE};
+    /// The one-case scope on `route` (`WHOLE` on the preview route).
+    pub(super) const fn whole(route:W1Route)->Self {Self{route,..Self::WHOLE}}
+    /// The one-case scope on `route`, borrowed for any lifetime.
+    pub(super) fn whole_ref(route:W1Route)->&'static Self {match route {W1Route::Preview=>&Self::WHOLE,W1Route::Exact=>&Self::WHOLE_EXACT}}
     /// The case's rows (all rows for `WHOLE`), or `None` when they are not the envelope's.
     pub(super) fn rows_of<'a>(&self,results:&'a [ResultItem])->Option<&'a [ResultItem]> {
         results.get(self.row_range(results.len()))
@@ -4166,7 +4406,7 @@ impl<'a> ProductCaseView<'a> {
                 }
             }
             Ok(None)
-        },None=>Ok(self.ordinary.contract_evidence.as_ref().and_then(|e|e["preview_cases"][self.scope.evidence]["pipe_stress_extrema"][index][key].as_f64()))}
+        },None=>Ok(self.ordinary.contract_evidence.as_ref().and_then(|e|e[self.scope.route.evidence_cases()][self.scope.evidence]["pipe_stress_extrema"][index][key].as_f64()))}
     }
     fn headline(self,stress:bool)->Option<&'a LocatedQuantity> {match self.payload {
         None=>if stress{self.ordinary.summary.max_open_formula_stress.as_ref()}else{self.ordinary.summary.max_displacement.as_ref()},
@@ -4240,7 +4480,8 @@ impl ProductCapture {
         values:&mut k::ProductValuesBuilder,work:&mut ScalarWork)->Result<(Vec<PreparedMaximumPatch>,Vec<k::ProductMaximumValue>),CaptureError> {
         #[cfg(test)] if self.trace_fault==Some(trace::TraceFault::Maxima){return Err(CaptureError::Storage("trace maximum allocation fault"));}
         let evidence=e.contract_evidence.as_ref().ok_or("prepared maximum evidence")?;
-        let extrema=evidence["preview_cases"][scope.evidence]["pipe_stress_extrema"].as_array().ok_or("prepared maximum records")?;
+        // B3b-P (P-7): the route's per-case evidence entry (`exact_cases[c]` on the exact route).
+        let extrema=evidence[scope.route.evidence_cases()][scope.evidence]["pipe_stress_extrema"].as_array().ok_or("prepared maximum records")?;
         if extrema.len()!=self.members.len(){return Err("prepared maximum complete domain".into());}
         let mut patches=self.adapter.reserve(self.members.len())?;
         let mut outputs=self.adapter.reserve(self.members.len())?;
@@ -4291,6 +4532,34 @@ impl ProductCapture {
         }
         Ok((patches,outputs))
     }
+    /// B3b-P (B3-D P-8, §1.4): the exact route's section evidence regenerated for the owner case:
+    /// for each member, its `pipe_sections` entry in the case's `exact_cases` entry (matched by
+    /// `pipe_id`) takes the prepared A, I, J and Z (the facts after preparation). OD, wall, the
+    /// radii, Ai, the basis and the order are unchanged.
+    fn prepared_sections(&self,e:&MechanicsEnvelope,scope:&CaseScope)->Result<Vec<PreparedSectionPatch>,CaptureError> {
+        let evidence=e.contract_evidence.as_ref().ok_or("prepared section evidence")?;
+        let sections=evidence[scope.route.evidence_cases()][scope.evidence]["pipe_sections"].as_array().ok_or("prepared section records")?;
+        if sections.len()!=self.members.len(){return Err("prepared section complete domain".into());}
+        let mut patches=self.adapter.reserve(self.members.len())?;
+        for (mi,member) in self.members.iter().enumerate() {
+            self.capture_entry(AdapterEvent::SourceVisit)?;
+            let f=self.facts.get(mi).ok_or("prepared section facts")?;
+            let mut found=None;
+            for (i,x) in sections.iter().enumerate() {
+                self.capture_entry(AdapterEvent::RowVisit)?;
+                if self.checked_same(x["pipe_id"].as_str().ok_or("prepared section pipe id")?,&member.id)? {
+                    if found.is_some(){return Err("prepared section identity".into());}
+                    found=Some(i);
+                }
+            }
+            let index=found.ok_or("prepared section identity")?;
+            for key in PREPARED_SECTION_KEYS {self.capture_entry(AdapterEvent::ValidationEntry)?;if sections[index][key].as_number().is_none(){return Err("prepared section numeric slot".into());}}
+            let n=|v:f64|{self.capture_entry(AdapterEvent::MapWrite)?;serde_json::Number::from_f64(v).ok_or_else(||CaptureError::Association("section number range".into()))};
+            let numbers=[n(f.area)?,n(f.second_moment)?,n(f.torsion_constant)?,n(f.section_modulus)?];
+            self.capture_entry(AdapterEvent::MapWrite)?;patches.push(PreparedSectionPatch{evidence_index:index,member:f.member,numbers});
+        }
+        Ok(patches)
+    }
     fn prepared_alias(&self,rows:&[ResultItem],values:&k::FrozenProductValues,kind:&str)->Result<LocatedQuantity,CaptureError> {
         let mut best=None;
         for (i,r) in rows.iter().enumerate() {
@@ -4339,6 +4608,12 @@ impl ProductCapture {
             trace.completed(trace::Stage::Projection);trace.enter(trace::Stage::Maxima);
             let (patches,maxima)=match self.prepared_maxima(ordinary,scope,owner,&base_rows,&mut builder,overlay_work) {
                 Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(builder.abandon())})};
+            // B3b-P (P-8): the exact route's section evidence, beside its maxima (same stage).
+            let sections=match scope.route {
+                W1Route::Preview=>Vec::new(),
+                W1Route::Exact=>match self.prepared_sections(ordinary,scope) {
+                    Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(builder.abandon())})},
+            };
             trace.completed(trace::Stage::Maxima);trace.enter(trace::Stage::Values);
             #[cfg(test)] let maxima_input=if self.trace_fault==Some(trace::TraceFault::ValuesCompletion){&maxima[..0]}else{&maxima[..]};
             #[cfg(not(test))] let maxima_input=&maxima[..];
@@ -4350,7 +4625,7 @@ impl ProductCapture {
             let stress=match self.prepared_alias(ProductCaseView::of(ordinary,scope).case_rows(),&values,"pipe_elastic_normal_stress_maximum_v2") {
                 Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
             trace.completed(trace::Stage::Aliases);
-            let payload=PreparedPayload{values,maxima:patches,displacement,stress};
+            let payload=PreparedPayload{values,maxima:patches,displacement,stress,sections};
             let view=ProductCaseView{ordinary,payload:Some(&payload),scope};
             let rows=match self.bind_rows_view(view,owner) {
                 Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
@@ -4408,7 +4683,10 @@ impl ProductCapture {
                     else if self.g5a_error.is_some(){PreparedCandidateError::G5a}else{PreparedCandidateError::Numeric});
             }
             // The finite move plan is checked/charged before any ordinary mutation.
+            // B3b-P: the exact route's section patches move four values each (none on the preview route).
+            let section_moves=payload.sections.len().checked_mul(4).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit sections")))?;
             let moves=payload.values.len().checked_add(payload.maxima.len().checked_mul(8).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit maxima")))?)
+                .and_then(|v|v.checked_add(section_moves))
                 .and_then(|v|v.checked_add(2)).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit moves")))?;
             self.adapter.enter(AdapterEvent::MapWrite,u64::try_from(moves).map_err(|_|PreparedCandidateError::Capture(CaptureError::CountRange("commit count")))?);
             self.adapter.require().map_err(PreparedCandidateError::Capture)?;
@@ -4437,7 +4715,7 @@ impl PreparedCase {
     fn freeze_candidate(mut self)->Result<FrozenCandidate,PreparedCandidateRefusal> {
         let ordinary=self.ordinary.take().expect("closed owning preparation transition");
         let (invocation,case)=(self.capture.native_invocation.take(),self.capture.native.take());
-        let frozen=self.capture.freeze_case(&mut self.trace,&mut self.overlay_work,&mut self.proof_attempted,&ordinary,&CaseScope::WHOLE,
+        let frozen=self.capture.freeze_case(&mut self.trace,&mut self.overlay_work,&mut self.proof_attempted,&ordinary,&CaseScope::whole(self.capture.route),
             invocation.as_ref().zip(case.as_ref()));
         (self.capture.native_invocation,self.capture.native)=(invocation,case);
         match frozen {
@@ -4455,18 +4733,34 @@ impl PreparedCase {
 fn apply_prepared_overlay(envelope:&mut MechanicsEnvelope,payload:&PreparedPayload,scope:&CaseScope)->Result<(),StagingFault> {
     let rows=match &scope.rows {None=>&mut envelope.results[..],Some(rows)=>envelope.results.get_mut(rows.clone()).ok_or(StagingFault("results"))?};
     for (i,row) in rows.iter_mut().enumerate(){row.value=*payload.values.value(i).ok_or(StagingFault("values"))?;}
-    let cases=envelope.contract_evidence.as_mut().and_then(|e|e.as_object_mut()).and_then(|e|e.get_mut("preview_cases"))
-        .and_then(|c|c.as_array_mut()).ok_or(StagingFault("preview_cases"))?;
-    let extrema=cases.get_mut(scope.evidence).and_then(|c|c.as_object_mut()).and_then(|c|c.get_mut("pipe_stress_extrema"))
-        .and_then(|x|x.as_array_mut()).ok_or(StagingFault("pipe_stress_extrema"))?;
+    let key=scope.route.evidence_cases();
+    let cases=envelope.contract_evidence.as_mut().and_then(|e|e.as_object_mut()).and_then(|e|e.get_mut(key))
+        .and_then(|c|c.as_array_mut()).ok_or(StagingFault(key))?;
+    let case=cases.get_mut(scope.evidence).and_then(|c|c.as_object_mut()).ok_or(StagingFault("pipe_stress_extrema"))?;
+    let extrema=case.get_mut("pipe_stress_extrema").and_then(|x|x.as_array_mut()).ok_or(StagingFault("pipe_stress_extrema"))?;
     for patch in &payload.maxima {
         let object=extrema.get_mut(patch.evidence_index).and_then(|x|x.as_object_mut()).ok_or(StagingFault("pipe_stress_extrema[]"))?;
         for (key,number) in PREPARED_MAX_KEYS.into_iter().zip(patch.numbers.iter()){
             *object.get_mut(key).ok_or(StagingFault("pipe_stress_extrema[].key"))?=serde_json::Value::Number(number.clone());
         }
     }
+    if scope.route==W1Route::Exact {
+        apply_exact_section_overlay(case,payload)?;
+    }
     if scope.rows.is_none() {
         envelope.summary.max_displacement=Some(payload.displacement.clone());envelope.summary.max_open_formula_stress=Some(payload.stress.clone());
+    }
+    Ok(())
+}
+/// B3b-P (B3-D P-8, §1.4; DEF-E `evidence.pipe_sections`): in the owner case's `exact_cases`
+/// entry only, each member's `pipe_sections` entry takes the prepared As, I, J and Z.
+fn apply_exact_section_overlay(case:&mut serde_json::Map<String,serde_json::Value>,payload:&PreparedPayload)->Result<(),StagingFault> {
+    let sections=case.get_mut("pipe_sections").and_then(|x|x.as_array_mut()).ok_or(StagingFault("pipe_sections"))?;
+    for patch in &payload.sections {
+        let object=sections.get_mut(patch.evidence_index).and_then(|x|x.as_object_mut()).ok_or(StagingFault("pipe_sections[]"))?;
+        for (key,number) in PREPARED_SECTION_KEYS.into_iter().zip(patch.numbers.iter()){
+            *object.get_mut(key).ok_or(StagingFault("pipe_sections[].key"))?=serde_json::Value::Number(number.clone());
+        }
     }
     Ok(())
 }
@@ -4510,7 +4804,7 @@ impl FrozenCandidate {
         let mut envelope=self.ordinary;
         // The private driver only (tests): its bytes are unchanged and a broken
         // invariant still stops it here, as before the facade existed.
-        apply_prepared_overlay(&mut envelope,&self.payload,&CaseScope::WHOLE).expect("frozen overlay invariant");
+        apply_prepared_overlay(&mut envelope,&self.payload,&CaseScope::whole(self.prepared.capture.route)).expect("frozen overlay invariant");
         self.prepared.trace.costs.record::<bool>();self.prepared.trace.private_committed=true;self.prepared.trace.freeze(&self.prepared.capture);
         PrivatePreparedCandidate{envelope,prepared:self.prepared,certificate:self.certificate}
     }
