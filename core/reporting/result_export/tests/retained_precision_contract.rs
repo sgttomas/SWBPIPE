@@ -5386,12 +5386,122 @@ fn b3b_shapes(shared: &Value) -> Vec<(ExactShape, Value)> {
         out.extend(b3b_rows(shared, name));
         out.push((ExactShape { name: "11 S-1: the preparation hashed with DEF-O's H", base: s1, edits: vec![], invocation_edits: vec![], after: vec![] }, gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")));
     }
+    // RV120's F2 forgeries (B28, B29): only G8 step 4's E and G-hat bits refuse them.
+    for (name, base, edits) in rv120_forgeries() {
+        out.push((ExactShape { name, base, edits, invocation_edits: vec![], after: vec![] }, gate("G8", PREPARATION)));
+    }
     if std::env::var("B3B_EXACT_BASE").is_ok() {
         out.push((ExactShape { name: "base", base: FILE_BASE, edits: vec![], invocation_edits: vec![], after: vec![] }, Value::Null));
         out.extend(b3b_rows(shared, FILE_BASE));
         out.push((ExactShape { name: "11 S-1: the preparation hashed with DEF-O's H", base: "<s1:file>", edits: vec![], invocation_edits: vec![], after: vec![] }, gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")));
     }
     out
+}
+/// RV120's F2 forgeries (REVIEW_RV120 b3_readers_01: its `forge_eg.py` and
+/// `forge_eg_inputs.jsonl`, here as edits on the synthetic exact base and lane P's sparse
+/// m3x successor; the 07e rehash recomputes the rest). E or G-hat moves one ulp in all five
+/// receipt copies (the material basis, the id-map member, the prepared `old_source`, the old
+/// and new operational inputs), the operational stiffness the readers derive moves with it
+/// (the attempt results and both section-term copies), the evidence `G_pa` moves for G-hat
+/// (N-6), and the sources' native hashes and their copies are resealed. The shipped readers
+/// refuse each at G8 step 4 (`PREPARATION_MISMATCH`); without step 4's E bits (mutant B28)
+/// or G-hat bits (B29) the matching forgeries read bound and eligible.
+fn rv120_forgeries() -> Vec<(&'static str, &'static str, Vec<Value>)> {
+    use serde_json::json;
+    vec![
+        ("RV120 F2: E +1 ulp in every receipt copy, stiffness and native hashes resealed", "ordinary_prepared_synthetic", vec![
+            set(json!(["retained_precision", "body", "cases", 0, "selection", "section_terms", 0, "axial_stiffness"]), json!("41c4990f17e516ae")),
+            set(json!(["retained_precision", "body", "groups", 0, "stiffness_sha256"]), json!("1fbb32395a897d401b673f4527d6858876a6c6668ff3779fa9484855ad2285b2")),
+            set(json!(["retained_precision", "body", "material_bases", 0, "materials", 0, "elastic_modulus"]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "inputs", 6]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "result", "axial_stiffness"]), json!("41c4990f17e516ae")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "inputs", 6]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "result", "axial_stiffness"]), json!("41c4990f17e516ae")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "preparation", "members", 0, "old_source", 0]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "id_maps", "members", 0, "E"]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "kernel_source_sha256"]), json!("57dc66560ce90fb976a633b07f55c736b11f2b78265d791a3a4123c0751be478")),
+            set(json!(["retained_precision", "body", "sources", 0, "section_terms", 0, "axial_stiffness"]), json!("41c4990f17e516ae")),
+            set(json!(["retained_precision", "body", "sources", 0, "stiffness_sha256"]), json!("1fbb32395a897d401b673f4527d6858876a6c6668ff3779fa9484855ad2285b2")),
+        ]),
+        ("RV120 F2: G-hat +1 ulp in every receipt copy, stiffness and native hashes resealed", "ordinary_prepared_synthetic", vec![
+            set(json!(["contract_evidence", "exact_cases", 0, "pipe_materials", 0, "G_pa"]), json!(f64::from_bits(0x4231ed8ec2000001))),
+            set(json!(["retained_precision", "body", "cases", 0, "selection", "section_terms", 0, "torsional_stiffness"]), json!("4128c47ead23fa81")),
+            set(json!(["retained_precision", "body", "groups", 0, "stiffness_sha256"]), json!("77a160acc4ffcf3ed919fe1e59ab3b670cc3ca4dcacbe192d9f932042c9e0980")),
+            set(json!(["retained_precision", "body", "material_bases", 0, "materials", 0, "shear_modulus"]), json!("4231ed8ec2000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "inputs", 7]), json!("4231ed8ec2000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "result", "torsional_stiffness"]), json!("4128c47ead23fa81")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "inputs", 7]), json!("4231ed8ec2000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "result", "torsional_stiffness"]), json!("4128c47ead23fa82")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "preparation", "members", 0, "old_source", 1]), json!("4231ed8ec2000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "id_maps", "members", 0, "G"]), json!("4231ed8ec2000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "kernel_source_sha256"]), json!("d098e88140c2f23621802f449f296928412138208b2adf72553b0a4790fe8f58")),
+            set(json!(["retained_precision", "body", "sources", 0, "section_terms", 0, "torsional_stiffness"]), json!("4128c47ead23fa81")),
+            set(json!(["retained_precision", "body", "sources", 0, "stiffness_sha256"]), json!("77a160acc4ffcf3ed919fe1e59ab3b670cc3ca4dcacbe192d9f932042c9e0980")),
+        ]),
+        ("RV120 F2: E +1 ulp in every receipt copy, stiffness and native hashes resealed", "m3x_sparse_interactive", vec![
+            set(json!(["retained_precision", "body", "cases", 0, "selection", "section_terms", 0, "axial_stiffness"]), json!("41b7b801dd7467b1")),
+            set(json!(["retained_precision", "body", "groups", 0, "stiffness_sha256"]), json!("1fbbf4ed8e9842ff8f6dcbe94517a8527eead7b775277e327e62b6e4538d712e")),
+            set(json!(["retained_precision", "body", "material_bases", 0, "materials", 0, "elastic_modulus"]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "inputs", 6]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "result", "axial_stiffness"]), json!("41b7b801dd7467b1")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "inputs", 6]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "result", "axial_stiffness"]), json!("41b7b801dd7467b1")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "preparation", "members", 0, "old_source", 0]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "id_maps", "members", 0, "E"]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "kernel_source_sha256"]), json!("ab4596d0b1a50b195b0368d573dbf26ed4c2cb6c1e76da6490052217b12b8bb2")),
+            set(json!(["retained_precision", "body", "sources", 0, "section_terms", 0, "axial_stiffness"]), json!("41b7b801dd7467b1")),
+            set(json!(["retained_precision", "body", "sources", 0, "stiffness_sha256"]), json!("1fbbf4ed8e9842ff8f6dcbe94517a8527eead7b775277e327e62b6e4538d712e")),
+        ]),
+        ("RV120 F2: G-hat +1 ulp in every receipt copy, stiffness and native hashes resealed", "m3x_sparse_interactive", vec![
+            set(json!(["contract_evidence", "exact_cases", 0, "pipe_materials", 0, "G_pa"]), json!(f64::from_bits(0x4232a05f20000001))),
+            set(json!(["retained_precision", "body", "cases", 0, "selection", "section_terms", 0, "torsional_stiffness"]), json!("4135fb0cf390a830")),
+            set(json!(["retained_precision", "body", "groups", 0, "stiffness_sha256"]), json!("d7aa429e5be25210f15a34f7138f7178efbbc443d6a016cc35f857268d9ec194")),
+            set(json!(["retained_precision", "body", "material_bases", 0, "materials", 0, "shear_modulus"]), json!("4232a05f20000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "inputs", 7]), json!("4232a05f20000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "result", "torsional_stiffness"]), json!("4135fb0cf390a830")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "inputs", 7]), json!("4232a05f20000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "result", "torsional_stiffness"]), json!("4135fb0cf390a831")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "preparation", "members", 0, "old_source", 1]), json!("4232a05f20000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "id_maps", "members", 0, "G"]), json!("4232a05f20000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "kernel_source_sha256"]), json!("7f965da3aaa6d9720c549022c8947fa602a2065c26415d5663f5dc398e8f7b84")),
+            set(json!(["retained_precision", "body", "sources", 0, "section_terms", 0, "torsional_stiffness"]), json!("4135fb0cf390a830")),
+            set(json!(["retained_precision", "body", "sources", 0, "stiffness_sha256"]), json!("d7aa429e5be25210f15a34f7138f7178efbbc443d6a016cc35f857268d9ec194")),
+        ]),
+    ]
+}
+/// The forgeries' materialized inputs: sha256 of the canonical JSON of `[source, invocation]`
+/// (`canonical_json`), the same bytes as RV120's input lines (checked against its index).
+const RV120_FORGERY_INPUTS: [(&str, &str, &str); 4] = [
+    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "97566866cef65597109de17d34c69508ef3889a1d526321c8feedf5dc88b1f4a"),
+    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "6e67243c49548db2cbcd10be6156c30182c1e884addbf95a264e33965431ef13"),
+    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "3828c07c73d41e33324ec6be349ab4d265e57b439222962d1df1a91c974eb1ff"),
+    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "c17c8283efeb034afe82c4e9fdb4f46aad54ffef676c181733fbc6eec43226e6"),
+];
+/// RV120 F2: the four forgeries are RV120's inputs (by digest), and all three readings
+/// hold: bound G8 PREPARATION_MISMATCH (step 4), unbound and on transport never eligible.
+#[test]
+fn b3b_rv120_f2_forgeries_are_refused_at_g8_step_4() {
+    use open_pipe_stress_canonical_json::canonical_json;
+    use serde_json::json;
+    use sha2::{Digest, Sha256};
+    let shared = corpus();
+    let shapes = b3b_shapes(&shared);
+    let forged: Vec<_> = shapes.iter().filter(|(s, _)| s.name.starts_with("RV120 F2: ")).collect();
+    assert_eq!(forged.len(), 4);
+    let mut digests = Vec::new();
+    for ((shape, want), (prefix, base, _)) in forged.into_iter().zip(RV120_FORGERY_INPUTS) {
+        assert!(shape.name.starts_with(prefix) && shape.base == base, "{}", shape.name);
+        assert_eq!(*want, json!({"gate": "G8", "code": PREPARATION}));
+        let (source, invocation) = b3b_input(&shared, shape);
+        digests.push(format!("{:x}", Sha256::digest(canonical_json(&json!([source, invocation])).as_bytes())));
+        assert_eq!(
+            readings(&source, &invocation),
+            json!({"bound": {"gate": "G8", "code": PREPARATION}, "unbound": {"ok": {"eligible": false}}, "transport": {"ok": {"eligible": false}}}),
+            "{} [{base}]",
+            shape.name
+        );
+    }
+    assert_eq!(digests, RV120_FORGERY_INPUTS.map(|f| f.2), "RV120's inputs");
 }
 /// REVISION_01 §4.3's entries and the added shapes on one exact base, with every
 /// edited value taken from that base (its owner entry, material, nu, case and pipe).
@@ -5541,7 +5651,7 @@ fn b3b_exact_successor_shapes_first_failures() {
         }
     }
     assert!(misses.is_empty(), "{}", misses.join("\n"));
-    assert_eq!(shapes.iter().filter(|(s, _)| s.base != FILE_BASE && s.base != "<s1:file>").count(), 3 + 52 + 2 + 2 * (1 + 52 + 1));
+    assert_eq!(shapes.iter().filter(|(s, _)| s.base != FILE_BASE && s.base != "<s1:file>").count(), 3 + 52 + 2 + 2 * (1 + 52 + 1) + 4);
 }
 fn observe_validation(r: Result<rp::Validation, rp::ValidationError>) -> Value {
     match r {
