@@ -1,5 +1,7 @@
-//! Shared synthetic statement controls plus listed producer-solved bases (07l); no native
-//! Current evidence. These do not establish execution.
+//! Shared statement controls: synthetic bases, plus the two listed producer-solved L = 0
+//! bases (07l), which the Direct entry published in the registered dev/test build (their own
+//! `provenance` and `qualification` say so), and B1's reader-local n-case receipts derived
+//! from the synthetic bases. Reading them establishes no execution; no native Current evidence.
 use open_pipe_stress_result_export::retained_precision as rp;
 use serde_json::Value;
 fn corpus() -> Value {
@@ -3384,4 +3386,353 @@ fn u7_07j_not_required_case_omitted_or_reordered_is_not_current() {
         assert_eq!(s::numerical_use_standing_with_context(&source, &refs, Some(&invocation)), "needs_recompute", "{refs:?}");
         assert_eq!(withheld(&refs), [73, 0], "{refs:?}");
     }
+}
+
+// ---------------------------------------------------------------------------
+// B1 SR-RS (I90; PLAN_v2 §2.4; DESIGN_v2 §2 and §3.2-§3.3): reader-local tests on
+// synthetic n-case receipts, derived from the shared two-case bases and must-pass entries.
+// They are not shared corpus entries: SC's 07n pins the shared ones (W-C2,
+// `d38_beside_selected` with m1-m8, F-1's five, and `not_required`'s three).
+
+/// An entry on `base`: a must-pass entry's edits (when named), then `edits`; the
+/// invocation edits rebind the receipt's invocation digest (`apply_entry`).
+fn b1_entry(shared: &Value, base: &str, must: Option<&str>, edits: Vec<Value>, invocation: Vec<Value>) -> Value {
+    let mut all = Vec::new();
+    if let Some(id) = must {
+        let entry = shared["must_pass"].as_array().unwrap().iter().find(|e| e["id"] == id).unwrap();
+        assert_eq!(entry["base"], base, "{id}");
+        all.extend(entry["edits"].as_array().unwrap().iter().cloned());
+    }
+    all.extend(edits);
+    serde_json::json!({"id": "b1_probe", "base": base, "edits": all, "invocation_edits": invocation, "rehash": "all"})
+}
+/// The reader's verdict: `{"admitted": eligible}`, or the first failure.
+fn b1_verdict(shared: &Value, entry: &Value) -> Value {
+    let (source, invocation) = apply_entry(shared, entry);
+    match rp::validate(&source, Some(&invocation)) {
+        Ok(v) => serde_json::json!({"admitted": v.numerical_eligible}),
+        Err(e) => gate(e.gate, &e.code),
+    }
+}
+fn admitted(eligible: bool) -> Value {
+    serde_json::json!({"admitted": eligible})
+}
+/// The index of a base's row of `kind` for load case `case`.
+fn b1_row(source: &Value, kind: &str, case: &str) -> usize {
+    source["results"].as_array().unwrap().iter().position(|r| r["kind"] == kind && r["basis_ref"]["ref_id"] == case).unwrap()
+}
+/// A base's rows with `extra` appended, as one `results` edit.
+fn b1_rows(source: &Value, extra: Vec<Value>) -> Value {
+    let mut rows = source["results"].as_array().unwrap().clone();
+    rows.extend(extra);
+    set(serde_json::json!(["results"]), Value::Array(rows))
+}
+/// The dense base's parity row, moved to `case` with a fresh id. A non-selected
+/// case's row carries no recovery method (G6).
+fn b1_parity_row(shared: &Value, case: &str, id: &str) -> Value {
+    let mut row = base_source(shared, "ordinary_prepared_dense_synthetic")["results"][1].clone();
+    assert_eq!(row["kind"], "sparse_live_path_dense_parity_relative_delta");
+    row["id"] = serde_json::json!(id);
+    row["basis_ref"]["ref_id"] = serde_json::json!(case);
+    row.as_object_mut().unwrap().remove("recovery_method");
+    row
+}
+const PREP: &str = "RETAINED_PRECISION_PREPARATION_MISMATCH";
+const NOT_REQUIRED: &str = "not_required_second_case_checks_passed";
+const UNAVAILABLE_ROW: &str = "case:unavailable-row";
+
+/// R-D38 (4b), DESIGN_v2 §2, on F_BASE: case 1 (unavailable, with its own CaseSource and a
+/// prepared attempt) is rewritten so that its native stage failed before any Run, beside
+/// selected case 0, as SC's `d38_beside_selected` rewrites W-C2's case C: no Run, no
+/// `execution_order`, Call or Group entry, the call's after-value and `charged` recomputed
+/// (case 1's Run built nothing: it reused case 0's builds), a typed capture cause, and
+/// every hash resealed.
+fn d38_edits(shared: &Value) -> Vec<Value> {
+    use serde_json::json;
+    let body = &base_source(shared, F_BASE)["retained_precision"]["body"];
+    assert!(body["builds"].as_array().unwrap().iter().all(|b| b["origin"]["run"] == 0), "case 1's Run built nothing");
+    let after = body["cases"][0]["run"]["invocation_after"].clone();
+    let mut stages = serde_json::Map::new();
+    for k in ["preparation", "native", "proof_start", "projection", "maxima", "values", "aliases", "certificate", "observables", "g5a"] {
+        stages.insert(k.into(), json!("not_entered"));
+    }
+    stages.insert("preparation".into(), json!("completed"));
+    stages.insert("native".into(), json!("failed"));
+    vec![
+        set(rb(json!(["cases", 1, "run"])), Value::Null),
+        set(rb(json!(["cases", 1, "reason"])), json!({"code": "source_unavailable", "phase": "preparation", "cause": {"kind": "prepared_product_failure", "product_attempt_ref": 1}})),
+        set(rb(json!(["product_attempts", 1, "run_ref"])), Value::Null),
+        set(rb(json!(["product_attempts", 1, "proof"])), Value::Null),
+        set(rb(json!(["product_attempts", 1, "stages"])), Value::Object(stages)),
+        set(rb(json!(["product_attempts", 1, "result"])), json!({"kind": "unavailable", "error": {"kind": "capture", "cause": {"kind": "origin", "cause": {"kind": "capacity"}}}})),
+        set(rb(json!(["calls", 0, "owner_refs"])), json!([{"kind": "case", "index": 0}])),
+        set(rb(json!(["calls", 0, "source_refs"])), json!([0])),
+        set(rb(json!(["calls", 0, "run_refs"])), json!([0])),
+        set(rb(json!(["calls", 0, "invocation_after"])), after.clone()),
+        set(rb(json!(["groups", 0, "source_refs"])), json!([0])),
+        set(rb(json!(["work", "charged"])), after),
+        set(rb(json!(["work", "execution_order"])), json!([{"kind": "case", "index": 0}])),
+    ]
+}
+
+/// R-D38 (4b) admitted beside a selected case: G0-G8 pass and the standing is
+/// needs_recompute. Before B1 the reader refused it (an entered native stage needed a Run).
+/// m1-m8 (DESIGN_v2 §2) and the other (4b) conjuncts are refused, each at this reader's
+/// first failure.
+#[test]
+fn b1_d38_capture_before_any_run_beside_a_selected_case() {
+    use open_pipe_stress_result_export::semantic_contract as s;
+    use serde_json::json;
+    let shared = corpus();
+    let d38 = d38_edits(&shared);
+    let entry = b1_entry(&shared, F_BASE, None, d38.clone(), vec![]);
+    assert_eq!(b1_verdict(&shared, &entry), admitted(false), "(4b) beside a selected case");
+    let (source, invocation) = apply_entry(&shared, &entry);
+    let order: Vec<Value> = source["retained_precision"]["body"]["cases"].as_array().unwrap().iter().map(|c| c["basis_ref"].clone()).collect();
+    assert_eq!(s::numerical_use_standing_with_context(&source, &order, Some(&invocation)), "needs_recompute");
+    let with = |extra: Vec<Value>| -> Value {
+        let mut edits = d38.clone();
+        edits.extend(extra);
+        b1_entry(&shared, F_BASE, None, edits, vec![])
+    };
+    let attempt = |tail: Value| rb(json!(["product_attempts", 1]).as_array().unwrap().iter().cloned().chain(tail.as_array().unwrap().iter().cloned()).collect());
+    let cases = [
+        ("m1 error kind native", vec![set(attempt(json!(["result", "error"])), json!({"kind": "native", "run_ref": 1}))], gate("G5", PRODUCT)),
+        ("m2 native completed", vec![set(attempt(json!(["stages", "native"])), json!("completed"))], gate("G5", PRODUCT)),
+        ("m3 run_ref while the case has no Run", vec![set(attempt(json!(["run_ref"])), json!(1))], gate("G5", PRODUCT)),
+        ("m4 execution_order still lists the case", vec![set(rb(json!(["work", "execution_order"])), json!([{"kind": "case", "index": 0}, {"kind": "case", "index": 1}]))], gate("G3", COVERAGE)),
+        ("m5 proof_start completed", vec![set(attempt(json!(["stages", "proof_start"])), json!("completed"))], gate("G5", PRODUCT)),
+        ("m6 source_ref null with preparation completed", vec![set(attempt(json!(["source_ref"])), Value::Null)], gate("G5", PRODUCT)),
+        ("m7 the case's source in the call's source_refs", vec![set(rb(json!(["calls", 0, "source_refs"])), json!([0, 1]))], gate("G5", ATTEMPT)),
+        ("m7 the case's source in the group's source_refs", vec![set(rb(json!(["groups", 0, "source_refs"])), json!([0, 1]))], gate("G5", ATTEMPT)),
+        ("m8 case source_ref differs from the attempt's", vec![set(rb(json!(["cases", 1, "source_ref"])), json!(0))], gate("G5", PRODUCT)),
+        ("result ready", vec![set(attempt(json!(["result"])), json!({"kind": "ready"}))], gate("G5", PRODUCT)),
+        ("preparation failed", vec![set(attempt(json!(["stages", "preparation"])), json!("failed"))], gate("G5", PRODUCT)),
+        ("observables and G5a entered", vec![set(attempt(json!(["stages", "observables"])), json!("failed")), set(attempt(json!(["stages", "g5a"])), json!("failed"))], gate("G5", PRODUCT)),
+        ("reason code kernel_unresolved", vec![set(rb(json!(["cases", 1, "reason", "code"])), json!("kernel_unresolved"))], gate("G5", PRODUCT)),
+        ("reason phase kernel", vec![set(rb(json!(["cases", 1, "reason", "phase"])), json!("kernel"))], gate("G5", PRODUCT)),
+        ("cause names the other attempt", vec![set(rb(json!(["cases", 1, "reason", "cause", "product_attempt_ref"])), json!(0))], gate("G5", PRODUCT)),
+        ("cause not a prepared product failure", vec![set(rb(json!(["cases", 1, "reason", "cause"])), json!({"kind": "receipt_failure", "check": "association", "field_path": "b1"}))], gate("G5", PRODUCT)),
+    ];
+    let mut misses = Vec::new();
+    for (name, edits, want) in cases {
+        let got = b1_verdict(&shared, &with(edits));
+        if got != want {
+            misses.push(format!("{name}: got {got} want {want}"));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+}
+
+/// R-D38 (4a), which B1 leaves unchanged (RV113 N-1): a native failure with the case's own
+/// non-selected Run is admitted at `validate` and never enters (4b)'s branch. No shared base
+/// has a non-selected native Run (D30's note), so F_BASE's case 1 Run is made idle in its
+/// ready group (refused `ledger_unavailable`, as a CasePrep failure leaves it; no records, no
+/// charge), the case `kernel_refused`, and its attempt native-failed (preparation completed,
+/// no proof) with a native error naming that Run, or with a capture error. (4b)'s reason on
+/// this Run-bearing shape is refused.
+#[test]
+fn b1_d38_4a_native_failure_with_a_run_is_admitted() {
+    use serde_json::json;
+    let shared = corpus();
+    let body = &base_source(&shared, F_BASE)["retained_precision"]["body"];
+    let mut run = body["cases"][1]["run"].clone();
+    let before = run["invocation_before"].clone();
+    run["records"] = json!([]);
+    run["attempts"] = json!([]);
+    run["case_charge"] = json!(0);
+    run["invocation_increment"] = json!(0);
+    run["invocation_after"] = before.clone();
+    run["cache_after"] = run["cache_before"].clone();
+    run["kernel_terminal"] = json!({"kind": "refused", "reason": {"space": "refusal", "tag": "ledger_unavailable", "error": {"tag": "accumulator", "error": {"tag": "non_finite"}}}});
+    let mut attempt = body["product_attempts"][1].clone();
+    assert_eq!(attempt["run_ref"], json!(1), "the attempt keeps its Run");
+    attempt["proof"] = Value::Null;
+    for k in ["preparation", "native", "proof_start", "projection", "maxima", "values", "aliases", "certificate", "observables", "g5a"] {
+        attempt["stages"][k] = json!("not_entered");
+    }
+    attempt["stages"]["preparation"] = json!("completed");
+    attempt["stages"]["native"] = json!("failed");
+    attempt["result"] = json!({"kind": "unavailable", "error": {"kind": "native", "run_ref": 1}});
+    let a4 = vec![
+        set(rb(json!(["cases", 1, "run"])), run),
+        set(rb(json!(["cases", 1, "reason"])), json!({"code": "kernel_refused", "phase": "kernel", "cause": {"kind": "prepared_product_failure", "product_attempt_ref": 1}})),
+        set(rb(json!(["product_attempts", 1])), attempt),
+        set(rb(json!(["calls", 0, "invocation_after"])), before.clone()),
+        set(rb(json!(["work", "charged"])), before),
+    ];
+    let with = |extra: Vec<Value>| -> Value { b1_entry(&shared, F_BASE, None, a4.iter().cloned().chain(extra).collect(), vec![]) };
+    let cases = [
+        ("(4a): a native error naming the case's refused Run", with(vec![]), admitted(false)),
+        ("(4a): a capture error beside the case's refused Run", with(vec![set(rb(json!(["product_attempts", 1, "result", "error"])), json!({"kind": "capture", "cause": {"kind": "origin", "cause": {"kind": "capacity"}}}))]), admitted(false)),
+        ("(4b)'s reason on the Run-bearing failure", with(vec![set(rb(json!(["cases", 1, "reason", "code"])), json!("source_unavailable")), set(rb(json!(["cases", 1, "reason", "phase"])), json!("preparation"))]), gate("G5", PRODUCT)),
+    ];
+    let mut misses = Vec::new();
+    for (name, entry, want) in cases {
+        let got = b1_verdict(&shared, &entry);
+        if got != want {
+            misses.push(format!("{name}: got {got} want {want}"));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+}
+
+/// G5's `not_required` rule (DESIGN_v2 §3.3, decision 9), on 07j's two-case statement
+/// (selected, then not_required): a W2-published case with the verdict checks_passed (T-4's
+/// case B, by an evaluation or a formation trigger) is admitted and the statement is
+/// eligible. A non-null product attempt (another case's, at G3; the case's own, by the rule
+/// itself), `initial` not_attempted and another verdict stay refused, and a Passed-verdict
+/// report keeps its outcome equality.
+#[test]
+fn b1_g5_not_required_admits_a_w2_published_case() {
+    use open_pipe_stress_result_export::semantic_contract as s;
+    use serde_json::json;
+    let shared = corpus();
+    let report = base_source(&shared, P_BASE)["retained_precision"]["body"]["ordinary_attempts"][1]["initial"]["report_diagnostic_ref"].clone();
+    let ordinary = |tail: &str| rb(json!(["ordinary_attempts", 1, tail]));
+    let evaluation = vec![
+        set(ordinary("initial"), json!({"kind": "structural_failure", "error": {"tag": "range", "detail": "b1"}, "diagnostic_ref": null})),
+        set(ordinary("w2"), json!({"kind": "published", "trigger": {"tag": "evaluation", "error": {"tag": "range", "detail": "b1"}}, "force_scale_exponent": 3, "report_diagnostic_ref": report})),
+    ];
+    let formation = vec![
+        set(ordinary("initial"), json!({"kind": "formation_failure", "error": {"tag": "numerical_range", "name": "b1"}, "basis_index": 0})),
+        set(ordinary("w2"), json!({"kind": "published", "trigger": {"tag": "formation", "error": {"tag": "numerical_range", "name": "b1"}}, "force_scale_exponent": -2, "report_diagnostic_ref": report})),
+    ];
+    for (name, edits) in [("evaluation", &evaluation), ("formation", &formation)] {
+        let entry = b1_entry(&shared, P_BASE, Some(NOT_REQUIRED), edits.clone(), vec![]);
+        assert_eq!(b1_verdict(&shared, &entry), admitted(true), "{name}");
+        let (source, invocation) = apply_entry(&shared, &entry);
+        assert_eq!(rp::reader_logic::ordinary(&source), Ok(()), "{name}: G5's ordinary pass");
+        let order: Vec<Value> = source["retained_precision"]["body"]["cases"].as_array().unwrap().iter().map(|c| c["basis_ref"].clone()).collect();
+        assert_eq!(s::numerical_use_standing_with_context(&source, &order, Some(&invocation)), "numerically_eligible", "{name}");
+    }
+    let mut sensitive = evaluation.clone();
+    sensitive.push(set(json!(["numerical_quality", "cases", 1, "solve_quality"]), json!("sensitive")));
+    let cases = [
+        ("W2-published, verdict sensitive", sensitive, gate("G5", ATTEMPT)),
+        ("initial not_attempted", vec![set(ordinary("initial"), json!({"kind": "not_attempted", "cause": "ineligible"}))], gate("G5", ATTEMPT)),
+        ("report outcome differs from the verdict", vec![set(rb(json!(["ordinary_attempts", 1, "initial", "outcome"])), json!("sensitive"))], gate("G5", ATTEMPT)),
+        ("product_attempt_ref non-null (G3 first)", vec![set(rb(json!(["cases", 1, "product_attempt_ref"])), json!(0))], gate("G3", COVERAGE)),
+    ];
+    let mut misses = Vec::new();
+    for (name, edits, want) in cases {
+        let got = b1_verdict(&shared, &b1_entry(&shared, P_BASE, Some(NOT_REQUIRED), edits, vec![]));
+        if got != want {
+            misses.push(format!("{name}: got {got} want {want}"));
+        }
+    }
+    // RV113 S-1: the rule's `product_attempt_ref` null conjunct. 07j's entry without its
+    // removal of `product_attempts/1` keeps case 1's own attempt, and the not_required case
+    // names it: G3 passes (the attempt exists and is the case's), so the rule itself refuses
+    // it, at G5 ATTEMPT (G5's ordinary class, before D19's PRODUCT_ATTEMPT).
+    let nr = shared["must_pass"].as_array().unwrap().iter().find(|e| e["id"] == NOT_REQUIRED).unwrap();
+    let removal = remove(rb(json!(["product_attempts", 1])));
+    let mut own: Vec<Value> = nr["edits"].as_array().unwrap().iter().filter(|e| **e != removal).cloned().collect();
+    assert_eq!(own.len() + 1, nr["edits"].as_array().unwrap().len(), "07j removes case 1's attempt once");
+    own.push(set(rb(json!(["cases", 1, "product_attempt_ref"])), json!(1)));
+    let got = b1_verdict(&shared, &b1_entry(&shared, P_BASE, None, own, vec![]));
+    if got != gate("G5", ATTEMPT) {
+        misses.push(format!("product_attempt_ref naming the case's own attempt: got {got}"));
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+}
+
+/// F-1 text B's P1 and the requested mode (DESIGN_v2 §3.2-§3.3), in G8's per-case loop:
+/// every case is checked, here the second one, unavailable (F_BASE) or not_required (07j).
+#[test]
+fn b1_g8_mode_row_and_requested_mode_for_every_case() {
+    use serde_json::json;
+    let shared = corpus();
+    let f = base_source(&shared, F_BASE);
+    let p = base_source(&shared, P_BASE);
+    let fm = b1_row(&f, "linear_solver_mode_basis", UNAVAILABLE_ROW);
+    let pm = b1_row(&p, "linear_solver_mode_basis", UNAVAILABLE_ROW);
+    let mut duplicate = f["results"][fm].clone();
+    duplicate["id"] = json!("result:b1:duplicate-mode");
+    let cases = [
+        ("unavailable case: dense code in sparse", b1_entry(&shared, F_BASE, None, vec![set(json!(["results", fm, "value"]), json!(2.0))], vec![])),
+        ("unavailable case: mode code 3", b1_entry(&shared, F_BASE, None, vec![set(json!(["results", fm, "value"]), json!(3.0))], vec![])),
+        ("unavailable case: two mode rows", b1_entry(&shared, F_BASE, None, vec![b1_rows(&f, vec![duplicate])], vec![])),
+        ("unavailable case: requested mode flipped", b1_entry(&shared, F_BASE, None, vec![set(rb(json!(["ordinary_attempts", 1, "requested_mode"])), json!("dense_scrutiny"))], vec![])),
+        ("not_required case: dense code in sparse", b1_entry(&shared, P_BASE, Some(NOT_REQUIRED), vec![set(json!(["results", pm, "value"]), json!(2.0))], vec![])),
+    ];
+    let mut misses = Vec::new();
+    for (name, entry) in cases {
+        let got = b1_verdict(&shared, &entry);
+        if got != gate("G8", PREP) {
+            misses.push(format!("{name}: got {got}"));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+}
+
+/// F-1 text B's P2-P4 (DESIGN_v2 §3.2) for every case. 07j's two-case statement is made
+/// dense (the invocation's mode, both requested modes and both mode rows; it has no parity
+/// row): the selected dense case at b = 0 without a parity row is admitted (before B1 it
+/// needed exactly one), and so is a not_required case's single parity row at b = 0. Two
+/// parity rows (P2), a parity row in sparse_interactive (P3) and a parity row on a
+/// W2-published case (P4) are refused at G8; a parity row beside a W2 that failed (so
+/// published nothing) is admitted, since P4 reads published, not triggered.
+#[test]
+fn b1_g8_parity_rows_p2_to_p4_for_every_case() {
+    use serde_json::json;
+    let shared = corpus();
+    let p = base_source(&shared, P_BASE);
+    let report = p["retained_precision"]["body"]["ordinary_attempts"][1]["initial"]["report_diagnostic_ref"].clone();
+    let dense = vec![
+        set(rb(json!(["ordinary_attempts", 0, "requested_mode"])), json!("dense_scrutiny")),
+        set(rb(json!(["ordinary_attempts", 1, "requested_mode"])), json!("dense_scrutiny")),
+    ];
+    let mut dense_rows = p.clone();
+    for case in ["case:six-component-load", UNAVAILABLE_ROW] {
+        dense_rows["results"][b1_row(&p, "linear_solver_mode_basis", case)]["value"] = json!(2.0);
+    }
+    let to_dense = vec![set(json!(["solver_mode"]), json!("dense_scrutiny"))];
+    let w2 = vec![
+        set(rb(json!(["ordinary_attempts", 1, "initial"])), json!({"kind": "structural_failure", "error": {"tag": "range", "detail": "b1"}, "diagnostic_ref": null})),
+        set(rb(json!(["ordinary_attempts", 1, "w2"])), json!({"kind": "published", "trigger": {"tag": "evaluation", "error": {"tag": "range", "detail": "b1"}}, "force_scale_exponent": 3, "report_diagnostic_ref": report})),
+    ];
+    // A W2 that was triggered and failed published nothing (b = 0).
+    let w2_failed = vec![
+        w2[0].clone(),
+        set(rb(json!(["ordinary_attempts", 1, "w2"])), json!({"kind": "failed", "trigger": {"tag": "evaluation", "error": {"tag": "range", "detail": "b1"}}, "failure": {"tag": "not_engaged"}, "diagnostic_ref": report})),
+    ];
+    let one = b1_parity_row(&shared, UNAVAILABLE_ROW, "result:b1:parity-1");
+    let two = b1_parity_row(&shared, UNAVAILABLE_ROW, "result:b1:parity-2");
+    // Both mode rows carry the dense code; `rows` are appended to them in the one results edit.
+    let on_dense = |rows: Vec<Value>, extra: Vec<Value>| -> Value {
+        let mut edits = dense.clone();
+        edits.push(b1_rows(&dense_rows, rows));
+        edits.extend(extra);
+        b1_entry(&shared, P_BASE, Some(NOT_REQUIRED), edits, to_dense.clone())
+    };
+    // Dense, ordinary only: the selected source, then the dense base's selected case with W2.
+    let d = base_source(&shared, "ordinary_prepared_dense_synthetic");
+    let mut parity_twice = d["results"][1].clone();
+    parity_twice["id"] = json!("result:b1:parity-twice");
+    let dense_w2 = vec![
+        set(rb(json!(["ordinary_attempts", 0, "initial"])), json!({"kind": "structural_failure", "error": {"tag": "range", "detail": "b1"}, "diagnostic_ref": null})),
+        set(rb(json!(["ordinary_attempts", 0, "w2"])), json!({"kind": "published", "trigger": {"tag": "evaluation", "error": {"tag": "range", "detail": "b1"}}, "force_scale_exponent": 3, "report_diagnostic_ref": d["retained_precision"]["body"]["ordinary_attempts"][0]["initial"]["report_diagnostic_ref"]})),
+    ];
+    let f = base_source(&shared, F_BASE);
+    let cases = [
+        ("dense b = 0, no parity row on either case", on_dense(vec![], vec![]), admitted(true)),
+        ("dense b = 0, one parity row on the not_required case", on_dense(vec![one.clone()], vec![]), admitted(true)),
+        ("dense, W2-published not_required case without a parity row", on_dense(vec![], w2.clone()), admitted(true)),
+        // RV113 N-3: P4 reads W2 published, not W2 triggered.
+        ("dense b = 0, one parity row on a not_required case whose W2 failed", on_dense(vec![one.clone()], w2_failed), admitted(true)),
+        ("P2: two parity rows on the not_required case", on_dense(vec![one.clone(), two], vec![]), gate("G8", PREP)),
+        ("P4: a parity row on the W2-published not_required case", on_dense(vec![one], w2), gate("G8", PREP)),
+        ("P2: two parity rows on the dense selected case", b1_entry(&shared, "ordinary_prepared_dense_synthetic", None, vec![b1_rows(&d, vec![parity_twice])], vec![]), gate("G8", PREP)),
+        ("P4: a parity row on a W2-published selected case", b1_entry(&shared, "ordinary_prepared_dense_synthetic", None, dense_w2, vec![]), gate("G8", PREP)),
+        ("P3: a parity row on the sparse unavailable case", b1_entry(&shared, F_BASE, None, vec![b1_rows(&f, vec![b1_parity_row(&shared, UNAVAILABLE_ROW, "result:b1:sparse-parity")])], vec![]), gate("G8", PREP)),
+    ];
+    let mut misses = Vec::new();
+    for (name, entry, want) in cases {
+        let got = b1_verdict(&shared, &entry);
+        if got != want {
+            misses.push(format!("{name}: got {got} want {want}"));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
 }
