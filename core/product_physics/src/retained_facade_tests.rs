@@ -51,6 +51,23 @@ fn with_notice(plain: &[u8], case: &str, detail: Option<&str>) -> Vec<u8> {
     let sep = if items.is_empty() { "" } else { "," };
     format!(r#"{head}"diagnostics":[{items}{sep}{}{rest}"#, notice_json(case, detail)).into_bytes()
 }
+/// B1 (PLAN_v2 §2.1; RV107 SF-2): an out-of-domain oracle's request, `raw` with C + 1 load
+/// cases (`caps::LOAD_CASES` + 1). Each added case copies the first. With `renamed` the
+/// copies take the ids `case-2`, `case-3`, …; otherwise they keep the first case's id, as
+/// each oracle built its second case before B1. While C = 1 (before SA) this is the same
+/// two-case request as before.
+fn beyond_load_cases(raw: &Value, renamed: bool) -> Value {
+    let mut over = raw.clone();
+    let first = over["model"]["load_cases"][0].clone();
+    for ordinal in 2..=crate::retained_memory::caps::LOAD_CASES + 1 {
+        let mut case = first.clone();
+        if renamed {
+            case["id"] = json!(format!("case-{ordinal}"));
+        }
+        over["model"]["load_cases"].as_array_mut().unwrap().push(case);
+    }
+    over
+}
 
 /// Control 2: the permitted path publishes U1's pinned successor bytes, in both
 /// modes, through the frozen candidate and its staging copy; the ordinary
@@ -168,16 +185,13 @@ fn u3_each_stage_fault_falls_back_to_the_ordinary_bytes() {
     let (envelope, retained) = retained_w1(observer, ordinary, &capture);
     assert_eq!(retained.err(), Some(W1Fallback::NoticeReservation));
     check(&envelope, &marked, "notice reservation");
-    // No W1 work ran: an invocation outside D1.4 (two load cases).
-    let mut two = raw.clone();
-    let mut second = two["model"]["load_cases"][0].clone();
-    second["id"] = json!("case-2");
-    two["model"]["load_cases"].as_array_mut().unwrap().push(second);
-    let (capture, observer, ordinary) = observed(mode, &two);
-    let two_plain = serde_json::to_vec(&ordinary).unwrap();
+    // No W1 work ran: an invocation outside D1.4 (C + 1 load cases).
+    let over = beyond_load_cases(&raw, true);
+    let (capture, observer, ordinary) = observed(mode, &over);
+    let over_plain = serde_json::to_vec(&ordinary).unwrap();
     let (envelope, retained) = retained_w1(observer, ordinary, &capture);
-    assert_eq!(retained.err(), Some(W1Fallback::Domain), "outside D1.4");
-    check(&envelope, &two_plain, "two cases");
+    assert_eq!(retained.err(), Some(W1Fallback::Domain), "C + 1 cases: outside D1.4");
+    check(&envelope, &over_plain, "C + 1 cases");
     // No W1 work ran: one case with a combination (also outside D1.4).
     let mut combined = raw.clone();
     combined["model"]["combinations"] = json!([{"id":"combo","basis":"mechanics","terms":[{"load_case":"case","factor":1.0}]}]);
@@ -207,14 +221,12 @@ fn u3_r2_notice_bytes_are_pinned() {
 
 /// Control 1: with no permit both retained entries and the shared route are the
 /// unchanged ordinary route, with no W1 result. G6: a profile is registered, so the
-/// control uses the milestone made out of D1 (a second load case, D1.4), which no build
+/// control uses the milestone made out of D1 (C + 1 load cases, D1.4), which no build
 /// admits.
 #[test]
 fn u3_no_permit_entries_are_the_ordinary_route() {
     for mode in MODES {
-        let mut raw = raw();
-        let case = raw["model"]["load_cases"][0].clone();
-        raw["model"]["load_cases"].as_array_mut().unwrap().push(case);
+        let raw = beyond_load_cases(&raw(), false);
         let plain = plain(mode, &raw);
         let direct = run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
         assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain);
@@ -394,7 +406,9 @@ fn u3_n9_single_parse_custody() {
         "(None, Some(request)) => ordinary_dispatch(request, &capture, solver_mode, Some(report), Some(Err(W1Fallback::StackReservation))),",
         "run_linear_static_preview_observed(request, solver_mode, Some(capture), &mut budget, Some(&mut observer))",
         "Some(Ok(())) => retained_w1(observer, ordinary, capture),",
-        "retained_wire::serialize_frozen(&frozen, &staged, capture)",
+        // B1 SP (T-11): the n-case serializer over the transaction replaces the one-case
+        // `serialize_frozen`; the call still takes the parse's borrowed half.
+        "retained_wire::serialize_cases(&mut prepared, &staged, capture)",
         // ROOT's flag: the permitted work carries the armed test hooks, and (RV85 U2)
         // the caller re-arms the unfired ones after the hop.
         "on_reserved_stack(bytes, carry_test_hooks(move || {",
@@ -470,6 +484,11 @@ fn u3_capture_permit_is_linear() {
 /// and its classification and standing are unchanged: on the Sensitive milestone and
 /// on an exportable (checks-passed) solve. The negative control shows the same readers
 /// do refuse a malformed notice. `I61_R2_OUT` writes the bytes for the evidence lanes.
+///
+/// B1 SP (DESIGN_v2 T-12; RV105 N-4): W-C2's base carries several N1 notices, one per case in
+/// A (case-a's, then case-c's), plain, or with C1:68's detail on the selected case-a's notice
+/// only. The same readers accept it with the same contract and standing; the bytes are written
+/// out (`w_c2_noticed_*`) for SR-PY and SR-TS.
 #[test]
 fn u3_r2_base_readers_accept_the_unavailable_notice() {
     use open_pipe_stress_result_export::semantic_contract as sc;
@@ -483,8 +502,10 @@ fn u3_r2_base_readers_accept_the_unavailable_notice() {
         }
     }
     let mut standings = std::collections::BTreeSet::new();
-    for (label, raw) in [("milestone", raw()), ("exportable", exportable)] {
+    for (label, raw) in [("milestone", raw()), ("exportable", exportable), ("w_c2", w_c2())] {
         let case = raw["model"]["load_cases"][0]["id"].as_str().unwrap().to_owned();
+        // T-12: the notices of A, in request order (W-C2: A and C; otherwise the one case).
+        let noticed_cases: Vec<String> = if label == "w_c2" { vec!["case-a".into(), "case-c".into()] } else { vec![case.clone()] };
         let bases: Vec<Value> = raw["model"]["load_cases"].as_array().unwrap().iter().map(|c| json!({"ref_type":"load_case","ref_id":c["id"]})).collect();
         for mode in MODES {
             let base = serde_json::to_value(run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
@@ -494,7 +515,11 @@ fn u3_r2_base_readers_accept_the_unavailable_notice() {
             let receipt = format!("{PLAIN} Reason: receipt_encoding; detail: work_counter_inconsistent.");
             for message in [PLAIN, receipt.as_str()] {
                 let mut noticed = base.clone();
-                noticed["diagnostics"].as_array_mut().unwrap().push(notice(&case, message, json!([case])));
+                for (k, case) in noticed_cases.iter().enumerate() {
+                    // The detail goes only on the first (selected) case's notice.
+                    let text = if k == 0 { message } else { PLAIN };
+                    noticed["diagnostics"].as_array_mut().unwrap().push(notice(case, text, json!([case])));
+                }
                 assert_eq!(sc::for_source(&noticed), sc::for_source(&base), "{label} {mode:?}: admitted with the same contract");
                 assert_eq!(sc::standing_reason(&noticed), sc::standing_reason(&base));
                 let standing = sc::numerical_use_standing_with_context(&noticed, &bases, Some(&invocation));
@@ -650,16 +675,13 @@ fn u3g2_direct_entry_no_w1_refusals_keep_exact_bytes() {
     for mode in MODES {
         let milestone = raw();
         let plain_milestone = plain(mode, &milestone);
-        // G-A: outside D1 (D1.4: a second load case; a combination; D1.3: another namespace).
-        let mut two = milestone.clone();
-        let mut second = two["model"]["load_cases"][0].clone();
-        second["id"] = json!("case-2");
-        two["model"]["load_cases"].as_array_mut().unwrap().push(second);
+        // G-A: outside D1 (D1.4: C + 1 load cases; a combination; D1.3: another namespace).
+        let over = beyond_load_cases(&milestone, true);
         let mut combined = milestone.clone();
         combined["model"]["combinations"] = json!([{"id":"combo","basis":"mechanics","terms":[{"load_case":"case","factor":1.0}]}]);
         let mut namespace = milestone.clone();
         namespace["model"]["schema_version"] = json!("0.3.0");
-        for (label, raw, clause) in [("two cases", &two, D1Clause::Invocation), ("combination", &combined, D1Clause::Invocation),
+        for (label, raw, clause) in [("C + 1 cases", &over, D1Clause::Invocation), ("combination", &combined, D1Clause::Invocation),
             ("namespace", &namespace, D1Clause::Namespace)] {
             let plain = plain(mode, raw);
             let (output, counts) = direct(raw, mode);
@@ -773,13 +795,12 @@ fn u3g2_late_gate_refusal_is_final_and_g_c_is_not_consulted() {
 /// or borrowed).
 #[test]
 fn u3g2_no_permit_path_runs_once_without_a_copy() {
-    let mut two = raw();
-    let case = two["model"]["load_cases"][0].clone();
-    two["model"]["load_cases"].as_array_mut().unwrap().push(case);
+    // Out of D1 (D1.4): C + 1 load cases.
+    let over = beyond_load_cases(&raw(), false);
     for mode in MODES {
-        let shared = hooks::counted(|| run_linear_static_preview_value_with_mode(two.clone(), mode).unwrap());
+        let shared = hooks::counted(|| run_linear_static_preview_value_with_mode(over.clone(), mode).unwrap());
         assert_eq!(shared.1, ONE_RUN, "{mode:?}: the shared value route");
-        let (output, counts) = direct(&two, mode);
+        let (output, counts) = direct(&over, mode);
         assert!(output.retained().is_none() && output.admission().unwrap().law().refusal.is_some());
         assert_eq!(counts, ONE_RUN, "{mode:?}: the refused Direct entry");
         assert_eq!(serde_json::to_vec(output.envelope()).unwrap(), serde_json::to_vec(&shared.0).unwrap());
@@ -829,11 +850,13 @@ fn u3g2_d_u6_5_carrier_fixtures_are_the_live_successors() {
 // ---- U8 (I68): producer-solved witnesses from real D1 inputs ------------------------------
 //
 // RR "I61's U8 plan ruled…" and "I68's probe verified…" (R/I68/u8_probe_01). Real inputs, no
-// hooks: RV93 N-5's Candidate and Preparation fallbacks, W-C1's Native fallback (two-body case B;
-// its kernel reason, Unresolved(Ceiling), is recorded by the U8-0 probe and not asserted here),
-// and the L = 0 base, whose successor is pinned and copied to the corpus fixtures (D-U6-5).
+// hooks: RV93 N-5's Candidate and Preparation fallbacks, W-C1's Native fallback (since B1, W-C2's
+// case C; its kernel reason, Unresolved(Ceiling), is recorded by the B1-0 probe, R/I81/b1_probe_01,
+// and not asserted here), and the L = 0 base, whose successor is pinned and copied to the corpus
+// fixtures (D-U6-5). B1 (T-4): two-body case B, W-C1's input before B1, is a `NoTriggeredCase` pin.
 
-/// RV93 N-5's Candidate input (zz_rv93.rs:292–315): the milestone with only its first load.
+/// RV93 N-5's Candidate input (RV93's probe, `zz_rv93_input_fallbacks`): the milestone with only
+/// its first load.
 fn u8_first_load_only() -> Value {
     let mut raw = raw();
     let first = raw["model"]["load_cases"][0]["primitive_loads"][0].clone();
@@ -848,8 +871,8 @@ fn u8_tiny_spring() -> Value {
     raw
 }
 /// W-C2's two-body model (PLAN §1.3) with case A's loads: the milestone body (body 0) and its
-/// three moments, plus PHYS-R4's cantilever as body 1 (W6's body, retained_memory_witness_tests.rs
-/// :181–199, moved to x = 5..6 so that no node coincides with N0), unloaded.
+/// three moments, plus PHYS-R4's cantilever as body 1 (W6's body, `w6_input()` in
+/// retained_memory_witness_tests.rs, moved to x = 5..6 so that no node coincides with N0), unloaded.
 fn u8_two_body_case_a() -> Value {
     let mut raw = raw();
     let p = "invented_t3_g5_witness_input_no_library_data";
@@ -867,8 +890,9 @@ fn u8_two_body_case_a() -> Value {
         "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": p}));
     raw
 }
-/// W-C1's input (RR "I68's probe verified…"): two-body case B, with W6's tip force and tip torque
-/// on body 1 only. The kernel ends Unresolved(Ceiling), so W1 falls back at Native.
+/// Two-body case B, with W6's tip force and tip torque on body 1 only: W-C1's input before B1
+/// (RR "I68's probe verified…"). It is W2-published with the published verdict `checks_passed`
+/// (R/I81/b1_probe_01 PROBE §2.3), so under T-4 it is `not_required`: B1's `NoTriggeredCase` pin.
 fn u8_two_body_case_b() -> Value {
     let mut raw = u8_two_body_case_a();
     let (tip, p) = (f64::from_bits(0x0031fa182c40c60d), "invented_t3_g5_witness_input_no_library_data");
@@ -879,6 +903,19 @@ fn u8_two_body_case_b() -> Value {
             "dimension": "moment", "magnitude": {"value": tip, "unit": "N*m"}, "provenance": p}]);
     raw
 }
+/// W-C2's case C (B0 DESIGN_v2 §1.4; R/I81/b1_probe_01 PROBE §4): case A's loads (the milestone's
+/// three moments on body 0) followed by case B's (the tip force and torque on body 1), as one load
+/// case. W-C1's input and W6's stack-witness input since B1 (RR "I81's B1-0 probe verified…",
+/// ruling 3): Sensitive, W2-published (b = 518), and the native run ends Unresolved(Ceiling).
+pub(super) fn w_c2_case_c() -> Value {
+    let mut raw = u8_two_body_case_a();
+    let tip = u8_two_body_case_b()["model"]["load_cases"][0]["primitive_loads"].as_array().unwrap().clone();
+    raw["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().extend(tip);
+    raw
+}
+/// PROBE §4's input sha256 of case C, and PROBE §2.3's of two-body case B (`serde_json::to_vec`).
+pub(super) const W_C2_CASE_C_INPUT_SHA256: &str = "3649b4dcb96ecb9e8a32ee9ae95bddea65648d3d6aff10860785cb95f73306b3";
+const TWO_BODY_B_INPUT_SHA256: &str = "cf688351686bbaff9843052438479a9b5410d0e722245375b1d2aa729f21a406";
 /// The L = 0 base (PLAN §1.2): the milestone plus node N2 at (3, 0, 0), which no member
 /// references, with one rigid support restraining all six DOFs (the milestone's rigid-support
 /// shape, no family). Body 1 is a single node: extent 0.
@@ -893,13 +930,16 @@ fn u8_l0_isolated_node() -> Value {
 /// U8 (RV93 N-5; W-C1): real D1 inputs reach the Candidate, Preparation and Native fallbacks on
 /// the actual Direct entry, with no fault hook. In the registered build each publishes the plain
 /// bytes plus exactly one N1 notice, from one ordinary run that reached G-C once. In any other
-/// build each publishes the plain bytes from one run.
+/// build each publishes the plain bytes from one run. B1 (T-4; RR "I81's B1-0 probe verified…",
+/// ruling 3): W-C1's variant is case C alone, since two-body case B is now `not_required`.
 #[test]
 fn u8_real_input_fallbacks_append_one_notice() {
+    let case_c = w_c2_case_c();
+    assert_eq!(sha(&serde_json::to_vec(&case_c).unwrap()), W_C2_CASE_C_INPUT_SHA256, "PROBE §4's case C");
     let variants = [
         ("first_load_only", u8_first_load_only(), W1Fallback::Candidate),
         ("tiny_spring", u8_tiny_spring(), W1Fallback::Preparation),
-        ("w_c1_two_body_case_b", u8_two_body_case_b(), W1Fallback::Native),
+        ("w_c1_case_c", case_c, W1Fallback::Native),
     ];
     for mode in MODES {
         for (label, raw, cause) in &variants {
@@ -1067,5 +1107,1274 @@ fn u8_d_u6_5_l0_fixtures_are_the_live_successors() {
         assert!(u8_l0_document(name, &raw, &successor) == fixture, "{name}: the L = 0 fixture is the live successor document, byte for byte");
         assert_eq!((sha(fixture.as_bytes()).as_str(), successor["retained_precision"]["receipt_sha256"].as_str()), (file_sha, Some(receipt_sha)),
             "{name}: the pinned L = 0 hashes");
+    }
+}
+
+// ---- B1 ST (I85): T-4's per-case trigger, decision 21 and `NoTriggeredCase` ------------------
+//
+// R/I84/b1_plan_01/PLAN_v2.md §2.1 (B0 DESIGN_v2 §1.2, T-4; decisions 1 and 21). The classifier
+// `case_triggers` is pinned on hand-built published verdicts and seeds. Decision 21's branch is
+// pinned only here, because no audited committed input reaches it (R/I81/b1_probe_01 PROBE §3).
+// `NoTriggeredCase` is pinned on real inputs (RR "I81's B1-0 probe verified…", ruling 4).
+
+fn verdict_entry(case: &str, verdict: NumericalQualityStatus) -> NumericalCaseQuality {
+    NumericalCaseQuality {
+        basis_ref: ResultBasisRef { ref_type: "load_case".into(), ref_id: case.into() },
+        structural_status: StructuralStatus::PassiveModelBasis,
+        solve_quality: verdict,
+        model_matrix_fidelity: ModelMatrixFidelity::NotAssessed,
+        accuracy_evidence: AccuracyEvidence::NotClaimed,
+        evidence_refs: Vec::new(),
+    }
+}
+fn quality_of(entries: Vec<NumericalCaseQuality>) -> NumericalQuality {
+    NumericalQuality { cases: entries, ..unassessed_numerical_quality() }
+}
+fn seed_of(case: &str, initial: Option<rp::InitialSeed>, w2: rp::W2Seed) -> rp::OrdinarySeed {
+    rp::OrdinarySeed { case: case.into(), initial, w2, load_row_finding: None, d5_diagnostic_ref: None, recovery_demoted: false, legacy: None }
+}
+fn report_seed(code: &str) -> Option<rp::InitialSeed> {
+    Some(rp::InitialSeed::Report { code: code.into(), report_diagnostic_ref: "diagnostic:numerical-integrity:case".into() })
+}
+fn failure_seed(error: StructuralError) -> Option<rp::InitialSeed> {
+    Some(rp::InitialSeed::StructuralFailure { error, diagnostic_ref: None })
+}
+fn w2_published() -> rp::W2Seed {
+    rp::W2Seed::Published { trigger: RangeTrigger::Evaluation(StructuralError::Range("arithmetic outside normal range")), force_scale_exponent: 518,
+        report_diagnostic_ref: Some("diagnostic:numerical-integrity:case".into()) }
+}
+fn w2_failed() -> rp::W2Seed {
+    rp::W2Seed::Failed { trigger: RangeTrigger::Evaluation(StructuralError::Range("arithmetic outside normal range")),
+        failure: ForceScalingFailure::NotAdmitted { family: "spring", b: 518 }, diagnostic_ref: "diagnostic:numerical-integrity:case".into() }
+}
+fn classified(quality: &NumericalQuality, seeds: &[rp::OrdinarySeed], ids: &[&str]) -> Vec<CaseTrigger> {
+    case_triggers(quality, seeds, ids).collect()
+}
+
+/// T-4's unit tests (PLAN_v2 §2.1's list): each published verdict; W2-published Passed; report
+/// Passed; the verdict, not the seed's `initial`, decides; each excluded tag with and without W2;
+/// the other failure tags; no seed (in A, unless the verdict is Passed); quality entries and seeds
+/// out of request order, which the case-id lookup reads correctly; and an entry or seed that is
+/// not unique.
+#[test]
+fn b1_t4_classifier_reads_the_published_verdict_by_case_id() {
+    use CaseTrigger::{Attempted, Excluded, NotRequired};
+    use NumericalQualityStatus as V;
+    let one = |verdict: Option<V>, seed: Option<rp::OrdinarySeed>| {
+        let quality = quality_of(verdict.map(|v| verdict_entry("case", v)).into_iter().collect());
+        let seeds: Vec<rp::OrdinarySeed> = seed.into_iter().collect();
+        let got = classified(&quality, &seeds, &["case"]);
+        assert_eq!(got.len(), 1, "one class per requested case");
+        got[0]
+    };
+    // Each verdict, with the report seed that verdict comes from.
+    for (verdict, code, expected) in [(V::ChecksPassed, "NUMERICAL_INTEGRITY_CHECKS_PASSED", NotRequired), (V::Sensitive, "NUMERICAL_INTEGRITY_SENSITIVE", Attempted),
+        (V::NotAssessed, "NUMERICAL_INTEGRITY_SENSITIVE", Attempted), (V::Unresolved, "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED", Attempted),
+        (V::Failed, "NUMERICAL_INTEGRITY_FAILED", Attempted)] {
+        assert_eq!(one(Some(verdict), Some(seed_of("case", report_seed(code), rp::W2Seed::NotTriggered))), expected, "{verdict:?}");
+    }
+    // W2-published Passed (W6's and two-body B's shape): not_required, though its initial attempt failed.
+    assert_eq!(one(Some(V::ChecksPassed), Some(seed_of("case", failure_seed(StructuralError::Range("arithmetic outside normal range")), w2_published()))), NotRequired,
+        "W2-published Passed");
+    // Report Passed (W2b's shape).
+    assert_eq!(one(Some(V::ChecksPassed), Some(seed_of("case", report_seed("NUMERICAL_INTEGRITY_CHECKS_PASSED"), rp::W2Seed::NotTriggered))), NotRequired,
+        "report Passed");
+    // The published verdict decides, not the seed's initial outcome (R-b′ demotes the verdict after the report).
+    let mut demoted = seed_of("case", report_seed("NUMERICAL_INTEGRITY_CHECKS_PASSED"), rp::W2Seed::NotTriggered);
+    demoted.recovery_demoted = true;
+    assert_eq!(one(Some(V::Sensitive), Some(demoted)), Attempted, "a report-Passed seed under a Sensitive verdict");
+    // Decision 21: each excluded tag, without W2 (not triggered, or failed), and with W2 published.
+    let excluded_tags = || [StructuralError::Mechanism { direction: vec![1.0, 0.0] }, StructuralError::Asymmetric { row: 0, col: 1, relative_skew: 1e-3 },
+        StructuralError::InvalidInput("invalid structural input")];
+    for error in excluded_tags() {
+        for verdict in [Some(V::Failed), Some(V::Unresolved), Some(V::NotAssessed), None] {
+            assert_eq!(one(verdict, Some(seed_of("case", failure_seed(error.clone()), rp::W2Seed::NotTriggered))), Excluded, "{error:?} {verdict:?}, no W2");
+            assert_eq!(one(verdict, Some(seed_of("case", failure_seed(error.clone()), w2_failed()))), Excluded, "{error:?} {verdict:?}, W2 failed");
+            assert_eq!(one(verdict, Some(seed_of("case", failure_seed(error.clone()), w2_published()))), Attempted, "{error:?} {verdict:?}, W2 published");
+        }
+        // A Passed verdict is not_required whatever the seed says.
+        assert_eq!(one(Some(V::ChecksPassed), Some(seed_of("case", failure_seed(error.clone()), rp::W2Seed::NotTriggered))), NotRequired, "{error:?} Passed");
+    }
+    // The other attempted failures stay in A (tiny_spring's NumericallyUnresolved among them; PROBE §3).
+    for initial in [failure_seed(StructuralError::Range("arithmetic outside normal range")),
+        failure_seed(StructuralError::NumericallyUnresolved { reason: "positive diagonal contribution absorbed by assembly; stabilization unresolved", global_dof: Some(3) }),
+        failure_seed(StructuralError::NegativeEnergy { direction: vec![1.0], energy: -1.0, allowance: 0.0 }),
+        Some(rp::InitialSeed::FormationFailure { error: FrameKernelError::NumericalRange { name: "12EIy/L^3: (12*E)*Iy" } }),
+        None] {
+        for w2 in [rp::W2Seed::NotTriggered, w2_failed()] {
+            assert_eq!(one(Some(V::Unresolved), Some(seed_of("case", initial.clone(), w2))), Attempted, "{initial:?}");
+        }
+    }
+    // No seed (W2's witness on the private driver: `not_assessed`, never attempted): in A
+    // (RR "I81's B1-0 probe verified…", ruling 2), and with no quality entry either.
+    assert_eq!(one(Some(V::NotAssessed), None), Attempted, "no seed");
+    assert_eq!(one(Some(V::Failed), None), Attempted, "no seed, Failed");
+    // A Passed verdict decides alone: with no seed the case is still `not_required` (RV109 N-1).
+    assert_eq!(one(Some(V::ChecksPassed), None), NotRequired, "Passed with no seed");
+    assert_eq!(one(None, None), Attempted, "no entry and no seed");
+    // Request order a, b, c, d; quality entries and seeds in other orders. Positions would read
+    // c's verdict for a, a's for b and b's for c.
+    let quality = quality_of(vec![verdict_entry("c", V::ChecksPassed), verdict_entry("a", V::Sensitive), verdict_entry("b", V::ChecksPassed), verdict_entry("d", V::Failed)]);
+    let seeds = [
+        seed_of("d", failure_seed(StructuralError::Mechanism { direction: vec![0.0, 1.0] }), rp::W2Seed::NotTriggered),
+        seed_of("b", report_seed("NUMERICAL_INTEGRITY_CHECKS_PASSED"), rp::W2Seed::NotTriggered),
+        seed_of("c", failure_seed(StructuralError::Range("arithmetic outside normal range")), w2_published()),
+        seed_of("a", report_seed("NUMERICAL_INTEGRITY_SENSITIVE"), rp::W2Seed::NotTriggered),
+    ];
+    assert_eq!(classified(&quality, &seeds, &["a", "b", "c", "d"]), [Attempted, NotRequired, NotRequired, Excluded], "request order, looked up by id");
+    assert_eq!(classified(&quality, &seeds, &["d", "c", "b", "a"]), [Excluded, NotRequired, NotRequired, Attempted], "another request order");
+    assert_eq!(classified(&quality, &seeds, &[]), Vec::<CaseTrigger>::new(), "no requested case");
+    // An entry or a seed that is not unique is absent.
+    let doubled = quality_of(vec![verdict_entry("case", V::ChecksPassed), verdict_entry("case", V::ChecksPassed)]);
+    assert_eq!(classified(&doubled, &[], &["case"]), [Attempted], "two entries for one case");
+    let mechanism = || seed_of("case", failure_seed(StructuralError::Mechanism { direction: vec![1.0] }), rp::W2Seed::NotTriggered);
+    assert_eq!(classified(&quality_of(vec![verdict_entry("case", V::Failed)]), &[mechanism(), mechanism()], &["case"]), [Attempted], "two seeds for one case");
+}
+
+/// B1 ST (T-4; RR "I81's B1-0 probe verified…", ruling 4): a `NoTriggeredCase` pin on a real
+/// one-case input whose published verdict is `checks_passed`, in both modes. A is empty, so:
+/// - **The private driver, in every build:** `retained_w1` returns `NoTriggeredCase` with the
+///   ordinary owner's exact bytes, and no W1 stage runs (an armed native-stage fault stays armed).
+/// - **T-4 runs before R-2's reservation** (ST repair 1, RV109 SF-1). After `NoTriggeredCase` the
+///   owner's diagnostics capacity is unchanged and equal to its length: no slot was reserved. And
+///   when the base already carries the notice's id, the cause is still `NoTriggeredCase` with the
+///   exact bytes; a reservation ahead of T-4 would end at `NoticeReservation` there.
+/// - **The actual Direct entry:** in the registered build it is admitted and publishes the exact
+///   ordinary bytes, with no notice and no W1 work, from one ordinary run that reached G-C once. In
+///   any other build it publishes the plain bytes from one run.
+///
+/// `input_sha256` is the input's PROBE pin (`serde_json::to_vec`).
+pub(super) fn assert_no_triggered_case_pin(label: &str, raw: &Value, input_sha256: &str) {
+    assert_eq!(sha(&serde_json::to_vec(raw).unwrap()), input_sha256, "{label}: PROBE's input");
+    let case = raw["model"]["load_cases"][0]["id"].as_str().unwrap();
+    for mode in MODES {
+        let plain = plain(mode, raw);
+        // The private driver. The native-stage fault is a sentinel: it fires only if W1 reaches native.
+        let (capture, observer, ordinary) = observed(mode, raw);
+        assert_eq!(serde_json::to_vec(&ordinary).unwrap(), plain, "{label} {mode:?}: the observed run is the plain run");
+        assert_eq!(ordinary.numerical_quality.cases.iter().map(|c| (c.basis_ref.ref_id.as_str(), c.solve_quality)).collect::<Vec<_>>(),
+            [(case, NumericalQualityStatus::ChecksPassed)], "{label} {mode:?}: the published verdict");
+        let capacity = ordinary.diagnostics.capacity();
+        assert_eq!(capacity, ordinary.diagnostics.len(), "{label} {mode:?}: precondition: no spare diagnostics slot before W1");
+        hooks::withdraw_next_native_source();
+        let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+        assert_eq!(retained.err(), Some(W1Fallback::NoTriggeredCase), "{label} {mode:?}");
+        assert_eq!(String::from_utf8(serde_json::to_vec(&envelope).unwrap()).unwrap(), String::from_utf8(plain.clone()).unwrap(),
+            "{label} {mode:?}: the exact ordinary bytes, no notice");
+        assert_eq!((envelope.diagnostics.capacity(), envelope.diagnostics.len()), (capacity, capacity),
+            "{label} {mode:?}: T-4 precedes R-2: no diagnostics slot was reserved");
+        assert_eq!(hooks::armed_names(), ["native"], "{label} {mode:?}: no W1 stage ran");
+        hooks::disarm();
+        // The private driver, with the notice's id already in the base (R-2's collision).
+        let (capture, observer, mut ordinary) = observed(mode, raw);
+        ordinary.diagnostics.push(Diagnostic { id: format!("diagnostic:retained-precision:{case}:unavailable"), code: "X".into(),
+            severity: "info".into(), message: "m".into(), source: None, affected_refs: Vec::new() });
+        ordinary.diagnostics.shrink_to_fit();
+        let marked = serde_json::to_vec(&ordinary).unwrap();
+        let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+        assert_eq!(retained.err(), Some(W1Fallback::NoTriggeredCase), "{label} {mode:?}: T-4 precedes R-2's collision check");
+        assert_eq!(serde_json::to_vec(&envelope).unwrap(), marked, "{label} {mode:?}: the colliding base's exact bytes");
+        // The actual Direct entry.
+        hooks::withdraw_next_native_source();
+        let (output, counts) = direct(raw, mode);
+        if !registered() {
+            assert!(output.retained().is_none(), "{label} {mode:?}: no permit, no W1");
+            assert_eq!(counts, ONE_RUN, "{label} {mode:?}");
+        } else {
+            assert_eq!(output.admission().unwrap().law().refusal, None, "{label} {mode:?}: admitted (inside D1)");
+            assert_eq!(output.retained().and_then(|r| r.as_ref().err()), Some(&W1Fallback::NoTriggeredCase), "{label} {mode:?}");
+            assert!(output.successor().is_none(), "{label} {mode:?}");
+            assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{label} {mode:?}: one ordinary run, then G-C once");
+        }
+        assert_eq!(hooks::armed_names(), ["native"], "{label} {mode:?}: no W1 stage ran on the reserved-stack thread");
+        hooks::disarm();
+        let bytes = published(output);
+        assert_eq!(notices(&bytes), 0, "{label} {mode:?}: no notice");
+        assert_eq!(String::from_utf8(bytes).unwrap(), String::from_utf8(plain).unwrap(), "{label} {mode:?}: the exact ordinary bytes");
+    }
+}
+
+/// B1 ST (T-4; RR "I81's B1-0 probe verified…", ruling 4): two-body case B is W2-published with
+/// the published verdict `checks_passed` (PROBE §2.3), so it is `not_required` and A is empty:
+/// the `NoTriggeredCase` pin above, on the private driver and the actual Direct entry.
+#[test]
+fn b1_t4_two_body_case_b_is_a_no_triggered_case_pin() {
+    let raw = u8_two_body_case_b();
+    for mode in MODES {
+        let (_, observer, _) = observed(mode, &raw);
+        assert!(matches!(observer.ordinary.as_slice(), [rp::OrdinarySeed { initial: Some(rp::InitialSeed::StructuralFailure { .. }), w2: rp::W2Seed::Published { .. }, .. }]),
+            "{mode:?}: W2-published");
+    }
+    assert_no_triggered_case_pin("two-body B", &raw, TWO_BODY_B_INPUT_SHA256);
+}
+
+/// B1 ST (decision 21, and ruling 2 on a seedless case) through `retained_w1` on the private
+/// driver, with the milestone's actual observer and one hand-set seed. A Mechanism failure that
+/// W2 did not publish is excluded, so A is empty: `NoTriggeredCase`, exact bytes. With W2
+/// published it is in A, and so is a case with no seed: W1 runs (the notice, or a successor).
+#[test]
+fn b1_t4_retained_w1_applies_decision_21_and_keeps_a_seedless_case() {
+    let mode = PreviewSolverMode::SparseInteractive;
+    let raw = raw();
+    let plain = plain(mode, &raw);
+    let mechanism = || failure_seed(StructuralError::Mechanism { direction: vec![1.0, 0.0] });
+    let (capture, mut observer, ordinary) = observed(mode, &raw);
+    observer.ordinary[0].initial = mechanism();
+    observer.ordinary[0].w2 = rp::W2Seed::NotTriggered;
+    let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+    assert_eq!(retained.err(), Some(W1Fallback::NoTriggeredCase), "excluded: A is empty");
+    assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "excluded: the exact ordinary bytes");
+    for label in ["W2 published", "no seed"] {
+        let (capture, mut observer, ordinary) = observed(mode, &raw);
+        if label == "no seed" {
+            observer.ordinary.clear();
+        } else {
+            observer.ordinary[0].initial = mechanism();
+            observer.ordinary[0].w2 = w2_published();
+        }
+        let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+        assert_ne!(retained.as_ref().err(), Some(&W1Fallback::NoTriggeredCase), "{label}: in A, so W1 runs");
+        let bytes = serde_json::to_vec(&envelope).unwrap();
+        assert!(retained.is_ok() && bytes == plain || bytes == with_notice(&plain, "case", None), "{label}: {:?}", retained.err());
+    }
+}
+
+// ---- B1 SP (I85): the n-case transaction, T-2 to T-7 ------------------------------------------
+//
+// R/I84/b1_plan_01/PLAN_v2.md §2.2 (B0 DESIGN_v2 §1.2, T-2 to T-7). Until I2 merges SA's
+// `LOAD_CASES` = 3, `retained_w1` refuses c ≥ 2 with `Domain` (RV107 A1-S-2), so these tests drive
+// the capture and the preparation directly, below `retained_w1`: the observed ordinary run with the
+// capture installed (T-2), invocation custody (T-6) and the per-case product attempts (T-7).
+
+/// W-C2 (B0 DESIGN_v2 §1.4; decision 2): three cases on U8's two-body model, in request order:
+/// - `case-a`: the milestone's three moments on body 0 (two-body case A's loads);
+/// - `case-b`: the tip force and torque on body 1 (two-body case B's loads);
+/// - `case-c`: A's loads followed by B's (case C), each id suffixed `:c`, because primitive-load ids
+///   are unique across the model.
+pub(super) fn w_c2() -> Value {
+    let mut raw = u8_two_body_case_a();
+    let template = raw["model"]["load_cases"][0].clone();
+    let loads_a = template["primitive_loads"].clone();
+    let loads_b = u8_two_body_case_b()["model"]["load_cases"][0]["primitive_loads"].clone();
+    let mut loads_c = w_c2_case_c()["model"]["load_cases"][0]["primitive_loads"].clone();
+    for load in loads_c.as_array_mut().unwrap() {
+        load["id"] = json!(format!("{}:c", load["id"].as_str().unwrap()));
+    }
+    let case = |id: &str, loads: Value| {
+        let mut case = template.clone();
+        case["id"] = json!(id);
+        case["primitive_loads"] = loads;
+        case
+    };
+    raw["model"]["load_cases"] = json!([case("case-a", loads_a), case("case-b", loads_b), case("case-c", loads_c)]);
+    raw
+}
+const W_C2_IDS: [&str; 3] = ["case-a", "case-b", "case-c"];
+
+/// T-2 (one owner, per-case capture), both modes, on W-C2: the observed ordinary run captures each
+/// requested case in its own slot, in request order: its scope and custody counters, its solver
+/// observations, and its late old-source capture (the source with that case's loads, and its facts
+/// and operational records). The seeds are per case, and the published verdicts are A Sensitive,
+/// B Passed and C Sensitive (PROBE §2.3 and §4), so T-4's A is {A, C}.
+#[test]
+fn b1_sp_t2_the_capture_holds_each_requested_case() {
+    let raw = w_c2();
+    for mode in MODES {
+        let plain = plain(mode, &raw);
+        let (capture, mut observer, ordinary) = observed(mode, &raw);
+        assert_eq!(serde_json::to_vec(&ordinary).unwrap(), plain, "{mode:?}: the observed run is the plain run");
+        assert_eq!(ordinary.status.mechanics, "MECHANICS_SOLVED", "{mode:?}");
+        assert!(observer.error.is_none() && observer.parked_cases().iter().all(|slot| slot.error.is_none()), "{mode:?}: {:?}", observer.error);
+        assert_eq!((observer.cases_seen(), observer.parked_cases().len()), (3, 2), "{mode:?}: three slots, the last in the capture's fields");
+        let loads = [3, 2, 5];
+        for (index, id) in W_C2_IDS.into_iter().enumerate() {
+            let (case_id, calls, observations, source_loads, facts, operational) = observer.with_case(index, |c| {
+                (c.case_id.clone(), (c.case_calls, c.prepared_late_calls, c.source_capture_entries, c.observation_calls),
+                    c.observations.as_ref().map(|o| (o.case.clone(), o.mode)), c.source.as_ref().map(|s| s.loads().len()),
+                    c.facts.len(), c.operational.len())
+            });
+            assert_eq!(case_id, id, "{mode:?}: slot {index} is request case {index}");
+            assert_eq!(calls, (1, 1, 1, 1), "{mode:?} {id}: one early hook, one late hook, one late capture, one observation");
+            assert_eq!(observations, Some((id.to_owned(), mode)), "{mode:?} {id}: its own observations");
+            assert_eq!(source_loads, Some(loads[index]), "{mode:?} {id}: its own loads in its captured source");
+            assert_eq!((facts, operational), (2, 2), "{mode:?} {id}: both members' facts and operational records");
+        }
+        assert_eq!(observer.ordinary.iter().map(|s| s.case.as_str()).collect::<Vec<_>>(), W_C2_IDS, "{mode:?}: one seed per case");
+        assert_eq!(ordinary.numerical_quality.cases.iter().map(|c| (c.basis_ref.ref_id.as_str(), c.solve_quality)).collect::<Vec<_>>(),
+            [("case-a", NumericalQualityStatus::Sensitive), ("case-b", NumericalQualityStatus::ChecksPassed), ("case-c", NumericalQualityStatus::Sensitive)],
+            "{mode:?}: the published verdicts");
+        assert_eq!(classified(&ordinary.numerical_quality, &observer.ordinary, &W_C2_IDS),
+            [CaseTrigger::Attempted, CaseTrigger::NotRequired, CaseTrigger::Attempted], "{mode:?}: T-4's A is {{A, C}}");
+        let _ = capture;
+    }
+}
+
+/// T-6 and T-7, both modes, on W-C2 with A = {A, C} (request indices 0 and 2):
+/// - custody is checked once, then each case in A gets one product attempt, in request order, with
+///   ids in actual start order (0, 1), and each prepares its own case's source;
+/// - case B, `not_required`, gets no attempt: its slot keeps its captured source, unprepared;
+/// - with `fail_preparation_of_case(i)`, only that case's attempt fails: its preparation stage
+///   fails with the helper's refusal, its error stays in its slot, its terminal snapshot is
+///   preparation's, and it has no prepared source; the other case's attempt still prepares.
+#[test]
+fn b1_sp_t6_t7_custody_once_then_one_attempt_per_case_in_a() {
+    use super::retained_receipt::{Stage, StageState};
+    let raw = w_c2();
+    for mode in MODES {
+        for failing in [None, Some(0), Some(2)] {
+            let label = format!("{mode:?} failing {failing:?}");
+            let (_, observer, ordinary) = observed(mode, &raw);
+            if let Some(index) = failing {
+                hooks::fail_preparation_of_case(index);
+            }
+            let mut prepared = observer.prepare_cases(ordinary, 3, &[0, 2]).unwrap_or_else(|f| panic!("{label}: custody {:?}", f.error));
+            assert!(hooks::armed_names().is_empty(), "{label}: the case's fault fired");
+            assert_eq!(prepared.attempts.iter().map(|a| (a.request, a.attempt)).collect::<Vec<_>>(), [(0, 0), (2, 1)],
+                "{label}: request order, ids in start order");
+            for attempt in &prepared.attempts {
+                let fails = failing == Some(attempt.request);
+                assert_eq!(attempt.prepared, !fails, "{label} request {}", attempt.request);
+                assert_eq!(attempt.trace.stages[Stage::Preparation as usize], if fails { StageState::Failed } else { StageState::Completed },
+                    "{label} request {}", attempt.request);
+                assert_eq!(attempt.trace.source_ready, !fails, "{label} request {}: a prepared source exactly when preparation completed", attempt.request);
+                assert_eq!(attempt.trace.adapter.is_some(), fails, "{label} request {}: a failed attempt's terminal snapshot", attempt.request);
+                assert_eq!(attempt.parts.preparation_error.is_some(), fails, "{label} request {}: the helper's refusal", attempt.request);
+                assert_eq!(attempt.trace.stages[Stage::Native as usize], StageState::NotEntered, "{label}: native is T-8's");
+                let error = prepared.capture.with_case(attempt.request, |c| c.error.as_ref().map(|e| format!("{e:?}")));
+                assert_eq!(error.is_some(), fails, "{label} request {}: {error:?}", attempt.request);
+            }
+            let untouched = prepared.capture.with_case(1, |c| (c.case_id.clone(), c.source.as_ref().map(|s| s.loads().len()), c.error.is_some()));
+            assert_eq!(untouched, ("case-b".to_owned(), Some(2), false), "{label}: B has no attempt");
+            assert_eq!(serde_json::to_vec(&prepared.ordinary).unwrap(), plain(mode, &raw), "{label}: the ordinary owner is untouched");
+        }
+    }
+}
+
+/// T-6's refusals on W-C2, each before any product attempt: a requested case the capture never
+/// saw; a prior capture error in any case's slot (parked or not); a case's captured observation
+/// that no longer matches the envelope; and an envelope observation row naming no requested case.
+#[test]
+fn b1_sp_t6_custody_refuses_the_whole_invocation() {
+    use super::retained_product::CaptureError;
+    let mode = PreviewSolverMode::DenseScrutiny;
+    let raw = w_c2();
+    let refused = |observer: rp::ProductCapture, ordinary: MechanicsEnvelope, requested: usize| -> String {
+        match observer.prepare_cases(ordinary, requested, &[0, 2]) {
+            Ok(_) => panic!("custody passed"),
+            Err(failure) => {
+                assert!(failure.capture.prepared_capacity_bytes == [0; 16], "no attempt started");
+                match failure.error { CaptureError::Association(text) => text, other => format!("{other:?}") }
+            }
+        }
+    };
+    let (_, observer, ordinary) = observed(mode, &raw);
+    assert_eq!(refused(observer, ordinary, 4), "prepared case count");
+    for index in [0, 2] {
+        let (_, mut observer, ordinary) = observed(mode, &raw);
+        observer.with_case(index, |c| c.error = Some("planted".into()));
+        assert_eq!(refused(observer, ordinary, 3), "planted", "case {index}'s prior error");
+    }
+    let (_, mut observer, ordinary) = observed(mode, &raw);
+    observer.with_case(1, |c| c.observations.as_mut().unwrap().mode_row.value_bits = 7f64.to_bits());
+    assert_eq!(refused(observer, ordinary, 3), "observation captured value/text", "case B's observation");
+    let (_, observer, mut ordinary) = observed(mode, &raw);
+    let row = ordinary.results.iter_mut().find(|r| r.kind == "linear_solver_mode_basis").unwrap();
+    row.basis_ref.as_mut().unwrap().ref_id = "foreign".into();
+    assert_eq!(refused(observer, ordinary, 3), "observation final case", "a mode row naming no requested case");
+}
+
+/// T-5 (R-2 per case), for every count the domain admits (1 to `caps::LOAD_CASES`): one notice per
+/// case in A, in request order, every slot reserved before any W1 work, then published with no
+/// allocation, with N1's exact bytes. A collision with the base, or between the notices, and a
+/// count outside 1..=C reserve nothing.
+#[test]
+fn b1_sp_t5_one_reserved_notice_per_case_in_a() {
+    let mode = PreviewSolverMode::SparseInteractive;
+    let ids: Vec<String> = (1..=crate::retained_memory::caps::LOAD_CASES + 1).map(|k| format!("case-{k}")).collect();
+    let ids: Vec<&str> = ids.iter().map(String::as_str).collect();
+    let (_, _, base) = observed(mode, &raw());
+    for count in 1..=crate::retained_memory::caps::LOAD_CASES {
+        let mut ordinary = base.clone();
+        ordinary.diagnostics.shrink_to_fit();
+        let before = serde_json::to_vec(&ordinary).unwrap();
+        let notices = ReservedNotices::reserve(&mut ordinary, &ids[..count]).unwrap_or_else(|| panic!("{count} notices"));
+        assert!(ordinary.diagnostics.capacity() >= ordinary.diagnostics.len() + count, "{count}: every slot reserved before W1");
+        let (published, cause) = notices.publish(ordinary, W1Fallback::Preparation, 0);
+        assert_eq!(cause.err(), Some(W1Fallback::Preparation));
+        let mut expected = before;
+        for id in &ids[..count] {
+            expected = with_notice(&expected, id, None);
+        }
+        assert_eq!(String::from_utf8(serde_json::to_vec(&published).unwrap()).unwrap(), String::from_utf8(expected).unwrap(),
+            "{count}: the notices in request order");
+    }
+    let mut ordinary = base.clone();
+    assert!(ReservedNotices::reserve(&mut ordinary, &ids).is_none(), "C + 1 cases");
+    assert!(ReservedNotices::reserve(&mut ordinary, &[]).is_none(), "no case");
+    if crate::retained_memory::caps::LOAD_CASES >= 2 {
+        let mut ordinary = base.clone();
+        assert!(ReservedNotices::reserve(&mut ordinary, &["case-1", "case-1"]).is_none(), "two notices with one id");
+    }
+    let mut colliding = base.clone();
+    colliding.diagnostics.push(Diagnostic { id: format!("diagnostic:retained-precision:{}:unavailable", ids[0]), code: "X".into(),
+        severity: "info".into(), message: "m".into(), source: None, affected_refs: Vec::new() });
+    let before = serde_json::to_vec(&colliding).unwrap();
+    assert!(ReservedNotices::reserve(&mut colliding, &ids[..1]).is_none(), "the base carries the id");
+    assert_eq!(serde_json::to_vec(&colliding).unwrap(), before, "nothing reserved, nothing changed");
+}
+
+/// The domain re-check (PLAN_v2 §2.2; RV107 SF-2): `w1_case_ids` gives the request's cases in
+/// request order for 1 ≤ c ≤ C with no combination, and `None` (`Domain`) for C + 1 cases, for no
+/// case, and for a combination.
+#[test]
+fn b1_sp_domain_recheck_names_the_requested_cases() {
+    let mode = PreviewSolverMode::SparseInteractive;
+    let ids = |raw: &Value| {
+        let (_, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+        w1_case_ids(&capture).map(|set| (set.requests().to_vec(), set.ids().iter().map(|s| s.to_string()).collect::<Vec<_>>()))
+    };
+    assert_eq!(ids(&raw()), Some((vec![0], vec!["case".to_owned()])));
+    let mut full = raw();
+    let first = full["model"]["load_cases"][0].clone();
+    full["model"]["load_cases"] = json!((0..crate::retained_memory::caps::LOAD_CASES).map(|k| {
+        let mut case = first.clone();
+        case["id"] = json!(format!("case-{k}"));
+        case
+    }).collect::<Vec<_>>());
+    let expected = (0..crate::retained_memory::caps::LOAD_CASES).map(|k| format!("case-{k}")).collect::<Vec<_>>();
+    assert_eq!(ids(&full), Some(((0..crate::retained_memory::caps::LOAD_CASES).collect(), expected)), "C cases");
+    assert_eq!(ids(&beyond_load_cases(&raw(), true)), None, "C + 1 cases");
+    let mut none = raw();
+    none["model"]["load_cases"] = json!([]);
+    assert_eq!(ids(&none), None, "no case");
+    let mut combined = raw();
+    combined["model"]["combinations"] = json!([{"id":"combo","basis":"mechanics","terms":[{"load_case":"case","factor":1.0}]}]);
+    assert_eq!(ids(&combined), None, "a combination");
+}
+
+// ---- B1 SP (I85): the n-case transaction, T-8 to T-13 -----------------------------------------
+//
+// PLAN_v2 §2.2's tests. Below `retained_w1`, `w1_transaction` (T-6 to T-11) returns the cause and
+// the selected attempts that T-12 publishes with (written before I2, when `LOAD_CASES` = 1). Since
+// I2 the same inputs also run through `retained_w1` with their notices
+// (`b1_sp_w_c2_through_retained_w1_publishes_t12`) and the Direct entry. Before SR-RS (I3) the accepted Rust
+// reader refused W-C2's successor at precommit (G5, B's `not_required`), so its per-case outcomes
+// were read from the successor that precommit received (RV107 A1-N-1:
+// `hooks::counted_with_successor`). Since I3 the reader accepts it, and W-C2 publishes its
+// successor, pinned with its fixtures (`b1_sp_w_c2_direct_entry_publishes_the_pinned_successor`).
+
+/// The successor body's per-case facts that PLAN_v2's W-C2 and ordinal-mapping checks read.
+fn w_c2_body(successor: &Value) -> &Value {
+    &successor["retained_precision"]["body"]
+}
+fn case_ref(index: usize) -> Value {
+    json!({"kind":"case","index":index})
+}
+/// One kernel outcome's comparable facts (PLAN_v2 N-16): the terminal (kind and reason), the
+/// physical attempt count, and the selected precision.
+fn outcome_facts(outcome: &k::ExecutionOutcome) -> (String, usize, Option<u32>) {
+    match outcome {
+        k::ExecutionOutcome::Selected(owner) => ("selected".into(), owner.evidence().attempts.len(), Some(owner.evidence().selected_precision)),
+        k::ExecutionOutcome::Refused { refusal, attempts, .. } => (format!("refused {refusal:?}"), attempts.len(), None),
+        k::ExecutionOutcome::Unresolved { reason, attempts, .. } => (format!("unresolved {reason:?}"), attempts.len(), None),
+    }
+}
+/// The one-case native Run of `raw` (one requested case), through the one-case private driver.
+fn one_case_run(raw: &Value, mode: PreviewSolverMode) -> k::RecordedCase {
+    let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+    let mut prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|_| panic!("one-case preparation"));
+    let _ = prepared.solve_native();
+    prepared.capture().native.clone().expect("one Run")
+}
+/// The one-case native outcome's facts of `raw` (one requested case).
+fn one_case_outcome(raw: &Value, mode: PreviewSolverMode) -> (String, usize, Option<u32>) {
+    outcome_facts(&one_case_run(raw, mode).outcome)
+}
+/// A Run's physical attempt records.
+fn run_records(outcome: &k::ExecutionOutcome) -> &[k::AttemptRecord] {
+    match outcome {
+        k::ExecutionOutcome::Selected(owner) => &owner.evidence().attempts,
+        k::ExecutionOutcome::Refused { attempts, .. } | k::ExecutionOutcome::Unresolved { attempts, .. } => attempts,
+    }
+}
+/// PLAN_v2 N-16 with RV109's SF-1 (RR "RV109 passes SP in RV-P round 2; …", ruling 1): one
+/// `CaseBatchCall` over `raw`'s cases `attempted` (all prepared), against each case's one-case Run
+/// (`singles`, in batch order). Each Run's terminal facts are the one-case ones, and so is every
+/// field of every physical record, but for C2 §4's group-build sharing: one stiffness gives one
+/// group, the first Run builds s128, s256 and v256, and every later Run reuses them. So a later
+/// Run's records differ from its one-case records in exactly `shared_built_here` at p128 and p256
+/// and `verification_shared_built_here` at p256 (false in the batch, true alone). Returns each
+/// Run's facts.
+fn n16_batch_against_one_case(label: &str, raw: &Value, mode: PreviewSolverMode, requested: usize, attempted: &[usize], singles: &[Value])
+    -> Vec<(String, usize, Option<u32>)> {
+    let (_, observer, ordinary) = observed(mode, raw);
+    let mut prepared = observer.prepare_cases(ordinary, requested, attempted).unwrap_or_else(|f| panic!("{label}: {:?}", f.error));
+    prepared.native();
+    let mut facts = Vec::new();
+    for (position, (&request, single)) in attempted.iter().zip(singles).enumerate() {
+        let batch = prepared.capture.with_case(request, |c| c.native.clone()).unwrap_or_else(|| panic!("{label}: request {request}'s Run"));
+        let alone = one_case_run(single, mode);
+        assert_eq!(outcome_facts(&batch.outcome), outcome_facts(&alone.outcome), "{label} request {request}: N-16, the terminal facts");
+        let (in_batch, by_itself) = (run_records(&batch.outcome), run_records(&alone.outcome));
+        assert_eq!(in_batch.len(), by_itself.len(), "{label} request {request}");
+        let mut flags = Vec::new();
+        for (x, y) in in_batch.iter().zip(by_itself) {
+            let mut y = y.clone();
+            if x.shared_built_here != y.shared_built_here {
+                flags.push((x.precision, "shared_built_here", x.shared_built_here, y.shared_built_here));
+                y.shared_built_here = x.shared_built_here;
+            }
+            if x.verification_shared_built_here != y.verification_shared_built_here {
+                flags.push((x.precision, "verification_shared_built_here", x.verification_shared_built_here, y.verification_shared_built_here));
+                y.verification_shared_built_here = x.verification_shared_built_here;
+            }
+            assert!(*x == y, "{label} request {request}: record p{} differs beyond the build-provenance flags", x.precision);
+        }
+        let expected: &[(u32, &str, bool, bool)] = if position == 0 { &[] } else {
+            &[(128, "shared_built_here", false, true), (256, "shared_built_here", false, true), (256, "verification_shared_built_here", false, true)]
+        };
+        println!("B1_SP_N16_RECORDS {label} request={request} position={position} records={} flags={flags:?}", in_batch.len());
+        assert_eq!(flags, expected, "{label} request {request} (batch position {position}): C2 §4's shared builds only");
+        facts.push(outcome_facts(&batch.outcome));
+    }
+    facts
+}
+
+/// W-C2 (PLAN_v2 §2.2, N-1, N-2, N-16) below `retained_w1`, both modes, with A = {A, C}:
+/// - T-8: one call over A's and C's prepared sources; A's Run ends `selected`, C's
+///   `unresolved {space: unresolved, tag: ceiling}`; T-9 freezes A.
+/// - Since I3 the precommit (SR-RS's reader, with the invocation) accepts the successor, which
+///   the transfer moves out; the ordinary owner is untouched. (Before I3: `G5`,
+///   `RETAINED_PRECISION_ATTEMPT_MISMATCH`, B's `not_required`, with A selected.)
+/// - The successor: A `selected`, B `not_required` (no product attempt), C `unavailable`
+///   (`kernel_unresolved`, its Run and source).
+/// - **The ordinal mapping (N-2):** the batch ordinals {0, 1} name request indices {0, 2} in the
+///   Runs' owners, the call's `owner_refs`, `work.execution_order`, the sources' owners and the
+///   product attempts; each source's preparation names its attempt (T-7's `attempt_ref`).
+/// - One material basis for every case, one group (one stiffness), and `charged` = the call's
+///   `invocation_after`.
+/// - **The record point (T-11):** C's snapshot is taken at its Run (T-8), before A's freeze, so
+///   it records fewer adapter events than A's, taken at A's last proof stage.
+/// - **N-16** (with RV109's SF-1): each Run's terminal facts and every physical record equal the
+///   case's one-case Run's, but for C's p128 and p256 build-provenance flags: C2 §4's group-build
+///   sharing (`n16_batch_against_one_case`).
+/// - Staging order (T-11): A's selected diagnostic, then C's unavailable diagnostic, last.
+#[test]
+fn b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping() {
+    let raw = w_c2();
+    for mode in MODES {
+        let label = format!("{mode:?}");
+        let plain = plain(mode, &raw);
+        let (capture, observer, ordinary) = observed(mode, &raw);
+        let ((envelope, outcome), counts, successor) = hooks::counted_with_successor(|| w1_transaction(observer, ordinary, &capture, 3, &[0, 2]));
+        assert_eq!(counts, Counts { runs: 0, complete_gates: 0 }, "{label}: no ordinary run inside the transaction");
+        assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{label}: the ordinary owner is untouched");
+        let published = outcome.unwrap_or_else(|f| panic!("{label}: since I3 the precommit accepts W-C2: {f:?}"));
+        let successor = successor.unwrap_or_else(|| panic!("{label}: precommit received the successor"));
+        assert_eq!(published, successor, "{label}: the transfer moves the validated successor");
+        let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
+        assert!(open_pipe_stress_result_export::retained_precision::validate(&successor, Some(&invocation)).is_ok(), "{label}: the Rust reader");
+        let body = w_c2_body(&successor);
+        let cases = body["cases"].as_array().unwrap();
+        assert_eq!(cases.iter().map(|c| c["status"].as_str().unwrap()).collect::<Vec<_>>(), ["selected", "not_required", "unavailable"], "{label}");
+        assert_eq!(cases.iter().map(|c| c["basis_ref"]["ref_id"].as_str().unwrap()).collect::<Vec<_>>(), W_C2_IDS, "{label}");
+        assert_eq!(cases.iter().map(|c| c["ordinary"]["attempt_ref"].clone()).collect::<Vec<_>>(), [json!(0), json!(1), json!(2)], "{label}");
+        assert_eq!(cases.iter().map(|c| c["product_attempt_ref"].clone()).collect::<Vec<_>>(), [json!(0), Value::Null, json!(1)], "{label}");
+        assert_eq!(cases[1].as_object().unwrap().len(), 4, "{label}: not_required carries basis, ordinary, attempt ref and status only");
+        assert_eq!(cases[0]["run"]["kernel_terminal"]["kind"], "selected", "{label}");
+        assert_eq!(cases[2]["run"]["kernel_terminal"], json!({"kind":"unresolved","reason":{"space":"unresolved","tag":"ceiling"}}), "{label}");
+        assert_eq!(cases[2]["reason"], json!({"code":"kernel_unresolved","phase":"kernel","cause":{"kind":"prepared_product_failure","product_attempt_ref":1}}), "{label}");
+        assert_eq!((cases[0]["source_ref"].clone(), cases[2]["source_ref"].clone()), (json!(0), json!(1)), "{label}");
+        // N-2: ordinals {0, 1} are request indices {0, 2}.
+        assert_eq!((cases[0]["run"]["origin"]["owner_ref"].clone(), cases[2]["run"]["origin"]["owner_ref"].clone()), (case_ref(0), case_ref(2)), "{label}");
+        assert_eq!(body["calls"].as_array().unwrap().len(), 1, "{label}: one CaseBatchCall");
+        assert_eq!(body["calls"][0]["owner_refs"], json!([case_ref(0), case_ref(2)]), "{label}");
+        assert_eq!(body["work"]["execution_order"], json!([case_ref(0), case_ref(2)]), "{label}");
+        let sources = body["sources"].as_array().unwrap();
+        assert_eq!(sources.iter().map(|s| (s["index"].clone(), s["owner"]["case_index"].clone(), s["owner"]["case_id"].clone(), s["preparation"]["attempt_ref"].clone()))
+            .collect::<Vec<_>>(), [(json!(0), json!(0), json!("case-a"), json!(0)), (json!(1), json!(2), json!("case-c"), json!(1))], "{label}: registration order, attempt refs");
+        let attempts = body["product_attempts"].as_array().unwrap();
+        assert_eq!(attempts.iter().map(|a| (a["id"].clone(), a["owner_ref"].clone(), a["ordinary_attempt_ref"].clone(), a["source_ref"].clone(), a["run_ref"].clone()))
+            .collect::<Vec<_>>(), [(json!(0), case_ref(0), json!(0), json!(0), cases[0]["run"]["id"].clone()), (json!(1), case_ref(2), json!(2), json!(1), cases[2]["run"]["id"].clone())],
+            "{label}: start order");
+        assert_eq!(body["ordinary_attempts"].as_array().unwrap().iter().map(|o| o["case_id"].as_str().unwrap()).collect::<Vec<_>>(), W_C2_IDS, "{label}");
+        assert_eq!(body["material_bases"].as_array().unwrap().len(), 1, "{label}");
+        assert_eq!(body["material_bases"][0]["case_indices"], json!([0, 1, 2]), "{label}");
+        assert_eq!(body["groups"].as_array().unwrap().len(), 1, "{label}: D1.5's one stiffness, one group");
+        assert_eq!(body["groups"][0]["source_refs"], json!([0, 1]), "{label}");
+        assert_eq!(body["work"]["charged"], body["calls"][0]["invocation_after"], "{label}");
+        // The record point: C's snapshot (its Run) precedes A's freeze.
+        let counts = |a: &Value| a["adapter"]["counts"].as_array().unwrap().iter().map(|n| n.as_u64().unwrap()).collect::<Vec<_>>();
+        let (a_counts, c_counts) = (counts(&attempts[0]), counts(&attempts[1]));
+        assert!(c_counts.iter().zip(&a_counts).all(|(c, a)| c <= a) && c_counts[1] < a_counts[1], "{label}: C {c_counts:?} before A {a_counts:?}");
+        // RV109 R3P-8 (S20): the capture's observation capacity is summed over the requested cases
+        // (cumulative snapshots, T-11): its case-id slot holds the three ids' bytes.
+        let ids_bytes: usize = W_C2_IDS.iter().map(|id| id.len()).sum();
+        for attempt in attempts {
+            assert_eq!(attempt["adapter"]["observation_capacity_bytes"][0], json!(ids_bytes), "{label}: every case's id capacity");
+        }
+        assert_eq!(attempts[1]["stages"]["native"], "failed", "{label}");
+        assert_eq!(attempts[1]["stages"]["proof_start"], "not_entered", "{label}");
+        // Staging order: A's selected diagnostic, then C's unavailable one, last.
+        let diagnostics = successor["diagnostics"].as_array().unwrap();
+        let tail: Vec<_> = diagnostics[diagnostics.len() - 2..].iter().map(|d| d["id"].as_str().unwrap()).collect();
+        assert_eq!(tail, ["diagnostic:retained-precision:case-a:selected", "diagnostic:retained-precision:case-c:unavailable"], "{label}");
+        assert!(successor["results"].as_array().unwrap().iter().all(|r| r.get("recovery_method").is_some()
+            == (r["basis_ref"]["ref_id"] == "case-a")), "{label}: the method token on A's rows only");
+        // T-11 staging, c ≥ 2: each summary headline is the staged rows' maximum of its kind, a tie
+        // going to the smaller case id, then the smaller location.
+        for (kind, headline) in [("displacement_magnitude", "max_displacement"), ("pipe_elastic_normal_stress_maximum_v2", "max_open_formula_stress")] {
+            let best = successor["results"].as_array().unwrap().iter().filter(|r| r["kind"] == kind)
+                .max_by(|a, b| a["value"].as_f64().unwrap().total_cmp(&b["value"].as_f64().unwrap())
+                    .then_with(|| b["basis_ref"]["ref_id"].as_str().cmp(&a["basis_ref"]["ref_id"].as_str()))
+                    .then_with(|| b["entity_ref"].as_str().cmp(&a["entity_ref"].as_str()))).unwrap();
+            assert_eq!(successor["summary"][headline], json!({"value":best["value"],"unit":best["unit"],"location_ref":best["entity_ref"],"result_ref":best["id"]}),
+                "{label}: the {headline} headline");
+            println!("B1_SP_HEADLINE {label} {headline} case={} ordinary={}", best["basis_ref"]["ref_id"], serde_json::to_value(&envelope.summary).unwrap()[headline]);
+        }
+        // N-16 (SF-1): the batch Runs against the one-case Runs, record by record.
+        let batch_facts = n16_batch_against_one_case(&label, &raw, mode, 3, &[0, 2], &[u8_two_body_case_a(), w_c2_case_c()]);
+        let single = [one_case_outcome(&u8_two_body_case_a(), mode), one_case_outcome(&w_c2_case_c(), mode)];
+        println!("B1_SP_N16 {label} batch={batch_facts:?} one_case={single:?}");
+        assert_eq!(batch_facts, single, "{label}: N-16, the batch Runs' terminal facts are the one-case ones");
+        assert_eq!(batch_facts[1].0, "unresolved Ceiling", "{label}");
+        println!("B1_SP_WC2 {label} statuses={:?} owner_refs={} charged={} a_counts={a_counts:?} c_counts={c_counts:?}",
+            cases.iter().map(|c| c["status"].as_str().unwrap()).collect::<Vec<_>>(), body["calls"][0]["owner_refs"], body["work"]["charged"]);
+        assert!(hooks::armed_names().is_empty(), "{label}");
+    }
+}
+
+/// The W-C2 transaction's faults below `retained_w1` (sparse): each gives its T-12 cause and the
+/// selected attempts T-12 places C1:68's detail on (bit 0: A), with the ordinary owner untouched
+/// and every armed fault fired. Decision 5's abandonment set is each of them:
+/// - T-6 custody (case B's tampered observation): `Preparation`, nothing selected;
+/// - T-7 on C (`fail_preparation_of_case(2)`): A still selected, C `unavailable` at preparation,
+///   with no `CaseSource`, Run, run or source reference, and one call over A alone. The fault zeroes
+///   C's diameter fact, which C's attempt records truthfully, so since I3 the reader refuses the
+///   successor at G8 (`PREPARATION_MISMATCH`: the recorded old fact is not the request's);
+/// - T-7 on A: only C's Run, which is not selected, so no case is selected: `Native` (T-10);
+/// - a T-8 call failure (the first prepared source withdrawn: D38's hook shape): `Native`;
+/// - staging, each serializer refusal, and precommit: A selected (bit 0);
+/// - the R-b′ limit (DESIGN_v2 N-5): B, not attempted, with `recovery_demoted`, abandons A's
+///   successor (`Untranslated`, `ordinary_attempts[].formation.recovery_finding`).
+#[test]
+fn b1_sp_w_c2_transaction_faults_and_abandonment() {
+    use super::retained_wire::{ReceiptCheck as C, ReceiptFailure};
+    let mode = PreviewSolverMode::SparseInteractive;
+    let raw = w_c2();
+    let plain = plain(mode, &raw);
+    let run = |prepare: &dyn Fn(&mut rp::ProductCapture)| {
+        let (capture, mut observer, ordinary) = observed(mode, &raw);
+        prepare(&mut observer);
+        let ((envelope, outcome), _, successor) = hooks::counted_with_successor(|| w1_transaction(observer, ordinary, &capture, 3, &[0, 2]));
+        assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "the ordinary owner is untouched");
+        assert!(hooks::armed_names().is_empty(), "every armed fault fired: {:?}", hooks::armed_names());
+        (outcome.err().expect("abandoned"), successor)
+    };
+    let tamper = |o: &mut rp::ProductCapture| o.with_case(1, |c| c.observations.as_mut().unwrap().mode_row.value_bits = 7f64.to_bits());
+    assert_eq!(run(&tamper).0, (W1Fallback::Preparation, 0), "T-6 custody");
+    // T-7 beside a selected case: C's preparation fails, A's successor goes on.
+    hooks::fail_preparation_of_case(2);
+    let (cause, successor) = run(&|_| ());
+    assert_eq!(cause, (W1Fallback::Precommit { gate: "G8", code: "RETAINED_PRECISION_PREPARATION_MISMATCH".into() }, 0b01), "T-7 on C");
+    let successor = successor.expect("precommit received the successor");
+    let body = w_c2_body(&successor);
+    assert_eq!(body["cases"][2]["status"], "unavailable");
+    assert_eq!(body["cases"][2]["reason"], json!({"code":"source_unavailable","phase":"preparation","cause":{"kind":"prepared_product_failure","product_attempt_ref":1}}));
+    assert_eq!((body["cases"][2]["run"].clone(), body["cases"][2]["source_ref"].clone()), (Value::Null, Value::Null));
+    assert_eq!(body["sources"].as_array().unwrap().len(), 1, "no CaseSource for C");
+    assert_eq!(body["sources"][0]["owner"]["case_index"], 0);
+    assert_eq!((body["product_attempts"][1]["source_ref"].clone(), body["product_attempts"][1]["run_ref"].clone()), (Value::Null, Value::Null));
+    assert_eq!(body["product_attempts"][1]["stages"]["preparation"], "failed");
+    assert_eq!(body["product_attempts"][1]["result"]["error"]["kind"], "preparation");
+    assert_eq!((body["calls"][0]["owner_refs"].clone(), body["work"]["execution_order"].clone()), (json!([case_ref(0)]), json!([case_ref(0)])), "one call over A alone");
+    hooks::fail_preparation_of_case(0);
+    assert_eq!(run(&|_| ()).0, (W1Fallback::Native, 0), "T-7 on A: no case selected, C's Run reached");
+    hooks::withdraw_next_native_source();
+    assert_eq!(run(&|_| ()).0, (W1Fallback::Native, 0), "a T-8 call failure");
+    hooks::break_next_staging();
+    assert_eq!(run(&|_| ()).0, (W1Fallback::Staging(rp::StagingFault("pipe_stress_extrema[]")), 0b01), "staging");
+    for check in [C::WorkCounterRange, C::WorkCounterInconsistent, C::SaturationNotExcluded, C::PublicationHashRange, C::Encoding, C::Untranslated, C::Scope, C::Association] {
+        hooks::fail_next_serializer(check);
+        assert_eq!(run(&|_| ()).0, (W1Fallback::Serializer(ReceiptFailure { check, field_path: "cases[].run.invocation_after" }), 0b01), "serializer {check:?}");
+    }
+    hooks::corrupt_next_precommit();
+    let (cause, selected) = run(&|_| ()).0;
+    assert!(matches!(cause, W1Fallback::Precommit { gate: "G1", .. }) && selected == 0b01, "precommit: {cause:?}");
+    let demoted = |o: &mut rp::ProductCapture| o.ordinary[1].recovery_demoted = true;
+    assert_eq!(run(&demoted).0, (W1Fallback::Serializer(ReceiptFailure { check: C::Untranslated, field_path: "ordinary_attempts[].formation.recovery_finding" }), 0b01),
+        "the R-b′ limit: B's demotion abandons A's successor");
+}
+
+/// W-C2 through `retained_w1` (since I2: SA's C = 3; RV107 A1-S-2), both modes:
+/// - T-4: A = {A, C}; with `.all` for `.any` (RV109's R17) W-C2 would be `NoTriggeredCase`;
+/// - since I3 the successor is published (A selected, B `not_required`, C unavailable), with the
+///   ordinary owner untouched beside it (before I3: the precommit's refusal, then the two N1
+///   notices, case-a's and case-c's, both plain);
+/// - a serializer refusal with C1:68's detail puts it on A's notice only (selected), C's plain;
+///   one without a detail leaves both plain; a T-8 call failure leaves both plain.
+#[test]
+fn b1_sp_w_c2_through_retained_w1_publishes_t12() {
+    use super::retained_wire::ReceiptCheck as C;
+    let raw = w_c2();
+    for mode in MODES {
+        let plain = plain(mode, &raw);
+        let run = || {
+            let (capture, observer, ordinary) = observed(mode, &raw);
+            let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+            assert!(hooks::armed_names().is_empty(), "{mode:?}: every armed fault fired");
+            (String::from_utf8(serde_json::to_vec(&envelope).unwrap()).unwrap(), retained.err())
+        };
+        assert_eq!(crate::retained_memory::caps::LOAD_CASES, W_C2_IDS.len(), "I2: C = 3");
+        let noticed = |detail: Option<&str>| String::from_utf8(with_notice(&with_notice(&plain, "case-a", detail), "case-c", None)).unwrap();
+        let (capture, observer, ordinary) = observed(mode, &raw);
+        let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+        let successor = retained.unwrap_or_else(|f| panic!("{mode:?}: not NoTriggeredCase (R17): {f:?}"));
+        assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{mode:?}: the ordinary owner beside the successor");
+        assert_eq!(w_c2_body(successor.value())["cases"].as_array().unwrap().iter().map(|c| c["status"].as_str().unwrap()).collect::<Vec<_>>(),
+            ["selected", "not_required", "unavailable"], "{mode:?}");
+        hooks::fail_next_serializer(C::WorkCounterInconsistent);
+        assert_eq!(run().0, noticed(Some("work_counter_inconsistent")), "{mode:?}: the detail on A's notice only");
+        hooks::fail_next_serializer(C::Association);
+        assert_eq!(run().0, noticed(None), "{mode:?}: no detail");
+        hooks::withdraw_next_native_source();
+        assert_eq!(run(), (noticed(None), Some(W1Fallback::Native)), "{mode:?}: a T-8 call failure");
+    }
+}
+
+/// The pinned W-C2 successors (PLAN_v2 §2.2, after I3): (name, document sha256, receipt sha256,
+/// published bytes' sha256).
+const W_C2_PINNED: [(&str, &str, &str, &str); 2] = [
+    ("sparse_interactive", "7922e3e5278d0d87dc5faf79dfbc1f2a384899e97df306cc742355cdacdb6269", "cccb9664e1c58f0582348df3348d8b6e0b0941bcb0294a5b351a4d092ed18886", "c7a1859330e9e36e18f5572838dbad72ea251a817241acc6968f8f83b70170fa"),
+    ("dense_scrutiny", "f2800bd4f2b4c90217918a6e1287f98305a1b6b07893295b5790f387c075d3a3", "612e23ca4b90604b3d2351fd7465d2e3cefb0f3fbb36bdea39efaa82a68bc07a", "a77c010b4ae7ffa9c535c31305b8a91fcc3c05e8a512075fa5b4694dbae3062c"),
+];
+/// Where glibc's libm differs from macOS's (T3, 2026-10-08; the hosted CI runs on glibc). The
+/// ordinary route forms support and member force magnitudes with `f64::hypot`, which is not correctly
+/// rounded, and on W-C2's case C the two libms differ by one ulp in `rigid:N0`'s support force
+/// magnitude (about 1.6e-12 N, dense mode). The committed W-C2 fixtures and pins are macOS's. On
+/// glibc, the dense document must equal the committed fixture with exactly these three replacements
+/// (the value and the two hashes over it), and its receipt is `W_C2_DENSE_GLIBC_RECEIPT`. Each
+/// platform must produce its own bytes exactly; nothing is compared with a tolerance.
+const GLIBC: bool = cfg!(all(target_os = "linux", target_env = "gnu"));
+const W_C2_DENSE_GLIBC: [(&str, &str); 3] = [
+    ("\"value\": 1.6258317075882521e-12", "\"value\": 1.6258317075882523e-12"),
+    (
+        "\"publication_sha256\": \"57624d75437e678852dfc7657a19d31ee133340435e9d5ce3a31b295cbebc718\"",
+        "\"publication_sha256\": \"35fa7acae6fbd731ff50b611aec588e673f32978af80a9bb89a7c27f66e88fd7\"",
+    ),
+    (
+        "\"receipt_sha256\": \"612e23ca4b90604b3d2351fd7465d2e3cefb0f3fbb36bdea39efaa82a68bc07a\"",
+        "\"receipt_sha256\": \"ca6a62a6187a08d7b2e2643911fd232b02076b9032be1455754ff780540995f2\"",
+    ),
+];
+const W_C2_DENSE_GLIBC_RECEIPT: &str = "ca6a62a6187a08d7b2e2643911fd232b02076b9032be1455754ff780540995f2";
+/// The committed W-C2 fixture as this platform's libm produces it, and its receipt sha256.
+fn w_c2_on_this_platform(name: &str, fixture: &str, receipt_sha: &'static str) -> (String, &'static str) {
+    if !(GLIBC && name == "dense_scrutiny") {
+        return (fixture.to_owned(), receipt_sha);
+    }
+    let document = W_C2_DENSE_GLIBC.iter().fold(fixture.to_owned(), |document, (macos, glibc)| {
+        assert_eq!(document.matches(macos).count(), 1, "{name}: {macos}");
+        document.replacen(macos, glibc, 1)
+    });
+    (document, W_C2_DENSE_GLIBC_RECEIPT)
+}
+/// The W-C2 successor document, in U1's form.
+fn w_c2_document(name: &str, raw: &Value, successor: &Value) -> String {
+    serde_json::to_string_pretty(&json!({"id": format!("w_c2_{name}"), "source": successor,
+        "invocation": {"request": raw, "solver_mode": name}})).unwrap()
+}
+
+/// T-13 and W-C2's pinned successor on the actual Direct entry, both modes: one ordinary run, and
+/// G-C reached once (`ONE_RUN_THROUGH_G_C`), with no hook armed. In the registered build (since I2,
+/// C = 3; since I3, SR-RS's reader) the one publication is W-C2's successor, pinned by sha256 (the
+/// document, the receipt and the published bytes), with the ordinary envelope beside it the plain
+/// run's. `I85_WC2_OUT` writes the documents (the D-U6-5 fixtures). In any other build (Stale),
+/// exactly the plain bytes.
+#[test]
+fn b1_sp_w_c2_direct_entry_publishes_the_pinned_successor() {
+    let out = std::env::var("I85_WC2_OUT").ok().map(std::path::PathBuf::from);
+    let raw = w_c2();
+    for (mode, (name, file_sha, receipt_sha, bytes_sha)) in MODES.into_iter().zip(W_C2_PINNED) {
+        assert_eq!(mode.as_str(), name);
+        let plain = plain(mode, &raw);
+        assert!(hooks::armed_names().is_empty(), "{mode:?}: no hook armed");
+        let (output, counts) = direct(&raw, mode);
+        assert_eq!(serde_json::to_vec(output.envelope()).unwrap(), plain, "{mode:?}: the ordinary envelope is the plain run");
+        if !registered() {
+            assert!(output.retained().is_none(), "{mode:?}: Stale, no W1");
+            assert_eq!((counts, published(output)), (ONE_RUN, plain), "{mode:?}: Stale's plain bytes");
+            continue;
+        }
+        assert_eq!(crate::retained_memory::caps::LOAD_CASES, W_C2_IDS.len(), "I2: C = 3");
+        assert_eq!(output.admission().unwrap().law().refusal, None, "{mode:?}: admitted");
+        assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{mode:?}: T-13");
+        let successor = match output.retained() {
+            Some(Ok(successor)) => successor.value().clone(),
+            other => panic!("{mode:?}: {other:?}"),
+        };
+        assert_eq!(output.successor(), Some(&successor));
+        let text = w_c2_document(name, &raw, &successor);
+        let bytes = published(output);
+        println!("B1_SP_WC2_PIN {name} {} {} {}", sha(text.as_bytes()), successor["retained_precision"]["receipt_sha256"].as_str().unwrap(), sha(&bytes));
+        if let Some(dir) = &out {
+            std::fs::write(dir.join(format!("retained_precision_w_c2_successor_{name}.json")), &text).unwrap();
+        }
+        assert_eq!((sha(text.as_bytes()).as_str(), successor["retained_precision"]["receipt_sha256"].as_str(), sha(&bytes).as_str()),
+            (file_sha, Some(receipt_sha), bytes_sha), "{name}: the pinned W-C2 successor");
+        assert_eq!(bytes, serde_json::to_vec(&successor).unwrap(), "{name}: the one publication is the successor");
+        // T-12's outcome table: an unavailable case carries its receipt-backed diagnostic, never an
+        // N1 notice: C's, with the receipt's text.
+        let value: Value = serde_json::from_slice(&bytes).unwrap();
+        let unavailable: Vec<&Value> = value["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == "RETAINED_PRECISION_UNAVAILABLE").collect();
+        assert_eq!(unavailable.iter().map(|d| (d["id"].clone(), d["message"].clone())).collect::<Vec<_>>(),
+            [(json!("diagnostic:retained-precision:case-c:unavailable"), json!(super::retained_wire::UNAVAILABLE_MESSAGE))], "{name}");
+        assert!(hooks::armed_names().is_empty(), "{mode:?}");
+    }
+}
+
+/// Multi-case coexistence (PLAN_v2 §2.2, N-5; decision 26, RV107 A1-N-7): n05's source-block
+/// request with a second case (a copy of its one case, `case-2`, its load id suffixed `:2`).
+fn n05_two_cases() -> Value {
+    let mut raw: Value = serde_json::from_str(include_str!("../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json")).unwrap();
+    let mut second = raw["model"]["load_cases"][0].clone();
+    second["id"] = json!("case-2");
+    for load in second["primitive_loads"].as_array_mut().unwrap() {
+        load["id"] = json!(format!("{}:2", load["id"].as_str().unwrap()));
+    }
+    raw["model"]["load_cases"].as_array_mut().unwrap().push(second);
+    raw
+}
+
+/// The multi-case coexistence pin, both modes: exact-block selection settles n05 with two cases,
+/// so W1 is not attempted for any case (T-3 (c)): `Coexistence`, exactly the ordinary bytes, no
+/// notice and no reservation, on the private driver; and on the actual Direct entry one ordinary
+/// run with G-C not consulted (`{runs: 1, complete_gates: 0}`), exactly the ordinary bytes (since
+/// I2, C = 3, G-A admits it; in Stale, the same bytes and count without a permit).
+#[test]
+fn b1_sp_multi_case_coexistence_pin() {
+    let raw = n05_two_cases();
+    for mode in MODES {
+        let plain = plain(mode, &raw);
+        let value: Value = serde_json::from_slice(&plain).unwrap();
+        assert!(value["source_block_recovery"].is_object(), "{mode:?}: exact blocks selected: {}", value["status"]);
+        assert_eq!(value["summary"]["load_case_count"], 2, "{mode:?}");
+        let (capture, observer, ordinary) = observed(mode, &raw);
+        let capacity = ordinary.diagnostics.capacity();
+        let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+        assert_eq!(retained.err(), Some(W1Fallback::Coexistence), "{mode:?}: private driver");
+        assert_eq!(envelope.diagnostics.capacity(), capacity, "{mode:?}: no reservation");
+        assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{mode:?}: exact bytes, no notice");
+        let (output, counts) = direct(&raw, mode);
+        if registered() {
+            assert_eq!(output.admission().unwrap().law().refusal, None, "{mode:?}: admitted");
+            assert_eq!(output.retained().and_then(|r| r.as_ref().err()), Some(&W1Fallback::Coexistence), "{mode:?}");
+        } else {
+            assert!(output.retained().is_none(), "{mode:?}: Stale, no W1");
+        }
+        assert_eq!(counts, ONE_RUN, "{mode:?}: G-C not consulted");
+        let bytes = published(output);
+        assert_eq!(notices(&bytes), 0, "{mode:?}");
+        assert_eq!(bytes, plain, "{mode:?}: exactly the ordinary bytes");
+    }
+}
+
+/// W-C2's cases `ids`, in that order, as one request (two-case requests for RV109's R3P-1).
+fn w_c2_cases(ids: &[&str]) -> Value {
+    let mut raw = w_c2();
+    let all = raw["model"]["load_cases"].as_array().unwrap().clone();
+    raw["model"]["load_cases"] = json!(ids.iter().map(|id| all.iter().find(|c| c["id"] == *id).unwrap().clone()).collect::<Vec<_>>());
+    raw
+}
+
+/// RV109 R3P-1: a multi-case invocation with one case in A takes the n-case transaction on that
+/// case's own slot, never the one-case path on the last requested case's fields (`into_single` is
+/// retired: c = 1 and c ≥ 2 run the same T-8 to T-11). Both modes, below `retained_w1` (and through
+/// it, since I2, with A's one notice):
+/// - (A, B), A = {0}: A, the first case, is attempted, solved and frozen on its own source (the call
+///   and the one source are A's); B is `not_required`; since I3 the successor is published (before
+///   I3 the precommit refused it at G5, with A selected);
+/// - (B, A), A = {1}: the same with A second (case-qualified ids in its freeze);
+/// - (C, B), A = {0}: C's own Run ends at Ceiling, so no case is selected: `Native`, with nothing
+///   selected (not B's unprepared source).
+#[test]
+fn b1_sp_r3p_1_one_case_in_a_runs_on_its_own_slot() {
+    for mode in MODES {
+        for (ids, attempted, request) in [(["case-a", "case-b"], 0usize, 0usize), (["case-b", "case-a"], 1, 1), (["case-c", "case-b"], 0, 0)] {
+            let label = format!("{mode:?} {ids:?}");
+            let raw = w_c2_cases(&ids);
+            let plain = plain(mode, &raw);
+            let (capture, observer, ordinary) = observed(mode, &raw);
+            assert_eq!(classified(&ordinary.numerical_quality, &observer.ordinary, &ids).iter().filter(|t| **t == CaseTrigger::Attempted).count(), 1, "{label}: |A| = 1");
+            let ((envelope, outcome), _, successor) = hooks::counted_with_successor(|| w1_transaction(observer, ordinary, &capture, 2, &[attempted]));
+            assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{label}: the ordinary owner is untouched");
+            if ids[0] == "case-c" {
+                assert_eq!(outcome.err(), Some((W1Fallback::Native, 0)), "{label}: C's own Run, not selected");
+                assert!(successor.is_none(), "{label}");
+                continue;
+            }
+            let published = outcome.unwrap_or_else(|f| panic!("{label}: {f:?}"));
+            let successor = successor.unwrap();
+            assert_eq!(published, successor, "{label}");
+            let body = w_c2_body(&successor);
+            let statuses: Vec<_> = body["cases"].as_array().unwrap().iter().map(|c| c["status"].as_str().unwrap()).collect();
+            let mut expected = ["not_required", "not_required"];
+            expected[request] = "selected";
+            assert_eq!(statuses, expected, "{label}");
+            assert_eq!((body["sources"].as_array().unwrap().len(), body["sources"][0]["owner"]["case_id"].clone()), (1, json!("case-a")), "{label}: A's own source");
+            assert_eq!(body["sources"][0]["nodal_terms"].as_array().unwrap().len(), 3, "{label}: A's three loads, not B's two");
+            assert_eq!(body["calls"][0]["owner_refs"], json!([case_ref(request)]), "{label}");
+        }
+        {
+            let raw = w_c2_cases(&["case-a", "case-b"]);
+            let plain = plain(mode, &raw);
+            let (capture, observer, ordinary) = observed(mode, &raw);
+            let (envelope, retained) = retained_w1(observer, ordinary, &capture);
+            assert!(retained.is_ok(), "{mode:?}: {:?}", retained.err());
+            assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{mode:?}: the ordinary owner beside the successor");
+            // T-12's one notice on a fallback: a serializer refusal after A's freeze.
+            let (capture, observer, ordinary) = observed(mode, &raw);
+            hooks::fail_next_serializer(super::retained_wire::ReceiptCheck::Association);
+            let (envelope, _) = retained_w1(observer, ordinary, &capture);
+            assert_eq!(serde_json::to_vec(&envelope).unwrap(), with_notice(&plain, "case-a", None), "{mode:?}: A's one notice");
+        }
+    }
+}
+
+/// RV109 R3P-2 and R3P-3: custody validates A (`attempted`) before any attempt: each index in the
+/// request and strictly increasing; and a prior capture error is taken in request order (case 0's
+/// before case 2's, though case 2 is the one in the capture's own fields).
+#[test]
+fn b1_sp_r3p_2_3_custody_validates_a_and_orders_prior_errors() {
+    use super::retained_product::CaptureError;
+    let mode = PreviewSolverMode::SparseInteractive;
+    let raw = w_c2();
+    let refused = |observer: rp::ProductCapture, ordinary: MechanicsEnvelope, attempted: &[usize]| -> String {
+        match observer.prepare_cases(ordinary, 3, attempted) {
+            Ok(_) => panic!("custody passed: {attempted:?}"),
+            Err(failure) => {
+                assert!(failure.capture.prepared_capacity_bytes == [0; 16], "no attempt started: {attempted:?}");
+                match failure.error { CaptureError::Association(text) => text, other => format!("{other:?}") }
+            }
+        }
+    };
+    for attempted in [&[0, 3][..], &[3], &[2, 0], &[0, 0], &[2, 2]] {
+        let (_, observer, ordinary) = observed(mode, &raw);
+        assert_eq!(refused(observer, ordinary, attempted), "attempted cases outside the request or out of order", "{attempted:?}");
+    }
+    let (_, mut observer, ordinary) = observed(mode, &raw);
+    observer.with_case(0, |c| c.error = Some("case 0's cause".into()));
+    observer.with_case(2, |c| c.error = Some("case 2's cause".into()));
+    assert_eq!(refused(observer, ordinary, &[0, 2]), "case 0's cause", "the first in request order");
+}
+
+/// RV109 R3P-7: T-6's c ≥ 2 checks, each a refusal before any attempt, on W-C2:
+/// - per-case final presence: a case missing its final mode row, or carrying two;
+/// - a parked case whose late capture did not complete (`finish` checks every slot);
+/// - native work in a parked slot.
+#[test]
+fn b1_sp_r3p_7_custody_per_case_presence_parked_capture_and_native() {
+    use super::retained_product::CaptureError;
+    let mode = PreviewSolverMode::DenseScrutiny;
+    let raw = w_c2();
+    let refused = |observer: rp::ProductCapture, ordinary: MechanicsEnvelope| -> String {
+        match observer.prepare_cases(ordinary, 3, &[0, 2]) {
+            Ok(_) => panic!("custody passed"),
+            Err(failure) => {
+                assert!(failure.capture.prepared_capacity_bytes == [0; 16], "no attempt started");
+                match failure.error { CaptureError::Association(text) => text, other => format!("{other:?}") }
+            }
+        }
+    };
+    let is_mode_of = |r: &ResultItem, case: &str| r.kind == "linear_solver_mode_basis" && r.basis_ref.as_ref().is_some_and(|b| b.ref_id == case);
+    // Case B's final mode row missing.
+    let (_, observer, mut ordinary) = observed(mode, &raw);
+    ordinary.results.retain(|r| !is_mode_of(r, "case-b"));
+    assert_eq!(refused(observer, ordinary), "observation final presence", "B without its mode row");
+    // Case A's final mode row twice.
+    let (_, observer, mut ordinary) = observed(mode, &raw);
+    let at = ordinary.results.iter().position(|r| is_mode_of(r, "case-a")).unwrap();
+    let copy = ordinary.results[at].clone();
+    ordinary.results.insert(at, copy);
+    assert_eq!(refused(observer, ordinary), "observation final presence", "A with two mode rows");
+    // A parked case's late capture did not complete: `finish` (here re-entered once) refuses it.
+    let (_, mut observer, ordinary) = observed(mode, &raw);
+    observer.with_case(0, |c| {
+        c.prepared_late_calls = 0;
+        c.source_capture_entries = 0;
+        c.source = None;
+    });
+    observer.final_calls = 0;
+    observer.finish(&ordinary);
+    assert_eq!(refused(observer, ordinary), "missing successful prepared late source hook", "a parked case without its late capture");
+    // Native work in a parked slot.
+    let (request, capture) = source_receipt::CapturedInvocation::parse(u8_two_body_case_a(), mode).unwrap();
+    let mut one = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|_| panic!("one-case preparation"));
+    let _ = one.solve_native();
+    let run = one.test_capture_mut().native.take();
+    let (_, mut observer, ordinary) = observed(mode, &raw);
+    observer.with_case(1, |c| c.native = run);
+    assert_eq!(refused(observer, ordinary), "prepared case custody/permit", "native work in a parked slot");
+}
+
+/// The seam's saturation (RR "I89's SA verified and ruled…", ruling 2; R3 ruling 2; RV109 N-3):
+/// `late_loads_total` saturates instead of failing the capture, so an overflow is G-B's typed
+/// refusal on `CaseLoadsTotal` (observed `u64::MAX`, cap L = 384): the late capture is skipped, no
+/// capture error is recorded, and (as for any G-B refusal) the ordinary run is untouched. In the
+/// registered build: a permitted probe with the total preset to `usize::MAX`, both modes.
+#[test]
+fn b1_sp_seam_overflow_is_a_typed_g_b_refusal() {
+    use super::retained_memory::{admit, Entry, PhaseFact};
+    if !registered() {
+        return;
+    }
+    let raw = raw();
+    for mode in MODES {
+        let plain = plain(mode, &raw);
+        let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+        let (permit, _report) = admit(&capture, &request, Entry::Direct).unwrap_or_else(|r| panic!("{mode:?}: {:?}", r.law().refusal));
+        let mut observer = rp::ProductCapture::permitted_probe(permit);
+        observer.late_loads_total = usize::MAX;
+        let ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
+        let refusal = observer.late_refusal().cloned().unwrap_or_else(|| panic!("{mode:?}: G-B refused"));
+        assert_eq!((refusal.fact, refusal.observed, refusal.cap), (PhaseFact::CaseLoadsTotal, u64::MAX, 384), "{mode:?}");
+        // The seam records no capture error (before the ruling: CountRange("late loads total")).
+        // As after any G-B refusal, the skipped late capture is what `finish` then reports.
+        assert_eq!(observer.error.as_ref().map(|e| format!("{e:?}")), Some("Association(\"missing successful prepared late source hook\")".to_owned()),
+            "{mode:?}: only the skipped capture's report");
+        assert_eq!(observer.late_loads_total, usize::MAX, "{mode:?}: saturated");
+        assert_eq!(serde_json::to_vec(&ordinary).unwrap(), plain, "{mode:?}: the ordinary run is untouched");
+    }
+}
+
+/// RV112 N-4: at c ≥ 2 the first G-B refusal stands, and no later case's late hook runs (no later
+/// G-B check, running total or late capture). Registered build, W-C2, both modes, with G-B's
+/// fault armed (consumed at case A's late hook): the refusal is A's, the running total holds A's
+/// three loads only (not 3 + 2 + 5), and no case has a late capture. The Direct entry publishes
+/// exactly the ordinary bytes (`LateGate`), with G-C not consulted.
+#[test]
+fn b1_sp_first_g_b_refusal_stands_and_stops_later_late_hooks() {
+    use super::retained_memory::{admit, Entry};
+    if !registered() {
+        return;
+    }
+    let raw = w_c2();
+    for mode in MODES {
+        let plain = plain(mode, &raw);
+        let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+        let (permit, _report) = admit(&capture, &request, Entry::Direct).unwrap_or_else(|r| panic!("{mode:?}: {:?}", r.law().refusal));
+        let mut observer = rp::ProductCapture::permitted_probe(permit);
+        hooks::fail_next_late_gate();
+        let ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
+        assert!(hooks::armed_names().is_empty(), "{mode:?}: the fault fired");
+        assert!(observer.late_refusal().is_some(), "{mode:?}: G-B refused");
+        assert_eq!(observer.late_loads_total, 3, "{mode:?}: G-B ran once, at case A (3 loads)");
+        assert_eq!(observer.cases_seen(), 3, "{mode:?}: every case's early hook ran");
+        for index in 0..3 {
+            let (late_calls, entries, source) = observer.with_case(index, |c| (c.prepared_late_calls, c.source_capture_entries, c.source.is_some()));
+            assert_eq!((entries, source), (0, false), "{mode:?} case {index}: no late capture");
+            assert_eq!(late_calls, usize::from(index == 0), "{mode:?} case {index}: only A's late hook ran");
+        }
+        assert_eq!(serde_json::to_vec(&ordinary).unwrap(), plain, "{mode:?}: the ordinary run is untouched");
+        hooks::fail_next_late_gate();
+        let (output, counts) = direct(&raw, mode);
+        assert!(matches!(output.retained(), Some(Err(W1Fallback::LateGate(_)))), "{mode:?}: {:?}", output.retained());
+        assert_eq!((counts, published(output)), (ONE_RUN, plain), "{mode:?}: exact bytes, G-C not consulted");
+    }
+}
+
+/// D-U6-5 (PLAN_v2 §2.2, after I3): the two W-C2 fixtures are byte-identical copies of the pinned
+/// W-C2 successor documents. In the registered build each is compared byte for byte with the
+/// document the actual Direct entry publishes; in any other build (no permit), with the private
+/// driver's successor document. Either way the fixture carries the pinned hashes.
+#[test]
+fn b1_sp_w_c2_fixtures_are_the_live_successors() {
+    const FIXTURES: [&str; 2] = [
+        include_str!("../../../fixtures/results/retained_precision_w_c2_successor_sparse_interactive.json"),
+        include_str!("../../../fixtures/results/retained_precision_w_c2_successor_dense_scrutiny.json"),
+    ];
+    for ((mode, (name, file_sha, receipt_sha, _)), fixture) in MODES.into_iter().zip(W_C2_PINNED).zip(FIXTURES) {
+        let raw = w_c2();
+        let successor = if registered() {
+            let (output, counts) = direct(&raw, mode);
+            assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{name}");
+            match output.into_publication() {
+                RetainedPublication::Successor(value) => value,
+                RetainedPublication::Ordinary(_) => panic!("{name}: the registered Direct entry did not publish its successor"),
+            }
+        } else {
+            let (capture, observer, ordinary) = observed(mode, &raw);
+            retained_w1(observer, ordinary, &capture).1.unwrap_or_else(|f| panic!("{name}: {f:?}")).value().clone()
+        };
+        let (expected, receipt_sha) = w_c2_on_this_platform(name, fixture, receipt_sha);
+        assert!(w_c2_document(name, &raw, &successor) == expected, "{name}: the W-C2 fixture is the live successor document, byte for byte");
+        assert_eq!((sha(fixture.as_bytes()).as_str(), successor["retained_precision"]["receipt_sha256"].as_str()), (file_sha, Some(receipt_sha)),
+            "{name}: the pinned W-C2 hashes");
+    }
+}
+
+// ---- B1 SP after I3 (I85): RV109's SF-2, and the nodal-term ordinal ------------------------------
+//
+// RR "RV109 passes SP in RV-P round 2; …", ruling 2, and RR "I98's B2-W verified; …".
+
+/// W-C2's cases and RV109's A2 (a copy of case A, `case-a2`, its load ids suffixed `:a2`), the
+/// cases `ids`, in that order, as one request.
+fn w_c2_plus_a2(ids: &[&str]) -> Value {
+    let mut raw = w_c2();
+    let mut a2 = raw["model"]["load_cases"][0].clone();
+    a2["id"] = json!("case-a2");
+    for load in a2["primitive_loads"].as_array_mut().unwrap() {
+        load["id"] = json!(format!("{}:a2", load["id"].as_str().unwrap()));
+    }
+    raw["model"]["load_cases"].as_array_mut().unwrap().push(a2);
+    let all = raw["model"]["load_cases"].as_array().unwrap().clone();
+    raw["model"]["load_cases"] = json!(ids.iter().map(|id| all.iter().find(|c| c["id"] == *id).unwrap().clone()).collect::<Vec<_>>());
+    raw
+}
+/// The pinned successors of RV109's SF-2 inputs: (mode, receipt sha256, successor bytes sha256).
+const CBA_PINNED: [(&str, &str, &str); 2] = [
+    ("sparse_interactive", "863d692fa90d450240cbfacec1628937b8ccc9af2396637d4f913cc0bc416e80", "ea9a484657ca3de9a831a737b6a682966cc4b1a8783114b26298f34571cc7ebb"),
+    ("dense_scrutiny", "7aeecbac57426a2104c3b9f958862daf3e9b2c0f00582599c0210121681db6a1", "c719bd8d3281d3bd3c0a731e8ba5ede8901938d10634db8078c6f6fa96d0b6d8"),
+];
+/// (C, B, A)'s dense successor on glibc (`GLIBC`): the same `rigid:N0` support force magnitude as
+/// W-C2's case C differs by one ulp there.
+const CBA_DENSE_GLIBC: (&str, &str) =
+    ("255785d20cf0aa9f497ea324d744eb3e946871d5aac863ed8d0081d0521e8c92", "a320a5d33707c1fc8c12a35de624720dddbc35084979522c96ab1906e17c708f");
+const AA2_PINNED: [(&str, &str, &str); 2] = [
+    ("sparse_interactive", "41f330856d4c6e94e2e1308fcd467818604c8f7e999ce499c8f3b49e26ef0d56", "529233eb989aca3553bdedfc9d1813ab3287675748ff076c27cb024c2b7fef63"),
+    ("dense_scrutiny", "30001ccf42ad12acd9dbb458392fee514946c1a52aa0d4e5f0b20bde5b09ea71", "f4075cdc80eff27099a28f787cec07080b745eca2d598eb3381a84ec03964176"),
+];
+
+/// RV109's SF-2 (RR "RV109 passes SP in RV-P round 2; …", ruling 2): two successors pinned in both
+/// modes, through `retained_w1` (any build), where the selected case is not first, and where two
+/// cases are selected:
+/// - **(C, B, A):** A = {C, A}; C `unavailable` (its Ceiling Run), B `not_required`, A `selected`
+///   as request 2, attempt 1 and batch ordinal 1;
+/// - **(A, A2):** both `selected`, attempts 0 and 1.
+///
+/// Each selected case's Run owner is its request index (N-2; M19); its product attempt's id and its
+/// source's `preparation.attempt_ref` are its attempt id (T-7, T-11; M16, M17). The
+/// `RETAINED_PRECISION_*` diagnostics are the selected cases' in request order, then the
+/// unavailable cases' (T-11; M15, which the reader accepts). Each summary headline is the
+/// governing row over the staged rows (M28: (C, B, A)'s displacement tie between B and C, won by
+/// the smaller case id; M32: (A, A2)'s restaged displacement). The accepted Rust reader passes with
+/// the invocation, the ordinary owner is untouched, and N-16 holds record by record
+/// (`n16_batch_against_one_case`).
+#[test]
+fn b1_sp_sf2_selected_not_first_and_two_selected_pins() {
+    let a2_alone = w_c2_plus_a2(&["case-a2"]);
+    let inputs: [(&str, Value, Vec<usize>, Vec<&str>, [(&str, &str, &str); 2], Vec<Value>); 2] = [
+        ("c_b_a", w_c2_cases(&["case-c", "case-b", "case-a"]), vec![0, 2], vec!["unavailable", "not_required", "selected"], CBA_PINNED,
+            vec![w_c2_case_c(), u8_two_body_case_a()]),
+        ("a_a2", w_c2_plus_a2(&["case-a", "case-a2"]), vec![0, 1], vec!["selected", "selected"], AA2_PINNED, vec![u8_two_body_case_a(), a2_alone]),
+    ];
+    for (name, raw, attempted, statuses, pins, singles) in inputs {
+        for (mode, (mode_name, receipt_sha, bytes_sha)) in MODES.into_iter().zip(pins) {
+            assert_eq!(mode.as_str(), mode_name);
+            let label = format!("{name} {mode_name}");
+            let (receipt_sha, bytes_sha) =
+                if GLIBC && label == "c_b_a dense_scrutiny" { CBA_DENSE_GLIBC } else { (receipt_sha, bytes_sha) };
+            let plain = plain(mode, &raw);
+            let (capture, observer, ordinary) = observed(mode, &raw);
+            let ((envelope, retained), counts, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+            assert_eq!(counts, Counts { runs: 0, complete_gates: 0 }, "{label}");
+            // The structure is asserted on the successor precommit received, before its validation
+            // and before the outcome (a refused successor leaves a fallback notice on the ordinary
+            // owner), so that a defect the reader also refuses is killed here by its own assertion.
+            let successor = captured.unwrap_or_else(|| panic!("{label}: precommit received the successor"));
+            let body = w_c2_body(&successor);
+            let cases = body["cases"].as_array().unwrap();
+            assert_eq!(cases.iter().map(|c| c["status"].as_str().unwrap()).collect::<Vec<_>>(), statuses, "{label}");
+            let attempts = body["product_attempts"].as_array().unwrap();
+            assert_eq!(attempts.iter().map(|a| a["id"].clone()).collect::<Vec<_>>(), (0..attempted.len()).map(|k| json!(k)).collect::<Vec<_>>(),
+                "{label}: product attempt ids in start order (M17)");
+            for (attempt, &request) in attempted.iter().enumerate() {
+                let case = &cases[request];
+                assert_eq!(case["product_attempt_ref"], json!(attempt), "{label} request {request}");
+                assert_eq!(attempts[attempt]["owner_ref"], case_ref(request), "{label} request {request}");
+                assert_eq!(case["run"]["origin"]["owner_ref"], case_ref(request), "{label} request {request}: the Run's owner is the request index (N-2; M19)");
+                let source = &body["sources"][case["source_ref"].as_u64().unwrap() as usize];
+                assert_eq!((source["owner"]["case_index"].clone(), source["preparation"]["attempt_ref"].clone()), (json!(request), json!(attempt)),
+                    "{label} request {request}: its source's owner and attempt (T-7; M16)");
+            }
+            // T-11's staging order: the selected cases' diagnostics in request order, then the unavailable cases'.
+            let ids: Vec<&str> = raw["model"]["load_cases"].as_array().unwrap().iter().map(|c| c["id"].as_str().unwrap()).collect();
+            let expected: Vec<String> = ["selected", "unavailable"].iter().flat_map(|status| {
+                ids.iter().zip(&statuses).filter(move |(_, s)| *s == status).map(move |(id, _)| format!("diagnostic:retained-precision:{id}:{status}"))
+            }).collect();
+            let staged: Vec<&str> = successor["diagnostics"].as_array().unwrap().iter()
+                .filter(|d| d["code"].as_str().is_some_and(|c| c.starts_with("RETAINED_PRECISION_"))).map(|d| d["id"].as_str().unwrap()).collect();
+            assert_eq!(staged, expected, "{label}: T-11's staging order (M15)");
+            // T-11's headlines: the governing row over the staged rows.
+            let ordinary: Value = serde_json::from_slice(&plain).unwrap();
+            for (kind, headline) in [("displacement_magnitude", "max_displacement"), ("pipe_elastic_normal_stress_maximum_v2", "max_open_formula_stress")] {
+                let best = successor["results"].as_array().unwrap().iter().filter(|r| r["kind"] == kind)
+                    .max_by(|a, b| a["value"].as_f64().unwrap().total_cmp(&b["value"].as_f64().unwrap())
+                        .then_with(|| b["basis_ref"]["ref_id"].as_str().cmp(&a["basis_ref"]["ref_id"].as_str()))
+                        .then_with(|| b["entity_ref"].as_str().cmp(&a["entity_ref"].as_str()))).unwrap();
+                assert_eq!(successor["summary"][headline], json!({"value":best["value"],"unit":best["unit"],"location_ref":best["entity_ref"],"result_ref":best["id"]}),
+                    "{label}: the {headline} headline (M28, M32)");
+                println!("B1_SP_SF2_HEADLINE {label} {headline} successor={} ordinary={}", successor["summary"][headline], ordinary["summary"][headline]);
+            }
+            assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{label}: the ordinary owner is untouched");
+            let validated = retained.unwrap_or_else(|f| panic!("{label}: {f:?}")).value().clone();
+            assert_eq!(validated, successor, "{label}: the successor precommit validated");
+            let invocation = json!({"request": raw, "solver_mode": mode_name});
+            assert!(open_pipe_stress_result_export::retained_precision::validate(&successor, Some(&invocation)).is_ok(), "{label}: the Rust reader");
+            let bytes = serde_json::to_vec(&successor).unwrap();
+            println!("B1_SP_SF2_PIN {label} {} {}", successor["retained_precision"]["receipt_sha256"].as_str().unwrap(), sha(&bytes));
+            assert_eq!((successor["retained_precision"]["receipt_sha256"].as_str(), sha(&bytes).as_str()), (Some(receipt_sha), bytes_sha), "{label}: the pinned successor");
+            n16_batch_against_one_case(&label, &raw, mode, ids.len(), &attempted, &singles);
+            assert!(hooks::armed_names().is_empty(), "{label}");
+        }
+    }
+}
+
+/// I98's `cause_milestone_reversed` (R/I98/b2_w_probe_01/PROBE.md §7): the milestone with its
+/// three moments authored RZ, RY, RX, so its authored order is not the kernel's canonical order.
+fn milestone_reversed() -> Value {
+    let mut raw = raw();
+    raw["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().reverse();
+    raw
+}
+/// Its pinned successor: (mode, receipt sha256, published bytes sha256).
+const REVERSED_PINNED: [(&str, &str, &str); 2] = [
+    ("sparse_interactive", "b79f691a4a899e3ed4a7d13957f74d4c4ee7430ee3062396214261144cbabd82", "93aa043538bbc01e0a7bcef4e381f88468edfd6792769b7041d7f6483ad959b1"),
+    ("dense_scrutiny", "c6b03683c8a2591f4d59429407608a6aafd0abf25663c7d771de60f221135832", "b70edc6d002c92692f00a247702353f79e6410acf17eb385b3d2c2500ca76d8e"),
+];
+
+/// The nodal-term ordinal (C2 `CONTRACT_DELTA`:104; RR "I98's B2-W verified; …"): a CaseSource's
+/// `constructor_ordinal` is the term's ordinal in the constructor's input, its authored
+/// primitive-load index, and the array stays in kernel canonical order. On the reversed milestone,
+/// both modes, the successor precommit receives has `constructor_ordinal == primitive_load_index`
+/// for every term, in canonical order (indices 2, 1, 0); the reader accepts it, and the Direct
+/// entry publishes it (registered: one run, G-C once) with its pinned bytes. Before the fix the
+/// ordinal was the canonical position and every reader refused at G8 `PREPARATION_MISMATCH`.
+#[test]
+fn b1_sp_constructor_ordinal_is_the_authored_index() {
+    for (mode, (name, receipt_sha, bytes_sha)) in MODES.into_iter().zip(REVERSED_PINNED) {
+        assert_eq!(mode.as_str(), name);
+        let raw = milestone_reversed();
+        let plain = plain(mode, &raw);
+        let (capture, observer, ordinary) = observed(mode, &raw);
+        let ((_, retained), _, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+        let captured = captured.unwrap_or_else(|| panic!("{name}: precommit received the successor"));
+        let terms = captured["retained_precision"]["body"]["sources"][0]["nodal_terms"].as_array().unwrap();
+        assert_eq!(terms.iter().map(|t| (t["constructor_ordinal"].clone(), t["primitive_load_index"].clone())).collect::<Vec<_>>(),
+            [(json!(2), json!(2)), (json!(1), json!(1)), (json!(0), json!(0))], "{name}: the authored index, in canonical order");
+        let successor = retained.unwrap_or_else(|f| panic!("{name}: {f:?}")).value().clone();
+        assert_eq!(successor, captured, "{name}");
+        let invocation = json!({"request": raw, "solver_mode": name});
+        assert!(open_pipe_stress_result_export::retained_precision::validate(&successor, Some(&invocation)).is_ok(), "{name}: the Rust reader");
+        let bytes = serde_json::to_vec(&successor).unwrap();
+        println!("B1_SP_REVERSED_PIN {name} {} {}", successor["retained_precision"]["receipt_sha256"].as_str().unwrap(), sha(&bytes));
+        assert_eq!((successor["retained_precision"]["receipt_sha256"].as_str(), sha(&bytes).as_str()), (Some(receipt_sha), bytes_sha), "{name}: the pinned successor");
+        let (output, counts) = direct(&raw, mode);
+        if registered() {
+            assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{name}");
+            assert_eq!(published(output), bytes, "{name}: the Direct entry publishes the successor");
+        } else {
+            assert_eq!((counts, published(output)), (ONE_RUN, plain), "{name}: Stale's plain bytes");
+        }
     }
 }

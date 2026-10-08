@@ -858,11 +858,11 @@ fn expected_binding(source: &Value, expected: &str) -> Vec<Option<String>> {
 #[test]
 fn u6_declared_differences_rust() {
     let cases: Value = serde_json::from_str(CASES).unwrap();
-    assert!(["G7 parity compares the reader's (gate, code)", "parity there compares only accept against refuse", "no carrier authenticates producer origin", "a blocked envelope is refused at G7 with each language's own base code", "Rust SOURCE_PREVIEW_PHYSICS_BLOCKED_ENVELOPE", "Rust and Python the reader's G0 code or their base header code"].iter().all(|p| cases["scope"].as_str().unwrap().contains(p)));
+    assert!(["G7 parity compares the reader's (gate, code)", "parity there compares only accept against refuse", "no carrier authenticates producer origin", "a blocked envelope is refused at G7 with each language's own base code", "Rust SOURCE_PREVIEW_PHYSICS_BLOCKED_ENVELOPE", "Rust and Python the reader's G0-G2 code or its base step's code"].iter().all(|p| cases["scope"].as_str().unwrap().contains(p)));
     // RV94 N-3 (B6; PLAN decision 11): TS aligned to this reader's G7 code, so no
     // language-specific code is declared for an invalid numerical_quality case,
     // and Python's transport is no longer a declared refusal (F-U6b-2).
-    assert!(!["An invalid enum value in a not_required case's quality", "SOURCE_NUMERICAL_CASE_INVALID", "Python F-U6b-2's code"].iter().any(|p| cases["scope"].as_str().unwrap().contains(p)));
+    assert!(!["An invalid enum value in a not_required case's quality", "SOURCE_NUMERICAL_CASE_INVALID", "Python F-U6b-2's code", "the reader's G0 code or their base header code"].iter().any(|p| cases["scope"].as_str().unwrap().contains(p)));
     let fixtures = shared_fixtures(&cases);
     let entries = cases["declared_differences"].as_array().unwrap();
     let mut ids: Vec<&str> = entries.iter().map(|e| e["id"].as_str().unwrap()).collect();

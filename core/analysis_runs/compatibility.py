@@ -277,8 +277,9 @@ def _retained_validation(source: Mapping[str, Any], invocation: Any = None) -> d
 
 
 def _retained_transport(source: Mapping[str, Any]) -> dict[str, Any]:
-    """F-U6b-2 (B6): the accepted reader's transport checks on a successor (G0-G2 and
-    the unchanged base transport metadata on its projection), as Rust's
+    """F-U6b-2 (B6): the accepted reader's transport checks on a successor (G0-G2, then
+    the base header in Rust's order and the preview-physics transport metadata on its
+    projection; RR "I4 made at `30f3d1b24a`; …", rulings 1 and 2), as Rust's
     for_source_metadata and TS's sourceContractTransport run theirs; never eligible.
     A G7 failure keeps the base validator's own text, every other gate its code."""
     from .retained_precision import RetainedPrecisionError, validate_retained_precision_transport
@@ -389,8 +390,15 @@ def _classification_summary_from(validation: Mapping[str, Any], source: Mapping[
     return out
 
 
-def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True) -> tuple[str, str, Path]:
-    """Interpretation dispatch does not authenticate a producer or qualify Current."""
+def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, rust_header_order: bool = False) -> tuple[str, str, Path]:
+    """Interpretation dispatch does not authenticate a producer or qualify Current.
+
+    `rust_header_order` is passed only by the retained reader's transport step, on its projection
+    (RR "I4 made at `30f3d1b24a`; RV113's items for ROOT ruled; …", ruling 1). The header then takes
+    Rust's `for_source_metadata` order and codes, as TS's does: it has no carrier branch, so a
+    `carrier_evidence` member is left to the preview-physics transport metadata check (G7
+    SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID), and `source_block_recovery` is checked before
+    `contract_evidence`. Every other caller passes nothing and reads exactly as before."""
     if _is_retained(source):
         return _retained_contract(source, check_receipt=check_receipt)
     # F-5: no other identity may carry a receipt member.
@@ -399,7 +407,7 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True) -
     version = source.get("schema_version")
     # A source-block receipt belongs only to its explicit method branch below;
     # the unrelated carrier namespace remains unsupported for every profile.
-    if "carrier_evidence" in source:
+    if "carrier_evidence" in source and not rust_header_order:
         raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
     if version == "0.1.0":
         if any(key in source for key in ("producer", "numerical_quality", "formulation_basis", "contract_evidence", "source_block_recovery")):
@@ -418,21 +426,29 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True) -
     preview = producer["semantic_contract_id"] == PREVIEW_PHYSICS_CONTRACT_ID
     load_reference = producer["semantic_contract_id"] == LOAD_REFERENCE_CONTRACT_ID
     joined = producer["semantic_contract_id"] == LOAD_REFERENCE_SOURCE_CONTRACT_ID
+    recovery_forbidden = producer["semantic_contract_id"] not in {SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID} and "source_block_recovery" in source
+    if rust_header_order and recovery_forbidden:
+        # Ruling 1: Rust's order, the recovery member before the evidence demand.
+        raise ValueError("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
     if not physics and not preview and not load_reference and not joined and source.get("contract_evidence") is not None:
         raise ValueError("SOURCE_PHYSICS_CONTRACT_MISMATCH")
     if preview and not isinstance(source.get("contract_evidence"), Mapping):
         raise ValueError("SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED")
-    if producer["semantic_contract_id"] not in {SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID} and "source_block_recovery" in source:
+    if recovery_forbidden:
         raise ValueError("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
     quality = source.get("numerical_quality")
-    if not isinstance(quality, Mapping) or set(quality) != {"value_representation", "publication_quantization", "integrity_policy", "status", "cases"} or quality.get("value_representation") != "finite_binary64" or quality.get("publication_quantization") != "none" or quality.get("integrity_policy") != "M03-INTEGRITY-v1" or quality.get("status") not in {"not_assessed", "checks_passed", "sensitive", "unresolved", "failed"} or not isinstance(quality.get("cases"), list):
+    if not isinstance(quality, Mapping) or set(quality) != {"value_representation", "publication_quantization", "integrity_policy", "status", "cases"} or quality.get("value_representation") != "finite_binary64" or quality.get("publication_quantization") != "none" or quality.get("integrity_policy") != "M03-INTEGRITY-v1" or not isinstance(quality.get("status"), str) or quality.get("status") not in {"not_assessed", "checks_passed", "sensitive", "unresolved", "failed"} or not isinstance(quality.get("cases"), list):
+        # RV108 N1: each enum membership test refuses a non-string value first. A list- or
+        # dict-valued enum is unhashable, so a bare `in` raised TypeError, which escaped callers
+        # that catch ValueError only. A string is tested as before; no other value was ever a member.
         raise ValueError("SOURCE_NUMERICAL_QUALITY_INVALID")
     statuses = {"not_assessed", "checks_passed", "sensitive", "unresolved", "failed"}
     for case in quality["cases"]:
         if not isinstance(case, Mapping) or set(case) != {"basis_ref", "structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence", "evidence_refs"}:
             raise ValueError("SOURCE_NUMERICAL_CASE_INVALID")
         basis = case.get("basis_ref")
-        if not isinstance(basis, Mapping) or set(basis) != {"ref_type", "ref_id"} or not all(isinstance(value, str) and value for value in basis.values()) or case.get("solve_quality") not in statuses or case.get("structural_status") not in {"passive_model_basis", "physical_mechanism_witnessed", "negative_energy_witnessed", "numerically_unresolved"} or case.get("model_matrix_fidelity") not in {"represented_equations_retained", "assembly_loss_detected", "assembly_uncertainty", "not_assessed"} or case.get("accuracy_evidence") not in {"not_claimed", "reference_verified", "unresolved"} or not isinstance(case.get("evidence_refs"), list) or not all(isinstance(item, str) and item for item in case["evidence_refs"]):
+        if not isinstance(basis, Mapping) or set(basis) != {"ref_type", "ref_id"} or not all(isinstance(value, str) and value for value in basis.values()) or not isinstance(case.get("solve_quality"), str) or case.get("solve_quality") not in statuses or not isinstance(case.get("structural_status"), str) or case.get("structural_status") not in {"passive_model_basis", "physical_mechanism_witnessed", "negative_energy_witnessed", "numerically_unresolved"} or not isinstance(case.get("model_matrix_fidelity"), str) or case.get("model_matrix_fidelity") not in {"represented_equations_retained", "assembly_loss_detected", "assembly_uncertainty", "not_assessed"} or not isinstance(case.get("accuracy_evidence"), str) or case.get("accuracy_evidence") not in {"not_claimed", "reference_verified", "unresolved"} or not isinstance(case.get("evidence_refs"), list) or not all(isinstance(item, str) and item for item in case["evidence_refs"]):
+            # RV108 N1: the same string guard on each case enum.
             raise ValueError("SOURCE_NUMERICAL_CASE_INVALID")
     formulation = source.get("formulation_basis")
     if not isinstance(formulation, Mapping) or set(formulation) != {"profile_id", "limitations"} or formulation.get("profile_id") != (LOAD_REFERENCE_PROFILE if load_reference else LOAD_REFERENCE_SOURCE_PROFILE if joined else "exact_straight_pressure_v2" if physics else "product_preview_mechanics_v1") or not isinstance(formulation.get("limitations"), list) or not formulation["limitations"] or not all(isinstance(item, str) and item for item in formulation["limitations"]):

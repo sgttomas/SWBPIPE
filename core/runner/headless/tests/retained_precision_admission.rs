@@ -85,14 +85,21 @@ fn explicit_headless_refusal_preserves_output_and_completion_fields_both_modes()
         // build's own status: `Registered` in the qualified build, `Stale` in any other;
         // never `Missing`. Headless itself stays refused (D1.0): its output is the ordinary
         // run's (above). The oracle is the Direct entry on an input that D1 refuses after the
-        // build clause, a second load case (D1.4), so this workspace, whose lock is not PP's
+        // build clause, C + 1 load cases (D1.4), so this workspace, whose lock is not PP's
         // reviewed one, is never granted a permit and never runs W1 (RV89 G6r N-1).
+        // B1 (PLAN_v2 §2.3; RV107 SF-2): C + 1 is the literal 4, that is
+        // `product_physics::retained_memory::caps::LOAD_CASES` + 1, which this crate cannot
+        // read (`pub(crate)`; no D1 visibility changes for a test). PP's law test
+        // `b1_sa_runner_oracle_literal_is_load_cases_plus_one` ties the literal to the producer.
+        const C_PLUS_ONE: usize = 4;
         let mut refused = ordinary();
         let case = refused["model"]["load_cases"][0].clone();
-        refused["model"]["load_cases"]
-            .as_array_mut()
-            .unwrap()
-            .push(case);
+        for _ in 1..C_PLUS_ONE {
+            refused["model"]["load_cases"]
+                .as_array_mut()
+                .unwrap()
+                .push(case.clone());
+        }
         let plain = run_value_with_mode(refused.clone(), mode).unwrap();
         let direct = run_linear_static_preview_value_with_retained_direct(refused, mode).unwrap();
         assert_eq!(
@@ -102,7 +109,10 @@ fn explicit_headless_refusal_preserves_output_and_completion_fields_both_modes()
         );
         assert!(direct.successor().is_none());
         let built = direct.admission().unwrap();
-        assert_eq!(built.typed.load_cases.length, 2, "outside D1 (D1.4)");
+        assert_eq!(
+            built.typed.load_cases.length, C_PLUS_ONE,
+            "outside D1 (D1.4: C + 1 load cases)"
+        );
         assert!(matches!(
             built.profile,
             ProfileStatus::Registered | ProfileStatus::Stale

@@ -14,9 +14,10 @@ use super::{arm, consume, Armed};
 use std::sync::atomic::{AtomicUsize, Ordering::SeqCst};
 use std::sync::Arc;
 
-/// One invocation's counts, shared with the reserved-stack thread.
+/// One invocation's counts, shared with the reserved-stack thread, and (RV107 A1-N-1) a copy
+/// of the successor its precommit received.
 #[derive(Debug, Default)]
-pub(crate) struct Tally { runs: AtomicUsize, complete_gates: AtomicUsize }
+pub(crate) struct Tally { runs: AtomicUsize, complete_gates: AtomicUsize, successor: std::sync::Mutex<Option<serde_json::Value>> }
 thread_local! {
     static TALLY: std::cell::RefCell<Option<Arc<Tally>>> = const { std::cell::RefCell::new(None) };
 }
@@ -27,11 +28,23 @@ pub(crate) struct Counts { pub(crate) runs: usize, pub(crate) complete_gates: us
 /// Run `f` on this thread with a fresh tally (the permitted work carries it to the
 /// reserved-stack thread). One tally at a time per thread.
 pub(crate) fn counted<T>(f: impl FnOnce() -> T) -> (T, Counts) {
+    let (value, counts, _) = counted_with_successor(f);
+    (value, counts)
+}
+/// B1 SP (RV107 A1-N-1): `counted`, also returning a copy of the serialized successor that the
+/// invocation's precommit received (taken before any precommit fault), if it reached precommit.
+/// The copy is shared across the reserved-stack hop with the tally.
+pub(crate) fn counted_with_successor<T>(f: impl FnOnce() -> T) -> (T, Counts, Option<serde_json::Value>) {
     let fresh = Arc::new(Tally::default());
     assert!(TALLY.with(|t| t.replace(Some(fresh.clone()))).is_none(), "one tally at a time");
     let value = f();
     TALLY.with(|t| t.borrow_mut().take());
-    (value, Counts { runs: fresh.runs.load(SeqCst), complete_gates: fresh.complete_gates.load(SeqCst) })
+    let successor = fresh.successor.lock().unwrap().take();
+    (value, Counts { runs: fresh.runs.load(SeqCst), complete_gates: fresh.complete_gates.load(SeqCst) }, successor)
+}
+/// At precommit (`lib.rs`, `before_precommit`): the successor's copy, when a tally is installed.
+pub(crate) fn capture_successor(successor: &serde_json::Value) {
+    if let Some(t) = tally() { *t.successor.lock().unwrap() = Some(successor.clone()); }
 }
 /// The caller's tally in transit with its faults (`Carried`): shared, not copied.
 pub(super) struct TallyCarry(Option<Arc<Tally>>);
@@ -48,10 +61,12 @@ pub(super) fn merge(a: &mut Armed, faults: &Armed) {
     a.complete_gate |= faults.complete_gate;
     a.preparation |= faults.preparation;
     a.candidate = a.candidate.or(faults.candidate);
+    a.preparation_of_case = a.preparation_of_case.or(faults.preparation_of_case);
 }
 /// `armed_names`: this grant's faults.
-pub(super) fn names(a: &Armed) -> [(bool, &'static str); 4] {
-    [(a.late_gate, "late_gate"), (a.complete_gate, "complete_gate"), (a.preparation, "preparation"), (a.candidate.is_some(), "candidate")]
+pub(super) fn names(a: &Armed) -> [(bool, &'static str); 5] {
+    [(a.late_gate, "late_gate"), (a.complete_gate, "complete_gate"), (a.preparation, "preparation"), (a.candidate.is_some(), "candidate"),
+        (a.preparation_of_case.is_some(), "preparation_of_case")]
 }
 /// `run_linear_static_preview_observed`'s first statement: one ordinary run.
 pub(crate) fn ordinary_run_entered() {
@@ -64,10 +79,23 @@ pub(crate) fn fail_next_late_gate() { arm(|a| a.late_gate = true); }
 /// complete gate refuses (`ObservationBytes`).
 pub(crate) fn fail_next_complete_gate() { arm(|a| a.complete_gate = true); }
 /// Preparation fault (the private driver's trigger: the closed annulus helper refuses a
-/// zero diameter).
+/// zero diameter). It is applied at G-C to the case in the capture's own fields: at c ≥ 2 the
+/// last requested case (RV109 R3P-6).
 pub(crate) fn fail_next_preparation() { arm(|a| a.preparation = true); }
 /// Candidate fault: the proof trace faults at this point.
 pub(crate) fn fault_next_candidate(fault: crate::retained_receipt::TraceFault) { arm(|a| a.candidate = Some(fault)); }
+/// B1 SP (decision 23; RV107 A1-N-6): the preparation of request case `index` fails (the closed
+/// annulus helper refuses a zero diameter), on the private driver and the actual entry alike. Its
+/// attempt alone fails; the other cases' attempts continue (DESIGN_v2 T-7). `fail_next_preparation`
+/// would fail the last requested case instead, the one in the capture's own fields at G-C.
+pub(crate) fn fail_preparation_of_case(index: usize) { arm(|a| a.preparation_of_case = Some(index)); }
+/// At each product attempt, before its preparation (retained_product.rs, `prepare_attempt`), on the
+/// case in the capture's own fields.
+pub(crate) fn before_case_preparation(capture: &mut crate::retained_product::ProductCapture, request: usize) {
+    if consume(|a| if a.preparation_of_case == Some(request) { a.preparation_of_case.take() } else { None }).is_some() {
+        capture.facts[0].diameter = 0.0;
+    }
+}
 fn exceed_every_bound(capture: &crate::retained_product::ProductCapture) {
     use crate::retained_product::AdapterEvent;
     let mut counts = capture.adapter.counts.get();

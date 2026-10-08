@@ -2221,6 +2221,11 @@ pub(crate) enum W1Fallback {
     Serializer(retained_wire::ReceiptFailure),
     /// Precommit validation (decision 5): the accepted Rust reader's first failure.
     Precommit { gate: &'static str, code: String },
+    /// T-4 (B0 DESIGN_v2 §1.2; decisions 1 and 21): no requested case is in A. Each is
+    /// `not_required` by its published verdict, or excluded by DN §4.3, so W1 does not
+    /// start: the exact ordinary bytes, no notice and no reservation. Distinct from
+    /// `LegacySeed::NotRequired` and from the receipt's `not_required` disposition.
+    NoTriggeredCase,
     /// R-2: the notice's space could not be reserved, so W1 did not start.
     NoticeReservation,
     /// Fail-closed guard: the permitted observer no longer held its permit at G-C
@@ -2988,6 +2993,10 @@ fn permitted_run(
         return ordinary_dispatch(request, capture, solver_mode, Some(report), Some(Err(W1Fallback::Domain)));
     }
     let mut budget = SourceRecoveryBudget::default();
+    // B1 seam (PLAN_v2 §2.1; RV107 SF-4): T-3 (e)'s requested count, read before the
+    // request moves into the observed run. G-C carries it, and its attempt fact counts the
+    // requested cases (B1 SA, T-3 (e)).
+    let requested_cases = request.model.load_cases.len();
     // The permit moves into the observer, which checks G-B with it.
     let mut observer = retained_product::ProductCapture::permitted_probe(permit);
     let ordinary = run_linear_static_preview_observed(request, solver_mode, Some(capture), &mut budget, Some(&mut observer));
@@ -3003,7 +3012,7 @@ fn permitted_run(
         (ordinary, Err(W1Fallback::LateGate(refusal)))
     } else {
         #[cfg(test)] retained_tests_hooks::at_complete_gate(&mut observer); // G-C, with the observer's own permit.
-        match observer.permit().map(|permit| permit.check_complete(&retained_memory::CompleteFacts { ordinary: &ordinary, capture: &observer })) {
+        match observer.permit().map(|permit| permit.check_complete(&retained_memory::CompleteFacts { ordinary: &ordinary, capture: &observer, requested_cases })) {
             Some(Ok(())) => retained_w1(observer, ordinary, capture),
             Some(Err(refusal)) => (ordinary, Err(W1Fallback::CompleteGate(refusal))),
             None => (ordinary, Err(W1Fallback::PermitUnbound)),
@@ -3031,19 +3040,13 @@ fn receipt_encoding_detail(check: retained_wire::ReceiptCheck) -> Option<&'stati
     }
 }
 
-/// R-2 (N1): the notice whose space is reserved before any W1 work starts (COMP:66),
-/// so that rendering it after a fallback allocates nothing.
+/// R-2 (N1): one case's notice, whose space is reserved before any W1 work starts
+/// (COMP:66), so that rendering it after a fallback allocates nothing.
 struct ReservedNotice(Diagnostic);
 impl ReservedNotice {
-    /// Reserve one diagnostic slot in the ordinary owner and the longest message.
-    /// `None` (W1 does not start) if either reservation fails, or the base already
-    /// carries the notice's id.
-    fn reserve(ordinary: &mut MechanicsEnvelope, case_id: &str) -> Option<Self> {
-        let id = format!("diagnostic:retained-precision:{case_id}:unavailable");
-        if ordinary.diagnostics.iter().any(|d| d.id == id) {
-            return None;
-        }
-        ordinary.diagnostics.try_reserve_exact(1).ok()?;
+    /// The longest message and the diagnostic, for an id already checked against the base.
+    /// `None` (W1 does not start) if the message's reservation fails.
+    fn reserve(id: String, case_id: &str) -> Option<Self> {
         let mut message = String::new();
         message.try_reserve_exact(RETAINED_UNAVAILABLE_NOTICE.len() + RECEIPT_ENCODING_REASON.len() + RECEIPT_ENCODING_DETAIL_MAX + 1).ok()?;
         message.push_str(RETAINED_UNAVAILABLE_NOTICE);
@@ -3058,43 +3061,170 @@ impl ReservedNotice {
             affected_refs: vec![case_id.to_owned()],
         }))
     }
-    /// Append the notice after the ordinary prefix, for a fallback after W1 work
-    /// ran. Within the reserved capacity: no allocation.
-    fn publish(self, mut ordinary: MechanicsEnvelope, cause: W1Fallback) -> (MechanicsEnvelope, Result<RetainedSuccessor, W1Fallback>) {
-        let Self(mut notice) = self;
+}
+/// B1 SP (DESIGN_v2 T-5; R-2 per case): the notices of the cases in A, in request order,
+/// all reserved before any W1 work starts. At c = 1 this is R-2's one notice.
+struct ReservedNotices([Option<ReservedNotice>; retained_memory::caps::LOAD_CASES]);
+impl ReservedNotices {
+    /// One diagnostic slot per case in the ordinary owner, and each case's longest message.
+    /// `None` (W1 does not start) if any reservation fails, or any notice's id is already in
+    /// the base or is another case's notice id.
+    fn reserve(ordinary: &mut MechanicsEnvelope, case_ids: &[&str]) -> Option<Self> {
+        let mut ids: [String; retained_memory::caps::LOAD_CASES] = Default::default();
+        if case_ids.is_empty() || case_ids.len() > ids.len() {
+            return None;
+        }
+        for (k, case_id) in case_ids.iter().enumerate() {
+            let id = format!("diagnostic:retained-precision:{case_id}:unavailable");
+            if ordinary.diagnostics.iter().any(|d| d.id == id) || ids[..k].contains(&id) {
+                return None;
+            }
+            ids[k] = id;
+        }
+        ordinary.diagnostics.try_reserve_exact(case_ids.len()).ok()?;
+        let mut notices: [Option<ReservedNotice>; retained_memory::caps::LOAD_CASES] = std::array::from_fn(|_| None);
+        for ((slot, id), case_id) in notices.iter_mut().zip(ids).zip(case_ids) {
+            *slot = Some(ReservedNotice::reserve(id, case_id)?);
+        }
+        Some(Self(notices))
+    }
+    /// T-12: append the notices after the ordinary prefix, in request order, for a fallback
+    /// after W1 work ran. Within the reserved capacities: no allocation. C1:68's receipt-encoding
+    /// detail (a serializer refusal with one of its details) goes only on the notices of the
+    /// cases that were selected when the successor was abandoned: bit `k` of `selected` is the
+    /// `k`-th case in A (decision 6). Every other notice is plain.
+    fn publish(self, mut ordinary: MechanicsEnvelope, cause: W1Fallback, selected: u64) -> (MechanicsEnvelope, Result<RetainedSuccessor, W1Fallback>) {
         // RV85 T1: rendering and appending allocate nothing (the capacities reserved
         // before W1 are the capacities published).
         #[cfg(test)]
-        let reserved = (ordinary.diagnostics.capacity(), notice.message.capacity());
-        if let W1Fallback::Serializer(failure) = &cause {
-            if let Some(detail) = receipt_encoding_detail(failure.check) {
+        let reserved = ordinary.diagnostics.capacity();
+        let detail = match &cause {
+            W1Fallback::Serializer(failure) => receipt_encoding_detail(failure.check),
+            _ => None,
+        };
+        for (k, ReservedNotice(mut notice)) in self.0.into_iter().flatten().enumerate() {
+            #[cfg(test)]
+            let message = notice.message.capacity();
+            let was_selected = u32::try_from(k).ok().and_then(|k| selected.checked_shr(k)).is_some_and(|bits| bits & 1 == 1);
+            if let Some(detail) = detail.filter(|_| was_selected) {
                 notice.message.push_str(RECEIPT_ENCODING_REASON);
                 notice.message.push_str(detail);
                 notice.message.push('.');
             }
+            #[cfg(test)]
+            assert!(ordinary.diagnostics.len() < ordinary.diagnostics.capacity() && notice.message.capacity() == message,
+                "the notice's space was reserved before W1: rendering allocated nothing");
+            ordinary.diagnostics.push(notice);
         }
         #[cfg(test)]
-        assert!(ordinary.diagnostics.len() < ordinary.diagnostics.capacity() && notice.message.capacity() == reserved.1,
-            "the notice's space was reserved before W1: rendering allocated nothing");
-        ordinary.diagnostics.push(notice);
-        #[cfg(test)]
-        assert_eq!(ordinary.diagnostics.capacity(), reserved.0, "appending the notice allocated nothing");
+        assert_eq!(ordinary.diagnostics.capacity(), reserved, "appending the notices allocated nothing");
         (ordinary, Err(cause))
     }
 }
 
-/// The one case W1 attempts (D1.4: one load case, no combinations). `None` outside
-/// D1.4, where W1 never starts.
-fn w1_case_id(capture: &source_receipt::CapturedInvocation) -> Option<&str> {
+/// B1 SP: requested cases (at most `caps::LOAD_CASES`), by request index and id, in request
+/// order, with no heap allocation.
+struct CaseSet<'a> {
+    requests: [usize; retained_memory::caps::LOAD_CASES],
+    ids: [&'a str; retained_memory::caps::LOAD_CASES],
+    len: usize,
+}
+impl<'a> CaseSet<'a> {
+    fn new() -> Self { Self { requests: [0; retained_memory::caps::LOAD_CASES], ids: [""; retained_memory::caps::LOAD_CASES], len: 0 } }
+    /// Append a case; `None` past `caps::LOAD_CASES`.
+    fn push(&mut self, request: usize, id: &'a str) -> Option<()> {
+        *self.requests.get_mut(self.len)? = request;
+        self.ids[self.len] = id;
+        self.len = self.len.checked_add(1)?;
+        Some(())
+    }
+    fn requests(&self) -> &[usize] { &self.requests[..self.len] }
+    fn ids(&self) -> &[&'a str] { &self.ids[..self.len] }
+    /// T-4's A: the cases whose trigger is `Attempted`, in request order.
+    fn attempted(&self, triggers: impl Iterator<Item = CaseTrigger>) -> Self {
+        let mut attempted = Self::new();
+        for ((&request, &id), trigger) in self.requests().iter().zip(self.ids()).zip(triggers) {
+            if trigger == CaseTrigger::Attempted {
+                attempted.push(request, id).expect("A is a subset of the requested cases");
+            }
+        }
+        attempted
+    }
+}
+
+/// B1 SP (PLAN_v2 §2.2; RV107 SF-2): the request's cases, in request order, when W1 may
+/// run: 1 ≤ c ≤ `caps::LOAD_CASES` (D1.4) and no combination. `None` otherwise, where W1
+/// never starts (`Domain`).
+fn w1_case_ids(capture: &source_receipt::CapturedInvocation) -> Option<CaseSet<'_>> {
     let model = &capture.borrowed_raw()["model"];
-    match (model["load_cases"].as_array().map(Vec::as_slice), model["combinations"].as_array().map_or(0, Vec::len)) {
-        (Some([case]), 0) => case["id"].as_str(),
+    let (cases, combinations) = (model["load_cases"].as_array()?, model["combinations"].as_array().map_or(0, Vec::len));
+    if cases.is_empty() || cases.len() > retained_memory::caps::LOAD_CASES || combinations != 0 {
+        return None;
+    }
+    let mut set = CaseSet::new();
+    for (request, case) in cases.iter().enumerate() {
+        set.push(request, case["id"].as_str()?)?;
+    }
+    Some(set)
+}
+
+/// T-4 (B0 DESIGN_v2 §1.2; decisions 1 and 21): one requested case's W1 trigger class.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum CaseTrigger {
+    /// Its published verdict is `checks_passed`: no product attempt and no notice.
+    NotRequired,
+    /// DN §4.3 (decision 21): an ordinary Mechanism, Asymmetric or InvalidInput failure
+    /// that W2 did not publish. No product attempt and no notice; it stays an ordinary
+    /// failed case.
+    Excluded,
+    /// In A: W1 attempts the case. Every other verdict, an absent quality entry, and a
+    /// case with no seed (RR "I81's B1-0 probe verified…", ruling 2).
+    Attempted,
+}
+
+/// T-4's classifier over the requested case ids, in request order (n cases; D1.4
+/// admits one until B1's SA). A case's published verdict is the one
+/// `numerical_quality.cases[]` entry whose `basis_ref.ref_id` is the case id, never an
+/// entry found by position (as `ordinary_value` binds it); its seed is the one seed
+/// whose `case` is the case id. An entry or a seed that is absent, or not unique, is
+/// absent: such a case is in A unless its verdict is `checks_passed`.
+fn case_triggers<'a>(
+    quality: &'a NumericalQuality,
+    seeds: &'a [retained_product::OrdinarySeed],
+    case_ids: &'a [&'a str],
+) -> impl Iterator<Item = CaseTrigger> + 'a {
+    case_ids.iter().map(move |&case_id| {
+        let verdict = only_one(quality.cases.iter().filter(|entry| entry.basis_ref.ref_id == case_id)).map(|entry| entry.solve_quality);
+        let seed = only_one(seeds.iter().filter(|seed| seed.case == case_id));
+        if verdict == Some(NumericalQualityStatus::ChecksPassed) {
+            CaseTrigger::NotRequired
+        } else if seed.is_some_and(dn_trigger_excluded) {
+            CaseTrigger::Excluded
+        } else {
+            CaseTrigger::Attempted
+        }
+    })
+}
+
+/// The one item, or `None` when there is none or more than one.
+fn only_one<T>(mut items: impl Iterator<Item = T>) -> Option<T> {
+    match (items.next(), items.next()) {
+        (Some(item), None) => Some(item),
         _ => None,
     }
 }
 
+/// Decision 21 (DN §4.3): the trigger never fires for an ordinary attempt that failed
+/// as a Mechanism, Asymmetric or InvalidInput, unless W2 published the case.
+fn dn_trigger_excluded(seed: &retained_product::OrdinarySeed) -> bool {
+    matches!(&seed.initial, Some(retained_product::InitialSeed::StructuralFailure {
+        error: StructuralError::Mechanism { .. } | StructuralError::Asymmetric { .. } | StructuralError::InvalidInput(_), ..
+    })) && !matches!(seed.w2, retained_product::W2Seed::Published { .. })
+}
+
 /// U3: the W1 phases over the single actual ordinary run's capture: coexistence,
-/// G-B's outcome, the notice reservation, preparation, native, proof (the frozen
+/// G-B's outcome, the domain re-check and T-4's trigger (B1), the notices' reservation (T-5),
+/// custody (T-6), per-case preparation (T-7), native, proof (the frozen
 /// candidate), staging, serialization, precommit validation and the transfer. The
 /// ordinary envelope's bytes are never changed by W1: it returns on every fallback
 /// (D-b), with R-2's notice appended when W1 work ran, and beside the successor on
@@ -3111,44 +3241,89 @@ fn retained_w1(
         let refusal = refusal.clone();
         return (ordinary, Err(W1Fallback::LateGate(refusal)));
     }
-    let Some(case_id) = w1_case_id(capture) else {
+    // B1 SP: the request's cases; outside D1.4 (c = 0, c > C, a combination) W1 never starts.
+    let Some(cases) = w1_case_ids(capture) else {
         return (ordinary, Err(W1Fallback::Domain));
     };
-    // R-2: the notice's space is reserved before any W1 work starts.
-    let Some(notice) = ReservedNotice::reserve(&mut ordinary, case_id) else {
+    // T-4 (decisions 1 and 21): W1 attempts only the cases in A. With A empty, the exact
+    // ordinary bytes: no notice, and nothing reserved.
+    if !case_triggers(&ordinary.numerical_quality, &observer.ordinary, cases.ids()).any(|trigger| trigger == CaseTrigger::Attempted) {
+        return (ordinary, Err(W1Fallback::NoTriggeredCase));
+    }
+    let attempted = cases.attempted(case_triggers(&ordinary.numerical_quality, &observer.ordinary, cases.ids()));
+    // T-5 (R-2 per case): every case in A's notice is reserved before any W1 work starts.
+    let Some(notice) = ReservedNotices::reserve(&mut ordinary, attempted.ids()) else {
         return (ordinary, Err(W1Fallback::NoticeReservation));
     };
-    let mut prepared = match observer.prepare_case(ordinary) {
+    // T-6 to T-11, then T-12 on any abandonment.
+    match w1_transaction(observer, ordinary, capture, cases.ids().len(), attempted.requests()) {
+        // The transfer: moves only. The unused notices drop; the reserved slots are not
+        // bytes of the ordinary publication.
+        (ordinary, Ok(successor)) => {
+            drop(notice);
+            (ordinary, Ok(RetainedSuccessor(successor)))
+        }
+        (ordinary, Err((cause, selected))) => notice.publish(ordinary, cause, selected),
+    }
+}
+
+/// B1 SP (DESIGN_v2 T-6 to T-11): the transaction over the `requested` cases, with A's
+/// request indices `attempted`, in request order. Custody once (T-6); one product attempt per
+/// case in A (T-7); one `CaseBatchCall` over the prepared cases (T-8); one freeze per selected
+/// Run (T-9); with no case selected, T-10's fallback; otherwise staging, the serializer and
+/// precommit (T-11). It returns the untouched ordinary owner with the successor, or with the
+/// abandonment's cause and which cases in A were selected then (bit `k`: the `k`-th case in A).
+/// With no case selected the cause is the furthest stage any case reached: `Candidate` (T-9),
+/// `Native` (T-8, also a failure of the call itself) or `Preparation` (T-6, T-7). At c = 1
+/// these are the one-case transaction's causes and bytes.
+fn w1_transaction(
+    observer: retained_product::ProductCapture,
+    ordinary: MechanicsEnvelope,
+    capture: &source_receipt::CapturedInvocation,
+    requested: usize,
+    attempted: &[usize],
+) -> (MechanicsEnvelope, Result<serde_json::Value, (W1Fallback, u64)>) {
+    use retained_product::AttemptEnd;
+    // T-6, then T-7: invocation custody once; then one product attempt per case in A.
+    let mut prepared = match observer.prepare_cases(ordinary, requested, attempted) {
         Ok(prepared) => prepared,
-        Err(failure) => return notice.publish(failure.ordinary, W1Fallback::Preparation),
+        Err(failure) => return (failure.ordinary, Err((W1Fallback::Preparation, 0))),
     };
+    // T-8: one CaseBatchCall over the prepared cases of A.
     #[cfg(test)]
     retained_tests_hooks::before_native(&mut prepared);
-    if prepared.solve_native().is_err() {
-        return notice.publish(prepared.into_ordinary(), W1Fallback::Native);
+    prepared.native();
+    // T-9: one freeze per selected Run.
+    prepared.freeze();
+    // T-10: a successor needs a selected case.
+    let reached = |stage: fn(&AttemptEnd) -> bool| prepared.attempts.iter().any(|attempt| stage(&attempt.end));
+    if !reached(|end| matches!(end, AttemptEnd::Frozen(_))) {
+        let cause = if reached(|end| matches!(end, AttemptEnd::Candidate(_))) {
+            W1Fallback::Candidate
+        } else if reached(|end| matches!(end, AttemptEnd::Native)) {
+            W1Fallback::Native
+        } else {
+            W1Fallback::Preparation
+        };
+        return (prepared.into_ordinary(), Err((cause, 0)));
     }
-    let frozen = match prepared.freeze_candidate() {
-        Ok(frozen) => frozen,
-        Err(refusal) => return notice.publish(refusal.ordinary, W1Fallback::Candidate),
-    };
-    // Staging: the overlay applies to a copy; the ordinary owner stays intact. A
+    let selected = prepared.selected_attempts();
+    // T-11. Staging: the overlays apply to one copy; the ordinary owner stays intact. A
     // broken overlay invariant falls back typed (RV85 N6).
     #[cfg(test)]
-    let mut frozen = frozen;
-    #[cfg(test)]
-    retained_tests_hooks::before_staging(&mut frozen);
-    let staged = match frozen.staged_envelope() {
+    retained_tests_hooks::before_staging(&mut prepared);
+    let staged = match prepared.staged_envelope() {
         Ok(staged) => staged,
-        Err(fault) => return notice.publish(frozen.into_ordinary(), W1Fallback::Staging(fault)),
+        Err(fault) => return (prepared.into_ordinary(), Err((W1Fallback::Staging(fault), selected))),
     };
-    let serialized = retained_wire::serialize_frozen(&frozen, &staged, capture);
+    let serialized = retained_wire::serialize_cases(&mut prepared, &staged, capture);
     drop(staged);
     #[cfg(test)]
     let serialized = retained_tests_hooks::after_serialize(serialized);
     #[cfg_attr(not(test), allow(unused_mut))]
     let mut successor = match serialized {
         Ok(successor) => successor,
-        Err(failure) => return notice.publish(frozen.into_ordinary(), W1Fallback::Serializer(failure)),
+        Err(failure) => return (prepared.into_ordinary(), Err((W1Fallback::Serializer(failure), selected))),
     };
     #[cfg(test)]
     retained_tests_hooks::before_precommit(&mut successor);
@@ -3159,13 +3334,11 @@ fn retained_w1(
     #[cfg(test)]
     retained_tests_hooks::before_precommit_invocation(&mut invocation);
     if let Err(error) = open_pipe_stress_result_export::retained_precision::validate(&successor, Some(&invocation)) {
-        return notice.publish(frozen.into_ordinary(), W1Fallback::Precommit { gate: error.gate, code: error.code });
+        return (prepared.into_ordinary(), Err((W1Fallback::Precommit { gate: error.gate, code: error.code }, selected)));
     }
     drop(invocation);
-    // The transfer: moves only. The unused notice drops; the reserved slot is not
-    // a byte of the ordinary publication.
-    drop(notice);
-    (frozen.into_ordinary(), Ok(RetainedSuccessor(successor)))
+    // The transfer moves only: no fallible step follows.
+    (prepared.into_ordinary(), Ok(successor))
 }
 
 /// Test-only fault seams for the W1 phases the private driver reaches (decision 7
@@ -3182,6 +3355,8 @@ pub(crate) mod retained_tests_hooks {
         rebind: bool,
         serializer: Option<ReceiptCheck>,
         staging: bool, late_gate: bool, complete_gate: bool, preparation: bool, candidate: Option<super::retained_receipt::TraceFault>,
+        /// B1 SP (decision 23; RV107 A1-N-6): the request index of the case whose preparation fails.
+        preparation_of_case: Option<usize>,
         /// lib.rs's dense-scrutiny ceiling override (F1b), read by the ordinary run.
         ceiling: Option<u128>,
     }
@@ -3265,20 +3440,24 @@ pub(crate) mod retained_tests_hooks {
         }
     }
     pub(crate) fn corrupt_next_precommit() { arm(|a| a.corrupt = true); }
-    /// Native-stage fault: the prepared source is withdrawn before the native solve.
+    /// Native-stage fault: the first prepared case's source is withdrawn before the call, so
+    /// the call itself fails before any Run (B1 SP T-8; D38's trigger).
     pub(crate) fn withdraw_next_native_source() { arm(|a| a.withdraw = true); }
     /// Serializer-stage fault: the next serialization refuses with this check.
     pub(crate) fn fail_next_serializer(check: ReceiptCheck) { arm(|a| a.serializer = Some(check)); }
     /// Staging fault: the next frozen overlay names a maxima patch past the evidence.
     pub(crate) fn break_next_staging() { arm(|a| a.staging = true); }
-    pub(crate) fn before_staging(frozen: &mut super::retained_product::FrozenCandidate) {
+    pub(crate) fn before_staging(prepared: &mut super::retained_product::PreparedCases) {
         if consume(|a| std::mem::take(&mut a.staging)) {
-            frozen.test_break_overlay();
+            prepared.test_break_overlay();
         }
     }
-    pub(crate) fn before_native(prepared: &mut super::retained_product::PreparedCase) {
+    /// Reached before the call; it fires only when a case was prepared (as before T-8, where
+    /// the one-case hook ran only after a successful preparation).
+    pub(crate) fn before_native(prepared: &mut super::retained_product::PreparedCases) {
+        let Some(request) = prepared.attempts.iter().find(|attempt| attempt.prepared).map(|attempt| attempt.request) else { return };
         if consume(|a| std::mem::take(&mut a.withdraw)) {
-            prepared.test_capture_mut().source = None;
+            prepared.capture.with_case(request, |capture| capture.source = None);
         }
     }
     pub(crate) fn after_serialize(serialized: Result<serde_json::Value, ReceiptFailure>) -> Result<serde_json::Value, ReceiptFailure> {
@@ -3288,6 +3467,8 @@ pub(crate) mod retained_tests_hooks {
         }
     }
     pub(crate) fn before_precommit(successor: &mut serde_json::Value) {
+        // RV107 A1-N-1: the serialized successor, as precommit receives it, for the test.
+        grant2::capture_successor(successor);
         if consume(|a| std::mem::take(&mut a.corrupt)) {
             successor["retained_precision"]["receipt_sha256"] = serde_json::json!("0".repeat(64));
         }

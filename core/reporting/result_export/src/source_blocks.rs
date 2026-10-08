@@ -1770,3 +1770,129 @@ mod stress_range_tests {
         );
     }
 }
+
+/// RV95 N-5 (I74 decision 9; RV101 NT-1 and A2-N3): the direct test of
+/// `integer`'s 2^53−1 bound. At the public API two earlier layers mask it (the
+/// receipt shape and the checked-profile hashes; `tests/source_blocks.rs`,
+/// `rv95_n5_the_integer_bound_is_masked_at_the_public_api`), so RV95's mutant
+/// S1 (the bound removed) is killed only here.
+#[cfg(test)]
+mod rv95_n5_integer_tests {
+    use super::*;
+    const TWO_53: u64 = 1 << 53;
+    const INTEGER: &str = "SOURCE_BLOCKS_INTEGER";
+
+    #[test]
+    fn integer_admits_two_to_53_minus_1_and_refuses_two_to_53() {
+        assert_eq!(integer(&json!(0)), Ok(0));
+        assert_eq!(integer(&json!(TWO_53 - 1)), Ok((TWO_53 - 1) as usize));
+        for value in [json!(TWO_53), json!(TWO_53 + 1), json!(u64::MAX)] {
+            assert_eq!(integer(&value), Err(INTEGER.into()), "{value}");
+        }
+    }
+
+    /// The fields read through `integer`: the thirteen receipt fields, which
+    /// are I76's twelve and `failure.block_order` (RV101 NT-1), and the four
+    /// summary counts. The production text's `integer(...)` calls read exactly
+    /// these; each refuses 2^53 as read, and where a private check reaches
+    /// `integer` before any other layer (the source plan's four counts and the
+    /// summary counts) it is exercised there, with 2^53−1 reaching the next
+    /// check instead.
+    #[test]
+    fn every_field_read_through_integer_refuses_two_to_53() {
+        let text = include_str!("source_blocks.rs");
+        let production = &text[..text.find("\n#[cfg(test)]").unwrap()];
+        let mut arguments = std::collections::BTreeSet::new();
+        for (at, _) in production.match_indices("integer(&") {
+            let rest = &production[at + "integer(&".len()..];
+            let mut depth = 0usize;
+            let end = rest
+                .char_indices()
+                .find(|(_, c)| match c {
+                    '(' | '[' => {
+                        depth += 1;
+                        false
+                    }
+                    ']' => {
+                        depth -= 1;
+                        false
+                    }
+                    ')' => depth == 0,
+                    _ => false,
+                })
+                .unwrap()
+                .0;
+            arguments.insert(&rest[..end]);
+        }
+        // The receipt path each argument reads (case-relative unless named).
+        let receipt = [
+            (r#"case["ordinary_attempt"]["quality_case_index"]"#, "/ordinary_attempt/quality_case_index"),
+            (r#"work["charged"]"#, "/work/charged"),
+            (r#"work["reserved_unobserved_failure"]"#, "/work/reserved_unobserved_failure"),
+            (r#"work["limit"]"#, "/work/limit"),
+            (r#"failure["block_order"]"#, "/failure/block_order"),
+            (r#"p["dof_count"]"#, "/source/dof_count"),
+            (r#"plan["dof_count"]"#, "/source/dof_count"),
+            (r#"p["stiffness_term_count"]"#, "/source/stiffness_term_count"),
+            (r#"p["force_term_count"]"#, "/source/force_term_count"),
+            (r#"p["functional_count"]"#, "/source/functional_count"),
+            (r#"term["global_dof"]"#, "/supports/0/components/0/action_terms/0/global_dof"),
+            (r#"invocation_work["limit"]"#, "/invocation_work/limit"),
+            (r#"invocation_work["charged"]"#, "/invocation_work/charged"),
+            (r#"invocation_work["publication_charged"]"#, "/invocation_work/publication_charged"),
+        ];
+        let mut expected: std::collections::BTreeSet<&str> = receipt.iter().map(|(a, _)| *a).collect();
+        expected.insert("summary[key]");
+        assert_eq!(arguments, expected, "the production `integer` call sites");
+        let fields: std::collections::BTreeSet<&str> = receipt.iter().map(|(_, f)| *f).collect();
+        assert_eq!(fields.len(), 13, "I76's twelve receipt fields and failure.block_order");
+        assert!(fields.contains("/failure/block_order"));
+        for field in &fields {
+            for (value, want) in [(TWO_53, Err(INTEGER.to_string())), (TWO_53 - 1, Ok((TWO_53 - 1) as usize))] {
+                let mut receipt = json!({});
+                let mut at = &mut receipt;
+                for key in field.trim_start_matches('/').split('/') {
+                    at = match key.parse::<usize>() {
+                        Ok(0) => {
+                            *at = json!([{}]);
+                            &mut at[0]
+                        }
+                        _ => {
+                            at[key] = json!({});
+                            &mut at[key]
+                        }
+                    };
+                }
+                *at = json!(value);
+                assert_eq!(integer(receipt.pointer(field).unwrap()), want, "{field} = {value}");
+            }
+        }
+        // The source plan's counts, through `source_plan` itself.
+        let plan = json!({"dof_count": 6, "stiffness_term_count": 1, "force_term_count": 0, "functional_count": 0});
+        for (key, next) in [
+            ("dof_count", "SOURCE_BLOCKS_SOURCE_COUNTS"),
+            ("stiffness_term_count", "SOURCE_BLOCKS_SOURCE_COUNTS"),
+            ("force_term_count", "SOURCE_BLOCKS_SOURCE_COUNTS"),
+            ("functional_count", "SOURCE_BLOCKS_FUNCTIONAL_COUNT"),
+        ] {
+            let mut edge = plan.clone();
+            edge[key] = json!(TWO_53);
+            assert_eq!(source_plan(&edge, &[], None), Err(INTEGER.into()), "{key}");
+            edge[key] = json!(TWO_53 - 1);
+            assert_eq!(source_plan(&edge, &[], None), Err(next.into()), "{key}");
+        }
+        // The summary counts, through `summary` itself.
+        let model = json!({"nodes": [], "pipe_segments": [], "supports": [], "load_cases": []});
+        for key in ["node_count", "segment_count", "support_count", "load_case_count"] {
+            let mut source = json!({"summary": {"node_count": 0, "segment_count": 0, "support_count": 0, "load_case_count": 0}});
+            source["summary"][key] = json!(TWO_53);
+            assert_eq!(summary(&source, &HashMap::new(), Some(&model), false), Err(INTEGER.into()), "{key}");
+            source["summary"][key] = json!(TWO_53 - 1);
+            assert_eq!(
+                summary(&source, &HashMap::new(), Some(&model), false),
+                Err("SOURCE_BLOCKS_SUMMARY_MODEL_COUNTS".into()),
+                "{key}"
+            );
+        }
+    }
+}

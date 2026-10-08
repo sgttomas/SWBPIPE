@@ -687,7 +687,7 @@ describe("the declared differences, with TypeScript's expectations", () => {
     // language-specific code is declared for an invalid numerical_quality case.
     expect(caseFile.scope).not.toMatch(/An invalid enum value in a not_required case's quality|SOURCE_NUMERICAL_CASE_INVALID/);
     // F-U6b-2 (B6): Python's transport refusals carry the reader's codes, as Rust's; TS's header code stays its own.
-    expect(caseFile.scope).toMatch(/TS SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED; Rust and Python the reader's G0 code or their base header code/);
+    expect(caseFile.scope).toMatch(/TS SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED; Rust and Python the reader's G0-G2 code or its base step's code/);
     expect(caseFile.scope).not.toMatch(/Python F-U6b-2's code/);
   });
   it.each<[string, string, Json]>(declaredForms)("%s on %s", async (_id, fixtureId, form) => {

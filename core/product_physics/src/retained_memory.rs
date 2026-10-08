@@ -310,8 +310,14 @@ pub(super) struct NestedTypedFacts {
     pub(super) springs: usize,
     /// The largest `temperature_points` length and capacity over both material lists.
     pub(super) max_temperature_points: CapacityFact,
-    /// l: the first load case's `primitive_loads`.
+    /// l (B1 SA): the largest `primitive_loads` length and the largest capacity over every
+    /// load case, so that each case is bounded by `l`.
     pub(super) primitive_loads: CapacityFact,
+    /// Σ l_i (B1 SA): the primitive loads over every load case. A `u32` (an in-domain total
+    /// is at most L = 384; a total that does not fit is D1.2's `ArithmeticOverflow`) so that
+    /// it sits in `status`'s padding: this struct, inside the report that the profile's
+    /// `s(ThreadPacketOutput)` atom prices, keeps its size until SQ re-derives the profile.
+    pub(super) total_loads: u32,
     /// The typed `project.units` Value: a separate owner, within the raw caps.
     pub(super) units: BorrowedValueFacts,
     pub(super) units_text: RawTextFacts,
@@ -403,12 +409,14 @@ impl TypedWalk {
                 self.quantity(&stiffness.value)?;
             }
         }
-        for (index, case) in m.load_cases.iter().enumerate() {
+        for case in &m.load_cases {
             self.string(&case.id)?;
             self.optional(&case.provenance)?;
-            if index == 0 {
-                self.facts.primitive_loads = CapacityFact::vector(&case.primitive_loads);
-            }
+            let loads = &mut self.facts.primitive_loads;
+            loads.length = loads.length.max(case.primitive_loads.len());
+            loads.capacity = loads.capacity.max(case.primitive_loads.capacity());
+            let total = u32::try_from(case.primitive_loads.len()).ok().and_then(|l| self.facts.total_loads.checked_add(l));
+            self.facts.total_loads = total.ok_or(CensusStatus::ArithmeticOverflow)?;
             for load in &case.primitive_loads {
                 for text in [&load.id, &load.category, &load.direction, &load.dimension] {
                     self.string(text)?;
@@ -447,6 +455,7 @@ pub(super) fn nested_typed_census(request: &LinearStaticPreviewRequest) -> Neste
             springs: 0,
             max_temperature_points: empty,
             primitive_loads: empty,
+            total_loads: 0,
             units: BorrowedValueFacts::empty(),
             units_text: raw_text_census(&Value::Null),
         },
@@ -462,16 +471,25 @@ pub(super) fn nested_typed_census(request: &LinearStaticPreviewRequest) -> Neste
 /// D1's cap table: DOMAIN.md §2, with G2_AMENDMENTS.md §2 (S-3 typed capacities)
 /// and §3 (S-4: sections = 0), and `l ≤ 128` (RR "U4 G4: the margin rule trips";
 /// ADDENDUM_L128.md §4). Every pricing formula is evaluated at these caps.
+/// B1 (option S3; RR "I82's addendum: B1's target is S3…"; PLAN_v2 §2.3): one tier at
+/// these model caps with C = 3 load cases, every case `l_i ≤ 128`, and a stated
+/// `Σ l_i ≤ L = 384` that does not bind (ADDENDUM_01 §2). `LOAD_CASES` and `TOTAL_LOADS`
+/// change here, at SA (RV107 A1-N-11); SQ's registration re-prices the profile at them.
 pub(super) mod caps {
     pub(crate) const NODES: usize = 32;
     pub(crate) const MEMBERS: usize = 32;
     pub(crate) const SUPPORTS: usize = 32;
     pub(crate) const RESTRAINTS: usize = 192;
     pub(crate) const SPRINGS: usize = 192;
+    /// l: the primitive loads of each load case.
     pub(crate) const LOADS: usize = 128;
     pub(crate) const MATERIALS: usize = 4;
     pub(crate) const TEMPERATURE_POINTS: usize = 16;
-    pub(crate) const LOAD_CASES: usize = 1;
+    /// C: the load cases of one invocation (D1.4: 1 ≤ c ≤ C).
+    pub(crate) const LOAD_CASES: usize = 3;
+    /// L: the primitive loads over every load case (Σ l_i ≤ L). At option S3 it equals
+    /// C·l, so it is stated and does not bind.
+    pub(crate) const TOTAL_LOADS: usize = 384;
     pub(crate) const TEXT_BYTES: usize = 128;
     pub(crate) const RAW_VALUES: usize = 16_384;
     pub(crate) const RAW_DEPTH: usize = 16;
@@ -590,6 +608,8 @@ pub(super) enum CapFact {
     Springs,
     Loads,
     LoadsCapacity,
+    /// B1 SA: Σ l_i over every load case.
+    TotalLoads,
     ModelMaterials,
     ModelMaterialsCapacity,
     RequestMaterials,
@@ -725,8 +745,8 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     if m.pipe_segments.iter().any(|pipe| pipe.section_ref.is_some()) {
         return refuse(C::Namespace, F::SectionRef);
     }
-    // D1.4: one load case, no combinations or components.
-    if m.load_cases.len() != 1 {
+    // D1.4 (B1 SA): 1 ≤ c ≤ C load cases, no combinations or components.
+    if m.load_cases.is_empty() || m.load_cases.len() > caps::LOAD_CASES {
         return refuse(C::Invocation, F::LoadCases);
     }
     if !m.combinations.is_empty() {
@@ -735,22 +755,23 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     if !m.components.is_empty() {
         return refuse(C::Invocation, F::Components);
     }
-    // D1.5: the one case.
-    let case = &m.load_cases[0];
-    if case.pressure_regions.is_some() {
-        return refuse(C::Case, F::PressureRegions);
-    }
-    if case.equivalent_static.is_some() {
-        return refuse(C::Case, F::EquivalentStatic);
-    }
-    if case.modulus_basis_ref.is_some() {
-        return refuse(C::Case, F::ModulusBasisRef);
-    }
-    if case.modulus_basis_temperature.is_some() {
-        return refuse(C::Case, F::ModulusBasisTemperature);
-    }
-    if !matches!(case.analysis_state, Authored::Absent) {
-        return refuse(C::Case, F::AnalysisState);
+    // D1.5 (B1 SA): every case, in request order.
+    for case in &m.load_cases {
+        if case.pressure_regions.is_some() {
+            return refuse(C::Case, F::PressureRegions);
+        }
+        if case.equivalent_static.is_some() {
+            return refuse(C::Case, F::EquivalentStatic);
+        }
+        if case.modulus_basis_ref.is_some() {
+            return refuse(C::Case, F::ModulusBasisRef);
+        }
+        if case.modulus_basis_temperature.is_some() {
+            return refuse(C::Case, F::ModulusBasisTemperature);
+        }
+        if !matches!(case.analysis_state, Authored::Absent) {
+            return refuse(C::Case, F::AnalysisState);
+        }
     }
     // D1.6: rigid restraints and one scalar spring only; exact family strings.
     for support in &m.supports {
@@ -766,8 +787,8 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
             }
         }
     }
-    // D1.7: nodal force and moment primitives only.
-    for load in &case.primitive_loads {
+    // D1.7: nodal force and moment primitives only, in every case (B1 SA).
+    for load in m.load_cases.iter().flat_map(|case| &case.primitive_loads) {
         if !matches!(load.target, crate::LoadTargetInput::Node { .. }) {
             return refuse(C::Loads, F::LoadTarget);
         }
@@ -789,8 +810,10 @@ pub(super) struct CapRow {
     pub(super) observed: usize,
     pub(super) cap: usize,
 }
-pub(super) const CAP_ROWS: usize = 46;
-/// D1.9's rows in DOMAIN.md §2 order, then D1.11's (the last row).
+pub(super) const CAP_ROWS: usize = 47;
+/// D1.9's rows in DOMAIN.md §2 order, then D1.11's (the last row). B1 SA: `Loads` and
+/// `LoadsCapacity` bound every case (the census's maxima over cases), `TotalLoads` bounds
+/// Σ l_i, and `LoadCasesCapacity` is capped by C.
 pub(super) fn cap_rows(f: &DomainFacts<'_>) -> [CapRow; CAP_ROWS] {
     use caps::*;
     use CapFact as K;
@@ -809,6 +832,7 @@ pub(super) fn cap_rows(f: &DomainFacts<'_>) -> [CapRow; CAP_ROWS] {
         row(K::Springs, n.springs, SPRINGS),
         row(K::Loads, n.primitive_loads.length, LOADS),
         row(K::LoadsCapacity, n.primitive_loads.capacity, LOADS),
+        row(K::TotalLoads, n.total_loads as usize, TOTAL_LOADS),
         row(K::ModelMaterials, t.model_materials.length, MATERIALS),
         row(K::ModelMaterialsCapacity, t.model_materials.capacity, MATERIALS),
         row(K::RequestMaterials, t.request_materials.length, MATERIALS),
@@ -956,8 +980,9 @@ static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
         TypeLayout { size: 96, align: 8 },
         TypeLayout { size: 16, align: 8 },
     ],
-    // M (D-7, proposed in QUALIFICATION.md §6): E_mov,max + R <= 0.8927 M in this build.
-    threshold_bytes: 4_026_531_840,
+    // M (D-7; RR "R6b: RV124 passes SQ and confirms M"; B1 SQ QUAL_B1.md):
+    // E_mov,max + R <= 0.8745 M in this build (dense W3; sparse 0.8693 M).
+    threshold_bytes: 11_274_289_152,
 }];
 
 /// D-6 identity matching (G2_AMENDMENTS §1): `Missing` with nothing registered;
@@ -1052,7 +1077,7 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
 /// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections at
-/// NUM 1e323058f3 (G5 part 1 code); text at l <= 128 on the R-4 graph.
+/// b1-q 57c92a7b33 (B1 SQ G5: C = 3, L <= 384, I104 rules); text at l <= 128 on the R-4 graph.
 pub(super) mod profile {
     #![allow(clippy::all, dead_code)]
     use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;
@@ -1085,13 +1110,13 @@ pub(super) mod profile {
     }
     /// The text atoms of the T08 closure at this basis (byte counts, layout-free), and the
     /// longest-string atoms of the hash route (RV84 C-N1; RV87 N-3).
-    pub(crate) const TEXT_D: u64 = 14734; // D
-    pub(crate) const TEXT_D_ENV: u64 = 9361; // D_env
-    pub(crate) const TEXT_TAV_TEXT_MOVING: u64 = 2153400792; // TAV_text_moving
-    pub(crate) const TEXT_TAV_TEXT_REQUESTED: u64 = 2150800830; // TAV_text_requested
+    pub(crate) const TEXT_D: u64 = 41769; // D
+    pub(crate) const TEXT_D_ENV: u64 = 22911; // D_env
+    pub(crate) const TEXT_TAV_TEXT_MOVING: u64 = 6236994628; // TAV_text_moving
+    pub(crate) const TEXT_TAV_TEXT_REQUESTED: u64 = 6234394666; // TAV_text_requested
     pub(crate) const TEXT_TEXT_AUDIT_ERROR: u64 = 16384; // Text(audit_error)
-    pub(crate) const TEXT_TEXT_DIAG_ENV: u64 = 68720236; // Text(diag_env)
-    pub(crate) const TEXT_TEXT_DIAG_TOTAL: u64 = 94906464; // Text(diag_total)
+    pub(crate) const TEXT_TEXT_DIAG_ENV: u64 = 175409684; // Text(diag_env)
+    pub(crate) const TEXT_TEXT_DIAG_TOTAL: u64 = 271493888; // Text(diag_total)
     pub(crate) const TEXT_TEXT_ERR: u64 = 16384; // Text(err)
     pub(crate) const TEXT_TEXT_FORMATION_DETAIL: u64 = 16426; // Text(formation_detail)
     pub(crate) const TEXT_TEXT_RECOVERY_FINDING: u64 = 10466306; // Text(recovery_finding)
@@ -1099,7 +1124,7 @@ pub(super) mod profile {
     pub(crate) const TEXT_TEXT_SYM: u64 = 368; // Text(sym)
     pub(crate) const L_DIAGID: u64 = 2330;
     pub(crate) const L_PUB: u64 = 2599962;
-    pub(crate) const ATOMS: usize = 244;
+    pub(crate) const ATOMS: usize = 247;
     /// The atoms, in index order: their names (as the records write them) and bindings.
     pub(crate) const ATOM_NAMES: [&str; ATOMS] = [
         "Node(&String,())",
@@ -1188,6 +1213,7 @@ pub(super) mod profile {
         "s(BoundedCoefficients<4>)",
         "s(BoundedCoefficients<8>)",
         "s(CaptureError)",
+        "s(CaseSlot)",
         "s(ConstraintMapE)",
         "s(ContributionE)",
         "s(ContributionRounding)",
@@ -1255,6 +1281,7 @@ pub(super) mod profile {
         "s(PreviewSupport)",
         "s(PrimitiveLoad)",
         "s(PrimitiveLoadInput)",
+        "s(PrimitiveSource)",
         "s(ProductMemberFacts)",
         "s(ProductRecipe)",
         "s(ProductRow)",
@@ -1342,6 +1369,7 @@ pub(super) mod profile {
         "s(Wide<8>)",
         "s([PublishedValue;12])",
         "s([bool;6])",
+        "s([usize;2])",
         "s(f64)",
         "s(u32)",
         "s(u64)",
@@ -1440,33 +1468,10 @@ pub(super) mod profile {
         Binding::InBuild,
         Binding::InBuild,
         Binding::InBuild,
-        Binding::SourceUpper,
-        Binding::InBuild,
-        Binding::SourceUpper,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
         Binding::InBuild,
         Binding::SourceUpper,
         Binding::InBuild,
         Binding::SourceUpper,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::SourceUpper,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
         Binding::InBuild,
         Binding::InBuild,
         Binding::InBuild,
@@ -1480,27 +1485,7 @@ pub(super) mod profile {
         Binding::InBuild,
         Binding::SourceUpper,
         Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
+        Binding::SourceUpper,
         Binding::InBuild,
         Binding::InBuild,
         Binding::InBuild,
@@ -1513,14 +1498,6 @@ pub(super) mod profile {
         Binding::InBuild,
         Binding::InBuild,
         Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::InBuild,
-        Binding::SourceUpper,
         Binding::InBuild,
         Binding::InBuild,
         Binding::InBuild,
@@ -1560,6 +1537,59 @@ pub(super) mod profile {
         Binding::InBuild,
         Binding::InBuild,
         Binding::InBuild,
+        Binding::SourceUpper,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::SourceUpper,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::SourceUpper,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
+        Binding::InBuild,
         Binding::InBuild,
         Binding::InBuild,
         Binding::InBuild,
@@ -1569,6 +1599,7 @@ pub(super) mod profile {
         Binding::InBuild,
         Binding::InBuild,
         Binding::SourceUpper,
+        Binding::InBuild,
         Binding::InBuild,
         Binding::InBuild,
         Binding::InBuild,
@@ -1681,6 +1712,7 @@ pub(super) mod profile {
         (fkr::BOUNDED_COEFFICIENTS_4) as u64, // s(BoundedCoefficients<4>) (kernel export structural::retained_resource)
         (fkr::BOUNDED_COEFFICIENTS_8) as u64, // s(BoundedCoefficients<8>) (kernel export structural::retained_resource)
         (size_of::<crate::retained_product::CaptureError>()) as u64, // s(CaptureError)
+        (size_of::<crate::retained_product::CaseSlot>()) as u64, // s(CaseSlot)
         (max_usize(fkr::SOURCE_CONSTRAINT, size_of::<(String, usize)>())) as u64, // s(ConstraintMapE) (C2 constraint map: the kernel Constraint or a support identity entry, the larger)
         (fkr::CONTRIBUTION) as u64, // s(ContributionE) (assemble.rs: Structure.items Vec<Contribution>)
         (fkr::CONTRIBUTION_ROUNDING) as u64, // s(ContributionRounding) (kernel export structural::retained_resource)
@@ -1748,6 +1780,7 @@ pub(super) mod profile {
         (size_of::<crate::PreviewSupport>()) as u64, // s(PreviewSupport)
         (size_of::<open_pipe_stress_primitive_loads::PrimitiveLoad>()) as u64, // s(PrimitiveLoad)
         (size_of::<crate::PreviewPrimitiveLoad>()) as u64, // s(PrimitiveLoadInput)
+        (size_of::<open_pipe_stress_frame_kernel::structural::retained_api::PrimitiveSource>()) as u64, // s(PrimitiveSource)
         (fkr::PRODUCT_MEMBER_FACTS) as u64, // s(ProductMemberFacts) (kernel export structural::retained_resource)
         (fkr::PRODUCT_RECIPE) as u64, // s(ProductRecipe) (kernel export structural::retained_resource)
         (fkr::PRODUCT_FINAL_ROW + fkr::PRODUCT_ROW_VERDICT) as u64, // s(ProductRow) (per final row: the descriptor ProductFinalRow and PP's verdict copy)
@@ -1835,6 +1868,7 @@ pub(super) mod profile {
         (fkr::WIDE_8) as u64, // s(Wide<8>) (kernel export structural::retained_resource)
         (fkr::PUBLISHED_VALUES_12) as u64, // s([PublishedValue;12]) (kernel export structural::retained_resource)
         (size_of::<[bool; 6]>()) as u64, // s([bool;6])
+        (size_of::<[usize; 2]>()) as u64, // s([usize;2])
         (size_of::<f64>()) as u64, // s(f64)
         (size_of::<u32>()) as u64, // s(u32)
         (size_of::<u64>()) as u64, // s(u64)
@@ -1929,6 +1963,7 @@ pub(super) mod profile {
         6912,
         11520,
         48,
+        1560,
         40,
         40,
         96,
@@ -1996,6 +2031,7 @@ pub(super) mod profile {
         400,
         120,
         256,
+        1024,
         512,
         16,
         96,
@@ -2083,6 +2119,7 @@ pub(super) mod profile {
         80,
         576,
         6,
+        16,
         8,
         4,
         8,
@@ -2095,52 +2132,52 @@ pub(super) mod profile {
         pub(crate) terms: &'static [(usize, u64)],
     }
     pub(crate) const FORMS: [Form; 47] = [
-        Form { name: "BODY", constant: 27280370, terms: &[(8, 30639), (222, 21865)] },
+        Form { name: "BODY", constant: 176510682, terms: &[(8, 91557), (224, 106209)] },
         Form { name: "HELPER_moving", constant: 8388608, terms: &[] },
-        Form { name: "INVOC", constant: 262272, terms: &[(8, 19662), (222, 32768)] },
-        Form { name: "NOTICE", constant: 718, terms: &[(93, 1), (208, 1)] },
-        Form { name: "NOTICE_moving", constant: 0, terms: &[(93, 9361)] },
-        Form { name: "O_base_dense", constant: 55367725, terms: &[(0, 1891), (5, 2115), (6, 2403), (8, 45463), (14, 8), (15, 98), (16, 5), (17, 1), (18, 8302), (19, 5), (21, 640), (22, 464), (24, 3), (25, 256), (26, 32), (31, 64), (32, 512), (33, 8192), (35, 64), (37, 192), (40, 28032), (43, 64), (46, 192), (48, 96), (49, 992), (51, 224), (52, 96), (53, 128), (55, 49552), (57, 49), (62, 4), (75, 448), (88, 47776), (93, 16384), (95, 576), (97, 480192), (101, 384), (102, 1024), (103, 512), (104, 32), (105, 6608), (110, 64), (111, 2048), (113, 16), (122, 32), (123, 32), (124, 256), (127, 262144), (130, 640), (134, 224), (135, 384), (136, 576), (137, 1344), (140, 1728), (147, 1), (148, 32), (149, 32), (150, 32), (151, 256), (152, 128), (162, 448), (163, 4), (164, 2048), (165, 512), (167, 4288), (168, 5248), (171, 32), (173, 2560), (174, 1), (175, 10191), (176, 1760), (177, 384), (182, 1891), (192, 32), (193, 32), (204, 4), (205, 42048), (206, 32), (207, 24), (208, 7815), (209, 32), (211, 256), (213, 32), (214, 8192), (217, 256), (222, 70102), (223, 52874), (224, 576), (225, 2304), (227, 576), (228, 2656), (238, 64), (243, 2558)] },
-        Form { name: "O_base_sparse", constant: 48247885, terms: &[(0, 1891), (5, 2115), (6, 2403), (8, 45463), (14, 8), (15, 98), (16, 5), (17, 1), (18, 8302), (19, 5), (21, 640), (22, 464), (24, 3), (25, 256), (26, 32), (31, 64), (32, 512), (33, 8192), (35, 64), (37, 192), (40, 28032), (43, 64), (46, 192), (48, 96), (49, 992), (50, 1152), (51, 1376), (52, 96), (53, 128), (55, 49552), (57, 49), (62, 4), (75, 448), (88, 47776), (93, 16384), (95, 576), (97, 93504), (101, 384), (102, 1024), (103, 512), (104, 32), (105, 6608), (110, 64), (111, 2048), (113, 16), (122, 32), (123, 32), (124, 256), (127, 262144), (130, 640), (134, 224), (135, 384), (136, 576), (137, 1152), (140, 1728), (147, 1), (148, 32), (149, 32), (150, 32), (151, 256), (152, 128), (162, 448), (163, 4), (164, 2048), (165, 512), (167, 4288), (168, 5248), (171, 32), (173, 2560), (174, 1), (175, 10191), (176, 1760), (177, 384), (182, 1891), (192, 32), (193, 32), (204, 4), (205, 42048), (206, 32), (207, 24), (208, 7815), (209, 32), (211, 256), (213, 32), (214, 4096), (217, 256), (222, 70102), (223, 47114), (224, 576), (227, 1152), (228, 3424), (238, 64), (243, 2556)] },
-        Form { name: "STAGED", constant: 93142218, terms: &[(8, 177), (93, 9361), (116, 1), (175, 2115), (208, 8460), (222, 160)] },
-        Form { name: "STATICS", constant: 369376, terms: &[(8, 5801), (222, 23712)] },
-        Form { name: "SUCC", constant: 122167538, terms: &[(8, 64583), (222, 79858)] },
+        Form { name: "INVOC", constant: 262272, terms: &[(8, 19662), (224, 32768)] },
+        Form { name: "NOTICE", constant: 2154, terms: &[(94, 3), (210, 3)] },
+        Form { name: "NOTICE_moving", constant: 0, terms: &[(94, 22911)] },
+        Form { name: "O_base_dense", constant: 163415409, terms: &[(0, 5673), (5, 6345), (6, 7209), (8, 57541), (14, 24), (15, 294), (16, 15), (17, 3), (18, 24906), (19, 15), (21, 1920), (22, 1232), (24, 9), (25, 640), (26, 96), (31, 64), (32, 1536), (33, 20480), (35, 192), (37, 576), (40, 84096), (43, 192), (46, 576), (48, 288), (49, 2976), (51, 608), (52, 224), (53, 384), (55, 148656), (57, 147), (62, 4), (75, 1344), (89, 143328), (94, 65536), (96, 1728), (98, 1440576), (102, 1152), (103, 3072), (104, 1472), (105, 32), (106, 19824), (111, 64), (112, 6144), (114, 16), (123, 96), (124, 96), (125, 768), (128, 786432), (131, 1920), (135, 672), (136, 1152), (137, 1728), (138, 4032), (141, 5184), (148, 3), (149, 32), (150, 32), (151, 32), (152, 768), (153, 384), (164, 1344), (165, 12), (166, 6144), (167, 1536), (169, 12864), (170, 15744), (173, 96), (175, 7680), (176, 3), (177, 30573), (178, 5280), (179, 1152), (184, 5673), (194, 96), (195, 32), (206, 12), (207, 126144), (208, 32), (209, 72), (210, 23047), (211, 96), (213, 256), (215, 96), (216, 24576), (219, 256), (224, 78338), (225, 158622), (226, 1728), (227, 6912), (229, 1728), (230, 7520), (240, 192), (246, 7162)] },
+        Form { name: "O_base_sparse", constant: 142055889, terms: &[(0, 5673), (5, 6345), (6, 7209), (8, 57541), (14, 24), (15, 294), (16, 15), (17, 3), (18, 24906), (19, 15), (21, 1920), (22, 1232), (24, 9), (25, 640), (26, 96), (31, 64), (32, 1536), (33, 20480), (35, 192), (37, 576), (40, 84096), (43, 192), (46, 576), (48, 288), (49, 2976), (50, 3456), (51, 4064), (52, 224), (53, 384), (55, 148656), (57, 147), (62, 4), (75, 1344), (89, 143328), (94, 65536), (96, 1728), (98, 280512), (102, 1152), (103, 3072), (104, 1472), (105, 32), (106, 19824), (111, 64), (112, 6144), (114, 16), (123, 96), (124, 96), (125, 768), (128, 786432), (131, 1920), (135, 672), (136, 1152), (137, 1728), (138, 3456), (141, 5184), (148, 3), (149, 32), (150, 32), (151, 32), (152, 768), (153, 384), (164, 1344), (165, 12), (166, 6144), (167, 1536), (169, 12864), (170, 15744), (173, 96), (175, 7680), (176, 3), (177, 30573), (178, 5280), (179, 1152), (184, 5673), (194, 96), (195, 32), (206, 12), (207, 126144), (208, 32), (209, 72), (210, 23047), (211, 96), (213, 256), (215, 96), (216, 12288), (219, 256), (224, 78338), (225, 141342), (226, 1728), (229, 3456), (230, 9824), (240, 192), (246, 7156)] },
+        Form { name: "STAGED", constant: 248544558, terms: &[(8, 531), (94, 22911), (117, 1), (177, 6345), (210, 25380), (224, 480)] },
+        Form { name: "STATICS", constant: 369376, terms: &[(8, 5801), (224, 23712)] },
+        Form { name: "SUCC", constant: 429924104, terms: &[(8, 182010), (224, 254328)] },
         Form { name: "T07_moving", constant: 1797413, terms: &[] },
-        Form { name: "T11", constant: 99904, terms: &[(34, 32), (36, 8), (37, 32), (63, 1), (85, 1), (114, 8), (117, 32), (128, 64), (135, 192), (138, 4), (153, 32), (191, 1), (194, 32), (196, 256), (197, 32), (198, 32), (199, 128), (200, 32), (201, 128), (202, 32), (218, 128), (239, 32), (241, 192)] },
-        Form { name: "T11_late_capture", constant: 16512, terms: &[(135, 192), (196, 256), (197, 32), (198, 32), (199, 128), (200, 32), (201, 128), (202, 32), (241, 192)] },
-        Form { name: "T11_ordinary_seed", constant: 10368, terms: &[(138, 4)] },
-        Form { name: "T12", constant: 531730, terms: &[(44, 128), (45, 128), (47, 256), (51, 4096), (58, 1), (59, 1), (77, 32), (78, 32), (86, 256), (87, 4096), (96, 4), (98, 32), (112, 8), (118, 32), (125, 128), (126, 32), (135, 384), (139, 1152), (166, 2048), (172, 8), (179, 672), (184, 32), (195, 32), (196, 704), (197, 128), (198, 112), (199, 384), (200, 112), (201, 352), (202, 112), (203, 128), (212, 32), (216, 4096), (228, 768), (241, 768), (242, 17920), (243, 41919)] },
-        Form { name: "T13", constant: 250566, terms: &[(9, 52), (10, 52), (28, 256), (29, 2048), (30, 2048), (38, 512), (39, 256), (41, 128), (42, 64), (61, 5), (64, 2048), (65, 512), (66, 256), (67, 256), (68, 256), (69, 256), (70, 256), (71, 256), (72, 256), (73, 256), (74, 3584), (77, 32), (79, 32), (80, 32), (81, 32), (82, 96), (83, 32), (84, 32), (109, 512), (119, 64), (120, 64), (121, 32), (129, 256), (131, 21248), (132, 10496), (133, 10496), (141, 256), (142, 512), (143, 256), (144, 4), (161, 4096), (166, 2048), (178, 1), (185, 1), (186, 2), (187, 1), (188, 1), (189, 2), (190, 1), (215, 20800), (220, 1792), (226, 1344), (228, 192), (229, 1), (230, 1), (231, 1), (232, 1), (233, 1), (234, 1), (235, 139584), (236, 75584), (237, 50976)] },
-        Form { name: "T14", constant: 2183568, terms: &[(56, 4096), (60, 1), (76, 32), (89, 4096), (91, 32), (94, 4096), (106, 4096), (108, 4096), (115, 32), (127, 262144), (155, 4096), (156, 4096), (157, 4096), (158, 8192), (160, 4096), (183, 2048), (210, 32), (235, 4608), (240, 4096)] },
-        Form { name: "T15", constant: 4096, terms: &[(54, 1), (90, 512), (99, 4096), (107, 2), (128, 64), (146, 32), (169, 1), (170, 1)] },
-        Form { name: "T16_P1", constant: 110858314, terms: &[(8, 71696), (22, 4096), (145, 1), (154, 2115), (180, 2115), (208, 4352), (222, 93306)] },
-        Form { name: "T16_P2", constant: 1121806665, terms: &[(8, 175860), (22, 4096), (145, 1), (154, 2115), (180, 2115), (208, 4352), (222, 522480)] },
-        Form { name: "T16_P3", constant: 428916421, terms: &[(8, 169252), (22, 4096), (145, 1), (154, 2115), (180, 2115), (208, 4384), (222, 269584)] },
-        Form { name: "T16_P4", constant: 184773892, terms: &[(8, 138614), (22, 4096), (145, 1), (154, 2115), (180, 2115), (208, 4096), (222, 138394)] },
-        Form { name: "T16_moving", constant: 189303281, terms: &[] },
-        Form { name: "T17_V1", constant: 271422963, terms: &[(8, 61278), (208, 288), (222, 153055)] },
-        Form { name: "T17_V2_clone", constant: 122167538, terms: &[(8, 64583), (222, 79858)] },
-        Form { name: "T17_V2_hash", constant: 1059200230, terms: &[(8, 101829), (208, 256), (222, 463944)] },
-        Form { name: "T17_V3", constant: 10771580, terms: &[(8, 28452), (208, 384), (222, 27392)] },
-        Form { name: "T17_V4", constant: 6920061, terms: &[(2, 4189), (3, 39), (8, 8037), (20, 83625), (21, 1024), (23, 12288), (181, 4096), (208, 51309), (222, 8460), (223, 8192)] },
-        Form { name: "T17_V5", constant: 124603799, terms: &[(2, 4189), (3, 39), (8, 66698), (20, 57880), (21, 1024), (23, 12288), (181, 4096), (208, 51309), (222, 79858), (223, 8192)] },
-        Form { name: "T17_V6", constant: 106446543, terms: &[(2, 4189), (3, 39), (8, 109536), (20, 57880), (21, 1024), (23, 12288), (181, 4096), (208, 51853), (222, 295945), (223, 8192)] },
+        Form { name: "T11", constant: 281152, terms: &[(34, 32), (36, 8), (37, 96), (63, 1), (85, 3), (86, 2), (115, 8), (118, 96), (129, 192), (136, 576), (139, 12), (155, 96), (193, 3), (196, 96), (198, 768), (199, 96), (200, 96), (201, 384), (202, 96), (203, 384), (204, 96), (220, 384), (241, 96), (242, 6), (244, 576)] },
+        Form { name: "T11_late_capture", constant: 49536, terms: &[(136, 576), (198, 768), (199, 96), (200, 96), (201, 384), (202, 96), (203, 384), (204, 96), (244, 576)] },
+        Form { name: "T11_ordinary_seed", constant: 31104, terms: &[(139, 12)] },
+        Form { name: "T12", constant: 1595190, terms: &[(44, 384), (45, 384), (47, 768), (51, 12288), (58, 3), (59, 3), (77, 96), (78, 96), (87, 768), (88, 12288), (97, 12), (99, 96), (113, 24), (119, 96), (126, 384), (127, 96), (136, 1152), (140, 3456), (168, 6144), (174, 24), (181, 2016), (186, 96), (197, 96), (198, 2112), (199, 384), (200, 336), (201, 1152), (202, 336), (203, 1056), (204, 336), (205, 384), (214, 96), (218, 12288), (230, 2304), (244, 2304), (245, 53760), (246, 125757)] },
+        Form { name: "T13", constant: 751698, terms: &[(9, 156), (10, 156), (28, 768), (29, 6144), (30, 6144), (38, 1536), (39, 768), (41, 384), (42, 192), (61, 15), (64, 6144), (65, 1536), (66, 768), (67, 768), (68, 768), (69, 768), (70, 768), (71, 768), (72, 768), (73, 768), (74, 10752), (77, 96), (79, 96), (80, 96), (81, 96), (82, 288), (83, 96), (84, 96), (110, 1536), (120, 192), (121, 192), (122, 96), (130, 768), (132, 63744), (133, 31488), (134, 31488), (142, 768), (143, 1536), (144, 768), (145, 12), (154, 3), (163, 12288), (168, 6144), (180, 3), (187, 3), (188, 6), (189, 3), (190, 3), (191, 6), (192, 3), (217, 62400), (222, 5376), (228, 4032), (230, 576), (231, 3), (232, 3), (233, 3), (234, 3), (235, 3), (236, 3), (237, 418752), (238, 226752), (239, 152928)] },
+        Form { name: "T14", constant: 6550704, terms: &[(56, 12288), (60, 3), (76, 96), (90, 12288), (92, 96), (95, 12288), (107, 12288), (109, 12288), (116, 96), (128, 786432), (157, 12288), (158, 12288), (159, 12288), (160, 24576), (162, 12288), (185, 6144), (212, 96), (237, 13824), (243, 12288)] },
+        Form { name: "T15", constant: 12288, terms: &[(54, 3), (91, 1536), (100, 12288), (108, 6), (129, 192), (147, 96), (171, 3), (172, 3)] },
+        Form { name: "T16_P1", constant: 301279080, terms: &[(8, 203587), (22, 8192), (146, 1), (156, 6345), (182, 6345), (210, 8448), (224, 247670)] },
+        Form { name: "T16_P2", constant: 3179483861, terms: &[(8, 492724), (22, 8192), (146, 1), (156, 6345), (182, 6345), (210, 8448), (224, 1436616)] },
+        Form { name: "T16_P3", constant: 2392798627, terms: &[(8, 494938), (22, 8192), (146, 1), (156, 6345), (182, 6345), (210, 8480), (224, 1143246)] },
+        Form { name: "T16_P4", constant: 807075258, terms: &[(8, 403382), (22, 8192), (146, 1), (156, 6345), (182, 6345), (210, 8192), (224, 505992)] },
+        Form { name: "T16_moving", constant: 505455619, terms: &[] },
+        Form { name: "T17_V1", constant: 1762234115, terms: &[(8, 183114), (210, 288), (224, 743463)] },
+        Form { name: "T17_V2_clone", constant: 429924104, terms: &[(8, 182010), (224, 254328)] },
+        Form { name: "T17_V2_hash", constant: 2802332626, terms: &[(8, 271350), (210, 256), (224, 1184952)] },
+        Form { name: "T17_V3", constant: 31959932, terms: &[(8, 84990), (210, 384), (224, 72448)] },
+        Form { name: "T17_V4", constant: 20638269, terms: &[(2, 10455), (3, 39), (8, 24111), (20, 204743), (21, 1024), (23, 24576), (183, 8192), (210, 153909), (224, 25380), (225, 32768)] },
+        Form { name: "T17_V5", constant: 437110973, terms: &[(2, 10455), (3, 39), (8, 188355), (20, 149064), (21, 1024), (23, 24576), (183, 8192), (210, 153909), (224, 254328), (225, 32768)] },
+        Form { name: "T17_V6", constant: 277198989, terms: &[(2, 10455), (3, 39), (8, 238583), (20, 149064), (21, 1024), (23, 24576), (183, 8192), (210, 154453), (224, 403223), (225, 32768)] },
         Form { name: "T17_moving_invocation", constant: 1179864, terms: &[] },
-        Form { name: "T17_moving_publication", constant: 189303281, terms: &[] },
-        Form { name: "T17_output", constant: 0, terms: &[(181, 4096), (221, 1)] },
-        Form { name: "T19", constant: 8192, terms: &[(219, 1)] },
-        Form { name: "T25_I1", constant: 1157082476, terms: &[(2, 2296), (4, 424), (8, 163110), (27, 16384), (62, 4), (113, 8), (147, 1), (148, 32), (149, 32), (150, 32), (152, 128), (175, 2115), (208, 2499), (217, 128), (222, 544711)] },
-        Form { name: "T25_I2", constant: 428699838, terms: &[(2, 2296), (4, 424), (8, 112938), (27, 16384), (62, 4), (113, 8), (147, 1), (148, 32), (149, 32), (150, 32), (152, 128), (175, 2115), (208, 2563), (217, 128), (222, 184736)] },
-        Form { name: "T25_I3", constant: 217461894, terms: &[(2, 2296), (4, 424), (8, 104507), (27, 16384), (62, 4), (113, 8), (147, 1), (148, 32), (149, 32), (150, 32), (152, 128), (175, 2115), (208, 2307), (217, 128), (222, 145340)] },
-        Form { name: "T25_S1", constant: 20350012, terms: &[(8, 39320), (21, 384), (22, 400), (25, 192), (26, 32), (27, 16384), (31, 64), (37, 64), (49, 256), (53, 32), (55, 16784), (62, 4), (75, 256), (97, 37248), (101, 256), (102, 256), (103, 64), (104, 32), (105, 3088), (110, 64), (113, 12), (124, 128), (130, 256), (134, 32), (135, 192), (137, 192), (147, 1), (148, 32), (149, 32), (150, 32), (151, 256), (152, 128), (167, 2144), (193, 32), (205, 12832), (206, 32), (208, 2272), (211, 256), (217, 192), (222, 65536), (223, 14154), (228, 640), (243, 256)] },
-        Form { name: "T25_S2", constant: 5594299, terms: &[(21, 384), (22, 320), (25, 128), (26, 32), (37, 64), (49, 64), (53, 32), (55, 16784), (101, 128), (102, 128), (103, 32), (105, 3088), (130, 128), (134, 32), (135, 192), (137, 192), (205, 8192), (208, 2080), (223, 13386), (228, 192)] },
-        Form { name: "T25_S3", constant: 78439670, terms: &[(1, 424), (4, 353), (7, 424), (8, 2034), (12, 353), (13, 353), (92, 2115), (159, 2048), (182, 2115), (222, 1152)] },
-        Form { name: "T25_S4", constant: 367697553, terms: &[(8, 384010), (11, 78), (159, 2048), (182, 2115), (208, 512), (222, 1051510), (228, 192)] },
-        Form { name: "T25_S5", constant: 70217356, terms: &[(8, 13718), (100, 1), (159, 2048), (182, 2115), (222, 9036)] },
-        Form { name: "T25_carried_case", constant: 45678294, terms: &[(8, 7369), (159, 2048), (182, 2115), (222, 4806)] },
-        Form { name: "T25_moving", constant: 189079500, terms: &[] },
-        Form { name: "TAV_W", constant: 1570041862, terms: &[] },
-        Form { name: "TAV_X", constant: 1440401002, terms: &[] },
+        Form { name: "T17_moving_publication", constant: 505455619, terms: &[] },
+        Form { name: "T17_output", constant: 0, terms: &[(183, 8192), (223, 1)] },
+        Form { name: "T19", constant: 8192, terms: &[(221, 1)] },
+        Form { name: "T25_I1", constant: 3093923008, terms: &[(2, 5852), (4, 1270), (8, 376467), (27, 16384), (62, 4), (114, 8), (148, 3), (149, 32), (150, 32), (151, 32), (153, 384), (177, 6345), (210, 6729), (219, 128), (224, 1296181)] },
+        Form { name: "T25_I2", constant: 1252731066, terms: &[(2, 5852), (4, 1270), (8, 248673), (27, 16384), (62, 4), (114, 8), (148, 3), (149, 32), (150, 32), (151, 32), (153, 384), (177, 6345), (210, 6793), (219, 128), (224, 397276)] },
+        Form { name: "T25_I3", constant: 619075938, terms: &[(2, 5852), (4, 1270), (8, 223395), (27, 16384), (62, 4), (114, 8), (148, 3), (149, 32), (150, 32), (151, 32), (153, 384), (177, 6345), (210, 6537), (219, 128), (224, 279088)] },
+        Form { name: "T25_S1", constant: 20579900, terms: &[(8, 39320), (21, 384), (22, 400), (25, 192), (26, 32), (27, 16384), (31, 64), (37, 64), (49, 256), (53, 32), (55, 16784), (62, 4), (75, 256), (98, 37248), (102, 256), (103, 256), (104, 64), (105, 32), (106, 3088), (111, 64), (114, 12), (125, 128), (131, 256), (135, 32), (136, 192), (138, 192), (148, 3), (149, 32), (150, 32), (151, 32), (152, 256), (153, 384), (169, 2144), (195, 32), (207, 12832), (208, 32), (210, 2272), (213, 256), (219, 192), (224, 65536), (225, 14154), (230, 640), (246, 256)] },
+        Form { name: "T25_S2", constant: 5594299, terms: &[(21, 384), (22, 320), (25, 128), (26, 32), (37, 64), (49, 64), (53, 32), (55, 16784), (102, 128), (103, 128), (104, 32), (106, 3088), (131, 128), (135, 32), (136, 192), (138, 192), (207, 8192), (210, 2080), (225, 13386), (230, 192)] },
+        Form { name: "T25_S3", constant: 78439670, terms: &[(1, 424), (4, 353), (7, 424), (8, 2034), (12, 353), (13, 353), (93, 2115), (161, 2048), (184, 2115), (224, 1152)] },
+        Form { name: "T25_S4", constant: 367697553, terms: &[(8, 384010), (11, 78), (161, 2048), (184, 2115), (210, 512), (224, 1051510), (230, 192)] },
+        Form { name: "T25_S5", constant: 70217356, terms: &[(8, 13718), (101, 1), (161, 2048), (184, 2115), (224, 9036)] },
+        Form { name: "T25_carried_case", constant: 137034882, terms: &[(8, 22107), (161, 6144), (184, 6345), (224, 14418)] },
+        Form { name: "T25_moving", constant: 504784788, terms: &[] },
+        Form { name: "TAV_W", constant: 4301774658, terms: &[] },
+        Form { name: "TAV_X", constant: 4009007112, terms: &[] },
         Form { name: "TXT_moving", constant: 2599962, terms: &[] },
     ];
     pub(crate) const F_BODY: usize = 0;
@@ -2295,7 +2332,7 @@ pub(super) mod profile {
     pub(crate) const DENSE: Option<(u64, usize)> = maximum(&phases_dense(&ATOM_VALUES));
     /// The Python chain's own evaluation (ASSUMED strides), for the transcription check.
     #[cfg(test)]
-    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(3437874885, "W3 publication (T16) with the staged copy"), (3457585333, "W3 publication (T16) with the staged copy")];
+    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(9521295491, "W3 publication (T16) with the staged copy"), (9580426835, "W3 publication (T16) with the staged copy")];
 }
 // ---- END GENERATED PROFILE ----
 
@@ -2349,7 +2386,9 @@ pub(super) struct AdmissionLaw {
 // path. The gates cross-check the derivation; they are not the memory bound.
 
 /// G-B facts: the live ordinary owners at the late old-source capture, borrowed,
-/// and the observer's own capture so far (RV84 S-6(c)).
+/// and the observer's own capture so far (RV84 S-6(c)). B1 SA: G-B reads the case's own
+/// loads from `case`, and the running total Σ_{i≤k} l_i from the capture's
+/// `late_loads_total` (ST's seam, added immediately before G-B at case k).
 pub(super) struct LateFacts<'a> {
     /// Borrowed for the gate's site; no G-B fact reads it (API_G4.md §2).
     #[allow(dead_code)]
@@ -2366,6 +2405,10 @@ pub(super) struct LateFacts<'a> {
 pub(super) struct CompleteFacts<'a> {
     pub(super) ordinary: &'a crate::MechanicsEnvelope,
     pub(super) capture: &'a crate::retained_product::ProductCapture,
+    /// B1 seam (PLAN_v2 §2.1; RV107 SF-4): the typed request's `model.load_cases.len()`,
+    /// which `permitted_run` reads before the request moves into the observed run. T-3
+    /// (e)'s requested count: `OrdinarySolveNotAttempted` reads it (B1 SA).
+    pub(super) requested_cases: usize,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum PhaseGate {
@@ -2380,6 +2423,8 @@ pub(super) enum PhaseFact {
     BuiltFrameElements,
     BuiltSupports,
     CaseLoads,
+    /// B1 SA: the running total of the requested cases' loads at G-B (Σ_{i≤k} l_i).
+    CaseLoadsTotal,
     Restrained,
     Springs,
     Materials,
@@ -2403,7 +2448,8 @@ pub(super) enum PhaseFact {
     OrdinarySeedBytes,
     RetainedErrorTextBytes,
     /// G6 (ROOT, C1:64, ROUTING:98): 1 when the ordinary route returned without
-    /// attempting the case's solve; its bound is 0, so G-C declines W1 there.
+    /// attempting a requested case's solve (B1 SA: T-3 (e), over every requested case);
+    /// its bound is 0, so G-C declines W1 there.
     OrdinarySolveNotAttempted,
 }
 /// A gate's refusal: the gate, the first fact above its bound, the observed
@@ -2420,7 +2466,7 @@ pub(super) struct PhaseObservation {
     pub(super) fact: PhaseFact,
     pub(super) observed: u64,
 }
-pub(super) const LATE_FACTS: usize = 9;
+pub(super) const LATE_FACTS: usize = 10;
 pub(super) const COMPLETE_FACTS: usize = 19;
 /// The bound for each fact, in `late_observations`/`complete_observations` order.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -2502,7 +2548,10 @@ fn diagnostic_text(d: &crate::Diagnostic) -> Bytes {
 fn capture_bytes(capture: &crate::retained_product::ProductCapture) -> u64 {
     capture.adapter.counts.get()[crate::retained_product::AdapterEvent::RustCapacityBytes as usize]
 }
-/// C-N4: the text owned by `error`, `observable_error` and `g5a_error`.
+/// C-N4: the text owned by `error`, `observable_error` and `g5a_error`, over every requested
+/// case's slot (B1 SA after SP's T-2; ROOT's note after R3′): the case in the capture's own
+/// fields and, at c ≥ 2, the earlier cases' parked slots (`parked_cases()`). Its bound is
+/// C·(3m + 1)·Text(err), one retained error set per case (I82's assumption; phase 4 checks it).
 fn retained_error_text(capture: &crate::retained_product::ProductCapture) -> Bytes {
     use crate::retained_product::CaptureError;
     let text = |e: &Option<CaptureError>| match e {
@@ -2510,7 +2559,8 @@ fn retained_error_text(capture: &crate::retained_product::ProductCapture) -> Byt
         _ => 0,
     };
     // `G5aFailure` holds only `&'static str` and integer facts.
-    Bytes::ZERO.add(text(&capture.error)).add(text(&capture.observable_error))
+    let own = Bytes::ZERO.add(text(&capture.error)).add(text(&capture.observable_error));
+    capture.parked_cases().iter().fold(own, |sum, slot| sum.add(text(&slot.error)).add(text(&slot.observable_error)))
 }
 pub(super) fn late_observations(f: &LateFacts<'_>) -> [PhaseObservation; LATE_FACTS] {
     use PhaseFact as P;
@@ -2521,6 +2571,7 @@ pub(super) fn late_observations(f: &LateFacts<'_>) -> [PhaseObservation; LATE_FA
         o(P::BuiltFrameElements, count(f.built.frame_elements.len())),
         o(P::BuiltSupports, count(f.built.supports.len())),
         o(P::CaseLoads, count(f.case.primitive_loads.len())),
+        o(P::CaseLoadsTotal, count(f.capture.late_loads_total)),
         o(P::Restrained, count(f.restrained.len())),
         o(P::Springs, count(f.springs.len())),
         o(P::Materials, count(f.materials.len())),
@@ -2559,7 +2610,7 @@ pub(super) fn complete_observations(f: &CompleteFacts<'_>) -> [PhaseObservation;
         o(P::ObservationBytes, capture_bytes(f.capture)),
         o(P::OrdinarySeedBytes, seeds.get()),
         o(P::RetainedErrorTextBytes, retained_error_text(f.capture).get()),
-        o(P::OrdinarySolveNotAttempted, u64::from(!ordinary_solve_attempted(f.capture))),
+        o(P::OrdinarySolveNotAttempted, u64::from(!ordinary_solve_attempted(f.capture, f.requested_cases))),
     ]
 }
 /// G6 (ROOT's ruling on D1's blocked ordinary runs; C1:64 declines W1 before execution,
@@ -2574,9 +2625,13 @@ pub(super) fn complete_observations(f: &CompleteFacts<'_>) -> [PhaseObservation;
 /// before the attempt (validation's `blocked_envelope`s in
 /// `run_linear_static_preview_observed`; the load-input, ledger and reduction exits of
 /// `solve_load_case_observed`, :3918, :4011, :4042, :4098) leaves no seed or a seed
-/// with `initial` None. D1.4 admits one case, so one seed. Allocates nothing.
-pub(super) fn ordinary_solve_attempted(capture: &crate::retained_product::ProductCapture) -> bool {
-    !capture.ordinary.is_empty() && capture.ordinary.iter().all(|seed| seed.initial.is_some())
+/// with `initial` None. B1 SA (T-3 (e); DESIGN_v2 §1.2, RV105 N-1): the fact counts the
+/// `requested` cases (`CompleteFacts::requested_cases`): it holds exactly when at least one
+/// case is requested, the capture has one seed per requested case, and every seed's
+/// `initial` is set. A run that blocks at case k < c − 1 leaves the later cases unseeded,
+/// so it is not attempted, although every seed it left is. Allocates nothing.
+pub(super) fn ordinary_solve_attempted(capture: &crate::retained_product::ProductCapture, requested: usize) -> bool {
+    requested >= 1 && capture.ordinary.len() == requested && capture.ordinary.iter().all(|seed| seed.initial.is_some())
 }
 /// The first observation above its bound. Pure.
 pub(super) fn check_phase<const N: usize>(gate: PhaseGate, observations: &[PhaseObservation; N], caps: &[u64; N]) -> Result<(), PhaseRefusal> {
@@ -2625,38 +2680,49 @@ pub(super) const fn push_capacity(h: u64) -> u64 {
     }
     c
 }
-/// P_final ≤ 7n + 51m + 8g + 3 (DOMAIN.md §2, derived).
+/// P_final ≤ 7n + 51m + 8g + 3 (DOMAIN.md §2, derived): one case's result rows.
 pub(super) const P_FINAL: u64 = (7 * caps::NODES + 51 * caps::MEMBERS + 8 * caps::SUPPORTS + 3) as u64;
 /// The gate bounds. Count bounds are D1's caps; text bounds are 2× the G4 text
 /// atoms (exact-capacity copies at most double: API_G4.md §2); the preview tree
 /// bounds are ordinary_caps.py's PREVIEW facts at the caps. The byte bounds (T11, T11
-/// without its late capture, T11.4) are the generated profile's in-build forms.
+/// without one case's late capture, T11.4) are the generated profile's in-build forms.
+/// B1 SQ (RV112 SF-1): G-B at case k reads the capture's cumulative tally, which already holds
+/// cases 0…k−1's late captures, so its bound is T11 less **one** case's late capture:
+/// `F_T11_LATE_CAPTURE / C`. The generator prices the late capture per requested case, so the
+/// form is exactly C times one case's (G5 checks the c = 1 and c = C forms; a law test checks
+/// every coefficient is a multiple of C).
+/// B1 SA (option S3; I82 STUDY §4.3; PLAN_v2 §2.3), at C = `LOAD_CASES`: G-B bounds each
+/// case's loads by l and their running total by L; G-C bounds the result rows, their
+/// capacity and text by C·P_final (RV107 N-13), the contract-evidence facts by C times
+/// the per-case preview facts, and the retained error text by C·(3m + 1)·Text(err) (I82's
+/// assumption, checked against SP's producer in phase 4). The diagnostic, string and byte
+/// bounds read the profile's text atoms and forms, which SQ regenerates at C = 3.
 pub(super) const fn phase_caps() -> PhaseCaps {
     use caps::*;
-    let (n, m, g) = (NODES as u64, MEMBERS as u64, SUPPORTS as u64);
+    let (n, m, g, c) = (NODES as u64, MEMBERS as u64, SUPPORTS as u64, LOAD_CASES as u64);
     let k = if 6 * n < RESTRAINTS as u64 { 6 * n } else { RESTRAINTS as u64 };
     PhaseCaps {
-        late: [n, m, m, g, LOADS as u64, k, SPRINGS as u64, 2 * MATERIALS as u64,
-            profile_bytes(profile::F_T11).saturating_sub(profile_bytes(profile::F_T11_LATE_CAPTURE))],
+        late: [n, m, m, g, LOADS as u64, TOTAL_LOADS as u64, k, SPRINGS as u64, 2 * MATERIALS as u64,
+            profile_bytes(profile::F_T11).saturating_sub(profile_bytes(profile::F_T11_LATE_CAPTURE) / c)],
         complete: [
-            P_FINAL,
-            push_capacity(P_FINAL),
-            2 * P_FINAL * text_atoms::ROW,
+            c * P_FINAL,
+            push_capacity(c * P_FINAL),
+            2 * c * P_FINAL * text_atoms::ROW,
             text_atoms::D_ENV,
             push_capacity(text_atoms::D_ENV),
             2 * text_atoms::DIAG_ENV,
             text_atoms::L_PUB,
             text_atoms::L_DIAGID,
             0,
-            3 * m + 2 * g,
-            3 + m + g,
-            9 + 15 * m + 2 * g,
-            m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64),
-            (9 + 15 * m + 2 * g) * 40,
+            c * (3 * m + 2 * g),
+            c * (3 + m + g),
+            c * (9 + 15 * m + 2 * g),
+            c * (m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64)),
+            c * ((9 + 15 * m + 2 * g) * 40),
             0,
             profile_bytes(profile::F_T11),
             profile_bytes(profile::F_T11_ORDINARY_SEED),
-            (3 * m + 1) * text_atoms::ERR,
+            c * (3 * m + 1) * text_atoms::ERR,
             0,
         ],
     }
@@ -2679,7 +2745,8 @@ pub(super) struct PhaseBudgets {
     /// B-5: the precommit reader's peak, and its process-lifetime statics.
     pub(super) precommit_reader_bytes: u64,
     pub(super) reader_statics_bytes: u64,
-    /// B-6: the N1 notice reserve, made before W1 starts.
+    /// B-6: the N1 notice reserve, made before W1 starts (B1 SA: one per case in A, so
+    /// at most C reserves; I82 STUDY §4.3).
     pub(super) notice_reserve_bytes: u64,
     /// B-7: fallible allocations after the first mutation of a published owner.
     pub(super) fallible_allocations_after_first_mutation: u32,
@@ -2707,7 +2774,7 @@ static PHASE_BUDGETS: PhaseBudgets = PhaseBudgets {
     precommit_invocation_bytes: profile_bytes(profile::F_INVOC),
     precommit_reader_bytes: checked_or_zero(profile::t17(&profile::ATOM_VALUES)),
     reader_statics_bytes: profile_bytes(profile::F_STATICS),
-    notice_reserve_bytes: NOTICE_RESERVE_BYTES,
+    notice_reserve_bytes: NOTICE_RESERVE_BYTES * caps::LOAD_CASES as u64,
     fallible_allocations_after_first_mutation: 0,
     thread_heap_bytes: (8 << 10) + std::mem::size_of::<crate::RetainedPreviewOutput>() as u64,
     reserved_stack_bytes: RESERVED_STACK_BYTES as u64,
@@ -2971,14 +3038,20 @@ pub(super) mod tests {
     #[test]
     fn actual_retained_entry_dispatches_ordinary_once() {
         // G6: the counted dispatch is the unpermitted one; the milestone is made out of D1
-        // (a second load case, D1.4) so no build admits it. The permitted path's single
-        // ordinary run (U3's B-1) is not counted by this hook (QUALIFICATION.md §7).
+        // (B1, PLAN_v2 §2.3 and RV107 SF-2: C + 1 load cases, D1.4) so no build admits it.
+        // The permitted path's single ordinary run (U3's B-1) is not counted by this hook
+        // (QUALIFICATION.md §7).
         let mut raw: Value = serde_json::from_str(include_str!(
             "../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json"
         ))
         .unwrap();
         let case = raw["model"]["load_cases"][0].clone();
-        raw["model"]["load_cases"].as_array_mut().unwrap().push(case);
+        for ordinal in 2..=caps::LOAD_CASES + 1 {
+            let mut copy = case.clone();
+            copy["id"] = Value::String(format!("case-{ordinal}"));
+            raw["model"]["load_cases"].as_array_mut().unwrap().push(copy);
+        }
+        assert_eq!(raw["model"]["load_cases"].as_array().unwrap().len(), caps::LOAD_CASES + 1);
         for mode in [
             crate::PreviewSolverMode::SparseInteractive,
             crate::PreviewSolverMode::DenseScrutiny,
@@ -2991,6 +3064,11 @@ pub(super) mod tests {
             // any other build is Stale. Either way the ordinary run is dispatched once.
             let expected = build_status().map_or_else(|status| status, |_| ProfileStatus::Registered);
             assert_eq!(result.admission().unwrap().profile, expected);
+            assert_eq!(
+                result.admission().unwrap().law().domain,
+                Some(AdmissionRefusal::Family(D1Clause::Invocation, FamilyFact::LoadCases)),
+                "C + 1 cases: outside D1 at D1.4"
+            );
             DISPATCH_COUNT.with(|c| {
                 assert_eq!(c.get(), Some(1));
                 c.set(None);

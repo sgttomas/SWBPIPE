@@ -174,7 +174,7 @@ fn u2_foreign_owner_refused() {
 #[test]
 fn u1_checked_record_work_honours_the_latch() {
     let (candidate, _, _) = milestone_candidate(PreviewSolverMode::SparseInteractive);
-    let k::ExecutionOutcome::Selected(owner) = &candidate.capture().native.as_ref().unwrap().1.outcome else { panic!("selected") };
+    let k::ExecutionOutcome::Selected(owner) = &candidate.capture().native_pair().unwrap().1.outcome else { panic!("selected") };
     for record in &owner.evidence().attempts {
         let (values, failures) = wire::test_record_work(record);
         assert!(failures.is_empty(), "exact milestone record: {failures:?}");
@@ -234,7 +234,7 @@ fn u1_stage_slots_require_an_exact_status() {
 #[test]
 fn u1_conservation_checked_before_emission() {
     let (candidate, _, _) = milestone_candidate(PreviewSolverMode::SparseInteractive);
-    let (inv, case) = candidate.capture().native.as_ref().unwrap();
+    let (inv, case) = candidate.capture().native_pair().unwrap();
     let k::ExecutionOutcome::Selected(owner) = &case.outcome else { panic!("selected") };
     let run = &inv.runs()[case.run];
     let records = &owner.evidence().attempts;
@@ -518,7 +518,7 @@ fn u1g2_d38_failure_before_any_run() {
         let mut prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|e| panic!("{:?}", e.capture.error));
         prepared.test_capture_mut().source = None;
         assert!(prepared.solve_native().is_err());
-        assert!(prepared.capture().native.is_none(), "precondition: no kernel schedule ran");
+        assert!(prepared.capture().native_pair().is_none(), "precondition: no kernel schedule ran");
         let successor = wire::serialize_unavailable(wire::Refused::Native(&prepared), &capture).unwrap_or_else(|f| panic!("{f:?}"));
         let b = body(&successor);
         let (case, attempt) = (&b["cases"][0], &b["product_attempts"][0]);
@@ -574,7 +574,7 @@ fn u2_failure_path_foreign_owner_refused() {
 #[test]
 fn u1g2_failed_verification_keeps_its_reason() {
     let (candidate, _, _) = milestone_candidate(PreviewSolverMode::SparseInteractive);
-    let k::ExecutionOutcome::Selected(owner) = &candidate.capture().native.as_ref().unwrap().1.outcome else { panic!("selected") };
+    let k::ExecutionOutcome::Selected(owner) = &candidate.capture().native_pair().unwrap().1.outcome else { panic!("selected") };
     let mut records = owner.evidence().attempts.clone();
     assert!(matches!(records[1].role, k::AttemptRole::Verification), "precondition: a candidate/verification pair");
     let (completed, _) = wire::test_logical(&records);
@@ -594,7 +594,7 @@ fn u1g2_failed_verification_keeps_its_reason() {
 #[test]
 fn u1g2_kernel_terminals() {
     let (candidate, _, _) = milestone_candidate(PreviewSolverMode::SparseInteractive);
-    let outcome = &candidate.capture().native.as_ref().unwrap().1.outcome;
+    let outcome = &candidate.capture().native_pair().unwrap().1.outcome;
     let k::ExecutionOutcome::Selected(owner) = outcome else { panic!("selected") };
     let records = owner.evidence().attempts.clone();
     assert_eq!(wire::test_kernel_terminal(outcome), (records.len(), json!({"kind":"selected","reason":null})));
@@ -705,7 +705,7 @@ fn u1g2_run_and_body_charge_conservation_negatives() {
     let (ok, failures) = wire::test_after_conserved(5, 7, 13);
     assert!(!ok && failures.is_empty(), "R08: the after check fails without an encoder fault");
     let (sparse, _, _) = milestone_candidate(PreviewSolverMode::SparseInteractive);
-    let (inv, case) = sparse.capture().native.as_ref().unwrap();
+    let (inv, case) = sparse.capture().native_pair().unwrap();
     let run = &inv.runs()[case.run];
     assert!(wire::test_invocation_arrays(inv, run).is_ok(), "own run");
     // An invocation whose meter never charged this run (same policy limit).

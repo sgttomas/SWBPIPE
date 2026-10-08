@@ -123,7 +123,7 @@ fn summary_coverage<'a>(trace:&PreparedTrace,capture:&'a p::ProductCapture,resul
         || trace.stages[Stage::Certificate as usize]==StageState::NotEntered || trace.checks[0]==CheckState::NotEntered {
         return Err(TraceProjectionError::StageConsistency);
     }
-    let Some((_,case))=capture.native.as_ref() else {return Err(TraceProjectionError::StageConsistency)};
+    let Some(case)=capture.native.as_ref() else {return Err(TraceProjectionError::StageConsistency)};
     let k::ExecutionOutcome::Selected(owner)=&case.outcome else {return Err(TraceProjectionError::StageConsistency)};
     match proof.check_summary_coverage(owner,&mut costs.kernel) {
         Ok(())=>Ok(Some(SummaryCoverage::Complete(CompleteCoverage{entries}))),
@@ -174,7 +174,7 @@ pub(super) fn project<'a>(trace:&'a PreparedTrace,capture:&'a p::ProductCapture,
     // RV77-N4 (I61 U2, failure path): proof work, certified or refused, binds
     // structurally to this capture's selected owner through the proof anchor.
     if let Some(work)=proof {
-        let owner=match capture.native.as_ref().map(|(_,case)|&case.outcome) {
+        let owner=match capture.native.as_ref().map(|case|&case.outcome) {
             Some(k::ExecutionOutcome::Selected(owner))=>owner,_=>return Err(TraceProjectionError::WorkAssociation)};
         if !work.owner_matches(owner) {return Err(TraceProjectionError::WorkAssociation);}
     }
@@ -191,7 +191,7 @@ pub(super) fn project<'a>(trace:&'a PreparedTrace,capture:&'a p::ProductCapture,
     Ok(PreparedAttemptView {case:&capture.case_id,result,stages:&trace.stages,old_coverage:trace.old_coverage,
         old_vector_swapped:trace.old_vector_swapped,members:&trace.members,preparation_work,
         operational_old:old,operational_new:new,prepared_source:if trace.source_ready{capture.source.as_ref()}else{None},
-        native_run:capture.native.as_ref().map(|(_,c)|c.run),proof,summary_coverage,proof_ready:trace.proof_ready,
+        native_run:capture.native.as_ref().map(|c|c.run),proof,summary_coverage,proof_ready:trace.proof_ready,
         checks:[certificate,observable,g5a],numeric_failure:capture.numeric_failure.as_ref(),capture_failure:capture.error.as_ref(),
         completion,adapter,overlay_work:overlay,g5a_work:&capture.g5a_work,
         trace_costs:&trace.costs,private_commit_precharged:trace.private_commit_precharged,private_committed:trace.private_committed})

@@ -1,5 +1,7 @@
-//! Shared synthetic statement controls plus listed producer-solved bases (07l); no native
-//! Current evidence. These do not establish execution.
+//! Shared statement controls: synthetic bases, plus the two listed producer-solved L = 0
+//! bases (07l), which the Direct entry published in the registered dev/test build (their own
+//! `provenance` and `qualification` say so), and B1's reader-local n-case receipts derived
+//! from the synthetic bases. Reading them establishes no execution; no native Current evidence.
 use open_pipe_stress_result_export::retained_precision as rp;
 use serde_json::Value;
 fn corpus() -> Value {
@@ -273,16 +275,565 @@ fn shared_rehashed_first_failure_mutations() {
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
 
+/// Every shared mutation's id, in corpus order (07m's 294, then 07n's 240), pinned here
+/// so that `slice_outcomes` checks each slice's entries by id and position (I83 §7
+/// item 8; B1 SC item 12): a reorder of same-code entries inside a slice, which the
+/// code tally cannot see, fails. Generated from 07n (sha256 `ea113e7b…e283`).
+const MUTATION_IDS: [&str; 534] = [
+    "method_null",
+    "method_number",
+    "method_alternate_metadata",
+    "method_alternate_container",
+    "method_empty",
+    "method_wrong",
+    "method_missing",
+    "nonfinite_then_method",
+    "shape_then_encoding",
+    "negative_zero_counter",
+    "coverage_then_method",
+    "member_prefix_coverage",
+    "diagnostic_then_method",
+    "native_work",
+    "product_new_not_ready",
+    "body_scale",
+    "section_echo",
+    "absolute_bound",
+    "input_dof",
+    "old_inputs_must_bind_old_J",
+    "new_stiffness_must_bind_C2",
+    "bad_invocation_digest",
+    "v1_relabel",
+    "native_source_digest_rehashed",
+    "native_stiffness_digest_rehashed",
+    "physical_residual_basis",
+    "physical_stop_stage_partition",
+    "negative_zero_scale_with_wrong_method",
+    "shared_stage_projection_preserves_total",
+    "verification_own_stage_projection_preserves_total",
+    "coverage_member_missing",
+    "coverage_object_not_array",
+    "coverage_entry_null",
+    "coverage_stop_three",
+    "coverage_stop_five",
+    "coverage_stop_numeric_flag",
+    "coverage_stop_null_flag",
+    "coverage_has_data_numeric",
+    "coverage_has_data_null",
+    "coverage_has_data_missing",
+    "coverage_unknown_field",
+    "coverage_body_string",
+    "coverage_shape_then_duplicate",
+    "coverage_defect_with_null_method",
+    "coverage_body_negative_zero",
+    "coverage_body_fraction",
+    "coverage_body_negative",
+    "coverage_encoding_then_duplicate",
+    "coverage_empty_array",
+    "coverage_duplicate_body",
+    "coverage_foreign_body",
+    "coverage_extra_body",
+    "coverage_duplicate_then_flag_and_method",
+    "attempt_owner_only",
+    "coverage_null_on_ready",
+    "coverage_null_then_method",
+    "coverage_has_data_false",
+    "certified_bound_unbound_drop_existing_g5",
+    "coverage_drop_certified_bound",
+    "coverage_no_data_claim_with_free_loads",
+    "coverage_stop_forbidden_entry",
+    "coverage_stop_uncoupled_consistent_roster",
+    "stop_rule_drop_required_zero",
+    "stop_rule_duplicate_zero",
+    "estimate_drop_required_zero",
+    "estimate_forbidden_translation_zero",
+    "charge_drop_required_zero",
+    "charge_follows_stop_below_p512",
+    "certified_bound_duplicate",
+    "coverage_flag_defect_then_method",
+    "nodata_forbidden_stop_zero",
+    "nodata_forbidden_estimate_zero",
+    "nodata_forbidden_charge_zero",
+    "nodata_forbidden_certified_bound",
+    "nodata_has_data_without_bound",
+    "nodata_estimate_coupling_L_nonzero",
+    "coverage_flag_defect_then_body_scale",
+    "layout_force_row_input_derived",
+    "layout_constrained_displacement_not_input_derived",
+    "layout_nonzero_prescription",
+    "coverage_null_and_product_work",
+    "product_work_only",
+    "native_work_then_coverage_null",
+    "layout_row_relabelled",
+    "layout_row_dropped",
+    "layout_rows_reordered",
+    "layout_row_foreign_body",
+    "nodata_empty_coverage",
+    "verification_bound_duplicate_entry",
+    "verification_bound_missing_entry",
+    "nodata_verification_bound_nonnull",
+    "schedule_fresh_first_p256",
+    "cancelled_no_data_claim",
+    "cancelled_drop_B_only",
+    "unavailable_certificate_passed_coverage_null",
+    "unavailable_empty_coverage",
+    "unavailable_no_data_claim_with_free_loads",
+    "unavailable_stop_uncoupled",
+    "unavailable_layout_relabelled",
+    "unavailable_verification_bound_duplicate",
+    "cert_failed_before_summary_g5a_passed",
+    "lane_k_failed_with_coverage",
+    "maxima_abandoned_with_coverage",
+    "prefix_captured_with_members",
+    "two_body_swap_has_data",
+    "two_body_swap_has_data_with_rosters",
+    "two_body_swap_stop_only",
+    "two_body_body_order_swapped",
+    "two_body_missing_body",
+    "two_body_resolution_order_swapped",
+    "p512_floor_not_phi",
+    "p512_positive_floor_forces_stop",
+    "p512_charge_follows_estimate",
+    "p512_floor_null",
+    "p512_zero_floor_body_given_positive_floor",
+    "copy_flags_into_loaded",
+    "rebind_source_run_only",
+    "cross_case_gate_order_selected",
+    "cross_case_gate_order_unavailable",
+    "unavailable_record_resolution_duplicate",
+    "unavailable_record_theta_duplicate",
+    "skip_after_failed_candidate_reused",
+    "skip_after_failed_candidate_wrong_slot",
+    "failed_build_reason_mismatch",
+    "failed_slot_not_cached",
+    "failed_verification_reused_as_candidate",
+    "failed_verification_one_slot",
+    "cached_failed_slot_rebuilt",
+    "corrections_above_three",
+    "group_sources_out_of_order",
+    "w2_published_without_initial_failure",
+    "legacy_source_dangling_diagnostic",
+    "formation_d5_dangling_diagnostic",
+    "native_stage_disagrees_with_run",
+    "conversion_subnormal_kind_normal_bits",
+    "conversion_normal_kind_subnormal_bits",
+    "conversion_ready_underflow_nonzero_row",
+    "conversion_ready_overflow",
+    "conversion_subnormal_metadata_negative_zero",
+    "g7_maximum_off_enclosure",
+    "row_index_foreign_support_norm",
+    "row_index_missing_row",
+    "row_index_unsorted",
+    "row_index_ready_subset",
+    "maps_extra_support_id",
+    "maps_member_ends_swapped",
+    "maxima_abandoned_separate_failure",
+    "certificate_check_wrong_wrapper",
+    "certificate_stage_check_disagree",
+    "stage_entered_after_failure",
+    "ceiling_before_last_slot",
+    "escalating_end_not_a_terminal_translation",
+    "terminal_stop_wrong_translation",
+    "terminal_refusal_wrong_kind",
+    "idle_budget_below_invocation_limit",
+    "idle_ready_group_not_ledger_refusal",
+    "work_accounting_prior_not_on_wire",
+    "refused_member_conversion_kind_bits",
+    "prefix_attached_old_input_unbound",
+    "report_reference_unrelated_diagnostic",
+    "distinct_stiffness_merged_group",
+    "named_point_value_mismatch",
+    "interpolation_target_mismatch",
+    "work_accounting_after_escalating_stop",
+    "idle_work_accounting_run",
+    "work_accounting_at_last_slot",
+    "mm_unnormalized_coordinate",
+    "interpolation_missing_alpha",
+    "interpolation_duplicate_temperature",
+    "interpolation_target_below_range",
+    "interpolation_target_at_lower_point",
+    "interpolation_target_at_upper_point",
+    "interpolation_target_above_range",
+    "adapter_fault_present",
+    "accounting_cause_without_fault",
+    "scalar_trace_lost_unavailable",
+    "work_accounting_cause_exact_status",
+    "idle_budget_not_exhausted_no_group",
+    "execution_order_swapped",
+    "run_id_not_execution_position",
+    "old_members_reordered",
+    "complete_old_short_of_source",
+    "unsourced_old_member_noncontiguous",
+    "complete_old_longer_than_source",
+    "unavailable_source_backref_foreign",
+    "attempt_basis_not_ordinary",
+    "native_error_with_selected_run",
+    "group_call_out_of_range",
+    "escalating_failed_verification_pass_entered",
+    "stop_rule_quantity_other_body",
+    "candidate_record_with_verification",
+    "ordinary_diagnostic_ref_duplicate",
+    "ordinary_diagnostic_ref_dangling",
+    "ordinary_dangling_plus_adapter_fault",
+    "selected_case_ordinary_checks_passed",
+    "section_accounting_exact_status",
+    "nested_stop_work_accounting_exact_status",
+    "view_work_fault_exact_status",
+    "old_operational_accounting_not_lost",
+    "interpolation_target_at_lower_point_equal_e",
+    "interpolation_target_below_range_equal_e",
+    "interpolation_target_at_upper_point_equal_e",
+    "interpolation_target_above_range_equal_e",
+    "source_preparation_null",
+    "run_ref_null_with_case_run",
+    "preparation_error_with_selected_run",
+    "prepared_failure_cause_without_own_attempt",
+    "prepared_failure_cause_foreign_attempt",
+    "reason_code_phase_mismatch_on_facade",
+    "reason_code_phase_mismatch_on_preparation",
+    "rejected_verification_failed_with_completed_verification",
+    "rejected_attempt_with_verified_record",
+    "ordinary_attempt_order_swapped",
+    "record_index_not_contiguous",
+    "selected_verification_record_not_verified",
+    "projection_conversions_count_mismatch",
+    "preparation_conversion_count_mismatch",
+    "retained_diagnostic_names_unrequested_case",
+    "g0_case_limit_threshold",
+    "g0_invocation_limit_threshold",
+    "g0_receipt_version_not_1",
+    "g0_canonicalization_profile",
+    "g0_retained_precision_absent",
+    "g0_receipt_body_absent",
+    "refusal_work_accounting_variant",
+    "refusal_count_range_variant",
+    "unavailable_source_ref_absent",
+    "source_decline_with_source_ref",
+    "rcond_label_plus_adapter_fault",
+    "native_attempt_defect_after_native_work_defect",
+    "dangling_candidate_record",
+    "dangling_build_ref",
+    "dangling_ordinary_attempt_ref",
+    "g5b_zero_section_area",
+    "ordinary_dangling_ref_plus_source_preparation_null",
+    "g5b_zero_section_length",
+    "unavailable_attempt_under_facade_failure_cause",
+    "unavailable_attempt_under_source_error_cause",
+    "preparation_error_selected_run_under_receipt_cause",
+    "selected_case_without_c3_attempt",
+    "vbuild_on_escalating_failed_verification",
+    "dangling_attempt_source_ref",
+    "source_member_map_kernel_id_noncanonical",
+    "forged_publication_hash",
+    "forged_preparation_hash",
+    "source_identity_stale_receipt_rehashed",
+    "forged_receipt_hash",
+    "g5a_sanity_margin_between_2m40_and_2m39",
+    "idle_run_exhausted_meter_chain_broken",
+    "verification_estimate_quantity_not_in_layout",
+    "charge_quantity_not_in_layout",
+    "publication_enclosure_quantity_not_in_layout",
+    "empty_body_inventory",
+    "verification_summary_on_escalating_failed_verification",
+    "model_schema_version_0_4_0_rejected",
+    "forged_source_identity_float_source_ref",
+    "verification_estimate_names_translation_row",
+    "ready_attempt_under_facade_failure_cause",
+    "ready_attempt_under_prepared_product_failure",
+    "g0_receipt_version_non_integral",
+    "g0_case_limit_non_integral",
+    "g0_invocation_limit_non_integral",
+    "verification_estimate_names_rotation_row",
+    "g5a_error_with_g5a_not_entered",
+    "observable_error_with_observables_not_entered",
+    "numeric_error_with_checks_not_entered",
+    "proof_error_with_certificate_passed",
+    "values_error_with_values_completed",
+    "f5_ordinary_refs_omit_naming_diagnostic",
+    "f5_ordinary_refs_out_of_envelope_order",
+    "f5_ordinary_refs_list_retained_precision_m09",
+    "f5_ordinary_refs_list_invocation_level_m10",
+    "f5_ordinary_refs_list_other_case",
+    "f5_ordinary_refs_relaxed_d6a_form",
+    "f5_affected_refs_string_names_no_case",
+    "f5_ordinary_refs_second_case_relaxed_d6a_form",
+    "f5_ordinary_refs_strict_prefix",
+    "g7_not_required_quality_enum_invalid",
+    "isolated_rotation_stop_sparse_interactive",
+    "isolated_has_data_sparse_interactive",
+    "isolated_estimate_coupled_sparse_interactive",
+    "isolated_rotation_stop_dense_scrutiny",
+    "isolated_has_data_dense_scrutiny",
+    "isolated_estimate_coupled_dense_scrutiny",
+    "isolated_translation_rotation_stop_sparse_interactive",
+    "isolated_translation_rotation_stop_dense_scrutiny",
+    "g7_selected_quality_enum_invalid",
+    "g7_unavailable_quality_enum_invalid",
+    "g7_quality_case_evidence_ref_empty",
+    "g7_quality_case_extra_member",
+    "g7_quality_status_invalid",
+    "g7_formulation_limitations_empty",
+    "g7_contract_evidence_null",
+    "g7_source_block_recovery_present",
+    "d38_m1_error_kind_native",
+    "d38_m2_native_completed",
+    "d38_m3_run_ref_without_run",
+    "d38_m4_execution_order_lists_case",
+    "d38_m5_proof_start_completed",
+    "d38_m6_attempt_source_null",
+    "d38_m7_call_lists_source",
+    "d38_m8_case_source_other",
+    "d38_m9_case_c_builds_kept",
+    "f1_p4_parity_on_w2_published_case_a_dense",
+    "f1_p2_parity_duplicated_l0_dense",
+    "f1_p3_parity_in_sparse_l0",
+    "f1_p1_mode_code_3_sparse_l0",
+    "f1_requested_mode_flipped_w_c2_case_b",
+    "nr_w_c2_case_b_verdict_sensitive",
+    "nr_w_c2_case_b_initial_not_attempted",
+    "nr_w_c2_case_b_product_attempt_ref_own_attempt",
+    "n2_w_c2_case_b_solve_quality_missing",
+    "a4_reason_as_4b",
+    "f_mb_index_1",
+    "f_mb_index_swapped",
+    "f_src_index_1",
+    "f_src_index_swapped",
+    "f_mb_case_indices_duplicate",
+    "f_mb_case_indices_out_of_range",
+    "f_src_owner_case_id_other",
+    "f_src_owner_case_id_unknown",
+    "f_src_owner_case_index_out_of_range",
+    "f_src_owner_other_case_consistent",
+    "f_ordinary_basis_ref_dangling",
+    "f_mb_case_indices_empty",
+    "f_b_basis_ref_7",
+    "f_c_basis_omits_case_1",
+    "f_c_basis_out_of_order",
+    "f_src_owner_kind_combination",
+    "g_combinations_null",
+    "g_combinations_empty_object",
+    "g_combinations_object",
+    "g_combinations_string",
+    "g_combinations_zero",
+    "g_combinations_false",
+    "g_combinations_nonempty",
+    "g_components_null",
+    "g_components_string",
+    "g_components_empty_object",
+    "g_components_nonempty",
+    "g_reference_configurations_null",
+    "g_reference_configurations_empty",
+    "g_reference_configurations_object",
+    "g_pressure_contract_empty_object",
+    "g_pressure_contract_false",
+    "g_pressure_contract_zero",
+    "g_pressure_contract_empty_string",
+    "g_pressure_contract_empty_array",
+    "g_order_before_preparation",
+    "g_order_control_preparation",
+    "ca_receipt_phase_routing",
+    "ca_receipt_phase_preparation",
+    "ca_receipt_phase_kernel",
+    "ca_receipt_phase_facade",
+    "ca_receipt_code_source_unavailable",
+    "ca_receipt_code_facade_certificate",
+    "ca_receipt_code_kernel_selected",
+    "ca_receipt_code_caller_not_qualified",
+    "ca_facade_ok",
+    "ca_facade_phase_routing",
+    "ca_facade_phase_preparation",
+    "ca_facade_phase_kernel",
+    "ca_facade_phase_receipt",
+    "ca_facade_code_receipt_encoding",
+    "ca_facade_owner_other_case",
+    "ca_facade_owner_combination",
+    "ca_precondition_beside_run",
+    "ca_kernel_beside_selected_run",
+    "cb_source_error_no_decline",
+    "cb_source_error_decline_error_differs",
+    "cb_source_error_phase_routing",
+    "cb_source_error_code_caller",
+    "cb_receipt_phase_preparation",
+    "cb_facade_no_run",
+    "cb_kernel_no_run",
+    "cb_control_ppf_reason_missing_attempt",
+    "cb_pre_caller_caller_not_qualified_kernel",
+    "cb_pre_caller_resource_admission_not_available_routing",
+    "cb_pre_caller_source_unavailable_routing",
+    "cb_pre_caller_upstream_no_wrap_not_established_routing",
+    "cb_pre_resource_admission_resource_admission_not_available_kernel",
+    "cb_pre_resource_admission_caller_not_qualified_routing",
+    "cb_pre_resource_admission_source_unavailable_routing",
+    "cb_pre_resource_admission_upstream_no_wrap_not_established_routing",
+    "cb_pre_upstream_no_wrap_upstream_no_wrap_not_established_kernel",
+    "cb_pre_upstream_no_wrap_caller_not_qualified_routing",
+    "cb_pre_upstream_no_wrap_resource_admission_not_available_routing",
+    "cb_pre_upstream_no_wrap_source_unavailable_routing",
+    "cb_pre_capture_source_unavailable_kernel",
+    "cb_pre_capture_caller_not_qualified_routing",
+    "cb_pre_capture_resource_admission_not_available_routing",
+    "cb_pre_capture_upstream_no_wrap_not_established_routing",
+    "cb_pre_source_family_source_unavailable_kernel",
+    "cb_pre_source_family_caller_not_qualified_routing",
+    "cb_pre_source_family_resource_admission_not_available_routing",
+    "cb_pre_source_family_upstream_no_wrap_not_established_routing",
+    "cc_pre_caller_keyed",
+    "cc_pre_resource_admission_keyed",
+    "cc_pre_upstream_no_wrap_keyed",
+    "cc_pre_capture_keyed",
+    "cc_pre_source_family_keyed",
+    "cc_pre_capture_cross",
+    "cd_kernel_ok",
+    "cd_kernel_code_unresolved",
+    "cd_kernel_phase_facade",
+    "cd_kernel_cause_other",
+    "cd_ppf_control",
+    "c2_receipt_phase_kernel",
+    "c2_receipt_code_facade",
+    "c2_receipt_phase_preparation",
+    "c2_facade_ok",
+    "c2_facade_phase_kernel",
+    "h_recovery_present",
+    "h_evidence_null",
+    "h_evidence_array",
+    "h_recovery_and_evidence_null",
+    "h_carrier_present",
+    "h_carrier_and_quality_defect",
+    "h_carrier_and_recovery",
+    "h_quality_extra_member",
+    "h_quality_representation",
+    "h_quality_quantization",
+    "h_quality_policy",
+    "h_quality_status_bogus",
+    "h_quality_cases_object",
+    "h_case_extra_member",
+    "h_case_basis_ref_extra",
+    "h_case_basis_ref_type_empty",
+    "h_case_solve_quality_bogus",
+    "h_case_structural_bogus",
+    "h_case_fidelity_bogus",
+    "h_case_accuracy_bogus",
+    "h_case_evidence_refs_empty_string",
+    "h_case_evidence_refs_not_list",
+    "h_formulation_extra_member",
+    "h_formulation_limitations_empty",
+    "h_formulation_limitations_empty_string",
+    "h_formulation_limitations_other",
+    "h_quality_and_formulation",
+    "h_case_and_formulation",
+    "h_schema_version_010",
+    "n6_structural_status_list",
+    "n6_structural_status_dict",
+    "n6_model_matrix_fidelity_list",
+    "n6_model_matrix_fidelity_dict",
+    "n6_accuracy_evidence_list",
+    "n6_accuracy_evidence_dict",
+    "n6_status_list",
+    "n6_status_dict",
+    "n6_carrier_evidence_with_case_defect",
+    "n6_contract_evidence_null_and_source_block_recovery",
+    "n4_null_first",
+    "n4_null_appended",
+    "n4_number_first",
+    "n4_string_first",
+    "n4_array_first",
+    "r_b_basis_ref_7",
+    "r_b_basis_ref_1_second_basis",
+    "r_c_basis_omits_case_1",
+    "r_c_cases_out_of_order",
+    "r_c_extra_empty_basis",
+    "r_d1_extra_member",
+    "r_d2_mode_unknown",
+    "r_d2_mode_list",
+    "r_d2_mode_removed",
+    "r_d2_mode_null",
+    "r_e_elastic_modulus_wrong",
+    "r_e_selection_base",
+    "r_e_material_id_other",
+    "r_e_no_material",
+    "r_c_missing_sourceless_basis",
+    "g8_unavailable_mode_code_2_in_sparse",
+    "g8_unavailable_mode_code_3",
+    "g8_unavailable_mode_row_duplicated",
+    "g8_unavailable_mode_row_removed",
+    "g8_unavailable_parity_in_sparse_P3",
+    "g8_unavailable_parity_with_method_G6_first",
+    "g8_unavailable_requested_mode_flipped",
+    "g8_selected_mode_code_2_in_sparse",
+    "dz_parity_twice_case1_P2",
+    "dz_parity_case1_w2_published_P4",
+    "dz_parity_case0_w2_published_P4",
+    "fz_unavailable_two_parity_P2",
+    "fz_unavailable_parity_w2_published_P4",
+    "limit_l0_dense_parity_deleted_indices_unshifted",
+    "limit_l0_sparse_mode_row_deleted_P1",
+    "nr_report_outcome_sensitive",
+    "nr_initial_not_attempted",
+    "nr_verdict_sensitive",
+    "nr_w2_published_verdict_sensitive",
+    "nr_verdict_not_assessed",
+    "nr_report_with_w2_published",
+    "nr_product_attempt_ref_with_attempt",
+    "nr_product_attempt_ref_dangling",
+    "nz_w2_published_parity_P4",
+    "orphan_source_beside_t7",
+    "t_evidence_extra_member",
+    "t_preview_cases_not_list",
+    "t_case_extra_member",
+    "t_case_id_empty",
+    "t_case_id_duplicate",
+    "t_coverage_complete_false",
+    "t_coverage_overlap",
+    "t_coverage_duplicate_ids",
+    "t_attributed_and_withheld",
+    "t_withheld_reason_unknown",
+    "t_withheld_ok",
+    "t_attribution_sets_differ",
+    "t_withheld_duplicate_multiset",
+    "t_extrema_extra_member",
+    "t_extrema_approximation_other",
+    "t_extrema_station_fraction_1_5",
+    "t_extrema_local_fraction_negative",
+    "t_extrema_span_index_negative",
+    "t_extrema_span_index_fraction",
+    "t_extrema_subdivisions_over",
+    "t_extrema_bounds_inverted",
+    "t_extrema_lower_negative",
+    "t_extrema_upper_string",
+    "t_extrema_global_upper_string",
+    "t_extrema_certified_gap_null",
+    "t_extrema_pipe_in_unavailable",
+    "t_extrema_pipe_duplicate",
+    "t_measure_ok",
+    "t_measure_sif_zero",
+    "t_measure_location_mid",
+    "t_measure_moment_string",
+    "t_measure_duplicate_result",
+    "t_gate_withheld_reason_null",
+    "t_gate_released_with_reason",
+    "t_gate_duplicate",
+    "t_gate_withheld_string",
+    "t_measure_extra_member",
+    "t_gate_extra_member",
+];
 /// Observe one slice of the shared mutations against this reader's own
 /// expectation, print one outcome per mutation (visible with --nocapture) and
-/// check the slice tally. 07h held 277 mutations; RV94 N-3's G7 probe makes 278;
-/// 07l (U8-2) appends the 8 L = 0 mutations, making 286; 07m (B6) appends 8 G7
-/// mutations, making 294.
+/// check the slice's ids (`MUTATION_IDS`) and its tally. 07h held 277 mutations;
+/// RV94 N-3's G7 probe makes 278; 07l (U8-2) appends the 8 L = 0 mutations, making
+/// 286; 07m (B6) appends 8 G7 mutations, making 294; 07n (B1 SC) appends 240,
+/// making 534 (`snapshot_07n_counts_and_format` pins the counts), and no slice moves.
 fn slice_outcomes(tag: &str, range: std::ops::Range<usize>, want: &[(&str, usize)]) {
     use std::collections::BTreeMap;
     let shared = corpus();
     let mutations = shared["mutations"].as_array().unwrap();
-    assert_eq!(mutations.len(), 294);
+    let ids: Vec<&str> = mutations[range.clone()]
+        .iter()
+        .map(|m| m["id"].as_str().unwrap())
+        .collect();
+    assert_eq!(
+        ids,
+        MUTATION_IDS[range.clone()],
+        "{tag}: the slice's ids, in order"
+    );
     let mut tally = BTreeMap::new();
     let mut matched = 0;
     for mutation in &mutations[range.clone()] {
@@ -585,7 +1136,7 @@ fn snapshot_07k_mutation_outcomes() {
 #[test]
 fn snapshot_07m_mutation_outcomes() {
     let shared = corpus();
-    let ids: Vec<&str> = shared["mutations"].as_array().unwrap()[286..]
+    let ids: Vec<&str> = shared["mutations"].as_array().unwrap()[286..294]
         .iter()
         .map(|m| m["id"].as_str().unwrap())
         .collect();
@@ -895,15 +1446,17 @@ fn g5_audit_local_controls() {
 
 /// Snapshot-05a shared must-pass entries: each rehashed rewrite keeps every
 /// public relation, so the reader admits it with the base case's
-/// classifications and the eligibility the entry states (07i, U7).
+/// classifications (or, 07n, the entry's own `expected_classifications` when it
+/// states them) and the eligibility the entry states (07i, U7).
 #[test]
 fn shared_must_pass_entries_validate() {
     let shared = corpus();
     let entries = shared["must_pass"].as_array().unwrap();
     // Snapshot 07: 06d's 18 plus the equal-E bracket control; 07h adds F5's
     // reordered-envelope exact-list control (RV90 N2); 07j adds C04's not_required case;
-    // 07l (U8-2) appends the 4 L = 0 entries on the producer-solved bases, 24 to 28.
-    assert_eq!(entries.len(), 28);
+    // 07l (U8-2) appends the 4 L = 0 entries on the producer-solved bases, 24 to 28;
+    // 07n (B1 SC) appends 50, 28 to 78.
+    assert_eq!(entries.len(), 78);
     let mut failures = Vec::new();
     for entry in entries {
         assert_eq!(entry["expected"], "pass");
@@ -922,7 +1475,13 @@ fn shared_must_pass_entries_validate() {
                 continue;
             }
         };
-        let expected = case["expected_classifications"].as_array().unwrap();
+        // 07n (B1 SC): an admitted rewrite whose classes differ from its base's
+        // (a case no longer selected, a row added or removed) states its own.
+        let expected = entry
+            .get("expected_classifications")
+            .unwrap_or(&case["expected_classifications"])
+            .as_array()
+            .unwrap();
         // U7 (07i): each must-pass entry states its eligibility.
         let same = got.numerical_eligible
             == entry["expected_eligibility"]["numerical_eligible"].as_bool().unwrap()
@@ -2735,41 +3294,105 @@ fn d8_accounting_rules_on_shared_bases() {
 
 /// D19: the converse of D4c. An unavailable C3 attempt needs a
 /// prepared_product_failure cause naming it (RV79-C1); a Ready attempt's case is
-/// selected or unavailable with receipt_failure.
+/// selected or unavailable with receipt_failure. B1's alignment set (item 3) puts
+/// C2's cause table first, in the ordinary class, so each D19 probe states the
+/// cause with its C2 phase and code; a cause its case cannot carry (a precondition
+/// beside a Run) is refused by that table at G5 ATTEMPT.
 #[test]
 fn d19_converse_cause_binding() {
     use serde_json::json;
     let shared = corpus();
-    let preparation_error = base_source(&shared, P_BASE)["retained_precision"]["body"]["product_attempts"][1]["result"]["error"].clone();
+    let preparation_error = base_source(&shared, P_BASE)["retained_precision"]["body"]
+        ["product_attempts"][1]["result"]["error"]
+        .clone();
     let receipt_failure = json!({"kind":"receipt_failure","check":"association","field_path":"retained_precision.body"});
-    let precondition = json!({"kind":"unavailable_precondition","precondition":"capture","affected_refs":[]});
-    for (name, base, edits) in [
-        ("unavailable attempt under receipt_failure", F_BASE, vec![set(rb(json!(["cases", 1, "reason", "cause"])), receipt_failure.clone())]),
-        ("unavailable attempt under unavailable_precondition", F_BASE, vec![set(rb(json!(["cases", 1, "reason", "cause"])), precondition.clone())]),
-        ("preparation error with a selected Run under receipt_failure (RV79-B1c)", F_BASE, vec![
-            set(rb(json!(["cases", 1, "reason", "cause"])), receipt_failure.clone()),
-            set(rb(json!(["product_attempts", 1, "result", "error"])), preparation_error.clone()),
-        ]),
-        ("P' preparation failure under unavailable_precondition", P_BASE, vec![set(rb(json!(["cases", 1, "reason", "cause"])), precondition.clone())]),
+    let precondition =
+        json!({"kind":"unavailable_precondition","precondition":"capture","affected_refs":[]});
+    let receipt = json!({"code":"receipt_encoding","phase":"receipt","cause":receipt_failure});
+    for (name, base, edits, want) in [
+        (
+            "unavailable attempt under receipt_failure",
+            F_BASE,
+            vec![set(rb(json!(["cases", 1, "reason"])), receipt.clone())],
+            gate("G5", PRODUCT),
+        ),
+        (
+            "a precondition beside the case's Run (C2's table)",
+            F_BASE,
+            vec![set(
+                rb(json!(["cases", 1, "reason", "cause"])),
+                precondition.clone(),
+            )],
+            gate("G5", ATTEMPT),
+        ),
+        (
+            "preparation error with a selected Run under receipt_failure (RV79-B1c)",
+            F_BASE,
+            vec![
+                set(rb(json!(["cases", 1, "reason"])), receipt.clone()),
+                set(
+                    rb(json!(["product_attempts", 1, "result", "error"])),
+                    preparation_error.clone(),
+                ),
+            ],
+            gate("G5", PRODUCT),
+        ),
+        (
+            "P' preparation failure under unavailable_precondition",
+            P_BASE,
+            vec![set(
+                rb(json!(["cases", 1, "reason", "cause"])),
+                precondition.clone(),
+            )],
+            gate("G5", PRODUCT),
+        ),
     ] {
-        assert_eq!(probe(&shared, base, edits), gate("G5", PRODUCT), "{name}");
+        assert_eq!(probe(&shared, base, edits), want, "{name}");
     }
     // A Ready attempt in an unavailable case: receipt_failure only.
-    let unavailable_case = |cause: Value| {
+    let unavailable_case = |reason: Value| {
         vec![
             remove(rb(json!(["cases", 1, "method"]))),
             remove(rb(json!(["cases", 1, "selection"]))),
             remove(rb(json!(["cases", 1, "source_identity_sha256"]))),
             set(rb(json!(["cases", 1, "status"])), json!("unavailable")),
-            set(rb(json!(["cases", 1, "reason"])), json!({"code":"facade_certificate","phase":"facade","cause":cause})),
-            set(rb(json!(["cases", 1, "diagnostic_ref"])), json!("diagnostic:retained:synthetic-zero-load")),
-            set(json!(["diagnostics", base_source(&shared, "two_case_synthetic")["diagnostics"].as_array().unwrap().iter().position(|d| d["id"] == "diagnostic:retained:synthetic-zero-load").unwrap(), "code"]), json!("RETAINED_PRECISION_UNAVAILABLE")),
+            set(rb(json!(["cases", 1, "reason"])), reason),
+            set(
+                rb(json!(["cases", 1, "diagnostic_ref"])),
+                json!("diagnostic:retained:synthetic-zero-load"),
+            ),
+            set(
+                json!([
+                    "diagnostics",
+                    base_source(&shared, "two_case_synthetic")["diagnostics"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .position(|d| d["id"] == "diagnostic:retained:synthetic-zero-load")
+                        .unwrap(),
+                    "code"
+                ]),
+                json!("RETAINED_PRECISION_UNAVAILABLE"),
+            ),
         ]
     };
-    assert_eq!(probe(&shared, "two_case_synthetic", unavailable_case(precondition)), gate("G5", PRODUCT), "Ready attempt under a C2 cause");
+    let facade = json!({"kind":"facade_failure","owner_ref":{"kind":"case","index":1},"row_id":null,"recipe":"identity","operand_index":null,"check":"identity","predicate":null});
+    assert_eq!(
+        probe(
+            &shared,
+            "two_case_synthetic",
+            unavailable_case(json!({"code":"facade_certificate","phase":"facade","cause":facade}))
+        ),
+        gate("G5", PRODUCT),
+        "Ready attempt under a C2 cause"
+    );
     // With receipt_failure the D19 relation holds; the next defect is the
     // unavailable case's rows still carrying a recovery method (G6).
-    assert_eq!(probe(&shared, "two_case_synthetic", unavailable_case(receipt_failure)), gate("G6", "RETAINED_PRECISION_ROW_METHOD_MISMATCH"), "Ready attempt under receipt_failure");
+    assert_eq!(
+        probe(&shared, "two_case_synthetic", unavailable_case(receipt)),
+        gate("G6", "RETAINED_PRECISION_ROW_METHOD_MISMATCH"),
+        "Ready attempt under receipt_failure"
+    );
 }
 
 /// D20: a selected case without a C3 attempt is a C3 association defect
@@ -3384,4 +4007,1836 @@ fn u7_07j_not_required_case_omitted_or_reordered_is_not_current() {
         assert_eq!(s::numerical_use_standing_with_context(&source, &refs, Some(&invocation)), "needs_recompute", "{refs:?}");
         assert_eq!(withheld(&refs), [73, 0], "{refs:?}");
     }
+}
+
+// ---------------------------------------------------------------------------
+// B1 SR-RS (I90; PLAN_v2 §2.4; DESIGN_v2 §2 and §3.2-§3.3): reader-local tests on
+// synthetic n-case receipts, derived from the shared two-case bases and must-pass entries.
+// They are not shared corpus entries: SC's 07n pins the shared ones (W-C2,
+// `d38_beside_selected` with m1-m8, F-1's five, and `not_required`'s three).
+
+/// An entry on `base`: a must-pass entry's edits (when named), then `edits`; the
+/// invocation edits rebind the receipt's invocation digest (`apply_entry`).
+fn b1_entry(shared: &Value, base: &str, must: Option<&str>, edits: Vec<Value>, invocation: Vec<Value>) -> Value {
+    let mut all = Vec::new();
+    if let Some(id) = must {
+        let entry = shared["must_pass"].as_array().unwrap().iter().find(|e| e["id"] == id).unwrap();
+        assert_eq!(entry["base"], base, "{id}");
+        all.extend(entry["edits"].as_array().unwrap().iter().cloned());
+    }
+    all.extend(edits);
+    serde_json::json!({"id": "b1_probe", "base": base, "edits": all, "invocation_edits": invocation, "rehash": "all"})
+}
+/// The reader's verdict: `{"admitted": eligible}`, or the first failure.
+fn b1_verdict(shared: &Value, entry: &Value) -> Value {
+    let (source, invocation) = apply_entry(shared, entry);
+    match rp::validate(&source, Some(&invocation)) {
+        Ok(v) => serde_json::json!({"admitted": v.numerical_eligible}),
+        Err(e) => gate(e.gate, &e.code),
+    }
+}
+fn admitted(eligible: bool) -> Value {
+    serde_json::json!({"admitted": eligible})
+}
+/// The index of a base's row of `kind` for load case `case`.
+fn b1_row(source: &Value, kind: &str, case: &str) -> usize {
+    source["results"].as_array().unwrap().iter().position(|r| r["kind"] == kind && r["basis_ref"]["ref_id"] == case).unwrap()
+}
+/// A base's rows with `extra` appended, as one `results` edit.
+fn b1_rows(source: &Value, extra: Vec<Value>) -> Value {
+    let mut rows = source["results"].as_array().unwrap().clone();
+    rows.extend(extra);
+    set(serde_json::json!(["results"]), Value::Array(rows))
+}
+/// The dense base's parity row, moved to `case` with a fresh id. A non-selected
+/// case's row carries no recovery method (G6).
+fn b1_parity_row(shared: &Value, case: &str, id: &str) -> Value {
+    let mut row = base_source(shared, "ordinary_prepared_dense_synthetic")["results"][1].clone();
+    assert_eq!(row["kind"], "sparse_live_path_dense_parity_relative_delta");
+    row["id"] = serde_json::json!(id);
+    row["basis_ref"]["ref_id"] = serde_json::json!(case);
+    row.as_object_mut().unwrap().remove("recovery_method");
+    row
+}
+const PREP: &str = "RETAINED_PRECISION_PREPARATION_MISMATCH";
+const NOT_REQUIRED: &str = "not_required_second_case_checks_passed";
+const UNAVAILABLE_ROW: &str = "case:unavailable-row";
+
+/// R-D38 (4b), DESIGN_v2 §2, on F_BASE: case 1 (unavailable, with its own CaseSource and a
+/// prepared attempt) is rewritten so that its native stage failed before any Run, beside
+/// selected case 0, as SC's `d38_beside_selected` rewrites W-C2's case C: no Run, no
+/// `execution_order`, Call or Group entry, the call's after-value and `charged` recomputed
+/// (case 1's Run built nothing: it reused case 0's builds), a typed capture cause, and
+/// every hash resealed.
+fn d38_edits(shared: &Value) -> Vec<Value> {
+    use serde_json::json;
+    let body = &base_source(shared, F_BASE)["retained_precision"]["body"];
+    assert!(body["builds"].as_array().unwrap().iter().all(|b| b["origin"]["run"] == 0), "case 1's Run built nothing");
+    let after = body["cases"][0]["run"]["invocation_after"].clone();
+    let mut stages = serde_json::Map::new();
+    for k in ["preparation", "native", "proof_start", "projection", "maxima", "values", "aliases", "certificate", "observables", "g5a"] {
+        stages.insert(k.into(), json!("not_entered"));
+    }
+    stages.insert("preparation".into(), json!("completed"));
+    stages.insert("native".into(), json!("failed"));
+    vec![
+        set(rb(json!(["cases", 1, "run"])), Value::Null),
+        set(rb(json!(["cases", 1, "reason"])), json!({"code": "source_unavailable", "phase": "preparation", "cause": {"kind": "prepared_product_failure", "product_attempt_ref": 1}})),
+        set(rb(json!(["product_attempts", 1, "run_ref"])), Value::Null),
+        set(rb(json!(["product_attempts", 1, "proof"])), Value::Null),
+        set(rb(json!(["product_attempts", 1, "stages"])), Value::Object(stages)),
+        set(rb(json!(["product_attempts", 1, "result"])), json!({"kind": "unavailable", "error": {"kind": "capture", "cause": {"kind": "origin", "cause": {"kind": "capacity"}}}})),
+        set(rb(json!(["calls", 0, "owner_refs"])), json!([{"kind": "case", "index": 0}])),
+        set(rb(json!(["calls", 0, "source_refs"])), json!([0])),
+        set(rb(json!(["calls", 0, "run_refs"])), json!([0])),
+        set(rb(json!(["calls", 0, "invocation_after"])), after.clone()),
+        set(rb(json!(["groups", 0, "source_refs"])), json!([0])),
+        set(rb(json!(["work", "charged"])), after),
+        set(rb(json!(["work", "execution_order"])), json!([{"kind": "case", "index": 0}])),
+    ]
+}
+
+/// R-D38 (4b) admitted beside a selected case: G0-G8 pass and the standing is
+/// needs_recompute. Before B1 the reader refused it (an entered native stage needed a Run).
+/// m1-m8 (DESIGN_v2 §2) and the other (4b) conjuncts are refused, each at this reader's
+/// first failure.
+#[test]
+fn b1_d38_capture_before_any_run_beside_a_selected_case() {
+    use open_pipe_stress_result_export::semantic_contract as s;
+    use serde_json::json;
+    let shared = corpus();
+    let d38 = d38_edits(&shared);
+    let entry = b1_entry(&shared, F_BASE, None, d38.clone(), vec![]);
+    assert_eq!(b1_verdict(&shared, &entry), admitted(false), "(4b) beside a selected case");
+    let (source, invocation) = apply_entry(&shared, &entry);
+    let order: Vec<Value> = source["retained_precision"]["body"]["cases"].as_array().unwrap().iter().map(|c| c["basis_ref"].clone()).collect();
+    assert_eq!(s::numerical_use_standing_with_context(&source, &order, Some(&invocation)), "needs_recompute");
+    let with = |extra: Vec<Value>| -> Value {
+        let mut edits = d38.clone();
+        edits.extend(extra);
+        b1_entry(&shared, F_BASE, None, edits, vec![])
+    };
+    let attempt = |tail: Value| {
+        rb(json!(["product_attempts", 1])
+            .as_array()
+            .unwrap()
+            .iter()
+            .cloned()
+            .chain(tail.as_array().unwrap().iter().cloned())
+            .collect())
+    };
+    let cases = [
+        (
+            "m1 error kind native",
+            vec![set(
+                attempt(json!(["result", "error"])),
+                json!({"kind": "native", "run_ref": 1}),
+            )],
+            gate("G5", PRODUCT),
+        ),
+        (
+            "m2 native completed",
+            vec![set(
+                attempt(json!(["stages", "native"])),
+                json!("completed"),
+            )],
+            gate("G5", PRODUCT),
+        ),
+        (
+            "m3 run_ref while the case has no Run",
+            vec![set(attempt(json!(["run_ref"])), json!(1))],
+            gate("G5", PRODUCT),
+        ),
+        (
+            "m4 execution_order still lists the case",
+            vec![set(
+                rb(json!(["work", "execution_order"])),
+                json!([{"kind": "case", "index": 0}, {"kind": "case", "index": 1}]),
+            )],
+            gate("G3", COVERAGE),
+        ),
+        (
+            "m5 proof_start completed",
+            vec![set(
+                attempt(json!(["stages", "proof_start"])),
+                json!("completed"),
+            )],
+            gate("G5", PRODUCT),
+        ),
+        (
+            "m6 source_ref null with preparation completed",
+            vec![set(attempt(json!(["source_ref"])), Value::Null)],
+            gate("G5", PRODUCT),
+        ),
+        (
+            "m7 the case's source in the call's source_refs",
+            vec![set(rb(json!(["calls", 0, "source_refs"])), json!([0, 1]))],
+            gate("G5", ATTEMPT),
+        ),
+        (
+            "m7 the case's source in the group's source_refs",
+            vec![set(rb(json!(["groups", 0, "source_refs"])), json!([0, 1]))],
+            gate("G5", ATTEMPT),
+        ),
+        (
+            "m8 case source_ref differs from the attempt's",
+            vec![set(rb(json!(["cases", 1, "source_ref"])), json!(0))],
+            gate("G5", PRODUCT),
+        ),
+        (
+            "result ready",
+            vec![set(attempt(json!(["result"])), json!({"kind": "ready"}))],
+            gate("G5", PRODUCT),
+        ),
+        (
+            "preparation failed",
+            vec![set(
+                attempt(json!(["stages", "preparation"])),
+                json!("failed"),
+            )],
+            gate("G5", PRODUCT),
+        ),
+        (
+            "observables and G5a entered",
+            vec![
+                set(attempt(json!(["stages", "observables"])), json!("failed")),
+                set(attempt(json!(["stages", "g5a"])), json!("failed")),
+            ],
+            gate("G5", PRODUCT),
+        ),
+        (
+            "reason code kernel_unresolved",
+            vec![set(
+                rb(json!(["cases", 1, "reason", "code"])),
+                json!("kernel_unresolved"),
+            )],
+            gate("G5", PRODUCT),
+        ),
+        (
+            "reason phase kernel",
+            vec![set(
+                rb(json!(["cases", 1, "reason", "phase"])),
+                json!("kernel"),
+            )],
+            gate("G5", PRODUCT),
+        ),
+        (
+            "cause names the other attempt",
+            vec![set(
+                rb(json!([
+                    "cases",
+                    1,
+                    "reason",
+                    "cause",
+                    "product_attempt_ref"
+                ])),
+                json!(0),
+            )],
+            gate("G5", PRODUCT),
+        ),
+        // C2's cause table (B1's alignment set, item 3) refuses it first, in the ordinary class.
+        (
+            "cause not a prepared product failure",
+            vec![set(
+                rb(json!(["cases", 1, "reason", "cause"])),
+                json!({"kind": "receipt_failure", "check": "association", "field_path": "b1"}),
+            )],
+            gate("G5", ATTEMPT),
+        ),
+    ];
+    let mut misses = Vec::new();
+    for (name, edits, want) in cases {
+        let got = b1_verdict(&shared, &with(edits));
+        if got != want {
+            misses.push(format!("{name}: got {got} want {want}"));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+}
+
+/// R-D38 (4a), which B1 leaves unchanged (RV113 N-1): a native failure with the case's own
+/// non-selected Run is admitted at `validate` and never enters (4b)'s branch. No shared base
+/// has a non-selected native Run (D30's note), so F_BASE's case 1 Run is made idle in its
+/// ready group (refused `ledger_unavailable`, as a CasePrep failure leaves it; no records, no
+/// charge), the case `kernel_refused`, and its attempt native-failed (preparation completed,
+/// no proof) with a native error naming that Run, or with a capture error. (4b)'s reason on
+/// this Run-bearing shape is refused.
+#[test]
+fn b1_d38_4a_native_failure_with_a_run_is_admitted() {
+    use serde_json::json;
+    let shared = corpus();
+    let body = &base_source(&shared, F_BASE)["retained_precision"]["body"];
+    let mut run = body["cases"][1]["run"].clone();
+    let before = run["invocation_before"].clone();
+    run["records"] = json!([]);
+    run["attempts"] = json!([]);
+    run["case_charge"] = json!(0);
+    run["invocation_increment"] = json!(0);
+    run["invocation_after"] = before.clone();
+    run["cache_after"] = run["cache_before"].clone();
+    run["kernel_terminal"] = json!({"kind": "refused", "reason": {"space": "refusal", "tag": "ledger_unavailable", "error": {"tag": "accumulator", "error": {"tag": "non_finite"}}}});
+    let mut attempt = body["product_attempts"][1].clone();
+    assert_eq!(attempt["run_ref"], json!(1), "the attempt keeps its Run");
+    attempt["proof"] = Value::Null;
+    for k in ["preparation", "native", "proof_start", "projection", "maxima", "values", "aliases", "certificate", "observables", "g5a"] {
+        attempt["stages"][k] = json!("not_entered");
+    }
+    attempt["stages"]["preparation"] = json!("completed");
+    attempt["stages"]["native"] = json!("failed");
+    attempt["result"] = json!({"kind": "unavailable", "error": {"kind": "native", "run_ref": 1}});
+    let a4 = vec![
+        set(rb(json!(["cases", 1, "run"])), run),
+        set(rb(json!(["cases", 1, "reason"])), json!({"code": "kernel_refused", "phase": "kernel", "cause": {"kind": "prepared_product_failure", "product_attempt_ref": 1}})),
+        set(rb(json!(["product_attempts", 1])), attempt),
+        set(rb(json!(["calls", 0, "invocation_after"])), before.clone()),
+        set(rb(json!(["work", "charged"])), before),
+    ];
+    let with = |extra: Vec<Value>| -> Value { b1_entry(&shared, F_BASE, None, a4.iter().cloned().chain(extra).collect(), vec![]) };
+    let cases = [
+        ("(4a): a native error naming the case's refused Run", with(vec![]), admitted(false)),
+        ("(4a): a capture error beside the case's refused Run", with(vec![set(rb(json!(["product_attempts", 1, "result", "error"])), json!({"kind": "capture", "cause": {"kind": "origin", "cause": {"kind": "capacity"}}}))]), admitted(false)),
+        ("(4b)'s reason on the Run-bearing failure", with(vec![set(rb(json!(["cases", 1, "reason", "code"])), json!("source_unavailable")), set(rb(json!(["cases", 1, "reason", "phase"])), json!("preparation"))]), gate("G5", PRODUCT)),
+    ];
+    let mut misses = Vec::new();
+    for (name, entry, want) in cases {
+        let got = b1_verdict(&shared, &entry);
+        if got != want {
+            misses.push(format!("{name}: got {got} want {want}"));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+}
+
+/// G5's `not_required` rule (DESIGN_v2 §3.3, decision 9), on 07j's two-case statement
+/// (selected, then not_required): a W2-published case with the verdict checks_passed (T-4's
+/// case B, by an evaluation or a formation trigger) is admitted and the statement is
+/// eligible. A non-null product attempt (another case's, at G3; the case's own, by the rule
+/// itself), `initial` not_attempted and another verdict stay refused, and a Passed-verdict
+/// report keeps its outcome equality.
+#[test]
+fn b1_g5_not_required_admits_a_w2_published_case() {
+    use open_pipe_stress_result_export::semantic_contract as s;
+    use serde_json::json;
+    let shared = corpus();
+    let report = base_source(&shared, P_BASE)["retained_precision"]["body"]["ordinary_attempts"][1]["initial"]["report_diagnostic_ref"].clone();
+    let ordinary = |tail: &str| rb(json!(["ordinary_attempts", 1, tail]));
+    let evaluation = vec![
+        set(ordinary("initial"), json!({"kind": "structural_failure", "error": {"tag": "range", "detail": "b1"}, "diagnostic_ref": null})),
+        set(ordinary("w2"), json!({"kind": "published", "trigger": {"tag": "evaluation", "error": {"tag": "range", "detail": "b1"}}, "force_scale_exponent": 3, "report_diagnostic_ref": report})),
+    ];
+    let formation = vec![
+        set(ordinary("initial"), json!({"kind": "formation_failure", "error": {"tag": "numerical_range", "name": "b1"}, "basis_index": 0})),
+        set(ordinary("w2"), json!({"kind": "published", "trigger": {"tag": "formation", "error": {"tag": "numerical_range", "name": "b1"}}, "force_scale_exponent": -2, "report_diagnostic_ref": report})),
+    ];
+    for (name, edits) in [("evaluation", &evaluation), ("formation", &formation)] {
+        let entry = b1_entry(&shared, P_BASE, Some(NOT_REQUIRED), edits.clone(), vec![]);
+        assert_eq!(b1_verdict(&shared, &entry), admitted(true), "{name}");
+        let (source, invocation) = apply_entry(&shared, &entry);
+        assert_eq!(rp::reader_logic::ordinary(&source), Ok(()), "{name}: G5's ordinary pass");
+        let order: Vec<Value> = source["retained_precision"]["body"]["cases"].as_array().unwrap().iter().map(|c| c["basis_ref"].clone()).collect();
+        assert_eq!(s::numerical_use_standing_with_context(&source, &order, Some(&invocation)), "numerically_eligible", "{name}");
+    }
+    let mut sensitive = evaluation.clone();
+    sensitive.push(set(json!(["numerical_quality", "cases", 1, "solve_quality"]), json!("sensitive")));
+    let cases = [
+        ("W2-published, verdict sensitive", sensitive, gate("G5", ATTEMPT)),
+        ("initial not_attempted", vec![set(ordinary("initial"), json!({"kind": "not_attempted", "cause": "ineligible"}))], gate("G5", ATTEMPT)),
+        ("report outcome differs from the verdict", vec![set(rb(json!(["ordinary_attempts", 1, "initial", "outcome"])), json!("sensitive"))], gate("G5", ATTEMPT)),
+        ("product_attempt_ref non-null (G3 first)", vec![set(rb(json!(["cases", 1, "product_attempt_ref"])), json!(0))], gate("G3", COVERAGE)),
+    ];
+    let mut misses = Vec::new();
+    for (name, edits, want) in cases {
+        let got = b1_verdict(&shared, &b1_entry(&shared, P_BASE, Some(NOT_REQUIRED), edits, vec![]));
+        if got != want {
+            misses.push(format!("{name}: got {got} want {want}"));
+        }
+    }
+    // RV113 S-1: the rule's `product_attempt_ref` null conjunct. 07j's entry without its
+    // removal of `product_attempts/1` keeps case 1's own attempt, and the not_required case
+    // names it: G3 passes (the attempt exists and is the case's), so the rule itself refuses
+    // it, at G5 ATTEMPT (G5's ordinary class, before D19's PRODUCT_ATTEMPT).
+    let nr = shared["must_pass"].as_array().unwrap().iter().find(|e| e["id"] == NOT_REQUIRED).unwrap();
+    let removal = remove(rb(json!(["product_attempts", 1])));
+    let mut own: Vec<Value> = nr["edits"].as_array().unwrap().iter().filter(|e| **e != removal).cloned().collect();
+    assert_eq!(own.len() + 1, nr["edits"].as_array().unwrap().len(), "07j removes case 1's attempt once");
+    own.push(set(rb(json!(["cases", 1, "product_attempt_ref"])), json!(1)));
+    let got = b1_verdict(&shared, &b1_entry(&shared, P_BASE, None, own, vec![]));
+    if got != gate("G5", ATTEMPT) {
+        misses.push(format!("product_attempt_ref naming the case's own attempt: got {got}"));
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+}
+
+/// F-1 text B's P1 and the requested mode (DESIGN_v2 §3.2-§3.3), in G8's per-case loop:
+/// every case is checked, here the second one, unavailable (F_BASE) or not_required (07j).
+#[test]
+fn b1_g8_mode_row_and_requested_mode_for_every_case() {
+    use serde_json::json;
+    let shared = corpus();
+    let f = base_source(&shared, F_BASE);
+    let p = base_source(&shared, P_BASE);
+    let fm = b1_row(&f, "linear_solver_mode_basis", UNAVAILABLE_ROW);
+    let pm = b1_row(&p, "linear_solver_mode_basis", UNAVAILABLE_ROW);
+    let mut duplicate = f["results"][fm].clone();
+    duplicate["id"] = json!("result:b1:duplicate-mode");
+    let cases = [
+        ("unavailable case: dense code in sparse", b1_entry(&shared, F_BASE, None, vec![set(json!(["results", fm, "value"]), json!(2.0))], vec![])),
+        ("unavailable case: mode code 3", b1_entry(&shared, F_BASE, None, vec![set(json!(["results", fm, "value"]), json!(3.0))], vec![])),
+        ("unavailable case: two mode rows", b1_entry(&shared, F_BASE, None, vec![b1_rows(&f, vec![duplicate])], vec![])),
+        ("unavailable case: requested mode flipped", b1_entry(&shared, F_BASE, None, vec![set(rb(json!(["ordinary_attempts", 1, "requested_mode"])), json!("dense_scrutiny"))], vec![])),
+        ("not_required case: dense code in sparse", b1_entry(&shared, P_BASE, Some(NOT_REQUIRED), vec![set(json!(["results", pm, "value"]), json!(2.0))], vec![])),
+    ];
+    let mut misses = Vec::new();
+    for (name, entry) in cases {
+        let got = b1_verdict(&shared, &entry);
+        if got != gate("G8", PREP) {
+            misses.push(format!("{name}: got {got}"));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+}
+
+/// F-1 text B's P2-P4 (DESIGN_v2 §3.2) for every case. 07j's two-case statement is made
+/// dense (the invocation's mode, both requested modes and both mode rows; it has no parity
+/// row): the selected dense case at b = 0 without a parity row is admitted (before B1 it
+/// needed exactly one), and so is a not_required case's single parity row at b = 0. Two
+/// parity rows (P2), a parity row in sparse_interactive (P3) and a parity row on a
+/// W2-published case (P4) are refused at G8; a parity row beside a W2 that failed (so
+/// published nothing) is admitted, since P4 reads published, not triggered.
+#[test]
+fn b1_g8_parity_rows_p2_to_p4_for_every_case() {
+    use serde_json::json;
+    let shared = corpus();
+    let p = base_source(&shared, P_BASE);
+    let report = p["retained_precision"]["body"]["ordinary_attempts"][1]["initial"]["report_diagnostic_ref"].clone();
+    let dense = vec![
+        set(rb(json!(["ordinary_attempts", 0, "requested_mode"])), json!("dense_scrutiny")),
+        set(rb(json!(["ordinary_attempts", 1, "requested_mode"])), json!("dense_scrutiny")),
+    ];
+    let mut dense_rows = p.clone();
+    for case in ["case:six-component-load", UNAVAILABLE_ROW] {
+        dense_rows["results"][b1_row(&p, "linear_solver_mode_basis", case)]["value"] = json!(2.0);
+    }
+    let to_dense = vec![set(json!(["solver_mode"]), json!("dense_scrutiny"))];
+    let w2 = vec![
+        set(rb(json!(["ordinary_attempts", 1, "initial"])), json!({"kind": "structural_failure", "error": {"tag": "range", "detail": "b1"}, "diagnostic_ref": null})),
+        set(rb(json!(["ordinary_attempts", 1, "w2"])), json!({"kind": "published", "trigger": {"tag": "evaluation", "error": {"tag": "range", "detail": "b1"}}, "force_scale_exponent": 3, "report_diagnostic_ref": report})),
+    ];
+    // A W2 that was triggered and failed published nothing (b = 0).
+    let w2_failed = vec![
+        w2[0].clone(),
+        set(rb(json!(["ordinary_attempts", 1, "w2"])), json!({"kind": "failed", "trigger": {"tag": "evaluation", "error": {"tag": "range", "detail": "b1"}}, "failure": {"tag": "not_engaged"}, "diagnostic_ref": report})),
+    ];
+    let one = b1_parity_row(&shared, UNAVAILABLE_ROW, "result:b1:parity-1");
+    let two = b1_parity_row(&shared, UNAVAILABLE_ROW, "result:b1:parity-2");
+    // Both mode rows carry the dense code; `rows` are appended to them in the one results edit.
+    let on_dense = |rows: Vec<Value>, extra: Vec<Value>| -> Value {
+        let mut edits = dense.clone();
+        edits.push(b1_rows(&dense_rows, rows));
+        edits.extend(extra);
+        b1_entry(&shared, P_BASE, Some(NOT_REQUIRED), edits, to_dense.clone())
+    };
+    // Dense, ordinary only: the selected source, then the dense base's selected case with W2.
+    let d = base_source(&shared, "ordinary_prepared_dense_synthetic");
+    let mut parity_twice = d["results"][1].clone();
+    parity_twice["id"] = json!("result:b1:parity-twice");
+    let dense_w2 = vec![
+        set(rb(json!(["ordinary_attempts", 0, "initial"])), json!({"kind": "structural_failure", "error": {"tag": "range", "detail": "b1"}, "diagnostic_ref": null})),
+        set(rb(json!(["ordinary_attempts", 0, "w2"])), json!({"kind": "published", "trigger": {"tag": "evaluation", "error": {"tag": "range", "detail": "b1"}}, "force_scale_exponent": 3, "report_diagnostic_ref": d["retained_precision"]["body"]["ordinary_attempts"][0]["initial"]["report_diagnostic_ref"]})),
+    ];
+    let f = base_source(&shared, F_BASE);
+    let cases = [
+        ("dense b = 0, no parity row on either case", on_dense(vec![], vec![]), admitted(true)),
+        ("dense b = 0, one parity row on the not_required case", on_dense(vec![one.clone()], vec![]), admitted(true)),
+        ("dense, W2-published not_required case without a parity row", on_dense(vec![], w2.clone()), admitted(true)),
+        // RV113 N-3: P4 reads W2 published, not W2 triggered.
+        ("dense b = 0, one parity row on a not_required case whose W2 failed", on_dense(vec![one.clone()], w2_failed), admitted(true)),
+        ("P2: two parity rows on the not_required case", on_dense(vec![one.clone(), two], vec![]), gate("G8", PREP)),
+        ("P4: a parity row on the W2-published not_required case", on_dense(vec![one], w2), gate("G8", PREP)),
+        ("P2: two parity rows on the dense selected case", b1_entry(&shared, "ordinary_prepared_dense_synthetic", None, vec![b1_rows(&d, vec![parity_twice])], vec![]), gate("G8", PREP)),
+        ("P4: a parity row on a W2-published selected case", b1_entry(&shared, "ordinary_prepared_dense_synthetic", None, dense_w2, vec![]), gate("G8", PREP)),
+        ("P3: a parity row on the sparse unavailable case", b1_entry(&shared, F_BASE, None, vec![b1_rows(&f, vec![b1_parity_row(&shared, UNAVAILABLE_ROW, "result:b1:sparse-parity")])], vec![]), gate("G8", PREP)),
+    ];
+    let mut misses = Vec::new();
+    for (name, entry, want) in cases {
+        let got = b1_verdict(&shared, &entry);
+        if got != want {
+            misses.push(format!("{name}: got {got} want {want}"));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+}
+
+// ---------------------------------------------------------------------------
+// B1 SR-RS repair 02 (I90): the three-reader alignment set (RR "RV113's three returns
+// verified; I3 made at `2ba2f81863`; the three-reader alignment set ruled", items 1-4).
+// Reader-local tests; 07n pins the shared entries.
+
+/// The reader's unbound verdict (no invocation): `{"admitted": eligible}`, or the first failure.
+fn b1_unbound(shared: &Value, entry: &Value) -> Value {
+    let (source, _) = apply_entry(shared, entry);
+    match rp::validate(&source, None) {
+        Ok(v) => serde_json::json!({"admitted": v.numerical_eligible}),
+        Err(e) => gate(e.gate, &e.code),
+    }
+}
+/// The transport verdict: `{"admitted": false}`, or the first failure.
+fn b1_transport(shared: &Value, entry: &Value) -> Value {
+    let (source, _) = apply_entry(shared, entry);
+    match rp::validate_transport_metadata(&source) {
+        Ok(v) => serde_json::json!({"admitted": v.numerical_eligible}),
+        Err(e) => gate(e.gate, &e.code),
+    }
+}
+fn b1_table(rows: Vec<(&str, Value, Value)>, verdict: impl Fn(&Value) -> Value) {
+    let mut misses = Vec::new();
+    for (name, entry, want) in rows {
+        let got = verdict(&entry);
+        if got != want {
+            misses.push(format!("{name}: got {got} want {want}"));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+}
+
+/// Item 1, (f) and its family, at G3 COVERAGE bound and unbound: a material basis's and a
+/// source's index is its position; `case_indices` is unique and in range; a source's owner
+/// is its own case (the case at `owner.case_index` carries `owner.case_id`).
+#[test]
+fn b1_r2_f_family_at_g3_bound_and_unbound() {
+    use serde_json::json;
+    let shared = corpus();
+    let rows = vec![
+        (
+            "a basis index not its position",
+            b1_entry(
+                &shared,
+                ORD,
+                None,
+                vec![set(rb(json!(["material_bases", 0, "index"])), json!(1))],
+                vec![],
+            ),
+        ),
+        (
+            "two basis indices swapped",
+            b1_entry(
+                &shared,
+                "two_case_two_groups_synthetic",
+                None,
+                vec![
+                    set(rb(json!(["material_bases", 0, "index"])), json!(1)),
+                    set(rb(json!(["material_bases", 1, "index"])), json!(0)),
+                ],
+                vec![],
+            ),
+        ),
+        (
+            "a source index not its position",
+            b1_entry(
+                &shared,
+                ORD,
+                None,
+                vec![set(rb(json!(["sources", 0, "index"])), json!(1))],
+                vec![],
+            ),
+        ),
+        (
+            "two source indices swapped",
+            b1_entry(
+                &shared,
+                "two_case_synthetic",
+                None,
+                vec![
+                    set(rb(json!(["sources", 0, "index"])), json!(1)),
+                    set(rb(json!(["sources", 1, "index"])), json!(0)),
+                ],
+                vec![],
+            ),
+        ),
+        (
+            "case_indices with a duplicate",
+            b1_entry(
+                &shared,
+                "two_case_synthetic",
+                None,
+                vec![set(
+                    rb(json!(["material_bases", 0, "case_indices"])),
+                    json!([0, 1, 1]),
+                )],
+                vec![],
+            ),
+        ),
+        (
+            "case_indices out of range",
+            b1_entry(
+                &shared,
+                "two_case_synthetic",
+                None,
+                vec![set(
+                    rb(json!(["material_bases", 0, "case_indices"])),
+                    json!([0, 1, 2]),
+                )],
+                vec![],
+            ),
+        ),
+        (
+            "a source owner naming another case's id",
+            b1_entry(
+                &shared,
+                "two_case_synthetic",
+                None,
+                vec![set(
+                    rb(json!(["sources", 1, "owner", "case_id"])),
+                    json!("case:six-component-load"),
+                )],
+                vec![],
+            ),
+        ),
+    ];
+    let want = gate("G3", COVERAGE);
+    let bound: Vec<_> = rows
+        .iter()
+        .map(|(n, e)| (*n, e.clone(), want.clone()))
+        .collect();
+    b1_table(bound, |e| b1_verdict(&shared, e));
+    b1_table(
+        rows.into_iter()
+            .map(|(n, e)| (n, e, want.clone()))
+            .collect(),
+        |e| b1_unbound(&shared, e),
+    );
+}
+
+/// Item 1: the ordinary attempt's basis reference at G5 ATTEMPT bound and unbound (it
+/// resolves to a basis that lists its case). G8 still binds the basis to the invocation:
+/// a basis listing its cases out of the invocation's order is G8 PREPARATION bound and
+/// admitted unbound.
+#[test]
+fn b1_r2_ordinary_basis_reference_at_g5_attempt() {
+    use serde_json::json;
+    let shared = corpus();
+    let missing = b1_entry(
+        &shared,
+        P_BASE,
+        Some(NOT_REQUIRED),
+        vec![set(
+            rb(json!(["ordinary_attempts", 1, "material_basis_ref"])),
+            json!(7),
+        )],
+        vec![],
+    );
+    let omits = b1_entry(
+        &shared,
+        P_BASE,
+        Some(NOT_REQUIRED),
+        vec![set(
+            rb(json!(["material_bases", 0, "case_indices"])),
+            json!([0]),
+        )],
+        vec![],
+    );
+    let reordered = b1_entry(
+        &shared,
+        P_BASE,
+        Some(NOT_REQUIRED),
+        vec![set(
+            rb(json!(["material_bases", 0, "case_indices"])),
+            json!([1, 0]),
+        )],
+        vec![],
+    );
+    b1_table(
+        vec![
+            ("the basis missing", missing.clone(), gate("G5", ATTEMPT)),
+            (
+                "the basis not listing the case",
+                omits.clone(),
+                gate("G5", ATTEMPT),
+            ),
+            (
+                "the cases out of the invocation's order",
+                reordered.clone(),
+                gate("G8", PREP),
+            ),
+        ],
+        |e| b1_verdict(&shared, e),
+    );
+    b1_table(
+        vec![
+            ("the basis missing", missing, gate("G5", ATTEMPT)),
+            ("the basis not listing the case", omits, gate("G5", ATTEMPT)),
+            (
+                "the cases out of the invocation's order",
+                reordered,
+                admitted(false),
+            ),
+        ],
+        |e| b1_unbound(&shared, e),
+    );
+}
+
+/// Item 2, (g), at G8 INVOCATION, PP's acceptance: no `reference_configurations` member
+/// (null included); `pressure_contract` absent or null; `combinations` and `components`
+/// absent or []. Unbound reads do not see the invocation.
+#[test]
+fn b1_r2_g_model_scope_at_g8_invocation() {
+    use serde_json::json;
+    let shared = corpus();
+    let model = |k: &str| json!(["request", "model", k]);
+    let invocation = |edits: Vec<Value>| b1_entry(&shared, ORD, None, vec![], edits);
+    let refused = gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH");
+    b1_table(
+        vec![
+            (
+                "combinations null",
+                invocation(vec![set(model("combinations"), Value::Null)]),
+                refused.clone(),
+            ),
+            (
+                "combinations an object",
+                invocation(vec![set(model("combinations"), json!({"x": 1}))]),
+                refused.clone(),
+            ),
+            (
+                "combinations a string",
+                invocation(vec![set(model("combinations"), json!("x"))]),
+                refused.clone(),
+            ),
+            (
+                "components null",
+                invocation(vec![set(model("components"), Value::Null)]),
+                refused.clone(),
+            ),
+            (
+                "components a string",
+                invocation(vec![set(model("components"), json!("x"))]),
+                refused.clone(),
+            ),
+            (
+                "components an object",
+                invocation(vec![set(model("components"), json!({}))]),
+                refused.clone(),
+            ),
+            (
+                "reference_configurations null",
+                invocation(vec![set(model("reference_configurations"), Value::Null)]),
+                refused.clone(),
+            ),
+            (
+                "pressure_contract false",
+                invocation(vec![set(model("pressure_contract"), json!(false))]),
+                refused.clone(),
+            ),
+            (
+                "combinations and components []",
+                invocation(vec![
+                    set(model("combinations"), json!([])),
+                    set(model("components"), json!([])),
+                ]),
+                admitted(true),
+            ),
+            (
+                "combinations and components absent",
+                invocation(vec![
+                    remove(model("combinations")),
+                    remove(model("components")),
+                ]),
+                admitted(true),
+            ),
+            (
+                "pressure_contract null",
+                invocation(vec![set(model("pressure_contract"), Value::Null)]),
+                admitted(true),
+            ),
+        ],
+        |e| b1_verdict(&shared, e),
+    );
+    assert_eq!(
+        b1_unbound(
+            &shared,
+            &invocation(vec![set(model("combinations"), Value::Null)])
+        ),
+        admitted(false)
+    );
+}
+
+/// Item 3: C2's cause table at G5 ATTEMPT, in the ordinary class, for an unavailable case
+/// whose cause is not a prepared product failure. On 07j's two-case base, case 1 with a
+/// Ready attempt and its selected Run (rows without a method), by `validate`:
+/// `receipt_failure` and `facade_failure`, each satisfied and broken (a satisfied facade
+/// failure beside a Ready attempt then fails D19, G5 PRODUCT_ATTEMPT).
+#[test]
+fn b1_r2_c2_cause_table_receipt_and_facade() {
+    use serde_json::json;
+    let shared = corpus();
+    let base = base_source(&shared, "two_case_synthetic");
+    let mut rows = base["results"].as_array().unwrap().clone();
+    for r in rows
+        .iter_mut()
+        .filter(|r| r["basis_ref"]["ref_id"] == "case:zero-load")
+    {
+        r.as_object_mut().unwrap().remove("recovery_method");
+    }
+    let diagnostic = base["diagnostics"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .position(|d| d["id"] == "diagnostic:retained:synthetic-zero-load")
+        .unwrap();
+    let case = |reason: Value| {
+        b1_entry(
+            &shared,
+            "two_case_synthetic",
+            None,
+            vec![
+                remove(rb(json!(["cases", 1, "method"]))),
+                remove(rb(json!(["cases", 1, "selection"]))),
+                remove(rb(json!(["cases", 1, "source_identity_sha256"]))),
+                set(rb(json!(["cases", 1, "status"])), json!("unavailable")),
+                set(rb(json!(["cases", 1, "reason"])), reason),
+                set(
+                    rb(json!(["cases", 1, "diagnostic_ref"])),
+                    json!("diagnostic:retained:synthetic-zero-load"),
+                ),
+                set(
+                    json!(["diagnostics", diagnostic, "code"]),
+                    json!("RETAINED_PRECISION_UNAVAILABLE"),
+                ),
+                set(json!(["results"]), Value::Array(rows.clone())),
+            ],
+            vec![],
+        )
+    };
+    let receipt = json!({"kind": "receipt_failure", "check": "encoding", "field_path": "retained_precision.body"});
+    let facade = |index: u64| json!({"kind": "facade_failure", "owner_ref": {"kind": "case", "index": index}, "row_id": null, "recipe": "identity", "operand_index": null, "check": "identity", "predicate": null});
+    let reason = |code: &str, phase: &str, cause: &Value| json!({"code": code, "phase": phase, "cause": cause});
+    b1_table(
+        vec![
+            (
+                "receipt_failure: receipt_encoding, receipt",
+                case(reason("receipt_encoding", "receipt", &receipt)),
+                admitted(false),
+            ),
+            (
+                "receipt_failure: publication_hash_range, receipt",
+                case(reason("publication_hash_range", "receipt", &receipt)),
+                admitted(false),
+            ),
+            (
+                "receipt_failure: invocation_not_representable, receipt",
+                case(reason("invocation_not_representable", "receipt", &receipt)),
+                admitted(false),
+            ),
+            (
+                "receipt_failure: phase kernel",
+                case(reason("kernel_unresolved", "kernel", &receipt)),
+                gate("G5", ATTEMPT),
+            ),
+            (
+                "receipt_failure: code facade_certificate",
+                case(reason("facade_certificate", "receipt", &receipt)),
+                gate("G5", ATTEMPT),
+            ),
+            (
+                "receipt_failure: phase preparation",
+                case(reason("source_unavailable", "preparation", &receipt)),
+                gate("G5", ATTEMPT),
+            ),
+            (
+                "facade_failure: satisfied (D19 next)",
+                case(reason("facade_certificate", "facade", &facade(1))),
+                gate("G5", PRODUCT),
+            ),
+            (
+                "facade_failure: phase kernel",
+                case(reason("facade_certificate", "kernel", &facade(1))),
+                gate("G5", ATTEMPT),
+            ),
+            (
+                "facade_failure: code receipt_encoding",
+                case(reason("receipt_encoding", "facade", &facade(1))),
+                gate("G5", ATTEMPT),
+            ),
+            (
+                "facade_failure: another case's owner",
+                case(reason("facade_certificate", "facade", &facade(0))),
+                gate("G5", ATTEMPT),
+            ),
+        ],
+        |e| b1_verdict(&shared, e),
+    );
+}
+
+/// Item 3 on G5's ordinary class (`reader_logic::ordinary`, the pass `validate` runs):
+/// `source_error`, `unavailable_precondition` keyed by its precondition, and a kernel
+/// reason, each satisfied and broken. 07j's base case 1 (unavailable, no source or Run)
+/// carries the first two; the kernel reason uses F_BASE's case 1 with its own refused Run
+/// (the (4a) witness's idle Run).
+#[test]
+fn b1_r2_c2_cause_table_source_precondition_kernel() {
+    use serde_json::json;
+    let shared = corpus();
+    let ordinary = |source: &Value| match rp::reader_logic::ordinary(source) {
+        Ok(()) => admitted(false),
+        Err(e) => gate(e.gate, &e.code),
+    };
+    let p = base_source(&shared, P_BASE);
+    let with_reason = |reason: Value, decline: Option<Value>| {
+        let mut s = p.clone();
+        s["retained_precision"]["body"]["cases"][1]["reason"] = reason;
+        if let Some(d) = decline {
+            s["retained_precision"]["body"]["cases"][1]["source_decline"] = d;
+        }
+        s
+    };
+    let error = json!({"tag": "no_nodes"});
+    let decline = |e: &Value| {
+        json!({
+            "input_owner": {"case_index": 1, "case_id": "case:unavailable-row", "material_basis_ref": 0},
+            "constructor_counts": {"nodes": 2, "members": 1, "springs": 0, "constraints": 6, "nodal_terms": 6, "stations": 3, "supports": 1, "id_utf8_bytes": 0, "directional_springs": 0},
+            "error": e
+        })
+    };
+    let source_error = json!({"kind": "source_error", "error": error});
+    let precondition = |which: &str| json!({"kind": "unavailable_precondition", "precondition": which, "affected_refs": []});
+    let reason = |code: &str, phase: &str, cause: Value| json!({"code": code, "phase": phase, "cause": cause});
+    let mut rows = vec![
+        (
+            "source_error: satisfied",
+            with_reason(
+                reason("source_unavailable", "preparation", source_error.clone()),
+                Some(decline(&error)),
+            ),
+            admitted(false),
+        ),
+        (
+            "source_error: no source_decline",
+            with_reason(
+                reason("source_unavailable", "preparation", source_error.clone()),
+                None,
+            ),
+            gate("G5", ATTEMPT),
+        ),
+        (
+            "source_error: the decline's error differs",
+            with_reason(
+                reason("source_unavailable", "preparation", source_error.clone()),
+                Some(decline(&json!({"tag": "no_members"}))),
+            ),
+            gate("G5", ATTEMPT),
+        ),
+        (
+            "source_error: phase routing",
+            with_reason(
+                reason("source_unavailable", "routing", source_error.clone()),
+                Some(decline(&error)),
+            ),
+            gate("G5", ATTEMPT),
+        ),
+        (
+            "source_error: code caller_not_qualified",
+            with_reason(
+                reason("caller_not_qualified", "preparation", source_error),
+                Some(decline(&error)),
+            ),
+            gate("G5", ATTEMPT),
+        ),
+        (
+            "unavailable_precondition: phase kernel",
+            with_reason(
+                reason("source_unavailable", "kernel", precondition("capture")),
+                None,
+            ),
+            gate("G5", ATTEMPT),
+        ),
+    ];
+    let keyed = [
+        ("caller", "caller_not_qualified"),
+        ("resource_admission", "resource_admission_not_available"),
+        ("upstream_no_wrap", "upstream_no_wrap_not_established"),
+        ("capture", "source_unavailable"),
+        ("source_family", "source_unavailable"),
+    ];
+    for (which, code) in keyed {
+        for phase in ["routing", "preparation"] {
+            rows.push((
+                "unavailable_precondition: its keyed code",
+                with_reason(reason(code, phase, precondition(which)), None),
+                admitted(false),
+            ));
+        }
+        for (_, other) in keyed.iter().filter(|(_, c)| *c != code) {
+            rows.push((
+                "unavailable_precondition: another precondition's code",
+                with_reason(reason(other, "preparation", precondition(which)), None),
+                gate("G5", ATTEMPT),
+            ));
+        }
+    }
+    // A kernel reason: F_BASE's case 1 with its own refused (idle) Run.
+    let body = &base_source(&shared, F_BASE)["retained_precision"]["body"];
+    let mut run = body["cases"][1]["run"].clone();
+    let before = run["invocation_before"].clone();
+    for (k, v) in [
+        ("records", json!([])),
+        ("attempts", json!([])),
+        ("case_charge", json!(0)),
+        ("invocation_increment", json!(0)),
+        ("invocation_after", before.clone()),
+    ] {
+        run[k] = v;
+    }
+    run["cache_after"] = run["cache_before"].clone();
+    let terminal = json!({"space": "refusal", "tag": "ledger_unavailable", "error": {"tag": "accumulator", "error": {"tag": "non_finite"}}});
+    run["kernel_terminal"] = json!({"kind": "refused", "reason": terminal});
+    let kernel = |code: &str, phase: &str, cause: Value| {
+        let (source, _) = apply_entry(
+            &shared,
+            &b1_entry(
+                &shared,
+                F_BASE,
+                None,
+                vec![
+                    set(rb(json!(["cases", 1, "run"])), run.clone()),
+                    set(
+                        rb(json!(["cases", 1, "reason"])),
+                        reason(code, phase, cause),
+                    ),
+                    set(rb(json!(["calls", 0, "invocation_after"])), before.clone()),
+                    set(rb(json!(["work", "charged"])), before.clone()),
+                ],
+                vec![],
+            ),
+        );
+        source
+    };
+    rows.extend([
+        (
+            "kernel reason: satisfied",
+            kernel("kernel_refused", "kernel", terminal.clone()),
+            admitted(false),
+        ),
+        (
+            "kernel reason: code kernel_unresolved",
+            kernel("kernel_unresolved", "kernel", terminal.clone()),
+            gate("G5", ATTEMPT),
+        ),
+        (
+            "kernel reason: phase facade",
+            kernel("kernel_refused", "facade", terminal.clone()),
+            gate("G5", ATTEMPT),
+        ),
+        (
+            "kernel reason: a cause other than the terminal's",
+            kernel(
+                "kernel_refused",
+                "kernel",
+                json!({"space": "refusal", "tag": "structure"}),
+            ),
+            gate("G5", ATTEMPT),
+        ),
+    ]);
+    let mut misses = Vec::new();
+    for (name, source, want) in rows {
+        let got = ordinary(&source);
+        if got != want {
+            misses.push(format!(
+                "{name}: got {got} want {want} ({})",
+                source["retained_precision"]["body"]["cases"][1]["reason"]
+            ));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+}
+
+/// Item 4: transport keeps the header check at G2 and adds the preview-physics metadata
+/// check at G7 (`SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID`), as PY and TS run it. Each edit
+/// below passes the header and is refused by the metadata check; the header's own
+/// defects stay at G2.
+#[test]
+fn b1_r2_transport_metadata_at_g7() {
+    use serde_json::json;
+    let shared = corpus();
+    let ev = |tail: Value| {
+        let mut p = vec![json!("contract_evidence")];
+        p.extend(tail.as_array().unwrap().iter().cloned());
+        Value::Array(p)
+    };
+    let x = |k: &str| ev(json!(["preview_cases", 0, "pipe_stress_extrema", 0, k]));
+    let on = |base: &str, edits: Vec<Value>| b1_entry(&shared, base, None, edits, vec![]);
+    let g7 = gate("G7", "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID");
+    let limitations = base_source(&shared, ORD)["formulation_basis"]["limitations"].clone();
+    let mut shorter = limitations.as_array().unwrap().clone();
+    shorter.pop();
+    b1_table(
+        vec![
+            ("the base", on(ORD, vec![]), admitted(false)),
+            (
+                "a valid combination gate",
+                on(
+                    ORD,
+                    vec![set(
+                        ev(json!(["combination_gates"])),
+                        json!([{"combination_id": "c", "withheld": false, "reason": null}]),
+                    )],
+                ),
+                admitted(false),
+            ),
+            (
+                "carrier_evidence present",
+                on(ORD, vec![set(json!(["carrier_evidence"]), json!({}))]),
+                g7.clone(),
+            ),
+            (
+                "limitations other than the table's",
+                on(
+                    ORD,
+                    vec![set(
+                        json!(["formulation_basis", "limitations"]),
+                        Value::Array(shorter),
+                    )],
+                ),
+                g7.clone(),
+            ),
+            (
+                "contract_evidence with another member",
+                on(ORD, vec![set(ev(json!(["extra"])), json!([]))]),
+                g7.clone(),
+            ),
+            (
+                "preview_cases not a list",
+                on(ORD, vec![set(ev(json!(["preview_cases"])), json!({}))]),
+                g7.clone(),
+            ),
+            (
+                "a preview case missing a member",
+                on(
+                    ORD,
+                    vec![remove(ev(json!([
+                        "preview_cases",
+                        0,
+                        "intensified_measures"
+                    ])))],
+                ),
+                g7.clone(),
+            ),
+            (
+                "two preview cases with one id",
+                on(
+                    "two_case_synthetic",
+                    vec![set(
+                        ev(json!(["preview_cases", 1, "load_case_id"])),
+                        json!("case:six-component-load"),
+                    )],
+                ),
+                g7.clone(),
+            ),
+            (
+                "coverage complete with an unavailable pipe",
+                on(
+                    ORD,
+                    vec![set(
+                        ev(json!([
+                            "preview_cases",
+                            0,
+                            "stress_maximum_coverage",
+                            "unavailable_pipe_ids"
+                        ])),
+                        json!(["pipe:x"]),
+                    )],
+                ),
+                g7.clone(),
+            ),
+            (
+                "an extrema constant changed",
+                on(ORD, vec![set(x("approximation"), json!("other"))]),
+                g7.clone(),
+            ),
+            (
+                "an extrema fraction above 1",
+                on(ORD, vec![set(x("station_fraction"), json!(2.0))]),
+                g7.clone(),
+            ),
+            (
+                "an extrema span index negative",
+                on(ORD, vec![set(x("span_index"), json!(-1))]),
+                g7.clone(),
+            ),
+            (
+                "subdivisions above the maximum",
+                on(ORD, vec![set(x("subdivisions"), json!(131073))]),
+                g7.clone(),
+            ),
+            (
+                "extrema bounds inverted",
+                on(ORD, vec![set(x("value_lower_pa"), json!(41354910.5))]),
+                g7.clone(),
+            ),
+            (
+                "a withheld record with an unknown reason",
+                on(
+                    ORD,
+                    vec![set(
+                        ev(json!([
+                            "preview_cases",
+                            0,
+                            "support_attribution",
+                            "withheld"
+                        ])),
+                        json!([{"support_id": "support:other", "reason": "OTHER"}]),
+                    )],
+                ),
+                g7.clone(),
+            ),
+            (
+                "a support attributed and withheld",
+                on(
+                    ORD,
+                    vec![set(
+                        ev(json!([
+                            "preview_cases",
+                            0,
+                            "support_attribution",
+                            "withheld"
+                        ])),
+                        json!([{"support_id": "support:fixture-root", "reason": "CONSTANT_EFFORT_NOT_CONSUMED"}]),
+                    )],
+                ),
+                g7.clone(),
+            ),
+            (
+                "attribution sets differ between cases",
+                on(
+                    "two_case_synthetic",
+                    vec![set(
+                        ev(json!([
+                            "preview_cases",
+                            1,
+                            "support_attribution",
+                            "attributed_support_ids"
+                        ])),
+                        json!([]),
+                    )],
+                ),
+                g7.clone(),
+            ),
+            (
+                "an intensified measure in another place",
+                on(
+                    ORD,
+                    vec![set(
+                        ev(json!(["preview_cases", 0, "intensified_measures"])),
+                        json!([{"result_id": "r", "component_id": "k", "pipe_id": "p", "location": "midspan", "factor_role": "bend", "sif": 1.0, "sif_source_reference": "s", "section_modulus_m3": 1.0, "bending_moment_y_n_m": 0.0, "bending_moment_z_n_m": 0.0}]),
+                    )],
+                ),
+                g7.clone(),
+            ),
+            (
+                "a withheld gate without a code",
+                on(
+                    ORD,
+                    vec![set(
+                        ev(json!(["combination_gates"])),
+                        json!([{"combination_id": "c", "withheld": true, "reason": null}]),
+                    )],
+                ),
+                g7.clone(),
+            ),
+            (
+                "two gates with one id",
+                on(
+                    ORD,
+                    vec![set(
+                        ev(json!(["combination_gates"])),
+                        json!([{"combination_id": "c", "withheld": false, "reason": null}, {"combination_id": "c", "withheld": false, "reason": null}]),
+                    )],
+                ),
+                g7.clone(),
+            ),
+            (
+                "the header's own defect stays at G2",
+                on(
+                    ORD,
+                    vec![set(json!(["numerical_quality", "status"]), json!("other"))],
+                ),
+                gate("G2", "SOURCE_NUMERICAL_QUALITY_INVALID"),
+            ),
+        ],
+        |e| b1_transport(&shared, e),
+    );
+}
+
+// ---------------------------------------------------------------------------
+// B1's reader follow-up toward I4' (I101; RR "I4 made at `30f3d1b24a`; …", rulings 2
+// and 4): reader-local rows on synthetic receipts. SC's 07n pins the shared ones.
+
+/// The transport verdict with the refusal's detail: `{"admitted": false}`, or the first
+/// failure's gate, code and detail.
+fn b1_transport_detail(shared: &Value, entry: &Value) -> Value {
+    let (source, _) = apply_entry(shared, entry);
+    match rp::validate_transport_metadata(&source) {
+        Ok(v) => serde_json::json!({"admitted": v.numerical_eligible}),
+        Err(e) => serde_json::json!({"gate": e.gate, "code": e.code, "detail": e.detail}),
+    }
+}
+/// The metadata check's refusal of one demand, as `b1_transport_detail` reports it.
+fn b1_metadata_refusal(demand: &str) -> Value {
+    serde_json::json!({
+        "gate": "G7",
+        "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
+        "detail": format!("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: {demand}"),
+    })
+}
+
+/// Ruling 2, RS's side: PY's extrema-number demand in the transport metadata check. An
+/// extremum whose `global_upper_bound_pa` or `certified_gap_pa` is not a JSON number
+/// (null included) is refused at G7 `SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID`, "extrema
+/// numbers", at PY's place (before the fractions); a JSON integer is a number. The raw
+/// path is unchanged: RS's base reader refuses RV113's two shapes at G7 with its own raw
+/// code, `SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID` (a declared per-reader raw code).
+#[test]
+fn b1_i4p_transport_extrema_numbers_at_g7() {
+    use serde_json::json;
+    let shared = corpus();
+    let x = |k: &str| {
+        json!([
+            "contract_evidence",
+            "preview_cases",
+            0,
+            "pipe_stress_extrema",
+            0,
+            k
+        ])
+    };
+    let on = |edits: Vec<Value>| b1_entry(&shared, ORD, None, edits, vec![]);
+    let shapes = [
+        (
+            "global_upper_bound_pa a string",
+            "global_upper_bound_pa",
+            json!("x"),
+        ),
+        (
+            "global_upper_bound_pa null",
+            "global_upper_bound_pa",
+            Value::Null,
+        ),
+        (
+            "global_upper_bound_pa a boolean",
+            "global_upper_bound_pa",
+            json!(true),
+        ),
+        ("certified_gap_pa null", "certified_gap_pa", Value::Null),
+        ("certified_gap_pa a string", "certified_gap_pa", json!("0")),
+        ("certified_gap_pa a list", "certified_gap_pa", json!([0.0])),
+    ];
+    let mut rows: Vec<(&str, Value, Value)> = shapes
+        .iter()
+        .map(|(name, k, v)| {
+            (
+                *name,
+                on(vec![set(x(k), v.clone())]),
+                b1_metadata_refusal("extrema numbers"),
+            )
+        })
+        .collect();
+    rows.extend([
+        ("the base", on(vec![]), admitted(false)),
+        (
+            "both members JSON integers",
+            on(vec![
+                set(x("global_upper_bound_pa"), json!(41354909)),
+                set(x("certified_gap_pa"), json!(0)),
+            ]),
+            admitted(false),
+        ),
+        (
+            "a string bound beside a fraction above 1 (the demand comes first)",
+            on(vec![
+                set(x("global_upper_bound_pa"), json!("x")),
+                set(x("station_fraction"), json!(2.0)),
+            ]),
+            b1_metadata_refusal("extrema numbers"),
+        ),
+        (
+            "a fraction above 1 alone",
+            on(vec![set(x("station_fraction"), json!(2.0))]),
+            b1_metadata_refusal("extrema fractions"),
+        ),
+    ]);
+    b1_table(rows, |e| b1_transport_detail(&shared, e));
+    let raw = gate("G7", "SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID");
+    let rv113 = [
+        (
+            "t_extrema_global_upper_string",
+            on(vec![set(x("global_upper_bound_pa"), json!("x"))]),
+        ),
+        (
+            "t_extrema_certified_gap_null",
+            on(vec![set(x("certified_gap_pa"), Value::Null)]),
+        ),
+    ];
+    b1_table(
+        rv113
+            .iter()
+            .map(|(n, e)| (*n, e.clone(), raw.clone()))
+            .collect(),
+        |e| b1_verdict(&shared, e),
+    );
+    b1_table(
+        rv113
+            .iter()
+            .map(|(n, e)| (*n, e.clone(), raw.clone()))
+            .collect(),
+        |e| b1_unbound(&shared, e),
+    );
+}
+
+/// Ruling 4 (RV113's SR-RS addendum 02, S-1), C2's three conjuncts that no RS test broke
+/// alone, by `validate`, bound and unbound, each at G5 ATTEMPT:
+/// - `unavailable_precondition` with its keyed code in an admitted phase, beside the case's
+///   selected Run (the no-Run conjunct; RV113's `ca_precondition_beside_run`);
+/// - `receipt_failure` with a receipt code, `receipt_encoding`, in phase kernel (the phase
+///   conjunct; RV113's `ca_receipt_phase_kernel`);
+/// - a `facade_failure` with its phase, code and owner, on a case with no Run (the
+///   selected-Run conjunct; RV113's `cb_facade_no_run`).
+#[test]
+fn b1_i4p_c2_conjuncts_alone() {
+    use serde_json::json;
+    let shared = corpus();
+    // C-a: 07j's two-case base, case 1 unavailable beside its Ready attempt and selected
+    // Run (rows without a method), as `b1_r2_c2_cause_table_receipt_and_facade` builds it.
+    let base = base_source(&shared, "two_case_synthetic");
+    let mut rows = base["results"].as_array().unwrap().clone();
+    for r in rows
+        .iter_mut()
+        .filter(|r| r["basis_ref"]["ref_id"] == "case:zero-load")
+    {
+        r.as_object_mut().unwrap().remove("recovery_method");
+    }
+    let diagnostic = base["diagnostics"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .position(|d| d["id"] == "diagnostic:retained:synthetic-zero-load")
+        .unwrap();
+    let beside_run = |reason: Value| {
+        b1_entry(
+            &shared,
+            "two_case_synthetic",
+            None,
+            vec![
+                remove(rb(json!(["cases", 1, "method"]))),
+                remove(rb(json!(["cases", 1, "selection"]))),
+                remove(rb(json!(["cases", 1, "source_identity_sha256"]))),
+                set(rb(json!(["cases", 1, "status"])), json!("unavailable")),
+                set(rb(json!(["cases", 1, "reason"])), reason),
+                set(
+                    rb(json!(["cases", 1, "diagnostic_ref"])),
+                    json!("diagnostic:retained:synthetic-zero-load"),
+                ),
+                set(
+                    json!(["diagnostics", diagnostic, "code"]),
+                    json!("RETAINED_PRECISION_UNAVAILABLE"),
+                ),
+                set(json!(["results"]), Value::Array(rows.clone())),
+            ],
+            vec![],
+        )
+    };
+    // C-b: the preparation-failure base, case 1 unavailable with no product attempt,
+    // source or Run.
+    let p1 = base_source(&shared, P_BASE)["retained_precision"]["body"]["cases"][1].clone();
+    let no_run = |reason: Value| {
+        b1_entry(
+            &shared,
+            P_BASE,
+            None,
+            vec![
+                set(
+                    rb(json!(["cases", 1])),
+                    json!({
+                        "basis_ref": p1["basis_ref"], "ordinary": p1["ordinary"],
+                        "product_attempt_ref": null, "status": "unavailable", "reason": reason,
+                        "diagnostic_ref": p1["diagnostic_ref"], "run": null, "source_ref": null
+                    }),
+                ),
+                remove(rb(json!(["product_attempts", 1]))),
+            ],
+            vec![],
+        )
+    };
+    let reason = |code: &str, phase: &str, cause: Value| json!({"code": code, "phase": phase, "cause": cause});
+    let receipt = json!({"kind": "receipt_failure", "check": "encoding", "field_path": "retained_precision.body"});
+    let facade = json!({"kind": "facade_failure", "owner_ref": {"kind": "case", "index": 1}, "row_id": null, "recipe": "identity", "operand_index": null, "check": "identity", "predicate": null});
+    let capture =
+        json!({"kind": "unavailable_precondition", "precondition": "capture", "affected_refs": []});
+    let entries = vec![
+        (
+            "unavailable_precondition, keyed, phase preparation, beside the selected Run",
+            beside_run(reason("source_unavailable", "preparation", capture)),
+        ),
+        (
+            "receipt_failure, receipt_encoding, phase kernel",
+            beside_run(reason("receipt_encoding", "kernel", receipt)),
+        ),
+        (
+            "facade_failure, facade_certificate, phase facade, naming its case, with no Run",
+            no_run(reason("facade_certificate", "facade", facade)),
+        ),
+    ];
+    let want = gate("G5", ATTEMPT);
+    b1_table(
+        entries
+            .iter()
+            .map(|(n, e)| (*n, e.clone(), want.clone()))
+            .collect(),
+        |e| b1_verdict(&shared, e),
+    );
+    b1_table(
+        entries
+            .into_iter()
+            .map(|(n, e)| (n, e, want.clone()))
+            .collect(),
+        |e| b1_unbound(&shared, e),
+    );
+}
+
+/// Ruling 4 (RV113's SR-RS addendum 02, S-1), the transport metadata check's nine
+/// demands that no RS test broke alone (RV113's N45, N47, N48, N56, N58, N60 and
+/// N63-N65). Each row breaks one demand and is refused by it (gate, code and detail);
+/// the two controls carry a valid measure and a valid withheld gate.
+#[test]
+fn b1_i4p_transport_metadata_demands_alone() {
+    use serde_json::json;
+    let shared = corpus();
+    let pc = |tail: Value| {
+        let mut p = vec![json!("contract_evidence"), json!("preview_cases"), json!(0)];
+        p.extend(tail.as_array().unwrap().iter().cloned());
+        Value::Array(p)
+    };
+    let on = |edits: Vec<Value>| b1_entry(&shared, ORD, None, edits, vec![]);
+    let measure = json!({
+        "result_id": "result:i101:measure", "component_id": "component:i101", "pipe_id": "pipe:fixture-span",
+        "location": "end_i", "factor_role": "bend", "sif": 1.5, "sif_source_reference": "i101",
+        "section_modulus_m3": 1e-4, "bending_moment_y_n_m": 1.0, "bending_moment_z_n_m": 2.0
+    });
+    let with = |v: &Value, k: &str, x: Value| {
+        let mut v = v.clone();
+        v[k] = x;
+        v
+    };
+    let measures = |list: Value| on(vec![set(pc(json!(["intensified_measures"])), list)]);
+    let coverage = |unavailable: Value, outside: Value| {
+        on(vec![set(
+            pc(json!(["stress_maximum_coverage"])),
+            json!({"complete": false, "unavailable_pipe_ids": unavailable, "outside_domain_pipe_ids": outside}),
+        )])
+    };
+    let gate_record = json!({"combination_id": "combination:i101", "withheld": true, "reason": "NONLINEAR_COMBINATION_REQUIRES_SOLVE"});
+    let gates = |list: Value| {
+        on(vec![set(
+            json!(["contract_evidence", "combination_gates"]),
+            list,
+        )])
+    };
+    let m = b1_metadata_refusal;
+    b1_table(
+        vec![
+            (
+                "a valid measure",
+                measures(json!([measure.clone()])),
+                admitted(false),
+            ),
+            (
+                "a valid withheld gate",
+                gates(json!([gate_record.clone()])),
+                admitted(false),
+            ),
+            (
+                "N45: a preview case with another member",
+                on(vec![set(pc(json!(["extra"])), json!(1))]),
+                m("preview case shape"),
+            ),
+            (
+                "N47: an unavailable pipe listed twice",
+                coverage(json!(["p", "p"]), json!([])),
+                m("maximum coverage values"),
+            ),
+            (
+                "N48: a pipe both unavailable and outside the domain",
+                coverage(json!(["p"]), json!(["p"])),
+                m("maximum coverage overlap"),
+            ),
+            (
+                "N56: an extremum's pipe listed unavailable",
+                coverage(json!(["pipe:fixture-span"]), json!([])),
+                m("extrema member partition"),
+            ),
+            (
+                "N58: a measure's moment a string",
+                measures(json!([with(&measure, "bending_moment_y_n_m", json!("1"))])),
+                m("intensified measure inputs"),
+            ),
+            (
+                "N60: two measures with one result id",
+                measures(json!([
+                    measure.clone(),
+                    with(&measure, "component_id", json!("component:i101b"))
+                ])),
+                m("duplicate evidence result binding"),
+            ),
+            (
+                "N63: an extremum with another member",
+                on(vec![set(
+                    pc(json!(["pipe_stress_extrema", 0, "extra"])),
+                    json!(1),
+                )]),
+                m("extrema shape"),
+            ),
+            (
+                "N64: a measure with another member",
+                measures(json!([with(&measure, "extra", json!(1))])),
+                m("intensified measure shape"),
+            ),
+            (
+                "N65: a gate with another member",
+                gates(json!([with(&gate_record, "extra", json!(1))])),
+                m("combination gate shape"),
+            ),
+        ],
+        |e| b1_transport_detail(&shared, e),
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Snapshot 07n (B1 SC, I100; PLAN_v2 §2.5), appended to 07m: W-C2's two
+// producer-solved bases, `d38_beside_selected`, the out-of-order-authored and
+// SF-2 successors, and 290 entries. Every 07n entry states its bound expectation
+// (per reader only in the declared class: Rust's own raw G7 code where Python and
+// TS share one), its unbound read (`expected_unbound`, or
+// `expected_unbound_by_reader` beside `expected_by_reader`) and its transport
+// read (`expected_transport`), each "pass" (admitted, not eligible) or a gate and
+// code; an admitted rewrite whose classes differ from its base's states
+// `expected_classifications` (`shared_must_pass_entries_validate` reads it). Detail
+// texts are not pinned (A-N1). I101 pins this reader's harness to it.
+
+const N07_BASES: [&str; 9] = [
+    "w_c2_sparse_interactive",
+    "w_c2_dense_scrutiny",
+    "d38_beside_selected",
+    "cause_milestone_reversed_sparse_interactive",
+    "cause_milestone_reversed_dense_scrutiny",
+    "sf2_c_b_a_sparse_interactive",
+    "sf2_c_b_a_dense_scrutiny",
+    "sf2_a_a2_sparse_interactive",
+    "sf2_a_a2_dense_scrutiny",
+];
+/// 07n's entries: the mutations after 07m's 294 and the must-pass entries after 07m's 28.
+fn n07_entries(shared: &Value) -> Vec<Value> {
+    let mut entries = shared["mutations"].as_array().unwrap()[294..].to_vec();
+    entries.extend(
+        shared["must_pass"].as_array().unwrap()[28..]
+            .iter()
+            .cloned(),
+    );
+    entries
+}
+
+/// 07n's counts and format: 26 cases (+9), 534 mutations (+240) and 78 must-pass
+/// entries (+50), appended; the new keys on new entries only; the 45 per-reader
+/// entries all in the declared class (Python and TS share the G7 expectation, Rust
+/// gives its own raw G7 code, the unbound read the same per reader); 16 entries with
+/// their own classes; 19 bases and 46 must-pass entries eligible.
+#[test]
+fn snapshot_07n_counts_and_format() {
+    let shared = corpus();
+    let ids = |key: &str| -> Vec<String> {
+        shared[key]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|e| e["id"].as_str().unwrap().to_owned())
+            .collect()
+    };
+    let (cases, mutations, must_pass) = (ids("cases"), ids("mutations"), ids("must_pass"));
+    assert_eq!(
+        (cases.len(), mutations.len(), must_pass.len()),
+        (26, 534, 78)
+    );
+    assert_eq!(cases[17..], N07_BASES);
+    assert_eq!(mutations, MUTATION_IDS);
+    let all: std::collections::BTreeSet<&String> = mutations.iter().chain(&must_pass).collect();
+    assert_eq!(all.len(), 612, "entry ids are unique");
+    let new_keys = [
+        "expected_unbound",
+        "expected_unbound_by_reader",
+        "expected_transport",
+        "expected_classifications",
+    ];
+    let old: Vec<&Value> = shared["mutations"].as_array().unwrap()[..294]
+        .iter()
+        .chain(&shared["must_pass"].as_array().unwrap()[..28])
+        .collect();
+    assert!(
+        old.iter()
+            .all(|e| new_keys.iter().all(|k| e.get(*k).is_none())),
+        "07m's entries carry no 07n key"
+    );
+    let new = n07_entries(&shared);
+    let allowed = [
+        "id",
+        "base",
+        "edits",
+        "invocation_edits",
+        "rehash",
+        "expected",
+        "expected_by_reader",
+        "expected_eligibility",
+        "expected_classifications",
+        "expected_unbound",
+        "expected_unbound_by_reader",
+        "expected_transport",
+    ];
+    for e in &new {
+        let o = e.as_object().unwrap();
+        assert!(
+            o.keys().all(|k| allowed.contains(&k.as_str())),
+            "{}",
+            e["id"]
+        );
+        assert_eq!(e["rehash"], "all");
+        assert!(e.get("expected_transport").is_some(), "{}", e["id"]);
+        assert!(
+            e.get("expected_unbound").is_some() != e.get("expected_unbound_by_reader").is_some(),
+            "{}",
+            e["id"]
+        );
+    }
+    let per: Vec<&Value> = new
+        .iter()
+        .filter(|e| e.get("expected_by_reader").is_some())
+        .collect();
+    assert_eq!(per.len(), 45);
+    for e in &per {
+        let r = &e["expected_by_reader"];
+        assert!(
+            r["python"] == r["typescript"]
+                && r["python"] == e["expected"]
+                && r["rust"] != e["expected"]
+                && e["expected"]["gate"] == "G7"
+                && r["rust"]["gate"] == "G7"
+                && e["expected_unbound_by_reader"] == *r,
+            "{}: the declared class",
+            e["id"]
+        );
+    }
+    let classes = shared["must_pass"].as_array().unwrap()[28..]
+        .iter()
+        .filter(|e| e.get("expected_classifications").is_some())
+        .count();
+    assert_eq!(classes, 16);
+    let eligible = |key: &str, field: &str| {
+        shared[key]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|e| e[field]["numerical_eligible"] == true)
+            .count()
+    };
+    assert_eq!(
+        (
+            eligible("cases", "expected"),
+            eligible("must_pass", "expected_eligibility")
+        ),
+        (19, 46)
+    );
+}
+
+/// 07n's 240 mutations as one slice, observed by this reader against its own
+/// expectation and tallied against a literal, as the earlier snapshots' slices are.
+#[test]
+fn snapshot_07n_mutation_outcomes() {
+    slice_outcomes(
+        "I101_OUTCOME_07N",
+        294..534,
+        &[
+            ("G0 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", 1),
+            ("G1 RETAINED_PRECISION_RECEIPT_MISMATCH", 6),
+            ("G3 RETAINED_PRECISION_COVERAGE_MISMATCH", 15),
+            ("G5 RETAINED_PRECISION_ATTEMPT_MISMATCH", 73),
+            ("G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH", 17),
+            ("G5 RETAINED_PRECISION_WORK_MISMATCH", 1),
+            ("G6 RETAINED_PRECISION_ROW_METHOD_MISMATCH", 1),
+            ("G7 SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN", 4),
+            ("G7 SOURCE_FORMULATION_BASIS_UNSUPPORTED", 3),
+            ("G7 SOURCE_NUMERICAL_CASE_INVALID", 14),
+            ("G7 SOURCE_NUMERICAL_QUALITY_INVALID", 9),
+            ("G7 SOURCE_PREVIEW_PHYSICS_ARRAY_INVALID", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_CASE_SHAPE", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_DUPLICATE_CASE", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_DUPLICATE_ID", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED", 2),
+            ("G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_SHAPE", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_EXTREMA_BASIS", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_EXTREMA_BOUNDS", 2),
+            ("G7 SOURCE_PREVIEW_PHYSICS_EXTREMA_SHAPE", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_EXTREMA_STATION", 2),
+            ("G7 SOURCE_PREVIEW_PHYSICS_EXTREMA_SUBDIVISIONS", 3),
+            ("G7 SOURCE_PREVIEW_PHYSICS_FOREIGN_METHOD_EVIDENCE", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_GATE_DUPLICATE", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_GATE_REASON", 2),
+            ("G7 SOURCE_PREVIEW_PHYSICS_GATE_SHAPE", 2),
+            ("G7 SOURCE_PREVIEW_PHYSICS_INTENSIFIED_RESULT_MISSING", 5),
+            ("G7 SOURCE_PREVIEW_PHYSICS_INTENSIFIED_SHAPE", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID", 3),
+            ("G7 SOURCE_PREVIEW_PHYSICS_STRESS_COVERAGE", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_STRESS_COVERAGE_PARTITION", 3),
+            ("G7 SOURCE_PREVIEW_PHYSICS_STRING_INVALID", 1),
+            (
+                "G7 SOURCE_PREVIEW_PHYSICS_SUPPORT_ATTRIBUTION_CASE_MISMATCH",
+                1,
+            ),
+            ("G7 SOURCE_PREVIEW_PHYSICS_SUPPORT_LISTED_TWICE", 2),
+            ("G7 SOURCE_PREVIEW_PHYSICS_SUPPORT_WITHHELD_REASON", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_SUPPORT_WITHHELD_RECORD", 1),
+            ("G8 RETAINED_PRECISION_INVOCATION_MISMATCH", 25),
+            ("G8 RETAINED_PRECISION_PREPARATION_MISMATCH", 29),
+        ],
+    );
+}
+
+/// 07n: each entry's unbound read (no invocation) and transport read, as the corpus
+/// states them for this reader: "pass" (admitted, not eligible) or a gate and code.
+#[test]
+fn snapshot_07n_unbound_and_transport_reads() {
+    let shared = corpus();
+    let read = |got: Result<rp::Validation, rp::ValidationError>| match got {
+        Ok(v) => {
+            assert!(!v.invocation_bound && !v.numerical_eligible);
+            Value::from("pass")
+        }
+        Err(e) => serde_json::json!({"gate": e.gate, "code": e.code}),
+    };
+    let mut misses = Vec::new();
+    let new = n07_entries(&shared);
+    assert_eq!(new.len(), 290);
+    for entry in &new {
+        let (source, _) = apply_entry(&shared, entry);
+        let unbound = entry
+            .get("expected_unbound")
+            .unwrap_or_else(|| &entry["expected_unbound_by_reader"]["rust"]);
+        let got = read(rp::validate(&source, None));
+        if got != *unbound {
+            misses.push(format!("{} unbound: got {got} want {unbound}", entry["id"]));
+        }
+        let got = read(rp::validate_transport_metadata(&source));
+        if got != entry["expected_transport"] {
+            misses.push(format!(
+                "{} transport: got {got} want {}",
+                entry["id"], entry["expected_transport"]
+            ));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
 }
