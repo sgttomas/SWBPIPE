@@ -2894,6 +2894,16 @@ fn b3b_exact_observables_refuse_each_evidence_defect() {
         }
     };
     assert_eq!(freeze_with(&|_| {}), "frozen", "control: the untampered evidence freezes");
+    // The ordinary view (no overlay) reads the same route's evidence: its extrema numbers come
+    // from `exact_cases`, so the untampered ordinary envelope passes the observables too.
+    // Its section-record coverage is its own check there (in the freeze, P-8's prepared-section
+    // domain refuses a missing section first: "a missing section" below).
+    {
+        let (_, observer, mut ordinary) = observed(mode, &raw);
+        observer.observables(&ordinary).expect("control: the ordinary view of the exact evidence passes");
+        ordinary.contract_evidence.as_mut().unwrap()["exact_cases"][0]["pipe_sections"] = json!([]);
+        assert_eq!(observer.observables(&ordinary).unwrap_err().to_string(), "exact section/material coverage", "ordinary view, a missing section");
+    }
     let cases: Vec<(&str, Box<dyn Fn(&mut Value)>, &str)> = vec![
         ("an extra evidence member", Box::new(|e: &mut Value| { e["preview_cases"] = json!([]); }), "observable: evidence shape"),
         ("pressure evidence", Box::new(|e: &mut Value| { e["pressure"] = json!([{}]); }), "observable: exact pressure/connector evidence"),
