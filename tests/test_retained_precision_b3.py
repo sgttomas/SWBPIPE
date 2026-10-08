@@ -343,6 +343,8 @@ B3B_REFUSALS = {
     "x28 facade_policy changed": (_set_body("facade_policy", "RP-FACADE-SI-v3"), UNSUPPORTED),
     "x29 receipt_version 2": (_set_body("receipt_version", 2), UNSUPPORTED),
     "x30 the owner's exact_cases entry listed twice": (_evidence([lambda e: e.update(exact_cases=[e["exact_cases"][0], deepcopy(e["exact_cases"][0])])]), SECTION),
+    "x31 producer component_version 0.2.1": (_envelope(lambda s: s["producer"].update(component_version="0.2.1")), UNSUPPORTED),
+    "x32 a material's selection named_point": (_receipt_material(lambda m: m.update(selection={"kind": "named_point", "point_id": "point:x"})), PREPARATION),
     "x26 G_hat one ulp high, every copy consistent": (lambda s, i: _g_hat_forged(s, i), PREPARATION),
     "x17 physics-1 headline altered": (_envelope(lambda s: s["summary"]["max_open_formula_stress"].update(value=ulp(s["summary"]["max_open_formula_stress"]["value"]))), BASE_G7),
 }
