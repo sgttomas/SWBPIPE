@@ -3731,19 +3731,15 @@ fn pressure_contract_is(v: &Value, version: &str, mode: &str) -> bool {
             && o.get("mode").and_then(Value::as_str) == Some(mode)
     })
 }
-/// D1.3 on the preview branch (B3a): branch L, schema 0.1.0 or 0.2.0 with
-/// `pressure_contract` absent or JSON null; or branch L3, schema 0.3.0 with
-/// exactly `{"version":"1.0.0","mode":"legacy_pressure_v1"}`. Anything else
-/// (0.3.0 without a contract, `{}`, `false`, an extra key, 0.2.0 with a
-/// contract, 0.4.0) is outside the namespace.
+/// D1.3 on the preview branch, type-strict (B3-D REVISION_01 §3, N-4): branch
+/// L, schema 0.1.0 or 0.2.0 with `pressure_contract` absent or JSON null.
+/// Anything else (any 0.3.0 model, the retired `legacy_pressure_v1` contract
+/// included; `{}`, `false`, any contract on 0.1.0 or 0.2.0; 0.4.0) is outside
+/// the namespace. B3a's branch L3 is dropped (the owner retired that contract
+/// product-wide); B3D-10's tightenings stay.
 fn legacy_namespace(model: &Value) -> bool {
-    match model["schema_version"].as_str() {
-        Some("0.1.0" | "0.2.0") => model["pressure_contract"].is_null(),
-        Some("0.3.0") => {
-            pressure_contract_is(&model["pressure_contract"], "1.0.0", "legacy_pressure_v1")
-        }
-        _ => false,
-    }
+    matches!(model["schema_version"].as_str(), Some("0.1.0" | "0.2.0"))
+        && model["pressure_contract"].is_null()
 }
 fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
     let b = &source["retained_precision"]["body"];
@@ -3772,8 +3768,8 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
     need(
         // D31: the producer treats model 0.1.0 and 0.2.0 on one branch
         // (pressure_runtime.rs `validate_profile`); 0.4.0 stays excluded.
-        // B3a (B3-D §6.3; REVISION_01 §3, N-4): D1.3's namespace, type-strict;
-        // B3b: the exact route's own branch.
+        // D1.3's namespace, type-strict (B3-D REVISION_01 §3, N-4; B3a's L3
+        // dropped); B3b: the exact route's own branch.
         if route.exact { exact_namespace(model) } else { legacy_namespace(model) }
             // B1's alignment set, item 2 (g), PP's acceptance: no
             // `reference_configurations` member (null included); `combinations`

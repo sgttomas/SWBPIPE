@@ -2377,7 +2377,7 @@ fn b1_sp_constructor_ordinal_is_the_authored_index() {
 //
 // RR "I99's B3-W verified; B3's witnesses selected; …": the exact successor is `m3x` (the
 // milestone authored as 0.3.0 exact), the coexistence pins are n05 and n06 (with `fields` for
-// P-2), and the mixed exact base is `m3x_mix_anchor`. B3a's `m3l` needs no producer change.
+// P-2), and the mixed exact base is `m3x_mix_anchor`. B3a is dropped; `m3l` is its refusal witness.
 
 /// `raw` authored as 0.3.0 exact (I99's `gen_inputs.py`, item 1): the exact contract; each
 /// material's shear modulus removed, with the common E/ν basis and ν = 0.25; explicitly empty
@@ -2411,6 +2411,7 @@ fn m3x_mix_anchor() -> Value {
     exact3(raw)
 }
 /// B3-W's `m3l` (B3a): the milestone authored as 0.3.0 `legacy_pressure_v1` with zero pressure.
+/// B3a is dropped, so `m3l` is a refusal witness (D1.3 `PressureContract`; no W1 route).
 fn m3l() -> Value {
     let mut raw = raw();
     raw["model"]["schema_version"] = json!("0.3.0");
@@ -2427,8 +2428,9 @@ fn model_of(raw: &Value) -> PreviewModel {
 }
 
 /// The witnesses are B3-W's (I99 §2: the Value sha256 of each built input; the committed
-/// requests' file sha256), and P-1's route is decided from the namespace branch: L and L3 on the
-/// preview route, E on the exact route, a load-state or 0.4.0 model on none.
+/// requests' file sha256), and P-1's route is decided from the namespace branch: L on the
+/// preview route, E on the exact route, a load-state or 0.4.0 model, and B3a's dropped `m3l`, on
+/// none.
 #[test]
 fn b3b_witness_inputs_and_routes() {
     use rp::W1Route as R;
@@ -2443,7 +2445,7 @@ fn b3b_witness_inputs_and_routes() {
         assert_eq!(w1_route(&model_of(&serde_json::from_str(text).unwrap())), Some(R::Exact), "{name}");
     }
     assert_eq!(w1_route(&model_of(&raw())), Some(R::Preview), "L");
-    assert_eq!(w1_route(&model_of(&m3l())), Some(R::Preview), "L3");
+    assert_eq!(w1_route(&model_of(&m3l())), None, "m3l (B3a dropped): no branch");
     assert_eq!(w1_route(&model_of(&m3x())), Some(R::Exact), "E");
     assert_eq!(w1_route(&model_of(&m3x_mix_anchor())), Some(R::Exact), "E, two cases");
     let mut four = m3x();
@@ -2962,48 +2964,23 @@ fn b3b_exact_observables_refuse_each_evidence_defect() {
     }
 }
 
-/// B3a (`m3l`; RR "I99's B3-W verified; …", ruling 3): the producer needs no change. Its W1 runs
-/// on the preview route to precommit; the successor precommit receives differs from the 0.1.0
-/// milestone's pinned successor in exactly the invocation hash (the model echo),
-/// `legacy_source_work[0].charged` and the receipt hash, and its ordinary bytes from the
-/// milestone's in exactly the one legacy exact-block message. Today RS's G8 refuses its contract
-/// (the readers' B3a is pending), so W1 falls back with one notice; or the reader admits it.
+/// B3a is dropped (RR "Owner decisions: the legacy pressure contract is retired product-wide;
+/// …"): `m3l`, B3a's former witness, is now its refusal witness. G-A refuses it at D1.3 with
+/// `PressureContract`, so it takes the ordinary route: the plain bytes, no W1, one run, in both
+/// modes and every build.
 #[test]
-fn b3a_m3l_needs_no_producer_change() {
-    const MILESTONE_FIXTURES: [&str; 2] = [
-        include_str!("../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json"),
-        include_str!("../../../fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json"),
-    ];
-    fn paths(a: &Value, b: &Value, at: String, out: &mut Vec<String>) {
-        match (a, b) {
-            (Value::Object(x), Value::Object(y)) if x.keys().eq(y.keys()) => for (k, v) in x { paths(v, &y[k], format!("{at}.{k}"), out) },
-            (Value::Array(x), Value::Array(y)) if x.len() == y.len() => for (i, (v, w)) in x.iter().zip(y).enumerate() { paths(v, w, format!("{at}[{i}]"), out) },
-            _ if a != b => out.push(at),
-            _ => {}
-        }
-    }
-    for (mode, fixture) in MODES.into_iter().zip(MILESTONE_FIXTURES) {
+fn b3a_dropped_m3l_takes_the_ordinary_route() {
+    use super::retained_memory::{AdmissionRefusal, D1Clause, FamilyFact};
+    for mode in MODES {
         let raw = m3l();
         let plain = plain(mode, &raw);
-        let mut ordinary_paths = Vec::new();
-        paths(&serde_json::from_slice(&plain).unwrap(), &serde_json::from_slice(&self::plain(mode, &self::raw())).unwrap(), "$".into(), &mut ordinary_paths);
-        assert_eq!(ordinary_paths, ["$.diagnostics[3].message"], "{mode:?}: the ordinary bytes");
-        let (envelope, retained, captured) = exact_w1(&raw, mode);
-        let successor = captured.unwrap_or_else(|| panic!("{mode:?}: {retained:?}"));
-        let milestone: Value = serde_json::from_str::<Value>(fixture).unwrap()["source"].clone();
-        let mut successor_paths = Vec::new();
-        paths(&successor, &milestone, "$".into(), &mut successor_paths);
-        assert_eq!(successor_paths, ["$.retained_precision.body.invocation.value", "$.retained_precision.body.legacy_source_work[0].charged",
-            "$.retained_precision.receipt_sha256"], "{mode:?}: the successor");
-        match &retained {
-            Ok(validated) => assert_eq!(validated.value(), &successor, "{mode:?}"),
-            Err(W1Fallback::Precommit { gate, code }) => {
-                assert_eq!((*gate, code.as_str()), ("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH"), "{mode:?}: today's reader");
-                assert_eq!(serde_json::to_vec(&envelope).unwrap(), with_notice(&plain, "case", None), "{mode:?}");
-            }
-            Err(other) => panic!("{mode:?}: {other:?}"),
-        }
-        println!("B3A_M3L {mode:?} precommit={:?}", retained.as_ref().err());
+        let (output, counts) = direct(&raw, mode);
+        assert_eq!(output.admission().unwrap().law().domain, Some(AdmissionRefusal::Family(D1Clause::Namespace, FamilyFact::PressureContract)),
+            "{mode:?}: D1.3 refuses the label");
+        assert!(output.admission().unwrap().law().refusal.is_some(), "{mode:?}: G-A refuses");
+        assert!(output.retained().is_none() && output.successor().is_none(), "{mode:?}: no W1");
+        assert_eq!(counts, ONE_RUN, "{mode:?}");
+        assert_eq!(published(output), plain, "{mode:?}: the ordinary route's bytes");
     }
 }
 

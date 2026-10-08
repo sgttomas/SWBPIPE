@@ -5066,13 +5066,16 @@ fn b1_i4p_transport_metadata_demands_alone() {
     );
 }
 
-/// B3a (B3-D §6.3 and §6.4; REVISION_01 §3, N-4): G8's namespace predicate is
-/// type-strict. Branch L (0.1.0 or 0.2.0, `pressure_contract` absent or JSON
-/// null) and branch L3 (0.3.0, exactly `{"version":"1.0.0","mode":
-/// "legacy_pressure_v1"}`) are admitted; any other value is G8
-/// INVOCATION_MISMATCH. A zero-magnitude element pressure load on L3 is
-/// outside D1.7 (N-11's reading): G8 PREPARATION_MISMATCH. Reader-local
-/// synthetic receipts: invocation edits on the shared bases, rehashed.
+/// B3a dropped (RR "Owner decisions: the legacy pressure contract is retired
+/// product-wide; ..."; formerly B3-D §6.3 and §6.4; REVISION_01 §3, N-4): G8's
+/// namespace predicate is type-strict. Only branch L (0.1.0 or 0.2.0,
+/// `pressure_contract` absent or JSON null) is admitted; any other value is G8
+/// INVOCATION_MISMATCH. "L3" in the entry names is B3a's retired contract
+/// `{"version":"1.0.0","mode":"legacy_pressure_v1"}` on 0.3.0, now refused on
+/// every base, and before any load is read (the former N-11 entries). The
+/// table is the one shape RS, TS and PY pin alike, entry for entry.
+/// Reader-local synthetic receipts: invocation edits on the shared bases,
+/// rehashed.
 #[test]
 fn b3a_legacy_pressure_contract_namespace_at_g8() {
     use serde_json::json;
@@ -5082,7 +5085,6 @@ fn b3a_legacy_pressure_contract_namespace_at_g8() {
     let contract = |v: Value| set(json!(["request", "model", "pressure_contract"]), v);
     let no_contract = || remove(json!(["request", "model", "pressure_contract"]));
     let inv = gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH");
-    let prep = gate("G8", "RETAINED_PRECISION_PREPARATION_MISMATCH");
     let base_invocation = |id: &str| {
         shared["cases"]
             .as_array()
@@ -5115,7 +5117,7 @@ fn b3a_legacy_pressure_contract_namespace_at_g8() {
         "u8_l0_isolated_node_sparse_interactive",
         "u8_l0_isolated_node_dense_scrutiny",
     ] {
-        entries.push((format!("L3 on {base}"), base, vec![schema("0.3.0"), contract(l3.clone())], Value::Null));
+        entries.push((format!("L3 on {base}"), base, vec![schema("0.3.0"), contract(l3.clone())], inv.clone()));
     }
     for (name, edits, want) in [
         ("L: 0.2.0, contract null", vec![contract(Value::Null)], Value::Null),
@@ -5140,7 +5142,7 @@ fn b3a_legacy_pressure_contract_namespace_at_g8() {
         ("N-4: 0.2.0, contract []", vec![contract(json!([]))], inv.clone()),
         ("N-4: 0.2.0, contract \"\"", vec![contract(json!(""))], inv.clone()),
         ("N-4: 0.2.0, contract 0", vec![contract(json!(0))], inv.clone()),
-        ("N-11: L3 with a zero-magnitude element pressure load", vec![schema("0.3.0"), contract(l3.clone()), zero_pressure(ORD)], prep.clone()),
+        ("N-11: L3 with a zero-magnitude element pressure load", vec![schema("0.3.0"), contract(l3.clone()), zero_pressure(ORD)], inv.clone()),
     ] {
         entries.push((name.to_string(), ORD, edits, want));
     }
@@ -5148,7 +5150,7 @@ fn b3a_legacy_pressure_contract_namespace_at_g8() {
         "N-11: L3 dense with a zero-magnitude element pressure load".into(),
         "ordinary_prepared_dense_synthetic",
         vec![schema("0.3.0"), contract(l3.clone()), zero_pressure("ordinary_prepared_dense_synthetic")],
-        prep.clone(),
+        inv.clone(),
     ));
     let mut misses = Vec::new();
     for (name, base, edits, want) in &entries {

@@ -1444,15 +1444,16 @@ describe('B1 I4\' (I101): the extrema-number demand at G7, bound, unbound and on
 });
 
 describe('B3a (I101): G8\'s namespace predicate, type-strict (B3-D §6.3, §6.4; REVISION_01 §3, N-4; reader-local synthetic receipts)', () => {
-  // Branch L (0.1.0 or 0.2.0, pressure_contract absent or JSON null) and branch L3 (0.3.0, exactly
-  // {"version":"1.0.0","mode":"legacy_pressure_v1"}) are admitted; any other value is G8 INVOCATION_MISMATCH. A
-  // zero-magnitude element pressure load on L3 is outside D1.7 (N-11's reading): G8 PREPARATION_MISMATCH. The shapes and
-  // expectations are the Rust reader's `b3a_legacy_pressure_contract_namespace_at_g8`, entry for entry.
+  // B3a dropped (RR "Owner decisions: the legacy pressure contract is retired product-wide; …"): only branch L (0.1.0 or
+  // 0.2.0, pressure_contract absent or JSON null) is admitted; any other value is G8 INVOCATION_MISMATCH. "L3" in the
+  // entry names is B3a's retired contract {"version":"1.0.0","mode":"legacy_pressure_v1"} on 0.3.0, now refused on every
+  // base, and before any load is read (the former N-11 entries). The shapes and expectations are the Rust reader's
+  // `b3a_legacy_pressure_contract_namespace_at_g8` and PY's `B3A_DROPPED_TABLE`, entry for entry.
   const l3 = { version: '1.0.0', mode: 'legacy_pressure_v1' };
   const schema = (v: string) => ({ path: ['request', 'model', 'schema_version'], op: 'set', value: v });
   const contract = (v: unknown) => ({ path: ['request', 'model', 'pressure_contract'], op: 'set', value: v });
   const noContract = () => ({ path: ['request', 'model', 'pressure_contract'], op: 'remove' });
-  const INV = G('G8', 'INVOCATION_MISMATCH'), PREP = G('G8', 'PREPARATION_MISMATCH');
+  const INV = G('G8', 'INVOCATION_MISMATCH');
   const zeroPressure = (id: string) => {
     const loads = structuredClone(corpus.cases.find((c: any) => c.id === id).invocation.request.model.load_cases[0].primitive_loads);
     loads.push({ id: 'load:b3a-zero-pressure', category: 'pressure', target: { type: 'element', pipe: 'pipe:fixture-span' },
@@ -1462,7 +1463,7 @@ describe('B3a (I101): G8\'s namespace predicate, type-strict (B3-D §6.3, §6.4;
   const ORD = 'ordinary_prepared_synthetic', DENSE = 'ordinary_prepared_dense_synthetic';
   const entries: [string, string, any[], any][] = [
     ...[ORD, DENSE, 'two_case_synthetic', 'u8_l0_isolated_node_sparse_interactive', 'u8_l0_isolated_node_dense_scrutiny']
-      .map((base): [string, string, any[], any] => [`L3 on ${base}`, base, [schema('0.3.0'), contract(l3)], 'pass']),
+      .map((base): [string, string, any[], any] => [`L3 on ${base}`, base, [schema('0.3.0'), contract(l3)], INV]),
     ['L: 0.2.0, contract null', ORD, [contract(null)], 'pass'],
     ['L: 0.1.0, contract absent', ORD, [schema('0.1.0'), noContract()], 'pass'],
     ['L3: mode exact_straight_pressure_v2, version 1.0.0', ORD, [schema('0.3.0'), contract({ ...l3, mode: 'exact_straight_pressure_v2' })], INV],
@@ -1485,8 +1486,8 @@ describe('B3a (I101): G8\'s namespace predicate, type-strict (B3-D §6.3, §6.4;
     ['N-4: 0.2.0, contract []', ORD, [contract([])], INV],
     ['N-4: 0.2.0, contract ""', ORD, [contract('')], INV],
     ['N-4: 0.2.0, contract 0', ORD, [contract(0)], INV],
-    ['N-11: L3 with a zero-magnitude element pressure load', ORD, [schema('0.3.0'), contract(l3), zeroPressure(ORD)], PREP],
-    ['N-11: L3 dense with a zero-magnitude element pressure load', DENSE, [schema('0.3.0'), contract(l3), zeroPressure(DENSE)], PREP],
+    ['N-11: L3 with a zero-magnitude element pressure load', ORD, [schema('0.3.0'), contract(l3), zeroPressure(ORD)], INV],
+    ['N-11: L3 dense with a zero-magnitude element pressure load', DENSE, [schema('0.3.0'), contract(l3), zeroPressure(DENSE)], INV],
   ];
   it('has the Rust test\'s 29 entries', () => { expect(entries.length).toBe(29); });
   for (const [name, base, edits, want] of entries) it(name, async () => {

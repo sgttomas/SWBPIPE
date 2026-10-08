@@ -3030,7 +3030,7 @@ fn permitted_run(
 }
 
 /// B3b-P (B3-D P-1; I95's ruling 1): an admitted model's W1 route, decided once, from its D1.3
-/// namespace branch: L and L3 take the preview route (preview-physics-1 base), E the exact route
+/// namespace branch: L takes the preview route (preview-physics-1 base), E the exact route
 /// (physics-1 base, `physics-retained-1`). `None` (no W1: `Domain`) for a load-state model and
 /// any model on no branch (0.4.0 included).
 fn w1_route(model: &PreviewModel) -> Option<retained_product::W1Route> {
@@ -3039,7 +3039,7 @@ fn w1_route(model: &PreviewModel) -> Option<retained_product::W1Route> {
         return None;
     }
     match retained_memory::namespace_branch(model) {
-        Ok(B::Legacy | B::LegacyPressure) => Some(retained_product::W1Route::Preview),
+        Ok(B::Legacy) => Some(retained_product::W1Route::Preview),
         Ok(B::Exact) => Some(retained_product::W1Route::Exact),
         Err(_) => None,
     }

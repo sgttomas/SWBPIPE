@@ -1,9 +1,10 @@
-"""B3's Python reader controls: B3a's 0.3.0 legacy namespace (G8) and B3b's `<physics-retained>` branch.
+"""B3's Python reader controls: B3a's dropped 0.3.0 legacy namespace (G8 refuses it) and B3b's `<physics-retained>` branch.
 
 The bases are synthetic receipts derived from PP's pinned milestone successor (D-U6-5) and resealed by the 07e format
 rule (preparation hashes, source identities, publication, receipt). They are reader controls, not producer execution or
 native Current evidence. Since lane P's B3b-P landed, every B3b shape is also read on its producer-solved m3x
-successors (`EXACT_PINNED`); B3a's m3l has no producer fixture (PP: "B3a's m3l needs no producer change").
+successors (`EXACT_PINNED`). B3a is dropped (RR "Owner decisions: the legacy pressure contract is retired
+product-wide; …"): m3l has no producer fixture (PP refuses it at D1.3) and is a refusal witness here.
 - m3l: the milestone's request with schema 0.3.0 and {"version": "1.0.0", "mode": "legacy_pressure_v1"}, as I99's
   m3l input (RR "I99's B3-W verified; …", ruling 4); its receipt differs only in the invocation digest.
 """
@@ -68,7 +69,8 @@ def edited_invocation(invocation, change):
 
 
 # ---------------------------------------------------------------------------------------------------------------
-# B3a: G8 admits 0.3.0 with exactly the legacy_pressure_v1 contract (B3-D §6.3; REVISION_01 §3, N-4; B3D-10).
+# B3a dropped: G8 refuses 0.3.0 with the retired legacy_pressure_v1 contract (formerly B3-D §6.3; REVISION_01 §3, N-4);
+# B3D-10's tightenings stay.
 
 
 def m3l(mode):
@@ -78,15 +80,12 @@ def m3l(mode):
 
 
 @pytest.mark.parametrize("mode", MODES)
-def test_b3a_m3l_successor_is_admitted_like_the_milestone(mode):
+def test_b3a_dropped_m3l_successor_is_refused(mode):
+    """B3a is dropped: m3l's successor (the milestone's, resealed on the retired legacy contract) is refused at G8's
+    namespace; the milestone itself, the control, stays eligible."""
     source, invocation = m3l(mode)
-    assert outcome(source, invocation) == ("pass", True, "eligible")
-    base_source, base_invocation = milestone(mode)
-    got, want = rp.validate_retained_precision(source, invocation), rp.validate_retained_precision(base_source, base_invocation)
-    assert got == want and got["numerical_eligible"] is True
-    # B3a's successor differs from the milestone's only in the invocation digest and the receipt hash (ruling 3).
-    assert source["retained_precision"]["body"]["publication_sha256"] == base_source["retained_precision"]["body"]["publication_sha256"]
-    assert source["retained_precision"]["body"]["invocation"]["value"] != base_source["retained_precision"]["body"]["invocation"]["value"]
+    assert outcome(source, invocation) == INVOCATION
+    assert outcome(*milestone(mode)) == ("pass", True, "eligible")
 
 
 def _element_pressure(magnitude):
@@ -95,6 +94,9 @@ def _element_pressure(magnitude):
          "magnitude": {"unit": "Pa", "value": magnitude}, "target": {"type": "element", "pipe": "M1"}, "provenance": "b3a_reader_control"})
 
 
+# m3l is refused at G8's namespace step, so a mutation that keeps the legacy label is refused there first, before any
+# load is read (the three load entries, PREPARATION while B3a admitted m3l); the others are outside the namespace on
+# their own (0.3.0 without a contract, B3D-10; another contract on 0.3.0; a contract on 0.2.0; 0.4.0).
 B3A_REFUSALS = {
     "contract mode changed": (lambda m: m["pressure_contract"].update(mode="exact_straight_pressure_v2"), INVOCATION),
     "contract version changed": (lambda m: m["pressure_contract"].update(version="1.0.1"), INVOCATION),
@@ -105,11 +107,11 @@ B3A_REFUSALS = {
     "contract version as a number": (lambda m: m["pressure_contract"].update(version=1.0), INVOCATION),
     "schema 0.2.0 keeping the contract": (lambda m: m.update(schema_version="0.2.0"), INVOCATION),
     "schema 0.4.0 keeping the contract": (lambda m: m.update(schema_version="0.4.0"), INVOCATION),
-    "a zero-magnitude element pressure load": (_element_pressure(0.0), PREPARATION),
-    "a non-zero element pressure load": (_element_pressure(1000.0), PREPARATION),
+    "a zero-magnitude element pressure load": (_element_pressure(0.0), INVOCATION),
+    "a non-zero element pressure load": (_element_pressure(1000.0), INVOCATION),
     "a non-zero node force with category pressure": (lambda m: m["load_cases"][0]["primitive_loads"].append(
         {"id": "load:p", "category": "pressure", "dimension": "force", "direction": "UX", "magnitude": {"unit": "N", "value": 1.0},
-         "target": {"type": "node", "node": "N1"}, "provenance": "b3a_reader_control"}), PREPARATION),
+         "target": {"type": "node", "node": "N1"}, "provenance": "b3a_reader_control"}), INVOCATION),
 }
 
 
@@ -141,6 +143,75 @@ def test_b3a_tightening_0_3_0_needs_the_legacy_contract():
     bare = edited_invocation(invocation, lambda m: m.update(schema_version="0.3.0"))
     assert "pressure_contract" not in bare["request"]["model"]
     assert outcome(reseal(source, bare), bare) == INVOCATION
+
+
+# B3a dropped: the one table RS (`b3a_legacy_pressure_contract_namespace_at_g8`), TS (its "B3a (I101)" block) and PY
+# pin alike, entry for entry: invocation edits on the shared corpus bases (07e's rule, `reseal`). Only branch L
+# (0.1.0 or 0.2.0, pressure_contract absent or JSON null) passes. "L3" in the names is B3a's retired contract on 0.3.0,
+# refused on every base and before any load is read (the former N-11 entries).
+SHARED = {case["id"]: case for case in json.loads((ROOT / "fixtures/results/retained_precision_cases.json").read_text())["cases"]}
+B3A_DROPPED_BASES = ("ordinary_prepared_synthetic", "ordinary_prepared_dense_synthetic", "two_case_synthetic",
+                     "u8_l0_isolated_node_sparse_interactive", "u8_l0_isolated_node_dense_scrutiny")
+ORD, DENSE = B3A_DROPPED_BASES[:2]
+
+
+def _schema(version):
+    return lambda m: m.update(schema_version=version)
+
+
+def _contract(value):
+    return lambda m: m.update(pressure_contract=deepcopy(value))
+
+
+def _no_contract(m):
+    m.pop("pressure_contract", None)
+
+
+def _zero_pressure(m):
+    m["load_cases"][0]["primitive_loads"].append(
+        {"id": "load:b3a-zero-pressure", "category": "pressure", "target": {"type": "element", "pipe": "pipe:fixture-span"},
+         "magnitude": {"value": 0, "unit": "Pa"}, "dimension": "pressure", "provenance": "synthetic_integration_input_not_library_data"})
+
+
+B3A_DROPPED_TABLE = [
+    *[(f"L3 on {base}", base, [_schema("0.3.0"), _contract(LEGACY)], INVOCATION) for base in B3A_DROPPED_BASES],
+    ("L: 0.2.0, contract null", ORD, [_contract(None)], "pass"),
+    ("L: 0.1.0, contract absent", ORD, [_schema("0.1.0"), _no_contract], "pass"),
+    ("L3: mode exact_straight_pressure_v2, version 1.0.0", ORD, [_schema("0.3.0"), _contract({**LEGACY, "mode": "exact_straight_pressure_v2"})], INVOCATION),
+    ("L3: version 1.0.1", ORD, [_schema("0.3.0"), _contract({**LEGACY, "version": "1.0.1"})], INVOCATION),
+    ("L3: the exact contract 2.0.0", ORD, [_schema("0.3.0"), _contract({"version": "2.0.0", "mode": "exact_straight_pressure_v2"})], INVOCATION),
+    ("0.3.0, contract null", ORD, [_schema("0.3.0"), _contract(None)], INVOCATION),
+    ("0.3.0, contract absent", ORD, [_schema("0.3.0"), _no_contract], INVOCATION),
+    ("L3: an extra key", ORD, [_schema("0.3.0"), _contract({**LEGACY, "extra": "x"})], INVOCATION),
+    ("L3: an extra key valued null", ORD, [_schema("0.3.0"), _contract({**LEGACY, "extra": None})], INVOCATION),
+    ("L3: version only", ORD, [_schema("0.3.0"), _contract({"version": "1.0.0"})], INVOCATION),
+    ("L3: mode only", ORD, [_schema("0.3.0"), _contract({"mode": "legacy_pressure_v1"})], INVOCATION),
+    ("L3: version a number", ORD, [_schema("0.3.0"), _contract({**LEGACY, "version": 1.0})], INVOCATION),
+    ("L3: mode null", ORD, [_schema("0.3.0"), _contract({**LEGACY, "mode": None})], INVOCATION),
+    ("0.3.0, contract {}", ORD, [_schema("0.3.0"), _contract({})], INVOCATION),
+    ("0.2.0 keeping the L3 contract", ORD, [_contract(LEGACY)], INVOCATION),
+    ("0.1.0 keeping the L3 contract", ORD, [_schema("0.1.0"), _contract(LEGACY)], INVOCATION),
+    ("0.4.0 with the L3 contract", ORD, [_schema("0.4.0"), _contract(LEGACY)], INVOCATION),
+    ("N-4: 0.2.0, contract {}", ORD, [_contract({})], INVOCATION),
+    ("N-4: 0.2.0, contract false", ORD, [_contract(False)], INVOCATION),
+    ("N-4: 0.2.0, contract []", ORD, [_contract([])], INVOCATION),
+    ('N-4: 0.2.0, contract ""', ORD, [_contract("")], INVOCATION),
+    ("N-4: 0.2.0, contract 0", ORD, [_contract(0)], INVOCATION),
+    ("N-11: L3 with a zero-magnitude element pressure load", ORD, [_schema("0.3.0"), _contract(LEGACY), _zero_pressure], INVOCATION),
+    ("N-11: L3 dense with a zero-magnitude element pressure load", DENSE, [_schema("0.3.0"), _contract(LEGACY), _zero_pressure], INVOCATION),
+]
+
+
+def test_b3a_dropped_namespace_table_has_the_rust_tests_29_entries():
+    assert len(B3A_DROPPED_TABLE) == 29 and len({name for name, *_ in B3A_DROPPED_TABLE}) == 29
+
+
+@pytest.mark.parametrize("name,base,changes,expected", B3A_DROPPED_TABLE, ids=[entry[0] for entry in B3A_DROPPED_TABLE])
+def test_b3a_dropped_namespace_table(name, base, changes, expected):
+    fixture = SHARED[base]
+    invocation = edited_invocation(fixture["invocation"], lambda m: [change(m) for change in changes])
+    got = outcome(reseal(fixture["source"], invocation), invocation)
+    assert (got[0] if expected == "pass" else got) == expected, name
 
 
 # ---------------------------------------------------------------------------------------------------------------
