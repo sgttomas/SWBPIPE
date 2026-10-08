@@ -1353,8 +1353,12 @@ async function invocationBinding(b: Obj, source: Obj, invocation: Obj, route: Ro
   }
   for (const s of b.sources) {
     const ci = s.owner.case_index, c = cases[ci], maps = s.id_maps, mb = b.material_bases[s.material_basis_ref];
-    // Exact route, G8 step 8: `pressure_regions` present and [] (D1.5-exact).
-    fail(c.id === s.owner.case_id && (route.exact ? Array.isArray(c.pressure_regions) && c.pressure_regions.length === 0 : !c.pressure_regions?.length) && c.equivalent_static == null && c.pressure == null);
+    // Exact route, G8 step 8: `pressure_regions` present and [] (D1.5-exact). Preview route: absent, null or [] (B3D-11's
+    // leniency), type-strict. Both routes: equivalent_static absent or null, and no analysis_state member, null included
+    // (D1.5; C1's G8 row, "no 0.4 extension"). A key PP's typed load case does not have, such as a case-level `pressure`,
+    // is not read: serde ignores it and the invocation digest covers the raw request (I100 B3 addendum 01).
+    const regions = c.pressure_regions;
+    fail(c.id === s.owner.case_id && (route.exact ? Array.isArray(regions) && regions.length === 0 : regions == null || (Array.isArray(regions) && regions.length === 0)) && c.equivalent_static == null && !Object.hasOwn(c, 'analysis_state'));
     fail(mb?.case_indices.includes(ci) && maps.nodes.length === nodes.length && maps.members.length === pipes.length && maps.support_ids.length === supports.length && BigInt(nodes.length) * 6n <= 0xffffffffn && BigInt(pipes.length) * 3n <= 0xffffffffn);
     maps.nodes.forEach((n: Obj, i: number) => fail(n.model_index === i && n.kernel_node === i && n.id === nodes[i].id && same(n.coordinates, coordinates[i])));
     fail(s.section_terms.length === pipes.length && unique(maps.members.map((m: Obj) => m.built_pipe_index)));

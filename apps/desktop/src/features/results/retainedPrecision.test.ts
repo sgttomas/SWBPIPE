@@ -1740,4 +1740,43 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
     }
     expect(drifted).toEqual([]);
   });
+  it("ROOT's ruling on I100's B3 addendum 01: G8's sourced-case check on the preview and exact routes", async () => {
+    // A sourced case passes only with pressure_regions absent, null or [] (type-strict; [] only on the exact route),
+    // equivalent_static absent or null, and no analysis_state member (null included); a case-level `pressure`, a key PP's
+    // typed case lacks, is not read. I100's 22 values on PP's milestone successors, both modes (an invocation edit,
+    // resealed with DEF-O's H), and its x08 and p02 on the synthetic and m3x exact successors (DEF-E's H).
+    const preview: [string, unknown, boolean][] = [
+      ['analysis_state', { kind: 'load_reference_state' }, false], ['analysis_state', null, false], ['analysis_state', {}, false],
+      ['pressure', { value: 1000.0, unit: 'Pa' }, true], ['pressure', null, true], ['pressure', 0, true],
+      ['pressure_regions', 'x', false], ['pressure_regions', {}, false], ['pressure_regions', { id: 'region:x' }, false], ['pressure_regions', 0, false],
+      ['pressure_regions', 1, false], ['pressure_regions', true, false], ['pressure_regions', false, false], ['pressure_regions', '', false],
+      ['pressure_regions', [], true], ['pressure_regions', null, true], ['pressure_regions', [{ id: 'region:x', member_pipe_ids: ['M1'] }], false],
+      ['equivalent_static', {}, false], ['equivalent_static', false, false], ['equivalent_static', 0, false], ['equivalent_static', null, true],
+      ['notes', 'free text', true],
+    ];
+    const exact: [string, unknown, boolean][] = [['analysis_state', { kind: 'load_reference' }, false], ['pressure', { value: 1000.0, unit: 'Pa' }, true]];
+    const want = (passes: boolean) => ({ bound: passes ? { ok: { eligible: true } } : PREP, unbound: { ok: { eligible: false } }, transport: { ok: { eligible: false } } });
+    const readAll = async (source: any, invocation: any) => ({ bound: await reading(() => validateRetainedPrecision(source, invocation)), unbound: await reading(() => validateRetainedPrecision(source)), transport: await reading(() => validateRetainedPrecisionTransport(source)) });
+    const misses: string[] = [];
+    let checked = 0;
+    const read = async (label: string, base: { source: any; invocation: any }, rows: [string, unknown, boolean][]) => {
+      expect(await readAll(base.source, base.invocation), `${label}: the base`).toEqual(want(true));
+      for (const [key, value, passes] of rows) {
+        const source = structuredClone(base.source), invocation = structuredClone(base.invocation);
+        invocation.request.model.load_cases[0][key] = structuredClone(value);
+        source.retained_precision.body.invocation.value = await canonicalSha256HexCheckedV1({ domain: 'source_blocks_invocation_v1', payload: invocation });
+        await rehash(source);
+        const got = await readAll(source, invocation);
+        if (JSON.stringify(got) !== JSON.stringify(want(passes))) misses.push(`${label}: ${key} = ${JSON.stringify(value)}: got ${JSON.stringify(got)}`);
+        checked += 1;
+      }
+    };
+    for (const [mode, text] of [['sparse_interactive', milestoneSparseText], ['dense_scrutiny', milestoneDenseText]] as const) {
+      const doc = JSON.parse(text);
+      await read(`milestone ${mode}`, { source: doc.source, invocation: doc.invocation }, preview);
+    }
+    for (const base of [...BASES, ...M3X.map(m => m[0])]) await read(base, await exactBase(base), exact);
+    expect(misses).toEqual([]);
+    expect(checked).toBe(2 * 22 + 5 * 2);
+  }, 60_000);
 });
