@@ -3461,6 +3461,8 @@ pub(crate) mod retained_tests_hooks {
         operand_preparation_of_case: Option<usize>,
         combination_call: Option<usize>,
         combination_freeze: bool,
+        /// RV123 S-2: the request index of the case whose freeze refuses (its maxima stage).
+        freeze_of_case: Option<usize>,
         /// lib.rs's dense-scrutiny ceiling override (F1b), read by the ordinary run.
         ceiling: Option<u128>,
     }

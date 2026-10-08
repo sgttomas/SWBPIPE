@@ -3078,14 +3078,7 @@ fn b3b_p4_w1_calls_no_pressure_runtime_builder() {
 /// after the first; the successor meets B3-D's requirements (no pin: not a selected witness).
 #[test]
 fn b3b_two_selected_exact_cases_each_regenerate_their_own_entry() {
-    let mut raw = raw();
-    let mut second = raw["model"]["load_cases"][0].clone();
-    second["id"] = json!("case-2");
-    for load in second["primitive_loads"].as_array_mut().unwrap() {
-        load["id"] = json!(format!("{}:2", load["id"].as_str().unwrap()));
-    }
-    raw["model"]["load_cases"].as_array_mut().unwrap().push(second);
-    let raw = exact3(raw);
+    let raw = two_case_exact();
     for mode in MODES {
         let label = format!("two cases {mode:?}");
         let plain = plain(mode, &raw);
@@ -3098,6 +3091,148 @@ fn b3b_two_selected_exact_cases_each_regenerate_their_own_entry() {
         assert_eq!(entries.iter().map(|e| e["load_case_id"].as_str().unwrap()).collect::<Vec<_>>(), ["case", "case-2"], "{label}");
         assert_eq!(entries[0]["pipe_sections"], entries[1]["pipe_sections"], "{label}: the same prepared section in both entries");
         assert!(successor["results"].as_array().unwrap().iter().any(|r| r["id"].as_str().unwrap().starts_with("result:loadcase:case-2:")), "{label}: qualified ids");
+    }
+}
+
+/// m3x with a second load case `case-2` (the same moments, ids suffixed `:2`).
+fn two_case_exact() -> Value {
+    let mut raw = raw();
+    let mut second = raw["model"]["load_cases"][0].clone();
+    second["id"] = json!("case-2");
+    for load in second["primitive_loads"].as_array_mut().unwrap() {
+        load["id"] = json!(format!("{}:2", load["id"].as_str().unwrap()));
+    }
+    raw["model"]["load_cases"].as_array_mut().unwrap().push(second);
+    exact3(raw)
+}
+
+// ---- RV123 (RV-P2 round 1 on B3b-P): S-1, S-2 and N-2 ------------------------------------------
+
+/// RV123 S-1's input: m3x plus a collinear second member M2 (N1 to a new N2, OD 0.15 m, wall
+/// 0.008 m, the same material), its members authored in either order (`reversed`).
+fn two_member_exact(reversed: bool) -> Value {
+    let mut raw = m3x();
+    let p = "invented_t3_p1_detection_input_no_library_data";
+    raw["model"]["nodes"].as_array_mut().unwrap().push(json!({"id": "N2", "position": {"x": 2.0, "y": 4.0, "z": 4.0}, "provenance": p}));
+    raw["model"]["pipe_segments"].as_array_mut().unwrap().push(json!({"id": "M2", "from": "N1", "to": "N2", "material": "mat:N",
+        "y_reference": {"x": 1, "y": 0, "z": 0}, "section": {"outside_diameter": {"value": 0.15, "unit": "m"}, "wall_thickness": {"value": 0.008, "unit": "m"}}, "provenance": p}));
+    if reversed {
+        raw["model"]["pipe_segments"].as_array_mut().unwrap().reverse();
+    }
+    raw
+}
+/// RV123 S-1's pins: (members reversed, mode, sha256 of the successor's bytes).
+const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
+    (false, "sparse_interactive", "94549ef80998798af7a7068007f4c2cd27bf1edac1b3e0efb80ef4022dd90f8b"),
+    (false, "dense_scrutiny", "58d053642f6b3bcc4d475dde530c28651a01130cc8c50105ffe9ba2a0e853eb2"),
+    (true, "sparse_interactive", "cb20f6dd4c70c5b96b47ad996ef0dd469be895c183ab0dc8d43924f6a7338d9a"),
+    (true, "dense_scrutiny", "3fd88b489fb030d82a4b678ab6ff3d1ba96097088fff71dd1843aff6ef8e0368")];
+/// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
+/// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
+/// and M2's prepared section differs from its source annulus's in at least one value, so the
+/// per-member overlay is pinned beyond member 0. The successors are pinned.
+#[test]
+fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
+    for reversed in [false, true] {
+        let raw = two_member_exact(reversed);
+        for mode in MODES {
+            let label = format!("two members reversed={reversed} {mode:?}");
+            let plain = plain(mode, &raw);
+            let plain_value: Value = serde_json::from_slice(&plain).unwrap();
+            let (envelope, retained, captured) = exact_w1(&raw, mode);
+            let successor = captured.unwrap_or_else(|| panic!("{label}: {retained:?}"));
+            exact_outcome(&label, &retained, &successor, &envelope, &plain, &["case"]);
+            assert_exact_successor(&label, &successor, &plain_value, &["selected"]);
+            let section = |e: &Value| e["exact_cases"][0]["pipe_sections"].as_array().unwrap().iter().find(|s| s["pipe_id"] == "M2").unwrap().clone();
+            let (now, was) = (section(&successor["contract_evidence"]), section(&plain_value["contract_evidence"]));
+            assert!(["As_m2", "I_m4", "J_m4", "Z_m3"].iter().any(|k| num_bits(&now[*k]) != num_bits(&was[*k])), "{label}: M2's prepared section is not its source annulus's");
+            let bytes = sha(&serde_json::to_vec(&successor).unwrap());
+            println!("RV123_S1 {label} successor_sha256={bytes}");
+            let pinned = TWO_MEMBER_PINNED.iter().find(|(r, m, _)| *r == reversed && *m == mode.as_str()).unwrap().2;
+            assert_eq!(bytes, pinned, "{label}: pinned");
+        }
+    }
+}
+/// RV123 S-2's pins: (mode, sha256 of the successor's bytes).
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "a056ac91ce498ec79505e68bf63559d1cc7abba69428a84ece70c8bb293d070a"),
+    ("dense_scrutiny", "5275a75381cd8d0797b598f6057d206b7f57510bc32132687ac2470977d800b5")];
+/// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
+/// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
+/// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),
+/// its attempt is DEF-E's and its CaseSource's preparation binding is made with DEF-E's H (S-1's
+/// route H), not DEF-O's. Today's readers refuse at G0, so W1 falls back with both notices.
+#[test]
+fn b3b_rv123_s2_unavailable_exact_case_binds_def_e() {
+    use super::retained_wire as wire;
+    let raw = two_case_exact();
+    for mode in MODES {
+        let label = format!("unavailable case-2 {mode:?}");
+        let plain = plain(mode, &raw);
+        let plain_value: Value = serde_json::from_slice(&plain).unwrap();
+        hooks::fail_freeze_of_case(1);
+        let (envelope, retained, captured) = exact_w1(&raw, mode);
+        assert!(hooks::armed_names().is_empty(), "{label}: the fault fired");
+        let successor = captured.unwrap_or_else(|| panic!("{label}: {retained:?}"));
+        exact_outcome(&label, &retained, &successor, &envelope, &plain, &["case", "case-2"]);
+        assert_exact_successor(&label, &successor, &plain_value, &["selected", "unavailable"]);
+        let body = &successor["retained_precision"]["body"];
+        let case = &body["cases"][1];
+        assert_eq!((&case["reason"]["code"], &case["reason"]["phase"]), (&json!("facade_certificate"), &json!("facade")), "{label}");
+        let attempt = &body["product_attempts"][case["product_attempt_ref"].as_u64().unwrap() as usize];
+        let source = &body["sources"][case["source_ref"].as_u64().unwrap() as usize];
+        assert_eq!(attempt["definition_id"], json!(wire::EXACT_DEFINITION_ID), "{label}");
+        assert_eq!(source["preparation"]["attempt_ref"], case["product_attempt_ref"], "{label}");
+        assert_eq!(source["preparation"]["sha256"], json!(preparation_hash(attempt, wire::EXACT_DEFINITION_SHA256)), "{label}: DEF-E's H");
+        let bytes = sha(&serde_json::to_vec(&successor).unwrap());
+        println!("RV123_S2 {label} successor_sha256={bytes}");
+        let pinned = UNAVAILABLE_EXACT_PINNED.iter().find(|(m, _)| *m == mode.as_str()).unwrap().1;
+        assert_eq!(bytes, pinned, "{label}: pinned");
+    }
+}
+/// RV123 S-2 (its R-02 and R-03): the one-case serializer's unavailable branch on the exact route.
+/// m3x's candidate refused after its selected Run (an injected maxima fault) serializes with
+/// physics-retained-1's identity and profile, and its CaseSource's preparation binding with DEF-E's
+/// H.
+#[test]
+fn b3b_rv123_s2_one_case_unavailable_exact_serializer() {
+    use super::retained_receipt::TraceFault as F;
+    use super::retained_wire as wire;
+    for mode in MODES {
+        let label = format!("one-case unavailable {mode:?}");
+        let (request, capture) = source_receipt::CapturedInvocation::parse(m3x(), mode).unwrap();
+        let mut prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|e| panic!("{label}: {:?}", e.capture.error));
+        prepared.test_capture_mut().trace_fault = Some(F::Maxima);
+        prepared.solve_native().unwrap();
+        let refused = match prepared.project_candidate() { Err(refused) => refused, Ok(_) => panic!("{label}: a refusal") };
+        let successor = wire::serialize_unavailable(wire::Refused::Candidate(&refused), &capture).unwrap_or_else(|f| panic!("{label}: {f:?}"));
+        assert_eq!(successor["producer"]["semantic_contract_id"], json!(wire::EXACT_SEMANTIC_ID), "{label}: R-03");
+        assert_eq!(successor["formulation_basis"]["profile_id"], json!(wire::EXACT_PROFILE_ID), "{label}");
+        let body = &successor["retained_precision"]["body"];
+        assert_eq!(body["cases"][0]["status"], json!("unavailable"), "{label}");
+        assert_eq!(body["cases"][0]["reason"]["code"], json!("facade_certificate"), "{label}");
+        let attempt = &body["product_attempts"][0];
+        assert_eq!(attempt["definition_id"], json!(wire::EXACT_DEFINITION_ID), "{label}");
+        assert_eq!(body["sources"][0]["preparation"]["sha256"], json!(preparation_hash(attempt, wire::EXACT_DEFINITION_SHA256)), "{label}: R-02");
+    }
+}
+/// RV123 N-2: an unused material on the exact route, with no ν and no basis, is not checked: m3x
+/// plus such a material still selects, and only the used material is in `material_bases`.
+#[test]
+fn b3b_rv123_n2_unused_exact_material_is_not_checked() {
+    let mut raw = m3x();
+    raw["model"]["materials"].as_array_mut().unwrap().push(json!({"id": "mat:unused", "elastic_modulus": {"value": 1.0e11, "unit": "Pa"},
+        "provenance": "invented_t3_p1_detection_input_no_library_data"}));
+    for mode in MODES {
+        let label = format!("unused material {mode:?}");
+        let plain = plain(mode, &raw);
+        let plain_value: Value = serde_json::from_slice(&plain).unwrap();
+        let (envelope, retained, captured) = exact_w1(&raw, mode);
+        let successor = captured.unwrap_or_else(|| panic!("{label}: {retained:?}"));
+        exact_outcome(&label, &retained, &successor, &envelope, &plain, &["case"]);
+        assert_exact_successor(&label, &successor, &plain_value, &["selected"]);
+        let ids: Vec<&str> = successor["retained_precision"]["body"]["material_bases"][0]["materials"].as_array().unwrap().iter()
+            .map(|m| m["id"].as_str().unwrap()).collect();
+        assert_eq!(ids, ["mat:N"], "{label}: only the used material");
     }
 }
 

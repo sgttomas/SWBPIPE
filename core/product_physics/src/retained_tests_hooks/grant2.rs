@@ -67,13 +67,22 @@ pub(super) fn merge(a: &mut Armed, faults: &Armed) {
     a.operand_preparation_of_case = a.operand_preparation_of_case.or(faults.operand_preparation_of_case);
     a.combination_call = a.combination_call.or(faults.combination_call);
     a.combination_freeze |= faults.combination_freeze;
+    a.freeze_of_case = a.freeze_of_case.or(faults.freeze_of_case);
 }
 /// `armed_names`: this grant's faults.
-pub(super) fn names(a: &Armed) -> [(bool, &'static str); 10] {
+pub(super) fn names(a: &Armed) -> [(bool, &'static str); 11] {
     [(a.late_gate, "late_gate"), (a.complete_gate, "complete_gate"), (a.preparation, "preparation"), (a.candidate.is_some(), "candidate"),
         (a.preparation_of_case.is_some(), "preparation_of_case"), (a.exact_capture, "exact_capture"), (a.section_staging, "section_staging"),
         (a.operand_preparation_of_case.is_some(), "operand_preparation_of_case"), (a.combination_call.is_some(), "combination_call"),
-        (a.combination_freeze, "combination_freeze")]
+        (a.combination_freeze, "combination_freeze"), (a.freeze_of_case.is_some(), "freeze_of_case")]
+}
+/// RV123 S-2: the freeze of case `index` (request index) refuses at its maxima stage (the
+/// existing `TraceFault::Maxima`, for that case only), after its selected Run: the case is
+/// `unavailable` (`facade_certificate`) with its prepared source, and the other cases go on.
+pub(crate) fn fail_freeze_of_case(index: usize) { arm(|a| a.freeze_of_case = Some(index)); }
+/// At each case freeze (`PreparedCases::freeze`): whether the armed fault fires for it (consumed).
+pub(crate) fn freeze_fault_of_case(request: usize) -> bool {
+    consume(|a| if a.freeze_of_case == Some(request) { a.freeze_of_case.take() } else { None }).is_some()
 }
 /// B2-P hook (PLAN §1.2.4; B2-C §2.6): the operand preparation of `not_required` case `index`
 /// (request index) refuses, through the real section preparation (its first member's diameter

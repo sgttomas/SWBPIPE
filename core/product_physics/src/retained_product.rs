@@ -4105,8 +4105,15 @@ impl PreparedCases {
             let scope = capture.case_scope(attempt.request);
             let frozen = capture.with_case(attempt.request, |capture| {
                 let case = capture.native.take();
+                // Test-only (RV123 S-2): this case's freeze refuses at its maxima stage.
+                #[cfg(test)]
+                let faulted = crate::retained_tests_hooks::freeze_fault_of_case(attempt.request);
+                #[cfg(test)]
+                if faulted { capture.trace_fault = Some(trace::TraceFault::Maxima); }
                 let frozen = capture.freeze_case(&mut attempt.trace, &mut attempt.overlay_work, &mut attempt.proof_attempted, ordinary, &scope,
                     invocation.as_ref().zip(case.as_ref()));
+                #[cfg(test)]
+                if faulted { capture.trace_fault = None; }
                 capture.native = case;
                 frozen
             });
