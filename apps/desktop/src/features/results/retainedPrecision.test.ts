@@ -600,9 +600,12 @@ describe('confirmation repair round (D19-D30, RV81-N1/N2): reader-local relation
 });
 
 describe('07d round (D31-D33): reader-local relations', () => {
-  it('D31: G8 admits model schema_version 0.1.0, 0.2.0 and 0.3.0, and refuses 0.4.0', async () => {
+  // B3a (B3-D §6.3, decision B3D-10): 0.3.0 without a contract is outside D1.3 (the producer cannot emit it,
+  // PRESSURE_CONTRACT_REQUIRED), so it is G8 INVOCATION_MISMATCH; 0.3.0 with the legacy contract is B3a's block below.
+  it('D31: G8 admits model schema_version 0.1.0 and 0.2.0 without a contract, and refuses 0.3.0 without one and 0.4.0', async () => {
     const run = async (version: string) => { const { source, invocation } = await applyEntry({ id: 'i64_d31_' + version, base: 'ordinary_prepared_synthetic', edits: [], invocation_edits: [{ path: ['request', 'model', 'schema_version'], op: 'set', value: version }], rehash: 'all' }); return firstFailure(source, invocation); };
-    for (const version of ['0.1.0', '0.2.0', '0.3.0']) expect(await run(version), version).toBe('pass');
+    for (const version of ['0.1.0', '0.2.0']) expect(await run(version), version).toBe('pass');
+    expect(await run('0.3.0')).toEqual(G('G8', 'INVOCATION_MISMATCH'));
     expect(await run('0.4.0')).toEqual(G('G8', 'INVOCATION_MISMATCH'));
   });
   it('D32: integers and references written as integral floats are the same values (parse boundary)', async () => {
@@ -1423,5 +1426,57 @@ describe('B1 I4\' (I101): the extrema-number demand at G7, bound, unbound and on
     const misses: string[] = [];
     for (const [name, edits, want] of rows) { const got = await verdicts(edits); if (JSON.stringify(got) !== JSON.stringify(want)) misses.push(`${name}: got ${JSON.stringify(got)} want ${JSON.stringify(want)}`); }
     expect(misses).toEqual([]);
+  });
+});
+
+describe('B3a (I101): G8\'s namespace predicate, type-strict (B3-D §6.3, §6.4; REVISION_01 §3, N-4; reader-local synthetic receipts)', () => {
+  // Branch L (0.1.0 or 0.2.0, pressure_contract absent or JSON null) and branch L3 (0.3.0, exactly
+  // {"version":"1.0.0","mode":"legacy_pressure_v1"}) are admitted; any other value is G8 INVOCATION_MISMATCH. A
+  // zero-magnitude element pressure load on L3 is outside D1.7 (N-11's reading): G8 PREPARATION_MISMATCH. The shapes and
+  // expectations are the Rust reader's `b3a_legacy_pressure_contract_namespace_at_g8`, entry for entry.
+  const l3 = { version: '1.0.0', mode: 'legacy_pressure_v1' };
+  const schema = (v: string) => ({ path: ['request', 'model', 'schema_version'], op: 'set', value: v });
+  const contract = (v: unknown) => ({ path: ['request', 'model', 'pressure_contract'], op: 'set', value: v });
+  const noContract = () => ({ path: ['request', 'model', 'pressure_contract'], op: 'remove' });
+  const INV = G('G8', 'INVOCATION_MISMATCH'), PREP = G('G8', 'PREPARATION_MISMATCH');
+  const zeroPressure = (id: string) => {
+    const loads = structuredClone(corpus.cases.find((c: any) => c.id === id).invocation.request.model.load_cases[0].primitive_loads);
+    loads.push({ id: 'load:b3a-zero-pressure', category: 'pressure', target: { type: 'element', pipe: 'pipe:fixture-span' },
+      magnitude: { value: 0, unit: 'Pa' }, dimension: 'pressure', provenance: 'synthetic_integration_input_not_library_data' });
+    return { path: ['request', 'model', 'load_cases', 0, 'primitive_loads'], op: 'set', value: loads };
+  };
+  const ORD = 'ordinary_prepared_synthetic', DENSE = 'ordinary_prepared_dense_synthetic';
+  const entries: [string, string, any[], any][] = [
+    ...[ORD, DENSE, 'two_case_synthetic', 'u8_l0_isolated_node_sparse_interactive', 'u8_l0_isolated_node_dense_scrutiny']
+      .map((base): [string, string, any[], any] => [`L3 on ${base}`, base, [schema('0.3.0'), contract(l3)], 'pass']),
+    ['L: 0.2.0, contract null', ORD, [contract(null)], 'pass'],
+    ['L: 0.1.0, contract absent', ORD, [schema('0.1.0'), noContract()], 'pass'],
+    ['L3: mode exact_straight_pressure_v2, version 1.0.0', ORD, [schema('0.3.0'), contract({ ...l3, mode: 'exact_straight_pressure_v2' })], INV],
+    ['L3: version 1.0.1', ORD, [schema('0.3.0'), contract({ ...l3, version: '1.0.1' })], INV],
+    ['L3: the exact contract 2.0.0', ORD, [schema('0.3.0'), contract({ version: '2.0.0', mode: 'exact_straight_pressure_v2' })], INV],
+    ['0.3.0, contract null', ORD, [schema('0.3.0'), contract(null)], INV],
+    ['0.3.0, contract absent', ORD, [schema('0.3.0'), noContract()], INV],
+    ['L3: an extra key', ORD, [schema('0.3.0'), contract({ ...l3, extra: 'x' })], INV],
+    ['L3: an extra key valued null', ORD, [schema('0.3.0'), contract({ ...l3, extra: null })], INV],
+    ['L3: version only', ORD, [schema('0.3.0'), contract({ version: '1.0.0' })], INV],
+    ['L3: mode only', ORD, [schema('0.3.0'), contract({ mode: 'legacy_pressure_v1' })], INV],
+    ['L3: version a number', ORD, [schema('0.3.0'), contract({ ...l3, version: 1.0 })], INV],
+    ['L3: mode null', ORD, [schema('0.3.0'), contract({ ...l3, mode: null })], INV],
+    ['0.3.0, contract {}', ORD, [schema('0.3.0'), contract({})], INV],
+    ['0.2.0 keeping the L3 contract', ORD, [contract(l3)], INV],
+    ['0.1.0 keeping the L3 contract', ORD, [schema('0.1.0'), contract(l3)], INV],
+    ['0.4.0 with the L3 contract', ORD, [schema('0.4.0'), contract(l3)], INV],
+    ['N-4: 0.2.0, contract {}', ORD, [contract({})], INV],
+    ['N-4: 0.2.0, contract false', ORD, [contract(false)], INV],
+    ['N-4: 0.2.0, contract []', ORD, [contract([])], INV],
+    ['N-4: 0.2.0, contract ""', ORD, [contract('')], INV],
+    ['N-4: 0.2.0, contract 0', ORD, [contract(0)], INV],
+    ['N-11: L3 with a zero-magnitude element pressure load', ORD, [schema('0.3.0'), contract(l3), zeroPressure(ORD)], PREP],
+    ['N-11: L3 dense with a zero-magnitude element pressure load', DENSE, [schema('0.3.0'), contract(l3), zeroPressure(DENSE)], PREP],
+  ];
+  it('has the Rust test\'s 29 entries', () => { expect(entries.length).toBe(29); });
+  for (const [name, base, edits, want] of entries) it(name, async () => {
+    const { source, invocation } = await applyEntry({ id: 'i101_b3a', base, edits: [], invocation_edits: edits, rehash: 'all' });
+    expect(await firstFailure(source, invocation)).toEqual(want);
   });
 });

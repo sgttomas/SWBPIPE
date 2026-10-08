@@ -1128,19 +1128,33 @@ async function nativeSourceHashes(s: Obj): Promise<{ source: string; stiffness: 
   return { source: await digest(encode(true)), stiffness: await digest(encode(false)) };
 }
 
+/** A pressure contract exactly `{"version": version, "mode": mode}`: a JSON object with those two keys only, each valued
+ * with exactly that string. */
+function pressureContractIs(contract: unknown, version: string, mode: string): boolean {
+  return !!contract && typeof contract === 'object' && !Array.isArray(contract) && same(Object.keys(contract).sort(), ['mode', 'version'])
+    && (contract as Obj).version === version && (contract as Obj).mode === mode;
+}
+/** D1.3 on the preview branch (B3a; B3-D §6.3, REVISION_01 §3, N-4), type-strict: branch L, schema 0.1.0 or 0.2.0 with
+ * `pressure_contract` absent or JSON null; or branch L3, schema 0.3.0 with exactly
+ * `{"version":"1.0.0","mode":"legacy_pressure_v1"}`. Anything else (0.3.0 without a contract, `{}`, `false`, `""`, `0`,
+ * an extra key, 0.2.0 with a contract, 0.4.0) is outside the namespace. */
+function legacyNamespace(model: Obj): boolean {
+  if (model.schema_version === '0.1.0' || model.schema_version === '0.2.0') return !Object.hasOwn(model, 'pressure_contract') || model.pressure_contract === null;
+  if (model.schema_version === '0.3.0') return pressureContractIs(model.pressure_contract, '1.0.0', 'legacy_pressure_v1');
+  return false;
+}
 async function invocationBinding(b: Obj, source: Obj, invocation: Obj): Promise<void> {
   const fail = (ok: unknown, code = 'PREPARATION_MISMATCH') => need(ok, 'G8', code);
   fail(same(Object.keys(invocation).sort(), ['request', 'solver_mode']) && ['dense_scrutiny', 'sparse_interactive'].includes(invocation.solver_mode), 'INVOCATION_MISMATCH');
   fail(await hash('source_blocks_invocation_v1', invocation) === b.invocation.value, 'INVOCATION_MISMATCH');
   const request = invocation.request, model = request.model;
-  // D31: the model schema_version is 0.1.0, 0.2.0 or 0.3.0 (PP pressure_runtime.rs `validate_profile` treats 0.1.0 and
-  // 0.2.0 on one branch); 0.4.0 stays excluded (C1 G8 row, "no 0.4 extension").
-  fail(model?.project?.id === source.model_ref && ['0.1.0', '0.2.0', '0.3.0'].includes(model.schema_version), 'INVOCATION_MISMATCH');
+  // D31: model 0.1.0 and 0.2.0 on one branch (PP pressure_runtime.rs `validate_profile`); 0.4.0 stays excluded (C1 G8
+  // row, "no 0.4 extension"). B3a: D1.3's namespace, type-strict (`legacyNamespace`).
+  fail(model?.project?.id === source.model_ref && legacyNamespace(model), 'INVOCATION_MISMATCH');
   // (g), B1's three-reader alignment set (RR "RV113's three returns verified; …", item 2): PP's acceptance, before any
-  // PREPARATION check. No reference_configurations member (null included); pressure_contract absent or null;
-  // combinations and components absent or [].
+  // PREPARATION check. No reference_configurations member (null included); combinations and components absent or [].
   const absentOrEmpty = (key: string) => !Object.hasOwn(model, key) || (Array.isArray(model[key]) && model[key].length === 0);
-  fail(!Object.hasOwn(model, 'reference_configurations') && model.pressure_contract == null && absentOrEmpty('combinations') && absentOrEmpty('components'), 'INVOCATION_MISMATCH');
+  fail(!Object.hasOwn(model, 'reference_configurations') && absentOrEmpty('combinations') && absentOrEmpty('components'), 'INVOCATION_MISMATCH');
   const nodes: Obj[] = model.nodes, pipes: Obj[] = model.pipe_segments, supports: Obj[] = model.supports, cases: Obj[] = model.load_cases;
   fail([nodes, pipes, supports, cases].every(xs => Array.isArray(xs) && unique(xs.map(x => x.id))));
   const materials: Obj[] = request.materials?.length ? request.materials : model.materials; fail(Array.isArray(materials) && unique(materials.map(m => m.id)));
