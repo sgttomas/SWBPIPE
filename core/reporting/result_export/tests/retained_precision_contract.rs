@@ -5407,6 +5407,7 @@ fn b3b_rows(shared: &Value, base_name: &'static str) -> Vec<(ExactShape, Value)>
     let section = |k: &str| entry["pipe_sections"][0][k].as_f64().unwrap();
     let material = |k: &str| entry["pipe_materials"][0][k].as_f64().unwrap();
     let receipt_g = decode_bits(&base["retained_precision"]["body"]["material_bases"][0]["materials"][0]["shear_modulus"]);
+    let receipt_e = decode_bits(&base["retained_precision"]["body"]["material_bases"][0]["materials"][0]["elastic_modulus"]);
     let base_model = &base_invocation["request"]["model"];
     let authored_nu = base_model["materials"][0]["poisson_ratio"]["value"].as_f64().unwrap();
     let (case_id, pipe_id) = (base_model["load_cases"][0]["id"].clone(), base_model["pipe_segments"][0]["id"].clone());
@@ -5459,8 +5460,15 @@ fn b3b_rows(shared: &Value, base_name: &'static str) -> Vec<(ExactShape, Value)>
         ("22 a combination added to the invocation", vec![], vec![set(model(json!(["combinations"])), json!([{"id": "combination:x", "kind": "algebraic", "terms": [{"load_case": case_id, "factor": 1.0}]}]))], vec![], inv.clone()),
         ("22b a component added to the invocation", vec![], vec![set(model(json!(["components"])), json!([{"id": "component:x"}]))], vec![], inv.clone()),
         ("23 a case naming modulus_basis_ref", vec![], vec![set(model(json!(["load_cases", 0, "modulus_basis_ref"])), json!("point:x"))], vec![], prep.clone()),
+        // D1.5: only the base common E/nu, even a named point equal to the base, with
+        // the receipt's selector naming it alike (step 3 alone refuses it).
+        ("23b a case naming a point equal to the base, the receipt's selector alike", vec![set(rb(json!(["material_bases", 0, "selector"])), json!({"kind": "named", "id": "point:base"}))], vec![
+            set(model(json!(["materials", 0, "temperature_points"])), json!([{"id": "point:base", "elastic_modulus": base_model["materials"][0]["elastic_modulus"], "poisson_ratio": base_model["materials"][0]["poisson_ratio"]}])),
+            set(model(json!(["load_cases", 0, "modulus_basis_ref"])), json!("point:base")),
+        ], vec![], prep.clone()),
         ("24 a material's shear_origin -> explicit_g", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_origin"])), json!({"kind": "explicit_g"}))], vec![], vec![], prep.clone()),
         ("24b a material's selection -> named_point", vec![set(rb(json!(["material_bases", 0, "materials", 0, "selection"])), json!({"kind": "named_point", "point_id": "point:x"}))], vec![], vec![], prep.clone()),
+        ("25b a material's elastic_modulus one ulp", vec![set(rb(json!(["material_bases", 0, "materials", 0, "elastic_modulus"])), json!(format!("{:016x}", ulps(receipt_e, 1).to_bits())))], vec![], vec![], prep.clone()),
         ("25 a material's shear_modulus one ulp", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_modulus"])), json!(format!("{:016x}", ulps(receipt_g, 1).to_bits())))], vec![], vec![], prep.clone()),
         ("26 shear_origin.poisson_ratio bits changed", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_origin", "poisson_ratio"])), json!(format!("{:016x}", ulps(material("nu"), 1).to_bits())))], vec![], vec![], prep.clone()),
         ("27 authored nu changed in the invocation", vec![], vec![set(model(json!(["materials", 0, "poisson_ratio", "value"])), json!(ulps(authored_nu, 1)))], vec![], prep.clone()),
@@ -5533,7 +5541,7 @@ fn b3b_exact_successor_shapes_first_failures() {
         }
     }
     assert!(misses.is_empty(), "{}", misses.join("\n"));
-    assert_eq!(shapes.iter().filter(|(s, _)| s.base != FILE_BASE && s.base != "<s1:file>").count(), 3 + 50 + 2 + 2 * (1 + 50 + 1));
+    assert_eq!(shapes.iter().filter(|(s, _)| s.base != FILE_BASE && s.base != "<s1:file>").count(), 3 + 52 + 2 + 2 * (1 + 52 + 1));
 }
 fn observe_validation(r: Result<rp::Validation, rp::ValidationError>) -> Value {
     match r {
