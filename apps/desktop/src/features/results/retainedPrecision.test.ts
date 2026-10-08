@@ -1251,3 +1251,94 @@ describe('B1 SR-TS: R-D38 (4b), F-1 text B per case and the not_required rule (r
     expect(await at([set(['contract_evidence'], null), set(['source_block_recovery'], {})])).toEqual({ gate: 'G7', code: 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED' });
   });
 });
+
+// B1 SR-TS repair 01 (I92): B1's three-reader alignment set, TS's side (RR "RV113's three returns verified; I3 made at
+// `2ba2f81863`; the three-reader alignment set ruled", items 2 and 3; RV113 SR-TS S-1 and N-2). Reader-local: SC's 07n
+// pins the shared entries. Each verdict is TS's first failure, or { admitted: numerical_eligible }.
+describe('B1 SR-TS repair 01: (g) at G8, and the C2 cause table keyed by precondition', () => {
+  const P_BASE = 'two_case_preparation_failure_synthetic', ORD = 'ordinary_prepared_synthetic';
+  const INVOCATION = G('G8', 'INVOCATION_MISMATCH'), ATTEMPT = G('G5', 'ATTEMPT_MISMATCH');
+  const rb = (...tail: (string | number)[]) => ['retained_precision', 'body', ...tail];
+  const set = (path: (string | number)[], value: unknown) => ({ path, op: 'set', value });
+  const remove = (path: (string | number)[]) => ({ path, op: 'remove' });
+  const entry = (base: string, edits: any[], invocationEdits: any[] = []) => ({ id: 'b1_r1_probe', base, edits, invocation_edits: invocationEdits, rehash: 'all' });
+  const outcome = async (run: () => Promise<any>): Promise<unknown> => {
+    try { return { admitted: (await run()).numerical_eligible }; }
+    catch (error) { expect(error).toBeInstanceOf(RetainedPrecisionError); return { gate: (error as any).gate, code: (error as any).code }; }
+  };
+  async function table(cases: [string, () => Promise<unknown>, unknown][]): Promise<void> {
+    const misses: string[] = [];
+    for (const [name, run, want] of cases) { const got = await run(); if (JSON.stringify(got) !== JSON.stringify(want)) misses.push(`${name}: got ${JSON.stringify(got)} want ${JSON.stringify(want)}`); }
+    expect(misses).toEqual([]);
+  }
+  const bound = (e: any) => async () => { const { source, invocation } = await applyEntry(e); return outcome(() => validateRetainedPrecision(source, invocation)); };
+  const unbound = (e: any) => async () => { const { source } = await applyEntry(e); return outcome(() => validateRetainedPrecision(source)); };
+
+  it('(g): the model-scope members are PP\'s acceptance, at G8 INVOCATION before any PREPARATION check; unbound reads admit them', async () => {
+    const model = (key: string) => ['request', 'model', key];
+    const refused: [string, any[]][] = [
+      ['reference_configurations null', [set(model('reference_configurations'), null)]],
+      ['reference_configurations []', [set(model('reference_configurations'), [])]],
+      ['reference_configurations {}', [set(model('reference_configurations'), {})]],
+      ['pressure_contract false', [set(model('pressure_contract'), false)]],
+      ['pressure_contract {}', [set(model('pressure_contract'), {})]],
+      ['pressure_contract 0', [set(model('pressure_contract'), 0)]],
+      ['combinations null', [set(model('combinations'), null)]],
+      ['combinations {"x": 1}', [set(model('combinations'), { x: 1 })]],
+      ['components null', [set(model('components'), null)]],
+      ['components "x"', [set(model('components'), 'x')]],
+      ['components {}', [set(model('components'), {})]],
+      // Before any PREPARATION check: with an unnormalized coordinate too (07m's mm_unnormalized_coordinate is G8 PREPARATION alone).
+      ['combinations null beside a PREPARATION defect', [set(model('combinations'), null), set(['request', 'model', 'nodes', 1, 'position', 'x'], 1)]],
+    ];
+    const admitted: [string, any[]][] = [
+      ['pressure_contract null', [set(model('pressure_contract'), null)]],
+      ['combinations and components []', [set(model('combinations'), []), set(model('components'), [])]],
+      ['combinations and components absent', [remove(model('combinations')), remove(model('components'))]],
+    ];
+    await table([
+      // A non-empty list (or any value with a non-zero length) is refused first by G3's existing combination-coverage
+      // conjunct, as before this round; RS and PY reach G8 INVOCATION there (returned to ROOT, REPAIR_01 §6).
+      ['bound: combinations [{}] (G3 first)', bound(entry(ORD, [], [set(model('combinations'), [{}])])), G('G3', 'COVERAGE_MISMATCH')],
+      ['bound: combinations "x" (G3 first)', bound(entry(ORD, [], [set(model('combinations'), 'x')])), G('G3', 'COVERAGE_MISMATCH')],
+      ...refused.map(([name, edits]) => [`bound: ${name}`, bound(entry(ORD, [], edits)), INVOCATION] as [string, () => Promise<unknown>, unknown]),
+      ...refused.map(([name, edits]) => [`unbound: ${name}`, unbound(entry(ORD, [], edits)), { admitted: false }] as [string, () => Promise<unknown>, unknown]),
+      ...admitted.map(([name, edits]) => [`bound: ${name}`, bound(entry(ORD, [], edits)), { admitted: true }] as [string, () => Promise<unknown>, unknown]),
+    ]);
+  });
+
+  it('C2\'s cause table: an unavailable_precondition code is keyed one-to-one by its precondition (N-2); the receipt_failure set form stands', async () => {
+    const KEYED: Record<string, string> = { caller: 'caller_not_qualified', resource_admission: 'resource_admission_not_available',
+      upstream_no_wrap: 'upstream_no_wrap_not_established', capture: 'source_unavailable', source_family: 'source_unavailable' };
+    const CODES = ['caller_not_qualified', 'resource_admission_not_available', 'upstream_no_wrap_not_established', 'source_unavailable'];
+    const base = corpus.cases.find((c: any) => c.id === P_BASE).source, cid = base.retained_precision.body.cases[1].basis_ref.ref_id;
+    // Reader logic: G5's ordinary class on case 1 (unavailable) with each precondition, code and phase.
+    const ordinary = (reason: any, run: any = null) => {
+      const s = structuredClone(base); Object.assign(s.retained_precision.body.cases[1], { reason, run });
+      try { ordinaryAttempts(s.retained_precision.body, s); return 'pass'; } catch (e) { return { gate: (e as any).gate, code: (e as any).code }; }
+    };
+    const misses: string[] = [];
+    for (const [precondition, keyed] of Object.entries(KEYED)) for (const phase of ['routing', 'preparation', 'kernel']) for (const code of CODES) {
+      const cause = { kind: 'unavailable_precondition', precondition, affected_refs: [cid] };
+      const want = phase !== 'kernel' && code === keyed ? 'pass' : ATTEMPT, got = ordinary({ code, phase, cause });
+      if (JSON.stringify(got) !== JSON.stringify(want)) misses.push(`${precondition}/${phase}/${code}: got ${JSON.stringify(got)}`);
+    }
+    // A precondition cannot sit beside a Run.
+    const run = base.retained_precision.body.cases[0].run;
+    if (JSON.stringify(ordinary({ code: 'caller_not_qualified', phase: 'routing', cause: { kind: 'unavailable_precondition', precondition: 'caller', affected_refs: [cid] } }, run)) !== JSON.stringify(ATTEMPT)) misses.push('beside a Run');
+    expect(misses).toEqual([]);
+    // The full reader: case 1 without its product attempt, unavailable through a precondition, is admitted when keyed.
+    const precondition = (p: string, code: string, phase = 'preparation') => entry(P_BASE, [
+      set(rb('cases', 1, 'product_attempt_ref'), null),
+      set(rb('cases', 1, 'reason'), { code, phase, cause: { kind: 'unavailable_precondition', precondition: p, affected_refs: [cid] } }),
+      remove(rb('product_attempts', 1)),
+    ]);
+    await table([
+      ...Object.entries(KEYED).map(([p, code]) => [`${p} → ${code}`, bound(precondition(p, code)), { admitted: false }] as [string, () => Promise<unknown>, unknown]),
+      ['capture → caller_not_qualified', bound(precondition('capture', 'caller_not_qualified')), ATTEMPT],
+      ['caller → source_unavailable', bound(precondition('caller', 'source_unavailable')), ATTEMPT],
+      ['source_family → upstream_no_wrap_not_established (routing)', bound(precondition('source_family', 'upstream_no_wrap_not_established', 'routing')), ATTEMPT],
+      ['resource_admission → its code in phase receipt', bound(precondition('resource_admission', 'resource_admission_not_available', 'receipt')), ATTEMPT],
+    ]);
+  });
+});

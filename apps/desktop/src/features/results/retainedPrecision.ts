@@ -1134,7 +1134,11 @@ async function invocationBinding(b: Obj, source: Obj, invocation: Obj): Promise<
   // D31: the model schema_version is 0.1.0, 0.2.0 or 0.3.0 (PP pressure_runtime.rs `validate_profile` treats 0.1.0 and
   // 0.2.0 on one branch); 0.4.0 stays excluded (C1 G8 row, "no 0.4 extension").
   fail(model?.project?.id === source.model_ref && ['0.1.0', '0.2.0', '0.3.0'].includes(model.schema_version), 'INVOCATION_MISMATCH');
-  fail(!model.pressure_contract && !model.combinations?.length && !model.components?.length, 'INVOCATION_MISMATCH');
+  // (g), B1's three-reader alignment set (RR "RV113's three returns verified; …", item 2): PP's acceptance, before any
+  // PREPARATION check. No reference_configurations member (null included); pressure_contract absent or null;
+  // combinations and components absent or [].
+  const absentOrEmpty = (key: string) => !Object.hasOwn(model, key) || (Array.isArray(model[key]) && model[key].length === 0);
+  fail(!Object.hasOwn(model, 'reference_configurations') && model.pressure_contract == null && absentOrEmpty('combinations') && absentOrEmpty('components'), 'INVOCATION_MISMATCH');
   const nodes: Obj[] = model.nodes, pipes: Obj[] = model.pipe_segments, supports: Obj[] = model.supports, cases: Obj[] = model.load_cases;
   fail([nodes, pipes, supports, cases].every(xs => Array.isArray(xs) && unique(xs.map(x => x.id))));
   const materials: Obj[] = request.materials?.length ? request.materials : model.materials; fail(Array.isArray(materials) && unique(materials.map(m => m.id)));
@@ -1277,6 +1281,9 @@ async function invocationBinding(b: Obj, source: Obj, invocation: Obj): Promise<
   }
 }
 
+/** C2's `unavailable_precondition` codes, one per precondition (B1's alignment set, item 3; RV113 SR-TS N-2). */
+const PRECONDITION_CODES: Record<string, string> = { caller: 'caller_not_qualified', resource_admission: 'resource_admission_not_available',
+  upstream_no_wrap: 'upstream_no_wrap_not_established', capture: 'source_unavailable', source_family: 'source_unavailable' };
 /** @internal Exported only for the reader-logic O5/O2 unit tests; not a public entry point. */
 export function ordinaryAttempts(b: Obj, source: Obj): void {
   const fail = (ok: unknown, code = 'ATTEMPT_MISMATCH') => need(ok, 'G5', code);
@@ -1312,12 +1319,16 @@ export function ordinaryAttempts(b: Obj, source: Obj): void {
     if (c.status === 'not_required') fail(c.product_attempt_ref === null && a.initial.kind !== 'not_attempted' && q.solve_quality === 'checks_passed');
     // D20: the selected case's C3 attempt is checked in the C3 association pass (PRODUCT_ATTEMPT), not here.
     if (c.status === 'selected') fail(a.initial.kind !== 'not_attempted' && ['sensitive', 'unresolved', 'failed'].includes(q.solve_quality));
+    // C2's cause table (C2:72-74, "one-to-one by the table above"), for every unavailable case whose cause is not a
+    // prepared_product_failure: B1's three-reader alignment set (RR "RV113's three returns verified; …", item 3), as RS
+    // and PY apply it. A receipt_failure's code is from C2's set: C2 keys none of them to `check`.
     if (c.status === 'unavailable' && c.reason.cause.kind !== 'prepared_product_failure') {
       const cause = c.reason.cause;
       if (cause.kind === 'source_error') fail(c.reason.phase === 'preparation' && c.reason.code === 'source_unavailable' && !c.run && c.source_decline && same(c.source_decline.error, cause.error));
       else if (cause.kind === 'receipt_failure') fail(c.reason.phase === 'receipt' && ['receipt_encoding', 'publication_hash_range', 'invocation_not_representable'].includes(c.reason.code));
       else if (cause.kind === 'facade_failure') fail(c.reason.phase === 'facade' && c.reason.code === 'facade_certificate' && c.run?.kernel_terminal.kind === 'selected' && same(cause.owner_ref, { kind: 'case', index: ci }));
-      else if (cause.kind === 'unavailable_precondition') fail(['routing', 'preparation'].includes(c.reason.phase) && !c.run && ['source_unavailable', 'resource_admission_not_available', 'upstream_no_wrap_not_established', 'caller_not_qualified'].includes(c.reason.code));
+      // RV113 SR-TS N-2: the code is keyed one-to-one by the precondition.
+      else if (cause.kind === 'unavailable_precondition') fail(['routing', 'preparation'].includes(c.reason.phase) && !c.run && Object.hasOwn(PRECONDITION_CODES, cause.precondition) && c.reason.code === PRECONDITION_CODES[cause.precondition]);
       else fail(c.reason.phase === 'kernel' && c.run && c.reason.code === 'kernel_' + c.run.kernel_terminal.kind && same(cause, c.run.kernel_terminal.reason));
     }
     // O5 (C2:115-119; S06:51): a source decline belongs to an unavailable case with no source or run.
