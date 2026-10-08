@@ -3356,10 +3356,15 @@ fn b2p_two_cases() -> Value {
     raw
 }
 /// The successor precommit receives from the private driver (both modes are not needed here).
+/// With `I105_B2P_OUT` set, it is written there (named by its sha256) for the SCHEMA check.
 fn b2p_successor(raw: &Value, mode: PreviewSolverMode) -> (Result<RetainedSuccessor, W1Fallback>, Value) {
     let (capture, observer, ordinary) = observed(mode, raw);
     let ((_, retained), _, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
     let successor = captured.unwrap_or_else(|| panic!("{retained:?}"));
+    if let Ok(dir) = std::env::var("I105_B2P_OUT") {
+        let bytes = serde_json::to_vec(&json!({"source": successor})).unwrap();
+        std::fs::write(format!("{dir}/b2p_successor_{}.json", &sha(&bytes)[..16]), bytes).unwrap();
+    }
     (retained, successor)
 }
 
@@ -3451,31 +3456,33 @@ fn b2p_hooks_and_failure_set() {
 }
 
 /// B2-P (T-9′; REVISION_01 S-1): a case freeze checks the gate entries' shape and consistency
-/// only. W-CB3's ordinary envelope with one tampered entry refuses every case freeze
-/// (`Candidate`, the cause in the case's observables); a withheld entry with a gate code is not a
-/// case-freeze failure (T-10a then gives that combination `base_withheld`).
+/// only. W-CB3's ordinary envelope with one tampered entry, an extra entry or none refuses every
+/// case freeze (`Candidate`, the cause in the case's observables); a withheld entry with a gate
+/// code is not a case-freeze failure (T-10a then gives that combination `base_withheld`).
 #[test]
 fn b2p_gate_entries_shape_and_consistency() {
     let mode = PreviewSolverMode::SparseInteractive;
     let raw = w_cb3();
     let run = |tamper: &dyn Fn(&mut Value)| {
         let (capture, observer, mut ordinary) = observed(mode, &raw);
-        tamper(&mut ordinary.contract_evidence.as_mut().unwrap()["combination_gates"][0]);
+        tamper(&mut ordinary.contract_evidence.as_mut().unwrap()["combination_gates"]);
         let ((_, retained), _, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
         (retained, captured)
     };
     for (label, tamper) in [
-        ("an extra key", Box::new(|g: &mut Value| { g["extra"] = json!(1); }) as Box<dyn Fn(&mut Value)>),
-        ("another id", Box::new(|g: &mut Value| { g["combination_id"] = json!("combination:other"); })),
-        ("withheld with no code", Box::new(|g: &mut Value| { g["withheld"] = json!(true); })),
-        ("not withheld with a code", Box::new(|g: &mut Value| { g["reason"] = json!("NONLINEAR_COMBINATION_REQUIRES_SOLVE"); })),
-        ("withheld with another code", Box::new(|g: &mut Value| { g["withheld"] = json!(true); g["reason"] = json!("OTHER"); })),
+        ("an extra key", Box::new(|g: &mut Value| { g[0]["extra"] = json!(1); }) as Box<dyn Fn(&mut Value)>),
+        ("another id", Box::new(|g: &mut Value| { g[0]["combination_id"] = json!("combination:other"); })),
+        ("withheld with no code", Box::new(|g: &mut Value| { g[0]["withheld"] = json!(true); })),
+        ("not withheld with a code", Box::new(|g: &mut Value| { g[0]["reason"] = json!("NONLINEAR_COMBINATION_REQUIRES_SOLVE"); })),
+        ("withheld with another code", Box::new(|g: &mut Value| { g[0]["withheld"] = json!(true); g[0]["reason"] = json!("OTHER"); })),
+        ("an extra entry", Box::new(|g: &mut Value| { let mut extra = g[0].clone(); extra["combination_id"] = json!("combination:extra"); g.as_array_mut().unwrap().push(extra); })),
+        ("no entry", Box::new(|g: &mut Value| { g.as_array_mut().unwrap().clear(); })),
     ] {
         let (retained, captured) = run(tamper.as_ref());
         assert_eq!(retained.err(), Some(W1Fallback::Candidate), "{label}: every case freeze refuses");
         assert!(captured.is_none(), "{label}");
     }
-    let (_, captured) = run(&|g: &mut Value| { g["withheld"] = json!(true); g["reason"] = json!("CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE"); });
+    let (_, captured) = run(&|g: &mut Value| { g[0]["withheld"] = json!(true); g[0]["reason"] = json!("CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE"); });
     let successor = captured.expect("a withheld entry is not a case-freeze failure");
     let c = &successor["retained_precision"]["body"]["combinations"][0];
     assert_eq!((&c["disposition"], &c["reason"]), (&json!("base_withheld"), &json!("CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE")), "T-10a rule 1");
@@ -3558,6 +3565,13 @@ fn b2p_combination_observables_stage() {
             let node = e.results[i].entity_ref.clone();
             let j = (start..end).find(|&j| e.results[j].kind == "global_nodal_displacement_y" && e.results[j].entity_ref == node).unwrap();
             e.results[j].kind = "global_nodal_displacement_x".into();
+        }), "combination displacement identity"),
+        ("a second row of one translation", Box::new(move |e| {
+            let i = find(e, "global_nodal_displacement_x");
+            let node = e.results[i].entity_ref.clone();
+            let j = (start..end).find(|&j| e.results[j].kind == "global_nodal_rotation_x" && e.results[j].entity_ref == node).unwrap();
+            e.results[j].kind = "global_nodal_displacement_x".into();
+            e.results[j].value = e.results[i].value;
         }), "combination displacement identity"),
         ("a support magnitude off", Box::new(move |e| { let i = find(e, "support_reaction_force_magnitude_v2"); e.results[i].value = e.results[i].value * 2.0 + 1.0; }), "support guard"),
         ("a withheld gate entry", Box::new(|e| { e.contract_evidence.as_mut().unwrap()["combination_gates"][0]["withheld"] = json!(true); }), "combination gate entry"),
@@ -4100,4 +4114,108 @@ fn b2p_base_readers_accept(raw: &Value, mode: PreviewSolverMode, plain: &[u8], n
     let standing = sc::numerical_use_standing_with_context(&noticed, &bases, Some(&invocation));
     assert_eq!(standing, sc::numerical_use_standing_with_context(&base, &bases, Some(&invocation)), "{label}");
     println!("B2P_READERS {label} for_source=ok standing={standing}");
+}
+
+/// RV125 N-2 (a forward constraint on lane P): the capture's modulus-basis custody
+/// (`selections`, `basis_record`, `basis_record_calls`, `basis_expected`) is the invocation's,
+/// not a case's. No B2-P or B3b-P path admits a material selector at c ≥ 2, so it stays there:
+/// - on the Direct entry, G-A refuses a selector on any case (D1.5, `ModulusBasisRef`): no W1,
+///   one run, the plain bytes;
+/// - on the private driver (no G-A), the preview route's capture refuses it, so no successor
+///   reaches precommit: a selector on case 0 fails the custody (`Preparation`), and one on case 1
+///   only fails every attempted case's freeze (`Candidate`). The exact route refuses any
+///   selector (P-5).
+///
+/// Pinned for c = 2 without and with a combination, a point basis on either case or both.
+#[test]
+fn b2p_selectors_at_two_cases_are_refused() {
+    use super::retained_memory::{AdmissionRefusal, D1Clause, FamilyFact};
+    let mut no_combination = b2p_two_cases();
+    no_combination["model"]["combinations"] = json!([]);
+    for (base, raw) in [("c = 2", no_combination), ("c = 2, z = 1", b2p_two_cases())] {
+        for selected in [&[0usize][..], &[1][..], &[0, 1][..]] {
+            let mut raw = raw.clone();
+            raw["model"]["materials"][0]["temperature_points"] = json!([{"id": "T0", "temperature": {"value": 20, "unit": "degC"},
+                "elastic_modulus": {"value": 2.0e11, "unit": "Pa"}, "shear_modulus": {"value": 8.0e10, "unit": "Pa"}, "provenance": B2P}]);
+            for &case in selected {
+                raw["model"]["load_cases"][case]["modulus_basis_ref"] = json!("T0");
+            }
+            for mode in MODES {
+                let label = format!("{base}, selected {selected:?} {mode:?}");
+                let plain = plain(mode, &raw);
+                let plain_value: Value = serde_json::from_slice(&plain).unwrap();
+                assert_eq!(plain_value["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{label}: the ordinary route solves it");
+                assert_eq!(plain_value["results"].as_array().unwrap().iter().filter(|r| r["kind"] == "modulus_basis_record").count(), selected.len(), "{label}");
+                // The Direct entry: G-A refuses (D1.5), whatever the build.
+                let (output, counts) = direct(&raw, mode);
+                assert_eq!(output.admission().unwrap().law().domain, Some(AdmissionRefusal::Family(D1Clause::Case, FamilyFact::ModulusBasisRef)), "{label}");
+                assert!(output.retained().is_none(), "{label}: no W1");
+                assert_eq!(counts, ONE_RUN, "{label}");
+                assert_eq!(published(output), plain, "{label}: the plain bytes");
+                // The private driver: the capture's custody refuses, so no successor.
+                let (capture, observer, ordinary) = observed(mode, &raw);
+                let ((_, retained), _, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+                // A selector on case 0 fails the custody (`Preparation`); on case 1 only, every
+                // attempted case's freeze refuses (`Candidate`).
+                let expected = if selected.contains(&0) { W1Fallback::Preparation } else { W1Fallback::Candidate };
+                assert_eq!(retained.err(), Some(expected), "{label}");
+                assert!(captured.is_none(), "{label}: no successor reaches precommit");
+            }
+        }
+    }
+}
+
+/// RV125 N-3: inside `with_case(0, ..)` at c = 2, case 0's parked slot holds a default and the
+/// last-seen case's fields hold case 0, so reading either through the per-case accessors is a
+/// cross-case read, which debug builds refuse. Outside `with_case` both reads are allowed.
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic(expected = "read across with_case")]
+fn b2p_with_case_guards_cross_case_reads() {
+    let (_, mut observer, _) = observed(PreviewSolverMode::SparseInteractive, &b2p_two_cases());
+    assert_eq!(observer.cases_seen(), 2);
+    let _control = (observer.case_scope(0), observer.case_scope(1));
+    let _ = observer.with_case(0, |capture| capture.case_scope(1));
+}
+
+/// B2-P (D1.4; T-4's re-check and T-2′): `w1_combinations_admitted` at each cap's boundary,
+/// directly, including z ≤ 2 where C_eq ≤ 3 alone would admit three combinations (c = 0).
+#[test]
+fn b2p_d14_predicate_at_its_caps() {
+    let admitted = |cases: &[&str], combinations: &[(&str, usize, usize)]| super::w1_combinations_admitted(cases.iter().copied(), combinations.iter().copied());
+    assert!(admitted(&["a"], &[]), "z = 0");
+    assert!(admitted(&["a"], &[("x", 3, 0), ("y", 0, 3)]), "at the caps");
+    assert!(!admitted(&[], &[("x", 1, 0), ("y", 1, 0), ("z", 1, 0)]), "z <= 2");
+    assert!(!admitted(&["a", "b"], &[("x", 1, 0), ("y", 1, 0)]), "C_eq <= 3");
+    assert!(!admitted(&["a"], &[("x", 4, 0)]), "h <= 3");
+    assert!(!admitted(&["a"], &[("x", 0, 4)]), "range operands <= 3");
+    assert!(!admitted(&["a"], &[("a", 1, 0)]), "ids disjoint (C-9)");
+}
+
+/// B2-P (B2-C §2.7): the serializer refuses a successor whose Calls do not chain the
+/// invocation's meter (`break_next_meter_chain`): W1 falls back at the serializer with
+/// `work_counter_inconsistent` (`work.charged`), and publishes the plain bytes plus case A's
+/// notice with that detail. With one Call (z = 0) there is no pair to check: a control.
+#[test]
+fn b2p_serializer_refuses_an_unchained_meter() {
+    use super::retained_wire::{ReceiptCheck as C, ReceiptFailure};
+    for mode in MODES {
+        hooks::break_next_meter_chain();
+        let raw = w_cb3();
+        let plain = plain(mode, &raw);
+        let (capture, observer, ordinary) = observed(mode, &raw);
+        let ((envelope, retained), _, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+        assert!(hooks::armed_names().is_empty(), "{mode:?}");
+        assert_eq!(retained.err(), Some(W1Fallback::Serializer(ReceiptFailure { check: C::WorkCounterInconsistent, field_path: "work.charged" })), "{mode:?}");
+        assert!(captured.is_none(), "{mode:?}: nothing reaches precommit");
+        assert_eq!(String::from_utf8(serde_json::to_vec(&envelope).unwrap()).unwrap(),
+            String::from_utf8(with_notice(&plain, "case:a", Some("work_counter_inconsistent"))).unwrap(), "{mode:?}: T-12");
+        // The control: the milestone (one Call).
+        hooks::break_next_meter_chain();
+        let milestone = self::raw();
+        let (capture, observer, ordinary) = observed(mode, &milestone);
+        let ((_, retained), _, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+        assert!(hooks::armed_names().is_empty(), "{mode:?}");
+        assert!(!matches!(retained, Err(W1Fallback::Serializer(_))) && captured.is_some(), "{mode:?}: the control reaches precommit");
+    }
 }

@@ -3463,6 +3463,8 @@ pub(crate) mod retained_tests_hooks {
         combination_freeze: bool,
         /// RV123 S-2: the request index of the case whose freeze refuses (its maxima stage).
         freeze_of_case: Option<usize>,
+        /// B2-P: the serializer's meter-chain check reads the next pair of Calls as unchained.
+        meter_chain: bool,
         /// lib.rs's dense-scrutiny ceiling override (F1b), read by the ordinary run.
         ceiling: Option<u128>,
     }

@@ -2436,6 +2436,34 @@ fn i51_c0_envelope(mut mode:ResultItem)->MechanicsEnvelope {
             max_displacement:None,max_open_formula_stress:None},results:vec![mode],diagnostics:Vec::new(),
         professional_boundary:professional_boundary(),accepted_model_state_mutated:false}
 }
+/// B2-P (T-2′): the early hook (`case_source`) refuses a combination D1.4 does not admit by
+/// itself (here h = 4), on a capture whose normalization saw none, so the late hook is not the
+/// only guard.
+#[test]
+fn b2p_early_hook_refuses_combinations_outside_d14() {
+    let raw=i50_named_request();
+    let (mut request,inv)=source_receipt::CapturedInvocation::parse(raw,PreviewSolverMode::SparseInteractive).unwrap();
+    let mut diagnostics=Vec::new();
+    let built=build_model(&request.model,&request.model.materials,&mut diagnostics).unwrap();
+    let boundary=prepare_boundary(built.nodes.len(),&built.supports);
+    let application=LoadApplication{nodal_loads:request.model.load_cases[0].primitive_loads.iter().enumerate().map(|(i,l)|
+        open_pipe_stress_primitive_loads::NodalLoadContribution{load_id:l.id.clone(),node_index:1,global_dof:9+i,value:l.magnitude.value}).collect(),
+        element_uniform_loads:Vec::new(),imposed_displacements:Vec::new(),findings:Vec::new()};
+    for terms in [3,4] {
+        let mut o=ProductCapture::prepared_probe();
+        o.invocation(Some(&inv),PreviewSolverMode::SparseInteractive);
+        o.normalized(&request.model,&request.model.materials,false);
+        assert!(o.error.is_none(),"{:?}",o.error);
+        let case=request.model.load_cases[0].id.clone();
+        request.model.combinations=vec![serde_json::from_value(serde_json::json!({"id":"C","basis":"mechanics",
+            "terms":vec![serde_json::json!({"load_case":case,"factor":1.0});terms]})).unwrap()];
+        o.case_source(&request.model,&built,&request.model.materials,&request.model.load_cases[0],
+            &boundary.restrained_dofs,&boundary.springs,&application,&[],&[]);
+        let expected=(terms==4).then_some("prepared case/no-combination source scope");
+        assert_eq!(o.error.as_ref().map(|e|e.to_string()).as_deref(),expected,"h = {terms}");
+        request.model.combinations.clear();
+    }
+}
 #[test]
 fn i51_c0_isolated_late_hook_custody_and_prefixes() {
     use super::retained_product::{AdapterEvent as E,CaptureError};

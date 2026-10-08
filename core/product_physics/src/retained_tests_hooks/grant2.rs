@@ -68,13 +68,14 @@ pub(super) fn merge(a: &mut Armed, faults: &Armed) {
     a.combination_call = a.combination_call.or(faults.combination_call);
     a.combination_freeze |= faults.combination_freeze;
     a.freeze_of_case = a.freeze_of_case.or(faults.freeze_of_case);
+    a.meter_chain |= faults.meter_chain;
 }
 /// `armed_names`: this grant's faults.
-pub(super) fn names(a: &Armed) -> [(bool, &'static str); 11] {
+pub(super) fn names(a: &Armed) -> [(bool, &'static str); 12] {
     [(a.late_gate, "late_gate"), (a.complete_gate, "complete_gate"), (a.preparation, "preparation"), (a.candidate.is_some(), "candidate"),
         (a.preparation_of_case.is_some(), "preparation_of_case"), (a.exact_capture, "exact_capture"), (a.section_staging, "section_staging"),
         (a.operand_preparation_of_case.is_some(), "operand_preparation_of_case"), (a.combination_call.is_some(), "combination_call"),
-        (a.combination_freeze, "combination_freeze"), (a.freeze_of_case.is_some(), "freeze_of_case")]
+        (a.combination_freeze, "combination_freeze"), (a.freeze_of_case.is_some(), "freeze_of_case"), (a.meter_chain, "meter_chain")]
 }
 /// RV123 S-2: the freeze of case `index` (request index) refuses at its maxima stage (the
 /// existing `TraceFault::Maxima`, for that case only), after its selected Run: the case is
@@ -107,6 +108,12 @@ pub(crate) fn combination_call_fault(index: usize) -> bool {
 pub(crate) fn fault_next_combination_freeze() { arm(|a| a.combination_freeze = true); }
 /// At a combination's observables stage: whether the armed freeze fault fires (consumed).
 pub(crate) fn combination_freeze_fault() -> bool { consume(|a| std::mem::take(&mut a.combination_freeze)) }
+/// B2-P hook: the serializer's meter-chain check (B2-C §2.7) reads its Calls as unchained (each
+/// later Call's `invocation_before` one past the previous Call's `invocation_after`), so a
+/// successor with a combination Call refuses with `work_counter_inconsistent` (`work.charged`).
+pub(crate) fn break_next_meter_chain() { arm(|a| a.meter_chain = true); }
+/// At the serializer's meter-chain check: whether the armed fault fires (consumed).
+pub(crate) fn meter_chain_fault() -> bool { consume(|a| std::mem::take(&mut a.meter_chain)) }
 /// B3b-P (B3-D P-12): the exact route's material capture refuses: its Ĝ check (retained_product.rs
 /// `exact_material_nu`) sees the represented Ĝ one ulp up, so the capture records a typed
 /// association error and W1 falls back at preparation (custody).

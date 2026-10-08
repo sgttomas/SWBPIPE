@@ -206,6 +206,10 @@ pub(super) struct ProductCapture {
     /// for subtraction and range, whose rows bind by id), bound at custody when z ≥ 1.
     pub case_rows_end: usize,
     pub combination_rows: Vec<std::ops::Range<usize>>,
+    /// RV125 N-3 (debug builds): the case `with_case` has lent into the capture's own fields
+    /// while its `f` runs (its parked slot then holds a default), for `assert_not_lent`.
+    #[cfg(debug_assertions)]
+    lent: Option<usize>,
 }
 /// B2-P (C-1): whether a mechanics combination's terms name distinct load cases.
 pub(super) fn distinct_terms(terms: &[(usize, f64)]) -> bool {
@@ -281,17 +285,34 @@ impl ProductCapture {
     pub(super) fn parked_cases(&self) -> &[CaseSlot] { &self.parked }
     /// B1 SP (T-2): run `f` with request case `index` in the capture's own fields, then put
     /// every case back. The case already there (the last one seen) needs no move, so at
-    /// c = 1 this is just `f(self)`.
+    /// c = 1 this is just `f(self)`. While `f` runs, `parked[index]` holds a default slot and
+    /// the last-seen case is held aside, so `f` reads case `index` from the capture's own fields
+    /// only, never case `index` or the last-seen case through `case_native`,
+    /// `case_prepared_source` or `case_scope` (RV125 N-3; debug builds assert it).
     pub(super) fn with_case<R>(&mut self, index: usize, f: impl FnOnce(&mut Self) -> R) -> R {
         if index == self.parked.len() {
             return f(self);
         }
         let mut slot = std::mem::take(&mut self.parked[index]);
         self.swap_case(&mut slot);
+        #[cfg(debug_assertions)]
+        let outer = self.lent.replace(index);
         let result = f(self);
+        #[cfg(debug_assertions)]
+        {
+            self.lent = outer;
+        }
         self.swap_case(&mut slot);
         self.parked[index] = slot;
         result
+    }
+    /// RV125 N-3: inside `with_case(lent, f)`, case `lent` and the last-seen case are not where
+    /// the per-case accessors read them.
+    #[inline]
+    fn assert_not_lent(&self, index: usize) {
+        #[cfg(debug_assertions)]
+        debug_assert!(self.lent.is_none_or(|lent| index != lent && index != self.parked.len()), "case {index} read across with_case");
+        let _ = index;
     }
     /// B1 SP (T-8): the invocation and this case's Run, when the call recorded one.
     pub(super) fn native_pair(&self) -> Option<(&k::RecordedInvocation, &k::RecordedCase)> {
@@ -305,6 +326,7 @@ impl ProductCapture {
     /// B1 SP (T-8): request case `index`'s Run and prepared source, read where its slot is
     /// (parked, or in the capture's own fields as the last case seen). No move.
     fn case_native(&self, index: usize) -> Option<&k::RecordedCase> {
+        self.assert_not_lent(index);
         match index.cmp(&self.parked.len()) {
             std::cmp::Ordering::Less => self.parked[index].native.as_ref(),
             std::cmp::Ordering::Equal => self.native.as_ref(),
@@ -312,6 +334,7 @@ impl ProductCapture {
         }
     }
     fn case_prepared_source(&self, index: usize) -> Option<&k::PrimitiveSource> {
+        self.assert_not_lent(index);
         match index.cmp(&self.parked.len()) {
             std::cmp::Ordering::Less => self.parked[index].source.as_ref(),
             std::cmp::Ordering::Equal => self.source.as_ref(),
@@ -323,6 +346,7 @@ impl ProductCapture {
     /// several, its block bound at custody, its own evidence case, and case-qualified ids after
     /// the first (lib.rs `qualified_load_case_result_id`).
     pub(super) fn case_scope(&self, index: usize) -> CaseScope {
+        self.assert_not_lent(index);
         let cases = self.cases_seen();
         // B2-P (T-9′): with a combination, the one case's scope is its own block, not WHOLE.
         if cases == 1 && self.combinations.is_empty() {

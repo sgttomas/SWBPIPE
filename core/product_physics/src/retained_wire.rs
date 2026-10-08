@@ -1575,8 +1575,12 @@ fn invocation_arrays_mapped(e: &Enc, inv: &k::RecordedInvocation, run: &k::RunOr
     if last.is_none_or(|last| !last.runs.is_empty()) && charged != e.exact(run.work.invocation_after(), "work.charged") {
         return Err(fail(ReceiptCheck::WorkCounterInconsistent, "work.charged"));
     }
+    #[cfg(test)]
+    let unchained = u64::from(crate::retained_tests_hooks::meter_chain_fault());
+    #[cfg(not(test))]
+    let unchained = 0;
     if last.is_some_and(|last| charged != e.exact(last.invocation_after, "work.charged"))
-        || inv.calls().windows(2).any(|pair| e.exact(pair[1].invocation_before, "work.charged") != e.exact(pair[0].invocation_after, "work.charged")) {
+        || inv.calls().windows(2).any(|pair| e.exact(pair[1].invocation_before, "work.charged") != e.exact(pair[0].invocation_after, "work.charged").saturating_add(unchained)) {
         return Err(fail(ReceiptCheck::WorkCounterInconsistent, "work.charged"));
     }
     Ok((calls, groups, builds, charged))
