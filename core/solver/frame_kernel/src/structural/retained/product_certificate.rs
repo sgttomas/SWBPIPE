@@ -411,7 +411,7 @@ fn material(
     work: &mut NumericWork,
     m: MaterialOperands,
     k: &AdmittedOperands,
-) -> Result<(Enclosure, Enclosure, bool), NumericError> {
+) -> Result<(Enclosure, Enclosure), NumericError> {
     match m {
         MaterialOperands::ExactENu { e, nu } => {
             let e = pos_lift(e)?;
@@ -428,14 +428,14 @@ fn material(
             let denominator = shift_interval(denominator, 1)?;
             let e = Enclosure::point(e);
             let g = work.div(e, denominator)?;
-            Ok((e, g, false))
+            Ok((e, g))
         }
         MaterialOperands::Ordinary { e, g } => {
             let pair = (pos_lift(e)?, pos_lift(g)?);
             if e.to_bits() != k.e.to_bits() || g.to_bits() != k.g.to_bits() {
                 return Err(NumericError::MaterialBits);
             }
-            Ok((Enclosure::point(pair.0), Enclosure::point(pair.1), true))
+            Ok((Enclosure::point(pair.0), Enclosure::point(pair.1)))
         }
         MaterialOperands::Interpolated {
             t_lo,
@@ -474,7 +474,7 @@ fn material(
             };
             let e = property(e_lo, e_hi, ea)?;
             let g = property(g_lo, g_hi, ga)?;
-            Ok((e, g, true))
+            Ok((e, g))
         }
     }
 }
@@ -541,7 +541,7 @@ fn build_member(
     for v in [k.e, k.g, k.a, k.j, k.iz, k.iy] {
         pos_lift(v)?;
     }
-    let (e, g, ordinary) = material(work, input.material, k)?;
+    let (e, g) = material(work, input.material, k)?;
     let d = pos_lift(input.diameter)?;
     let t = pos_lift(input.effective_wall)?;
     let c = shift(&d, -1)?;
@@ -579,7 +579,12 @@ fn build_member(
         let hi = work.absdiff(&coefficients[index].hi, &admitted_products[index])?;
         coefficient_differences[index] = max(lo, hi);
     }
-    let represented_z = if ordinary {
+    // B3-K K3-2: represented Z is a section and recipe quantity, not a material
+    // one, so the Iy = Iz axis check and hull(I_K/c, Z-hat) hold for every
+    // material, the exact E/nu route included (DEF-O `rows.component_stress`).
+    let represented_z = if hooks::material_gated(&input.material) {
+        None
+    } else {
         if k.iy.to_bits() != k.iz.to_bits() {
             return Err(NumericError::AxisBits);
         }
@@ -588,8 +593,6 @@ fn build_member(
             work.div(Enclosure::point(pos_lift(k.iz)?), Enclosure::point(c))?
                 .hull_point(actual),
         )
-    } else {
-        None
     };
     Ok(MemberEnclosures {
         effective_wall_bits: input.effective_wall.to_bits(),
@@ -609,6 +612,32 @@ fn build_member(
         coefficient_differences,
         represented_z,
     })
+}
+
+/// B3-K SA-2's discriminator. Outside `cfg(test)` the gate never applies. In
+/// tests, a thread may restore the pre-K3-2 material gate (represented Z only for
+/// the ordinary and interpolated materials) to show that an exact E/nu stress or
+/// maximum row fails without K3-2 and certifies with it.
+pub(crate) mod hooks {
+    use super::MaterialOperands;
+    #[cfg(not(test))]
+    #[inline(always)]
+    pub(crate) fn material_gated(_material: &MaterialOperands) -> bool {
+        false
+    }
+    #[cfg(test)]
+    thread_local! {
+        static MATERIAL_GATE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+    }
+    #[cfg(test)]
+    pub(crate) fn set_material_gate(on: bool) {
+        MATERIAL_GATE.with(|g| g.set(on));
+    }
+    #[cfg(test)]
+    pub(crate) fn material_gated(material: &MaterialOperands) -> bool {
+        MATERIAL_GATE.with(std::cell::Cell::get)
+            && matches!(material, MaterialOperands::ExactENu { .. })
+    }
 }
 
 // I51's fixed scalar preparation. This result proves geometry rounding only;

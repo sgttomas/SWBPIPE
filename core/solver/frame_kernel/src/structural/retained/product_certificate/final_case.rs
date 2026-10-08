@@ -40,11 +40,19 @@ pub enum ProductMaterial {
         e_hat: f64,
         g_hat: f64,
     },
+    /// B3-K K3-1: the base common E and Poisson's ratio of the exact route. The
+    /// source lane encloses G = E/(2(1+nu)) from the exact E and nu (DEF-E); the
+    /// admitted K keeps the represented shear modulus as given.
+    BaseENu {
+        e: f64,
+        nu: f64,
+    },
 }
 impl ProductMaterial {
     fn operands(self) -> MaterialOperands {
         match self {
             Self::Base { e, g } | Self::Point { e, g, .. } => MaterialOperands::Ordinary { e, g },
+            Self::BaseENu { e, nu } => MaterialOperands::ExactENu { e, nu },
             Self::Interpolated {
                 t_lo,
                 t,

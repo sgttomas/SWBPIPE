@@ -505,3 +505,117 @@ fn prepared_trace_full_conversion_storage_refuses_before_entered_counter() {
     assert_eq!(work.conversions,count);assert_eq!(work.conversion_outcomes,prefix);
     assert_eq!(work.conversions.exact(),Ok(9));assert_eq!(work.conversion_outcomes().len(),9);
 }
+
+// ---------------------------------------------------------------- B3-K (K3-3)
+// K3-2 computes represented Z for every material. These tests add SA-2's
+// controls and NA-6's own nu = 0.3125 control; the frozen oracle test above is
+// unchanged (NA-6) and covers the two ExactENu vectors' new hulls.
+fn b3k_div_entries(spent: &MemberSpent) -> u64 {
+    spent.work.entries[Entry::Div as usize].exact().unwrap()
+}
+#[test]
+fn b3k_exact_e_nu_represented_z_axis_bits_and_restored_material_gate() {
+    let exact: Vec<_> = vectors::CASES.iter().filter(|c| c.1 == 0).collect();
+    assert_eq!(exact.len(), 2);
+    for &&(name, mode, geometry, m, k, reference, _) in &exact {
+        let x = input(mode, geometry, m, k);
+        let spent = member_coefficients(&x);
+        let v = spent.result().unwrap();
+        let z = v.represented_z.expect("K3-2: ExactENu has represented Z");
+        covers(z, reference[15], name);
+        assert!(positive(&z.lo), "{name}: a positive hull, not the old placeholder");
+        assert_ne!(reference[15], ("Z+", "Z+"), "{name}: the declared oracle lines");
+        // The restored pre-K3-2 gate (test-only): no represented Z, and exactly
+        // the represented-Z division pair (lo, hi) fewer; everything before it unchanged.
+        hooks::set_material_gate(true);
+        let gated = member_coefficients(&x);
+        let mut skew = x;
+        skew.admitted.iy = f64::from_bits(skew.admitted.iz.to_bits() + 1);
+        let gated_skew = member_coefficients(&skew);
+        hooks::set_material_gate(false);
+        assert!(gated.result().unwrap().represented_z.is_none(), "{name}");
+        assert_eq!(b3k_div_entries(&gated) + 2, b3k_div_entries(&spent), "{name}");
+        // Under the old gate ExactENu never checked the axis bits.
+        assert!(gated_skew.result().unwrap().represented_z.is_none(), "{name}");
+        // K3-2 extends the Iy = Iz refusal to ExactENu, keeping its work prefix:
+        // every entry before the represented-Z division, and nothing after.
+        let refused = member_coefficients(&skew);
+        assert_eq!(refused.result().unwrap_err(), NumericError::AxisBits, "{name}");
+        assert!(refused.work.status().is_exact(), "{name}");
+        for e in 0..7 {
+            assert_eq!(refused.work.entries[e], gated_skew.work.entries[e], "{name} entry {e}");
+        }
+        assert_eq!(refused.work.wide.checked_lme(), gated_skew.work.wide.checked_lme(), "{name}");
+        assert_eq!(refused.work.sums.checked_lme(), gated_skew.work.sums.checked_lme(), "{name}");
+        assert!(refused.work.sums.checked_lme().exact().unwrap() > 0, "{name}");
+    }
+    // The gate is material-specific: the ordinary vectors keep represented Z.
+    hooks::set_material_gate(true);
+    let ordinary_gated = member_coefficients(&ordinary());
+    hooks::set_material_gate(false);
+    assert!(ordinary_gated.result().unwrap().represented_z.is_some());
+}
+fn b3k_specimen(material: MaterialOperands, g: f64) -> MemberOperands {
+    // RV56's specimen: E = 210e9, D = 0.1, t = 0.005; the K section is the
+    // correctly rounded prepared annulus.
+    let (d, t) = (f64::from_bits(0x3fb999999999999a), f64::from_bits(0x3f747ae147ae147b));
+    let [a, i, j, z, _] = prepare_product_annulus(d, t).result().unwrap().section_bits().values();
+    MemberOperands {
+        diameter: d,
+        effective_wall: t,
+        material,
+        admitted: AdmittedOperands { e: 210e9, g, a, j, iz: i, iy: i, z_hat: z },
+    }
+}
+/// sign(x * 2(1 + nu) - e), exactly (nu a binary64 in (-1, 1/2)).
+fn b3k_sign_times_two_one_plus_nu(x: &Endpoint, nu: f64, e: f64) -> i8 {
+    let mut sum = ExactWideSum::new();
+    sum.add_wide_scaled(x, false, 2, 0).unwrap();
+    if nu != 0.0 {
+        let bits = nu.to_bits();
+        let biased = ((bits >> 52) & 0x7ff) as i64;
+        assert!(biased > 0, "normal nu");
+        let m = (bits & ((1u64 << 52) - 1)) | (1u64 << 52);
+        sum.add_wide_scaled(x, nu < 0.0, m, biased - 1075 + 1).unwrap();
+    }
+    sum.add_binary64(e, true).unwrap();
+    sum.signum().unwrap()
+}
+#[test]
+fn b3k_nu_0_3125_control_and_exact_g_against_represented_g() {
+    // NA-6: K3-3's own nu = 0.3125 control (RV56's lived in its review fixture).
+    // E/(2(1 + 0.3125)) = 210e9/2.625 = 80e9 exactly, so the exact route's
+    // enclosures equal the ordinary route's with G = 80e9, bit for bit.
+    let exact = member_coefficients(&b3k_specimen(MaterialOperands::ExactENu { e: 210e9, nu: 0.3125 }, 80e9));
+    let ordinary = member_coefficients(&b3k_specimen(MaterialOperands::Ordinary { e: 210e9, g: 80e9 }, 80e9));
+    let (x, o) = (exact.result().unwrap(), ordinary.result().unwrap());
+    assert_eq!(x.g.lo, lift(80e9).unwrap());
+    assert_eq!(x.g.hi, lift(80e9).unwrap());
+    assert_eq!(b3k_sign_times_two_one_plus_nu(&x.g.lo, 0.3125, 210e9), 0);
+    let pairs = |v: &MemberEnclosures| {
+        let mut out = vec![v.ri, v.p, v.q, v.geometry_g, v.a, v.i, v.j, v.z, v.e, v.g];
+        out.extend(v.coefficients);
+        out.push(v.represented_z.unwrap());
+        out.into_iter().map(|e| (e.lo, e.hi)).collect::<Vec<_>>()
+    };
+    assert_eq!(pairs(x), pairs(o));
+    assert_eq!(x.admitted_products, o.admitted_products);
+    assert_eq!(x.coefficient_differences, o.coefficient_differences);
+    // The exact route's own G costs one add and one divide pair more.
+    assert_eq!(exact.work.entries[Entry::Add as usize].exact().unwrap(), ordinary.work.entries[Entry::Add as usize].exact().unwrap() + 2);
+    assert_eq!(b3k_div_entries(&exact), b3k_div_entries(&ordinary) + 2);
+    // nu = 0.3: G = E/(2(1 + nu)) is not binary64. The source lane encloses the
+    // exact G strictly and excludes the represented G-hat; G-hat*J enters as a
+    // nonzero coefficient difference (DEF-E's E2), not as the G lane's law.
+    let nu = 0.3;
+    let g_hat = 210e9 / (2.0 * (1.0 + nu));
+    let spent = member_coefficients(&b3k_specimen(MaterialOperands::ExactENu { e: 210e9, nu }, g_hat));
+    let v = spent.result().unwrap();
+    assert_eq!(b3k_sign_times_two_one_plus_nu(&v.g.lo, nu, 210e9), -1);
+    assert_eq!(b3k_sign_times_two_one_plus_nu(&v.g.hi, nu, 210e9), 1);
+    let represented = lift(g_hat).unwrap();
+    assert!(represented.cmp_value(&v.g.lo) == Ordering::Less || represented.cmp_value(&v.g.hi) == Ordering::Greater);
+    assert!(positive(&v.coefficient_differences[1]));
+    assert_eq!(v.admitted_products[1], NumericWork::new().exact_product(g_hat, b3k_specimen(MaterialOperands::ExactENu { e: 210e9, nu }, g_hat).admitted.j).unwrap());
+    assert!(v.represented_z.is_some());
+}

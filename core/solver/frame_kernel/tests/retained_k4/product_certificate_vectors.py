@@ -65,7 +65,7 @@ for name,mode,D,t,mat,k in cases:
     C=[(E[0]*a[0],E[1]*a[1]),(G[0]*j[0],G[1]*j[1]),(E[0]*i[0],E[1]*i[1]),(E[0]*i[0],E[1]*i[1])]
     CK=[kk[0]*kk[2],kk[1]*kk[3],kk[0]*kk[4],kk[0]*kk[5]]
     delta=[max(abs(lo-v),abs(hi-v)) for (lo,hi),v in zip(C,CK)]
-    rz=(min(kk[4]/c,kk[6]),max(kk[4]/c,kk[6])) if mode else (F(),F())
+    rz=(min(kk[4]/c,kk[6]),max(kk[4]/c,kk[6]))
     intervals=[(c,c),(ri,ri),(p,p),(q,q),(g,g),a,i,j,z,E,G,*C,rz]
     vals=mat+[0.]*(9-len(mat))
     lines += [f'    ("{name}", {mode}, [{bits(D)}, {bits(t)}],', '     ['+', '.join(str(bits(v)) for v in vals)+'],', '     ['+', '.join(str(bits(v)) for v in k)+'], &[']

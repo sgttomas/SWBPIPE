@@ -781,3 +781,249 @@ fn rv77_input_derived_force_moment_would_break_the_p512_identity() {
     assert!(breaks > 0);
 }
 }
+
+// ---------------------------------------------------------------- B3-K (K3-3)
+// The public `ProductMaterial::BaseENu` through the whole prepared proof
+// (begin -> project -> complete_maxima -> certify_final), with SA-2's controls.
+const B3K_D: u64 = 0x3fb999999999999a; // 0.1
+const B3K_T: u64 = 0x3f747ae147ae147b; // 0.005
+const B3K_E: f64 = 210e9;
+type B3kRow = (String, ProductUnit, u32, ProductRecipe);
+fn b3k_section() -> [f64; 5] {
+    prepare_product_annulus(f64::from_bits(B3K_D), f64::from_bits(B3K_T)).result().unwrap().section_bits().values()
+}
+// Every row of this specimen certifies on the ordinary and both exact routes. Most
+// nearby load sets lose one to ten rows to DEF-O's projection rounding (the same
+// rows on every route), an availability limit outside B3-K (RV115 NC-1).
+const B3K_LOADS: [f64; 6] = [26000.0, 326.0, -278.0, 63.0, 33.5, -56.0];
+/// A cantilever, root fully restrained (support 3), tip loaded in all six
+/// components; stations at 0.25, 0.5 and 0.75; the prepared annulus section.
+fn b3k_source_loaded(g: f64, tip: [f64; 6]) -> super::super::super::source::PrimitiveSource {
+    use super::super::super::source::*;
+    let [a, i, j, _, _] = b3k_section();
+    let loads: Vec<_> = Component::ALL.iter().zip(tip).filter(|(_, v)| *v != 0.0).map(|(&c, v)| (c, v)).collect();
+    PrimitiveSource::new(SourceParts {
+        nodes: vec![[0.0; 3], [1.0, 0.0, 0.0]],
+        members: vec![StraightMember { id: 7, node_i: 0, node_j: 1, elastic_modulus: B3K_E, shear_modulus: g,
+            area: a, second_moment_y: i, second_moment_z: i, torsion_constant: j, y_reference: [0.0, 1.0, 0.0] }],
+        constraints: Component::ALL.iter().map(|&component| Constraint { dof: Dof { node: 0, component }, value: 0.0 }).collect(),
+        loads: loads.iter().map(|&(component, value)| NodalLoad { dof: Dof { node: 1, component }, value,
+            source_id: format!("tip-{component:?}") }).collect(),
+        stations: [0.25, 0.5, 0.75].iter().enumerate()
+            .map(|(k, &fraction)| Station { id: 17 + k as u32, member: 7, fraction }).collect(),
+        supports: vec![SupportGroup { id: 3, node: 0, restrained: [true; 6], springs: vec![], directional_springs: vec![] }],
+        ..SourceParts::default()
+    }).unwrap()
+}
+fn b3k_facts(material: ProductMaterial) -> Vec<ProductMemberFacts> {
+    let [a, i, j, z, _] = b3k_section();
+    let d = f64::from_bits(B3K_D);
+    vec![ProductMemberFacts { member: 7, diameter: d, effective_wall: f64::from_bits(B3K_T), material,
+        area: a, second_moment: i, torsion_constant: j, section_modulus: z, radius: d / 2.0 }]
+}
+/// The product's complete case row set: every native row (reactions through
+/// their support components), 6 support components per group, 20 stress
+/// slots and the circular maximum per member, and the mode record.
+fn b3k_rows(owner: &adaptive::RetainedSolve, maxima: bool, mode: bool) -> Vec<B3kRow> {
+    let source = owner.source();
+    let mut out = Vec::new();
+    for r in &owner.publish().rows {
+        if matches!(r.id, QuantityId::Reaction(_)) { continue; }
+        let unit = match r.kind { Kind::Translation => ProductUnit::Millimetre, Kind::Rotation => ProductUnit::Radian,
+            Kind::Force => ProductUnit::Newton, Kind::Moment => ProductUnit::NewtonMetre };
+        out.push((format!("{:?}", r.id), unit, r.body, ProductRecipe::Native(r.id)));
+    }
+    for g in source.supports() {
+        for component in Component::ALL {
+            let unit = if component.index() < 3 { ProductUnit::Newton } else { ProductUnit::NewtonMetre };
+            out.push((format!("support-{}-{component:?}", g.id), unit, source.body_of_node(g.node),
+                ProductRecipe::SupportComponent { support: g.id, component }));
+        }
+    }
+    for m in source.members() {
+        let body = source.body_of_node(m.node_i);
+        let mut sites = vec![ProductSite::End(End::I), ProductSite::End(End::J)];
+        sites.extend(source.stations().iter().filter(|s| s.member == m.id).map(|s| ProductSite::Station(s.id)));
+        for site in sites {
+            for stress in [ProductStress::Axial, ProductStress::BendingY, ProductStress::BendingZ, ProductStress::Torsion] {
+                out.push((format!("stress-{}-{site:?}-{stress:?}", m.id), ProductUnit::Megapascal, body,
+                    ProductRecipe::Stress { member: m.id, site, stress }));
+            }
+        }
+        if maxima {
+            out.push((format!("maximum-{}", m.id), ProductUnit::Pascal, body, ProductRecipe::CircularMaximum { member: m.id }));
+        }
+    }
+    if mode { out.push(("mode".into(), ProductUnit::Record, 0, ProductRecipe::NonQuantity)); }
+    out
+}
+fn b3k_specs<'a>(rows: &'a [B3kRow], case_id: &'a str) -> Vec<ProductRowSpec<'a>> {
+    rows.iter().map(|(id, unit, body, recipe)| match recipe {
+        ProductRecipe::NonQuantity => ProductRowSpec::mode(id, case_id, *body, 1).unwrap(),
+        _ => ProductRowSpec::mechanical(id, case_id, *unit, *body, *recipe).unwrap(),
+    }).collect()
+}
+/// The circular maximum the way the kernel projects any row: the RN64 of the
+/// RN1024 midpoint of the hull of both lanes' recipe enclosures.
+fn b3k_maxima(p: &ProjectedProofDraft<'_, '_>) -> Result<Vec<ProductMaximumValue>, ProductFailure> {
+    let mut out = Vec::new();
+    for (i, spec) in p.data.specs.iter().enumerate() {
+        let ProductRecipe::CircularMaximum { member } = spec.recipe else { continue };
+        let mut w = ProductCertificateSpent::new(&[]);
+        w.projection_outcomes = w.prepared_reserve(5, 1)?;
+        let section = section_for(p.data.owner, p.data.facts, spec.recipe, &mut w)?;
+        let k = recipe(p.data.owner, &mut w, &p.data.k.rows, spec.recipe, section.as_ref(), p.data.facts, true)?;
+        let s = recipe(p.data.owner, &mut w, &p.data.source.rows, spec.recipe, section.as_ref(), p.data.facts, false)?;
+        out.push(ProductMaximumValue::new(member, i, project_hull(hull(k, s), ProductUnit::Pascal, i, &mut w)?)?);
+    }
+    Ok(out)
+}
+enum B3kOutcome { Certified(CertifiedProductProof, Vec<f64>), Refused(ProductProofFailure) }
+fn b3k_prove(invocation: &super::super::super::origins::RecordedInvocation, run: usize, owner: &adaptive::RetainedSolve,
+    facts: &[ProductMemberFacts], specs: &[ProductRowSpec<'_>]) -> B3kOutcome {
+    let draft = match invocation.begin_prepared_product(run, owner, facts, specs).into_ready() {
+        Ok(v) => v, Err(e) => return B3kOutcome::Refused(e) };
+    let (projected, builder) = match draft.project().into_ready() { Ok(v) => v, Err(e) => return B3kOutcome::Refused(e) };
+    let maxima = b3k_maxima(&projected).unwrap();
+    let (values, work) = builder.complete_maxima(&maxima).into_ready().unwrap();
+    let rows: Vec<_> = specs.iter().enumerate().map(|(i, s)| s.row(values.value(i).unwrap())).collect();
+    let frozen: Vec<f64> = (0..values.len()).map(|i| *values.value(i).unwrap()).collect();
+    match projected.certify_final(&values, &rows, work).into_ready() {
+        Ok(v) => B3kOutcome::Certified(v, frozen), Err(e) => B3kOutcome::Refused(e) }
+}
+fn b3k_case(g: f64) -> (super::super::super::origins::RecordedInvocation, super::super::super::origins::RecordedCase) {
+    b3k_case_loaded(g, B3K_LOADS)
+}
+fn b3k_case_loaded(g: f64, tip: [f64; 6]) -> (super::super::super::origins::RecordedInvocation, super::super::super::origins::RecordedCase) {
+    use super::super::super::origins::*;
+    use crate::structural::retained_api::CaseLimit;
+    let mut invocation = RecordedInvocation::new(u64::MAX, OriginCapacity::for_calls(&[1], &[]).unwrap()).unwrap();
+    let mut cases = invocation.solve_cases(&[b3k_source_loaded(g, tip)], CaseLimit::new(u64::MAX)).unwrap();
+    (invocation, cases.remove(0))
+}
+fn b3k_owner(case: &super::super::super::origins::RecordedCase) -> &adaptive::RetainedSolve {
+    match &case.outcome {
+        adaptive::ExecutionOutcome::Selected(v) => v,
+        other => panic!("native specimen did not select: {other:?}"),
+    }
+}
+fn b3k_certified(material: ProductMaterial, g: f64) -> (Vec<ProductRowVerdict>, Vec<f64>, Vec<B3kRow>) {
+    let (invocation, case) = b3k_case(g);
+    let (run, owner) = (case.run, b3k_owner(&case));
+    let rows = b3k_rows(owner, true, true);
+    let specs = b3k_specs(&rows, "case");
+    match b3k_prove(&invocation, run, owner, &b3k_facts(material), &specs) {
+        B3kOutcome::Certified(proof, values) => {
+            assert!(proof.passed());
+            let mut copies = TraceCopyWork::default();
+            let trace = proof.work().typed_trace(&mut copies);
+            for lane in &trace.lanes { assert!(lane.as_ref().unwrap().result.is_ok(), "both lanes"); }
+            assert_eq!(trace.lanes[0].as_ref().unwrap().law, source_residual::ReadoutLaw::AdmittedK);
+            assert_eq!(trace.lanes[1].as_ref().unwrap().law, source_residual::ReadoutLaw::AnnularSource);
+            (proof.verdicts().to_vec(), values, rows)
+        }
+        B3kOutcome::Refused(e) => panic!("{material:?}: {:?} verdicts={:?}", e.failure(),
+            e.work().verdicts().iter().filter(|v| !v.passed).collect::<Vec<_>>()),
+    }
+}
+#[test]
+fn b3k_base_e_nu_maps_to_exact_operands_and_refuses_through_the_public_variant() {
+    let MaterialOperands::ExactENu { e, nu } = (ProductMaterial::BaseENu { e: B3K_E, nu: 0.3125 }).operands() else {
+        panic!("K3-1: BaseENu is the exact E/nu route") };
+    assert_eq!((e.to_bits(), nu.to_bits()), (B3K_E.to_bits(), 0.3125f64.to_bits()));
+    // NA-4: ProductMaterial keeps its 96 bytes (Interpolated governs; no niche).
+    assert_eq!(std::mem::size_of::<ProductMaterial>(), 96);
+    assert_eq!(std::mem::size_of::<ProductMemberFacts>(), 160);
+    let [a, i, j, z, _] = b3k_section();
+    let member = |material: ProductMaterial| member_coefficients(&MemberOperands {
+        diameter: f64::from_bits(B3K_D), effective_wall: f64::from_bits(B3K_T), material: material.operands(),
+        admitted: AdmittedOperands { e: B3K_E, g: 80e9, a, j, iz: i, iy: i, z_hat: z } });
+    assert!(member(ProductMaterial::BaseENu { e: B3K_E, nu: 0.3125 }).result().is_ok());
+    let e_up = f64::from_bits(B3K_E.to_bits() + 1);
+    assert_eq!(member(ProductMaterial::BaseENu { e: e_up, nu: 0.3125 }).result().unwrap_err(), NumericError::MaterialBits);
+    for nu in [-1.0, 0.5, -1.5, 0.75, f64::from_bits(0.5f64.to_bits() + 1)] {
+        assert_eq!(member(ProductMaterial::BaseENu { e: B3K_E, nu }).result().unwrap_err(), NumericError::InvalidMaterial, "nu={nu}");
+    }
+    for nu in [f64::from_bits((-1.0f64).to_bits() - 1), f64::from_bits(0.5f64.to_bits() - 1), 0.0, -0.0] {
+        assert!(member(ProductMaterial::BaseENu { e: B3K_E, nu }).result().is_ok(), "nu={nu}");
+    }
+    // Through the whole prepared proof: an E-bit mismatch refuses in the lanes.
+    let (invocation, case) = b3k_case(80e9);
+    let (run, owner) = (case.run, b3k_owner(&case));
+    let rows = b3k_rows(owner, true, true);
+    let specs = b3k_specs(&rows, "case");
+    match b3k_prove(&invocation, run, owner, &b3k_facts(ProductMaterial::BaseENu { e: e_up, nu: 0.3125 }), &specs) {
+        B3kOutcome::Refused(e) => assert_eq!(e.failure().category(), "native_source"),
+        B3kOutcome::Certified(..) => panic!("E-bit mismatch certified"),
+    }
+}
+#[test]
+fn b3k_base_e_nu_stress_and_maximum_rows_certify_in_both_lanes_nu_0_3125_control() {
+    // NA-6: with E = 210e9 and nu = 0.3125, G = E/(2(1 + nu)) = 80e9 exactly, so
+    // the exact route must certify exactly as the ordinary route with G = 80e9:
+    // the same frozen values and the same verdicts, bit for bit.
+    let (exact, exact_values, rows) = b3k_certified(ProductMaterial::BaseENu { e: B3K_E, nu: 0.3125 }, 80e9);
+    let (ordinary, ordinary_values, _) = b3k_certified(ProductMaterial::Base { e: B3K_E, g: 80e9 }, 80e9);
+    assert_eq!(exact_values.iter().map(|v| v.to_bits()).collect::<Vec<_>>(), ordinary_values.iter().map(|v| v.to_bits()).collect::<Vec<_>>());
+    assert_eq!(exact.len(), rows.len());
+    for (x, o) in exact.iter().zip(&ordinary) {
+        assert_eq!((x.row, x.normalized_bits, x.scale_bits, x.class, x.passed, x.predicates),
+            (o.row, o.normalized_bits, o.scale_bits, o.class, o.passed, o.predicates));
+    }
+    let stress = rows.iter().filter(|r| matches!(r.3, ProductRecipe::Stress { .. })).count();
+    let maximum = rows.iter().filter(|r| matches!(r.3, ProductRecipe::CircularMaximum { .. })).count();
+    assert_eq!((stress, maximum), (20, 1));
+    for (v, r) in exact.iter().zip(&rows) {
+        if matches!(r.3, ProductRecipe::Stress { .. } | ProductRecipe::CircularMaximum { .. }) {
+            assert!(v.passed && v.class.is_some(), "{}", r.0);
+            if matches!(r.3, ProductRecipe::Stress { stress: ProductStress::BendingY | ProductStress::BendingZ, site: ProductSite::End(End::I), .. }) {
+                assert_ne!(exact_values[v.row], 0.0, "{}: a loaded bending row", r.0);
+            }
+        }
+    }
+    // nu = 0.3: G-hat = RN64(E/(2(1 + nu))) differs from the exact G; the exact
+    // route still certifies its stress and maximum rows in both lanes.
+    let nu = 0.3;
+    let g_hat = B3K_E / (2.0 * (1.0 + nu));
+    let (verdicts, _, rows) = b3k_certified(ProductMaterial::BaseENu { e: B3K_E, nu }, g_hat);
+    assert!(verdicts.iter().zip(&rows).all(|(v, _)| v.passed));
+}
+#[test]
+fn b3k_restored_material_gate_fails_stress_and_maximum_rows_with_represented_z() {
+    // SA-2: the test-only mutation restoring the pre-K3-2 material gate makes
+    // every BaseENu stress and maximum row fail with bad("represented Z"); with
+    // K3-2 both certify (the test above). The ordinary route is unaffected.
+    let (invocation, case) = b3k_case(80e9);
+    let (run, owner) = (case.run, b3k_owner(&case));
+    let rows = b3k_rows(owner, true, true);
+    let specs = b3k_specs(&rows, "case");
+    let facts = b3k_facts(ProductMaterial::BaseENu { e: B3K_E, nu: 0.3125 });
+    let association = |f: &ProductFailure| match &f.cause { Cause::Association(s) => *s, other => panic!("{other:?}") };
+    super::super::hooks::set_material_gate(true);
+    let gated = b3k_prove(&invocation, run, owner, &facts, &specs);
+    let ordinary = b3k_prove(&invocation, run, owner, &b3k_facts(ProductMaterial::Base { e: B3K_E, g: 80e9 }), &specs);
+    super::super::hooks::set_material_gate(false);
+    match gated {
+        B3kOutcome::Refused(e) => assert_eq!(association(e.failure()), "represented Z"),
+        B3kOutcome::Certified(..) => panic!("gated BaseENu certified"),
+    }
+    assert!(matches!(ordinary, B3kOutcome::Certified(ref p, _) if p.passed()));
+    // Each row family directly: the represented (K) recipe needs represented Z;
+    // the geometric recipe does not.
+    let draft = invocation.begin_prepared_product(run, owner, &facts, &specs).into_ready().unwrap();
+    let (projected, _builder) = draft.project().into_ready().unwrap();
+    for (i, r) in rows.iter().enumerate() {
+        if !matches!(r.3, ProductRecipe::Stress { .. } | ProductRecipe::CircularMaximum { .. }) { continue; }
+        for gate in [false, true] {
+            super::super::hooks::set_material_gate(gate);
+            let mut w = ProductCertificateSpent::new(&[]);
+            let section = section_for(owner, &facts, r.3, &mut w).unwrap();
+            let k = recipe(owner, &mut w, &projected.data.k.rows, r.3, section.as_ref(), &facts, true);
+            let s = recipe(owner, &mut w, &projected.data.source.rows, r.3, section.as_ref(), &facts, false);
+            super::super::hooks::set_material_gate(false);
+            assert!(s.is_ok(), "{} geometric", r.0);
+            if gate { assert_eq!(association(&k.unwrap_err()), "represented Z", "{} row {i}", r.0); }
+            else { assert!(k.is_ok(), "{}", r.0); }
+        }
+    }
+}
