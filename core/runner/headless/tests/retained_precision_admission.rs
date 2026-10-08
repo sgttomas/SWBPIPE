@@ -85,21 +85,27 @@ fn explicit_headless_refusal_preserves_output_and_completion_fields_both_modes()
         // build's own status: `Registered` in the qualified build, `Stale` in any other;
         // never `Missing`. Headless itself stays refused (D1.0): its output is the ordinary
         // run's (above). The oracle is the Direct entry on an input that D1 refuses after the
-        // build clause, C + 1 load cases (D1.4), so this workspace, whose lock is not PP's
-        // reviewed one, is never granted a permit and never runs W1 (RV89 G6r N-1).
-        // B1 (PLAN_v2 §2.3; RV107 SF-2): C + 1 is the literal 4, that is
-        // `product_physics::retained_memory::caps::LOAD_CASES` + 1, which this crate cannot
-        // read (`pub(crate)`; no D1 visibility changes for a test). PP's law test
-        // `b1_sa_runner_oracle_literal_is_load_cases_plus_one` ties the literal to the producer.
-        const C_PLUS_ONE: usize = 4;
+        // build clause, C_eq + 1 case-equivalents (D1.9), so this workspace, whose lock is not
+        // PP's reviewed one, is never granted a permit and never runs W1 (RV89 G6r N-1).
+        // B2-A (I93 PLAN §1.2.4; B2-C §9), re-basing B1's C + 1 load cases (PLAN_v2 SF-2):
+        // C_eq + 1 is the literal 4, that is
+        // `product_physics::retained_memory::caps::CASE_EQUIVALENTS` + 1, built as C = 3
+        // copies of the case and one mechanics combination. This crate cannot read `caps`
+        // (`pub(crate)`; no D1 visibility changes for a test). PP's law test
+        // `b2_a_runner_oracle_literal_is_case_equivalents_plus_one` ties the literal to the
+        // producer.
+        const C_EQ_PLUS_ONE: usize = 4;
+        const COMBINATIONS: usize = 1;
         let mut refused = ordinary();
         let case = refused["model"]["load_cases"][0].clone();
-        for _ in 1..C_PLUS_ONE {
+        for _ in 1..C_EQ_PLUS_ONE - COMBINATIONS {
             refused["model"]["load_cases"]
                 .as_array_mut()
                 .unwrap()
                 .push(case.clone());
         }
+        refused["model"]["combinations"] = serde_json::json!([{"id": "combination:c-eq",
+            "basis": "mechanics", "terms": [{"load_case": "case", "factor": 1.0}]}]);
         let plain = run_value_with_mode(refused.clone(), mode).unwrap();
         let direct = run_linear_static_preview_value_with_retained_direct(refused, mode).unwrap();
         assert_eq!(
@@ -110,8 +116,9 @@ fn explicit_headless_refusal_preserves_output_and_completion_fields_both_modes()
         assert!(direct.successor().is_none());
         let built = direct.admission().unwrap();
         assert_eq!(
-            built.typed.load_cases.length, C_PLUS_ONE,
-            "outside D1 (D1.4: C + 1 load cases)"
+            (built.typed.load_cases.length, built.typed.combinations.length),
+            (C_EQ_PLUS_ONE - COMBINATIONS, COMBINATIONS),
+            "outside D1 (D1.9: C_eq + 1 case-equivalents)"
         );
         assert!(matches!(
             built.profile,

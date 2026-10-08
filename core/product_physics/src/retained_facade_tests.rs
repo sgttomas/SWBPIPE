@@ -675,13 +675,14 @@ fn u3g2_direct_entry_no_w1_refusals_keep_exact_bytes() {
     for mode in MODES {
         let milestone = raw();
         let plain_milestone = plain(mode, &milestone);
-        // G-A: outside D1 (D1.4: C + 1 load cases; a combination; D1.3: another namespace).
+        // G-A: outside D1 (D1.4: C + 1 load cases; D1.9: C_eq + 1 case-equivalents, as three
+        // combinations, since B2-A admits z ≤ 2 with c + z ≤ 3; D1.3: another namespace).
         let over = beyond_load_cases(&milestone, true);
         let mut combined = milestone.clone();
-        combined["model"]["combinations"] = json!([{"id":"combo","basis":"mechanics","terms":[{"load_case":"case","factor":1.0}]}]);
+        combined["model"]["combinations"] = json!((1..=3).map(|k| json!({"id":format!("combo-{k}"),"basis":"mechanics","terms":[{"load_case":"case","factor":1.0}]})).collect::<Vec<_>>());
         let mut namespace = milestone.clone();
         namespace["model"]["schema_version"] = json!("0.3.0");
-        for (label, raw, clause) in [("C + 1 cases", &over, D1Clause::Invocation), ("combination", &combined, D1Clause::Invocation),
+        for (label, raw, clause) in [("C + 1 cases", &over, D1Clause::Invocation), ("C_eq + 1 (three combinations)", &combined, D1Clause::Caps),
             ("namespace", &namespace, D1Clause::Namespace)] {
             let plain = plain(mode, raw);
             let (output, counts) = direct(raw, mode);

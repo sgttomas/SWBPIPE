@@ -10,6 +10,9 @@ use serde_json::json;
 const MILESTONE: &str = include_str!("../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const M: u64 = 4_026_531_840;
+/// B2-A: the combination facts of a request with no combination.
+const NO_COMBINATIONS: CombinationFacts =
+    CombinationFacts { terms: CapacityFact { length: 0, capacity: 0 }, range_operands: CapacityFact { length: 0, capacity: 0 } };
 
 fn milestone() -> Value {
     serde_json::from_str(MILESTONE).unwrap()
@@ -477,8 +480,11 @@ fn every_family_clause_refuses_with_its_fact() {
     // D1.4 (B1 SA, PLAN_v2 §2.3 and RV107 SF-2): C + 1 cases and 0 cases refuse.
     assert_eq!(with(&|r| *r = with_cases(r.clone(), caps::LOAD_CASES + 1)), family(C::Invocation, F::LoadCases), "C + 1 cases");
     assert_eq!(with(&|r| r["model"]["load_cases"] = json!([])), family(C::Invocation, F::LoadCases), "0 cases");
+    // B2-A (B2-C §9): a combination is inside D1.4; one whose id is a load case's is not (C-9).
     assert_eq!(with(&|r| r["model"]["combinations"] = json!([{"id": "c", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 1.0}]}])),
-        family(C::Invocation, F::Combinations));
+        None);
+    assert_eq!(with(&|r| r["model"]["combinations"] = json!([{"id": "case", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 1.0}]}])),
+        family(C::Invocation, F::CombinationIds));
     assert_eq!(with(&|r| r["model"]["components"] = json!([{"id": "k", "kind": "elbow", "node": "N0"}])), family(C::Invocation, F::Components));
     let case = |field: &'static str, value: Value| move |r: &mut Value| r["model"]["load_cases"][0][field] = value.clone();
     assert_eq!(with(&case("pressure_regions", json!([]))), family(C::Case, F::PressureRegions));
@@ -546,6 +552,7 @@ fn every_cap_row_admits_its_cap_and_refuses_cap_plus_one() {
         nested: &law.nested,
         headless: None,
         digest: &report.captured_digest,
+        combinations: &NO_COMBINATIONS,
     };
     let rows = cap_rows(&facts);
     assert_eq!(first_cap_violation(&rows), Ok(()));
@@ -576,7 +583,7 @@ fn every_cap_row_admits_its_cap_and_refuses_cap_plus_one() {
     let report = admitted(cap_maximal_cases(caps::LOAD_CASES));
     assert_eq!(report.law().domain, None, "the cap-maximal C-case input is inside D1");
     let law = report.law();
-    let facts = DomainFacts { raw: &report.raw, raw_text: &law.raw_text, typed: &report.typed, nested: &law.nested, headless: None, digest: &report.captured_digest };
+    let facts = DomainFacts { raw: &report.raw, raw_text: &law.raw_text, typed: &report.typed, nested: &law.nested, headless: None, digest: &report.captured_digest, combinations: &NO_COMBINATIONS };
     let rows = cap_rows(&facts);
     let at = |fact| rows.iter().find(|r| r.fact == fact).map(|r| (r.observed, r.cap)).unwrap();
     for (fact, cap) in [(CapFact::LoadCasesCapacity, 3), (CapFact::Loads, 128), (CapFact::LoadsCapacity, 128), (CapFact::TotalLoads, 384)] {
@@ -695,7 +702,8 @@ fn typed_capacity_and_units_rows_read_the_actual_owners() {
         (CapFact::LoadCasesCapacity, Box::new(|r| r.model.load_cases.reserve_exact(caps::LOAD_CASES))),
         (CapFact::SectionsCapacity, Box::new(|r| r.model.sections.reserve_exact(1))),
         (CapFact::ComponentsCapacity, Box::new(|r| r.model.components.reserve_exact(1))),
-        (CapFact::CombinationsCapacity, Box::new(|r| r.model.combinations.reserve_exact(1))),
+        // B2-A: the typed capacity is capped by z's cap, so room for one more refuses.
+        (CapFact::CombinationsCapacity, Box::new(|r| r.model.combinations.reserve_exact(caps::COMBINATIONS + 1))),
         (CapFact::RequestExpansionLawsCapacity, Box::new(|r| r.model.request_material_expansion_laws.reserve_exact(1))),
         (CapFact::MaterialExpansionLawsCapacity, Box::new(|r| r.model.material_expansion_laws.reserve_exact(1))),
         (CapFact::TypedTextCapacity, Box::new(|r| r.model.nodes[0].id.reserve_exact(200))),
@@ -753,7 +761,7 @@ fn unknown_stale_overflow_and_partial_refusals_keep_every_fact() {
     let with_text = |raw: BorrowedValueFacts, text: RawTextFacts, typed: BorrowedRequestFacts, nested: NestedTypedFacts, headless: Option<HeadlessRootFacts>| {
         let request: LinearStaticPreviewRequest = serde_json::from_value(milestone()).unwrap();
         domain_clauses(
-            &DomainFacts { raw: &raw, raw_text: &text, typed: &typed, nested: &nested, headless: headless.as_ref(), digest: &report.captured_digest },
+            &DomainFacts { raw: &raw, raw_text: &text, typed: &typed, nested: &nested, headless: headless.as_ref(), digest: &report.captured_digest, combinations: &NO_COMBINATIONS },
             &request,
         )
     };
@@ -1570,23 +1578,35 @@ fn b1_sa_d1_4_admits_one_to_c_load_cases() {
     }
 }
 
-/// PLAN_v2 §2.3 and RV107 SF-2: the runner's out-of-domain oracle
-/// (`core/runner/headless/tests/retained_precision_admission.rs`,
+/// The runner's out-of-domain oracle (`core/runner/headless/tests/retained_precision_admission.rs`,
 /// `explicit_headless_refusal_preserves_output_and_completion_fields_both_modes`) cannot read
-/// `pub(crate)` `caps::LOAD_CASES`, and no D1 item's visibility changes for a test, so it builds
-/// a literal 4 load cases. This test ties that literal to the producer: 4 is `LOAD_CASES + 1`,
-/// and `admit` refuses `LOAD_CASES + 1` cases at D1.4 with `(Invocation, LoadCases)`. If C
-/// changes, this test fails first and names the runner test to re-base.
+/// `pub(crate)` `caps`, and no D1 item's visibility changes for a test, so it builds a literal
+/// C_eq + 1 = 4 case-equivalents: the milestone's case three times (C) and one mechanics
+/// combination. B2-A re-bases it from B1's C + 1 load cases (PLAN_v2 SF-2) to C_eq + 1 (I93
+/// PLAN §1.2.4; B2-C §9). This test builds the same input and ties the literal to the producer:
+/// 4 is `CASE_EQUIVALENTS + 1`, and `admit` refuses it at D1.9's `CaseEquivalents` row. If C_eq
+/// or C changes, this test fails first and names the runner test to re-base.
+fn runner_oracle() -> Value {
+    let mut raw = milestone();
+    let case = raw["model"]["load_cases"][0].clone();
+    for _ in 1..caps::LOAD_CASES {
+        raw["model"]["load_cases"].as_array_mut().unwrap().push(case.clone());
+    }
+    raw["model"]["combinations"] = json!([{"id": "combination:c-eq", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 1.0}]}]);
+    raw
+}
 #[test]
-fn b1_sa_runner_oracle_literal_is_load_cases_plus_one() {
+fn b2_a_runner_oracle_literal_is_case_equivalents_plus_one() {
     const RUNNER_LITERAL: usize = 4;
-    assert_eq!(caps::LOAD_CASES + 1, RUNNER_LITERAL, "re-base the runner's literal (explicit_headless_refusal_preserves_output_and_completion_fields_both_modes)");
+    assert_eq!(caps::CASE_EQUIVALENTS + 1, RUNNER_LITERAL, "re-base the runner's literal (explicit_headless_refusal_preserves_output_and_completion_fields_both_modes)");
+    assert_eq!((caps::LOAD_CASES, RUNNER_LITERAL - caps::LOAD_CASES), (3, 1), "the runner builds C cases and one combination");
+    let expected = Some(AdmissionRefusal::Cap { fact: CapFact::CaseEquivalents, observed: RUNNER_LITERAL, cap: caps::CASE_EQUIVALENTS });
     for mode in MODES {
-        let (request, capture) = CapturedInvocation::parse(milestone_cases(caps::LOAD_CASES + 1), mode).unwrap();
-        let report = admit(&capture, &request, Entry::Direct).err().expect("C + 1 cases are refused in every build");
-        assert_eq!(report.typed.load_cases.length, RUNNER_LITERAL);
-        assert_eq!(report.law().domain, family(D1Clause::Invocation, FamilyFact::LoadCases), "{mode:?}");
-        assert_eq!(report.law().refusal, d1_1_refusal().or(family(D1Clause::Invocation, FamilyFact::LoadCases)), "{mode:?}");
+        let (request, capture) = CapturedInvocation::parse(runner_oracle(), mode).unwrap();
+        let report = admit(&capture, &request, Entry::Direct).err().expect("C_eq + 1 is refused in every build");
+        assert_eq!(report.typed.load_cases.length + report.typed.combinations.length, RUNNER_LITERAL);
+        assert_eq!(report.law().domain, expected, "{mode:?}");
+        assert_eq!(report.law().refusal, d1_1_refusal().or(expected), "{mode:?}");
     }
 }
 
@@ -1606,7 +1626,7 @@ fn b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one() {
         (caps::TOTAL_LOADS + 1, Err(AdmissionRefusal::Cap { fact: CapFact::TotalLoads, observed: 385, cap: 384 })),
     ] {
         nested.total_loads = total as u32;
-        let facts = DomainFacts { raw: &report.raw, raw_text: &law.raw_text, typed: &report.typed, nested: &nested, headless: None, digest: &report.captured_digest };
+        let facts = DomainFacts { raw: &report.raw, raw_text: &law.raw_text, typed: &report.typed, nested: &nested, headless: None, digest: &report.captured_digest, combinations: &NO_COMBINATIONS };
         assert_eq!(domain_clauses(&facts, &request), expected, "Σ l_i = {total}");
     }
 }
@@ -1978,6 +1998,222 @@ fn b3a_direct_entry_oracles() {
                     "{mode:?}: the ordinary rows stand");
             }
             other => panic!("{mode:?}: W1 ran to a successor or the reader's G8 refusal, not {other:?}"),
+        }
+    }
+}
+
+// ---- B2-A: D1.4 with combinations, C_eq and terms (B2-C §9; I93 PLAN §1.2.4) -------------
+
+/// `raw` with `z` mechanics combinations `combination:k` (k = 1, …, z), each 1·(the first case),
+/// with the provenance the ordinary validation requires.
+fn with_combinations(mut raw: Value, z: usize) -> Value {
+    let case = raw["model"]["load_cases"][0]["id"].clone();
+    raw["model"]["combinations"] = Value::Array((1..=z)
+        .map(|k| json!({"id": format!("combination:{k}"), "basis": "mechanics", "terms": [{"load_case": case.clone(), "factor": 1.0}],
+            "provenance": "invented_i103_b2_a_combination"}))
+        .collect());
+    raw
+}
+
+/// D1.4 and D1.9 (B2-C §9): 1 ≤ c ≤ C, z ≤ 2 and C_eq = c + z ≤ 3. Over c = 1..C and z = 0..3,
+/// a request is inside D1 exactly when z ≤ 2 and c + z ≤ 3; otherwise `Combinations` refuses
+/// first (z = 3), then `CaseEquivalents`. Every basis counts toward z and C_eq.
+#[test]
+fn b2_a_d1_admits_case_equivalents_up_to_three() {
+    assert_eq!((caps::COMBINATIONS, caps::CASE_EQUIVALENTS, caps::COMBINATION_TERMS, caps::RANGE_OPERANDS), (2, 3, 3, 3));
+    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    for c in 1..=caps::LOAD_CASES {
+        for z in 0..=caps::CASE_EQUIVALENTS {
+            let expected = if z > caps::COMBINATIONS {
+                Some(AdmissionRefusal::Cap { fact: CapFact::Combinations, observed: z, cap: caps::COMBINATIONS })
+            } else if c + z > caps::CASE_EQUIVALENTS {
+                Some(AdmissionRefusal::Cap { fact: CapFact::CaseEquivalents, observed: c + z, cap: caps::CASE_EQUIVALENTS })
+            } else {
+                None
+            };
+            for mode in MODES {
+                let (request, capture) = CapturedInvocation::parse(with_combinations(milestone_cases(c), z), mode).unwrap();
+                let admitted = admit(&capture, &request, Entry::Direct);
+                let report = match &admitted {
+                    Ok((_, report)) | Err(report) => *report,
+                };
+                assert_eq!((report.typed.combinations.length, report.typed.combinations.capacity), (z, z), "c = {c}, z = {z}");
+                assert_eq!(report.law().domain, expected, "c = {c}, z = {z} {mode:?}");
+                assert_eq!(report.law().refusal, d1_1_refusal().or(expected), "c = {c}, z = {z} {mode:?}");
+                assert_eq!(admitted.is_ok(), registered && expected.is_none(), "c = {c}, z = {z} {mode:?}: a permit only inside D1");
+            }
+        }
+    }
+    // Subtraction and range combinations are case-equivalents too.
+    let mut two = milestone_cases(2);
+    two["model"]["combinations"] = json!([{"id": "range", "basis": "range_envelope", "operand_ids": ["case-1", "case-2"], "mode": "max"}]);
+    assert_eq!(domain(two.clone()), None, "c = 2 with one range: C_eq = 3");
+    two["model"]["combinations"].as_array_mut().unwrap().push(json!({"id": "difference", "basis": "result_state_subtraction",
+        "minuend_id": "case-1", "subtrahend_id": "case-2"}));
+    assert_eq!(domain(two), Some(AdmissionRefusal::Cap { fact: CapFact::CaseEquivalents, observed: 4, cap: 3 }), "and a subtraction: C_eq = 4");
+    let mut one = milestone();
+    one["model"]["combinations"] = json!([{"id": "difference", "basis": "result_state_subtraction", "minuend_id": "case", "subtrahend_id": "case"},
+        {"id": "range", "basis": "range_envelope", "operand_ids": ["case"], "mode": "min_abs"},
+        {"id": "twice", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 2.0}]}]);
+    assert_eq!(domain(one), Some(AdmissionRefusal::Cap { fact: CapFact::Combinations, observed: 3, cap: 2 }), "three combinations of three bases");
+    // B1's D1.4 is unchanged: no load case, and C + 1 load cases, refuse at D1.4 whatever z is.
+    assert_eq!(domain(with_combinations(milestone_cases(caps::LOAD_CASES + 1), 1)), family(D1Clause::Invocation, FamilyFact::LoadCases));
+    let mut none = with_combinations(milestone(), 1);
+    none["model"]["load_cases"] = json!([]);
+    assert_eq!(domain(none), family(D1Clause::Invocation, FamilyFact::LoadCases));
+}
+
+/// D1.4 (C-9): no combination id equals a load-case id, whichever combination and case carry
+/// it. It is a family fact, so it refuses before D1.9's rows.
+#[test]
+fn b2_a_combination_ids_are_disjoint_from_load_case_ids() {
+    let refused = family(D1Clause::Invocation, FamilyFact::CombinationIds);
+    let renamed = |c: usize, z: usize, combination: usize, id: &str| {
+        let mut raw = with_combinations(milestone_cases(c), z);
+        raw["model"]["combinations"][combination]["id"] = json!(id);
+        domain(raw)
+    };
+    assert_eq!(renamed(1, 1, 0, "case-1"), refused, "the first case's id");
+    assert_eq!(renamed(2, 1, 0, "case-2"), refused, "a later case's id");
+    assert_eq!(renamed(1, 2, 1, "case-1"), refused, "the second combination");
+    assert_eq!(renamed(1, 2, 1, "case-2"), None, "an id no case has");
+    assert_eq!(renamed(1, 2, 1, "combination:1"), None, "combination ids repeated among themselves are not D1's (validation's)");
+    assert_eq!(renamed(1, 3, 2, "case-1"), refused, "before D1.9's Combinations row");
+    assert_eq!(AdmissionRefusal::Family(D1Clause::Invocation, FamilyFact::CombinationIds).precondition().as_str(), "source_family");
+}
+
+/// D1.9 (B2-C §9): each combination's terms (repeats counted) and operand ids, ≤ 3, and their
+/// typed capacities, over every combination of any basis.
+#[test]
+fn b2_a_terms_and_range_operands_are_at_most_three() {
+    let terms = |h: usize| Value::Array((0..h).map(|_| json!({"load_case": "case", "factor": 1.0})).collect());
+    let ids = |k: usize| Value::Array((0..k).map(|_| json!("case")).collect());
+    let with = |second: bool, field: &str, value: Value, basis: &str| {
+        let mut raw = with_combinations(milestone(), 2);
+        let z = &mut raw["model"]["combinations"][usize::from(second)];
+        z["basis"] = json!(basis);
+        z[field] = value;
+        if basis == "range_envelope" {
+            z["mode"] = json!("max");
+        }
+        domain(raw)
+    };
+    for second in [false, true] {
+        assert_eq!(with(second, "terms", terms(3), "mechanics"), None, "three terms (repeats counted)");
+        assert_eq!(with(second, "terms", terms(4), "mechanics"), Some(AdmissionRefusal::Cap { fact: CapFact::CombinationTerms, observed: 4, cap: 3 }), "second: {second}");
+        assert_eq!(with(second, "operand_ids", ids(3), "range_envelope"), None, "three operands");
+        assert_eq!(with(second, "operand_ids", ids(4), "range_envelope"), Some(AdmissionRefusal::Cap { fact: CapFact::RangeOperands, observed: 4, cap: 3 }), "second: {second}");
+    }
+    // Before validation, a basis that does not use an array still owns it, and it is bounded.
+    assert_eq!(with(true, "terms", terms(4), "range_envelope"), Some(AdmissionRefusal::Cap { fact: CapFact::CombinationTerms, observed: 4, cap: 3 }));
+    assert_eq!(with(true, "operand_ids", ids(4), "mechanics"), Some(AdmissionRefusal::Cap { fact: CapFact::RangeOperands, observed: 4, cap: 3 }));
+    // The typed capacities, read from the actual owners (the second combination's).
+    let report = admitted_typed(with_combinations(milestone(), 2), |r| r.model.combinations[1].terms.reserve_exact(3));
+    assert!(matches!(report.law().domain, Some(AdmissionRefusal::Cap { fact: CapFact::CombinationTermsCapacity, observed, cap: 3 }) if observed >= 4),
+        "{:?}", report.law().domain);
+    let report = admitted_typed(with_combinations(milestone(), 2), |r| r.model.combinations[1].terms.reserve_exact(2));
+    assert_eq!(report.law().domain, None, "capacity 3");
+    let report = admitted_typed(with_combinations(milestone(), 2), |r| {
+        let mut ids = Vec::with_capacity(4);
+        ids.push(String::from("case"));
+        r.model.combinations[1].operand_ids = Some(ids);
+    });
+    assert_eq!(report.law().domain, Some(AdmissionRefusal::Cap { fact: CapFact::RangeOperandsCapacity, observed: 4, cap: 3 }));
+    let census = combination_census(&serde_json::from_value(with_combinations(milestone(), 2)).unwrap());
+    assert_eq!(census, CombinationFacts { terms: CapacityFact { length: 1, capacity: 1 }, range_operands: CapacityFact { length: 0, capacity: 0 } });
+}
+
+/// B2-C REVISION_01 N-10: the typed census reads every combination string as a case's, so
+/// D1.9's typed text rows bound them; each string's spare capacity refuses on its own.
+#[test]
+fn b2_a_typed_census_reads_every_combination_string() {
+    let full = || {
+        let mut raw = milestone();
+        raw["model"]["combinations"] = json!([{"id": "combination:all", "label": "every string", "basis": "mechanics",
+            "terms": [{"load_case": "case", "factor": 1.0}], "minuend_id": "case", "subtrahend_id": "case", "operand_ids": ["case"],
+            "mode": "max", "provenance": "invented"}]);
+        raw
+    };
+    assert_eq!(domain(full()), None);
+    let base = nested_typed_census(&serde_json::from_value(milestone()).unwrap());
+    let with = nested_typed_census(&serde_json::from_value(full()).unwrap());
+    assert_eq!(with.strings, base.strings + 9, "id, label, basis, the term's case, minuend, subtrahend, the operand, mode, provenance");
+    type Pick = fn(&mut crate::PreviewCombination) -> &mut String;
+    let picks: [(&str, Pick); 9] = [
+        ("id", |z| &mut z.id),
+        ("label", |z| z.label.as_mut().unwrap()),
+        ("basis", |z| &mut z.basis),
+        ("term case", |z| &mut z.terms[0].load_case),
+        ("minuend", |z| z.minuend_id.as_mut().unwrap()),
+        ("subtrahend", |z| z.subtrahend_id.as_mut().unwrap()),
+        ("operand", |z| &mut z.operand_ids.as_mut().unwrap()[0]),
+        ("mode", |z| z.mode.as_mut().unwrap()),
+        ("provenance", |z| z.provenance.as_mut().unwrap()),
+    ];
+    for (label, pick) in picks {
+        let report = admitted_typed(full(), |r| pick(&mut r.model.combinations[0]).reserve_exact(200));
+        assert!(cap(CapFact::TypedTextCapacity)(report.law().domain), "{label}: {:?}", report.law().domain);
+    }
+    let mut long = full();
+    long["model"]["combinations"][0]["provenance"] = json!(text("p", 129));
+    assert_eq!(domain(long), Some(AdmissionRefusal::Cap { fact: CapFact::TypedTextBytes, observed: 129, cap: 128 }), "the typed row first");
+}
+
+/// G-C (I93 PLAN §1.2.4): `EnvelopeResults ≤ C_eq·P_final` (with its capacity and text) and
+/// `RetainedErrorTextBytes ≤ C_eq·(3m + 1)·Text(err)`, numerically B1's because C_eq's cap
+/// equals C's; the contract-evidence facts stay per case. An actual c = 1, z = 2 run of the
+/// solvable cap-maximal model publishes more rows than one case's P_final, within C_eq·P_final.
+/// G-B and T-3 (e) are unchanged: the attempt fact counts the requested cases, not z.
+#[test]
+fn b2_a_g_c_bounds_are_per_case_equivalent() {
+    let p = phase_caps();
+    let (m, g, ceq, c) = (32u64, 32u64, caps::CASE_EQUIVALENTS as u64, caps::LOAD_CASES as u64);
+    assert_eq!(caps::CASE_EQUIVALENTS, caps::LOAD_CASES, "C_eq's cap equals C's: G-C's values are B1's");
+    assert_eq!((p.complete[0], p.complete[1], p.complete[2]), (ceq * P_FINAL, push_capacity(ceq * P_FINAL), 2 * ceq * P_FINAL * text_atoms::ROW));
+    assert_eq!(p.complete[COMPLETE_FACTS - 2], ceq * (3 * m + 1) * text_atoms::ERR);
+    assert_eq!(p.complete[9], c * (3 * m + 2 * g), "contract evidence per case");
+    assert_eq!(p.late[4..6], [caps::LOADS as u64, caps::TOTAL_LOADS as u64], "G-B unchanged");
+    for mode in MODES {
+        let (request, capture) = CapturedInvocation::parse(with_combinations(solvable_cap_maximal_cases(1), 2), mode).unwrap();
+        assert_eq!(assess(&capture, &request, Entry::Direct).law().domain, None, "{mode:?}: c = 1, z = 2 is inside D1");
+        let mut observer = crate::retained_product::ProductCapture::prepared_probe();
+        let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::SourceRecoveryBudget::default(), Some(&mut observer));
+        assert_eq!(ordinary.status.mechanics, "MECHANICS_SOLVED", "{mode:?}");
+        let o = complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &observer, requested_cases: 1 });
+        let get = |fact| o.iter().find(|x| x.fact == fact).unwrap().observed;
+        let (rows, capacity, text) = (get(PhaseFact::EnvelopeResults), get(PhaseFact::EnvelopeResultCapacity), get(PhaseFact::EnvelopeResultTextBytes));
+        println!("I103_B2_A_ENVELOPE_RESULTS mode={} rows={rows} capacity={capacity} text={text} p_final={P_FINAL}", mode.as_str());
+        assert!(rows > P_FINAL, "{mode:?}: one case and two combinations exceed one case's P_final ({rows} rows)");
+        assert!(rows <= p.complete[0] && capacity <= p.complete[1] && text <= p.complete[2], "{mode:?}: within C_eq·P_final");
+        assert_eq!(get(PhaseFact::OrdinarySolveNotAttempted), 0, "{mode:?}: T-3 (e) counts the one requested case");
+        assert!(ordinary_solve_attempted(&observer, 1) && !ordinary_solve_attempted(&observer, 3), "{mode:?}: combinations are not requested cases");
+    }
+}
+
+/// The interim's honesty (REVISION_01 §1.4): until B2-P, the producer's own domain re-check
+/// (`w1_case_ids`) keeps W1 from starting on a combination, so an admitted in-domain
+/// combination-bearing Direct invocation publishes exactly the ordinary value route's bytes,
+/// with no notice and no successor (`W1Fallback::Domain`), in both modes.
+#[test]
+fn b2_a_admitted_combinations_keep_the_exact_ordinary_bytes_until_b2_p() {
+    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let mut mixed = milestone_cases(2);
+    mixed["model"]["combinations"] = json!([{"id": "range", "basis": "range_envelope", "operand_ids": ["case-1", "case-2"], "mode": "max_abs",
+        "provenance": "invented_i103_b2_a_range"}]);
+    for (label, raw) in [("c = 1, z = 2", with_combinations(milestone(), 2)), ("c = 2, z = 1 (range)", mixed)] {
+        for mode in MODES {
+            let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
+            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
+            let report = direct.admission().unwrap();
+            assert_eq!(report.law().domain, None, "{label} {mode:?}: inside D1");
+            if registered {
+                assert_eq!(report.law().refusal, None, "{label} {mode:?}: admitted");
+                assert!(matches!(direct.retained(), Some(Err(crate::W1Fallback::Domain))), "{label} {mode:?}: {:?}", direct.retained());
+            } else {
+                assert_eq!(report.law().refusal, d1_1_refusal(), "{label} {mode:?}");
+            }
+            assert!(direct.successor().is_none(), "{label} {mode:?}");
+            assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain, "{label} {mode:?}: the exact ordinary bytes");
         }
     }
 }

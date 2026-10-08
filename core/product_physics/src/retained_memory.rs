@@ -292,9 +292,10 @@ pub(super) fn raw_text_census(root: &Value) -> RawTextFacts {
 /// RESIDUALS.md T03: the nested typed owners of a D1 request, read from the
 /// borrowed typed request (actual lengths and capacities, never construction
 /// history). Owners of excluded families (hangers, nonlinear supports, pressure
-/// regions, sections, components, combinations, generated and load-state inputs) are
-/// not read: their presence is refused by D1.3–D1.6 instead. Allocation-free. B3a: the
-/// pressure contract's strings are read (D1.3's branch L3 admits one).
+/// regions, sections, components, generated and load-state inputs) are not read: their
+/// presence is refused by D1.3–D1.6 instead. Allocation-free. B3a: the pressure
+/// contract's strings are read (D1.3's branch L3 admits one). B2-A: each combination's
+/// strings are read (D1.4 admits combinations); its arrays are `CombinationFacts`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) struct NestedTypedFacts {
     pub(super) status: CensusStatus,
@@ -435,6 +436,24 @@ impl TypedWalk {
                 self.quantity(&load.magnitude)?;
             }
         }
+        // B2-A (B2-C REVISION_01 N-10): D1.4 admits combinations, so each one's typed strings
+        // are read as a case's are: its id, label, basis, term case ids, minuend and
+        // subtrahend ids, range operand ids, mode and provenance.
+        for combination in &m.combinations {
+            self.string(&combination.id)?;
+            self.optional(&combination.label)?;
+            self.string(&combination.basis)?;
+            for term in &combination.terms {
+                self.string(&term.load_case)?;
+            }
+            self.optional(&combination.minuend_id)?;
+            self.optional(&combination.subtrahend_id)?;
+            for id in combination.operand_ids.iter().flatten() {
+                self.string(id)?;
+            }
+            self.optional(&combination.mode)?;
+            self.optional(&combination.provenance)?;
+        }
         let units = &m.project.units;
         self.facts.units = borrowed_value_census(units);
         self.facts.units_text = raw_text_census(units);
@@ -471,6 +490,32 @@ pub(super) fn nested_typed_census(request: &LinearStaticPreviewRequest) -> Neste
     }
     walk.facts
 }
+/// B2-A (B2-C §9 and REVISION_01 N-10): each combination's typed arrays, read from the
+/// borrowed typed request as the per-case load facts are: the largest `terms` and the
+/// largest `operand_ids`, length and capacity, over every combination of any basis (a basis
+/// that does not use one still owns it, before validation). Allocation-free. It is
+/// computed beside the report (`DomainFacts`), not inside it: the report's layout is a
+/// priced atom of the generated profile (`s(ThreadPacketOutput)`), unchanged until SQ2.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct CombinationFacts {
+    pub(super) terms: CapacityFact,
+    pub(super) range_operands: CapacityFact,
+}
+pub(super) fn combination_census(request: &LinearStaticPreviewRequest) -> CombinationFacts {
+    let empty = CapacityFact { length: 0, capacity: 0 };
+    let mut facts = CombinationFacts { terms: empty, range_operands: empty };
+    let widest = |fact: &mut CapacityFact, length: usize, capacity: usize| {
+        fact.length = fact.length.max(length);
+        fact.capacity = fact.capacity.max(capacity);
+    };
+    for combination in &request.model.combinations {
+        widest(&mut facts.terms, combination.terms.len(), combination.terms.capacity());
+        if let Some(ids) = &combination.operand_ids {
+            widest(&mut facts.range_operands, ids.len(), ids.capacity());
+        }
+    }
+    facts
+}
 
 // ---- D1: the domain predicate (DOMAIN.md as amended) ------------------------
 
@@ -496,6 +541,16 @@ pub(super) mod caps {
     /// L: the primitive loads over every load case (Σ l_i ≤ L). At option S3 it equals
     /// C·l, so it is stated and does not bind.
     pub(crate) const TOTAL_LOADS: usize = 384;
+    /// B2-A (B2-C §9; decision 10): z, the combinations of any basis. With c ≥ 1 and
+    /// C_eq ≤ 3, z ≤ 2.
+    pub(crate) const COMBINATIONS: usize = 2;
+    /// C_eq = c + z, the result sets of one invocation (one tier at D1's model caps; I93
+    /// PLAN §3.3, REVISION_01 N-4: three Runs keep C1's 60B invocation limit non-binding).
+    pub(crate) const CASE_EQUIVALENTS: usize = 3;
+    /// h: the terms of each combination, repeats counted (a mechanics combination's terms).
+    pub(crate) const COMBINATION_TERMS: usize = 3;
+    /// The operand ids of each combination (a range envelope's operands).
+    pub(crate) const RANGE_OPERANDS: usize = 3;
     pub(crate) const TEXT_BYTES: usize = 128;
     pub(crate) const RAW_VALUES: usize = 16_384;
     pub(crate) const RAW_DEPTH: usize = 16;
@@ -585,7 +640,12 @@ pub(super) enum FamilyFact {
     Sections,
     SectionRef,
     LoadCases,
+    /// B2-A: no longer a D1.4 refusal on L and L3 (combinations are counted by D1.9); kept for
+    /// the exact route's D1.4 clause (B3b-A, B3-D §4.2).
+    #[allow(dead_code)]
     Combinations,
+    /// B2-A (C-9): a combination id equal to a load-case id.
+    CombinationIds,
     Components,
     PressureRegions,
     EquivalentStatic,
@@ -616,6 +676,14 @@ pub(super) enum CapFact {
     LoadsCapacity,
     /// B1 SA: Σ l_i over every load case.
     TotalLoads,
+    /// B2-A: z, C_eq = c + z, each combination's terms and each combination's operand ids
+    /// (with their typed capacities).
+    Combinations,
+    CaseEquivalents,
+    CombinationTerms,
+    CombinationTermsCapacity,
+    RangeOperands,
+    RangeOperandsCapacity,
     ModelMaterials,
     ModelMaterialsCapacity,
     RequestMaterials,
@@ -704,6 +772,8 @@ pub(super) struct DomainFacts<'a> {
     pub(super) nested: &'a NestedTypedFacts,
     pub(super) headless: Option<&'a HeadlessRootFacts>,
     pub(super) digest: &'a CapacityFact,
+    /// B2-A: each combination's typed arrays (`combination_census`).
+    pub(super) combinations: &'a CombinationFacts,
 }
 fn census_complete_part(f: &DomainFacts<'_>) -> Result<(), AdmissionRefusal> {
     let incomplete = |part, status| match status {
@@ -777,12 +847,15 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     if m.pipe_segments.iter().any(|pipe| pipe.section_ref.is_some()) {
         return refuse(C::Namespace, F::SectionRef);
     }
-    // D1.4 (B1 SA): 1 ≤ c ≤ C load cases, no combinations or components.
+    // D1.4 (B1 SA; B2-A, B2-C §9): 1 ≤ c ≤ C load cases; combinations of any basis, which
+    // D1.9's rows count (z ≤ 2, C_eq = c + z ≤ 3, at most 3 terms and 3 range operands
+    // each); no combination id equal to a load-case id (C-9: the producer and the readers
+    // match rows and diagnostics by the bare id); no components.
     if m.load_cases.is_empty() || m.load_cases.len() > caps::LOAD_CASES {
         return refuse(C::Invocation, F::LoadCases);
     }
-    if !m.combinations.is_empty() {
-        return refuse(C::Invocation, F::Combinations);
+    if m.combinations.iter().any(|combination| m.load_cases.iter().any(|case| case.id == combination.id)) {
+        return refuse(C::Invocation, F::CombinationIds);
     }
     if !m.components.is_empty() {
         return refuse(C::Invocation, F::Components);
@@ -842,14 +915,17 @@ pub(super) struct CapRow {
     pub(super) observed: usize,
     pub(super) cap: usize,
 }
-pub(super) const CAP_ROWS: usize = 47;
+pub(super) const CAP_ROWS: usize = 53;
 /// D1.9's rows in DOMAIN.md §2 order, then D1.11's (the last row). B1 SA: `Loads` and
 /// `LoadsCapacity` bound every case (the census's maxima over cases), `TotalLoads` bounds
-/// Σ l_i, and `LoadCasesCapacity` is capped by C.
+/// Σ l_i, and `LoadCasesCapacity` is capped by C. B2-A (B2-C §9; REVISION_01 N-10): six
+/// rows after the load rows, before `ControlBytes`: z ≤ 2, C_eq = c + z ≤ 3, and each
+/// combination's terms and operand ids ≤ 3 with their capacities; `CombinationsCapacity`
+/// is capped by z's cap.
 pub(super) fn cap_rows(f: &DomainFacts<'_>) -> [CapRow; CAP_ROWS] {
     use caps::*;
     use CapFact as K;
-    let (t, n, raw, u) = (f.typed, f.nested, f.raw, &f.nested.units);
+    let (t, n, raw, u, z) = (f.typed, f.nested, f.raw, &f.nested.units, f.combinations);
     let row = |fact, observed, cap| CapRow { fact, observed, cap };
     [
         row(K::Nodes, t.nodes.length, NODES),
@@ -865,6 +941,12 @@ pub(super) fn cap_rows(f: &DomainFacts<'_>) -> [CapRow; CAP_ROWS] {
         row(K::Loads, n.primitive_loads.length, LOADS),
         row(K::LoadsCapacity, n.primitive_loads.capacity, LOADS),
         row(K::TotalLoads, n.total_loads as usize, TOTAL_LOADS),
+        row(K::Combinations, t.combinations.length, COMBINATIONS),
+        row(K::CaseEquivalents, t.load_cases.length.saturating_add(t.combinations.length), CASE_EQUIVALENTS),
+        row(K::CombinationTerms, z.terms.length, COMBINATION_TERMS),
+        row(K::CombinationTermsCapacity, z.terms.capacity, COMBINATION_TERMS),
+        row(K::RangeOperands, z.range_operands.length, RANGE_OPERANDS),
+        row(K::RangeOperandsCapacity, z.range_operands.capacity, RANGE_OPERANDS),
         row(K::ModelMaterials, t.model_materials.length, MATERIALS),
         row(K::ModelMaterialsCapacity, t.model_materials.capacity, MATERIALS),
         row(K::RequestMaterials, t.request_materials.length, MATERIALS),
@@ -874,7 +956,7 @@ pub(super) fn cap_rows(f: &DomainFacts<'_>) -> [CapRow; CAP_ROWS] {
         row(K::LoadCasesCapacity, t.load_cases.capacity, LOAD_CASES),
         row(K::SectionsCapacity, t.sections.capacity, 0),
         row(K::ComponentsCapacity, t.components.capacity, 0),
-        row(K::CombinationsCapacity, t.combinations.capacity, 0),
+        row(K::CombinationsCapacity, t.combinations.capacity, COMBINATIONS),
         row(K::RequestExpansionLawsCapacity, t.request_expansion_law_indices.capacity, 0),
         row(K::MaterialExpansionLawsCapacity, t.material_expansion_laws.capacity, MATERIALS),
         row(K::TypedTextBytes, n.max_string_bytes, TEXT_BYTES),
@@ -2714,17 +2796,22 @@ pub(super) const P_FINAL: u64 = (7 * caps::NODES + 51 * caps::MEMBERS + 8 * caps
 /// the per-case preview facts, and the retained error text by C·(3m + 1)·Text(err) (I82's
 /// assumption, checked against SP's producer in phase 4). The diagnostic, string and byte
 /// bounds read the profile's text atoms and forms, which SQ regenerates at C = 3.
+/// B2-A (I93 PLAN §1.2.4; B2-C §9): the result rows, their capacity and text, and the
+/// retained error text are per result set, so they are bounded by C_eq = `CASE_EQUIVALENTS`
+/// (numerically today's 3, since C_eq's cap equals C's); the contract-evidence facts and
+/// G-B stay per case (a combination has no loads or contract evidence of its own).
 pub(super) const fn phase_caps() -> PhaseCaps {
     use caps::*;
     let (n, m, g, c) = (NODES as u64, MEMBERS as u64, SUPPORTS as u64, LOAD_CASES as u64);
+    let ceq = CASE_EQUIVALENTS as u64;
     let k = if 6 * n < RESTRAINTS as u64 { 6 * n } else { RESTRAINTS as u64 };
     PhaseCaps {
         late: [n, m, m, g, LOADS as u64, TOTAL_LOADS as u64, k, SPRINGS as u64, 2 * MATERIALS as u64,
             profile_bytes(profile::F_T11).saturating_sub(profile_bytes(profile::F_T11_LATE_CAPTURE))],
         complete: [
-            c * P_FINAL,
-            push_capacity(c * P_FINAL),
-            2 * c * P_FINAL * text_atoms::ROW,
+            ceq * P_FINAL,
+            push_capacity(ceq * P_FINAL),
+            2 * ceq * P_FINAL * text_atoms::ROW,
             text_atoms::D_ENV,
             push_capacity(text_atoms::D_ENV),
             2 * text_atoms::DIAG_ENV,
@@ -2739,7 +2826,7 @@ pub(super) const fn phase_caps() -> PhaseCaps {
             0,
             profile_bytes(profile::F_T11),
             profile_bytes(profile::F_T11_ORDINARY_SEED),
-            c * (3 * m + 1) * text_atoms::ERR,
+            ceq * (3 * m + 1) * text_atoms::ERR,
             0,
         ],
     }
@@ -3007,6 +3094,7 @@ pub(super) fn admit(
             required: None,
         },
     };
+    let combinations = combination_census(request);
     let domain = domain_clauses(
         &DomainFacts {
             raw: &report.raw,
@@ -3015,6 +3103,7 @@ pub(super) fn admit(
             nested: &report.law.nested,
             headless: report.headless.as_ref(),
             digest: &report.captured_digest,
+            combinations: &combinations,
         },
         request,
     );
