@@ -297,8 +297,10 @@ export async function validatePhysicsSourceCase(source: MechanicsResult, c: Obj,
 
 /** Producer normalization uses the shared units crate before selecting a point
  * or a strict interior bracket. Apply it to every case, including ordinary
- * cases transported alongside source fallback; no material default is inferred. */
-async function validateAuthoredCaseFacts(source: MechanicsResult, invocation: SourceBlockInvocation): Promise<void> {
+ * cases transported alongside source fallback; no material default is inferred.
+ * S-C (B3D-12; REVISION_01 N-9): exported unchanged for the exact retained
+ * reader's G8 step 5. */
+export async function validateAuthoredCaseFacts(source: MechanicsResult, invocation: SourceBlockInvocation): Promise<void> {
   const request = invocation.request as Obj, model = request.model as Obj;
   const materials: Obj[] = request.materials?.length ? request.materials : model.materials;
   const engine = await loadWasmEngine();

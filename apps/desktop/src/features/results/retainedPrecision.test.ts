@@ -100,7 +100,10 @@ describe('synthetic prepared receipt arithmetic controls, not execution evidence
   });
 });
 
-import { validateRetainedPrecision, validateRetainedPrecisionTransport, RetainedPrecisionError, phi512, eHat, stopFeasible, nativeSchedule, ordinaryAttempts, accountingRules, nativeRuns, productAttempts, errorStageRecordAgrees } from './retainedPrecision';
+import { validateRetainedPrecision, validateRetainedPrecisionTransport, RetainedPrecisionError, phi512, eHat, stopFeasible, nativeSchedule, ordinaryAttempts, accountingRules, nativeRuns, productAttempts, errorStageRecordAgrees, EXACT_RETAINED_ID, EXACT_RETAINED_PROFILE, EXACT_DEFINITION_ID, EXACT_DEFINITION_HASH, RETAINED_PRECISION_ID, RETAINED_PRECISION_PROFILE, PREPARED_DEFINITION_ID, tableBindsReaderConstants } from './retainedPrecision';
+import n05Text from '../../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json?raw';
+import exactTableForTests from '../../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json';
+import { writeFileSync } from 'node:fs';
 import milestoneSparseText from '../../../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json?raw';
 import milestoneDenseText from '../../../../../fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json?raw';
 import { canonicalSha256HexCheckedV1 } from '../../services/hashService';
@@ -110,7 +113,10 @@ import { canonicalSha256HexCheckedV1 } from '../../services/hashService';
 function rehashRef(items: any[], ref: unknown): any {
   return typeof ref === 'number' && Number.isInteger(ref) && ref >= 0 && !Object.is(ref, -0) && ref < items.length ? items[ref] : undefined;
 }
-async function rehash(source: any) {
+/** S-1 (REVISION_01 §2): every preparation hash carries the route's definition H: DEF-E's on the exact identity, DEF-O's
+ * otherwise. */
+const routeDefinitionHash = (source: any) => source?.producer?.semantic_contract_id === EXACT_RETAINED_ID ? EXACT_DEFINITION_HASH : 'a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349';
+async function rehash(source: any, definitionHash = routeDefinitionHash(source)) {
   // Snapshot 07 format: an entry that removes retained_precision or its body (a G0 pin) has nothing to rehash.
   const body = source.retained_precision?.body;
   if (!body || typeof body !== 'object') return;
@@ -118,7 +124,7 @@ async function rehash(source: any) {
     const a = rehashRef(body.product_attempts, s.preparation.attempt_ref);
     if (!a || !a.preparation.members.every((m: any) => m.result.kind === 'prepared')) continue;
     s.preparation.sha256 = await canonicalSha256HexCheckedV1({ domain: 'retained_precision_preparation_v1', payload: {
-      definition_id: a.definition_id, definition_sha256: 'a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349', owner_ref: a.owner_ref, ordinary_attempt_ref: a.ordinary_attempt_ref, material_basis_ref: a.material_basis_ref,
+      definition_id: a.definition_id, definition_sha256: definitionHash, owner_ref: a.owner_ref, ordinary_attempt_ref: a.ordinary_attempt_ref, material_basis_ref: a.material_basis_ref,
       members: a.preparation.members.map((m: any) => ({ member: m.member, old_source: m.old_source, old_facts: m.old_facts, section: m.result.section })) } });
   }
   for (const c of body.cases) {
@@ -1478,5 +1484,170 @@ describe('B3a (I101): G8\'s namespace predicate, type-strict (B3-D §6.3, §6.4;
   for (const [name, base, edits, want] of entries) it(name, async () => {
     const { source, invocation } = await applyEntry({ id: 'i101_b3a', base, edits: [], invocation_edits: edits, rehash: 'all' });
     expect(await firstFailure(source, invocation)).toEqual(want);
+  });
+});
+
+describe('B3b (I101): the exact successor <physics-retained> on reader-local synthetic receipts (B3-D §6; REVISION_01 §4.3)', () => {
+  // RN64(2e11 / (2 RN64(1 + nu))) is exactly the bases' G = 7.7e10 Pa, so the synthetic exact successor keeps every receipt
+  // number of its preview base. The transform, the shapes and the expected first failures are the Rust reader's
+  // `exact_successor` and `b3b_shapes`, entry for entry; only G7's base codes are TS's own (C1 G7 settlement).
+  const NU = 0.2987012987012987;
+  const ORD = 'ordinary_prepared_synthetic', BASES = [ORD, 'ordinary_prepared_dense_synthetic', 'two_case_synthetic'];
+  const decode = (bits: string) => decodeBinary64(bits);
+  const ulps = (v: number, n: number) => { const view = new DataView(new ArrayBuffer(8)); view.setFloat64(0, v); view.setBigUint64(0, view.getBigUint64(0) + BigInt(n)); return view.getFloat64(0); };
+  async function exactSuccessor(baseId: string): Promise<{ source: any; invocation: any }> {
+    const base = corpus.cases.find((c: any) => c.id === baseId), source = structuredClone(base.source), invocation = structuredClone(base.invocation);
+    const model = invocation.request.model;
+    model.schema_version = '0.3.0'; model.pressure_contract = { version: '2.0.0', mode: 'exact_straight_pressure_v2' };
+    for (const c of model.load_cases) c.pressure_regions = [];
+    for (const m of model.materials) { m.poisson_ratio = { value: NU, unit: '1' }; m.constitutive_basis = 'homogeneous_isotropic_E_nu_v1'; }
+    const body = source.retained_precision.body, nodes = model.nodes.map((n: any) => n.id), exactCases: any[] = [];
+    for (const rc of body.cases) {
+      expect(rc.status).toBe('selected');
+      const id = rc.basis_ref.ref_id, s = body.sources[rc.source_ref], mb = body.material_bases[body.product_attempts[rc.product_attempt_ref].material_basis_ref];
+      const sections: any[] = [], materials: any[] = [];
+      model.pipe_segments.forEach((p: any, i: number) => {
+        const st = s.section_terms[i], g = st.geometry; expect(s.id_maps.members[i].id).toBe(p.id);
+        const od = decode(g.normalized_od), wall = decode(g.effective_wall), ri = od * 0.5 - wall;
+        sections.push({ pipe_id: p.id, geometry_basis: 'authored_normalized_od_wall_v1', outside_diameter_m: od, effective_wall_thickness_m: wall, ri_m: ri,
+          ro_m: decode(g.actual_radius), Ai_m2: Math.PI * ri * ri, As_m2: decode(st.area), I_m4: decode(g.actual_second_moment), J_m4: decode(g.actual_polar_moment), Z_m3: decode(st.section_modulus) });
+        const m = mb.materials.find((x: any) => x.id === p.material), e = decode(m.elastic_modulus), gHat = e / (2 * (1 + NU));
+        expect(binary64Bits(gHat)).toBe(m.shear_modulus);
+        const authored = model.materials.find((x: any) => x.id === p.material);
+        materials.push({ pipe_id: p.id, material_id: p.material, E_pa: e, nu: NU, G_pa: gHat, constitutive_basis: 'homogeneous_isotropic_E_nu_v1', thermal_consumed: false, alpha_per_kelvin: null, provenance: authored.provenance });
+      });
+      const preview = source.contract_evidence.preview_cases.find((c: any) => c.load_case_id === id), zeros = Array(nodes.length * 6).fill(0);
+      exactCases.push({ load_case_id: id, profile_mode: 'exact_straight_pressure_v2', material_basis: 'base_material_common_E_nu', pipe_materials: materials, pipe_sections: sections,
+        pipe_stress_extrema: structuredClone(preview.pipe_stress_extrema),
+        stress_maximum_coverage: { complete: preview.stress_maximum_coverage.complete, unavailable_pipe_ids: structuredClone(preview.stress_maximum_coverage.unavailable_pipe_ids) },
+        pressure_rhs_assembly: { method: 'source_factor_grouped_pressure_rhs_v1', load_case_id: id, node_order: nodes, dof_order: ['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz'],
+          dof_units: ['N', 'N', 'N', 'N*m', 'N*m', 'N*m'], assembled_pressure_rhs_global: zeros, groups: [], rounded_cap_rhs_global: zeros, rounded_poisson_rhs_global: zeros,
+          rounded_cap_and_eigen_ledgers_are_observational: true, cancellation_screen: 0, screen_limit: 1e-9, screen_roundoff_multiplier: 32, screen_is_not_numerical_qualification: true } });
+    }
+    source.producer.semantic_contract_id = EXACT_RETAINED_ID;
+    source.formulation_basis = { profile_id: EXACT_RETAINED_PROFILE, limitations: JSON.parse(n05Text).formulation_basis.limitations };
+    source.contract_evidence = structuredClone({ pressure: [], connector: [], exact_cases: exactCases });
+    for (const mb of body.material_bases) for (const m of mb.materials) m.shear_origin = { kind: 'derived_e_nu', poisson_ratio: binary64Bits(NU), constitutive_basis: 'homogeneous_isotropic_E_nu_v1' };
+    for (const s of body.sources) for (const st of s.section_terms) st.geometry.route = 'exact';
+    for (const a of body.product_attempts) a.definition_id = EXACT_DEFINITION_ID;
+    body.invocation.value = await canonicalSha256HexCheckedV1({ domain: 'source_blocks_invocation_v1', payload: invocation });
+    await rehash(source);
+    return { source, invocation };
+  }
+  type Shape = { name: string; base: string; edits?: any[]; invocation_edits?: any[] };
+  const set = (path: (string | number)[], value: unknown) => ({ path, op: 'set', value }), remove = (path: (string | number)[]) => ({ path, op: 'remove' });
+  const rb = (...tail: (string | number)[]) => ['retained_precision', 'body', ...tail], ce = (...tail: (string | number)[]) => ['contract_evidence', 'exact_cases', 0, ...tail];
+  const md = (...tail: (string | number)[]) => ['request', 'model', ...tail];
+  const G0 = { gate: 'G0', code: 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED' }, INV = G('G8', 'INVOCATION_MISMATCH'), PREP = G('G8', 'PREPARATION_MISMATCH'), SEC = G('G5b', 'SECTION_MISMATCH');
+  const G_HAT = 7.7e10;
+  const shapes = (entry: any): [Shape, any][] => {
+    const sec = (k: string) => entry.pipe_sections[0][k] as number;
+    return [
+      ...BASES.map((base): [Shape, any] => [{ name: 'base', base }, 'pass']),
+      [{ name: '01 identity -> the preview id', base: ORD, edits: [set(['producer', 'semantic_contract_id'], RETAINED_PRECISION_ID)] }, G0],
+      [{ name: '02 profile -> the preview profile', base: ORD, edits: [set(['formulation_basis', 'profile_id'], RETAINED_PRECISION_PROFILE)] }, G0],
+      [{ name: "03 an attempt's definition_id -> the ordinary id", base: ORD, edits: [set(rb('product_attempts', 0, 'definition_id'), PREPARED_DEFINITION_ID)] }, G0],
+      [{ name: '04 projection_policy changed', base: ORD, edits: [set(rb('projection_policy'), 'RP-LOGICAL-ATTEMPTS-v2')] }, G0],
+      [{ name: '04b policy changed', base: ORD, edits: [set(rb('policy'), 'M03-INTEGRITY-MP-v3')] }, G0],
+      [{ name: '04c facade_policy changed', base: ORD, edits: [set(rb('facade_policy'), 'RP-FACADE-SI-v3')] }, G0],
+      [{ name: '05 work_policy changed', base: ORD, edits: [set(rb('work_policy'), 'W1-LME-20B-60B-v2')] }, G0],
+      [{ name: '06 canonicalization changed', base: ORD, edits: [set(rb('canonicalization'), 'openpipestress_jcs_ijson_v2')] }, G0],
+      [{ name: '07 work.case_limit changed', base: ORD, edits: [set(rb('work', 'case_limit'), 19_999_999_999)] }, G0],
+      [{ name: '08 work.invocation_limit changed', base: ORD, edits: [set(rb('work', 'invocation_limit'), 60_000_000_001)] }, G0],
+      [{ name: '08b receipt_version 2', base: ORD, edits: [set(rb('receipt_version'), 2)] }, G0],
+      [{ name: '10 the exact successor relabelled preview (identity and profile)', base: ORD, edits: [set(['producer', 'semantic_contract_id'], RETAINED_PRECISION_ID), set(['formulation_basis', 'profile_id'], RETAINED_PRECISION_PROFILE)] }, G0],
+      [{ name: "12 owner entry's As_m2 one ulp", base: ORD, edits: [set(ce('pipe_sections', 0, 'As_m2'), ulps(sec('As_m2'), 1))] }, SEC],
+      [{ name: "13 owner entry's Z_m3 one ulp", base: ORD, edits: [set(ce('pipe_sections', 0, 'Z_m3'), ulps(sec('Z_m3'), 1))] }, SEC],
+      [{ name: "14 owner entry's I_m4 one ulp", base: ORD, edits: [set(ce('pipe_sections', 0, 'I_m4'), ulps(sec('I_m4'), 1))] }, SEC],
+      [{ name: "15 owner entry's ro_m one ulp", base: ORD, edits: [set(ce('pipe_sections', 0, 'ro_m'), ulps(sec('ro_m'), 1))] }, SEC],
+      [{ name: "15b owner entry's J_m4 one ulp", base: ORD, edits: [set(ce('pipe_sections', 0, 'J_m4'), ulps(sec('J_m4'), 1))] }, SEC],
+      [{ name: "15c owner entry's outside_diameter_m one ulp", base: ORD, edits: [set(ce('pipe_sections', 0, 'outside_diameter_m'), ulps(sec('outside_diameter_m'), 1))] }, SEC],
+      [{ name: "15d owner entry's effective_wall_thickness_m one ulp", base: ORD, edits: [set(ce('pipe_sections', 0, 'effective_wall_thickness_m'), ulps(sec('effective_wall_thickness_m'), 1))] }, SEC],
+      [{ name: "15e the owner entry's load_case_id renamed (no entry for the selected case)", base: ORD, edits: [set(ce('load_case_id'), 'case:other')] }, SEC],
+      [{ name: "15f the owner entry's pipe section listed twice", base: ORD, edits: [set(ce('pipe_sections'), [entry.pipe_sections[0], entry.pipe_sections[0]])] }, SEC],
+      [{ name: "15g the owner entry's As_m2 a string", base: ORD, edits: [set(ce('pipe_sections', 0, 'As_m2'), String(sec('As_m2')))] }, SEC],
+      [{ name: "15h the owner entry listed twice", base: ORD, edits: [set(['contract_evidence', 'exact_cases'], [entry, entry])] }, SEC],
+      [{ name: '16 connector non-empty', base: ORD, edits: [set(['contract_evidence', 'connector'], [{ id: 'connector:x' }])] }, { gate: 'G7', code: 'PHYSICS_EVIDENCE_UNSUPPORTED_COMPOSITION' }],
+      [{ name: "17 an entry's G_pa three ulps", base: ORD, edits: [set(ce('pipe_materials', 0, 'G_pa'), ulps(G_HAT, 3))] }, { gate: 'G7', code: 'PHYSICS_EVIDENCE_MATERIAL_INVALID' }],
+      [{ name: '18 recovery_method added to an exact_cases entry', base: ORD, edits: [set(ce('recovery_method'), 'retained_source_blocks_exact_v1')] }, { gate: 'G7', code: 'PHYSICS_EVIDENCE_CASE_SHAPE' }],
+      [{ name: '19 invocation contract -> legacy 1.0.0', base: ORD, invocation_edits: [set(md('pressure_contract'), { version: '1.0.0', mode: 'legacy_pressure_v1' })] }, INV],
+      [{ name: '20 invocation schema -> 0.4.0', base: ORD, invocation_edits: [set(md('schema_version'), '0.4.0')] }, INV],
+      [{ name: '21 invocation pressure_contract false', base: ORD, invocation_edits: [set(md('pressure_contract'), false)] }, INV],
+      [{ name: '21b invocation contract with an extra key', base: ORD, invocation_edits: [set(md('pressure_contract'), { version: '2.0.0', mode: 'exact_straight_pressure_v2', extra: null })] }, INV],
+      [{ name: '21c invocation contract version 2.0.1', base: ORD, invocation_edits: [set(md('pressure_contract'), { version: '2.0.1', mode: 'exact_straight_pressure_v2' })] }, INV],
+      [{ name: '21d invocation contract removed (0.3.0, absent)', base: ORD, invocation_edits: [remove(md('pressure_contract'))] }, INV],
+      [{ name: '22 a combination added to the invocation', base: ORD, invocation_edits: [set(md('combinations'), [{ id: 'combination:x', kind: 'algebraic', terms: [{ load_case: 'case:six-component-load', factor: 1.0 }] }])] }, INV],
+      [{ name: '22b a component added to the invocation', base: ORD, invocation_edits: [set(md('components'), [{ id: 'component:x' }])] }, INV],
+      [{ name: '23 a case naming modulus_basis_ref', base: ORD, invocation_edits: [set(md('load_cases', 0, 'modulus_basis_ref'), 'point:x')] }, PREP],
+      [{ name: "24 a material's shear_origin -> explicit_g", base: ORD, edits: [set(rb('material_bases', 0, 'materials', 0, 'shear_origin'), { kind: 'explicit_g' })] }, PREP],
+      [{ name: "25 a material's shear_modulus one ulp", base: ORD, edits: [set(rb('material_bases', 0, 'materials', 0, 'shear_modulus'), binary64Bits(ulps(7.7e10, 1)))] }, PREP],
+      [{ name: '26 shear_origin.poisson_ratio bits changed', base: ORD, edits: [set(rb('material_bases', 0, 'materials', 0, 'shear_origin', 'poisson_ratio'), binary64Bits(ulps(NU, 1)))] }, PREP],
+      [{ name: '27 authored nu changed in the invocation', base: ORD, invocation_edits: [set(md('materials', 0, 'poisson_ratio', 'value'), ulps(NU, 1))] }, PREP],
+      [{ name: "28 S-C only: an entry's pipe_materials nu one ulp", base: ORD, edits: [set(ce('pipe_materials', 0, 'nu'), ulps(NU, 1))] }, PREP],
+      [{ name: "29 N-6: an entry's G_pa one ulp", base: ORD, edits: [set(ce('pipe_materials', 0, 'G_pa'), ulps(G_HAT, 1))] }, PREP],
+      [{ name: "30 a case's pressure_regions -> null", base: ORD, invocation_edits: [set(md('load_cases', 0, 'pressure_regions'), null)] }, PREP],
+      [{ name: "30b a case's pressure_regions absent", base: ORD, invocation_edits: [remove(md('load_cases', 0, 'pressure_regions'))] }, PREP],
+      [{ name: "31 a case's pressure_regions -> one region", base: ORD, invocation_edits: [set(md('load_cases', 0, 'pressure_regions'), [{ id: 'region:x', member_pipe_ids: ['pipe:fixture-span'], pressure: { value: 0, unit: 'Pa' } }])] }, PREP],
+      [{ name: "32 a member's geometry.route -> preview", base: ORD, edits: [set(rb('sources', 0, 'section_terms', 0, 'geometry', 'route'), 'preview')] }, PREP],
+      [{ name: '32b the authored poisson_ratio unit -> ""', base: ORD, invocation_edits: [set(md('materials', 0, 'poisson_ratio', 'unit'), '')] }, PREP],
+      [{ name: '32c the authored constitutive_basis removed (S-C)', base: ORD, invocation_edits: [remove(md('materials', 0, 'constitutive_basis'))] }, PREP],
+      [{ name: '09 the preview successor relabelled physics-retained-1', base: '<preview:ordinary_prepared_synthetic>' }, G0],
+      [{ name: "11 S-1: the preparation hashed with DEF-O's H", base: '<s1:ordinary_prepared_synthetic>' }, G('G1', 'RECEIPT_MISMATCH')],
+    ];
+  };
+  async function input(shape: Shape): Promise<{ source: any; invocation: any }> {
+    if (shape.base === '<preview:ordinary_prepared_synthetic>') {
+      const base = corpus.cases.find((c: any) => c.id === ORD), source = structuredClone(base.source);
+      source.producer.semantic_contract_id = EXACT_RETAINED_ID; source.formulation_basis.profile_id = EXACT_RETAINED_PROFILE; await rehash(source);
+      return { source, invocation: structuredClone(base.invocation) };
+    }
+    if (shape.base === '<s1:ordinary_prepared_synthetic>') {
+      const x = await exactSuccessor(ORD); await rehash(x.source, 'a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349'); return x;
+    }
+    const x = await exactSuccessor(shape.base);
+    applyEdits(x.source, shape.edits); applyEdits(x.invocation, shape.invocation_edits);
+    if (shape.invocation_edits?.length) x.source.retained_precision.body.invocation.value = await canonicalSha256HexCheckedV1({ domain: 'source_blocks_invocation_v1', payload: x.invocation });
+    await rehash(x.source);
+    return x;
+  }
+  const reading = async (run: () => Promise<any>) => { try { const r = await run(); return { ok: { eligible: r.numerical_eligible } }; } catch (e) { expect(e).toBeInstanceOf(RetainedPrecisionError); return { gate: (e as any).gate, code: (e as any).code }; } };
+  it('pins the Rust test\'s 52 shapes, their first failures, and their three readings', async () => {
+    const entry = (await exactSuccessor(ORD)).source.contract_evidence.exact_cases[0], list = shapes(entry), misses: string[] = [], lines: any[] = [];
+    expect(list.length).toBe(3 + 47 + 2);
+    for (const [shape, want] of list) {
+      const { source, invocation } = await input(shape);
+      const got = await firstFailure(source, invocation);
+      if (JSON.stringify(got) !== JSON.stringify(want)) misses.push(`${shape.name} [${shape.base}]: got ${JSON.stringify(got)}, want ${JSON.stringify(want)}`);
+      lines.push({ name: shape.name, base: shape.base, bound: await reading(() => validateRetainedPrecision(source, invocation)), unbound: await reading(() => validateRetainedPrecision(source)), transport: await reading(() => validateRetainedPrecisionTransport(source)) });
+    }
+    const out = process.env.B3B_SHAPES_OUT; if (out) writeFileSync(out, lines.map(l => JSON.stringify(l)).join('\n') + '\n');
+    expect(misses).toEqual([]);
+  }, 120_000);
+  it('reads the synthetic exact successors bound (eligible), unbound and on transport (never eligible)', async () => {
+    for (const base of BASES) {
+      const { source, invocation } = await exactSuccessor(base);
+      expect(await reading(() => validateRetainedPrecision(source, invocation)), base).toEqual({ ok: { eligible: true } });
+      expect(await reading(() => validateRetainedPrecision(source)), base).toEqual({ ok: { eligible: false } });
+      expect(await reading(() => validateRetainedPrecisionTransport(source)), base).toEqual({ ok: { eligible: false } });
+    }
+  });
+  it("carries S-C's own code as the G8 failure's detail (B3D-13)", async () => {
+    const entry = (await exactSuccessor(ORD)).source.contract_evidence.exact_cases[0];
+    const [shape] = shapes(entry).find(([x]) => x.name.startsWith('28 '))!;
+    const { source, invocation } = await input(shape);
+    const error = await validateRetainedPrecision(source, invocation).then(() => null, e => e);
+    expect([error?.gate, error?.code]).toEqual(['G8', 'RETAINED_PRECISION_PREPARATION_MISMATCH']);
+    expect(String(error?.detail)).toContain('ACTUAL_SELECTED_MATERIAL');
+  });
+  it('step 6: the table against the reader\'s constants, on test-only tables (B3-D §2.4)', () => {
+    expect(tableBindsReaderConstants(exactTableForTests)).toBe(true);
+    const drifted: string[] = [];
+    for (const [path, value] of [[['receipt_bindings', 'canonicalization'], 'openpipestress_jcs_ijson_v2'], [['receipt_bindings', 'method'], 'contribution_preserving_multiprecision_v2'],
+      [['receipt_bindings', 'projection_policy'], 'RP-LOGICAL-ATTEMPTS-v2'], [['receipt_bindings', 'work', 'case_limit'], 19_999_999_999], [['receipt_bindings', 'work', 'invocation_limit'], 60_000_000_001],
+      [['receipt_bindings', 'work_policy'], 'W1-LME-20B-60B-v2'], [['receipt_bindings', 'extra'], 1], [['receipt_policy'], 'M03-INTEGRITY-MP-v3'], [['accuracy_classification', 'policy'], 'RP-FACADE-SI-v3']] as [string[], unknown][]) {
+      const t = structuredClone(exactTableForTests) as any; let at = t; for (const k of path.slice(0, -1)) at = at[k]; at[path.at(-1)!] = value;
+      if (tableBindsReaderConstants(t)) drifted.push(path.join('.'));
+    }
+    expect(drifted).toEqual([]);
   });
 });
