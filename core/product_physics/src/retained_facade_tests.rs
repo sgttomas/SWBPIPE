@@ -3795,36 +3795,36 @@ const B2P_PINNED: [(&str, &str, &str, &str); 20] = [
         "d38ff80c33deae242fc3e440ac9270a5299d198a053e1e273a7b8b23789441fa"),
     ("w_cb2", "sparse_interactive", "154c52607fe0a4a91d591e48af428c360f17cd043d9f5621acfcadf15db48605",
         "9731586e98ab443c08636931f29ace24be49e0006ac574b2b4526c9155993b9e"),
-    ("w_cb2", "dense_scrutiny", "0538a9195b036a524bec6a772099909e0bb95088481ff6443b8eef8fd7274309",
-        "7d51220289aee557733c672e1a56c9526a445489978d64954227b6d825af9a1f"),
+    ("w_cb2", "dense_scrutiny", "94e468af39678f62bffc9ab8ec426ff3d4b18f59c5cf4232eb42a136f7263edd",
+        "cf9d4c6bb8a7546b515a5d74f25276598be3954953a2be4d5480589c732500cf"),
     ("w_cb3", "sparse_interactive", "f86ffd2b3b403c84fca91aeb686028e7d613c23f291f23b2acdc91633bea3e99",
         "82edc28b3f797c3d41a14dd31fcc2185baf630a76e6a857681dd435c00a6a9f5"),
     ("w_cb3", "dense_scrutiny", "beb1461c0860663d74dd2b012aeedfa2667e701c71073ca59c6ea842bb9f786d",
         "d8a46a71f9d3a5b32dc03b5a9724eacc2956ab56936ab488182c3a48577e9f1e"),
     ("w_cb4a", "sparse_interactive", "7b8773530d63fb32542210bb6ad4c709fe957f554da835b9efb7ccd485883fe9",
         "318c4abd082c1df910a91803ccc14973f498cdad7d2c13a40004bbc7ca7afbc0"),
-    ("w_cb4a", "dense_scrutiny", "c002d0a6c2822ab44c80bd030dd7fce7576121dd6b6b5fe3c3cd3dbafb2b1fcf",
-        "ac6076f1752332ec94309d9bc473cdce74430ac4f6b215f61fc088d54a27aa2e"),
+    ("w_cb4a", "dense_scrutiny", "00e21ac355d409cdff9b666ce9587427dd0ff77ccd412f3fe568735df0c9cc4a",
+        "f0210262e38db5e7d5b7aa46c4d03d869c6cb0b4940646e7b9b3149feb43f714"),
     ("w_cb4b", "sparse_interactive", "31e0fd4804064ffbc298fccec0981cc0aab7db9348f583094ff2f83795f0a643",
         "c291b532c781092d6b13aeec9dbf055631181169fb43edb40a18f6120ddb6e73"),
-    ("w_cb4b", "dense_scrutiny", "830ecd1c8eba48cb5ddf03e56f5573bcd6cf32706338d5948696ffd24150d76a",
-        "16bd73ce68d0ba970b0db5352b3aa68250b5e04eb625ea5b74404598539257dd"),
+    ("w_cb4b", "dense_scrutiny", "2c5b46caf32f625089637b545294dc3a24739fad151274e29d2831066afbf330",
+        "c558ccfe5492902f231d01eab776fa88a352dbb70addf3042929aeb4e0195c3b"),
     ("w_cb5", "sparse_interactive", "e26015faa2ab14d571ad67c037a3a4afa69b1b4d97841a31b2fb4713b2bda3fe",
         "8e83f75890ef99057942f4e10b6b378fb56b1363e59fdd52050d1659078124a9"),
     ("w_cb5", "dense_scrutiny", "f27870de60f57d3e28998305f856079e3f788762f562f58e38af1419d5144c58",
         "265a84bbd39b4380cb2c950847f0e47d60fe56b74bcb6e207b86e2701baf1834"),
     ("c1_range_mechanics", "sparse_interactive", "877e0c7a32f4740b6a907ac4cb9d63e6f018687208ba396148b22112ee5956d8",
         "d32ed8bf6594ce7107763bc31f9fc1d2d989a644d1538243b4b78aec79951ce8"),
-    ("c1_range_mechanics", "dense_scrutiny", "046bfc3f0357325d3104fb2759205a881bfa45ec62dcc70cff0d6fe77f7bd02c",
-        "e579371eb7d4c51ec5c0f71093ee673ba9e288edba7af59b101fb28d15da4dcf"),
+    ("c1_range_mechanics", "dense_scrutiny", "5b2812606ff71ba390602070528ea00a13848e59847ba6d7a13da424aaf8d450",
+        "bc641fe3414556f2e74d0b9f57f685d58029cc7de9feb250cabba8b432c2fbbf"),
     ("rv123_w_cb3_ba", "sparse_interactive", "86d0f1f821bb212fdea7f431291fe4b22b92c3564320b91911abe04ab50686ca",
         "ec58bcab704f8e870947a90a48321f211637e0131288a86ea1116aeb188751ba"),
     ("rv123_w_cb3_ba", "dense_scrutiny", "03a8eec6106b3c507ca4a7648e0010f6c382e9ece099521b2a0d9044486c2454",
         "6149647c6cd9264c0fad7760e05c6148462ec36b986eac1e9ad62978f98ecd6c"),
-    ("rv123_c1_two_mechanics", "sparse_interactive", "577b1fcb79c57e86f498a6cdd04211ba5279fb0effee046607705fecde64c28e",
-        "167eb7117c22be10643ae39d39908ec425a955760be5b25201b5edd04b18df68"),
-    ("rv123_c1_two_mechanics", "dense_scrutiny", "b2a8db32435415e70ec1d521675e391960c61b19baad27b3eec5a79480280118",
-        "e5ad415d360bdc400df34813b05e6f92e94d6fb76c02b00e11a70b4da0d96342"),
+    ("rv123_c1_two_mechanics", "sparse_interactive", "6d9f6fc9a26d91402cec7dab0ec3996a22ddecc84bd8a2a8925b1eb1ba7984ee",
+        "98bddd8285e488ff6789048dd0fba68da963a0226cd2be4d408db7be8d780402"),
+    ("rv123_c1_two_mechanics", "dense_scrutiny", "88324f91e52426b4f966acaf28063d6b75c4b1b4163b0d233efdfcdffddda577",
+        "d608a0b03e2cb7fa8720bddc706b9706c958d78d8c9a9383b6a7cef05cbb4e1c"),
 ];
 /// B2-P's small witnesses: (name, request).
 fn b2p_witnesses() -> Vec<(&'static str, Value)> {
@@ -3974,8 +3974,8 @@ fn successor_request(_successor: &Value, plain: &Value) -> Vec<Value> {
 /// B2-P's witnesses through the private driver, both modes: the successor precommit receives meets
 /// B2-C's producer requirements (`assert_combination_successor`) and is pinned; precommit is today's
 /// reader (`b2p_precommit_today`) or a validated successor, and on a fallback the ordinary bytes take
-/// one notice per case in A (none for a combination; T-12). With `I105_B2P_OUT` set, W-CB3's
-/// fixture documents are written there.
+/// one notice per case in A (none for a combination; T-12). With `I105_B2P_OUT` set, each
+/// successor document, and W-CB3's fixture documents, are written there.
 #[test]
 fn b2p_witness_successors_are_pinned_in_both_modes() {
     b2p_pin_witnesses(b2p_witnesses());
@@ -4017,6 +4017,10 @@ fn b2p_pin_witnesses(witnesses: Vec<(&'static str, Value)>) {
             let pinned = B2P_PINNED.iter().find(|(n, m, _, _)| *n == name && *m == mode.as_str()).unwrap();
             if let (Some(dir), "w_cb3") = (&out, name) {
                 std::fs::write(format!("{dir}/retained_precision_combination_successor_{}.json", mode.as_str()), combination_document(&raw, mode, &successor)).unwrap();
+            }
+            if let Some(dir) = &out {
+                std::fs::write(format!("{dir}/{name}.{}.successor.json", mode.as_str()),
+                    serde_json::to_vec(&json!({"source": successor, "invocation": {"request": raw, "solver_mode": mode.as_str()}})).unwrap()).unwrap();
             }
             pins.push((label, (receipt, bytes), (pinned.2, pinned.3)));
         }
