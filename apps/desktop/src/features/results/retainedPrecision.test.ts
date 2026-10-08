@@ -112,6 +112,9 @@ import { knownSemanticNotices, resultRowLabel, ruleBindingRefusal, RULE_QUANTITY
 import milestoneSparseText from '../../../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json?raw';
 import milestoneDenseText from '../../../../../fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json?raw';
 import { canonicalSha256HexCheckedV1 } from '../../services/hashService';
+import { createHash } from 'node:crypto';
+import m3xSparseText from '../../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json?raw';
+import m3xDenseText from '../../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json?raw';
 /** Snapshot 07e format rule (RV78-N1): a rehash index is a strict integral value, a JSON number that is never a
  * boolean, finite, integral, >= 0 and not -0 (0.0 is index 0; 0.5, true and -0 are not). A reference that is not
  * an index, or does not resolve, is skipped and left for the reader to report. */
@@ -1492,7 +1495,7 @@ describe('B3a (I101): G8\'s namespace predicate, type-strict (B3-D §6.3, §6.4;
   });
 });
 
-describe('B3b (I101): the exact successor <physics-retained> on reader-local synthetic receipts (B3-D §6; REVISION_01 §4.3)', () => {
+describe('B3b (I101): the exact successor <physics-retained> on reader-local synthetic receipts and lane P\'s m3x successors (B3-D §6; REVISION_01 §4.3)', () => {
   // RN64(2e11 / (2 RN64(1 + nu))) is exactly the bases' G = 7.7e10 Pa, so the synthetic exact successor keeps every receipt
   // number of its preview base. The transform, the shapes and the expected first failures are the Rust reader's
   // `exact_successor` and `b3b_shapes`, entry for entry; only G7's base codes are TS's own (C1 G7 settlement).
@@ -1605,12 +1608,30 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
   /** The optional file base: B3B_EXACT_BASE names a `{source, invocation}` file (for example lane P's `m3x` exact
    * successor); every shape is then also read on it. */
   const FILE_BASE = '<file>';
-  const exactBase = async (base: string) => base === FILE_BASE ? JSON.parse(readFileSync(process.env.B3B_EXACT_BASE!, 'utf8')) : exactSuccessor(base);
+  /** Lane P's m3x exact successors (B3b-P; PP retained_facade_tests.rs `EXACT_PINNED`): base name, document text,
+   * document sha256 and receipt sha256. Every shape is also read on each. */
+  const M3X: [string, string, string, string][] = [
+    ['m3x_sparse_interactive', m3xSparseText, '02465c6c92ac2e4360a77910cb54803590b5a11042dfddb223bf78f9e856e5d6', 'b1b4a6682260ca6bc499950b30f0f7179a77c038e266cc4b42045ed86ed3896f'],
+    ['m3x_dense_scrutiny', m3xDenseText, '31f10f04f6f335dfb1a7e5f904198972903bfc9208660031bbfaa5c547d347cc', 'eabd2fc57b42158ad415ae664e7c712c1c4db21258b667251758172f3a5b776d'],
+  ];
+  const m3x = (name: string): { source: any; invocation: any } => {
+    const [, text, documentSha, receiptSha] = M3X.find(m => m[0] === name)!;
+    expect(createHash('sha256').update(text).digest('hex'), `${name}: lane P's pinned document`).toBe(documentSha);
+    const doc = JSON.parse(text);
+    expect(doc.source.retained_precision.receipt_sha256, name).toBe(receiptSha);
+    return { source: doc.source, invocation: doc.invocation };
+  };
+  const exactBase = async (base: string) => base === FILE_BASE ? JSON.parse(readFileSync(process.env.B3B_EXACT_BASE!, 'utf8'))
+    : M3X.some(m => m[0] === base) ? m3x(base) : exactSuccessor(base);
   const shapes = async (): Promise<[Shape, any][]> => [
     ...BASES.map((base): [Shape, any] => [{ name: 'base', base }, 'pass']),
     ...rows(ORD, await exactSuccessor(ORD)),
     [{ name: '09 the preview successor relabelled physics-retained-1', base: '<preview:ordinary_prepared_synthetic>' }, G0],
     [{ name: "11 S-1: the preparation hashed with DEF-O's H", base: '<s1:ordinary_prepared_synthetic>' }, G('G1', 'RECEIPT_MISMATCH')],
+    ...M3X.flatMap(([name]): [Shape, any][] => [
+      [{ name: 'base', base: name }, 'pass'], ...rows(name, m3x(name)),
+      [{ name: "11 S-1: the preparation hashed with DEF-O's H", base: `<s1:${name}>` }, G('G1', 'RECEIPT_MISMATCH')],
+    ]),
     ...(process.env.B3B_EXACT_BASE ? [
       [{ name: 'base', base: FILE_BASE }, 'pass'] as [Shape, any], ...rows(FILE_BASE, await exactBase(FILE_BASE)),
       [{ name: "11 S-1: the preparation hashed with DEF-O's H", base: '<s1:file>' }, G('G1', 'RECEIPT_MISMATCH')] as [Shape, any],
@@ -1622,8 +1643,8 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
       source.producer.semantic_contract_id = EXACT_RETAINED_ID; source.formulation_basis.profile_id = EXACT_RETAINED_PROFILE; await rehash(source);
       return { source, invocation: structuredClone(base.invocation) };
     }
-    if (shape.base === '<s1:ordinary_prepared_synthetic>' || shape.base === '<s1:file>') {
-      const x = await exactBase(shape.base === '<s1:file>' ? FILE_BASE : ORD); await rehash(x.source, 'a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349'); return x;
+    if (shape.base.startsWith('<s1:')) {
+      const name = shape.base.slice(4, -1), x = await exactBase(name === 'file' ? FILE_BASE : name); await rehash(x.source, 'a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349'); return x;
     }
     const x = await exactBase(shape.base);
     applyEdits(x.source, shape.edits); applyEdits(x.invocation, shape.invocation_edits);
@@ -1632,9 +1653,9 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
     return x;
   }
   const reading = async (run: () => Promise<any>) => { try { const r = await run(); return { ok: { eligible: r.numerical_eligible } }; } catch (e) { expect(e).toBeInstanceOf(RetainedPrecisionError); return { gate: (e as any).gate, code: (e as any).code }; } };
-  it('pins the Rust test\'s 55 shapes, their first failures, and their three readings', async () => {
+  it('pins the Rust test\'s 159 shapes (55 synthetic, 52 on each m3x successor), their first failures, and their three readings', async () => {
     const list = await shapes(), misses: string[] = [], lines: any[] = [];
-    expect(list.filter(([x]) => x.base !== FILE_BASE && x.base !== '<s1:file>').length).toBe(3 + 50 + 2);
+    expect(list.filter(([x]) => x.base !== FILE_BASE && x.base !== '<s1:file>').length).toBe(3 + 50 + 2 + 2 * (1 + 50 + 1));
     for (const [shape, want] of list) {
       const { source, invocation } = await input(shape);
       const got = await firstFailure(source, invocation);
@@ -1647,9 +1668,9 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
     if (inputsOut) { const rows: string[] = []; for (const [shape, want] of list) { const { source, invocation } = await input(shape); rows.push(JSON.stringify({ name: shape.name, base: shape.base, expected_bound: want, source, invocation })); } writeFileSync(inputsOut, rows.join('\n') + '\n'); }
     expect(misses).toEqual([]);
   }, 120_000);
-  it('reads the synthetic exact successors bound (eligible), unbound and on transport (never eligible)', async () => {
-    for (const base of BASES) {
-      const { source, invocation } = await exactSuccessor(base);
+  it('reads the synthetic and m3x exact successors bound (eligible), unbound and on transport (never eligible)', async () => {
+    for (const base of [...BASES, ...M3X.map(m => m[0])]) {
+      const { source, invocation } = await exactBase(base);
       expect(await reading(() => validateRetainedPrecision(source, invocation)), base).toEqual({ ok: { eligible: true } });
       expect(await reading(() => validateRetainedPrecision(source)), base).toEqual({ ok: { eligible: false } });
       expect(await reading(() => validateRetainedPrecisionTransport(source)), base).toEqual({ ok: { eligible: false } });
