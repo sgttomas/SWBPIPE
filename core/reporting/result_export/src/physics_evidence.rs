@@ -1016,7 +1016,11 @@ pub fn validate_transport_metadata(source: &Value) -> Check {
     finite_tree(evidence)?;
     let cases = indexed(&evidence["exact_cases"], "load_case_id")?;
     let mut ids = HashSet::new();
-    for (cid, case) in &cases {
+    // N2 (RV120): this check's loops run in array order, as TS's and PY's do, so its first
+    // failure (the code) does not depend on a hash map's per-process order. Its maps and
+    // sets only detect duplicates and answer lookups.
+    for case in array(&evidence["exact_cases"])? {
+        let cid = text(&case["load_case_id"])?;
         let materials = indexed(&case["pipe_materials"], "pipe_id")?;
         let sections = indexed(&case["pipe_sections"], "pipe_id")?;
         require(
@@ -1025,10 +1029,10 @@ pub fn validate_transport_metadata(source: &Value) -> Check {
                     == sections.keys().copied().collect(),
             "TRANSPORT_MEMBERS",
         )?;
-        for value in materials.values() {
+        for value in array(&case["pipe_materials"])? {
             material(value)?;
         }
-        for value in sections.values() {
+        for value in array(&case["pipe_sections"])? {
             geometry(value)?;
         }
         let missing = strings(&case["stress_maximum_coverage"]["unavailable_pipe_ids"])?;
@@ -1045,7 +1049,7 @@ pub fn validate_transport_metadata(source: &Value) -> Check {
                 == members.difference(&missing).copied().collect(),
             "TRANSPORT_MAXIMUM_MEMBERS",
         )?;
-        for ex in maxima.values() {
+        for ex in array(&case["pipe_stress_extrema"])? {
             require(
                 ids.insert(text(&ex["result_id"])?),
                 "TRANSPORT_MAXIMUM_RESULT",
@@ -1066,7 +1070,7 @@ pub fn validate_transport_metadata(source: &Value) -> Check {
         }
         let regions = array(&evidence["pressure"])?
             .iter()
-            .filter(|p| p["load_case_id"] == *cid)
+            .filter(|p| p["load_case_id"] == cid)
             .map(|p| Ok(((text(&p["load_case_id"])?, text(&p["region_id"])?), p)))
             .collect::<Result<HashMap<_, _>, String>>()?;
         assembly(&case["pressure_rhs_assembly"], cid, &regions)?;
@@ -1093,7 +1097,8 @@ pub fn validate_transport_metadata(source: &Value) -> Check {
                 && members == mm.keys().copied().collect(),
             "TRANSPORT_REGION_MEMBERS",
         )?;
-        for pid in members {
+        for pid in array(&region["member_pipe_ids"])? {
+            let pid = text(pid)?;
             require(
                 sections
                     .get(pid)
