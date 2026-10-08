@@ -3419,7 +3419,7 @@ fn g5b(cases: &mut [NumericCase<'_>]) -> VResult {
 /// or repeated entry, or a value that is not a JSON number, is a mismatch.
 fn g5b_exact_evidence(source: &Value, cases: &[NumericCase<'_>]) -> VResult {
     let section = |ok| need(ok, "G5b", "SECTION_MISMATCH");
-    let number_bits = |v: &Value| v.as_f64().filter(|_| v.is_number()).map(bits);
+    let number_bits = |v: &Value| v.as_f64().map(bits);
     let evidence = list(&source["contract_evidence"]["exact_cases"]);
     for c in cases {
         let entries: Vec<_> = evidence
@@ -3670,7 +3670,7 @@ fn exact_material(raw: &Value) -> VResult<(f64, f64, f64)> {
     }
     let e = unit_value(&raw["elastic_modulus"], Dimension::Stress)?;
     let poisson = &raw["poisson_ratio"];
-    fail(poisson["unit"] == "1" && poisson["value"].is_number())?;
+    fail(poisson["unit"] == "1")?;
     let nu = poisson["value"].as_f64().unwrap_or(f64::NAN);
     fail(e > 0.0 && nu.is_finite() && -1.0 < nu && nu < 0.5)?;
     let g = e / (2.0 * (1.0 + nu));
@@ -3955,7 +3955,7 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
                     .iter()
                     .find(|m| m["id"] == pm["material_id"])
                     .ok_or_else(|| error("G8", "PREPARATION_MISMATCH"))?;
-                fail(pm["G_pa"].is_number() && pm["G_pa"].as_f64().map(bits).as_ref() == Some(&mat["shear_modulus"]))?;
+                fail(pm["G_pa"].as_f64().map(bits).as_ref() == Some(&mat["shear_modulus"]))?;
             }
         }
     }

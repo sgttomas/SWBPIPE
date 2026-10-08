@@ -5362,10 +5362,13 @@ fn b3b_shapes(shared: &Value) -> Vec<(ExactShape, Value)> {
         ("02 profile -> the preview profile", vec![set(json!(["formulation_basis", "profile_id"]), json!(rp::PROFILE))], vec![], vec![], g0.clone()),
         ("03 an attempt's definition_id -> the ordinary id", vec![set(rb(json!(["product_attempts", 0, "definition_id"])), json!(rp::DEFINITION_ID))], vec![], vec![], g0.clone()),
         ("04 projection_policy changed", vec![set(rb(json!(["projection_policy"])), json!("RP-LOGICAL-ATTEMPTS-v2"))], vec![], vec![], g0.clone()),
+        ("04b policy changed", vec![set(rb(json!(["policy"])), json!("M03-INTEGRITY-MP-v3"))], vec![], vec![], g0.clone()),
+        ("04c facade_policy changed", vec![set(rb(json!(["facade_policy"])), json!("RP-FACADE-SI-v3"))], vec![], vec![], g0.clone()),
         ("05 work_policy changed", vec![set(rb(json!(["work_policy"])), json!("W1-LME-20B-60B-v2"))], vec![], vec![], g0.clone()),
         ("06 canonicalization changed", vec![set(rb(json!(["canonicalization"])), json!("openpipestress_jcs_ijson_v2"))], vec![], vec![], g0.clone()),
         ("07 work.case_limit changed", vec![set(rb(json!(["work", "case_limit"])), json!(19_999_999_999u64))], vec![], vec![], g0.clone()),
         ("08 work.invocation_limit changed", vec![set(rb(json!(["work", "invocation_limit"])), json!(60_000_000_001u64))], vec![], vec![], g0.clone()),
+        ("08b receipt_version 2", vec![set(rb(json!(["receipt_version"])), json!(2))], vec![], vec![], g0.clone()),
         ("10 the exact successor relabelled preview (identity and profile)", vec![set(json!(["producer", "semantic_contract_id"]), json!(rp::CONTRACT_ID)), set(json!(["formulation_basis", "profile_id"]), json!(rp::PROFILE))], vec![], vec![], g0.clone()),
         ("12 owner entry's As_m2 one ulp", vec![set(ce(json!(["pipe_sections", 0, "As_m2"])), json!(ulps(section("As_m2"), 1)))], vec![], vec![], sec.clone()),
         ("13 owner entry's Z_m3 one ulp", vec![set(ce(json!(["pipe_sections", 0, "Z_m3"])), json!(ulps(section("Z_m3"), 1)))], vec![], vec![], sec.clone()),
@@ -5377,6 +5380,7 @@ fn b3b_shapes(shared: &Value) -> Vec<(ExactShape, Value)> {
         ("15e the owner entry's load_case_id renamed (no entry for the selected case)", vec![set(ce(json!(["load_case_id"])), json!("case:other"))], vec![], vec![], sec.clone()),
         ("15f the owner entry's pipe section listed twice", vec![set(ce(json!(["pipe_sections"])), json!([entry["pipe_sections"][0], entry["pipe_sections"][0]]))], vec![], vec![], sec.clone()),
         ("15g the owner entry's As_m2 a string", vec![set(ce(json!(["pipe_sections", 0, "As_m2"])), json!(format!("{}", section("As_m2"))))], vec![], vec![], sec.clone()),
+        ("15h the owner entry listed twice", vec![set(json!(["contract_evidence", "exact_cases"]), json!([entry, entry]))], vec![], vec![], sec.clone()),
         ("16 connector non-empty", vec![set(json!(["contract_evidence", "connector"]), json!([{"id": "connector:x"}]))], vec![], vec![], gate("G7", "SOURCE_PHYSICS_CONNECTOR_UNSUPPORTED")),
         ("17 an entry's G_pa three ulps", vec![set(ce(json!(["pipe_materials", 0, "G_pa"])), json!(ulps(material("G_pa"), 3)))], vec![], vec![], gate("G7", "SOURCE_PHYSICS_MATERIAL_G_BINDING")),
         ("18 recovery_method added to an exact_cases entry", vec![set(ce(json!(["recovery_method"])), json!("retained_source_blocks_exact_v1"))], vec![], vec![], gate("G7", "SOURCE_PHYSICS_CASE_SHAPE")),
@@ -5456,7 +5460,7 @@ fn b3b_exact_successor_shapes_first_failures() {
         }
     }
     assert!(misses.is_empty(), "{}", misses.join("\n"));
-    assert_eq!(shapes.len(), 3 + 43 + 2);
+    assert_eq!(shapes.len(), 3 + 47 + 2);
 }
 fn observe_validation(r: Result<rp::Validation, rp::ValidationError>) -> Value {
     match r {
