@@ -2676,9 +2676,9 @@ impl ProductCapture {
     /// magnitude guard, and the two headlines (the case's aliases).
     /// The support coverage and guard of one case's (or, B2-P, one combination's) rows: per
     /// model support, exactly six `support_reaction_component_v2` rows, each component once, one
-    /// force- and one moment-magnitude row, each magnitude within 64ε relative of hypot(hypot)
-    /// of its three components (base G7's guard). Shared, unchanged, by the case observables
-    /// and the combination observables stage (REVISION_01 §1.2 item 3).
+    /// force- and one moment-magnitude row, each magnitude within 64ε relative of the correctly
+    /// rounded norm of its three components (base G7's guard; PR-N's `norm3`). Shared by the case
+    /// observables and the combination observables stage (REVISION_01 §1.2 item 3).
     fn support_observables(&self,view:ProductCaseView<'_>)->Result<(),CaptureError> {
         for (id, _) in &self.supports {
             self.adapter.enter(AdapterEvent::RowVisit, 1);
@@ -2709,7 +2709,7 @@ impl ProductCapture {
                     if found.is_some(){return Err("support magnitude identity".into());}found=Some(*r.value);
                 }
                 let y=found.ok_or("support magnitude identity")?;
-                if (y - v[0].hypot(v[1]).hypot(v[2])).abs()
+                if (y - norm3(v[0], v[1], v[2])).abs()
                     > 64.0 * f64::EPSILON * y.abs().max(f64::MIN_POSITIVE)
                 {
                     return Err("support guard".into());

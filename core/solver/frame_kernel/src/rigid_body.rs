@@ -49,7 +49,8 @@ pub fn assess_rigid_body(
         if r.iter().any(|v| !v.is_finite()) {
             return Err(StructuralError::Range("relative coordinates"));
         }
-        length = length.max(r[0].hypot(r[1]).hypot(r[2]));
+        // I109: correctly rounded norms (platform-independent), not libm `hypot`.
+        length = length.max(crate::correct_norm::norm3(r[0], r[1], r[2]));
         relative.push(r);
     }
     if !length.is_finite() {
@@ -105,7 +106,7 @@ pub fn assess_rigid_body(
                     continue;
                 }
                 let zeta = (beta - alpha) / (2.0 * cross);
-                let t = zeta.signum() / (zeta.abs() + zeta.hypot(1.0));
+                let t = zeta.signum() / (zeta.abs() + crate::correct_norm::norm2(zeta, 1.0));
                 let t = if zeta == 0.0 { 1.0 } else { t };
                 let c = 1.0 / (1.0 + t * t).sqrt();
                 let s = c * t;
@@ -256,7 +257,8 @@ fn original_rigid_witness(
 // ROOT's K5 ruling Q4(b): the new screen calls no function of unspecified
 // precision. It uses IEEE +, -, *, /, sqrt, the exact `Expansion` (TwoProduct
 // through `mul_add`) and integer operations on the bits. `assess_rigid_body`
-// and `original_rigid_witness` above are unchanged.
+// and `original_rigid_witness` above are K5-unchanged; I109 replaced the former's
+// two `hypot` calls with `correct_norm`'s correctly rounded norms.
 
 use crate::UserStiffnessElement;
 
@@ -460,8 +462,8 @@ struct ReducedBody {
 ///   injective, so the null space of the unreduced stacked map (six unknowns per
 ///   sub-body) is the image of this six-unknown system's.
 /// - **Screen.** The grounds and cycles as unit rows in `[t/L, θ]`, with L a
-///   power of two; the one-sided Jacobi SVD of `assess_rigid_body` with `sqrt`
-///   forms in place of `hypot`; and its rank screen τ_B = 64·γ(max(m, 6))·σ_max.
+///   power of two; the one-sided Jacobi SVD of `assess_rigid_body` (:89-132) with `sqrt`
+///   forms in place of its `norm2(ζ, 1)` (formerly `hypot`); and its rank screen τ_B = 64·γ(max(m, 6))·σ_max.
 /// - **Witness.** A candidate is verified exactly (`Expansion`) against every
 ///   tie and ground, with the original coordinates. It is published as its
 ///   canonical representative r = k·p/p_j: p = `[u(node 0), θ]`, p_j its first
@@ -537,8 +539,8 @@ pub fn assess_constrained_bodies(
         }
     }
 
-    // One-sided Jacobi SVD, as `assess_rigid_body` (:88-131), with
-    // `root_one_plus_square` in place of `hypot(ζ, 1)`.
+    // One-sided Jacobi SVD, as `assess_rigid_body` (:89-132), with
+    // `root_one_plus_square` in place of its `norm2(ζ, 1)` (formerly `hypot(ζ, 1)`).
     let mut b = rows.clone();
     let mut v = [[0.0; 6]; 6];
     for (i, row) in v.iter_mut().enumerate() {

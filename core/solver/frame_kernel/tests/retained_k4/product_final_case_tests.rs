@@ -338,8 +338,8 @@ fn i51_support_specs(order:&[usize])->Vec<ProductRowSpec<'static>> {
 }
 #[test]
 fn i51_support_hypot_identity_order_zero_subnormal_and_failed_prefixes() {
-    for input in [[3.0,4.0,12.0],[-0.0,0.0,-0.0],[f64::from_bits(1),f64::from_bits(2),f64::from_bits(3)]] {
-        let expected=input[0].hypot(input[1]).hypot(input[2]);
+    // Exact expected norms (I109, RV126 N-8): 13; +0; RN(√14·2⁻¹⁰⁷⁴) = 4·2⁻¹⁰⁷⁴.
+    for (input,expected) in [([3.0,4.0,12.0],13.0),([-0.0,0.0,-0.0],0.0),([f64::from_bits(1),f64::from_bits(2),f64::from_bits(3)],f64::from_bits(4))] {
         for order in [[0,1,2],[2,0,1]] {
             let specs=i51_support_specs(&order);let values=order.map(|i|input[i]);let mut w=ProductCertificateSpent::new(&[]);
             let value=support_hypot(&specs,&values,3,0,ProductUnit::Newton,&mut w).unwrap();

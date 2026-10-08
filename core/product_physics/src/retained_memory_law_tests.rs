@@ -9,7 +9,10 @@ use serde_json::json;
 
 const MILESTONE: &str = include_str!("../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
-const M: u64 = 4_026_531_840;
+/// M (D-7): 10.5 GiB, ROOT's R6a ruling on B1's G5 (provisional; final at R6b).
+const M: u64 = 11_274_289_152;
+/// The 0.9 M margin rule's limit, ⌊0.9 M⌋ (`profile_laws_hold_in_this_build` pins its value).
+const MARGIN: u64 = 9 * M / 10;
 /// B2-A: the combination facts of a request with no combination.
 const NO_COMBINATIONS: CombinationFacts =
     CombinationFacts { terms: CapacityFact { length: 0, capacity: 0 }, range_operands: CapacityFact { length: 0, capacity: 0 } };
@@ -57,16 +60,42 @@ fn text(prefix: &str, len: usize) -> String {
     s
 }
 
+/// The cap-maximal ring's node positions as binary64 bits, (x, y) = (10·cos t, 10·sin t) at
+/// t = 2π·i/32, exactly as computed when the inputs were pinned (I81's PROBE and SQ). They are
+/// spelled as bits because `f64::cos` and `f64::sin` are not correctly rounded: the hosted CI's
+/// libm differs from the Mac's in the last bit for some `t`, which changed this input and its
+/// pinned hashes there. `cap_maximal_ring_is_the_trigonometric_ring` checks each entry against
+/// the platform's `cos` and `sin` to within one ulp.
+const CAP_MAXIMAL_RING: [(u64, u64); 32] = [
+    (0x4024000000000000, 0x0000000000000000), (0x40239d9ee1fa99ee, 0x3fff36e64b840f8c),
+    (0x40227a43617f984c, 0x400e9d5b505a53bc), (0x4020a11fd9a92506, 0x4016390a081a02fa),
+    (0x401c48c6001f0ac0, 0x401c48c6001f0abf), (0x4016390a081a02fb, 0x4020a11fd9a92506),
+    (0x400e9d5b505a53bd, 0x40227a43617f984c), (0x3fff36e64b840f90, 0x40239d9ee1fa99ee),
+    (0x3cc60fafbfd97309, 0x4024000000000000), (0xbfff36e64b840f8a, 0x40239d9ee1fa99ee),
+    (0xc00e9d5b505a53ba, 0x40227a43617f984c), (0xc016390a081a02f8, 0x4020a11fd9a92506),
+    (0xc01c48c6001f0abf, 0x401c48c6001f0ac0), (0xc020a11fd9a92506, 0x4016390a081a02fa),
+    (0xc0227a43617f984c, 0x400e9d5b505a53be), (0xc0239d9ee1fa99ee, 0x3fff36e64b840f9d),
+    (0xc024000000000000, 0x3cd60fafbfd97309), (0xc0239d9ee1fa99ee, 0xbfff36e64b840f92),
+    (0xc0227a43617f984c, 0xc00e9d5b505a53b9), (0xc020a11fd9a92507, 0xc016390a081a02f8),
+    (0xc01c48c6001f0ac2, 0xc01c48c6001f0abf), (0xc016390a081a02fa, 0xc020a11fd9a92506),
+    (0xc00e9d5b505a53c8, 0xc0227a43617f984a), (0xbfff36e64b840f9f, 0xc0239d9ee1fa99ed),
+    (0xbce08bc3cfe31646, 0xc024000000000000), (0x3fff36e64b840f8f, 0xc0239d9ee1fa99ee),
+    (0x400e9d5b505a53c1, 0xc0227a43617f984b), (0x4016390a081a02f6, 0xc020a11fd9a92507),
+    (0x401c48c6001f0abe, 0xc01c48c6001f0ac2), (0x4020a11fd9a92506, 0xc016390a081a02fa),
+    (0x40227a43617f984a, 0xc00e9d5b505a53ca), (0x40239d9ee1fa99ed, 0xbfff36e64b840fa2),
+];
+
 /// A cap-maximal D1 request (STACK_INVENTORY.md §3 W2's counts at `l ≤ 128`):
 /// 32 nodes, a 32-member ring, 32 supports with 6 restraints each (r = 192) and a
 /// scalar spring on each (s = 32), 128 nodal loads, 4 + 4 materials with 16
 /// temperature points each, and one 128-byte identifier.
 pub(super) fn cap_maximal() -> Value {
     let p = "invented_t3_g5_cap_maximal_input_no_library_data";
-    let nodes: Vec<Value> = (0..32)
-        .map(|i| {
-            let t = 2.0 * std::f64::consts::PI * i as f64 / 32.0;
-            json!({"id": format!("N{i}"), "position": {"x": 10.0 * t.cos(), "y": 10.0 * t.sin(), "z": 0.0}, "provenance": p})
+    let nodes: Vec<Value> = CAP_MAXIMAL_RING
+        .iter()
+        .enumerate()
+        .map(|(i, &(x, y))| {
+            json!({"id": format!("N{i}"), "position": {"x": f64::from_bits(x), "y": f64::from_bits(y), "z": 0.0}, "provenance": p})
         })
         .collect();
     let pipes: Vec<Value> = (0..32)
@@ -102,6 +131,30 @@ pub(super) fn cap_maximal() -> Value {
         },
         "materials": materials
     })
+}
+
+/// `CAP_MAXIMAL_RING` is the ring `cap_maximal` was pinned on: each coordinate is within one ulp of
+/// 10·cos t or 10·sin t as this platform's libm computes it, except the near-zero residues.
+#[test]
+fn cap_maximal_ring_is_the_trigonometric_ring() {
+    let ulps = |a: f64, b: f64| (a.to_bits() as i64 - b.to_bits() as i64).unsigned_abs();
+    let mut residues = 0;
+    for (i, &(x, y)) in CAP_MAXIMAL_RING.iter().enumerate() {
+        let t = 2.0 * std::f64::consts::PI * i as f64 / 32.0;
+        let (cx, cy) = (10.0 * t.cos(), 10.0 * t.sin());
+        for (pinned, computed) in [(f64::from_bits(x), cx), (f64::from_bits(y), cy)] {
+            // Near zero (i = 8, 16, 24) the coordinate is a rounding residue of π, compared
+            // absolutely (RV125 A1-N1); every other coordinate, N0's exact 0 included, is
+            // within one ulp.
+            if pinned != 0.0 && pinned.abs() < 1e-14 {
+                residues += 1;
+                assert!((pinned - computed).abs() <= 1e-14, "N{i}: {pinned:e} against {computed:e}");
+            } else {
+                assert!(ulps(pinned, computed) <= 1, "N{i}: {pinned:e} against {computed:e}");
+            }
+        }
+    }
+    assert_eq!(residues, 3, "the residues are N8's x, N16's y and N24's x");
 }
 
 /// B1 SA: `raw` with `cases` load cases, each a copy of its first case, with the ids
@@ -324,7 +377,7 @@ fn the_registered_profile_is_the_only_permit_source() {
     // G6: exactly one production profile, registered by reviewed change (decision 7: no test permit).
     assert_eq!(REGISTERED_PROFILES.len(), 1);
     assert_eq!(REGISTERED_PROFILES[0].identity, super::law_tests::PINNED_RECORD_IDENTITY, "the qualified build is the pinned record's");
-    assert_eq!(REGISTERED_PROFILES[0].threshold_bytes, 4_026_531_840);
+    assert_eq!(REGISTERED_PROFILES[0].threshold_bytes, 11_274_289_152, "M = 10.5 GiB (R6a)");
     let source = include_str!("retained_memory.rs");
     let production = &source[..source.find("#[cfg(test)]\n#[path = \"retained_memory_law_tests.rs\"]").unwrap()];
     assert_eq!(production.matches("RegisteredProfile {").count(), 2, "the definition and the one registered entry: no other literal");
@@ -366,7 +419,7 @@ fn admit_grants_a_permit_for_the_milestone_in_the_registered_build() {
         let required = cap_priced_maximum(mode).unwrap() + RESERVED_STACK_BYTES as u64;
         // RV89 G6 S-3: admission's own bound is the mode's maximum plus R (64 MiB).
         assert_eq!(report.law().required, Some(required), "{mode:?}: admit adds R before comparing with M");
-        assert!(required <= 3_623_878_656, "the 0.9 M margin holds at admission");
+        assert!(required <= MARGIN, "the 0.9 M margin holds at admission");
         // Headless is refused at D1.0 even in the registered build.
         let raw = milestone();
         let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
@@ -868,7 +921,7 @@ fn admission_bound_adds_r_before_comparing_with_m() {
     for mode in MODES {
         let maximum = cap_priced_maximum(mode).unwrap();
         assert_eq!(admission_bound(Ok(maximum), M), Ok(maximum + r), "{mode:?}");
-        assert!(maximum + r <= 3_623_878_656, "{mode:?}: the 0.9 M margin holds at admission");
+        assert!(maximum + r <= MARGIN, "{mode:?}: the 0.9 M margin holds at admission");
     }
     // The R override sizes only the witness thread; the bound ignores it.
     RESERVED_STACK_OVERRIDE.with(|c| c.set(Some(1 << 20)));
@@ -930,17 +983,17 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     let c = caps::LOAD_CASES as u64;
     assert_eq!(caps.complete[2], 2 * c * P_FINAL * text_atoms::ROW, "2·C·P_final·Text(row)");
     assert_eq!(caps.complete[5], 2 * profile::TEXT_TEXT_DIAG_ENV, "2·Text(diag_env) at l ≤ 128 (API_G4.md, S-6(d))");
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 68_720_236, "the part-2 text closure (1e323058f3, R-4 graph, RV87 S-2)");
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 175_409_684, "the text closure at C = 3 (B1 SQ G5: D 41,769, D_env 22,911)");
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_115, 8_192), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
     assert!(caps.late[LATE_FACTS - 1] > 0 && caps.late[LATE_FACTS - 1] < caps.complete[15], "T11 without its late capture < T11");
     assert!(caps.complete[16] > 0 && caps.complete[16] < caps.complete[15], "T11.4 < T11");
     assert_eq!((caps.complete[6], caps.complete[7]), (text_atoms::L_PUB, text_atoms::L_DIAGID), "L_PUB (RV84 C-N1) and L_DIAGID (RV87 N-3)");
     assert_eq!(caps.complete[17], c * (3 * 32 + 1) * text_atoms::ERR, "C·(3m + 1)·Text(err)");
-    // The atoms' values in the profile as registered at G6 (c = 1). SQ re-pins them with the
-    // regenerated profile; until then they are unchanged by SA.
-    assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, push_capacity(text_atoms::D_ENV)), (2_599_962, 2_330, 16_384, 16_384),
-        "L_PUB, L_DIAGID, Text(err) and PushCap(D_env) as registered");
+    // The atoms' values in the profile regenerated at C = 3 (B1 SQ G5; I89's value pins).
+    assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
+        (2_599_962, 2_330, 16_384, 22_911, 32_768), "L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C = 3");
+    assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
     assert_eq!(check_phase(PhaseGate::Complete, &at, &caps.complete), Ok(()));
@@ -1127,7 +1180,7 @@ fn profile_in_build_record() {
     for (m, (name, phases)) in [("sparse", phases_sparse(&ATOM_VALUES)), ("dense", phases_dense(&ATOM_VALUES))].iter().enumerate() {
         let (bytes, phase) = maximum(phases).unwrap();
         println!("I65_G5_PROFILE mode={name} max_without_R={bytes} E_mov_plus_R={} fraction_of_M={:.4} phase={}", bytes + r,
-            (bytes + r) as f64 / 4_026_531_840.0, PHASE_NAMES[phase]);
+            (bytes + r) as f64 / M as f64, PHASE_NAMES[phase]);
         for (i, (req, mov)) in phases.iter().enumerate() {
             println!("I65_G5_PHASE mode={name} phase={} requested={} moving={} E_mov_plus_R={}", PHASE_NAMES[i].split(' ').next().unwrap(),
                 req.unwrap(), mov.unwrap(), req.unwrap() + mov.unwrap() + r);
@@ -1148,7 +1201,7 @@ fn profile_in_build_record() {
     }
     assert!(SPARSE.is_some() && DENSE.is_some());
     assert_eq!(PHASE_NAMES.map(|n| n.split(' ').next().unwrap()), ["W1", "W2", "W3", "W4", "W5", "X1", "X2"]);
-    // The pinned record G6 qualifies (R/I65/u4_g6_01/QUALIFICATION.md §3): each phase's requested
+    // The pinned record G6 qualifies (R/I65/u4_g6_01/QUALIFICATION.md §3; B1: R/I104/b1_sq_01/QUAL_B1.md): each phase's requested
     // + moving bytes, without R, in the build whose identity is PINNED_RECORD_IDENTITY. It is
     // asserted only in that build (ROOT's ruling on part 2's decision 1); another identity has
     // its own layouts and prints a skip. Any change to a binding, form, combination or phase
@@ -1165,9 +1218,10 @@ fn profile_in_build_record() {
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
 /// The pinned record (W1, W2, W3, W4, W5, X1, X2), sparse then dense, in that build.
+/// B1 SQ: regenerated at C = 3 on B1's code (G5, with RV112 N-5's reservations; RETURN.md).
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [1_856_156_348, 1_963_966_754, 3_508_669_422, 3_482_311_587, 2_136_222_836, 3_256_308_814, 1_777_046_728],
-    [1_875_866_796, 1_983_677_202, 3_528_379_870, 3_502_022_035, 2_155_933_284, 3_276_019_262, 1_796_757_176],
+    [5_069_321_390, 5_392_753_352, 9_733_567_302, 9_518_381_725, 5_964_775_312, 8_846_487_786, 5_023_851_824],
+    [5_128_452_734, 5_451_884_696, 9_792_698_646, 9_577_513_069, 6_023_906_656, 8_905_619_130, 5_082_983_168],
 ];
 
 #[test]
@@ -1188,6 +1242,14 @@ fn challenge_bounds_are_the_profile() {
     let line = text.lines().find(|l| l.starts_with("const MAX_PHASE_BYTES: [u64; 2] = [")).unwrap();
     let digits: Vec<u64> = line.split(['[', ']', ',']).filter_map(|t| t.trim().replace('_', "").parse().ok()).collect();
     assert_eq!(digits, [profile::SPARSE.unwrap().0, profile::DENSE.unwrap().0]);
+    // B1 SQ (PLAN_v2 §3.5): the abort cap is 16 GiB, above E_mov,max + R and above M; and the
+    // challenge reads W1 work from the public surface by the N1 notice's own text (A1-S-1).
+    assert_eq!(text.lines().filter(|l| l.starts_with("const CAP_BYTES: usize = ")).collect::<Vec<_>>(), ["const CAP_BYTES: usize = 16 << 30;"]);
+    let r = RESERVED_STACK_BYTES as u64;
+    assert!(profile::DENSE.unwrap().0 + r < M && M < 16 << 30, "the cap is above M, and M above E_mov,max + R");
+    let line = text.lines().find(|l| l.starts_with("const N1_NOTICE: &str = ")).unwrap();
+    let notice = line.split('"').nth(1).unwrap();
+    assert!(notice.len() > 40 && crate::RETAINED_UNAVAILABLE_NOTICE.starts_with(notice), "the challenge's N1 text is the notice's");
 }
 
 /// RV89 G5 part 2 S-3: `profile::maximum` takes every phase, X1 and X2 included. Each phase
@@ -1248,7 +1310,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 9_361);
+    assert_eq!(caps.complete[3], 22_911, "D_env at C = 3");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
@@ -1258,8 +1320,9 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!(cap_priced_maximum(PreviewSolverMode::DenseScrutiny), Ok(profile::DENSE.unwrap().0), "priced in-build");
     // The in-build maximum is within the 0.9 M margin rule in both modes (RR "U4 G3 verified").
     let r = RESERVED_STACK_BYTES as u64;
+    assert_eq!((M, MARGIN), (11_274_289_152, 10_146_860_236), "M = 10.5 GiB (R6a) and ⌊0.9 M⌋");
     for (bytes, _) in [profile::SPARSE.unwrap(), profile::DENSE.unwrap()] {
-        assert!(bytes + r <= 3_623_878_656, "{} above 0.9 M", bytes + r);
+        assert!(bytes + r <= MARGIN, "{} above 0.9 M", bytes + r);
     }
     assert!(profile::DENSE.unwrap().0 >= profile::SPARSE.unwrap().0, "the dense parity tail");
 }
@@ -1600,6 +1663,17 @@ fn b2_a_runner_oracle_literal_is_case_equivalents_plus_one() {
     const RUNNER_LITERAL: usize = 4;
     assert_eq!(caps::CASE_EQUIVALENTS + 1, RUNNER_LITERAL, "re-base the runner's literal (explicit_headless_refusal_preserves_output_and_completion_fields_both_modes)");
     assert_eq!((caps::LOAD_CASES, RUNNER_LITERAL - caps::LOAD_CASES), (3, 1), "the runner builds C cases and one combination");
+    // B1 SQ (RV112 N-1): the tie runs both ways. The runner's workspace is Stale, so its own test
+    // passes with any literal; this test reads the runner's source and holds its one literal
+    // line to the literal here, so a change of C_eq or of the runner's literal alone fails here.
+    // B2-A re-based the runner's C + 1 load cases to C_eq + 1 case-equivalents (C cases and one
+    // combination: `C_EQ_PLUS_ONE`, `COMBINATIONS`); J0a carries B1's tie over to those lines.
+    let runner = include_str!("../../runner/headless/tests/retained_precision_admission.rs");
+    let lines: Vec<&str> = runner.lines().filter(|l| l.contains("const C_EQ_PLUS_ONE")).collect();
+    assert_eq!(lines.len(), 1, "the runner holds one C_EQ_PLUS_ONE literal");
+    assert_eq!(lines[0].trim(), format!("const C_EQ_PLUS_ONE: usize = {};", caps::CASE_EQUIVALENTS + 1), "the runner's literal is C_eq + 1");
+    assert!(runner.lines().any(|l| l.trim() == format!("const COMBINATIONS: usize = {};", RUNNER_LITERAL - caps::LOAD_CASES)), "the runner's one combination");
+    assert!(runner.contains("fn explicit_headless_refusal_preserves_output_and_completion_fields_both_modes()"));
     let expected = Some(AdmissionRefusal::Cap { fact: CapFact::CaseEquivalents, observed: RUNNER_LITERAL, cap: caps::CASE_EQUIVALENTS });
     for mode in MODES {
         let (request, capture) = CapturedInvocation::parse(runner_oracle(), mode).unwrap();
@@ -1818,8 +1892,8 @@ fn b1_sa_gate_bounds_at_c_are_the_stated_expressions() {
     let p = phase_caps();
     let (n, m, g, c) = (32u64, 32u64, 32u64, caps::LOAD_CASES as u64);
     // G-B's facts are in `late_observations`' order (b1_sa_g_b_reads_each_case_and_the_running_total).
-    let late = [n, m, m, g, 128, 384, 192, 192, 8, profile_bytes(F_T11).saturating_sub(profile_bytes(F_T11_LATE_CAPTURE))];
-    assert_eq!(p.late, late, "G-B: n, m, m, g, l, L, min(6n, Σr), s, 4 + 4, T11 − T11_late_capture");
+    let late = [n, m, m, g, 128, 384, 192, 192, 8, profile_bytes(F_T11).saturating_sub(profile_bytes(F_T11_LATE_CAPTURE) / c)];
+    assert_eq!(p.late, late, "G-B: n, m, m, g, l, L, min(6n, Σr), s, 4 + 4, T11 − T11_late_capture / C (RV112 SF-1)");
     let observed: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     use PhaseFact as F;
     let complete: [(PhaseFact, u64); COMPLETE_FACTS] = [
@@ -2403,4 +2477,58 @@ fn b3b_exact_regions_capacity_is_read() {
     assert_eq!(refusal.precondition().as_str(), "resource_admission");
     let control = admitted_typed(exact3(milestone()), |r| r.model.sections.reserve_exact(1));
     assert!(matches!(control.law().domain, Some(AdmissionRefusal::Cap { fact: CapFact::SectionsCapacity, cap: 0, .. })), "{:?}", control.law().domain);
+}
+
+/// B1 SQ (RV112 N-2): at C = 3 there are two parked slots, so "every parked slot" differs from
+/// "the first": text in the last parked slot alone is counted (RV112's mutant G04, which folds
+/// `parked[..1]`, reads 0), and then every slot's text with the capture's own.
+#[test]
+fn b1_sq_retained_error_text_reads_every_parked_slot_at_c() {
+    use crate::retained_product::{CaptureError, ProductCapture};
+    let fact = |o: &[PhaseObservation]| o.iter().find(|x| x.fact == PhaseFact::RetainedErrorTextBytes).unwrap().observed;
+    for mode in MODES {
+        let (request, capture) = CapturedInvocation::parse(milestone_cases(caps::LOAD_CASES), mode).unwrap();
+        let mut observer = ProductCapture::prepared_probe();
+        let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::SourceRecoveryBudget::default(), Some(&mut observer));
+        assert_eq!((observer.cases_seen(), observer.parked_cases().len()), (3, 2), "{mode:?}: cases 0 and 1 are parked, case 2 is in the capture's fields");
+        let facts = |observer: &ProductCapture| complete_observations(&CompleteFacts { ordinary: &ordinary, capture: observer, requested_cases: 3 });
+        assert_eq!(fact(&facts(&observer)), 0, "{mode:?}: no error text");
+        observer.with_case(1, |case| case.observable_error = Some(CaptureError::Association(String::with_capacity(101))));
+        assert_eq!(fact(&facts(&observer)), 101, "{mode:?}: the last parked slot alone");
+        observer.with_case(0, |case| {
+            case.error = Some(CaptureError::Association(String::with_capacity(40)));
+            case.observable_error = Some(CaptureError::Association(String::with_capacity(9)));
+        });
+        observer.with_case(1, |case| case.error = Some(CaptureError::Association(String::with_capacity(5))));
+        observer.error = Some(CaptureError::Association(String::with_capacity(7)));
+        observer.observable_error = Some(CaptureError::Association(String::with_capacity(3)));
+        assert_eq!(fact(&facts(&observer)), 40 + 9 + 101 + 5 + 7 + 3, "{mode:?}: every slot and the capture's own");
+    }
+}
+
+/// B1 SQ (RV112 SF-1): G-B's byte bound subtracts one case's late capture, `F_T11_LATE_CAPTURE / C`.
+/// That is exact because the generator prices the late capture per requested case: every
+/// coefficient of the form (and its constant) is a multiple of C, so the form is C times a form
+/// with integer coefficients (G5's chain checks it equals the c = 1 late form), and its in-build
+/// value is C times that form's value. At C = 1 the bound is T11 − T11_late_capture as before.
+#[test]
+fn b1_sq_late_capture_form_is_c_times_one_case() {
+    use profile::{ATOM_VALUES, FORMS, F_T11, F_T11_LATE_CAPTURE};
+    let c = caps::LOAD_CASES as u64;
+    let late = &FORMS[F_T11_LATE_CAPTURE];
+    assert_eq!(late.name, "T11_late_capture");
+    assert_eq!(late.constant % c, 0, "the constant is C times one case's");
+    for (atom, coefficient) in late.terms {
+        assert_eq!(coefficient % c, 0, "atom {}: the coefficient is C times one case's", profile::ATOM_NAMES[*atom]);
+    }
+    let one_case = late.constant / c + late.terms.iter().map(|(atom, coefficient)| ATOM_VALUES[*atom] * (coefficient / c)).sum::<u64>();
+    assert_eq!(profile_bytes(F_T11_LATE_CAPTURE), c * one_case, "the in-build value is C times one case's");
+    assert_eq!(phase_caps().late[LATE_FACTS - 1], profile_bytes(F_T11) - one_case, "G-B: T11 less one case's late capture");
+    // The late form is part of T11: each of its atoms appears in T11 with at least its coefficient.
+    for (atom, coefficient) in late.terms {
+        let in_t11 = FORMS[F_T11].terms.iter().find(|(a, _)| a == atom).map_or(0, |(_, x)| *x);
+        assert!(in_t11 >= *coefficient, "atom {}: T11 holds the late capture", profile::ATOM_NAMES[*atom]);
+    }
+    println!("I104_SQ_G_B_BOUND T11={} late_capture={} one_case={} g_b_bound={}", profile_bytes(F_T11), profile_bytes(F_T11_LATE_CAPTURE), one_case,
+        phase_caps().late[LATE_FACTS - 1]);
 }

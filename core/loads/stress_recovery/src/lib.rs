@@ -6,6 +6,10 @@
 //! standards content, proprietary data, rule-pack checks, or professional
 //! approval.
 
+// I109: frame_kernel's correctly rounded norm, shared by path (no new dependency).
+#[path = "../../../solver/frame_kernel/src/correct_norm.rs"]
+#[allow(dead_code)]
+mod correct_norm;
 pub mod elastic_extrema;
 pub mod elastic_section;
 

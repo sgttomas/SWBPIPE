@@ -1875,10 +1875,13 @@ fn b1_sp_w_c2_through_retained_w1_publishes_t12() {
 }
 
 /// The pinned W-C2 successors (PLAN_v2 §2.2, after I3): (name, document sha256, receipt sha256,
-/// published bytes' sha256).
+/// published bytes' sha256). One pin for every platform: support magnitudes are correctly rounded
+/// norms (`correct_norm`, I109), so the bytes no longer depend on the platform's libm. Dense was
+/// re-pinned by I109 (PR-N): case C's `rigid:N0` support force magnitude is the correctly rounded
+/// 1.6258317075882523e-12, one ulp above macOS libm's `hypot` chain (glibc's value).
 const W_C2_PINNED: [(&str, &str, &str, &str); 2] = [
     ("sparse_interactive", "7922e3e5278d0d87dc5faf79dfbc1f2a384899e97df306cc742355cdacdb6269", "cccb9664e1c58f0582348df3348d8b6e0b0941bcb0294a5b351a4d092ed18886", "c7a1859330e9e36e18f5572838dbad72ea251a817241acc6968f8f83b70170fa"),
-    ("dense_scrutiny", "f2800bd4f2b4c90217918a6e1287f98305a1b6b07893295b5790f387c075d3a3", "612e23ca4b90604b3d2351fd7465d2e3cefb0f3fbb36bdea39efaa82a68bc07a", "a77c010b4ae7ffa9c535c31305b8a91fcc3c05e8a512075fa5b4694dbae3062c"),
+    ("dense_scrutiny", "c11f7566f1f0c469bc0a2808466dd9dd137ea64abed327fb9e4d35ff92ded22f", "ca6a62a6187a08d7b2e2643911fd232b02076b9032be1455754ff780540995f2", "604e4a3380b28d3757d7a7f20aa5d72eae8a93bdc9e24dc966afe6b48fafca3f"),
 ];
 /// The W-C2 successor document, in U1's form.
 fn w_c2_document(name: &str, raw: &Value, successor: &Value) -> String {
@@ -2234,7 +2237,8 @@ fn w_c2_plus_a2(ids: &[&str]) -> Value {
 /// The pinned successors of RV109's SF-2 inputs: (mode, receipt sha256, successor bytes sha256).
 const CBA_PINNED: [(&str, &str, &str); 2] = [
     ("sparse_interactive", "863d692fa90d450240cbfacec1628937b8ccc9af2396637d4f913cc0bc416e80", "ea9a484657ca3de9a831a737b6a682966cc4b1a8783114b26298f34571cc7ebb"),
-    ("dense_scrutiny", "7aeecbac57426a2104c3b9f958862daf3e9b2c0f00582599c0210121681db6a1", "c719bd8d3281d3bd3c0a731e8ba5ede8901938d10634db8078c6f6fa96d0b6d8"),
+    // Re-pinned by I109 (PR-N): W-C2 case C's correctly rounded `rigid:N0` magnitude; every platform.
+    ("dense_scrutiny", "255785d20cf0aa9f497ea324d744eb3e946871d5aac863ed8d0081d0521e8c92", "a320a5d33707c1fc8c12a35de624720dddbc35084979522c96ab1906e17c708f"),
 ];
 const AA2_PINNED: [(&str, &str, &str); 2] = [
     ("sparse_interactive", "41f330856d4c6e94e2e1308fcd467818604c8f7e999ce499c8f3b49e26ef0d56", "529233eb989aca3553bdedfc9d1813ab3287675748ff076c27cb024c2b7fef63"),

@@ -545,6 +545,9 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     // ---- PP/pressure_runtime.rs
     ("PP/pressure_runtime.rs", "finish_source_groups", 1, "max fold of the pressure-RHS screen magnitude"),
     ("PP/pressure_runtime.rs", "traverse_region", 1, "geometry: chord projection (section 2.5)"),
+    // ---- PP/retained_product.rs (B1 SQ, RR "RV109 passes SP in RV-P round 2; …", ruling 3: E-12)
+    ("PP/retained_product.rs", "check_support_maps", 1, "integer: one support's spring-map count"),
+    ("PP/retained_product.rs", "selected_attempts", 1, "integer: the selected attempts' bit set (T-12's detail)"),
     // ---- PP/self_weight.rs
     ("PP/self_weight.rs", "stable_mass_per_length", 2, "declared formation: same-sign mass (section 2.2)"),
     // ---- PP/source_recovery.rs
@@ -574,6 +577,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
 const RULE8_FILES: &[&str] = &[
     "PP/lib.rs",
     "PP/pressure_runtime.rs",
+    "PP/retained_product.rs",
     "PP/self_weight.rs",
     "PP/source_recovery.rs",
     "PP/source_receipt.rs",

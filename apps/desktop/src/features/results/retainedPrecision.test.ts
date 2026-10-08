@@ -208,7 +208,8 @@ describe('shared synthetic prepared receipt controls, never solver execution evi
     const result = await validateRetainedPrecision(source, invocation);
     // U7 (07i): each entry's own eligibility per C1:160.
     expect({ invocation_bound: result.invocation_bound, numerical_eligible: result.numerical_eligible, standing: result.standing }).toEqual(m.expected_eligibility);
-    expect(result.classifications).toEqual(base.expected_classifications);
+    // 07n (B1 SC): an admitted rewrite whose classes differ from its base's states its own expected_classifications.
+    expect(result.classifications).toEqual(m.expected_classifications ?? base.expected_classifications);
   });
 });
 
@@ -999,12 +1000,16 @@ describe('07l round (U8-2): counts and the appended producer-solved L = 0 entrie
   const l0 = (names: string[]) => MODES.flatMap(mode => names.map(name => `${name}_${mode}`));
   const baseOf = (id: string) => `u8_l0_isolated_node_${MODES.find(mode => id.endsWith('_' + mode))}`;
   const eligibility = (r: any) => ({ invocation_bound: r.invocation_bound, numerical_eligible: r.numerical_eligible, standing: r.standing });
+  // 07n (B1 SC) appends after 07m, so 07m's slices (17 cases, 294 mutations, 28 must-pass) are read as 07m's; 07n's counts
+  // are pinned in its own block below.
   it('07l: 17 cases, 286 mutations and 28 must-pass entries (07m: 294 mutations); 15 bases and 18 must-pass entries are eligible', () => {
-    expect([corpus.cases.length, corpus.mutations.length, corpus.must_pass.length]).toEqual([17, 294, 28]);
-    expect([corpus.cases.filter((c: any) => c.expected.numerical_eligible).length, corpus.must_pass.filter((m: any) => m.expected_eligibility.numerical_eligible).length]).toEqual([15, 18]);
+    const [cases, mutations, mustPass] = [corpus.cases.slice(0, 17), corpus.mutations.slice(0, 294), corpus.must_pass.slice(0, 28)];
+    expect(cases.map((c: any) => c.id).slice(15)).toEqual(MODES.map(mode => `u8_l0_isolated_node_${mode}`));
+    expect([mutations.at(-1).id, mustPass.at(-1).id]).toEqual(['g7_source_block_recovery_present', 'isolated_translation_stop_dense_scrutiny']);
+    expect([cases.filter((c: any) => c.expected.numerical_eligible).length, mustPass.filter((m: any) => m.expected_eligibility.numerical_eligible).length]).toEqual([15, 18]);
   });
   it('07l: the two appended producer-solved bases are eligible, with the class counts all three readers observed (I68)', async () => {
-    expect(corpus.cases.slice(15).map((c: any) => c.id)).toEqual(MODES.map(mode => `u8_l0_isolated_node_${mode}`));
+    expect(corpus.cases.slice(15, 17).map((c: any) => c.id)).toEqual(MODES.map(mode => `u8_l0_isolated_node_${mode}`));
     for (const [index, classes] of [[15, [25, 78, 9, 1]], [16, [25, 78, 9, 2]]] as const) {
       const c = corpus.cases[index], result = await validateRetainedPrecision(structuredClone(c.source), structuredClone(c.invocation));
       expect(c.provenance.kind, c.id).toBe('producer_solved');
@@ -1023,7 +1028,7 @@ describe('07l round (U8-2): counts and the appended producer-solved L = 0 entrie
     }
   });
   it('07l: the 4 appended must-pass entries are admitted, eligible, with their base classifications', async () => {
-    const appended = corpus.must_pass.slice(24);
+    const appended = corpus.must_pass.slice(24, 28);
     expect(appended.map((m: any) => m.id)).toEqual([...l0(['isolated_estimate_uncoupled']), ...l0(['isolated_translation_stop'])]);
     for (const m of appended) {
       expect([m.base, m.expected, m.expected_eligibility], m.id).toEqual([baseOf(m.id), 'pass', ELIGIBLE]);
@@ -1403,8 +1408,9 @@ describe('B1 SR-TS repair 01: the transport reading\'s base header at G2 (Rust\'
       ['the base', [], { admitted: false }, { admitted: true }],
     ];
     await table(rows.flatMap(([name, edits, t, raw]) => [[`transport: ${name}`, transport(entry(ORD, edits)), t], [`raw: ${name}`, bound(entry(ORD, edits)), raw]] as [string, () => Promise<unknown>, unknown][]));
-    // 07m's G7 header mutations (277 and 286-293) read on transport at G2 with the Rust reader's own expected code.
-    const header = corpus.mutations.filter((m: any) => (m.expected_by_reader?.rust ?? m.expected).gate === 'G7' && /^SOURCE_(NUMERICAL|FORMULATION_BASIS|BLOCKS_LEGACY|PREVIEW_PHYSICS_EVIDENCE_REQUIRED)/.test((m.expected_by_reader?.rust ?? m.expected).code));
+    // 07m's G7 header mutations (277 and 286-293) read on transport at G2 with the Rust reader's own expected code
+    // (07n's entries state their transport reads, pinned in the 07n block below).
+    const header = corpus.mutations.slice(0, 294).filter((m: any) => (m.expected_by_reader?.rust ?? m.expected).gate === 'G7' && /^SOURCE_(NUMERICAL|FORMULATION_BASIS|BLOCKS_LEGACY|PREVIEW_PHYSICS_EVIDENCE_REQUIRED)/.test((m.expected_by_reader?.rust ?? m.expected).code));
     expect(header.map((m: any) => corpus.mutations.indexOf(m))).toEqual([277, 286, 287, 288, 289, 290, 291, 292, 293]);
     await table(header.map((m: any) => [m.id, transport(m), { gate: 'G2', code: (m.expected_by_reader?.rust ?? m.expected).code }] as [string, () => Promise<unknown>, unknown]));
   });
@@ -1929,4 +1935,50 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
     expect(misses).toEqual([]);
     expect(checked).toBe(2 * 22 + 5 * 2);
   }, 60_000);
+});
+
+// Snapshot 07n (B1 SC, I100; PLAN_v2 §2.5), appended to 07m: W-C2's two producer-solved bases, d38_beside_selected, the
+// out-of-order-authored and SF-2 successors, and 290 entries. Every 07n entry states its bound expectation (per reader only
+// in the declared class: Rust's own raw G7 code where Python and TS share one), its unbound read (expected_unbound, or
+// expected_unbound_by_reader beside expected_by_reader) and its transport read (expected_transport), each 'pass' (admitted,
+// not eligible) or a gate and code; an admitted rewrite whose classes differ from its base's states expected_classifications
+// (the must-pass tests above read it). Detail texts are not pinned (A-N1). I101 pins this reader's harness to it.
+describe('07n (B1 SC): counts, format, and each entry\'s unbound and transport reads', () => {
+  const N07_BASES = ['w_c2_sparse_interactive', 'w_c2_dense_scrutiny', 'd38_beside_selected', 'cause_milestone_reversed_sparse_interactive',
+    'cause_milestone_reversed_dense_scrutiny', 'sf2_c_b_a_sparse_interactive', 'sf2_c_b_a_dense_scrutiny', 'sf2_a_a2_sparse_interactive', 'sf2_a_a2_dense_scrutiny'];
+  const NEW_KEYS = ['expected_unbound', 'expected_unbound_by_reader', 'expected_transport', 'expected_classifications'];
+  const KEYS = ['id', 'base', 'edits', 'invocation_edits', 'rehash', 'expected', 'expected_by_reader', 'expected_eligibility', ...NEW_KEYS];
+  const n07 = [...corpus.mutations.slice(294), ...corpus.must_pass.slice(28)];
+  it('07n: 26 cases, 534 mutations and 78 must-pass entries, appended; the new keys on new entries only; 45 entries in the declared per-reader class', () => {
+    expect([corpus.cases.length, corpus.mutations.length, corpus.must_pass.length]).toEqual([26, 534, 78]);
+    expect(corpus.cases.slice(17).map((c: any) => c.id)).toEqual(N07_BASES);
+    const old = [...corpus.mutations.slice(0, 294), ...corpus.must_pass.slice(0, 28)];
+    expect(old.filter((e: any) => NEW_KEYS.some(k => Object.hasOwn(e, k))).map((e: any) => e.id)).toEqual([]);
+    expect(n07.length).toBe(290);
+    for (const e of n07) {
+      expect(Object.keys(e).filter(k => !KEYS.includes(k)), e.id).toEqual([]);
+      expect([e.rehash, Object.hasOwn(e, 'expected_transport'), Object.hasOwn(e, 'expected_unbound') !== Object.hasOwn(e, 'expected_unbound_by_reader')], e.id).toEqual(['all', true, true]);
+    }
+    const per = n07.filter((e: any) => e.expected_by_reader);
+    expect(per.length).toBe(45);
+    for (const e of per) {
+      const r = e.expected_by_reader;
+      expect(JSON.stringify(r.python) === JSON.stringify(r.typescript) && JSON.stringify(r.typescript) === JSON.stringify(e.expected)
+        && JSON.stringify(r.rust) !== JSON.stringify(e.expected) && e.expected.gate === 'G7' && r.rust.gate === 'G7'
+        && JSON.stringify(e.expected_unbound_by_reader) === JSON.stringify(r), e.id).toBe(true);
+    }
+    expect(corpus.must_pass.slice(28).filter((e: any) => e.expected_classifications).length).toBe(16);
+    expect([corpus.cases.filter((c: any) => c.expected.numerical_eligible).length, corpus.must_pass.filter((m: any) => m.expected_eligibility.numerical_eligible).length]).toEqual([19, 46]);
+    const ids = [...corpus.mutations, ...corpus.must_pass].map((e: any) => e.id);
+    expect(new Set(ids).size).toBe(612);
+  });
+  const read = async (run: () => Promise<any>): Promise<unknown> => {
+    try { const r = await run(); expect([r.invocation_bound, r.numerical_eligible]).toEqual([false, false]); return 'pass'; }
+    catch (error) { expect(error).toBeInstanceOf(RetainedPrecisionError); return { gate: (error as RetainedPrecisionError).gate, code: (error as RetainedPrecisionError).code }; }
+  };
+  for (const e of n07) it('07n reads: ' + e.id, async () => {
+    const { source } = await applyEntry(e);
+    expect(await read(() => validateRetainedPrecision(structuredClone(source))), 'unbound').toEqual(e.expected_unbound ?? e.expected_unbound_by_reader.typescript);
+    expect(await read(() => validateRetainedPrecisionTransport(structuredClone(source))), 'transport').toEqual(e.expected_transport);
+  });
 });

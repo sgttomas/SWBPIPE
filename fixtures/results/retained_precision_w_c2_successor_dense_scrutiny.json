@@ -7710,7 +7710,7 @@
           "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
         },
         "unit": "N",
-        "value": 1.6258317075882521e-12
+        "value": 1.6258317075882523e-12
       },
       {
         "basis_ref": {
@@ -15021,7 +15021,7 @@
           }
         ],
         "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
-        "publication_sha256": "57624d75437e678852dfc7657a19d31ee133340435e9d5ce3a31b295cbebc718",
+        "publication_sha256": "35fa7acae6fbd731ff50b611aec588e673f32978af80a9bb89a7c27f66e88fd7",
         "receipt_version": 1,
         "sources": [
           {
@@ -18548,7 +18548,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "612e23ca4b90604b3d2351fd7465d2e3cefb0f3fbb36bdea39efaa82a68bc07a"
+      "receipt_sha256": "ca6a62a6187a08d7b2e2643911fd232b02076b9032be1455754ff780540995f2"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",

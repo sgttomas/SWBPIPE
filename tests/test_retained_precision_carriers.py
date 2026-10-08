@@ -361,7 +361,7 @@ def test_declared_differences_python():
     assert all(p in cases["scope"] for p in ("G7 parity compares the reader's (gate, code)", "parity there compares only accept against refuse",
                                               "no carrier authenticates producer origin", "a blocked envelope is refused at G7 with each language's own base code", "Python SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
                                               # F-U6b-2 (B6): Python's transport refusals carry the reader's codes, as Rust's.
-                                              "Rust and Python the reader's G0 code or their base header code"))
+                                              "Rust and Python the reader's G0-G2 code or its base step's code"))
     # RV94 N-3 (B6; PLAN decision 11): TS aligned, so no language-specific G7 code is declared for an
     # invalid numerical_quality case, and Python's transport is no longer a declared refusal.
     assert not any(p in cases["scope"] for p in ("An invalid enum value in a not_required case's quality", "SOURCE_NUMERICAL_CASE_INVALID", "Python F-U6b-2's code"))

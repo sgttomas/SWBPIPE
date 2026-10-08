@@ -3,9 +3,12 @@
 //! DEFAULT_ROUTE_DESIGN/_run_records/references.stdout.txt, kept in this crate's
 //! fixtures so the numerical CI path policy selects this suite, and pinned to
 //! the frozen SHA-256 recorded in DEFAULT_ROUTE_DESIGN/_run_records/SHA256SUMS;
-//! nothing here derives an expectation from product code. Every model goes
-//! through the captured value entry the desktop uses. Criterion:
+//! nothing here derives an expectation from product code, except that the
+//! intensified identity (m08) uses FK's `correct_norm::norm2`, the correctly
+//! rounded norm the product uses, verified against an exact oracle (I109, RV126).
+//! Every model goes through the captured value entry the desktop uses. Criterion:
 //! |observed - expected| <= 1e-9 * max(|expected|, zero scale). No new tolerance.
+use open_pipe_stress_frame_kernel::correct_norm::norm2;
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::{json, Value};
 use std::collections::HashSet;
@@ -276,7 +279,8 @@ fn assert_contract(v: &Value) {
         }
         for m in c["intensified_measures"].as_array().unwrap() {
             let row = results(v).iter().find(|r| r["id"] == m["result_id"]).expect("intensified row");
-            let expected = num(&m["sif"]) * (num(&m["bending_moment_y_n_m"]).hypot(num(&m["bending_moment_z_n_m"])) / num(&m["section_modulus_m3"]));
+            // The product's i * (|(My, Mz)| / Z), with its correctly rounded norm (I109): exact on every platform.
+            let expected = num(&m["sif"]) * (norm2(num(&m["bending_moment_y_n_m"]), num(&m["bending_moment_z_n_m"])) / num(&m["section_modulus_m3"]));
             assert_eq!(num(&row["value"]), expected);
         }
     }

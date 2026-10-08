@@ -61,8 +61,9 @@ pub enum ElasticSectionError {
 
 /// Recover signed axial/torsional quantities and circular normal extrema.
 ///
-/// Bending is hypot(My,Mz)/Z, Z=I/ro. Each moment is scaled before hypot to
-/// avoid overflow of a moment norm whose resulting stress is representable.
+/// Bending is hypot(My,Mz)/Z, Z=I/ro, with a correctly rounded norm (I109), never
+/// libm `hypot`. Each moment is scaled before the norm to avoid overflow of a
+/// moment norm whose resulting stress is representable.
 /// Products/ratios use binary exponent separation to avoid intermediate overflow
 /// or underflow. An unrepresentable required quantity returns an error; no
 /// partial result, clamped value, or unavailable-as-zero result is returned.
@@ -102,7 +103,7 @@ pub fn evaluate_elastic_section(
         section.second_moment,
         "bending_normal_z",
     )?;
-    let bending_amplitude = finite_output("bending_amplitude", by.hypot(bz))?;
+    let bending_amplitude = finite_output("bending_amplitude", crate::correct_norm::norm2(by, bz))?;
     let torsional_shear = scaled_ratio(
         actions.torsional_moment,
         section.outer_radius,

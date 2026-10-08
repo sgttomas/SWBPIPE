@@ -3,6 +3,7 @@
 //! This crate contains open mechanics routines only. It does not encode design
 //! code compliance checks, protected standards content, or private project data.
 
+pub mod correct_norm;
 pub mod exact_sum;
 pub mod load_ledger;
 pub mod structural;

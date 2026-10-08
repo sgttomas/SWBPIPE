@@ -286,16 +286,565 @@ fn shared_rehashed_first_failure_mutations() {
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
 
+/// Every shared mutation's id, in corpus order (07m's 294, then 07n's 240), pinned here
+/// so that `slice_outcomes` checks each slice's entries by id and position (I83 §7
+/// item 8; B1 SC item 12): a reorder of same-code entries inside a slice, which the
+/// code tally cannot see, fails. Generated from 07n (sha256 `ea113e7b…e283`).
+const MUTATION_IDS: [&str; 534] = [
+    "method_null",
+    "method_number",
+    "method_alternate_metadata",
+    "method_alternate_container",
+    "method_empty",
+    "method_wrong",
+    "method_missing",
+    "nonfinite_then_method",
+    "shape_then_encoding",
+    "negative_zero_counter",
+    "coverage_then_method",
+    "member_prefix_coverage",
+    "diagnostic_then_method",
+    "native_work",
+    "product_new_not_ready",
+    "body_scale",
+    "section_echo",
+    "absolute_bound",
+    "input_dof",
+    "old_inputs_must_bind_old_J",
+    "new_stiffness_must_bind_C2",
+    "bad_invocation_digest",
+    "v1_relabel",
+    "native_source_digest_rehashed",
+    "native_stiffness_digest_rehashed",
+    "physical_residual_basis",
+    "physical_stop_stage_partition",
+    "negative_zero_scale_with_wrong_method",
+    "shared_stage_projection_preserves_total",
+    "verification_own_stage_projection_preserves_total",
+    "coverage_member_missing",
+    "coverage_object_not_array",
+    "coverage_entry_null",
+    "coverage_stop_three",
+    "coverage_stop_five",
+    "coverage_stop_numeric_flag",
+    "coverage_stop_null_flag",
+    "coverage_has_data_numeric",
+    "coverage_has_data_null",
+    "coverage_has_data_missing",
+    "coverage_unknown_field",
+    "coverage_body_string",
+    "coverage_shape_then_duplicate",
+    "coverage_defect_with_null_method",
+    "coverage_body_negative_zero",
+    "coverage_body_fraction",
+    "coverage_body_negative",
+    "coverage_encoding_then_duplicate",
+    "coverage_empty_array",
+    "coverage_duplicate_body",
+    "coverage_foreign_body",
+    "coverage_extra_body",
+    "coverage_duplicate_then_flag_and_method",
+    "attempt_owner_only",
+    "coverage_null_on_ready",
+    "coverage_null_then_method",
+    "coverage_has_data_false",
+    "certified_bound_unbound_drop_existing_g5",
+    "coverage_drop_certified_bound",
+    "coverage_no_data_claim_with_free_loads",
+    "coverage_stop_forbidden_entry",
+    "coverage_stop_uncoupled_consistent_roster",
+    "stop_rule_drop_required_zero",
+    "stop_rule_duplicate_zero",
+    "estimate_drop_required_zero",
+    "estimate_forbidden_translation_zero",
+    "charge_drop_required_zero",
+    "charge_follows_stop_below_p512",
+    "certified_bound_duplicate",
+    "coverage_flag_defect_then_method",
+    "nodata_forbidden_stop_zero",
+    "nodata_forbidden_estimate_zero",
+    "nodata_forbidden_charge_zero",
+    "nodata_forbidden_certified_bound",
+    "nodata_has_data_without_bound",
+    "nodata_estimate_coupling_L_nonzero",
+    "coverage_flag_defect_then_body_scale",
+    "layout_force_row_input_derived",
+    "layout_constrained_displacement_not_input_derived",
+    "layout_nonzero_prescription",
+    "coverage_null_and_product_work",
+    "product_work_only",
+    "native_work_then_coverage_null",
+    "layout_row_relabelled",
+    "layout_row_dropped",
+    "layout_rows_reordered",
+    "layout_row_foreign_body",
+    "nodata_empty_coverage",
+    "verification_bound_duplicate_entry",
+    "verification_bound_missing_entry",
+    "nodata_verification_bound_nonnull",
+    "schedule_fresh_first_p256",
+    "cancelled_no_data_claim",
+    "cancelled_drop_B_only",
+    "unavailable_certificate_passed_coverage_null",
+    "unavailable_empty_coverage",
+    "unavailable_no_data_claim_with_free_loads",
+    "unavailable_stop_uncoupled",
+    "unavailable_layout_relabelled",
+    "unavailable_verification_bound_duplicate",
+    "cert_failed_before_summary_g5a_passed",
+    "lane_k_failed_with_coverage",
+    "maxima_abandoned_with_coverage",
+    "prefix_captured_with_members",
+    "two_body_swap_has_data",
+    "two_body_swap_has_data_with_rosters",
+    "two_body_swap_stop_only",
+    "two_body_body_order_swapped",
+    "two_body_missing_body",
+    "two_body_resolution_order_swapped",
+    "p512_floor_not_phi",
+    "p512_positive_floor_forces_stop",
+    "p512_charge_follows_estimate",
+    "p512_floor_null",
+    "p512_zero_floor_body_given_positive_floor",
+    "copy_flags_into_loaded",
+    "rebind_source_run_only",
+    "cross_case_gate_order_selected",
+    "cross_case_gate_order_unavailable",
+    "unavailable_record_resolution_duplicate",
+    "unavailable_record_theta_duplicate",
+    "skip_after_failed_candidate_reused",
+    "skip_after_failed_candidate_wrong_slot",
+    "failed_build_reason_mismatch",
+    "failed_slot_not_cached",
+    "failed_verification_reused_as_candidate",
+    "failed_verification_one_slot",
+    "cached_failed_slot_rebuilt",
+    "corrections_above_three",
+    "group_sources_out_of_order",
+    "w2_published_without_initial_failure",
+    "legacy_source_dangling_diagnostic",
+    "formation_d5_dangling_diagnostic",
+    "native_stage_disagrees_with_run",
+    "conversion_subnormal_kind_normal_bits",
+    "conversion_normal_kind_subnormal_bits",
+    "conversion_ready_underflow_nonzero_row",
+    "conversion_ready_overflow",
+    "conversion_subnormal_metadata_negative_zero",
+    "g7_maximum_off_enclosure",
+    "row_index_foreign_support_norm",
+    "row_index_missing_row",
+    "row_index_unsorted",
+    "row_index_ready_subset",
+    "maps_extra_support_id",
+    "maps_member_ends_swapped",
+    "maxima_abandoned_separate_failure",
+    "certificate_check_wrong_wrapper",
+    "certificate_stage_check_disagree",
+    "stage_entered_after_failure",
+    "ceiling_before_last_slot",
+    "escalating_end_not_a_terminal_translation",
+    "terminal_stop_wrong_translation",
+    "terminal_refusal_wrong_kind",
+    "idle_budget_below_invocation_limit",
+    "idle_ready_group_not_ledger_refusal",
+    "work_accounting_prior_not_on_wire",
+    "refused_member_conversion_kind_bits",
+    "prefix_attached_old_input_unbound",
+    "report_reference_unrelated_diagnostic",
+    "distinct_stiffness_merged_group",
+    "named_point_value_mismatch",
+    "interpolation_target_mismatch",
+    "work_accounting_after_escalating_stop",
+    "idle_work_accounting_run",
+    "work_accounting_at_last_slot",
+    "mm_unnormalized_coordinate",
+    "interpolation_missing_alpha",
+    "interpolation_duplicate_temperature",
+    "interpolation_target_below_range",
+    "interpolation_target_at_lower_point",
+    "interpolation_target_at_upper_point",
+    "interpolation_target_above_range",
+    "adapter_fault_present",
+    "accounting_cause_without_fault",
+    "scalar_trace_lost_unavailable",
+    "work_accounting_cause_exact_status",
+    "idle_budget_not_exhausted_no_group",
+    "execution_order_swapped",
+    "run_id_not_execution_position",
+    "old_members_reordered",
+    "complete_old_short_of_source",
+    "unsourced_old_member_noncontiguous",
+    "complete_old_longer_than_source",
+    "unavailable_source_backref_foreign",
+    "attempt_basis_not_ordinary",
+    "native_error_with_selected_run",
+    "group_call_out_of_range",
+    "escalating_failed_verification_pass_entered",
+    "stop_rule_quantity_other_body",
+    "candidate_record_with_verification",
+    "ordinary_diagnostic_ref_duplicate",
+    "ordinary_diagnostic_ref_dangling",
+    "ordinary_dangling_plus_adapter_fault",
+    "selected_case_ordinary_checks_passed",
+    "section_accounting_exact_status",
+    "nested_stop_work_accounting_exact_status",
+    "view_work_fault_exact_status",
+    "old_operational_accounting_not_lost",
+    "interpolation_target_at_lower_point_equal_e",
+    "interpolation_target_below_range_equal_e",
+    "interpolation_target_at_upper_point_equal_e",
+    "interpolation_target_above_range_equal_e",
+    "source_preparation_null",
+    "run_ref_null_with_case_run",
+    "preparation_error_with_selected_run",
+    "prepared_failure_cause_without_own_attempt",
+    "prepared_failure_cause_foreign_attempt",
+    "reason_code_phase_mismatch_on_facade",
+    "reason_code_phase_mismatch_on_preparation",
+    "rejected_verification_failed_with_completed_verification",
+    "rejected_attempt_with_verified_record",
+    "ordinary_attempt_order_swapped",
+    "record_index_not_contiguous",
+    "selected_verification_record_not_verified",
+    "projection_conversions_count_mismatch",
+    "preparation_conversion_count_mismatch",
+    "retained_diagnostic_names_unrequested_case",
+    "g0_case_limit_threshold",
+    "g0_invocation_limit_threshold",
+    "g0_receipt_version_not_1",
+    "g0_canonicalization_profile",
+    "g0_retained_precision_absent",
+    "g0_receipt_body_absent",
+    "refusal_work_accounting_variant",
+    "refusal_count_range_variant",
+    "unavailable_source_ref_absent",
+    "source_decline_with_source_ref",
+    "rcond_label_plus_adapter_fault",
+    "native_attempt_defect_after_native_work_defect",
+    "dangling_candidate_record",
+    "dangling_build_ref",
+    "dangling_ordinary_attempt_ref",
+    "g5b_zero_section_area",
+    "ordinary_dangling_ref_plus_source_preparation_null",
+    "g5b_zero_section_length",
+    "unavailable_attempt_under_facade_failure_cause",
+    "unavailable_attempt_under_source_error_cause",
+    "preparation_error_selected_run_under_receipt_cause",
+    "selected_case_without_c3_attempt",
+    "vbuild_on_escalating_failed_verification",
+    "dangling_attempt_source_ref",
+    "source_member_map_kernel_id_noncanonical",
+    "forged_publication_hash",
+    "forged_preparation_hash",
+    "source_identity_stale_receipt_rehashed",
+    "forged_receipt_hash",
+    "g5a_sanity_margin_between_2m40_and_2m39",
+    "idle_run_exhausted_meter_chain_broken",
+    "verification_estimate_quantity_not_in_layout",
+    "charge_quantity_not_in_layout",
+    "publication_enclosure_quantity_not_in_layout",
+    "empty_body_inventory",
+    "verification_summary_on_escalating_failed_verification",
+    "model_schema_version_0_4_0_rejected",
+    "forged_source_identity_float_source_ref",
+    "verification_estimate_names_translation_row",
+    "ready_attempt_under_facade_failure_cause",
+    "ready_attempt_under_prepared_product_failure",
+    "g0_receipt_version_non_integral",
+    "g0_case_limit_non_integral",
+    "g0_invocation_limit_non_integral",
+    "verification_estimate_names_rotation_row",
+    "g5a_error_with_g5a_not_entered",
+    "observable_error_with_observables_not_entered",
+    "numeric_error_with_checks_not_entered",
+    "proof_error_with_certificate_passed",
+    "values_error_with_values_completed",
+    "f5_ordinary_refs_omit_naming_diagnostic",
+    "f5_ordinary_refs_out_of_envelope_order",
+    "f5_ordinary_refs_list_retained_precision_m09",
+    "f5_ordinary_refs_list_invocation_level_m10",
+    "f5_ordinary_refs_list_other_case",
+    "f5_ordinary_refs_relaxed_d6a_form",
+    "f5_affected_refs_string_names_no_case",
+    "f5_ordinary_refs_second_case_relaxed_d6a_form",
+    "f5_ordinary_refs_strict_prefix",
+    "g7_not_required_quality_enum_invalid",
+    "isolated_rotation_stop_sparse_interactive",
+    "isolated_has_data_sparse_interactive",
+    "isolated_estimate_coupled_sparse_interactive",
+    "isolated_rotation_stop_dense_scrutiny",
+    "isolated_has_data_dense_scrutiny",
+    "isolated_estimate_coupled_dense_scrutiny",
+    "isolated_translation_rotation_stop_sparse_interactive",
+    "isolated_translation_rotation_stop_dense_scrutiny",
+    "g7_selected_quality_enum_invalid",
+    "g7_unavailable_quality_enum_invalid",
+    "g7_quality_case_evidence_ref_empty",
+    "g7_quality_case_extra_member",
+    "g7_quality_status_invalid",
+    "g7_formulation_limitations_empty",
+    "g7_contract_evidence_null",
+    "g7_source_block_recovery_present",
+    "d38_m1_error_kind_native",
+    "d38_m2_native_completed",
+    "d38_m3_run_ref_without_run",
+    "d38_m4_execution_order_lists_case",
+    "d38_m5_proof_start_completed",
+    "d38_m6_attempt_source_null",
+    "d38_m7_call_lists_source",
+    "d38_m8_case_source_other",
+    "d38_m9_case_c_builds_kept",
+    "f1_p4_parity_on_w2_published_case_a_dense",
+    "f1_p2_parity_duplicated_l0_dense",
+    "f1_p3_parity_in_sparse_l0",
+    "f1_p1_mode_code_3_sparse_l0",
+    "f1_requested_mode_flipped_w_c2_case_b",
+    "nr_w_c2_case_b_verdict_sensitive",
+    "nr_w_c2_case_b_initial_not_attempted",
+    "nr_w_c2_case_b_product_attempt_ref_own_attempt",
+    "n2_w_c2_case_b_solve_quality_missing",
+    "a4_reason_as_4b",
+    "f_mb_index_1",
+    "f_mb_index_swapped",
+    "f_src_index_1",
+    "f_src_index_swapped",
+    "f_mb_case_indices_duplicate",
+    "f_mb_case_indices_out_of_range",
+    "f_src_owner_case_id_other",
+    "f_src_owner_case_id_unknown",
+    "f_src_owner_case_index_out_of_range",
+    "f_src_owner_other_case_consistent",
+    "f_ordinary_basis_ref_dangling",
+    "f_mb_case_indices_empty",
+    "f_b_basis_ref_7",
+    "f_c_basis_omits_case_1",
+    "f_c_basis_out_of_order",
+    "f_src_owner_kind_combination",
+    "g_combinations_null",
+    "g_combinations_empty_object",
+    "g_combinations_object",
+    "g_combinations_string",
+    "g_combinations_zero",
+    "g_combinations_false",
+    "g_combinations_nonempty",
+    "g_components_null",
+    "g_components_string",
+    "g_components_empty_object",
+    "g_components_nonempty",
+    "g_reference_configurations_null",
+    "g_reference_configurations_empty",
+    "g_reference_configurations_object",
+    "g_pressure_contract_empty_object",
+    "g_pressure_contract_false",
+    "g_pressure_contract_zero",
+    "g_pressure_contract_empty_string",
+    "g_pressure_contract_empty_array",
+    "g_order_before_preparation",
+    "g_order_control_preparation",
+    "ca_receipt_phase_routing",
+    "ca_receipt_phase_preparation",
+    "ca_receipt_phase_kernel",
+    "ca_receipt_phase_facade",
+    "ca_receipt_code_source_unavailable",
+    "ca_receipt_code_facade_certificate",
+    "ca_receipt_code_kernel_selected",
+    "ca_receipt_code_caller_not_qualified",
+    "ca_facade_ok",
+    "ca_facade_phase_routing",
+    "ca_facade_phase_preparation",
+    "ca_facade_phase_kernel",
+    "ca_facade_phase_receipt",
+    "ca_facade_code_receipt_encoding",
+    "ca_facade_owner_other_case",
+    "ca_facade_owner_combination",
+    "ca_precondition_beside_run",
+    "ca_kernel_beside_selected_run",
+    "cb_source_error_no_decline",
+    "cb_source_error_decline_error_differs",
+    "cb_source_error_phase_routing",
+    "cb_source_error_code_caller",
+    "cb_receipt_phase_preparation",
+    "cb_facade_no_run",
+    "cb_kernel_no_run",
+    "cb_control_ppf_reason_missing_attempt",
+    "cb_pre_caller_caller_not_qualified_kernel",
+    "cb_pre_caller_resource_admission_not_available_routing",
+    "cb_pre_caller_source_unavailable_routing",
+    "cb_pre_caller_upstream_no_wrap_not_established_routing",
+    "cb_pre_resource_admission_resource_admission_not_available_kernel",
+    "cb_pre_resource_admission_caller_not_qualified_routing",
+    "cb_pre_resource_admission_source_unavailable_routing",
+    "cb_pre_resource_admission_upstream_no_wrap_not_established_routing",
+    "cb_pre_upstream_no_wrap_upstream_no_wrap_not_established_kernel",
+    "cb_pre_upstream_no_wrap_caller_not_qualified_routing",
+    "cb_pre_upstream_no_wrap_resource_admission_not_available_routing",
+    "cb_pre_upstream_no_wrap_source_unavailable_routing",
+    "cb_pre_capture_source_unavailable_kernel",
+    "cb_pre_capture_caller_not_qualified_routing",
+    "cb_pre_capture_resource_admission_not_available_routing",
+    "cb_pre_capture_upstream_no_wrap_not_established_routing",
+    "cb_pre_source_family_source_unavailable_kernel",
+    "cb_pre_source_family_caller_not_qualified_routing",
+    "cb_pre_source_family_resource_admission_not_available_routing",
+    "cb_pre_source_family_upstream_no_wrap_not_established_routing",
+    "cc_pre_caller_keyed",
+    "cc_pre_resource_admission_keyed",
+    "cc_pre_upstream_no_wrap_keyed",
+    "cc_pre_capture_keyed",
+    "cc_pre_source_family_keyed",
+    "cc_pre_capture_cross",
+    "cd_kernel_ok",
+    "cd_kernel_code_unresolved",
+    "cd_kernel_phase_facade",
+    "cd_kernel_cause_other",
+    "cd_ppf_control",
+    "c2_receipt_phase_kernel",
+    "c2_receipt_code_facade",
+    "c2_receipt_phase_preparation",
+    "c2_facade_ok",
+    "c2_facade_phase_kernel",
+    "h_recovery_present",
+    "h_evidence_null",
+    "h_evidence_array",
+    "h_recovery_and_evidence_null",
+    "h_carrier_present",
+    "h_carrier_and_quality_defect",
+    "h_carrier_and_recovery",
+    "h_quality_extra_member",
+    "h_quality_representation",
+    "h_quality_quantization",
+    "h_quality_policy",
+    "h_quality_status_bogus",
+    "h_quality_cases_object",
+    "h_case_extra_member",
+    "h_case_basis_ref_extra",
+    "h_case_basis_ref_type_empty",
+    "h_case_solve_quality_bogus",
+    "h_case_structural_bogus",
+    "h_case_fidelity_bogus",
+    "h_case_accuracy_bogus",
+    "h_case_evidence_refs_empty_string",
+    "h_case_evidence_refs_not_list",
+    "h_formulation_extra_member",
+    "h_formulation_limitations_empty",
+    "h_formulation_limitations_empty_string",
+    "h_formulation_limitations_other",
+    "h_quality_and_formulation",
+    "h_case_and_formulation",
+    "h_schema_version_010",
+    "n6_structural_status_list",
+    "n6_structural_status_dict",
+    "n6_model_matrix_fidelity_list",
+    "n6_model_matrix_fidelity_dict",
+    "n6_accuracy_evidence_list",
+    "n6_accuracy_evidence_dict",
+    "n6_status_list",
+    "n6_status_dict",
+    "n6_carrier_evidence_with_case_defect",
+    "n6_contract_evidence_null_and_source_block_recovery",
+    "n4_null_first",
+    "n4_null_appended",
+    "n4_number_first",
+    "n4_string_first",
+    "n4_array_first",
+    "r_b_basis_ref_7",
+    "r_b_basis_ref_1_second_basis",
+    "r_c_basis_omits_case_1",
+    "r_c_cases_out_of_order",
+    "r_c_extra_empty_basis",
+    "r_d1_extra_member",
+    "r_d2_mode_unknown",
+    "r_d2_mode_list",
+    "r_d2_mode_removed",
+    "r_d2_mode_null",
+    "r_e_elastic_modulus_wrong",
+    "r_e_selection_base",
+    "r_e_material_id_other",
+    "r_e_no_material",
+    "r_c_missing_sourceless_basis",
+    "g8_unavailable_mode_code_2_in_sparse",
+    "g8_unavailable_mode_code_3",
+    "g8_unavailable_mode_row_duplicated",
+    "g8_unavailable_mode_row_removed",
+    "g8_unavailable_parity_in_sparse_P3",
+    "g8_unavailable_parity_with_method_G6_first",
+    "g8_unavailable_requested_mode_flipped",
+    "g8_selected_mode_code_2_in_sparse",
+    "dz_parity_twice_case1_P2",
+    "dz_parity_case1_w2_published_P4",
+    "dz_parity_case0_w2_published_P4",
+    "fz_unavailable_two_parity_P2",
+    "fz_unavailable_parity_w2_published_P4",
+    "limit_l0_dense_parity_deleted_indices_unshifted",
+    "limit_l0_sparse_mode_row_deleted_P1",
+    "nr_report_outcome_sensitive",
+    "nr_initial_not_attempted",
+    "nr_verdict_sensitive",
+    "nr_w2_published_verdict_sensitive",
+    "nr_verdict_not_assessed",
+    "nr_report_with_w2_published",
+    "nr_product_attempt_ref_with_attempt",
+    "nr_product_attempt_ref_dangling",
+    "nz_w2_published_parity_P4",
+    "orphan_source_beside_t7",
+    "t_evidence_extra_member",
+    "t_preview_cases_not_list",
+    "t_case_extra_member",
+    "t_case_id_empty",
+    "t_case_id_duplicate",
+    "t_coverage_complete_false",
+    "t_coverage_overlap",
+    "t_coverage_duplicate_ids",
+    "t_attributed_and_withheld",
+    "t_withheld_reason_unknown",
+    "t_withheld_ok",
+    "t_attribution_sets_differ",
+    "t_withheld_duplicate_multiset",
+    "t_extrema_extra_member",
+    "t_extrema_approximation_other",
+    "t_extrema_station_fraction_1_5",
+    "t_extrema_local_fraction_negative",
+    "t_extrema_span_index_negative",
+    "t_extrema_span_index_fraction",
+    "t_extrema_subdivisions_over",
+    "t_extrema_bounds_inverted",
+    "t_extrema_lower_negative",
+    "t_extrema_upper_string",
+    "t_extrema_global_upper_string",
+    "t_extrema_certified_gap_null",
+    "t_extrema_pipe_in_unavailable",
+    "t_extrema_pipe_duplicate",
+    "t_measure_ok",
+    "t_measure_sif_zero",
+    "t_measure_location_mid",
+    "t_measure_moment_string",
+    "t_measure_duplicate_result",
+    "t_gate_withheld_reason_null",
+    "t_gate_released_with_reason",
+    "t_gate_duplicate",
+    "t_gate_withheld_string",
+    "t_measure_extra_member",
+    "t_gate_extra_member",
+];
 /// Observe one slice of the shared mutations against this reader's own
 /// expectation, print one outcome per mutation (visible with --nocapture) and
-/// check the slice tally. 07h held 277 mutations; RV94 N-3's G7 probe makes 278;
-/// 07l (U8-2) appends the 8 L = 0 mutations, making 286; 07m (B6) appends 8 G7
-/// mutations, making 294.
+/// check the slice's ids (`MUTATION_IDS`) and its tally. 07h held 277 mutations;
+/// RV94 N-3's G7 probe makes 278; 07l (U8-2) appends the 8 L = 0 mutations, making
+/// 286; 07m (B6) appends 8 G7 mutations, making 294; 07n (B1 SC) appends 240,
+/// making 534 (`snapshot_07n_counts_and_format` pins the counts), and no slice moves.
 fn slice_outcomes(tag: &str, range: std::ops::Range<usize>, want: &[(&str, usize)]) {
     use std::collections::BTreeMap;
     let shared = corpus();
     let mutations = shared["mutations"].as_array().unwrap();
-    assert_eq!(mutations.len(), 294);
+    let ids: Vec<&str> = mutations[range.clone()]
+        .iter()
+        .map(|m| m["id"].as_str().unwrap())
+        .collect();
+    assert_eq!(
+        ids,
+        MUTATION_IDS[range.clone()],
+        "{tag}: the slice's ids, in order"
+    );
     let mut tally = BTreeMap::new();
     let mut matched = 0;
     for mutation in &mutations[range.clone()] {
@@ -598,7 +1147,7 @@ fn snapshot_07k_mutation_outcomes() {
 #[test]
 fn snapshot_07m_mutation_outcomes() {
     let shared = corpus();
-    let ids: Vec<&str> = shared["mutations"].as_array().unwrap()[286..]
+    let ids: Vec<&str> = shared["mutations"].as_array().unwrap()[286..294]
         .iter()
         .map(|m| m["id"].as_str().unwrap())
         .collect();
@@ -908,15 +1457,17 @@ fn g5_audit_local_controls() {
 
 /// Snapshot-05a shared must-pass entries: each rehashed rewrite keeps every
 /// public relation, so the reader admits it with the base case's
-/// classifications and the eligibility the entry states (07i, U7).
+/// classifications (or, 07n, the entry's own `expected_classifications` when it
+/// states them) and the eligibility the entry states (07i, U7).
 #[test]
 fn shared_must_pass_entries_validate() {
     let shared = corpus();
     let entries = shared["must_pass"].as_array().unwrap();
     // Snapshot 07: 06d's 18 plus the equal-E bracket control; 07h adds F5's
     // reordered-envelope exact-list control (RV90 N2); 07j adds C04's not_required case;
-    // 07l (U8-2) appends the 4 L = 0 entries on the producer-solved bases, 24 to 28.
-    assert_eq!(entries.len(), 28);
+    // 07l (U8-2) appends the 4 L = 0 entries on the producer-solved bases, 24 to 28;
+    // 07n (B1 SC) appends 50, 28 to 78.
+    assert_eq!(entries.len(), 78);
     let mut failures = Vec::new();
     for entry in entries {
         assert_eq!(entry["expected"], "pass");
@@ -935,7 +1486,13 @@ fn shared_must_pass_entries_validate() {
                 continue;
             }
         };
-        let expected = case["expected_classifications"].as_array().unwrap();
+        // 07n (B1 SC): an admitted rewrite whose classes differ from its base's
+        // (a case no longer selected, a row added or removed) states its own.
+        let expected = entry
+            .get("expected_classifications")
+            .unwrap_or(&case["expected_classifications"])
+            .as_array()
+            .unwrap();
         // U7 (07i): each must-pass entry states its eligibility.
         let same = got.numerical_eligible
             == entry["expected_eligibility"]["numerical_eligible"].as_bool().unwrap()
@@ -5962,4 +6519,237 @@ fn b3_add1_g8_sourced_case_on_the_preview_and_exact_routes() {
     }
     assert!(misses.is_empty(), "{}", misses.join("\n"));
     assert_eq!(checked, 2 * 22 + 5 * 2);
+}
+
+// ---------------------------------------------------------------------------
+// Snapshot 07n (B1 SC, I100; PLAN_v2 §2.5), appended to 07m: W-C2's two
+// producer-solved bases, `d38_beside_selected`, the out-of-order-authored and
+// SF-2 successors, and 290 entries. Every 07n entry states its bound expectation
+// (per reader only in the declared class: Rust's own raw G7 code where Python and
+// TS share one), its unbound read (`expected_unbound`, or
+// `expected_unbound_by_reader` beside `expected_by_reader`) and its transport
+// read (`expected_transport`), each "pass" (admitted, not eligible) or a gate and
+// code; an admitted rewrite whose classes differ from its base's states
+// `expected_classifications` (`shared_must_pass_entries_validate` reads it). Detail
+// texts are not pinned (A-N1). I101 pins this reader's harness to it.
+
+const N07_BASES: [&str; 9] = [
+    "w_c2_sparse_interactive",
+    "w_c2_dense_scrutiny",
+    "d38_beside_selected",
+    "cause_milestone_reversed_sparse_interactive",
+    "cause_milestone_reversed_dense_scrutiny",
+    "sf2_c_b_a_sparse_interactive",
+    "sf2_c_b_a_dense_scrutiny",
+    "sf2_a_a2_sparse_interactive",
+    "sf2_a_a2_dense_scrutiny",
+];
+/// 07n's entries: the mutations after 07m's 294 and the must-pass entries after 07m's 28.
+fn n07_entries(shared: &Value) -> Vec<Value> {
+    let mut entries = shared["mutations"].as_array().unwrap()[294..].to_vec();
+    entries.extend(
+        shared["must_pass"].as_array().unwrap()[28..]
+            .iter()
+            .cloned(),
+    );
+    entries
+}
+
+/// 07n's counts and format: 26 cases (+9), 534 mutations (+240) and 78 must-pass
+/// entries (+50), appended; the new keys on new entries only; the 45 per-reader
+/// entries all in the declared class (Python and TS share the G7 expectation, Rust
+/// gives its own raw G7 code, the unbound read the same per reader); 16 entries with
+/// their own classes; 19 bases and 46 must-pass entries eligible.
+#[test]
+fn snapshot_07n_counts_and_format() {
+    let shared = corpus();
+    let ids = |key: &str| -> Vec<String> {
+        shared[key]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|e| e["id"].as_str().unwrap().to_owned())
+            .collect()
+    };
+    let (cases, mutations, must_pass) = (ids("cases"), ids("mutations"), ids("must_pass"));
+    assert_eq!(
+        (cases.len(), mutations.len(), must_pass.len()),
+        (26, 534, 78)
+    );
+    assert_eq!(cases[17..], N07_BASES);
+    assert_eq!(mutations, MUTATION_IDS);
+    let all: std::collections::BTreeSet<&String> = mutations.iter().chain(&must_pass).collect();
+    assert_eq!(all.len(), 612, "entry ids are unique");
+    let new_keys = [
+        "expected_unbound",
+        "expected_unbound_by_reader",
+        "expected_transport",
+        "expected_classifications",
+    ];
+    let old: Vec<&Value> = shared["mutations"].as_array().unwrap()[..294]
+        .iter()
+        .chain(&shared["must_pass"].as_array().unwrap()[..28])
+        .collect();
+    assert!(
+        old.iter()
+            .all(|e| new_keys.iter().all(|k| e.get(*k).is_none())),
+        "07m's entries carry no 07n key"
+    );
+    let new = n07_entries(&shared);
+    let allowed = [
+        "id",
+        "base",
+        "edits",
+        "invocation_edits",
+        "rehash",
+        "expected",
+        "expected_by_reader",
+        "expected_eligibility",
+        "expected_classifications",
+        "expected_unbound",
+        "expected_unbound_by_reader",
+        "expected_transport",
+    ];
+    for e in &new {
+        let o = e.as_object().unwrap();
+        assert!(
+            o.keys().all(|k| allowed.contains(&k.as_str())),
+            "{}",
+            e["id"]
+        );
+        assert_eq!(e["rehash"], "all");
+        assert!(e.get("expected_transport").is_some(), "{}", e["id"]);
+        assert!(
+            e.get("expected_unbound").is_some() != e.get("expected_unbound_by_reader").is_some(),
+            "{}",
+            e["id"]
+        );
+    }
+    let per: Vec<&Value> = new
+        .iter()
+        .filter(|e| e.get("expected_by_reader").is_some())
+        .collect();
+    assert_eq!(per.len(), 45);
+    for e in &per {
+        let r = &e["expected_by_reader"];
+        assert!(
+            r["python"] == r["typescript"]
+                && r["python"] == e["expected"]
+                && r["rust"] != e["expected"]
+                && e["expected"]["gate"] == "G7"
+                && r["rust"]["gate"] == "G7"
+                && e["expected_unbound_by_reader"] == *r,
+            "{}: the declared class",
+            e["id"]
+        );
+    }
+    let classes = shared["must_pass"].as_array().unwrap()[28..]
+        .iter()
+        .filter(|e| e.get("expected_classifications").is_some())
+        .count();
+    assert_eq!(classes, 16);
+    let eligible = |key: &str, field: &str| {
+        shared[key]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|e| e[field]["numerical_eligible"] == true)
+            .count()
+    };
+    assert_eq!(
+        (
+            eligible("cases", "expected"),
+            eligible("must_pass", "expected_eligibility")
+        ),
+        (19, 46)
+    );
+}
+
+/// 07n's 240 mutations as one slice, observed by this reader against its own
+/// expectation and tallied against a literal, as the earlier snapshots' slices are.
+#[test]
+fn snapshot_07n_mutation_outcomes() {
+    slice_outcomes(
+        "I101_OUTCOME_07N",
+        294..534,
+        &[
+            ("G0 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", 1),
+            ("G1 RETAINED_PRECISION_RECEIPT_MISMATCH", 6),
+            ("G3 RETAINED_PRECISION_COVERAGE_MISMATCH", 15),
+            ("G5 RETAINED_PRECISION_ATTEMPT_MISMATCH", 73),
+            ("G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH", 17),
+            ("G5 RETAINED_PRECISION_WORK_MISMATCH", 1),
+            ("G6 RETAINED_PRECISION_ROW_METHOD_MISMATCH", 1),
+            ("G7 SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN", 4),
+            ("G7 SOURCE_FORMULATION_BASIS_UNSUPPORTED", 3),
+            ("G7 SOURCE_NUMERICAL_CASE_INVALID", 14),
+            ("G7 SOURCE_NUMERICAL_QUALITY_INVALID", 9),
+            ("G7 SOURCE_PREVIEW_PHYSICS_ARRAY_INVALID", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_CASE_SHAPE", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_DUPLICATE_CASE", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_DUPLICATE_ID", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED", 2),
+            ("G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_SHAPE", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_EXTREMA_BASIS", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_EXTREMA_BOUNDS", 2),
+            ("G7 SOURCE_PREVIEW_PHYSICS_EXTREMA_SHAPE", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_EXTREMA_STATION", 2),
+            ("G7 SOURCE_PREVIEW_PHYSICS_EXTREMA_SUBDIVISIONS", 3),
+            ("G7 SOURCE_PREVIEW_PHYSICS_FOREIGN_METHOD_EVIDENCE", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_GATE_DUPLICATE", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_GATE_REASON", 2),
+            ("G7 SOURCE_PREVIEW_PHYSICS_GATE_SHAPE", 2),
+            ("G7 SOURCE_PREVIEW_PHYSICS_INTENSIFIED_RESULT_MISSING", 5),
+            ("G7 SOURCE_PREVIEW_PHYSICS_INTENSIFIED_SHAPE", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_NUMBER_INVALID", 3),
+            ("G7 SOURCE_PREVIEW_PHYSICS_STRESS_COVERAGE", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_STRESS_COVERAGE_PARTITION", 3),
+            ("G7 SOURCE_PREVIEW_PHYSICS_STRING_INVALID", 1),
+            (
+                "G7 SOURCE_PREVIEW_PHYSICS_SUPPORT_ATTRIBUTION_CASE_MISMATCH",
+                1,
+            ),
+            ("G7 SOURCE_PREVIEW_PHYSICS_SUPPORT_LISTED_TWICE", 2),
+            ("G7 SOURCE_PREVIEW_PHYSICS_SUPPORT_WITHHELD_REASON", 1),
+            ("G7 SOURCE_PREVIEW_PHYSICS_SUPPORT_WITHHELD_RECORD", 1),
+            ("G8 RETAINED_PRECISION_INVOCATION_MISMATCH", 25),
+            ("G8 RETAINED_PRECISION_PREPARATION_MISMATCH", 29),
+        ],
+    );
+}
+
+/// 07n: each entry's unbound read (no invocation) and transport read, as the corpus
+/// states them for this reader: "pass" (admitted, not eligible) or a gate and code.
+#[test]
+fn snapshot_07n_unbound_and_transport_reads() {
+    let shared = corpus();
+    let read = |got: Result<rp::Validation, rp::ValidationError>| match got {
+        Ok(v) => {
+            assert!(!v.invocation_bound && !v.numerical_eligible);
+            Value::from("pass")
+        }
+        Err(e) => serde_json::json!({"gate": e.gate, "code": e.code}),
+    };
+    let mut misses = Vec::new();
+    let new = n07_entries(&shared);
+    assert_eq!(new.len(), 290);
+    for entry in &new {
+        let (source, _) = apply_entry(&shared, entry);
+        let unbound = entry
+            .get("expected_unbound")
+            .unwrap_or_else(|| &entry["expected_unbound_by_reader"]["rust"]);
+        let got = read(rp::validate(&source, None));
+        if got != *unbound {
+            misses.push(format!("{} unbound: got {got} want {unbound}", entry["id"]));
+        }
+        let got = read(rp::validate_transport_metadata(&source));
+        if got != entry["expected_transport"] {
+            misses.push(format!(
+                "{} transport: got {got} want {}",
+                entry["id"], entry["expected_transport"]
+            ));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
 }
