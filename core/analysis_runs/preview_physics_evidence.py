@@ -151,7 +151,7 @@ def _header(source: Mapping[str, Any]) -> None:
     _finite_tree(evidence)
 
 
-def _cases(evidence: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
+def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> dict[str, Mapping[str, Any]]:
     cases: dict[str, Mapping[str, Any]] = {}
     for case in evidence["preview_cases"]:
         _shape(case, CASE_KEYS, "preview case shape")
@@ -185,8 +185,12 @@ def _cases(evidence: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
             _shape(measure, INTENSIFIED_KEYS, "intensified measure shape")
             _require(all(_text(measure[key]) for key in ("result_id", "component_id", "pipe_id")) and measure["location"] in {"end_i", "end_j"} and measure["factor_role"] in {"bend", "branch_header", "branch_branch"} and _text(measure["sif_source_reference"]), "intensified measure identity")
             _require(all(_number(measure[key]) for key in ("sif", "section_modulus_m3", "bending_moment_y_n_m", "bending_moment_z_n_m")) and measure["sif"] > 0 and measure["section_modulus_m3"] > 0, "intensified measure inputs")
-    # A2 3: dispositions are structural, so every case carries the same sets.
-    dispositions = {(frozenset(case["support_attribution"]["attributed_support_ids"]), frozenset((r["support_id"], r["reason"]) for r in case["support_attribution"]["withheld"])) for case in cases.values()}
+    # A2 3: dispositions are structural, so every case carries the same sets. On transport (RR "I4 made at
+    # `30f3d1b24a`; …", ruling 2) the withheld records are compared as multisets, as Rust and TS compare
+    # sorted lists, so a record whose multiplicity differs between cases is refused here. The raw read
+    # keeps sets: its support-action step refuses any record repeated within a case.
+    withheld = (lambda records: tuple(sorted(records))) if withheld_multiset else frozenset
+    dispositions = {(frozenset(case["support_attribution"]["attributed_support_ids"]), withheld((r["support_id"], r["reason"]) for r in case["support_attribution"]["withheld"])) for case in cases.values()}
     _require(len(dispositions) <= 1, "support attribution differs between cases")
     extrema_ids = [extremum["result_id"] for case in cases.values() for extremum in case["pipe_stress_extrema"]]
     measure_ids = [measure["result_id"] for case in cases.values() for measure in case["intensified_measures"]]
@@ -410,6 +414,13 @@ def validate_transport_metadata(source: Mapping[str, Any]) -> None:
     A retained package carries the statement without the raw rows, so the row
     joins of ``validate_preview_physics_evidence`` are checked only when the
     supplied raw envelope is validated separately.
+
+    Since RR "I4 made at `30f3d1b24a`; …" (ruling 2) this is the three readers'
+    shared form: Rust's and TS's checks plus this reader's extrema-number demand
+    (``global_upper_bound_pa`` and ``certified_gap_pa`` numbers), with the cases'
+    withheld records compared as multisets. It serves the retained reader's
+    transport step and the transport dispatch of a preview-physics-1 statement
+    (``compatibility._source_contract(..., check_receipt=False)``) alike.
     """
     from .source_blocks import _shape as schema_shape
     try:
@@ -421,7 +432,7 @@ def validate_transport_metadata(source: Mapping[str, Any]) -> None:
         evidence = source.get("contract_evidence")
         _require(schema_shape(evidence, schema["$defs"]["PreviewPhysicsContractEvidence"], schema), "transport evidence shape")
         _finite_tree(evidence)
-        _cases(evidence)
+        _cases(evidence, withheld_multiset=True)
         _gates(evidence)
     except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
         raise ValueError("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error

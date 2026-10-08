@@ -1583,3 +1583,146 @@ def test_b1_repair02_c2_cause_table_in_the_reader():
     }
     assert got == {"c2_receipt_ok": ("admitted", False, "needs_recompute"), "c2_receipt_phase_kernel": ATTEMPT, "c2_receipt_code_facade": ATTEMPT,
                    "c2_receipt_phase_preparation": ATTEMPT, "c2_facade_ok": PRODUCT, "c2_facade_phase_kernel": ATTEMPT}
+
+
+# ---------------------------------------------------------------------------------------------
+# B1's reader follow-up toward I4′, PY's lane (I100; RR "I4 made at `30f3d1b24a`; RV113's items for ROOT
+# ruled; …", rulings 1, 2 and 5). The inputs are RV113's probes (`probes_ts1.json`: the `h:`, `n6_` and
+# `r2:` ids named below), each built from its corpus base and edits and rehashed as a shared entry.
+# ---------------------------------------------------------------------------------------------
+I4P_INVALID = ("G7", "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID")
+I4P_NEEDS = ("admitted", False, "needs_recompute")
+I4P_CARRIER = _set(["carrier_evidence"], {})
+I4P_RECOVERY = _set(["source_block_recovery"], {})
+I4P_EVIDENCE_NULL = _set(["contract_evidence"], None)
+
+
+def _i4p_three(base, edits):
+    """((bound, unbound, transport) verdicts, their details) of the rehashed entry. A verdict is ("admitted",
+    eligible, standing) or the first failure (gate, code); a detail is the refusal's detail, or None."""
+    source, invocation = apply_entry(_cases()[base], {"edits": edits, "rehash": "all"})
+    verdicts, details = [], []
+    for read in (lambda s: rp.validate_retained_precision(s, deepcopy(invocation)), rp.validate_retained_precision, rp.validate_retained_precision_transport):
+        try:
+            result = read(deepcopy(source))
+            verdicts.append(("admitted", result["numerical_eligible"], result["standing"]))
+            details.append(None)
+        except rp.RetainedPrecisionError as error:
+            verdicts.append((error.gate, error.code))
+            details.append(error.detail)
+    return tuple(verdicts), tuple(details)
+
+
+def _i4p_projected(source):
+    """The reader's projection: the same statement under the preview-physics-1 identity (no receipt)."""
+    base = deepcopy(source)
+    del base["retained_precision"]
+    base["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/preview-physics-1"
+    base["formulation_basis"]["profile_id"] = "product_preview_mechanics_v1"
+    for row in base["results"]:
+        row.pop("recovery_method", None)
+    return base
+
+
+def test_i4p_ruling1_transport_header_takes_rusts_order_and_codes():
+    """Ruling 1 (RV113's SR-PY addendum S-1, option (a)): on transport, PY's base header takes Rust's order and
+    codes, as TS's does. It has no carrier branch, so a `carrier_evidence` member alone is a metadata defect, G7
+    SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID, and beside a header defect that defect's G2 code reads; and
+    `source_block_recovery` is checked before `contract_evidence`. RV113's six transport probes, each expected
+    with RS's and TS's gate and code at I4. Raw reads keep PY's own order at G7 (their codes are the declared
+    per-reader raw class, B1_SC item 13), unchanged; so does the transport dispatch of a statement that is not
+    a retained successor (ruling 1 is the retained reader's transport header)."""
+    from core.analysis_runs import compatibility as c
+    quality = _set(["numerical_quality", "status"], "bogus")
+    case = _set(["numerical_quality", "cases", 0, "structural_status"], ["x"])
+    probes = {
+        "h_carrier_present": ([I4P_CARRIER], I4P_INVALID, "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
+        "h_carrier_and_quality_defect": ([I4P_CARRIER, quality], ("G2", "SOURCE_NUMERICAL_QUALITY_INVALID"), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
+        "h_carrier_and_recovery": ([I4P_CARRIER, I4P_RECOVERY], ("G2", "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
+        "n6_carrier_evidence_with_case_defect": ([I4P_CARRIER, case], ("G2", "SOURCE_NUMERICAL_CASE_INVALID"), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
+        "h_recovery_and_evidence_null": ([I4P_RECOVERY, I4P_EVIDENCE_NULL], ("G2", "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"), "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"),
+        "n6_contract_evidence_null_and_source_block_recovery": ([I4P_EVIDENCE_NULL, I4P_RECOVERY], ("G2", "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"), "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"),
+    }
+    got = {name: _i4p_three(O_BASE, edits)[0] for name, (edits, _, _) in probes.items()}
+    assert got == {name: (("G7", raw), ("G7", raw), transport) for name, (_, transport, raw) in probes.items()}
+    # The carrier member alone reaches the metadata check's namespace demand.
+    assert _i4p_three(O_BASE, [I4P_CARRIER])[1][2] == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: unsupported source namespace"
+    # Each member alone keeps its own gate and code; the unedited base is admitted, never eligible.
+    assert _i4p_three(O_BASE, [I4P_RECOVERY])[0][2] == ("G2", "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
+    assert _i4p_three(O_BASE, [I4P_EVIDENCE_NULL])[0][2] == ("G2", "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED")
+    assert _i4p_three(O_BASE, [])[0][2] == I4P_NEEDS
+    # The successor's transport dispatch is the reader's transport step: its text is the reader's detail.
+    def dispatch(s):
+        try:
+            c._source_contract(deepcopy(s), check_receipt=False)
+            return "ok"
+        except ValueError as error:
+            return str(error)
+    carrier, _ = apply_entry(_cases()[O_BASE], {"edits": [I4P_CARRIER], "rehash": "all"})
+    pair, _ = apply_entry(_cases()[O_BASE], {"edits": [I4P_RECOVERY, I4P_EVIDENCE_NULL], "rehash": "all"})
+    assert dispatch(carrier) == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: unsupported source namespace"
+    assert dispatch(pair) == "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+    # A preview-physics-1 statement's own transport dispatch is unchanged (Python's order).
+    assert dispatch(_i4p_projected(carrier)) == "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+    assert dispatch(_i4p_projected(pair)) == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
+
+
+def test_i4p_ruling2_transport_metadata_compares_withheld_records_as_multisets():
+    """Ruling 2 (N-1 in RV113's three addenda): the transport metadata check's shared form is Rust's and TS's
+    check plus PY's extrema-number demand. On transport, a withheld record whose multiplicity differs between
+    cases (`r2:t_withheld_duplicate_multiset`) is refused at G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: PY now
+    compares the records as multisets (it compared sets and admitted it). Equal multisets, in any order, are
+    admitted, as in RS and TS. The extrema-number demand stays (`r2:t_extrema_global_upper_string`,
+    `r2:t_extrema_certified_gap_null`). The same check serves a preview-physics-1 statement's transport
+    dispatch, with the same result. Raw reads are unchanged."""
+    from core.analysis_runs import compatibility as c
+    from core.analysis_runs.preview_physics_evidence import validate_transport_metadata
+    two = "two_case_synthetic"
+    path = lambda i: ["contract_evidence", "preview_cases", i, "support_attribution", "withheld"]
+    s = {"support_id": "s", "reason": "CONSTANT_EFFORT_NOT_CONSUMED"}
+    t = {"support_id": "t", "reason": "SUPPORT_ACTION_ATTRIBUTION_WITHHELD"}
+    rows = {
+        "t_withheld_duplicate_multiset": ([_set(path(0), [s, s]), _set(path(1), [s])], I4P_INVALID),
+        "the multiplicities the other way": ([_set(path(0), [s]), _set(path(1), [s, s])], I4P_INVALID),
+        "equal multisets, a duplicate in each": ([_set(path(0), [s, s]), _set(path(1), [s, s])], I4P_NEEDS),
+        "equal multisets, in another order": ([_set(path(0), [s, t]), _set(path(1), [t, s])], I4P_NEEDS),
+        "the sets differ": ([_set(path(0), [s]), _set(path(1), [t])], I4P_INVALID),
+    }
+    got = {name: _i4p_three(two, edits) for name, (edits, _) in rows.items()}
+    assert {name: verdicts[2] for name, (verdicts, _) in got.items()} == {name: want for name, (_, want) in rows.items()}
+    verdicts, details = got["t_withheld_duplicate_multiset"]
+    assert details[2] == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: support attribution differs between cases"
+    # Raw reads are unchanged: the support-action step refuses a record repeated within a case.
+    assert verdicts[:2] == (I4P_INVALID, I4P_INVALID)
+    assert details[:2] == ("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: withheld support record and diagnostic disagree",) * 2
+    # The same transport metadata check, reached without a receipt, and the raw base check.
+    source, _ = apply_entry(_cases()[two], {"edits": rows["t_withheld_duplicate_multiset"][0], "rehash": "all"})
+    base = _i4p_projected(source)
+    for check in (validate_transport_metadata, lambda s: c._source_contract(s, check_receipt=False)):
+        with pytest.raises(ValueError) as error:
+            check(deepcopy(base))
+        assert str(error.value) == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: support attribution differs between cases"
+    with pytest.raises(ValueError) as error:
+        c._source_contract(deepcopy(base))
+    assert str(error.value) == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: withheld support record and diagnostic disagree"
+    equal, _ = apply_entry(_cases()[two], {"edits": rows["equal multisets, in another order"][0], "rehash": "all"})
+    validate_transport_metadata(_i4p_projected(equal))
+    # The extrema-number demand, kept: refused bound, unbound and on transport.
+    extremum = ["contract_evidence", "preview_cases", 0, "pipe_stress_extrema", 0]
+    for key, value in (("global_upper_bound_pa", "x"), ("certified_gap_pa", None)):
+        assert _i4p_three(O_BASE, [_set(extremum + [key], value)])[0] == (I4P_INVALID,) * 3, key
+
+
+def test_i4p_ruling5_kernel_reason_without_a_run_is_g5_attempt_in_the_reader():
+    """Ruling 5 (RV113's SR-PY addendum N-2): C2's kernel branch through the whole reader. A kernel reason on a
+    case with no Run (`r2:cb_kernel_no_run`) is G5 ATTEMPT_MISMATCH, bound and unbound, refused by the check
+    itself with no cause (D16), never by the fail-closed fallback's G5 PRODUCT_ATTEMPT."""
+    case = {"basis_ref": {"ref_type": "load_case", "ref_id": UNAVAILABLE_ROW}, "ordinary": {"attempt_ref": 1, "quality_binding": {"kind": "present", "index": 1}},
+            "product_attempt_ref": None, "status": "unavailable",
+            "reason": {"code": "kernel_refused", "phase": "kernel", "cause": {"space": "refusal", "tag": "structure"}},
+            "diagnostic_ref": "diagnostic:retained:unavailable-row", "run": None, "source_ref": None}
+    source, invocation = apply_entry(_cases()[P_BASE], {"edits": [_set(B + ["cases", 1], case), {"path": B + ["product_attempts", 1], "op": "remove"}], "rehash": "all"})
+    for inv in (invocation, None):
+        with pytest.raises(rp.RetainedPrecisionError) as error:
+            rp.validate_retained_precision(deepcopy(source), deepcopy(inv))
+        assert (error.value.gate, error.value.code, error.value.__cause__) == (*ATTEMPT, None)
