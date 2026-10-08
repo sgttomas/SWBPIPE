@@ -330,3 +330,36 @@ describe("A2 shared tamper vector", () => {
     else invalid(source, TS_REFUSAL_DETAIL[variant.id]);
   });
 });
+
+// B1's reader follow-up toward I4' (I101; RR "I4 made at `30f3d1b24a`; …", rulings 2 and 3): PY's extrema-number
+// demand. readCases runs it for the raw reader and for the transport check, so both refuse a non-number
+// global_upper_bound_pa or certified_gap_pa (null included) with "extrema numbers", at PY's place.
+describe("rulings 2 and 3: each extremum's global_upper_bound_pa and certified_gap_pa is a finite number", () => {
+  const message = (run: () => void): string | null => { try { run(); return null; } catch (error) { return (error as Error).message; } };
+  const both = (source: MechanicsResult) => [message(() => validatePreviewPhysicsEvidence(source)), message(() => validatePreviewPhysicsTransportMetadata(source))];
+  const refused = (detail: string) => [`SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: ${detail}`, `SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: ${detail}`];
+  const edited = (fixture: unknown, edit: (x: any) => void, at = [0, 0]) => {
+    const source = clone(fixture);
+    edit(evidence(source).preview_cases[at[0]].pipe_stress_extrema[at[1]]);
+    return source;
+  };
+  const shapes: [string, string, unknown][] = [
+    ["global_upper_bound_pa a string", "global_upper_bound_pa", "x"],
+    ["global_upper_bound_pa null", "global_upper_bound_pa", null],
+    ["global_upper_bound_pa a boolean", "global_upper_bound_pa", true],
+    ["certified_gap_pa null", "certified_gap_pa", null],
+    ["certified_gap_pa a string", "certified_gap_pa", "0"],
+    ["certified_gap_pa a list", "certified_gap_pa", [0]],
+  ];
+  it.each(shapes)("%s: refused by the raw reader and the transport check", (_name, member, value) => {
+    for (const fixture of [connectedSparse, inventedSparse]) expect(both(edited(fixture, x => { x[member] = value; }))).toEqual(refused("extrema numbers"));
+    // A later case's later extremum is read the same way.
+    expect(both(edited(inventedSparse, x => { x[member] = value; }, [1, 3]))).toEqual(refused("extrema numbers"));
+  });
+  it("admits integers; the demand precedes the fraction, integer and bound checks", () => {
+    expect(both(edited(connectedSparse, x => { x.global_upper_bound_pa = 41354909; x.certified_gap_pa = 0; }))).toEqual([null, null]);
+    expect(both(edited(connectedSparse, x => { x.global_upper_bound_pa = "x"; x.station_fraction = 2; }))).toEqual(refused("extrema numbers"));
+    expect(both(edited(connectedSparse, x => { x.certified_gap_pa = null; x.span_index = -1; }))).toEqual(refused("extrema numbers"));
+    expect(both(edited(connectedSparse, x => { x.station_fraction = 2; }))).toEqual(refused("extrema fractions"));
+  });
+});
