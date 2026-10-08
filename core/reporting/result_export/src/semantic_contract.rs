@@ -113,6 +113,14 @@ pub const PREVIEW_PHYSICS_RETAINED_ID: &str = crate::retained_precision::CONTRAC
 pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PROFILE;
 pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
     "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c";
+/// B3b (B3-D §6.1): the exact successor `<physics-retained>`, whose base is
+/// physics-1. Like the preview successor, its raw and transport statements are
+/// checked only by the accepted reader (`crate::retained_precision`, its exact
+/// route), and its standing comes only from that reader's verified receipt.
+pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_ID;
+pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
+pub const PHYSICS_RETAINED_SHA256: &str =
+    "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
@@ -144,8 +152,43 @@ pub fn preview_physics_retained_contract() -> &'static Value {
         .expect("pinned preview-physics-retained semantic contract")
     })
 }
+/// Pinned exact successor table bytes: identity, profile and sha256 are checked.
+pub fn verify_physics_retained_table(bytes: &[u8]) -> Result<Value, String> {
+    use sha2::{Digest, Sha256};
+    if format!("{:x}", Sha256::digest(bytes)) != PHYSICS_RETAINED_SHA256 {
+        return Err("SOURCE_PHYSICS_RETAINED_TABLE_HASH".into());
+    }
+    let table: Value = serde_json::from_slice(bytes)
+        .map_err(|_| "SOURCE_PHYSICS_RETAINED_TABLE_HASH".to_string())?;
+    if table["semantic_contract_id"] != PHYSICS_RETAINED_ID
+        || table["formulation_profile_id"] != PHYSICS_RETAINED_PROFILE
+    {
+        return Err("SOURCE_PHYSICS_RETAINED_TABLE_IDENTITY".into());
+    }
+    Ok(table)
+}
+pub fn physics_retained_contract() -> &'static Value {
+    static CONTRACT: OnceLock<Value> = OnceLock::new();
+    CONTRACT.get_or_init(|| {
+        verify_physics_retained_table(include_bytes!(
+            "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
+        ))
+        .expect("pinned physics-retained semantic contract")
+    })
+}
+/// Either successor identity: the preview `<preview-physics-retained>` or the
+/// exact `<physics-retained>` (B3b). Only these may carry a receipt.
 fn is_retained(source: &Value) -> bool {
     source["producer"]["semantic_contract_id"] == PREVIEW_PHYSICS_RETAINED_ID
+        || source["producer"]["semantic_contract_id"] == PHYSICS_RETAINED_ID
+}
+/// The successor's own pinned table, by identity.
+fn retained_contract(source: &Value) -> &'static Value {
+    if source["producer"]["semantic_contract_id"] == PHYSICS_RETAINED_ID {
+        physics_retained_contract()
+    } else {
+        preview_physics_retained_contract()
+    }
 }
 /// The reader's first failure as this module's error text: a G7 failure keeps
 /// the base validator's own text, every other gate its code.
@@ -271,7 +314,7 @@ pub fn for_source_metadata(source: &Value) -> Result<(&'static Value, &'static s
         // Transport checks (G0-G2 plus the base metadata check on the reader's
         // projection); never eligible. The projection drops the receipt.
         crate::retained_precision::validate_transport_metadata(source).map_err(retained_error)?;
-        return Ok((preview_physics_retained_contract(), "0.3.0"));
+        return Ok((retained_contract(source), "0.3.0"));
     }
     forbid_retained_member(source)?;
     match source["schema_version"].as_str() {
@@ -440,7 +483,7 @@ pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), Stri
         // function's unchanged base branch on its own projection, which drops
         // the receipt and the method token, so this branch is not re-entered.
         crate::retained_precision::validate(source, None).map_err(retained_error)?;
-        return Ok((preview_physics_retained_contract(), "0.3.0"));
+        return Ok((retained_contract(source), "0.3.0"));
     }
     let selected = for_source_metadata(source)?;
     forbid_retained_rows(source)?;
