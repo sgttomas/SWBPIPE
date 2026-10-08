@@ -2302,10 +2302,12 @@ fn b3b_d1_admits_the_exact_route_with_empty_regions() {
     }
 }
 
-/// B3b-A's Direct-entry oracle (no producer change yet: PP `permitted_run` sends a permitted
-/// exact model to the unchanged ordinary route, `W1Fallback::Domain`). m3x and the coexistence
-/// pins n05 and n06 publish exactly the ordinary value route's bytes in both modes, admitted
-/// in the registered build.
+/// B3b-A's Direct-entry oracle, after B3b-P (lane P, I105): `permitted_run` sends a permitted
+/// exact model to W1's exact route (B3-D P-1, P-2). The coexistence pins n05 and n06 still
+/// publish exactly the ordinary value route's bytes in both modes (T-3 (c): `Coexistence`, under
+/// the route's 8,000,000 budget); m3x runs W1 and publishes its successor or, while RS refuses
+/// `physics-retained-1` at G0 (until B3's readers land), the ordinary bytes plus one notice.
+/// Admitted in the registered build; Stale keeps the plain bytes.
 #[test]
 fn b3b_direct_entry_keeps_the_exact_ordinary_bytes() {
     let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
@@ -2316,14 +2318,28 @@ fn b3b_direct_entry_keeps_the_exact_ordinary_bytes() {
             let direct = crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
             let report = direct.admission().unwrap();
             assert_eq!(report.law().domain, None, "{label} {mode:?}");
-            if registered {
-                assert_eq!(report.law().refusal, None, "{label} {mode:?}: admitted");
-                assert!(matches!(direct.retained(), Some(Err(crate::W1Fallback::Domain))), "{label} {mode:?}: {:?}", direct.retained());
-            } else {
+            if !registered {
                 assert_eq!(report.law().refusal, d1_1_refusal(), "{label} {mode:?}");
+                assert!(direct.successor().is_none(), "{label} {mode:?}");
+                assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain, "{label} {mode:?}: the exact ordinary bytes");
+                continue;
             }
-            assert!(direct.successor().is_none(), "{label} {mode:?}");
-            assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain, "{label} {mode:?}: the exact ordinary bytes");
+            assert_eq!(report.law().refusal, None, "{label} {mode:?}: admitted");
+            if label != "m3x" {
+                assert!(matches!(direct.retained(), Some(Err(crate::W1Fallback::Coexistence))), "{label} {mode:?}: {:?}", direct.retained());
+                assert!(direct.successor().is_none(), "{label} {mode:?}");
+                assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain, "{label} {mode:?}: the exact ordinary bytes");
+                continue;
+            }
+            match direct.retained() {
+                Some(Ok(_)) => assert!(direct.successor().is_some(), "{label} {mode:?}"),
+                Some(Err(crate::W1Fallback::Precommit { gate: "G0", code })) if code == "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED" => {
+                    let envelope = serde_json::to_value(direct.envelope()).unwrap();
+                    let notices = envelope["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == "RETAINED_PRECISION_UNAVAILABLE").count();
+                    assert_eq!(notices, 1, "{label} {mode:?}: the ordinary bytes plus one notice");
+                }
+                other => panic!("{label} {mode:?}: {other:?}"),
+            }
         }
     }
 }

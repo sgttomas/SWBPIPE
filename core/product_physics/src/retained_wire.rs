@@ -40,6 +40,35 @@ pub(super) const CANONICALIZATION: &str = "openpipestress_jcs_ijson_v1";
 pub(super) const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub(super) const DEFINITION_SHA256: &str =
     "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349";
+/// B3b-P (B3-D P-9): the exact successor's identity and profile (reserved 2026-10-03;
+/// `semantic_contract_v0_3_physics_retained_1.json`), and its formation definition DEF-E with
+/// its H("retained_precision_formation_v1", definition) (B3-D REVISION_01 §1.2). Bound to the
+/// in-tree definition and to the table's entry by tests.
+pub(super) const EXACT_SEMANTIC_ID: &str = "openpipestress.result_semantics/0.3.0/physics-retained-1";
+pub(super) const EXACT_PROFILE_ID: &str = "exact_straight_retained_w1a_v2";
+pub(super) const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
+pub(super) const EXACT_DEFINITION_SHA256: &str =
+    "5a3bac430df9bbc77484d5419c75880ad40ae209b439e5f928374458025281af";
+/// B3b-P (B3-D P-9; REVISION_01 §2, S-1): the route descriptor the serializer takes its
+/// route-specific members from, never a module constant: the successor's identity and profile,
+/// every product attempt's `definition_id`, the preparation payload's `definition_sha256` (C3
+/// §2: "the table-bound H(definition)") and the section terms' `geometry.route`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct RouteWire {
+    pub semantic_id: &'static str,
+    pub profile_id: &'static str,
+    pub definition_id: &'static str,
+    pub definition_sha256: &'static str,
+    pub geometry_route: &'static str,
+}
+pub(super) fn route_wire(route: rp::W1Route) -> RouteWire {
+    match route {
+        rp::W1Route::Preview => RouteWire { semantic_id: RETAINED_SEMANTIC_ID, profile_id: RETAINED_PROFILE_ID,
+            definition_id: DEFINITION_ID, definition_sha256: DEFINITION_SHA256, geometry_route: "preview" },
+        rp::W1Route::Exact => RouteWire { semantic_id: EXACT_SEMANTIC_ID, profile_id: EXACT_PROFILE_ID,
+            definition_id: EXACT_DEFINITION_ID, definition_sha256: EXACT_DEFINITION_SHA256, geometry_route: "exact" },
+    }
+}
 /// W1-LME-20B-60B-v1 (C1 §2): the case limit `solve_native` passes and the
 /// invocation limit its meter carries.
 pub(super) const CASE_LIMIT: u64 = 20_000_000_000;
@@ -737,14 +766,16 @@ fn range_trigger(e: &Enc, trigger: &RangeTrigger) -> Value {
 
 /// G-a with T1 (a): identity, profile, method token, the omitted legacy
 /// disclosure (by its captured id) and the selected-case diagnostic.
-fn successor_envelope(env: &mut Value, case_id: &str, omit: Option<&str>) -> Result<String, ReceiptFailure> {
-    successor_identity(env);
+fn successor_envelope(env: &mut Value, route: rp::W1Route, case_id: &str, omit: Option<&str>) -> Result<String, ReceiptFailure> {
+    successor_identity(env, route);
     selected_case_envelope(env, case_id, omit)
 }
-/// The successor's identity and profile (G-a), set once per successor.
-fn successor_identity(env: &mut Value) {
-    env["producer"]["semantic_contract_id"] = json!(RETAINED_SEMANTIC_ID);
-    env["formulation_basis"]["profile_id"] = json!(RETAINED_PROFILE_ID);
+/// The successor's identity and profile (G-a), set once per successor: the route's (B3b-P, P-9;
+/// the profile's `limitations` stay the base producer's).
+fn successor_identity(env: &mut Value, route: rp::W1Route) {
+    let wire = route_wire(route);
+    env["producer"]["semantic_contract_id"] = json!(wire.semantic_id);
+    env["formulation_basis"]["profile_id"] = json!(wire.profile_id);
 }
 /// One selected case's part of G-a with T1 (a): its rows' method token, its omitted legacy
 /// disclosure and its selected-case diagnostic (appended).
@@ -891,15 +922,32 @@ fn material_basis(e: &Enc, capture: &rp::ProductCapture, raw: &Value, cases: usi
         if input["id"].as_str() != Some(id.as_str()) {
             return Err(assoc("material_bases[].materials[].id"));
         }
-        // An explicit G is the request's own member; a derived E/nu basis is wider scope.
-        if input.get("shear_modulus").is_none_or(Value::is_null) {
-            return Err(fail(ReceiptCheck::Untranslated, "material_bases[].materials[].shear_origin"));
-        }
         const P: &str = "material_bases[].materials[]";
+        let shear_origin = match capture.route() {
+            rp::W1Route::Preview => explicit_g_origin(input)?,
+            rp::W1Route::Exact => derived_e_nu_origin(e, capture, i)?,
+        };
         materials.push(json!({"input_index":i,"id":id,"elastic_modulus":e.bits(*modulus,P),"shear_modulus":e.bits(*shear,P),
-            "shear_origin":{"kind":"explicit_g"},"selection":{"kind":"base"}}));
+            "shear_origin":shear_origin,"selection":{"kind":"base"}}));
     }
     Ok(json!({"index":0,"selector":{"kind":"base"},"materials":materials,"case_indices":(0..cases).collect::<Vec<_>>()}))
+}
+/// The preview route's shear origin: an explicit G is the request's own member; a derived E/ν
+/// basis there is wider scope.
+fn explicit_g_origin(input: &Value) -> Result<Value, ReceiptFailure> {
+    if input.get("shear_modulus").is_none_or(Value::is_null) {
+        return Err(fail(ReceiptCheck::Untranslated, "material_bases[].materials[].shear_origin"));
+    }
+    Ok(json!({"kind":"explicit_g"}))
+}
+/// B3b-P (B3-D P-9, §1.2): the exact route's shear origin: Ĝ derived from the base common E and
+/// ν (`homogeneous_isotropic_E_nu_v1`), with ν's bits as captured (any authored G is ignored by
+/// the exact route, which publishes Ĝ as `shear_modulus`).
+fn derived_e_nu_origin(e: &Enc, capture: &rp::ProductCapture, input_index: usize) -> Result<Value, ReceiptFailure> {
+    let nu = capture.material_nu.get(input_index).copied().flatten()
+        .ok_or(fail(ReceiptCheck::Association, "material_bases[].materials[].shear_origin.poisson_ratio"))?;
+    Ok(json!({"kind":"derived_e_nu","poisson_ratio":e.bits(nu,"material_bases[].materials[].shear_origin"),
+        "constitutive_basis":rp::EXACT_CONSTITUTIVE_BASIS}))
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -979,7 +1027,7 @@ fn case_source(e: &Enc, capture: &rp::ProductCapture, source: &k::PrimitiveSourc
         let op = attempt.operational_new.get(i).and_then(|o| o.result.as_ref().ok()).ok_or(assoc("sources[].section_terms[]"))?;
         section_terms.push(json!({"member":i,"area":e.bits(f.area,P),"section_modulus":e.bits(f.section_modulus,P),"length":e.bits(op.length,P),
             "axial_stiffness":e.bits(op.axial,P),"torsional_stiffness":e.bits(op.torsion,P),
-            "geometry":{"route":"preview","normalized_od":e.bits(f.diameter,P),"effective_wall":e.bits(f.effective_wall,P),"actual_radius":e.bits(f.radius,P),
+            "geometry":{"route":route_wire(capture.route()).geometry_route,"normalized_od":e.bits(f.diameter,P),"effective_wall":e.bits(f.effective_wall,P),"actual_radius":e.bits(f.radius,P),
                 "actual_second_moment":e.bits(f.second_moment,P),"actual_polar_moment":e.bits(f.torsion_constant,P)}}));
     }
     Ok(json!({"index":run.source,"owner":{"kind":"case","case_index":case_index,"case_id":case_id},"material_basis_ref":0,
@@ -1311,7 +1359,7 @@ fn product_attempt(e: &Enc, view: &rr::PreparedAttemptView<'_>, id: usize, case_
         stages_v.insert((*n).into(), stage_name(e, *s));
     }
     let a = view.adapter;
-    json!({"id":id,"definition_id":DEFINITION_ID,"owner_ref":{"kind":"case","index":case_index},"ordinary_attempt_ref":case_index,"material_basis_ref":0,
+    json!({"id":id,"definition_id":route_wire(capture.route()).definition_id,"owner_ref":{"kind":"case","index":case_index},"ordinary_attempt_ref":case_index,"material_basis_ref":0,
         "source_ref":source_ref,"run_ref":run_ref,"result":result,"preparation":{"members":members},"stages":stages_v,"proof":proof_trace(e,view,capture),
         "adapter":{"counts":a.counts,"fault":a.fault.map(|rp::AdapterFault::Overflow(ev)|json!({"kind":"overflow","event":EVENTS.get(ev as usize).map_or_else(||e.untranslated("product_attempts[].adapter.fault.event"),|n|json!(n))})),
             "prepared_capacity_bytes":a.prepared_capacity_bytes,"observation_capacity_bytes":a.observation_capacity_bytes,"support_capacity_bytes":a.support_capacity_bytes},
@@ -1319,10 +1367,12 @@ fn product_attempt(e: &Enc, view: &rr::PreparedAttemptView<'_>, id: usize, case_
             "old":view.operational_old.iter().map(|o|operational(e,o)).collect::<Vec<_>>(),"new":view.operational_new.iter().map(|o|operational(e,o)).collect::<Vec<_>>()},
         "overlay_work":scalar(view.overlay_work),"g5a_work":scalar(view.g5a_work)})
 }
-fn preparation_payload(a: &Value) -> Value {
+/// C3 §2's preparation payload; its `definition_sha256` is the route's table-bound definition H
+/// (B3b-P; B3-D REVISION_01 S-1): DEF-E's on the exact route, DEF-O's on the preview route.
+fn preparation_payload(a: &Value, route: rp::W1Route) -> Value {
     let members = a["preparation"]["members"].as_array().map(|ms| ms.iter().map(|m| json!({
         "member":m["member"],"old_source":m["old_source"],"old_facts":m["old_facts"],"section":m["result"]["section"]})).collect::<Vec<_>>());
-    json!({"definition_id":a["definition_id"],"definition_sha256":DEFINITION_SHA256,"owner_ref":a["owner_ref"],"ordinary_attempt_ref":a["ordinary_attempt_ref"],
+    json!({"definition_id":a["definition_id"],"definition_sha256":route_wire(route).definition_sha256,"owner_ref":a["owner_ref"],"ordinary_attempt_ref":a["ordinary_attempt_ref"],
         "material_basis_ref":a["material_basis_ref"],"members":members})
 }
 /// Every body integer is a safe JSON integer; the body carries no float.
@@ -1516,8 +1566,8 @@ fn finish(e: Enc, mut env: Value, invocation: &source_receipt::CapturedInvocatio
 }
 /// The source's preparation reference (C3 §2): the product attempt that prepared it, by its
 /// index in `product_attempts[]` (B1 SP, DESIGN_v2 T-7: the attempt's own index; 0 at c = 1).
-fn bind_preparation(source: &mut Value, attempt: &Value, attempt_ref: usize) -> Result<(), ReceiptFailure> {
-    let preparation = domain_hash("retained_precision_preparation_v1", &preparation_payload(attempt)).ok_or(fail(ReceiptCheck::Encoding, "sources[].preparation.sha256"))?;
+fn bind_preparation(source: &mut Value, attempt: &Value, attempt_ref: usize, route: rp::W1Route) -> Result<(), ReceiptFailure> {
+    let preparation = domain_hash("retained_precision_preparation_v1", &preparation_payload(attempt, route)).ok_or(fail(ReceiptCheck::Encoding, "sources[].preparation.sha256"))?;
     source["preparation"] = json!({"attempt_ref":attempt_ref,"sha256":preparation});
     Ok(())
 }
@@ -1572,7 +1622,7 @@ fn serialize_selected_from(candidate: &impl SelectedCandidate, overlaid: &Mechan
     let mut env = serde_json::to_value(overlaid).map_err(|_| fail(ReceiptCheck::Encoding, "envelope"))?;
     let mut legacy_source_work = Vec::new();
     let (legacy, omit) = legacy_source(&e, seed.legacy.as_ref(), case_index, &mut legacy_source_work, true)?;
-    successor_envelope(&mut env, &case_id, omit.as_deref())?;
+    successor_envelope(&mut env, pc.route(), &case_id, omit.as_deref())?;
 
     // Row bindings: the producer's own QuantityId/recipe binding in envelope row order.
     let rows = pc.bind_rows(overlaid, owner).map_err(|_| assoc("cases[].selection.absolute_verified"))?;
@@ -1588,7 +1638,7 @@ fn serialize_selected_from(candidate: &impl SelectedCandidate, overlaid: &Mechan
     let run_v = run_value(&e, run, records, terminal, case_index)?;
     let mut source = case_source(&e, pc, owner.source(), inv, run, case_index, &case_id, &view)?;
     let attempt = product_attempt(&e, &view, 0, case_index, Some(run.source), Some(case.run), json!({"kind":"ready"}), pc);
-    bind_preparation(&mut source, &attempt, 0)?;
+    bind_preparation(&mut source, &attempt, 0, pc.route())?;
     let source_identity = {
         let mut binding = source.clone();
         binding.as_object_mut().ok_or(assoc("sources[]"))?.remove("index");
@@ -1622,8 +1672,8 @@ pub(super) const UNAVAILABLE_MESSAGE: &str = "Retained-precision recovery is una
 
 /// G-a for an unavailable case: identity and profile, no method token, the
 /// legacy disclosure kept, and the unavailable diagnostic.
-fn unavailable_envelope(env: &mut Value, case_id: &str) -> Result<String, ReceiptFailure> {
-    successor_identity(env);
+fn unavailable_envelope(env: &mut Value, route: rp::W1Route, case_id: &str) -> Result<String, ReceiptFailure> {
+    successor_identity(env, route);
     unavailable_case_envelope(env, case_id)
 }
 /// One unavailable case's part of G-a: its unavailable-case diagnostic (appended); its
@@ -1682,7 +1732,7 @@ pub(super) fn serialize_unavailable(refused: Refused<'_>, invocation: &source_re
     let mut env = serde_json::to_value(ordinary_env).map_err(|_| fail(ReceiptCheck::Encoding, "envelope"))?;
     let mut legacy_source_work = Vec::new();
     let (legacy, _) = legacy_source(&e, seed.legacy.as_ref(), case_index, &mut legacy_source_work, false)?;
-    let diagnostic_ref = unavailable_envelope(&mut env, &case_id)?;
+    let diagnostic_ref = unavailable_envelope(&mut env, pc.route(), &case_id)?;
     let (ordinary, quality_index) = ordinary_value(&e, &env, &case_id, case_index, mode, seed, legacy)?;
     let error = public_error(&e, failure, pc);
     let material = material_basis(&e, pc, raw, 1)?;
@@ -1722,7 +1772,7 @@ pub(super) fn serialize_unavailable(refused: Refused<'_>, invocation: &source_re
             };
             let attempt = product_attempt(&e, &view, 0, case_index, Some(run.source), Some(case.run), json!({"kind":"unavailable","error":error}), pc);
             if view.members.iter().all(|m| matches!(m.result, rr::PreparationResult::Prepared(_))) {
-                bind_preparation(&mut source_v, &attempt, 0)?;
+                bind_preparation(&mut source_v, &attempt, 0, pc.route())?;
             }
             let case_v = json!({"basis_ref":{"ref_type":"load_case","ref_id":case_id},"ordinary":{"attempt_ref":case_index,"quality_binding":{"kind":"present","index":quality_index}},
                 "product_attempt_ref":0,"status":"unavailable","reason":{"code":code.0,"phase":code.1,"cause":{"kind":"prepared_product_failure","product_attempt_ref":0}},
@@ -1820,7 +1870,7 @@ fn serialize_cases_with(pc: &mut rp::ProductCapture, attempts: &[rp::CaseAttempt
     }
     // The successor envelope (G-a; T1 (a)).
     let mut env = serde_json::to_value(staged).map_err(|_| fail(ReceiptCheck::Encoding, "envelope"))?;
-    successor_identity(&mut env);
+    successor_identity(&mut env, pc.route());
     let mut diagnostic_ids: Vec<Option<String>> = vec![None; count];
     for (index, (_, omit)) in legacy.iter().enumerate() {
         if status[index] == CaseStatus::Selected {
@@ -1941,7 +1991,7 @@ fn serialize_attempt(e: &Enc, pc: &rp::ProductCapture, attempt: &rp::CaseAttempt
         let run_v = run_value(e, run, records, terminal, request)?;
         let mut source = case_source(e, pc, owner.source(), inv, run, request, case_id, &view)?;
         let attempt_v = product_attempt(e, &view, attempt.attempt, request, Some(run.source), Some(case.run), json!({"kind":"ready"}), pc);
-        bind_preparation(&mut source, &attempt_v, attempt.attempt)?;
+        bind_preparation(&mut source, &attempt_v, attempt.attempt, pc.route())?;
         let source_identity = {
             let mut binding = source.clone();
             binding.as_object_mut().ok_or(assoc("sources[]"))?.remove("index");
@@ -1999,7 +2049,7 @@ fn serialize_attempt(e: &Enc, pc: &rp::ProductCapture, attempt: &rp::CaseAttempt
             };
             let attempt_v = product_attempt(e, &view, attempt.attempt, request, Some(run.source), Some(case.run), json!({"kind":"unavailable","error":error}), pc);
             if view.members.iter().all(|m| matches!(m.result, rr::PreparationResult::Prepared(_))) {
-                bind_preparation(&mut source_v, &attempt_v, attempt.attempt)?;
+                bind_preparation(&mut source_v, &attempt_v, attempt.attempt, pc.route())?;
             }
             let part = json!({"status":"unavailable","reason":{"code":code.0,"phase":code.1,"cause":cause},
                 "diagnostic_ref":diagnostic_ref,"run":run_v,"source_ref":run.source});
@@ -2294,7 +2344,7 @@ pub(super) fn test_kernel_terminal(outcome: &k::ExecutionOutcome) -> (usize, Val
 /// Test access to the structural checks RV82-N1 names.
 #[cfg(test)]
 pub(super) fn test_successor_envelope(env: &mut Value, case_id: &str, omit: Option<&str>) -> Result<String, ReceiptFailure> {
-    successor_envelope(env, case_id, omit)
+    successor_envelope(env, rp::W1Route::Preview, case_id, omit)
 }
 #[cfg(test)]
 pub(super) fn test_after_conserved(before: u64, increment: u64, after: u64) -> (bool, Vec<ReceiptFailure>) {
