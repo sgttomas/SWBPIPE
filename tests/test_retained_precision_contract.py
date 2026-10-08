@@ -113,7 +113,8 @@ def apply_mutation(base, mutation):
             preparation = source["preparation"]
             attempt = _rehash_ref(body["product_attempts"], preparation["attempt_ref"]) if preparation is not None else None
             if attempt is not None and all(m["result"]["kind"] == "prepared" for m in attempt["preparation"]["members"]):
-                preparation["sha256"] = rp._hash("retained_precision_preparation_v1", rp._preparation_payload(attempt))
+                # The shared corpus is on the preview route: DEF-O's H (S-1; the reader's payload has no default).
+                preparation["sha256"] = rp._hash("retained_precision_preparation_v1", rp._preparation_payload(attempt, rp.DEFINITION_HASH))
         for case in body["cases"]:
             source = _rehash_ref(body["sources"], case.get("source_ref")) if case["status"] == "selected" else None
             if source is not None:

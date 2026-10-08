@@ -395,9 +395,10 @@ def _native_source_encoding(source, include_loads):
     return bytes(out)
 
 
-def _preparation_payload(a, definition_hash=DEFINITION_HASH):
+def _preparation_payload(a, definition_hash):
     """C3 §2: `definition_sha256` is the table-bound H(definition) of the route (S-1; B3-D REVISION_01 §2): DEF-O's
-    on the preview route, DEF-E's on the exact route. The reader passes its route's hash at both sites (G1, G8)."""
+    on the preview route, DEF-E's on the exact route. Every caller passes its route's hash (G1, G8); there is no
+    default (RV120 N1: "never a module constant")."""
     return {"definition_id": a["definition_id"], "definition_sha256": definition_hash,
             "owner_ref": a["owner_ref"], "ordinary_attempt_ref": a["ordinary_attempt_ref"],
             "material_basis_ref": a["material_basis_ref"], "members": [
@@ -1512,7 +1513,6 @@ def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None):
             member = next(m for m in source["id_maps"]["members"] if m["kernel_member"] == right["member"])
             # D18 (retained_product.rs `ScalarWork::operation`, `evaluate_operational`; endpoint_maximum.rs `endpoint_maximum`): each echoed term equals the source's and is positive.
             _need(left["member_id"] == member["id"] and all(left[k] == right[k] and from_bits(left[k]) > 0 for k in ["area", "section_modulus", "length", "axial_stiffness", "torsional_stiffness"]), "G5b", "SECTION_MISMATCH")
-        if exact_evidence is not None: _g5b_exact_evidence(exact_evidence[0], case, source)
         absolute = []; uncovered = []
         for ri, row in enumerate(rows):
             kind, bi, member, n, inp = values[ri]; scale = None; bound = None
@@ -1541,6 +1541,11 @@ def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None):
                     absolute.append({"result_id":row["id"],"bound":bits(bound)})
             classes.append({"result_id":row["id"],"basis_ref":row["basis_ref"],"normalized_bits":bits(n),"scale_bits":None if scale is None else bits(scale),"class":classification,"bound_bits":None if bound is None else bits(bound)})
         deferred_class_checks.append((s["absolute_verified"] == absolute and s["not_covered"] == uncovered, "CLASSIFICATION_MISMATCH"))
+    if exact_evidence is not None:
+        # DESIGN §6.2's G5b row: the shared checks over every case first, then each selected case's exact evidence,
+        # as RS's `g5b_exact_evidence` and TS run it (RV120 F1).
+        for case, source, *_ in states:
+            _g5b_exact_evidence(exact_evidence[0], case, source)
     if phase is not None: phase[0] = "G5c"
     for *_, deferred_class_checks in states:
         for ok, code in deferred_class_checks:

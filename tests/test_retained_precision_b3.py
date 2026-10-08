@@ -528,7 +528,10 @@ def test_b3b_s1_payload_carries_the_route_hash():
     attempt = body["product_attempts"][0]
     prep = body["sources"][0]["preparation"]["sha256"]
     assert prep == rp._hash("retained_precision_preparation_v1", rp._preparation_payload(attempt, rp.EXACT_DEFINITION_HASH))
-    assert prep != rp._hash("retained_precision_preparation_v1", rp._preparation_payload(attempt))
+    assert prep != rp._hash("retained_precision_preparation_v1", rp._preparation_payload(attempt, rp.DEFINITION_HASH))
+    # RV120 N1: the payload takes the route's hash from every caller; there is no DEF-O default to fall back on.
+    with pytest.raises(TypeError):
+        rp._preparation_payload(attempt)
 
 
 def test_b3b_g5b_evidence_check_runs_only_on_the_exact_branch():
@@ -750,3 +753,73 @@ def test_addendum01_sourced_case_on_the_preview_route(mode, key, value, expected
     # Unbound and on transport G8 does not run: each reads as the base does.
     assert outcome(sealed, None) == ("pass", False, "needs_recompute")
     assert outcome(sealed, None, transport=True) == ("pass", False, "needs_recompute")
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Repair 01 (RV120, RV-R2): its inputs, stated as edits from bases these tests hold, re-materialize byte-equal to
+# RV120's own (input_sha256 as its INPUTS_INDEX).
+# - F1: on the exact route G5b runs the shared checks over every selected case first, then each case's exact
+#   evidence (DESIGN §6.2's G5b row), as RS and TS do. With a fault in case 0's evidence and one in case 1's shared
+#   checks, the shared one is read.
+# - F2: E or G-hat moved by one ulp in all five receipt copies, with the derived stiffness (and for G-hat the evidence
+#   G_pa) moved with it and the native hashes resealed. G8 step 4's bits are what anchor the receipt to the authored
+#   material, so each forgery is refused there.
+
+RV120 = json.loads((ROOT / "fixtures/results/retained_precision_rv120_b3_inputs.json").read_text())
+_RV120_CORPUS = {}
+
+
+def rv120_input(shape):
+    kind, key = shape["base"]
+    if kind == "corpus":
+        if not _RV120_CORPUS:
+            cases = json.loads((ROOT / "fixtures/results/retained_precision_cases.json").read_text())["cases"]
+            _RV120_CORPUS.update((c["id"], c) for c in cases)
+        source, invocation = deepcopy(_RV120_CORPUS[key]["source"]), deepcopy(_RV120_CORPUS[key]["invocation"])
+    else:
+        assert kind == "m3x_producer"
+        source, invocation = m3x_producer(key)
+    for value, edits in ((source, shape["edits"]), (invocation, shape["invocation_edits"])):
+        for edit in edits:
+            at = value
+            for k in edit["path"][:-1]:
+                at = at[k]
+            if edit["op"] == "remove":
+                del at[edit["path"][-1]]
+            else:
+                at[edit["path"][-1]] = deepcopy(edit["value"])
+    source = reseal(source, invocation, rp.EXACT_DEFINITION_HASH)
+    raw = json.dumps([source, invocation], sort_keys=True, separators=(",", ":")).encode()
+    assert hashlib.sha256(raw).hexdigest() == shape["input_sha256"], shape["name"]
+    return source, invocation
+
+
+def _rv120_want(text):
+    gate, code = text.split()
+    return (gate, "RETAINED_PRECISION_" + code)
+
+
+RV120_G5B = [s for s in RV120["shapes"] if s["name"].startswith("X G5b")]
+RV120_FORGERIES = [s for s in RV120["shapes"] if s["name"].startswith("forge")]
+
+
+@pytest.mark.parametrize("shape", RV120_G5B, ids=[s["name"] for s in RV120_G5B])
+def test_repair01_g5b_shared_checks_precede_the_exact_evidence(shape):
+    """F1: the two-fault order probe (case 0's evidence As_m2 and case 1's body_scales force, each one ulp) reads
+    G5b SCALE_MISMATCH, as RS and TS read it; each fault alone, and the other order probe, read as before."""
+    assert len(RV120_G5B) == 4
+    source, invocation = rv120_input(shape)
+    assert outcome(source, invocation) == _rv120_want(shape["want"])
+    assert outcome(source, None) == _rv120_want(shape["want"])
+    assert outcome(source, None, transport=True) == ("pass", False, "needs_recompute")
+
+
+@pytest.mark.parametrize("shape", RV120_FORGERIES, ids=[s["name"] for s in RV120_FORGERIES])
+def test_repair01_rv120_forgeries_are_refused_at_g8(shape):
+    """F2: RV120's four E and G-hat forgeries (on its exact ordinary_prepared_synthetic and lane P's m3x successor)
+    are refused at G8 PREPARATION_MISMATCH; unbound and on transport G8 does not run, so each reads as its base."""
+    assert len(RV120_FORGERIES) == 4 and shape["want"] == "G8 PREPARATION_MISMATCH"
+    source, invocation = rv120_input(shape)
+    assert outcome(source, invocation) == PREPARATION
+    assert outcome(source, None) == ("pass", False, "needs_recompute")
+    assert outcome(source, None, transport=True) == ("pass", False, "needs_recompute")
