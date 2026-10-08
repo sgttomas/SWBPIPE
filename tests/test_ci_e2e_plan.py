@@ -59,7 +59,8 @@ class PolicyTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertTrue(ci.numerical_input(path))
         for path in [ci.DESKTOP + 'src/App.tsx', ci.PROJECT + 'docs/design.md',
-                ci.PROJECT + 'validation/evidence/other.json', 'projects/other/core/x.rs',
+                ci.PROJECT + 'validation/evidence/other.json', ci.PROJECT + 'validation/portability_policy.json',
+                'projects/other/core/x.rs',
                 'execution/_Coordination/NOTICE.md', 'tools/validation/test_x.py',
                 '.github/workflows/governance-harness.yml']:
             self.assertFalse(ci.numerical_input(path), path)
@@ -285,6 +286,33 @@ class PolicyTests(unittest.TestCase):
         for base in ['', 'unavailable']:
             with self.assertRaisesRegex(ValueError, 'Update the PR base'):
                 ci.validate(self.root, self.plan(base=base))
+
+    def test_stale_target_does_not_block_a_records_only_pr(self):
+        # Main moved after the branch was cut; the PR changes only records and
+        # the governance-only portability policy, so no Piping test runs.
+        self.git('checkout', '-qb', 'target')
+        self.write(ci.DESKTOP + 'src/base-only.ts')
+        target = self.commit()
+        self.git('checkout', '-qb', 'candidate', self.base)
+        self.write(ci.PROJECT + 'execution/_Coordination/NOTICE.md')
+        self.write(ci.PROJECT + 'validation/portability_policy.json', '{}')
+        self.write('projects/chirality-app-v4/execution/RUN/RETURN.md')
+        self.commit()
+        plan = self.plan(base=target)
+        self.assertEqual((plan['mode'], plan['numerical_required']), ('not-applicable', False))
+        ci.validate(self.root, plan)
+
+    def test_stale_target_still_blocks_when_any_piping_input_changes(self):
+        for path in [ci.PROJECT + 'validation/hand_calcs/x.md', ci.DESKTOP + 'src/App.tsx']:
+            with self.subTest(path=path):
+                self.git('checkout', '-qB', 'target', self.base)
+                self.write(ci.DESKTOP + 'src/base-only.ts')
+                target = self.commit()
+                self.git('checkout', '-qB', 'candidate', self.base)
+                self.write(path)
+                self.commit()
+                with self.assertRaisesRegex(ValueError, 'Update the PR base'):
+                    ci.validate(self.root, self.plan(base=target))
 
     def test_stale_target_is_distinct_from_merge_base_and_blocks(self):
         self.git('checkout', '-qb', 'target')

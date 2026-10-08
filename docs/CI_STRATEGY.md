@@ -6,8 +6,11 @@ than the Piping workflow and setup action (agent/workflow packages, execution
 records, root tools, exports) and project AGENTS prose are not desktop runtime
 inputs; changes limited to those surfaces receive an explicit not-applicable
 source result. Piping `validation/`, Python `tests/` and non-CI `tools/` feed
-only the independent numerical suite. Mixed changes still select the coverage
-required by their product paths.
+only the independent numerical suite, except `validation/portability_policy.json`,
+which only the root governance harness reads. Mixed changes still select the
+coverage required by their product paths. A pull request that changes no Piping
+input runs no Piping test, so it need not be integrated with the latest base;
+any Piping input, and every manual target, keeps that requirement.
 
 The Piping desktop workflow runs a cheap selector when a pull request opens,
 receives a new head, or reopens. Its
