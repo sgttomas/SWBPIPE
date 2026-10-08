@@ -3340,3 +3340,764 @@ fn b2p_witness_dispositions_on_the_private_driver() {
         }
     }
 }
+
+/// Two copies of the milestone's case (`case:a`, `case:b`, both Sensitive and selected) and A + B:
+/// the hooks' two-selected-case base.
+fn b2p_two_cases() -> Value {
+    let mut raw = raw();
+    let c0 = raw["model"]["load_cases"][0].clone();
+    let suffixed = |suffix: &str| json!(c0["primitive_loads"].as_array().unwrap().iter().map(|load| {
+        let mut load = load.clone();
+        load["id"] = json!(format!("{}{suffix}", load["id"].as_str().unwrap()));
+        load
+    }).collect::<Vec<_>>());
+    raw["model"]["load_cases"] = json!([b2w_case("case:a", suffixed(""), &c0), b2w_case("case:b", suffixed(":b"), &c0)]);
+    raw["model"]["combinations"] = json!([b2w_combination("case:a", "case:b", 1.0, "B2-P hooks: A + B")]);
+    raw
+}
+/// The successor precommit receives from the private driver (both modes are not needed here).
+fn b2p_successor(raw: &Value, mode: PreviewSolverMode) -> (Result<RetainedSuccessor, W1Fallback>, Value) {
+    let (capture, observer, ordinary) = observed(mode, raw);
+    let ((_, retained), _, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+    let successor = captured.unwrap_or_else(|| panic!("{retained:?}"));
+    (retained, successor)
+}
+
+/// B2-P's hooks and failure set (B2-C §2.6; C3a-6; REVISION_01 C-4), each one combination's own
+/// outcome, never an abandonment, in both modes:
+/// - an operand preparation refused (`fail_operand_preparation`): W-CB3's combination is
+///   `retained_unavailable`, `operand_preparation_failure`, with no Call; the record is refused,
+///   `failed`, with no source;
+/// - a Call refused before any source (`fail_combination_call`): `pre_source_refusal`
+///   (`no_operands`), with its Call but no Run, source or attempt;
+/// - a combination freeze fault (`fault_next_combination_freeze`): `facade_certificate` after its
+///   selected Run, its attempt `unavailable` with an observable error;
+/// - an operand with no CaseSource (B's T-7 preparation refused, `fail_preparation_of_case`):
+///   `operand_source_unavailable` at operand 1, with no preparation and no Call;
+/// - an `unavailable` operand with a CaseSource (B's freeze refused, `fail_freeze_of_case`): its
+///   source rebuilt and passed as a prepared operand at its batch source id, importing nothing.
+#[test]
+fn b2p_hooks_and_failure_set() {
+    for mode in MODES {
+        let label = |what: &str| format!("{what} {mode:?}");
+        // An operand preparation refused.
+        hooks::fail_operand_preparation(1);
+        let (_, s) = b2p_successor(&w_cb3(), mode);
+        assert!(hooks::armed_names().is_empty());
+        let b = &s["retained_precision"]["body"];
+        let c = &b["combinations"][0];
+        assert_eq!((&c["disposition"], &c["reason"]["code"], &c["reason"]["phase"], &c["reason"]["cause"]),
+            (&json!("retained_unavailable"), &json!("combination_unresolved"), &json!("preparation"),
+                &json!({"kind":"operand_preparation_failure","operand_preparation_ref":0})), "{}", label("operand preparation"));
+        assert_eq!((&c["call_ref"], &c["run"], &c["source_ref"], &c["product_attempt_ref"]), (&Value::Null, &Value::Null, &Value::Null, &Value::Null));
+        let record = &b["operand_preparations"][0];
+        assert_eq!((&record["result"]["kind"], &record["stage"], &record["source_ref"], &record["requested_by"]),
+            (&json!("refused"), &json!("failed"), &Value::Null, &json!([0])), "{}", label("operand preparation record"));
+        assert_eq!((b["calls"].as_array().unwrap().len(), b["sources"].as_array().unwrap().len()), (1, 1), "{}", label("no Call, no source"));
+        // A Call refused before any source.
+        hooks::fail_combination_call(0);
+        let (_, s) = b2p_successor(&w_cb3(), mode);
+        assert!(hooks::armed_names().is_empty());
+        let b = &s["retained_precision"]["body"];
+        let c = &b["combinations"][0];
+        assert_eq!((&c["disposition"], &c["reason"]["phase"], &c["reason"]["cause"], &c["call_ref"]),
+            (&json!("retained_unavailable"), &json!("preparation"), &json!({"space":"combination","tag":"no_operands"}), &json!(1)), "{}", label("pre-source"));
+        assert_eq!((&c["run"], &c["source_ref"], &c["product_attempt_ref"]), (&Value::Null, &Value::Null, &Value::Null));
+        let call = &b["calls"][1];
+        assert_eq!((&call["result"]["kind"], &call["result"]["stage"], &call["run_refs"], &call["source_refs"]),
+            (&json!("pre_source_refusal"), &json!("operand_validation"), &json!([]), &json!([])), "{}", label("pre-source call"));
+        assert_eq!(call["invocation_after"], call["invocation_before"], "{}", label("no work"));
+        assert_eq!(b["work"]["execution_order"].as_array().unwrap().len(), 1, "{}", label("no combination Run"));
+        // A combination freeze fault.
+        hooks::fault_next_combination_freeze();
+        let (_, s) = b2p_successor(&w_cb3(), mode);
+        assert!(hooks::armed_names().is_empty());
+        let b = &s["retained_precision"]["body"];
+        let c = &b["combinations"][0];
+        assert_eq!((&c["disposition"], &c["reason"]["code"], &c["reason"]["phase"], &c["reason"]["cause"]),
+            (&json!("retained_unavailable"), &json!("facade_certificate"), &json!("facade"), &json!({"kind":"prepared_product_failure","product_attempt_ref":1})),
+            "{}", label("freeze fault"));
+        let attempt = &b["product_attempts"][1];
+        assert_eq!((&attempt["result"]["error"]["kind"], &attempt["stages"]["observables"], &attempt["stages"]["g5a"]),
+            (&json!("observable"), &json!("failed"), &json!("completed")), "{}", label("freeze fault attempt: G5a still runs, as for a case"));
+        assert!(s["results"].as_array().unwrap().iter().filter(|r| r["basis_ref"]["ref_type"] == "combination").all(|r| r.get("recovery_method").is_none()));
+        // An operand with no CaseSource.
+        hooks::fail_preparation_of_case(1);
+        let (_, s) = b2p_successor(&b2p_two_cases(), mode);
+        assert!(hooks::armed_names().is_empty());
+        let b = &s["retained_precision"]["body"];
+        let c = &b["combinations"][0];
+        assert_eq!(b["cases"][1]["status"], json!("unavailable"));
+        assert_eq!((&c["disposition"], &c["reason"]["phase"], &c["reason"]["cause"], &c["call_ref"]),
+            (&json!("retained_unavailable"), &json!("preparation"), &json!({"kind":"operand_source_unavailable","operand_index":1}), &Value::Null),
+            "{}", label("operand source unavailable"));
+        assert!(b.get("operand_preparations").is_none(), "{}", label("C-6: absent when empty"));
+        // An unavailable operand with a CaseSource: rebuilt, no import.
+        hooks::fail_freeze_of_case(1);
+        let (_, s) = b2p_successor(&b2p_two_cases(), mode);
+        assert!(hooks::armed_names().is_empty());
+        let b = &s["retained_precision"]["body"];
+        assert_eq!((&b["cases"][1]["status"], &b["cases"][1]["source_ref"]), (&json!("unavailable"), &json!(1)));
+        let c = &b["combinations"][0];
+        let call = &b["calls"][1];
+        assert_eq!(call["requested_operands"], json!([{"source_ref":0,"factor":"3ff0000000000000"},{"source_ref":1,"factor":"3ff0000000000000"}]),
+            "{}", label("the batch source ids"));
+        let group = b["groups"].as_array().unwrap().iter().find(|g| g["call"] == json!(1)).unwrap();
+        assert!(group["imports"].as_array().unwrap().iter().all(|i| i["operand_index"] == json!(0)), "{}", label("imports from the selected operand only"));
+        let source = &b["sources"][c["source_ref"].as_u64().unwrap() as usize];
+        assert_eq!(source["operands"][1]["source_ref"], json!(1));
+        assert_eq!(c["disposition"], json!("retained_selected"), "{}", label("the rebuilt operand combines"));
+    }
+}
+
+/// B2-P (T-9′; REVISION_01 S-1): a case freeze checks the gate entries' shape and consistency
+/// only. W-CB3's ordinary envelope with one tampered entry refuses every case freeze
+/// (`Candidate`, the cause in the case's observables); a withheld entry with a gate code is not a
+/// case-freeze failure (T-10a then gives that combination `base_withheld`).
+#[test]
+fn b2p_gate_entries_shape_and_consistency() {
+    let mode = PreviewSolverMode::SparseInteractive;
+    let raw = w_cb3();
+    let run = |tamper: &dyn Fn(&mut Value)| {
+        let (capture, observer, mut ordinary) = observed(mode, &raw);
+        tamper(&mut ordinary.contract_evidence.as_mut().unwrap()["combination_gates"][0]);
+        let ((_, retained), _, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+        (retained, captured)
+    };
+    for (label, tamper) in [
+        ("an extra key", Box::new(|g: &mut Value| { g["extra"] = json!(1); }) as Box<dyn Fn(&mut Value)>),
+        ("another id", Box::new(|g: &mut Value| { g["combination_id"] = json!("combination:other"); })),
+        ("withheld with no code", Box::new(|g: &mut Value| { g["withheld"] = json!(true); })),
+        ("not withheld with a code", Box::new(|g: &mut Value| { g["reason"] = json!("NONLINEAR_COMBINATION_REQUIRES_SOLVE"); })),
+        ("withheld with another code", Box::new(|g: &mut Value| { g["withheld"] = json!(true); g["reason"] = json!("OTHER"); })),
+    ] {
+        let (retained, captured) = run(tamper.as_ref());
+        assert_eq!(retained.err(), Some(W1Fallback::Candidate), "{label}: every case freeze refuses");
+        assert!(captured.is_none(), "{label}");
+    }
+    let (_, captured) = run(&|g: &mut Value| { g["withheld"] = json!(true); g["reason"] = json!("CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE"); });
+    let successor = captured.expect("a withheld entry is not a case-freeze failure");
+    let c = &successor["retained_precision"]["body"]["combinations"][0];
+    assert_eq!((&c["disposition"], &c["reason"]), (&json!("base_withheld"), &json!("CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE")), "T-10a rule 1");
+}
+
+/// B2-P (T-6′; REVISION_01 S-2): custody binds the rows after the case blocks to their
+/// combinations, a mechanics combination's as one contiguous run. `b2_c1_range_mechanics`'s
+/// envelope (case rows, range rows, 2·case rows, then the range's record) with one 2·case row moved
+/// into the range rows, a combination row naming no combination, or a case row after the
+/// combination rows: custody refuses (`Preparation`, then the notice).
+#[test]
+fn b2p_custody_binds_the_combination_rows() {
+    let mode = PreviewSolverMode::SparseInteractive;
+    let raw = b2_c1_range_mechanics();
+    let run = |tamper: &dyn Fn(&mut Vec<ResultItem>)| {
+        let (capture, observer, mut ordinary) = observed(mode, &raw);
+        tamper(&mut ordinary.results);
+        hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture)).0 .1
+    };
+    let first = |rows: &Vec<ResultItem>, id: &str| rows.iter().position(|r| r.basis_ref.as_ref().unwrap().ref_id == id).unwrap();
+    for (label, tamper) in [
+        ("a split run", Box::new(move |rows: &mut Vec<ResultItem>| {
+            let (range, twice) = (first(rows, "combination:range"), first(rows, "combination:2case"));
+            let row = rows.remove(twice);
+            rows.insert(range, row);
+        }) as Box<dyn Fn(&mut Vec<ResultItem>)>),
+        ("an unknown combination", Box::new(move |rows: &mut Vec<ResultItem>| {
+            let twice = first(rows, "combination:2case");
+            rows[twice].basis_ref.as_mut().unwrap().ref_id = "combination:other".into();
+        })),
+        ("a case row after them", Box::new(move |rows: &mut Vec<ResultItem>| {
+            let row = rows.remove(0);
+            rows.push(row);
+        })),
+    ] {
+        assert_eq!(run(tamper.as_ref()).err(), Some(W1Fallback::Preparation), "{label}");
+    }
+    assert!(run(&|_| {}).is_err(), "control: the untampered layout reaches precommit (today's reader refuses)");
+}
+
+/// B2-P (C-1): a mechanics combination naming one case twice is `ordinary` (the ordinary route
+/// publishes no row for it), not retained.
+#[test]
+fn b2p_repeated_case_combination_is_ordinary() {
+    let mut raw = raw();
+    raw["model"]["combinations"] = json!([{"id": "combination:twice", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 1.0},
+        {"load_case": "case", "factor": 1.0}], "provenance": B2P}]);
+    for mode in MODES {
+        let (_, s) = b2p_successor(&raw, mode);
+        let b = &s["retained_precision"]["body"];
+        assert_eq!((&b["combinations"][0]["disposition"], &b["combinations"][0]["result_ids"]), (&json!("ordinary"), &json!([])), "{mode:?}");
+        assert_eq!(b["calls"].as_array().unwrap().len(), 1, "{mode:?}: no combination Call");
+    }
+}
+
+/// B2-P (REVISION_01 §1.2; DEF-C r2 `stages.observables`): the combination observables stage on
+/// W-CB3's ordinary combination block (its values pass the guard, as the ordinary route forms
+/// them), and each check refusing one tamper.
+#[test]
+fn b2p_combination_observables_stage() {
+    let mode = PreviewSolverMode::SparseInteractive;
+    let raw = w_cb3();
+    let (capture, observer, ordinary) = observed(mode, &raw);
+    let mut prepared = match observer.prepare_cases(ordinary, 2, &[0]) { Ok(p) => p, Err(f) => panic!("{:?}", f.error) };
+    let _ = &capture;
+    let rows = prepared.capture.combination_rows[0].clone();
+    let check = |prepared: &rp::PreparedCases, tamper: &dyn Fn(&mut MechanicsEnvelope)| {
+        let mut ordinary = prepared.ordinary.clone();
+        tamper(&mut ordinary);
+        prepared.capture.test_combination_observables(&ordinary, rows.clone(), 0, "combination:ab").err().map(|e| e.to_string())
+    };
+    assert_eq!(check(&prepared, &|_| {}), None, "control");
+    let (start, end) = (rows.start, rows.end);
+    // The block's first row of `kind` with a nonzero value.
+    let find = move |e: &MechanicsEnvelope, kind: &str| (start..end).find(|&i| e.results[i].kind == kind && e.results[i].value != 0.0).unwrap();
+    let cases: Vec<(&str, Box<dyn Fn(&mut MechanicsEnvelope)>, &str)> = vec![
+        ("a magnitude off by more than 64 eps", Box::new(move |e| { let i = find(e, "displacement_magnitude"); e.results[i].value *= 1.0 + 2f64.powi(-40); }), "combination magnitude guard"),
+        ("a duplicated translation", Box::new(move |e| {
+            let i = find(e, "global_nodal_displacement_x");
+            let node = e.results[i].entity_ref.clone();
+            let j = (start..end).find(|&j| e.results[j].kind == "global_nodal_displacement_y" && e.results[j].entity_ref == node).unwrap();
+            e.results[j].kind = "global_nodal_displacement_x".into();
+        }), "combination displacement identity"),
+        ("a support magnitude off", Box::new(move |e| { let i = find(e, "support_reaction_force_magnitude_v2"); e.results[i].value = e.results[i].value * 2.0 + 1.0; }), "support guard"),
+        ("a withheld gate entry", Box::new(|e| { e.contract_evidence.as_mut().unwrap()["combination_gates"][0]["withheld"] = json!(true); }), "combination gate entry"),
+        ("a maximum row", Box::new(move |e| { let i = find(e, "displacement_magnitude"); e.results[i].kind = "pipe_elastic_normal_stress_maximum_v2".into(); }), "combination maximum or intensified row"),
+    ];
+    for (label, tamper, expected) in &cases {
+        assert_eq!(check(&prepared, tamper.as_ref()).as_deref(), Some(*expected), "{label}");
+    }
+    prepared.capture.native_invocation = None;
+}
+
+/// B2-P (B2-C §2.7): a combination's expression from the invocation: a range's operand ids are
+/// sorted as the producer sorts them (UTF-8 byte order), whatever their authored order; a
+/// subtraction keeps minuend then subtrahend; mechanics terms keep their authored order and their
+/// factors' bits.
+#[test]
+fn b2p_combination_expressions() {
+    let mode = PreviewSolverMode::SparseInteractive;
+    let range = w_cb3_with(json!({"id": "combination:range-ba", "basis": "range_envelope", "operand_ids": ["case:b", "case:a"], "mode": "min", "provenance": B2P}));
+    let (_, s) = b2p_successor(&range, mode);
+    assert_eq!(s["retained_precision"]["body"]["combinations"][0]["expression"], json!({"kind":"range_envelope","operand_ids":["case:a","case:b"],"mode":"min"}));
+    let (_, s) = b2p_successor(&w_cb4a(), mode);
+    assert_eq!(s["retained_precision"]["body"]["combinations"][0]["expression"], json!({"kind":"result_state_subtraction","minuend_id":"case:a","subtrahend_id":"case:b"}));
+    let mut halves = w_cb3();
+    halves["model"]["combinations"][0]["terms"] = json!([{"load_case": "case:b", "factor": 0.1}, {"load_case": "case:a", "factor": -2.5}]);
+    let (_, s) = b2p_successor(&halves, mode);
+    assert_eq!(s["retained_precision"]["body"]["combinations"][0]["expression"], json!({"kind":"mechanics","terms":[
+        {"case_id":"case:b","factor":format!("{:016x}", 0.1f64.to_bits())},{"case_id":"case:a","factor":format!("{:016x}", (-2.5f64).to_bits())}]}));
+}
+
+/// B2-P (T-2′; REVISION_01 S-1): the capture's normalization refuses a combination D1.4 does not
+/// admit (here h = 4), by the predicate T-4's re-check uses, so custody refuses with that cause.
+#[test]
+fn b2p_capture_refuses_combinations_outside_d14() {
+    let mut raw = raw();
+    raw["model"]["combinations"] = json!([{"id": "combination:four", "basis": "mechanics", "terms": vec![json!({"load_case": "case", "factor": 1.0}); 4], "provenance": B2P}]);
+    let (_, observer, ordinary) = observed(PreviewSolverMode::SparseInteractive, &raw);
+    assert_eq!(ordinary.status.mechanics, "MECHANICS_SOLVED", "the ordinary route solves it");
+    assert_eq!(observer.error.as_ref().map(|e| e.to_string()).as_deref(), Some("outside private ordinary no-component/no-combination scope"));
+    assert!(observer.prepare_cases(ordinary, 1, &[0]).is_err(), "custody refuses");
+}
+
+// ---- W-CB1's inputs: SW's cap-maximal cases A and B (R/I86 `gen_inputs.py` `build_i3`, c1), and
+// I98's `r7_cb1_halfb` and `r7_cb1` on them --------------------------------------------------------
+
+const SW_PROV: &str = "invented_t3_b1_sw_probe_input_no_library_data";
+/// I86's `split_exact`: `v` split into parts proportional to `weights`, each an integer multiple
+/// of v's quantum 2^E whose integer sum is v's mantissa M, so every partial sum is exact.
+fn sw_split_exact(v: f64, weights: &[u64]) -> Vec<f64> {
+    let bits = v.to_bits();
+    assert!(v.is_normal(), "a normal net");
+    let (sign, exponent, mantissa) = (if v < 0.0 { -1.0 } else { 1.0 }, ((bits >> 52) & 0x7ff) as i32 - 1075, (bits & ((1u64 << 52) - 1)) | (1u64 << 52));
+    let total: u64 = weights.iter().sum();
+    let mut ints: Vec<u64> = weights.iter().map(|&w| ((mantissa as u128 * w as u128) / total as u128) as u64).collect();
+    let sum: u64 = ints.iter().sum();
+    *ints.last_mut().unwrap() += mantissa - sum;
+    let quantum = f64::from_bits(((exponent + 1023) as u64) << 52);
+    let parts: Vec<f64> = ints.iter().map(|&i| sign * (i as f64) * quantum).collect();
+    assert_eq!(parts.iter().fold(0.0, |a, p| a + p), v, "exact in order");
+    parts
+}
+/// I86's `copies_loads`: `total` moments over 7 milestone copies, three rotational DOFs at each
+/// copy's N1; copy k's net on each DOF is exactly `scale` times the milestone's.
+fn sw_copies_loads(prefix: &str, total: usize, scale: f64, weights: impl Fn(usize) -> Vec<u64>) -> Vec<Value> {
+    let ms = raw();
+    let base = |d: &str| ms["model"]["load_cases"][0]["primitive_loads"].as_array().unwrap().iter()
+        .find(|l| l["direction"] == d).unwrap()["magnitude"]["value"].as_f64().unwrap();
+    let slots: Vec<(usize, &str)> = (0..7).flat_map(|k| ["RX", "RY", "RZ"].map(|d| (k, d))).collect();
+    let mut per = vec![total / slots.len(); slots.len()];
+    for p in per.iter_mut().take(total - (total / slots.len()) * slots.len()) {
+        *p += 1;
+    }
+    let mut out = Vec::new();
+    for (&(k, d), &n) in slots.iter().zip(&per) {
+        for (j, part) in sw_split_exact(base(d) * scale, &weights(n)).into_iter().enumerate() {
+            out.push(json!({"id": format!("{prefix}C{k}:{d}:{j}"), "category": "concentrated_moment", "target": {"type": "node", "node": format!("C{k}:N1")},
+                "direction": d, "magnitude": {"value": part, "unit": "N*m"}, "dimension": "moment", "provenance": SW_PROV}));
+        }
+    }
+    assert_eq!(out.len(), total);
+    out
+}
+/// I86's `perpendicular_reference`.
+fn sw_perpendicular(d: [f64; 3]) -> Value {
+    for r in [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]] {
+        let c = [d[1] * r[2] - d[2] * r[1], d[2] * r[0] - d[0] * r[2], d[0] * r[1] - d[1] * r[0]];
+        let n = (c[0] * c[0] + c[1] * c[1] + c[2] * c[2]).sqrt();
+        if n > 0.5 * (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]).sqrt() {
+            return json!({"x": r[0], "y": r[1], "z": r[2]});
+        }
+    }
+    unreachable!("a perpendicular reference")
+}
+/// I86's `filler_bodies`: four anchored, connected, unloaded bodies (18 nodes, 25 members, 4 supports).
+fn sw_filler() -> (Vec<Value>, Vec<Value>, Vec<Value>) {
+    let shapes: [&[[f64; 3]]; 4] = [
+        &[[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0], [1.0, 1.0, 1.0]],
+        &[[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [0.0, 1.0, 0.0], [0.5, 0.5, 1.0]],
+        &[[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+        &[[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [1.0, 1.0, 1.0]],
+    ];
+    let all = |n: usize| (0..n).flat_map(move |i| (i + 1..n).map(move |j| (i, j))).collect::<Vec<_>>();
+    let edges: [Vec<(usize, usize)>; 4] = [all(5), vec![(0, 1), (1, 2), (2, 3), (3, 0), (0, 4), (2, 4)], all(4), vec![(0, 1), (1, 2), (2, 3)]];
+    let (mut nodes, mut pipes, mut supports) = (Vec::new(), Vec::new(), Vec::new());
+    for (b, (shape, es)) in shapes.iter().zip(&edges).enumerate() {
+        let origin = [100.0 + 10.0 * b as f64, 50.0, 0.0];
+        let ids: Vec<String> = (0..shape.len()).map(|i| format!("F{b}:N{i}")).collect();
+        for (i, p) in shape.iter().enumerate() {
+            nodes.push(json!({"id": ids[i], "position": {"x": origin[0] + p[0], "y": origin[1] + p[1], "z": origin[2] + p[2]}, "provenance": SW_PROV}));
+        }
+        for &(i, j) in es {
+            let d = [shape[j][0] - shape[i][0], shape[j][1] - shape[i][1], shape[j][2] - shape[i][2]];
+            pipes.push(json!({"id": format!("F{b}:M{i}{j}"), "from": ids[i], "to": ids[j], "material": "mat:1", "y_reference": sw_perpendicular(d),
+                "section": {"outside_diameter": {"value": 0.2, "unit": "m"}, "wall_thickness": {"value": 0.01, "unit": "m"}}, "provenance": SW_PROV}));
+        }
+        supports.push(json!({"id": format!("F{b}:anchor"), "node": ids[0], "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": SW_PROV}));
+    }
+    assert_eq!((nodes.len(), pipes.len(), supports.len()), (18, 25, 4));
+    (nodes, pipes, supports)
+}
+/// I86's `materials` with 16 temperature points.
+fn sw_materials() -> Value {
+    let points: Vec<Value> = (0..16).map(|i| json!({"id": format!("T{i}"), "provenance": SW_PROV})).collect();
+    json!((0..4).map(|i| json!({"id": format!("mat:{i}"), "elastic_modulus": {"value": 200000000000.0, "unit": "Pa"},
+        "shear_modulus": {"value": 80000000000.0, "unit": "Pa"}, "provenance": SW_PROV, "temperature_points": points})).collect::<Vec<_>>())
+}
+/// I86's `stressed`: every provenance string escaped, and a depth-16 unknown member.
+fn sw_stressed(mut raw: Value) -> Value {
+    fn escape(v: &mut Value) {
+        match v {
+            Value::Object(o) => for (k, x) in o.iter_mut() {
+                match x { Value::String(s) if k == "provenance" => s.push_str(" q\"b\\"), _ => escape(x) }
+            },
+            Value::Array(a) => a.iter_mut().for_each(escape),
+            _ => {}
+        }
+    }
+    escape(&mut raw);
+    let mut deep = json!(1);
+    for _ in 0..14 {
+        deep = json!([deep]);
+    }
+    raw["model"]["unknown_depth_witness"] = deep;
+    raw
+}
+/// I86's `build_model` (7 copies, 16 points) with one case `case_id` of `loads`, stressed.
+fn sw_component(case_id: &str, loads: Vec<Value>) -> Value {
+    let ms = raw();
+    let m = &ms["model"];
+    let (mut nodes, mut pipes, mut supports) = (Vec::new(), Vec::new(), Vec::new());
+    for k in 0..7 {
+        let dx = 10.0 * k as f64;
+        for n in m["nodes"].as_array().unwrap() {
+            let p = &n["position"];
+            nodes.push(json!({"id": format!("C{k}:{}", n["id"].as_str().unwrap()), "position": {"x": p["x"].as_f64().unwrap() + dx, "y": p["y"], "z": p["z"]},
+                "provenance": n["provenance"]}));
+        }
+        for pipe in m["pipe_segments"].as_array().unwrap() {
+            let mut q = pipe.clone();
+            q["id"] = json!(format!("C{k}:{}", pipe["id"].as_str().unwrap()));
+            q["from"] = json!(format!("C{k}:{}", pipe["from"].as_str().unwrap()));
+            q["to"] = json!(format!("C{k}:{}", pipe["to"].as_str().unwrap()));
+            q["material"] = json!("mat:0");
+            pipes.push(q);
+        }
+        for s in m["supports"].as_array().unwrap() {
+            let mut q = s.clone();
+            q["id"] = json!(format!("C{k}:{}", s["id"].as_str().unwrap()));
+            q["node"] = json!(format!("C{k}:{}", s["node"].as_str().unwrap()));
+            supports.push(q);
+        }
+    }
+    let (fn_, fp, fs) = sw_filler();
+    nodes.extend(fn_);
+    pipes.extend(fp);
+    supports.extend(fs);
+    assert_eq!((nodes.len(), pipes.len(), supports.len()), (32, 32, 32));
+    let mut project_id = "invented:t3-b1-sw:".to_owned();
+    while project_id.len() < 128 {
+        project_id.push('x');
+    }
+    let case = json!({"id": case_id, "label": "I86 B1-SW probe case", "kind": "primitive_user_load", "primitive_loads": loads, "provenance": SW_PROV});
+    sw_stressed(json!({"model": {"schema_version": m["schema_version"], "document_kind": m["document_kind"], "analysis_status": m["analysis_status"],
+        "project": {"id": project_id, "units": m["project"]["units"]}, "nodes": nodes, "pipe_segments": pipes, "materials": sw_materials(),
+        "supports": supports, "load_cases": [case], "combinations": []}, "materials": sw_materials()}))
+}
+/// W-CB1 (I98 `r7_cb1_halfb`): SW's components A (each copy's net the milestone's) and B (minus
+/// it, parts weighted 1..n) as two cases, and 1·A + 0.5·B. `factor` 1.0 gives W-CB1z (`r7_cb1`).
+fn w_cb1_with(factor: f64, label: &str) -> Value {
+    let a = sw_component("case:a", sw_copies_loads("a:", 128, 1.0, |n| vec![1; n]));
+    let b = sw_component("case:b", sw_copies_loads("b:", 128, -1.0, |n| (1..=n as u64).collect()));
+    let mut raw = a.clone();
+    raw["model"]["load_cases"] = json!([a["model"]["load_cases"][0], b["model"]["load_cases"][0]]);
+    raw["model"]["combinations"] = json!([b2w_combination("case:a", "case:b", factor, label)]);
+    raw
+}
+fn w_cb1() -> Value { w_cb1_with(0.5, "I98 B2-W R-7 count: A + 0.5 B") }
+fn w_cb1z() -> Value { w_cb1_with(1.0, "I98 B2-W R-7 count: A + B") }
+
+
+/// B2-P: what today's precommit (RS before B2's readers) does with each witness's successor: a
+/// combination attempt's DEF-C id is not yet a reader's (G0), and a combination row is not yet a
+/// load-case row (G3). A validated successor is the other accepted outcome, once B2's readers land.
+fn b2p_precommit_today(name: &str) -> (&'static str, &'static str) {
+    match name {
+        "w_cb4a" | "w_cb4b" | "w_cb5" => ("G3", "RETAINED_PRECISION_COVERAGE_MISMATCH"),
+        _ => ("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
+    }
+}
+/// The witnesses' combination dispositions, in authored order (W-CB1z, A + B, is the labelled
+/// cancellation pin: its copies' nets cancel exactly).
+fn b2p_dispositions(name: &str) -> &'static [&'static str] {
+    match name {
+        "w_cb2" => &["retained_unavailable"],
+        "w_cb4a" | "w_cb4b" | "w_cb5" => &["ordinary"],
+        "c1_range_mechanics" => &["ordinary", "retained_selected"],
+        _ => &["retained_selected"],
+    }
+}
+/// The witnesses' cases in A (their notices on a fallback), in request order.
+fn b2p_attempted(name: &str) -> &'static [&'static str] {
+    match name {
+        "c1_range_mechanics" => &["case"],
+        "w_cb1" | "w_cb1z" => &["case:a", "case:b"],
+        _ => &["case:a"],
+    }
+}
+/// B2-P's witness pins (PLAN §1.2.6; REVISION_01 §5.1), both modes: (witness, mode, receipt
+/// sha256, sha256 of the successor's bytes), from the private driver's successor that precommit
+/// receives.
+const B2P_PINNED: [(&str, &str, &str, &str); 16] = [
+    ("w_cb1", "sparse_interactive", "6345c3a32dd243ecc877ebce349307602cfe65e700048981d9171f4c15ee7880",
+        "d5fa0b8bc48646c88506490eda71ba9264244dbe3f6658816d83e6b6d62b7e7a"),
+    ("w_cb1", "dense_scrutiny", "3b24b62e72b366554e51d621f395c6128a75f1fe9e92f6b42e4da47e697750ed",
+        "295f3575f6a475e69f3d7cb7db4326983aefaba3caa1e31d9a711c68ea431b70"),
+    ("w_cb1z", "sparse_interactive", "133b60a763a9cc6bb85541d18dce65e8ecdb550e8538e5d167d5a706adfd0b12",
+        "ad01b6adf436777a4b370bfaa152e8fe4459ae8f28d048b7ff992405004311ec"),
+    ("w_cb1z", "dense_scrutiny", "70e5bfc9569f4d6f2a958dfecee0f541602caf9e84796187c0754c8fbfede71b",
+        "d38ff80c33deae242fc3e440ac9270a5299d198a053e1e273a7b8b23789441fa"),
+    ("w_cb2", "sparse_interactive", "154c52607fe0a4a91d591e48af428c360f17cd043d9f5621acfcadf15db48605",
+        "9731586e98ab443c08636931f29ace24be49e0006ac574b2b4526c9155993b9e"),
+    ("w_cb2", "dense_scrutiny", "0538a9195b036a524bec6a772099909e0bb95088481ff6443b8eef8fd7274309",
+        "7d51220289aee557733c672e1a56c9526a445489978d64954227b6d825af9a1f"),
+    ("w_cb3", "sparse_interactive", "f86ffd2b3b403c84fca91aeb686028e7d613c23f291f23b2acdc91633bea3e99",
+        "82edc28b3f797c3d41a14dd31fcc2185baf630a76e6a857681dd435c00a6a9f5"),
+    ("w_cb3", "dense_scrutiny", "beb1461c0860663d74dd2b012aeedfa2667e701c71073ca59c6ea842bb9f786d",
+        "d8a46a71f9d3a5b32dc03b5a9724eacc2956ab56936ab488182c3a48577e9f1e"),
+    ("w_cb4a", "sparse_interactive", "7b8773530d63fb32542210bb6ad4c709fe957f554da835b9efb7ccd485883fe9",
+        "318c4abd082c1df910a91803ccc14973f498cdad7d2c13a40004bbc7ca7afbc0"),
+    ("w_cb4a", "dense_scrutiny", "c002d0a6c2822ab44c80bd030dd7fce7576121dd6b6b5fe3c3cd3dbafb2b1fcf",
+        "ac6076f1752332ec94309d9bc473cdce74430ac4f6b215f61fc088d54a27aa2e"),
+    ("w_cb4b", "sparse_interactive", "31e0fd4804064ffbc298fccec0981cc0aab7db9348f583094ff2f83795f0a643",
+        "c291b532c781092d6b13aeec9dbf055631181169fb43edb40a18f6120ddb6e73"),
+    ("w_cb4b", "dense_scrutiny", "830ecd1c8eba48cb5ddf03e56f5573bcd6cf32706338d5948696ffd24150d76a",
+        "16bd73ce68d0ba970b0db5352b3aa68250b5e04eb625ea5b74404598539257dd"),
+    ("w_cb5", "sparse_interactive", "e26015faa2ab14d571ad67c037a3a4afa69b1b4d97841a31b2fb4713b2bda3fe",
+        "8e83f75890ef99057942f4e10b6b378fb56b1363e59fdd52050d1659078124a9"),
+    ("w_cb5", "dense_scrutiny", "f27870de60f57d3e28998305f856079e3f788762f562f58e38af1419d5144c58",
+        "265a84bbd39b4380cb2c950847f0e47d60fe56b74bcb6e207b86e2701baf1834"),
+    ("c1_range_mechanics", "sparse_interactive", "877e0c7a32f4740b6a907ac4cb9d63e6f018687208ba396148b22112ee5956d8",
+        "d32ed8bf6594ce7107763bc31f9fc1d2d989a644d1538243b4b78aec79951ce8"),
+    ("c1_range_mechanics", "dense_scrutiny", "046bfc3f0357325d3104fb2759205a881bfa45ec62dcc70cff0d6fe77f7bd02c",
+        "e579371eb7d4c51ec5c0f71093ee673ba9e288edba7af59b101fb28d15da4dcf"),
+];
+/// B2-P's small witnesses: (name, request).
+fn b2p_witnesses() -> Vec<(&'static str, Value)> {
+    vec![("w_cb2", w_cb2()), ("w_cb3", w_cb3()), ("w_cb4a", w_cb4a()), ("w_cb4b", w_cb4b()), ("w_cb5", w_cb5()), ("c1_range_mechanics", b2_c1_range_mechanics())]
+}
+/// W-CB1 and W-CB1z: I98's `r7_cb1_halfb` and `r7_cb1` (SW's cap-maximal cases A and B; 1·A + 0.5·B,
+/// and A + B, the labelled cancellation pin, NB-3).
+fn b2p_cap_witnesses() -> Vec<(&'static str, Value)> {
+    vec![("w_cb1", w_cb1()), ("w_cb1z", w_cb1z())]
+}
+/// The combination successor fixtures (PLAN §1.2.6: "W-CB1 or W-CB3, whichever selects"; both
+/// select, and W-CB3 is the one with an operand preparation, at a fixture's size): the live W-CB3
+/// successor documents `{id, source, invocation}`, both modes, byte for byte.
+const COMBINATION_FIXTURES: [&str; 2] = [
+    include_str!("../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json"),
+    include_str!("../../../fixtures/results/retained_precision_combination_successor_dense_scrutiny.json")];
+fn combination_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
+    serde_json::to_string_pretty(&json!({"id": format!("b2p_w_cb3_{}", mode.as_str()), "source": successor,
+        "invocation": {"request": raw, "solver_mode": mode.as_str()}})).unwrap()
+}
+/// W-CB1's and W-CB1z's request Value sha256s (`w_cb1`, `w_cb1z`; JSON-equal to I98's
+/// `r7_cb1_halfb` and `r7_cb1`, checked on the records).
+const W_CB1_INPUT_SHA256: &str = "c1b85bd47605ca0df6f847be1b2b23b91c544d6981c4208f68b67d2c499a7ceb";
+const W_CB1Z_INPUT_SHA256: &str = "9c21d45e0ee9314946a7f2a7e88e55f73488d8cb1af0efd4912eb0a07399d3c1";
+/// The B2-P witnesses' inputs: W-CB2 and W-CB3 are I98's `r7_cb2` and `r7_cb3_v1`, W-CB1 and
+/// W-CB1z its `r7_cb1_halfb` and `r7_cb1` (JSON-equal, checked on the records); their Value
+/// sha256s. With `I105_B2P_OUT` set, W-CB1's and W-CB1z's requests are written there.
+#[test]
+fn b2p_witness_inputs() {
+    let out = std::env::var("I105_B2P_OUT").ok();
+    let mut got = Vec::new();
+    for (name, raw, expected) in [("w_cb1", w_cb1(), W_CB1_INPUT_SHA256), ("w_cb1z", w_cb1z(), W_CB1Z_INPUT_SHA256),
+        ("w_cb2", w_cb2(), "7f07d08e694947addf9e90f023fee9080b8b2a71d647260d528ce01c44c509a0"),
+        ("w_cb3", w_cb3(), "05e9ae15f4b6155b5907dec9ed6a56084b511d26777cfd6c7e2ea8ebe998d28d")] {
+        let value_sha = sha(&serde_json::to_vec(&raw).unwrap());
+        println!("B2P_INPUT {name} value_sha={value_sha}");
+        if let (Some(dir), true) = (&out, name.starts_with("w_cb1")) {
+            std::fs::write(format!("{dir}/{name}_request.json"), serde_json::to_vec(&raw).unwrap()).unwrap();
+        }
+        got.push((name, value_sha, expected));
+    }
+    for (name, value_sha, expected) in got {
+        assert_eq!(value_sha, expected, "{name}");
+    }
+    // W-CB1: two cases of 128 loads each at D1's caps (C_eq = 3), 1·A + 0.5·B.
+    let raw = w_cb1();
+    assert_eq!(raw["model"]["load_cases"].as_array().unwrap().iter().map(|c| c["primitive_loads"].as_array().unwrap().len()).collect::<Vec<_>>(), [128, 128]);
+    assert_eq!(raw["model"]["combinations"][0]["terms"], json!([{"load_case":"case:a","factor":1.0},{"load_case":"case:b","factor":0.5}]));
+}
+/// B2-P: DEF-C's id and its table-bound H against the in-tree statics (B2-C REVISION_02: DEF-C r2,
+/// PTABLE r2), as the receipt's combination attempts name them.
+#[test]
+fn b2p_constants_bound_to_in_tree_fixtures() {
+    use super::retained_wire as wire;
+    let definition: Value = serde_json::from_str(include_str!("../../../fixtures/results/retained_precision_prepared_combination_v1.json")).unwrap();
+    let table: Value = serde_json::from_str(include_str!("../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json")).unwrap();
+    let h = wire::domain_hash("retained_precision_formation_v1", &definition).unwrap();
+    assert_eq!(definition["id"], json!(wire::COMBINATION_DEFINITION_ID));
+    assert_eq!(h, "d3fde142aff9c05d709b2fc2a04add42e14c66be3e2b2ba82012da57edf3d957");
+    assert!(table["product_formation_definitions"].as_array().unwrap().contains(&json!({"id": wire::COMBINATION_DEFINITION_ID, "sha256": h})));
+}
+
+/// B2-P's producer requirements on one witness successor (B2-C §2.5–§2.7, §4, C3a; REVISION_01),
+/// against its ordinary envelope `plain`:
+/// - `combinations[]` one entry per model combination, in authored order, with its basis, its
+///   rows in publication order and its expression; R-COMB-1's producer side: an `ordinary` or
+///   `retained_unavailable` combination's rows keep their ordinary values and carry no
+///   `recovery_method`, and a `retained_selected` one's carry it;
+/// - every Call and Run in order (the meter chain; `execution_order` with combination owners by
+///   authored index); each CombinationSource's operands, K4CMB and ledger hashes, and identity;
+/// - each combination diagnostic, after the case diagnostics; no headline from a combination row.
+fn assert_combination_successor(label: &str, successor: &Value, plain: &Value) {
+    let body = &successor["retained_precision"]["body"];
+    let model = &successor_request(successor, plain);
+    let combinations = body["combinations"].as_array().unwrap();
+    assert_eq!(combinations.len(), model.len(), "{label}");
+    let rows = |s: &Value, id: &str| s["results"].as_array().unwrap().iter().filter(|r| r["basis_ref"]["ref_type"] == "combination" && r["basis_ref"]["ref_id"] == id).cloned().collect::<Vec<_>>();
+    for (c, authored) in combinations.iter().zip(model) {
+        let id = authored["id"].as_str().unwrap();
+        assert_eq!(c["basis_ref"], json!({"ref_type":"combination","ref_id":id}), "{label}");
+        let (now, was) = (rows(successor, id), rows(plain, id));
+        assert_eq!(c["result_ids"], json!(now.iter().map(|r| r["id"].clone()).collect::<Vec<_>>()), "{label} {id}: result_ids");
+        assert_eq!(now.len(), was.len(), "{label} {id}");
+        match c["disposition"].as_str().unwrap() {
+            "retained_selected" => {
+                assert!(now.iter().all(|r| r["recovery_method"] == "contribution_preserving_multiprecision_v1"), "{label} {id}");
+                let diag = successor["diagnostics"].as_array().unwrap().iter().find(|d| d["id"] == json!(format!("diagnostic:retained-precision:{id}:selected"))).unwrap();
+                assert_eq!(diag["code"], json!("RETAINED_PRECISION_SELECTED"), "{label}");
+            }
+            disposition => {
+                // R-COMB-1's producer side: the ordinary rows, untouched.
+                for (n, w) in now.iter().zip(&was) {
+                    assert_eq!(n, w, "{label} {id}: {disposition} rows keep their ordinary values");
+                }
+                if disposition == "retained_unavailable" {
+                    assert_eq!(c["diagnostic_ref"], json!(format!("diagnostic:retained-precision:{id}:unavailable")), "{label}");
+                }
+            }
+        }
+    }
+    // The summary's headlines are load-case rows (T-11′).
+    for headline in ["max_displacement", "max_open_formula_stress"] {
+        let r = &successor["summary"][headline]["result_ref"];
+        if r.is_null() { continue; }
+        let row = successor["results"].as_array().unwrap().iter().find(|x| &x["id"] == r).unwrap();
+        assert_eq!(row["basis_ref"]["ref_type"], json!("load_case"), "{label}: {headline}");
+    }
+    // The meter chain and the Runs (B2-C §2.7): calls[0] is the batch; each later Call's before is
+    // the previous Call's after; charged is the last Call's after.
+    let calls = body["calls"].as_array().unwrap();
+    assert_eq!(calls[0]["kind"], json!("case_batch"), "{label}");
+    for pair in calls.windows(2) {
+        assert_eq!(pair[1]["invocation_before"], pair[0]["invocation_after"], "{label}: the meter chain");
+        assert_eq!(pair[1]["kind"], json!("mechanics_combination"), "{label}");
+    }
+    assert_eq!(body["work"]["charged"], calls.last().unwrap()["invocation_after"], "{label}");
+    for c in combinations.iter().filter(|c| c["run"].is_object()) {
+        let index = combinations.iter().position(|x| x == c).unwrap();
+        assert!(body["work"]["execution_order"].as_array().unwrap().contains(&json!({"kind":"combination","index":index})), "{label}: the ordinal mapping");
+        assert_eq!(c["run"]["origin"]["owner_ref"], json!({"kind":"combination","index":index}), "{label}");
+        let call = &calls[c["call_ref"].as_u64().unwrap() as usize];
+        assert_eq!(call["owner_refs"], json!([{"kind":"combination","index":index}]), "{label}");
+        let source = &body["sources"][c["source_ref"].as_u64().unwrap() as usize];
+        assert_eq!(source["owner"]["combination_index"], json!(index), "{label}");
+        assert_eq!(source["representative_source_ref"], source["operands"][0]["source_ref"], "{label}: operand 0 is the representative");
+        for (operand, requested) in source["operands"].as_array().unwrap().iter().zip(call["requested_operands"].as_array().unwrap()) {
+            assert_eq!((&operand["source_ref"], &operand["factor"]), (&requested["source_ref"], &requested["factor"]), "{label}");
+            let case_source = &body["sources"][operand["source_ref"].as_u64().unwrap() as usize];
+            let mut binding = case_source.clone();
+            binding.as_object_mut().unwrap().remove("index");
+            assert_eq!(operand["source_identity_sha256"], json!(super::retained_wire::domain_hash("retained_precision_source_mp_v2", &binding).unwrap()), "{label}");
+        }
+        if c["disposition"] == "retained_selected" {
+            let mut binding = source.clone();
+            binding.as_object_mut().unwrap().remove("index");
+            assert_eq!(c["source_identity_sha256"], json!(super::retained_wire::domain_hash("retained_precision_source_mp_v2", &binding).unwrap()), "{label}");
+            assert_eq!(c["selection"]["ledger_sha256"], source["ledger_sha256"], "{label}: the combined ledger");
+        }
+    }
+}
+/// The authored combinations of the successor's own request (its envelope echoes no request, so
+/// the caller's `plain` carries the model's combinations through the published gates' order).
+fn successor_request(_successor: &Value, plain: &Value) -> Vec<Value> {
+    plain["contract_evidence"]["combination_gates"].as_array().unwrap().iter().map(|g| json!({"id": g["combination_id"]})).collect()
+}
+
+/// B2-P's witnesses through the private driver, both modes: the successor precommit receives meets
+/// B2-C's producer requirements (`assert_combination_successor`) and is pinned; precommit is today's
+/// reader (`b2p_precommit_today`) or a validated successor, and on a fallback the ordinary bytes take
+/// one notice per case in A (none for a combination; T-12). With `I105_B2P_OUT` set, W-CB3's
+/// fixture documents are written there.
+#[test]
+fn b2p_witness_successors_are_pinned_in_both_modes() {
+    b2p_pin_witnesses(b2p_witnesses());
+}
+/// `b2p_witness_successors_are_pinned_in_both_modes` for W-CB1 and W-CB1z (D1's caps; slower).
+#[test]
+fn b2p_w_cb1_successors_are_pinned_in_both_modes() {
+    b2p_pin_witnesses(b2p_cap_witnesses());
+}
+fn b2p_pin_witnesses(witnesses: Vec<(&'static str, Value)>) {
+    let out = std::env::var("I105_B2P_OUT").ok();
+    let mut pins = Vec::new();
+    for (name, raw) in witnesses {
+        for mode in MODES {
+            let label = format!("{name} {mode:?}");
+            let plain = plain(mode, &raw);
+            let plain_value: Value = serde_json::from_slice(&plain).unwrap();
+            let (capture, observer, ordinary) = observed(mode, &raw);
+            let ((envelope, retained), _, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+            let successor = captured.unwrap_or_else(|| panic!("{label}: {retained:?}"));
+            let dispositions: Vec<&str> = successor["retained_precision"]["body"]["combinations"].as_array().unwrap().iter().map(|c| c["disposition"].as_str().unwrap()).collect();
+            println!("B2P_DISPOSITIONS {label} {dispositions:?}");
+            assert_eq!(dispositions, b2p_dispositions(name), "{label}");
+            assert_combination_successor(&label, &successor, &plain_value);
+            match &retained {
+                Ok(validated) => assert_eq!(validated.value(), &successor, "{label}"),
+                Err(W1Fallback::Precommit { gate, code }) => {
+                    assert_eq!((*gate, code.as_str()), b2p_precommit_today(name), "{label}: today's reader");
+                    let mut expected = plain.clone();
+                    for case in b2p_attempted(name) {
+                        expected = with_notice(&expected, case, None);
+                    }
+                    assert_eq!(String::from_utf8(serde_json::to_vec(&envelope).unwrap()).unwrap(), String::from_utf8(expected).unwrap(), "{label}: T-12");
+                }
+                Err(other) => panic!("{label}: {other:?}"),
+            }
+            let (receipt, bytes) = (successor["retained_precision"]["receipt_sha256"].as_str().unwrap().to_owned(), sha(&serde_json::to_vec(&successor).unwrap()));
+            println!("B2P_PIN {name} {} receipt={receipt} bytes={bytes}", mode.as_str());
+            let pinned = B2P_PINNED.iter().find(|(n, m, _, _)| *n == name && *m == mode.as_str()).unwrap();
+            if let (Some(dir), "w_cb3") = (&out, name) {
+                std::fs::write(format!("{dir}/retained_precision_combination_successor_{}.json", mode.as_str()), combination_document(&raw, mode, &successor)).unwrap();
+            }
+            pins.push((label, (receipt, bytes), (pinned.2, pinned.3)));
+        }
+    }
+    for (label, got, pinned) in pins {
+        assert_eq!((got.0.as_str(), got.1.as_str()), pinned, "{label}: pinned");
+    }
+}
+/// The combination successor fixtures are the live W-CB3 successor documents, byte for byte (the
+/// successor the private driver hands precommit; on the registered Direct entry the same bytes).
+#[test]
+fn b2p_combination_successor_fixtures_are_the_live_successors() {
+    for (mode, fixture) in MODES.into_iter().zip(COMBINATION_FIXTURES) {
+        let raw = w_cb3();
+        let (capture, observer, ordinary) = observed(mode, &raw);
+        let ((_, retained), _, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+        let successor = captured.unwrap_or_else(|| panic!("{mode:?}: {retained:?}"));
+        assert!(combination_document(&raw, mode, &successor) == fixture, "{mode:?}: the fixture is the live successor document, byte for byte");
+        let pinned = B2P_PINNED.iter().find(|(n, m, _, _)| *n == "w_cb3" && *m == mode.as_str()).unwrap();
+        assert_eq!(fixture_source_sha(fixture), pinned.3, "{mode:?}");
+    }
+}
+fn fixture_source_sha(fixture: &str) -> String {
+    let document: Value = serde_json::from_str(fixture).unwrap();
+    sha(&serde_json::to_vec(&document["source"]).unwrap())
+}
+
+/// B2-P on the actual Direct entry, both modes (registered build): each witness is admitted (D1.4
+/// with combinations), runs one ordinary run and G-C once, and precommit receives the private
+/// driver's successor byte for byte. Today's readers refuse it (`b2p_precommit_today`), so the
+/// publication is the plain bytes plus one notice per case in A. Unregistered builds: no W1.
+#[test]
+fn b2p_direct_entry_runs_the_combinations() {
+    b2p_direct(b2p_witnesses());
+}
+/// `b2p_direct_entry_runs_the_combinations` for W-CB1 and W-CB1z.
+#[test]
+fn b2p_w_cb1_direct_entry_runs_the_combinations() {
+    b2p_direct(b2p_cap_witnesses());
+}
+fn b2p_direct(witnesses: Vec<(&'static str, Value)>) {
+    for (name, raw) in witnesses {
+        for mode in MODES {
+            let label = format!("{name} {mode:?}");
+            let plain = plain(mode, &raw);
+            let (capture, observer, ordinary) = observed(mode, &raw);
+            let (_, _, private) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+            let direct_raw = raw.clone();
+            let (output, counts, captured) = hooks::counted_with_successor(move || run_linear_static_preview_value_with_retained_direct(direct_raw, mode).unwrap());
+            if !registered() {
+                assert!(output.retained().is_none() && captured.is_none(), "{label}: no permit, no W1");
+                assert_eq!(published(output), plain, "{label}");
+                continue;
+            }
+            assert_eq!(output.admission().unwrap().law().refusal, None, "{label}: admitted");
+            assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{label}");
+            assert_eq!(captured, private, "{label}: the Direct entry's successor is the private driver's");
+            match output.retained().unwrap().clone() {
+                Ok(_) => assert_eq!(published(output), serde_json::to_vec(&captured.unwrap()).unwrap(), "{label}"),
+                Err(W1Fallback::Precommit { gate, code }) => {
+                    assert_eq!((gate, code.as_str()), b2p_precommit_today(name), "{label}");
+                    let mut expected = plain.clone();
+                    for case in b2p_attempted(name) {
+                        expected = with_notice(&expected, case, None);
+                    }
+                    let bytes = published(output);
+                    assert_eq!(String::from_utf8(bytes.clone()).unwrap(), String::from_utf8(expected).unwrap(), "{label}: T-12");
+                    b2p_base_readers_accept(&raw, mode, &plain, &bytes, &label);
+                }
+                Err(other) => panic!("{label}: {other:?}"),
+            }
+        }
+    }
+}
+/// The noticed ordinary fallback is read by the base readers as the plain bytes are: the same
+/// contract (`for_source`), standing reason and numerical-use standing over the load cases.
+fn b2p_base_readers_accept(raw: &Value, mode: PreviewSolverMode, plain: &[u8], noticed: &[u8], label: &str) {
+    use open_pipe_stress_result_export::semantic_contract as sc;
+    let (base, noticed): (Value, Value) = (serde_json::from_slice(plain).unwrap(), serde_json::from_slice(noticed).unwrap());
+    assert!(sc::for_source(&base).is_ok(), "{label}: precondition, the base is admitted");
+    assert_eq!(sc::for_source(&noticed), sc::for_source(&base), "{label}: admitted with the same contract");
+    assert_eq!(sc::standing_reason(&noticed), sc::standing_reason(&base), "{label}");
+    let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
+    let bases: Vec<Value> = raw["model"]["load_cases"].as_array().unwrap().iter().map(|c| json!({"ref_type":"load_case","ref_id":c["id"]})).collect();
+    let standing = sc::numerical_use_standing_with_context(&noticed, &bases, Some(&invocation));
+    assert_eq!(standing, sc::numerical_use_standing_with_context(&base, &bases, Some(&invocation)), "{label}");
+    println!("B2P_READERS {label} for_source=ok standing={standing}");
+}

@@ -5433,17 +5433,10 @@ impl PreparedCases {
     /// invocation's one meter, then, with a selected Run, its own freeze.
     fn combination_call(&mut self, invocation: &mut k::RecordedInvocation, k: usize, next_attempt: &mut usize) -> Result<(), CombinationCustody> {
         let index = self.combinations[k].index;
-        #[cfg_attr(not(test), allow(unused_mut))]
-        let mut factors: Vec<f64> = self.combinations[k].operands.iter().map(|operand| operand.factor).collect();
-        // Test-only (B2-P hooks): the armed Call refuses before any source, through the kernel's
-        // own `NoOperands` check (a non-finite factor).
-        #[cfg(test)]
-        if crate::retained_tests_hooks::combination_call_fault(index) {
-            factors[0] = f64::NAN;
-        }
         let outcome = {
-            let mut operands: Vec<(f64, k::RecordedOperand<'_>)> = Vec::with_capacity(factors.len());
-            for (operand, &factor) in self.combinations[k].operands.iter().zip(&factors) {
+            let mut operands: Vec<(f64, k::RecordedOperand<'_>)> = Vec::with_capacity(self.combinations[k].operands.len());
+            for operand in &self.combinations[k].operands {
+                let factor = operand.factor;
                 let recorded = match operand.source {
                     OperandSource::Selected => match self.capture.case_native(operand.case).map(|case| &case.outcome) {
                         Some(k::ExecutionOutcome::Selected(solve)) => k::RecordedOperand::Selected(solve),
@@ -5459,6 +5452,12 @@ impl PreparedCases {
                     }
                 };
                 operands.push((factor, recorded));
+            }
+            // Test-only (B2-P hooks): the armed Call is made with no operand, so the kernel refuses
+            // it before any source (`NoOperands`, stage `operand_validation`).
+            #[cfg(test)]
+            if crate::retained_tests_hooks::combination_call_fault(index) {
+                operands.clear();
             }
             invocation.solve_combination_sources(&operands, k::CaseLimit::new(COMBINATION_CASE_LIMIT))
         };
@@ -5639,6 +5638,13 @@ impl ProductCapture {
                 }
             }
         }
+    }
+    /// Test access (B2-P): the combination observables stage on `ordinary`'s `rows` as combination
+    /// `index` (`id`).
+    #[cfg(test)]
+    pub(super) fn test_combination_observables(&self, ordinary: &MechanicsEnvelope, rows: std::ops::Range<usize>, index: usize, id: &str) -> Result<(), CaptureError> {
+        let scope = CaseScope { rows: Some(rows), evidence: index, cases: 1, qualified: false, route: self.route };
+        self.combination_observables(ProductCaseView::of(ordinary, &scope), id)
     }
     /// B2-P (REVISION_01 §1.2; DEF-C r2 `stages.observables`): the combination observables stage
     /// on its own block: the adapter (`require`, one `LibraryBoundary`); its gate entry not

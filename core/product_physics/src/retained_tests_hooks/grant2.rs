@@ -96,8 +96,8 @@ pub(crate) fn before_operand_preparation(capture: &mut crate::retained_product::
     }
 }
 /// B2-P hook: the Call of combination `index` (authored index) refuses before any source, through
-/// the kernel's own operand validation (operand 0's factor is passed non-finite: `no_operands`),
-/// so the combination is `retained_unavailable` with that `pre_source_refusal`.
+/// the kernel's own operand validation (the Call is made with no operand: `no_operands`), so the
+/// combination is `retained_unavailable` with that `pre_source_refusal`.
 pub(crate) fn fail_combination_call(index: usize) { arm(|a| a.combination_call = Some(index)); }
 /// At a combination's Call: whether the armed Call fault fires for it (consumed).
 pub(crate) fn combination_call_fault(index: usize) -> bool {
