@@ -5304,7 +5304,33 @@ struct ExactShape {
 /// The optional file base: `B3B_EXACT_BASE` names a `{source, invocation}` file (for
 /// example lane P's `m3x` exact successor); every shape is then also read on it.
 const FILE_BASE: &str = "<file>";
+/// Lane P's m3x exact successors (B3b-P; PP retained_facade_tests.rs `EXACT_PINNED`): base
+/// name, its S-1 shape's base, the document text, its sha256 and the receipt sha256. Every
+/// shape is also read on each.
+const M3X: [(&str, &str, &str, &str, &str); 2] = [
+    (
+        "m3x_sparse_interactive",
+        "<s1:m3x_sparse_interactive>",
+        include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
+        "02465c6c92ac2e4360a77910cb54803590b5a11042dfddb223bf78f9e856e5d6",
+        "b1b4a6682260ca6bc499950b30f0f7179a77c038e266cc4b42045ed86ed3896f",
+    ),
+    (
+        "m3x_dense_scrutiny",
+        "<s1:m3x_dense_scrutiny>",
+        include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
+        "31f10f04f6f335dfb1a7e5f904198972903bfc9208660031bbfaa5c547d347cc",
+        "eabd2fc57b42158ad415ae664e7c712c1c4db21258b667251758172f3a5b776d",
+    ),
+];
 fn exact_base(shared: &Value, base: &str) -> (Value, Value) {
+    use sha2::{Digest, Sha256};
+    if let Some((name, _, text, document_sha, receipt_sha)) = M3X.iter().find(|m| m.0 == base) {
+        assert_eq!(format!("{:x}", Sha256::digest(text.as_bytes())), *document_sha, "{name}: lane P's pinned document");
+        let doc: Value = serde_json::from_str(text).unwrap();
+        assert_eq!(doc["source"]["retained_precision"]["receipt_sha256"], *receipt_sha, "{name}");
+        return (doc["source"].clone(), doc["invocation"].clone());
+    }
     if base == FILE_BASE {
         let path = std::env::var("B3B_EXACT_BASE").unwrap();
         let doc: Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
@@ -5339,7 +5365,8 @@ const INVOCATION: &str = "RETAINED_PRECISION_INVOCATION_MISMATCH";
 const PREPARATION: &str = "RETAINED_PRECISION_PREPARATION_MISMATCH";
 const SECTION: &str = "RETAINED_PRECISION_SECTION_MISMATCH";
 /// REVISION_01 §4.3's B3b list on the synthetic exact successor (entries 1-32;
-/// entry 9 relabels the shared preview base), plus this reader's added shapes.
+/// entry 9 relabels the shared preview base), plus this reader's added shapes; then
+/// every row, the base and S-1's shape on each of lane P's two m3x successors.
 /// The expected first failures are bound; `B3B_SHAPES_OUT` writes every shape's
 /// bound, unbound and transport readings (JSON lines), and `B3B_INPUTS_OUT` the
 /// materialized inputs, for the three-reader comparison.
@@ -5354,6 +5381,11 @@ fn b3b_shapes(shared: &Value) -> Vec<(ExactShape, Value)> {
     // 11 (S-1): the preparation hash over a payload with DEF-O's H; source
     // identity, publication and receipt hashes recomputed.
     out.push((ExactShape { name: "11 S-1: the preparation hashed with DEF-O's H", base: "<s1:ordinary_prepared_synthetic>", edits: vec![], invocation_edits: vec![], after: vec![] }, gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")));
+    for (name, s1, ..) in M3X {
+        out.push((ExactShape { name: "base", base: name, edits: vec![], invocation_edits: vec![], after: vec![] }, Value::Null));
+        out.extend(b3b_rows(shared, name));
+        out.push((ExactShape { name: "11 S-1: the preparation hashed with DEF-O's H", base: s1, edits: vec![], invocation_edits: vec![], after: vec![] }, gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")));
+    }
     if std::env::var("B3B_EXACT_BASE").is_ok() {
         out.push((ExactShape { name: "base", base: FILE_BASE, edits: vec![], invocation_edits: vec![], after: vec![] }, Value::Null));
         out.extend(b3b_rows(shared, FILE_BASE));
@@ -5457,8 +5489,9 @@ fn b3b_input(shared: &Value, shape: &ExactShape) -> (Value, Value) {
             rehash(&mut source);
             (source, case["invocation"].clone())
         }
-        "<s1:ordinary_prepared_synthetic>" | "<s1:file>" => {
-            let (mut source, invocation) = exact_base(shared, if shape.base == "<s1:file>" { FILE_BASE } else { ORD });
+        s1 if s1.starts_with("<s1:") => {
+            let name = &s1[4..s1.len() - 1];
+            let (mut source, invocation) = exact_base(shared, if name == "file" { FILE_BASE } else { name });
             rehash_with(&mut source, rp::DEFINITION_HASH);
             (source, invocation)
         }
@@ -5500,7 +5533,7 @@ fn b3b_exact_successor_shapes_first_failures() {
         }
     }
     assert!(misses.is_empty(), "{}", misses.join("\n"));
-    assert_eq!(shapes.iter().filter(|(s, _)| s.base != FILE_BASE && s.base != "<s1:file>").count(), 3 + 50 + 2);
+    assert_eq!(shapes.iter().filter(|(s, _)| s.base != FILE_BASE && s.base != "<s1:file>").count(), 3 + 50 + 2 + 2 * (1 + 50 + 1));
 }
 fn observe_validation(r: Result<rp::Validation, rp::ValidationError>) -> Value {
     match r {
@@ -5508,16 +5541,16 @@ fn observe_validation(r: Result<rp::Validation, rp::ValidationError>) -> Value {
         Ok(_) => Value::Null,
     }
 }
-/// B3b: the synthetic exact successors validate bound (eligible), unbound and on
-/// transport (never eligible); the standing is the receipt's; the base
+/// B3b: the synthetic exact successors and lane P's m3x successors validate bound
+/// (eligible), unbound and on transport (never eligible); the standing is the receipt's; the base
 /// dispatch returns the exact table; S-C's code is the G8 failure's detail.
 #[test]
 fn b3b_exact_successor_readings_standing_and_dispatch() {
     use open_pipe_stress_result_export::semantic_contract as sc;
     use serde_json::json;
     let shared = corpus();
-    for base in EXACT_BASES {
-        let (source, invocation) = exact_successor(&shared, base);
+    for base in EXACT_BASES.into_iter().chain(M3X.map(|m| m.0)) {
+        let (source, invocation) = exact_base(&shared, base);
         assert_eq!(
             readings(&source, &invocation),
             json!({"bound": {"ok": {"eligible": true}}, "unbound": {"ok": {"eligible": false}},
@@ -5567,7 +5600,7 @@ fn b3b_exact_successor_readings_standing_and_dispatch() {
 
 /// B3b (D2 §4.9.7; B3-D §7): derivative.rs carries the exact successor's
 /// `contract_evidence` and its receipt whole, and validates the document against
-/// the source. The base and origin are a minimal 0.2.0 scaffold of the desktop's
+/// the source (the synthetic exact successors and lane P's m3x successors). The base and origin are a minimal 0.2.0 scaffold of the desktop's
 /// (T6S-2's `desktop_base` and `desktop_origin`, retained_precision_derivative_golden.rs);
 /// the exact successor's golden, on lane P's `m3x` successors, is lane T's.
 #[test]
@@ -5575,8 +5608,8 @@ fn b3b_exact_successor_derivative_carries_the_receipt_and_evidence() {
     use open_pipe_stress_result_export::{derivative as d, semantic_contract as sc};
     use serde_json::json;
     let shared = corpus();
-    for base in EXACT_BASES {
-        let (source, invocation) = exact_successor(&shared, base);
+    for base in EXACT_BASES.into_iter().chain(M3X.map(|m| m.0)) {
+        let (source, invocation) = exact_base(&shared, base);
         let model = &invocation["request"]["model"];
         let run = source["run_id"].as_str().unwrap();
         let project = model["project"]["id"].as_str().unwrap();
