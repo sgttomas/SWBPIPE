@@ -3485,6 +3485,29 @@ fn dof_index(v: &Value) -> VResult<usize> {
         .position(|d| v == *d)
         .ok_or_else(|| error("G8", "PREPARATION_MISMATCH"))
 }
+/// A pressure contract exactly `{"version": version, "mode": mode}`: a JSON
+/// object with those two keys only, each valued with exactly that string.
+fn pressure_contract_is(v: &Value, version: &str, mode: &str) -> bool {
+    v.as_object().is_some_and(|o| {
+        o.len() == 2
+            && o.get("version").and_then(Value::as_str) == Some(version)
+            && o.get("mode").and_then(Value::as_str) == Some(mode)
+    })
+}
+/// D1.3 on the preview branch (B3a): branch L, schema 0.1.0 or 0.2.0 with
+/// `pressure_contract` absent or JSON null; or branch L3, schema 0.3.0 with
+/// exactly `{"version":"1.0.0","mode":"legacy_pressure_v1"}`. Anything else
+/// (0.3.0 without a contract, `{}`, `false`, an extra key, 0.2.0 with a
+/// contract, 0.4.0) is outside the namespace.
+fn legacy_namespace(model: &Value) -> bool {
+    match model["schema_version"].as_str() {
+        Some("0.1.0" | "0.2.0") => model["pressure_contract"].is_null(),
+        Some("0.3.0") => {
+            pressure_contract_is(&model["pressure_contract"], "1.0.0", "legacy_pressure_v1")
+        }
+        _ => false,
+    }
+}
 fn g8(source: &Value, inv: &Value) -> VResult {
     let b = &source["retained_precision"]["body"];
     let fail = |ok| need(ok, "G8", "PREPARATION_MISMATCH");
@@ -3512,11 +3535,11 @@ fn g8(source: &Value, inv: &Value) -> VResult {
     need(
         // D31: the producer treats model 0.1.0 and 0.2.0 on one branch
         // (pressure_runtime.rs `validate_profile`); 0.4.0 stays excluded.
-        matches!(text(&model["schema_version"]), "0.1.0" | "0.2.0" | "0.3.0")
+        // B3a (B3-D §6.3; REVISION_01 §3, N-4): D1.3's namespace, type-strict.
+        legacy_namespace(model)
             // B1's alignment set, item 2 (g), PP's acceptance: no
-            // `reference_configurations` member (null included); `pressure_contract`
-            // absent or null; `combinations` and `components` absent or [].
-            && model["pressure_contract"].is_null()
+            // `reference_configurations` member (null included); `combinations`
+            // and `components` absent or [].
             && ["combinations", "components"]
                 .iter()
                 .all(|k| model.get(*k).is_none_or(|v| v.as_array().is_some_and(Vec::is_empty)))

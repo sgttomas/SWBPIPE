@@ -3012,8 +3012,12 @@ fn d30_native_run_ref_on_nonselected_run() {
     assert_eq!((got.gate, got.code.as_str()), ("G5", PRODUCT));
 }
 
-/// D31: G8 admits model schema_version 0.1.0, 0.2.0 or 0.3.0; 0.4.0 stays
-/// excluded. The invocation edit rebinds the receipt's invocation digest.
+/// D31: G8 admits model schema_version 0.1.0 or 0.2.0 without a pressure
+/// contract; 0.4.0 stays excluded. B3a (B3-D §6.3, decision B3D-10): 0.3.0
+/// without a contract is outside D1.3 (the producer cannot emit it,
+/// `PRESSURE_CONTRACT_REQUIRED`), so it is G8 INVOCATION_MISMATCH; 0.3.0 with
+/// the legacy contract is `b3a_legacy_pressure_contract_namespace_at_g8`'s.
+/// The invocation edit rebinds the receipt's invocation digest.
 #[test]
 fn d31_model_schema_versions_at_g8() {
     use serde_json::json;
@@ -3026,7 +3030,7 @@ fn d31_model_schema_versions_at_g8() {
     for (version, want) in [
         ("0.1.0", Value::Null),
         ("0.2.0", Value::Null),
-        ("0.3.0", Value::Null),
+        ("0.3.0", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
         ("0.4.0", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
         ("0.0.9", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
     ] {
@@ -5049,4 +5053,102 @@ fn b1_i4p_transport_metadata_demands_alone() {
         ],
         |e| b1_transport_detail(&shared, e),
     );
+}
+
+/// B3a (B3-D §6.3 and §6.4; REVISION_01 §3, N-4): G8's namespace predicate is
+/// type-strict. Branch L (0.1.0 or 0.2.0, `pressure_contract` absent or JSON
+/// null) and branch L3 (0.3.0, exactly `{"version":"1.0.0","mode":
+/// "legacy_pressure_v1"}`) are admitted; any other value is G8
+/// INVOCATION_MISMATCH. A zero-magnitude element pressure load on L3 is
+/// outside D1.7 (N-11's reading): G8 PREPARATION_MISMATCH. Reader-local
+/// synthetic receipts: invocation edits on the shared bases, rehashed.
+#[test]
+fn b3a_legacy_pressure_contract_namespace_at_g8() {
+    use serde_json::json;
+    let shared = corpus();
+    let l3 = json!({"version": "1.0.0", "mode": "legacy_pressure_v1"});
+    let schema = |v: &str| set(json!(["request", "model", "schema_version"]), json!(v));
+    let contract = |v: Value| set(json!(["request", "model", "pressure_contract"]), v);
+    let no_contract = || remove(json!(["request", "model", "pressure_contract"]));
+    let inv = gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH");
+    let prep = gate("G8", "RETAINED_PRECISION_PREPARATION_MISMATCH");
+    let base_invocation = |id: &str| {
+        shared["cases"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|c| c["id"] == id)
+            .unwrap()["invocation"]
+            .clone()
+    };
+    // N-11: a zero-magnitude element pressure load appended to case 0.
+    let zero_pressure = |id: &str| {
+        let mut loads = base_invocation(id)["request"]["model"]["load_cases"][0]["primitive_loads"].clone();
+        loads.as_array_mut().unwrap().push(json!({
+            "id": "load:b3a-zero-pressure", "category": "pressure",
+            "target": {"type": "element", "pipe": "pipe:fixture-span"},
+            "magnitude": {"value": 0, "unit": "Pa"}, "dimension": "pressure",
+            "provenance": "synthetic_integration_input_not_library_data"}));
+        set(json!(["request", "model", "load_cases", 0, "primitive_loads"]), loads)
+    };
+    let with = |key: &str, value: Value| {
+        let mut c = l3.clone();
+        c[key] = value;
+        c
+    };
+    let mut entries: Vec<(String, &str, Vec<Value>, Value)> = Vec::new();
+    for base in [
+        ORD,
+        "ordinary_prepared_dense_synthetic",
+        "two_case_synthetic",
+        "u8_l0_isolated_node_sparse_interactive",
+        "u8_l0_isolated_node_dense_scrutiny",
+    ] {
+        entries.push((format!("L3 on {base}"), base, vec![schema("0.3.0"), contract(l3.clone())], Value::Null));
+    }
+    for (name, edits, want) in [
+        ("L: 0.2.0, contract null", vec![contract(Value::Null)], Value::Null),
+        ("L: 0.1.0, contract absent", vec![schema("0.1.0"), no_contract()], Value::Null),
+        ("L3: mode exact_straight_pressure_v2, version 1.0.0", vec![schema("0.3.0"), contract(with("mode", json!("exact_straight_pressure_v2")))], inv.clone()),
+        ("L3: version 1.0.1", vec![schema("0.3.0"), contract(with("version", json!("1.0.1")))], inv.clone()),
+        ("L3: the exact contract 2.0.0", vec![schema("0.3.0"), contract(json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}))], inv.clone()),
+        ("0.3.0, contract null", vec![schema("0.3.0"), contract(Value::Null)], inv.clone()),
+        ("0.3.0, contract absent", vec![schema("0.3.0"), no_contract()], inv.clone()),
+        ("L3: an extra key", vec![schema("0.3.0"), contract(with("extra", json!("x")))], inv.clone()),
+        ("L3: an extra key valued null", vec![schema("0.3.0"), contract(with("extra", Value::Null))], inv.clone()),
+        ("L3: version only", vec![schema("0.3.0"), contract(json!({"version": "1.0.0"}))], inv.clone()),
+        ("L3: mode only", vec![schema("0.3.0"), contract(json!({"mode": "legacy_pressure_v1"}))], inv.clone()),
+        ("L3: version a number", vec![schema("0.3.0"), contract(with("version", json!(1.0)))], inv.clone()),
+        ("L3: mode null", vec![schema("0.3.0"), contract(with("mode", Value::Null))], inv.clone()),
+        ("0.3.0, contract {}", vec![schema("0.3.0"), contract(json!({}))], inv.clone()),
+        ("0.2.0 keeping the L3 contract", vec![contract(l3.clone())], inv.clone()),
+        ("0.1.0 keeping the L3 contract", vec![schema("0.1.0"), contract(l3.clone())], inv.clone()),
+        ("0.4.0 with the L3 contract", vec![schema("0.4.0"), contract(l3.clone())], inv.clone()),
+        ("N-4: 0.2.0, contract {}", vec![contract(json!({}))], inv.clone()),
+        ("N-4: 0.2.0, contract false", vec![contract(json!(false))], inv.clone()),
+        ("N-4: 0.2.0, contract []", vec![contract(json!([]))], inv.clone()),
+        ("N-4: 0.2.0, contract \"\"", vec![contract(json!(""))], inv.clone()),
+        ("N-4: 0.2.0, contract 0", vec![contract(json!(0))], inv.clone()),
+        ("N-11: L3 with a zero-magnitude element pressure load", vec![schema("0.3.0"), contract(l3.clone()), zero_pressure(ORD)], prep.clone()),
+    ] {
+        entries.push((name.to_string(), ORD, edits, want));
+    }
+    entries.push((
+        "N-11: L3 dense with a zero-magnitude element pressure load".into(),
+        "ordinary_prepared_dense_synthetic",
+        vec![schema("0.3.0"), contract(l3.clone()), zero_pressure("ordinary_prepared_dense_synthetic")],
+        prep.clone(),
+    ));
+    let mut misses = Vec::new();
+    for (name, base, edits, want) in &entries {
+        let got = observe(
+            &shared,
+            &json!({"id": "i101_b3a", "base": base, "edits": [], "rehash": "all", "invocation_edits": edits}),
+        );
+        if got != *want {
+            misses.push(format!("{name}: got {got}, want {want}"));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+    assert_eq!(entries.len(), 29);
 }
