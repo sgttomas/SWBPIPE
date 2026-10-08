@@ -1,7 +1,7 @@
 /** Frozen T0R notices, gate reasons and standing reasons (S1_INTERFACE §10).
  * Text only. N-A: these strings are UI labels and reasons; they are never
  * written into an exported results or stress-neutral document or its manifest. */
-import { sourceContract, currentSemanticContract, PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID } from "./numericalResultQuality";
+import { sourceContract, currentSemanticContract, PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
 import { SOURCE_BLOCKS_CONTRACT_ID, sourceBlocksOrdinaryCaseLegacy } from "./sourceBlockRecovery";
 import { classificationSummary, retainedRowClasses } from "./retainedPrecisionStanding";
 import { decodeBinary64, type AccuracyClass } from "./retainedPrecision";
@@ -115,7 +115,7 @@ export function standingReason(source: MechanicsResult | null | undefined): stri
  * and is refused exactly as that row. Without a valid registration no row has a
  * validated class, so every row is refused (fail closed, as Rust F5). */
 export function ruleBindingRefusal(source: MechanicsResult, row: Pick<MechanicsResult["results"][number], "id" | "kind">): string | null {
-  if (source.producer?.semantic_contract_id === PREVIEW_PHYSICS_RETAINED_CONTRACT_ID) {
+  if (isRetainedIdentity(source.producer?.semantic_contract_id)) {
     const classes = retainedRowClasses(source);
     return classes ? classBindingRefusal(classes.get(row.id)?.class) : RULE_QUANTITY_NOT_COVERED;
   }
@@ -163,8 +163,9 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined)
       if (gate.withheld && gate.reason) notices.push({ id: `combination-gate:${gate.combination_id}`, text: `${gate.combination_id}: ${COMBINATION_GATE_REASONS[gate.reason] ?? gate.reason}` });
     }
   }
-  // D2 4.9.9 UI summary: per-case counts over the registered validated classes.
-  if (route === "retained_preview_physics") {
+  // D2 4.9.9 UI summary: per-case counts over the registered validated classes (either
+  // successor; B3b's exact successor reads physics-1's rows, so no preview notice above).
+  if (isRetainedRoute(route)) {
     if (!retainedRowClasses(source)) notices.push({ id: "retained-precision-unvalidated", text: N_RP_UNVALIDATED });
     for (const c of classificationSummary(source)) {
       if (c.absolute_verified > 0) notices.push({ id: `retained-precision-absolute:${String(c.case_id)}`, text: `${String(c.case_id)}: ${c.absolute_verified} quantities verified only to an absolute bound, below the relative accuracy floor. Each is labelled and shown for inspection; rule checks cannot bind to them.` });
@@ -188,8 +189,10 @@ export function resultRowLabel(row: Pick<MechanicsResult["results"][number], "ki
   if (!source) return null;
   let route: ReturnType<typeof sourceContract>;
   try { route = sourceContract(source); } catch { return null; }
-  if (route !== "preview_physics" && route !== "retained_preview_physics") return null;
-  const kindLabel = row.kind === PREVIEW_INTENSIFIED_KIND ? N_INTENSIFIED : row.kind === PREVIEW_MAXIMUM_KIND ? N_HEADLINE : null;
+  if (route !== "preview_physics" && !isRetainedRoute(route)) return null;
+  // B3b: the exact successor's rows are physics-1's, which carry no preview kind label;
+  // its rows carry their validated class label only.
+  const kindLabel = route === "retained_physics" ? null : row.kind === PREVIEW_INTENSIFIED_KIND ? N_INTENSIFIED : row.kind === PREVIEW_MAXIMUM_KIND ? N_HEADLINE : null;
   // Only a registered successor has validated classes; any other source has none.
   const classLabel = retainedRowClassLabel(row, source);
   return classLabel && kindLabel ? `${classLabel} ${kindLabel}` : classLabel ?? kindLabel;

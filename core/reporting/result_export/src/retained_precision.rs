@@ -10,6 +10,14 @@ pub const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub const DEFINITION_HASH: &str =
     "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349";
 pub const METHOD: &str = "contribution_preserving_multiprecision_v1";
+/// B3b (B3-D §6 with REVISION_01): the exact successor `<physics-retained>`,
+/// read on its own route (`EXACT`), whose base is physics-1.
+pub const EXACT_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/physics-retained-1";
+pub const EXACT_PROFILE: &str = "exact_straight_retained_w1a_v2";
+pub const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
+/// H(`retained_precision_formation_v1`, DEF-E) (REVISION_01 §1.2).
+pub const EXACT_DEFINITION_HASH: &str =
+    "5a3bac430df9bbc77484d5419c75880ad40ae209b439e5f928374458025281af";
 const MAX_BITS: u64 = 0x7fef_ffff_ffff_ffff;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -349,6 +357,60 @@ fn table() -> &'static Value {
         .expect("packaged retained table")
     })
 }
+fn exact_definition() -> &'static Value {
+    static S: OnceLock<Value> = OnceLock::new();
+    S.get_or_init(|| {
+        serde_json::from_str(include_str!(
+            "../../../../fixtures/results/retained_precision_prepared_exact_v1.json"
+        ))
+        .expect("packaged exact retained definition")
+    })
+}
+fn exact_table() -> &'static Value {
+    static S: OnceLock<Value> = OnceLock::new();
+    S.get_or_init(|| {
+        serde_json::from_slice(EXACT_TABLE_BYTES).expect("packaged exact retained table")
+    })
+}
+/// B3-D §6.1: the route a statement is read on, decided once from
+/// `producer.semantic_contract_id` (the exact identity reads exactly; every
+/// other statement reads on the preview route, whose G0 refuses a foreign
+/// identity). Each route's G0 table read, G1 preparation hash, G5b evidence
+/// cross-check, G7 projection and G8 namespace and material checks sit behind
+/// their own call edges (ruling 1).
+#[derive(Debug)]
+struct Route {
+    exact: bool,
+    /// The preparation payload's `definition_sha256` (S-1): the H of the
+    /// definition the route's table binds.
+    definition_hash: &'static str,
+    /// G7's projection: the base identity and profile.
+    base_id: &'static str,
+    base_profile: &'static str,
+    /// G8: each member's `section_terms[].geometry.route`.
+    geometry: &'static str,
+}
+const PREVIEW: Route = Route {
+    exact: false,
+    definition_hash: DEFINITION_HASH,
+    base_id: "openpipestress.result_semantics/0.3.0/preview-physics-1",
+    base_profile: "product_preview_mechanics_v1",
+    geometry: "preview",
+};
+const EXACT: Route = Route {
+    exact: true,
+    definition_hash: EXACT_DEFINITION_HASH,
+    base_id: "openpipestress.result_semantics/0.3.0/physics-1",
+    base_profile: "exact_straight_pressure_v2",
+    geometry: "exact",
+};
+fn route(source: &Value) -> &'static Route {
+    if source["producer"]["semantic_contract_id"] == EXACT_CONTRACT_ID {
+        &EXACT
+    } else {
+        &PREVIEW
+    }
+}
 fn equal(a: &Value, b: &Value) -> bool {
     match (a, b) {
         (Value::Number(a), Value::Number(b)) => a.as_f64() == b.as_f64(),
@@ -477,14 +539,16 @@ fn source_hash(s: &Value) -> VResult<String> {
         "RECEIPT_MISMATCH",
     )
 }
-fn preparation_payload(a: &Value) -> VResult<Value> {
+/// S-1 (REVISION_01 §2): `definition_sha256` is the route's table-bound
+/// definition H, never a module constant.
+fn preparation_payload(a: &Value, definition_hash: &str) -> VResult<Value> {
     let mut members = Vec::new();
     for m in list(&a["preparation"]["members"]) {
         need(m["result"]["kind"] == "prepared", "G1", "RECEIPT_MISMATCH")?;
         members.push(json!({"member":m["member"],"old_source":m["old_source"],"old_facts":m["old_facts"],"section":m["result"]["section"]}));
     }
     Ok(
-        json!({"definition_id":a["definition_id"],"definition_sha256":DEFINITION_HASH,"owner_ref":a["owner_ref"],"ordinary_attempt_ref":a["ordinary_attempt_ref"],"material_basis_ref":a["material_basis_ref"],"members":members}),
+        json!({"definition_id":a["definition_id"],"definition_sha256":definition_hash,"owner_ref":a["owner_ref"],"ordinary_attempt_ref":a["ordinary_attempt_ref"],"material_basis_ref":a["material_basis_ref"],"members":members}),
     )
 }
 /// The bound inherited preview table and this successor table, as bytes.
@@ -494,6 +558,29 @@ const TABLE_BYTES: &[u8] = include_bytes!(
 const INHERITED_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json");
 const TABLE_HASH: &str = "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c";
+/// The exact successor's table (XTABLE) and its inherited physics-1 table.
+const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
+    "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
+);
+const PHYSICS_TABLE_BYTES: &[u8] =
+    include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_physics_1.json");
+const EXACT_TABLE_HASH: &str = "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d";
+/// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
+/// binds from version 1, keyed by the receipt body's own paths.
+fn receipt_bindings() -> Value {
+    json!({"canonicalization":"openpipestress_jcs_ijson_v1","method":METHOD,
+        "projection_policy":"RP-LOGICAL-ATTEMPTS-v1",
+        "work":{"case_limit":20_000_000_000u64,"invocation_limit":60_000_000_000u64},
+        "work_policy":"W1-LME-20B-60B-v1"})
+}
+/// B3-D §2.4 step 6: the table's `receipt_bindings`, `receipt_policy` and
+/// `accuracy_classification.policy` each equal the reader's constants, so
+/// neither the table nor a constant can drift alone.
+fn table_binds_reader_constants(table: &Value) -> bool {
+    table["receipt_bindings"] == receipt_bindings()
+        && table["receipt_policy"] == "M03-INTEGRITY-MP-v2"
+        && table["accuracy_classification"]["policy"] == "RP-FACADE-SI-v2"
+}
 fn sha256_hex(bytes: &[u8]) -> String {
     use sha2::{Digest, Sha256};
     Sha256::digest(bytes)
@@ -564,7 +651,74 @@ fn g0(source: &Value) -> VResult {
     }
     Ok(())
 }
-fn g1(source: &Value, raw: bool) -> VResult {
+/// G0 on the exact route (B3-D §2.4, steps 1-9, in order; REVISION_01 §4.3
+/// entries 1-10): every step is SOURCE_PRODUCER_CONTRACT_UNSUPPORTED except
+/// step 4, RETAINED_PRECISION_FORMATION_MISMATCH.
+fn g0_exact(source: &Value) -> VResult {
+    let unsupported = |ok| need(ok, "G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED");
+    let t = exact_table();
+    // 1. Identity and profile.
+    unsupported(
+        source.is_object()
+            && source["producer"]["semantic_contract_id"] == EXACT_CONTRACT_ID
+            && source["formulation_basis"]["profile_id"] == EXACT_PROFILE,
+    )?;
+    // 2. Producer component and version; envelope schema 0.2.0.
+    unsupported(
+        source["schema_version"] == "0.2.0"
+            && source["producer"]["component_name"] == "open_pipe_stress_product_physics"
+            && source["producer"]["component_version"] == "0.2.0",
+    )?;
+    // 3. XTABLE's identity and profile.
+    unsupported(
+        t["semantic_contract_id"] == EXACT_CONTRACT_ID && t["formulation_profile_id"] == EXACT_PROFILE,
+    )?;
+    // 4. H(DEF-E) and the table's one bound definition.
+    need(
+        hash(
+            "retained_precision_formation_v1",
+            exact_definition(),
+            "G0",
+            "FORMATION_MISMATCH",
+        )? == EXACT_DEFINITION_HASH
+            && t["product_formation_definitions"]
+                == json!([{"id":EXACT_DEFINITION_ID,"sha256":EXACT_DEFINITION_HASH}]),
+        "G0",
+        "FORMATION_MISMATCH",
+    )?;
+    // 5. XTABLE's bytes and its inherited physics-1 hash.
+    unsupported(
+        sha256_hex(EXACT_TABLE_BYTES) == EXACT_TABLE_HASH
+            && t["inherited_semantic_contract_sha256"] == sha256_hex(PHYSICS_TABLE_BYTES),
+    )?;
+    // 6. The table against the reader's constants.
+    unsupported(table_binds_reader_constants(t))?;
+    let b = &source["retained_precision"]["body"];
+    // 7. receipt_version 1 (D32: by value).
+    unsupported(uint(&b["receipt_version"]) == Some(1))?;
+    // 8. The body's policies and limits equal the table's.
+    let rb = &t["receipt_bindings"];
+    for (key, want) in [
+        ("policy", &t["receipt_policy"]),
+        ("facade_policy", &t["accuracy_classification"]["policy"]),
+        ("projection_policy", &rb["projection_policy"]),
+        ("work_policy", &rb["work_policy"]),
+        ("canonicalization", &rb["canonicalization"]),
+    ] {
+        unsupported(want.is_string() && b[key] == *want)?;
+    }
+    for key in ["case_limit", "invocation_limit"] {
+        unsupported(rb["work"][key].as_u64().is_some() && uint(&b["work"][key]) == rb["work"][key].as_u64())?;
+    }
+    // 9. Every attempt names the exact definition.
+    for a in list(&b["product_attempts"]) {
+        if a.is_object() {
+            unsupported(a["definition_id"] == EXACT_DEFINITION_ID)?;
+        }
+    }
+    Ok(())
+}
+fn g1(source: &Value, raw: bool, route: &Route) -> VResult {
     let r = &source["retained_precision"];
     need(shape(r, schema()), "G1", "RECEIPT_MISMATCH")?;
     if raw {
@@ -617,7 +771,7 @@ fn g1(source: &Value, raw: bool) -> VResult {
                     need(
                         hash(
                             "retained_precision_preparation_v1",
-                            &preparation_payload(a)?,
+                            &preparation_payload(a, route.definition_hash)?,
                             "G1",
                             "RECEIPT_MISMATCH",
                         )? == s["preparation"]["sha256"],
@@ -3254,6 +3408,52 @@ fn g5b(cases: &mut [NumericCase<'_>]) -> VResult {
     }
     Ok(())
 }
+/// G5b on the exact route (D2 §4.9.3 G5b; B3-D §6.2 and §1.4), after the
+/// shared checks: for each selected case, its one `contract_evidence.exact_cases`
+/// entry (matched by the case's `load_case_id`) states the receipt's section
+/// bit for bit: for each member, its one `pipe_sections` entry (matched by
+/// `pipe_id`) has `As_m2` = `area`, `Z_m3` = `section_modulus`, and the
+/// source's geometry: `outside_diameter_m` = `normalized_od`,
+/// `effective_wall_thickness_m` = `effective_wall`, `ro_m` = `actual_radius`,
+/// `I_m4` = `actual_second_moment`, `J_m4` = `actual_polar_moment`. A missing
+/// or repeated entry, or a value that is not a JSON number, is a mismatch.
+fn g5b_exact_evidence(source: &Value, cases: &[NumericCase<'_>]) -> VResult {
+    let section = |ok| need(ok, "G5b", "SECTION_MISMATCH");
+    let number_bits = |v: &Value| v.as_f64().map(bits);
+    let evidence = list(&source["contract_evidence"]["exact_cases"]);
+    for c in cases {
+        let entries: Vec<_> = evidence
+            .iter()
+            .filter(|e| e["load_case_id"] == c.case["basis_ref"]["ref_id"])
+            .collect();
+        section(entries.len() == 1)?;
+        let sections = list(&entries[0]["pipe_sections"]);
+        for st in list(&c.source["section_terms"]) {
+            let member = list(&c.source["id_maps"]["members"])
+                .iter()
+                .find(|m| m["kernel_member"] == st["member"])
+                .ok_or_else(|| error("G5b", "SECTION_MISMATCH"))?;
+            let matched: Vec<_> = sections
+                .iter()
+                .filter(|p| p["pipe_id"] == member["id"])
+                .collect();
+            section(matched.len() == 1)?;
+            let (p, g) = (matched[0], &st["geometry"]);
+            for (evidence_key, receipt) in [
+                ("As_m2", &st["area"]),
+                ("Z_m3", &st["section_modulus"]),
+                ("outside_diameter_m", &g["normalized_od"]),
+                ("effective_wall_thickness_m", &g["effective_wall"]),
+                ("ro_m", &g["actual_radius"]),
+                ("I_m4", &g["actual_second_moment"]),
+                ("J_m4", &g["actual_polar_moment"]),
+            ] {
+                section(number_bits(&p[evidence_key]).is_some_and(|b| b == *receipt))?;
+            }
+        }
+    }
+    Ok(())
+}
 fn row_scale(row: &Value, c: &NumericCase<'_>) -> VResult<Option<f64>> {
     let kind = row_kind(row);
     let (body, member) = row_body(row, c.source);
@@ -3446,6 +3646,43 @@ fn selected_material(raw: &Value, case: &Value) -> VResult<([f64; 2], Value)> {
         json!({"kind":"interpolated","lower_point_id":lo.1["id"],"upper_point_id":hi.1["id"],"target_kelvin":bits(t)}),
     ))
 }
+/// G8 step 4 on the exact route (B3D-7; REVISION_01 §4.2): the base common
+/// E/nu only. Every authored quantity is unit-checked first, as on the preview
+/// route; E is the normalized base modulus and nu the authored `poisson_ratio`
+/// (unit "1", -1 < nu < 1/2); G-hat = RN64(E / (2 RN64(1 + nu))), a positive
+/// normal. Returns (E, G-hat, nu).
+fn exact_material(raw: &Value) -> VResult<(f64, f64, f64)> {
+    let fail = |ok| need(ok, "G8", "PREPARATION_MISMATCH");
+    for p in std::iter::once(raw).chain(list(&raw["temperature_points"]).iter()) {
+        for (k, d) in [
+            ("elastic_modulus", Dimension::Stress),
+            ("shear_modulus", Dimension::Stress),
+            ("temperature", Dimension::Temperature),
+            (
+                "thermal_expansion_coefficient",
+                Dimension::ThermalExpansionCoefficient,
+            ),
+        ] {
+            if !p[k].is_null() {
+                unit_value(&p[k], d)?;
+            }
+        }
+    }
+    let e = unit_value(&raw["elastic_modulus"], Dimension::Stress)?;
+    let poisson = &raw["poisson_ratio"];
+    fail(poisson["unit"] == "1")?;
+    let nu = poisson["value"].as_f64().unwrap_or(f64::NAN);
+    fail(e > 0.0 && nu.is_finite() && -1.0 < nu && nu < 0.5)?;
+    let g = e / (2.0 * (1.0 + nu));
+    fail(g.is_normal() && g > 0.0)?;
+    Ok((e, g, nu))
+}
+/// D1.3 on the exact route (B3b): schema 0.3.0 with exactly
+/// `{"version":"2.0.0","mode":"exact_straight_pressure_v2"}`, type-strict.
+fn exact_namespace(model: &Value) -> bool {
+    model["schema_version"].as_str() == Some("0.3.0")
+        && pressure_contract_is(&model["pressure_contract"], "2.0.0", "exact_straight_pressure_v2")
+}
 fn normalized_nodes(model: &Value) -> VResult<Vec<Value>> {
     let mut out = Vec::new();
     for (i, n) in list(&model["nodes"]).iter().enumerate() {
@@ -3485,7 +3722,30 @@ fn dof_index(v: &Value) -> VResult<usize> {
         .position(|d| v == *d)
         .ok_or_else(|| error("G8", "PREPARATION_MISMATCH"))
 }
-fn g8(source: &Value, inv: &Value) -> VResult {
+/// A pressure contract exactly `{"version": version, "mode": mode}`: a JSON
+/// object with those two keys only, each valued with exactly that string.
+fn pressure_contract_is(v: &Value, version: &str, mode: &str) -> bool {
+    v.as_object().is_some_and(|o| {
+        o.len() == 2
+            && o.get("version").and_then(Value::as_str) == Some(version)
+            && o.get("mode").and_then(Value::as_str) == Some(mode)
+    })
+}
+/// D1.3 on the preview branch (B3a): branch L, schema 0.1.0 or 0.2.0 with
+/// `pressure_contract` absent or JSON null; or branch L3, schema 0.3.0 with
+/// exactly `{"version":"1.0.0","mode":"legacy_pressure_v1"}`. Anything else
+/// (0.3.0 without a contract, `{}`, `false`, an extra key, 0.2.0 with a
+/// contract, 0.4.0) is outside the namespace.
+fn legacy_namespace(model: &Value) -> bool {
+    match model["schema_version"].as_str() {
+        Some("0.1.0" | "0.2.0") => model["pressure_contract"].is_null(),
+        Some("0.3.0") => {
+            pressure_contract_is(&model["pressure_contract"], "1.0.0", "legacy_pressure_v1")
+        }
+        _ => false,
+    }
+}
+fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
     let b = &source["retained_precision"]["body"];
     let fail = |ok| need(ok, "G8", "PREPARATION_MISMATCH");
     need(
@@ -3512,11 +3772,12 @@ fn g8(source: &Value, inv: &Value) -> VResult {
     need(
         // D31: the producer treats model 0.1.0 and 0.2.0 on one branch
         // (pressure_runtime.rs `validate_profile`); 0.4.0 stays excluded.
-        matches!(text(&model["schema_version"]), "0.1.0" | "0.2.0" | "0.3.0")
+        // B3a (B3-D §6.3; REVISION_01 §3, N-4): D1.3's namespace, type-strict;
+        // B3b: the exact route's own branch.
+        if route.exact { exact_namespace(model) } else { legacy_namespace(model) }
             // B1's alignment set, item 2 (g), PP's acceptance: no
-            // `reference_configurations` member (null included); `pressure_contract`
-            // absent or null; `combinations` and `components` absent or [].
-            && model["pressure_contract"].is_null()
+            // `reference_configurations` member (null included); `combinations`
+            // and `components` absent or [].
             && ["combinations", "components"]
                 .iter()
                 .all(|k| model.get(*k).is_none_or(|v| v.as_array().is_some_and(Vec::is_empty)))
@@ -3565,6 +3826,8 @@ fn g8(source: &Value, inv: &Value) -> VResult {
     let mut case_bases = Vec::new();
     for (i, case) in cases.iter().enumerate() {
         let value = selector(case)?;
+        // Exact route, G8 step 3: the base common E/nu only (D1.5).
+        fail(!route.exact || value == json!({"kind":"base"}))?;
         let index = expected_selectors
             .iter()
             .position(|s| *s == value)
@@ -3639,6 +3902,20 @@ fn g8(source: &Value, inv: &Value) -> VResult {
             let raw = materials
                 .get(u(&m["input_index"]) as usize)
                 .ok_or_else(|| error("G8", "PREPARATION_MISMATCH"))?;
+            if route.exact {
+                // Exact route, G8 step 4: E, G-hat and the derived shear origin.
+                let (e, g, nu) = exact_material(raw)?;
+                fail(
+                    m["id"] == raw["id"]
+                        && m["selection"] == json!({"kind":"base"})
+                        && m["shear_origin"]
+                            == json!({"kind":"derived_e_nu","poisson_ratio":bits(nu),
+                                "constitutive_basis":"homogeneous_isotropic_E_nu_v1"})
+                        && m["elastic_modulus"] == bits(e)
+                        && m["shear_modulus"] == bits(g),
+                )?;
+                continue;
+            }
             let (eg, selection) = selected_material(raw, &cases[ci])?;
             fail(
                 m["id"] == raw["id"]
@@ -3647,6 +3924,39 @@ fn g8(source: &Value, inv: &Value) -> VResult {
                     && m["elastic_modulus"] == bits(eg[0])
                     && m["shear_modulus"] == bits(eg[1]),
             )?;
+        }
+    }
+    if route.exact {
+        let evidence = list(&source["contract_evidence"]["exact_cases"]);
+        let case_of = |entry: &Value| {
+            cases
+                .iter()
+                .position(|c| c["id"] == entry["load_case_id"])
+                .ok_or_else(|| error("G8", "PREPARATION_MISMATCH"))
+        };
+        // G8 step 5, S-C (B3D-12): physics-source-1's actual-material binding over
+        // every `exact_cases` entry; its own code is detail only (B3D-13).
+        for entry in evidence {
+            let ci = case_of(entry)?;
+            crate::physics_source::actual_materials(inv, &cases[ci], entry).map_err(|detail| {
+                ValidationError {
+                    gate: "G8",
+                    code: "RETAINED_PRECISION_PREPARATION_MISMATCH".into(),
+                    detail: Some(detail),
+                }
+            })?;
+        }
+        // G8 step 6, N-6 (REVISION_01 §5): each entry's published `G_pa` is the
+        // receipt's G-hat for that material, bit for bit.
+        for entry in evidence {
+            let mb = &b["material_bases"][case_bases[case_of(entry)?]];
+            for pm in list(&entry["pipe_materials"]) {
+                let mat = list(&mb["materials"])
+                    .iter()
+                    .find(|m| m["id"] == pm["material_id"])
+                    .ok_or_else(|| error("G8", "PREPARATION_MISMATCH"))?;
+                fail(pm["G_pa"].as_f64().map(bits).as_ref() == Some(&mat["shear_modulus"]))?;
+            }
         }
     }
     // Rebuild common topology and the rigid/global-scalar-spring boundary.
@@ -3740,9 +4050,19 @@ fn g8(source: &Value, inv: &Value) -> VResult {
             s["owner"]["case_id"] == case["id"]
                 && u(&s["material_basis_ref"]) == case_bases[ci] as u64,
         )?;
+        // G8's sourced-case check, both routes (ROOT's ruling on I100's B3 addendum 01; D1.5
+        // read through C1's "no 0.4 extension"): `pressure_regions` present and [] on the
+        // exact route (step 8, D1.5-exact), absent, null or [] on the preview route (B3D-11's
+        // leniency), type-strict; `equivalent_static` absent or null; no `analysis_state`
+        // member, null included. A key PP's typed load case lacks, such as a case-level
+        // `pressure`, is not read.
         fail(
-            list(&case["pressure_regions"]).is_empty()
-                && case["equivalent_static"].is_null()
+            if route.exact {
+                case.get("pressure_regions").is_some_and(|r| r.as_array().is_some_and(Vec::is_empty))
+            } else {
+                case.get("pressure_regions")
+                    .is_none_or(|r| r.is_null() || r.as_array().is_some_and(Vec::is_empty))
+            } && case["equivalent_static"].is_null()
                 && !case
                     .as_object()
                     .is_some_and(|o| o.contains_key("analysis_state")),
@@ -3806,7 +4126,7 @@ fn g8(source: &Value, inv: &Value) -> VResult {
                 d > 0.0
                     && t > 0.0
                     && t < d * 0.5
-                    && geo["route"] == "preview"
+                    && geo["route"] == route.geometry
                     && geo["normalized_od"] == bits(d)
                     && geo["effective_wall"] == bits(t)
                     && geo["actual_radius"] == bits(d * 0.5)
@@ -4392,19 +4712,28 @@ fn g5_ordinary(source: &Value) -> VResult {
     fail(work_refs.len() == list(&b["legacy_source_work"]).len())?;
     Ok(())
 }
-fn project(source: &Value, raw: bool) -> VResult<Value> {
+/// G7's projection onto the route's base: remove the receipt and the row
+/// tokens; set the base identity and profile (preview-physics-1 and
+/// `product_preview_mechanics_v1`; physics-1 and `exact_straight_pressure_v2`).
+fn project(source: &Value, raw: bool, route: &Route) -> VResult<Value> {
     let mut projected = source.clone();
     projected
         .as_object_mut()
         .ok_or_else(|| error("G7", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"))?
         .remove("retained_precision");
-    projected["producer"]["semantic_contract_id"] =
-        json!("openpipestress.result_semantics/0.3.0/preview-physics-1");
-    projected["formulation_basis"]["profile_id"] = json!("product_preview_mechanics_v1");
+    projected["producer"]["semantic_contract_id"] = json!(route.base_id);
+    projected["formulation_basis"]["profile_id"] = json!(route.base_profile);
     if raw {
-        for r in projected["results"]
-            .as_array_mut()
-            .ok_or_else(|| error("G7", "SOURCE_PREVIEW_PHYSICS_ARRAY_INVALID"))?
+        for r in projected["results"].as_array_mut().ok_or_else(|| {
+            error(
+                "G7",
+                if route.exact {
+                    "SOURCE_PHYSICS_ARRAY_INVALID"
+                } else {
+                    "SOURCE_PREVIEW_PHYSICS_ARRAY_INVALID"
+                },
+            )
+        })?
         {
             if let Some(o) = r.as_object_mut() {
                 o.remove("recovery_method");
@@ -4419,8 +4748,13 @@ const IMPLEMENTATION_COMPLETE: bool = true;
 /// Validate a raw successor statement against the original request/mode.
 /// Hashes bind the supplied statements; they do not establish producer origin.
 pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> VResult<Validation> {
-    g0(source)?;
-    g1(source, true)?;
+    let route = route(source);
+    if route.exact {
+        g0_exact(source)?;
+    } else {
+        g0(source)?;
+    }
+    g1(source, true, route)?;
     g2(source)?;
     let normalized = integral_receipt(source);
     let source: &Value = &normalized;
@@ -4433,6 +4767,9 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> VResult<Va
     let mut cases = numeric_cases(source)?;
     g5a(body, &cases)?;
     g5b(&mut cases)?;
+    if route.exact {
+        g5b_exact_evidence(source, &cases)?;
+    }
     let classifications = g5c(&cases)?;
     for c in list(&body["cases"]) {
         for row in rows_for(source, c) {
@@ -4447,13 +4784,15 @@ pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> VResult<Va
             )?;
         }
     }
-    let projected = project(source, true)?;
+    let projected = project(source, true, route)?;
     // C1 G7 "existing base failure codes" (06b settlement): each language
     // reports its own unchanged base code, here the Rust base's
-    // SOURCE_PREVIEW_PHYSICS_<CODE>; any text after the code is detail.
+    // SOURCE_PREVIEW_PHYSICS_<CODE> (preview) or SOURCE_PHYSICS_<CODE>
+    // (exact: physics-1's unchanged `validate_physics_evidence`); any text
+    // after the code is detail.
     crate::semantic_contract::for_source(&projected).map_err(base_error)?;
     if let Some(inv) = actual_invocation {
-        g8(source, inv)?;
+        g8(source, inv, route)?;
     }
     let eligible = IMPLEMENTATION_COMPLETE
         && actual_invocation.is_some()
@@ -4763,21 +5102,31 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
 /// Metadata-only transport checks cannot reconstitute or verify omitted raw rows.
 /// The publication digest is retained as a statement, never authenticated here.
 pub fn validate_transport_metadata(source: &Value) -> VResult<Validation> {
-    g0(source)?;
-    g1(source, false)?;
+    let route = route(source);
+    if route.exact {
+        g0_exact(source)?;
+    } else {
+        g0(source)?;
+    }
+    g1(source, false, route)?;
     g2(source)?;
     let normalized = integral_receipt(source);
     let source: &Value = &normalized;
-    let projected = project(source, false)?;
+    let projected = project(source, false, route)?;
     crate::semantic_contract::for_source_metadata(&projected)
         .map_err(|code| ValidationError {
             gate: "G2",
             code,
             detail: None,
         })?;
-    // B1's alignment set, item 4: the header check stays at G2; the preview-physics
-    // transport metadata check runs at G7, as PY and TS run it.
-    preview_physics_transport_metadata(&projected).map_err(base_error)?;
+    // B1's alignment set, item 4: the header check stays at G2; the base's
+    // transport metadata check runs at G7, as PY and TS run it: preview-physics-1's
+    // on the preview route, physics-1's unchanged one on the exact route (B3-D §6.2).
+    if route.exact {
+        crate::physics_evidence::validate_transport_metadata(&projected).map_err(base_error)?;
+    } else {
+        preview_physics_transport_metadata(&projected).map_err(base_error)?;
+    }
     Ok(Validation {
         invocation_bound: false,
         numerical_eligible: false,
@@ -4785,6 +5134,43 @@ pub fn validate_transport_metadata(source: &Value) -> VResult<Validation> {
             .into(),
         classifications: Vec::new(),
     })
+}
+
+/// B3b (B3-D §2.4 step 6; REV §2): the table/constant cross-check on a
+/// test-only table. The packaged XTABLE binds; a table whose `receipt_bindings`,
+/// `receipt_policy` or `accuracy_classification.policy` drifts from the reader's
+/// constants does not, and neither does a constant-only change (the bindings
+/// compared whole).
+#[cfg(test)]
+mod b3b_table_binding_tests {
+    use super::*;
+    #[test]
+    fn step_6_table_against_reader_constants() {
+        let packaged = exact_table();
+        assert!(table_binds_reader_constants(packaged));
+        // B3D-8: PTABLE spells the member identically (read by B2's preview G0, not here).
+        assert!(table_binds_reader_constants(table()));
+        let mut drifted = Vec::new();
+        for (path, value) in [
+            ("/receipt_bindings/canonicalization", json!("openpipestress_jcs_ijson_v2")),
+            ("/receipt_bindings/method", json!("contribution_preserving_multiprecision_v2")),
+            ("/receipt_bindings/projection_policy", json!("RP-LOGICAL-ATTEMPTS-v2")),
+            ("/receipt_bindings/work/case_limit", json!(19_999_999_999u64)),
+            ("/receipt_bindings/work/invocation_limit", json!(60_000_000_001u64)),
+            ("/receipt_bindings/work_policy", json!("W1-LME-20B-60B-v2")),
+            ("/receipt_bindings/extra", json!(1)),
+            ("/receipt_policy", json!("M03-INTEGRITY-MP-v3")),
+            ("/accuracy_classification/policy", json!("RP-FACADE-SI-v3")),
+        ] {
+            let mut t = packaged.clone();
+            let (parent, key) = path.rsplit_once('/').unwrap();
+            t.pointer_mut(if parent.is_empty() { "" } else { parent }).unwrap()[key] = value;
+            if table_binds_reader_constants(&t) {
+                drifted.push(path);
+            }
+        }
+        assert!(drifted.is_empty(), "{drifted:?}");
+    }
 }
 
 /// I61 U6e (snapshot 07g): reader-local pins for RV79-N1 (D37's expected table is

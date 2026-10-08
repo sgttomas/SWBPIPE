@@ -3,9 +3,16 @@ import definition from '../../../../../fixtures/results/retained_precision_prepa
 import table from '../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json';
 import tableBytes from '../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json?raw';
 import inheritedTableBytes from '../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json?raw';
+import exactDefinition from '../../../../../fixtures/results/retained_precision_prepared_exact_v1.json';
+import exactTable from '../../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json';
+import exactTableBytes from '../../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json?raw';
+import physicsTableBytes from '../../../../../fixtures/results/semantic_contract_v0_3_physics_1.json?raw';
 import { canonicalSha256HexCheckedV1, checkedJsonText } from '../../services/hashService';
 import { loadWasmEngine } from '../../services/wasmEngine/loadWasmEngine';
 import { validatePreviewPhysicsEvidence, validatePreviewPhysicsTransportMetadata, compareCodePoints } from './previewPhysicsEvidence';
+import { validatePhysicsEvidence, validatePhysicsTransportMetadata } from './physicsResultEvidence';
+import { validateAuthoredCaseFacts } from './physicsSourceRecovery';
+import type { SourceBlockInvocation } from './sourceBlockRecovery';
 import { sourceContract } from './numericalResultQuality';
 import type { MechanicsResult } from '../../types';
 
@@ -15,6 +22,14 @@ export const RETAINED_PRECISION_PROFILE = 'product_preview_retained_w1a_v2';
 export const PREPARED_DEFINITION_ID = 'RP-PREPARED-ORDINARY-DUAL-v1';
 export const PREPARED_DEFINITION_HASH = 'a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349';
 export const RETAINED_METHOD = 'contribution_preserving_multiprecision_v1';
+/** B3b (B3-D §6 with REVISION_01): the exact successor `<physics-retained>`, read on its own route (`EXACT_ROUTE`), whose
+ * base is physics-1. */
+export const EXACT_RETAINED_ID = 'openpipestress.result_semantics/0.3.0/physics-retained-1';
+export const EXACT_RETAINED_PROFILE = 'exact_straight_retained_w1a_v2';
+export const EXACT_DEFINITION_ID = 'RP-PREPARED-EXACT-DUAL-v1';
+/** H(`retained_precision_formation_v1`, DEF-E) (REVISION_01 §1.2). */
+export const EXACT_DEFINITION_HASH = '5a3bac430df9bbc77484d5419c75880ad40ae209b439e5f928374458025281af';
+const EXACT_TABLE_HASH = 'c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d';
 const MAX_BITS = 0x7fefffffffffffffn;
 
 export class RetainedPrecisionError extends Error {
@@ -166,8 +181,28 @@ function negativeZeroFree(v: unknown): void {
 function freeze<T>(v: T): T { if (v && typeof v === 'object') { for (const x of Object.values(v)) freeze(x); Object.freeze(v); } return v; }
 /** Validate descriptors before cloning; JSON serialization alone would erase -0 counters. */
 function snapshot(v: unknown): Obj { checkedJsonText(v); return structuredClone(v) as Obj; }
-function prepPayload(a: Obj): Obj {
-  return { definition_id: a.definition_id, definition_sha256: PREPARED_DEFINITION_HASH, owner_ref: a.owner_ref, ordinary_attempt_ref: a.ordinary_attempt_ref, material_basis_ref: a.material_basis_ref,
+/** B3-D §6.1: the route a statement is read on, decided once from `producer.semantic_contract_id` (the exact identity
+ * reads exactly; every other statement reads on the preview route, whose G0 refuses a foreign identity). Each route's G0
+ * table read, G1 preparation hash, G5b evidence cross-check, G7 projection and G8 namespace and material checks sit behind
+ * their own call edges (ruling 1). */
+type Route = { exact: boolean; definitionHash: string; baseId: string; baseProfile: string; geometry: 'preview' | 'exact'; g7Default: string };
+const PREVIEW_ROUTE: Route = { exact: false, definitionHash: PREPARED_DEFINITION_HASH, baseId: 'openpipestress.result_semantics/0.3.0/preview-physics-1', baseProfile: 'product_preview_mechanics_v1', geometry: 'preview', g7Default: 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID' };
+const EXACT_ROUTE: Route = { exact: true, definitionHash: EXACT_DEFINITION_HASH, baseId: 'openpipestress.result_semantics/0.3.0/physics-1', baseProfile: 'exact_straight_pressure_v2', geometry: 'exact', g7Default: 'PHYSICS_EVIDENCE_INVALID' };
+function routeOf(source: unknown): Route {
+  return isObj(source) && isObj(source.producer) && source.producer.semantic_contract_id === EXACT_RETAINED_ID ? EXACT_ROUTE : PREVIEW_ROUTE;
+}
+/** RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings` binds from version 1, keyed by the receipt
+ * body's own paths. */
+const RECEIPT_BINDINGS = { canonicalization: 'openpipestress_jcs_ijson_v1', method: RETAINED_METHOD, projection_policy: 'RP-LOGICAL-ATTEMPTS-v1',
+  work: { case_limit: 20_000_000_000, invocation_limit: 60_000_000_000 }, work_policy: 'W1-LME-20B-60B-v1' };
+/** B3-D §2.4 step 6: the table's `receipt_bindings`, `receipt_policy` and `accuracy_classification.policy` each equal the
+ * reader's constants, so neither the table nor a constant can drift alone. */
+export function tableBindsReaderConstants(t: Obj): boolean {
+  return isObj(t) && same(t.receipt_bindings, RECEIPT_BINDINGS) && t.receipt_policy === 'M03-INTEGRITY-MP-v2' && t.accuracy_classification?.policy === 'RP-FACADE-SI-v2';
+}
+/** S-1 (REVISION_01 §2): `definition_sha256` is the route's table-bound definition H, never a module constant. */
+function prepPayload(a: Obj, definitionHash: string): Obj {
+  return { definition_id: a.definition_id, definition_sha256: definitionHash, owner_ref: a.owner_ref, ordinary_attempt_ref: a.ordinary_attempt_ref, material_basis_ref: a.material_basis_ref,
     members: a.preparation.members.map((m: Obj) => ({ member: m.member, old_source: m.old_source, old_facts: m.old_facts, section: m.result.section })) };
 }
 const sha256Text = async (text: string): Promise<string> => {
@@ -197,6 +232,31 @@ async function header(source: Obj): Promise<void> {
     if (Array.isArray(b.product_attempts)) for (const a of b.product_attempts) if (isObj(a)) fail(a.definition_id === PREPARED_DEFINITION_ID);
   }
 }
+/** G0 on the exact route (B3-D §2.4, steps 1-9, in order; REVISION_01 §4.3 entries 1-10): every step is
+ * SOURCE_PRODUCER_CONTRACT_UNSUPPORTED except step 4, RETAINED_PRECISION_FORMATION_MISMATCH. */
+async function headerExact(source: Obj): Promise<void> {
+  const fail = (ok: unknown, code = 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED') => need(ok, 'G0', code);
+  const t = exactTable as Obj;
+  const producer = isObj(source) ? source.producer : undefined;
+  // 1. Identity and profile. 2. Producer component and version; envelope schema 0.2.0. 3. XTABLE's identity and profile.
+  fail(isObj(producer) && producer.semantic_contract_id === EXACT_RETAINED_ID && source.formulation_basis?.profile_id === EXACT_RETAINED_PROFILE);
+  fail(source.schema_version === '0.2.0' && producer.component_name === 'open_pipe_stress_product_physics' && producer.component_version === '0.2.0');
+  fail(t.semantic_contract_id === EXACT_RETAINED_ID && t.formulation_profile_id === EXACT_RETAINED_PROFILE);
+  // 4. H(DEF-E) and the table's one bound definition.
+  fail(await hash('retained_precision_formation_v1', exactDefinition) === EXACT_DEFINITION_HASH && same(t.product_formation_definitions, [{ id: EXACT_DEFINITION_ID, sha256: EXACT_DEFINITION_HASH }]), 'FORMATION_MISMATCH');
+  // 5. XTABLE's bytes and its inherited physics-1 hash. 6. The table against the reader's constants.
+  fail(await sha256Text(exactTableBytes) === EXACT_TABLE_HASH && await sha256Text(physicsTableBytes) === t.inherited_semantic_contract_sha256);
+  fail(tableBindsReaderConstants(t));
+  // Settled reading (D2): an absent or mistyped retained_precision or body is an absent G0 field.
+  const b = isObj(source.retained_precision) ? source.retained_precision.body : undefined;
+  fail(isObj(b));
+  // 7. receipt_version 1. 8. The body's policies and limits equal the table's. 9. Every attempt names the exact definition.
+  fail(b.receipt_version === 1);
+  const rb = t.receipt_bindings;
+  for (const [k, want] of [['policy', t.receipt_policy], ['facade_policy', t.accuracy_classification?.policy], ['projection_policy', rb.projection_policy], ['work_policy', rb.work_policy], ['canonicalization', rb.canonicalization]]) fail(typeof want === 'string' && b[k] === want);
+  fail(isObj(b.work) && ['case_limit', 'invocation_limit'].every(k => Number.isSafeInteger(rb.work[k]) && b.work[k] === rb.work[k]));
+  if (Array.isArray(b.product_attempts)) for (const a of b.product_attempts) if (isObj(a)) fail(a.definition_id === EXACT_DEFINITION_ID);
+}
 /** I57 §1: summary_coverage is required, null or [{ body, stop: [bool;4], has_data: bool }] with no other member. */
 function coverageShape(proof: Obj): boolean {
   if (!Object.hasOwn(proof, 'summary_coverage')) return false;
@@ -204,7 +264,7 @@ function coverageShape(proof: Obj): boolean {
   return cov === null || (Array.isArray(cov) && cov.every(e => e !== null && typeof e === 'object' && !Array.isArray(e) && same(Object.keys(e).sort(), COVERAGE_KEYS)
     && typeof e.body === 'number' && Array.isArray(e.stop) && e.stop.length === 4 && e.stop.every((f: unknown) => typeof f === 'boolean') && typeof e.has_data === 'boolean'));
 }
-async function integrity(source: Obj, transport: boolean): Promise<Obj> {
+async function integrity(source: Obj, transport: boolean, route: Route): Promise<Obj> {
   const r = source.retained_precision;
   need(shape(r, SCHEMA) && (transport || (Array.isArray(source.results) && source.results.every((row: Obj) => shape(row, SCHEMA.$defs.RawRow)))), 'G1', 'RECEIPT_MISMATCH');
   const b = r.body;
@@ -217,7 +277,7 @@ async function integrity(source: Obj, transport: boolean): Promise<Obj> {
   }
   for (const s of b.sources) if (s.preparation && b.product_attempts[s.preparation.attempt_ref]) {
     const a = b.product_attempts[s.preparation.attempt_ref];
-    if (a.preparation.members.every((m: Obj) => m.result.kind === 'prepared')) need(await hash('retained_precision_preparation_v1', prepPayload(a)) === s.preparation.sha256, 'G1', 'RECEIPT_MISMATCH');
+    if (a.preparation.members.every((m: Obj) => m.result.kind === 'prepared')) need(await hash('retained_precision_preparation_v1', prepPayload(a, route.definitionHash)) === s.preparation.sha256, 'G1', 'RECEIPT_MISMATCH');
   }
   negativeZeroFree(r); encoding(r, SCHEMA); return b;
 }
@@ -1036,6 +1096,28 @@ function numericalScales(cases: NumericCase[], source: Obj): void {
     for (let i = 0; i < x.rows.length; i++) if (x.values[i].kind === 'stress' && x.values[i].member && x.values[i].body !== null) stressScale(x, i, source);
   }
 }
+/** G5b on the exact route (D2 §4.9.3 G5b; B3-D §6.2 and §1.4), after the shared checks: for each selected case, its one
+ * `contract_evidence.exact_cases` entry (matched by the case's `load_case_id`) states the receipt's section bit for bit: for
+ * each member, its one `pipe_sections` entry (matched by `pipe_id`) has `As_m2` = `area`, `Z_m3` = `section_modulus`, and
+ * the source's geometry: `outside_diameter_m` = `normalized_od`, `effective_wall_thickness_m` = `effective_wall`, `ro_m` =
+ * `actual_radius`, `I_m4` = `actual_second_moment`, `J_m4` = `actual_polar_moment`. A missing or repeated entry, or a value
+ * that is not a JSON number, is a mismatch. */
+function exactSectionEvidence(cases: NumericCase[], source: Obj): void {
+  const fail = (ok: unknown) => need(ok, 'G5b', 'SECTION_MISMATCH');
+  const evidence: unknown[] = Array.isArray(source.contract_evidence?.exact_cases) ? source.contract_evidence.exact_cases : [];
+  const bitsOf = (v: unknown) => typeof v === 'number' ? binary64Bits(v) : null;
+  for (const x of cases) {
+    const entries = evidence.filter((e): e is Obj => isObj(e) && e.load_case_id === x.c.basis_ref.ref_id); fail(entries.length === 1);
+    const sections: unknown[] = Array.isArray(entries[0].pipe_sections) ? entries[0].pipe_sections : [];
+    for (const st of x.s.section_terms) {
+      const member = x.s.id_maps.members.find((m: Obj) => m.kernel_member === st.member); fail(member);
+      const matched = sections.filter((p): p is Obj => isObj(p) && p.pipe_id === member.id); fail(matched.length === 1);
+      const p = matched[0], g = st.geometry;
+      for (const [k, receipt] of [['As_m2', st.area], ['Z_m3', st.section_modulus], ['outside_diameter_m', g.normalized_od], ['effective_wall_thickness_m', g.effective_wall],
+        ['ro_m', g.actual_radius], ['I_m4', g.actual_second_moment], ['J_m4', g.actual_polar_moment]]) fail(bitsOf(p[k]) === receipt);
+    }
+  }
+}
 function stressScale(x: NumericCase, i: number, source: Obj): number {
   const fail = (ok: unknown, code = 'SECTION_MISMATCH') => need(ok, 'G5b', code);
   const v = x.values[i], r = x.rows[i], section = x.s.section_terms.find((s: Obj) => s.member === v.member?.kernel_member); fail(section && v.body !== null);
@@ -1128,24 +1210,42 @@ async function nativeSourceHashes(s: Obj): Promise<{ source: string; stiffness: 
   return { source: await digest(encode(true)), stiffness: await digest(encode(false)) };
 }
 
-async function invocationBinding(b: Obj, source: Obj, invocation: Obj): Promise<void> {
+/** A pressure contract exactly `{"version": version, "mode": mode}`: a JSON object with those two keys only, each valued
+ * with exactly that string. */
+function pressureContractIs(contract: unknown, version: string, mode: string): boolean {
+  return !!contract && typeof contract === 'object' && !Array.isArray(contract) && same(Object.keys(contract).sort(), ['mode', 'version'])
+    && (contract as Obj).version === version && (contract as Obj).mode === mode;
+}
+/** D1.3 on the preview branch (B3a; B3-D §6.3, REVISION_01 §3, N-4), type-strict: branch L, schema 0.1.0 or 0.2.0 with
+ * `pressure_contract` absent or JSON null; or branch L3, schema 0.3.0 with exactly
+ * `{"version":"1.0.0","mode":"legacy_pressure_v1"}`. Anything else (0.3.0 without a contract, `{}`, `false`, `""`, `0`,
+ * an extra key, 0.2.0 with a contract, 0.4.0) is outside the namespace. */
+function legacyNamespace(model: Obj): boolean {
+  if (model.schema_version === '0.1.0' || model.schema_version === '0.2.0') return !Object.hasOwn(model, 'pressure_contract') || model.pressure_contract === null;
+  if (model.schema_version === '0.3.0') return pressureContractIs(model.pressure_contract, '1.0.0', 'legacy_pressure_v1');
+  return false;
+}
+/** D1.3 on the exact route (B3b): schema 0.3.0 with exactly `{"version":"2.0.0","mode":"exact_straight_pressure_v2"}`. */
+function exactNamespace(model: Obj): boolean {
+  return model.schema_version === '0.3.0' && pressureContractIs(model.pressure_contract, '2.0.0', 'exact_straight_pressure_v2');
+}
+async function invocationBinding(b: Obj, source: Obj, invocation: Obj, route: Route): Promise<void> {
   const fail = (ok: unknown, code = 'PREPARATION_MISMATCH') => need(ok, 'G8', code);
   fail(same(Object.keys(invocation).sort(), ['request', 'solver_mode']) && ['dense_scrutiny', 'sparse_interactive'].includes(invocation.solver_mode), 'INVOCATION_MISMATCH');
   fail(await hash('source_blocks_invocation_v1', invocation) === b.invocation.value, 'INVOCATION_MISMATCH');
   const request = invocation.request, model = request.model;
-  // D31: the model schema_version is 0.1.0, 0.2.0 or 0.3.0 (PP pressure_runtime.rs `validate_profile` treats 0.1.0 and
-  // 0.2.0 on one branch); 0.4.0 stays excluded (C1 G8 row, "no 0.4 extension").
-  fail(model?.project?.id === source.model_ref && ['0.1.0', '0.2.0', '0.3.0'].includes(model.schema_version), 'INVOCATION_MISMATCH');
+  // D31: model 0.1.0 and 0.2.0 on one branch (PP pressure_runtime.rs `validate_profile`); 0.4.0 stays excluded (C1 G8
+  // row, "no 0.4 extension"). B3a: D1.3's namespace, type-strict (`legacyNamespace`); B3b: the exact route's own branch.
+  fail(model?.project?.id === source.model_ref && (route.exact ? exactNamespace(model) : legacyNamespace(model)), 'INVOCATION_MISMATCH');
   // (g), B1's three-reader alignment set (RR "RV113's three returns verified; …", item 2): PP's acceptance, before any
-  // PREPARATION check. No reference_configurations member (null included); pressure_contract absent or null;
-  // combinations and components absent or [].
+  // PREPARATION check. No reference_configurations member (null included); combinations and components absent or [].
   const absentOrEmpty = (key: string) => !Object.hasOwn(model, key) || (Array.isArray(model[key]) && model[key].length === 0);
-  fail(!Object.hasOwn(model, 'reference_configurations') && model.pressure_contract == null && absentOrEmpty('combinations') && absentOrEmpty('components'), 'INVOCATION_MISMATCH');
+  fail(!Object.hasOwn(model, 'reference_configurations') && absentOrEmpty('combinations') && absentOrEmpty('components'), 'INVOCATION_MISMATCH');
   const nodes: Obj[] = model.nodes, pipes: Obj[] = model.pipe_segments, supports: Obj[] = model.supports, cases: Obj[] = model.load_cases;
   fail([nodes, pipes, supports, cases].every(xs => Array.isArray(xs) && unique(xs.map(x => x.id))));
   const materials: Obj[] = request.materials?.length ? request.materials : model.materials; fail(Array.isArray(materials) && unique(materials.map(m => m.id)));
   const engine = await loadWasmEngine();
-  const units: Record<string, string> = { length: 'm', stress: 'Pa', temperature: 'K', force: 'N', moment: 'N*m', linear_stiffness: 'N/m', rotational_stiffness: 'N*m/rad' };
+  const units: Record<string, string> = { length: 'm', stress: 'Pa', temperature: 'K', force: 'N', moment: 'N*m', linear_stiffness: 'N/m', rotational_stiffness: 'N*m/rad', thermal_expansion_coefficient: '1/K' };
   const convert = (q: Obj, dimension: string): number => {
     fail(q && typeof q === 'object' && typeof q.value === 'number' && typeof q.unit === 'string');
     const unit = units[dimension];
@@ -1169,18 +1269,34 @@ async function invocationBinding(b: Obj, source: Obj, invocation: Obj): Promise<
     const values = a.map((v, j) => v + (ratio * (z[j] - v))); fail(values.every(v => Number.isFinite(v) && v > 0));
     return { pair: values, selection: { kind: 'interpolated', lower_point_id: lo.p.id, upper_point_id: hi.p.id, target_kelvin: binary64Bits(t) } };
   }
+  /** G8 step 4 on the exact route (B3D-7; REVISION_01 §4.2): the base common E/nu only. Every authored quantity is
+   * unit-checked first; E is the normalized base modulus and nu the authored `poisson_ratio` (unit "1", -1 < nu < 1/2);
+   * G-hat = RN64(E / (2 RN64(1 + nu))), a positive normal. */
+  function exactMaterial(m: Obj): { e: number; g: number; nu: number } {
+    for (const p of [m, ...(Array.isArray(m.temperature_points) ? m.temperature_points : [])]) {
+      for (const [k, dimension] of [['elastic_modulus', 'stress'], ['shear_modulus', 'stress'], ['temperature', 'temperature'], ['thermal_expansion_coefficient', 'thermal_expansion_coefficient']]) if (p?.[k] != null) convert(p[k], dimension);
+    }
+    const e = convert(m.elastic_modulus, 'stress'), poisson = m.poisson_ratio;
+    fail(poisson?.unit === '1');
+    const nu = poisson.value; fail(e > 0 && Number.isFinite(nu) && -1 < nu && nu < 0.5);
+    const g = e / (2 * (1 + nu)); fail(Number.isFinite(g) && g >= MIN_NORMAL);
+    return { e, g, nu };
+  }
   const coordinates = nodes.map(n => ['x', 'y', 'z'].map(k => { fail(typeof n.position?.[k] === 'number' && Number.isFinite(n.position[k])); return binary64Bits(convert({ value: n.position[k], unit: model.project.units?.length }, 'length')); }));
   const nodeIndex = (id: string) => { const i = nodes.findIndex(n => n.id === id); fail(i >= 0); return i; };
   const geometry = pipes.map(p => { fail(p.arc == null && p.curve == null); const od = convert(p.section.outside_diameter, 'length'), wall = convert(p.section.wall_thickness, 'length') - (p.section.mill_tolerance != null ? convert(p.section.mill_tolerance, 'length') : 0); fail(Number.isFinite(od) && 0 < wall && wall < od / 2); return [binary64Bits(od), binary64Bits(wall)]; });
   const selectors = cases.map(c => c.modulus_basis_ref != null ? { kind: 'named', id: c.modulus_basis_ref } : c.modulus_basis_temperature != null ? { kind: 'temperature', kelvin: binary64Bits(convert(c.modulus_basis_temperature, 'temperature')) } : { kind: 'base' });
-  const knownSelectors: Obj[] = [];
+  const knownSelectors: Obj[] = [], caseBases: number[] = [];
   // B1 (DESIGN_v2 §3.2-§3.3, decisions 8 and 9; F-1 text B): for every case, in request order, the requested mode, the
   // material basis, P1 and P2-P4, each G8 PREPARATION. The case's ordinary attempt is ordinary_attempts[ci] (G3 binds
   // cases[ci].ordinary.attempt_ref to ci). Selected, unavailable and not_required cases alike: their rows all come from
   // the one ordinary run.
   for (let ci = 0; ci < cases.length; ci++) {
     const c = cases[ci], ordinary = b.ordinary_attempts[ci]; fail(ordinary.requested_mode === invocation.solver_mode);
+    // Exact route, G8 step 3: the base common E/nu only (D1.5).
+    fail(!route.exact || same(selectors[ci], { kind: 'base' }));
     let bi = knownSelectors.findIndex(x => same(x, selectors[ci])); if (bi < 0) { bi = knownSelectors.length; knownSelectors.push(selectors[ci]); }
+    caseBases.push(bi);
     fail(ordinary.material_basis_ref === bi && b.material_bases[bi]?.case_indices.includes(ci));
     const own = (kind: string) => source.results.filter((r: Obj) => r.basis_ref?.ref_id === c.id && r.kind === kind);
     // P1: exactly one mode row, valued 1 in sparse_interactive and 2 in dense_scrutiny.
@@ -1198,10 +1314,34 @@ async function invocationBinding(b: Obj, source: Obj, invocation: Obj): Promise<
     fail(same(mb.selector, knownSelectors[bi]) && same(mb.case_indices, cases.flatMap((_, ci) => same(selectors[ci], mb.selector) ? [ci] : [])));
     const used = new Set(pipes.map(p => p.material)); fail(same(mb.materials.map((m: Obj) => m.input_index), materials.flatMap((m, i) => used.has(m.id) ? [i] : [])));
     for (const m of mb.materials) {
+      if (route.exact) {
+        // Exact route, G8 step 4: E, G-hat and the derived shear origin.
+        const raw = materials[m.input_index]; fail(raw && m.id === raw.id);
+        const { e, g, nu } = exactMaterial(raw);
+        fail(same(m.shear_origin, { kind: 'derived_e_nu', poisson_ratio: binary64Bits(nu), constitutive_basis: 'homogeneous_isotropic_E_nu_v1' })
+          && same(m.selection, { kind: 'base' }) && m.elastic_modulus === binary64Bits(e) && m.shear_modulus === binary64Bits(g));
+        continue;
+      }
       const raw = materials[m.input_index]; fail(raw && m.id === raw.id && same(m.shear_origin, { kind: 'explicit_g' }));
       for (const ci of mb.case_indices) { const selected = selectedMaterial(raw, cases[ci]); fail(same(m.selection, selected.selection) && same([m.elastic_modulus, m.shear_modulus], selected.pair.map(binary64Bits))); }
     }
   });
+  if (route.exact) {
+    const evidence: Obj[] = source.contract_evidence.exact_cases;
+    // G8 step 5, S-C (B3D-12; N-9): physics-source-1's authored-case facts over every `exact_cases` entry, exported
+    // unchanged; its own code is detail only (B3D-13).
+    try { await validateAuthoredCaseFacts(source as MechanicsResult, invocation as SourceBlockInvocation); }
+    catch (error) { throw new RetainedPrecisionError('G8', 'RETAINED_PRECISION_PREPARATION_MISMATCH', error instanceof Error ? error.message : null); }
+    // G8 step 6, N-6 (REVISION_01 §5): each entry's published `G_pa` is the receipt's G-hat for that material, bit for bit.
+    for (const entry of evidence) {
+      const ci = cases.findIndex(c => c.id === entry.load_case_id); fail(ci >= 0);
+      const mb = b.material_bases[caseBases[ci]];
+      for (const pm of entry.pipe_materials) {
+        const mat = mb.materials.find((v: Obj) => v.id === pm.material_id);
+        fail(mat && typeof pm.G_pa === 'number' && binary64Bits(pm.G_pa) === mat.shear_modulus);
+      }
+    }
+  }
   function operational(inputs: string[]): Obj {
     const x = inputs.map(decodeBinary64), d = [0, 1, 2].map(i => x[i + 3] - x[i]), length = Math.sqrt(((d[0] * d[0]) + (d[1] * d[1])) + (d[2] * d[2])); fail(Number.isFinite(length) && length > 1e-12);
     const inverse = 1 / length, axialProduct = x[6] * x[8], torsionProduct = x[7] * x[9];
@@ -1213,7 +1353,12 @@ async function invocationBinding(b: Obj, source: Obj, invocation: Obj): Promise<
   }
   for (const s of b.sources) {
     const ci = s.owner.case_index, c = cases[ci], maps = s.id_maps, mb = b.material_bases[s.material_basis_ref];
-    fail(c.id === s.owner.case_id && !c.pressure_regions?.length && c.equivalent_static == null && c.pressure == null);
+    // Exact route, G8 step 8: `pressure_regions` present and [] (D1.5-exact). Preview route: absent, null or [] (B3D-11's
+    // leniency), type-strict. Both routes: equivalent_static absent or null, and no analysis_state member, null included
+    // (D1.5; C1's G8 row, "no 0.4 extension"). A key PP's typed load case does not have, such as a case-level `pressure`,
+    // is not read: serde ignores it and the invocation digest covers the raw request (I100 B3 addendum 01).
+    const regions = c.pressure_regions;
+    fail(c.id === s.owner.case_id && (route.exact ? Array.isArray(regions) && regions.length === 0 : regions == null || (Array.isArray(regions) && regions.length === 0)) && c.equivalent_static == null && !Object.hasOwn(c, 'analysis_state'));
     fail(mb?.case_indices.includes(ci) && maps.nodes.length === nodes.length && maps.members.length === pipes.length && maps.support_ids.length === supports.length && BigInt(nodes.length) * 6n <= 0xffffffffn && BigInt(pipes.length) * 3n <= 0xffffffffn);
     maps.nodes.forEach((n: Obj, i: number) => fail(n.model_index === i && n.kernel_node === i && n.id === nodes[i].id && same(n.coordinates, coordinates[i])));
     fail(s.section_terms.length === pipes.length && unique(maps.members.map((m: Obj) => m.built_pipe_index)));
@@ -1222,7 +1367,7 @@ async function invocationBinding(b: Obj, source: Obj, invocation: Obj): Promise<
       fail(m.model_index === i && m.kernel_member === i && section.member === i && m.id === p.id && m.built_pipe_index >= 0 && m.built_pipe_index < pipes.length);
       fail(m.node_i === nodeIndex(p.from) && m.node_j === nodeIndex(p.to) && m.node_i !== m.node_j && same(m.y_reference, ['x', 'y', 'z'].map(k => binary64Bits(p.y_reference[k]))));
       fail(mat && mat.id === p.material && m.E === mat.elastic_modulus && m.G === mat.shear_modulus);
-      fail(geo.route === 'preview' && same([geo.normalized_od, geo.effective_wall], geometry[i]) && geo.actual_radius === binary64Bits(decodeBinary64(geometry[i][0]) / 2));
+      fail(geo.route === route.geometry && same([geo.normalized_od, geo.effective_wall], geometry[i]) && geo.actual_radius === binary64Bits(decodeBinary64(geometry[i][0]) / 2));
       fail(section.area === m.A_K && geo.actual_second_moment === m.Iy_K && m.Iy_K === m.Iz_K && geo.actual_polar_moment === m.J_K && ['E', 'G', 'A_K', 'Iy_K', 'Iz_K', 'J_K'].every(k => decodeBinary64(m[k]) >= MIN_NORMAL));
     });
     const parent = sequence(nodes.length); const root = (n: number): number => { while (parent[n] !== n) n = parent[n]; return n; };
@@ -1348,8 +1493,8 @@ function conversionEncoding(b: Obj): void {
  * other `results` entry (null, a number, a string, an array) is left as it is. The full reader has already refused such
  * an entry at G1 (RawRow). The transport reading reads no rows, as Rust's transport does, so a transported successor
  * whose `results` holds one is admitted (Python's `_transport_g7` likewise skips a non-dict row). */
-function projection(source: Obj): Obj {
-  const p = structuredClone(source); delete p.retained_precision; p.producer.semantic_contract_id = BASE_ID; p.formulation_basis.profile_id = 'product_preview_mechanics_v1';
+function projection(source: Obj, route: Route): Obj {
+  const p = structuredClone(source); delete p.retained_precision; p.producer.semantic_contract_id = route.baseId; p.formulation_basis.profile_id = route.baseProfile;
   if (Array.isArray(p.results)) for (const row of p.results) if (isObj(row) && Object.hasOwn(row, 'recovery_method')) delete row.recovery_method;
   return p;
 }
@@ -1367,8 +1512,8 @@ const QUALITY_STATUSES = ['not_assessed', 'checks_passed', 'sensitive', 'unresol
  *   `_source_contract` (Python's G7 fallback, SOURCE_PREVIEW_PHYSICS_INVALID) until B1 SR-PY's type guard (RV108 N1);
  *   with that guard Python gives this code there too.
  * The transport reading's header check (G2) is `headerCode(p, 'rust')` instead: Rust's order and branches, as ruled. */
-function baseHeaderCode(p: Obj): string {
-  return headerCode(p, 'python') ?? 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED';
+function baseHeaderCode(p: Obj, route: Route): string {
+  return headerCode(p, 'python', route) ?? 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED';
 }
 /** The base header's code on the projected base, or null when the header passes. `python` is the raw G7 order above
  * (Python's `_source_contract`): `carrier_evidence` first, and `contract_evidence` before `source_block_recovery`.
@@ -1376,15 +1521,16 @@ function baseHeaderCode(p: Obj): string {
  * G2 (B1's three-reader alignment set, RR "RV113's three returns verified; …", item 4; RV113 SR-TS N-1): no
  * `carrier_evidence` branch (the preview-physics metadata check refuses that member at G7), and `source_block_recovery`
  * before `contract_evidence`. Every other branch is the same in both. */
-function headerCode(p: Obj, order: 'python' | 'rust'): string | null {
+function headerCode(p: Obj, order: 'python' | 'rust', route: Route): string | null {
   const exact = (v: unknown, keys: string[]): v is Obj => isObj(v) && Object.keys(v).length === keys.length && keys.every(k => Object.hasOwn(v, k));
   const text = (v: unknown) => typeof v === 'string' && v.length > 0;
   if (order === 'python' && Object.hasOwn(p, 'carrier_evidence')) return 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED';
   if (p.schema_version !== '0.2.0') return 'SOURCE_SCHEMA_VERSION_UNSUPPORTED';
   const producer = p.producer;
   if (!exact(producer, ['component_name', 'component_version', 'semantic_contract_id']) || producer.component_name !== 'open_pipe_stress_product_physics'
-    || producer.component_version !== '0.2.0' || producer.semantic_contract_id !== BASE_ID) return 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED';
-  const evidence = isObj(p.contract_evidence) ? null : 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED';
+    || producer.component_version !== '0.2.0' || producer.semantic_contract_id !== route.baseId) return 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED';
+  // Only preview-physics-1's header requires an evidence object (Rust `for_source_metadata`); physics-1's does not.
+  const evidence = route.exact || isObj(p.contract_evidence) ? null : 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED';
   const recovery = Object.hasOwn(p, 'source_block_recovery') ? 'SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN' : null;
   const first = order === 'rust' ? recovery ?? evidence : evidence ?? recovery;
   if (first !== null) return first;
@@ -1400,7 +1546,7 @@ function headerCode(p: Obj, order: 'python' | 'rust'): string | null {
       || !Array.isArray(c.evidence_refs) || !c.evidence_refs.every(text)) return 'SOURCE_NUMERICAL_CASE_INVALID';
   }
   const f = p.formulation_basis;
-  if (!exact(f, ['profile_id', 'limitations']) || f.profile_id !== 'product_preview_mechanics_v1' || !Array.isArray(f.limitations) || !f.limitations.length
+  if (!exact(f, ['profile_id', 'limitations']) || f.profile_id !== route.baseProfile || !Array.isArray(f.limitations) || !f.limitations.length
     || !f.limitations.every(text)) return 'SOURCE_FORMULATION_BASIS_UNSUPPORTED';
   return null;
 }
@@ -1408,36 +1554,42 @@ const defaultErrors: Record<string, string> = { G0: 'SOURCE_PRODUCER_CONTRACT_UN
 /** The accepted ordered reader (G0-G8). D-U6-1: every gate runs; since U7 a valid invocation-bound statement of a solved model whose cases are selected or not_required reads eligible.
  * Standing comes from the carriers (D2 4.9.4). Hashes bind the supplied statements; they do not establish producer origin (D-U7-6). No registration, mutable eligibility cache, or private proof replay. */
 export async function validateRetainedPrecision(source: unknown, invocation?: unknown): Promise<RetainedPrecisionValidation> {
-  let gate = 'G0';
+  let gate = 'G0', route = PREVIEW_ROUTE;
   try {
     // Capture synchronously before the first await; later caller edits cannot alter this validation.
     gate = 'G1'; const s = snapshot(source); const actual = invocation == null ? undefined : snapshot(invocation);
-    gate = 'G0'; await header(s);
-    gate = 'G1'; const b = await integrity(s, false);
+    route = routeOf(s);
+    gate = 'G0'; if (route.exact) await headerExact(s); else await header(s);
+    gate = 'G1'; const b = await integrity(s, false, route);
     gate = 'G2'; conversionEncoding(b);
     gate = 'G3'; const rows = coverage(b, s, actual);
     gate = 'G4'; diagnostics(b, s);
     gate = 'G5'; nativeRuns(b); ordinaryAttempts(b, s); productAttempts(b, rows);
     gate = 'G5a'; const numeric = numericalCases(b, rows); numericSummaries(numeric, b); unselectedCoverage(b);
-    gate = 'G5b'; numericalScales(numeric, s);
+    gate = 'G5b'; numericalScales(numeric, s); if (route.exact) exactSectionEvidence(numeric, s);
     gate = 'G5c'; const classes = classifications(numeric, s);
     gate = 'G6'; for (const c of b.cases) for (const row of rows.get(c.basis_ref.ref_id)!) need(c.status === 'selected' ? row.recovery_method === RETAINED_METHOD : !Object.hasOwn(row, 'recovery_method'), gate, 'ROW_METHOD_MISMATCH');
-    gate = 'G7'; const base = projection(s); if (sourceContract(base as MechanicsResult) !== 'preview_physics') throw new RetainedPrecisionError(gate, baseHeaderCode(base));
-    try { validatePreviewPhysicsEvidence(base as MechanicsResult); } catch (error) { throw baseError(gate, error, defaultErrors.G7); }
-    gate = 'G8'; if (actual) await invocationBinding(b, s, actual);
+    // G7: the projection onto the route's base, then its unchanged base validator (preview-physics-1, or physics-1 on the
+    // exact route), with that base's own codes.
+    gate = 'G7'; const base = projection(s, route); if (sourceContract(base as MechanicsResult) !== (route.exact ? 'physics' : 'preview_physics')) throw new RetainedPrecisionError(gate, baseHeaderCode(base, route));
+    try { if (route.exact) validatePhysicsEvidence(base as MechanicsResult); else validatePreviewPhysicsEvidence(base as MechanicsResult); } catch (error) { throw baseError(gate, error, route.g7Default); }
+    gate = 'G8'; if (actual) await invocationBinding(b, s, actual, route);
     const eligible = SUMMARY_COVERAGE_COMPLETE && actual !== undefined && s.status?.mechanics === 'MECHANICS_SOLVED' && b.cases.every((c: Obj) => ['selected', 'not_required'].includes(c.status));
     return freeze({ invocation_bound: actual !== undefined, numerical_eligible: eligible, standing: eligible ? 'eligible' : 'needs_recompute', publication_sha256: b.publication_sha256, classifications: classes });
-  } catch (error) { if (error instanceof RetainedPrecisionError) throw error; throw new RetainedPrecisionError(gate, defaultErrors[gate]); }
+  } catch (error) { if (error instanceof RetainedPrecisionError) throw error; throw new RetainedPrecisionError(gate, gate === 'G7' ? route.g7Default : defaultErrors[gate]); }
 }
 /** G0-G2 and unchanged base metadata only: omitted raw publication bytes are never reconstructed or verified.
  * B1's three-reader alignment set (RR "RV113's three returns verified; …", item 4): the projected base's header is checked
  * at G2 with Rust's code (`headerCode(…, 'rust')`), then its preview-physics metadata at G7. Both run in every reader. */
 export async function validateRetainedPrecisionTransport(source: unknown): Promise<RetainedPrecisionValidation> {
-  let gate = 'G1';
+  let gate = 'G1', route = PREVIEW_ROUTE;
   try {
-    const s = snapshot(source); gate = 'G0'; await header(s); gate = 'G1'; const b = await integrity(s, true); gate = 'G2'; conversionEncoding(b);
-    const base = projection(s), headerRefusal = headerCode(base, 'rust'); if (headerRefusal !== null) throw new RetainedPrecisionError(gate, headerRefusal);
-    gate = 'G7'; try { validatePreviewPhysicsTransportMetadata(base as MechanicsResult); } catch (error) { throw baseError(gate, error, defaultErrors.G7); }
+    const s = snapshot(source); route = routeOf(s);
+    gate = 'G0'; if (route.exact) await headerExact(s); else await header(s);
+    gate = 'G1'; const b = await integrity(s, true, route); gate = 'G2'; conversionEncoding(b);
+    const base = projection(s, route), headerRefusal = headerCode(base, 'rust', route); if (headerRefusal !== null) throw new RetainedPrecisionError(gate, headerRefusal);
+    // The base's transport metadata at G7: preview-physics-1's, or physics-1's unchanged one on the exact route (B3-D §6.2).
+    gate = 'G7'; try { if (route.exact) validatePhysicsTransportMetadata(base.contract_evidence); else validatePreviewPhysicsTransportMetadata(base as MechanicsResult); } catch (error) { throw baseError(gate, error, route.g7Default); }
     return freeze({ invocation_bound: false, numerical_eligible: false, standing: 'needs_recompute', publication_sha256: b.publication_sha256, classifications: [] });
   } catch (error) { if (error instanceof RetainedPrecisionError) throw error; throw new RetainedPrecisionError(gate, defaultErrors[gate]); }
 }

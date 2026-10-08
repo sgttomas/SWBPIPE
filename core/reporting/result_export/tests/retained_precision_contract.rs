@@ -65,6 +65,17 @@ fn index(v: &Value) -> Option<usize> {
 /// case whose `source_ref` resolves; 3 publication hash; 4 receipt hash. A
 /// reference that is not an index, or does not resolve, is skipped.
 fn rehash(source: &mut Value) {
+    // S-1 (REVISION_01 §2): every preparation hash carries the route's
+    // definition H: DEF-E's on the exact identity, DEF-O's otherwise.
+    let h = if source["producer"]["semantic_contract_id"] == rp::EXACT_CONTRACT_ID {
+        rp::EXACT_DEFINITION_HASH
+    } else {
+        rp::DEFINITION_HASH
+    };
+    rehash_with(source, h);
+}
+/// The 07e format rule with an explicit preparation-payload definition H.
+fn rehash_with(source: &mut Value, definition_hash: &str) {
     use open_pipe_stress_result_export::source_blocks::domain_hash;
     // Snapshot 07 format: an entry that removes retained_precision or its body
     // (a G0 pin) has nothing to rehash.
@@ -91,7 +102,7 @@ fn rehash(source: &mut Value) {
                 .all(|m| m["result"]["kind"] == "prepared")
             {
                 let members: Vec<_> = a["preparation"]["members"].as_array().unwrap().iter().map(|m| serde_json::json!({"member":m["member"],"old_source":m["old_source"],"old_facts":m["old_facts"],"section":m["result"]["section"]})).collect();
-                let payload = serde_json::json!({"definition_id":a["definition_id"],"definition_sha256":rp::DEFINITION_HASH,"owner_ref":a["owner_ref"],"ordinary_attempt_ref":a["ordinary_attempt_ref"],"material_basis_ref":a["material_basis_ref"],"members":members});
+                let payload = serde_json::json!({"definition_id":a["definition_id"],"definition_sha256":definition_hash,"owner_ref":a["owner_ref"],"ordinary_attempt_ref":a["ordinary_attempt_ref"],"material_basis_ref":a["material_basis_ref"],"members":members});
                 s["preparation"]["sha256"] =
                     domain_hash("retained_precision_preparation_v1", &payload)
                         .unwrap()
@@ -3012,8 +3023,12 @@ fn d30_native_run_ref_on_nonselected_run() {
     assert_eq!((got.gate, got.code.as_str()), ("G5", PRODUCT));
 }
 
-/// D31: G8 admits model schema_version 0.1.0, 0.2.0 or 0.3.0; 0.4.0 stays
-/// excluded. The invocation edit rebinds the receipt's invocation digest.
+/// D31: G8 admits model schema_version 0.1.0 or 0.2.0 without a pressure
+/// contract; 0.4.0 stays excluded. B3a (B3-D §6.3, decision B3D-10): 0.3.0
+/// without a contract is outside D1.3 (the producer cannot emit it,
+/// `PRESSURE_CONTRACT_REQUIRED`), so it is G8 INVOCATION_MISMATCH; 0.3.0 with
+/// the legacy contract is `b3a_legacy_pressure_contract_namespace_at_g8`'s.
+/// The invocation edit rebinds the receipt's invocation digest.
 #[test]
 fn d31_model_schema_versions_at_g8() {
     use serde_json::json;
@@ -3026,7 +3041,7 @@ fn d31_model_schema_versions_at_g8() {
     for (version, want) in [
         ("0.1.0", Value::Null),
         ("0.2.0", Value::Null),
-        ("0.3.0", Value::Null),
+        ("0.3.0", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
         ("0.4.0", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
         ("0.0.9", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
     ] {
@@ -5049,4 +5064,794 @@ fn b1_i4p_transport_metadata_demands_alone() {
         ],
         |e| b1_transport_detail(&shared, e),
     );
+}
+
+/// B3a (B3-D §6.3 and §6.4; REVISION_01 §3, N-4): G8's namespace predicate is
+/// type-strict. Branch L (0.1.0 or 0.2.0, `pressure_contract` absent or JSON
+/// null) and branch L3 (0.3.0, exactly `{"version":"1.0.0","mode":
+/// "legacy_pressure_v1"}`) are admitted; any other value is G8
+/// INVOCATION_MISMATCH. A zero-magnitude element pressure load on L3 is
+/// outside D1.7 (N-11's reading): G8 PREPARATION_MISMATCH. Reader-local
+/// synthetic receipts: invocation edits on the shared bases, rehashed.
+#[test]
+fn b3a_legacy_pressure_contract_namespace_at_g8() {
+    use serde_json::json;
+    let shared = corpus();
+    let l3 = json!({"version": "1.0.0", "mode": "legacy_pressure_v1"});
+    let schema = |v: &str| set(json!(["request", "model", "schema_version"]), json!(v));
+    let contract = |v: Value| set(json!(["request", "model", "pressure_contract"]), v);
+    let no_contract = || remove(json!(["request", "model", "pressure_contract"]));
+    let inv = gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH");
+    let prep = gate("G8", "RETAINED_PRECISION_PREPARATION_MISMATCH");
+    let base_invocation = |id: &str| {
+        shared["cases"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|c| c["id"] == id)
+            .unwrap()["invocation"]
+            .clone()
+    };
+    // N-11: a zero-magnitude element pressure load appended to case 0.
+    let zero_pressure = |id: &str| {
+        let mut loads = base_invocation(id)["request"]["model"]["load_cases"][0]["primitive_loads"].clone();
+        loads.as_array_mut().unwrap().push(json!({
+            "id": "load:b3a-zero-pressure", "category": "pressure",
+            "target": {"type": "element", "pipe": "pipe:fixture-span"},
+            "magnitude": {"value": 0, "unit": "Pa"}, "dimension": "pressure",
+            "provenance": "synthetic_integration_input_not_library_data"}));
+        set(json!(["request", "model", "load_cases", 0, "primitive_loads"]), loads)
+    };
+    let with = |key: &str, value: Value| {
+        let mut c = l3.clone();
+        c[key] = value;
+        c
+    };
+    let mut entries: Vec<(String, &str, Vec<Value>, Value)> = Vec::new();
+    for base in [
+        ORD,
+        "ordinary_prepared_dense_synthetic",
+        "two_case_synthetic",
+        "u8_l0_isolated_node_sparse_interactive",
+        "u8_l0_isolated_node_dense_scrutiny",
+    ] {
+        entries.push((format!("L3 on {base}"), base, vec![schema("0.3.0"), contract(l3.clone())], Value::Null));
+    }
+    for (name, edits, want) in [
+        ("L: 0.2.0, contract null", vec![contract(Value::Null)], Value::Null),
+        ("L: 0.1.0, contract absent", vec![schema("0.1.0"), no_contract()], Value::Null),
+        ("L3: mode exact_straight_pressure_v2, version 1.0.0", vec![schema("0.3.0"), contract(with("mode", json!("exact_straight_pressure_v2")))], inv.clone()),
+        ("L3: version 1.0.1", vec![schema("0.3.0"), contract(with("version", json!("1.0.1")))], inv.clone()),
+        ("L3: the exact contract 2.0.0", vec![schema("0.3.0"), contract(json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}))], inv.clone()),
+        ("0.3.0, contract null", vec![schema("0.3.0"), contract(Value::Null)], inv.clone()),
+        ("0.3.0, contract absent", vec![schema("0.3.0"), no_contract()], inv.clone()),
+        ("L3: an extra key", vec![schema("0.3.0"), contract(with("extra", json!("x")))], inv.clone()),
+        ("L3: an extra key valued null", vec![schema("0.3.0"), contract(with("extra", Value::Null))], inv.clone()),
+        ("L3: version only", vec![schema("0.3.0"), contract(json!({"version": "1.0.0"}))], inv.clone()),
+        ("L3: mode only", vec![schema("0.3.0"), contract(json!({"mode": "legacy_pressure_v1"}))], inv.clone()),
+        ("L3: version a number", vec![schema("0.3.0"), contract(with("version", json!(1.0)))], inv.clone()),
+        ("L3: mode null", vec![schema("0.3.0"), contract(with("mode", Value::Null))], inv.clone()),
+        ("0.3.0, contract {}", vec![schema("0.3.0"), contract(json!({}))], inv.clone()),
+        ("0.2.0 keeping the L3 contract", vec![contract(l3.clone())], inv.clone()),
+        ("0.1.0 keeping the L3 contract", vec![schema("0.1.0"), contract(l3.clone())], inv.clone()),
+        ("0.4.0 with the L3 contract", vec![schema("0.4.0"), contract(l3.clone())], inv.clone()),
+        ("N-4: 0.2.0, contract {}", vec![contract(json!({}))], inv.clone()),
+        ("N-4: 0.2.0, contract false", vec![contract(json!(false))], inv.clone()),
+        ("N-4: 0.2.0, contract []", vec![contract(json!([]))], inv.clone()),
+        ("N-4: 0.2.0, contract \"\"", vec![contract(json!(""))], inv.clone()),
+        ("N-4: 0.2.0, contract 0", vec![contract(json!(0))], inv.clone()),
+        ("N-11: L3 with a zero-magnitude element pressure load", vec![schema("0.3.0"), contract(l3.clone()), zero_pressure(ORD)], prep.clone()),
+    ] {
+        entries.push((name.to_string(), ORD, edits, want));
+    }
+    entries.push((
+        "N-11: L3 dense with a zero-magnitude element pressure load".into(),
+        "ordinary_prepared_dense_synthetic",
+        vec![schema("0.3.0"), contract(l3.clone()), zero_pressure("ordinary_prepared_dense_synthetic")],
+        prep.clone(),
+    ));
+    let mut misses = Vec::new();
+    for (name, base, edits, want) in &entries {
+        let got = observe(
+            &shared,
+            &json!({"id": "i101_b3a", "base": base, "edits": [], "rehash": "all", "invocation_edits": edits}),
+        );
+        if got != *want {
+            misses.push(format!("{name}: got {got}, want {want}"));
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+    assert_eq!(entries.len(), 29);
+}
+
+// ---- B3b (I101): the exact successor `<physics-retained>` on reader-local synthetic receipts ----
+/// RN64(2e11 / (2 RN64(1 + nu))) is exactly the bases' G = 7.7e10 Pa, so the
+/// synthetic exact successor keeps every receipt number of its preview base.
+const EXACT_NU: f64 = 0.2987012987012987;
+/// The exact producer's seven `exact_straight_pressure_formulation_basis`
+/// strings, as physics-source-1's committed n05 envelope publishes them.
+fn exact_limitations() -> Value {
+    let n05: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json"
+    ))
+    .unwrap();
+    n05["formulation_basis"]["limitations"].clone()
+}
+fn decode_bits(v: &Value) -> f64 {
+    f64::from_bits(u64::from_str_radix(v.as_str().unwrap(), 16).unwrap())
+}
+/// A reader-local synthetic exact successor (not producer output; lane P's
+/// `m3x` successors replace it as the witness): a shared preview base whose
+/// cases are all selected, re-stated on the exact route.
+/// - Invocation: model 0.3.0 with `{2.0.0, exact_straight_pressure_v2}`, every
+///   case's `pressure_regions` explicitly [], each material with `poisson_ratio`
+///   EXACT_NU and `homogeneous_isotropic_E_nu_v1`.
+/// - Envelope: the exact identity and profile with the exact producer's
+///   limitations; physics-1's `contract_evidence` built from the receipt's own
+///   sections (OD, wall, ro, A, I, J, Z), the base's extrema and coverage, the
+///   material's E, nu and G-hat, and a zero pressure assembly.
+/// - Receipt: `derived_e_nu` shear origins, `geometry.route` exact, the exact
+///   definition id; the invocation digest bound; rehashed with DEF-E's H.
+fn exact_successor(shared: &Value, base: &str) -> (Value, Value) {
+    use open_pipe_stress_result_export::source_blocks::domain_hash;
+    use serde_json::json;
+    let case = shared["cases"].as_array().unwrap().iter().find(|c| c["id"] == base).unwrap();
+    let mut source = case["source"].clone();
+    let mut invocation = case["invocation"].clone();
+    {
+        let model = &mut invocation["request"]["model"];
+        model["schema_version"] = json!("0.3.0");
+        model["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
+        for c in model["load_cases"].as_array_mut().unwrap() {
+            c["pressure_regions"] = json!([]);
+        }
+        for m in model["materials"].as_array_mut().unwrap() {
+            m["poisson_ratio"] = json!({"value": EXACT_NU, "unit": "1"});
+            m["constitutive_basis"] = json!("homogeneous_isotropic_E_nu_v1");
+        }
+    }
+    let model = invocation["request"]["model"].clone();
+    let body = source["retained_precision"]["body"].clone();
+    let nodes: Vec<Value> = model["nodes"].as_array().unwrap().iter().map(|n| n["id"].clone()).collect();
+    let mut exact_cases = Vec::new();
+    for (ci, rc) in body["cases"].as_array().unwrap().iter().enumerate() {
+        assert_eq!(rc["status"], "selected", "{base}: every case selected");
+        let id = rc["basis_ref"]["ref_id"].clone();
+        let s = &body["sources"][rc["source_ref"].as_u64().unwrap() as usize];
+        let mb = &body["material_bases"][body["product_attempts"][rc["product_attempt_ref"].as_u64().unwrap() as usize]["material_basis_ref"].as_u64().unwrap() as usize];
+        let mut sections = Vec::new();
+        let mut materials = Vec::new();
+        for (i, p) in model["pipe_segments"].as_array().unwrap().iter().enumerate() {
+            let st = &s["section_terms"][i];
+            assert_eq!(s["id_maps"]["members"][i]["id"], p["id"]);
+            let g = &st["geometry"];
+            let (od, wall) = (decode_bits(&g["normalized_od"]), decode_bits(&g["effective_wall"]));
+            let ri = od * 0.5 - wall;
+            sections.push(json!({"pipe_id": p["id"], "geometry_basis": "authored_normalized_od_wall_v1",
+                "outside_diameter_m": od, "effective_wall_thickness_m": wall, "ri_m": ri,
+                "ro_m": decode_bits(&g["actual_radius"]), "Ai_m2": std::f64::consts::PI * ri * ri,
+                "As_m2": decode_bits(&st["area"]), "I_m4": decode_bits(&g["actual_second_moment"]),
+                "J_m4": decode_bits(&g["actual_polar_moment"]), "Z_m3": decode_bits(&st["section_modulus"])}));
+            let m = mb["materials"].as_array().unwrap().iter().find(|m| m["id"] == p["material"]).unwrap();
+            let e = decode_bits(&m["elastic_modulus"]);
+            let g_hat = e / (2.0 * (1.0 + EXACT_NU));
+            assert_eq!(g_hat.to_bits(), decode_bits(&m["shear_modulus"]).to_bits(), "G-hat keeps the receipt's G");
+            let authored = model["materials"].as_array().unwrap().iter().find(|a| a["id"] == p["material"]).unwrap();
+            materials.push(json!({"pipe_id": p["id"], "material_id": p["material"], "E_pa": e, "nu": EXACT_NU,
+                "G_pa": g_hat, "constitutive_basis": "homogeneous_isotropic_E_nu_v1", "thermal_consumed": false,
+                "alpha_per_kelvin": null, "provenance": authored["provenance"]}));
+        }
+        let preview = source["contract_evidence"]["preview_cases"].as_array().unwrap().iter()
+            .find(|c| c["load_case_id"] == id).unwrap();
+        let zeros = json!(vec![0.0; nodes.len() * 6]);
+        exact_cases.push(json!({"load_case_id": id, "profile_mode": "exact_straight_pressure_v2",
+            "material_basis": "base_material_common_E_nu", "pipe_materials": materials, "pipe_sections": sections,
+            "pipe_stress_extrema": preview["pipe_stress_extrema"],
+            "stress_maximum_coverage": {"complete": preview["stress_maximum_coverage"]["complete"],
+                "unavailable_pipe_ids": preview["stress_maximum_coverage"]["unavailable_pipe_ids"]},
+            "pressure_rhs_assembly": {"method": "source_factor_grouped_pressure_rhs_v1", "load_case_id": id,
+                "node_order": nodes, "dof_order": ["Fx", "Fy", "Fz", "Mx", "My", "Mz"],
+                "dof_units": ["N", "N", "N", "N*m", "N*m", "N*m"], "assembled_pressure_rhs_global": zeros,
+                "groups": [], "rounded_cap_rhs_global": zeros, "rounded_poisson_rhs_global": zeros,
+                "rounded_cap_and_eigen_ledgers_are_observational": true, "cancellation_screen": 0.0,
+                "screen_limit": 1e-9, "screen_roundoff_multiplier": 32,
+                "screen_is_not_numerical_qualification": true}}));
+        let _ = ci;
+    }
+    source["producer"]["semantic_contract_id"] = json!(rp::EXACT_CONTRACT_ID);
+    source["formulation_basis"] = json!({"profile_id": rp::EXACT_PROFILE, "limitations": exact_limitations()});
+    source["contract_evidence"] = json!({"pressure": [], "connector": [], "exact_cases": exact_cases});
+    let b = &mut source["retained_precision"]["body"];
+    for mb in b["material_bases"].as_array_mut().unwrap() {
+        for m in mb["materials"].as_array_mut().unwrap() {
+            m["shear_origin"] = json!({"kind": "derived_e_nu", "poisson_ratio": format!("{:016x}", EXACT_NU.to_bits()),
+                "constitutive_basis": "homogeneous_isotropic_E_nu_v1"});
+        }
+    }
+    for s in b["sources"].as_array_mut().unwrap() {
+        for st in s["section_terms"].as_array_mut().unwrap() {
+            st["geometry"]["route"] = json!("exact");
+        }
+    }
+    for a in b["product_attempts"].as_array_mut().unwrap() {
+        a["definition_id"] = json!(rp::EXACT_DEFINITION_ID);
+    }
+    b["invocation"]["value"] = domain_hash("source_blocks_invocation_v1", &invocation).unwrap().into();
+    rehash(&mut source);
+    (source, invocation)
+}
+/// The three readings of a statement: bound, unbound and transport (gate and
+/// code, or "ok" with the eligibility).
+fn readings(source: &Value, invocation: &Value) -> Value {
+    use serde_json::json;
+    let one = |r: Result<rp::Validation, rp::ValidationError>| match r {
+        Ok(v) => json!({"ok": {"eligible": v.numerical_eligible}}),
+        Err(e) => json!({"gate": e.gate, "code": e.code}),
+    };
+    json!({"bound": one(rp::validate(source, Some(invocation))), "unbound": one(rp::validate(source, None)),
+        "transport": one(rp::validate_transport_metadata(source))})
+}
+/// One B3b shape: `edits` on the synthetic exact successor's source and
+/// `invocation_edits` on its invocation (rebinding the digest), rehashed with the
+/// route's H, then `after` (edits after the rehash).
+struct ExactShape {
+    name: &'static str,
+    base: &'static str,
+    edits: Vec<Value>,
+    invocation_edits: Vec<Value>,
+    after: Vec<Value>,
+}
+/// The optional file base: `B3B_EXACT_BASE` names a `{source, invocation}` file (for
+/// example lane P's `m3x` exact successor); every shape is then also read on it.
+const FILE_BASE: &str = "<file>";
+/// Lane P's m3x exact successors (B3b-P; PP retained_facade_tests.rs `EXACT_PINNED`): base
+/// name, its S-1 shape's base, the document text, its sha256 and the receipt sha256. Every
+/// shape is also read on each.
+const M3X: [(&str, &str, &str, &str, &str); 2] = [
+    (
+        "m3x_sparse_interactive",
+        "<s1:m3x_sparse_interactive>",
+        include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
+        "02465c6c92ac2e4360a77910cb54803590b5a11042dfddb223bf78f9e856e5d6",
+        "b1b4a6682260ca6bc499950b30f0f7179a77c038e266cc4b42045ed86ed3896f",
+    ),
+    (
+        "m3x_dense_scrutiny",
+        "<s1:m3x_dense_scrutiny>",
+        include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
+        "31f10f04f6f335dfb1a7e5f904198972903bfc9208660031bbfaa5c547d347cc",
+        "eabd2fc57b42158ad415ae664e7c712c1c4db21258b667251758172f3a5b776d",
+    ),
+];
+fn exact_base(shared: &Value, base: &str) -> (Value, Value) {
+    use sha2::{Digest, Sha256};
+    if let Some((name, _, text, document_sha, receipt_sha)) = M3X.iter().find(|m| m.0 == base) {
+        assert_eq!(format!("{:x}", Sha256::digest(text.as_bytes())), *document_sha, "{name}: lane P's pinned document");
+        let doc: Value = serde_json::from_str(text).unwrap();
+        assert_eq!(doc["source"]["retained_precision"]["receipt_sha256"], *receipt_sha, "{name}");
+        return (doc["source"].clone(), doc["invocation"].clone());
+    }
+    if base == FILE_BASE {
+        let path = std::env::var("B3B_EXACT_BASE").unwrap();
+        let doc: Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+        return (doc["source"].clone(), doc["invocation"].clone());
+    }
+    exact_successor(shared, base)
+}
+fn exact_shape_input(shared: &Value, shape: &ExactShape) -> (Value, Value) {
+    use open_pipe_stress_result_export::source_blocks::domain_hash;
+    let (mut source, mut invocation) = exact_base(shared, shape.base);
+    for e in &shape.edits {
+        edit(&mut source, e);
+    }
+    for e in &shape.invocation_edits {
+        edit(&mut invocation, e);
+    }
+    if !shape.invocation_edits.is_empty() {
+        source["retained_precision"]["body"]["invocation"]["value"] =
+            domain_hash("source_blocks_invocation_v1", &invocation).unwrap().into();
+    }
+    rehash(&mut source);
+    for e in &shape.after {
+        edit(&mut source, e);
+    }
+    (source, invocation)
+}
+fn ulps(v: f64, n: i64) -> f64 {
+    f64::from_bits((v.to_bits() as i64 + n) as u64)
+}
+const EXACT_BASES: [&str; 3] = [ORD, "ordinary_prepared_dense_synthetic", "two_case_synthetic"];
+const INVOCATION: &str = "RETAINED_PRECISION_INVOCATION_MISMATCH";
+const PREPARATION: &str = "RETAINED_PRECISION_PREPARATION_MISMATCH";
+const SECTION: &str = "RETAINED_PRECISION_SECTION_MISMATCH";
+/// REVISION_01 §4.3's B3b list on the synthetic exact successor (entries 1-32;
+/// entry 9 relabels the shared preview base), plus this reader's added shapes; then
+/// every row, the base and S-1's shape on each of lane P's two m3x successors.
+/// The expected first failures are bound; `B3B_SHAPES_OUT` writes every shape's
+/// bound, unbound and transport readings (JSON lines), and `B3B_INPUTS_OUT` the
+/// materialized inputs, for the three-reader comparison.
+fn b3b_shapes(shared: &Value) -> Vec<(ExactShape, Value)> {
+    let mut out = Vec::new();
+    for b in EXACT_BASES {
+        out.push((ExactShape { name: "base", base: b, edits: vec![], invocation_edits: vec![], after: vec![] }, Value::Null));
+    }
+    out.extend(b3b_rows(shared, ORD));
+    // 09: the shared preview base relabelled physics-retained-1 (identity and profile).
+    out.push((ExactShape { name: "09 the preview successor relabelled physics-retained-1", base: "<preview:ordinary_prepared_synthetic>", edits: vec![], invocation_edits: vec![], after: vec![] }, gate("G0", UNSUPPORTED)));
+    // 11 (S-1): the preparation hash over a payload with DEF-O's H; source
+    // identity, publication and receipt hashes recomputed.
+    out.push((ExactShape { name: "11 S-1: the preparation hashed with DEF-O's H", base: "<s1:ordinary_prepared_synthetic>", edits: vec![], invocation_edits: vec![], after: vec![] }, gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")));
+    for (name, s1, ..) in M3X {
+        out.push((ExactShape { name: "base", base: name, edits: vec![], invocation_edits: vec![], after: vec![] }, Value::Null));
+        out.extend(b3b_rows(shared, name));
+        out.push((ExactShape { name: "11 S-1: the preparation hashed with DEF-O's H", base: s1, edits: vec![], invocation_edits: vec![], after: vec![] }, gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")));
+    }
+    // RV120's F2 forgeries (B28, B29): only G8 step 4's E and G-hat bits refuse them.
+    for (name, base, edits) in rv120_forgeries() {
+        out.push((ExactShape { name, base, edits, invocation_edits: vec![], after: vec![] }, gate("G8", PREPARATION)));
+    }
+    if std::env::var("B3B_EXACT_BASE").is_ok() {
+        out.push((ExactShape { name: "base", base: FILE_BASE, edits: vec![], invocation_edits: vec![], after: vec![] }, Value::Null));
+        out.extend(b3b_rows(shared, FILE_BASE));
+        out.push((ExactShape { name: "11 S-1: the preparation hashed with DEF-O's H", base: "<s1:file>", edits: vec![], invocation_edits: vec![], after: vec![] }, gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")));
+    }
+    out
+}
+/// RV120's F2 forgeries (REVIEW_RV120 b3_readers_01: its `forge_eg.py` and
+/// `forge_eg_inputs.jsonl`, here as edits on the synthetic exact base and lane P's sparse
+/// m3x successor; the 07e rehash recomputes the rest). E or G-hat moves one ulp in all five
+/// receipt copies (the material basis, the id-map member, the prepared `old_source`, the old
+/// and new operational inputs), the operational stiffness the readers derive moves with it
+/// (the attempt results and both section-term copies), the evidence `G_pa` moves for G-hat
+/// (N-6), and the sources' native hashes and their copies are resealed. The shipped readers
+/// refuse each at G8 step 4 (`PREPARATION_MISMATCH`); without step 4's E bits (mutant B28)
+/// or G-hat bits (B29) the matching forgeries read bound and eligible.
+fn rv120_forgeries() -> Vec<(&'static str, &'static str, Vec<Value>)> {
+    use serde_json::json;
+    vec![
+        ("RV120 F2: E +1 ulp in every receipt copy, stiffness and native hashes resealed", "ordinary_prepared_synthetic", vec![
+            set(json!(["retained_precision", "body", "cases", 0, "selection", "section_terms", 0, "axial_stiffness"]), json!("41c4990f17e516ae")),
+            set(json!(["retained_precision", "body", "groups", 0, "stiffness_sha256"]), json!("1fbb32395a897d401b673f4527d6858876a6c6668ff3779fa9484855ad2285b2")),
+            set(json!(["retained_precision", "body", "material_bases", 0, "materials", 0, "elastic_modulus"]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "inputs", 6]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "result", "axial_stiffness"]), json!("41c4990f17e516ae")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "inputs", 6]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "result", "axial_stiffness"]), json!("41c4990f17e516ae")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "preparation", "members", 0, "old_source", 0]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "id_maps", "members", 0, "E"]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "kernel_source_sha256"]), json!("57dc66560ce90fb976a633b07f55c736b11f2b78265d791a3a4123c0751be478")),
+            set(json!(["retained_precision", "body", "sources", 0, "section_terms", 0, "axial_stiffness"]), json!("41c4990f17e516ae")),
+            set(json!(["retained_precision", "body", "sources", 0, "stiffness_sha256"]), json!("1fbb32395a897d401b673f4527d6858876a6c6668ff3779fa9484855ad2285b2")),
+        ]),
+        ("RV120 F2: G-hat +1 ulp in every receipt copy, stiffness and native hashes resealed", "ordinary_prepared_synthetic", vec![
+            set(json!(["contract_evidence", "exact_cases", 0, "pipe_materials", 0, "G_pa"]), json!(f64::from_bits(0x4231ed8ec2000001))),
+            set(json!(["retained_precision", "body", "cases", 0, "selection", "section_terms", 0, "torsional_stiffness"]), json!("4128c47ead23fa81")),
+            set(json!(["retained_precision", "body", "groups", 0, "stiffness_sha256"]), json!("77a160acc4ffcf3ed919fe1e59ab3b670cc3ca4dcacbe192d9f932042c9e0980")),
+            set(json!(["retained_precision", "body", "material_bases", 0, "materials", 0, "shear_modulus"]), json!("4231ed8ec2000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "inputs", 7]), json!("4231ed8ec2000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "result", "torsional_stiffness"]), json!("4128c47ead23fa81")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "inputs", 7]), json!("4231ed8ec2000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "result", "torsional_stiffness"]), json!("4128c47ead23fa82")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "preparation", "members", 0, "old_source", 1]), json!("4231ed8ec2000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "id_maps", "members", 0, "G"]), json!("4231ed8ec2000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "kernel_source_sha256"]), json!("d098e88140c2f23621802f449f296928412138208b2adf72553b0a4790fe8f58")),
+            set(json!(["retained_precision", "body", "sources", 0, "section_terms", 0, "torsional_stiffness"]), json!("4128c47ead23fa81")),
+            set(json!(["retained_precision", "body", "sources", 0, "stiffness_sha256"]), json!("77a160acc4ffcf3ed919fe1e59ab3b670cc3ca4dcacbe192d9f932042c9e0980")),
+        ]),
+        ("RV120 F2: E +1 ulp in every receipt copy, stiffness and native hashes resealed", "m3x_sparse_interactive", vec![
+            set(json!(["retained_precision", "body", "cases", 0, "selection", "section_terms", 0, "axial_stiffness"]), json!("41b7b801dd7467b1")),
+            set(json!(["retained_precision", "body", "groups", 0, "stiffness_sha256"]), json!("1fbbf4ed8e9842ff8f6dcbe94517a8527eead7b775277e327e62b6e4538d712e")),
+            set(json!(["retained_precision", "body", "material_bases", 0, "materials", 0, "elastic_modulus"]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "inputs", 6]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "result", "axial_stiffness"]), json!("41b7b801dd7467b1")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "inputs", 6]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "result", "axial_stiffness"]), json!("41b7b801dd7467b1")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "preparation", "members", 0, "old_source", 0]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "id_maps", "members", 0, "E"]), json!("42474876e8000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "kernel_source_sha256"]), json!("ab4596d0b1a50b195b0368d573dbf26ed4c2cb6c1e76da6490052217b12b8bb2")),
+            set(json!(["retained_precision", "body", "sources", 0, "section_terms", 0, "axial_stiffness"]), json!("41b7b801dd7467b1")),
+            set(json!(["retained_precision", "body", "sources", 0, "stiffness_sha256"]), json!("1fbbf4ed8e9842ff8f6dcbe94517a8527eead7b775277e327e62b6e4538d712e")),
+        ]),
+        ("RV120 F2: G-hat +1 ulp in every receipt copy, stiffness and native hashes resealed", "m3x_sparse_interactive", vec![
+            set(json!(["contract_evidence", "exact_cases", 0, "pipe_materials", 0, "G_pa"]), json!(f64::from_bits(0x4232a05f20000001))),
+            set(json!(["retained_precision", "body", "cases", 0, "selection", "section_terms", 0, "torsional_stiffness"]), json!("4135fb0cf390a830")),
+            set(json!(["retained_precision", "body", "groups", 0, "stiffness_sha256"]), json!("d7aa429e5be25210f15a34f7138f7178efbbc443d6a016cc35f857268d9ec194")),
+            set(json!(["retained_precision", "body", "material_bases", 0, "materials", 0, "shear_modulus"]), json!("4232a05f20000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "inputs", 7]), json!("4232a05f20000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "new", 0, "result", "torsional_stiffness"]), json!("4135fb0cf390a830")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "inputs", 7]), json!("4232a05f20000001")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "operational", "old", 0, "result", "torsional_stiffness"]), json!("4135fb0cf390a831")),
+            set(json!(["retained_precision", "body", "product_attempts", 0, "preparation", "members", 0, "old_source", 1]), json!("4232a05f20000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "id_maps", "members", 0, "G"]), json!("4232a05f20000001")),
+            set(json!(["retained_precision", "body", "sources", 0, "kernel_source_sha256"]), json!("7f965da3aaa6d9720c549022c8947fa602a2065c26415d5663f5dc398e8f7b84")),
+            set(json!(["retained_precision", "body", "sources", 0, "section_terms", 0, "torsional_stiffness"]), json!("4135fb0cf390a830")),
+            set(json!(["retained_precision", "body", "sources", 0, "stiffness_sha256"]), json!("d7aa429e5be25210f15a34f7138f7178efbbc443d6a016cc35f857268d9ec194")),
+        ]),
+    ]
+}
+/// The forgeries' materialized inputs: sha256 of the canonical JSON of `[source, invocation]`
+/// (`canonical_json`), the same bytes as RV120's input lines (checked against its index).
+const RV120_FORGERY_INPUTS: [(&str, &str, &str); 4] = [
+    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "97566866cef65597109de17d34c69508ef3889a1d526321c8feedf5dc88b1f4a"),
+    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "6e67243c49548db2cbcd10be6156c30182c1e884addbf95a264e33965431ef13"),
+    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "3828c07c73d41e33324ec6be349ab4d265e57b439222962d1df1a91c974eb1ff"),
+    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "c17c8283efeb034afe82c4e9fdb4f46aad54ffef676c181733fbc6eec43226e6"),
+];
+/// RV120 F2: the four forgeries are RV120's inputs (by digest), and all three readings
+/// hold: bound G8 PREPARATION_MISMATCH (step 4), unbound and on transport never eligible.
+#[test]
+fn b3b_rv120_f2_forgeries_are_refused_at_g8_step_4() {
+    use open_pipe_stress_canonical_json::canonical_json;
+    use serde_json::json;
+    use sha2::{Digest, Sha256};
+    let shared = corpus();
+    let shapes = b3b_shapes(&shared);
+    let forged: Vec<_> = shapes.iter().filter(|(s, _)| s.name.starts_with("RV120 F2: ")).collect();
+    assert_eq!(forged.len(), 4);
+    let mut digests = Vec::new();
+    for ((shape, want), (prefix, base, _)) in forged.into_iter().zip(RV120_FORGERY_INPUTS) {
+        assert!(shape.name.starts_with(prefix) && shape.base == base, "{}", shape.name);
+        assert_eq!(*want, json!({"gate": "G8", "code": PREPARATION}));
+        let (source, invocation) = b3b_input(&shared, shape);
+        digests.push(format!("{:x}", Sha256::digest(canonical_json(&json!([source, invocation])).as_bytes())));
+        assert_eq!(
+            readings(&source, &invocation),
+            json!({"bound": {"gate": "G8", "code": PREPARATION}, "unbound": {"ok": {"eligible": false}}, "transport": {"ok": {"eligible": false}}}),
+            "{} [{base}]",
+            shape.name
+        );
+    }
+    assert_eq!(digests, RV120_FORGERY_INPUTS.map(|f| f.2), "RV120's inputs");
+}
+/// REVISION_01 §4.3's entries and the added shapes on one exact base, with every
+/// edited value taken from that base (its owner entry, material, nu, case and pipe).
+fn b3b_rows(shared: &Value, base_name: &'static str) -> Vec<(ExactShape, Value)> {
+    use serde_json::json;
+    let ce = |tail: Value| {
+        let mut p = vec![json!("contract_evidence"), json!("exact_cases"), json!(0)];
+        p.extend(tail.as_array().unwrap().iter().cloned());
+        Value::Array(p)
+    };
+    let (base, base_invocation) = exact_base(shared, base_name);
+    let entry = &base["contract_evidence"]["exact_cases"][0];
+    let section = |k: &str| entry["pipe_sections"][0][k].as_f64().unwrap();
+    let material = |k: &str| entry["pipe_materials"][0][k].as_f64().unwrap();
+    let receipt_g = decode_bits(&base["retained_precision"]["body"]["material_bases"][0]["materials"][0]["shear_modulus"]);
+    let receipt_e = decode_bits(&base["retained_precision"]["body"]["material_bases"][0]["materials"][0]["elastic_modulus"]);
+    let base_model = &base_invocation["request"]["model"];
+    let authored_nu = base_model["materials"][0]["poisson_ratio"]["value"].as_f64().unwrap();
+    let (case_id, pipe_id) = (base_model["load_cases"][0]["id"].clone(), base_model["pipe_segments"][0]["id"].clone());
+    let model = |tail: Value| {
+        let mut p = vec![json!("request"), json!("model")];
+        p.extend(tail.as_array().unwrap().iter().cloned());
+        Value::Array(p)
+    };
+    let shape = |name, edits, invocation_edits, after| ExactShape { name, base: base_name, edits, invocation_edits, after };
+    let g0 = gate("G0", UNSUPPORTED);
+    let inv = gate("G8", INVOCATION);
+    let prep = gate("G8", PREPARATION);
+    let sec = gate("G5b", SECTION);
+    let mut out = Vec::new();
+    let rows = vec![
+        ("01 identity -> the preview id", vec![set(json!(["producer", "semantic_contract_id"]), json!(rp::CONTRACT_ID))], vec![], vec![], g0.clone()),
+        ("02 profile -> the preview profile", vec![set(json!(["formulation_basis", "profile_id"]), json!(rp::PROFILE))], vec![], vec![], g0.clone()),
+        ("02b producer component_version 0.2.1", vec![set(json!(["producer", "component_version"]), json!("0.2.1"))], vec![], vec![], g0.clone()),
+        ("03 an attempt's definition_id -> the ordinary id", vec![set(rb(json!(["product_attempts", 0, "definition_id"])), json!(rp::DEFINITION_ID))], vec![], vec![], g0.clone()),
+        ("04 projection_policy changed", vec![set(rb(json!(["projection_policy"])), json!("RP-LOGICAL-ATTEMPTS-v2"))], vec![], vec![], g0.clone()),
+        ("04b policy changed", vec![set(rb(json!(["policy"])), json!("M03-INTEGRITY-MP-v3"))], vec![], vec![], g0.clone()),
+        ("04c facade_policy changed", vec![set(rb(json!(["facade_policy"])), json!("RP-FACADE-SI-v3"))], vec![], vec![], g0.clone()),
+        ("05 work_policy changed", vec![set(rb(json!(["work_policy"])), json!("W1-LME-20B-60B-v2"))], vec![], vec![], g0.clone()),
+        ("06 canonicalization changed", vec![set(rb(json!(["canonicalization"])), json!("openpipestress_jcs_ijson_v2"))], vec![], vec![], g0.clone()),
+        ("07 work.case_limit changed", vec![set(rb(json!(["work", "case_limit"])), json!(19_999_999_999u64))], vec![], vec![], g0.clone()),
+        ("08 work.invocation_limit changed", vec![set(rb(json!(["work", "invocation_limit"])), json!(60_000_000_001u64))], vec![], vec![], g0.clone()),
+        ("08b receipt_version 2", vec![set(rb(json!(["receipt_version"])), json!(2))], vec![], vec![], g0.clone()),
+        ("10 the exact successor relabelled preview (identity and profile)", vec![set(json!(["producer", "semantic_contract_id"]), json!(rp::CONTRACT_ID)), set(json!(["formulation_basis", "profile_id"]), json!(rp::PROFILE))], vec![], vec![], g0.clone()),
+        ("12 owner entry's As_m2 one ulp", vec![set(ce(json!(["pipe_sections", 0, "As_m2"])), json!(ulps(section("As_m2"), 1)))], vec![], vec![], sec.clone()),
+        ("13 owner entry's Z_m3 one ulp", vec![set(ce(json!(["pipe_sections", 0, "Z_m3"])), json!(ulps(section("Z_m3"), 1)))], vec![], vec![], sec.clone()),
+        ("14 owner entry's I_m4 one ulp", vec![set(ce(json!(["pipe_sections", 0, "I_m4"])), json!(ulps(section("I_m4"), 1)))], vec![], vec![], sec.clone()),
+        ("15 owner entry's ro_m one ulp", vec![set(ce(json!(["pipe_sections", 0, "ro_m"])), json!(ulps(section("ro_m"), 1)))], vec![], vec![], sec.clone()),
+        ("15b owner entry's J_m4 one ulp", vec![set(ce(json!(["pipe_sections", 0, "J_m4"])), json!(ulps(section("J_m4"), 1)))], vec![], vec![], sec.clone()),
+        ("15c owner entry's outside_diameter_m one ulp", vec![set(ce(json!(["pipe_sections", 0, "outside_diameter_m"])), json!(ulps(section("outside_diameter_m"), 1)))], vec![], vec![], sec.clone()),
+        ("15d owner entry's effective_wall_thickness_m one ulp", vec![set(ce(json!(["pipe_sections", 0, "effective_wall_thickness_m"])), json!(ulps(section("effective_wall_thickness_m"), 1)))], vec![], vec![], sec.clone()),
+        ("15e the owner entry's load_case_id renamed (no entry for the selected case)", vec![set(ce(json!(["load_case_id"])), json!("case:other"))], vec![], vec![], sec.clone()),
+        ("15f the owner entry's pipe section listed twice", vec![set(ce(json!(["pipe_sections"])), json!([entry["pipe_sections"][0], entry["pipe_sections"][0]]))], vec![], vec![], sec.clone()),
+        ("15g the owner entry's As_m2 a string", vec![set(ce(json!(["pipe_sections", 0, "As_m2"])), json!(format!("{}", section("As_m2"))))], vec![], vec![], sec.clone()),
+        ("15h the owner entry listed twice", vec![set(json!(["contract_evidence", "exact_cases"]), json!([entry, entry]))], vec![], vec![], sec.clone()),
+        ("16b contract_evidence removed", vec![remove(json!(["contract_evidence"]))], vec![], vec![], sec.clone()),
+        ("16 connector non-empty", vec![set(json!(["contract_evidence", "connector"]), json!([{"id": "connector:x"}]))], vec![], vec![], gate("G7", "SOURCE_PHYSICS_CONNECTOR_UNSUPPORTED")),
+        ("17 an entry's G_pa three ulps", vec![set(ce(json!(["pipe_materials", 0, "G_pa"])), json!(ulps(material("G_pa"), 3)))], vec![], vec![], gate("G7", "SOURCE_PHYSICS_MATERIAL_G_BINDING")),
+        ("18 recovery_method added to an exact_cases entry", vec![set(ce(json!(["recovery_method"])), json!("retained_source_blocks_exact_v1"))], vec![], vec![], gate("G7", "SOURCE_PHYSICS_CASE_SHAPE")),
+        ("19 invocation contract -> legacy 1.0.0", vec![], vec![set(model(json!(["pressure_contract"])), json!({"version": "1.0.0", "mode": "legacy_pressure_v1"}))], vec![], inv.clone()),
+        ("20 invocation schema -> 0.4.0", vec![], vec![set(model(json!(["schema_version"])), json!("0.4.0"))], vec![], inv.clone()),
+        ("21 invocation pressure_contract false", vec![], vec![set(model(json!(["pressure_contract"])), json!(false))], vec![], inv.clone()),
+        ("21b invocation contract with an extra key", vec![], vec![set(model(json!(["pressure_contract"])), json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2", "extra": null}))], vec![], inv.clone()),
+        ("21c invocation contract version 2.0.1", vec![], vec![set(model(json!(["pressure_contract"])), json!({"version": "2.0.1", "mode": "exact_straight_pressure_v2"}))], vec![], inv.clone()),
+        ("21d invocation contract removed (0.3.0, absent)", vec![], vec![remove(model(json!(["pressure_contract"])))], vec![], inv.clone()),
+        ("22 a combination added to the invocation", vec![], vec![set(model(json!(["combinations"])), json!([{"id": "combination:x", "kind": "algebraic", "terms": [{"load_case": case_id, "factor": 1.0}]}]))], vec![], inv.clone()),
+        ("22b a component added to the invocation", vec![], vec![set(model(json!(["components"])), json!([{"id": "component:x"}]))], vec![], inv.clone()),
+        ("23 a case naming modulus_basis_ref", vec![], vec![set(model(json!(["load_cases", 0, "modulus_basis_ref"])), json!("point:x"))], vec![], prep.clone()),
+        // D1.5: only the base common E/nu, even a named point equal to the base, with
+        // the receipt's selector naming it alike (step 3 alone refuses it).
+        ("23b a case naming a point equal to the base, the receipt's selector alike", vec![set(rb(json!(["material_bases", 0, "selector"])), json!({"kind": "named", "id": "point:base"}))], vec![
+            set(model(json!(["materials", 0, "temperature_points"])), json!([{"id": "point:base", "elastic_modulus": base_model["materials"][0]["elastic_modulus"], "poisson_ratio": base_model["materials"][0]["poisson_ratio"]}])),
+            set(model(json!(["load_cases", 0, "modulus_basis_ref"])), json!("point:base")),
+        ], vec![], prep.clone()),
+        ("24 a material's shear_origin -> explicit_g", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_origin"])), json!({"kind": "explicit_g"}))], vec![], vec![], prep.clone()),
+        ("24b a material's selection -> named_point", vec![set(rb(json!(["material_bases", 0, "materials", 0, "selection"])), json!({"kind": "named_point", "point_id": "point:x"}))], vec![], vec![], prep.clone()),
+        ("25b a material's elastic_modulus one ulp", vec![set(rb(json!(["material_bases", 0, "materials", 0, "elastic_modulus"])), json!(format!("{:016x}", ulps(receipt_e, 1).to_bits())))], vec![], vec![], prep.clone()),
+        ("25 a material's shear_modulus one ulp", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_modulus"])), json!(format!("{:016x}", ulps(receipt_g, 1).to_bits())))], vec![], vec![], prep.clone()),
+        ("26 shear_origin.poisson_ratio bits changed", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_origin", "poisson_ratio"])), json!(format!("{:016x}", ulps(material("nu"), 1).to_bits())))], vec![], vec![], prep.clone()),
+        ("27 authored nu changed in the invocation", vec![], vec![set(model(json!(["materials", 0, "poisson_ratio", "value"])), json!(ulps(authored_nu, 1)))], vec![], prep.clone()),
+        ("28 S-C only: an entry's pipe_materials nu one ulp", vec![set(ce(json!(["pipe_materials", 0, "nu"])), json!(ulps(material("nu"), 1)))], vec![], vec![], prep.clone()),
+        ("29 N-6: an entry's G_pa one ulp", vec![set(ce(json!(["pipe_materials", 0, "G_pa"])), json!(ulps(material("G_pa"), 1)))], vec![], vec![], prep.clone()),
+        ("30 a case's pressure_regions -> null", vec![], vec![set(model(json!(["load_cases", 0, "pressure_regions"])), Value::Null)], vec![], prep.clone()),
+        ("30b a case's pressure_regions absent", vec![], vec![remove(model(json!(["load_cases", 0, "pressure_regions"])))], vec![], prep.clone()),
+        ("31 a case's pressure_regions -> one region", vec![], vec![set(model(json!(["load_cases", 0, "pressure_regions"])), json!([{"id": "region:x", "member_pipe_ids": [pipe_id], "pressure": {"value": 0, "unit": "Pa"}}]))], vec![], prep.clone()),
+        ("32 a member's geometry.route -> preview", vec![set(rb(json!(["sources", 0, "section_terms", 0, "geometry", "route"])), json!("preview"))], vec![], vec![], prep.clone()),
+        ("32b the authored poisson_ratio unit -> \"\"", vec![], vec![set(model(json!(["materials", 0, "poisson_ratio", "unit"])), json!(""))], vec![], prep.clone()),
+        ("32c the authored constitutive_basis removed (S-C)", vec![], vec![remove(model(json!(["materials", 0, "constitutive_basis"])))], vec![], prep.clone()),
+    ];
+    for (name, edits, invocation_edits, after, want) in rows {
+        out.push((shape(name, edits, invocation_edits, after), want));
+    }
+    out
+}
+fn b3b_input(shared: &Value, shape: &ExactShape) -> (Value, Value) {
+    use serde_json::json;
+    match shape.base {
+        "<preview:ordinary_prepared_synthetic>" => {
+            let case = shared["cases"].as_array().unwrap().iter().find(|c| c["id"] == ORD).unwrap();
+            let mut source = case["source"].clone();
+            source["producer"]["semantic_contract_id"] = json!(rp::EXACT_CONTRACT_ID);
+            source["formulation_basis"]["profile_id"] = json!(rp::EXACT_PROFILE);
+            rehash(&mut source);
+            (source, case["invocation"].clone())
+        }
+        s1 if s1.starts_with("<s1:") => {
+            let name = &s1[4..s1.len() - 1];
+            let (mut source, invocation) = exact_base(shared, if name == "file" { FILE_BASE } else { name });
+            rehash_with(&mut source, rp::DEFINITION_HASH);
+            (source, invocation)
+        }
+        _ => exact_shape_input(shared, shape),
+    }
+}
+#[test]
+fn b3b_exact_successor_shapes_first_failures() {
+    use std::io::Write;
+    let shared = corpus();
+    let shapes = b3b_shapes(&shared);
+    let mut misses = Vec::new();
+    let mut lines = Vec::new();
+    for (shape, want) in &shapes {
+        let (source, invocation) = b3b_input(&shared, shape);
+        let got = observe_validation(rp::validate(&source, Some(&invocation)));
+        if got != *want {
+            misses.push(format!("{} [{}]: got {got}, want {want}", shape.name, shape.base));
+        }
+        let mut line = readings(&source, &invocation);
+        line["name"] = shape.name.into();
+        line["base"] = shape.base.into();
+        lines.push(line);
+    }
+    if let Ok(path) = std::env::var("B3B_SHAPES_OUT") {
+        let mut f = std::fs::File::create(path).unwrap();
+        for l in &lines {
+            writeln!(f, "{}", serde_json::to_string(l).unwrap()).unwrap();
+        }
+    }
+    // `B3B_INPUTS_OUT`: every shape's materialized statement and invocation (JSON lines),
+    // for the other readers' comparison on identical bytes.
+    if let Ok(path) = std::env::var("B3B_INPUTS_OUT") {
+        let mut f = std::fs::File::create(path).unwrap();
+        for (shape, want) in &shapes {
+            let (source, invocation) = b3b_input(&shared, shape);
+            let line = serde_json::json!({"name": shape.name, "base": shape.base, "expected_bound": want, "source": source, "invocation": invocation});
+            writeln!(f, "{}", serde_json::to_string(&line).unwrap()).unwrap();
+        }
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+    assert_eq!(shapes.iter().filter(|(s, _)| s.base != FILE_BASE && s.base != "<s1:file>").count(), 3 + 52 + 2 + 2 * (1 + 52 + 1) + 4);
+}
+fn observe_validation(r: Result<rp::Validation, rp::ValidationError>) -> Value {
+    match r {
+        Err(e) => serde_json::json!({"gate": e.gate, "code": e.code}),
+        Ok(_) => Value::Null,
+    }
+}
+/// B3b: the synthetic exact successors and lane P's m3x successors validate bound
+/// (eligible), unbound and on transport (never eligible); the standing is the receipt's; the base
+/// dispatch returns the exact table; S-C's code is the G8 failure's detail.
+#[test]
+fn b3b_exact_successor_readings_standing_and_dispatch() {
+    use open_pipe_stress_result_export::semantic_contract as sc;
+    use serde_json::json;
+    let shared = corpus();
+    for base in EXACT_BASES.into_iter().chain(M3X.map(|m| m.0)) {
+        let (source, invocation) = exact_base(&shared, base);
+        assert_eq!(
+            readings(&source, &invocation),
+            json!({"bound": {"ok": {"eligible": true}}, "unbound": {"ok": {"eligible": false}},
+                "transport": {"ok": {"eligible": false}}}),
+            "{base}"
+        );
+        let refs: Vec<Value> = source["retained_precision"]["body"]["cases"].as_array().unwrap().iter().map(|c| c["basis_ref"].clone()).collect();
+        assert_eq!(sc::numerical_use_standing_with_context(&source, &refs, Some(&invocation)), "numerically_eligible", "{base}");
+        assert_eq!(sc::numerical_use_standing_with_context(&source, &refs, None), "needs_recompute", "{base}");
+        let (table, version) = sc::for_source(&source).unwrap();
+        assert_eq!((table["semantic_contract_id"].as_str(), version), (Some(rp::EXACT_CONTRACT_ID), "0.3.0"));
+        assert!(std::ptr::eq(table, sc::physics_retained_contract()));
+        let (table, _) = sc::for_source_metadata(&source).unwrap();
+        assert!(std::ptr::eq(table, sc::physics_retained_contract()));
+        let classes = sc::retained_row_classes(&source).unwrap().unwrap();
+        assert_eq!(classes.len(), rp::validate(&source, None).unwrap().classifications.len());
+        // F-5: the receipt member and the method token stay the successors' own.
+        let mut downgraded = source.clone();
+        downgraded["producer"]["semantic_contract_id"] = json!(sc::PHYSICS_ID);
+        downgraded["formulation_basis"]["profile_id"] = json!("exact_straight_pressure_v2");
+        assert_eq!(sc::for_source(&downgraded).unwrap_err(), sc::RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
+    }
+    // Unbound and transport readings of three shapes: a G8 shape reads unbound and on
+    // transport; removing the evidence is G5b bound and unbound, and on transport
+    // physics-1's own transport-shape code at G7 (no header refusal: physics-1's
+    // header does not require the evidence, as preview-physics-1's does).
+    let shapes = b3b_shapes(&shared);
+    for (prefix, want) in [
+        ("29 ", json!({"bound": {"gate": "G8", "code": PREPARATION}, "unbound": {"ok": {"eligible": false}}, "transport": {"ok": {"eligible": false}}})),
+        ("16b ", json!({"bound": {"gate": "G5b", "code": SECTION}, "unbound": {"gate": "G5b", "code": SECTION}, "transport": {"gate": "G7", "code": "SOURCE_PHYSICS_TRANSPORT_SHAPE"}})),
+        ("01 ", json!({"bound": {"gate": "G0", "code": UNSUPPORTED}, "unbound": {"gate": "G0", "code": UNSUPPORTED}, "transport": {"gate": "G0", "code": UNSUPPORTED}})),
+    ] {
+        let (shape, _) = shapes.iter().find(|(s, _)| s.name.starts_with(prefix)).unwrap();
+        let (source, invocation) = b3b_input(&shared, shape);
+        assert_eq!(readings(&source, &invocation), want, "{}", shape.name);
+    }
+    // S-C's own code is the detail of G8's PREPARATION_MISMATCH (B3D-13).
+    let (shape, _) = shapes.iter().find(|(s, _)| s.name.starts_with("28 ")).unwrap();
+    let (source, invocation) = b3b_input(&shared, shape);
+    let e = rp::validate(&source, Some(&invocation)).unwrap_err();
+    assert_eq!((e.gate, e.code.as_str()), ("G8", PREPARATION));
+    assert!(e.detail.as_deref().is_some_and(|d| d.contains("ACTUAL_SELECTED_MATERIAL")), "{e:?}");
+    // The table pins: identity, profile and bytes.
+    assert_eq!(sc::verify_physics_retained_table(b"{}").unwrap_err(), "SOURCE_PHYSICS_RETAINED_TABLE_HASH");
+    assert_eq!(sc::physics_retained_contract()["formulation_profile_id"], rp::EXACT_PROFILE);
+}
+
+/// B3b (D2 §4.9.7; B3-D §7): derivative.rs carries the exact successor's
+/// `contract_evidence` and its receipt whole, and validates the document against
+/// the source (the synthetic exact successors and lane P's m3x successors). The base and origin are a minimal 0.2.0 scaffold of the desktop's
+/// (T6S-2's `desktop_base` and `desktop_origin`, retained_precision_derivative_golden.rs);
+/// the exact successor's golden, on lane P's `m3x` successors, is lane T's.
+#[test]
+fn b3b_exact_successor_derivative_carries_the_receipt_and_evidence() {
+    use open_pipe_stress_result_export::{derivative as d, semantic_contract as sc};
+    use serde_json::json;
+    let shared = corpus();
+    for base in EXACT_BASES.into_iter().chain(M3X.map(|m| m.0)) {
+        let (source, invocation) = exact_base(&shared, base);
+        let model = &invocation["request"]["model"];
+        let run = source["run_id"].as_str().unwrap();
+        let project = model["project"]["id"].as_str().unwrap();
+        let provenance = json!({"source_name":"b3b exact successor derivative control","source_location":"core/reporting/result_export/tests/retained_precision_contract.rs","source_license":"project-local","contributor":"test","contributor_certification":"test","redistribution_status":"private_only","review_status":"pending"});
+        let diagnostics: Vec<Value> = source["diagnostics"].as_array().unwrap().iter().map(|x| json!({
+            "code": x["code"], "class": "ASSUMPTION_WARNING", "severity": x["severity"],
+            "source": {"ref_type":"source","ref_id":x["source"]}, "affected_object": {"ref_type":"preview_entity","ref_id":x["affected_refs"][0]},
+            "message": x["message"], "remediation": "Review source model and preview limitations.", "provenance": provenance})).collect();
+        let mut statuses = vec!["HUMAN_REVIEW_REQUIRED".to_string(), source["status"]["mechanics"].as_str().unwrap().into(), source["status"]["rule_check"].as_str().unwrap().into()];
+        statuses.sort();
+        let doc_base = json!({
+            "schema_version": "0.2.0", "deliverable_id": "DEL-08-04", "package_id": "PKG-08", "scope_item": "SOW-046", "objectives": ["OBJ-007", "OBJ-009"],
+            "export_format_status": {"baseline_format":"schema_first_json_result_envelope","additional_formats":"TBD","public_transport_protocol":"TBD","local_fea_package_format":"TBD","external_adapter_formats":"TBD"},
+            "result_envelope": {
+                "schema_version": "0.2.0", "envelope_id": format!("result-envelope:{run}"), "model_ref": d::reference("model_payload", project),
+                "run_ref": d::reference("analysis_run", run),
+                "solver_version": {"solver_name": source["producer"]["component_name"], "solver_version": source["producer"]["component_version"], "solver_build_ref": "test:b3b-exact-derivative-control"},
+                "unit_system_ref": d::reference("unit_system", &format!("{project}:units")),
+                "load_basis_refs": model["load_cases"].as_array().unwrap().iter().map(|c| d::reference("LoadCase", c["id"].as_str().unwrap())).collect::<Vec<_>>(),
+                "result_sets": [{"set_id":format!("result-set:{run}:mechanics"),"set_type":"mechanics","basis_ref":d::reference("analysis_run", run),"values":[]}],
+                "diagnostics": diagnostics, "provenance": provenance,
+                "reproducibility": {"model_hash":null,"run_hashes":[],"audit_manifest_ref":d::reference("audit_manifest", "test:b3b-manifest"),"deterministic_ordering":true},
+                "analysis_status": statuses,
+                "professional_boundary": {"human_review_required":true,"software_makes_compliance_claim":false,"software_makes_certification_claim":false,"software_makes_sealing_claim":false,"software_makes_approval_claim":false,"software_makes_authentication_claim":false},
+                "downstream_use": {"review":true,"regression_comparison":true,"report_consumption":true,"headless_automation":true,"governed_downstream_tooling":true,"additional_export_formats":"TBD"},
+            }
+        });
+        let origin = json!({
+            "origin_id": "source-origin:current-received", "origin_class": "received_current_dimension_absent",
+            "qualification_ref": d::reference("current_manifest", "test:b3b-manifest"), "authentic_producer_available": false,
+            "received_carrier_checksum": d::checksum(&source, "received_current_dimension_absent_carrier", d::reference("received_current_carrier", run)).unwrap(),
+            "original_producer_checksum": null,
+            "origin_limit": "Test-built origin: a reader-local synthetic exact successor, not a qualified Current received carrier",
+            "actual_model_ref": d::reference("model_payload", project), "mechanics_run_ref": d::reference("mechanics_run", run),
+            "request_model_ref": null, "request_run_ref": null, "request_alias_disclosure": null,
+        });
+        let doc = d::derive_document(doc_base, model, &source, origin, None).unwrap_or_else(|e| panic!("{base}: {e}"));
+        let e = &doc["result_envelope"];
+        assert_eq!(e["retained_precision"], source["retained_precision"], "{base}: the receipt travels whole");
+        assert_eq!(e["contract_evidence"], source["contract_evidence"], "{base}: physics-1's evidence as received");
+        assert_eq!(e["semantic_contract_ref"], d::reference("semantic_contract", sc::PHYSICS_RETAINED_ID));
+        d::validate_document(&doc, &source).unwrap();
+        // A document without the receipt is refused against the exact successor.
+        let mut stripped = doc.clone();
+        stripped["result_envelope"].as_object_mut().unwrap().remove("retained_precision");
+        assert_eq!(d::validate_document(&stripped, &source).unwrap_err(), d::RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH);
+    }
+}
+
+/// ROOT's ruling on I100's B3 addendum 01: G8's sourced-case check, on the preview and
+/// exact routes. A sourced case passes only with `pressure_regions` absent, null or []
+/// (type-strict; [] only on the exact route), `equivalent_static` absent or null, and no
+/// `analysis_state` member (null included); a case-level `pressure`, a key PP's typed case
+/// lacks, is not read. I100's 22 values on PP's milestone successors, both modes (an
+/// invocation edit, resealed with DEF-O's H), and its x08 (`analysis_state`) and p02 (a
+/// case-level `pressure`) on the synthetic and m3x exact successors (DEF-E's H): bound G8
+/// or eligible; unbound and on transport never refused and never eligible (G8 does not run).
+#[test]
+fn b3_add1_g8_sourced_case_on_the_preview_and_exact_routes() {
+    use open_pipe_stress_result_export::source_blocks::domain_hash;
+    use serde_json::json;
+    const MILESTONES: [(&str, &str); 2] = [
+        ("sparse_interactive", include_str!("../../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json")),
+        ("dense_scrutiny", include_str!("../../../../fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json")),
+    ];
+    let preview: Vec<(&str, Value, bool)> = vec![
+        ("analysis_state", json!({"kind": "load_reference_state"}), false),
+        ("analysis_state", Value::Null, false),
+        ("analysis_state", json!({}), false),
+        ("pressure", json!({"value": 1000.0, "unit": "Pa"}), true),
+        ("pressure", Value::Null, true),
+        ("pressure", json!(0), true),
+        ("pressure_regions", json!("x"), false),
+        ("pressure_regions", json!({}), false),
+        ("pressure_regions", json!({"id": "region:x"}), false),
+        ("pressure_regions", json!(0), false),
+        ("pressure_regions", json!(1), false),
+        ("pressure_regions", json!(true), false),
+        ("pressure_regions", json!(false), false),
+        ("pressure_regions", json!(""), false),
+        ("pressure_regions", json!([]), true),
+        ("pressure_regions", Value::Null, true),
+        ("pressure_regions", json!([{"id": "region:x", "member_pipe_ids": ["M1"]}]), false),
+        ("equivalent_static", json!({}), false),
+        ("equivalent_static", json!(false), false),
+        ("equivalent_static", json!(0), false),
+        ("equivalent_static", Value::Null, true),
+        ("notes", json!("free text"), true),
+    ];
+    let exact: Vec<(&str, Value, bool)> = vec![
+        ("analysis_state", json!({"kind": "load_reference"}), false),
+        ("pressure", json!({"value": 1000.0, "unit": "Pa"}), true),
+    ];
+    let want = |passes: bool| {
+        let bound = if passes { json!({"ok": {"eligible": true}}) } else { json!({"gate": "G8", "code": PREPARATION}) };
+        json!({"bound": bound, "unbound": {"ok": {"eligible": false}}, "transport": {"ok": {"eligible": false}}})
+    };
+    let mut misses = Vec::new();
+    let mut checked = 0;
+    let mut read = |label: String, source: &Value, invocation: &Value, rows: &[(&str, Value, bool)]| {
+        assert_eq!(readings(source, invocation), want(true), "{label}: the base");
+        for (key, value, passes) in rows {
+            let mut invocation = invocation.clone();
+            invocation["request"]["model"]["load_cases"][0][*key] = value.clone();
+            let mut source = source.clone();
+            source["retained_precision"]["body"]["invocation"]["value"] =
+                domain_hash("source_blocks_invocation_v1", &invocation).unwrap().into();
+            rehash(&mut source);
+            let got = readings(&source, &invocation);
+            if got != want(*passes) {
+                misses.push(format!("{label}: {key} = {value}: got {got}, want {}", want(*passes)));
+            }
+            checked += 1;
+        }
+    };
+    for (mode, text) in MILESTONES {
+        let doc: Value = serde_json::from_str(text).unwrap();
+        read(format!("milestone {mode}"), &doc["source"], &doc["invocation"], &preview);
+    }
+    let shared = corpus();
+    for base in EXACT_BASES.into_iter().chain(M3X.map(|m| m.0)) {
+        let (source, invocation) = exact_base(&shared, base);
+        read(base.to_string(), &source, &invocation, &exact);
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+    assert_eq!(checked, 2 * 22 + 5 * 2);
 }
