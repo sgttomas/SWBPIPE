@@ -1297,10 +1297,12 @@ describe('B1 SR-TS repair 01: (g) at G8, and the C2 cause table keyed by precond
       ['combinations and components absent', [remove(model('combinations')), remove(model('components'))]],
     ];
     await table([
-      // A non-empty list (or any value with a non-zero length) is refused first by G3's existing combination-coverage
-      // conjunct, as before this round; RS and PY reach G8 INVOCATION there (returned to ROOT, REPAIR_01 §6).
-      ['bound: combinations [{}] (G3 first)', bound(entry(ORD, [], [set(model('combinations'), [{}])])), G('G3', 'COVERAGE_MISMATCH')],
-      ['bound: combinations "x" (G3 first)', bound(entry(ORD, [], [set(model('combinations'), 'x')])), G('G3', 'COVERAGE_MISMATCH')],
+      // A non-empty list (or any value with a non-zero length) is G8's too: TS's G3 combination conjunct moved here
+      // (ROOT on REPAIR_01 §6), as in RS and PY.
+      ['bound: combinations [{}]', bound(entry(ORD, [], [set(model('combinations'), [{}])])), INVOCATION],
+      ['bound: combinations "x"', bound(entry(ORD, [], [set(model('combinations'), 'x')])), INVOCATION],
+      ['unbound: combinations [{}]', unbound(entry(ORD, [], [set(model('combinations'), [{}])])), { admitted: false }],
+      ['unbound: combinations "x"', unbound(entry(ORD, [], [set(model('combinations'), 'x')])), { admitted: false }],
       ...refused.map(([name, edits]) => [`bound: ${name}`, bound(entry(ORD, [], edits)), INVOCATION] as [string, () => Promise<unknown>, unknown]),
       ...refused.map(([name, edits]) => [`unbound: ${name}`, unbound(entry(ORD, [], edits)), { admitted: false }] as [string, () => Promise<unknown>, unknown]),
       ...admitted.map(([name, edits]) => [`bound: ${name}`, bound(entry(ORD, [], edits)), { admitted: true }] as [string, () => Promise<unknown>, unknown]),

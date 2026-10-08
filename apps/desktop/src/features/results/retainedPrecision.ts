@@ -225,7 +225,9 @@ function coverage(b: Obj, source: Obj, invocation?: Obj): Map<string, Obj[]> {
   const fail = (ok: unknown) => need(ok, 'G3', 'COVERAGE_MISMATCH');
   const ids = b.cases.map((c: Obj) => c.basis_ref.ref_id);
   fail(unique(ids) && same(b.cases.map((c: Obj) => c.basis_ref), source.numerical_quality?.cases?.map((c: Obj) => c.basis_ref)) && b.cases.some((c: Obj) => c.status === 'selected'));
-  if (invocation) fail(same(ids, invocation.request?.model?.load_cases?.map((c: Obj) => c.id)) && !(invocation.request?.model?.combinations?.length));
+  // A combination in the invocation is G8's model-scope rule (B1's alignment set item 2; ROOT on I92's REPAIR_01 §6):
+  // B1 has no combination coverage, and B2's contract brings it to G3 in its own scope.
+  if (invocation) fail(same(ids, invocation.request?.model?.load_cases?.map((c: Obj) => c.id)));
   const rows = new Map<string, Obj[]>(ids.map((id: string) => [id, []])); const seen = new Set();
   for (const row of source.results) { fail(!seen.has(row.id) && row.basis_ref?.ref_type === 'load_case' && rows.has(row.basis_ref.ref_id)); seen.add(row.id); rows.get(row.basis_ref.ref_id)!.push(row); }
   fail(b.ordinary_attempts.length === b.cases.length);
