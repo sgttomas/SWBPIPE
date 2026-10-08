@@ -195,14 +195,17 @@ fn u3_each_stage_fault_falls_back_to_the_ordinary_bytes() {
     let (envelope, retained) = retained_w1(observer, ordinary, &capture);
     assert_eq!(retained.err(), Some(W1Fallback::Domain), "C + 1 cases: outside D1.4");
     check(&envelope, &over_plain, "C + 1 cases");
-    // No W1 work ran: one case with a combination (also outside D1.4).
+    // No W1 work ran: a combination D1.4 does not admit. B2-A widened D1.4 to combinations
+    // (B2-C §9: z ≤ 2, C_eq ≤ 3, h ≤ 3, a range over ≤ 3 ids, ids disjoint), and B2-P's
+    // re-check reads the same clauses, so a mechanics combination of four terms (h = 4,
+    // C_eq = 2) is outside D1.4 (RV122 N-3).
     let mut combined = raw.clone();
-    combined["model"]["combinations"] = json!([{"id":"combo","basis":"mechanics","terms":[{"load_case":"case","factor":1.0}]}]);
+    combined["model"]["combinations"] = json!([{"id":"combo","basis":"mechanics","terms":vec![json!({"load_case":"case","factor":0.25}); 4]}]);
     let (capture, observer, ordinary) = observed(mode, &combined);
     let combined_plain = serde_json::to_vec(&ordinary).unwrap();
     let (envelope, retained) = retained_w1(observer, ordinary, &capture);
-    assert_eq!(retained.err(), Some(W1Fallback::Domain), "a combination: outside D1.4");
-    check(&envelope, &combined_plain, "combination");
+    assert_eq!(retained.err(), Some(W1Fallback::Domain), "h = 4: outside D1.4");
+    check(&envelope, &combined_plain, "combination outside D1.4");
     assert_eq!(retained_tests_hooks::armed(), retained_tests_hooks::Armed::default(), "every armed fault fired");
 }
 
@@ -1529,9 +1532,11 @@ fn b1_sp_t5_one_reserved_notice_per_case_in_a() {
     assert_eq!(serde_json::to_vec(&colliding).unwrap(), before, "nothing reserved, nothing changed");
 }
 
-/// The domain re-check (PLAN_v2 §2.2; RV107 SF-2): `w1_case_ids` gives the request's cases in
-/// request order for 1 ≤ c ≤ C with no combination, and `None` (`Domain`) for C + 1 cases, for no
-/// case, and for a combination.
+/// The domain re-check (PLAN_v2 §2.2; RV107 SF-2; B2-P, B2-C §9): `w1_case_ids` gives the
+/// request's cases in request order for 1 ≤ c ≤ C with the combinations D1.4 admits, and `None`
+/// (`Domain`) for C + 1 cases and for no case. B2-A widened D1.4 to combinations (RV122 N-3): a
+/// combination within it is admitted, and one outside it (z = 3 so C_eq = 4, h = 4, a range
+/// over 4 ids, an id equal to a load case's) gives `None`.
 #[test]
 fn b1_sp_domain_recheck_names_the_requested_cases() {
     let mode = PreviewSolverMode::SparseInteractive;
@@ -1555,7 +1560,28 @@ fn b1_sp_domain_recheck_names_the_requested_cases() {
     assert_eq!(ids(&none), None, "no case");
     let mut combined = raw();
     combined["model"]["combinations"] = json!([{"id":"combo","basis":"mechanics","terms":[{"load_case":"case","factor":1.0}]}]);
-    assert_eq!(ids(&combined), None, "a combination");
+    assert_eq!(ids(&combined), Some((vec![0], vec!["case".to_owned()])), "a combination within D1.4");
+    let mut two = raw();
+    two["model"]["combinations"] = json!([{"id":"a","basis":"mechanics","terms":[{"load_case":"case","factor":2.0}]},
+        {"id":"b","basis":"range_envelope","operand_ids":["case"],"mode":"max"}]);
+    assert!(ids(&two).is_some(), "z = 2, C_eq = 3");
+    let outside = |combinations: Value| {
+        let mut over = raw();
+        over["model"]["combinations"] = combinations;
+        ids(&over)
+    };
+    let mechanics = |id: &str, terms: usize| json!({"id":id,"basis":"mechanics","terms":vec![json!({"load_case":"case","factor":1.0}); terms]});
+    assert_eq!(outside(json!([mechanics("a", 1), mechanics("b", 1), mechanics("c", 1)])), None, "z = 3: C_eq = 4");
+    assert_eq!(outside(json!([mechanics("a", 4)])), None, "h = 4");
+    assert!(outside(json!([mechanics("a", 3)])).is_some(), "h = 3");
+    assert_eq!(outside(json!([{"id":"a","basis":"range_envelope","operand_ids":["case","case","case","case"],"mode":"max"}])), None, "4 range operands");
+    assert_eq!(outside(json!([mechanics("case", 1)])), None, "a combination id equal to a load case's");
+    let mut full = raw();
+    let first = full["model"]["load_cases"][0].clone();
+    let renamed = |id: &str| { let mut case = first.clone(); case["id"] = json!(id); case };
+    full["model"]["load_cases"] = json!([first.clone(), renamed("b"), renamed("c")]);
+    full["model"]["combinations"] = json!([mechanics("a", 1)]);
+    assert_eq!(ids(&full), None, "c = 3 with z = 1: C_eq = 4");
 }
 
 // ---- B1 SP (I85): the n-case transaction, T-8 to T-13 -----------------------------------------
@@ -3072,5 +3098,110 @@ fn b3b_two_selected_exact_cases_each_regenerate_their_own_entry() {
         assert_eq!(entries.iter().map(|e| e["load_case_id"].as_str().unwrap()).collect::<Vec<_>>(), ["case", "case-2"], "{label}");
         assert_eq!(entries[0]["pipe_sections"], entries[1]["pipe_sections"], "{label}: the same prepared section in both entries");
         assert!(successor["results"].as_array().unwrap().iter().any(|r| r["id"].as_str().unwrap().starts_with("result:loadcase:case-2:")), "{label}: qualified ids");
+    }
+}
+
+// ---- B2-P (I105): combinations (B2-C; PLAN §1.2.4, §1.2.6) ------------------------------------
+
+/// I98's witness provenance (R/I98/b2_w_probe_01 `gen_inputs.py`), and lane P's for the
+/// witnesses B2-C REVISION_01 §5.1 adds beyond I98's.
+const B2W: &str = "invented_t3_b2_w_probe_input_no_library_data";
+const B2P: &str = "invented_t3_b2_p_witness_input_no_library_data";
+/// I98's `case`: `template` with its id and loads replaced.
+fn b2w_case(id: &str, loads: Value, template: &Value) -> Value {
+    let mut case = template.clone();
+    case["id"] = json!(id);
+    case["primitive_loads"] = loads;
+    case
+}
+/// I98's `combination(a, b)`: mechanics `a` + `factor`·`b`.
+fn b2w_combination(a: &str, b: &str, factor: f64, label: &str) -> Value {
+    json!({"id": "combination:ab", "label": label, "basis": "mechanics",
+        "terms": [{"load_case": a, "factor": 1.0}, {"load_case": b, "factor": factor}], "provenance": B2W})
+}
+/// W-CB3 (I98 `r7_cb3_v1`; REVISION_01 §5.1): the L = 0 base, case A its milestone moments,
+/// case B a 1 N `global_y` force on the restrained isolated node N2, and A + B.
+fn w_cb3() -> Value {
+    let mut raw = u8_l0_isolated_node();
+    let c0 = raw["model"]["load_cases"][0].clone();
+    let b = json!([{"id": "load:n2-y", "category": "concentrated_force", "target": {"type": "node", "node": "N2"}, "direction": "global_y",
+        "dimension": "force", "magnitude": {"value": 1.0, "unit": "N"}, "provenance": B2W}]);
+    raw["model"]["load_cases"] = json!([b2w_case("case:a", c0["primitive_loads"].clone(), &c0), b2w_case("case:b", b, &c0)]);
+    raw["model"]["combinations"] = json!([b2w_combination("case:a", "case:b", 1.0, "I98 B2-W R-7 count: A + B")]);
+    raw
+}
+/// W-CB2 (I98 `r7_cb2`): U8's two-body cases A and B, and A + B.
+fn w_cb2() -> Value {
+    let mut raw = u8_two_body_case_a();
+    let c0 = raw["model"]["load_cases"][0].clone();
+    let b = u8_two_body_case_b()["model"]["load_cases"][0]["primitive_loads"].clone();
+    raw["model"]["load_cases"] = json!([b2w_case("case:a", c0["primitive_loads"].clone(), &c0), b2w_case("case:b", b, &c0)]);
+    raw["model"]["combinations"] = json!([b2w_combination("case:a", "case:b", 1.0, "I98 B2-W R-7 count: A + B")]);
+    raw
+}
+/// W-CB3's two cases with one other combination (W-CB4a, W-CB4b, W-CB5; REVISION_01 §5.1).
+fn w_cb3_with(combination: Value) -> Value {
+    let mut raw = w_cb3();
+    raw["model"]["combinations"] = json!([combination]);
+    raw
+}
+/// W-CB4a: A − B. W-CB4b: range(A, B), `max_abs`. W-CB5: 2·B (ordinary-only mechanics).
+fn w_cb4a() -> Value {
+    w_cb3_with(json!({"id": "combination:a-minus-b", "label": "B2-P W-CB4a: A - B", "basis": "result_state_subtraction",
+        "minuend_id": "case:a", "subtrahend_id": "case:b", "provenance": B2P}))
+}
+fn w_cb4b() -> Value {
+    w_cb3_with(json!({"id": "combination:range-ab", "label": "B2-P W-CB4b: range(A, B)", "basis": "range_envelope",
+        "operand_ids": ["case:a", "case:b"], "mode": "max_abs", "provenance": B2P}))
+}
+fn w_cb5() -> Value {
+    w_cb3_with(json!({"id": "combination:2b", "label": "B2-P W-CB5: 2 B", "basis": "mechanics",
+        "terms": [{"load_case": "case:b", "factor": 2.0}], "provenance": B2P}))
+}
+/// `b2_c1_range_mechanics` (REVISION_01 §5.1, REVISION_02 A-3): the milestone (c = 1) with
+/// `[range(case), 2·case]`, in that order (z = 2, C_eq = 3): S-2's layout.
+fn b2_c1_range_mechanics() -> Value {
+    let mut raw = raw();
+    raw["model"]["combinations"] = json!([
+        {"id": "combination:range", "label": "B2-P c = 1: range(case)", "basis": "range_envelope", "operand_ids": ["case"], "mode": "max_abs", "provenance": B2P},
+        {"id": "combination:2case", "label": "B2-P c = 1: 2 case", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 2.0}], "provenance": B2P}]);
+    raw
+}
+
+/// B2-P (B2-C §2.3–§2.6; REVISION_01 §5.1): each producer-solved witness through the private
+/// driver, both modes: its combinations' dispositions and its cases' statuses in the successor
+/// precommit receives. W-CB3: `retained_selected` with one operand preparation; W-CB2:
+/// `retained_unavailable` (`combination_unresolved`, phase `kernel`); W-CB4a, W-CB4b and W-CB5:
+/// `ordinary`; `b2_c1_range_mechanics`: range `ordinary`, 2·case `retained_selected`. With
+/// `I105_B2P_OUT` set, each successor document is written there.
+#[test]
+fn b2p_witness_dispositions_on_the_private_driver() {
+    let out = std::env::var("I105_B2P_OUT").ok();
+    let unresolved = json!({"code":"combination_unresolved","phase":"kernel","cause":{"kind":"prepared_product_failure","product_attempt_ref":1}});
+    let witnesses: [(&str, Value, &[(&str, Value)], &[&str]); 6] = [
+        ("w_cb3", w_cb3(), &[("retained_selected", Value::Null)], &["selected", "not_required"]),
+        ("w_cb2", w_cb2(), &[("retained_unavailable", unresolved)], &["selected", "not_required"]),
+        ("w_cb4a", w_cb4a(), &[("ordinary", json!("no_retained_mechanics"))], &["selected", "not_required"]),
+        ("w_cb4b", w_cb4b(), &[("ordinary", json!("no_retained_mechanics"))], &["selected", "not_required"]),
+        ("w_cb5", w_cb5(), &[("ordinary", json!("no_retained_mechanics"))], &["selected", "not_required"]),
+        ("c1_range_mechanics", b2_c1_range_mechanics(), &[("ordinary", json!("no_retained_mechanics")), ("retained_selected", Value::Null)], &["selected"]),
+    ];
+    for (name, raw, dispositions, statuses) in witnesses {
+        println!("B2P_INPUT {name} value_sha={}", sha(&serde_json::to_vec(&raw).unwrap()));
+        for mode in MODES {
+            let label = format!("{name} {mode:?}");
+            let (capture, observer, ordinary) = observed(mode, &raw);
+            let ((_, retained), _, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+            println!("B2P_OUTCOME {label} retained={:?}", retained.as_ref().err());
+            let successor = captured.unwrap_or_else(|| panic!("{label}: {retained:?}"));
+            let body = &successor["retained_precision"]["body"];
+            let got: Vec<(&str, Value)> = body["combinations"].as_array().unwrap().iter()
+                .map(|c| (c["disposition"].as_str().unwrap(), c["reason"].clone())).collect();
+            assert_eq!(got, dispositions.iter().map(|(d, r)| (*d, r.clone())).collect::<Vec<_>>(), "{label}");
+            assert_eq!(body["cases"].as_array().unwrap().iter().map(|c| c["status"].as_str().unwrap()).collect::<Vec<_>>(), statuses, "{label}");
+            if let Some(dir) = &out {
+                std::fs::write(format!("{dir}/{name}_{}.json", mode.as_str()), serde_json::to_vec_pretty(&json!({"source": successor, "invocation": {"request": raw, "solver_mode": mode.as_str()}})).unwrap()).unwrap();
+            }
+        }
     }
 }

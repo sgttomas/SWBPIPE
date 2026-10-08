@@ -198,6 +198,31 @@ pub(super) struct ProductCapture {
     /// otherwise. Allocated through the adapter on the exact route only; empty on the preview
     /// route (no event).
     pub material_nu: Vec<Option<f64>>,
+    /// B2-P (B2-C §2.2; REVISION_01 S-1): the model's combinations, in authored order, captured
+    /// at normalization through the adapter when the model has one (z = 0: empty, no event).
+    pub combinations: Vec<CapturedCombination>,
+    /// B2-P (T-6′; REVISION_01 S-2): the end of the case rows (the first combination row), and
+    /// each combination's contiguous run of rows (a mechanics combination's freeze scope; empty
+    /// for subtraction and range, whose rows bind by id), bound at custody when z ≥ 1.
+    pub case_rows_end: usize,
+    pub combination_rows: Vec<std::ops::Range<usize>>,
+}
+/// B2-P (C-1): whether a mechanics combination's terms name distinct load cases.
+pub(super) fn distinct_terms(terms: &[(usize, f64)]) -> bool {
+    terms.iter().enumerate().all(|(i, (case, _))| terms[..i].iter().all(|(other, _)| other != case))
+}
+/// B2-P: the T0R mechanics gates' codes (`preview_physics.rs` `gate_reason`; SCHEMA's
+/// `base_withheld` reasons), in SCHEMA's order.
+pub(super) const COMBINATION_GATE_CODES: [&str; 3] =
+    ["NONLINEAR_COMBINATION_REQUIRES_SOLVE", "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE", "COMBINATION_MODULUS_BASIS_MIXED"];
+/// B2-P (T-2′): one model combination as W1 captured it: its id, whether its basis is
+/// `mechanics`, and a mechanics combination's terms as (load-case request index, factor), in
+/// authored order (repeats kept).
+#[derive(Debug, Clone, Default)]
+pub(super) struct CapturedCombination {
+    pub id: String,
+    pub mechanics: bool,
+    pub terms: Vec<(usize, f64)>,
 }
 /// B1 SP (DESIGN_v2 T-2): declares `CaseSlot`, the per-case part of `ProductCapture`, and the
 /// swap that moves it in and out of the capture's own fields. Every per-case field of
@@ -299,7 +324,8 @@ impl ProductCapture {
     /// the first (lib.rs `qualified_load_case_result_id`).
     pub(super) fn case_scope(&self, index: usize) -> CaseScope {
         let cases = self.cases_seen();
-        if cases == 1 {
+        // B2-P (T-9′): with a combination, the one case's scope is its own block, not WHOLE.
+        if cases == 1 && self.combinations.is_empty() {
             return CaseScope::whole(self.route);
         }
         let rows = match index.cmp(&self.parked.len()) {
@@ -538,9 +564,12 @@ impl ProductCapture {
         }
         self.request_materials = request_materials;
         // B3b-P (P-3): an exact model is in scope on the exact route only, and only there.
+        // B2-P (T-2′, REVISION_01 S-1): combinations as D1.4 admits them (the predicate T-4's
+        // re-check uses), and none on the exact route (B3-D §4.2).
         if pressure_runtime::is_exact(model) != (self.route == W1Route::Exact)
             || case_state::is_load_state(model)
-            || !model.combinations.is_empty()
+            || !super::w1_model_combinations_admitted(model)
+            || (self.route == W1Route::Exact && !model.combinations.is_empty())
             || !model.components.is_empty()
         {
             self.fail("outside private ordinary no-component/no-combination scope");
@@ -617,6 +646,9 @@ impl ProductCapture {
             if self.route == W1Route::Exact {
                 self.capture_exact_materials(model, materials)?;
             }
+            if !model.combinations.is_empty() {
+                self.capture_combinations(model)?;
+            }
             Ok(())
         })();
         if let Err(e) = captured {
@@ -628,6 +660,37 @@ impl ProductCapture {
     /// ratio, and its represented shear modulus (`resolve_base`'s Ĝ) must be a positive normal
     /// binary64 equal to RN64(E/(2·RN64(1+ν))), else a typed capture error (defensive: RV116
     /// N-1 proves the equality for every normal Ĝ). An unused material keeps `None`.
+    /// B2-P (T-2′): the model's combinations, in authored order, through the adapter: each id
+    /// (copied), whether its basis is `mechanics`, and a mechanics combination's terms with
+    /// each term's load case resolved to its request index. A term naming no load case is a
+    /// capture error (the ordinary route's validation refuses it first).
+    fn capture_combinations(&mut self, model: &PreviewModel) -> Result<(), CaptureError> {
+        self.combinations = self.adapter.reserve(model.combinations.len())?;
+        for combination in &model.combinations {
+            self.capture_entry(AdapterEvent::SourceVisit)?;
+            let id = self.adapter.copy(&combination.id)?;
+            let mechanics = self.checked_same(&combination.basis, "mechanics")?;
+            let mut terms = Vec::new();
+            if mechanics {
+                terms = self.adapter.reserve(combination.terms.len())?;
+                for term in &combination.terms {
+                    self.capture_entry(AdapterEvent::SourceVisit)?;
+                    let mut case = None;
+                    for (index, load_case) in model.load_cases.iter().enumerate() {
+                        if self.checked_same(&load_case.id, &term.load_case)? {
+                            case = Some(index);
+                            break;
+                        }
+                    }
+                    self.capture_entry(AdapterEvent::MapWrite)?;
+                    terms.push((case.ok_or("combination term case")?, term.factor));
+                }
+            }
+            self.capture_entry(AdapterEvent::MapWrite)?;
+            self.combinations.push(CapturedCombination { id, mechanics, terms });
+        }
+        Ok(())
+    }
     fn capture_exact_materials(&mut self, model: &PreviewModel, materials: &[MaterialInput]) -> Result<(), CaptureError> {
         self.material_nu = self.adapter.reserve(materials.len())?;
         for m in materials {
@@ -2111,6 +2174,11 @@ impl ProductCapture {
     ) -> Result<Vec<k::ProductFinalRow<'a>>, CaptureError> {
         self.bind_rows_view(ProductCaseView::of(e,CaseScope::whole_ref(self.route)),owner)
     }
+    /// B2-P: a mechanics combination's rows bound within its block (T-11's serializer).
+    pub(super) fn bind_combination_rows_scoped<'a>(&self,e:&'a MechanicsEnvelope,scope:&'a CaseScope,owner:&k::RetainedSolve,combination:&str)
+        -> Result<Vec<k::ProductFinalRow<'a>>,CaptureError> {
+        self.bind_rows_subject(ProductCaseView::of(e,scope),owner,Some(combination))
+    }
     /// `bind_rows` within one requested case's scope (B1 SP, T-11's serializer).
     pub(super) fn bind_rows_scoped<'a>(&self,e:&'a MechanicsEnvelope,scope:&'a CaseScope,owner:&k::RetainedSolve)
         -> Result<Vec<k::ProductFinalRow<'a>>,CaptureError> {
@@ -2118,11 +2186,20 @@ impl ProductCapture {
     }
     fn bind_rows_view<'a>(&self,view:ProductCaseView<'a>,owner:&k::RetainedSolve)
         -> Result<Vec<k::ProductFinalRow<'a>>,CaptureError> {
+        self.bind_rows_subject(view,owner,None)
+    }
+    /// The rows of `view` bound to `owner`'s quantities: the case's (`combination` None) or,
+    /// B2-P, a mechanics combination's own block (`Some(its id)`: basis `combination` naming it,
+    /// combination metadata and ids, no mode, parity or record row; B2-C §2.4 (iii) 4).
+    fn bind_rows_subject<'a>(&self,view:ProductCaseView<'a>,owner:&k::RetainedSolve,combination:Option<&str>)
+        -> Result<Vec<k::ProductFinalRow<'a>>,CaptureError> {
         self.adapter.require()?;
         if self.error.is_some() {
             return Err("prior capture refusal".into());
         }
-        self.bind_observations_view(view)?;
+        if combination.is_none() {
+            self.bind_observations_view(view)?;
+        }
         self.adapter.enter(AdapterEvent::ValidationEntry, 1);
         self.adapter.require()?;
         if self.basis_expected != self.basis_record.is_some()
@@ -2140,11 +2217,16 @@ impl ProductCapture {
                 self.adapter.require()?;
             }
             let basis = r.basis_ref.as_ref().ok_or("final basis")?;
-            let same_case =
-                basis.ref_type == "load_case" && self.adapter.same(&basis.ref_id, &self.case_id);
+            let same_case = match combination {
+                None => basis.ref_type == "load_case" && self.adapter.same(&basis.ref_id, &self.case_id),
+                Some(id) => basis.ref_type == "combination" && self.adapter.same(&basis.ref_id, id),
+            };
             self.adapter.require()?;
             if !same_case {
                 return Err("case binding".into());
+            }
+            if combination.is_some() && matches!(r.kind.as_str(),"linear_solver_mode_basis"|"sparse_live_path_dense_parity_relative_delta"|"modulus_basis_record") {
+                return Err("combination record row".into());
             }
             let node = self
                 .nodes
@@ -2328,7 +2410,8 @@ impl ProductCapture {
                 }
             };
             if recipe != k::ProductRecipe::ModulusBasisRecord {
-                validate_final_metadata(r, recipe, &self.case_id, view.scope.qualified, &self.adapter)?;
+                let subject=match combination {None=>RowSubject::Case{case:&self.case_id,qualified:view.scope.qualified},Some(id)=>RowSubject::Combination(id)};
+                validate_final_metadata(r, recipe, subject, &self.adapter)?;
             }
             self.adapter.enter(AdapterEvent::MapWrite, 1);
             self.adapter.require()?;
@@ -2342,7 +2425,7 @@ impl ProductCapture {
             });
         }
         self.adapter.require()?;
-        if modulus_basis != self.basis_expected {
+        if modulus_basis != (self.basis_expected && combination.is_none()) {
             return Err("missing final modulus record".into());
         }
         Ok(out)
@@ -2471,8 +2554,25 @@ impl ProductCapture {
         let gates = evidence["combination_gates"]
             .as_array()
             .ok_or("combination gates")?;
-        if !gates.is_empty() {
+        // B2-P (T-9′; REVISION_01 S-1): shape and consistency only. Exactly one entry per model
+        // combination, in authored order, each closed over {combination_id, withheld, reason},
+        // naming the model's combination; `withheld: false` with a null reason, or `withheld:
+        // true` with one of the three gate codes. A withheld entry is not a case-freeze failure
+        // (T-10a gives that combination `base_withheld`). With no combination: no entry, no event.
+        if gates.len() != self.combinations.len() {
             return Err("excluded combination gates".into());
+        }
+        for (gate, combination) in gates.iter().zip(&self.combinations) {
+            self.adapter.closed_keys(gate, &["combination_id", "withheld", "reason"], "combination gate shape")?;
+            let id = gate["combination_id"].as_str().ok_or("combination gate identity")?;
+            if !self.checked_same(id, &combination.id)? {
+                return Err("combination gate identity".into());
+            }
+            match (&gate["withheld"], &gate["reason"]) {
+                (serde_json::Value::Bool(false), serde_json::Value::Null) => {}
+                (serde_json::Value::Bool(true), serde_json::Value::String(code)) if COMBINATION_GATE_CODES.contains(&code.as_str()) => {}
+                _ => return Err("combination gate entry".into()),
+            }
         }
         let cases = evidence["preview_cases"]
             .as_array()
@@ -2550,6 +2650,50 @@ impl ProductCapture {
     /// The route-independent observables of a case, after its evidence entry: one
     /// `pipe_stress_extrema` record per member bound to its maximum row (midpoint), the support
     /// magnitude guard, and the two headlines (the case's aliases).
+    /// The support coverage and guard of one case's (or, B2-P, one combination's) rows: per
+    /// model support, exactly six `support_reaction_component_v2` rows, each component once, one
+    /// force- and one moment-magnitude row, each magnitude within 64ε relative of hypot(hypot)
+    /// of its three components (base G7's guard). Shared, unchanged, by the case observables
+    /// and the combination observables stage (REVISION_01 §1.2 item 3).
+    fn support_observables(&self,view:ProductCaseView<'_>)->Result<(),CaptureError> {
+        for (id, _) in &self.supports {
+            self.adapter.enter(AdapterEvent::RowVisit, 1);
+            self.adapter.require()?;
+            let mut rows=[None;6];let mut count=0usize;
+            for row in view.rows().filter(|r| &r.entity_ref==id && r.kind=="support_reaction_component_v2") {
+                self.capture_entry(AdapterEvent::RowVisit)?;
+                if count<6 {rows[count]=Some(row);}
+                count=count.checked_add(1).ok_or(CaptureError::CountRange("support rows"))?;
+            }
+            if count!=6{return Err("support coverage".into());}
+            for (components, kind) in [
+                (["Fx", "Fy", "Fz"], "support_reaction_force_magnitude_v2"),
+                (["Mx", "My", "Mz"], "support_reaction_moment_magnitude_v2"),
+            ] {
+                let mut v = [0.0; 3];
+                for (i, c) in components.into_iter().enumerate() {
+                    let mut found=None;
+                    for r in rows.iter().flatten().filter(|r|r.metadata.as_ref().is_some_and(|m|m.component==c)) {
+                        self.capture_entry(AdapterEvent::RowVisit)?;
+                        if found.is_some(){return Err("support component identity".into());}found=Some(*r.value);
+                    }
+                    v[i]=found.ok_or("support component identity")?;
+                }
+                let mut found=None;
+                for r in view.rows().filter(|r| &r.entity_ref==id && r.kind==kind) {
+                    self.capture_entry(AdapterEvent::RowVisit)?;
+                    if found.is_some(){return Err("support magnitude identity".into());}found=Some(*r.value);
+                }
+                let y=found.ok_or("support magnitude identity")?;
+                if (y - v[0].hypot(v[1]).hypot(v[2])).abs()
+                    > 64.0 * f64::EPSILON * y.abs().max(f64::MIN_POSITIVE)
+                {
+                    return Err("support guard".into());
+                }
+            }
+        }
+        Ok(())
+    }
     fn case_observables(&self,view:ProductCaseView<'_>,extrema:&[serde_json::Value])->Result<(),CaptureError> {
         if extrema.len() != self.members.len() {
             return Err("extrema coverage".into());
@@ -2623,42 +2767,7 @@ impl ProductCapture {
                 return Err("maximum binding".into());
             }
         }
-        for (id, _) in &self.supports {
-            self.adapter.enter(AdapterEvent::RowVisit, 1);
-            self.adapter.require()?;
-            let mut rows=[None;6];let mut count=0usize;
-            for row in view.rows().filter(|r| &r.entity_ref==id && r.kind=="support_reaction_component_v2") {
-                self.capture_entry(AdapterEvent::RowVisit)?;
-                if count<6 {rows[count]=Some(row);}
-                count=count.checked_add(1).ok_or(CaptureError::CountRange("support rows"))?;
-            }
-            if count!=6{return Err("support coverage".into());}
-            for (components, kind) in [
-                (["Fx", "Fy", "Fz"], "support_reaction_force_magnitude_v2"),
-                (["Mx", "My", "Mz"], "support_reaction_moment_magnitude_v2"),
-            ] {
-                let mut v = [0.0; 3];
-                for (i, c) in components.into_iter().enumerate() {
-                    let mut found=None;
-                    for r in rows.iter().flatten().filter(|r|r.metadata.as_ref().is_some_and(|m|m.component==c)) {
-                        self.capture_entry(AdapterEvent::RowVisit)?;
-                        if found.is_some(){return Err("support component identity".into());}found=Some(*r.value);
-                    }
-                    v[i]=found.ok_or("support component identity")?;
-                }
-                let mut found=None;
-                for r in view.rows().filter(|r| &r.entity_ref==id && r.kind==kind) {
-                    self.capture_entry(AdapterEvent::RowVisit)?;
-                    if found.is_some(){return Err("support magnitude identity".into());}found=Some(*r.value);
-                }
-                let y=found.ok_or("support magnitude identity")?;
-                if (y - v[0].hypot(v[1]).hypot(v[2])).abs()
-                    > 64.0 * f64::EPSILON * y.abs().max(f64::MIN_POSITIVE)
-                {
-                    return Err("support guard".into());
-                }
-            }
-        }
+        self.support_observables(view)?;
         for (headline, kind) in [
             (view.headline(false), "displacement_magnitude"),
             (
@@ -2687,19 +2796,42 @@ impl ProductCapture {
     }
 }
 
+/// B2-P: whose row `validate_final_metadata` checks: a load case's (its id, and whether its
+/// ids are case-qualified), or a mechanics combination's (its id).
+#[derive(Clone, Copy)]
+enum RowSubject<'a> {
+    Case { case: &'a str, qualified: bool },
+    Combination(&'a str),
+}
+/// B2-P: a mechanics combination row's metadata basis and sign convention (preview_physics.rs
+/// `combination_row`, from `result_metadata_basis` and `result_sign_convention`).
+const COMBINATION_METADATA_BASIS: &str = "explicit_user_linear_combination";
+const COMBINATION_SIGN_CONVENTION: &str = "positive value follows explicit user linear combination of matching source result sign conventions";
+
 fn validate_final_metadata(
     row: &ResultItem,
     recipe: k::ProductRecipe,
-    case: &str,
-    qualified: bool,
+    subject: RowSubject<'_>,
     work: &AdapterWork,
 ) -> Result<(), CaptureError> {
     work.require()?;
     work.enter(AdapterEvent::LibraryBoundary, 1); // Fixed expected-text construction, with formatting/allocator internals unqualified.
 
-    if !row.source_result_refs.is_empty() {
-        return Err("unexpected final source references".into());
-    }
+    // A case row has no source references; a combination row names its operands' rows (B2-P).
+    let (case, qualified, combination) = match subject {
+        RowSubject::Case { case, qualified } => {
+            if !row.source_result_refs.is_empty() {
+                return Err("unexpected final source references".into());
+            }
+            (case, qualified, None)
+        }
+        RowSubject::Combination(id) => {
+            if row.source_result_refs.is_empty() {
+                return Err("combination source references".into());
+            }
+            ("", false, Some(id))
+        }
+    };
     let suffix = stable_suffix(&row.entity_ref);
     let m = row.metadata.as_ref();
     let meta = |component: &str,
@@ -2709,6 +2841,7 @@ fn validate_final_metadata(
                 sign: &str|
      -> Result<(), CaptureError> {
         let m = m.ok_or("missing final metadata")?;
+        let (basis, sign) = if combination.is_some() { (COMBINATION_METADATA_BASIS, COMBINATION_SIGN_CONVENTION) } else { (basis, sign) };
         if !work.same(&m.component, component)
             || !work.same(&m.coordinate_system, coordinate)
             || !work.same(&m.location, location)
@@ -2860,14 +2993,18 @@ fn validate_final_metadata(
             };
             meta(component,"global","node","recovered_from_assembled_support_law",
                 "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate")?;
-            format!(
-                "result:support-action:{}:{}:{}:{}:{}",
-                case.len(),
-                case,
-                row.entity_ref.len(),
-                row.entity_ref,
-                component
-            )
+            match combination {
+                // B2-P: a combination's support rows are not case-qualified (`append_combination_results`).
+                Some(_) => format!("result:support-action:{}:{}:{}", row.entity_ref.len(), row.entity_ref, component),
+                None => format!(
+                    "result:support-action:{}:{}:{}:{}:{}",
+                    case.len(),
+                    case,
+                    row.entity_ref.len(),
+                    row.entity_ref,
+                    component
+                ),
+            }
         }
         k::ProductRecipe::Stress { site, stress, .. } => {
             let (component, tail) = match stress {
@@ -2910,7 +3047,11 @@ fn validate_final_metadata(
     };
     // B1 SP (T-9): a case after the first carries the envelope's case-qualified id, except
     // for the `_v2` kinds, whose ids already name the case (lib.rs, the preview's rows).
-    let expected = if qualified && !row.kind.ends_with("_v2") {
+    let expected = if let Some(id) = combination {
+        // B2-P: `qualified_combination_result_id` over the row's base id.
+        work.enter(AdapterEvent::LibraryBoundary, 1);
+        format!("result:combination:{}:{}", stable_suffix(id), super::result_tail(&expected))
+    } else if qualified && !row.kind.ends_with("_v2") {
         work.enter(AdapterEvent::LibraryBoundary, 1);
         qualified_load_case_result_id(case, &expected)
     } else {
@@ -3680,7 +3821,8 @@ impl ProductCapture {
         // B1 SP (T-2): a later requested case parks the earlier case first (never at c = 1).
         if self.prepared_one_case_seen && self.parked.len()+1<model.load_cases.len() {self.park_case(model.load_cases.len())?;}
         let index=self.parked.len();
-        if self.case_calls!=0 || self.prepared_one_case_seen || index>=model.load_cases.len() || !model.combinations.is_empty() {
+        // B2-P (T-2′): combinations as D1.4 admits them (`w1_model_combinations_admitted`).
+        if self.case_calls!=0 || self.prepared_one_case_seen || index>=model.load_cases.len() || !super::w1_model_combinations_admitted(model) {
             return Err("prepared case/no-combination source scope".into());
         }
         if !self.checked_same(&model.load_cases[index].id,&case.id)? {return Err("prepared early case identity".into());}
@@ -3723,7 +3865,7 @@ impl ProductCapture {
             self.capture_entry(AdapterEvent::ValidationEntry)?;
             // B1 SP (T-2): this case is request case `parked.len()`; its own counters.
             if count!=1 || !self.prepared_one_case_seen || self.case_calls!=1 || self.parked.len()>=model.load_cases.len()
-                || !model.combinations.is_empty() {return Err("prepared late hook scope/presence".into());}
+                || !super::w1_model_combinations_admitted(model) {return Err("prepared late hook scope/presence".into());}
             if !self.checked_same(&model.load_cases[self.parked.len()].id,&case.id)? || !self.checked_same(&self.case_id,&case.id)? {
                 return Err("prepared late case identity".into());
             }
@@ -3870,6 +4012,12 @@ pub(super) struct PreparedCases {
     pub ordinary: MechanicsEnvelope,
     pub capture: ProductCapture,
     pub attempts: Vec<CaseAttempt>,
+    /// B2-P (T-10a, T-10b): every model combination's record, in authored order (none at z = 0).
+    pub combinations: Vec<CombinationAttempt>,
+    /// B2-P (C3a): the operand preparations, in first-need order.
+    pub operand_preparations: Vec<OperandPreparation>,
+    /// B2-P (T-10b (i)): the rebuilt sources of `unavailable` operand cases, one per case.
+    pub rebuilt: Vec<(usize, k::PreparedCaseSource)>,
 }
 /// B1 SP (DESIGN_v2 T-6): invocation custody failed, so no case was attempted.
 pub(super) struct CustodyFailure {
@@ -3885,16 +4033,18 @@ impl PreparedCases {
     /// case `Native` with that cause, so no case can be selected. At c = 1 this is the
     /// one-case `solve_native`, with the same trace and adapter events.
     pub(super) fn native(&mut self) {
-        let Self { capture, attempts, .. } = self;
-        if !attempts.iter().any(|attempt| matches!(attempt.end, AttemptEnd::Prepared)) {
+        if !self.attempts.iter().any(|attempt| matches!(attempt.end, AttemptEnd::Prepared)) {
             return;
         }
+        let (operands, prepared) = self.combination_capacity();
+        let Self { capture, attempts, .. } = self;
         for attempt in attempts.iter_mut().filter(|attempt| matches!(attempt.end, AttemptEnd::Prepared)) {
             attempt.trace.enter(trace::Stage::Native);
         }
         let called = {
             let attempts = &*attempts;
-            capture.native_call(|| attempts.iter().filter(|attempt| matches!(attempt.end, AttemptEnd::Prepared)).map(|attempt| attempt.request))
+            capture.native_call(|| attempts.iter().filter(|attempt| matches!(attempt.end, AttemptEnd::Prepared)).map(|attempt| attempt.request),
+                &operands, prepared)
         };
         for attempt in attempts.iter_mut().filter(|attempt| matches!(attempt.end, AttemptEnd::Prepared)) {
             let outcome = match &called {
@@ -3918,12 +4068,38 @@ impl PreparedCases {
             }
         }
     }
+    /// B2-P (B2-C §2.2 T-8′): the combination Calls' declared maxima, for the invocation's one
+    /// `OriginCapacity`: h for each mechanics combination, in authored order, that the gates do
+    /// not withhold, whose terms name distinct cases, and that has a term in the batch; and the
+    /// number of distinct `not_required` cases (outside A) among those combinations' terms, each
+    /// at most one operand preparation. Maxima, not counts: a combination later `ordinary`, or
+    /// decided before its Call, leaves its reservation unused. At z = 0: none.
+    fn combination_capacity(&self) -> (Vec<usize>, usize) {
+        let gates = self.ordinary.contract_evidence.as_ref().map(|evidence| &evidence["combination_gates"]);
+        let submitted = |case: usize| self.attempts.iter().any(|attempt| attempt.request == case && matches!(attempt.end, AttemptEnd::Prepared));
+        let attempted = |case: usize| self.attempts.iter().any(|attempt| attempt.request == case);
+        let (mut operands, mut prepared) = (Vec::new(), Vec::new());
+        for (index, combination) in self.capture.combinations.iter().enumerate() {
+            let open = gates.and_then(|gates| gates[index]["withheld"].as_bool()) == Some(false);
+            if !combination.mechanics || !open || !distinct_terms(&combination.terms)
+                || !combination.terms.iter().any(|&(case, _)| submitted(case)) {
+                continue;
+            }
+            operands.push(combination.terms.len());
+            for &(case, _) in &combination.terms {
+                if !attempted(case) && !prepared.contains(&case) {
+                    prepared.push(case);
+                }
+            }
+        }
+        (operands, prepared.len())
+    }
     /// B1 SP (DESIGN_v2 T-9): one freeze per selected Run, in request order, each on its
     /// case's own slot and scope against the one untouched ordinary owner: the dual-readout
     /// proof, certificate, observables and G5a. A refusal makes only that case unavailable
     /// (`facade_certificate`). Each attempt's snapshot is taken at its last proof stage.
     pub(super) fn freeze(&mut self) {
-        let Self { ordinary, capture, attempts } = self;
+        let Self { ordinary, capture, attempts, .. } = self;
         let invocation = capture.native_invocation.take();
         for attempt in attempts.iter_mut().filter(|attempt| matches!(attempt.end, AttemptEnd::Selected)) {
             let scope = capture.case_scope(attempt.request);
@@ -3951,6 +4127,14 @@ impl PreparedCases {
         for attempt in &self.attempts {
             if let AttemptEnd::Frozen(frozen) = &attempt.end {
                 apply_prepared_overlay(&mut staged, &frozen.payload, &self.capture.case_scope(attempt.request))?;
+            }
+        }
+        // B2-P (B2-C §2.7 staging 2): each retained_selected combination's values on its own
+        // block, in authored order (no maxima, evidence or alias patch).
+        for combination in &self.combinations {
+            if let CombinationEnd::Frozen(frozen) = &combination.end {
+                let rows = self.capture.combination_rows.get(combination.index).cloned().ok_or(StagingFault("combination results"))?;
+                apply_combination_overlay(&mut staged, &frozen.values, rows)?;
             }
         }
         if self.capture.cases_seen() > 1 {
@@ -4046,7 +4230,12 @@ impl ProductCapture {
             return Err("attempted cases outside the request or out of order".into());
         }
         if self.parked.is_empty() {
-            return self.bind_observations(ordinary);
+            self.bind_observations(ordinary)?;
+            // B2-P (T-6′): with a combination, the one case's rows are its own block too.
+            if self.combinations.is_empty() {
+                return Ok(());
+            }
+            return self.bind_case_rows(ordinary);
         }
         self.bind_observations_by_case(ordinary)?;
         self.bind_case_rows(ordinary)
@@ -4055,12 +4244,21 @@ impl ProductCapture {
     /// of the envelope, in request order, as the ordinary run appends them (lib.rs), and no row
     /// names another case or none. One pass, comparing each row's basis with the current case
     /// and, at a block's end, the next. Each case's block is kept in its slot (`scope_rows`).
+    ///
+    /// B2-P (T-6′; REVISION_01 S-2): with a combination, the case blocks end at the first row
+    /// whose basis `ref_type` is `combination` (`case_rows_end`), at c = 1 too, and the rows
+    /// after them bind to their combinations (`bind_combination_rows`). With none, B1's pass.
     fn bind_case_rows(&mut self,ordinary:&MechanicsEnvelope)->Result<(),CaptureError> {
         let cases=self.cases_seen();
         let (mut current,mut start)=(0usize,0usize);
+        let mut end=ordinary.results.len();
         for (index,row) in ordinary.results.iter().enumerate() {
             self.capture_entry(AdapterEvent::RowVisit)?;
             let basis=row.basis_ref.as_ref().ok_or("case row basis")?;
+            if !self.combinations.is_empty() && self.checked_same(&basis.ref_type,"combination")? {
+                end=index;
+                break;
+            }
             let same=self.adapter.same(&basis.ref_id,self.case_observation_state(current).2);
             self.adapter.require()?;
             if same {continue;}
@@ -4072,12 +4270,56 @@ impl ProductCapture {
             self.with_case(current,|capture|capture.scope_rows=start..index);
             (current,start)=(next,index);
         }
-        if current.checked_add(1)!=Some(cases) || ordinary.results.len()==start {
+        if current.checked_add(1)!=Some(cases) || end==start {
             return Err("case row block".into());
         }
         self.capture_entry(AdapterEvent::MapWrite)?;
-        let end=ordinary.results.len();
         self.with_case(current,|capture|capture.scope_rows=start..end);
+        self.bind_combination_rows(ordinary,end)
+    }
+    /// B2-P (B2-C §2.2 T-6′; REVISION_01 S-2): after the case rows (from `end`), every row has
+    /// basis `combination` and names a model combination; each mechanics combination's rows are
+    /// one contiguous run, its freeze scope (empty when it has none). Subtraction and range rows,
+    /// with the modulus-basis records that trail every combination's rows, bind to their
+    /// combination by id, with no contiguity. A violation is a custody failure. With no
+    /// combination there is no such row and nothing is recorded (no event).
+    fn bind_combination_rows(&mut self,ordinary:&MechanicsEnvelope,end:usize)->Result<(),CaptureError> {
+        if self.combinations.is_empty() {
+            return Ok(());
+        }
+        let mut runs=self.adapter.reserve::<std::ops::Range<usize>>(self.combinations.len())?;
+        for _ in 0..self.combinations.len() {
+            self.capture_entry(AdapterEvent::MapWrite)?;
+            runs.push(end..end);
+        }
+        for (index,row) in ordinary.results.iter().enumerate().skip(end) {
+            self.capture_entry(AdapterEvent::RowVisit)?;
+            let basis=row.basis_ref.as_ref().ok_or("combination row basis")?;
+            if !self.checked_same(&basis.ref_type,"combination")? {
+                return Err("combination row block".into());
+            }
+            let mut owner=None;
+            for (k,combination) in self.combinations.iter().enumerate() {
+                if self.checked_same(&basis.ref_id,&combination.id)? {
+                    owner=Some(k);
+                    break;
+                }
+            }
+            let k=owner.ok_or("combination row block")?;
+            if self.combinations[k].mechanics {
+                let run=&mut runs[k];
+                if run.start==run.end {
+                    *run=index..index+1;
+                } else if run.end==index {
+                    run.end=index+1;
+                } else {
+                    return Err("combination row block".into());
+                }
+            }
+        }
+        self.capture_entry(AdapterEvent::MapWrite)?;
+        self.case_rows_end=end;
+        self.combination_rows=runs;
         Ok(())
     }
     /// B1 SP (DESIGN_v2 T-6, then T-7): custody once, then one product attempt per case in
@@ -4094,7 +4336,7 @@ impl ProductCapture {
         for (attempt,&request) in attempted.iter().enumerate() {
             attempts.push(self.with_case(request,|capture|capture.prepare_attempt(request,attempt)));
         }
-        Ok(PreparedCases{ordinary,capture:self,attempts})
+        Ok(PreparedCases{ordinary,capture:self,attempts,combinations:Vec::new(),operand_preparations:Vec::new(),rebuilt:Vec::new()})
     }
     /// One product attempt (T-7) on the case in the capture's own fields.
     fn prepare_attempt(&mut self,request:usize,attempt:usize)->CaseAttempt {
@@ -4116,7 +4358,11 @@ impl ProductCapture {
     /// One submitted source is borrowed in place, as the one-case solve always did (no copy and
     /// no event). Several move into one reserved vector for the call (one allocation and a map
     /// write per move, through the adapter) and move back after it, whatever it returned.
-    fn native_call<I:Iterator<Item=usize>>(&mut self,submitted:impl Fn()->I)->Result<(),CaptureError> {
+    ///
+    /// B2-P (T-8′): the capacity is `for_invocation(&[n], operands, prepared)` (KD §1.2) with the
+    /// combination Calls' declared maxima (`PreparedCases::combination_capacity`); at z = 0
+    /// `for_invocation(&[n], &[], 0)`, which is `for_calls(&[n], &[])` field for field (KD I2).
+    fn native_call<I:Iterator<Item=usize>>(&mut self,submitted:impl Fn()->I,operands:&[usize],prepared:usize)->Result<(),CaptureError> {
         if self.native_invocation.is_some() || submitted().any(|request|self.case_native(request).is_some()) {
             return Err("duplicate prepared solve".into());
         }
@@ -4125,7 +4371,7 @@ impl ProductCapture {
         }
         let count=submitted().count();
         let limit=k::CaseLimit::new(20_000_000_000);
-        let cap=k::OriginCapacity::for_calls(&[count],&[]).map_err(CaptureError::Origin)?;
+        let cap=k::OriginCapacity::for_invocation(&[count],operands,prepared).map_err(CaptureError::Origin)?;
         let mut invocation=k::RecordedInvocation::new(60_000_000_000,cap).map_err(CaptureError::Origin)?;
         let cases=match (submitted().next(),count) {
             (Some(only),1)=>{
@@ -4188,7 +4434,7 @@ impl ProductCapture {
                 Err(PreparedCaseFailure{associations:Vec::new(),ordinary,capture,preparations:Vec::new(),preparation_work:Vec::new(),
                     preparation_error:None,old_operational:Vec::new(),trace})
             }
-            Ok(PreparedCases{ordinary,capture,mut attempts})=>{
+            Ok(PreparedCases{ordinary,capture,mut attempts,..})=>{
                 let CaseAttempt{prepared,parts,trace,..}=attempts.pop().expect("one attempt");
                 let AttemptParts{preparations,preparation_work,associations,old_operational,preparation_error}=parts;
                 if prepared {
@@ -4332,7 +4578,7 @@ impl PreparedCase {
         let result=(||->Result<(),CaptureError>{
         let o=&mut self.capture;
         let active=o.parked.len();
-        o.native_call(||std::iter::once(active))?;
+        o.native_call(||std::iter::once(active),&[],0)?;
         if matches!(o.native.as_ref().map(|case|&case.outcome),Some(k::ExecutionOutcome::Selected(_))) {Ok(())} else {Err(CaptureError::NativeUnavailable)}
         })();
         match result {Ok(())=>{self.trace.completed(trace::Stage::Native);Ok(())},
@@ -4371,6 +4617,8 @@ impl CaseScope {
     pub(super) const fn whole(route:W1Route)->Self {Self{route,..Self::WHOLE}}
     /// The one-case scope on `route`, borrowed for any lifetime.
     pub(super) fn whole_ref(route:W1Route)->&'static Self {match route {W1Route::Preview=>&Self::WHOLE,W1Route::Exact=>&Self::WHOLE_EXACT}}
+    /// B2-P: a combination's block of rows (its row binding; no evidence case).
+    pub(super) fn block(rows:std::ops::Range<usize>,route:W1Route)->Self {Self{rows:Some(rows),evidence:0,cases:1,qualified:false,route}}
     /// The case's rows (all rows for `WHOLE`), or `None` when they are not the envelope's.
     pub(super) fn rows_of<'a>(&self,results:&'a [ResultItem])->Option<&'a [ResultItem]> {
         results.get(self.row_range(results.len()))
@@ -4379,16 +4627,18 @@ impl CaseScope {
     pub(super) fn row_range(&self,len:usize)->std::ops::Range<usize> {self.rows.clone().unwrap_or(0..len)}
 }
 #[derive(Clone,Copy)]
-struct ProductCaseView<'a> {ordinary:&'a MechanicsEnvelope,payload:Option<&'a PreparedPayload>,scope:&'a CaseScope}
+struct ProductCaseView<'a> {ordinary:&'a MechanicsEnvelope,payload:Option<&'a PreparedPayload>,scope:&'a CaseScope,
+    /// B2-P: a frozen combination's values (no maxima or aliases), overlaid like a payload's.
+    frozen:Option<&'a k::FrozenProductValues>}
 impl<'a> ProductCaseView<'a> {
     /// The ordinary envelope's view of a case (no overlay).
-    fn of(ordinary:&'a MechanicsEnvelope,scope:&'a CaseScope)->Self {Self{ordinary,payload:None,scope}}
+    fn of(ordinary:&'a MechanicsEnvelope,scope:&'a CaseScope)->Self {Self{ordinary,payload:None,scope,frozen:None}}
     fn ordinary(self)->&'a MechanicsEnvelope {self.ordinary}
     /// The case's rows of the envelope (none when the scope does not fit it).
     fn case_rows(self)->&'a [ResultItem] {self.scope.rows_of(&self.ordinary.results).unwrap_or(&[])}
     fn rows(self)->impl Iterator<Item=ProductRowView<'a>> {
-        self.case_rows().iter().enumerate().map(move |(i,r)|ProductRowView{original:r,value:match self.payload {
-            None=>&r.value,Some(payload)=>payload.values.value(i).expect("validated overlay length")}})
+        self.case_rows().iter().enumerate().map(move |(i,r)|ProductRowView{original:r,value:match self.payload.map(|payload|&payload.values).or(self.frozen) {
+            None=>&r.value,Some(values)=>values.value(i).expect("validated overlay length")}})
     }
     fn number(self,index:usize,key:&str,adapter:&AdapterWork)->Result<Option<f64>,CaptureError> {
         match self.payload {Some(payload)=>{
@@ -4626,7 +4876,7 @@ impl ProductCapture {
                 Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
             trace.completed(trace::Stage::Aliases);
             let payload=PreparedPayload{values,maxima:patches,displacement,stress,sections};
-            let view=ProductCaseView{ordinary,payload:Some(&payload),scope};
+            let view=ProductCaseView{ordinary,payload:Some(&payload),scope,frozen:None};
             let rows=match self.bind_rows_view(view,owner) {
                 Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
             trace.enter(trace::Stage::Certificate);
@@ -4747,7 +4997,9 @@ fn apply_prepared_overlay(envelope:&mut MechanicsEnvelope,payload:&PreparedPaylo
     if scope.route==W1Route::Exact {
         apply_exact_section_overlay(case,payload)?;
     }
-    if scope.rows.is_none() {
+    // The one requested case's aliases are the headlines (B2-P T-11′: at c = 1 its scope is its
+    // own block when a combination follows; headlines cover load cases only).
+    if scope.cases==1 {
         envelope.summary.max_displacement=Some(payload.displacement.clone());envelope.summary.max_open_formula_stress=Some(payload.stress.clone());
     }
     Ok(())
@@ -4776,8 +5028,12 @@ fn stage_headlines(staged:&mut MechanicsEnvelope,ordinary:&MechanicsEnvelope)->R
         let present=if stress{ordinary.summary.max_open_formula_stress.is_some()}else{ordinary.summary.max_displacement.is_some()};
         if !present {continue;}
         let mut best:Option<(&ResultItem,&str)>=None;
+        // B2-P (T-11′): load-case rows only, as `maximum_across_cases` and the base readers'
+        // headline (a combination's magnitude is never a headline).
         for row in staged.results.iter().filter(|row|row.kind==kind) {
-            let case=row.basis_ref.as_ref().map(|basis|basis.ref_id.as_str()).ok_or(StagingFault("results[].basis_ref"))?;
+            let basis=row.basis_ref.as_ref().ok_or(StagingFault("results[].basis_ref"))?;
+            if basis.ref_type!="load_case" {continue;}
+            let case=basis.ref_id.as_str();
             if best.is_none_or(|(b,c)|row.value>b.value || (row.value==b.value && (case,row.entity_ref.as_str())<(c,b.entity_ref.as_str()))) {
                 best=Some((row,case));
             }
@@ -4889,4 +5145,590 @@ impl PreparedCandidateRefusal {
         trace::project(&p.trace,&p.capture,&p.preparation_work,&p.old_operational,&p.overlay_work,
             trace::ResultRef::Unavailable(trace::FailureRef::Candidate(&self.error)),work,failure.map(|f|f.failure()),values,costs)
     }
+}
+
+// ---- B2-P (B2-C §2.3–§2.7; REVISION_01 §1.2, §3.3; DEF-C): T-10a, T-10b and the combinations' staging ----
+
+/// B2-P (B2-C §2.4 (i); KD §1.2): where one combination operand's source comes from.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum OperandSource {
+    /// A selected case: its `RetainedSolve` (cache imports allowed).
+    Selected,
+    /// An `unavailable` case whose batch registered its CaseSource: a `PreparedCaseSource`
+    /// rebuilt once from its prepared source (`PreparedCases::rebuilt[prepared]`), no import, at
+    /// its batch-registered `source` id.
+    Rebuilt { prepared: usize, source: usize },
+    /// A `not_required` case: its operand preparation (`operand_preparations[preparation]`).
+    Prepared { preparation: usize },
+}
+/// One operand of a retained combination, in authored term order.
+#[derive(Debug, Clone, Copy)]
+pub(super) struct CombinationOperand {
+    /// The term's load case (request index) and factor.
+    pub case: usize,
+    pub factor: f64,
+    pub source: OperandSource,
+}
+/// B2-P: the per-attempt result fields a combination's freeze writes. They are swapped into
+/// the capture over operand 0's slot while the freeze or its projection runs (REVISION_01
+/// N-9: the id maps and member facts are operand 0's; the outcome is the combination's own),
+/// and swapped back after, so operand 0's own case keeps its results.
+#[derive(Default)]
+pub(super) struct CombinationResults {
+    native: Option<k::RecordedCase>,
+    error: Option<CaptureError>,
+    verdicts: Vec<k::ProductRowVerdict>,
+    numeric_failure: Option<k::ProductFailure>,
+    numeric_pass: bool,
+    observable_error: Option<CaptureError>,
+    g5a_work: ScalarWork,
+    g5a_error: Option<G5aFailure>,
+    summary_coverage: Vec<k::ProductSummaryCoverage>,
+    source_correction_calls: Option<k::WorkTotal>,
+    work: String,
+}
+impl ProductCapture {
+    /// Exchange the capture's per-attempt result fields with a combination's. Moves only.
+    fn swap_results(&mut self, r: &mut CombinationResults) {
+        std::mem::swap(&mut self.native, &mut r.native);
+        std::mem::swap(&mut self.error, &mut r.error);
+        std::mem::swap(&mut self.verdicts, &mut r.verdicts);
+        std::mem::swap(&mut self.numeric_failure, &mut r.numeric_failure);
+        std::mem::swap(&mut self.numeric_pass, &mut r.numeric_pass);
+        std::mem::swap(&mut self.observable_error, &mut r.observable_error);
+        std::mem::swap(&mut self.g5a_work, &mut r.g5a_work);
+        std::mem::swap(&mut self.g5a_error, &mut r.g5a_error);
+        std::mem::swap(&mut self.summary_coverage, &mut r.summary_coverage);
+        std::mem::swap(&mut self.source_correction_calls, &mut r.source_correction_calls);
+        std::mem::swap(&mut self.work, &mut r.work);
+    }
+}
+/// B2-P (B2-C §2.3–§2.6): where one model combination ended.
+pub(super) enum CombinationEnd {
+    /// T-10a rule 1: its gate entry is withheld; the gate's code.
+    BaseWithheld(String),
+    /// T-10a rule 3: `ordinary`, `no_retained_mechanics`.
+    Ordinary,
+    /// T-10a rule 2: retained; T-10b has not decided it yet.
+    Retained,
+    /// T-10b (i): an operand has no usable source (C-4), the first such term.
+    OperandSourceUnavailable { operand_index: usize },
+    /// T-10b (iii) 1: a `not_required` operand's preparation was refused (the first such term).
+    OperandPreparationFailure { operand_preparation: usize },
+    /// T-10b (iii) 2: the Call refused before any source (`pre_source_refusal`).
+    PreSource { stage: k::CombinationStage, reason: k::CombinationReason },
+    /// T-10b (iii) 3: its Run did not end selected (`combination_unresolved`, phase `kernel`).
+    Native,
+    /// T-10b (iii) 4: frozen: certified, observables and G5a passed (`retained_selected`).
+    Frozen(FrozenCombination),
+    /// T-10b (iii) 4: the freeze refused after a selected Run (`facade_certificate`).
+    Candidate(RefusedCase),
+}
+/// A frozen combination's values and certificate. The ordinary owner is not touched.
+pub(super) struct FrozenCombination { values: k::FrozenProductValues, certificate: k::CertifiedProductProof }
+impl FrozenCombination {
+    pub(super) fn certificate(&self) -> &k::CertifiedProductProof { &self.certificate }
+}
+/// B2-P: one model combination's W1 record, in authored order.
+pub(super) struct CombinationAttempt {
+    /// Its authored index (`model.combinations`).
+    pub index: usize,
+    pub end: CombinationEnd,
+    /// T-10b (i): its operands, in authored term order (a retained combination's).
+    pub operands: Vec<CombinationOperand>,
+    /// Its `MechanicsCombinationCall`'s id in the invocation, when it made one.
+    pub call: Option<usize>,
+    /// Its `CombinationAttempt`'s id in `product_attempts[]` (actual start order), when its Call
+    /// returned a Run.
+    pub attempt: Option<usize>,
+    pub trace: trace::PreparedTrace,
+    proof_attempted: bool,
+    overlay_work: ScalarWork,
+    results: CombinationResults,
+}
+impl CombinationAttempt {
+    fn new(index: usize, end: CombinationEnd) -> Self {
+        Self { index, end, operands: Vec::new(), call: None, attempt: None, trace: trace::PreparedTrace::default(),
+            proof_attempted: false, overlay_work: ScalarWork::default(), results: CombinationResults::default() }
+    }
+    /// Its Run, when the Call returned one.
+    pub(super) fn native(&self) -> Option<&k::RecordedCase> { self.results.native.as_ref() }
+    /// Whether it is `retained_selected` or `retained_unavailable` (T-10a rule 2).
+    pub(super) fn retained(&self) -> bool { !matches!(self.end, CombinationEnd::BaseWithheld(_) | CombinationEnd::Ordinary) }
+    /// Its operand 0's case (its freeze's slot: REVISION_01 N-9).
+    pub(super) fn representative(&self) -> Option<usize> { self.operands.first().map(|operand| operand.case) }
+}
+/// B2-P (C3a; DESIGN §4.2 P1): one `not_required` case's operand preparation: C3's preparation
+/// stage on its own capture slot, shared by every retained combination that needs it.
+pub(super) struct OperandPreparation {
+    /// Its id: its position in first-need order (C3a-1).
+    pub id: usize,
+    /// The owner case (request index).
+    pub owner: usize,
+    /// The ascending authored indices of the combinations whose terms name the owner (C3a-1).
+    pub requested_by: Vec<usize>,
+    /// When prepared: its registered source id and kernel prep (C3a-2).
+    pub source: Option<usize>,
+    pub prepared: Option<k::PreparedCaseSource>,
+    pub parts: AttemptParts,
+    pub trace: trace::PreparedTrace,
+}
+/// B2-P (B2-C §2.6; REVISION_01 N-1, N-5): the whole successor is abandoned at T-10b
+/// (`W1Fallback::CombinationCustody`): an `OriginError` or `OriginRefusal` from a combination's
+/// custody, a `PreparedCaseSource::new` refusal after a completed operand preparation, or a
+/// rebuild refusal. Never a capture error and never serialized (N-5). The site, for tests.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct CombinationCustody(pub &'static str);
+/// The kernel's case limit for each Run, a combination's included (C1 §2; W1-LME-20B-60B-v1).
+const COMBINATION_CASE_LIMIT: u64 = 20_000_000_000;
+
+impl PreparedCases {
+    /// B2-P (B2-C §2.3, T-10a; decisions 5 and 20): each model combination's disposition, in
+    /// authored order, after T-10's check: its gate entry withheld → `base_withheld` with the
+    /// gate's code; a `mechanics` combination whose terms name distinct load cases (C-1), one of
+    /// them selected (frozen) → retained; anything else → `ordinary`. No W1 work and no event.
+    pub(super) fn dispositions(&mut self) {
+        let gates = self.ordinary.contract_evidence.as_ref().map(|evidence| &evidence["combination_gates"]);
+        let selected = |case: usize| self.attempts.iter().any(|attempt| attempt.request == case && matches!(attempt.end, AttemptEnd::Frozen(_)));
+        let mut combinations = Vec::with_capacity(self.capture.combinations.len());
+        for (index, combination) in self.capture.combinations.iter().enumerate() {
+            let gate = gates.map(|gates| &gates[index]);
+            let end = if gate.is_some_and(|gate| gate["withheld"] == serde_json::Value::Bool(true)) {
+                CombinationEnd::BaseWithheld(gate.and_then(|gate| gate["reason"].as_str()).unwrap_or_default().to_owned())
+            } else if combination.mechanics && distinct_terms(&combination.terms) && combination.terms.iter().any(|&(case, _)| selected(case)) {
+                CombinationEnd::Retained
+            } else {
+                CombinationEnd::Ordinary
+            };
+            combinations.push(CombinationAttempt::new(index, end));
+        }
+        self.combinations = combinations;
+    }
+    /// B2-P (B2-C §2.4, T-10b): for the retained combinations, (i) the operand sources, (ii)
+    /// the operand preparations and their registrations, in first-need order, and (iii) per
+    /// combination in authored order its Call, Run and freeze. Each combination's outcome is its
+    /// own; `Err` abandons the whole successor (N-1, N-5).
+    pub(super) fn combine(&mut self) -> Result<(), CombinationCustody> {
+        if !self.combinations.iter().any(|combination| matches!(combination.end, CombinationEnd::Retained)) {
+            return Ok(());
+        }
+        let invocation = self.capture.native_invocation.take();
+        let result = match invocation {
+            Some(mut invocation) => {
+                let result = self.combine_on(&mut invocation);
+                self.capture.native_invocation = Some(invocation);
+                result
+            }
+            // A selected case needs the batch's invocation (T-10 passed), so this cannot happen.
+            None => Err(CombinationCustody("invocation")),
+        };
+        result
+    }
+    fn combine_on(&mut self, invocation: &mut k::RecordedInvocation) -> Result<(), CombinationCustody> {
+        // (i) The operand sources, per retained combination in authored order. The first term
+        // with no usable source decides the combination (`operand_source_unavailable`): it then
+        // requests no operand preparation and makes no Call (C-4).
+        let mut needs: Vec<(usize, usize)> = Vec::new(); // (owner case, combination), in first-need order
+        for k in 0..self.combinations.len() {
+            if !matches!(self.combinations[k].end, CombinationEnd::Retained) {
+                continue;
+            }
+            let terms = self.capture.combinations[self.combinations[k].index].terms.clone();
+            let mut operands = Vec::with_capacity(terms.len());
+            let mut decided = None;
+            for (operand_index, &(case, factor)) in terms.iter().enumerate() {
+                let source = match self.attempts.iter().find(|attempt| attempt.request == case) {
+                    Some(attempt) if matches!(attempt.end, AttemptEnd::Frozen(_)) => OperandSource::Selected,
+                    // T-7 refused: no CaseSource.
+                    Some(attempt) if !attempt.prepared => { decided = Some(operand_index); break; }
+                    Some(_) => {
+                        let run = self.capture.case_native(case).ok_or(CombinationCustody("operand run"))?;
+                        if matches!(&run.outcome, k::ExecutionOutcome::Refused { refusal: k::Refusal::LedgerUnavailable(_), .. }) {
+                            decided = Some(operand_index);
+                            break;
+                        }
+                        let source = invocation.runs().get(run.run).map(|origin| origin.source).ok_or(CombinationCustody("operand source"))?;
+                        let prepared = match self.rebuilt.iter().position(|(owner, _)| *owner == case) {
+                            Some(prepared) => prepared,
+                            None => {
+                                let primitive = self.capture.case_prepared_source(case).ok_or(CombinationCustody("rebuild source"))?.clone();
+                                let rebuilt = k::PreparedCaseSource::new(primitive).map_err(|_| CombinationCustody("rebuild"))?;
+                                self.rebuilt.push((case, rebuilt));
+                                self.rebuilt.len() - 1
+                            }
+                        };
+                        OperandSource::Rebuilt { prepared, source }
+                    }
+                    None => {
+                        needs.push((case, self.combinations[k].index));
+                        OperandSource::Prepared { preparation: usize::MAX }
+                    }
+                };
+                operands.push(CombinationOperand { case, factor, source });
+            }
+            if let Some(operand_index) = decided {
+                self.combinations[k].end = CombinationEnd::OperandSourceUnavailable { operand_index };
+                needs.retain(|&(_, combination)| combination != self.combinations[k].index);
+            } else {
+                self.combinations[k].operands = operands;
+            }
+        }
+        // (ii) The operand preparations, one per owner case in first-need order, each listing
+        // every still-retained combination whose terms name the owner (C3a-1).
+        let mut owners: Vec<usize> = Vec::new();
+        for &(owner, _) in &needs {
+            if !owners.contains(&owner) {
+                owners.push(owner);
+            }
+        }
+        for owner in owners {
+            let requested_by: Vec<usize> = self.combinations.iter()
+                .filter(|combination| matches!(combination.end, CombinationEnd::Retained) && combination.operands.iter().any(|operand| operand.case == owner))
+                .map(|combination| combination.index).collect();
+            let id = self.operand_preparations.len();
+            let mut preparation = self.capture.with_case(owner, |capture| capture.prepare_operand(id, owner, requested_by));
+            if preparation.trace.source_ready {
+                let primitive = self.capture.case_prepared_source(owner).ok_or(CombinationCustody("operand source"))?.clone();
+                let prepared = k::PreparedCaseSource::new(primitive).map_err(|_| CombinationCustody("operand prep"))?;
+                preparation.source = Some(invocation.register_prepared_source(&prepared).map_err(|_| CombinationCustody("registration"))?);
+                preparation.prepared = Some(prepared);
+            }
+            self.operand_preparations.push(preparation);
+            for combination in &mut self.combinations {
+                for operand in &mut combination.operands {
+                    if operand.case == owner {
+                        operand.source = OperandSource::Prepared { preparation: id };
+                    }
+                }
+            }
+        }
+        // (iii) Per retained combination, in authored order: decided without a Call, or its
+        // Call, then its Run's freeze.
+        let mut next_attempt = self.attempts.len();
+        for k in 0..self.combinations.len() {
+            if !matches!(self.combinations[k].end, CombinationEnd::Retained) {
+                continue;
+            }
+            let refused = self.combinations[k].operands.iter().find_map(|operand| match operand.source {
+                OperandSource::Prepared { preparation } => self.operand_preparations.get(preparation)
+                    .filter(|record| record.source.is_none()).map(|record| record.id),
+                _ => None,
+            });
+            if let Some(operand_preparation) = refused {
+                self.combinations[k].end = CombinationEnd::OperandPreparationFailure { operand_preparation };
+                continue;
+            }
+            self.combination_call(invocation, k, &mut next_attempt)?;
+        }
+        Ok(())
+    }
+    /// T-10b (iii) 2–4: one retained combination's `MechanicsCombinationCall` on the
+    /// invocation's one meter, then, with a selected Run, its own freeze.
+    fn combination_call(&mut self, invocation: &mut k::RecordedInvocation, k: usize, next_attempt: &mut usize) -> Result<(), CombinationCustody> {
+        let index = self.combinations[k].index;
+        #[cfg_attr(not(test), allow(unused_mut))]
+        let mut factors: Vec<f64> = self.combinations[k].operands.iter().map(|operand| operand.factor).collect();
+        // Test-only (B2-P hooks): the armed Call refuses before any source, through the kernel's
+        // own `NoOperands` check (a non-finite factor).
+        #[cfg(test)]
+        if crate::retained_tests_hooks::combination_call_fault(index) {
+            factors[0] = f64::NAN;
+        }
+        let outcome = {
+            let mut operands: Vec<(f64, k::RecordedOperand<'_>)> = Vec::with_capacity(factors.len());
+            for (operand, &factor) in self.combinations[k].operands.iter().zip(&factors) {
+                let recorded = match operand.source {
+                    OperandSource::Selected => match self.capture.case_native(operand.case).map(|case| &case.outcome) {
+                        Some(k::ExecutionOutcome::Selected(solve)) => k::RecordedOperand::Selected(solve),
+                        _ => return Err(CombinationCustody("selected operand")),
+                    },
+                    OperandSource::Rebuilt { prepared, source } => k::RecordedOperand::Prepared { source, prepared: &self.rebuilt[prepared].1 },
+                    OperandSource::Prepared { preparation } => {
+                        let record = self.operand_preparations.get(preparation).ok_or(CombinationCustody("operand preparation"))?;
+                        match (record.source, record.prepared.as_ref()) {
+                            (Some(source), Some(prepared)) => k::RecordedOperand::Prepared { source, prepared },
+                            _ => return Err(CombinationCustody("operand preparation")),
+                        }
+                    }
+                };
+                operands.push((factor, recorded));
+            }
+            invocation.solve_combination_sources(&operands, k::CaseLimit::new(COMBINATION_CASE_LIMIT))
+        };
+        match outcome {
+            Err(_) | Ok(k::RecordedKernelCombination::OriginRefusal { .. }) => Err(CombinationCustody("combination custody")),
+            Ok(k::RecordedKernelCombination::PreSourceRefusal { call, stage, reason }) => {
+                let combination = &mut self.combinations[k];
+                combination.call = Some(call);
+                combination.end = CombinationEnd::PreSource { stage, reason };
+                Ok(())
+            }
+            Ok(k::RecordedKernelCombination::WithRun { call, case }) => {
+                let selected = matches!(case.outcome, k::ExecutionOutcome::Selected(_));
+                let Self { ordinary, capture, combinations, .. } = self;
+                let combination = &mut combinations[k];
+                combination.call = Some(call);
+                combination.attempt = Some(*next_attempt);
+                *next_attempt += 1;
+                // Its attempt enters at its native stage (B2-C §4). The internal trace marks C3's
+                // preparation stage completed and the source ready: the operands' preparations
+                // are done (DEF-C `preparation.combination: not_entered`; never serialized).
+                combination.trace.enter(trace::Stage::Preparation);
+                combination.trace.completed(trace::Stage::Preparation);
+                combination.trace.source_ready = true;
+                // Its view reads operand 0's prepared operational records as new (section terms).
+                combination.trace.old_vector_swapped = true;
+                combination.trace.enter(trace::Stage::Native);
+                combination.results.native = Some(case);
+                let representative = combination.representative().ok_or(CombinationCustody("operands"))?;
+                if !selected {
+                    combination.trace.fail_entered();
+                    combination.trace.native_error = Some(CaptureError::NativeUnavailable);
+                    capture.with_case(representative, |capture| combination.trace.freeze(capture));
+                    combination.end = CombinationEnd::Native;
+                    return Ok(());
+                }
+                combination.trace.completed(trace::Stage::Native);
+                let rows = capture.combination_rows.get(index).cloned().unwrap_or(0..0);
+                let id = capture.combinations[index].id.clone();
+                let scope = CaseScope { rows: Some(rows), evidence: index, cases: capture.cases_seen(), qualified: false, route: capture.route };
+                let frozen = capture.with_case(representative, |capture| {
+                    capture.swap_results(&mut combination.results);
+                    let case = capture.native.take();
+                    let frozen = capture.freeze_combination(&mut combination.trace, &mut combination.overlay_work, &mut combination.proof_attempted,
+                        ordinary, &scope, &id, invocation, case.as_ref());
+                    capture.native = case;
+                    capture.swap_results(&mut combination.results);
+                    frozen
+                });
+                combination.end = match frozen {
+                    Ok((values, certificate)) => CombinationEnd::Frozen(FrozenCombination { values, certificate }),
+                    Err(refused) => CombinationEnd::Candidate(refused),
+                };
+                Ok(())
+            }
+        }
+    }
+}
+impl ProductCapture {
+    /// B2-P (C3a-2, C3a-3): one `not_required` case's operand preparation, on its own slot in
+    /// the capture's fields: C3's preparation stage from its T-2 capture, as a case attempt's
+    /// (`prepare_active_case`), without a product attempt or native stage. Its snapshot is
+    /// taken when the stage completes or fails. On refusal its error stays in the slot.
+    fn prepare_operand(&mut self, id: usize, owner: usize, requested_by: Vec<usize>) -> OperandPreparation {
+        #[cfg(test)] crate::retained_tests_hooks::before_operand_preparation(self, owner);
+        let mut parts = AttemptParts::default();
+        let mut trace = trace::PreparedTrace::default();
+        trace.enter(trace::Stage::Preparation);
+        match self.prepare_active_case(&mut trace, &mut parts) {
+            Ok(()) => trace.freeze(self),
+            Err(e) => { trace.fail_entered(); self.error = Some(e); trace.freeze(self); }
+        }
+        OperandPreparation { id, owner, requested_by, source: None, prepared: None, parts, trace }
+    }
+    /// B2-P (B2-C §2.4 (iii) 4; DEF-C; REVISION_01 §1.2, N-9): one combination's freeze over its
+    /// own block, on operand 0's slot (its id maps and member facts) with the combination's own
+    /// result fields swapped in: the dual-readout proof on its selected Run, the projection
+    /// (B2-K forms its displacement magnitudes), maxima and aliases completing empty, the
+    /// certificate, the combination observables stage and G5a, then the overlay's precharge.
+    #[allow(clippy::too_many_arguments)]
+    fn freeze_combination(&mut self, trace: &mut trace::PreparedTrace, overlay_work: &mut ScalarWork, proof_attempted: &mut bool,
+        ordinary: &MechanicsEnvelope, scope: &CaseScope, combination: &str, invocation: &k::RecordedInvocation, case: Option<&k::RecordedCase>)
+        -> Result<(k::FrozenProductValues, k::CertifiedProductProof), RefusedCase> {
+        let _ = overlay_work;
+        let mut certificate = None;
+        let mut saved_values = None;
+        let result = (|| -> Result<k::FrozenProductValues, PreparedCandidateError> {
+            if *proof_attempted { return Err(PreparedCandidateError::Capture(CaptureError::PreparedAttemptConsumed)); }
+            let case = case.ok_or_else(|| PreparedCandidateError::Capture("missing combination native owner".into()))?;
+            let k::ExecutionOutcome::Selected(owner) = &case.outcome else { return Err(PreparedCandidateError::Capture(CaptureError::NativeUnavailable)); };
+            let base_rows = self.bind_rows_subject(ProductCaseView::of(ordinary, scope), owner, Some(combination)).map_err(PreparedCandidateError::Capture)?;
+            let specs = self.prepared_specs(&base_rows).map_err(PreparedCandidateError::Capture)?;
+            self.capture_entry(AdapterEvent::MapWrite).map_err(PreparedCandidateError::Capture)?;
+            *proof_attempted = true;
+            trace.enter(trace::Stage::ProofStart);
+            let draft = invocation.begin_prepared_product(case.run, owner, &self.facts, &specs).into_ready().map_err(PreparedCandidateError::Proof)?;
+            trace.completed(trace::Stage::ProofStart);
+            trace.enter(trace::Stage::Projection);
+            let (projected, builder) = draft.project().into_ready().map_err(PreparedCandidateError::Proof)?;
+            trace.completed(trace::Stage::Projection);
+            // DEF-C `stages`: maxima and aliases complete empty (no maximum row; headlines cover
+            // load cases only).
+            trace.enter(trace::Stage::Maxima);
+            trace.completed(trace::Stage::Maxima);
+            trace.enter(trace::Stage::Values);
+            let (values, value_work) = match builder.complete_maxima(&[]).into_ready() {
+                Ok(v) => v,
+                Err(failure) => return Err(PreparedCandidateError::Values { failure, proof: projected.abandon() }),
+            };
+            trace.completed(trace::Stage::Values);
+            trace.enter(trace::Stage::Aliases);
+            trace.completed(trace::Stage::Aliases);
+            let view = ProductCaseView { ordinary, payload: None, frozen: Some(&values), scope };
+            let rows = match self.bind_rows_subject(view, owner, Some(combination)) {
+                Ok(v) => v,
+                Err(cause) => return Err(PreparedCandidateError::Abandoned { cause, proof: projected.abandon_values(value_work) }),
+            };
+            trace.enter(trace::Stage::Certificate);
+            let certified = match projected.certify_final(&values, &rows, value_work).into_ready() {
+                Ok(v) => { trace.checked(trace::Stage::Certificate, 0, true); trace.costs.record::<bool>(); trace.proof_ready = true; v }
+                Err(failure) => {
+                    trace.checked(trace::Stage::Certificate, 0, false);
+                    self.numeric_pass = false;
+                    self.numeric_failure = Some(failure.failure().clone());
+                    self.source_correction_calls = failure.work().source_correction_calls();
+                    if let Err(e) = self.prepared_verdict_copy(failure.work().verdicts(), failure.work().summary_coverage()) { self.error = Some(e); }
+                    if self.error.is_none() && self.verdicts.len() == rows.len() {
+                        trace.enter(trace::Stage::Observables);
+                        self.observable_error = self.combination_observables(view, combination).err();
+                        trace.checked(trace::Stage::Observables, 1, self.observable_error.is_none());
+                        trace.enter(trace::Stage::G5a);
+                        self.g5a_error = self.g5a(owner, &rows).err();
+                        trace.checked(trace::Stage::G5a, 2, self.g5a_error.is_none());
+                    }
+                    drop(rows);
+                    saved_values = Some(values);
+                    return Err(PreparedCandidateError::Proof(failure));
+                }
+            };
+            if !certified.matches_values(&values) {
+                certificate = Some(certified); drop(rows); saved_values = Some(values);
+                return Err(PreparedCandidateError::Capture("frozen proof/value owner".into()));
+            }
+            if let Err(e) = self.prepared_verdict_copy(certified.verdicts(), certified.summary_coverage()) {
+                certificate = Some(certified); drop(rows); saved_values = Some(values);
+                return Err(PreparedCandidateError::Capture(e));
+            }
+            self.numeric_pass = certified.passed();
+            self.source_correction_calls = certified.work().source_correction_calls();
+            trace.enter(trace::Stage::Observables);
+            self.observable_error = self.combination_observables(view, combination).err();
+            trace.checked(trace::Stage::Observables, 1, self.observable_error.is_none());
+            trace.enter(trace::Stage::G5a);
+            self.g5a_error = self.g5a(owner, &rows).err();
+            trace.checked(trace::Stage::G5a, 2, self.g5a_error.is_none());
+            let pass = self.full_case_passed();
+            certificate = Some(certified);
+            drop(rows); drop(base_rows); drop(specs);
+            if !pass {
+                saved_values = Some(values);
+                return Err(if self.observable_error.is_some() { PreparedCandidateError::Observable }
+                    else if self.g5a_error.is_some() { PreparedCandidateError::G5a } else { PreparedCandidateError::Numeric });
+            }
+            // The overlay's move plan (its rows' values only), checked and charged before staging.
+            self.adapter.enter(AdapterEvent::MapWrite, u64::try_from(values.len()).map_err(|_| PreparedCandidateError::Capture(CaptureError::CountRange("commit count")))?);
+            self.adapter.require().map_err(PreparedCandidateError::Capture)?;
+            trace.costs.record::<bool>();
+            trace.private_commit_precharged = true;
+            Ok(values)
+        })();
+        match result {
+            Err(error) => { trace.fail_entered(); trace.freeze(self); Err(RefusedCase { error, certificate, values: saved_values }) }
+            Ok(values) => {
+                trace.freeze(self);
+                match certificate {
+                    Some(certificate) => Ok((values, certificate)),
+                    None => { trace.fail_entered(); Err(RefusedCase { error: PreparedCandidateError::Capture("frozen candidate without certificate".into()), certificate: None, values: Some(values) }) }
+                }
+            }
+        }
+    }
+    /// B2-P (REVISION_01 §1.2; DEF-C r2 `stages.observables`): the combination observables stage
+    /// on its own block: the adapter (`require`, one `LibraryBoundary`); its gate entry not
+    /// withheld (T-10a's consistency); the support coverage and guard (`support_observables`, base
+    /// G7's `combination_magnitudes`); per model node exactly one displacement magnitude and one
+    /// row of each translation, the magnitude within 64ε·max(|p|, MIN_POSITIVE) of
+    /// hypot(hypot(x,y),z) of them; and no maximum or intensified row. No preview case evidence,
+    /// maximum or headline check.
+    fn combination_observables(&self, view: ProductCaseView<'_>, combination: &str) -> Result<(), CaptureError> {
+        self.adapter.require()?;
+        self.adapter.enter(AdapterEvent::LibraryBoundary, 1);
+        #[cfg(test)]
+        if crate::retained_tests_hooks::combination_freeze_fault() {
+            return Err("test combination freeze fault".into());
+        }
+        let evidence = view.ordinary().contract_evidence.as_ref().ok_or("preview evidence")?;
+        let gates = evidence["combination_gates"].as_array().ok_or("combination gates")?;
+        let index = view.scope.evidence;
+        self.capture_entry(AdapterEvent::ValidationEntry)?;
+        let gate = gates.get(index).ok_or("combination gate entry")?;
+        let id = gate["combination_id"].as_str().ok_or("combination gate identity")?;
+        if !self.checked_same(id, combination)? || gate["withheld"] != serde_json::Value::Bool(false) {
+            return Err("combination gate entry".into());
+        }
+        for row in view.rows() {
+            self.capture_entry(AdapterEvent::RowVisit)?;
+            if row.kind == "pipe_elastic_normal_stress_maximum_v2" || row.kind == super::preview_physics::INTENSIFIED_KIND {
+                return Err("combination maximum or intensified row".into());
+            }
+        }
+        self.support_observables(view)?;
+        for (id, _) in &self.nodes {
+            self.capture_entry(AdapterEvent::RowVisit)?;
+            let mut v = [0.0f64; 3];
+            for (slot, kind) in ["global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z"].into_iter().enumerate() {
+                let mut found = None;
+                for r in view.rows().filter(|r| &r.entity_ref == id && r.kind == kind) {
+                    self.capture_entry(AdapterEvent::RowVisit)?;
+                    if found.is_some() { return Err("combination displacement identity".into()); }
+                    found = Some(*r.value);
+                }
+                v[slot] = found.ok_or("combination displacement identity")?;
+            }
+            let mut found = None;
+            for r in view.rows().filter(|r| &r.entity_ref == id && r.kind == "displacement_magnitude") {
+                self.capture_entry(AdapterEvent::RowVisit)?;
+                if found.is_some() { return Err("combination magnitude identity".into()); }
+                found = Some(*r.value);
+            }
+            let p = found.ok_or("combination magnitude identity")?;
+            if (p - v[0].hypot(v[1]).hypot(v[2])).abs() > 64.0 * f64::EPSILON * p.abs().max(f64::MIN_POSITIVE) {
+                return Err("combination magnitude guard".into());
+            }
+        }
+        Ok(())
+    }
+}
+impl CombinationAttempt {
+    /// The combination attempt's typed C3 view, over the capture with its operand 0's slot in
+    /// place and its own result fields swapped in (`PreparedCases::with_combination`).
+    pub(super) fn typed_trace<'a>(&'a self, capture: &'a ProductCapture, costs: &mut trace::ProjectionWork)
+        -> Result<trace::PreparedAttemptView<'a>, trace::TraceProjectionError> {
+        match &self.end {
+            CombinationEnd::Frozen(frozen) => trace::project(&self.trace, capture, &[], &[], &self.overlay_work,
+                trace::ResultRef::Ready, Some(frozen.certificate.work()), None, None, costs),
+            CombinationEnd::Candidate(refused) => {
+                let failure = refused.proof_failure();
+                let proof = failure.map(|f| f.work()).or_else(|| refused.certificate.as_ref().map(|c| c.work()));
+                let values = match &refused.error { PreparedCandidateError::Values { failure, .. } => Some(failure), _ => None };
+                trace::project(&self.trace, capture, &[], &[], &self.overlay_work,
+                    trace::ResultRef::Unavailable(trace::FailureRef::Candidate(&refused.error)), proof, failure.map(|f| f.failure()), values, costs)
+            }
+            CombinationEnd::Native => trace::project(&self.trace, capture, &[], &[], &self.overlay_work,
+                trace::ResultRef::Unavailable(trace::FailureRef::Native(self.trace.native_error.as_ref().ok_or(trace::TraceProjectionError::MissingFailure)?)),
+                None, None, None, costs),
+            _ => Err(trace::TraceProjectionError::MissingTerminal),
+        }
+    }
+}
+impl PreparedCases {
+    /// Run `f` with combination `k`'s operand 0's slot in the capture's fields and its own
+    /// result fields swapped in, then restore both (its projection and serialization).
+    pub(super) fn with_combination<R>(capture: &mut ProductCapture, combination: &mut CombinationAttempt, f: impl FnOnce(&mut ProductCapture, &CombinationAttempt) -> R) -> Option<R> {
+        let representative = combination.representative()?;
+        Some(capture.with_case(representative, |capture| {
+            capture.swap_results(&mut combination.results);
+            let result = f(capture, combination);
+            capture.swap_results(&mut combination.results);
+            result
+        }))
+    }
+}
+/// B2-P (B2-C §2.7 staging 2): a frozen combination's row values on its own block.
+fn apply_combination_overlay(envelope: &mut MechanicsEnvelope, values: &k::FrozenProductValues, rows: std::ops::Range<usize>) -> Result<(), StagingFault> {
+    let rows = envelope.results.get_mut(rows).ok_or(StagingFault("combination results"))?;
+    for (i, row) in rows.iter_mut().enumerate() {
+        row.value = *values.value(i).ok_or(StagingFault("combination values"))?;
+    }
+    Ok(())
 }

@@ -64,12 +64,40 @@ pub(super) fn merge(a: &mut Armed, faults: &Armed) {
     a.preparation_of_case = a.preparation_of_case.or(faults.preparation_of_case);
     a.exact_capture |= faults.exact_capture;
     a.section_staging |= faults.section_staging;
+    a.operand_preparation_of_case = a.operand_preparation_of_case.or(faults.operand_preparation_of_case);
+    a.combination_call = a.combination_call.or(faults.combination_call);
+    a.combination_freeze |= faults.combination_freeze;
 }
 /// `armed_names`: this grant's faults.
-pub(super) fn names(a: &Armed) -> [(bool, &'static str); 7] {
+pub(super) fn names(a: &Armed) -> [(bool, &'static str); 10] {
     [(a.late_gate, "late_gate"), (a.complete_gate, "complete_gate"), (a.preparation, "preparation"), (a.candidate.is_some(), "candidate"),
-        (a.preparation_of_case.is_some(), "preparation_of_case"), (a.exact_capture, "exact_capture"), (a.section_staging, "section_staging")]
+        (a.preparation_of_case.is_some(), "preparation_of_case"), (a.exact_capture, "exact_capture"), (a.section_staging, "section_staging"),
+        (a.operand_preparation_of_case.is_some(), "operand_preparation_of_case"), (a.combination_call.is_some(), "combination_call"),
+        (a.combination_freeze, "combination_freeze")]
 }
+/// B2-P hook (PLAN §1.2.4; B2-C §2.6): the operand preparation of `not_required` case `index`
+/// (request index) refuses, through the real section preparation (its first member's diameter
+/// is 0, as `fail_preparation_of_case` does for a case attempt). Each combination that needs it
+/// becomes `retained_unavailable` with `operand_preparation_failure`.
+pub(crate) fn fail_operand_preparation(index: usize) { arm(|a| a.operand_preparation_of_case = Some(index)); }
+/// At each operand preparation, before C3's preparation stage, on the owner in the capture's fields.
+pub(crate) fn before_operand_preparation(capture: &mut crate::retained_product::ProductCapture, owner: usize) {
+    if consume(|a| if a.operand_preparation_of_case == Some(owner) { a.operand_preparation_of_case.take() } else { None }).is_some() {
+        capture.facts[0].diameter = 0.0;
+    }
+}
+/// B2-P hook: the Call of combination `index` (authored index) refuses before any source, through
+/// the kernel's own operand validation (operand 0's factor is passed non-finite: `no_operands`),
+/// so the combination is `retained_unavailable` with that `pre_source_refusal`.
+pub(crate) fn fail_combination_call(index: usize) { arm(|a| a.combination_call = Some(index)); }
+/// At a combination's Call: whether the armed Call fault fires for it (consumed).
+pub(crate) fn combination_call_fault(index: usize) -> bool {
+    consume(|a| if a.combination_call == Some(index) { a.combination_call.take() } else { None }).is_some()
+}
+/// B2-P hook: the next combination freeze refuses at its observables stage (`facade_certificate`).
+pub(crate) fn fault_next_combination_freeze() { arm(|a| a.combination_freeze = true); }
+/// At a combination's observables stage: whether the armed freeze fault fires (consumed).
+pub(crate) fn combination_freeze_fault() -> bool { consume(|a| std::mem::take(&mut a.combination_freeze)) }
 /// B3b-P (B3-D P-12): the exact route's material capture refuses: its Ĝ check (retained_product.rs
 /// `exact_material_nu`) sees the represented Ĝ one ulp up, so the capture records a typed
 /// association error and W1 falls back at preparation (custody).

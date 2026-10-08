@@ -956,11 +956,19 @@ fn derived_e_nu_origin(e: &Enc, capture: &rp::ProductCapture, input_index: usize
 /// unavailable run (which must equal the registered identity bytes' owner).
 fn case_source(e: &Enc, capture: &rp::ProductCapture, source: &k::PrimitiveSource, inv: &k::RecordedInvocation,
     run: &k::RunOrigins, case_index: usize, case_id: &str, attempt: &rr::PreparedAttemptView<'_>) -> Result<Value, ReceiptFailure> {
+    case_source_at(e, capture, source, inv, run.source, case_index, case_id, attempt.operational_new)
+}
+/// A CaseSource at its registered source id (B1: its Run's source; B2-P: also an operand
+/// preparation's registration, which has no Run), with the section terms of its preparation's
+/// new operational records.
+#[allow(clippy::too_many_arguments)]
+fn case_source_at(e: &Enc, capture: &rp::ProductCapture, source: &k::PrimitiveSource, inv: &k::RecordedInvocation,
+    source_id: usize, case_index: usize, case_id: &str, operational_new: &[rp::OperationalSpent]) -> Result<Value, ReceiptFailure> {
     // B1 SP (T-11): `sources[]` is in registration order, so a source's index is the kernel's
     // id of the source its Run used (0 at c = 1).
     let assoc = |p| fail(ReceiptCheck::Association, p);
     const P: &str = "sources[]";
-    let origin = inv.sources().get(run.source).ok_or(assoc("sources[].kernel_source_sha256"))?;
+    let origin = inv.sources().get(source_id).ok_or(assoc("sources[].kernel_source_sha256"))?;
     let mut nodes = Vec::with_capacity(capture.nodes.len());
     for (i, (id, c)) in capture.nodes.iter().enumerate() {
         if source.nodes().get(i) != Some(c) {
@@ -1024,13 +1032,13 @@ fn case_source(e: &Enc, capture: &rp::ProductCapture, source: &k::PrimitiveSourc
     }
     let mut section_terms = Vec::with_capacity(capture.facts.len());
     for (i, f) in capture.facts.iter().enumerate() {
-        let op = attempt.operational_new.get(i).and_then(|o| o.result.as_ref().ok()).ok_or(assoc("sources[].section_terms[]"))?;
+        let op = operational_new.get(i).and_then(|o| o.result.as_ref().ok()).ok_or(assoc("sources[].section_terms[]"))?;
         section_terms.push(json!({"member":i,"area":e.bits(f.area,P),"section_modulus":e.bits(f.section_modulus,P),"length":e.bits(op.length,P),
             "axial_stiffness":e.bits(op.axial,P),"torsional_stiffness":e.bits(op.torsion,P),
             "geometry":{"route":route_wire(capture.route()).geometry_route,"normalized_od":e.bits(f.diameter,P),"effective_wall":e.bits(f.effective_wall,P),"actual_radius":e.bits(f.radius,P),
                 "actual_second_moment":e.bits(f.second_moment,P),"actual_polar_moment":e.bits(f.torsion_constant,P)}}));
     }
-    Ok(json!({"index":run.source,"owner":{"kind":"case","case_index":case_index,"case_id":case_id},"material_basis_ref":0,
+    Ok(json!({"index":source_id,"owner":{"kind":"case","case_index":case_index,"case_id":case_id},"material_basis_ref":0,
         "kernel_source_sha256":sha_hex(&origin.identity),"stiffness_sha256":sha_hex(&origin.stiffness),
         "id_maps":{"nodes":nodes,"members":members,"springs":springs,"support_ids":support_ids},"body_membership":body_membership,
         "layout":layout,"stations":stations,"supports":supports,"constraints":constraints,"nodal_terms":nodal_terms,"section_terms":section_terms,
@@ -1330,11 +1338,35 @@ fn proof_trace(e: &Enc, view: &rr::PreparedAttemptView<'_>, capture: &rp::Produc
 #[allow(clippy::too_many_arguments)]
 fn product_attempt(e: &Enc, view: &rr::PreparedAttemptView<'_>, id: usize, case_index: usize, source_ref: Option<usize>, run_ref: Option<usize>,
     result: Value, capture: &rp::ProductCapture) -> Value {
+    let members = preparation_members(e, view.members, view.preparation_work);
+    let names = ["preparation", "native", "proof_start", "projection", "maxima", "values", "aliases", "certificate", "observables", "g5a"];
+    let mut stages_v = Map::new();
+    for (n, s) in names.iter().zip(view.stages.iter()) {
+        stages_v.insert((*n).into(), stage_name(e, *s));
+    }
+    json!({"id":id,"definition_id":route_wire(capture.route()).definition_id,"owner_ref":{"kind":"case","index":case_index},"ordinary_attempt_ref":case_index,"material_basis_ref":0,
+        "source_ref":source_ref,"run_ref":run_ref,"result":result,"preparation":{"members":members},"stages":stages_v,"proof":proof_trace(e,view,capture),
+        "adapter":adapter_value(e,view.adapter),
+        "operational":operational_value(e,view.old_coverage,view.operational_old,view.operational_new),
+        "overlay_work":scalar(view.overlay_work),"g5a_work":scalar(view.g5a_work)})
+}
+/// A C3 attempt's `adapter` member: its terminal snapshot's counts, fault and capacities.
+fn adapter_value(e: &Enc, a: &rr::PrivateAdapterSnapshot) -> Value {
+    json!({"counts":a.counts,"fault":a.fault.map(|rp::AdapterFault::Overflow(ev)|json!({"kind":"overflow","event":EVENTS.get(ev as usize).map_or_else(||e.untranslated("product_attempts[].adapter.fault.event"),|n|json!(n))})),
+        "prepared_capacity_bytes":a.prepared_capacity_bytes,"observation_capacity_bytes":a.observation_capacity_bytes,"support_capacity_bytes":a.support_capacity_bytes})
+}
+/// A C3 attempt's `operational` member.
+fn operational_value(e: &Enc, coverage: rr::OldCoverage, old: &[rp::OperationalSpent], new: &[rp::OperationalSpent]) -> Value {
+    json!({"old_coverage":match coverage { rr::OldCoverage::Complete=>"complete", rr::OldCoverage::CapturedPrefix=>"captured_prefix" },
+        "old":old.iter().map(|o|operational(e,o)).collect::<Vec<_>>(),"new":new.iter().map(|o|operational(e,o)).collect::<Vec<_>>()})
+}
+/// C3's `preparation.members`: each member's old source and facts, its section result and work.
+fn preparation_members(e: &Enc, entries: &[rr::PreparationEntry], preparation_work: &[k::SectionPreparationWork]) -> Vec<Value> {
     const PROPS: [&str; 5] = ["area", "second_moment", "polar_moment", "section_modulus", "radius"];
     const P: &str = "product_attempts[].preparation";
     let mut copies = k::TraceCopyWork::default();
-    let members: Vec<Value> = view.members.iter().map(|m| {
-        let Some(w) = view.preparation_work.get(m.work_index) else {
+    entries.iter().map(|m| {
+        let Some(w) = preparation_work.get(m.work_index) else {
             e.fail(ReceiptCheck::Association, "product_attempts[].preparation.members[].work");
             return Value::Null;
         };
@@ -1352,20 +1384,7 @@ fn product_attempt(e: &Enc, view: &rr::PreparedAttemptView<'_>, id: usize, case_
             "conversions":w.conversion_outcomes().iter().flatten().map(|c|json!({"property":PROPS.get(c.property).map_or_else(||e.untranslated("product_attempts[].preparation.members[].conversions[].property"),|p|json!(p)),
                 "endpoint":match c.endpoint { k::PreparationEndpoint::Lo=>"lo", k::PreparationEndpoint::Hi=>"hi", k::PreparationEndpoint::Exact=>"exact" },
                 "outcome":conversion(e,&c.outcome)})).collect::<Vec<_>>()})
-    }).collect();
-    let names = ["preparation", "native", "proof_start", "projection", "maxima", "values", "aliases", "certificate", "observables", "g5a"];
-    let mut stages_v = Map::new();
-    for (n, s) in names.iter().zip(view.stages.iter()) {
-        stages_v.insert((*n).into(), stage_name(e, *s));
-    }
-    let a = view.adapter;
-    json!({"id":id,"definition_id":route_wire(capture.route()).definition_id,"owner_ref":{"kind":"case","index":case_index},"ordinary_attempt_ref":case_index,"material_basis_ref":0,
-        "source_ref":source_ref,"run_ref":run_ref,"result":result,"preparation":{"members":members},"stages":stages_v,"proof":proof_trace(e,view,capture),
-        "adapter":{"counts":a.counts,"fault":a.fault.map(|rp::AdapterFault::Overflow(ev)|json!({"kind":"overflow","event":EVENTS.get(ev as usize).map_or_else(||e.untranslated("product_attempts[].adapter.fault.event"),|n|json!(n))})),
-            "prepared_capacity_bytes":a.prepared_capacity_bytes,"observation_capacity_bytes":a.observation_capacity_bytes,"support_capacity_bytes":a.support_capacity_bytes},
-        "operational":{"old_coverage":match view.old_coverage { rr::OldCoverage::Complete=>"complete", rr::OldCoverage::CapturedPrefix=>"captured_prefix" },
-            "old":view.operational_old.iter().map(|o|operational(e,o)).collect::<Vec<_>>(),"new":view.operational_new.iter().map(|o|operational(e,o)).collect::<Vec<_>>()},
-        "overlay_work":scalar(view.overlay_work),"g5a_work":scalar(view.g5a_work)})
+    }).collect()
 }
 /// C3 §2's preparation payload; its `definition_sha256` is the route's table-bound definition H
 /// (B3b-P; B3-D REVISION_01 S-1): DEF-E's on the exact route, DEF-O's on the preview route.
@@ -1436,6 +1455,11 @@ fn kernel_outcome<'a>(e: &Enc, outcome: &'a k::ExecutionOutcome) -> (&'a [k::Att
 /// `case_index` is the Run's owner as a request index (B1 SP, PLAN_v2 N-2: the kernel's
 /// batch ordinal mapped to the request).
 fn run_value(e: &Enc, run: &k::RunOrigins, records: &[k::AttemptRecord], terminal: Value, case_index: usize) -> Result<Value, ReceiptFailure> {
+    run_value_owned(e, run, records, terminal, json!({"kind":"case","index":case_index}))
+}
+/// `run_value` with the Run's owner reference given (B2-P: `{kind: "combination", index}` for a
+/// combination's Run, by its authored index).
+fn run_value_owned(e: &Enc, run: &k::RunOrigins, records: &[k::AttemptRecord], terminal: Value, owner_ref: Value) -> Result<Value, ReceiptFailure> {
     // Only the first `physical_records` links describe actual records.
     if records.len() != run.physical_records || records.len() > run.records.len() {
         return Err(fail(ReceiptCheck::Association, "cases[].run.records"));
@@ -1443,7 +1467,7 @@ fn run_value(e: &Enc, run: &k::RunOrigins, records: &[k::AttemptRecord], termina
     let physical_v: Vec<Value> = records.iter().enumerate().map(|(i, r)| physical(e, i, r, run.records[i])).collect();
     let attempts_v = logical(e, records);
     run_conservation(e, &attempts_v, run);
-    Ok(json!({"id":run.id,"origin":{"call":run.call,"position":run.position,"group":run.group,"source_ref":run.source,"owner_ref":{"kind":"case","index":case_index}},
+    Ok(json!({"id":run.id,"origin":{"call":run.call,"position":run.position,"group":run.group,"source_ref":run.source,"owner_ref":owner_ref},
         "cache_before":slots(&run.cache_before),"cache_after":slots(&run.cache_after),"kernel_terminal":terminal,
         "records":physical_v,"attempts":attempts_v,"case_charge":e.exact(run.work.case(),"cases[].run.case_charge"),
         "invocation_before":e.exact(run.work.invocation_before(),"cases[].run.invocation_before"),
@@ -1456,24 +1480,83 @@ fn run_value(e: &Enc, run: &k::RunOrigins, records: &[k::AttemptRecord], termina
 /// request indices.
 fn invocation_arrays(e: &Enc, inv: &k::RecordedInvocation, run: &k::RunOrigins, requests: &[usize])
     -> Result<(Vec<Value>, Vec<Value>, Vec<Value>, u64), ReceiptFailure> {
-    let owner = |o: &k::NativeOwner| match o {
-        k::NativeOwner::Case(i) => requests.get(*i).map(|request| json!({"kind":"case","index":request})).unwrap_or_else(|| {
-            e.fail(ReceiptCheck::Association, "calls[].owner_refs");
-            Value::Null
-        }),
-        k::NativeOwner::Combination(i) => json!({"kind":"combination","index":i}),
-    };
-    let calls: Vec<Value> = inv.calls().iter().map(|c| json!({"id":c.id,"kind":"case_batch",
-        "owner_refs":c.owners.iter().map(owner).collect::<Vec<_>>(),
-        "source_refs":c.sources,"run_refs":c.runs,"invocation_before":e.exact(c.invocation_before,"calls[].invocation_before"),
-        "invocation_after":e.exact(c.invocation_after,"calls[].invocation_after"),"result":{"kind":"runs"}})).collect();
+    invocation_arrays_mapped(e, inv, run, &OwnerMap { requests, prepared: &[], combinations: &[] })
+}
+/// B2-P (B2-C §2.5's ordinal mapping): the kernel's native owners as authored indices. A
+/// `Case(j)` below the batch's length is batch ordinal j (`requests[j]`); at or above it, the
+/// (j − n)-th registered operand preparation's owner (`prepared`); `Combination(k)` is the
+/// k-th mechanics Call, refused Calls included (`combinations[k]`, authored indices).
+struct OwnerMap<'a> { requests: &'a [usize], prepared: &'a [usize], combinations: &'a [usize] }
+impl OwnerMap<'_> {
+    fn case(&self, ordinal: usize) -> Option<usize> {
+        self.requests.get(ordinal).copied().or_else(|| ordinal.checked_sub(self.requests.len()).and_then(|j| self.prepared.get(j).copied()))
+    }
+    fn owner(&self, owner: &k::NativeOwner) -> Option<Value> {
+        match owner {
+            k::NativeOwner::Case(i) => self.case(*i).map(|request| json!({"kind":"case","index":request})),
+            k::NativeOwner::Combination(i) => self.combinations.get(*i).map(|index| json!({"kind":"combination","index":index})),
+        }
+    }
+}
+/// The CombinationReason of a `pre_source_refusal` (SCHEMA `CombinationReason`; C2 §4; RV115
+/// N-4). The Run-terminal tags are not pre-source reasons (B2-C §2.5): untranslated.
+fn combination_reason(e: &Enc, r: &k::CombinationReason) -> Value {
+    match r {
+        k::CombinationReason::NoOperands => json!({"space":"combination","tag":"no_operands"}),
+        k::CombinationReason::NestedCombination => json!({"space":"combination","tag":"nested_combination"}),
+        k::CombinationReason::OperandsDiffer => json!({"space":"combination","tag":"operands_differ"}),
+        k::CombinationReason::NoSelectedOperand => json!({"space":"combination","tag":"no_selected_operand"}),
+        k::CombinationReason::LedgerUnavailable(k::LedgerRefusal::Accumulator(s)) => {
+            json!({"space":"combination","tag":"ledger_unavailable","error":{"tag":"accumulator","error":sum_error(s)}})
+        }
+        k::CombinationReason::CountRange(name) => json!({"space":"combination","tag":"count_range","name":name}),
+        _ => e.untranslated("calls[].result.reason"),
+    }
+}
+fn invocation_arrays_mapped(e: &Enc, inv: &k::RecordedInvocation, run: &k::RunOrigins, owners: &OwnerMap<'_>)
+    -> Result<(Vec<Value>, Vec<Value>, Vec<Value>, u64), ReceiptFailure> {
+    let owner = |o: &k::NativeOwner| owners.owner(o).unwrap_or_else(|| {
+        e.fail(ReceiptCheck::Association, "calls[].owner_refs");
+        Value::Null
+    });
+    let calls: Vec<Value> = inv.calls().iter().map(|c| match c.kind {
+        k::CallKind::CaseBatch => json!({"id":c.id,"kind":"case_batch",
+            "owner_refs":c.owners.iter().map(owner).collect::<Vec<_>>(),
+            "source_refs":c.sources,"run_refs":c.runs,"invocation_before":e.exact(c.invocation_before,"calls[].invocation_before"),
+            "invocation_after":e.exact(c.invocation_after,"calls[].invocation_after"),"result":{"kind":"runs"}}),
+        // B2-P (B2-C §2.5; C2 §4): a MechanicsCombinationCall, its authored terms as requested.
+        k::CallKind::MechanicsCombination => {
+            let result = match &c.result {
+                k::CallResult::Runs => json!({"kind":"runs"}),
+                k::CallResult::PreSourceRefusal { stage, reason } => json!({"kind":"pre_source_refusal",
+                    "stage":match stage { k::CombinationStage::OperandValidation=>"operand_validation", k::CombinationStage::CombinedPreparation=>"combined_preparation" },
+                    "reason":combination_reason(e,reason)}),
+                // N-5: a combination's origin refusal abandons; it is never serialized.
+                k::CallResult::OriginRefusal(_) => { e.fail(ReceiptCheck::Association, "calls[].result"); Value::Null }
+            };
+            let requested = c.requested_operands.iter().map(|o| json!({"source_ref":o.source.map_or_else(|| {
+                e.fail(ReceiptCheck::Association, "calls[].requested_operands[].source_ref");
+                Value::Null
+            }, |s| json!(s)),"factor":e.ubits(o.factor_bits,"calls[].requested_operands[].factor")})).collect::<Vec<_>>();
+            json!({"id":c.id,"kind":"mechanics_combination","owner_refs":c.owners.iter().map(owner).collect::<Vec<_>>(),
+                "requested_operands":requested,"source_refs":c.sources,"run_refs":c.runs,
+                "invocation_before":e.exact(c.invocation_before,"calls[].invocation_before"),
+                "invocation_after":e.exact(c.invocation_after,"calls[].invocation_after"),"result":result})
+        }
+    }).collect();
     let groups: Vec<Value> = inv.groups().iter().map(|g| {
         let preparation = match &g.preparation { k::GroupPreparation::Ready => json!({"kind":"ready"}), k::GroupPreparation::Refused(r) => json!({"kind":"refused","reason":refusal(e,r)}) };
         let stiffness = inv.sources().get(g.first_source).map(|s| sha_hex(&s.stiffness));
         if stiffness.is_none() { e.fail(ReceiptCheck::Association, "groups[].stiffness_sha256"); }
-        json!({"id":g.id,"call":g.call,"first_source_ref":g.first_source,
+        let mut group = json!({"id":g.id,"call":g.call,"first_source_ref":g.first_source,
             "source_refs":inv.runs().iter().filter(|r|r.group==Some(g.id)).map(|r|r.source).collect::<Vec<_>>(),
-            "stiffness_sha256":stiffness,"preparation":preparation})
+            "stiffness_sha256":stiffness,"preparation":preparation});
+        // B2-P (C2 §4): a combination's call-local group carries its imports, in slot order.
+        if inv.calls().get(g.call).is_some_and(|c| matches!(c.kind, k::CallKind::MechanicsCombination)) {
+            group["imports"] = json!(g.imports.iter().flatten().map(|i| json!({"operand_index":i.operand_index,"selected_run":i.selected_run,
+                "slot":slot_name(i.slot),"build":i.build})).collect::<Vec<_>>());
+        }
+        group
     }).collect();
     let builds: Vec<Value> = inv.builds().iter().map(|b| json!({"id":b.id,"group":b.group,"slot":slot_name(b.slot),
         "origin":{"call":b.call,"run":b.run,"physical_record":b.physical_record,"phase":match b.phase { k::BuildPhase::Shared=>"shared", k::BuildPhase::VerificationShared=>"verification_shared" }},
@@ -1484,12 +1567,16 @@ fn invocation_arrays(e: &Enc, inv: &k::RecordedInvocation, run: &k::RunOrigins, 
         return Err(fail(ReceiptCheck::Association, "work.invocation_limit"));
     }
     // C1 §4 body.work: charged equals the final after (before = 0): the last Run's, and
-    // (DESIGN_v2 T-11) the call's `invocation_after`.
+    // (DESIGN_v2 T-11) the call's `invocation_after`. B2-P (B2-C §2.7): with combination
+    // Calls, the last Call's `invocation_after`, also the last Run's when that Call made one,
+    // and each Call's `invocation_before` the previous Call's `invocation_after` (the meter chain).
     let charged = e.exact(inv.meter().checked_charged(), "work.charged");
-    if charged != e.exact(run.work.invocation_after(), "work.charged") {
+    let last = inv.calls().last();
+    if last.is_none_or(|last| !last.runs.is_empty()) && charged != e.exact(run.work.invocation_after(), "work.charged") {
         return Err(fail(ReceiptCheck::WorkCounterInconsistent, "work.charged"));
     }
-    if inv.calls().iter().any(|call| charged != e.exact(call.invocation_after, "work.charged")) {
+    if last.is_some_and(|last| charged != e.exact(last.invocation_after, "work.charged"))
+        || inv.calls().windows(2).any(|pair| e.exact(pair[1].invocation_before, "work.charged") != e.exact(pair[0].invocation_after, "work.charged")) {
         return Err(fail(ReceiptCheck::WorkCounterInconsistent, "work.charged"));
     }
     Ok((calls, groups, builds, charged))
@@ -1544,16 +1631,27 @@ fn case_diagnostic_refs_into(env: &Value, case_ids: &[&str], refs: &mut [Vec<Val
 /// The body around its members, then the two hashes (C1 §3): publication over the
 /// final envelope without the receipt, then the body.
 #[allow(clippy::too_many_arguments)]
-fn finish(e: Enc, mut env: Value, invocation: &source_receipt::CapturedInvocation, charged: u64, execution_order: Value, cases: Vec<Value>,
-    sources: Vec<Value>, material: Value, (calls, groups, builds): (Vec<Value>, Vec<Value>, Vec<Value>), ordinary: Vec<Value>, attempts: Vec<Value>,
+fn finish(e: Enc, env: Value, invocation: &source_receipt::CapturedInvocation, charged: u64, execution_order: Value, cases: Vec<Value>,
+    sources: Vec<Value>, material: Value, arrays: (Vec<Value>, Vec<Value>, Vec<Value>), ordinary: Vec<Value>, attempts: Vec<Value>,
     legacy_source_work: Vec<Value>) -> Result<Value, ReceiptFailure> {
+    finish_with(e, env, invocation, charged, execution_order, cases, sources, material, arrays, ordinary, attempts, legacy_source_work, Vec::new(), Vec::new())
+}
+/// `finish` with B2-P's members: `combinations[]` (one per model combination) and
+/// `operand_preparations[]`, present only when non-empty (C-6).
+#[allow(clippy::too_many_arguments)]
+fn finish_with(e: Enc, mut env: Value, invocation: &source_receipt::CapturedInvocation, charged: u64, execution_order: Value, cases: Vec<Value>,
+    sources: Vec<Value>, material: Value, (calls, groups, builds): (Vec<Value>, Vec<Value>, Vec<Value>), ordinary: Vec<Value>, attempts: Vec<Value>,
+    legacy_source_work: Vec<Value>, combinations: Vec<Value>, operand_preparations: Vec<Value>) -> Result<Value, ReceiptFailure> {
     let mut body = json!({"receipt_version":1,"policy":POLICY,"projection_policy":PROJECTION_POLICY,"work_policy":WORK_POLICY,
         "facade_policy":FACADE_POLICY,"canonicalization":CANONICALIZATION,
         "invocation":{"algorithm":"sha256","profile":CANONICALIZATION,"scope":"actual_request_and_solver_mode","domain":"source_blocks_invocation_v1","value":invocation.borrowed_digest()},
         "publication_sha256":"",
         "work":{"case_limit":CASE_LIMIT,"invocation_limit":INVOCATION_LIMIT,"charged":charged,"execution_order":execution_order},
-        "cases":cases,"combinations":[],"sources":sources,"material_bases":[material],"calls":calls,"groups":groups,"builds":builds,
+        "cases":cases,"combinations":combinations,"sources":sources,"material_bases":[material],"calls":calls,"groups":groups,"builds":builds,
         "ordinary_attempts":ordinary,"product_attempts":attempts,"legacy_source_work":legacy_source_work});
+    if !operand_preparations.is_empty() {
+        body["operand_preparations"] = json!(operand_preparations);
+    }
     e.finish()?;
     if !safe_integers(&body) {
         return Err(fail(ReceiptCheck::Encoding, "body"));
@@ -1803,9 +1901,9 @@ pub(super) fn serialize_unavailable(refused: Refused<'_>, invocation: &source_re
 /// refusal abandons the successor (decision 5).
 pub(super) fn serialize_cases(cases: &mut rp::PreparedCases, staged: &MechanicsEnvelope, invocation: &source_receipt::CapturedInvocation)
     -> Result<Value, ReceiptFailure> {
-    let rp::PreparedCases { capture, attempts, .. } = cases;
+    let rp::PreparedCases { capture, attempts, combinations, operand_preparations, .. } = cases;
     let native = capture.native_invocation.take();
-    let serialized = serialize_cases_with(capture, attempts, native.as_ref(), staged, invocation);
+    let serialized = serialize_cases_with(capture, attempts, combinations, operand_preparations, native.as_ref(), staged, invocation);
     capture.native_invocation = native;
     serialized
 }
@@ -1814,25 +1912,41 @@ pub(super) fn serialize_cases(cases: &mut rp::PreparedCases, staged: &MechanicsE
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum CaseStatus { Selected, Unavailable, NotRequired }
 
-fn serialize_cases_with(pc: &mut rp::ProductCapture, attempts: &[rp::CaseAttempt], inv: Option<&k::RecordedInvocation>,
+/// B2-P (B2-C §2.7): the combination diagnostics' messages.
+pub(super) const COMBINATION_SELECTED_MESSAGE: &str = "Retained-precision recovery (contribution_preserving_multiprecision_v1) is selected for this load combination, from its own solve and certificate. Its published rows carry recovery_method; the retained_precision receipt binds their certified classes, the native attempts and work, and its operands' sources.";
+pub(super) const COMBINATION_UNAVAILABLE_MESSAGE: &str = "Retained-precision recovery is unavailable for this load combination. Its published rows keep their ordinary values and diagnostics and are withheld from rule binding; the retained_precision receipt records the actual attempt and its typed cause.";
+/// B2-P (DEF-C; B2-C §4): the combination formation definition's id.
+pub(super) const COMBINATION_DEFINITION_ID: &str = "RP-PREPARED-COMBINATION-DUAL-v1";
+
+#[allow(clippy::too_many_arguments)]
+fn serialize_cases_with(pc: &mut rp::ProductCapture, attempts: &[rp::CaseAttempt], combos: &mut [rp::CombinationAttempt],
+    preparations: &[rp::OperandPreparation], inv: Option<&k::RecordedInvocation>,
     staged: &MechanicsEnvelope, invocation: &source_receipt::CapturedInvocation) -> Result<Value, ReceiptFailure> {
     let assoc = |p| fail(ReceiptCheck::Association, p);
     let scope = |p| fail(ReceiptCheck::Scope, p);
     let e = Enc::default();
     let mode = invocation.mode();
     let raw = invocation.borrowed_raw();
-    // G-j: the invocation this capture observed (RV82-S2), its requested cases with no
-    // combination, and one ordinary seed per case, in request order.
+    // G-j: the invocation this capture observed (RV82-S2), its requested cases, one ordinary
+    // seed per case, in request order, and (B2-P) one record per model combination.
     if pc.invocation_mode != Some(mode) || pc.invocation_digest.as_deref() != Some(invocation.borrowed_digest().as_str()) {
         return Err(assoc("invocation"));
     }
     let request_cases = raw["model"]["load_cases"].as_array().ok_or(assoc("cases"))?;
-    let combinations = raw["model"]["combinations"].as_array().map_or(0, Vec::len);
+    let model_combinations = raw["model"]["combinations"].as_array().map_or(&[][..], Vec::as_slice);
     let count = request_cases.len();
-    if count == 0 || count != pc.cases_seen() || combinations != 0 {
+    if count == 0 || count != pc.cases_seen() {
         return Err(scope("cases"));
     }
+    if model_combinations.len() != combos.len() || combos.len() != pc.combinations.len()
+        || combos.iter().enumerate().any(|(k, combination)| combination.index != k) {
+        return Err(scope("combinations"));
+    }
     let case_ids = request_cases.iter().map(|case| case["id"].as_str()).collect::<Option<Vec<_>>>().ok_or(assoc("cases[].basis_ref"))?;
+    let combination_ids = model_combinations.iter().map(|c| c["id"].as_str()).collect::<Option<Vec<_>>>().ok_or(assoc("combinations[].basis_ref"))?;
+    if combination_ids.iter().zip(&pc.combinations).any(|(id, captured)| *id != captured.id) {
+        return Err(assoc("combinations[].basis_ref"));
+    }
     if pc.ordinary.len() != count {
         return Err(scope("ordinary_attempts"));
     }
@@ -1857,10 +1971,17 @@ fn serialize_cases_with(pc: &mut rp::ProductCapture, attempts: &[rp::CaseAttempt
     }
     // The call's batch ordinals: the prepared attempts, in request order.
     let requests: Vec<usize> = attempts.iter().filter(|attempt| attempt.prepared).map(|attempt| attempt.request).collect();
+    // B2-P: the registered operand preparations' owners (FK's prepared case ordinals) and the
+    // combinations that made a Call, in Call order (FK's combination ordinals).
+    let prepared_owners: Vec<usize> = preparations.iter().filter(|record| record.source.is_some()).map(|record| record.owner).collect();
+    let called: Vec<usize> = combos.iter().filter(|combination| combination.call.is_some()).map(|combination| combination.index).collect();
+    let with_run = combos.iter().filter(|combination| combination.native().is_some()).count();
     let inv = inv.ok_or(assoc("calls"))?;
-    if inv.calls().len() != 1 || inv.runs().len() != requests.len() || inv.sources().len() != requests.len() {
+    if inv.calls().len() != 1 + called.len() || inv.runs().len() != requests.len() + with_run
+        || inv.sources().len() != requests.len() + prepared_owners.len() + with_run {
         return Err(scope("cases[].run"));
     }
+    let owners = OwnerMap { requests: &requests, prepared: &prepared_owners, combinations: &called };
     // D39: each case's legacy disposition, in request order (a selected case's disclosure is
     // omitted and its work recorded).
     let mut legacy_source_work = Vec::new();
@@ -1882,6 +2003,16 @@ fn serialize_cases_with(pc: &mut rp::ProductCapture, attempts: &[rp::CaseAttempt
             diagnostic_ids[index] = Some(unavailable_case_envelope(&mut env, case_ids[index])?);
         }
     }
+    // B2-P (B2-C §2.7): after the cases', each retained combination's diagnostic, in authored
+    // order; a selected combination's rows carry `recovery_method`.
+    let mut combination_diagnostics: Vec<Option<String>> = vec![None; combos.len()];
+    for combination in combos.iter() {
+        if !combination.retained() {
+            continue;
+        }
+        let selected = matches!(combination.end, rp::CombinationEnd::Frozen(_));
+        combination_diagnostics[combination.index] = Some(combination_envelope(&mut env, combination_ids[combination.index], selected)?);
+    }
     // The ordinary attempts (G-b, G-c, G-l), with D6a's references in one pass.
     let mut diagnostic_refs = vec![Vec::new(); count];
     case_diagnostic_refs_into(&env, &case_ids, &mut diagnostic_refs)?;
@@ -1898,7 +2029,7 @@ fn serialize_cases_with(pc: &mut rp::ProductCapture, attempts: &[rp::CaseAttempt
     }
     // Each product attempt, in start order, on its case's own slot.
     let mut sources: Vec<Option<Value>> = vec![None; inv.sources().len()];
-    let mut product_attempts = Vec::with_capacity(attempts.len());
+    let mut product_attempts = Vec::with_capacity(attempts.len() + with_run);
     let mut case_parts: Vec<Option<Value>> = vec![None; count];
     for attempt in attempts {
         let request = attempt.request;
@@ -1917,6 +2048,41 @@ fn serialize_cases_with(pc: &mut rp::ProductCapture, attempts: &[rp::CaseAttempt
         product_attempts.push(attempt_v);
         case_parts[request] = Some(part);
     }
+    // B2-P (C3a): the operand preparations, in first-need order, and each prepared one's
+    // CaseSource at its registered index (C3a-2, C3a-5).
+    let mut operand_preparations = Vec::with_capacity(preparations.len());
+    for record in preparations {
+        let (record_v, source) = pc.with_case(record.owner, |pc| serialize_operand_preparation(&e, pc, record, inv, case_ids[record.owner]))?;
+        if let Some((index, source)) = source {
+            let slot = sources.get_mut(index).ok_or(assoc("sources[]"))?;
+            if slot.replace(source).is_some() {
+                return Err(assoc("sources[]"));
+            }
+        }
+        operand_preparations.push(record_v);
+    }
+    // B2-P (B2-C §2.5, §4): each combination with a Run: its CombinationSource (after every
+    // case source, so its operands' identities are recomputed from them), its attempt, and its
+    // entry's Run members.
+    let mut combination_parts: Vec<Option<Value>> = vec![None; combos.len()];
+    for combination in combos.iter_mut() {
+        if combination.native().is_none() {
+            continue;
+        }
+        let index = combination.index;
+        let rows = pc.combination_rows.get(index).cloned().ok_or(assoc("combinations[].result_ids"))?;
+        let id = combination_ids[index];
+        let parts = rp::PreparedCases::with_combination(pc, combination, |pc, combination| {
+            serialize_combination_attempt(&e, pc, combination, inv, &owners, &sources, rows.clone(), staged, &env, id)
+        }).ok_or(assoc("combinations[].operands"))??;
+        let (attempt_v, (source_index, source_v), part) = parts;
+        let slot = sources.get_mut(source_index).ok_or(assoc("sources[]"))?;
+        if slot.replace(source_v).is_some() {
+            return Err(assoc("sources[]"));
+        }
+        product_attempts.push(attempt_v);
+        combination_parts[index] = Some(part);
+    }
     let sources = sources.into_iter().collect::<Option<Vec<_>>>().ok_or(assoc("sources[]"))?;
     // cases[]: one per requested case, in request order.
     let mut cases_v = Vec::with_capacity(count);
@@ -1934,15 +2100,240 @@ fn serialize_cases_with(pc: &mut rp::ProductCapture, attempts: &[rp::CaseAttempt
         }
         cases_v.push(case_v);
     }
+    // B2-P (B2-C §2.7): combinations[], one per model combination, in authored order.
+    let mut combination_refs = vec![Vec::new(); combos.len()];
+    case_diagnostic_refs_into(&env, &combination_ids, &mut combination_refs)?;
+    let mut combinations_v = Vec::with_capacity(combos.len());
+    for (combination, ((raw_combination, refs), part)) in combos.iter().zip(model_combinations.iter().zip(combination_refs).zip(combination_parts)) {
+        combinations_v.push(combination_entry(&e, combination, raw_combination, &env, refs, part, combination_diagnostics[combination.index].clone(), &preparations[..])?);
+    }
     let last = inv.runs().last().ok_or(scope("cases[].run"))?;
-    let (calls, groups, builds, charged) = invocation_arrays(&e, inv, last, &requests)?;
-    let execution_order = inv.runs().iter().map(|run| match run.owner {
-        k::NativeOwner::Case(ordinal) => requests.get(ordinal).map(|request| json!({"kind":"case","index":request})),
-        k::NativeOwner::Combination(index) => Some(json!({"kind":"combination","index":index})),
-    }).collect::<Option<Vec<_>>>().ok_or(assoc("work.execution_order"))?;
+    let (calls, groups, builds, charged) = invocation_arrays_mapped(&e, inv, last, &owners)?;
+    let execution_order = inv.runs().iter().map(|run| owners.owner(&run.owner)).collect::<Option<Vec<_>>>().ok_or(assoc("work.execution_order"))?;
     let material = material_basis(&e, pc, raw, count)?;
-    finish(e, env, invocation, charged, json!(execution_order), cases_v, sources, material, (calls, groups, builds), ordinary,
-        product_attempts, legacy_source_work)
+    finish_with(e, env, invocation, charged, json!(execution_order), cases_v, sources, material, (calls, groups, builds), ordinary,
+        product_attempts, legacy_source_work, combinations_v, operand_preparations)
+}
+
+/// B2-P (B2-C §2.7): a retained combination's diagnostic, after the case diagnostics: `selected`
+/// (its rows then carry `recovery_method`) or `unavailable`. A collision with an existing id is
+/// a serializer refusal (`Association`), as for cases.
+fn combination_envelope(env: &mut Value, combination_id: &str, selected: bool) -> Result<String, ReceiptFailure> {
+    let assoc = |p| fail(ReceiptCheck::Association, p);
+    if selected {
+        for row in env["results"].as_array_mut().ok_or(assoc("results"))? {
+            if row["basis_ref"]["ref_type"] == json!("combination") && row["basis_ref"]["ref_id"] == json!(combination_id) {
+                row["recovery_method"] = json!(METHOD);
+            }
+        }
+    }
+    let diags = env["diagnostics"].as_array_mut().ok_or(assoc("diagnostics"))?;
+    let (id, code, message) = if selected {
+        (format!("diagnostic:retained-precision:{combination_id}:selected"), SELECTED_CODE, COMBINATION_SELECTED_MESSAGE)
+    } else {
+        (format!("diagnostic:retained-precision:{combination_id}:unavailable"), UNAVAILABLE_CODE, COMBINATION_UNAVAILABLE_MESSAGE)
+    };
+    if diags.iter().any(|d| d["id"] == json!(id)) {
+        return Err(assoc("diagnostics[+combination].id"));
+    }
+    diags.push(json!({"id":id,"code":code,"severity":"info","message":message,"source":"core/product_physics","affected_refs":[combination_id]}));
+    Ok(id)
+}
+
+/// B2-P (B2-C §2.7; C1 §5): a combination's expression from the invocation: mechanics terms
+/// with their factors' bits in authored order; subtraction's minuend then subtrahend; a range's
+/// operand ids sorted as the producer sorts them (Rust `String` order: UTF-8 bytes) and its mode.
+fn combination_expression(e: &Enc, raw: &Value) -> Result<Value, ReceiptFailure> {
+    let assoc = |p| fail(ReceiptCheck::Association, p);
+    Ok(match raw["basis"].as_str() {
+        Some("mechanics") => {
+            let terms = raw["terms"].as_array().ok_or(assoc("combinations[].expression.terms"))?;
+            json!({"kind":"mechanics","terms":terms.iter().map(|term| Ok(json!({"case_id":term["load_case"].as_str().ok_or(assoc("combinations[].expression.terms[].case_id"))?,
+                "factor":e.bits(term["factor"].as_f64().ok_or(assoc("combinations[].expression.terms[].factor"))?,"combinations[].expression.terms[].factor")})))
+                .collect::<Result<Vec<_>, ReceiptFailure>>()?})
+        }
+        Some("result_state_subtraction") => json!({"kind":"result_state_subtraction",
+            "minuend_id":raw["minuend_id"].as_str().ok_or(assoc("combinations[].expression.minuend_id"))?,
+            "subtrahend_id":raw["subtrahend_id"].as_str().ok_or(assoc("combinations[].expression.subtrahend_id"))?}),
+        Some("range_envelope") => {
+            let mut ids = raw["operand_ids"].as_array().ok_or(assoc("combinations[].expression.operand_ids"))?.iter()
+                .map(|id| id.as_str().map(str::to_owned)).collect::<Option<Vec<String>>>().ok_or(assoc("combinations[].expression.operand_ids"))?;
+            ids.sort();
+            json!({"kind":"range_envelope","operand_ids":ids,"mode":raw["mode"].as_str().ok_or(assoc("combinations[].expression.mode"))?})
+        }
+        _ => return Err(fail(ReceiptCheck::Untranslated, "combinations[].expression")),
+    })
+}
+
+/// B2-P (B2-C §2.7; SCHEMA `Combination`): one combination's entry by its disposition.
+#[allow(clippy::too_many_arguments)]
+fn combination_entry(e: &Enc, combination: &rp::CombinationAttempt, raw: &Value, env: &Value, diagnostic_refs: Vec<Value>, part: Option<Value>,
+    diagnostic: Option<String>, preparations: &[rp::OperandPreparation]) -> Result<Value, ReceiptFailure> {
+    let assoc = |p| fail(ReceiptCheck::Association, p);
+    let id = raw["id"].as_str().ok_or(assoc("combinations[].basis_ref"))?;
+    let result_ids: Vec<Value> = env["results"].as_array().ok_or(assoc("results"))?.iter()
+        .filter(|row| row["basis_ref"]["ref_type"] == json!("combination") && row["basis_ref"]["ref_id"] == json!(id))
+        .map(|row| row["id"].clone()).collect();
+    let mut entry = json!({"basis_ref":{"ref_type":"combination","ref_id":id},"expression":combination_expression(e, raw)?,
+        "result_ids":result_ids,"diagnostic_refs":diagnostic_refs});
+    let object = entry.as_object_mut().ok_or(assoc("combinations[]"))?;
+    let unavailable = |code: &str, phase: &str, cause: Value| json!({"disposition":"retained_unavailable","reason":{"code":code,"phase":phase,"cause":cause},
+        "diagnostic_ref":diagnostic.clone(),"call_ref":combination.call,"product_attempt_ref":null,"run":null,"source_ref":null});
+    let members = match &combination.end {
+        rp::CombinationEnd::Ordinary => json!({"disposition":"ordinary","reason":"no_retained_mechanics"}),
+        rp::CombinationEnd::BaseWithheld(code) => json!({"disposition":"base_withheld","reason":code}),
+        rp::CombinationEnd::OperandSourceUnavailable { operand_index } =>
+            unavailable("combination_unresolved", "preparation", json!({"kind":"operand_source_unavailable","operand_index":operand_index})),
+        rp::CombinationEnd::OperandPreparationFailure { operand_preparation } => {
+            preparations.get(*operand_preparation).ok_or(assoc("combinations[].reason.cause"))?;
+            unavailable("combination_unresolved", "preparation", json!({"kind":"operand_preparation_failure","operand_preparation_ref":operand_preparation}))
+        }
+        rp::CombinationEnd::PreSource { reason, .. } => unavailable("combination_unresolved", "preparation", combination_reason(e, reason)),
+        rp::CombinationEnd::Native | rp::CombinationEnd::Frozen(_) | rp::CombinationEnd::Candidate(_) => part.ok_or(assoc("combinations[].run"))?,
+        rp::CombinationEnd::Retained => return Err(assoc("combinations[].disposition")),
+    };
+    match members {
+        Value::Object(members) => object.extend(members),
+        _ => return Err(assoc("combinations[]")),
+    }
+    Ok(entry)
+}
+
+/// B2-P (C3a; SCHEMA `OperandPreparation`): one operand preparation's record, on its owner's
+/// slot, and its CaseSource (with `preparation: {operand_preparation_ref, sha256}`) when prepared.
+fn serialize_operand_preparation(e: &Enc, pc: &rp::ProductCapture, record: &rp::OperandPreparation, inv: &k::RecordedInvocation, case_id: &str)
+    -> Result<(Value, Option<(usize, Value)>), ReceiptFailure> {
+    let assoc = |p| fail(ReceiptCheck::Association, p);
+    let adapter = record.trace.adapter.as_ref().ok_or(assoc("operand_preparations[].adapter"))?;
+    let (old, new) = if record.trace.old_vector_swapped { (&record.parts.old_operational[..], &pc.operational[..]) } else { (&pc.operational[..], &[][..]) };
+    let members = preparation_members(e, &record.trace.members, &record.parts.preparation_work);
+    let prepared = record.trace.source_ready && record.source.is_some();
+    let result = if prepared {
+        json!({"kind":"prepared"})
+    } else {
+        let capture = pc.error.as_ref().ok_or(assoc("operand_preparations[].result"))?;
+        json!({"kind":"refused","error":{"kind":"preparation","capture":capture_error(e,capture),"section":record.parts.preparation_error.as_ref().map(|s|section_error(e,s))}})
+    };
+    let record_v = json!({"id":record.id,"definition_id":DEFINITION_ID,"owner_ref":{"kind":"case","index":record.owner},"ordinary_attempt_ref":record.owner,
+        "material_basis_ref":0,"purpose":"combination_operand","requested_by":record.requested_by,"source_ref":record.source,"result":result,
+        "stage":if prepared {"completed"} else {"failed"},"preparation":{"members":members},"adapter":adapter_value(e, adapter),
+        "operational":operational_value(e, record.trace.old_coverage, old, new)});
+    let Some(source_id) = record.source.filter(|_| prepared) else { return Ok((record_v, None)) };
+    let primitive = pc.source.as_ref().ok_or(assoc("sources[]"))?;
+    let mut source = case_source_at(e, pc, primitive, inv, source_id, record.owner, case_id, new)?;
+    // C3a-5: H(retained_precision_operand_preparation_v1, {definition_id, definition_sha256,
+    // owner_ref, ordinary_attempt_ref, material_basis_ref, purpose, members}).
+    let payload = {
+        let mut payload = preparation_payload(&record_v, rp::W1Route::Preview);
+        payload["purpose"] = json!("combination_operand");
+        payload
+    };
+    let sha = domain_hash("retained_precision_operand_preparation_v1", &payload).ok_or(fail(ReceiptCheck::Encoding, "sources[].preparation.sha256"))?;
+    source["preparation"] = json!({"operand_preparation_ref":record.id,"sha256":sha});
+    Ok((record_v, Some((source_id, source))))
+}
+
+/// The identity of a source entry: H(`retained_precision_source_mp_v2`, it without `index`).
+fn source_identity(source: &Value) -> Result<String, ReceiptFailure> {
+    let mut binding = source.clone();
+    binding.as_object_mut().ok_or(fail(ReceiptCheck::Association, "sources[]"))?.remove("index");
+    domain_hash("retained_precision_source_mp_v2", &binding).ok_or(fail(ReceiptCheck::Encoding, "sources[].source_identity_sha256"))
+}
+
+/// B2-P (B2-C §2.5, §4): one combination with a Run, on operand 0's slot with its own result
+/// fields swapped in: its `CombinationAttempt`, its `CombinationSource` (index and value), and
+/// its entry's members (`retained_selected`, or `retained_unavailable` with its Run).
+#[allow(clippy::too_many_arguments)]
+fn serialize_combination_attempt(e: &Enc, pc: &rp::ProductCapture, combination: &rp::CombinationAttempt, inv: &k::RecordedInvocation,
+    owners: &OwnerMap<'_>, sources: &[Option<Value>], rows: std::ops::Range<usize>, staged: &MechanicsEnvelope, env: &Value, combination_id: &str)
+    -> Result<(Value, (usize, Value), Value), ReceiptFailure> {
+    let assoc = |p| fail(ReceiptCheck::Association, p);
+    // The combination's own Run is in the capture's fields (swapped in with its results).
+    let case = pc.native.as_ref().ok_or(assoc("combinations[].run"))?;
+    let run = inv.runs().get(case.run).filter(|run| run.id == case.run).ok_or(assoc("combinations[].run"))?;
+    if !matches!(owners.owner(&run.owner), Some(owner) if owner == json!({"kind":"combination","index":combination.index})) {
+        return Err(assoc("combinations[].run.origin"));
+    }
+    let attempt_id = combination.attempt.ok_or(assoc("combinations[].product_attempt_ref"))?;
+    let mut costs = rr::ProjectionWork::default();
+    let view = combination.typed_trace(pc, &mut costs).map_err(|_| assoc("product_attempts[]"))?;
+    // The CombinationSource (C2 §3): K4CMB, its ledger and stiffness, and its operands.
+    let origin = inv.sources().get(run.source).ok_or(assoc("sources[]"))?;
+    let ledger = origin.combination_ledger.as_ref().ok_or(assoc("sources[].ledger_sha256"))?;
+    let call = combination.call.and_then(|call| inv.calls().get(call)).ok_or(assoc("calls[]"))?;
+    if call.requested_operands.len() != combination.operands.len() {
+        return Err(assoc("sources[].operands"));
+    }
+    let mut operands = Vec::with_capacity(combination.operands.len());
+    for (operand, requested) in combination.operands.iter().zip(&call.requested_operands) {
+        let source_ref = requested.source.ok_or(assoc("sources[].operands[].source_ref"))?;
+        let operand_source = sources.get(source_ref).and_then(Option::as_ref).ok_or(assoc("sources[].operands[].source_identity_sha256"))?;
+        operands.push(json!({"case_index":operand.case,"factor":e.ubits(requested.factor_bits,"sources[].operands[].factor"),
+            "source_ref":source_ref,"source_identity_sha256":source_identity(operand_source)?}));
+    }
+    let representative = operands.first().map(|operand| operand["source_ref"].clone()).ok_or(assoc("sources[].operands"))?;
+    let source_v = json!({"index":run.source,"owner":{"kind":"combination","combination_index":combination.index,"combination_id":combination_id},
+        "kernel_source_sha256":sha_hex(&origin.identity),"ledger_sha256":sha_hex(ledger),"stiffness_sha256":sha_hex(&origin.stiffness),
+        "representative_source_ref":representative,"operands":operands});
+    let (records, terminal) = kernel_outcome(e, &case.outcome);
+    let run_v = run_value_owned(e, run, records, terminal, json!({"kind":"combination","index":combination.index}))?;
+    let (result, part) = match &combination.end {
+        rp::CombinationEnd::Frozen(frozen) => {
+            let k::ExecutionOutcome::Selected(owner) = &case.outcome else { return Err(fail(ReceiptCheck::Scope, "combinations[].disposition")) };
+            let certificate = frozen.certificate();
+            if !certificate.owner_matches(owner) {
+                return Err(assoc("combinations[].selection.owner"));
+            }
+            if !certificate.passed() {
+                return Err(assoc("combinations[].selection.certificate"));
+            }
+            let scope = rp::CaseScope::block(rows.clone(), pc.route());
+            let bound = pc.bind_combination_rows_scoped(staged, &scope, owner, combination_id).map_err(|_| assoc("combinations[].selection.absolute_verified"))?;
+            let results = env["results"].as_array().ok_or(assoc("results"))?;
+            let results = results.get(rows).ok_or(assoc("results"))?;
+            let row_ids: Vec<String> = results.iter().map(|r| r["id"].as_str().map(str::to_owned)).collect::<Option<_>>().ok_or(assoc("results[].id"))?;
+            if bound.len() != row_ids.len() || bound.iter().zip(&row_ids).any(|(r, id)| r.id != id.as_str()) {
+                return Err(assoc("combinations[].selection.absolute_verified"));
+            }
+            let recipes: Vec<k::ProductRecipe> = bound.iter().map(|r| r.recipe).collect();
+            let selection_v = selection(e, owner, pc, &view, certificate.verdicts(), &recipes, &row_ids)?;
+            let source_identity_sha256 = source_identity(&source_v)?;
+            (json!({"kind":"ready"}), json!({"disposition":"retained_selected","method":METHOD,"call_ref":call.id,"product_attempt_ref":attempt_id,
+                "run":run_v,"source_ref":run.source,"source_identity_sha256":source_identity_sha256,"selection":selection_v}))
+        }
+        rp::CombinationEnd::Native | rp::CombinationEnd::Candidate(_) => {
+            if let rp::CombinationEnd::Candidate(refused) = &combination.end {
+                let owner = match &case.outcome { k::ExecutionOutcome::Selected(owner) => Some(&**owner), _ => None };
+                let bound = |matches: &dyn Fn(&k::RetainedSolve) -> bool| owner.is_some_and(matches);
+                if refused.proof_failure().is_some_and(|f| !bound(&|o| f.owner_matches(o))) || refused.certificate().is_some_and(|c| !bound(&|o| c.owner_matches(o))) {
+                    return Err(assoc("product_attempts[].proof.owner"));
+                }
+            }
+            let rr::ResultRef::Unavailable(failure) = &view.result else { return Err(assoc("product_attempts[].result")) };
+            let error = public_error(e, failure, pc);
+            // B2-C §4's reason table: a non-selected Run is the kernel's; after a selected Run,
+            // the facade's. A preparation error is refused.
+            let selected = matches!(case.outcome, k::ExecutionOutcome::Selected(_));
+            let (code, phase) = match (error["kind"].as_str(), selected) {
+                (Some("preparation"), _) => return Err(assoc("product_attempts[].result")),
+                (_, true) => ("facade_certificate", "facade"),
+                (_, false) => ("combination_unresolved", "kernel"),
+            };
+            (json!({"kind":"unavailable","error":error}), json!({"disposition":"retained_unavailable","call_ref":call.id,"product_attempt_ref":attempt_id,
+                "reason":{"code":code,"phase":phase,"cause":{"kind":"prepared_product_failure","product_attempt_ref":attempt_id}},
+                "diagnostic_ref":format!("diagnostic:retained-precision:{combination_id}:unavailable"),"run":run_v,"source_ref":run.source}))
+        }
+        _ => return Err(assoc("combinations[].disposition")),
+    };
+    let names = ["native", "proof_start", "projection", "maxima", "values", "aliases", "certificate", "observables", "g5a"];
+    let mut stages_v = Map::new();
+    for (n, s) in names.iter().zip(view.stages.iter().skip(1)) {
+        stages_v.insert((*n).into(), stage_name(e, *s));
+    }
+    let attempt_v = json!({"id":attempt_id,"definition_id":COMBINATION_DEFINITION_ID,"owner_ref":{"kind":"combination","index":combination.index},
+        "material_basis_ref":0,"source_ref":run.source,"run_ref":case.run,"result":result,"stages":stages_v,"proof":proof_trace(e,&view,pc),
+        "adapter":adapter_value(e,view.adapter),"overlay_work":scalar(view.overlay_work),"g5a_work":scalar(view.g5a_work)});
+    Ok((attempt_v, (run.source, source_v), part))
 }
 
 /// One case's Run in the invocation's one call (G-j): the kernel's Run for this case, owned by

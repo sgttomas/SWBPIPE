@@ -2476,7 +2476,11 @@ fn i51_c0_isolated_late_hook_custody_and_prefixes() {
             "wrong parity presence"=>o.observations.as_mut().unwrap().parity_produced=true,
             "wrong mode bits"=>o.observations.as_mut().unwrap().mode_row.value_bits=2f64.to_bits(),
             "multiple cases"=>request.model.load_cases.push(request.model.load_cases[0].clone()),
-            "combination"=>request.model.combinations.push(serde_json::from_value(serde_json::json!({"id":"C","basis":"mechanics"})).unwrap()),
+            // B2-P (T-2′): the hooks refuse a combination D1.4 does not admit (here h = 4; one
+            // it admits is captured, as B2-A's D1.4 and T-4's re-check read it).
+            "combination"=>{let case=request.model.load_cases[0].id.clone();
+                request.model.combinations.push(serde_json::from_value(serde_json::json!({"id":"C","basis":"mechanics",
+                    "terms":vec![serde_json::json!({"load_case":case,"factor":1.0});4]})).unwrap())},
             "inner capture failure"=>request.model.load_cases[0].primitive_loads[0].magnitude.value=1.,
             "key accounting"|"identity accounting"|"marker accounting"|"inner accounting"=>{
                 let mut counts=o.adapter.counts.get();
