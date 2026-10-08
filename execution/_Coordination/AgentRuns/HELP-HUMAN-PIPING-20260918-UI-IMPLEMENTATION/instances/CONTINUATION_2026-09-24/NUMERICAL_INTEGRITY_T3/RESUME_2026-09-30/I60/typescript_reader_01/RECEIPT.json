@@ -4,7 +4,7 @@
   "parent": "/root HELP_HUMAN",
   "mechanism": "delegated-harness-native descendant",
   "receipt_utc": "2026-10-03T19:06:17Z",
-  "host": "Ryans-MacBook-Pro.local",
+  "host": "<host>",
   "initial_cwd": "/Users/ryan/.codex/worktrees/92ea/chirality",
   "status_deadline": "2026-10-03T19:21:17Z",
   "controls_deadline": "2026-10-03T19:56:17Z",

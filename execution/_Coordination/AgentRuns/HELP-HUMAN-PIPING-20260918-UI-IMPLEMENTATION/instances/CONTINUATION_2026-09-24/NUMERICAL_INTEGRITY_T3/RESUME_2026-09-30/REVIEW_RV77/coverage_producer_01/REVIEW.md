@@ -21,7 +21,7 @@ completion, a memory or M claim, or release.
 
 - **Reviewer:** RV77, TASK Type 2, dispatched directly by ROOT (HELP_HUMAN, Agent 0) as a
   background subagent. It has no descendants and did not write the code.
-- **Host:** Ryans-MacBook-Pro.local (arm64), cargo/rustc 1.97.1. The memory guard ran
+- **Host:** <host> (arm64), cargo/rustc 1.97.1. The memory guard ran
   throughout (PID 5387).
 - **Time:** first tool call 2026-10-03T20:16:35Z; the runs ended by 20:37:03Z.
 - **Path abbreviations:** WT is the t3 worktree root, P is `projects/chirality-piping`,

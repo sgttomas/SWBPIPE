@@ -2,7 +2,7 @@
 
 Source is frozen and directly affected checks pass. Complete reader acceptance remains withheld: native summary coverage is unresolved, and SUMMARY_COVERAGE_COMPLETE remains false. Neither selected-shaped synthetic control is numerically eligible. ROOT alone owns integration, independent review, contract selection and acceptance.
 
-Receipt was 2026-10-03T19:06:17Z on Ryans-MacBook-Pro.local. The original75-minute recovery window is preserved in RECEIPT.json. The owner requested graceful conclusion; freeze was verified at2026-10-03T19:16:51.420777Z, earlier than the19:56 controls and20:06 source deadlines. This verified timestamp supersedes the approximate earlier chat freeze time. Execution was TASK Type2 /root/i60_typescript_reader, native child of ROOT HELP_HUMAN /root, with no descendants.
+Receipt was 2026-10-03T19:06:17Z on <host>. The original75-minute recovery window is preserved in RECEIPT.json. The owner requested graceful conclusion; freeze was verified at2026-10-03T19:16:51.420777Z, earlier than the19:56 controls and20:06 source deadlines. This verified timestamp supersedes the approximate earlier chat freeze time. Execution was TASK Type2 /root/i60_typescript_reader, native child of ROOT HELP_HUMAN /root, with no descendants.
 
 ## Frozen source and scoped changes
 

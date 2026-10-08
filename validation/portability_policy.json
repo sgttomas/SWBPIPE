@@ -4852,7 +4852,7 @@
     },
     {
       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I57/summary_coverage_01/ORIGINS.json",
-      "sha256": "f1fe2c8055fb9e8201dc3ff70b086da6108147451c2ddf9471e1075e068bd03e",
+      "sha256": "214309ab3bf8d74a808bcc7154df9bb4906b2b6caf89c329b41a951892df5306",
       "entry_type": "historical_role_override",
       "role": "EVIDENCE",
       "reason": "T3 TASK or review run record; it preserves the machine-local paths of its run as exact provenance and is cited by the T3 rulings, so it cannot be relativized.",
@@ -4892,7 +4892,7 @@
     },
     {
       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I58/python_shared_01/RECEIPT.json",
-      "sha256": "a2d4d06e2b90d87a1d92e8b0a308fa96fdb69ccef0eb53ef1abc4177d40b0db1",
+      "sha256": "f25196ead8053c9c987942f8f444d70ac2a803fabba82e02151ee1b4e4879d19",
       "entry_type": "historical_role_override",
       "role": "EVIDENCE",
       "reason": "T3 TASK or review run record; it preserves the machine-local paths of its run as exact provenance and is cited by the T3 rulings, so it cannot be relativized.",
@@ -4996,7 +4996,7 @@
     },
     {
       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I59/rust_reader_01/RECEIPT.json",
-      "sha256": "ad71b0f3221f675cd3408cf575f531257e84ed268c62dba377e41c5e23dc2a23",
+      "sha256": "6e71a4506ec3816bfff268a93ce8c3be5a4de6faadc2b723294f3b2af00e1421",
       "entry_type": "historical_role_override",
       "role": "EVIDENCE",
       "reason": "T3 TASK or review run record; it preserves the machine-local paths of its run as exact provenance and is cited by the T3 rulings, so it cannot be relativized.",
@@ -5028,7 +5028,7 @@
     },
     {
       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I60/typescript_reader_01/RECEIPT.json",
-      "sha256": "a127b4e145c29e77ce710de941746c11cdc946ae00c61e20b1b07e97765071ac",
+      "sha256": "ce06f45198c5a4587cb256376c500d3bb850d23cef53a20e3ecf36a8c6e625dc",
       "entry_type": "historical_role_override",
       "role": "EVIDENCE",
       "reason": "T3 TASK or review run record; it preserves the machine-local paths of its run as exact provenance and is cited by the T3 rulings, so it cannot be relativized.",
@@ -5708,7 +5708,7 @@
     },
     {
       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV75/ordinary_bound_01/EXECUTION.json",
-      "sha256": "ea750aca15b2c9cbafaf63741a590547ecf2b9a1a66c7d9a06fa2d7343827176",
+      "sha256": "569ebd85399a07c6bb1d0e4b4f57220d10eff3d5601b668fd54418a077906c1e",
       "entry_type": "historical_role_override",
       "role": "EVIDENCE",
       "reason": "T3 TASK or review run record; it preserves the machine-local paths of its run as exact provenance and is cited by the T3 rulings, so it cannot be relativized.",
@@ -5724,15 +5724,7 @@
     },
     {
       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV75/ordinary_bound_01/RECEIPT.json",
-      "sha256": "f8b45326a2856f99aea6329e8697842c435b70185cea9a68b8c725ae0bc18051",
-      "entry_type": "historical_role_override",
-      "role": "EVIDENCE",
-      "reason": "T3 TASK or review run record; it preserves the machine-local paths of its run as exact provenance and is cited by the T3 rulings, so it cannot be relativized.",
-      "authority": "Owner approval in the T3 ROOT session of 2026-10-05 (\"Approve and merge\"); T3 ROOT_RULINGS_V1, \"Records PR #1084: GEN-8 flags historical records; the owner approves their portability registration\"."
-    },
-    {
-      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV76/summary_coverage_01/REVIEW.md",
-      "sha256": "10341323b974d7a24155f23013d16b43e803f1d3cb6638df052a6ce2f51a61f3",
+      "sha256": "8f8f14ca68da9678c636574f2ba5d7a86ea034ba2fef2ac490bb832281c6373e",
       "entry_type": "historical_role_override",
       "role": "EVIDENCE",
       "reason": "T3 TASK or review run record; it preserves the machine-local paths of its run as exact provenance and is cited by the T3 rulings, so it cannot be relativized.",
