@@ -162,7 +162,10 @@ function readCases(evidence: Json): Map<string, Json> {
     for (const x of c.pipe_stress_extrema as unknown[]) {
       shape(x, EXTREMA_KEYS, "extrema shape");
       demand(text(x.pipe_id) && text(x.result_id) && Object.entries(EXTREMA_CONSTANTS).every(([k, v]) => x[k] === v), "extrema identity or basis");
-      // A1 d + A2 1: exactly these checks; no certified-gap bound (finiteness is item 1).
+      // RR "I4 made at `30f3d1b24a`; …", rulings 2 and 3: PY's extrema-number demand, at PY's place and with its
+      // detail. readCases serves the raw reader and the transport check, so both refuse a non-number (null included).
+      demand(finite(x.global_upper_bound_pa) && finite(x.certified_gap_pa), "extrema numbers");
+      // A1 d + A2 1: these checks; no certified-gap bound (the two members above are typed, never bounded).
       demand(finite(x.station_fraction) && x.station_fraction >= 0 && x.station_fraction <= 1
         && finite(x.local_fraction) && x.local_fraction >= 0 && x.local_fraction <= 1, "extrema fractions");
       demand(Number.isSafeInteger(x.span_index) && x.span_index >= 0

@@ -1392,3 +1392,36 @@ describe('B1 SR-TS repair 01: the transport reading\'s base header at G2 (Rust\'
     await table(header.map((m: any) => [m.id, transport(m), { gate: 'G2', code: (m.expected_by_reader?.rust ?? m.expected).code }] as [string, () => Promise<unknown>, unknown]));
   });
 });
+
+// B1's reader follow-up toward I4' (I101; RR "I4 made at `30f3d1b24a`; …", rulings 2 and 3), through the retained
+// reader: PY's extrema-number demand refuses a non-number global_upper_bound_pa or certified_gap_pa at G7 with TS's
+// base code, bound, unbound and on transport (RV113's t_extrema_global_upper_string and t_extrema_certified_gap_null).
+describe('B1 I4\' (I101): the extrema-number demand at G7, bound, unbound and on transport', () => {
+  const ORD = 'ordinary_prepared_synthetic';
+  const x = (member: string) => ['contract_evidence', 'preview_cases', 0, 'pipe_stress_extrema', 0, member];
+  const entry = (edits: any[]) => ({ id: 'b1_i4p_extrema_probe', base: ORD, edits, invocation_edits: [], rehash: 'all' });
+  const outcome = async (run: () => Promise<any>): Promise<unknown> => {
+    try { return { admitted: (await run()).numerical_eligible }; }
+    catch (error) { expect(error).toBeInstanceOf(RetainedPrecisionError); const e = error as RetainedPrecisionError; return { gate: e.gate, code: e.code, detail: e.detail }; }
+  };
+  const verdicts = async (edits: any[]) => {
+    const { source, invocation } = await applyEntry(entry(edits));
+    return { bound: await outcome(() => validateRetainedPrecision(structuredClone(source), structuredClone(invocation))),
+      unbound: await outcome(() => validateRetainedPrecision(structuredClone(source))),
+      transport: await outcome(() => validateRetainedPrecisionTransport(structuredClone(source))) };
+  };
+  const g7 = (detail: string) => ({ gate: 'G7', code: 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID', detail });
+  it('a non-number member is refused at G7 "extrema numbers" by every entry point; JSON integers are admitted', async () => {
+    const rows: [string, any[], unknown][] = [
+      ['t_extrema_global_upper_string', [{ path: x('global_upper_bound_pa'), op: 'set', value: 'x' }], { bound: g7('extrema numbers'), unbound: g7('extrema numbers'), transport: g7('extrema numbers') }],
+      ['t_extrema_certified_gap_null', [{ path: x('certified_gap_pa'), op: 'set', value: null }], { bound: g7('extrema numbers'), unbound: g7('extrema numbers'), transport: g7('extrema numbers') }],
+      ['global_upper_bound_pa null', [{ path: x('global_upper_bound_pa'), op: 'set', value: null }], { bound: g7('extrema numbers'), unbound: g7('extrema numbers'), transport: g7('extrema numbers') }],
+      ['certified_gap_pa a string', [{ path: x('certified_gap_pa'), op: 'set', value: '0' }], { bound: g7('extrema numbers'), unbound: g7('extrema numbers'), transport: g7('extrema numbers') }],
+      ['both members JSON integers', [{ path: x('global_upper_bound_pa'), op: 'set', value: 41354909 }, { path: x('certified_gap_pa'), op: 'set', value: 0 }], { bound: { admitted: true }, unbound: { admitted: false }, transport: { admitted: false } }],
+      ['the base', [], { bound: { admitted: true }, unbound: { admitted: false }, transport: { admitted: false } }],
+    ];
+    const misses: string[] = [];
+    for (const [name, edits, want] of rows) { const got = await verdicts(edits); if (JSON.stringify(got) !== JSON.stringify(want)) misses.push(`${name}: got ${JSON.stringify(got)} want ${JSON.stringify(want)}`); }
+    expect(misses).toEqual([]);
+  });
+});
