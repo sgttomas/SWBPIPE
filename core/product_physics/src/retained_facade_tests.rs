@@ -2241,10 +2241,9 @@ fn b1_sp_sf2_selected_not_first_and_two_selected_pins() {
             let ((envelope, retained), counts, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
             assert_eq!(counts, Counts { runs: 0, complete_gates: 0 }, "{label}");
             assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{label}: the ordinary owner is untouched");
-            let successor = retained.unwrap_or_else(|f| panic!("{label}: {f:?}")).value().clone();
-            assert_eq!(Some(&successor), captured.as_ref(), "{label}: the successor precommit validated");
-            let invocation = json!({"request": raw, "solver_mode": mode_name});
-            assert!(open_pipe_stress_result_export::retained_precision::validate(&successor, Some(&invocation)).is_ok(), "{label}: the Rust reader");
+            // The structure is asserted on the successor precommit received, before its validation,
+            // so that a defect the reader also refuses is killed here by its own assertion.
+            let successor = captured.unwrap_or_else(|| panic!("{label}: precommit received the successor"));
             let body = w_c2_body(&successor);
             let cases = body["cases"].as_array().unwrap();
             assert_eq!(cases.iter().map(|c| c["status"].as_str().unwrap()).collect::<Vec<_>>(), statuses, "{label}");
@@ -2279,6 +2278,10 @@ fn b1_sp_sf2_selected_not_first_and_two_selected_pins() {
                     "{label}: the {headline} headline (M28, M32)");
                 println!("B1_SP_SF2_HEADLINE {label} {headline} successor={} ordinary={}", successor["summary"][headline], ordinary["summary"][headline]);
             }
+            let validated = retained.unwrap_or_else(|f| panic!("{label}: {f:?}")).value().clone();
+            assert_eq!(validated, successor, "{label}: the successor precommit validated");
+            let invocation = json!({"request": raw, "solver_mode": mode_name});
+            assert!(open_pipe_stress_result_export::retained_precision::validate(&successor, Some(&invocation)).is_ok(), "{label}: the Rust reader");
             let bytes = serde_json::to_vec(&successor).unwrap();
             println!("B1_SP_SF2_PIN {label} {} {}", successor["retained_precision"]["receipt_sha256"].as_str().unwrap(), sha(&bytes));
             assert_eq!((successor["retained_precision"]["receipt_sha256"].as_str(), sha(&bytes).as_str()), (Some(receipt_sha), bytes_sha), "{label}: the pinned successor");
