@@ -5391,6 +5391,7 @@ fn b3b_shapes(shared: &Value) -> Vec<(ExactShape, Value)> {
         out.push((ExactShape { name, base, edits, invocation_edits: vec![], after: vec![] }, gate("G8", PREPARATION)));
     }
     out.extend(rv120_probes(shared));
+    out.extend(repair03_probes());
     if std::env::var("B3B_EXACT_BASE").is_ok() {
         out.push((ExactShape { name: "base", base: FILE_BASE, edits: vec![], invocation_edits: vec![], after: vec![] }, Value::Null));
         out.extend(b3b_rows(shared, FILE_BASE));
@@ -5529,6 +5530,44 @@ fn b3b_rv120_n2_transport_code_is_array_ordered_and_stable() {
     }
     assert_eq!(digests, RV120_N2_INPUTS, "RV120's N2 inputs");
 }
+/// Repair 03 (N2b, WORKING_ITEMS' ruling on RV120's N2): two faults in the two
+/// `exact_cases` entries of the exact `two_case_synthetic` (one entry's `profile_mode`
+/// "x", the other's `material_basis` not a string), and the same faults swapped. physics-1's
+/// base validator reads its cases in array order on the bound and unbound path, as TS and
+/// PY do, so entry 0's fault is G7's code: CASE_PROFILE, or STRING_INVALID when swapped.
+fn repair03_probes() -> Vec<(ExactShape, Value)> {
+    use serde_json::json;
+    let profile = |i: usize| set(json!(["contract_evidence", "exact_cases", i, "profile_mode"]), json!("x"));
+    let basis = |i: usize| set(json!(["contract_evidence", "exact_cases", i, "material_basis"]), json!(0));
+    let base = "two_case_synthetic";
+    vec![
+        (ExactShape { name: "N2b: entry 0's profile_mode and entry 1's material_basis", base, edits: vec![profile(0), basis(1)], invocation_edits: vec![], after: vec![] }, gate("G7", "SOURCE_PHYSICS_CASE_PROFILE")),
+        (ExactShape { name: "N2b: entry 0's material_basis and entry 1's profile_mode", base, edits: vec![basis(0), profile(1)], invocation_edits: vec![], after: vec![] }, gate("G7", "SOURCE_PHYSICS_STRING_INVALID")),
+    ]
+}
+/// Repair 03 (N2b): RS's physics-1 base validator reads the two-fault probes with one code
+/// on the bound and unbound path, run after run: entry 0's fault, in array order. Transport
+/// refuses both by its closed shape.
+#[test]
+fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
+    use serde_json::json;
+    let shared = corpus();
+    let mut digests = Vec::new();
+    for (shape, want) in repair03_probes() {
+        let (source, invocation) = b3b_input(&shared, &shape);
+        digests.push(sha256_canonical(&json!([source, invocation])));
+        let want = json!({"bound": want, "unbound": want,
+            "transport": {"gate": "G7", "code": "SOURCE_PHYSICS_TRANSPORT_SHAPE"}});
+        // Each call builds fresh hash maps (a fresh random order), so a hash-ordered loop
+        // would show both entries' faults well within these runs.
+        for run in 0..64 {
+            assert_eq!(readings(&source, &invocation), want, "{} [{}], run {run}", shape.name, shape.base);
+        }
+    }
+    assert_eq!(digests, REPAIR03_N2B_INPUTS, "the N2b probe inputs");
+}
+/// The N2b probe inputs (sha256 of the canonical `[source, invocation]`).
+const REPAIR03_N2B_INPUTS: [&str; 2] = ["ab2807e39c79015c5929dac4c4a4a86f82e9e6187c66511686c93f57de60759d", "9451b8272ac84a10984b6848fe44d5fcd3585903ce7ab1f3d8fd59f4a3675da6"];
 /// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
 const RV120_N2_INPUTS: [&str; 2] = ["b73004449c1894a0b562032d7352d18cae0ad351f7e58d91a1572e76963530a0", "a6bb4fdf601064c2946e440b15a6bb7cb320839c9c3097fff11b2f632c6a09fe"];
 fn sha256_canonical(v: &Value) -> String {
@@ -5718,7 +5757,7 @@ fn b3b_exact_successor_shapes_first_failures() {
         }
     }
     assert!(misses.is_empty(), "{}", misses.join("\n"));
-    assert_eq!(shapes.iter().filter(|(s, _)| s.base != FILE_BASE && s.base != "<s1:file>").count(), 3 + 52 + 2 + 2 * (1 + 52 + 1) + 4 + 2 + 4);
+    assert_eq!(shapes.iter().filter(|(s, _)| s.base != FILE_BASE && s.base != "<s1:file>").count(), 3 + 52 + 2 + 2 * (1 + 52 + 1) + 4 + 2 + 4 + 2);
 }
 fn observe_validation(r: Result<rp::Validation, rp::ValidationError>) -> Value {
     match r {

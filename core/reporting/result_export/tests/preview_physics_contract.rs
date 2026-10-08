@@ -828,3 +828,83 @@ fn a2_attribution_identical_in_every_case_and_standing_order() {
         "unsupported"
     );
 }
+
+/// I101 repair 03 (the class of RV120's N2): two attributed supports of one case with
+/// different faults (one force magnitude off, the other's Mz row missing), both ways
+/// round. The reader checks the supports in the order they first appear in the case's
+/// rows, as TS and PY group them, so the earlier support's fault is the code, run after
+/// run; each call builds fresh hash maps (a fresh random order).
+#[test]
+fn repair03_support_faults_are_read_in_row_order() {
+    let s100 = "result:support-action:10:load:L-100:13:support:S-100";
+    let nl140 = "result:support-action:10:load:L-100:14:support:NL-140";
+    for (magnitude, missing, want) in [
+        (s100, nl140, "SUPPORT_MAGNITUDE"),
+        (nl140, s100, "SUPPORT_COMPONENT_COVERAGE"),
+    ] {
+        let mut raw = invented();
+        row(&mut raw, &format!("{magnitude}:force_magnitude"))["value"] = json!(1.0e9);
+        let gone = format!("{missing}:Mz");
+        rows(&mut raw).retain(|r| r["id"] != gone.as_str());
+        for run in 0..64 {
+            assert_eq!(
+                s::for_source(&raw).map(|_| ()),
+                Err(format!("SOURCE_PREVIEW_PHYSICS_{want}")),
+                "{magnitude} / {missing}, run {run}"
+            );
+        }
+    }
+}
+
+/// I101 repair 03: two admitted combinations with different faults (one's displacement
+/// magnitude off, the other's support Fz row missing), both ways round. The reader checks
+/// the combinations in the order they first appear in the rows, as TS and PY group them,
+/// so the earlier combination's fault is the code, run after run.
+#[test]
+fn repair03_combination_faults_are_read_in_row_order() {
+    const SECOND: &str = "combination:C-OPER-ALT-2";
+    let one = "result:combination:combination-C-OPER-ALT";
+    let two = "result:combination:combination-C-OPER-ALT-2";
+    let base = || {
+        let mut raw = with_admitted_combination();
+        let copies: Vec<Value> = rows(&mut raw)
+            .iter()
+            .filter(|r| r["basis_ref"]["ref_id"] == COMB)
+            .map(|r| {
+                let mut r = r.clone();
+                let renamed = |v: &Value| json!(v.as_str().unwrap().replacen(one, two, 1));
+                r["id"] = renamed(&r["id"]);
+                r["basis_ref"]["ref_id"] = json!(SECOND);
+                if let Some(refs) = r.get_mut("source_result_refs") {
+                    for x in refs.as_array_mut().unwrap() {
+                        *x = renamed(x);
+                    }
+                }
+                r
+            })
+            .collect();
+        rows(&mut raw).extend(copies);
+        raw["contract_evidence"]["combination_gates"]
+            .as_array_mut()
+            .unwrap()
+            .push(json!({"combination_id":SECOND,"withheld":false,"reason":null}));
+        raw
+    };
+    s::for_source(&base()).unwrap();
+    for (displacement, missing, want) in [
+        (one, two, "COMBINATION_MAGNITUDE"),
+        (two, one, "COMBINATION_MAGNITUDE_COMPONENTS"),
+    ] {
+        let mut raw = base();
+        row(&mut raw, &format!("{displacement}:disp:node-N-140"))["value"] = json!(7.0);
+        let gone = format!("{missing}:support-action:13:support:S-100:Fz");
+        rows(&mut raw).retain(|r| r["id"] != gone.as_str());
+        for run in 0..64 {
+            assert_eq!(
+                s::for_source(&raw).map(|_| ()),
+                Err(format!("SOURCE_PREVIEW_PHYSICS_{want}")),
+                "{displacement} / {missing}, run {run}"
+            );
+        }
+    }
+}
