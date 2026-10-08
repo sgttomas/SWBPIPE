@@ -462,8 +462,8 @@ struct ReducedBody {
 ///   injective, so the null space of the unreduced stacked map (six unknowns per
 ///   sub-body) is the image of this six-unknown system's.
 /// - **Screen.** The grounds and cycles as unit rows in `[t/L, θ]`, with L a
-///   power of two; the one-sided Jacobi SVD of `assess_rigid_body` with `sqrt`
-///   forms in place of `hypot`; and its rank screen τ_B = 64·γ(max(m, 6))·σ_max.
+///   power of two; the one-sided Jacobi SVD of `assess_rigid_body` (:89-132) with `sqrt`
+///   forms in place of its `norm2(ζ, 1)` (formerly `hypot`); and its rank screen τ_B = 64·γ(max(m, 6))·σ_max.
 /// - **Witness.** A candidate is verified exactly (`Expansion`) against every
 ///   tie and ground, with the original coordinates. It is published as its
 ///   canonical representative r = k·p/p_j: p = `[u(node 0), θ]`, p_j its first
@@ -539,8 +539,8 @@ pub fn assess_constrained_bodies(
         }
     }
 
-    // One-sided Jacobi SVD, as `assess_rigid_body` (:88-131), with
-    // `root_one_plus_square` in place of `hypot(ζ, 1)`.
+    // One-sided Jacobi SVD, as `assess_rigid_body` (:89-132), with
+    // `root_one_plus_square` in place of its `norm2(ζ, 1)` (formerly `hypot(ζ, 1)`).
     let mut b = rows.clone();
     let mut v = [[0.0; 6]; 6];
     for (i, row) in v.iter_mut().enumerate() {

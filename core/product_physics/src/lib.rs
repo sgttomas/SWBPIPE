@@ -35,7 +35,7 @@ mod s11g_tests;
 mod source_budget_tests;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
-// I109: published norms are correctly rounded (platform-independent), never libm `hypot`.
+// I109: magnitudes formerly formed with libm `hypot` are correctly rounded norms; `source_receipt::scaled_norm` and `displacement_magnitude` stay deterministic IEEE, not correctly rounded.
 use open_pipe_stress_frame_kernel::correct_norm::{norm2, norm3};
 use open_pipe_stress_frame_kernel::exact_sum::{exact_rounded_sum, ExactAccumulator};
 use open_pipe_stress_frame_kernel::load_ledger::{

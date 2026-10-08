@@ -3,11 +3,11 @@
 //!
 //! `f64::hypot` calls the platform's libm, which is not correctly rounded:
 //! macOS and glibc differ in the last bit, so a published magnitude formed with
-//! it depends on the machine. These functions use only IEEE 754 basic
-//! operations, `sqrt` and `mul_add` (all correctly rounded), so every platform
-//! gives the same bits. A three-component magnitude is one rounding of the
-//! exact norm, not the chain `a.hypot(b).hypot(c)`, so it does not depend on
-//! the order of its components.
+//! it depends on the machine. These functions use only IEEE 754 basic operations,
+//! `sqrt` and `mul_add`, a correctly rounded fma (hardware, or the platform's
+//! `fma` where there is none), so every platform gives the same bits. A
+//! three-component magnitude is one rounding of the exact norm, not the chain
+//! `a.hypot(b).hypot(c)`, so it does not depend on the order of its components.
 //!
 //! Special values follow C Annex F's `hypot`: an infinite argument gives +∞
 //! even when another is NaN; otherwise a NaN gives NaN; zeros of either sign
