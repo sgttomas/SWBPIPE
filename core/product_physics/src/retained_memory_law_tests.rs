@@ -2213,30 +2213,64 @@ fn b2_a_g_c_bounds_are_per_case_equivalent() {
     }
 }
 
-/// The interim's honesty (REVISION_01 §1.4): until B2-P, the producer's own domain re-check
-/// (`w1_case_ids`) keeps W1 from starting on a combination, so an admitted in-domain
-/// combination-bearing Direct invocation publishes exactly the ordinary value route's bytes,
-/// with no notice and no successor (`W1Fallback::Domain`), in both modes.
+/// B2-A's admitted combinations on the Direct entry, after B2-P (lane P, I105): W1 runs on a
+/// combination-bearing invocation inside D1.4. In the registered build, in both modes, while RS's
+/// precommit has no B2 reader:
+/// - c = 1, z = 2 (two mechanics combinations of the one case, each retained by T-10a, so each
+///   has a combination attempt) falls back at G0 `SOURCE_PRODUCER_CONTRACT_UNSUPPORTED` (the
+///   attempts' DEF-C id);
+/// - c = 2, z = 1 (a range combination, `ordinary`) falls back at G3
+///   `RETAINED_PRECISION_COVERAGE_MISMATCH` (a combination row);
+///
+/// each publishing the plain bytes plus exactly one notice per case in A (none for a combination;
+/// T-12), byte for byte. Once B2's readers land, a validated successor is the publication. Stale
+/// (unregistered) builds refuse at D1.1 and keep the plain bytes.
 #[test]
-fn b2_a_admitted_combinations_keep_the_exact_ordinary_bytes_until_b2_p() {
+fn b2_a_admitted_combinations_run_w1_and_fall_back_at_precommit_today() {
     let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let notice = |case: &str| format!(r#"{{"id":"diagnostic:retained-precision:{case}:unavailable","code":"RETAINED_PRECISION_UNAVAILABLE","severity":"info","message":"Retained-precision recovery is unavailable for this load case. Its published rows keep their ordinary values, standing and diagnostics.","source":"core/product_physics","affected_refs":["{case}"]}}"#);
+    let with_notices = |plain: &[u8], cases: &[&str]| -> Vec<u8> {
+        let text = std::str::from_utf8(plain).unwrap();
+        let (head, tail) = text.split_once(r#""diagnostics":["#).unwrap();
+        let (items, rest) = tail.split_at(tail.find("],\"professional_boundary\"").unwrap());
+        let mut all = items.to_owned();
+        for case in cases {
+            if !all.is_empty() { all.push(','); }
+            all.push_str(&notice(case));
+        }
+        format!(r#"{head}"diagnostics":[{all}{rest}"#).into_bytes()
+    };
     let mut mixed = milestone_cases(2);
     mixed["model"]["combinations"] = json!([{"id": "range", "basis": "range_envelope", "operand_ids": ["case-1", "case-2"], "mode": "max_abs",
         "provenance": "invented_i103_b2_a_range"}]);
-    for (label, raw) in [("c = 1, z = 2", with_combinations(milestone(), 2)), ("c = 2, z = 1 (range)", mixed)] {
+    for (label, raw, gate, code, attempted) in [
+        ("c = 1, z = 2", with_combinations(milestone(), 2), "G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", &["case"][..]),
+        ("c = 2, z = 1 (range)", mixed, "G3", "RETAINED_PRECISION_COVERAGE_MISMATCH", &["case-1", "case-2"][..])] {
         for mode in MODES {
             let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
             let direct = crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
             let report = direct.admission().unwrap();
             assert_eq!(report.law().domain, None, "{label} {mode:?}: inside D1");
-            if registered {
-                assert_eq!(report.law().refusal, None, "{label} {mode:?}: admitted");
-                assert!(matches!(direct.retained(), Some(Err(crate::W1Fallback::Domain))), "{label} {mode:?}: {:?}", direct.retained());
-            } else {
+            let published = serde_json::to_vec(direct.envelope()).unwrap();
+            if !registered {
                 assert_eq!(report.law().refusal, d1_1_refusal(), "{label} {mode:?}");
+                assert!(direct.successor().is_none(), "{label} {mode:?}");
+                assert_eq!(published, plain, "{label} {mode:?}: the exact ordinary bytes");
+                continue;
             }
-            assert!(direct.successor().is_none(), "{label} {mode:?}");
-            assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain, "{label} {mode:?}: the exact ordinary bytes");
+            assert_eq!(report.law().refusal, None, "{label} {mode:?}: admitted");
+            match direct.retained() {
+                Some(Ok(_)) => {
+                    assert!(direct.successor().is_some(), "{label} {mode:?}: the validated successor (B2's readers)");
+                    assert_eq!(published, plain, "{label} {mode:?}: the ordinary owner is untouched");
+                }
+                Some(Err(crate::W1Fallback::Precommit { gate: g, code: c })) if *g == gate && c == code => {
+                    assert!(direct.successor().is_none(), "{label} {mode:?}");
+                    assert_eq!(String::from_utf8(published).unwrap(), String::from_utf8(with_notices(&plain, attempted)).unwrap(),
+                        "{label} {mode:?}: the plain bytes plus one notice per case in A");
+                }
+                other => panic!("{label} {mode:?}: {other:?}"),
+            }
         }
     }
 }
