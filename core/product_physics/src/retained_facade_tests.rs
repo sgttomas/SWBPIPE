@@ -3788,13 +3788,14 @@ fn b2p_dispositions(name: &str) -> &'static [&'static str] {
         "w_cb2" => &["retained_unavailable"],
         "w_cb4a" | "w_cb4b" | "w_cb5" => &["ordinary"],
         "c1_range_mechanics" => &["ordinary", "retained_selected"],
+        "rv123_c1_two_mechanics" => &["retained_selected", "retained_unavailable"],
         _ => &["retained_selected"],
     }
 }
 /// The witnesses' cases in A (their notices on a fallback), in request order.
 fn b2p_attempted(name: &str) -> &'static [&'static str] {
     match name {
-        "c1_range_mechanics" => &["case"],
+        "c1_range_mechanics" | "rv123_c1_two_mechanics" => &["case"],
         "w_cb1" | "w_cb1z" => &["case:a", "case:b"],
         _ => &["case:a"],
     }
@@ -3802,7 +3803,7 @@ fn b2p_attempted(name: &str) -> &'static [&'static str] {
 /// B2-P's witness pins (PLAN §1.2.6; REVISION_01 §5.1), both modes: (witness, mode, receipt
 /// sha256, sha256 of the successor's bytes), from the private driver's successor that precommit
 /// receives.
-const B2P_PINNED: [(&str, &str, &str, &str); 16] = [
+const B2P_PINNED: [(&str, &str, &str, &str); 20] = [
     ("w_cb1", "sparse_interactive", "6345c3a32dd243ecc877ebce349307602cfe65e700048981d9171f4c15ee7880",
         "d5fa0b8bc48646c88506490eda71ba9264244dbe3f6658816d83e6b6d62b7e7a"),
     ("w_cb1", "dense_scrutiny", "3b24b62e72b366554e51d621f395c6128a75f1fe9e92f6b42e4da47e697750ed",
@@ -3835,6 +3836,14 @@ const B2P_PINNED: [(&str, &str, &str, &str); 16] = [
         "d32ed8bf6594ce7107763bc31f9fc1d2d989a644d1538243b4b78aec79951ce8"),
     ("c1_range_mechanics", "dense_scrutiny", "046bfc3f0357325d3104fb2759205a881bfa45ec62dcc70cff0d6fe77f7bd02c",
         "e579371eb7d4c51ec5c0f71093ee673ba9e288edba7af59b101fb28d15da4dcf"),
+    ("rv123_w_cb3_ba", "sparse_interactive", "86d0f1f821bb212fdea7f431291fe4b22b92c3564320b91911abe04ab50686ca",
+        "ec58bcab704f8e870947a90a48321f211637e0131288a86ea1116aeb188751ba"),
+    ("rv123_w_cb3_ba", "dense_scrutiny", "03a8eec6106b3c507ca4a7648e0010f6c382e9ece099521b2a0d9044486c2454",
+        "6149647c6cd9264c0fad7760e05c6148462ec36b986eac1e9ad62978f98ecd6c"),
+    ("rv123_c1_two_mechanics", "sparse_interactive", "577b1fcb79c57e86f498a6cdd04211ba5279fb0effee046607705fecde64c28e",
+        "167eb7117c22be10643ae39d39908ec425a955760be5b25201b5edd04b18df68"),
+    ("rv123_c1_two_mechanics", "dense_scrutiny", "b2a8db32435415e70ec1d521675e391960c61b19baad27b3eec5a79480280118",
+        "e5ad415d360bdc400df34813b05e6f92e94d6fb76c02b00e11a70b4da0d96342"),
 ];
 /// B2-P's small witnesses: (name, request).
 fn b2p_witnesses() -> Vec<(&'static str, Value)> {
@@ -4217,5 +4226,78 @@ fn b2p_serializer_refuses_an_unchained_meter() {
         let ((_, retained), _, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
         assert!(hooks::armed_names().is_empty(), "{mode:?}");
         assert!(!matches!(retained, Err(W1Fallback::Serializer(_))) && captured.is_some(), "{mode:?}: the control reaches precommit");
+    }
+}
+
+/// RV123 (B2-P round 2) N-3: W-CB3 with its terms reversed (`combination:ba`, B + A), as RV123
+/// probed it: operand 0, the representative, is the `not_required` case, operand-prepared, so
+/// the combination's freeze runs on a prepared slot.
+fn rv123_w_cb3_ba() -> Value {
+    let mut raw = w_cb3();
+    raw["model"]["combinations"][0]["terms"] = json!([{"load_case": "case:b", "factor": 1.0}, {"load_case": "case:a", "factor": 1.0}]);
+    raw["model"]["combinations"][0]["id"] = json!("combination:ba");
+    raw
+}
+/// RV123 (B2-P round 2) N-3: c = 1 with two retained mechanics combinations, [2·case, −3·case],
+/// as RV123 probed it: three Calls with the meter chained; −3·case refuses its own certificate,
+/// a natural, hook-free `facade_certificate`.
+fn rv123_c1_two_mechanics() -> Value {
+    let mut raw = raw();
+    raw["model"]["combinations"] = json!([
+        {"id": "combination:2case", "label": "RV123 probe: 2 case", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 2.0}], "provenance": B2P},
+        {"id": "combination:m3case", "label": "RV123 probe: -3 case", "basis": "mechanics", "terms": [{"load_case": "case", "factor": -3.0}], "provenance": B2P}]);
+    raw
+}
+/// RV123 (B2-P round 2) N-3: the two in-domain shapes, pinned in both modes through the
+/// witnesses' checks (`b2p_pin_witnesses`: B2-C's producer requirements, today's precommit,
+/// T-12) and on the Direct entry (`b2p_direct`), and:
+/// - B + A: the CombinationSource's representative is the operand preparation's source (case
+///   B's, the `not_required` operand 0);
+/// - [2·case, −3·case]: three Calls, one per combination after the batch, and −3·case
+///   `retained_unavailable` with `facade_certificate` after its selected Run.
+#[test]
+fn b2p_rv123_n3_shapes_are_pinned() {
+    let shapes = || vec![("rv123_w_cb3_ba", rv123_w_cb3_ba()), ("rv123_c1_two_mechanics", rv123_c1_two_mechanics())];
+    b2p_pin_witnesses(shapes());
+    b2p_direct(shapes());
+    for mode in MODES {
+        let (_, s) = b2p_successor(&rv123_w_cb3_ba(), mode);
+        let b = &s["retained_precision"]["body"];
+        let c = &b["combinations"][0];
+        let source = &b["sources"][c["source_ref"].as_u64().unwrap() as usize];
+        let preparation = &b["operand_preparations"][0];
+        assert_eq!((&preparation["owner_ref"], &preparation["result"]["kind"]), (&json!({"kind":"case","index":1}), &json!("prepared")), "{mode:?}");
+        assert_eq!(source["representative_source_ref"], preparation["source_ref"], "{mode:?}: the prepared operand 0 represents");
+        let (_, s) = b2p_successor(&rv123_c1_two_mechanics(), mode);
+        let b = &s["retained_precision"]["body"];
+        assert_eq!(b["calls"].as_array().unwrap().iter().map(|c| c["owner_refs"].clone()).collect::<Vec<_>>(),
+            [json!([{"kind":"case","index":0}]), json!([{"kind":"combination","index":0}]), json!([{"kind":"combination","index":1}])], "{mode:?}");
+        assert_eq!((&b["combinations"][1]["reason"]["code"], &b["combinations"][1]["reason"]["phase"]), (&json!("facade_certificate"), &json!("facade")), "{mode:?}");
+        assert!(b["combinations"][1]["run"].is_object(), "{mode:?}: after its Run");
+    }
+}
+
+/// RV123 (B2-P round 2) S-1: B2-C §2.4 (i), row 2 (and G5's rule keyed on it): a term whose batch
+/// Run refused `ledger_unavailable` (`refuse_ledger_of_case`) makes its combination
+/// `operand_source_unavailable` at that operand, with no rebuild, no operand preparation and no
+/// Call. The case is `unavailable` with its CaseSource and its Run's refusal. (An unavailable
+/// operand whose Run did not refuse its ledger is rebuilt instead: `b2p_hooks_and_failure_set`.)
+#[test]
+fn b2p_ledger_unavailable_operand_has_no_source() {
+    for mode in MODES {
+        hooks::refuse_ledger_of_case(1);
+        let (_, s) = b2p_successor(&b2p_two_cases(), mode);
+        assert!(hooks::armed_names().is_empty(), "{mode:?}");
+        let b = &s["retained_precision"]["body"];
+        let case = &b["cases"][1];
+        assert_eq!((&case["status"], &case["source_ref"], &case["reason"]["code"]), (&json!("unavailable"), &json!(1), &json!("kernel_refused")), "{mode:?}");
+        assert_eq!(case["run"]["kernel_terminal"], json!({"kind":"refused","reason":{"space":"refusal","tag":"ledger_unavailable",
+            "error":{"tag":"accumulator","error":{"tag":"non_finite"}}}}), "{mode:?}");
+        let c = &b["combinations"][0];
+        assert_eq!((&c["disposition"], &c["reason"]), (&json!("retained_unavailable"), &json!({"code":"combination_unresolved","phase":"preparation",
+            "cause":{"kind":"operand_source_unavailable","operand_index":1}})), "{mode:?}");
+        assert_eq!((&c["call_ref"], &c["run"], &c["source_ref"], &c["product_attempt_ref"]), (&Value::Null, &Value::Null, &Value::Null, &Value::Null), "{mode:?}");
+        assert_eq!((b["calls"].as_array().unwrap().len(), b["sources"].as_array().unwrap().len()), (1, 2), "{mode:?}: no Call, no rebuilt or prepared registration");
+        assert!(b.get("operand_preparations").is_none(), "{mode:?}: no operand preparation");
     }
 }

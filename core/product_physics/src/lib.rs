@@ -3465,6 +3465,9 @@ pub(crate) mod retained_tests_hooks {
         freeze_of_case: Option<usize>,
         /// B2-P: the serializer's meter-chain check reads the next pair of Calls as unchained.
         meter_chain: bool,
+        /// RV123 (B2-P round 2) S-1: the request index of the case whose batch Run reads as
+        /// refused `ledger_unavailable`.
+        ledger_of_case: Option<usize>,
         /// lib.rs's dense-scrutiny ceiling override (F1b), read by the ordinary run.
         ceiling: Option<u128>,
     }

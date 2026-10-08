@@ -4430,6 +4430,8 @@ impl ProductCapture {
         }
         self.native_invocation=Some(invocation);
         for (request,case) in submitted().zip(cases) {
+            #[cfg(test)]
+            let case=crate::retained_tests_hooks::after_batch_run(request,case);
             self.with_case(request,|capture|capture.native=Some(case));
         }
         Ok(())
