@@ -1719,29 +1719,32 @@ def validate_retained_precision(source: Any, invocation: Any = None) -> dict[str
 
 
 def validate_retained_precision_transport(source: Any) -> dict[str, Any]:
-    """F-U6b-2 (B6): G0-G2, then the unchanged base step on the transport projection (no rows read).
+    """F-U6b-2 (B6): G0-G2, then the base step on the transport projection (no rows read).
     On G0-G2 this is the twin of Rust `validate_transport_metadata` and TS
     `validateRetainedPrecisionTransport`: the same checks, gates and codes. At the base step it runs
     both of theirs, and every reader runs both (RV108 N6(a); the alignment set, item 4): the base header
-    check, reported here at G2 with the header's code, as Rust reports it (RV113 N-1); then the
-    preview-physics transport metadata check, reported at G7 (SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID).
-    Omitted raw publication bytes are never reconstructed or verified, so a transported statement is
-    never eligible."""
+    check, in Rust's order and with Rust's codes, reported at G2 (RV113 N-1; RR "I4 made at
+    `30f3d1b24a`; …", ruling 1: no carrier branch, and `source_block_recovery` before `contract_evidence`);
+    then the preview-physics transport metadata check, reported at G7
+    (SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID), which refuses a `carrier_evidence` member and compares
+    the cases' withheld records as multisets (ruling 2). Omitted raw publication bytes are never
+    reconstructed or verified, so a transported statement is never eligible."""
     return _validate_draft(source, None, raw=False)
 
 
 def _transport_base(snapshot: dict[str, Any]) -> None:
     """The base step on the reader's transport projection (no rows are read): `_source_contract` runs the base
-    header check, then the preview-physics transport metadata check. A failure keeps the base validator's
-    leading code, with its full text as detail, as at the raw G7. Its gate (the alignment set, item 4): the
-    metadata check raises only SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID, and the header check never does
-    (it runs first, and every header code differs), so that code is G7's and every other is the header's, G2."""
+    header check in Rust's order (`rust_header_order`, ruling 1), then the preview-physics transport metadata
+    check. A failure keeps the base validator's leading code, with its full text as detail, as at the raw G7.
+    Its gate (the alignment set, item 4): the metadata check raises only SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID,
+    and the header check never does (it runs first, and every header code differs), so that code is G7's and
+    every other is the header's, G2. Raw reads keep Python's own header order at G7 (the declared raw codes)."""
     projected=deepcopy(snapshot);del projected["retained_precision"]
     projected["producer"]["semantic_contract_id"]="openpipestress.result_semantics/0.3.0/preview-physics-1";projected["formulation_basis"]["profile_id"]="product_preview_mechanics_v1"
     for row in projected["results"] if type(projected.get("results")) is list else []:
         if type(row) is dict:row.pop("recovery_method",None)
     from .compatibility import _source_contract
-    try:_source_contract(projected,check_receipt=False)
+    try:_source_contract(projected,check_receipt=False,rust_header_order=True)
     except ValueError as exc:
         text=str(exc);match=re.match(r"[A-Z][A-Z0-9_]*",text)
         code=match.group(0) if match else "SOURCE_PREVIEW_PHYSICS_INVALID"
