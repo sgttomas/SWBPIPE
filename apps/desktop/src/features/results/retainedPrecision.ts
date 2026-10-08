@@ -1363,17 +1363,29 @@ const QUALITY_STATUSES = ['not_assessed', 'checks_passed', 'sensitive', 'unresol
  *   `source_block_recovery` defect, Rust reports the latter (I83 mutant T9; inherited).
  * - Python gives the same code on every header refusal, except that a list- or dict-valued enum raised TypeError in
  *   `_source_contract` (Python's G7 fallback, SOURCE_PREVIEW_PHYSICS_INVALID) until B1 SR-PY's type guard (RV108 N1);
- *   with that guard Python gives this code there too. */
+ *   with that guard Python gives this code there too.
+ * The transport reading's header check (G2) is `headerCode(p, 'rust')` instead: Rust's order and branches, as ruled. */
 function baseHeaderCode(p: Obj): string {
+  return headerCode(p, 'python') ?? 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED';
+}
+/** The base header's code on the projected base, or null when the header passes. `python` is the raw G7 order above
+ * (Python's `_source_contract`): `carrier_evidence` first, and `contract_evidence` before `source_block_recovery`.
+ * `rust` is Rust's `semantic_contract::for_source_metadata` on the same projection, which the transport reading runs at
+ * G2 (B1's three-reader alignment set, RR "RV113's three returns verified; …", item 4; RV113 SR-TS N-1): no
+ * `carrier_evidence` branch (the preview-physics metadata check refuses that member at G7), and `source_block_recovery`
+ * before `contract_evidence`. Every other branch is the same in both. */
+function headerCode(p: Obj, order: 'python' | 'rust'): string | null {
   const exact = (v: unknown, keys: string[]): v is Obj => isObj(v) && Object.keys(v).length === keys.length && keys.every(k => Object.hasOwn(v, k));
   const text = (v: unknown) => typeof v === 'string' && v.length > 0;
-  if (Object.hasOwn(p, 'carrier_evidence')) return 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED';
+  if (order === 'python' && Object.hasOwn(p, 'carrier_evidence')) return 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED';
   if (p.schema_version !== '0.2.0') return 'SOURCE_SCHEMA_VERSION_UNSUPPORTED';
   const producer = p.producer;
   if (!exact(producer, ['component_name', 'component_version', 'semantic_contract_id']) || producer.component_name !== 'open_pipe_stress_product_physics'
     || producer.component_version !== '0.2.0' || producer.semantic_contract_id !== BASE_ID) return 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED';
-  if (!isObj(p.contract_evidence)) return 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED';
-  if (Object.hasOwn(p, 'source_block_recovery')) return 'SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN';
+  const evidence = isObj(p.contract_evidence) ? null : 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED';
+  const recovery = Object.hasOwn(p, 'source_block_recovery') ? 'SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN' : null;
+  const first = order === 'rust' ? recovery ?? evidence : evidence ?? recovery;
+  if (first !== null) return first;
   const q = p.numerical_quality;
   if (!exact(q, ['value_representation', 'publication_quantization', 'integrity_policy', 'status', 'cases']) || q.value_representation !== 'finite_binary64'
     || q.publication_quantization !== 'none' || q.integrity_policy !== 'M03-INTEGRITY-v1' || !QUALITY_STATUSES.includes(q.status) || !Array.isArray(q.cases)) return 'SOURCE_NUMERICAL_QUALITY_INVALID';
@@ -1388,7 +1400,7 @@ function baseHeaderCode(p: Obj): string {
   const f = p.formulation_basis;
   if (!exact(f, ['profile_id', 'limitations']) || f.profile_id !== 'product_preview_mechanics_v1' || !Array.isArray(f.limitations) || !f.limitations.length
     || !f.limitations.every(text)) return 'SOURCE_FORMULATION_BASIS_UNSUPPORTED';
-  return 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED';
+  return null;
 }
 const defaultErrors: Record<string, string> = { G0: 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED', G1: 'RETAINED_PRECISION_RECEIPT_MISMATCH', G2: 'RETAINED_PRECISION_ENCODING_MISMATCH', G3: 'RETAINED_PRECISION_COVERAGE_MISMATCH', G4: 'RETAINED_PRECISION_DIAGNOSTIC_MISMATCH', G5: 'RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH', G5a: 'RETAINED_PRECISION_SCALE_MISMATCH', G5b: 'RETAINED_PRECISION_SCALE_MISMATCH', G5c: 'RETAINED_PRECISION_CLASSIFICATION_MISMATCH', G6: 'RETAINED_PRECISION_ROW_METHOD_MISMATCH', G7: 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID', G8: 'RETAINED_PRECISION_PREPARATION_MISMATCH' };
 /** The accepted ordered reader (G0-G8). D-U6-1: every gate runs; since U7 a valid invocation-bound statement of a solved model whose cases are selected or not_required reads eligible.
@@ -1415,12 +1427,15 @@ export async function validateRetainedPrecision(source: unknown, invocation?: un
     return freeze({ invocation_bound: actual !== undefined, numerical_eligible: eligible, standing: eligible ? 'eligible' : 'needs_recompute', publication_sha256: b.publication_sha256, classifications: classes });
   } catch (error) { if (error instanceof RetainedPrecisionError) throw error; throw new RetainedPrecisionError(gate, defaultErrors[gate]); }
 }
-/** G0-G2 and unchanged base metadata only: omitted raw publication bytes are never reconstructed or verified. */
+/** G0-G2 and unchanged base metadata only: omitted raw publication bytes are never reconstructed or verified.
+ * B1's three-reader alignment set (RR "RV113's three returns verified; …", item 4): the projected base's header is checked
+ * at G2 with Rust's code (`headerCode(…, 'rust')`), then its preview-physics metadata at G7. Both run in every reader. */
 export async function validateRetainedPrecisionTransport(source: unknown): Promise<RetainedPrecisionValidation> {
   let gate = 'G1';
   try {
     const s = snapshot(source); gate = 'G0'; await header(s); gate = 'G1'; const b = await integrity(s, true); gate = 'G2'; conversionEncoding(b);
-    gate = 'G7'; try { validatePreviewPhysicsTransportMetadata(projection(s) as MechanicsResult); } catch (error) { throw baseError(gate, error, defaultErrors.G7); }
+    const base = projection(s), headerRefusal = headerCode(base, 'rust'); if (headerRefusal !== null) throw new RetainedPrecisionError(gate, headerRefusal);
+    gate = 'G7'; try { validatePreviewPhysicsTransportMetadata(base as MechanicsResult); } catch (error) { throw baseError(gate, error, defaultErrors.G7); }
     return freeze({ invocation_bound: false, numerical_eligible: false, standing: 'needs_recompute', publication_sha256: b.publication_sha256, classifications: [] });
   } catch (error) { if (error instanceof RetainedPrecisionError) throw error; throw new RetainedPrecisionError(gate, defaultErrors[gate]); }
 }

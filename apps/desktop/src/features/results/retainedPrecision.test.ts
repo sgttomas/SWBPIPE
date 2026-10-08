@@ -1342,3 +1342,51 @@ describe('B1 SR-TS repair 01: (g) at G8, and the C2 cause table keyed by precond
     ]);
   });
 });
+
+// B1 SR-TS repair 01, item 3 (RR "RV113's three returns verified; …", alignment set item 4; RV113 SR-TS N-1): the
+// transport reading checks the projected base's header at G2 with Rust's code, then its preview-physics metadata at G7.
+describe('B1 SR-TS repair 01: the transport reading\'s base header at G2 (Rust\'s code), then its metadata at G7', () => {
+  const ORD = 'ordinary_prepared_synthetic', S = (gate: string, code: string) => ({ gate, code });
+  const set = (path: (string | number)[], value: unknown) => ({ path, op: 'set', value });
+  const entry = (base: string, edits: any[]) => ({ id: 'b1_r1_transport_probe', base, edits, invocation_edits: [], rehash: 'all' });
+  const outcome = async (run: () => Promise<any>): Promise<unknown> => {
+    try { return { admitted: (await run()).numerical_eligible }; }
+    catch (error) { expect(error).toBeInstanceOf(RetainedPrecisionError); return { gate: (error as any).gate, code: (error as any).code }; }
+  };
+  async function table(cases: [string, () => Promise<unknown>, unknown][]): Promise<void> {
+    const misses: string[] = [];
+    for (const [name, run, want] of cases) { const got = await run(); if (JSON.stringify(got) !== JSON.stringify(want)) misses.push(`${name}: got ${JSON.stringify(got)} want ${JSON.stringify(want)}`); }
+    expect(misses).toEqual([]);
+  }
+  const bound = (e: any) => async () => { const { source, invocation } = await applyEntry(e); return outcome(() => validateRetainedPrecision(source, invocation)); };
+  const transport = (e: any) => async () => { const { source } = await applyEntry(e); return outcome(() => validateRetainedPrecisionTransport(source)); };
+  it('the header at G2 with Rust\'s code, then the preview-physics metadata at G7; the raw path is unchanged', async () => {
+    const quality = (...tail: (string | number)[]) => ['numerical_quality', ...tail];
+    // [name, edits, transport (Rust's G2 code or G7 metadata), raw (TS's own G7 code, unchanged)]
+    const rows: [string, any[], unknown, unknown][] = [
+      ['quality status invalid', [set(quality('status'), 'bogus')], S('G2', 'SOURCE_NUMERICAL_QUALITY_INVALID'), S('G7', 'SOURCE_NUMERICAL_QUALITY_INVALID')],
+      ['quality status a list', [set(quality('status'), ['checks_passed'])], S('G2', 'SOURCE_NUMERICAL_QUALITY_INVALID'), S('G7', 'SOURCE_NUMERICAL_QUALITY_INVALID')],
+      ['a case enum invalid', [set(quality('cases', 0, 'structural_status'), 'bogus')], S('G2', 'SOURCE_NUMERICAL_CASE_INVALID'), S('G7', 'SOURCE_NUMERICAL_CASE_INVALID')],
+      ['a case enum a dict', [set(quality('cases', 0, 'accuracy_evidence'), { value: 'not_claimed' })], S('G2', 'SOURCE_NUMERICAL_CASE_INVALID'), S('G7', 'SOURCE_NUMERICAL_CASE_INVALID')],
+      ['a case member added', [set(quality('cases', 0, 'extra'), 1)], S('G2', 'SOURCE_NUMERICAL_CASE_INVALID'), S('G7', 'SOURCE_NUMERICAL_CASE_INVALID')],
+      ['an empty evidence ref', [set(quality('cases', 0, 'evidence_refs'), [''])], S('G2', 'SOURCE_NUMERICAL_CASE_INVALID'), S('G7', 'SOURCE_NUMERICAL_CASE_INVALID')],
+      ['limitations empty', [set(['formulation_basis', 'limitations'], [])], S('G2', 'SOURCE_FORMULATION_BASIS_UNSUPPORTED'), S('G7', 'SOURCE_FORMULATION_BASIS_UNSUPPORTED')],
+      ['contract_evidence null', [set(['contract_evidence'], null)], S('G2', 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED'), S('G7', 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED')],
+      ['source_block_recovery present', [set(['source_block_recovery'], {})], S('G2', 'SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN'), S('G7', 'SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN')],
+      ['an extra producer member', [set(['producer', 'extra'], 'x')], S('G2', 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED'), S('G7', 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED')],
+      // Rust's order with two header defects; TS's raw G7 keeps Python's (RV108 N6's declared difference).
+      ['contract_evidence null and source_block_recovery', [set(['contract_evidence'], null), set(['source_block_recovery'], {})], S('G2', 'SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN'), S('G7', 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED')],
+      // Rust's header does not read carrier_evidence: a case defect beside it is the header's code; alone, G7's metadata check refuses it.
+      ['carrier_evidence and a case defect', [set(['carrier_evidence'], {}), set(quality('cases', 0, 'structural_status'), ['x'])], S('G2', 'SOURCE_NUMERICAL_CASE_INVALID'), S('G7', 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED')],
+      ['carrier_evidence alone', [set(['carrier_evidence'], {})], S('G7', 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID'), S('G7', 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED')],
+      // A header-valid but non-table limitation list passes G2 and is refused by the metadata check.
+      ['limitations another non-empty list', [set(['formulation_basis', 'limitations'], ['other'])], S('G7', 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID'), S('G7', 'SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID')],
+      ['the base', [], { admitted: false }, { admitted: true }],
+    ];
+    await table(rows.flatMap(([name, edits, t, raw]) => [[`transport: ${name}`, transport(entry(ORD, edits)), t], [`raw: ${name}`, bound(entry(ORD, edits)), raw]] as [string, () => Promise<unknown>, unknown][]));
+    // 07m's G7 header mutations (277 and 286-293) read on transport at G2 with the Rust reader's own expected code.
+    const header = corpus.mutations.filter((m: any) => (m.expected_by_reader?.rust ?? m.expected).gate === 'G7' && /^SOURCE_(NUMERICAL|FORMULATION_BASIS|BLOCKS_LEGACY|PREVIEW_PHYSICS_EVIDENCE_REQUIRED)/.test((m.expected_by_reader?.rust ?? m.expected).code));
+    expect(header.map((m: any) => corpus.mutations.indexOf(m))).toEqual([277, 286, 287, 288, 289, 290, 291, 292, 293]);
+    await table(header.map((m: any) => [m.id, transport(m), { gate: 'G2', code: (m.expected_by_reader?.rust ?? m.expected).code }] as [string, () => Promise<unknown>, unknown]));
+  });
+});
