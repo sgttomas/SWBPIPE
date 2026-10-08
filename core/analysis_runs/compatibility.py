@@ -239,8 +239,8 @@ RULE_QUANTITY_NOT_COVERED = "RULE_QUANTITY_NOT_COVERED"
 FRESH_CONTRACT_IDS = frozenset({PREVIEW_PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID,
                                 # T1 activation (DESIGN 10.3, SF-4): 0.4.0 exact-route identities only.
                                 LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID,
-                                # U6b (D-U6-6): membership is not standing. B3b likewise.
-                                PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PHYSICS_RETAINED_CONTRACT_ID})
+                                # U6b (D-U6-6): membership is not standing.
+                                PREVIEW_PHYSICS_RETAINED_CONTRACT_ID})
 # Every current-record identity, which the 0.3 AnalysisRun builder and validator admit.
 CURRENT_RECORD_CONTRACT_IDS = frozenset({PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID,
                                          PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID,

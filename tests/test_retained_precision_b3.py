@@ -339,6 +339,7 @@ B3B_REFUSALS = {
     "x23 a component added to the invocation": (_model(lambda m: m.update(components=[{"id": "component:x"}])), INVOCATION),
     "x24 authored nu unit empty": (_model(lambda m: m["materials"][0]["poisson_ratio"].update(unit="")), PREPARATION),
     "x25 authored constitutive_basis removed": (_model(lambda m: m["materials"][0].pop("constitutive_basis")), PREPARATION),
+    "x26 G_hat one ulp high, every copy consistent": (lambda s, i: _g_hat_forged(s, i), PREPARATION),
     "x17 physics-1 headline altered": (_envelope(lambda s: s["summary"]["max_open_formula_stress"].update(value=ulp(s["summary"]["max_open_formula_stress"]["value"]))), BASE_G7),
 }
 def _named_point(source, invocation):
@@ -351,6 +352,43 @@ def _named_point(source, invocation):
         model["load_cases"][0]["modulus_basis_ref"] = "point:x"
     source["retained_precision"]["body"]["material_bases"][0]["selector"] = {"kind": "named", "id": "point:x"}
     return source, edited_invocation(invocation, change)
+
+
+def _g_hat_forged(source, invocation):
+    """Kills a G_hat binding that only compares E: the receipt's shear modulus one ulp above RN64(E/(2*RN64(1+nu))),
+    with every copy made consistent (member G and the native source hashes, old_source, the operational inputs and
+    torsional stiffnesses, both section echoes, and the published G_pa, within physics-1's 2-ulp tolerance)."""
+    body = source["retained_precision"]["body"]
+    g = rp.bits(ulp(rp.from_bits(body["material_bases"][0]["materials"][0]["shear_modulus"])))
+    body["material_bases"][0]["materials"][0]["shear_modulus"] = g
+    src, attempt = body["sources"][0], body["product_attempts"][0]
+    src["id_maps"]["members"][0]["G"] = g
+    attempt["preparation"]["members"][0]["old_source"][1] = g
+    for side in ("old", "new"):
+        record = attempt["operational"][side][0]
+        record["inputs"][7] = g
+        x = [rp.from_bits(v) for v in record["inputs"]]
+        length = rp.from_bits(record["result"]["length"])
+        record["result"]["torsional_stiffness"] = rp.bits((x[7] * x[9]) / length)
+    torsion = attempt["operational"]["new"][0]["result"]["torsional_stiffness"]
+    src["section_terms"][0]["torsional_stiffness"] = torsion
+    body["cases"][0]["selection"]["section_terms"][0]["torsional_stiffness"] = torsion
+    renamed = {}
+    for include_loads, key in ((True, "kernel_source_sha256"), (False, "stiffness_sha256")):
+        new = hashlib.sha256(rp._native_source_encoding(src, include_loads)).hexdigest()
+        renamed[src[key]] = new
+        src[key] = new
+
+    def rename(value):  # the native groups and calls name the source by these hashes
+        items = value.items() if isinstance(value, dict) else enumerate(value) if isinstance(value, list) else ()
+        for k, v in list(items):
+            if isinstance(v, str):
+                value[k] = renamed.get(v, v)
+            else:
+                rename(v)
+    rename(body)
+    source["contract_evidence"]["exact_cases"][0]["pipe_materials"][0]["G_pa"] = rp.from_bits(g)
+    return source, invocation
 
 
 B3B_PASSES = {
@@ -417,6 +455,19 @@ def test_b3b_m3x_mutations(mode, label):
 def test_b3b_m3x_must_pass(mode, label):
     source, invocation = exact_shape(mode, label)
     assert outcome(source, invocation) == ("pass", True, "eligible")
+
+
+@pytest.mark.parametrize("label, s_c", [("x10 authored nu unit not 1", False), ("x24 authored nu unit empty", False), ("x11 authored nu 0.5", False),
+                                        ("26 shear_origin.poisson_ratio bits changed", False), ("x26 G_hat one ulp high, every copy consistent", False),
+                                        ("28 S-C only: an entry's pipe_materials nu one ulp", True), ("x12 authored constitutive_basis changed", True)])
+def test_b3b_g8_material_binding_precedes_s_c(label, s_c):
+    """REVISION_01 §4.2's G8 order on the exact branch: step 4 (the receipt's E, G_hat and nu against the authored
+    material) before step 5 (S-C), whose own code is the detail of G8's PREPARATION_MISMATCH (B3D-13)."""
+    source, invocation = exact_shape("sparse_interactive", label)
+    with pytest.raises(rp.RetainedPrecisionError) as error:
+        rp.validate_retained_precision(source, invocation)
+    assert (error.value.gate, error.value.code) == PREPARATION
+    assert (error.value.detail or "").startswith("PHYSICS_SOURCE_") is s_c, error.value.detail
 
 
 def test_b3b_s1_payload_carries_the_route_hash():
@@ -550,7 +601,7 @@ def test_b3b_carriers(mode):
     assert dispatch(source) == (c.PHYSICS_RETAINED_CONTRACT_ID, c.PHYSICS_RETAINED_CONTRACT_SHA256, c._PHYSICS_RETAINED_CONTRACT_PATH)
     assert dispatch(source, check_receipt=False)[0] == c.PHYSICS_RETAINED_CONTRACT_ID
     assert hashlib.sha256(c._PHYSICS_RETAINED_CONTRACT_PATH.read_bytes()).hexdigest() == c.PHYSICS_RETAINED_CONTRACT_SHA256 == rp.EXACT_TABLE_HASH
-    assert c.is_fresh_contract_id(c.PHYSICS_RETAINED_CONTRACT_ID)
+    assert c.PHYSICS_RETAINED_CONTRACT_ID in c.CURRENT_RECORD_CONTRACT_IDS
     refs = requested(invocation)
     assert c.numerical_use_standing(source, refs) == "needs_recompute"
     assert c.numerical_use_standing(source, refs, invocation) == "numerically_eligible"
