@@ -132,8 +132,9 @@ pub(crate) fn decode_identity(text: &str) -> Option<Vec<Vec<u8>>> {
 }
 
 // ---- D-6's reviewed inputs (RR "U4 G4: the margin rule trips") ----------------
-// The reviewed-lock record binds the PP lock and the precommit reader's 13
-// `include_str!` inputs by SHA-256. build.rs hashes them (no build-dependency:
+// The reviewed-lock record binds 17 inputs by SHA-256: the PP lock, the precommit
+// reader's 13 `include_str!` statics, and J1's three appended statics (DEF-C, DEF-E,
+// XTABLE; I93 REVISION_01 §1.4). build.rs hashes them (no build-dependency:
 // the digest below is self-contained) and emits one line,
 // `OPS_RETAINED_REVIEWED_INPUTS=v1;<path>=<hex>;…`, in `REVIEWED_INPUTS` order,
 // with `unavailable` for any input it cannot read. A registered profile records

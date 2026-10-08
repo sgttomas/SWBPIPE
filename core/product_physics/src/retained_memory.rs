@@ -1051,9 +1051,10 @@ fn caller_clause(caller: RetainedCaller) -> Result<(), AdmissionRefusal> {
 /// The compiled identity text from build.rs (`None` when the variable is absent,
 /// for example in a build without the script: Stale, never a compile error).
 const COMPILED_IDENTITY: Option<&str> = option_env!("OPS_RETAINED_BUILD_IDENTITY");
-/// The compiled reviewed-input record from build.rs: the PP lock and the
-/// precommit reader's 13 `include_str!` inputs, by SHA-256 (D-6 as extended by
-/// RR "U4 G4: the margin rule trips").
+/// The compiled reviewed-input record from build.rs, by SHA-256: 17 inputs, the PP lock,
+/// the precommit reader's 13 `include_str!` statics (D-6 as extended by RR "U4 G4: the
+/// margin rule trips"), and J1's three appended statics, DEF-C, DEF-E and XTABLE (I93
+/// REVISION_01 §1.4; `build_identity::REVIEWED_INPUTS`).
 const COMPILED_REVIEWED_INPUTS: Option<&str> = option_env!("OPS_RETAINED_REVIEWED_INPUTS");
 
 /// BUILD.md §2.3: the layouts the formulas assume. Evaluated by the compiler; a
