@@ -2302,41 +2302,60 @@ fn b3b_d1_admits_the_exact_route_with_empty_regions() {
     }
 }
 
-/// B3b-A's Direct-entry oracle, after B3b-P (lane P, I105): `permitted_run` sends a permitted
-/// exact model to W1's exact route (B3-D P-1, P-2). The coexistence pins n05 and n06 still
-/// publish exactly the ordinary value route's bytes in both modes (T-3 (c): `Coexistence`, under
-/// the route's 8,000,000 budget); m3x runs W1 and publishes its successor or, while RS refuses
-/// `physics-retained-1` at G0 (until B3's readers land), the ordinary bytes plus one notice.
-/// Admitted in the registered build; Stale keeps the plain bytes.
+/// B3b-A's Direct-entry oracle, after B3b-P (lane P, I105; ROOT's one-off edit on b2, refined
+/// by RV123's interim review). `permitted_run` sends a permitted exact model to W1's exact route
+/// (B3-D P-1, P-2). In the registered build, in both modes:
+/// - the coexistence pins n05 and n06 fall back with `Coexistence` (T-3 (c), under the route's
+///   8,000,000 budget) and publish exactly the ordinary value route's bytes;
+/// - m3x runs W1 and, while RS's precommit refuses `physics-retained-1` at G0
+///   `SOURCE_PRODUCER_CONTRACT_UNSUPPORTED` (until B3's readers land), publishes the plain
+///   physics-1 bytes plus exactly one notice for its case, byte for byte (T-12), as lane P's
+///   facade pins do. Once B3's readers admit it, a validated successor is the publication.
+///
+/// Stale (unregistered) builds refuse at D1.1 and keep the plain bytes.
 #[test]
-fn b3b_direct_entry_keeps_the_exact_ordinary_bytes() {
+fn b3b_direct_entry_coexistence_keeps_the_exact_bytes_and_m3x_falls_back_at_g0() {
     let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
     let read = |text: &str| -> Value { serde_json::from_str(text).unwrap() };
+    // R-2 (N1)'s notice, pinned here independently of the product constant, appended after
+    // the ordinary diagnostic prefix.
+    let with_notice = |plain: &[u8], case: &str| -> Vec<u8> {
+        let notice = format!(r#"{{"id":"diagnostic:retained-precision:{case}:unavailable","code":"RETAINED_PRECISION_UNAVAILABLE","severity":"info","message":"Retained-precision recovery is unavailable for this load case. Its published rows keep their ordinary values, standing and diagnostics.","source":"core/product_physics","affected_refs":["{case}"]}}"#);
+        let text = std::str::from_utf8(plain).unwrap();
+        let (head, tail) = text.split_once(r#""diagnostics":["#).unwrap();
+        let (items, rest) = tail.split_at(tail.find("],\"professional_boundary\"").unwrap());
+        let sep = if items.is_empty() { "" } else { "," };
+        format!(r#"{head}"diagnostics":[{items}{sep}{notice}{rest}"#).into_bytes()
+    };
     for (label, raw) in [("m3x", exact3(milestone())), ("n05", read(N05)), ("n06", read(N06))] {
         for mode in MODES {
             let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
             let direct = crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
             let report = direct.admission().unwrap();
             assert_eq!(report.law().domain, None, "{label} {mode:?}");
+            let published = serde_json::to_vec(direct.envelope()).unwrap();
             if !registered {
                 assert_eq!(report.law().refusal, d1_1_refusal(), "{label} {mode:?}");
                 assert!(direct.successor().is_none(), "{label} {mode:?}");
-                assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain, "{label} {mode:?}: the exact ordinary bytes");
+                assert_eq!(published, plain, "{label} {mode:?}: the exact ordinary bytes");
                 continue;
             }
             assert_eq!(report.law().refusal, None, "{label} {mode:?}: admitted");
             if label != "m3x" {
                 assert!(matches!(direct.retained(), Some(Err(crate::W1Fallback::Coexistence))), "{label} {mode:?}: {:?}", direct.retained());
                 assert!(direct.successor().is_none(), "{label} {mode:?}");
-                assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain, "{label} {mode:?}: the exact ordinary bytes");
+                assert_eq!(published, plain, "{label} {mode:?}: the exact ordinary bytes");
                 continue;
             }
             match direct.retained() {
-                Some(Ok(_)) => assert!(direct.successor().is_some(), "{label} {mode:?}"),
+                Some(Ok(_)) => {
+                    assert!(direct.successor().is_some(), "{label} {mode:?}: the validated successor (B3's readers)");
+                    assert_eq!(published, plain, "{label} {mode:?}: the ordinary owner is untouched");
+                }
                 Some(Err(crate::W1Fallback::Precommit { gate: "G0", code })) if code == "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED" => {
-                    let envelope = serde_json::to_value(direct.envelope()).unwrap();
-                    let notices = envelope["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == "RETAINED_PRECISION_UNAVAILABLE").count();
-                    assert_eq!(notices, 1, "{label} {mode:?}: the ordinary bytes plus one notice");
+                    assert!(direct.successor().is_none(), "{label} {mode:?}");
+                    assert_eq!(String::from_utf8(published).unwrap(), String::from_utf8(with_notice(&plain, "case")).unwrap(),
+                        "{label} {mode:?}: the plain physics-1 bytes plus exactly one notice");
                 }
                 other => panic!("{label} {mode:?}: {other:?}"),
             }
