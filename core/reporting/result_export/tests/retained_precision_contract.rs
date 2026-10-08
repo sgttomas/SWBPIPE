@@ -4833,3 +4833,220 @@ fn b1_i4p_transport_extrema_numbers_at_g7() {
         |e| b1_unbound(&shared, e),
     );
 }
+
+/// Ruling 4 (RV113's SR-RS addendum 02, S-1), C2's three conjuncts that no RS test broke
+/// alone, by `validate`, bound and unbound, each at G5 ATTEMPT:
+/// - `unavailable_precondition` with its keyed code in an admitted phase, beside the case's
+///   selected Run (the no-Run conjunct; RV113's `ca_precondition_beside_run`);
+/// - `receipt_failure` with a receipt code, `receipt_encoding`, in phase kernel (the phase
+///   conjunct; RV113's `ca_receipt_phase_kernel`);
+/// - a `facade_failure` with its phase, code and owner, on a case with no Run (the
+///   selected-Run conjunct; RV113's `cb_facade_no_run`).
+#[test]
+fn b1_i4p_c2_conjuncts_alone() {
+    use serde_json::json;
+    let shared = corpus();
+    // C-a: 07j's two-case base, case 1 unavailable beside its Ready attempt and selected
+    // Run (rows without a method), as `b1_r2_c2_cause_table_receipt_and_facade` builds it.
+    let base = base_source(&shared, "two_case_synthetic");
+    let mut rows = base["results"].as_array().unwrap().clone();
+    for r in rows
+        .iter_mut()
+        .filter(|r| r["basis_ref"]["ref_id"] == "case:zero-load")
+    {
+        r.as_object_mut().unwrap().remove("recovery_method");
+    }
+    let diagnostic = base["diagnostics"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .position(|d| d["id"] == "diagnostic:retained:synthetic-zero-load")
+        .unwrap();
+    let beside_run = |reason: Value| {
+        b1_entry(
+            &shared,
+            "two_case_synthetic",
+            None,
+            vec![
+                remove(rb(json!(["cases", 1, "method"]))),
+                remove(rb(json!(["cases", 1, "selection"]))),
+                remove(rb(json!(["cases", 1, "source_identity_sha256"]))),
+                set(rb(json!(["cases", 1, "status"])), json!("unavailable")),
+                set(rb(json!(["cases", 1, "reason"])), reason),
+                set(
+                    rb(json!(["cases", 1, "diagnostic_ref"])),
+                    json!("diagnostic:retained:synthetic-zero-load"),
+                ),
+                set(
+                    json!(["diagnostics", diagnostic, "code"]),
+                    json!("RETAINED_PRECISION_UNAVAILABLE"),
+                ),
+                set(json!(["results"]), Value::Array(rows.clone())),
+            ],
+            vec![],
+        )
+    };
+    // C-b: the preparation-failure base, case 1 unavailable with no product attempt,
+    // source or Run.
+    let p1 = base_source(&shared, P_BASE)["retained_precision"]["body"]["cases"][1].clone();
+    let no_run = |reason: Value| {
+        b1_entry(
+            &shared,
+            P_BASE,
+            None,
+            vec![
+                set(
+                    rb(json!(["cases", 1])),
+                    json!({
+                        "basis_ref": p1["basis_ref"], "ordinary": p1["ordinary"],
+                        "product_attempt_ref": null, "status": "unavailable", "reason": reason,
+                        "diagnostic_ref": p1["diagnostic_ref"], "run": null, "source_ref": null
+                    }),
+                ),
+                remove(rb(json!(["product_attempts", 1]))),
+            ],
+            vec![],
+        )
+    };
+    let reason = |code: &str, phase: &str, cause: Value| json!({"code": code, "phase": phase, "cause": cause});
+    let receipt = json!({"kind": "receipt_failure", "check": "encoding", "field_path": "retained_precision.body"});
+    let facade = json!({"kind": "facade_failure", "owner_ref": {"kind": "case", "index": 1}, "row_id": null, "recipe": "identity", "operand_index": null, "check": "identity", "predicate": null});
+    let capture =
+        json!({"kind": "unavailable_precondition", "precondition": "capture", "affected_refs": []});
+    let entries = vec![
+        (
+            "unavailable_precondition, keyed, phase preparation, beside the selected Run",
+            beside_run(reason("source_unavailable", "preparation", capture)),
+        ),
+        (
+            "receipt_failure, receipt_encoding, phase kernel",
+            beside_run(reason("receipt_encoding", "kernel", receipt)),
+        ),
+        (
+            "facade_failure, facade_certificate, phase facade, naming its case, with no Run",
+            no_run(reason("facade_certificate", "facade", facade)),
+        ),
+    ];
+    let want = gate("G5", ATTEMPT);
+    b1_table(
+        entries
+            .iter()
+            .map(|(n, e)| (*n, e.clone(), want.clone()))
+            .collect(),
+        |e| b1_verdict(&shared, e),
+    );
+    b1_table(
+        entries
+            .into_iter()
+            .map(|(n, e)| (n, e, want.clone()))
+            .collect(),
+        |e| b1_unbound(&shared, e),
+    );
+}
+
+/// Ruling 4 (RV113's SR-RS addendum 02, S-1), the transport metadata check's nine
+/// demands that no RS test broke alone (RV113's N45, N47, N48, N56, N58, N60 and
+/// N63-N65). Each row breaks one demand and is refused by it (gate, code and detail);
+/// the two controls carry a valid measure and a valid withheld gate.
+#[test]
+fn b1_i4p_transport_metadata_demands_alone() {
+    use serde_json::json;
+    let shared = corpus();
+    let pc = |tail: Value| {
+        let mut p = vec![json!("contract_evidence"), json!("preview_cases"), json!(0)];
+        p.extend(tail.as_array().unwrap().iter().cloned());
+        Value::Array(p)
+    };
+    let on = |edits: Vec<Value>| b1_entry(&shared, ORD, None, edits, vec![]);
+    let measure = json!({
+        "result_id": "result:i101:measure", "component_id": "component:i101", "pipe_id": "pipe:fixture-span",
+        "location": "end_i", "factor_role": "bend", "sif": 1.5, "sif_source_reference": "i101",
+        "section_modulus_m3": 1e-4, "bending_moment_y_n_m": 1.0, "bending_moment_z_n_m": 2.0
+    });
+    let with = |v: &Value, k: &str, x: Value| {
+        let mut v = v.clone();
+        v[k] = x;
+        v
+    };
+    let measures = |list: Value| on(vec![set(pc(json!(["intensified_measures"])), list)]);
+    let coverage = |unavailable: Value, outside: Value| {
+        on(vec![set(
+            pc(json!(["stress_maximum_coverage"])),
+            json!({"complete": false, "unavailable_pipe_ids": unavailable, "outside_domain_pipe_ids": outside}),
+        )])
+    };
+    let gate_record = json!({"combination_id": "combination:i101", "withheld": true, "reason": "NONLINEAR_COMBINATION_REQUIRES_SOLVE"});
+    let gates = |list: Value| {
+        on(vec![set(
+            json!(["contract_evidence", "combination_gates"]),
+            list,
+        )])
+    };
+    let m = b1_metadata_refusal;
+    b1_table(
+        vec![
+            (
+                "a valid measure",
+                measures(json!([measure.clone()])),
+                admitted(false),
+            ),
+            (
+                "a valid withheld gate",
+                gates(json!([gate_record.clone()])),
+                admitted(false),
+            ),
+            (
+                "N45: a preview case with another member",
+                on(vec![set(pc(json!(["extra"])), json!(1))]),
+                m("preview case shape"),
+            ),
+            (
+                "N47: an unavailable pipe listed twice",
+                coverage(json!(["p", "p"]), json!([])),
+                m("maximum coverage values"),
+            ),
+            (
+                "N48: a pipe both unavailable and outside the domain",
+                coverage(json!(["p"]), json!(["p"])),
+                m("maximum coverage overlap"),
+            ),
+            (
+                "N56: an extremum's pipe listed unavailable",
+                coverage(json!(["pipe:fixture-span"]), json!([])),
+                m("extrema member partition"),
+            ),
+            (
+                "N58: a measure's moment a string",
+                measures(json!([with(&measure, "bending_moment_y_n_m", json!("1"))])),
+                m("intensified measure inputs"),
+            ),
+            (
+                "N60: two measures with one result id",
+                measures(json!([
+                    measure.clone(),
+                    with(&measure, "component_id", json!("component:i101b"))
+                ])),
+                m("duplicate evidence result binding"),
+            ),
+            (
+                "N63: an extremum with another member",
+                on(vec![set(
+                    pc(json!(["pipe_stress_extrema", 0, "extra"])),
+                    json!(1),
+                )]),
+                m("extrema shape"),
+            ),
+            (
+                "N64: a measure with another member",
+                measures(json!([with(&measure, "extra", json!(1))])),
+                m("intensified measure shape"),
+            ),
+            (
+                "N65: a gate with another member",
+                gates(json!([with(&gate_record, "extra", json!(1))])),
+                m("combination gate shape"),
+            ),
+        ],
+        |e| b1_transport_detail(&shared, e),
+    );
+}
