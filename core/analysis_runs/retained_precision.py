@@ -13,7 +13,7 @@ import struct
 from functools import lru_cache
 from copy import deepcopy
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
@@ -22,6 +22,18 @@ DEFINITION_ID = "RP-PREPARED-ORDINARY-DUAL-v1"
 DEFINITION_HASH = "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349"
 TABLE_HASH = "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"
 METHOD = "contribution_preserving_multiprecision_v1"
+# B3b (B3-D, final for J1, with REVISION_01): the `<physics-retained>` route, model 0.3.0 with the
+# exact_straight_pressure_v2 contract and explicitly empty pressure regions, over physics-1. G0 reads its table's
+# bound values (§2.4; decision 31, N-12) and cross-checks them against these constants, so neither drifts alone.
+EXACT_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
+EXACT_PROFILE = "exact_straight_retained_w1a_v2"
+EXACT_DEFINITION_ID = "RP-PREPARED-EXACT-DUAL-v1"
+EXACT_DEFINITION_HASH = "5a3bac430df9bbc77484d5419c75880ad40ae209b439e5f928374458025281af"
+EXACT_TABLE_HASH = "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d"
+RECEIPT_POLICY = "M03-INTEGRITY-MP-v2"
+FACADE_POLICY = "RP-FACADE-SI-v2"
+RECEIPT_BINDINGS = {"canonicalization": "openpipestress_jcs_ijson_v1", "method": METHOD, "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
+                    "work": {"case_limit": 20_000_000_000, "invocation_limit": 60_000_000_000}, "work_policy": "W1-LME-20B-60B-v1"}
 SAFE = (1 << 53) - 1
 MAX_BITS = 0x7FEFFFFFFFFFFFFF
 # D-U6-1 (I66 U6a): this flag gates eligibility only, as Rust's
@@ -34,6 +46,29 @@ class RetainedPrecisionError(ValueError):
     def __init__(self, gate: str, code: str, detail: str | None = None):
         self.gate, self.code, self.detail = gate, code, detail
         super().__init__(code)
+
+
+class Route(NamedTuple):
+    """The route descriptor (B3-D §6.1): one dispatch on the identity at G0; the route-specific checks (G0's table
+    read, G1's and G8's preparation hash, G5b's evidence, G7's projection, G8's namespace and materials) read it."""
+    exact: bool
+    contract_id: str
+    profile: str
+    definition_id: str
+    definition_hash: str
+    base_id: str
+    base_profile: str
+    base_invalid: str
+    metadata_codes: frozenset
+
+
+PREVIEW_ROUTE = Route(False, CONTRACT_ID, PROFILE, DEFINITION_ID, DEFINITION_HASH,
+                      "openpipestress.result_semantics/0.3.0/preview-physics-1", "product_preview_mechanics_v1",
+                      "SOURCE_PREVIEW_PHYSICS_INVALID", frozenset({"SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", "SOURCE_PREVIEW_PHYSICS_INVALID"}))
+EXACT_ROUTE = Route(True, EXACT_CONTRACT_ID, EXACT_PROFILE, EXACT_DEFINITION_ID, EXACT_DEFINITION_HASH,
+                    "openpipestress.result_semantics/0.3.0/physics-1", "exact_straight_pressure_v2",
+                    "SOURCE_PHYSICS_EVIDENCE_INVALID", frozenset({"SOURCE_PHYSICS_EVIDENCE_INVALID"}))
+ROUTES = {PREVIEW_ROUTE.contract_id: PREVIEW_ROUTE, EXACT_ROUTE.contract_id: EXACT_ROUTE}
 
 
 def bits(value: float) -> str:
@@ -360,8 +395,11 @@ def _native_source_encoding(source, include_loads):
     return bytes(out)
 
 
-def _preparation_payload(a):
-    return {"definition_id": a["definition_id"], "definition_sha256": DEFINITION_HASH,
+def _preparation_payload(a, definition_hash):
+    """C3 §2: `definition_sha256` is the table-bound H(definition) of the route (S-1; B3-D REVISION_01 §2): DEF-O's
+    on the preview route, DEF-E's on the exact route. Every caller passes its route's hash (G1, G8); there is no
+    default (RV120 N1: "never a module constant")."""
+    return {"definition_id": a["definition_id"], "definition_sha256": definition_hash,
             "owner_ref": a["owner_ref"], "ordinary_attempt_ref": a["ordinary_attempt_ref"],
             "material_basis_ref": a["material_basis_ref"], "members": [
                 {"member": m["member"], "old_source": m["old_source"], "old_facts": m["old_facts"], "section": m["result"]["section"]}
@@ -1350,8 +1388,31 @@ def _g5a_coverage(body, case, source, s, need):
             need(has_data[b["body"]])
 
 
-def _g5_numeric(body, rows_by_case, phase=None):
-    """G5a, then G5b, then G5c, each across all cases in case order.
+def _g5b_exact_evidence(evidence, case, source):
+    """G5b on the exact branch (B3-D §1.4 and §6.2; D2 §4.9.3 G5b): the selected case's own exact_cases entry,
+    located by load_case_id, states the prepared section bit for bit. For each source member: As_m2 is the area,
+    Z_m3 the section modulus, I_m4 and J_m4 the actual second and polar moments, ro_m the actual radius, and
+    outside_diameter_m and effective_wall_thickness_m the normalized OD and effective wall."""
+    need = lambda ok: _need(ok, "G5b", "SECTION_MISMATCH")
+    entries = evidence.get("exact_cases") if type(evidence) is dict else None
+    need(type(entries) is list)
+    owner = [e for e in entries if type(e) is dict and e.get("load_case_id") == case["basis_ref"]["ref_id"]]
+    need(len(owner) == 1 and type(owner[0].get("pipe_sections")) is list)
+    for term in source["section_terms"]:
+        member = next(m for m in source["id_maps"]["members"] if m["kernel_member"] == term["member"])
+        stated = [p for p in owner[0]["pipe_sections"] if type(p) is dict and p.get("pipe_id") == member["id"]]
+        need(len(stated) == 1)
+        geometry = term["geometry"]
+        for word, key in ((term["area"], "As_m2"), (term["section_modulus"], "Z_m3"), (geometry["actual_second_moment"], "I_m4"),
+                          (geometry["actual_polar_moment"], "J_m4"), (geometry["actual_radius"], "ro_m"),
+                          (geometry["normalized_od"], "outside_diameter_m"), (geometry["effective_wall"], "effective_wall_thickness_m")):
+            value = stated[0].get(key)
+            need(type(value) in (int, float) and math.isfinite(value) and bits(float(value)) == word)
+
+
+def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None):
+    """G5a, then G5b, then G5c, each across all cases in case order. On the exact branch `exact_evidence` is a
+    one-tuple holding the envelope's contract_evidence (present or not), for G5b's evidence cross-check.
 
     C3_DELTA s4 keeps C1's gate order G0..G8 ("within a gate ... ascending attempt
     index; first failure wins") and C1 s6 has every reader execute G0->G8 in the same
@@ -1433,9 +1494,9 @@ def _g5_numeric(body, rows_by_case, phase=None):
                     threshold = (2.0 ** -59) * scale[k]
                     lower = 0. if total <= threshold else from_bits(section["axial_stiffness" if k == 0 else "torsional_stiffness"]) * (total - (2.0 ** -60) * scale[k])
                     need(upper[k] >= lower)
-        states.append((source, s, rows, bodies, names, values, extents, raw_scales, deferred_class_checks))
+        states.append((case, source, s, rows, bodies, names, values, extents, raw_scales, deferred_class_checks))
     if phase is not None: phase[0] = "G5b"
-    for source, s, rows, bodies, names, values, extents, raw_scales, deferred_class_checks in states:
+    for case, source, s, rows, bodies, names, values, extents, raw_scales, deferred_class_checks in states:
         final_scales = {}
         for bi, scale in raw_scales.items():
             result = list(scale)
@@ -1480,6 +1541,11 @@ def _g5_numeric(body, rows_by_case, phase=None):
                     absolute.append({"result_id":row["id"],"bound":bits(bound)})
             classes.append({"result_id":row["id"],"basis_ref":row["basis_ref"],"normalized_bits":bits(n),"scale_bits":None if scale is None else bits(scale),"class":classification,"bound_bits":None if bound is None else bits(bound)})
         deferred_class_checks.append((s["absolute_verified"] == absolute and s["not_covered"] == uncovered, "CLASSIFICATION_MISMATCH"))
+    if exact_evidence is not None:
+        # DESIGN §6.2's G5b row: the shared checks over every case first, then each selected case's exact evidence,
+        # as RS's `g5b_exact_evidence` and TS run it (RV120 F1).
+        for case, source, *_ in states:
+            _g5b_exact_evidence(exact_evidence[0], case, source)
     if phase is not None: phase[0] = "G5c"
     for *_, deferred_class_checks in states:
         for ok, code in deferred_class_checks:
@@ -1487,8 +1553,62 @@ def _g5_numeric(body, rows_by_case, phase=None):
     return classes
 
 
-def _g8(body, source, invocation):
+LEGACY_PRESSURE_CONTRACT = {"version": "1.0.0", "mode": "legacy_pressure_v1"}
+
+
+def _pressure_contract_is(model, expected):
+    """Exactly the JSON object `expected`: the two keys, each value that exact string (B3-D REVISION_01 §3)."""
+    value = model.get("pressure_contract")
+    return type(value) is dict and value.keys() == expected.keys() and all(value[k] == expected[k] for k in expected)
+
+
+def _legacy_namespace(model):
+    """G8's namespace on the preview successor (B3a; B3-D §6.3 and REVISION_01 §3, N-4), type-strict: branch L,
+    schema 0.1.0 or 0.2.0 with `pressure_contract` absent or JSON null; or branch L3, schema 0.3.0 with exactly
+    {"version": "1.0.0", "mode": "legacy_pressure_v1"}. 0.3.0 without that contract is refused (B3D-10)."""
+    version = model.get("schema_version")
+    if version in ("0.1.0", "0.2.0") and type(version) is str:
+        return model.get("pressure_contract") is None
+    return version == "0.3.0" and _pressure_contract_is(model, LEGACY_PRESSURE_CONTRACT)
+
+
+EXACT_PRESSURE_CONTRACT = {"version": "2.0.0", "mode": "exact_straight_pressure_v2"}
+
+
+def _exact_namespace(model):
+    """G8's namespace on the exact branch (B3-D §4.2 D1.3 branch E; REVISION_01 §3, type-strict): schema 0.3.0 with
+    exactly {"version": "2.0.0", "mode": "exact_straight_pressure_v2"}. 0.4.0 and load states stay out."""
+    version = model.get("schema_version")
+    return type(version) is str and version == "0.3.0" and _pressure_contract_is(model, EXACT_PRESSURE_CONTRACT)
+
+
+def _g8_exact_materials(body, source, invocation, case_bases):
+    """G8 on the exact branch, after the material bases (B3-D §6.2; REVISION_01 §4.2 steps 5 and 6). S-C: physics-
+    source-1's actual-material check over every exact_cases entry, through its own `_actual_materials` and
+    `_canonical_inputs`, used as they are (B3D-12; N-9), with its code as detail only (B3D-13). N-6: each entry's
+    published G_pa is, bit for bit, the receipt's shear modulus for that material."""
+    from .physics_source import _actual_materials, _canonical_inputs
+    model = invocation["request"]["model"]
+    entries = source["contract_evidence"]["exact_cases"]
+    try:
+        canonical = _canonical_inputs(invocation)
+        for entry in entries:
+            actual = next(c for c in model["load_cases"] if c["id"] == entry["load_case_id"])
+            _actual_materials(invocation, actual, entry, canonical)
+    except ValueError as exc:
+        raise RetainedPrecisionError("G8", "RETAINED_PRECISION_PREPARATION_MISMATCH", str(exc)) from exc
+    ids = [c["id"] for c in model["load_cases"]]
+    for entry in entries:
+        basis = body["material_bases"][case_bases[ids.index(entry["load_case_id"])]]
+        for published in entry["pipe_materials"]:
+            receipt = [m for m in basis["materials"] if m["id"] == published["material_id"]]
+            _need(len(receipt) == 1 and type(published["G_pa"]) in (int, float) and math.isfinite(published["G_pa"])
+                  and bits(float(published["G_pa"])) == receipt[0]["shear_modulus"], "G8", "PREPARATION_MISMATCH")
+
+
+def _g8(body, source, invocation, route=PREVIEW_ROUTE):
     need = lambda ok, code="PREPARATION_MISMATCH": _need(ok, "G8", code)
+    exact = route.exact
     # The invocation is exactly {request, solver_mode} with a known solver mode (I91 repair 01, findings d1
     # and d2), as Rust's `g8` (its first two `need`s) and TS's `invocationBinding` (its first `fail`) require.
     need(type(invocation) is dict and set(invocation) == {"request", "solver_mode"}
@@ -1499,8 +1619,9 @@ def _g8(body, source, invocation):
     request = invocation["request"]; model = request["model"]
     need(model["project"]["id"] == source["model_ref"], "INVOCATION_MISMATCH")
     # The model scope, as PP accepts it (the alignment set, item 2): no reference_configurations member (null
-    # included); pressure_contract absent or null; combinations and components absent or [].
-    need(model.get("schema_version") in ("0.1.0", "0.2.0", "0.3.0") and model.get("pressure_contract") is None and model.get("combinations", []) == [], "INVOCATION_MISMATCH")
+    # included); the route's namespace (B3a; B3b's exact one); combinations and components absent or [] (on the
+    # exact route a combination is ruling 4's expected refusal).
+    need((_exact_namespace(model) if exact else _legacy_namespace(model)) and model.get("combinations", []) == [], "INVOCATION_MISMATCH")
     need(model.get("components", []) == [] and "reference_configurations" not in model, "INVOCATION_MISMATCH")
     nodes, pipes, supports = model["nodes"], model["pipe_segments"], model["supports"]
     need(len({x["id"] for x in nodes}) == len(nodes) and len({x["id"] for x in pipes}) == len(pipes) and len({x["id"] for x in supports}) == len(supports))
@@ -1509,7 +1630,21 @@ def _g8(body, source, invocation):
     def unit(q, dimension):
         values = convert_quantities_to_canonical([{"id":"v","value":q["value"],"unit":q["unit"],"dimension":dimension}])
         return float(values[0]["value"])
+    def poisson(material):
+        q = material.get("poisson_ratio")
+        need(type(q) is dict and q.get("unit") == "1" and type(q.get("value")) in (int, float) and math.isfinite(q["value"]) and -1 < q["value"] < .5)
+        return float(q["value"])
+    def shear_origin(material):
+        # B3-D §1.2 (B3D-7): on the exact route G is derived from E and nu; otherwise the authored G.
+        return {"kind":"derived_e_nu","poisson_ratio":bits(poisson(material)),"constitutive_basis":"homogeneous_isotropic_E_nu_v1"} if exact else {"kind":"explicit_g"}
     def selected_material(material, case):
+        if exact:
+            # D1.5-exact: the base common E/nu only. G_hat is the producer's RN64(E/(2*RN64(1+nu))), positive and
+            # normal (B3-D §1.2, B3D-7; RV116 N-1); binary64 evaluates exactly that expression.
+            need(case.get("modulus_basis_ref") is None and case.get("modulus_basis_temperature") is None)
+            e = unit(material["elastic_modulus"], "stress"); g = e / (2.0 * (1.0 + poisson(material)))
+            need(math.isfinite(e) and e > 0 and math.isfinite(g) and g >= 2.0 ** -1022)
+            return (e, g), {"kind":"base"}
         base = (unit(material["elastic_modulus"], "stress"), unit(material["shear_modulus"], "stress"))
         need(all(math.isfinite(v) and v > 0 for v in base))
         named, temperature = case.get("modulus_basis_ref"), case.get("modulus_basis_temperature")
@@ -1557,6 +1692,7 @@ def _g8(body, source, invocation):
         named, temperature = raw_case.get("modulus_basis_ref"), raw_case.get("modulus_basis_temperature")
         need(named is None or temperature is None)
         selector = {"kind":"named","id":named} if named is not None else {"kind":"temperature","kelvin":bits(unit(temperature,"temperature"))} if temperature is not None else {"kind":"base"}
+        need(not exact or selector == {"kind":"base"})  # B3-D REVISION_01 §4.2 step 3
         if selector not in selectors: selectors.append(selector)
         case_bases.append(selectors.index(selector))
         need(o["material_basis_ref"] == case_bases[i])
@@ -1582,13 +1718,25 @@ def _g8(body, source, invocation):
         need([m["input_index"] for m in mb["materials"]] == [j for j, m in enumerate(materials) if m["id"] in used])
         for m in mb["materials"]:
             raw = materials[int(m["input_index"])]; pair, selection = selected_material(raw, model["load_cases"][mb["case_indices"][0]])
-            need(m["id"] == raw["id"] and m["selection"] == selection and m["shear_origin"] == {"kind":"explicit_g"} and [m["elastic_modulus"],m["shear_modulus"]] == [bits(v) for v in pair])
+            need(m["id"] == raw["id"] and m["selection"] == selection and m["shear_origin"] == shear_origin(raw) and [m["elastic_modulus"],m["shear_modulus"]] == [bits(v) for v in pair])
+    if exact: _g8_exact_materials(body, source, invocation, case_bases)
     for si, s in enumerate(body["sources"]):
         # The source's index and owner are G3's (the alignment set, item 1); here, the invocation's facts.
         for include_loads, field in ((True, "kernel_source_sha256"), (False, "stiffness_sha256")):
             need(hashlib.sha256(_native_source_encoding(s, include_loads)).hexdigest() == s[field])
         ci = int(s["owner"]["case_index"]); case = model["load_cases"][ci]
-        need(not case.get("pressure_regions") and case.get("equivalent_static") is None)
+        if exact:
+            # D1.5-exact (B3-D §4.2; REVISION_01 §4.2 step 8): pressure_regions present and [], no equivalent_static,
+            # no analysis_state.
+            need(type(case.get("pressure_regions")) is list and case["pressure_regions"] == [] and case.get("equivalent_static") is None and "analysis_state" not in case)
+        else:
+            # The sourced case on the preview route (DOMAIN D1.5; C1's G8 row, "no 0.4 extension"), aligned in the three
+            # readers (I100 B3 addendum 01): pressure_regions absent, null or [] (B3D-11's leniency), type-strict;
+            # equivalent_static absent or null; no analysis_state member, null included (the 0.4.0 load-reference
+            # state, which D1.5 requires Absent). A key PP's typed case does not have (a case-level `pressure`) is not read.
+            regions = case.get("pressure_regions")
+            need((regions is None or (type(regions) is list and regions == [])) and case.get("equivalent_static") is None
+                 and "analysis_state" not in case)
         maps = s["id_maps"]
         need(len(maps["nodes"]) == len(nodes) and len(maps["members"]) == len(pipes) and len(maps["support_ids"]) == len(supports))
         need(len(nodes)*6 <= 0xffffffff and len(pipes)*3 <= 0xffffffff)
@@ -1602,7 +1750,7 @@ def _g8(body, source, invocation):
         need([m["input_index"] for m in mb["materials"]] == [i for i,m in enumerate(materials) if m["id"] in used])
         for m in mb["materials"]:
             raw = materials[int(m["input_index"])]; pair, selection = selected_material(raw,case)
-            need(m["id"] == raw["id"] and m["selection"] == selection and m["shear_origin"] == {"kind":"explicit_g"} and [m["elastic_modulus"],m["shear_modulus"]] == [bits(v) for v in pair])
+            need(m["id"] == raw["id"] and m["selection"] == selection and m["shear_origin"] == shear_origin(raw) and [m["elastic_modulus"],m["shear_modulus"]] == [bits(v) for v in pair])
         need(len(s["section_terms"]) == len(pipes))
         for i, (m, raw, section) in enumerate(zip(maps["members"],pipes,s["section_terms"])):
             need(m["model_index"] == m["kernel_member"] == section["member"] == i and m["id"] == raw["id"])
@@ -1613,7 +1761,7 @@ def _g8(body, source, invocation):
             need(mat["id"] == raw["material"] and m["E"] == mat["elastic_modulus"] and m["G"] == mat["shear_modulus"])
             geo=section["geometry"]; d=unit(raw["section"]["outside_diameter"],"length"); wall=unit(raw["section"]["wall_thickness"],"length")
             tolerance=unit(raw["section"]["mill_tolerance"],"length") if raw["section"].get("mill_tolerance") is not None else 0.
-            need(geo["route"] == "preview" and geo["normalized_od"] == bits(d) and geo["effective_wall"] == bits(wall-tolerance) and 0 < wall-tolerance < d*.5)
+            need(geo["route"] == ("exact" if exact else "preview") and geo["normalized_od"] == bits(d) and geo["effective_wall"] == bits(wall-tolerance) and 0 < wall-tolerance < d*.5)
             need(geo["actual_radius"] == bits(d*.5) and section["area"] == m["A_K"] and geo["actual_second_moment"] == m["Iy_K"] == m["Iz_K"] and geo["actual_polar_moment"] == m["J_K"])
             need(all(from_bits(m[k]) >= 2.0**-1022 for k in ["E","G","A_K","Iy_K","Iz_K","J_K"]) and from_bits(section["section_modulus"]) > 0)
         need(len({m["built_pipe_index"] for m in maps["members"]}) == len(pipes))
@@ -1676,7 +1824,7 @@ def _g8(body, source, invocation):
             add({"tag":"support_force_magnitude","support":support["id"]},"force",support["node"]);add({"tag":"support_moment_magnitude","support":support["id"]},"moment",support["node"])
         need(s["layout"] == layout)
         if s["preparation"] is not None:
-            a=body["product_attempts"][int(s["preparation"]["attempt_ref"])];need(a["source_ref"]==si and s["preparation"]["sha256"]==_hash("retained_precision_preparation_v1",_preparation_payload(a)))
+            a=body["product_attempts"][int(s["preparation"]["attempt_ref"])];need(a["source_ref"]==si and s["preparation"]["sha256"]==_hash("retained_precision_preparation_v1",_preparation_payload(a,route.definition_hash)))
             for j,m in enumerate(a["preparation"]["members"]):
                 old=m["old_source"];f=m["old_facts"];new=m["result"]["section"];member=maps["members"][j];section=s["section_terms"][j]
                 need(old[:2]==[member["E"],member["G"]] and old[2]==f[2] and old[3]==old[4]==f[3] and old[5]==f[4])
@@ -1732,45 +1880,97 @@ def validate_retained_precision_transport(source: Any) -> dict[str, Any]:
     return _validate_draft(source, None, raw=False)
 
 
-def _transport_base(snapshot: dict[str, Any]) -> None:
+def _transport_base(snapshot: dict[str, Any], route: Route = PREVIEW_ROUTE) -> None:
     """The base step on the reader's transport projection (no rows are read): `_source_contract` runs the base
     header check in Rust's order (`rust_header_order`, ruling 1), then the preview-physics transport metadata
     check. A failure keeps the base validator's leading code, with its full text as detail, as at the raw G7.
     Its gate (the alignment set, item 4): the metadata check raises only SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID,
     and the header check never does (it runs first, and every header code differs), so that code is G7's and
-    every other is the header's, G2. Raw reads keep Python's own header order at G7 (the declared raw codes)."""
-    projected=deepcopy(snapshot);del projected["retained_precision"]
-    projected["producer"]["semantic_contract_id"]="openpipestress.result_semantics/0.3.0/preview-physics-1";projected["formulation_basis"]["profile_id"]="product_preview_mechanics_v1"
-    for row in projected["results"] if type(projected.get("results")) is list else []:
-        if type(row) is dict:row.pop("recovery_method",None)
+    every other is the header's, G2. Raw reads keep Python's own header order at G7 (the declared raw codes).
+    B3b (B3-D §6.2, transport): on the exact branch the projection is physics-1's and its metadata check is physics-1's
+    transport check, whose code (SOURCE_PHYSICS_EVIDENCE_INVALID) is G7's in the same way."""
+    projected=_project(snapshot,route)
     from .compatibility import _source_contract
     try:_source_contract(projected,check_receipt=False,rust_header_order=True)
     except ValueError as exc:
         text=str(exc);match=re.match(r"[A-Z][A-Z0-9_]*",text)
-        code=match.group(0) if match else "SOURCE_PREVIEW_PHYSICS_INVALID"
-        error=RetainedPrecisionError("G7" if code in ("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID","SOURCE_PREVIEW_PHYSICS_INVALID") else "G2",code);error.detail=text
+        code=match.group(0) if match else route.base_invalid
+        error=RetainedPrecisionError("G7" if code in route.metadata_codes else "G2",code);error.detail=text
         raise error from exc
+
+
+def _g0_exact(receipt):
+    """G0 on the exact branch, B3-D §2.4 steps 3 to 9 (step 1 is the dispatch, step 2 the envelope): the packaged
+    physics-retained-1 table and DEF-E, the table/constant cross-check, then the receipt's bound values and
+    definition ids read from the table (decision 31, N-12). Every failure is SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+    except DEF-E's binding (step 4), RETAINED_PRECISION_FORMATION_MISMATCH."""
+    need = lambda ok, code="SOURCE_PRODUCER_CONTRACT_UNSUPPORTED": _need(ok, "G0", code)
+    results = ROOT / "fixtures/results"
+    table_bytes = (results / "semantic_contract_v0_3_physics_retained_1.json").read_bytes()
+    table = json.loads(table_bytes)
+    # 3. The table's identity and profile.
+    need(type(table) is dict and table.get("semantic_contract_id") == EXACT_CONTRACT_ID and table.get("formulation_profile_id") == EXACT_PROFILE)
+    # 4. H(packaged DEF-E) is the reader's constant, and the table binds exactly that definition.
+    definition = json.loads((results / "retained_precision_prepared_exact_v1.json").read_text())
+    need(_hash("retained_precision_formation_v1", definition) == EXACT_DEFINITION_HASH
+         and _same(table.get("product_formation_definitions"), [{"id": EXACT_DEFINITION_ID, "sha256": EXACT_DEFINITION_HASH}]), "FORMATION_MISMATCH")
+    # 5. The table's bytes, and its inherited hash is physics-1's packaged table.
+    inherited = (results / "semantic_contract_v0_3_physics_1.json").read_bytes()
+    need(hashlib.sha256(table_bytes).hexdigest() == EXACT_TABLE_HASH and hashlib.sha256(inherited).hexdigest() == table.get("inherited_semantic_contract_sha256"))
+    # 6. The cross-check: each bound table value equals the reader's constant.
+    policy = table.get("accuracy_classification")
+    if not (_same(table.get("receipt_bindings"), RECEIPT_BINDINGS) and table.get("receipt_policy") == RECEIPT_POLICY
+            and type(policy) is dict and policy.get("policy") == FACADE_POLICY):
+        raise RetainedPrecisionError("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", "table/constant cross-check")
+    bound = table["receipt_bindings"]
+    # 7. A receipt with a body, receipt_version 1.
+    need(type(receipt) is dict and type(receipt.get("body")) is dict)
+    b = receipt["body"]
+    need(_integral(b.get("receipt_version")) == 1)
+    # 8. The receipt's values are the table's.
+    for key, value in {"policy": table["receipt_policy"], "facade_policy": policy["policy"], "projection_policy": bound["projection_policy"],
+                       "work_policy": bound["work_policy"], "canonicalization": bound["canonicalization"]}.items():
+        need(type(b.get(key)) is str and b[key] == value)
+    w = b.get("work")
+    need(type(w) is dict and _integral(w.get("case_limit")) == bound["work"]["case_limit"] and _integral(w.get("invocation_limit")) == bound["work"]["invocation_limit"])
+    # 9. Every attempt's definition is the table's.
+    for attempt in b.get("product_attempts", []) if type(b.get("product_attempts")) is list else []:
+        if type(attempt) is dict: need(attempt.get("definition_id") == table["product_formation_definitions"][0]["id"])
+
+
+def _project(snapshot: dict[str, Any], route: Route) -> dict[str, Any]:
+    """G7's projection to the route's base (D2 §4.9.3; B3-D §6.2): no receipt, the base identity and profile, and
+    no row token. The exact branch keeps physics-1's contract_evidence for physics-1's unchanged base validator."""
+    projected=deepcopy(snapshot);del projected["retained_precision"]
+    projected["producer"]["semantic_contract_id"]=route.base_id;projected["formulation_basis"]["profile_id"]=route.base_profile
+    for row in projected["results"] if type(projected.get("results")) is list else []:
+        if type(row) is dict:row.pop("recovery_method",None)
+    return projected
 
 
 def _validate_draft(source: Any, invocation: Any = None, *, raw: bool = True) -> dict[str, Any]:
     """The ordered checks behind the public entry (D-U6-1). With raw=False, the transport checks
-    (F-U6b-2): G1 skips the raw rows and the publication digest, as Rust's g1(source, false)."""
-    gate="G0"
+    (F-U6b-2): G1 skips the raw rows and the publication digest, as Rust's g1(source, false).
+    B3b: one dispatch on the identity at G0 selects the route (B3-D §6.1); the other gates are shared."""
+    gate="G0";route=None
     try:
         producer=source.get("producer") if type(source) is dict else None;basis=source.get("formulation_basis") if type(source) is dict else None
-        _need(type(producer) is dict and type(basis) is dict and producer.get("semantic_contract_id")==CONTRACT_ID and basis.get("profile_id")==PROFILE,"G0","SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+        contract=producer.get("semantic_contract_id") if type(producer) is dict else None
+        route=ROUTES.get(contract) if type(contract) is str else None
+        _need(type(producer) is dict and type(basis) is dict and route is not None and basis.get("profile_id")==route.profile,"G0","SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
         snapshot=deepcopy(source);invocation=deepcopy(invocation);receipt=snapshot.get("retained_precision");schema=_schema()
         _need(snapshot.get("schema_version")=="0.2.0" and snapshot["producer"].get("component_name")=="open_pipe_stress_product_physics" and snapshot["producer"].get("component_version")=="0.2.0",gate,"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
-        definition=json.loads((ROOT/"fixtures/results/retained_precision_prepared_ordinary_v1.json").read_text())
-        _need(_hash("retained_precision_formation_v1",definition)==DEFINITION_HASH,gate,"FORMATION_MISMATCH")
-        table_bytes=(ROOT/"fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json").read_bytes()
-        table=json.loads(table_bytes)
-        inherited_bytes=(ROOT/"fixtures/results/semantic_contract_v0_3_preview_physics_1.json").read_bytes()
-        _need(hashlib.sha256(table_bytes).hexdigest()==TABLE_HASH and hashlib.sha256(inherited_bytes).hexdigest()==table["inherited_semantic_contract_sha256"],gate,"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
-        # D2 + settled readings 1-2: an absent retained_precision or body is an absent G0 field;
-        # receipt_version is exactly 1 (C1 s4); thresholds and canonicalization are G0 fields.
-        _need(type(receipt) is dict and type(receipt.get("body")) is dict,gate,"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
-        if True:
+        if route.exact:_g0_exact(receipt)
+        else:
+            definition=json.loads((ROOT/"fixtures/results/retained_precision_prepared_ordinary_v1.json").read_text())
+            _need(_hash("retained_precision_formation_v1",definition)==DEFINITION_HASH,gate,"FORMATION_MISMATCH")
+            table_bytes=(ROOT/"fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json").read_bytes()
+            table=json.loads(table_bytes)
+            inherited_bytes=(ROOT/"fixtures/results/semantic_contract_v0_3_preview_physics_1.json").read_bytes()
+            _need(hashlib.sha256(table_bytes).hexdigest()==TABLE_HASH and hashlib.sha256(inherited_bytes).hexdigest()==table["inherited_semantic_contract_sha256"],gate,"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+            # D2 + settled readings 1-2: an absent retained_precision or body is an absent G0 field;
+            # receipt_version is exactly 1 (C1 s4); thresholds and canonicalization are G0 fields.
+            _need(type(receipt) is dict and type(receipt.get("body")) is dict,gate,"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
             b=receipt["body"]
             for key,value in {"receipt_version":1,"policy":"M03-INTEGRITY-MP-v2","projection_policy":"RP-LOGICAL-ATTEMPTS-v1","work_policy":"W1-LME-20B-60B-v1","facade_policy":"RP-FACADE-SI-v2","canonicalization":"openpipestress_jcs_ijson_v1"}.items():
                 _need((_integral(b.get(key))==value) if type(value) is int else (type(b.get(key)) is str and b.get(key)==value),gate,"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
@@ -1795,10 +1995,11 @@ def _validate_draft(source: Any, invocation: Any = None, *, raw: bool = True) ->
                 if ai is not None and 0<=ai<len(body["product_attempts"]):
                     a=body["product_attempts"][ai]
                     if all(m["result"]["kind"]=="prepared" for m in a["preparation"]["members"]):
-                        _need(prep["sha256"]==_hash("retained_precision_preparation_v1",_preparation_payload(a)),gate,"RECEIPT_MISMATCH")
+                        # S-1 (B3-D REVISION_01 §2): the payload carries the route's definition hash, not DEF-O's.
+                        _need(prep["sha256"]==_hash("retained_precision_preparation_v1",_preparation_payload(a,route.definition_hash)),gate,"RECEIPT_MISMATCH")
         gate="G2";_encoding(receipt,schema);_need(not _negative_zero(receipt),gate,"ENCODING_MISMATCH");_normalize_integrals(receipt)  # D34, then D32
         if not raw:
-            gate="G7";_transport_base(snapshot)  # a header failure is raised at G2 (item 4); an escape still falls back at G7
+            gate="G7";_transport_base(snapshot,route)  # a header failure is raised at G2 (item 4); an escape still falls back at G7
             return {"invocation_bound":False,"numerical_eligible":False,"standing":"needs_recompute","publication_sha256":body["publication_sha256"],"classifications":[]}
         gate="G3";cases=body["cases"];quality=snapshot["numerical_quality"]["cases"]
         ids=[c["basis_ref"]["ref_id"] for c in cases]
@@ -1861,26 +2062,25 @@ def _validate_draft(source: Any, invocation: Any = None, *, raw: bool = True) ->
             # D7 (C1 G4 row; C1:147): every retained diagnostic names exactly one requested case.
             if d["code"] in ("RETAINED_PRECISION_SELECTED","RETAINED_PRECISION_UNAVAILABLE"):_need(type(d.get("affected_refs")) is list and len(d["affected_refs"])==1 and d["affected_refs"][0] in ids,gate,"DIAGNOSTIC_MISMATCH")
         gate="G5";_g5_native(body);_g5_ordinary(body,cases,diags,quality);_g5_products(body,rows)
-        gate="G5a";phase=["G5a"];classes=_g5_numeric(body,rows,phase)
+        # B3-D §6.2: on the exact branch G5b also binds each selected case's own physics-1 section evidence.
+        gate="G5a";phase=["G5a"];classes=_g5_numeric(body,rows,phase,(snapshot.get("contract_evidence"),) if route.exact else None)
         gate="G6"
         for c in cases:
             for row in rows[c["basis_ref"]["ref_id"]]:_need(row.get("recovery_method")==METHOD if c["status"]=="selected" else "recovery_method" not in row,gate,"ROW_METHOD_MISMATCH")
-        gate="G7";projected=deepcopy(snapshot);del projected["retained_precision"]
-        projected["producer"]["semantic_contract_id"]="openpipestress.result_semantics/0.3.0/preview-physics-1";projected["formulation_basis"]["profile_id"]="product_preview_mechanics_v1"
-        for row in projected["results"]:row.pop("recovery_method",None)
+        gate="G7";projected=_project(snapshot,route)
         from .compatibility import _source_contract
         try:_source_contract(projected)
         except ValueError as exc:
             text=str(exc);match=re.match(r"[A-Z][A-Z0-9_]*",text)
-            error=RetainedPrecisionError("G7",match.group(0) if match else "SOURCE_PREVIEW_PHYSICS_INVALID");error.detail=text
+            error=RetainedPrecisionError("G7",match.group(0) if match else route.base_invalid);error.detail=text
             raise error from exc
         gate="G8"
-        if invocation is not None:_g8(body,snapshot,invocation)
+        if invocation is not None:_g8(body,snapshot,invocation,route)
         eligible=_IMPLEMENTATION_COMPLETE and invocation is not None and snapshot["status"]["mechanics"]=="MECHANICS_SOLVED" and all(c["status"] in ("selected","not_required") for c in cases)
         return {"invocation_bound":invocation is not None,"numerical_eligible":eligible,"standing":"eligible" if eligible else "needs_recompute","publication_sha256":body["publication_sha256"],"classifications":classes}
     except RetainedPrecisionError:raise
     except (KeyError,IndexError,TypeError,ValueError,OverflowError,ZeroDivisionError,StopIteration,AttributeError) as exc:
         # Fail-closed fallback only (D16): checks report their own codes; G5a/G5b/G5c follow the phase (D10).
         if gate=="G5a":gate=phase[0]
-        code={"G0":"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED","G1":"RETAINED_PRECISION_RECEIPT_MISMATCH","G2":"RETAINED_PRECISION_ENCODING_MISMATCH","G3":"RETAINED_PRECISION_COVERAGE_MISMATCH","G4":"RETAINED_PRECISION_DIAGNOSTIC_MISMATCH","G5":"RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH","G5a":"RETAINED_PRECISION_SCALE_MISMATCH","G5b":"RETAINED_PRECISION_SCALE_MISMATCH","G5c":"RETAINED_PRECISION_CLASSIFICATION_MISMATCH","G6":"RETAINED_PRECISION_ROW_METHOD_MISMATCH","G8":"RETAINED_PRECISION_PREPARATION_MISMATCH"}.get(gate,"SOURCE_PREVIEW_PHYSICS_INVALID")
+        code={"G0":"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED","G1":"RETAINED_PRECISION_RECEIPT_MISMATCH","G2":"RETAINED_PRECISION_ENCODING_MISMATCH","G3":"RETAINED_PRECISION_COVERAGE_MISMATCH","G4":"RETAINED_PRECISION_DIAGNOSTIC_MISMATCH","G5":"RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH","G5a":"RETAINED_PRECISION_SCALE_MISMATCH","G5b":"RETAINED_PRECISION_SCALE_MISMATCH","G5c":"RETAINED_PRECISION_CLASSIFICATION_MISMATCH","G6":"RETAINED_PRECISION_ROW_METHOD_MISMATCH","G8":"RETAINED_PRECISION_PREPARATION_MISMATCH"}.get(gate,(route or PREVIEW_ROUTE).base_invalid)
         raise RetainedPrecisionError(gate,code) from exc
