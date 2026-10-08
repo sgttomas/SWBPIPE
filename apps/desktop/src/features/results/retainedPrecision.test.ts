@@ -1551,6 +1551,7 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
   const rows = (base: string, x: { source: any; invocation: any }): [Shape, any][] => {
     const entry = x.source.contract_evidence.exact_cases[0], sec = (k: string) => entry.pipe_sections[0][k] as number;
     const pm = entry.pipe_materials[0], receiptG = decode(x.source.retained_precision.body.material_bases[0].materials[0].shear_modulus);
+    const receiptE = decode(x.source.retained_precision.body.material_bases[0].materials[0].elastic_modulus);
     const model = x.invocation.request.model, authoredNu = model.materials[0].poisson_ratio.value, caseId = model.load_cases[0].id, pipeId = model.pipe_segments[0].id;
     return [
       [{ name: '01 identity -> the preview id', base, edits: [set(['producer', 'semantic_contract_id'], RETAINED_PRECISION_ID)] }, G0],
@@ -1590,8 +1591,13 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
       [{ name: '22 a combination added to the invocation', base, invocation_edits: [set(md('combinations'), [{ id: 'combination:x', kind: 'algebraic', terms: [{ load_case: caseId, factor: 1.0 }] }])] }, INV],
       [{ name: '22b a component added to the invocation', base, invocation_edits: [set(md('components'), [{ id: 'component:x' }])] }, INV],
       [{ name: '23 a case naming modulus_basis_ref', base, invocation_edits: [set(md('load_cases', 0, 'modulus_basis_ref'), 'point:x')] }, PREP],
+      // D1.5: only the base common E/nu, even a named point equal to the base, with the receipt's selector naming it alike.
+      [{ name: "23b a case naming a point equal to the base, the receipt's selector alike", base, edits: [set(rb('material_bases', 0, 'selector'), { kind: 'named', id: 'point:base' })],
+        invocation_edits: [set(md('materials', 0, 'temperature_points'), [{ id: 'point:base', elastic_modulus: structuredClone(model.materials[0].elastic_modulus), poisson_ratio: structuredClone(model.materials[0].poisson_ratio) }]),
+          set(md('load_cases', 0, 'modulus_basis_ref'), 'point:base')] }, PREP],
       [{ name: "24 a material's shear_origin -> explicit_g", base, edits: [set(rb('material_bases', 0, 'materials', 0, 'shear_origin'), { kind: 'explicit_g' })] }, PREP],
       [{ name: "24b a material's selection -> named_point", base, edits: [set(rb('material_bases', 0, 'materials', 0, 'selection'), { kind: 'named_point', point_id: 'point:x' })] }, PREP],
+      [{ name: "25b a material's elastic_modulus one ulp", base, edits: [set(rb('material_bases', 0, 'materials', 0, 'elastic_modulus'), binary64Bits(ulps(receiptE, 1)))] }, PREP],
       [{ name: "25 a material's shear_modulus one ulp", base, edits: [set(rb('material_bases', 0, 'materials', 0, 'shear_modulus'), binary64Bits(ulps(receiptG, 1)))] }, PREP],
       [{ name: '26 shear_origin.poisson_ratio bits changed', base, edits: [set(rb('material_bases', 0, 'materials', 0, 'shear_origin', 'poisson_ratio'), binary64Bits(ulps(pm.nu, 1)))] }, PREP],
       [{ name: '27 authored nu changed in the invocation', base, invocation_edits: [set(md('materials', 0, 'poisson_ratio', 'value'), ulps(authoredNu, 1))] }, PREP],
@@ -1653,9 +1659,9 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
     return x;
   }
   const reading = async (run: () => Promise<any>) => { try { const r = await run(); return { ok: { eligible: r.numerical_eligible } }; } catch (e) { expect(e).toBeInstanceOf(RetainedPrecisionError); return { gate: (e as any).gate, code: (e as any).code }; } };
-  it('pins the Rust test\'s 159 shapes (55 synthetic, 52 on each m3x successor), their first failures, and their three readings', async () => {
+  it('pins the Rust test\'s 165 shapes (57 synthetic, 54 on each m3x successor), their first failures, and their three readings', async () => {
     const list = await shapes(), misses: string[] = [], lines: any[] = [];
-    expect(list.filter(([x]) => x.base !== FILE_BASE && x.base !== '<s1:file>').length).toBe(3 + 50 + 2 + 2 * (1 + 50 + 1));
+    expect(list.filter(([x]) => x.base !== FILE_BASE && x.base !== '<s1:file>').length).toBe(3 + 52 + 2 + 2 * (1 + 52 + 1));
     for (const [shape, want] of list) {
       const { source, invocation } = await input(shape);
       const got = await firstFailure(source, invocation);
