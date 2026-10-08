@@ -1,12 +1,12 @@
 ## A correctly rounded Euclidean norm replaces libm `hypot` on published paths
 
 `f64::hypot` is not correctly rounded, so published support magnitudes depended on the platform's libm. macOS and glibc differed in the last bit, and B1 needed per-platform pins. This PR adds `norm2` and `norm3` to frame_kernel (`correct_norm.rs`).
-- They return RN(√(a² + b² [+ c²])) using IEEE operations, `sqrt` and `fma` only, so every platform gives the same bits.
-- A 3-component magnitude is the correctly rounded 3-norm, not a hypot chain.
+- They return RN(√(a² + b² [+ c²])) using IEEE operations, `sqrt` and `fma` only. Given a correctly rounded `fma` (the hardware's, or the platform's where there is none), every platform gives the same bits; a wasm32 build with software `fma` equals aarch64 bit for bit (RV126).
+- Every magnitude formerly formed with libm `hypot` is now a correctly rounded norm; a 3-component one is the correctly rounded 3-norm, not a hypot chain. Two published magnitudes never used `hypot` and are unchanged: the selected-source support magnitude (`source_receipt::scaled_norm`) and the nodal `displacement_magnitude`. They are deterministic IEEE but not correctly rounded. (This corrects the code commit's message, which said every published 3-component magnitude is the 3-norm; RV126 S-1.)
 - Special values follow C Annex F.
 - They are verified against an exact integer-square-root oracle: 0 misrounded in 22,000,000 results, including the subnormal and overflow ranges and 1,000,000 adversarial near-midpoint triples. 1,200 vectors are committed.
 
-**Call sites:** every product `hypot` that reaches published bytes, a receipt or diagnostic text now uses the norm. That covers:
+**Call sites:** 30 of the 32 product `hypot` calls now use the norm: every one that reaches published bytes, a receipt or diagnostic text, plus the rank screen (admission) and `elastic_section` (no caller). The other 2 are in `performance_harness`, which is not a product dependency. That covers:
 - the support and support-action magnitudes;
 - the combination magnitudes;
 - the intensified i·|M|/Z;
@@ -14,9 +14,16 @@
 - the load-reference length;
 - the pressure-region guard;
 - the retained certificate's support projection and the retained support guard;
-- the rigid-body rank screen, which is an admission decision.
+- the rigid-body rank screen, which is an admission decision (below).
 
 stress_recovery includes the module by `#[path]`. No manifest, lock or reviewed input changes.
+
+**The rank screen** now makes one admission decision on every platform. Compared with the libm screen on synthetic bodies (RV126 §2a):
+- near the threshold the Restrained decision changes in both directions (59,600 and 66,967 of 1,045,305 probes), only within 1.5·10⁻³ relative of it, where the libm decision was already non-monotone and platform-dependent;
+- at 10²⁰⁰ scale, 1 of 300,000 random bodies goes from MechanismWitnessed to NumericallyUnresolved, which changes the refusal's integrity code;
+- a witnessed mechanism's published node motions (diagnostic text and retained wire) move by an ulp wherever its characteristic length L did (22,966 of 246,587 synthetic mechanisms).
+
+No committed input lies in that band, no committed pin moves, and no true mechanism is admitted in either version. ROOT accepted these changes (RV126's B-1, option (i)).
 
 **What moves:** among committed pins, one value by one ulp. (On the Mac, the outputs for `t13`'s and the runner's `load_reference` inputs also move by one ulp each, to the committed bytes, which were taken on Linux; the change record lists every one.) On macOS arm64, case C's `rigid:N0` support force magnitude goes from `1.6258317075882521e-12` to the correctly rounded `…523e-12`, which is glibc's value. Re-pinned with one pin for every platform:
 - W-C2 dense (fixture and pins);
@@ -30,8 +37,12 @@ On glibc every committed pin holds. A value formed elsewhere from a hypot chain,
 
 **Evidence:**
 - the 40 manifests on the Mac: 0 FAILED;
-- glibc dispatches 37808190331 (success) and 37820998162;
-- the PY and TS readers that read the corpus: all pass.
+- glibc dispatches 37808190331 and 37820998162 (the re-pinned head, numerical cargo suite included): success;
+- the full-SHA dispatch 37824479785 on `dab19291a8`: success;
+- the corpus readers: the two PY files (1,079 passed) and the four TS files (1,314 passed), run by RV126 at `dab19291a8` and again by I109 at the repair commit `8ca80508b6`;
+- at `8ca80508b6`: PP 743, FK 550 and `result_export` 199 passed, 0 failed.
+
+**Repair round 01** (`8ca80508b6`, RV126's S-1 and notes): comment-only, line-neutral production edits (the S-1 wording above, the `fma` condition and two K5 comments) and two test edits (m08's header and exact constants for `support_hypot`). Its message states S-1's correction.
 
 **Not in scope:** the remaining libm calls on product paths (sin, cos, atan2, asin, exp, exp_m1, mainly curved bends and logarithmic thermal strain). They stay platform-dependent and are a later round.
 

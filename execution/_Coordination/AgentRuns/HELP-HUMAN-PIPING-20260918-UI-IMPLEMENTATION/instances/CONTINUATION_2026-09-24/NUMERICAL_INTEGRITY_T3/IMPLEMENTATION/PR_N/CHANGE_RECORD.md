@@ -1,8 +1,8 @@
 # PR-N: a correctly rounded Euclidean norm replaces libm `hypot` on published paths: change record
 
-- **Code commit:** `8dd64c1835` on `codex/piping-t3-correct-norm-20261008`, one commit on main `7eae707bb7`.
-- **Its 21 maintained files** equal NUM `ef8ab78473` (the norm branch `7bd84e0526` merged into NUM) outside the execution records.
-- **Implemented by** I109 (T3): `R/I109/platform_norm_01/` (round 1) and `R/I109/pr_n_01/` (round 2).
+- **Code commit:** `8dd64c1835` on `codex/piping-t3-correct-norm-20261008`, one commit on main `7eae707bb7`. Its 21 maintained files equal NUM `ef8ab78473` (the norm branch `7bd84e0526` merged into NUM) outside the execution records.
+- **Repair commit:** `8ca80508b6` (repair round 01, for RV126's S-1 and notes). Its production edits are comment-only, and each hunk is line-neutral, so the release builds are unchanged; it also changes two tests. It changes 4 of the 21 maintained files and adds a fifth, the test file `product_final_case_tests.rs`, so the PR now carries 22. Its message states S-1's correction; the code commit's message is not recut (RR "PR-N (#1163), RV126's B-1: the platform-independent rank screen is accepted, option (i)").
+- **Implemented by** I109 (T3): `R/I109/platform_norm_01/` (round 1), `R/I109/pr_n_01/` (round 2), `R/I109/pr_n_package_01/` (round 3, this package) and `R/I109/pr_n_repair_01/` (repair round 01).
 - **Ruled in** RR "I109: a correctly rounded norm replaces libm `hypot` on published paths; glibc was the correctly rounded side; it goes as its own PR after B1".
 - **Path convention:** `P` is `projects/chirality-piping`; `PP` is `P/core/product_physics`.
 
@@ -13,16 +13,17 @@
 - glibc and macOS differ in the last bit, so the published support magnitudes depended on the machine. B1 worked around this with exact per-platform pins, and three tests (`t13` and the runner's two `load_reference` both-mode tests) failed on the Mac against Linux-taken pins.
 
 **The norm.** `P/core/solver/frame_kernel/src/correct_norm.rs` defines `norm2(a, b)` = RN(√(a² + b²)) and `norm3(a, b, c)` = RN(√(a² + b² + c²)), rounding to nearest with ties to even.
-- **Operations:** IEEE `+ − × ÷`, `sqrt` and `mul_add` only. Every platform gives the same bits.
+- **Operations:** IEEE `+ − × ÷`, `sqrt` and `mul_add` only. `mul_add` is a correctly rounded fma: the hardware's, or the platform's `fma` where there is none (libm's on baseline x86_64, compiler-builtins' on wasm32). Given a correctly rounded `fma`, as Rust's `mul_add` and IEEE 754 require, every platform gives the same bits. RV126 measured a wasm32 build (software `fma`) bit-identical to aarch64 (hardware FMA) on 2,721,296 results (`R/REVIEW_RV126/pr_n_01/REVIEW.md` §1, N-4). x86_64 is evidenced by the glibc dispatches' pins (§3).
 - **Method:**
   1. Sort the absolute values and scale exactly so the largest lies in [1, 2).
   2. Split the squares exactly with `mul_add`.
   3. Take a double-double square root as the candidate.
   4. Correct the candidate one ulp at a time on the destination's grid (subnormal results and the overflow threshold included), using the exact sign of S − m² at the neighbouring midpoints, computed by an error-free expansion sum.
 - **Special values:** C Annex F's `hypot` semantics.
-- **A published 3-component magnitude is the correctly rounded 3-norm,** not a hypot chain. It has one rounding and does not depend on the order of the components. On random triples, the correctly rounded chain differs from it 16.6% of the time and changes with the component order 26.2% of the time.
+- **Every magnitude formerly formed with libm `hypot` is now a correctly rounded norm.** A 3-component one is the correctly rounded 3-norm, not a hypot chain. It has one rounding and does not depend on the order of the components. On random triples, the correctly rounded chain differs from it 16.6% of the time and changes with the component order 26.2% of the time.
+- **Not every published magnitude is the norm** (RV126 S-1). Two published magnitudes never used `hypot` and are unchanged: the selected-source support magnitude `source_receipt::scaled_norm` (m·√((a² + b²) + c²), with m the largest absolute component and a, b, c the components divided by m) and the nodal `displacement_magnitude` (√ of a sum of `powi(2)` squares). Both are deterministic IEEE, so they do not depend on the platform, but they are not correctly rounded. The code commit's message ("A published 3-component magnitude is the correctly rounded 3-norm") and its comment at the top of `PP/src/lib.rs` ("published norms are correctly rounded") said more than this. The repair commit rewords the comment, and its message and this record carry the correction.
 
-**The call sites.** Every product `hypot` whose result reaches published bytes, a receipt or diagnostic text now calls the norm: 30 of the 32 product `hypot` calls. The other 2 are in `performance_harness`, which is not a product dependency.
+**The call sites.** 30 of the 32 product `hypot` calls now call the norm: every one that reaches published bytes, a receipt or diagnostic text, plus the rank screen (an admission decision) and `elastic_section` (no caller). The other 2 are in `performance_harness`, which is not a product dependency.
 
 | Where | Symbol | What |
 |---|---|---|
@@ -34,8 +35,14 @@
 | `PP/src/case_state/resolve.rs` | `resolve_case` | the published `reference_length_m` |
 | `PP/src/retained_product.rs` | `observables_view` | the retained support guard |
 | `frame_kernel/.../product_certificate/final_case.rs` | `support_hypot` | the retained certificate's support projection, still charged as two scalar operations |
-| `frame_kernel/src/rigid_body.rs` | `assess_rigid_body` | **the rank screen** (characteristic length; Jacobi rotation): an admission decision, which closes its T3-close item. K5's B10 source scan now covers all of `rigid_body.rs`. |
+| `frame_kernel/src/rigid_body.rs` | `assess_rigid_body` | **the rank screen** (characteristic length L; Jacobi rotation): one admission decision on every platform, which closes its T3-close item. Near its threshold the Restrained decision changes in both directions, and at extreme scale one witness class changes; L also scales a witnessed mechanism's published node motions, which move by an ulp wherever L did (below). K5's B10 source scan now covers all of `rigid_body.rs`. |
 | `P/core/loads/stress_recovery/src/elastic_section.rs` | `evaluate_elastic_section` | the bending amplitude. The function has no caller outside its module (I109 round 2's correction). It is included by `#[path]`, so there is no new dependency. |
+
+**The rank screen's changed decisions.** RV126 compared the norm's screen with the libm screen on this Mac, on synthetic bodies (`R/REVIEW_RV126/pr_n_01/REVIEW.md` §2a, B-1 and N-5). ROOT accepted the changes as the cost of one decision on every platform (RR "PR-N (#1163), RV126's B-1: the platform-independent rank screen is accepted, option (i)").
+- **The Restrained decision changes in both directions near the threshold.** Of 1,045,305 near-threshold probes, 59,600 are Restrained only with the norm and 66,967 only with libm. Every change lies within 1.5·10⁻³ relative of the threshold, where the libm decision was already non-monotone and platform-dependent (macOS and glibc `hypot` differ there). No true mechanism is admitted in either version.
+- **One witness class changes at 10²⁰⁰ scale.** In 1 of 300,000 random bodies, MechanismWitnessed becomes NumericallyUnresolved. Both refuse, but the refusal's integrity code (`integrity_failure_code`) and its published content change.
+- **A witnessed mechanism's published node motions move by an ulp wherever L did** (N-5). L scales the mechanism's translations, which are published in the blocking diagnostic text and bit-encoded in the retained wire. 22,966 of 246,587 synthetic witnessed mechanisms change node-motion bits.
+- No committed input lies in the band, and no committed pin moves.
 
 There are no manifest, `Cargo.lock` or reviewed-input changes.
 
@@ -63,7 +70,9 @@ The components and checks are in `R/I109/pr_n_package_01/_run_records/moved_valu
 ## 2. Scope: what is and is not platform-independent after this PR
 
 **Platform-independent:**
-- every magnitude formed by the norm (§1's call sites);
+- every magnitude formed by the norm (§1's call sites), given a correctly rounded `fma` (§1);
+- the rank screen's admission decision and a witnessed mechanism's published node motions. Compared with the libm screen, decisions within the screen's rounding-noise band changed, one witness class changed at 10²⁰⁰ scale, and node motions moved by an ulp wherever L did (§1, "The rank screen's changed decisions");
+- `source_receipt::scaled_norm` and `displacement_magnitude`, which are deterministic IEEE but not correctly rounded (§1, S-1);
 - the readers' agreement, because they recompute norms only inside a 64ε guard, far above one ulp;
 - `powi` on variables: one fixed multiplication sequence;
 - `to_degrees`: one multiplication.
@@ -91,11 +100,13 @@ No committed pin exposes them today: the 40 manifests pass on both platforms. Co
   - The added tests are the norm's tests, plus B1's ring check, which merged after that base and is already on main.
 - **glibc:**
   - Diagnostic dispatch **37808190331** on `b9dea77a85` (the norm plus B1's platform fix, before the re-pins) succeeded in every job. On glibc the norm reproduces B1's glibc variant documents, which are byte-identical to the Mac's correctly rounded bytes. `t13`, the runner tests, m08 and the ring pins pass.
-  - Dispatch **37820998162** on `7bd84e0526` (the re-pinned head) runs the single pins on glibc for the first time: u1's unconditional ordinary pins, the single W-C2 fixture, the single SF-2 pin, m08 with `norm2` and the tightened ring check. **Result: pending at the time of writing (§4).**
+  - Dispatch **37820998162** on `7bd84e0526` (the re-pinned head, whose 21 files equal `8dd64c1835`'s; RV126 diffed each) **succeeded**: every job except the accessibility barrier, which was skipped (as in 37824479785), numerical cargo suite included. It is the first glibc run of the single pins: u1's unconditional ordinary pin, the single W-C2 fixture, the single SF-2 pin, m08 with `norm2` and the tightened ring check.
+  - The full-SHA dispatch **37824479785** on `dab19291a8` (the code commit plus this package) **succeeded**: the numerical cargo suite, the source coverage and remainder jobs and the source-mode desktop E2E.
 - **The readers:**
   - The PY files that read the corpus (`test_retained_precision_contract.py`, `test_retained_precision_schema.py`): 1,079 passed.
-  - The TS `retainedPrecision.test.ts`: 1,102 passed.
+  - The TS files that read the corpus are four: `retainedPrecision.test.ts`, `retainedPrecisionIntegration.test.tsx`, `retainedPrecisionResultExport.test.tsx` and `retainedPrecisionStressNeutral.test.tsx`. In round 2, I109 ran `retainedPrecision.test.ts` alone: 1,102 passed. RV126 ran all four at `dab19291a8`: 1,314 passed, 0 failed (`R/REVIEW_RV126/pr_n_01/REVIEW.md` §5).
   - The RS `result_export` suite: 199 passed. It is also part of the 40 manifests.
+- **Repair round 01 at `8ca80508b6`** (the Mac, fresh targets, `R/I109/pr_n_repair_01/`): PP 743 passed, FK 550 passed, `result_export` 199 passed; the two PY files 1,079 passed; the four TS files 1,314 passed. Nothing failed. The production hunks are comment-only and line-neutral (`R/I109/pr_n_repair_01/_run_records/line_neutrality.txt`).
 - **What is not shown:** bitwise equality of every published byte across platforms. Equality is shown wherever a committed pin compares bytes, and §2's libm paths are not covered.
 
 ## 4. The reviews and gates
@@ -104,16 +115,19 @@ WORKING_ITEMS gives each verdict.
 
 | Gate | Revision | Verdict |
 |---|---|---|
-| RV126 (RV-N): fresh review of the norm module and every call site | `8dd64c1835` | pending |
-| Pass B (I107), confirmed by RV124 (D1 call sites, §5) | `8dd64c1835` | pending |
-| I112: T9 and the both-entry gate (published bytes on D1) | B `7eae707bb7` against C `8dd64c1835` | pending |
-| Linux diagnostic dispatch 37820998162 | `7bd84e0526` | pending |
+| RV126 (RV-N): fresh review of the norm module and every call site | `dab19291a8` | **FAIL on B-1 only** (1 BLOCKING, 1 SHOULD-FIX, 8 NOTE; `R/REVIEW_RV126/pr_n_01/REVIEW.md`). B-1 ruled accept, option (i) (§1). S-1 and the notes are answered by repair round 01 (`8ca80508b6`) and this package |
+| RV126's confirmation of repair round 01 | the repaired PR head | pending |
+| Pass B (I107), confirmed by RV124 (D1 call sites, §5) | `8dd64c1835`; the repair commit is comment-only and line-neutral | pending |
+| I112: T9 and the both-entry gate (published bytes on D1) | B `7eae707bb7` against C `8dd64c1835`; as above | pending |
+| Linux diagnostic dispatch 37820998162 | `7bd84e0526` | **success** (§3) |
+| Full-SHA dispatch 37824479785 | `dab19291a8` | **success** (§3) |
 | Hosted CI on the PR | PR head | pending |
-| Full-SHA dispatch | PR head | pending |
+| Full-SHA dispatch | the repaired PR head | pending |
 | GEN-8 | PR head | pending |
 | Exact-head DEC-025 with src-tauri | PR head | pending |
-| `source_equality.py` (checks 1–5) | the code commit plus this package | recorded in `R/I109/pr_n_package_01/` |
-| `check_citations.py` | the code commit plus this package | recorded in `R/I109/pr_n_package_01/` |
+| `source_equality.py` (checks 1–5) | the code commit plus this package | PASS, recorded in `R/I109/pr_n_package_01/` |
+| `check_citations.py` | the code commit plus this package | PASS, recorded in `R/I109/pr_n_package_01/` |
+| `source_equality.py` and `check_citations.py` | the repaired PR head | recorded in `R/I109/pr_n_repair_01/` |
 
 ## 5. The D1 call sites
 
