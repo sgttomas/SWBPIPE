@@ -1694,6 +1694,45 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
       set(['retained_precision', 'body', 'sources', 0, 'stiffness_sha256'], 'd7aa429e5be25210f15a34f7138f7178efbbc443d6a016cc35f857268d9ec194'),
     ]],
   ];
+  /** RV120's probes for repair 02, as the Rust reader's `rv120_probes`: N2, an exact_cases entry for a case not in the
+   * invocation (entry 0 copied, renamed), on the synthetic exact base and the sparse m3x; F1's four G5b probes on the exact
+   * two_case_synthetic. TS's own G7 codes for N2 (C1 G7 settlement). */
+  const N2_BOUND = { gate: 'G7', code: 'PHYSICS_EVIDENCE_CASE_COVERAGE' }, N2_TRANSPORT = { gate: 'G7', code: 'PHYSICS_EVIDENCE_TRANSPORT_MAXIMUM_ID' };
+  const RV120_N2_INPUTS = ['b73004449c1894a0b562032d7352d18cae0ad351f7e58d91a1572e76963530a0', 'a6bb4fdf601064c2946e440b15a6bb7cb320839c9c3097fff11b2f632c6a09fe'];
+  const rv120Probes = async (): Promise<[Shape, any][]> => {
+    const out: [Shape, any][] = [];
+    for (const base of [ORD, 'm3x_sparse_interactive']) {
+      const { source } = await exactBase(base);
+      const entry = structuredClone(source.contract_evidence.exact_cases[0]), other = structuredClone(entry);
+      other.load_case_id = 'case:rv120-other';
+      out.push([{ name: 'RV120 N2: an exact_cases entry for a case not in the invocation', base, edits: [set(['contract_evidence', 'exact_cases'], [entry, other])] }, N2_BOUND]);
+    }
+    const base = 'two_case_synthetic', { source } = await exactBase(base);
+    const evidence = set(['contract_evidence', 'exact_cases', 0, 'pipe_sections', 0, 'As_m2'], ulps(source.contract_evidence.exact_cases[0].pipe_sections[0].As_m2, 1));
+    const force = set(rb('cases', 1, 'selection', 'body_scales', 0, 'force'), '0000000000000001');
+    const area = set(rb('cases', 1, 'selection', 'section_terms', 0, 'area'), '3f00000000000000');
+    const SCALE = G('G5b', 'SCALE_MISMATCH');
+    out.push([{ name: "RV120 F1 control: case 0's evidence As_m2 one ulp", base, edits: [evidence] }, SEC]);
+    out.push([{ name: "RV120 F1 control: case 1's body_scales force one ulp", base, edits: [force] }, SCALE]);
+    out.push([{ name: "RV120 F1 order: case 0's evidence As_m2 and case 1's body_scales force", base, edits: [evidence, force] }, SCALE]);
+    out.push([{ name: "RV120 F1 order: case 0's evidence As_m2 and case 1's section term area", base, edits: [evidence, area] }, SEC]);
+    return out;
+  };
+  /** Repair 03 (N2b, WORKING_ITEMS' ruling on RV120's N2), as the Rust reader's `repair03_probes`: two faults in the two
+   * exact_cases entries of the exact two_case_synthetic (one entry's profile_mode "x", the other's material_basis not a
+   * string), and the same faults swapped. TS reads its cases in array order; both faults fail TS's one case check, so
+   * its own G7 code is the same for both (C1 G7 settlement). */
+  const N2B = { gate: 'G7', code: 'PHYSICS_EVIDENCE_CASE_INVALID' }, N2B_TRANSPORT = { gate: 'G7', code: 'PHYSICS_EVIDENCE_TRANSPORT_SHAPE' };
+  const REPAIR03_N2B_INPUTS = ['ab2807e39c79015c5929dac4c4a4a86f82e9e6187c66511686c93f57de60759d', '9451b8272ac84a10984b6848fe44d5fcd3585903ce7ab1f3d8fd59f4a3675da6'];
+  const n2bProbes = (): [Shape, any][] => {
+    const profile = (i: number) => set(['contract_evidence', 'exact_cases', i, 'profile_mode'], 'x');
+    const basis = (i: number) => set(['contract_evidence', 'exact_cases', i, 'material_basis'], 0);
+    const base = 'two_case_synthetic';
+    return [
+      [{ name: "N2b: entry 0's profile_mode and entry 1's material_basis", base, edits: [profile(0), basis(1)] }, N2B],
+      [{ name: "N2b: entry 0's material_basis and entry 1's profile_mode", base, edits: [basis(0), profile(1)] }, N2B],
+    ];
+  };
   /** sha256 of the canonical JSON of each forgery's `[source, invocation]`: RV120's input bytes (the Rust test's pins). */
   const RV120_FORGERY_DIGESTS = ['97566866cef65597109de17d34c69508ef3889a1d526321c8feedf5dc88b1f4a', '6e67243c49548db2cbcd10be6156c30182c1e884addbf95a264e33965431ef13', '3828c07c73d41e33324ec6be349ab4d265e57b439222962d1df1a91c974eb1ff', 'c17c8283efeb034afe82c4e9fdb4f46aad54ffef676c181733fbc6eec43226e6'];
   const shapes = async (): Promise<[Shape, any][]> => [
@@ -1706,6 +1745,8 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
       [{ name: "11 S-1: the preparation hashed with DEF-O's H", base: `<s1:${name}>` }, G('G1', 'RECEIPT_MISMATCH')],
     ]),
     ...RV120_FORGERIES.map(([name, base, edits]): [Shape, any] => [{ name, base, edits }, PREP]),
+    ...await rv120Probes(),
+    ...n2bProbes(),
     ...(process.env.B3B_EXACT_BASE ? [
       [{ name: 'base', base: FILE_BASE }, 'pass'] as [Shape, any], ...rows(FILE_BASE, await exactBase(FILE_BASE)),
       [{ name: "11 S-1: the preparation hashed with DEF-O's H", base: '<s1:file>' }, G('G1', 'RECEIPT_MISMATCH')] as [Shape, any],
@@ -1727,9 +1768,9 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
     return x;
   }
   const reading = async (run: () => Promise<any>) => { try { const r = await run(); return { ok: { eligible: r.numerical_eligible } }; } catch (e) { expect(e).toBeInstanceOf(RetainedPrecisionError); return { gate: (e as any).gate, code: (e as any).code }; } };
-  it('pins the Rust test\'s 169 shapes (57 synthetic, 54 on each m3x successor, RV120\'s 4 forgeries), their first failures, and their three readings', async () => {
+  it('pins the Rust test\'s 177 shapes (57 synthetic, 54 on each m3x successor, RV120\'s 4 forgeries and 6 probes, repair 03\'s 2 N2b probes), their first failures, and their three readings', async () => {
     const list = await shapes(), misses: string[] = [], lines: any[] = [];
-    expect(list.filter(([x]) => x.base !== FILE_BASE && x.base !== '<s1:file>').length).toBe(3 + 52 + 2 + 2 * (1 + 52 + 1) + 4);
+    expect(list.filter(([x]) => x.base !== FILE_BASE && x.base !== '<s1:file>').length).toBe(3 + 52 + 2 + 2 * (1 + 52 + 1) + 4 + 2 + 4 + 2);
     for (const [shape, want] of list) {
       const { source, invocation } = await input(shape);
       const got = await firstFailure(source, invocation);
@@ -1821,6 +1862,34 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
     }
     expect(digests).toEqual(RV120_FORGERY_DIGESTS);
   });
+  it("RV120 N2: an extra exact_cases entry reads one transport code, run after run (array order), on RV120's inputs", async () => {
+    const probes = (await rv120Probes()).filter(([x]) => x.name.startsWith('RV120 N2: '));
+    expect(probes.length).toBe(2);
+    const digests: string[] = [];
+    for (const [shape] of probes) {
+      const { source, invocation } = await input(shape);
+      digests.push(await canonicalSha256Hex([source, invocation]));
+      for (let run = 0; run < 8; run++) {
+        expect({ bound: await reading(() => validateRetainedPrecision(source, invocation)), unbound: await reading(() => validateRetainedPrecision(source)), transport: await reading(() => validateRetainedPrecisionTransport(source)) }, `${shape.name} [${shape.base}] run ${run}`)
+          .toEqual({ bound: N2_BOUND, unbound: N2_BOUND, transport: N2_TRANSPORT });
+      }
+    }
+    expect(digests).toEqual(RV120_N2_INPUTS);
+  }, 60_000);
+  it("repair 03 N2b: two faults in two exact_cases entries read one code, run after run (array order), on the Rust test's inputs", async () => {
+    const probes = n2bProbes();
+    expect(probes.length).toBe(2);
+    const digests: string[] = [];
+    for (const [shape] of probes) {
+      const { source, invocation } = await input(shape);
+      digests.push(await canonicalSha256Hex([source, invocation]));
+      for (let run = 0; run < 8; run++) {
+        expect({ bound: await reading(() => validateRetainedPrecision(source, invocation)), unbound: await reading(() => validateRetainedPrecision(source)), transport: await reading(() => validateRetainedPrecisionTransport(source)) }, `${shape.name} [${shape.base}] run ${run}`)
+          .toEqual({ bound: N2B, unbound: N2B, transport: N2B_TRANSPORT });
+      }
+    }
+    expect(digests).toEqual(REPAIR03_N2B_INPUTS);
+  }, 60_000);
   it("ROOT's ruling on I100's B3 addendum 01: G8's sourced-case check on the preview and exact routes", async () => {
     // A sourced case passes only with pressure_regions absent, null or [] (type-strict; [] only on the exact route),
     // equivalent_static absent or null, and no analysis_state member (null included); a case-level `pressure`, a key PP's
