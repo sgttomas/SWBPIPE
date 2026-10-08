@@ -1964,10 +1964,30 @@ fn b3a_d1_3_admits_the_legacy_pressure_contract_on_0_3_0() {
     }
 }
 
+/// The ordinary bytes with R-2's one unavailable notice for `case` appended after the ordinary
+/// diagnostics, pinned independently of the product constants. The same text as the facade
+/// tests' `with_notice(plain, case, None)` (`retained_facade_tests.rs`, lane P's file), copied
+/// here so lane A's pin stays in lane A's files.
+fn with_one_notice(plain: &[u8], case: &str) -> Vec<u8> {
+    let notice = format!(r#"{{"id":"diagnostic:retained-precision:{case}:unavailable","code":"RETAINED_PRECISION_UNAVAILABLE","severity":"info","message":"Retained-precision recovery is unavailable for this load case. Its published rows keep their ordinary values, standing and diagnostics.","source":"core/product_physics","affected_refs":["{case}"]}}"#);
+    let text = std::str::from_utf8(plain).unwrap();
+    let (head, tail) = text.split_once(r#""diagnostics":["#).unwrap();
+    let close = tail.find("],\"professional_boundary\"").unwrap();
+    let (items, rest) = tail.split_at(close);
+    let sep = if items.is_empty() { "" } else { "," };
+    format!(r#"{head}"diagnostics":[{items}{sep}{notice}{rest}"#).into_bytes()
+}
+
 /// B3a's oracles on the Direct entry: a 0.3.0 contract outside L3 publishes the exact
 /// ordinary bytes with no successor (no permit). `m3l` itself is admitted in the registered
-/// build, so W1 runs: until the readers' B3a (J5) the accepted Rust reader refuses its
-/// successor at G8 (`pressure_contract` must be null; I99 §5), and the ordinary rows stand.
+/// build, so W1 runs, and its interim outcome is pinned exactly, in both modes (RV122 SF-1),
+/// as B1 pins a precommit fallback (`u3g2_direct_entry_w1_fallbacks_append_one_notice`): the
+/// accepted Rust reader refuses the successor at G8 `RETAINED_PRECISION_INVOCATION_MISMATCH`
+/// (it requires `pressure_contract` null; I99 §5), and the one publication is the ordinary
+/// bytes plus exactly one notice for `case`. **This pin changes at J5**, when the readers'
+/// B3a work admits the L3 contract and m3l publishes its successor (RR "I99's B3-W
+/// verified; …", ruling 3: `invocation.value`, `legacy_source_work[0].charged` and
+/// `receipt_sha256` differ from the milestone's).
 #[test]
 fn b3a_direct_entry_oracles() {
     let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
@@ -1980,26 +2000,28 @@ fn b3a_direct_entry_oracles() {
         assert!(direct.retained().is_none() && direct.successor().is_none(), "{mode:?}: no permit, no W1");
         assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain, "{mode:?}: the exact ordinary bytes");
         let m3l = legacy3(milestone());
-        let plain = crate::run_linear_static_preview_value_with_mode(m3l.clone(), mode).unwrap();
+        let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(m3l.clone(), mode).unwrap()).unwrap();
         let direct = crate::run_linear_static_preview_value_with_retained_direct(m3l, mode).unwrap();
         let report = direct.admission().unwrap();
         assert_eq!(report.law().domain, None, "{mode:?}");
         if !registered {
             assert_eq!(report.law().refusal, d1_1_refusal(), "{mode:?}");
             assert!(direct.retained().is_none());
+            assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain, "{mode:?}: no permit: the exact ordinary bytes");
             continue;
         }
         assert_eq!(report.law().refusal, None, "{mode:?}: admitted");
-        println!("I103_B3A_M3L_DIRECT mode={} retained={:?}", mode.as_str(), direct.retained().map(|r| r.as_ref().err()));
-        match direct.retained() {
-            Some(Ok(_)) => {}
-            Some(Err(crate::W1Fallback::Precommit { gate, .. })) => {
-                assert_eq!(*gate, "G8", "{mode:?}");
-                assert_eq!(serde_json::to_value(&direct.envelope().results).unwrap(), serde_json::to_value(&plain.results).unwrap(),
-                    "{mode:?}: the ordinary rows stand");
-            }
-            other => panic!("{mode:?}: W1 ran to a successor or the reader's G8 refusal, not {other:?}"),
-        }
+        assert_eq!(direct.retained().and_then(|r| r.as_ref().err()),
+            Some(&crate::W1Fallback::Precommit { gate: "G8", code: "RETAINED_PRECISION_INVOCATION_MISMATCH".into() }), "{mode:?}: the interim cause");
+        assert!(direct.successor().is_none(), "{mode:?}");
+        let published = match direct.into_publication() {
+            crate::RetainedPublication::Ordinary(envelope) => serde_json::to_vec(&envelope).unwrap(),
+            crate::RetainedPublication::Successor(value) => panic!("{mode:?}: a successor was published: {}", value["producer"]),
+        };
+        assert_eq!(published, with_one_notice(&plain, "case"), "{mode:?}: the ordinary bytes plus exactly one notice");
+        let value: Value = serde_json::from_slice(&published).unwrap();
+        let notices = value["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == "RETAINED_PRECISION_UNAVAILABLE").count();
+        assert_eq!(notices, 1, "{mode:?}");
     }
 }
 
@@ -2361,4 +2383,31 @@ fn b3b_direct_entry_coexistence_keeps_the_exact_bytes_and_m3x_falls_back_at_g0()
             }
         }
     }
+}
+
+/// RV122 SF-2 (its probe B as the witness): on branch E the explicitly empty `pressure_regions`
+/// list is a typed owner, and its capacity must be 0, on any case. With spare capacity it
+/// refuses with `PressureRegionsCapacity` (resource admission), as the control, an empty
+/// `sections` owner with spare capacity, refuses with `SectionsCapacity` at D1.9. Length 0 with
+/// capacity 0, which every parsed request has, is admitted.
+#[test]
+fn b3b_exact_regions_capacity_is_read() {
+    let spare = |case: usize, capacity: usize| {
+        admitted_typed(exact3(milestone_cases(caps::LOAD_CASES)), |r| r.model.load_cases[case].pressure_regions = Some(Vec::with_capacity(capacity)))
+            .law()
+            .domain
+    };
+    for case in [0, caps::LOAD_CASES - 1] {
+        assert_eq!(spare(case, 65_536), Some(AdmissionRefusal::Cap { fact: CapFact::PressureRegionsCapacity, observed: 65_536, cap: 0 }), "case {case}");
+        assert_eq!(spare(case, 1), Some(AdmissionRefusal::Cap { fact: CapFact::PressureRegionsCapacity, observed: 1, cap: 0 }), "case {case}");
+        assert_eq!(spare(case, 0), None, "case {case}: length 0, capacity 0");
+    }
+    let parsed: LinearStaticPreviewRequest = serde_json::from_value(exact3(milestone_cases(caps::LOAD_CASES))).unwrap();
+    assert!(parsed.model.load_cases.iter().all(|case| case.pressure_regions.as_ref().is_some_and(|r| r.is_empty() && r.capacity() == 0)),
+        "a parsed request's empty list has capacity 0");
+    assert_eq!(domain(exact3(milestone())), None);
+    let refusal = AdmissionRefusal::Cap { fact: CapFact::PressureRegionsCapacity, observed: 1, cap: 0 };
+    assert_eq!(refusal.precondition().as_str(), "resource_admission");
+    let control = admitted_typed(exact3(milestone()), |r| r.model.sections.reserve_exact(1));
+    assert!(matches!(control.law().domain, Some(AdmissionRefusal::Cap { fact: CapFact::SectionsCapacity, cap: 0, .. })), "{:?}", control.law().domain);
 }

@@ -691,6 +691,10 @@ pub(super) enum CapFact {
     TemperaturePointsCapacity,
     LoadCasesCapacity,
     SectionsCapacity,
+    /// B3b-A repair 01 (RV122 SF-2): on branch E a case's explicitly empty `pressure_regions`
+    /// list, whose typed capacity must be 0 like the other empty owners'. Raised by D1.5's exact
+    /// clause, not a D1.9 row.
+    PressureRegionsCapacity,
     ComponentsCapacity,
     CombinationsCapacity,
     RequestExpansionLawsCapacity,
@@ -872,7 +876,10 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     }
     // D1.5 (B1 SA): every case, in request order. B3b (B3-D §4.2): on branch E every case's
     // `pressure_regions` is explicitly empty (`Some([])`, as physics-source-1 requires); absent
-    // or non-empty refuses. On L and L3 it is absent.
+    // or non-empty refuses. On L and L3 it is absent. RV122 SF-2 (RESIDUALS T03: actual
+    // capacities, never construction history): the empty list's typed capacity is 0 too, or
+    // it refuses with its capacity fact (the reason an empty `sections` with spare capacity
+    // gets at D1.9). A parsed request always has capacity 0 here.
     for case in &m.load_cases {
         let regions_in_domain = match &case.pressure_regions {
             Some(regions) => exact && regions.is_empty(),
@@ -880,6 +887,9 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
         };
         if !regions_in_domain {
             return refuse(C::Case, F::PressureRegions);
+        }
+        if let Some(regions) = case.pressure_regions.as_ref().filter(|regions| regions.capacity() != 0) {
+            return Err(AdmissionRefusal::Cap { fact: CapFact::PressureRegionsCapacity, observed: regions.capacity(), cap: 0 });
         }
         if case.equivalent_static.is_some() {
             return refuse(C::Case, F::EquivalentStatic);
@@ -1041,9 +1051,10 @@ fn caller_clause(caller: RetainedCaller) -> Result<(), AdmissionRefusal> {
 /// The compiled identity text from build.rs (`None` when the variable is absent,
 /// for example in a build without the script: Stale, never a compile error).
 const COMPILED_IDENTITY: Option<&str> = option_env!("OPS_RETAINED_BUILD_IDENTITY");
-/// The compiled reviewed-input record from build.rs: the PP lock and the
-/// precommit reader's 13 `include_str!` inputs, by SHA-256 (D-6 as extended by
-/// RR "U4 G4: the margin rule trips").
+/// The compiled reviewed-input record from build.rs, by SHA-256: 17 inputs, the PP lock,
+/// the precommit reader's 13 `include_str!` statics (D-6 as extended by RR "U4 G4: the
+/// margin rule trips"), and J1's three appended statics, DEF-C, DEF-E and XTABLE (I93
+/// REVISION_01 §1.4; `build_identity::REVIEWED_INPUTS`).
 const COMPILED_REVIEWED_INPUTS: Option<&str> = option_env!("OPS_RETAINED_REVIEWED_INPUTS");
 
 /// BUILD.md §2.3: the layouts the formulas assume. Evaluated by the compiler; a
