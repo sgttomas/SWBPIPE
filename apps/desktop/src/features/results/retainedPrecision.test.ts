@@ -111,7 +111,7 @@ import { semanticContractForSource } from './resultSemantics';
 import { knownSemanticNotices, resultRowLabel, ruleBindingRefusal, RULE_QUANTITY_NOT_COVERED } from './knownSemanticLimitations';
 import milestoneSparseText from '../../../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json?raw';
 import milestoneDenseText from '../../../../../fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json?raw';
-import { canonicalSha256HexCheckedV1 } from '../../services/hashService';
+import { canonicalSha256HexCheckedV1, canonicalSha256Hex } from '../../services/hashService';
 import { createHash } from 'node:crypto';
 import m3xSparseText from '../../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json?raw';
 import m3xDenseText from '../../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json?raw';
@@ -1629,6 +1629,72 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
   };
   const exactBase = async (base: string) => base === FILE_BASE ? JSON.parse(readFileSync(process.env.B3B_EXACT_BASE!, 'utf8'))
     : M3X.some(m => m[0] === base) ? m3x(base) : exactSuccessor(base);
+  /** RV120's F2 forgeries (REVIEW_RV120 b3_readers_01: forge_eg.py, forge_eg_inputs.jsonl), as the Rust reader's
+   * `rv120_forgeries`: E or G-hat one ulp in all five receipt copies, the derived operational stiffness with it, the
+   * evidence G_pa for G-hat, and the native hashes resealed; the 07e rehash recomputes the rest. Only G8 step 4's E and
+   * G-hat bits refuse them (mutants B28, B29). */
+  const RV120_FORGERIES: [string, string, any[]][] = [
+    ["RV120 F2: E +1 ulp in every receipt copy, stiffness and native hashes resealed", 'ordinary_prepared_synthetic', [
+      set(['retained_precision', 'body', 'cases', 0, 'selection', 'section_terms', 0, 'axial_stiffness'], '41c4990f17e516ae'),
+      set(['retained_precision', 'body', 'groups', 0, 'stiffness_sha256'], '1fbb32395a897d401b673f4527d6858876a6c6668ff3779fa9484855ad2285b2'),
+      set(['retained_precision', 'body', 'material_bases', 0, 'materials', 0, 'elastic_modulus'], '42474876e8000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'new', 0, 'inputs', 6], '42474876e8000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'new', 0, 'result', 'axial_stiffness'], '41c4990f17e516ae'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'old', 0, 'inputs', 6], '42474876e8000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'old', 0, 'result', 'axial_stiffness'], '41c4990f17e516ae'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'preparation', 'members', 0, 'old_source', 0], '42474876e8000001'),
+      set(['retained_precision', 'body', 'sources', 0, 'id_maps', 'members', 0, 'E'], '42474876e8000001'),
+      set(['retained_precision', 'body', 'sources', 0, 'kernel_source_sha256'], '57dc66560ce90fb976a633b07f55c736b11f2b78265d791a3a4123c0751be478'),
+      set(['retained_precision', 'body', 'sources', 0, 'section_terms', 0, 'axial_stiffness'], '41c4990f17e516ae'),
+      set(['retained_precision', 'body', 'sources', 0, 'stiffness_sha256'], '1fbb32395a897d401b673f4527d6858876a6c6668ff3779fa9484855ad2285b2'),
+    ]],
+    ["RV120 F2: G-hat +1 ulp in every receipt copy, stiffness and native hashes resealed", 'ordinary_prepared_synthetic', [
+      set(['contract_evidence', 'exact_cases', 0, 'pipe_materials', 0, 'G_pa'], decodeBinary64('4231ed8ec2000001')),
+      set(['retained_precision', 'body', 'cases', 0, 'selection', 'section_terms', 0, 'torsional_stiffness'], '4128c47ead23fa81'),
+      set(['retained_precision', 'body', 'groups', 0, 'stiffness_sha256'], '77a160acc4ffcf3ed919fe1e59ab3b670cc3ca4dcacbe192d9f932042c9e0980'),
+      set(['retained_precision', 'body', 'material_bases', 0, 'materials', 0, 'shear_modulus'], '4231ed8ec2000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'new', 0, 'inputs', 7], '4231ed8ec2000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'new', 0, 'result', 'torsional_stiffness'], '4128c47ead23fa81'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'old', 0, 'inputs', 7], '4231ed8ec2000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'old', 0, 'result', 'torsional_stiffness'], '4128c47ead23fa82'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'preparation', 'members', 0, 'old_source', 1], '4231ed8ec2000001'),
+      set(['retained_precision', 'body', 'sources', 0, 'id_maps', 'members', 0, 'G'], '4231ed8ec2000001'),
+      set(['retained_precision', 'body', 'sources', 0, 'kernel_source_sha256'], 'd098e88140c2f23621802f449f296928412138208b2adf72553b0a4790fe8f58'),
+      set(['retained_precision', 'body', 'sources', 0, 'section_terms', 0, 'torsional_stiffness'], '4128c47ead23fa81'),
+      set(['retained_precision', 'body', 'sources', 0, 'stiffness_sha256'], '77a160acc4ffcf3ed919fe1e59ab3b670cc3ca4dcacbe192d9f932042c9e0980'),
+    ]],
+    ["RV120 F2: E +1 ulp in every receipt copy, stiffness and native hashes resealed", 'm3x_sparse_interactive', [
+      set(['retained_precision', 'body', 'cases', 0, 'selection', 'section_terms', 0, 'axial_stiffness'], '41b7b801dd7467b1'),
+      set(['retained_precision', 'body', 'groups', 0, 'stiffness_sha256'], '1fbbf4ed8e9842ff8f6dcbe94517a8527eead7b775277e327e62b6e4538d712e'),
+      set(['retained_precision', 'body', 'material_bases', 0, 'materials', 0, 'elastic_modulus'], '42474876e8000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'new', 0, 'inputs', 6], '42474876e8000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'new', 0, 'result', 'axial_stiffness'], '41b7b801dd7467b1'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'old', 0, 'inputs', 6], '42474876e8000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'old', 0, 'result', 'axial_stiffness'], '41b7b801dd7467b1'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'preparation', 'members', 0, 'old_source', 0], '42474876e8000001'),
+      set(['retained_precision', 'body', 'sources', 0, 'id_maps', 'members', 0, 'E'], '42474876e8000001'),
+      set(['retained_precision', 'body', 'sources', 0, 'kernel_source_sha256'], 'ab4596d0b1a50b195b0368d573dbf26ed4c2cb6c1e76da6490052217b12b8bb2'),
+      set(['retained_precision', 'body', 'sources', 0, 'section_terms', 0, 'axial_stiffness'], '41b7b801dd7467b1'),
+      set(['retained_precision', 'body', 'sources', 0, 'stiffness_sha256'], '1fbbf4ed8e9842ff8f6dcbe94517a8527eead7b775277e327e62b6e4538d712e'),
+    ]],
+    ["RV120 F2: G-hat +1 ulp in every receipt copy, stiffness and native hashes resealed", 'm3x_sparse_interactive', [
+      set(['contract_evidence', 'exact_cases', 0, 'pipe_materials', 0, 'G_pa'], decodeBinary64('4232a05f20000001')),
+      set(['retained_precision', 'body', 'cases', 0, 'selection', 'section_terms', 0, 'torsional_stiffness'], '4135fb0cf390a830'),
+      set(['retained_precision', 'body', 'groups', 0, 'stiffness_sha256'], 'd7aa429e5be25210f15a34f7138f7178efbbc443d6a016cc35f857268d9ec194'),
+      set(['retained_precision', 'body', 'material_bases', 0, 'materials', 0, 'shear_modulus'], '4232a05f20000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'new', 0, 'inputs', 7], '4232a05f20000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'new', 0, 'result', 'torsional_stiffness'], '4135fb0cf390a830'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'old', 0, 'inputs', 7], '4232a05f20000001'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'operational', 'old', 0, 'result', 'torsional_stiffness'], '4135fb0cf390a831'),
+      set(['retained_precision', 'body', 'product_attempts', 0, 'preparation', 'members', 0, 'old_source', 1], '4232a05f20000001'),
+      set(['retained_precision', 'body', 'sources', 0, 'id_maps', 'members', 0, 'G'], '4232a05f20000001'),
+      set(['retained_precision', 'body', 'sources', 0, 'kernel_source_sha256'], '7f965da3aaa6d9720c549022c8947fa602a2065c26415d5663f5dc398e8f7b84'),
+      set(['retained_precision', 'body', 'sources', 0, 'section_terms', 0, 'torsional_stiffness'], '4135fb0cf390a830'),
+      set(['retained_precision', 'body', 'sources', 0, 'stiffness_sha256'], 'd7aa429e5be25210f15a34f7138f7178efbbc443d6a016cc35f857268d9ec194'),
+    ]],
+  ];
+  /** sha256 of the canonical JSON of each forgery's `[source, invocation]`: RV120's input bytes (the Rust test's pins). */
+  const RV120_FORGERY_DIGESTS = ['97566866cef65597109de17d34c69508ef3889a1d526321c8feedf5dc88b1f4a', '6e67243c49548db2cbcd10be6156c30182c1e884addbf95a264e33965431ef13', '3828c07c73d41e33324ec6be349ab4d265e57b439222962d1df1a91c974eb1ff', 'c17c8283efeb034afe82c4e9fdb4f46aad54ffef676c181733fbc6eec43226e6'];
   const shapes = async (): Promise<[Shape, any][]> => [
     ...BASES.map((base): [Shape, any] => [{ name: 'base', base }, 'pass']),
     ...rows(ORD, await exactSuccessor(ORD)),
@@ -1638,6 +1704,7 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
       [{ name: 'base', base: name }, 'pass'], ...rows(name, m3x(name)),
       [{ name: "11 S-1: the preparation hashed with DEF-O's H", base: `<s1:${name}>` }, G('G1', 'RECEIPT_MISMATCH')],
     ]),
+    ...RV120_FORGERIES.map(([name, base, edits]): [Shape, any] => [{ name, base, edits }, PREP]),
     ...(process.env.B3B_EXACT_BASE ? [
       [{ name: 'base', base: FILE_BASE }, 'pass'] as [Shape, any], ...rows(FILE_BASE, await exactBase(FILE_BASE)),
       [{ name: "11 S-1: the preparation hashed with DEF-O's H", base: '<s1:file>' }, G('G1', 'RECEIPT_MISMATCH')] as [Shape, any],
@@ -1659,9 +1726,9 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
     return x;
   }
   const reading = async (run: () => Promise<any>) => { try { const r = await run(); return { ok: { eligible: r.numerical_eligible } }; } catch (e) { expect(e).toBeInstanceOf(RetainedPrecisionError); return { gate: (e as any).gate, code: (e as any).code }; } };
-  it('pins the Rust test\'s 165 shapes (57 synthetic, 54 on each m3x successor), their first failures, and their three readings', async () => {
+  it('pins the Rust test\'s 169 shapes (57 synthetic, 54 on each m3x successor, RV120\'s 4 forgeries), their first failures, and their three readings', async () => {
     const list = await shapes(), misses: string[] = [], lines: any[] = [];
-    expect(list.filter(([x]) => x.base !== FILE_BASE && x.base !== '<s1:file>').length).toBe(3 + 52 + 2 + 2 * (1 + 52 + 1));
+    expect(list.filter(([x]) => x.base !== FILE_BASE && x.base !== '<s1:file>').length).toBe(3 + 52 + 2 + 2 * (1 + 52 + 1) + 4);
     for (const [shape, want] of list) {
       const { source, invocation } = await input(shape);
       const got = await firstFailure(source, invocation);
@@ -1739,6 +1806,19 @@ describe('B3b (I101): the exact successor <physics-retained> on reader-local syn
       if (tableBindsReaderConstants(t)) drifted.push(path.join('.'));
     }
     expect(drifted).toEqual([]);
+  });
+  it("RV120 F2: the four forgeries are RV120's inputs, refused at G8 step 4 bound, never eligible unbound or on transport", async () => {
+    const list = (await shapes()).filter(([x]) => x.name.startsWith('RV120 F2: '));
+    expect(list.length).toBe(4);
+    const digests: string[] = [];
+    for (const [shape, want] of list) {
+      expect(want).toEqual(PREP);
+      const { source, invocation } = await input(shape);
+      digests.push(await canonicalSha256Hex([source, invocation]));
+      expect({ bound: await reading(() => validateRetainedPrecision(source, invocation)), unbound: await reading(() => validateRetainedPrecision(source)), transport: await reading(() => validateRetainedPrecisionTransport(source)) }, `${shape.name} [${shape.base}]`)
+        .toEqual({ bound: PREP, unbound: { ok: { eligible: false } }, transport: { ok: { eligible: false } } });
+    }
+    expect(digests).toEqual(RV120_FORGERY_DIGESTS);
   });
   it("ROOT's ruling on I100's B3 addendum 01: G8's sourced-case check on the preview and exact routes", async () => {
     // A sourced case passes only with pressure_regions absent, null or [] (type-strict; [] only on the exact route),
