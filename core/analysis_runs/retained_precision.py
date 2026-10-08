@@ -1725,7 +1725,13 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
             # no analysis_state.
             need(type(case.get("pressure_regions")) is list and case["pressure_regions"] == [] and case.get("equivalent_static") is None and "analysis_state" not in case)
         else:
-            need(not case.get("pressure_regions") and case.get("equivalent_static") is None)
+            # The sourced case on the preview route (DOMAIN D1.5; C1's G8 row, "no 0.4 extension"), aligned in the three
+            # readers (I100 B3 addendum 01): pressure_regions absent, null or [] (B3D-11's leniency), type-strict;
+            # equivalent_static absent or null; no analysis_state member, null included (the 0.4.0 load-reference
+            # state, which D1.5 requires Absent). A key PP's typed case does not have (a case-level `pressure`) is not read.
+            regions = case.get("pressure_regions")
+            need((regions is None or (type(regions) is list and regions == [])) and case.get("equivalent_static") is None
+                 and "analysis_state" not in case)
         maps = s["id_maps"]
         need(len(maps["nodes"]) == len(nodes) and len(maps["members"]) == len(pipes) and len(maps["support_ids"]) == len(supports))
         need(len(nodes)*6 <= 0xffffffff and len(pipes)*3 <= 0xffffffff)

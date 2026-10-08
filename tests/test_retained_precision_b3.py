@@ -400,6 +400,7 @@ def _g_hat_forged(source, invocation):
 
 B3B_PASSES = {
     "p01 an authored redundant G in the invocation (ignored by the producer)": _model(lambda m: m["materials"][0].update(shear_modulus={"unit": "Pa", "value": 8.0e10})),
+    "p02 a case-level pressure key (PP's typed case has none; addendum 01)": _model(lambda m: m["load_cases"][0].update(pressure={"value": 1000.0, "unit": "Pa"})),
 }
 
 
@@ -703,3 +704,49 @@ def test_b3b_stress_neutral_packager_refuses_the_exact_successor(mode):
     except ValueError as error:
         refused = str(error)
     assert refused == "SN-SOURCE-METHOD-UNSUPPORTED"
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Addendum 01: G8's sourced-case check on the preview route, aligned in the three readers (DOMAIN D1.5; C1's G8 row,
+# "no 0.4 extension"; B3D-11). Each value is set on the milestone's sourced case and the receipt is resealed, so the
+# statement passes G0-G7 and reaches G8 (I100 B3 addendum 01, reachability).
+
+SOURCED_CASE = [
+    ("analysis_state", {"kind": "load_reference_state"}, PREPARATION),
+    ("analysis_state", None, PREPARATION),
+    ("analysis_state", {}, PREPARATION),
+    ("pressure", {"value": 1000.0, "unit": "Pa"}, None),
+    ("pressure", None, None),
+    ("pressure", 0, None),
+    ("pressure_regions", "x", PREPARATION),
+    ("pressure_regions", {}, PREPARATION),
+    ("pressure_regions", {"id": "region:x"}, PREPARATION),
+    ("pressure_regions", 0, PREPARATION),
+    ("pressure_regions", 1, PREPARATION),
+    ("pressure_regions", True, PREPARATION),
+    ("pressure_regions", False, PREPARATION),
+    ("pressure_regions", "", PREPARATION),
+    ("pressure_regions", [], None),
+    ("pressure_regions", None, None),
+    ("pressure_regions", [{"id": "region:x", "member_pipe_ids": ["M1"]}], PREPARATION),
+    ("equivalent_static", {}, PREPARATION),
+    ("equivalent_static", False, PREPARATION),
+    ("equivalent_static", 0, PREPARATION),
+    ("equivalent_static", None, None),
+    ("notes", "free text", None),
+]
+
+
+@pytest.mark.parametrize("key, value, expected", SOURCED_CASE, ids=[f"{k}={json.dumps(v)}" for k, v, _ in SOURCED_CASE])
+@pytest.mark.parametrize("mode", MODES)
+def test_addendum01_sourced_case_on_the_preview_route(mode, key, value, expected):
+    """Refused: an analysis_state member (null included); pressure_regions other than absent, null or []; equivalent_static
+    other than absent or null. Admitted: a key PP's typed load case does not have, a case-level `pressure` included (serde
+    ignores it, and the invocation digest is over the raw request, so a producer-emitted successor can carry it)."""
+    source, invocation = milestone(mode)
+    invocation = edited_invocation(invocation, lambda m: m["load_cases"][0].update({key: deepcopy(value)}))
+    sealed = reseal(source, invocation)
+    assert outcome(sealed, invocation) == (expected or ("pass", True, "eligible"))
+    # Unbound and on transport G8 does not run: each reads as the base does.
+    assert outcome(sealed, None) == ("pass", False, "needs_recompute")
+    assert outcome(sealed, None, transport=True) == ("pass", False, "needs_recompute")
