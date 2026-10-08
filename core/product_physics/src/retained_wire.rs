@@ -969,7 +969,10 @@ fn case_source(e: &Enc, capture: &rp::ProductCapture, source: &k::PrimitiveSourc
     let mut nodal_terms = Vec::with_capacity(source.loads().len());
     for (i, l) in source.loads().iter().enumerate() {
         let t = capture.terms.iter().find(|t| t.canonical == i).ok_or(assoc("sources[].nodal_terms[].primitive_load_index"))?;
-        nodal_terms.push(json!({"constructor_ordinal":i,"source_id":l.source_id,"primitive_load_index":t.original,"dof":dof(l.dof),"value":e.bits(l.value,P)}));
+        // C2 (CONTRACT_DELTA:104): the stable `constructor_ordinal` is the term's ordinal in the
+        // constructor's input, its authored primitive-load index, not its canonical position (RR
+        // "I98's B2-W verified; …"); the array order stays kernel canonical.
+        nodal_terms.push(json!({"constructor_ordinal":t.original,"source_id":l.source_id,"primitive_load_index":t.original,"dof":dof(l.dof),"value":e.bits(l.value,P)}));
     }
     let mut section_terms = Vec::with_capacity(capture.facts.len());
     for (i, f) in capture.facts.iter().enumerate() {
