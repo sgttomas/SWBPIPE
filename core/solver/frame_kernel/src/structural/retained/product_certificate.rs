@@ -4,6 +4,7 @@
 
 use super::adaptive::AttemptStop;
 use super::directed::{self, Toward};
+use super::ledger::RetainedLedger;
 use super::wide::multi::{AttemptWork, WideContext};
 use super::wide::Wide;
 use super::wide_sum::{ExactWideSum, SumWork};
@@ -386,6 +387,53 @@ impl NumericWork {
         }
     }
 }
+/// B2-K (KD §3.3): an owner ledger's exact net at a DOF, enclosed outward at
+/// 1024 bits as [RD1024(N_g), RU1024(N_g)]. Each endpoint is one `Add` entry
+/// ("an exact sum rounded once toward a direction"), with a fresh context and
+/// exact sum whose work is collected on every exit. A net of at most 1024
+/// significant bits gives lo == hi exactly (E5).
+fn net_owned(
+    work: &mut NumericWork,
+    ledger: &RetainedLedger,
+    dof: usize,
+    toward: Toward,
+    mut ctx: WideContext<16>,
+    mut sum: ExactWideSum,
+) -> Result<Endpoint, NumericError> {
+    let result = (|| -> Result<Endpoint, AttemptStop> {
+        ledger.add_to(dof, &mut sum, false)?;
+        let v = if hooks::nearest_net() {
+            sum.round(&mut ctx)?
+        } else {
+            directed::round_toward(&mut ctx, &mut sum, toward)?
+        };
+        Ok(if v.is_zero() { Endpoint::ZERO } else { v })
+    })();
+    work.wide.record(&ctx);
+    work.sums.merge(&sum.work());
+    work.checked(result.map_err(NumericError::Arithmetic))
+}
+impl NumericWork {
+    pub(super) fn ledger_net(
+        &mut self,
+        ledger: &RetainedLedger,
+        dof: usize,
+    ) -> Result<Enclosure, NumericError> {
+        let lo = self.net_toward(ledger, dof, Toward::Down)?;
+        let hi = self.net_toward(ledger, dof, Toward::Up)?;
+        Ok(Enclosure { lo, hi })
+    }
+    fn net_toward(
+        &mut self,
+        ledger: &RetainedLedger,
+        dof: usize,
+        toward: Toward,
+    ) -> Result<Endpoint, NumericError> {
+        self.begin(Entry::Add)?;
+        let ctx = WideContext::<16>::new(1024).map_err(|e| NumericError::Arithmetic(e.into()))?;
+        net_owned(self, ledger, dof, toward, ctx, ExactWideSum::new())
+    }
+}
 fn r4_owned(
     work: &mut NumericWork,
     p: &[Endpoint; 4],
@@ -624,6 +672,25 @@ pub(crate) mod hooks {
     #[inline(always)]
     pub(crate) fn material_gated(_material: &MaterialOperands) -> bool {
         false
+    }
+    /// B2-K SF-4's control (test-only): the combined net rounded to nearest at
+    /// 1024 bits instead of outward. Never applies outside `cfg(test)`.
+    #[cfg(not(test))]
+    #[inline(always)]
+    pub(crate) fn nearest_net() -> bool {
+        false
+    }
+    #[cfg(test)]
+    thread_local! {
+        static NEAREST_NET: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+    }
+    #[cfg(test)]
+    pub(crate) fn set_nearest_net(on: bool) {
+        NEAREST_NET.with(|g| g.set(on));
+    }
+    #[cfg(test)]
+    pub(crate) fn nearest_net() -> bool {
+        NEAREST_NET.with(std::cell::Cell::get)
     }
     #[cfg(test)]
     thread_local! {

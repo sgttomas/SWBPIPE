@@ -1027,3 +1027,630 @@ fn b3k_restored_material_gate_fails_stress_and_maximum_rows_with_represented_z()
         }
     }
 }
+
+// ---------------------------------------------------------------- B2-K
+// The combination specimen (I94 KD §6, with RV115's SF-2, SF-3 and N-9): one
+// cantilever, eight operand cases, C1-C9 through the recorded source API, and
+// the independent oracle's exact targets (product_certificate_vectors.py).
+#[path = "product_certificate_combination_vectors.rs"]
+mod b2k_oracle;
+use super::super::super::origins::{NativeOwner, OriginCapacity, RecordedCase, RecordedInvocation,
+    RecordedKernelCombination, RecordedOperand};
+const B2K_D: f64 = 0.1;
+const B2K_T: f64 = 0.005;
+const B2K_E: f64 = 210e9;
+const B2K_G: f64 = 80e9;
+fn b2k_parse(token: &str) -> Endpoint {
+    if token == "Z+" { return Endpoint::ZERO; }
+    let (hex, e) = token[1..].split_once('p').unwrap();
+    let digits = format!("{hex:0<256}");
+    let mut limbs = [0; 16];
+    for (i, v) in limbs.iter_mut().rev().enumerate() {
+        *v = u64::from_str_radix(&digits[i * 16..i * 16 + 16], 16).unwrap();
+    }
+    Endpoint::from_parts(token.starts_with('-'), e.parse().unwrap(), limbs).unwrap()
+}
+/// The oracle's token form of an endpoint (the inverse of `b2k_parse`).
+fn b2k_token(x: &Endpoint) -> String {
+    if x.is_zero() { return "Z+".into(); }
+    let (negative, exponent, limbs) = x.parts();
+    let hex: String = limbs.iter().rev().map(|v| format!("{v:016x}")).collect();
+    format!("{}{}p{exponent}", if negative { '-' } else { '+' }, hex.trim_end_matches('0'))
+}
+fn b2k_source_parts(name: &str) -> super::super::super::source::SourceParts {
+    use super::super::super::source::*;
+    let [a, i, j, _, _] = b2k_oracle::SECTION.map(f64::from_bits);
+    let terms = b2k_oracle::OPERANDS.iter().find(|o| o.0 == name).unwrap().1;
+    SourceParts {
+        nodes: vec![[0.0; 3], [1.0, 0.0, 0.0]],
+        members: vec![StraightMember { id: 7, node_i: 0, node_j: 1, elastic_modulus: B2K_E, shear_modulus: B2K_G,
+            area: a, second_moment_y: i, second_moment_z: i, torsion_constant: j, y_reference: [0.0, 1.0, 0.0] }],
+        constraints: Component::ALL.iter().map(|&component| Constraint { dof: Dof { node: 0, component }, value: 0.0 }).collect(),
+        // source ids independent of the operand's name: A and A2 have equal K4SRC bytes.
+        loads: terms.iter().enumerate().map(|(k, &(node, c, v))| NodalLoad {
+            dof: Dof { node, component: Component::from_index(c as usize) }, value: f64::from_bits(v),
+            source_id: format!("t{k}") }).collect(),
+        stations: [0.25, 0.5, 0.75].iter().enumerate()
+            .map(|(k, &fraction)| Station { id: 17 + k as u32, member: 7, fraction }).collect(),
+        supports: vec![SupportGroup { id: 3, node: 0, restrained: [true; 6], springs: vec![], directional_springs: vec![] }],
+        ..SourceParts::default()
+    }
+}
+fn b2k_source(name: &str) -> super::super::super::source::PrimitiveSource {
+    super::super::super::source::PrimitiveSource::new(b2k_source_parts(name)).unwrap()
+}
+fn b2k_facts() -> Vec<ProductMemberFacts> {
+    let [a, i, j, z, _] = b2k_oracle::SECTION.map(f64::from_bits);
+    vec![ProductMemberFacts { member: 7, diameter: B2K_D, effective_wall: B2K_T,
+        material: ProductMaterial::Base { e: B2K_E, g: B2K_G }, area: a, second_moment: i,
+        torsion_constant: j, section_modulus: z, radius: B2K_D / 2.0 }]
+}
+fn b2k_laws(owner: &adaptive::RetainedSolve) -> [bridge::ProposedMemberLaw<'_>; 1] {
+    [bridge::ProposedMemberLaw { member: &owner.source().members()[0], diameter: B2K_D, effective_wall: B2K_T,
+        material: MaterialOperands::Ordinary { e: B2K_E, g: B2K_G },
+        represented_z: f64::from_bits(b2k_oracle::SECTION[3]) }]
+}
+struct B2kSpecimen {
+    invocation: RecordedInvocation,
+    cases: Vec<RecordedCase>,
+    prepared: Vec<(&'static str, usize, adaptive::PreparedCaseSource)>,
+    combinations: Vec<(&'static str, RecordedKernelCombination)>,
+}
+fn b2k_selected(case: &RecordedCase) -> &adaptive::RetainedSolve {
+    match &case.outcome { adaptive::ExecutionOutcome::Selected(s) => s, other => panic!("{other:?}") }
+}
+impl B2kSpecimen {
+    fn case(&self, name: &str) -> &adaptive::RetainedSolve {
+        b2k_selected(&self.cases[b2k_oracle::OPERANDS.iter().position(|o| o.0 == name).unwrap()])
+    }
+    fn combination(&self, name: &str) -> (usize, &adaptive::RetainedSolve) {
+        match &self.combinations.iter().find(|c| c.0 == name).unwrap().1 {
+            RecordedKernelCombination::WithRun { case, .. } => (case.run, b2k_selected(case)),
+            other => panic!("{name}: {other:?}"),
+        }
+    }
+}
+/// The eight operand cases in one batch, the prepared operands registered after
+/// it (C3a's placement), then each named combination's recorded Call.
+fn b2k_specimen(names: &[&str]) -> B2kSpecimen {
+    use crate::structural::retained_api::CaseLimit;
+    let sources: Vec<_> = b2k_oracle::OPERANDS.iter().map(|o| b2k_source(o.0)).collect();
+    let combos: Vec<_> = b2k_oracle::COMBINATIONS.iter().filter(|c| names.contains(&c.0)).collect();
+    let mut prepared_names: Vec<&'static str> = Vec::new();
+    for c in &combos {
+        for &(_, name, prepared) in c.1 {
+            if prepared && !prepared_names.contains(&name) { prepared_names.push(name); }
+        }
+    }
+    let lengths: Vec<usize> = combos.iter().map(|c| c.1.len()).collect();
+    let capacity = OriginCapacity::for_invocation(&[sources.len()], &lengths, prepared_names.len()).unwrap();
+    let mut invocation = RecordedInvocation::new(u64::MAX, capacity).unwrap();
+    let cases = invocation.solve_cases(&sources, CaseLimit::new(u64::MAX)).unwrap();
+    let mut prepared = Vec::new();
+    for name in prepared_names {
+        let p = adaptive::PreparedCaseSource::new(b2k_source(name)).unwrap();
+        let id = invocation.register_prepared_source(&p).unwrap();
+        prepared.push((name, id, p));
+    }
+    let mut combinations = Vec::new();
+    for c in combos {
+        let operands: Vec<(f64, RecordedOperand<'_>)> = c.1.iter().map(|&(f, name, is_prepared)| {
+            let operand = if is_prepared {
+                let (_, source, p) = prepared.iter().find(|x| x.0 == name).unwrap();
+                RecordedOperand::Prepared { source: *source, prepared: p }
+            } else {
+                RecordedOperand::Selected(b2k_selected(&cases[b2k_oracle::OPERANDS.iter().position(|o| o.0 == name).unwrap()]))
+            };
+            (f64::from_bits(f), operand)
+        }).collect();
+        let out = invocation.solve_combination_sources(&operands, CaseLimit::new(u64::MAX)).unwrap();
+        combinations.push((c.0, out));
+    }
+    B2kSpecimen { invocation, cases, prepared, combinations }
+}
+const B2K_ALL: [&str; 9] = ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9"];
+fn b2k_key(id: QuantityId) -> String {
+    let e = |end: End| if end == End::I { "I" } else { "J" };
+    match id {
+        QuantityId::Displacement(d) => format!("u{}.{}", d.node, d.component.index()),
+        QuantityId::DisplacementMagnitude(n) => format!("m{n}"),
+        QuantityId::EndAction { member, end, component } => format!("e{member}.{}.{}", e(end), component.index()),
+        QuantityId::StationAction { station, component } => format!("s{station}.{}", component.index()),
+        QuantityId::Reaction(d) => format!("r{}.{}", d.node, d.component.index()),
+        QuantityId::SupportForceMagnitude(s) => format!("sf{s}"),
+        QuantityId::SupportMomentMagnitude(s) => format!("sm{s}"),
+        other => panic!("not in the specimen: {other:?}"),
+    }
+}
+fn b2k_recipe_key(r: ProductRecipe) -> String {
+    match r {
+        ProductRecipe::Native(id) => b2k_key(id),
+        ProductRecipe::SupportComponent { component, .. } => format!("r0.{}", component.index()),
+        ProductRecipe::Stress { member, site, stress } => format!("z{member}.{}.{}", match site {
+            ProductSite::End(End::I) => "I".to_string(), ProductSite::End(End::J) => "J".to_string(),
+            ProductSite::Station(s) => s.to_string() }, stress as usize),
+        other => panic!("{other:?}"),
+    }
+}
+/// [K-law truth, G-law truth] of a row, outward 1024-bit tokens.
+fn b2k_truth(combination: &str, key: &str) -> [(Endpoint, Endpoint); 2] {
+    let c = b2k_oracle::COMBINATIONS.iter().find(|c| c.0 == combination).unwrap();
+    let r = c.4.iter().find(|r| r.0 == key).unwrap_or_else(|| panic!("{combination}: no truth for {key}"));
+    [(b2k_parse(r.1 .0), b2k_parse(r.1 .1)), (b2k_parse(r.2 .0), b2k_parse(r.2 .1))]
+}
+fn b2k_contains(e: &Enclosure, t: &(Endpoint, Endpoint)) -> bool {
+    e.lo.cmp_value(&t.0) != Ordering::Greater && e.hi.cmp_value(&t.1) != Ordering::Less
+}
+fn b2k_lanes<'a>(owner: &'a adaptive::RetainedSolve, laws: &'a [bridge::ProposedMemberLaw<'a>])
+    -> [source_residual::ResidualSpent<'a>; 2] {
+    [source_residual::ReadoutLaw::AdmittedK, source_residual::ReadoutLaw::AnnularSource].map(|law|
+        source_residual::source_residual_for_law(owner, owner.source(), &owner.evidence().source_encoding,
+            owner.selected_precision(), laws, law))
+}
+#[test]
+fn b2k_k08_residual_and_recovery_contain_the_oracle_and_nets_are_exact_outward() {
+    let s = b2k_specimen(&B2K_ALL);
+    // The K-law section is the correctly rounded annulus: FK's own preparation agrees.
+    assert_eq!(prepare_product_annulus(B2K_D, B2K_T).result().unwrap().section_bits().bits(), b2k_oracle::SECTION);
+    for c in b2k_oracle::COMBINATIONS {
+        let (_, owner) = s.combination(c.0);
+        // C03 and the ledger: the combined ledger's K4LED bytes are the oracle's.
+        let hex: String = owner.prep.ledger.encoding().iter().map(|b| format!("{b:02x}")).collect();
+        assert_eq!(hex, c.2, "{}: K4LED", c.0);
+        assert_eq!(owner.evidence().ledger_encoding, owner.prep.ledger.encoding());
+        // Each nonzero net: [RD1024, RU1024] exactly; nearest rounding (SF-4's
+        // control, test-only) gives one point.
+        for &(g, rd, ru, rn) in c.3 {
+            let mut w = NumericWork::new();
+            let net = w.ledger_net(&owner.prep.ledger, g as usize).unwrap();
+            assert_eq!((net.lo, net.hi), (b2k_parse(rd), b2k_parse(ru)), "{} net {g}", c.0);
+            assert_eq!(w.entries[Entry::Add as usize].exact(), Ok(2));
+            assert!(w.status().is_exact());
+            super::super::hooks::set_nearest_net(true);
+            let mut w = NumericWork::new();
+            let nearest = w.ledger_net(&owner.prep.ledger, g as usize).unwrap();
+            super::super::hooks::set_nearest_net(false);
+            assert_eq!((nearest.lo, nearest.hi), (b2k_parse(rn), b2k_parse(rn)));
+        }
+        let laws = b2k_laws(owner);
+        let lanes = b2k_lanes(owner, &laws);
+        for (lane, spent) in lanes.iter().enumerate() {
+            let native = spent.result().unwrap_or_else(|e| panic!("{} lane {lane}: {e:?}", c.0));
+            assert_eq!(native.rows.len(), owner.publish().rows.len());
+            for (i, row) in owner.publish().rows.iter().enumerate() {
+                let key = b2k_key(row.id);
+                assert!(b2k_contains(&native.rows[i], &b2k_truth(c.0, &key)[lane]),
+                    "{} lane {lane} {key}: {:?}", c.0, native.rows[i]);
+            }
+        }
+        // Both load branches alone: two Add entries per nonzero net, plus the
+        // interval add (free) or subtract (reaction); exact-zero nets add nothing.
+        let view = owner.source_bridge_view(owner.source(), &owner.evidence().source_encoding, owner.selected_precision()).result.unwrap();
+        let (free, reaction, w) = source_residual::test_combination_loads(&view).unwrap();
+        let ordering = &owner.group.ordering;
+        let nonzero = |g: usize| owner.prep.ledger.net(g).is_some_and(|n| !n.is_zero());
+        let kf = ordering.free.iter().filter(|&&g| nonzero(g)).count() as u64;
+        let kc = owner.source().constraints().iter().filter(|x| nonzero(x.dof.global())).count() as u64;
+        assert_eq!(w.numeric.entries[Entry::Add as usize].exact(), Ok(4 * kf + 2 * kc), "{}", c.0);
+        assert_eq!(w.numeric.entries[Entry::Sub as usize].exact(), Ok(2 * kc), "{}", c.0);
+        assert_eq!(w.visits.exact(), Ok((ordering.free.len() + owner.source().constraints().len()) as u64));
+        for (a, &g) in ordering.free.iter().enumerate() {
+            if !nonzero(g) { assert!(free[a].lo.is_zero() && free[a].hi.is_zero(), "{} free {g}", c.0); }
+        }
+        for (ci, x) in owner.source().constraints().iter().enumerate() {
+            if !nonzero(x.dof.global()) { assert!(reaction[ci].lo.is_zero() && reaction[ci].hi.is_zero()); }
+        }
+    }
+    // C6 (SF-4): 2^600 + 2^-600 needs 1201 bits; its outward enclosure is
+    // nondegenerate, and the nearest 1024-bit point is 2^600, below the net.
+    let c6 = b2k_oracle::COMBINATIONS.iter().find(|c| c.0 == "C6").unwrap();
+    let (_, rd, ru, rn) = c6.3[0];
+    assert!(b2k_parse(rd).cmp_value(&b2k_parse(ru)) == Ordering::Less);
+    assert_eq!(b2k_parse(rn), b2k_parse(rd));
+    assert_eq!(b2k_parse(rn), shift(&Endpoint::ONE, 600).unwrap());
+}
+#[test]
+fn b2k_k07_view_admits_p2_refuses_corruption_and_keeps_native_data_flags() {
+    let s = b2k_specimen(&B2K_ALL);
+    for name in B2K_ALL {
+        let (_, owner) = s.combination(name);
+        let spent = owner.source_bridge_view(owner.source(), &owner.evidence().source_encoding, owner.selected_precision());
+        let view = spent.result.unwrap_or_else(|e| panic!("{name}: {e:?}"));
+        // The view's data flags are the native verification's own (count of data blocks).
+        let attempt = owner.evidence().attempts.iter()
+            .find(|a| a.precision == owner.evidence().verification_precision && a.verification.is_some()).unwrap();
+        assert_eq!(view.data().iter().filter(|d| **d).count(), attempt.verification.as_ref().unwrap().data_blocks, "{name}");
+    }
+    // A cancelled combination (A - A2: every net exactly 0, every product
+    // nonzero) keeps its free block as data.
+    let mut cancelled = b2k_specimen(&[]);
+    let (a, a2) = (cancelled.case("A").clone(), cancelled.case("A2").clone());
+    let out = cancelled.invocation.solve_combination(&[(1.0, &a), (-1.0, &a2)], adaptive::CaseLimit::new(u64::MAX));
+    assert!(matches!(out, Err(_)), "no combination was declared: capacity refuses");
+    let combined = match super::super::super::combine::RetainedCombination::solve(&[(1.0, &a), (-1.0, &a2)],
+        adaptive::CaseLimit::new(u64::MAX), &mut adaptive::InvocationMeter::new(u64::MAX)) {
+        super::super::super::combine::CombinationOutcome::Selected(s) => s, other => panic!("{other:?}") };
+    let view = combined.source_bridge_view(combined.source(), &combined.evidence().source_encoding, combined.selected_precision()).result.unwrap();
+    assert_eq!(view.data(), &[true]);
+    // Corruption of the combined prescribed terms: factor bits or term count
+    // -> PairIdentity; a nonzero (or -0.0, N-3) value -> UnsupportedCombination.
+    // Visits are booked before each check (N-8): the refusal's prefix grows by
+    // one per term examined.
+    let (_, owner) = s.combination("C1");
+    let corrupt = |f: &dyn Fn(&mut Vec<(usize, Vec<(f64, f64)>)>)| {
+        let mut changed = owner.clone();
+        let p = &owner.prep;
+        let mut prescribed = p.prescribed.clone();
+        f(&mut prescribed);
+        changed.prep = std::sync::Arc::new(adaptive::CasePrep { source: p.source.clone(), ledger: p.ledger.clone(),
+            prescribed, factors: p.factors.clone(), identity: p.identity.clone(), layout: p.layout.clone(),
+            extents: p.extents.clone() });
+        let spent = changed.source_bridge_view(changed.source(), &changed.evidence().source_encoding, changed.selected_precision());
+        (spent.result.map(|_| ()), spent.work.visits.exact().unwrap())
+    };
+    use adaptive::{CertificateIssue, SourceBridgeViewIssue as V};
+    // The first constrained DOF's own check refuses after its one visit (vd).
+    let (rd, vd) = corrupt(&|p| p[0].0 = 99);
+    assert_eq!(rd, Err(V::Certificate(CertificateIssue::PairIdentity)));
+    let (r0, v0) = corrupt(&|p| p[0].1[0].0 = 2.0);
+    assert_eq!(r0, Err(V::Certificate(CertificateIssue::PairIdentity)));
+    assert_eq!(v0, vd + 1, "the term's visit is booked before its check");
+    let (r1, v1) = corrupt(&|p| p[0].1[2].1 = 1e-3);
+    assert_eq!(r1, Err(V::UnsupportedCombination));
+    assert_eq!(v1, vd + 3, "visits booked per term before its check");
+    let (r2, v2) = corrupt(&|p| p[0].1[0].1 = -0.0);
+    assert_eq!(r2, Err(V::UnsupportedCombination));
+    assert_eq!(v2, vd + 1);
+    let (r3, _) = corrupt(&|p| { p[1].1.pop(); });
+    assert_eq!(r3, Err(V::Certificate(CertificateIssue::PairIdentity)));
+    let (r4, _) = corrupt(&|p| p[5].1[1].1 = -1.0);
+    assert_eq!(r4, Err(V::UnsupportedCombination));
+    let (r5, v5) = corrupt(&|_| {});
+    assert!(r5.is_ok() && v5 > v1);
+}
+#[test]
+fn b2k_c06_a_nonzero_prescription_in_a_later_operand_is_unsupported() {
+    use crate::structural::retained_api::CaseLimit;
+    // Operand 0 (A) has zero prescriptions; operand 1 (A with root Ux = 1e-3)
+    // does not. The view never reads operand 0's value as the combined value.
+    let mut parts = b2k_source_parts("A");
+    parts.constraints[0].value = 1e-3;
+    let sources = [b2k_source("A"), super::super::super::source::PrimitiveSource::new(parts).unwrap()];
+    let mut invocation = RecordedInvocation::new(u64::MAX, OriginCapacity::for_calls(&[2], &[2]).unwrap()).unwrap();
+    let cases = invocation.solve_cases(&sources, CaseLimit::new(u64::MAX)).unwrap();
+    let operands = [(1.0, b2k_selected(&cases[0])), (1.0, b2k_selected(&cases[1]))];
+    let RecordedKernelCombination::WithRun { case, .. } = invocation.solve_combination(&operands, CaseLimit::new(u64::MAX)).unwrap()
+        else { panic!() };
+    let owner = b2k_selected(&case);
+    assert_eq!(owner.prep.source.constraint(0), Some(0.0), "the representative's own value is zero");
+    let spent = owner.source_bridge_view(owner.source(), &owner.evidence().source_encoding, owner.selected_precision());
+    assert!(matches!(spent.result, Err(adaptive::SourceBridgeViewIssue::UnsupportedCombination)));
+    let laws = b2k_laws(owner);
+    for lane in b2k_lanes(owner, &laws) {
+        assert!(matches!(lane.result(), Err(bridge::BridgeError::View(adaptive::SourceBridgeViewIssue::UnsupportedCombination))));
+        assert_eq!(lane.work.correction.calls.exact(), Ok(0));
+    }
+    let facts = b2k_facts();
+    let rows = b3k_rows(owner, false, false);
+    let specs = b3k_specs(&rows, "combination");
+    let failure = invocation.begin_prepared_product(case.run, owner, &facts, &specs).into_ready().err().unwrap();
+    assert_eq!(failure.failure().category(), "native_source");
+}
+#[test]
+fn b2k_k12_the_i42_bridge_holds_for_a_p2_combination_owner() {
+    let s = b2k_specimen(&B2K_ALL);
+    for name in B2K_ALL {
+        let (_, owner) = s.combination(name);
+        let laws = b2k_laws(owner);
+        let spent = bridge::source_bridge(owner, owner.source(), &owner.evidence().source_encoding, owner.selected_precision(), &laws);
+        let native = spent.result().unwrap_or_else(|e| panic!("{name}: {e:?}"));
+        for (i, row) in owner.publish().rows.iter().enumerate() {
+            let key = b2k_key(row.id);
+            assert!(b2k_contains(&native.rows[i].source, &b2k_truth(name, &key)[1]), "{name} bridge {key}");
+        }
+    }
+}
+#[test]
+fn b2k_k10_mutation_controls_fail_containment() {
+    let s = b2k_specimen(&B2K_ALL);
+    let failing = |name: &str, lane: usize| -> Vec<String> {
+        let (_, owner) = s.combination(name);
+        let laws = b2k_laws(owner);
+        let spent = &b2k_lanes(owner, &laws)[lane];
+        let native = spent.result().unwrap();
+        owner.publish().rows.iter().enumerate().filter_map(|(i, row)| {
+            let key = b2k_key(row.id);
+            (!b2k_contains(&native.rows[i], &b2k_truth(name, &key)[lane])).then_some(key)
+        }).collect()
+    };
+    // (a) The representative's loads at the free rows instead of the ledger:
+    // containment fails, and the K-lane tip motions enclose the oracle's
+    // response to operand 0's loads alone (KD §6 item 4 (ii)).
+    super::super::source_residual::hooks::set_representative(true, false);
+    for name in ["C1", "C2", "C4"] {
+        let bad = failing(name, 0);
+        assert!(bad.iter().any(|k| k.starts_with("u1.")), "{name}: {bad:?}");
+        let (_, owner) = s.combination(name);
+        let laws = b2k_laws(owner);
+        let native = b2k_lanes(owner, &laws)[0].result().unwrap().rows.clone();
+        let rep = b2k_oracle::REPRESENTATIVE_TIP_K.iter().find(|r| r.0 == name).unwrap();
+        for c in 0..6 {
+            let i = owner.publish().rows.iter().position(|r| b2k_key(r.id) == format!("u1.{c}")).unwrap();
+            assert!(b2k_contains(&native[i], &(b2k_parse(rep.1[c].0), b2k_parse(rep.1[c].1))), "{name} rep u1.{c}");
+        }
+        assert!(!failing(name, 1).is_empty(), "{name}: source lane");
+    }
+    // (b) SF-2: the representative's loads at the constrained DOFs: C7's root
+    // terms (operands R and R2; A has none there) are lost from the reactions.
+    super::super::source_residual::hooks::set_representative(false, true);
+    for lane in 0..2 {
+        let bad = failing("C7", lane);
+        assert!(bad.contains(&"r0.1".to_string()) && bad.iter().all(|k| k.starts_with("r0.") || k.starts_with("sf")), "C7 lane {lane}: {bad:?}");
+    }
+    // The free-row mutation does not touch C7's reactions, and vice versa.
+    assert!(failing("C1", 0).is_empty());
+    super::super::source_residual::hooks::set_representative(false, false);
+    for name in B2K_ALL { for lane in 0..2 { assert!(failing(name, lane).is_empty(), "{name} lane {lane}"); } }
+    // (c) C3: the binary64 sum of the operands' published rows is exactly 0;
+    // the combination's own enclosures contain the truth 2^-60/EA and exclude 0.
+    let ux = |owner: &adaptive::RetainedSolve| owner.publish().rows.iter()
+        .find(|r| b2k_key(r.id) == "u1.0").unwrap().value.value().unwrap();
+    assert_eq!(ux(s.case("P")) + ux(s.case("Q")), 0.0);
+    let (_, c3) = s.combination("C3");
+    let laws = b2k_laws(c3);
+    let i = c3.publish().rows.iter().position(|r| b2k_key(r.id) == "u1.0").unwrap();
+    for lane in b2k_lanes(c3, &laws) {
+        let e = lane.result().unwrap().rows[i];
+        assert!(positive(&e.lo), "C3 excludes the operand-row sum 0: {e:?}");
+    }
+    assert!(ux(c3) > 0.0);
+}
+#[test]
+fn b2k_c05_the_combination_coverage_rule() {
+    let s = b2k_specimen(&["C1"]);
+    let (run, owner) = s.combination("C1");
+    let facts = b2k_facts();
+    let begin = |rows: &[B3kRow]| {
+        let specs = b3k_specs(rows, "C1");
+        s.invocation.begin_prepared_product(run, owner, &facts, &specs).into_ready().err()
+            .map(|e| match &e.failure().cause { Cause::Association(a) => *a, other => panic!("{other:?}") })
+    };
+    let rows = b3k_rows(owner, false, false);
+    assert_eq!(rows.len(), 7 * 2 + 50 + 8 - 6 + 6, "7n + 50m + 8g rows (reactions as support components)");
+    assert_eq!(begin(&rows), None);
+    assert_eq!(begin(&b3k_rows(owner, true, false)), Some("combination row family"), "a maximum");
+    assert_eq!(begin(&b3k_rows(owner, false, true)), Some("combination row family"), "a mode record");
+    for recipe in [ProductRecipe::DenseParityObservation, ProductRecipe::ModulusBasisRecord] {
+        let mut extra = rows.clone();
+        extra.push(("record".into(), ProductUnit::Record, 0, recipe));
+        let specs: Vec<_> = extra.iter().map(|(id, unit, body, r)| match r {
+            ProductRecipe::DenseParityObservation => ProductRowSpec::parity(id, "C1", *body, 0).unwrap(),
+            ProductRecipe::ModulusBasisRecord => ProductRowSpec::material_record(id, "C1", *body),
+            _ => ProductRowSpec::mechanical(id, "C1", *unit, *body, *r).unwrap() }).collect();
+        let e = s.invocation.begin_prepared_product(run, owner, &facts, &specs).into_ready().err().unwrap();
+        assert!(matches!(e.failure().cause, Cause::Association("combination row family")), "{recipe:?}");
+    }
+    let mut missing = rows.clone();
+    missing.retain(|r| !matches!(r.3, ProductRecipe::Stress { site: ProductSite::Station(18), stress: ProductStress::Torsion, .. }));
+    assert_eq!(missing.len(), rows.len() - 1);
+    assert_eq!(begin(&missing), Some("missing final coverage"));
+    // A case owner still requires its maximum and mode record.
+    let case = s.case("A");
+    let case_run = s.cases[0].run;
+    let specs_rows = b3k_rows(case, false, false);
+    let specs = b3k_specs(&specs_rows, "A");
+    let e = s.invocation.begin_prepared_product(case_run, case, &facts, &specs).into_ready().err().unwrap();
+    assert!(matches!(e.failure().cause, Cause::Association("missing final coverage")));
+}
+fn b2k_print_row(name: &str, i: usize, spec: &ProductRowSpec<'_>, value: f64, k: &Enclosure, g: &Enclosure,
+    v: &ProductRowVerdict, components: Option<[f64; 3]>) {
+    let unit = match spec.unit { ProductUnit::Millimetre => "mm", ProductUnit::Radian => "rad", ProductUnit::Newton => "N",
+        ProductUnit::NewtonMetre => "N.m", ProductUnit::Megapascal => "MPa", ProductUnit::Pascal => "Pa", ProductUnit::Record => "record" };
+    let (class, bound) = match v.class {
+        Some(adaptive::RowClass::InputDerived) => ("input", 0),
+        Some(adaptive::RowClass::AbsoluteVerified { bound_bits }) => ("absolute", bound_bits),
+        Some(adaptive::RowClass::RelativeVerified) => ("relative", 0),
+        other => panic!("{other:?}"),
+    };
+    let comps = components.map_or("null".to_string(), |c| format!("[{}]", c.iter().map(|x| format!("\"{:016x}\"", x.to_bits())).collect::<Vec<_>>().join(",")));
+    let preds: Vec<String> = v.predicates.iter().map(|p| p.map_or("null".into(), |b| b.to_string())).collect();
+    println!("B2K_ROW {{\"combination\":\"{name}\",\"row\":{i},\"key\":\"{}\",\"unit\":\"{unit}\",\"body\":{},\"raw\":\"{:016x}\",\"n\":\"{:016x}\",\"class\":\"{class}\",\"bound\":\"{bound:016x}\",\"scale\":\"{:016x}\",\"k\":[\"{}\",\"{}\"],\"g\":[\"{}\",\"{}\"],\"pass\":{},\"predicates\":[{}],\"components\":{comps}}}",
+        b2k_recipe_key(spec.recipe), spec.body, value.to_bits(), v.normalized_bits, v.scale_bits,
+        b2k_token(&k.lo), b2k_token(&k.hi), b2k_token(&g.lo), b2k_token(&g.hi), v.passed, preds.join(","));
+}
+#[test]
+fn b2k_k09_full_prepared_proof_certifies_combinations_and_prints_the_diagnose_rows() {
+    let s = b2k_specimen(&B2K_ALL);
+    let facts = b2k_facts();
+    let mut certified = Vec::new();
+    for name in B2K_ALL {
+        let (run, owner) = s.combination(name);
+        assert_eq!(s.invocation.product_owner(run, owner), Some(NativeOwner::Combination(B2K_ALL.iter().position(|n| *n == name).unwrap())));
+        let rows = b3k_rows(owner, false, false);
+        let specs = b3k_specs(&rows, name);
+        let draft = s.invocation.begin_prepared_product(run, owner, &facts, &specs).into_ready()
+            .unwrap_or_else(|e| panic!("{name}: begin {:?}", e.failure()));
+        let (projected, builder) = draft.project().into_ready().unwrap_or_else(|e| panic!("{name}: project {:?}", e.failure()));
+        // Every row's two lane enclosures as the gate will hull them.
+        let mut lanes = Vec::new();
+        for spec in specs.iter() {
+            let mut w = ProductCertificateSpent::new(&[]);
+            let section = section_for(owner, &facts, spec.recipe, &mut w).unwrap();
+            let k = recipe(owner, &mut w, &projected.data.k.rows, spec.recipe, section.as_ref(), &facts, true).unwrap();
+            let g = recipe(owner, &mut w, &projected.data.source.rows, spec.recipe, section.as_ref(), &facts, false).unwrap();
+            let [tk, tg] = b2k_truth(name, &b2k_recipe_key(spec.recipe));
+            assert!(b2k_contains(&k, &tk) && b2k_contains(&g, &tg), "{name} {}: truth outside a lane", spec.id);
+            lanes.push((k, g));
+        }
+        let (values, work) = builder.complete_maxima(&[]).into_ready().unwrap();
+        let frozen: Vec<f64> = (0..values.len()).map(|i| *values.value(i).unwrap()).collect();
+        // (ii): every displacement magnitude is RN64 of the exact 3-norm of its
+        // node's frozen components (mm).
+        let mut components = vec![None; specs.len()];
+        for (i, spec) in specs.iter().enumerate() {
+            let ProductRecipe::Native(QuantityId::DisplacementMagnitude(node)) = spec.recipe else { continue };
+            let c: [f64; 3] = std::array::from_fn(|j| frozen[specs.iter().position(|x| x.recipe
+                == ProductRecipe::Native(QuantityId::Displacement(Dof { node, component: Component::ALL[j] }))).unwrap()]);
+            assert_eq!(frozen[i].to_bits(), rn64_norm3(c).result.unwrap().to_bits(), "{name} m{node}");
+            components[i] = Some(c);
+        }
+        let final_rows: Vec<_> = specs.iter().enumerate().map(|(i, x)| x.row(values.value(i).unwrap())).collect();
+        let outcome = projected.certify_final(&values, &final_rows, work).into_ready();
+        let verdicts = match &outcome { Ok(p) => p.verdicts().to_vec(), Err(e) => e.work().verdicts().to_vec() };
+        assert_eq!(verdicts.len(), specs.len(), "{name}: every row has a verdict");
+        let hex: String = owner.prep.ledger.encoding().iter().map(|b| format!("{b:02x}")).collect();
+        println!("B2K_LEDGER {{\"combination\":\"{name}\",\"k4led\":\"{hex}\",\"precision\":{},\"certified\":{}}}",
+            owner.selected_precision(), outcome.is_ok());
+        for (i, spec) in specs.iter().enumerate() {
+            b2k_print_row(name, i, spec, frozen[i], &lanes[i].0, &lanes[i].1, &verdicts[i], components[i]);
+        }
+        certified.push((name, outcome.is_ok(), verdicts.iter().filter(|v| !v.passed).count()));
+        // The net-case control: a case whose loads are the combination's exact
+        // products (each split exactly into binary64 terms) has the same K4LED
+        // and the same publication, and its proof decides every shared row the
+        // same way. A combination row that fails is DEF-O's availability limit,
+        // which an ordinary case with the same loads meets too.
+        let net = b2k_net_case(name);
+        let net_owner = b2k_selected(&net.1);
+        assert_eq!(net_owner.prep.ledger.encoding(), owner.prep.ledger.encoding(), "{name}: net case K4LED");
+        let net_rows = b3k_rows(net_owner, true, true);
+        let net_specs = b3k_specs(&net_rows, "net");
+        let net_verdicts = match b3k_prove(&net.0, net.1.run, net_owner, &facts, &net_specs) {
+            B3kOutcome::Certified(p, _) => p.verdicts().to_vec(), B3kOutcome::Refused(e) => e.work().verdicts().to_vec() };
+        assert_eq!(net_verdicts.len(), net_specs.len());
+        for (i, spec) in specs.iter().enumerate() {
+            if matches!(spec.recipe, ProductRecipe::Native(QuantityId::DisplacementMagnitude(_))) { continue; }
+            let j = net_specs.iter().position(|x| x.recipe == spec.recipe && x.unit == spec.unit).unwrap();
+            // Equal normalized bits: the same frozen value; and the same verdict.
+            assert_eq!((verdicts[i].passed, verdicts[i].normalized_bits), (net_verdicts[j].passed, net_verdicts[j].normalized_bits),
+                "{name} {}: the net case decides the same", spec.id);
+        }
+    }
+    println!("B2K_CERTIFIED {certified:?}");
+}
+/// The net case of a combination: one case whose loads are every exact
+/// product c_i*v_ij, split exactly into binary64 terms (the product and its
+/// fused-multiply-add error).
+fn b2k_net_case(name: &str) -> (RecordedInvocation, RecordedCase) {
+    use crate::structural::retained_api::CaseLimit;
+    let c = b2k_oracle::COMBINATIONS.iter().find(|c| c.0 == name).unwrap();
+    let mut parts = b2k_source_parts("A");
+    parts.loads.clear();
+    for (i, &(f, operand, _)) in c.1.iter().enumerate() {
+        let f = f64::from_bits(f);
+        for (k, &(node, comp, v)) in b2k_oracle::OPERANDS.iter().find(|o| o.0 == operand).unwrap().1.iter().enumerate() {
+            let v = f64::from_bits(v);
+            let p = f * v;
+            let e = f.mul_add(v, -p);
+            assert!(p.is_finite() && (e == 0.0 || e.is_normal()));
+            for (part, value) in [(0, p), (1, e)] {
+                if part == 1 && value == 0.0 { continue; }
+                parts.loads.push(super::super::super::source::NodalLoad {
+                    dof: Dof { node, component: Component::from_index(comp as usize) }, value,
+                    source_id: format!("{i}.{k}.{part}") });
+            }
+        }
+    }
+    let source = super::super::super::source::PrimitiveSource::new(parts).unwrap();
+    let mut invocation = RecordedInvocation::new(u64::MAX, OriginCapacity::for_calls(&[1], &[]).unwrap()).unwrap();
+    let mut cases = invocation.solve_cases(&[source], CaseLimit::new(u64::MAX)).unwrap();
+    (invocation, cases.remove(0))
+}
+#[test]
+fn b2k_k06_both_certificate_entries_accept_a_recorded_combination_owner_only() {
+    let s = b2k_specimen(&["C1"]);
+    let (run, owner) = s.combination("C1");
+    let facts = b2k_facts();
+    let rows = b3k_rows(owner, false, false);
+    let specs = b3k_specs(&rows, "C1");
+    assert!(s.invocation.begin_prepared_product(run, owner, &facts, &specs).into_ready().is_ok());
+    let values: Vec<f64> = owner.publish().rows.iter().map(|_| 0.0).collect();
+    drop(values);
+    let zero = 0.0;
+    let probe = [ProductFinalRow { id: "x", case_id: "C1", value: &zero, unit: ProductUnit::Millimetre, body: 0,
+        recipe: ProductRecipe::Native(QuantityId::DisplacementMagnitude(1)) }];
+    let spent = s.invocation.certify_product_case(run, owner, &facts, &probe);
+    assert!(!matches!(spent.failure().map(|f| &f.cause), Some(Cause::Association("recorded owner"))), "{:?}", spent.failure());
+    // Another run id, and a legacy unrecorded combination of the same operands.
+    let other = s.cases[0].run;
+    let e = s.invocation.begin_prepared_product(other, owner, &facts, &specs).into_ready().err().unwrap();
+    assert!(matches!(e.failure().cause, Cause::Association("prepared recorded owner")));
+    let legacy = match super::super::super::combine::RetainedCombination::solve(
+        &[(1.0, s.case("A")), (1.0, s.case("B")), (-1.0, s.case("A2"))],
+        adaptive::CaseLimit::new(u64::MAX), &mut adaptive::InvocationMeter::new(u64::MAX)) {
+        super::super::super::combine::CombinationOutcome::Selected(x) => x, other => panic!("{other:?}") };
+    assert_eq!(legacy.publish(), owner.publish());
+    let e = s.invocation.begin_prepared_product(run, &legacy, &facts, &specs).into_ready().err().unwrap();
+    assert!(matches!(e.failure().cause, Cause::Association("prepared recorded owner")));
+    let spent = s.invocation.certify_product_case(run, &legacy, &facts, &probe);
+    assert!(matches!(spent.failure().map(|f| &f.cause), Some(Cause::Association("recorded owner"))));
+    assert_eq!(s.invocation.product_owner(run, &legacy), None);
+    assert_eq!(s.invocation.product_owner(s.cases[0].run, s.case("A")), Some(NativeOwner::Case(0)));
+}
+/// SA4-1's vectors and the A-5 midpoints (REVISION_02 §1.5), each expected bit
+/// pattern computed by the oracle's independent integer square root; MIN = MIN_POSITIVE.
+const B2K_NORM3: &[(u64, u64, u64, Option<u64>)] = &[
+    (0x3de0000002000000, 0x3f80000004000000, 0, Some(0x3f80000004000000)), // A-5: a tie, to even
+    (0x3de0000002000000, 0x3f80000004000000, 1, Some(0x3f80000004000001)), // the tie + 2^-1074
+    (0x000fffffffffffff, 0x0000000004000001, 0, Some(0x0010000000000000)), // RV115's counterexample: MIN
+    (0x000fffffffffffff, 0x0000000004000000, 0, Some(0x0010000000000000)), // RV118's witness (2^-1048): MIN
+    (0x000fffffffffffff, 0x0000000003ffffff, 0x0000000000002d42, Some(0x0010000000000000)), // near threshold: MIN
+    (0x000fffffffffffff, 0x0000000003ffffff, 0x0000000000002d41, Some(0x000fffffffffffff)), // its control
+    (0x7fefffffffffffff, 0, 0, Some(0x7fefffffffffffff)),
+    (0x7fefffffffffffff, 0x7e40000000000000, 0, Some(0x7fefffffffffffff)), // MAX, 2^997
+    (0x7fefffffffffffff, 0x7e50000000000000, 0, None),                     // MAX, 2^998: beyond binary64
+    (0x7fefffffffffffff, 0x7fefffffffffffff, 0, None),
+    (0x8000000000000000, 0, 0x8000000000000000, Some(0)),                   // signed zeros: +0
+    (1, 0, 0, Some(1)),
+    (0xc008000000000000, 0x4010000000000000, 0x4028000000000000, Some(0x402a000000000000)), // (-3, 4, 12) = 13
+];
+#[test]
+fn b2k_rn64_norm3_vectors_signed_zeros_refusal_and_work() {
+    for &(x, y, z, expected) in B2K_NORM3 {
+        let spent = rn64_norm3([x, y, z].map(f64::from_bits));
+        match expected {
+            Some(e) => assert_eq!(spent.result.as_ref().map(|v| v.to_bits()), Ok(e), "{x:016x} {y:016x} {z:016x}"),
+            None => assert_eq!(spent.result, Err(directed::certificate::HelperError::Binary64Range), "{x:016x} {y:016x}"),
+        }
+        if x | y | z != 0 && (x | y | z) & 0x7fff_ffff_ffff_ffff != 0 {
+            assert!(spent.sums.checked_lme().exact().unwrap() > 0);
+        }
+    }
+    // Component search: a missing, duplicated or non-mm component refuses.
+    let spec = |i: u32, unit| ProductRowSpec::mechanical(["x", "y", "z", "w"][i as usize], "C", unit, 0,
+        ProductRecipe::Native(QuantityId::Displacement(Dof { node: 1, component: Component::ALL[(i % 3) as usize] }))).unwrap();
+    let full = [spec(0, ProductUnit::Millimetre), spec(1, ProductUnit::Millimetre), spec(2, ProductUnit::Millimetre)];
+    let mut w = ProductCertificateSpent::new(&[]);
+    assert_eq!(displacement_norm(&full, &[3.0, 4.0, 12.0], 1, &mut w).unwrap(), 13.0);
+    assert_eq!(w.scalar_operations.exact(), Ok(1));
+    for variant in 0..4 {
+        let mut specs: Vec<_> = vec![spec(0, ProductUnit::Millimetre), spec(1, ProductUnit::Millimetre), spec(2, ProductUnit::Millimetre)];
+        let mut values = vec![3.0, 4.0, 12.0];
+        match variant {
+            0 => { specs.pop(); values.pop(); }
+            1 => { specs.push(spec(3, ProductUnit::Millimetre)); values.push(1.0); }
+            2 => specs[1] = spec(1, ProductUnit::Radian),
+            _ => values[2] = f64::INFINITY,
+        }
+        let mut w = ProductCertificateSpent::new(&[]);
+        assert_eq!(displacement_norm(&specs, &values, 1, &mut w).unwrap_err().category(), "association", "variant {variant}");
+        assert_eq!(w.scalar_operations.exact(), Ok(0));
+    }
+}
+#[test]
+fn b2k_rn64_norm3_agrees_with_the_oracle_vectors() {
+    // The oracle's independent integer square root on curated SA4-1 vectors,
+    // constructed exact midpoints and their one-ulp neighbours, and random
+    // patterns over the whole range.
+    assert!(b2k_oracle::NORM3.len() > 300);
+    let mut ties = 0;
+    for &(x, y, z, expected) in b2k_oracle::NORM3 {
+        let spent = rn64_norm3([x, y, z].map(f64::from_bits));
+        match expected {
+            Some(e) => assert_eq!(spent.result.as_ref().map(|v| v.to_bits()), Ok(e), "{x:016x} {y:016x} {z:016x}"),
+            None => assert_eq!(spent.result, Err(directed::certificate::HelperError::Binary64Range), "{x:016x} {y:016x} {z:016x}"),
+        }
+        ties += usize::from(expected.is_some_and(|e| e & 1 == 0) && x & 0xfff != 0);
+    }
+    assert!(ties > 0);
+}

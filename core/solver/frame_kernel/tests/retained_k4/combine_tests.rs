@@ -592,3 +592,108 @@ fn checked_work_recorded_combination_keeps_early_and_run_custody_distinct() {
     );
     assert!(work.case().exact().unwrap() > 0);
 }
+
+// ---------------------------------------------------------------- B2-K
+// The prepared-operand API without custody (KD §1.2-§1.4).
+use super::super::adaptive::PreparedCaseSource;
+fn source_combine(operands: &[(f64, CombinationOperand<'_>)]) -> CombinationOutcome {
+    let mut meter = InvocationMeter::new(u64::MAX);
+    RetainedCombination::solve_sources(operands, unlimited(), &mut meter)
+}
+#[test]
+fn b2k_k01_a_prepared_case_source_is_exactly_the_solve_paths_prep() {
+    for name in ["N05", "N05-TRANSVERSE", "SKEW6-K1E-12", "N09-B"] {
+        let source = models::model(name).source();
+        let p = PreparedCaseSource::new(source.clone()).unwrap();
+        let s = selected_source(source.clone());
+        assert_eq!(p.identity(), &source.encoding()[..]);
+        assert_eq!(p.identity(), &s.prep.identity[..]);
+        assert_eq!(p.source().encoding(), s.source().encoding());
+        let (x, y) = (p.prep(), s.prep.as_ref());
+        assert_eq!(x.ledger.encoding(), y.ledger.encoding());
+        assert_eq!(x.layout, y.layout);
+        assert_eq!(x.prescribed, y.prescribed);
+        assert!(x.factors.is_empty() && y.factors.is_empty());
+        assert_eq!(x.extents.iter().map(|v| v.to_bits()).collect::<Vec<_>>(), y.extents.iter().map(|v| v.to_bits()).collect::<Vec<_>>());
+    }
+}
+#[test]
+fn b2k_c01_the_old_api_is_the_source_api_and_a_mixed_combination_has_the_all_selected_bits() {
+    let (a, b) = (selected("N05"), selected("N05-TRANSVERSE"));
+    for operands in [vec![(1.0, a.as_ref())], vec![(1.0, a.as_ref()), (-2.5, b.as_ref())], vec![(0.1, b.as_ref()), (3.0, a.as_ref()), (1.0, b.as_ref())]] {
+        let (mut m1, mut m2) = (InvocationMeter::new(u64::MAX), InvocationMeter::new(u64::MAX));
+        let old = RetainedCombination::solve_recorded(&operands, unlimited(), &mut m1);
+        let sources: Vec<_> = operands.iter().map(|&(f, s)| (f, CombinationOperand::Retained(s))).collect();
+        let new = RetainedCombination::solve_sources_recorded(&sources, unlimited(), &mut m2);
+        assert_eq!(format!("{old:?}"), format!("{new:?}"));
+        assert_eq!(m1, m2);
+    }
+    // Mixed A (selected) + B (prepared): the same ledger, state and publication
+    // bits as A + B all selected; B is neither solved nor charged.
+    let pb = PreparedCaseSource::new(models::model("N05-TRANSVERSE").source()).unwrap();
+    let all = combined(&[(1.0, a.as_ref()), (1.0, b.as_ref())]);
+    let mut meter = InvocationMeter::new(u64::MAX);
+    let CombinationOutcome::Selected(mixed) = RetainedCombination::solve_sources(
+        &[(1.0, CombinationOperand::Retained(&a)), (1.0, CombinationOperand::Prepared(&pb))], unlimited(), &mut meter)
+        else { panic!() };
+    assert_eq!(bits(&mixed), bits(&all));
+    assert_eq!(mixed.evidence().ledger_encoding, all.evidence().ledger_encoding);
+    assert_eq!(mixed.evidence().retained_state_encoding, all.evidence().retained_state_encoding);
+    assert_eq!(mixed.evidence().source_encoding, all.evidence().source_encoding);
+}
+#[test]
+fn b2k_c02_operands_differ_on_a_prepared_or_a_selected_operand() {
+    let base = cantilever(0.25, &[1]);
+    let a = selected_source(base.clone());
+    let mut variants = Vec::new();
+    let mut stiff = parts_of(&base);
+    stiff.members[0].elastic_modulus = 2.0;
+    variants.push(("K4STF bits", PrimitiveSource::new(stiff).unwrap()));
+    let mut layout = parts_of(&base);
+    layout.stations[0].id = 2;
+    variants.push(("a layout entry", PrimitiveSource::new(layout).unwrap()));
+    variants.push(("a station fraction", cantilever(0.75, &[1])));
+    variants.push(("a support membership", cantilever(0.25, &[])));
+    for (what, v) in variants {
+        let reason = |o: CombinationOutcome| match o {
+            CombinationOutcome::Unresolved { reason, attempts } => { assert!(attempts.is_empty()); reason }
+            other => panic!("{what}: {other:?}") };
+        let p = PreparedCaseSource::new(v.clone()).unwrap();
+        assert_eq!(reason(source_combine(&[(1.0, CombinationOperand::Retained(&a)), (1.0, CombinationOperand::Prepared(&p))])),
+            CombinationReason::OperandsDiffer, "{what}: prepared");
+        let s = selected_source(v);
+        assert_eq!(reason(source_combine(&[(1.0, CombinationOperand::Retained(&s)), (1.0, CombinationOperand::Retained(&a))])),
+            CombinationReason::OperandsDiffer, "{what}: selected");
+    }
+    // Equal ids alone do not pass: the same station id at another fraction differs.
+    let p = PreparedCaseSource::new(cantilever(0.75, &[1])).unwrap();
+    assert_eq!(p.source().stations()[0].id, a.source().stations()[0].id);
+}
+#[test]
+fn b2k_k04_unrecorded_all_prepared_is_no_selected_operand_after_the_native_checks() {
+    let a = selected("N05");
+    let (pa, pb, po) = (PreparedCaseSource::new(models::model("N05").source()).unwrap(),
+        PreparedCaseSource::new(models::model("N05-TRANSVERSE").source()).unwrap(),
+        PreparedCaseSource::new(models::model("N06").source()).unwrap());
+    let reason = |o: CombinationOutcome| match o {
+        CombinationOutcome::Unresolved { reason, attempts } => { assert!(attempts.is_empty()); reason } other => panic!("{other:?}") };
+    let c = combined(&[(1.0, a.as_ref())]);
+    assert_eq!(reason(source_combine(&[])), CombinationReason::NoOperands);
+    assert_eq!(reason(source_combine(&[(f64::INFINITY, CombinationOperand::Prepared(&pa))])), CombinationReason::NoOperands);
+    assert_eq!(reason(source_combine(&[(1.0, CombinationOperand::Retained(&c)), (1.0, CombinationOperand::Prepared(&pa))])),
+        CombinationReason::NestedCombination);
+    assert_eq!(reason(source_combine(&[(1.0, CombinationOperand::Prepared(&pa)), (1.0, CombinationOperand::Prepared(&po))])),
+        CombinationReason::OperandsDiffer);
+    assert_eq!(reason(source_combine(&[(1.0, CombinationOperand::Prepared(&pa)), (1.0, CombinationOperand::Prepared(&pb))])),
+        CombinationReason::NoSelectedOperand);
+    let mut meter = InvocationMeter::new(u64::MAX);
+    let recorded = RetainedCombination::solve_sources_recorded(&[(1.0, CombinationOperand::Prepared(&pa))], unlimited(), &mut meter);
+    assert!(matches!(recorded, RecordedCombination::PreSourceRefusal { outcome: CombinationOutcome::Unresolved {
+        reason: CombinationReason::NoSelectedOperand, .. }, invocation_before, invocation_after } if invocation_before == invocation_after));
+    assert_eq!(meter.charged(), 0);
+}
+fn parts_of(s: &PrimitiveSource) -> SourceParts {
+    SourceParts { nodes: s.nodes().to_vec(), members: s.members().to_vec(), springs: s.springs().to_vec(),
+        directional_springs: s.directional_springs().to_vec(), constraints: s.constraints().to_vec(),
+        loads: s.loads().to_vec(), stations: s.stations().to_vec(), supports: s.supports().to_vec() }
+}

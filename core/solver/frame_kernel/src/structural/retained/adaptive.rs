@@ -944,6 +944,33 @@ impl From<LedgerRefusal> for CombinationPreparationError {
     }
 }
 
+/// B2-K (KD §1.2, I1): a case's precision-independent preparation only, exactly
+/// `CasePrep::new(source)` as `solve_cases` builds it. No solve, factor, group,
+/// cache, verification report or radius; immutable behind its `Arc`. It names a
+/// combination operand that is not a selected solve (an unavailable case's
+/// rebuilt source, or a `not_required` case's operand preparation).
+#[derive(Debug)]
+pub struct PreparedCaseSource {
+    prep: Arc<CasePrep>,
+}
+impl PreparedCaseSource {
+    /// `CasePrep::new`'s only failure is the ledger's: the same `LedgerRefusal`
+    /// that `solve_cases` reports as `Refusal::LedgerUnavailable`.
+    pub fn new(source: PrimitiveSource) -> Result<Self, LedgerRefusal> {
+        Ok(Self { prep: Arc::new(CasePrep::new(source)?) })
+    }
+    pub fn source(&self) -> &PrimitiveSource {
+        &self.prep.source
+    }
+    /// The full K4SRC bytes (`source.encoding()`), never a digest.
+    pub fn identity(&self) -> &[u8] {
+        &self.prep.identity
+    }
+    pub(crate) fn prep(&self) -> &CasePrep {
+        &self.prep
+    }
+}
+
 impl CasePrep {
     pub(crate) fn new(source: PrimitiveSource) -> Result<Self, LedgerRefusal> {
         let ledger = RetainedLedger::from_source(&source)?;
@@ -5356,9 +5383,8 @@ impl RetainedSolve {
         }
         self.validate_publication_owner_spent(identity, precision, &mut work.visits)?;
         work.visit(0)?;
-        if !self.prep.factors.is_empty() {
-            return Err(SourceBridgeViewIssue::UnsupportedCombination);
-        }
+        // B2-K (KD §3.2): a combination owner is checked at the prescriptions
+        // below (P2), not refused here.
         let p = precision
             .checked_mul(2)
             .ok_or(SourceBridgeViewIssue::CountRange)?;
@@ -5483,16 +5509,41 @@ impl RetainedSolve {
         if self.prep.prescribed.len() != source.constraints().len() {
             return Err(CertificateIssue::PairIdentity.into());
         }
-        for ((g, terms), c) in self.prep.prescribed.iter().zip(source.constraints()) {
-            work.visit(1)?;
-            if *g != c.dof.global()
-                || terms.len() != 1
-                || terms[0].0.to_bits() != 1f64.to_bits()
-                || terms[0].1.to_bits() != c.value.to_bits()
-            {
-                return Err(CertificateIssue::PairIdentity.into());
+        if self.prep.factors.is_empty() {
+            for ((g, terms), c) in self.prep.prescribed.iter().zip(source.constraints()) {
+                work.visit(1)?;
+                if *g != c.dof.global()
+                    || terms.len() != 1
+                    || terms[0].0.to_bits() != 1f64.to_bits()
+                    || terms[0].1.to_bits() != c.value.to_bits()
+                {
+                    return Err(CertificateIssue::PairIdentity.into());
+                }
+                prescribed[*g] = c.value != 0.0;
             }
-            prescribed[*g] = c.value != 0.0;
+        } else {
+            // B2-K (KD §3.2): a combination owner's terms are its factors' bits
+            // in order (else PairIdentity, as for a case), and under P2 every
+            // term's value is exactly +0.0 (RV115 N-3: compared by bits), else
+            // UnsupportedCombination. Each DOF's and term's visit is booked
+            // before its check (N-8). The prescribed flags stay all false: the
+            // exact sign of every combined value is zero, as the native
+            // verification's own predicate finds.
+            for ((g, terms), c) in self.prep.prescribed.iter().zip(source.constraints()) {
+                work.visit(1)?;
+                if *g != c.dof.global() || terms.len() != self.prep.factors.len() {
+                    return Err(CertificateIssue::PairIdentity.into());
+                }
+                for (term, factor) in terms.iter().zip(&self.prep.factors) {
+                    work.visit(1)?;
+                    if term.0.to_bits() != factor.to_bits() {
+                        return Err(CertificateIssue::PairIdentity.into());
+                    }
+                    if term.1.to_bits() != 0f64.to_bits() {
+                        return Err(SourceBridgeViewIssue::UnsupportedCombination);
+                    }
+                }
+            }
         }
         let mut data = vec![false; blocks.len()];
         work.data_capacity=data.capacity();
