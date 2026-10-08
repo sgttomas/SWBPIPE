@@ -1,0 +1,1494 @@
+{
+ "base_panic_sites": {
+  "b:ratio": 6,
+  "g:ratio": 682,
+  "interpolate": 904,
+  "q:ratio": 2955,
+  "ratio": 3893,
+  "step": 1080,
+  "t:interpolate": 904,
+  "t:ratio": 250,
+  "t:step": 1080
+ },
+ "cand_lines": 626721,
+ "counts": {
+  "I_identical": 501588,
+  "I_total": 501588,
+  "P_base_panic_now_blocked": 5877,
+  "P_base_panic_with_earlier_findings": 307,
+  "P_identical": 114086,
+  "P_identical_blocked": 80610,
+  "P_total": 125133,
+  "prior:DuplicateBinding": 10,
+  "prior:DuplicateBinding,MissingRequiredValue": 1,
+  "prior:DuplicateBinding,NonFiniteInput,StatusBoundaryViolation": 3,
+  "prior:DuplicateBinding,StatusBoundaryViolation": 6,
+  "prior:MissingRequiredValue": 3,
+  "prior:MissingRequiredValue,NonFiniteInput": 4,
+  "prior:MissingRequiredValue,NonFiniteInput,StatusBoundaryViolation": 3,
+  "prior:MissingRequiredValue,StatusBoundaryViolation": 4,
+  "prior:NonFiniteInput": 116,
+  "prior:NonFiniteInput,StatusBoundaryViolation": 29,
+  "prior:NonFiniteInput,UnsupportedGrammarVersion": 2,
+  "prior:StatusBoundaryViolation": 119,
+  "prior:StatusBoundaryViolation,UnsupportedGrammarVersion": 1,
+  "prior:UnsupportedGrammarVersion": 6
+ },
+ "examples": {
+  "interpolate": [
+   {
+    "base": "PANIC(in-range interpolation always has a bracketing pair)",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"t_reg\", message: \"table argument must be finite: a NaN argument is neither inside nor outside the table range\" }] }",
+    "label": "t_0_0_4_5_0"
+   },
+   {
+    "base": "PANIC(in-range interpolation always has a bracketing pair)",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"t_reg\", message: \"table argument must be finite: a NaN argument is neither inside nor outside the table range\" }] }",
+    "label": "t_0_0_4_5_1"
+   },
+   {
+    "base": "PANIC(in-range interpolation always has a bracketing pair)",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"s\", \"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"t_reg\", message: \"table argument must be finite: a NaN argument is neither inside nor outside the table range\" }] }",
+    "label": "t_0_0_4_5_2"
+   }
+  ],
+  "ratio": [
+   {
+    "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+    "label": "q_vv_0_9_2"
+   },
+   {
+    "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: -inf })",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+    "label": "q_vv_0_9_3"
+   },
+   {
+    "base": "PANIC(ratio unit reference is non-empty: NonFiniteInput { name: \"quantity\", value: inf })",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+    "label": "q_vv_0_10_2"
+   }
+  ],
+  "step": [
+   {
+    "base": "PANIC(in-range step lookup always has a governing row)",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"t_reg\", message: \"table argument must be finite: a NaN argument is neither inside nor outside the table range\" }] }",
+    "label": "t_0_1_4_5_0"
+   },
+   {
+    "base": "PANIC(in-range step lookup always has a governing row)",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"t_reg\", message: \"table argument must be finite: a NaN argument is neither inside nor outside the table range\" }] }",
+    "label": "t_0_1_4_5_1"
+   },
+   {
+    "base": "PANIC(in-range step lookup always has a governing row)",
+    "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"s\", \"z\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"t_reg\", message: \"table argument must be finite: a NaN argument is neither inside nor outside the table range\" }] }",
+    "label": "t_0_1_4_5_2"
+   }
+  ]
+ },
+ "lines": 626721,
+ "unexpected": [
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_9_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_9_3",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_10_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_10_3",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_11_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_11_3",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_12_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_12_3",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_12_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_13_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_13_3",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_13_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_14_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_14_3",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_14_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_15_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_15_3",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_16_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_16_3",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_17_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_17_3",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_17_4",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_17_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_17_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_17_7",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_18_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_18_3",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_18_4",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_18_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_18_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_18_7",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_18_8",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_19_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_19_3",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_19_4",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_19_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_19_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_19_7",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_19_8",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_20_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_20_3",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_20_4",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_20_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_20_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_20_7",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_20_8",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_20_9",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_21_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_21_3",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_21_4",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_21_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_21_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_21_7",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_21_8",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_21_9",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_21_15",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_22_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_22_3",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_22_4",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_22_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_22_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_22_7",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_22_8",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_22_9",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_22_15",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_23_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_23_3",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_23_4",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_23_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_23_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_23_7",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_23_8",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_vv_3_23_9",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_0_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_0_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_1_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_1_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_2_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_2_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_3_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_3_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_4_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_4_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_5_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_5_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_6_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_6_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_7_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_7_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_8_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_2_8_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_0_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_0_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_1_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_1_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_2_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_2_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_3_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_3_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_4_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_4_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_5_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_5_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_6_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_6_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_7_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_7_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_8_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_3_8_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_0_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_0_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_1_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_1_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_2_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_2_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_3_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_3_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_4_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_4_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_5_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_5_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_6_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_6_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_7_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_7_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_8_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_4_8_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_0_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_0_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_1_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_1_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_2_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_2_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_3_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_3_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_4_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_4_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_5_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_5_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_6_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_6_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_7_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_7_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_8_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_0_5_8_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_1_3_0",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_1_3_1",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_1_3_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_1_4_0",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_1_4_1",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_1_4_2",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_0_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_0_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_1_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_1_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_2_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_2_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_3_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_3_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_4_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_4_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_5_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_5_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_6_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_6_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_7_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_7_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_8_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_2_8_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_0_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_0_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_1_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_1_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_2_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_2_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_3_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_3_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_4_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_4_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_5_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_5_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_6_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_6_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_7_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_7_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_8_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_3_8_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_4_0_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_4_0_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_4_1_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_4_1_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_4_2_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_4_2_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_4_3_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_4_3_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_4_3_7",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_4_4_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_4_4_6",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0xfff0000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: -inf, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_4_4_7",
+   "mode": "P",
+   "why": "non-panic input differs"
+  },
+  {
+   "base": "0x7ff8000000000000|EvaluationResult { value: Some(Quantity(Quantity { value: NaN, dimension: Dimensionless, unit_ref: \"ratio\", unit_required: true, dimension_check_required: true })), statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [] }",
+   "cand": "none|EvaluationResult { value: None, statuses: [MechanicsSolved], source_variable_ids: [\"a\", \"b\"], findings: [EvaluationFinding { code: NonFiniteInput, subject_id: \"divide\", message: \"same-dimension quotient (ratio) must be finite\" }] }",
+   "label": "q_ff_3_1_4_5_5",
+   "mode": "P",
+   "why": "non-panic input differs"
+  }
+ ],
+ "unexpected_count": 5170
+}

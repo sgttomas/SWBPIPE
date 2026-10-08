@@ -1,0 +1,19 @@
+== cand_reg_pp start 2026-10-07T18:39:14Z
+== cand_reg_pp exit=101 2026-10-07T18:42:13Z
+cand_reg_pp: 735 ok, 1 failed, 11 ignored
+src/lib.rs :: test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+== cand_stale_pp start 2026-10-07T18:42:13Z
+== cand_stale_pp exit=101 2026-10-07T18:46:48Z
+cand_stale_pp: 735 ok, 1 failed, 11 ignored
+src/lib.rs :: test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+== cand_reg_runner start 2026-10-07T18:46:49Z
+== cand_reg_runner exit=101 2026-10-07T18:50:31Z
+cand_reg_runner: 85 ok, 2 failed, 0 ignored
+src/lib.rs :: test load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes ... FAILED
+tests/load_reference_cli.rs :: test cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route ... FAILED
+== cand_reg_re_carriers start 2026-10-07T18:50:32Z
+== cand_reg_re_carriers exit=0 2026-10-07T19:07:59Z
+cand_reg_re_carriers: 17 ok, 0 failed, 0 ignored
+== cand_reg_witness start 2026-10-07T19:07:59Z
+== cand_reg_witness exit=0 2026-10-07T19:09:51Z
+cand_reg_witness: 0 ok, 0 failed, 0 ignored

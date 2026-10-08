@@ -1,0 +1,137 @@
+{
+ "base": "bfb26596bf81a90f98bfde06051f9a3b9907783a",
+ "checks": {
+  "check1": {
+   "detail": "PR non-execution paths equal S",
+   "pass": true
+  },
+  "check2": {
+   "detail": "11 paths identical in blob and mode",
+   "pass": true
+  },
+  "check3": {
+   "detail": {
+    "rules_not_needed": [
+     "projects/chirality-piping/core/analysis_runs/compatibility.py"
+    ]
+   },
+   "pass": true
+  },
+  "check4": {
+   "detail": {
+    "execution_files": 4,
+    "outside_package": [],
+    "sha256_mismatch": []
+   },
+   "pass": true
+  },
+  "check5": {
+   "detail": "11 rows; 11 equal; 0 recorded three-way merge(s); unexplained []",
+   "pass": true
+  }
+ },
+ "int": "a7de2a918ff3332133ce1f9d06e205fb87aae3d9",
+ "main": "025c1cf326f1b9ef827626f27d0e2b9cf5b415fe",
+ "pr": "1199726f695f92ddeccc36f7b47079dedf5b9854",
+ "table": [
+  {
+   "equal": true,
+   "int_blob": "d89dda2e12411102186c69767a701aac0f113268",
+   "int_last_commit": "5e38293530720a3519839baabd72bede87d880ea",
+   "mode": "100644",
+   "path": "projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts",
+   "pr_blob": "d89dda2e12411102186c69767a701aac0f113268",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "dae4235093aae4ff40146875bb5d4e4fdd2df2a1",
+   "int_last_commit": "5e38293530720a3519839baabd72bede87d880ea",
+   "mode": "100644",
+   "path": "projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts",
+   "pr_blob": "dae4235093aae4ff40146875bb5d4e4fdd2df2a1",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "01823af54b1a6bd5e515bc9c5e07988aef26d1f9",
+   "int_last_commit": "a79dbd2e4acf013c984023916be765c69096db56",
+   "mode": "100644",
+   "path": "projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx",
+   "pr_blob": "01823af54b1a6bd5e515bc9c5e07988aef26d1f9",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "edc8c77bb7f782530ebd4b2838ad6009357870fc",
+   "int_last_commit": "a79dbd2e4acf013c984023916be765c69096db56",
+   "mode": "100644",
+   "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+   "pr_blob": "edc8c77bb7f782530ebd4b2838ad6009357870fc",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "63ccfb9358968ce9998a3d020b73e7cd15ea061d",
+   "int_last_commit": "a79dbd2e4acf013c984023916be765c69096db56",
+   "mode": "100644",
+   "path": "projects/chirality-piping/core/analysis_runs/retained_precision.py",
+   "pr_blob": "63ccfb9358968ce9998a3d020b73e7cd15ea061d",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "e149ae2b8b5c4b55de76f878da8957ffbcf4533f",
+   "int_last_commit": "a79dbd2e4acf013c984023916be765c69096db56",
+   "mode": "100644",
+   "path": "projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs",
+   "pr_blob": "e149ae2b8b5c4b55de76f878da8957ffbcf4533f",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "bedf0fe1bf18ab0d6c5cf989d69b6afe78140d76",
+   "int_last_commit": "a7de2a918ff3332133ce1f9d06e205fb87aae3d9",
+   "mode": "100644",
+   "path": "projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs",
+   "pr_blob": "bedf0fe1bf18ab0d6c5cf989d69b6afe78140d76",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "28629c11c96984eaeaeb48ff84692c71833ed44d",
+   "int_last_commit": "a79dbd2e4acf013c984023916be765c69096db56",
+   "mode": "100644",
+   "path": "projects/chirality-piping/fixtures/results/retained_precision_carrier_cases.json",
+   "pr_blob": "28629c11c96984eaeaeb48ff84692c71833ed44d",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "47d8b327ef5c0f91bcad61e78567e984b88e03c3",
+   "int_last_commit": "5e38293530720a3519839baabd72bede87d880ea",
+   "mode": "100644",
+   "path": "projects/chirality-piping/fixtures/results/retained_precision_cases.json",
+   "pr_blob": "47d8b327ef5c0f91bcad61e78567e984b88e03c3",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "80155f9e3c17f33657f77bf53f2b1838da6b3f12",
+   "int_last_commit": "a79dbd2e4acf013c984023916be765c69096db56",
+   "mode": "100644",
+   "path": "projects/chirality-piping/tests/test_retained_precision_carriers.py",
+   "pr_blob": "80155f9e3c17f33657f77bf53f2b1838da6b3f12",
+   "resolution": null
+  },
+  {
+   "equal": true,
+   "int_blob": "58469c711016e2a38fbfe9e70f15df3b16f9a7a2",
+   "int_last_commit": "5e38293530720a3519839baabd72bede87d880ea",
+   "mode": "100644",
+   "path": "projects/chirality-piping/tests/test_retained_precision_contract.py",
+   "pr_blob": "58469c711016e2a38fbfe9e70f15df3b16f9a7a2",
+   "resolution": null
+  }
+ ]
+}

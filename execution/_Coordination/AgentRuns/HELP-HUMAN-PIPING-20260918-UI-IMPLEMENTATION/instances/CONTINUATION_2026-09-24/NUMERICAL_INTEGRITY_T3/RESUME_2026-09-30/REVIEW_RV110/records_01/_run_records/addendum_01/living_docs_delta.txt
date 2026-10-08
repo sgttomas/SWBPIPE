@@ -1,0 +1,14 @@
+I88 RETURN.md sha256: 7459391d847e9f51
+RV110 brief sha256 at H2: fa6586bdd1e66a0e
+si1c branch: 7f233b2e01; commits over 025c1cf326: 4;  5 files changed, 1271 insertions(+), 140 deletions(-)
+b1-r branch: d7c76de43f
+I90 at H2 (text): 21 lines
+I91 at H2 (text): 4 lines
+RV111 at H2 (text): 16 lines
+RV112 at H2 (text): 2 lines
+T3/RESUME_2026-09-30/REVIEW_RV110/records_01/REVIEW.md:366:  - I91 and RV111 occur nowhere;
+T3/RESUME_2026-09-30/REVIEW_RV110/records_01/_run_records/ids_check.txt:27:== I91: 0 lines
+T3/ROOT_RULINGS_V1.md:14206:**IDs:** RV111 and I90 are used. The next unused are **I91 and RV112**.
+WG:600:**Assignment IDs.** Dispatched 2026-10-06/07: I68–I90, RV97–RV99 and RV101–RV111 (RV100 was 2026-10-05's). Running: I85 (SP), I
+E-7 'ROOT's own check' recount: sum files added M..H2 and entries
+b1-r from I1: yes

@@ -3,7 +3,7 @@
   "parent": "/root",
   "role": "TASK Type 2",
   "mechanism": "native delegated child; no descendants",
-  "host": "Ryans-MacBook-Pro.local",
+  "host": "<host>",
   "first_cwd": "/Users/ryan/.codex/worktrees/92ea/chirality",
   "receipt_utc": "2026-10-03T19:05:58Z",
   "recorded_utc": "2026-10-03T19:06:50.252463+00:00",

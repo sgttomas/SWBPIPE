@@ -1,6 +1,6 @@
 # I58 return — frozen partial reader recovery
 
-At ROOT's owner-directed graceful-close instruction, source froze at 2026-10-03T19:14:11Z. This is a recoverable partial component, not reader acceptance. TASK Type 2 /root/i58_python_shared ran directly under ROOT with no descendants. Receipt was 2026-10-03T19:05:58Z on Ryans-MacBook-Pro.local; initial cwd and exact origins are in RECEIPT.json. No Git/index/API writes, Cargo, solver, install, new host tool, protected-oracle edit or public activation occurred. All launched runtime was reaped.
+At ROOT's owner-directed graceful-close instruction, source froze at 2026-10-03T19:14:11Z. This is a recoverable partial component, not reader acceptance. TASK Type 2 /root/i58_python_shared ran directly under ROOT with no descendants. Receipt was 2026-10-03T19:05:58Z on <host>; initial cwd and exact origins are in RECEIPT.json. No Git/index/API writes, Cargo, solver, install, new host tool, protected-oracle edit or public activation occurred. All launched runtime was reaped.
 
 ## Frozen result
 

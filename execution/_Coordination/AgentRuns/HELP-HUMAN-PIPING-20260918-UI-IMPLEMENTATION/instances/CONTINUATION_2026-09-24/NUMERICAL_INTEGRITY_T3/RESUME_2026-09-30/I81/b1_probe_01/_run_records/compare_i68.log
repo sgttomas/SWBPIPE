@@ -1,0 +1,15 @@
+first_load_only            dense_scrutiny     input 4f0ad6b78778.. I68 Err(Candidate) | I81 Err(Candidate) | IDENTICAL plain+published+cause+notices
+first_load_only            sparse_interactive input 4f0ad6b78778.. I68 Err(Candidate) | I81 Err(Candidate) | IDENTICAL plain+published+cause+notices
+l0_isolated_node           dense_scrutiny     input 5e5628563134.. I68 Ok(successor) | I81 Ok(successor) | IDENTICAL plain+published+cause+notices
+l0_isolated_node           sparse_interactive input 5e5628563134.. I68 Ok(successor) | I81 Ok(successor) | IDENTICAL plain+published+cause+notices
+milestone                  dense_scrutiny     input 8d1967a756b0.. I68 Ok(successor) | I81 Ok(successor) | IDENTICAL plain+published+cause+notices
+milestone                  sparse_interactive input 8d1967a756b0.. I68 Ok(successor) | I81 Ok(successor) | IDENTICAL plain+published+cause+notices
+tiny_spring                dense_scrutiny     input 1ab95acc2a0a.. I68 Err(Preparation) | I81 Err(Preparation) | IDENTICAL plain+published+cause+notices
+tiny_spring                sparse_interactive input 1ab95acc2a0a.. I68 Err(Preparation) | I81 Err(Preparation) | IDENTICAL plain+published+cause+notices
+two_body_a                 dense_scrutiny     input ec6c8e65d67d.. I68 Err(Precommit { gate: "G8", code: "RETAINED_PRECISION_PREPARATION_MISMATCH" }) | I81 Err(Precommit { gate: "G8", code: "RETAINED_PRECISION_PREPARATION_MISMATCH" }) | IDENTICAL plain+published+cause+notices
+two_body_a                 sparse_interactive input ec6c8e65d67d.. I68 Ok(successor) | I81 Ok(successor) | IDENTICAL plain+published+cause+notices
+two_body_b                 dense_scrutiny     input cf688351686b.. I68 Err(Native) | I81 Err(Native) | IDENTICAL plain+published+cause+notices
+two_body_b                 sparse_interactive input cf688351686b.. I68 Err(Native) | I81 Err(Native) | IDENTICAL plain+published+cause+notices
+w6                         dense_scrutiny     input 19a424c5ff06.. I68 Err(Native) | I81 Err(Native) | IDENTICAL plain+published+cause+notices
+w6                         sparse_interactive input 19a424c5ff06.. I68 Err(Native) | I81 Err(Native) | IDENTICAL plain+published+cause+notices
+shared inputs: 14

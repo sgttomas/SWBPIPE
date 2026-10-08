@@ -1,0 +1,16 @@
+head: 736f3fb7b27154732b27b716152d7446e321acf9
+status entries before: 0
+python: Python 3.13.14
+pytest: pytest 9.1.1
+cmd: VENV -m pytest -q -p no:cacheprovider -rA tools/practitioner_harness/test_live_baseline.py -k gen8
+cwd: records-PR checkout root (WT/records-pr)
+start: 2026-10-07T00:22:47Z
+.                                                                        [100%]
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants
+1 passed, 10 deselected in 29.48s
+exit: 0
+end: 2026-10-07T00:23:17Z
+head after: 736f3fb7b27154732b27b716152d7446e321acf9
+status entries after: 0

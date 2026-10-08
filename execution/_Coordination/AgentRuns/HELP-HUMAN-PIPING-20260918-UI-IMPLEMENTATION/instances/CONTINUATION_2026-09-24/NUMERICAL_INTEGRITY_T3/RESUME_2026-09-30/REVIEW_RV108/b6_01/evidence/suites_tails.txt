@@ -1,0 +1,102 @@
+=== rs_base.log (test result lines)
+     Running unittests src/lib.rs (WT/targets/rv108-b6/rx/debug/deps/open_pipe_stress_result_export-efeb63d2e8cb4b25)
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+     Running tests/derivative_contract.rs (WT/targets/rv108-b6/rx/debug/deps/derivative_contract-dd9b725c437ac2ef)
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+     Running tests/load_reference_contract.rs (WT/targets/rv108-b6/rx/debug/deps/load_reference_contract-b6ca072af93c814b)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.45s
+     Running tests/load_reference_source_contract.rs (WT/targets/rv108-b6/rx/debug/deps/load_reference_source_contract-b1578415f5b0fd5d)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.91s
+     Running tests/physics_contract.rs (WT/targets/rv108-b6/rx/debug/deps/physics_contract-79a0a65a19fad718)
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.96s
+     Running tests/physics_source_contract.rs (WT/targets/rv108-b6/rx/debug/deps/physics_source_contract-06ffdd2b3f04e058)
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.27s
+     Running tests/precision_contract.rs (WT/targets/rv108-b6/rx/debug/deps/precision_contract-a84df84a6e7c648c)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+     Running tests/preview_physics_contract.rs (WT/targets/rv108-b6/rx/debug/deps/preview_physics_contract-292690358de2523e)
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.32s
+     Running tests/retained_precision_carriers.rs (WT/targets/rv108-b6/rx/debug/deps/retained_precision_carriers-308663d819d0e084)
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 33.28s
+     Running tests/retained_precision_contract.rs (WT/targets/rv108-b6/rx/debug/deps/retained_precision_contract-8601a37812e38b5b)
+test result: ok. 63 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.31s
+     Running tests/retained_precision_derivative_golden.rs (WT/targets/rv108-b6/rx/debug/deps/retained_precision_derivative_golden-883586b2e404c070)
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.11s
+     Running tests/source_blocks.rs (WT/targets/rv108-b6/rx/debug/deps/source_blocks-0dd037f70b86da46)
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.90s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+=== rs_cand.log (test result lines)
+     Running unittests src/lib.rs (WT/targets/rv108-b6/rx/debug/deps/open_pipe_stress_result_export-132e308dfa9ffca7)
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+     Running tests/derivative_contract.rs (WT/targets/rv108-b6/rx/debug/deps/derivative_contract-3defec05e2ca6546)
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+     Running tests/load_reference_contract.rs (WT/targets/rv108-b6/rx/debug/deps/load_reference_contract-7b034204f5dd91a3)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.52s
+     Running tests/load_reference_source_contract.rs (WT/targets/rv108-b6/rx/debug/deps/load_reference_source_contract-42d093a1bcb60b07)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.61s
+     Running tests/physics_contract.rs (WT/targets/rv108-b6/rx/debug/deps/physics_contract-bc478f38d1d4f8a5)
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.97s
+     Running tests/physics_source_contract.rs (WT/targets/rv108-b6/rx/debug/deps/physics_source_contract-5569fed01d9a5803)
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.30s
+     Running tests/precision_contract.rs (WT/targets/rv108-b6/rx/debug/deps/precision_contract-89572f6848f9ebcb)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+     Running tests/preview_physics_contract.rs (WT/targets/rv108-b6/rx/debug/deps/preview_physics_contract-b3c628a5f038d35b)
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.29s
+     Running tests/retained_precision_carriers.rs (WT/targets/rv108-b6/rx/debug/deps/retained_precision_carriers-d0d1c610629f82f4)
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 33.09s
+     Running tests/retained_precision_contract.rs (WT/targets/rv108-b6/rx/debug/deps/retained_precision_contract-4955ebfc739fa334)
+test result: ok. 65 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.01s
+     Running tests/retained_precision_derivative_golden.rs (WT/targets/rv108-b6/rx/debug/deps/retained_precision_derivative_golden-b6c1a660fd7f11e9)
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.10s
+     Running tests/source_blocks.rs (WT/targets/rv108-b6/rx/debug/deps/source_blocks-c58c5e22b9223219)
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.57s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+=== vitest_base.log (tail)
+··
+ Test Files  141 passed (141)
+      Tests  3612 passed (3612)
+   Start at  22:33:27
+   Duration  74.67s (transform 19.12s, setup 6.34s, import 34.64s, tests 380.71s, environment 27.47s)
+JSON report written to S/logs/vitest_base.json
+=== vitest_cand.log (tail)
+··
+ Test Files  141 passed (141)
+      Tests  3620 passed (3620)
+   Start at  22:35:43
+   Duration  74.92s (transform 19.11s, setup 6.33s, import 34.32s, tests 375.76s, environment 26.85s)
+JSON report written to S/logs/vitest_cand.json
+=== tsc_base.log (       0 bytes)
+=== tsc_cand.log (       0 bytes)
+=== py_base.log (tail)
+
+- generated xml file: S/logs/py_base.xml -
+================= 1896 passed, 30 skipped in 838.20s (0:13:58) =================
+=== py_cand.log (tail)
+
+- generated xml file: S/logs/py_cand.xml -
+================= 1922 passed, 30 skipped in 770.76s (0:12:50) =================
+=== progress
+2026-10-07T04:24:08Z start clis
+2026-10-07T04:25:02Z checked-json rc=0
+2026-10-07T04:26:46Z units rc=0
+2026-10-07T04:26:46Z start rs-base
+2026-10-07T04:29:18Z rs base rc=0
+2026-10-07T04:29:18Z start rs-cand
+2026-10-07T04:31:30Z rs cand rc=0
+2026-10-07T04:31:30Z all done: clis rs-base rs-cand
+2026-10-07T04:32:47Z start ts-base
+2026-10-07T04:34:42Z ts base rc=0
+2026-10-07T04:34:42Z start ts-cand
+2026-10-07T04:36:58Z ts cand rc=0
+2026-10-07T04:36:58Z start tsc-base
+2026-10-07T04:38:03Z tsc base rc=0
+2026-10-07T04:38:03Z start tsc-cand
+2026-10-07T04:38:45Z tsc cand rc=0
+2026-10-07T04:38:45Z start py-base
+2026-10-07T04:52:50Z py base rc=1
+2026-10-07T04:52:50Z start py-cand
+2026-10-07T04:54:23Z stopped my own runner2 during py-cand (execution/ fixtures missing from the copies; 19 env failures at base); re-running
+2026-10-07T04:54:26Z start py-base
+2026-10-07T05:13:05Z py base rc=0
+2026-10-07T05:13:05Z start py-cand
+2026-10-07T05:30:25Z py cand rc=0
+2026-10-07T05:30:25Z all done: py-base py-cand

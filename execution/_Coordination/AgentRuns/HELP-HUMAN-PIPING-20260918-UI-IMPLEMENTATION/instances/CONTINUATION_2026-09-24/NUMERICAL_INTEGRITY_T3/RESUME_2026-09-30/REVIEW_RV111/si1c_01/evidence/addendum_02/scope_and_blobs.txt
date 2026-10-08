@@ -1,0 +1,40 @@
+PR head b8bc059e356e240e0d5bda9f18d6c22f4bf12332; main e33f3e2f1b0a0271da3ef4db8521b3981257b5ce; slice f5665f8862959b7a862d7d69543718f1d7240148; NUM 52c36a03d390d6b6926c1e226ca219a8af186d6a
+
+git diff --name-status main..PR:
+M	projects/chirality-piping/core/rules/expression_evaluator/README.md
+M	projects/chirality-piping/core/rules/expression_evaluator/src/lib.rs
+M	projects/chirality-piping/core/rules/rule_check_runner/src/lib.rs
+M	projects/chirality-piping/core/rules/rule_check_runner/tests/point_path_non_finite_run.rs
+A	T/IMPLEMENTATION/SI1C/CHANGE_RECORD.md
+A	T/IMPLEMENTATION/SI1C/PR_BODY.md
+A	T/IMPLEMENTATION/SI1C/SHA256SUMS
+A	T/IMPLEMENTATION/SI1C/citations.json
+M	projects/chirality-piping/tests/test_rule_interval.py
+
+git diff --numstat main..PR (slice):
+9	2	projects/chirality-piping/core/rules/expression_evaluator/README.md
+823	139	projects/chirality-piping/core/rules/expression_evaluator/src/lib.rs
+87	4	projects/chirality-piping/core/rules/rule_check_runner/src/lib.rs
+534	11	projects/chirality-piping/core/rules/rule_check_runner/tests/point_path_non_finite_run.rs
+23	5	projects/chirality-piping/tests/test_rule_interval.py
+
+blob at PR / at f5665f8862 / at main e33f3e2f1b / at 025c1cf326:
+core/rules/expression_evaluator/README.md d31e63d06b602fc33ec3487e0475a5f404364539 d31e63d06b602fc33ec3487e0475a5f404364539 cbe5367e33340ee205eadf8d0c5f4ad3aaed921d cbe5367e33340ee205eadf8d0c5f4ad3aaed921d
+core/rules/expression_evaluator/src/lib.rs 55a1f42bc47b772f83dce5e9165c94014ca3a0ec 55a1f42bc47b772f83dce5e9165c94014ca3a0ec 2c72a54e9f3ae45f1bbeca660233a6e608b3047e 2c72a54e9f3ae45f1bbeca660233a6e608b3047e
+core/rules/rule_check_runner/src/lib.rs 39e37d4d2ac1b52bb64ef4268f12ddd0dbda3f68 39e37d4d2ac1b52bb64ef4268f12ddd0dbda3f68 5bccfb772630744db70517565f3f9c409967d129 5bccfb772630744db70517565f3f9c409967d129
+core/rules/rule_check_runner/tests/point_path_non_finite_run.rs 204676ccf59a4b03a59f8e48cc68f33b2abd0c4e 204676ccf59a4b03a59f8e48cc68f33b2abd0c4e 4bb26a94df025b9ebd0470ade662422c42ff4f07 4bb26a94df025b9ebd0470ade662422c42ff4f07
+tests/test_rule_interval.py febe50351f7917925ca660635f2b8e12ba0f2a62 febe50351f7917925ca660635f2b8e12ba0f2a62 3bc66933733b6250b8b49f744e8c669dc2d58c0b 3bc66933733b6250b8b49f744e8c669dc2d58c0b
+
+package blob at PR / at NUM 52c36a03d3:
+CHANGE_RECORD.md 58a277782fe3e78a687844eb8d2702d9e2ad763d 58a277782fe3e78a687844eb8d2702d9e2ad763d
+PR_BODY.md 14dc85e55b70c471837305ab8e104a37ae9b85ef 14dc85e55b70c471837305ab8e104a37ae9b85ef
+SHA256SUMS cbea6f25fccc6fd4deb7237788e9bb74c80bc5cc cbea6f25fccc6fd4deb7237788e9bb74c80bc5cc
+citations.json ffb609b3afb2a3d72141fbcb27a47f692ab74719 ffb609b3afb2a3d72141fbcb27a47f692ab74719
+
+package SHA256SUMS on the PR's blobs:
+CHANGE_RECORD.md: OK
+PR_BODY.md: OK
+citations.json: OK
+
+I87 PLAN.md at citations num_commit 769d0d0f46 and at NUM 52c36a03d3: sha256 0eb2459d9018e22c...; headings: 125 '### 2.3 The consumers: ...', 152 '### 2.4 The comparison truth table (point path today)'
+tools: main's F2A_D1 source_equality.py and check_citations.py (blobs unchanged by the PR), run from a scratch copy

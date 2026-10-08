@@ -1,0 +1,6 @@
+gen8_whole	broad_whole	gen8_added	broad_added	status	path	broad_samples(added)
+0	1	0	1	A	R/REVIEW_RV110/records_01/REVIEW.md	174:~/dev
+0	2	0	2	A	R/REVIEW_RV110/records_01/_run_records/abs_paths_by_file.tsv	4:~/dev;128:/U-sers/<user>;129:/U-sers/<user>;5:~/dev;128:/U-sers/<user>;129:/U-sers/<user>
+0	2	0	2	A	R/REVIEW_RV110/records_01/_run_records/publication_hits.tsv	443:~/dev;128:/U-sers/<user>;129:/U-sers/<user>;444:~/dev;128:/U-ser
+0	2	0	0	M	T3/ROOT_RULINGS_V1.md	
+TOTAL	0	7	0	5

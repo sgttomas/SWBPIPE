@@ -1,0 +1,13 @@
+N-16 record by record at 03f55e7178 (the reviewer's probe; AttemptRecord's full Debug form, every field): each batch Run against its case's one-case Run
+abc sparse_interactive     case-a   batch Case(0)  terminal equal True, records 2/2; differing (precision, batch value): none
+abc sparse_interactive     case-c   batch Case(1)  terminal equal True, records 4/4; differing (precision, batch value): [('128', 'shared_built_here: false'), ('256', 'shared_built_here: false'), ('256', 'verification_shared_built_here: false')]
+abc dense_scrutiny         case-a   batch Case(0)  terminal equal True, records 2/2; differing (precision, batch value): none
+abc dense_scrutiny         case-c   batch Case(1)  terminal equal True, records 4/4; differing (precision, batch value): [('128', 'shared_built_here: false'), ('256', 'shared_built_here: false'), ('256', 'verification_shared_built_here: false')]
+cba sparse_interactive     case-c   batch Case(0)  terminal equal True, records 4/4; differing (precision, batch value): none
+cba sparse_interactive     case-a   batch Case(1)  terminal equal True, records 2/2; differing (precision, batch value): [('128', 'shared_built_here: false'), ('256', 'shared_built_here: false'), ('256', 'verification_shared_built_here: false')]
+cba dense_scrutiny         case-c   batch Case(0)  terminal equal True, records 4/4; differing (precision, batch value): none
+cba dense_scrutiny         case-a   batch Case(1)  terminal equal True, records 2/2; differing (precision, batch value): [('128', 'shared_built_here: false'), ('256', 'shared_built_here: false'), ('256', 'verification_shared_built_here: false')]
+aa2 sparse_interactive     case-a   batch Case(0)  terminal equal True, records 2/2; differing (precision, batch value): none
+aa2 sparse_interactive     case-a2  batch Case(1)  terminal equal True, records 2/2; differing (precision, batch value): [('128', 'shared_built_here: false'), ('256', 'shared_built_here: false'), ('256', 'verification_shared_built_here: false')]
+aa2 dense_scrutiny         case-a   batch Case(0)  terminal equal True, records 2/2; differing (precision, batch value): none
+aa2 dense_scrutiny         case-a2  batch Case(1)  terminal equal True, records 2/2; differing (precision, batch value): [('128', 'shared_built_here: false'), ('256', 'shared_built_here: false'), ('256', 'verification_shared_built_here: false')]

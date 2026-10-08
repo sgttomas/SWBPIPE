@@ -1,0 +1,50 @@
+{
+ "base": {
+  "summary": {
+   "numTotalTestSuites": 512,
+   "numPassedTestSuites": 512,
+   "numFailedTestSuites": 0,
+   "numTotalTests": 3626,
+   "numPassedTests": 3626,
+   "numFailedTests": 0,
+   "numPendingTests": 0,
+   "numTodoTests": 0,
+   "success": true
+  },
+  "statuses": {
+   "passed": 3626
+  }
+ },
+ "head": {
+  "summary": {
+   "numTotalTestSuites": 514,
+   "numPassedTestSuites": 514,
+   "numFailedTestSuites": 0,
+   "numTotalTests": 3629,
+   "numPassedTests": 3629,
+   "numFailedTests": 0,
+   "numPendingTests": 0,
+   "numTodoTests": 0,
+   "success": true
+  },
+  "statuses": {
+   "passed": 3629
+  }
+ },
+ "added": [
+  [
+   "src/features/results/retainedPrecision.test.ts :: B1 SR-TS repair 01: (g) at G8, and the C2 cause table keyed by precondition (g): the model-scope members are PP's acceptance, at G8 INVOCATION before any PREPARATION check; unbound reads admit them",
+   "passed"
+  ],
+  [
+   "src/features/results/retainedPrecision.test.ts :: B1 SR-TS repair 01: (g) at G8, and the C2 cause table keyed by precondition C2's cause table: an unavailable_precondition code is keyed one-to-one by its precondition (N-2); the receipt_failure set form stands",
+   "passed"
+  ],
+  [
+   "src/features/results/retainedPrecision.test.ts :: B1 SR-TS repair 01: the transport reading's base header at G2 (Rust's code), then its metadata at G7 the header at G2 with Rust's code, then the preview-physics metadata at G7; the raw path is unchanged",
+   "passed"
+  ]
+ ],
+ "removed": [],
+ "changed": []
+}

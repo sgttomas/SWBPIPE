@@ -1,0 +1,69 @@
+--- a/P/core/product_physics/src/ (main 0b6c5d7362) lib.rs	2026-10-07 17:39:30
++++ b/P/core/product_physics/src/ (probe copy) lib.rs	2026-10-07 17:41:41
+@@ -2991,6 +2991,7 @@
+     // The permit moves into the observer, which checks G-B with it.
+     let mut observer = retained_product::ProductCapture::permitted_probe(permit);
+     let ordinary = run_linear_static_preview_observed(request, solver_mode, Some(capture), &mut budget, Some(&mut observer));
++    #[cfg(test)] retained_memory::zz_i99_probe::seeds("permitted_run", &observer, &ordinary);
+     if source_finalization_failed(&ordinary) {
+         return Err("SOURCE_BLOCKS_FINALIZATION_FAILED".into());
+     }
+@@ -3118,9 +3119,10 @@
+     let Some(notice) = ReservedNotice::reserve(&mut ordinary, case_id) else {
+         return (ordinary, Err(W1Fallback::NoticeReservation));
+     };
++    #[cfg(test)] println!("I99_W1_START case={case_id}");
+     let mut prepared = match observer.prepare_case(ordinary) {
+         Ok(prepared) => prepared,
+-        Err(failure) => return notice.publish(failure.ordinary, W1Fallback::Preparation),
++        Err(failure) => { #[cfg(test)] println!("I99_PREPARATION_FAILURE error={:?} preparation_error={:?}", failure.capture.error, failure.preparation_error); return notice.publish(failure.ordinary, W1Fallback::Preparation) },
+     };
+     #[cfg(test)]
+     retained_tests_hooks::before_native(&mut prepared);
+@@ -3129,7 +3131,7 @@
+     }
+     let frozen = match prepared.freeze_candidate() {
+         Ok(frozen) => frozen,
+-        Err(refusal) => return notice.publish(refusal.ordinary, W1Fallback::Candidate),
++        Err(refusal) => { #[cfg(test)] { let e = format!("{:?}", refusal.error); let mut end = e.len().min(1500); while !e.is_char_boundary(end) { end -= 1; } println!("I99_CANDIDATE_REFUSAL len={} error={}", e.len(), &e[..end]); } return notice.publish(refusal.ordinary, W1Fallback::Candidate) },
+     };
+     // Staging: the overlay applies to a copy; the ordinary owner stays intact. A
+     // broken overlay invariant falls back typed (RV85 N6).
+@@ -3159,6 +3161,11 @@
+     #[cfg(test)]
+     retained_tests_hooks::before_precommit_invocation(&mut invocation);
+     if let Err(error) = open_pipe_stress_result_export::retained_precision::validate(&successor, Some(&invocation)) {
++        #[cfg(test)] { use sha2::Digest; println!("I99_PRECOMMIT_ERROR {:?}", error);
++            if let Ok(d) = std::env::var("I99_OUT") { let tag = format!("{:x}", sha2::Sha256::digest(serde_json::to_vec(&invocation).unwrap()));
++                let path = std::path::Path::new(&d).join(format!("precommit_refused_{}_{}.json", capture.mode().as_str(), &tag[..12]));
++                std::fs::write(&path, serde_json::to_vec_pretty(&serde_json::json!({"source": &successor, "invocation": &invocation})).unwrap()).unwrap();
++                println!("I99_PRECOMMIT_DUMP {}", path.file_name().unwrap().to_string_lossy()); } }
+         return notice.publish(frozen.into_ordinary(), W1Fallback::Precommit { gate: error.gate, code: error.code });
+     }
+     drop(invocation);
+--- a/P/core/product_physics/src/ (main 0b6c5d7362) retained_product.rs	2026-10-07 17:39:30
++++ b/P/core/product_physics/src/ (probe copy) retained_product.rs	2026-10-07 17:41:41
+@@ -3461,6 +3461,11 @@
+         let mut invocation=k::RecordedInvocation::new(60_000_000_000,cap).map_err(CaptureError::Origin)?;
+         let mut cases=invocation.solve_cases(std::slice::from_ref(source),k::CaseLimit::new(20_000_000_000)).map_err(CaptureError::Origin)?;
+         let case=cases.remove(0);
++        #[cfg(test)] { match &case.outcome {
++            k::ExecutionOutcome::Selected(_)=>println!("I99_NATIVE_OUTCOME Selected"),
++            k::ExecutionOutcome::Unresolved{reason,attempts,..}=>println!("I99_NATIVE_OUTCOME Unresolved reason={:?} attempts={:?}",reason,attempts.iter().map(|a|(a.precision,format!("{:?}",a.role),format!("{:?}",a.outcome))).collect::<Vec<_>>()),
++            k::ExecutionOutcome::Refused{refusal,attempts,..}=>println!("I99_NATIVE_OUTCOME Refused refusal={:?} attempts={:?}",refusal,attempts.iter().map(|a|(a.precision,format!("{:?}",a.role),format!("{:?}",a.outcome))).collect::<Vec<_>>()),
++        } }
+         let selected=matches!(case.outcome,k::ExecutionOutcome::Selected(_));
+         o.native=Some((invocation,case));
+         if selected {Ok(())} else {Err(CaptureError::NativeUnavailable)}
+--- a/P/core/product_physics/src/ (main 0b6c5d7362) retained_memory.rs	2026-10-07 17:39:30
++++ b/P/core/product_physics/src/ (probe copy) retained_memory.rs	2026-10-07 17:41:41
+@@ -2956,6 +2956,9 @@
+ #[cfg(test)]
+ #[path = "retained_memory_witness_tests.rs"]
+ mod witness_tests;
++#[cfg(test)]
++#[path = "zz_i99_probe.rs"]
++pub(super) mod zz_i99_probe;
+ 
+ #[cfg(test)]
+ pub(super) mod tests {

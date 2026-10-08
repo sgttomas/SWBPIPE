@@ -1,0 +1,53 @@
+M=bfb26596bf81a90f98bfde06051f9a3b9907783a
+H=736f3fb7b27154732b27b716152d7446e321acf9
+changed paths: 220
+lines scanned: 15409
+ghp_	198 hits	5 files
+gho_	198 hits	5 files
+ghs_/ghu_/ghr_	0 hits	0 files
+github_pat_	200 hits	6 files
+sk- (any)	209 hits	8 files
+sk- token-shaped	0 hits	0 files
+AKIA	201 hits	7 files
+PRIVATE KEY	196 hits	5 files
+password	202 hits	7 files
+secret	183 hits	6 files
+token=	145 hits	8 files
+Authorization:	61 hits	6 files
+Bearer	0 hits	0 files
+slack token	0 hits	0 files
+cred vars	7 hits	2 files
+api_key	9 hits	3 files
+email	1 hits	1 files
+owner name	1 hits	1 files
+Applications	5 hits	2 files
+apps	12 hits	6 files
+session ids	3 hits	2 files
+uuid	0 hits	0 files
+toolcall ids	0 hits	0 files
+transcripts	1 hits	1 files
+system paths	6 hits	2 files
+host names	6 hits	2 files
+ps headers	1 hits	1 files
+ps/pgrep/lsof	4 hits	4 files
+home path	3 hits	2 files
+tilde home	2 hits	2 files
+
+NOTE: publication_hits.tsv omits the 1744 hits inside RV103's own _run_records/publication_hits.tsv (scan vocabulary quoting RV102's pattern tables, summaries and review prose; every whole-host and personal-data category hit in it was read, and its credential-category hits are covered by the token-shape scan, which finds 0; see REVIEW.md section 2). Their counts by pattern:
+  sk- (any)	197
+  ghp_	194
+  gho_	194
+  github_pat_	194
+  AKIA	194
+  password	194
+  PRIVATE KEY	192
+  secret	174
+  token=	121
+  Authorization:	56
+  cred vars	6
+  api_key	6
+  apps	6
+  system paths	5
+  host names	5
+  Applications	4
+  session ids	2

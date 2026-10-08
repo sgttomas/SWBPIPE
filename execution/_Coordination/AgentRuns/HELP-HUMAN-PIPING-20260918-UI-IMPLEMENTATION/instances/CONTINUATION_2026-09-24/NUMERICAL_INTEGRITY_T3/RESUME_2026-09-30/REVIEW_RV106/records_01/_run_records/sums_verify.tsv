@@ -1,0 +1,32 @@
+folder	sumfile	entries	ok	bad	missing	uncovered	detail
+IMPLEMENTATION/T6S	SHA256SUMS	3	3	0	0		
+IMPLEMENTATION/T6S	(coverage, 1 sum files)					18	_draft_run_records/SHA256SUMS; _draft_run_records/outputs/check_briefmain_slicehead.out; _draft_run_records/outputs/check_main_num.out; _draft_run_records/outputs/check_slice.out; _draft_run_records/outputs/heads.txt; _draft_run_records/outputs/negative_controls.out; _draft_run_records/outputs/negative_controls/nc1_missing_entry.out; _draft_run_records/outputs/negative_controls/nc2_pin_before_rv101_records.out; _draft_run_records/outputs/negative_controls/nc3_wrong_num_path.out; _draft_run_records/outputs/passb_scope_scan.out; _draft_run_records/outputs/resolved.md; _draft_run_records/outputs/source_equality_precheck.txt
+IMPLEMENTATION/T6S/_draft_run_records	SHA256SUMS	17	17	0	0		
+IMPLEMENTATION/T6S/_draft_run_records	(coverage, 1 sum files)					0	
+IMPLEMENTATION/T6S_MERGE	SHA256SUMS	17	17	0	0		
+IMPLEMENTATION/T6S_MERGE	(coverage, 1 sum files)					0	
+IMPLEMENTATION/RECORDS_MERGE_2026-10-06B	SHA256SUMS	5	5	0	0		
+IMPLEMENTATION/RECORDS_MERGE_2026-10-06B	(coverage, 1 sum files)					0	
+IMPLEMENTATION/U8_MERGE	SHA256SUMS	28	28	0	0		
+IMPLEMENTATION/U8_MERGE	SHA256SUMS.addendum_01	1	1	0	0		
+IMPLEMENTATION/U8_MERGE	(coverage, 2 sum files)					0	
+IMPLEMENTATION/SESSION_2026-10-06	SHA256SUMS	2	2	0	0		
+IMPLEMENTATION/SESSION_2026-10-06	SHA256SUMS.dec025_mac	1	1	0	0		
+IMPLEMENTATION/SESSION_2026-10-06	(coverage, 2 sum files)					0	
+RESUME_2026-09-30/I75/t6s_01	REPAIR_01.SHA256SUMS	54	54	0	0		
+RESUME_2026-09-30/I75/t6s_01	SHA256SUMS	56	56	0	0		
+RESUME_2026-09-30/I75/t6s_01	(coverage, 2 sum files)					0	
+RESUME_2026-09-30/I78/b0_contract_01	SHA256SUMS	1	1	0	0		
+RESUME_2026-09-30/I78/b0_contract_01	SHA256SUMS.revision_01	2	2	0	0		
+RESUME_2026-09-30/I78/b0_contract_01	(coverage, 2 sum files)					0	
+RESUME_2026-09-30/I79/si1b_01	SHA256SUMS	31	31	0	0		
+RESUME_2026-09-30/I79/si1b_01	(coverage, 1 sum files)					0	
+RESUME_2026-09-30/REVIEW_RV101/t6s_01	ADDENDUM_01.SHA256SUMS	17	17	0	0		
+RESUME_2026-09-30/REVIEW_RV101/t6s_01	ADDENDUM_02.SHA256SUMS	13	13	0	0		
+RESUME_2026-09-30/REVIEW_RV101/t6s_01	SHA256SUMS	54	54	0	0		
+RESUME_2026-09-30/REVIEW_RV101/t6s_01	(coverage, 3 sum files)					0	
+RESUME_2026-09-30/REVIEW_RV103/records_01	SHA256SUMS	29	29	0	0		
+RESUME_2026-09-30/REVIEW_RV103/records_01	(coverage, 1 sum files)					0	
+RESUME_2026-09-30/REVIEW_RV105/b0_01	SHA256SUMS	9	9	0	0		
+RESUME_2026-09-30/REVIEW_RV105/b0_01	SHA256SUMS.addendum_01	2	2	0	0		
+RESUME_2026-09-30/REVIEW_RV105/b0_01	(coverage, 2 sum files)					0	

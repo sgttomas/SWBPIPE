@@ -1,0 +1,10 @@
+lib.rs at 966113396e vs 0730c87aef
+`mod tests` block: lines 1180 -> 1257
+non-test lines: 3727 -> 3727
+non-test code (doc-comment lines removed) identical: True e3a4e8baf7e1bc5a e3a4e8baf7e1bc5a
+non-test doc-comment lines differing:
+   -    /// same-dimension quotient (ratio), or a NaN interpolation or step-lookup
+   -    /// argument. Always blocking.
+   +    /// same-dimension quotient (ratio), a NaN interpolation or step-lookup
+   +    /// argument, or an interval binding end (interval mode). Always blocking.
+all non-test differences are doc lines: True

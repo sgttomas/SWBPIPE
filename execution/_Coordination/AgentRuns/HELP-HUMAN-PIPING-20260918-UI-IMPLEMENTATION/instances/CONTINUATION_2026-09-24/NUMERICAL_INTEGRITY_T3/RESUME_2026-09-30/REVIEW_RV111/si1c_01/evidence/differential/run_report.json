@@ -1,0 +1,41 @@
+{
+ "counts": {
+  "M_base_checks": 1296,
+  "M_cand_checks": 1296,
+  "P1_identical": 60174,
+  "P2_flagged_as_predicted": 10984,
+  "P5_base_pairs": 19166,
+  "P5_cand_pairs": 19166,
+  "flagged_lines": 10984,
+  "multi_lines_checked_via_singles": 422,
+  "n4_lines": 35304,
+  "n4_value_unread_invalid_bound": 6936,
+  "rdemo_lines": 8112,
+  "rmulti_lines": 1728,
+  "rn4_lines": 37044,
+  "rpc_lines": 60000
+ },
+ "flagged_transitions": {
+  "RULE_INPUTS_INCOMPLETE|-|b0": 545,
+  "RULE_INPUTS_INCOMPLETE|-|plain": 545,
+  "RULE_INPUTS_INCOMPLETE|computed|b0": 970,
+  "RULE_INPUTS_INCOMPLETE|computed|plain": 970,
+  "USER_RULE_CHECKED|-|b0": 1388,
+  "USER_RULE_CHECKED|-|plain": 1388,
+  "USER_RULE_CHECKED|computed|b0": 864,
+  "USER_RULE_CHECKED|computed|plain": 864,
+  "USER_RULE_FAILED|-|b0": 1725,
+  "USER_RULE_FAILED|-|plain": 1725
+ },
+ "n4_existing_note_replaced": {
+  "interval": 7560,
+  "resolved": 2520
+ },
+ "n4_kinds": {
+  "norm": 14508,
+  "raw": 33504,
+  "rawconv": 4014
+ },
+ "violation_counts": {},
+ "violations": {}
+}

@@ -1,0 +1,14 @@
+# NUM HEAD ba7bbae5893738c5a8515ad76e771852c6e803e7
+"count_range"|quoted|6|core/analysis_runs/retained_precision.py core/product_physics/src/retained_wire.rs core/reporting/result_export/src/retained_precision.rs core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs 
+"name"|quoted|297|api/api_boundary_contract.yaml apps/desktop/e2e/ui-foundation-workflows.ts apps/desktop/e2e/ui-foundation/README.md apps/desktop/e2e/ui-foundation/candidate-control-binding-v1.json 
+b2_c1_range_mechanics|bare|0| 
+W-CB4a|bare|0| 
+W-CB4b|bare|0| 
+W-CB1z|bare|0| 
+b2_base_withheld|bare|0| 
+b2_pre_source_refusal|bare|0| 
+b2_operand_preparation_failure|bare|0| 
+b2_operand_source_unavailable|bare|0| 
+w1_combinations_admitted|bare|0| 
+combination_observables|bare|0| 
+CombinationObservables|bare|0| 

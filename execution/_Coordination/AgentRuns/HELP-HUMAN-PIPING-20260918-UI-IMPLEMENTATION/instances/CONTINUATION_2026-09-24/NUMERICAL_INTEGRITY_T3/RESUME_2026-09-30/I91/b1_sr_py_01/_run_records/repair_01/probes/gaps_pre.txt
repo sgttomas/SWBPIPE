@@ -1,0 +1,8 @@
+07j not_required statement: admitted standing=eligible
+material_bases: [(0, [0, 1])]
+(b) not_required ordinary material_basis_ref = 7: admitted standing=eligible
+(c) material_bases[0].case_indices = [0] (omits the not_required case): admitted standing=eligible
+(d1) invocation extra member: admitted standing=eligible
+(d2) invocation solver_mode 'foo': G8 RETAINED_PRECISION_PREPARATION_MISMATCH
+(f) material_bases[0].index = 5: admitted standing=eligible
+(g) model.reference_configurations present: admitted standing=eligible

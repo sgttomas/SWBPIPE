@@ -1,0 +1,800 @@
+[
+ {
+  "id": "MA1_d1_4_lt_c",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::actual_inputs_map_each_cap_fact",
+   "retained_memory::law_tests::b1_sa_d1_4_admits_one_to_c_load_cases",
+   "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases",
+   "retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one",
+   "retained_memory::law_tests::every_cap_row_admits_its_cap_and_refuses_cap_plus_one",
+   "retained_memory::law_tests::every_family_clause_refuses_with_its_fact",
+   "retained_memory::law_tests::typed_capacity_and_units_rows_read_the_actual_owners",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::actual_inputs_map_each_cap_fact",
+    "at": "src/retained_memory_law_tests.rs:605:5",
+    "message": "assertion `left == right` failed: a later case at l"
+   },
+   {
+    "test": "retained_memory::law_tests::b1_sa_d1_4_admits_one_to_c_load_cases",
+    "at": "src/retained_memory_law_tests.rs:1552:13",
+    "message": "assertion `left == right` failed: c = 3 SparseInteractive"
+   },
+   {
+    "test": "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases",
+    "at": "src/retained_memory_law_tests.rs:1732:13",
+    "message": "assertion `left == right` failed: case 0's attempt fails and blocks: inside D1"
+   },
+   {
+    "test": "retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one",
+    "at": "src/retained_memory_law_tests.rs:1596:9",
+    "message": "assertion `left == right` failed: \u03a3 l_i = 384"
+   },
+   {
+    "test": "retained_memory::law_tests::every_cap_row_admits_its_cap_and_refuses_cap_plus_one",
+    "at": "src/retained_memory_law_tests.rs:563:5",
+    "message": "assertion `left == right` failed: the cap-maximal C-case input is inside D1"
+   },
+   {
+    "test": "retained_memory::law_tests::every_family_clause_refuses_with_its_fact",
+    "at": "src/retained_memory_law_tests.rs:500:5",
+    "message": "assertion `left == right` failed: C cases: inside D1"
+   },
+   {
+    "test": "retained_memory::law_tests::typed_capacity_and_units_rows_read_the_actual_owners",
+    "at": "src/retained_memory_law_tests.rs:714:5",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 549 passed; 8 failed; 11 ignored; 0 measured; 0 filtered out; finished in 49.75s"
+  ],
+  "seconds": 212.9,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MA2_d1_4_le_c_plus_1",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_facade_tests::u3g2_direct_entry_no_w1_refusals_keep_exact_bytes",
+   "retained_memory::law_tests::admit_grants_a_permit_for_the_milestone_in_the_registered_build",
+   "retained_memory::law_tests::b1_sa_d1_4_admits_one_to_c_load_cases",
+   "retained_memory::law_tests::b1_sa_runner_oracle_literal_is_load_cases_plus_one",
+   "retained_memory::law_tests::every_family_clause_refuses_with_its_fact",
+   "retained_memory::tests::actual_retained_entry_dispatches_ordinary_once",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_facade_tests::u3g2_direct_entry_no_w1_refusals_keep_exact_bytes",
+    "at": "src/retained_facade_tests.rs:676:13",
+    "message": "assertion `left == right` failed: C + 1 cases SparseInteractive"
+   },
+   {
+    "test": "retained_memory::law_tests::admit_grants_a_permit_for_the_milestone_in_the_registered_build",
+    "at": "src/retained_memory_law_tests.rs:366:9",
+    "message": "assertion `left == right` failed: C + 1 cases"
+   },
+   {
+    "test": "retained_memory::law_tests::b1_sa_d1_4_admits_one_to_c_load_cases",
+    "at": "src/retained_memory_law_tests.rs:1552:13",
+    "message": "assertion `left == right` failed: c = 4 SparseInteractive"
+   },
+   {
+    "test": "retained_memory::law_tests::b1_sa_runner_oracle_literal_is_load_cases_plus_one",
+    "at": "src/retained_memory_law_tests.rs:1574:9",
+    "message": "assertion `left == right` failed: SparseInteractive"
+   },
+   {
+    "test": "retained_memory::law_tests::every_family_clause_refuses_with_its_fact",
+    "at": "src/retained_memory_law_tests.rs:464:5",
+    "message": "assertion `left == right` failed: C + 1 cases"
+   },
+   {
+    "test": "retained_memory::tests::actual_retained_entry_dispatches_ordinary_once",
+    "at": "src/retained_memory.rs:3045:13",
+    "message": "assertion `left == right` failed: C + 1 cases: outside D1 at D1.4"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 550 passed; 7 failed; 11 ignored; 0 measured; 0 filtered out; finished in 51.00s"
+  ],
+  "seconds": 337.4,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MA3_load_rows_case_0_only",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::actual_inputs_map_each_cap_fact",
+   "retained_memory::law_tests::nested_typed_census_reads_the_roster",
+   "retained_memory::law_tests::typed_capacity_and_units_rows_read_the_actual_owners",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::actual_inputs_map_each_cap_fact",
+    "at": "src/retained_memory_law_tests.rs:607:5",
+    "message": "assertion `left == right` failed: a later case at l + 1"
+   },
+   {
+    "test": "retained_memory::law_tests::nested_typed_census_reads_the_roster",
+    "at": "src/retained_memory_law_tests.rs:418:5",
+    "message": "assertion `left == right` failed: the second case is the longest"
+   },
+   {
+    "test": "retained_memory::law_tests::typed_capacity_and_units_rows_read_the_actual_owners",
+    "at": "src/retained_memory_law_tests.rs:718:5",
+    "message": "assertion `left == right` failed: the last case's capacity"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 553 passed; 4 failed; 11 ignored; 0 measured; 0 filtered out; finished in 49.52s"
+  ],
+  "seconds": 270.1,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MA4_g_b_total_dropped",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::b1_sa_g_b_reads_each_case_and_the_running_total",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::b1_sa_g_b_reads_each_case_and_the_running_total",
+    "at": "src/retained_memory_law_tests.rs:1631:9",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 555 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 49.76s"
+  ],
+  "seconds": 145.2,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MA5_g_b_total_current_case_only",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::b1_sa_g_b_reads_each_case_and_the_running_total",
+   "retained_memory::law_tests::late_facts_read_the_actual_owners",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::b1_sa_g_b_reads_each_case_and_the_running_total",
+    "at": "src/retained_memory_law_tests.rs:1631:9",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "retained_memory::law_tests::late_facts_read_the_actual_owners",
+    "at": "src/retained_memory_law_tests.rs:1076:5",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 554 passed; 3 failed; 11 ignored; 0 measured; 0 filtered out; finished in 49.57s"
+  ],
+  "seconds": 181.0,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MA6_t3e_seeds_only",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases",
+    "at": "src/retained_memory_law_tests.rs:1716:9",
+    "message": "1: more seeds than requested cases"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 555 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 49.87s"
+  ],
+  "seconds": 72.7,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MA7a_t3e_requested_ignored_at_g_c",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases",
+    "at": "src/retained_memory_law_tests.rs:1740:13",
+    "message": "assertion `left == right` failed: case 0's attempt fails and blocks SparseInteractive"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 555 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 50.53s"
+  ],
+  "seconds": 67.6,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MA7b_t3e_requested_ignored_in_count",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_facade_tests::u3g2_direct_entry_no_w1_refusals_keep_exact_bytes",
+   "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases",
+   "retained_memory::law_tests::g_c_declines_w1_when_the_ordinary_solve_was_not_attempted",
+   "retained_memory::law_tests::registered_g_c_declines_only_unattempted_solves",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_facade_tests::u3g2_direct_entry_no_w1_refusals_keep_exact_bytes",
+    "at": "src/retained_facade_tests.rs:699:26",
+    "message": "SparseInteractive: Some(Err(Preparation))"
+   },
+   {
+    "test": "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases",
+    "at": "src/retained_memory_law_tests.rs:1712:5",
+    "message": "no seed"
+   },
+   {
+    "test": "retained_memory::law_tests::g_c_declines_w1_when_the_ordinary_solve_was_not_attempted",
+    "at": "src/retained_memory_law_tests.rs:1468:17",
+    "message": "assertion `left == right` failed: document kind SparseInteractive"
+   },
+   {
+    "test": "retained_memory::law_tests::registered_g_c_declines_only_unattempted_solves",
+    "at": "src/retained_memory_law_tests.rs:1516:26",
+    "message": "document kind SparseInteractive: expected G-C's decline, got Some(Err(Preparation))"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 552 passed; 5 failed; 11 ignored; 0 measured; 0 filtered out; finished in 48.35s"
+  ],
+  "seconds": 226.8,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MA8_t3e_ge_not_eq",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases",
+    "at": "src/retained_memory_law_tests.rs:1716:9",
+    "message": "1: more seeds than requested cases"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 555 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 49.08s"
+  ],
+  "seconds": 214.7,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MA9_envelope_results_p_final",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::b1_sa_envelope_results_bound_is_c_times_p_final",
+   "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions",
+   "retained_memory::law_tests::every_phase_fact_admits_its_cap_and_refuses_cap_plus_one",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::b1_sa_envelope_results_bound_is_c_times_p_final",
+    "at": "src/retained_memory_law_tests.rs:1664:5",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions",
+    "at": "src/retained_memory_law_tests.rs:1813:5",
+    "message": "assertion `left == right` failed: G-C at C = 3"
+   },
+   {
+    "test": "retained_memory::law_tests::every_phase_fact_admits_its_cap_and_refuses_cap_plus_one",
+    "at": "src/retained_memory_law_tests.rs:912:5",
+    "message": "assertion `left == right` failed: C\u00b7P_final, PushCap(C\u00b7P_final)"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 553 passed; 4 failed; 11 ignored; 0 measured; 0 filtered out; finished in 48.83s"
+  ],
+  "seconds": 121.2,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MA9b_envelope_capacity_p_final",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::b1_sa_envelope_results_bound_is_c_times_p_final",
+   "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions",
+   "retained_memory::law_tests::every_phase_fact_admits_its_cap_and_refuses_cap_plus_one",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::b1_sa_envelope_results_bound_is_c_times_p_final",
+    "at": "src/retained_memory_law_tests.rs:1664:5",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions",
+    "at": "src/retained_memory_law_tests.rs:1813:5",
+    "message": "assertion `left == right` failed: G-C at C = 3"
+   },
+   {
+    "test": "retained_memory::law_tests::every_phase_fact_admits_its_cap_and_refuses_cap_plus_one",
+    "at": "src/retained_memory_law_tests.rs:912:5",
+    "message": "assertion `left == right` failed: C\u00b7P_final, PushCap(C\u00b7P_final)"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 553 passed; 4 failed; 11 ignored; 0 measured; 0 filtered out; finished in 48.74s"
+  ],
+  "seconds": 140.2,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MA9c_envelope_text_p_final",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::b1_sa_envelope_results_bound_is_c_times_p_final",
+   "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions",
+   "retained_memory::law_tests::every_phase_fact_admits_its_cap_and_refuses_cap_plus_one",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::b1_sa_envelope_results_bound_is_c_times_p_final",
+    "at": "src/retained_memory_law_tests.rs:1664:5",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions",
+    "at": "src/retained_memory_law_tests.rs:1813:5",
+    "message": "assertion `left == right` failed: G-C at C = 3"
+   },
+   {
+    "test": "retained_memory::law_tests::every_phase_fact_admits_its_cap_and_refuses_cap_plus_one",
+    "at": "src/retained_memory_law_tests.rs:909:5",
+    "message": "assertion `left == right` failed: 2\u00b7C\u00b7P_final\u00b7Text(row)"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 553 passed; 4 failed; 11 ignored; 0 measured; 0 filtered out; finished in 49.10s"
+  ],
+  "seconds": 80.2,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MX1_d1_5_case_0_only",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::every_family_clause_refuses_with_its_fact",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::every_family_clause_refuses_with_its_fact",
+    "at": "src/retained_memory_law_tests.rs:508:9",
+    "message": "assertion `left == right` failed: D1.5 on case 2: pressure_regions"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 555 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 49.71s"
+  ],
+  "seconds": 81.1,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MX2_d1_7_case_0_only",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::every_family_clause_refuses_with_its_fact",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::every_family_clause_refuses_with_its_fact",
+    "at": "src/retained_memory_law_tests.rs:514:5",
+    "message": "assertion `left == right` failed: D1.7 on case 2"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 555 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 49.44s"
+  ],
+  "seconds": 80.7,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MX3_total_loads_row_dropped",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one",
+   "retained_memory::law_tests::every_cap_row_admits_its_cap_and_refuses_cap_plus_one",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one",
+    "at": "src/retained_memory_law_tests.rs:1596:9",
+    "message": "assertion `left == right` failed: \u03a3 l_i = 385"
+   },
+   {
+    "test": "retained_memory::law_tests::every_cap_row_admits_its_cap_and_refuses_cap_plus_one",
+    "at": "src/retained_memory_law_tests.rs:569:9",
+    "message": "assertion `left == right` failed: TotalLoads at its cap"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 554 passed; 3 failed; 11 ignored; 0 measured; 0 filtered out; finished in 49.19s"
+  ],
+  "seconds": 79.5,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MX4_census_total_last_case_only",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::actual_inputs_map_each_cap_fact",
+   "retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one",
+   "retained_memory::law_tests::every_cap_row_admits_its_cap_and_refuses_cap_plus_one",
+   "retained_memory::law_tests::nested_typed_census_reads_the_roster",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::actual_inputs_map_each_cap_fact",
+    "at": "src/retained_memory_law_tests.rs:608:5",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one",
+    "at": "src/retained_memory_law_tests.rs:1588:5",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "retained_memory::law_tests::every_cap_row_admits_its_cap_and_refuses_cap_plus_one",
+    "at": "src/retained_memory_law_tests.rs:569:9",
+    "message": "assertion `left == right` failed: TotalLoads at its cap"
+   },
+   {
+    "test": "retained_memory::law_tests::nested_typed_census_reads_the_roster",
+    "at": "src/retained_memory_law_tests.rs:411:5",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 552 passed; 5 failed; 11 ignored; 0 measured; 0 filtered out; finished in 49.18s"
+  ],
+  "seconds": 144.6,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MX5_seam_add_dropped",
+  "file": "core/product_physics/src/retained_product.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::b1_sa_g_b_reads_each_case_and_the_running_total",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::b1_sa_g_b_reads_each_case_and_the_running_total",
+    "at": "src/retained_memory_law_tests.rs:1651:13",
+    "message": "assertion `left == right` failed: SparseInteractive: \u03a3 l_i = l_0 at G-B"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 555 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 49.46s"
+  ],
+  "seconds": 82.8,
+  "restored_sha256": "5cf8d6d56a59ba018cb7f2f8c8a2a60707da5539f040f6b1c717fca2dbf452c4"
+ },
+ {
+  "id": "MX6_b6_one_notice",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions",
+   "retained_memory::law_tests::structural_budgets_are_u3s",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions",
+    "at": "src/retained_memory_law_tests.rs:1822:5",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "retained_memory::law_tests::structural_budgets_are_u3s",
+    "at": "src/retained_memory_law_tests.rs:1033:5",
+    "message": "assertion `left == right` failed: B-6 = NOTICE_RESERVE_BYTES \u00d7 C"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 554 passed; 3 failed; 11 ignored; 0 measured; 0 filtered out; finished in 49.28s"
+  ],
+  "seconds": 79.1,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MX7_contract_evidence_one_case",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions",
+    "at": "src/retained_memory_law_tests.rs:1813:5",
+    "message": "assertion `left == right` failed: G-C at C = 3"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 555 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 49.53s"
+  ],
+  "seconds": 181.5,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MX8_retained_error_one_case",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions",
+   "retained_memory::law_tests::every_phase_fact_admits_its_cap_and_refuses_cap_plus_one",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions",
+    "at": "src/retained_memory_law_tests.rs:1813:5",
+    "message": "assertion `left == right` failed: G-C at C = 3"
+   },
+   {
+    "test": "retained_memory::law_tests::every_phase_fact_admits_its_cap_and_refuses_cap_plus_one",
+    "at": "src/retained_memory_law_tests.rs:917:5",
+    "message": "assertion `left == right` failed: C\u00b7(3m + 1)\u00b7Text(err)"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 554 passed; 3 failed; 11 ignored; 0 measured; 0 filtered out; finished in 49.14s"
+  ],
+  "seconds": 429.0,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ },
+ {
+  "id": "MX9_load_cases_capacity_one",
+  "file": "core/product_physics/src/retained_memory.rs",
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_memory::law_tests::actual_inputs_map_each_cap_fact",
+   "retained_memory::law_tests::b1_sa_d1_4_admits_one_to_c_load_cases",
+   "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases",
+   "retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one",
+   "retained_memory::law_tests::every_cap_row_admits_its_cap_and_refuses_cap_plus_one",
+   "retained_memory::law_tests::every_family_clause_refuses_with_its_fact",
+   "retained_memory::law_tests::typed_capacity_and_units_rows_read_the_actual_owners",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_memory::law_tests::actual_inputs_map_each_cap_fact",
+    "at": "src/retained_memory_law_tests.rs:605:5",
+    "message": "assertion `left == right` failed: a later case at l"
+   },
+   {
+    "test": "retained_memory::law_tests::b1_sa_d1_4_admits_one_to_c_load_cases",
+    "at": "src/retained_memory_law_tests.rs:1552:13",
+    "message": "assertion `left == right` failed: c = 2 SparseInteractive"
+   },
+   {
+    "test": "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases",
+    "at": "src/retained_memory_law_tests.rs:1732:13",
+    "message": "assertion `left == right` failed: case 0's attempt fails and blocks: inside D1"
+   },
+   {
+    "test": "retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one",
+    "at": "src/retained_memory_law_tests.rs:1596:9",
+    "message": "assertion `left == right` failed: \u03a3 l_i = 384"
+   },
+   {
+    "test": "retained_memory::law_tests::every_cap_row_admits_its_cap_and_refuses_cap_plus_one",
+    "at": "src/retained_memory_law_tests.rs:563:5",
+    "message": "assertion `left == right` failed: the cap-maximal C-case input is inside D1"
+   },
+   {
+    "test": "retained_memory::law_tests::every_family_clause_refuses_with_its_fact",
+    "at": "src/retained_memory_law_tests.rs:500:5",
+    "message": "assertion `left == right` failed: C cases: inside D1"
+   },
+   {
+    "test": "retained_memory::law_tests::typed_capacity_and_units_rows_read_the_actual_owners",
+    "at": "src/retained_memory_law_tests.rs:714:5",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 549 passed; 8 failed; 11 ignored; 0 measured; 0 filtered out; finished in 48.84s"
+  ],
+  "seconds": 428.1,
+  "restored_sha256": "c8ad85ec38d22ff2eceec771063913ce95a14f300696b1aca108c04e45f2197a"
+ }
+]

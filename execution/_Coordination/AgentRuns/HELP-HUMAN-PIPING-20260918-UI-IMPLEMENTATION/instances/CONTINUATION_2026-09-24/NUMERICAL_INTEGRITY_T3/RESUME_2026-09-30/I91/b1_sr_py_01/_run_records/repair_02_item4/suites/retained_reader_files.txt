@@ -1,0 +1,6 @@
+The four retained-reader test files within the full run at 2843a59a16 (py_r02_item4.xml):
+  tests/test_results_dispatcher_v0_3.py: 23 passed
+  tests/test_retained_precision_carriers.py: 52 passed
+  tests/test_retained_precision_contract.py: 418 passed
+  tests/test_retained_precision_schema.py: 58 passed
+  total: 551, failed: 0

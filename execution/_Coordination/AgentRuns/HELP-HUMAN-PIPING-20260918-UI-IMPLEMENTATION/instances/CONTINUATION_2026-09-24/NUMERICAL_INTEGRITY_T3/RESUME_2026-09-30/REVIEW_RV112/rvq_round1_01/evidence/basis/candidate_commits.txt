@@ -1,0 +1,4 @@
+9812c83deddc34eaba0bcb8e4d71684fded900f5 77f4391a85ae41d5c6638f173c050798d8149cb9 piping(T3 B1 SA): RetainedErrorTextBytes reads every case's slot (SP's parked CaseSlots)
+77f4391a85ae41d5c6638f173c050798d8149cb9 6b626067786523068188ccd29f9ac2db9ed50e7d 56c5579f07b1cf3203c178e10add51bba0b24a58 piping(T3 B1 SA): merge b1 at SP's 56c5579f07 (T-2, T-5, T-6, T-7) into b1-a, as ROOT ruled, for the parked-slot reader
+56c5579f07b1cf3203c178e10add51bba0b24a58 262bd687f0bc4a552586be14ba1b8e8f290f710b piping(T3 B1 SP): T-2, T-5, T-6 and T-7 of the n-case transaction
+6b626067786523068188ccd29f9ac2db9ed50e7d 262bd687f0bc4a552586be14ba1b8e8f290f710b piping(T3 B1 SA): admission at option S3 (C = 3, L = 384), G-B's running total, T-3 (e)

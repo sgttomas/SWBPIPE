@@ -1,0 +1,184 @@
+warning: function `derived` is never used
+   --> ARCH/projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1607:27
+     |
+1607 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+1607 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+1607 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1608:27
+     |
+1608 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+help: remove these parentheses
+     |
+1608 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+1608 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+     |
+
+warning: function `is_exact_pressure_result_kind` is never used
+     --> src/lib.rs:10337:4
+      |
+10337 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      |
+      = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   --> src/source_recovery.rs:146:9
+    |
+145 | pub(super) struct SpringAction {
+    |                   ------------ fields in this struct
+146 |     pub support_id: String,
+    |         ^^^^^^^^^^
+147 |     pub global_dof: usize,
+    |         ^^^^^^^^^^
+148 |     pub value: f64,
+    |         ^^^^^
+149 |     pub functional_index: usize,
+    |         ^^^^^^^^^^^^^^^^
+    |
+    = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:171:9
+    |
+170 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+171 |     pub dofs: usize,
+    |         ^^^^
+172 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+173 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+174 |     pub blocks: usize,
+    |         ^^^^^^
+175 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+176 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+177 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+178 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+179 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+180 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+181 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+182 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+183 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+184 |     pub max_relative_projection_error: f64,
+185 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:198:5
+    |
+192 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+198 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:224:12
+    |
+207 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+224 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 7 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 2 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (WT/targets/i98-b2w/debug/deps/open_pipe_stress_product_physics-e08917abb99aa3a9)
+
+running 1 test
+test retained_memory::zz_i98_probe::zz_i98_files ... I98_FILE cb1_ac_canonical file_sha=fa7f5d3c839311017cde4073dc4de838af1ac3821185dc4d0b2cc8551d329066
+I98_CENSUS cb1_ac_canonical input_sha=08e6f809729e478deafabc7fbb24c4b43af9feb6d936a4e0199d12cc66e46179 profile=Registered census_complete=true domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None loads_per_case=[256] loads_total=256 combinations=0 over=["Loads=256/128", "LoadsCapacity=256/128"] at_cap=["Nodes=32/32", "NodesCapacity=32/32", "Members=32/32", "MembersCapacity=32/32", "Supports=32/32", "SupportsCapacity=32/32", "ModelMaterials=4/4", "ModelMaterialsCapacity=4/4", "RequestMaterials=4/4", "RequestMaterialsCapacity=4/4", "TemperaturePoints=16/16", "TemperaturePointsCapacity=16/16", "LoadCasesCapacity=1/1", "MaterialExpansionLawsCapacity=4/4", "TypedTextBytes=128/128", "TypedTextCapacity=128/128", "RawTextBytes=128/128", "RawDepth=16/16"] rows=["Nodes=32/32", "NodesCapacity=32/32", "Members=32/32", "MembersCapacity=32/32", "Supports=32/32", "SupportsCapacity=32/32", "Restraints=66/192", "Springs=21/192", "Loads=256/128", "LoadsCapacity=256/128", "ModelMaterials=4/4", "RequestMaterials=4/4", "TemperaturePoints=16/16", "LoadCasesCapacity=1/1", "TypedTextBytes=128/128", "RawTextBytes=128/128", "RawKeyTextBytes=23/128", "RawValues=4701/16384", "RawDepth=16/16", "RawStringBytes=39373/65536", "RawKeyBytes=25611/65536", "RawArrayCapacity=569/32768", "RawStringCapacity=39373/131072", "RawKeyCapacity=25611/131072", "DigestCapacity=64/128", "ControlBytes=0/0"]
+I98_BEGIN cb1_ac_canonical sparse_interactive registered=true input_sha=08e6f809729e478deafabc7fbb24c4b43af9feb6d936a4e0199d12cc66e46179
+I98_ORDINARY cb1_ac_canonical sparse_interactive status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=2113 plain_sha=d39a075070b04f55c4ee43394d46d69b3f9ee62d331a924b5e37e377024e4311 plain_len=1439767 published_verdicts=[{"ref":"case:ac","solve_quality":"sensitive"}] rcond=["2.0384254872829075e-8"] refinement_attempts=["0"] assembly=["rel=5.517719525168333e-17 amp=2.7068536768165634e-9 load=0.0"] d5=["formation_check: reason=estimate; row=C3:N1:RX; doubled_correction=1.6187602113144224e-13; scale=6.667333098482632e-5; trigger_ratio=2.427897612739378"] range_scaling=[] diagnostics={"LOAD_CATEGORY_PREVIEW_MAPPED:warning": 256, "NUMERICAL_INTEGRITY_SENSITIVE:warning": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1, "SOURCE_BLOCK_RECOVERY_UNAVAILABLE:info": 1} ms=101
+I98_ADMISSION cb1_ac_canonical sparse_interactive profile=Registered allowance=Unselected refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None census_complete=true
+I98_W1 cb1_ac_canonical sparse_interactive cause=None (no permit, no W1) phase=none (no W1 phase work) counts=Counts { runs: 1, complete_gates: 0 } one_run_through_g_c=false armed_before=[] armed_after=[] envelope_is_plain=true published_successor=false notices=0 bytes_eq_with_notice_plain_case_none=false bytes_eq_plain=true published_sha=d39a075070b04f55c4ee43394d46d69b3f9ee62d331a924b5e37e377024e4311 published_len=1439767 direct_ms=100
+I98_MARK witness_ordinary_done t_us=1791417449802689
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case:ac","solve_quality":"sensitive"}] seeds=[{"case":"case:ac","d5_ref":"diagnostic:numerical-integrity:case:ac","initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_SENSITIVE","ref":"diagnostic:numerical-integrity:case:ac"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case:ac
+I98_MARK w1_start t_us=1791417449810260
+I98_MARK prepared t_us=1791417449828006
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417450425765
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +9d495182a99307ffffffffffffffffffffffffffffffffffffffffffffffffffffffffaa5420ae543f32c0d16ebdffc90ded5bcd4e9013060d8ff39ef8664f192aeab3582a38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38c22b6294p-15, hi: +9d495182a993080000000000000000000000000000000000000000000000000000000055a85128fbe5f055fbba39a97dd159af2a8befa13ef11e2c82869f32a763ce41910dc71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c73dd49d6cp-15 }, Enclosure { lo: +b98ae6fe7040a7c5ac471b4784230fcf80dc33721d53cddd6e04c059210385c67df8d7ff4cd50a4a1356ada422b259e49d651615038e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e3...[cut by sanitize.py: 443989 bytes, sha256 4fbd10668405d7169e9dc86ab06522f5ce5c10867942f403a7c8962f78a01422]
+I51_FROZEN_REFUSAL {"g5a":"None","maxima":[{"member":0,"numbers":[0.0,0,0.0,1.4712985900790245e-91,1.471298590079027e-91,1.471298590079027e-91,2.4525848678446953e-106,0],"row":531},{"member":1,"numbers":[0.0,0,0.0,1.37704260563395e-91,1.377042605633952e-91,1.377042605633952e-91,1.9075660083236518e-106,0],"row":582},{"member":2,"numbers":[0.0,0,0.0,7.181468277178808e-92,7.181468277178819e-92,7.181468277178819e-92,1.0900377190420868e-106,0],"row":633},{"member":3,"numbers":[0.0,0,0.0,1.6341731278753363e-91,1.6341731278753385e-91,1.6341731278753385e-91,2.1800754380841737e-106,0],"row":684},{"member":4,"numbers":[0.0,0,0.0,1.4362936554357617e-91,1.4362936554357638e-91,1.4362936554357638e-91,2.1800754380841737e-106,0],"row":735},{"member":5,"numbers":[0.0,0,0.0,5.5081704225358e-91,5.508170422535808e-91,5.508170422535808e-91,7.630264033294607e-106,0],"row":786},{"member":6,"numbers":[0.0,0,0.0,1.1770388720632196e-90,1.1770388720632216e-90,1.1770388720632216e-90,1.9620678942757562e-105,0],"ro...[cut by sanitize.py: 707065 bytes, sha256 ae9ac64a294559089cb87715c77cee399b4bb20fb76b2d25b323456ea7e12b67]
+I98_CANDIDATE_REFUSAL len=483853 error=Proof(ProductProofFailure { failure: ProductFailure { cause: Predicate { row: 6, predicate: SharperExact } }, work: ProductCertificateSpent { rows: [], verdicts: [ProductRowVerdict { row: 0, normalized_bits: 4607182418800017408, scale_bits: 0, class: None, passed: true, failed: None, predicates: [None, None, None, None] }, ProductRowVerdict { row: 1, normalized_bits: 0, scale_bits: 4547930289023608966, class: Some(AbsoluteVerified { bound_bits: 4259699912871897222 }), passed: true, failed: None, predicates: [Some(true), None, None, None] }, ProductRowVerdict { row: 2, normalized_bits: 4547453588098799528, scale_bits: 4547930289023608966, class: Some(RelativeVerified), passed: true, failed: None, predicates: [Some(true), Some(true), Some(true), Some(true)] }, ProductRowVerdict { row: 3, normalized_bits: 0, scale_bits: 4548744171035802129, class: Some(AbsoluteVerified { bound_bits: 4260513794884090385 }), passed: true, failed: None, predicates: [Some(true), None, None, None] }, ProductRowVerdict { row: 4, normalized_bits: 4548323050733170590, scale_bits: 4548744171035802129, class: Some(RelativeVerified), passed: true, failed: None, predicates: [Some(true), Some(true), Some(true), Some(true)] }, ProductRowVerdict { row: 5, normalized_bits: 0, scale_bits: 4549666600439596463, class: Some(AbsoluteVerified { bound_bits: 4261436224287884719 }), passed: true, failed: None, predicates: [Some(true), None, None, None] }, ProductRowVerdict { row: 6, normalized_bits: 4549348799823056838,
+I98_WITNESS cb1_ac_canonical sparse_interactive stack=4194304 ran=Fallback(Candidate) furthest_phase=W2 ms=15526
+I98_BYPASS_GA cb1_ac_canonical sparse_interactive profile=Registered refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None census_complete=true
+I98_BYPASS_GB cb1_ac_canonical sparse_interactive stack=67108864 late_refusal=Some(PhaseRefusal { gate: Late, fact: CaseLoads, observed: 256, cap: 128 }) exact_selected=false capture_error=Some("Association(\"missing successful prepared late source hook\")")
+I98_MARK bypass_ordinary_done t_us=1791417465421056
+I98_BYPASS_GC cb1_ac_canonical sparse_interactive complete=Ok(())
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case:ac","solve_quality":"sensitive"}] seeds=[{"case":"case:ac","d5_ref":"diagnostic:numerical-integrity:case:ac","initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_SENSITIVE","ref":"diagnostic:numerical-integrity:case:ac"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case:ac
+I98_MARK w1_start t_us=1791417465429086
+I98_MARK prepared t_us=1791417465445988
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417466023091
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +9d495182a99307ffffffffffffffffffffffffffffffffffffffffffffffffffffffffaa5420ae543f32c0d16ebdffc90ded5bcd4e9013060d8ff39ef8664f192aeab3582a38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38c22b6294p-15, hi: +9d495182a993080000000000000000000000000000000000000000000000000000000055a85128fbe5f055fbba39a97dd159af2a8befa13ef11e2c82869f32a763ce41910dc71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c73dd49d6cp-15 }, Enclosure { lo: +b98ae6fe7040a7c5ac471b4784230fcf80dc33721d53cddd6e04c059210385c67df8d7ff4cd50a4a1356ada422b259e49d651615038e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e3...[cut by sanitize.py: 443989 bytes, sha256 4fbd10668405d7169e9dc86ab06522f5ce5c10867942f403a7c8962f78a01422]
+I51_FROZEN_REFUSAL {"g5a":"None","maxima":[{"member":0,"numbers":[0.0,0,0.0,1.4712985900790245e-91,1.471298590079027e-91,1.471298590079027e-91,2.4525848678446953e-106,0],"row":531},{"member":1,"numbers":[0.0,0,0.0,1.37704260563395e-91,1.377042605633952e-91,1.377042605633952e-91,1.9075660083236518e-106,0],"row":582},{"member":2,"numbers":[0.0,0,0.0,7.181468277178808e-92,7.181468277178819e-92,7.181468277178819e-92,1.0900377190420868e-106,0],"row":633},{"member":3,"numbers":[0.0,0,0.0,1.6341731278753363e-91,1.6341731278753385e-91,1.6341731278753385e-91,2.1800754380841737e-106,0],"row":684},{"member":4,"numbers":[0.0,0,0.0,1.4362936554357617e-91,1.4362936554357638e-91,1.4362936554357638e-91,2.1800754380841737e-106,0],"row":735},{"member":5,"numbers":[0.0,0,0.0,5.5081704225358e-91,5.508170422535808e-91,5.508170422535808e-91,7.630264033294607e-106,0],"row":786},{"member":6,"numbers":[0.0,0,0.0,1.1770388720632196e-90,1.1770388720632216e-90,1.1770388720632216e-90,1.9620678942757562e-105,0],"ro...[cut by sanitize.py: 707065 bytes, sha256 ae9ac64a294559089cb87715c77cee399b4bb20fb76b2d25b323456ea7e12b67]
+I98_CANDIDATE_REFUSAL len=483853 error=Proof(ProductProofFailure { failure: ProductFailure { cause: Predicate { row: 6, predicate: SharperExact } }, work: ProductCertificateSpent { rows: [], verdicts: [ProductRowVerdict { row: 0, normalized_bits: 4607182418800017408, scale_bits: 0, class: None, passed: true, failed: None, predicates: [None, None, None, None] }, ProductRowVerdict { row: 1, normalized_bits: 0, scale_bits: 4547930289023608966, class: Some(AbsoluteVerified { bound_bits: 4259699912871897222 }), passed: true, failed: None, predicates: [Some(true), None, None, None] }, ProductRowVerdict { row: 2, normalized_bits: 4547453588098799528, scale_bits: 4547930289023608966, class: Some(RelativeVerified), passed: true, failed: None, predicates: [Some(true), Some(true), Some(true), Some(true)] }, ProductRowVerdict { row: 3, normalized_bits: 0, scale_bits: 4548744171035802129, class: Some(AbsoluteVerified { bound_bits: 4260513794884090385 }), passed: true, failed: None, predicates: [Some(true), None, None, None] }, ProductRowVerdict { row: 4, normalized_bits: 4548323050733170590, scale_bits: 4548744171035802129, class: Some(RelativeVerified), passed: true, failed: None, predicates: [Some(true), Some(true), Some(true), Some(true)] }, ProductRowVerdict { row: 5, normalized_bits: 0, scale_bits: 4549666600439596463, class: Some(AbsoluteVerified { bound_bits: 4261436224287884719 }), passed: true, failed: None, predicates: [Some(true), None, None, None] }, ProductRowVerdict { row: 6, normalized_bits: 4549348799823056838,
+I98_BYPASS cb1_ac_canonical sparse_interactive stack=67108864 ran=Fallback(Candidate) furthest_phase=W2 ms=15478
+I98_BEGIN cb1_ac_canonical dense_scrutiny registered=true input_sha=08e6f809729e478deafabc7fbb24c4b43af9feb6d936a4e0199d12cc66e46179
+I98_ORDINARY cb1_ac_canonical dense_scrutiny status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=2114 plain_sha=51414c98fabd4260f02848ef53a375d7280aa9cc6bcc4ba8b0bd869031c030da plain_len=1440501 published_verdicts=[{"ref":"case:ac","solve_quality":"sensitive"}] rcond=["2.0384254947051128e-8"] refinement_attempts=["0"] assembly=["rel=5.517719525168333e-17 amp=2.7068536669605133e-9 load=0.0"] d5=["formation_check: reason=estimate; row=C1:N1:RX; doubled_correction=2.022121672194405e-13; scale=4.1670831713824107e-5; trigger_ratio=4.852606941184654"] range_scaling=[] diagnostics={"LOAD_CATEGORY_PREVIEW_MAPPED:warning": 256, "NUMERICAL_INTEGRITY_SENSITIVE:warning": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1, "SOURCE_BLOCK_RECOVERY_UNAVAILABLE:info": 1} ms=142
+I98_ADMISSION cb1_ac_canonical dense_scrutiny profile=Registered allowance=Unselected refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None census_complete=true
+I98_W1 cb1_ac_canonical dense_scrutiny cause=None (no permit, no W1) phase=none (no W1 phase work) counts=Counts { runs: 1, complete_gates: 0 } one_run_through_g_c=false armed_before=[] armed_after=[] envelope_is_plain=true published_successor=false notices=0 bytes_eq_with_notice_plain_case_none=false bytes_eq_plain=true published_sha=51414c98fabd4260f02848ef53a375d7280aa9cc6bcc4ba8b0bd869031c030da published_len=1440501 direct_ms=143
+I98_MARK witness_ordinary_done t_us=1791417481495987
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case:ac","solve_quality":"sensitive"}] seeds=[{"case":"case:ac","d5_ref":"diagnostic:numerical-integrity:case:ac","initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_SENSITIVE","ref":"diagnostic:numerical-integrity:case:ac"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case:ac
+I98_MARK w1_start t_us=1791417481503388
+I98_MARK prepared t_us=1791417481520997
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417482117821
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +9d495182a99307ffffffffffffffffffffffffffffffffffffffffffffffffffffffffaa5420ae543f32c0d16ebdffc90ded5bcd4e9013060d8ff39ef8664f192aeab3582a38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38c22b6294p-15, hi: +9d495182a993080000000000000000000000000000000000000000000000000000000055a85128fbe5f055fbba39a97dd159af2a8befa13ef11e2c82869f32a763ce41910dc71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c73dd49d6cp-15 }, Enclosure { lo: +b98ae6fe7040a7c5ac471b4784230fcf80dc33721d53cddd6e04c059210385c67df8d7ff4cd50a4a1356ada422b259e49d651615038e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e3...[cut by sanitize.py: 443989 bytes, sha256 4fbd10668405d7169e9dc86ab06522f5ce5c10867942f403a7c8962f78a01422]
+I51_FROZEN_REFUSAL {"g5a":"None","maxima":[{"member":0,"numbers":[0.0,0,0.0,1.4712985900790245e-91,1.471298590079027e-91,1.471298590079027e-91,2.4525848678446953e-106,0],"row":532},{"member":1,"numbers":[0.0,0,0.0,1.37704260563395e-91,1.377042605633952e-91,1.377042605633952e-91,1.9075660083236518e-106,0],"row":583},{"member":2,"numbers":[0.0,0,0.0,7.181468277178808e-92,7.181468277178819e-92,7.181468277178819e-92,1.0900377190420868e-106,0],"row":634},{"member":3,"numbers":[0.0,0,0.0,1.6341731278753363e-91,1.6341731278753385e-91,1.6341731278753385e-91,2.1800754380841737e-106,0],"row":685},{"member":4,"numbers":[0.0,0,0.0,1.4362936554357617e-91,1.4362936554357638e-91,1.4362936554357638e-91,2.1800754380841737e-106,0],"row":736},{"member":5,"numbers":[0.0,0,0.0,5.5081704225358e-91,5.508170422535808e-91,5.508170422535808e-91,7.630264033294607e-106,0],"row":787},{"member":6,"numbers":[0.0,0,0.0,1.1770388720632196e-90,1.1770388720632216e-90,1.1770388720632216e-90,1.9620678942757562e-105,0],"ro...[cut by sanitize.py: 707375 bytes, sha256 c3922b01c8324662e4faae6c71aa1602f701270f21fc38501ccde0f5490d4624]
+I98_CANDIDATE_REFUSAL len=484021 error=Proof(ProductProofFailure { failure: ProductFailure { cause: Predicate { row: 7, predicate: SharperExact } }, work: ProductCertificateSpent { rows: [], verdicts: [ProductRowVerdict { row: 0, normalized_bits: 4611686018427387904, scale_bits: 0, class: None, passed: true, failed: None, predicates: [None, None, None, None] }, ProductRowVerdict { row: 1, normalized_bits: 4480085643006857004, scale_bits: 0, class: None, passed: true, failed: None, predicates: [None, None, None, None] }, ProductRowVerdict { row: 2, normalized_bits: 0, scale_bits: 4547930289023608966, class: Some(AbsoluteVerified { bound_bits: 4259699912871897222 }), passed: true, failed: None, predicates: [Some(true), None, None, None] }, ProductRowVerdict { row: 3, normalized_bits: 4547453588098799528, scale_bits: 4547930289023608966, class: Some(RelativeVerified), passed: true, failed: None, predicates: [Some(true), Some(true), Some(true), Some(true)] }, ProductRowVerdict { row: 4, normalized_bits: 0, scale_bits: 4548744171035802129, class: Some(AbsoluteVerified { bound_bits: 4260513794884090385 }), passed: true, failed: None, predicates: [Some(true), None, None, None] }, ProductRowVerdict { row: 5, normalized_bits: 4548323050733170590, scale_bits: 4548744171035802129, class: Some(RelativeVerified), passed: true, failed: None, predicates: [Some(true), Some(true), Some(true), Some(true)] }, ProductRowVerdict { row: 6, normalized_bits: 0, scale_bits: 4549666600439596463, class: Some(AbsoluteVerified { bound_bits: 4
+I98_WITNESS cb1_ac_canonical dense_scrutiny stack=4194304 ran=Fallback(Candidate) furthest_phase=W2 ms=15594
+I98_BYPASS_GA cb1_ac_canonical dense_scrutiny profile=Registered refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None census_complete=true
+I98_BYPASS_GB cb1_ac_canonical dense_scrutiny stack=67108864 late_refusal=Some(PhaseRefusal { gate: Late, fact: CaseLoads, observed: 256, cap: 128 }) exact_selected=false capture_error=Some("Association(\"missing successful prepared late source hook\")")
+I98_MARK bypass_ordinary_done t_us=1791417497221676
+I98_BYPASS_GC cb1_ac_canonical dense_scrutiny complete=Ok(())
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case:ac","solve_quality":"sensitive"}] seeds=[{"case":"case:ac","d5_ref":"diagnostic:numerical-integrity:case:ac","initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_SENSITIVE","ref":"diagnostic:numerical-integrity:case:ac"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case:ac
+I98_MARK w1_start t_us=1791417497229969
+I98_MARK prepared t_us=1791417497247232
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417497826031
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +9d495182a99307ffffffffffffffffffffffffffffffffffffffffffffffffffffffffaa5420ae543f32c0d16ebdffc90ded5bcd4e9013060d8ff39ef8664f192aeab3582a38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38c22b6294p-15, hi: +9d495182a993080000000000000000000000000000000000000000000000000000000055a85128fbe5f055fbba39a97dd159af2a8befa13ef11e2c82869f32a763ce41910dc71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c71c73dd49d6cp-15 }, Enclosure { lo: +b98ae6fe7040a7c5ac471b4784230fcf80dc33721d53cddd6e04c059210385c67df8d7ff4cd50a4a1356ada422b259e49d651615038e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e3...[cut by sanitize.py: 443989 bytes, sha256 4fbd10668405d7169e9dc86ab06522f5ce5c10867942f403a7c8962f78a01422]
+I51_FROZEN_REFUSAL {"g5a":"None","maxima":[{"member":0,"numbers":[0.0,0,0.0,1.4712985900790245e-91,1.471298590079027e-91,1.471298590079027e-91,2.4525848678446953e-106,0],"row":532},{"member":1,"numbers":[0.0,0,0.0,1.37704260563395e-91,1.377042605633952e-91,1.377042605633952e-91,1.9075660083236518e-106,0],"row":583},{"member":2,"numbers":[0.0,0,0.0,7.181468277178808e-92,7.181468277178819e-92,7.181468277178819e-92,1.0900377190420868e-106,0],"row":634},{"member":3,"numbers":[0.0,0,0.0,1.6341731278753363e-91,1.6341731278753385e-91,1.6341731278753385e-91,2.1800754380841737e-106,0],"row":685},{"member":4,"numbers":[0.0,0,0.0,1.4362936554357617e-91,1.4362936554357638e-91,1.4362936554357638e-91,2.1800754380841737e-106,0],"row":736},{"member":5,"numbers":[0.0,0,0.0,5.5081704225358e-91,5.508170422535808e-91,5.508170422535808e-91,7.630264033294607e-106,0],"row":787},{"member":6,"numbers":[0.0,0,0.0,1.1770388720632196e-90,1.1770388720632216e-90,1.1770388720632216e-90,1.9620678942757562e-105,0],"ro...[cut by sanitize.py: 707375 bytes, sha256 c3922b01c8324662e4faae6c71aa1602f701270f21fc38501ccde0f5490d4624]
+I98_CANDIDATE_REFUSAL len=484021 error=Proof(ProductProofFailure { failure: ProductFailure { cause: Predicate { row: 7, predicate: SharperExact } }, work: ProductCertificateSpent { rows: [], verdicts: [ProductRowVerdict { row: 0, normalized_bits: 4611686018427387904, scale_bits: 0, class: None, passed: true, failed: None, predicates: [None, None, None, None] }, ProductRowVerdict { row: 1, normalized_bits: 4480085643006857004, scale_bits: 0, class: None, passed: true, failed: None, predicates: [None, None, None, None] }, ProductRowVerdict { row: 2, normalized_bits: 0, scale_bits: 4547930289023608966, class: Some(AbsoluteVerified { bound_bits: 4259699912871897222 }), passed: true, failed: None, predicates: [Some(true), None, None, None] }, ProductRowVerdict { row: 3, normalized_bits: 4547453588098799528, scale_bits: 4547930289023608966, class: Some(RelativeVerified), passed: true, failed: None, predicates: [Some(true), Some(true), Some(true), Some(true)] }, ProductRowVerdict { row: 4, normalized_bits: 0, scale_bits: 4548744171035802129, class: Some(AbsoluteVerified { bound_bits: 4260513794884090385 }), passed: true, failed: None, predicates: [Some(true), None, None, None] }, ProductRowVerdict { row: 5, normalized_bits: 4548323050733170590, scale_bits: 4548744171035802129, class: Some(RelativeVerified), passed: true, failed: None, predicates: [Some(true), Some(true), Some(true), Some(true)] }, ProductRowVerdict { row: 6, normalized_bits: 0, scale_bits: 4549666600439596463, class: Some(AbsoluteVerified { bound_bits: 4
+I98_BYPASS cb1_ac_canonical dense_scrutiny stack=67108864 ran=Fallback(Candidate) furthest_phase=W2 ms=15519
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 558 filtered out; finished in 63.41s
+

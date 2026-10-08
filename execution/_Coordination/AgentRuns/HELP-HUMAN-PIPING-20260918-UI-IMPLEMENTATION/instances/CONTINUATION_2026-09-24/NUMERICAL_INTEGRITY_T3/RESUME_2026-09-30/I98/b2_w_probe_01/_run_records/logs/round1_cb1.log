@@ -1,0 +1,200 @@
+warning: function `derived` is never used
+   --> ARCH/projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1607:27
+     |
+1607 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+1607 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+1607 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1608:27
+     |
+1608 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+help: remove these parentheses
+     |
+1608 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+1608 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+     |
+
+warning: function `is_exact_pressure_result_kind` is never used
+     --> src/lib.rs:10337:4
+      |
+10337 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      |
+      = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   --> src/source_recovery.rs:146:9
+    |
+145 | pub(super) struct SpringAction {
+    |                   ------------ fields in this struct
+146 |     pub support_id: String,
+    |         ^^^^^^^^^^
+147 |     pub global_dof: usize,
+    |         ^^^^^^^^^^
+148 |     pub value: f64,
+    |         ^^^^^
+149 |     pub functional_index: usize,
+    |         ^^^^^^^^^^^^^^^^
+    |
+    = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:171:9
+    |
+170 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+171 |     pub dofs: usize,
+    |         ^^^^
+172 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+173 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+174 |     pub blocks: usize,
+    |         ^^^^^^
+175 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+176 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+177 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+178 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+179 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+180 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+181 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+182 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+183 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+184 |     pub max_relative_projection_error: f64,
+185 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:198:5
+    |
+192 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+198 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:224:12
+    |
+207 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+224 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 7 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 2 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running unittests src/lib.rs (WT/targets/i98-b2w/debug/deps/open_pipe_stress_product_physics-e08917abb99aa3a9)
+
+running 1 test
+test retained_memory::zz_i98_probe::zz_i98_files ... I98_FILE cb1_ab file_sha=30065a8de024a1b578a3f31b6a4172a7140804dd0935fe3645440ecd02e5341b
+I98_CENSUS cb1_ab input_sha=a50edfb76b8cbc8cc6cf96c307c5a6988d4559aa603c6179ca3834bdc55df3ec profile=Registered census_complete=true domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None loads_per_case=[256] loads_total=256 combinations=0 over=["Loads=256/128", "LoadsCapacity=256/128"] at_cap=["Nodes=32/32", "NodesCapacity=32/32", "Members=32/32", "MembersCapacity=32/32", "Supports=32/32", "SupportsCapacity=32/32", "ModelMaterials=4/4", "ModelMaterialsCapacity=4/4", "RequestMaterials=4/4", "RequestMaterialsCapacity=4/4", "TemperaturePoints=16/16", "TemperaturePointsCapacity=16/16", "LoadCasesCapacity=1/1", "MaterialExpansionLawsCapacity=4/4", "TypedTextBytes=128/128", "TypedTextCapacity=128/128", "RawTextBytes=128/128", "RawDepth=16/16"] rows=["Nodes=32/32", "NodesCapacity=32/32", "Members=32/32", "MembersCapacity=32/32", "Supports=32/32", "SupportsCapacity=32/32", "Restraints=66/192", "Springs=21/192", "Loads=256/128", "LoadsCapacity=256/128", "ModelMaterials=4/4", "RequestMaterials=4/4", "TemperaturePoints=16/16", "LoadCasesCapacity=1/1", "TypedTextBytes=128/128", "RawTextBytes=128/128", "RawKeyTextBytes=23/128", "RawValues=4701/16384", "RawDepth=16/16", "RawStringBytes=39373/65536", "RawKeyBytes=25611/65536", "RawArrayCapacity=569/32768", "RawStringCapacity=39373/131072", "RawKeyCapacity=25611/131072", "DigestCapacity=64/128", "ControlBytes=0/0"]
+I98_BEGIN cb1_ab sparse_interactive registered=true input_sha=a50edfb76b8cbc8cc6cf96c307c5a6988d4559aa603c6179ca3834bdc55df3ec
+I98_ORDINARY cb1_ab sparse_interactive status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=2113 plain_sha=4898d5d6df85e57c348f8adcd02f544aba3b59ee8157bf34f2c72ad098579e78 plain_len=1415151 published_verdicts=[{"ref":"case:ab","solve_quality":"checks_passed"}] rcond=["2.0384254872829075e-8"] refinement_attempts=["0"] assembly=["rel=5.517719525168333e-17 amp=2.7068536768165634e-9 load=0.0"] d5=["none"] range_scaling=[] diagnostics={"LOAD_CATEGORY_PREVIEW_MAPPED:warning": 256, "NUMERICAL_INTEGRITY_CHECKS_PASSED:info": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1} ms=89
+I98_ADMISSION cb1_ab sparse_interactive profile=Registered allowance=Unselected refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None census_complete=true
+I98_W1 cb1_ab sparse_interactive cause=None (no permit, no W1) phase=none (no W1 phase work) counts=Counts { runs: 1, complete_gates: 0 } one_run_through_g_c=false armed_before=[] armed_after=[] envelope_is_plain=true published_successor=false notices=0 bytes_eq_with_notice_plain_case_none=false bytes_eq_plain=true published_sha=4898d5d6df85e57c348f8adcd02f544aba3b59ee8157bf34f2c72ad098579e78 published_len=1415151 direct_ms=90
+I98_MARK witness_ordinary_done t_us=1791416622895837
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case:ab","solve_quality":"checks_passed"}] seeds=[{"case":"case:ab","d5_ref":null,"initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_CHECKS_PASSED","ref":"diagnostic:numerical-integrity:case:ab"},"legacy":"not_required","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case:ab
+I98_MARK w1_start t_us=1791416622902858
+I98_MARK prepared t_us=1791416622920201
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791416623396011
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure {...[cut by sanitize.py: 81256 bytes, sha256 a07f27b74f4ff76eb4d5ca56e95724db8c70b2a54b9ab606473ff2877c7ab9b2]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"3ff0000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":1.0},{"bits":"0000000000000000","id":"result:disp:C0-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C0-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C1-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C1-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C2-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C2-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C3-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"00000000000...[cut by sanitize.py: 682238 bytes, sha256 aba3b859242eec7c32303e537bbe3dbbe6df2620bfdadd9ee1e566645a062519]
+I98_MARK candidate t_us=1791416637014329
+I98_MARK staged t_us=1791416637014939
+I98_MARK serialized t_us=1791416637402516
+I98_PRECOMMIT_ERROR ValidationError { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH", detail: None }
+I98_PRECOMMIT_DUMP precommit_refused_sparse_interactive_256edeb38d21.json
+I98_WITNESS cb1_ab sparse_interactive stack=4194304 ran=Fallback(Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH" }) furthest_phase=W4 ms=15198
+I98_BYPASS_GA cb1_ab sparse_interactive profile=Registered refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None census_complete=true
+I98_BYPASS_GB cb1_ab sparse_interactive stack=67108864 late_refusal=Some(PhaseRefusal { gate: Late, fact: CaseLoads, observed: 256, cap: 128 }) exact_selected=false capture_error=Some("Association(\"missing successful prepared late source hook\")")
+I98_MARK bypass_ordinary_done t_us=1791416638185156
+I98_BYPASS_GC cb1_ab sparse_interactive complete=Ok(())
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case:ab","solve_quality":"checks_passed"}] seeds=[{"case":"case:ab","d5_ref":null,"initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_CHECKS_PASSED","ref":"diagnostic:numerical-integrity:case:ab"},"legacy":"not_required","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case:ab
+I98_MARK w1_start t_us=1791416638193594
+I98_MARK prepared t_us=1791416638210950
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791416638656925
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure {...[cut by sanitize.py: 81256 bytes, sha256 a07f27b74f4ff76eb4d5ca56e95724db8c70b2a54b9ab606473ff2877c7ab9b2]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"3ff0000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":1.0},{"bits":"0000000000000000","id":"result:disp:C0-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C0-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C1-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C1-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C2-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C2-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C3-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"00000000000...[cut by sanitize.py: 682238 bytes, sha256 aba3b859242eec7c32303e537bbe3dbbe6df2620bfdadd9ee1e566645a062519]
+I98_MARK candidate t_us=1791416652142609
+I98_MARK staged t_us=1791416652143171
+I98_MARK serialized t_us=1791416652519433
+I98_PRECOMMIT_ERROR ValidationError { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH", detail: None }
+I98_PRECOMMIT_DUMP precommit_refused_sparse_interactive_256edeb38d21.json
+I98_BYPASS cb1_ab sparse_interactive stack=67108864 ran=Fallback(Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH" }) furthest_phase=W4 ms=14966
+I98_BEGIN cb1_ab dense_scrutiny registered=true input_sha=a50edfb76b8cbc8cc6cf96c307c5a6988d4559aa603c6179ca3834bdc55df3ec
+I98_ORDINARY cb1_ab dense_scrutiny status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=2114 plain_sha=1687ff12f3e5c4c48b205314f2bf0af3a3e213c73997d09638eb86730fa81f47 plain_len=1416392 published_verdicts=[{"ref":"case:ab","solve_quality":"checks_passed"}] rcond=["2.0384254947051128e-8"] refinement_attempts=["0"] assembly=["rel=5.517719525168333e-17 amp=2.7068536669605133e-9 load=0.0"] d5=["none"] range_scaling=[] diagnostics={"LOAD_CATEGORY_PREVIEW_MAPPED:warning": 256, "NUMERICAL_INTEGRITY_CHECKS_PASSED:info": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1} ms=205
+I98_ADMISSION cb1_ab dense_scrutiny profile=Registered allowance=Unselected refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None census_complete=true
+I98_W1 cb1_ab dense_scrutiny cause=None (no permit, no W1) phase=none (no W1 phase work) counts=Counts { runs: 1, complete_gates: 0 } one_run_through_g_c=false armed_before=[] armed_after=[] envelope_is_plain=true published_successor=false notices=0 bytes_eq_with_notice_plain_case_none=false bytes_eq_plain=true published_sha=1687ff12f3e5c4c48b205314f2bf0af3a3e213c73997d09638eb86730fa81f47 published_len=1416392 direct_ms=133
+I98_MARK witness_ordinary_done t_us=1791416653821013
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case:ab","solve_quality":"checks_passed"}] seeds=[{"case":"case:ab","d5_ref":null,"initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_CHECKS_PASSED","ref":"diagnostic:numerical-integrity:case:ab"},"legacy":"not_required","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case:ab
+I98_MARK w1_start t_us=1791416653828253
+I98_MARK prepared t_us=1791416653845614
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791416654289457
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure {...[cut by sanitize.py: 81256 bytes, sha256 a07f27b74f4ff76eb4d5ca56e95724db8c70b2a54b9ab606473ff2877c7ab9b2]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"4000000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":2.0},{"bits":"0000000000000000","id":"result:sparse-live:dense-parity-relative-delta","kind":"sparse_live_path_dense_parity_relative_delta","unit":"unitless","value":0.0},{"bits":"0000000000000000","id":"result:disp:C0-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C0-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C1-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C1-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C2-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C2-N1","kind":"displacement...[cut by sanitize.py: 682534 bytes, sha256 bac43a5d733d648980a171d467ae0e300faabcefdfa75cc3eeecba130b406583]
+I98_MARK candidate t_us=1791416667770303
+I98_MARK staged t_us=1791416667770912
+I98_MARK serialized t_us=1791416668157022
+I98_PRECOMMIT_ERROR ValidationError { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH", detail: None }
+I98_PRECOMMIT_DUMP precommit_refused_dense_scrutiny_6699beb1eb17.json
+I98_WITNESS cb1_ab dense_scrutiny stack=4194304 ran=Fallback(Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH" }) furthest_phase=W4 ms=15083
+I98_BYPASS_GA cb1_ab dense_scrutiny profile=Registered refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None census_complete=true
+I98_BYPASS_GB cb1_ab dense_scrutiny stack=67108864 late_refusal=Some(PhaseRefusal { gate: Late, fact: CaseLoads, observed: 256, cap: 128 }) exact_selected=false capture_error=Some("Association(\"missing successful prepared late source hook\")")
+I98_MARK bypass_ordinary_done t_us=1791416669015778
+I98_BYPASS_GC cb1_ab dense_scrutiny complete=Ok(())
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case:ab","solve_quality":"checks_passed"}] seeds=[{"case":"case:ab","d5_ref":null,"initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_CHECKS_PASSED","ref":"diagnostic:numerical-integrity:case:ab"},"legacy":"not_required","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case:ab
+I98_MARK w1_start t_us=1791416669024364
+I98_MARK prepared t_us=1791416669042109
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791416669510345
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure {...[cut by sanitize.py: 81256 bytes, sha256 a07f27b74f4ff76eb4d5ca56e95724db8c70b2a54b9ab606473ff2877c7ab9b2]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"4000000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":2.0},{"bits":"0000000000000000","id":"result:sparse-live:dense-parity-relative-delta","kind":"sparse_live_path_dense_parity_relative_delta","unit":"unitless","value":0.0},{"bits":"0000000000000000","id":"result:disp:C0-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C0-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C1-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C1-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C2-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C2-N1","kind":"displacement...[cut by sanitize.py: 682534 bytes, sha256 bac43a5d733d648980a171d467ae0e300faabcefdfa75cc3eeecba130b406583]
+I98_MARK candidate t_us=1791416682986234
+I98_MARK staged t_us=1791416682986819
+I98_MARK serialized t_us=1791416683361445
+I98_PRECOMMIT_ERROR ValidationError { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH", detail: None }
+I98_PRECOMMIT_DUMP precommit_refused_dense_scrutiny_6699beb1eb17.json
+I98_BYPASS cb1_ab dense_scrutiny stack=67108864 ran=Fallback(Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH" }) furthest_phase=W4 ms=15021
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 558 filtered out; finished in 61.57s
+

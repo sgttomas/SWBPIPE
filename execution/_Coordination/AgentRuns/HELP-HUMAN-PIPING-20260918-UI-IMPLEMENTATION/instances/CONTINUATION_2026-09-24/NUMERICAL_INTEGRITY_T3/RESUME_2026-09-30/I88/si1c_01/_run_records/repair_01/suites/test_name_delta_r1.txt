@@ -1,0 +1,53 @@
+== expression_evaluator, against 7f233b2e01: removed
+tests::blocks_generated_nan_table_arguments: test
+tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking: test
+tests::same_dimension_quotients_that_did_not_panic_are_unchanged: test
+== expression_evaluator, against 7f233b2e01: added
+tests::a_same_dimension_quotient_over_an_overflowing_divisor_blocks_at_the_multiply: test
+tests::generated_nan_forming_table_arguments_block_at_their_producer: test
+tests::nan_forming_interpolation_and_step_arguments_block_at_the_multiply: test
+tests::same_dimension_quotients_of_finite_operands_are_unchanged: test
+== expression_evaluator, against main 025c1cf326: removed
+tests::blocks_generated_nan_table_arguments: test
+tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking: test
+tests::non_finite_quotients_outside_the_ratio_arm_still_carry_their_value: test
+tests::non_finite_table_arguments_that_did_not_panic_are_unchanged: test
+tests::same_dimension_quotients_that_did_not_panic_are_unchanged: test
+== expression_evaluator, against main 025c1cf326: added
+tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression: test
+tests::a_same_dimension_quotient_over_an_overflowing_divisor_blocks_at_the_multiply: test
+tests::absorbing_forms_block_instead_of_deciding: test
+tests::each_producer_blocks_where_its_result_overflows: test
+tests::finite_boundaries_still_evaluate: test
+tests::generated_nan_forming_table_arguments_block_at_their_producer: test
+tests::interval_mode_still_reads_these_overflows_indeterminate_without_a_finding: test
+tests::nan_forming_interpolation_and_step_arguments_block_at_the_multiply: test
+tests::non_finite_quotients_outside_the_ratio_arm_block_at_divide: test
+tests::non_finite_table_arguments_block_at_the_overflowing_multiply: test
+tests::same_dimension_quotients_of_finite_operands_are_unchanged: test
+tests::the_carried_non_finite_reproducers_block_at_the_multiply: test
+tests::the_comparison_truth_table_is_unreachable: test
+== rule_check_runner, against 7f233b2e01: removed
+a_nan_table_argument_check_blocks: test
+== rule_check_runner, against 7f233b2e01: added
+a_non_finite_input_listed_twice_is_named_once: test
+a_non_finite_value_in_a_padded_copy_of_the_declared_unit_is_named_not_unsupplied: test
+a_table_check_over_an_overflowing_argument_blocks_at_the_multiply: test
+the_n4_note_follows_an_existing_note: test
+== rule_check_runner, against main 025c1cf326: removed
+a_nan_table_argument_check_blocks: test
+== rule_check_runner, against main 025c1cf326: added
+a_boolean_check_over_an_overflow_blocks_at_the_producer: test
+a_non_finite_input_is_named_and_never_bound: test
+a_non_finite_input_listed_twice_is_named_once: test
+a_non_finite_limit_is_named_in_both_limit_blocks: test
+a_non_finite_raw_input_in_another_unit_is_named_and_still_unsupplied: test
+a_non_finite_value_in_a_padded_copy_of_the_declared_unit_is_named_not_unsupplied: test
+a_quantity_check_over_an_overflow_blocks_with_no_computed_value: test
+a_table_check_over_an_overflowing_argument_blocks_at_the_multiply: test
+an_unreferenced_non_finite_input_blocks_nothing: test
+the_n4_note_follows_an_existing_note: test
+== rule_pack_document, against 7f233b2e01: removed
+== rule_pack_document, against 7f233b2e01: added
+== rule_pack_document, against main 025c1cf326: removed
+== rule_pack_document, against main 025c1cf326: added

@@ -1,0 +1,3 @@
+11cc14e3e65363790f43943b09933a57f4da28e4 piping(T3 B1 SR-PY): repair 01, pin (c)'s basis count with a missing sourceless basis
+03642b5abc6172de444ad35db6753bc2f55d8a3e piping(T3 B1 SR-PY): repair 01 (e), every material basis has its materials checked at G8
+a53d79a7a831f513248d46e41cbb8dad9d0db2fd piping(T3 B1 SR-PY): repair 01, G8's invocation shape, material basis per case and exact case lists

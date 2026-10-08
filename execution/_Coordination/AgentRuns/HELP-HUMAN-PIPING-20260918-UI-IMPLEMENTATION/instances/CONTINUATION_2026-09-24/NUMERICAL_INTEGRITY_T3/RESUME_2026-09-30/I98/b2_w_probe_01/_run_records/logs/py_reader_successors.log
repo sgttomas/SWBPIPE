@@ -1,0 +1,17 @@
+reader_sha256=9d1156ed6dacce332d9cd962b9c09f699aa456698d0f3880f96bbf432936c6fc
+PY_READER unchanged successor_cb3_a_dense_scrutiny.json text_sha=9d1156ed6dacce33 PASS {'invocation_bound': True, 'numerical_eligible': True} classifications=114
+PY_READER unchanged successor_cb3_a_sparse_interactive.json text_sha=9d1156ed6dacce33 PASS {'invocation_bound': True, 'numerical_eligible': True} classifications=113
+PY_READER unchanged successor_cb3_v1_ab_dense_scrutiny.json text_sha=9d1156ed6dacce33 PASS {'invocation_bound': True, 'numerical_eligible': True} classifications=114
+PY_READER unchanged successor_cb3_v1_ab_sparse_interactive.json text_sha=9d1156ed6dacce33 PASS {'invocation_bound': True, 'numerical_eligible': True} classifications=113
+PY_READER unchanged successor_i86_case_a_dense_scrutiny.json text_sha=9d1156ed6dacce33 PASS {'invocation_bound': True, 'numerical_eligible': True} classifications=2114
+PY_READER unchanged successor_i86_case_a_sparse_interactive.json text_sha=9d1156ed6dacce33 PASS {'invocation_bound': True, 'numerical_eligible': True} classifications=2113
+PY_READER unchanged successor_milestone_dense_scrutiny.json text_sha=9d1156ed6dacce33 PASS {'invocation_bound': True, 'numerical_eligible': True} classifications=99
+PY_READER unchanged successor_milestone_sparse_interactive.json text_sha=9d1156ed6dacce33 PASS {'invocation_bound': True, 'numerical_eligible': True} classifications=98
+PY_READER D6b_neutralised successor_cb3_a_dense_scrutiny.json text_sha=a8d60e06b94c5bca PASS {'invocation_bound': True, 'numerical_eligible': True} classifications=114
+PY_READER D6b_neutralised successor_cb3_a_sparse_interactive.json text_sha=a8d60e06b94c5bca PASS {'invocation_bound': True, 'numerical_eligible': True} classifications=113
+PY_READER D6b_neutralised successor_cb3_v1_ab_dense_scrutiny.json text_sha=a8d60e06b94c5bca PASS {'invocation_bound': True, 'numerical_eligible': True} classifications=114
+PY_READER D6b_neutralised successor_cb3_v1_ab_sparse_interactive.json text_sha=a8d60e06b94c5bca PASS {'invocation_bound': True, 'numerical_eligible': True} classifications=113
+PY_READER D6b_neutralised successor_i86_case_a_dense_scrutiny.json text_sha=a8d60e06b94c5bca PASS {'invocation_bound': True, 'numerical_eligible': True} classifications=2114
+PY_READER D6b_neutralised successor_i86_case_a_sparse_interactive.json text_sha=a8d60e06b94c5bca PASS {'invocation_bound': True, 'numerical_eligible': True} classifications=2113
+PY_READER D6b_neutralised successor_milestone_dense_scrutiny.json text_sha=a8d60e06b94c5bca PASS {'invocation_bound': True, 'numerical_eligible': True} classifications=99
+PY_READER D6b_neutralised successor_milestone_sparse_interactive.json text_sha=a8d60e06b94c5bca PASS {'invocation_bound': True, 'numerical_eligible': True} classifications=98

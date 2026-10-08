@@ -1,0 +1,11 @@
+PR 2881cb1969f0aa7b670b9185c453699b5f5b80d7
+INT 73e8087df79e375dfb45aaaa4f29aa32602a6a7c
+MAIN e33f3e2f1b0a0271da3ef4db8521b3981257b5ce
+B e33f3e2f1b0a0271da3ef4db8521b3981257b5ce
+|S| = 5
+[PASS] check 1: PR non-execution paths equal S
+[PASS] check 2: 5 paths identical in blob and mode
+[PASS] check 3: {"rules_not_needed": ["projects/chirality-piping/core/analysis_runs/compatibility.py"]}
+[PASS] check 4: {"execution_files": 4, "outside_package": [], "sha256_mismatch": []}
+[PASS] check 5: 5 rows; 5 equal; 0 recorded three-way merge(s); unexplained []
+RESULT PASS

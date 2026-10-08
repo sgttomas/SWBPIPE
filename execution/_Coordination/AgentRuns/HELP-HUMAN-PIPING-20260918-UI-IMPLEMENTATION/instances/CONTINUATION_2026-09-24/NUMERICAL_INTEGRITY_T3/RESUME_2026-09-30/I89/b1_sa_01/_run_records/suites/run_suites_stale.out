@@ -1,0 +1,3 @@
+== cand_stale_retained_memory start 2026-10-07T14:44:10Z
+== cand_stale_retained_memory exit=0 2026-10-07T14:47:13Z
+cand_stale_retained_memory: 50 ok, 0 failed, 10 ignored

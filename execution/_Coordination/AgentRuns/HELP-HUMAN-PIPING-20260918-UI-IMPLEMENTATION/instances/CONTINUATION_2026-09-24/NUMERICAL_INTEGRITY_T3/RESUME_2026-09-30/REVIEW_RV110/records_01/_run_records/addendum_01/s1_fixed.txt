@@ -1,0 +1,16 @@
+## S-1 at H2 = ea3b1443ea
+_run_records/build/build01_norun.log: in H2 tree: yes; sha256 5012d058a140…; mode 100644
+_run_records/build/build_identities.txt: in H2 tree: yes; sha256 5f3f2afd8324…; mode 100644
+_run_records/build/lib01.log: in H2 tree: yes; sha256 4994ff1854d4…; mode 100644
+_run_records/repair_01/build/r1_lib01.log: in H2 tree: yes; sha256 d87b5612f8ea…; mode 100644
+RETURN.md:151 cites: _run_records/build/build_identities.txt  -> resolves: yes
+REPAIR_01.md:152 cites build/ (under _run_records/repair_01/): r1_lib01.log 
+RETURN.md:262 cites build/ (under _run_records/): build01_norun.log build_identities.txt lib01.log 
+## my report in H2
+REVIEW.md sha256 at H2: 5b302199e6a6b50968c3c3743258ae9a46c77bb8c0cc602cd4e46e91484cbc8d
+files in H2's REVIEW_RV110/records_01: 42
+## NUM working tree: ignored or untracked under P/execution (git status --ignored)
+!! T3/REFERENCES/__pycache__/
+!! T3/RESUME_2026-09-30/I65/u4_g7_03/_run_records/__pycache__/
+!! T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/
+!! T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_repair_02/imported/

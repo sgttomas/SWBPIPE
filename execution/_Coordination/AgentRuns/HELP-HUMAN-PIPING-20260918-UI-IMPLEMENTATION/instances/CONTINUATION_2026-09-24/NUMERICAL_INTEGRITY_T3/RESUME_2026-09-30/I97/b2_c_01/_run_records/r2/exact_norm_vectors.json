@@ -1,0 +1,3294 @@
+{
+ "recipe": "DEF-C r2 rows.displacement_magnitude: RN64, ties to even, of sqrt(x^2+y^2+z^2), exact; refused beyond binary64's range; +0 for an all-zero triple",
+ "encoding": "IEEE 754 binary64 bit patterns, 16 lowercase hex digits",
+ "vectors": [
+  {
+   "label": "A-5 midpoint, ties to even",
+   "x": "3de0000002000000",
+   "y": "3f80000004000000",
+   "z": "0000000000000000",
+   "p": "3f80000004000000",
+   "tie": true
+  },
+  {
+   "label": "A-5 midpoint plus 2^-1074: rounds up",
+   "x": "3de0000002000000",
+   "y": "3f80000004000000",
+   "z": "0000000000000001",
+   "p": "3f80000004000001",
+   "tie": false
+  },
+  {
+   "label": "A-5 midpoint plus 2^-600: rounds up",
+   "x": "3de0000002000000",
+   "y": "3f80000004000000",
+   "z": "1a70000000000000",
+   "p": "3f80000004000001",
+   "tie": false
+  },
+  {
+   "label": "A-5 midpoint, first component one ulp lower: rounds down",
+   "x": "3de0000001ffffff",
+   "y": "3f80000004000000",
+   "z": "0000000000000000",
+   "p": "3f80000004000000",
+   "tie": false
+  },
+  {
+   "label": "A-5 midpoint, signs flipped",
+   "x": "bde0000002000000",
+   "y": "bf80000004000000",
+   "z": "8000000000000000",
+   "p": "3f80000004000000",
+   "tie": true
+  },
+  {
+   "label": "3,4,12 -> 13 exactly",
+   "x": "c008000000000000",
+   "y": "4010000000000000",
+   "z": "4028000000000000",
+   "p": "402a000000000000",
+   "tie": false
+  },
+  {
+   "label": "1, 2^-1074, 0 -> 1",
+   "x": "3ff0000000000000",
+   "y": "0000000000000001",
+   "z": "0000000000000000",
+   "p": "3ff0000000000000",
+   "tie": false
+  },
+  {
+   "label": "1e300, 1e-300, 2^-1074",
+   "x": "7e37e43c8800759c",
+   "y": "01a56e1fc2f8f359",
+   "z": "0000000000000001",
+   "p": "7e37e43c8800759c",
+   "tie": false
+  },
+  {
+   "label": "smallest subnormal",
+   "x": "0000000000000001",
+   "y": "0000000000000000",
+   "z": "0000000000000000",
+   "p": "0000000000000001",
+   "tie": false
+  },
+  {
+   "label": "three smallest subnormals",
+   "x": "0000000000000001",
+   "y": "8000000000000001",
+   "z": "0000000000000001",
+   "p": "0000000000000002",
+   "tie": false
+  },
+  {
+   "label": "two smallest subnormals",
+   "x": "0000000000000001",
+   "y": "0000000000000001",
+   "z": "0000000000000000",
+   "p": "0000000000000001",
+   "tie": false
+  },
+  {
+   "label": "largest subnormal, three times",
+   "x": "000fffffffffffff",
+   "y": "000fffffffffffff",
+   "z": "000fffffffffffff",
+   "p": "001bb67ae8584ca9",
+   "tie": false
+  },
+  {
+   "label": "MIN_POSITIVE and a subnormal",
+   "x": "0010000000000000",
+   "y": "0000000000000001",
+   "z": "8000000000000001",
+   "p": "0010000000000000",
+   "tie": false
+  },
+  {
+   "label": "MAX, 0, 0 -> MAX",
+   "x": "7fefffffffffffff",
+   "y": "0000000000000000",
+   "z": "8000000000000000",
+   "p": "7fefffffffffffff",
+   "tie": false
+  },
+  {
+   "label": "MAX, MAX, 0 -> refused",
+   "x": "7fefffffffffffff",
+   "y": "7fefffffffffffff",
+   "z": "0000000000000000",
+   "p": "refused",
+   "tie": false
+  },
+  {
+   "label": "2^1023, 2^1023, 0 -> finite",
+   "x": "7fe0000000000000",
+   "y": "7fe0000000000000",
+   "z": "0000000000000000",
+   "p": "7fe6a09e667f3bcd",
+   "tie": false
+  },
+  {
+   "label": "1e308 three times -> finite",
+   "x": "7fe1ccf385ebc8a0",
+   "y": "7fe1ccf385ebc8a0",
+   "z": "7fe1ccf385ebc8a0",
+   "p": "7feed4df0150215a",
+   "tie": false
+  },
+  {
+   "label": "1e200 (an unscaled hypot would overflow)",
+   "x": "6974e718d7d7625a",
+   "y": "e974e718d7d7625a",
+   "z": "6974e718d7d7625a",
+   "p": "69821a2f9c3d2c96",
+   "tie": false
+  },
+  {
+   "label": "1e-200 (an unscaled hypot would underflow)",
+   "x": "16687e92154ef7ac",
+   "y": "16687e92154ef7ac",
+   "z": "96687e92154ef7ac",
+   "p": "167536793539fd32",
+   "tie": false
+  },
+  {
+   "label": "zeros +0,+0,+0",
+   "x": "0000000000000000",
+   "y": "0000000000000000",
+   "z": "0000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "zeros +0,+0,-0",
+   "x": "0000000000000000",
+   "y": "0000000000000000",
+   "z": "8000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "zeros +0,-0,+0",
+   "x": "0000000000000000",
+   "y": "8000000000000000",
+   "z": "0000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "zeros +0,-0,-0",
+   "x": "0000000000000000",
+   "y": "8000000000000000",
+   "z": "8000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "zeros -0,+0,+0",
+   "x": "8000000000000000",
+   "y": "0000000000000000",
+   "z": "0000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "zeros -0,+0,-0",
+   "x": "8000000000000000",
+   "y": "0000000000000000",
+   "z": "8000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "zeros -0,-0,+0",
+   "x": "8000000000000000",
+   "y": "8000000000000000",
+   "z": "0000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "zeros -0,-0,-0",
+   "x": "8000000000000000",
+   "y": "8000000000000000",
+   "z": "8000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 0",
+   "x": "14debbb41f85b7d0",
+   "y": "14debc62cc6f1563",
+   "z": "94debbb41f85b7d0",
+   "p": "14ea9dd402d91746",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 1",
+   "x": "5c2908603eb31d51",
+   "y": "5c29092804c95426",
+   "z": "dc2908603eb31d51",
+   "p": "5c35ae0aaa08c264",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 2",
+   "x": "9e09872e2aeab172",
+   "y": "9e098db403a9cafd",
+   "z": "1e09872e2aeab172",
+   "p": "1e161d840b9f83c6",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 3",
+   "x": "3c8f9b6efbb5cee2",
+   "y": "8000000000000000",
+   "z": "8000000000000000",
+   "p": "3c8f9b6efbb5cee2",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 4",
+   "x": "0000000000000000",
+   "y": "0000000000000000",
+   "z": "0000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 5",
+   "x": "172952c59ac82694",
+   "y": "0000000000000000",
+   "z": "800000000023ac85",
+   "p": "172952c59ac82694",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 6",
+   "x": "b865ba8c39da2680",
+   "y": "800000000590d4b5",
+   "z": "f1c320f3e2539888",
+   "p": "71c320f3e2539888",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 7",
+   "x": "5f1306f3c22432d6",
+   "y": "80000001f694b9ae",
+   "z": "0000000000000000",
+   "p": "5f1306f3c22432d6",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 8",
+   "x": "5e03239904297fa5",
+   "y": "8de3e454967eaf10",
+   "z": "0000000000000000",
+   "p": "5e03239904297fa5",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 9",
+   "x": "daf8553ae97af544",
+   "y": "daf85b55d3eae61c",
+   "z": "5af8553ae97af544",
+   "p": "5b05146f3c2d7c7e",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 10",
+   "x": "933c881b86cd63e2",
+   "y": "af646d18ddd5a83a",
+   "z": "80000000000017b5",
+   "p": "2f646d18ddd5a83a",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 11",
+   "x": "ca83d0148b245b33",
+   "y": "a3966f107f569748",
+   "z": "968844e343ed31bc",
+   "p": "4a83d0148b245b33",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 12",
+   "x": "6f17b27ea30712d6",
+   "y": "4c96e335d2f3a88e",
+   "z": "780375e46cc2bc3c",
+   "p": "780375e46cc2bc3c",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 13",
+   "x": "a044d4f3fe6a6385",
+   "y": "e71970c60ab102ae",
+   "z": "bbfad851d922f887",
+   "p": "671970c60ab102ae",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 14",
+   "x": "800000000ad7888d",
+   "y": "a2ea5953a9657d4e",
+   "z": "b45d5acb253fc550",
+   "p": "345d5acb253fc550",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 15",
+   "x": "8000000000000000",
+   "y": "4563316596bde67f",
+   "z": "5ee47bf08bffc01c",
+   "p": "5ee47bf08bffc01c",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 16",
+   "x": "114c0d136992cb77",
+   "y": "0dfc0d136992cb77",
+   "z": "0d8c0d136992cb77",
+   "p": "114c0d136992cb77",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 17",
+   "x": "87418114b7ca830c",
+   "y": "8741824b94060647",
+   "z": "07418114b7ca830c",
+   "p": "074e52293610213a",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 18",
+   "x": "d09735f47e143a07",
+   "y": "d09736e598fec966",
+   "z": "509735f47e143a07",
+   "p": "50a41a27e9f97d4b",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 19",
+   "x": "f2a33722bf14d940",
+   "y": "f2a3380b87b3a21f",
+   "z": "72a33722bf14d940",
+   "p": "72b0a45be8894ccc",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 20",
+   "x": "8000000000000000",
+   "y": "81f13078aa52d0b8",
+   "z": "800000000082a35e",
+   "p": "01f13078aa52d0b8",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 21",
+   "x": "9509c6613ce89234",
+   "y": "9509cc80aa5345e4",
+   "z": "1509c6613ce89234",
+   "p": "15165421f1e97a91",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 22",
+   "x": "af1238b1b64885d0",
+   "y": "af1238f06338fe19",
+   "z": "2f1238b1b64885d0",
+   "p": "2f1f8fa0f1afd548",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 23",
+   "x": "cb8056fb46051b21",
+   "y": "c9a056fb46051b21",
+   "z": "c8a056fb46051b21",
+   "p": "4b8056fb46051b21",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 24",
+   "x": "52297eb387599da8",
+   "y": "55d54f60643dec0e",
+   "z": "74727f94a4e38625",
+   "p": "74727f94a4e38625",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 25",
+   "x": "00000000181f50b3",
+   "y": "ae14d2003530e48c",
+   "z": "4761a485c4ec0082",
+   "p": "4761a485c4ec0082",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 26",
+   "x": "effe3f0b36bbf86e",
+   "y": "800000000013ff5c",
+   "z": "d2c3a7ed3793f736",
+   "p": "6ffe3f0b36bbf86e",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 27",
+   "x": "e07d1ec8db040382",
+   "y": "dd3d1ec8db040382",
+   "z": "dbdd1ec8db040382",
+   "p": "607d1ec8db040382",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 28",
+   "x": "8000000000056ef8",
+   "y": "8000000000056f17",
+   "z": "0000000000056ef8",
+   "p": "000000000009694c",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 29",
+   "x": "91d6bb2916915523",
+   "y": "9066bb2916915523",
+   "z": "8df6bb2916915523",
+   "p": "11d6bb2916915550",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 30",
+   "x": "8000000ff8c83188",
+   "y": "fb85deedf68da803",
+   "z": "c850a64469958300",
+   "p": "7b85deedf68da803",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 31",
+   "x": "8000000000000000",
+   "y": "f0e0ac34dfadd7c3",
+   "z": "c9be8f5a4ad45f0c",
+   "p": "70e0ac34dfadd7c3",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 32",
+   "x": "c723e5d49498a600",
+   "y": "f127875cf906d56e",
+   "z": "990a1237582a1e0c",
+   "p": "7127875cf906d56e",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 33",
+   "x": "ea419446e761b743",
+   "y": "80000000314dfd62",
+   "z": "9fdfb011b91a5a6c",
+   "p": "6a419446e761b743",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 34",
+   "x": "149cfcbca51c06d2",
+   "y": "149d00488e0a7634",
+   "z": "949cfcbca51c06d2",
+   "p": "14a91b92143e8154",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 35",
+   "x": "80000001240332be",
+   "y": "800000012422ffc9",
+   "z": "00000001240332be",
+   "p": "00000001f9da2a11",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 36",
+   "x": "4a80a8627391b9e7",
+   "y": "d7df66309e640100",
+   "z": "af3430dde537de80",
+   "p": "57df66309e640100",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 37",
+   "x": "0000000000000003",
+   "y": "0000000000000000",
+   "z": "0000000000000000",
+   "p": "0000000000000003",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 38",
+   "x": "00000171f4a4f7ea",
+   "y": "000001722c0f0e6e",
+   "z": "80000171f4a4f7ea",
+   "p": "00000280e82f0cf2",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 39",
+   "x": "800000000011d34e",
+   "y": "fd16e86c53d5e54e",
+   "z": "4f888619101403a0",
+   "p": "7d16e86c53d5e54e",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 40",
+   "x": "000000003f39078e",
+   "y": "0000000000000000",
+   "z": "f7f554583a7a5bb8",
+   "p": "77f554583a7a5bb8",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 41",
+   "x": "0000001d06991769",
+   "y": "056b050a02945457",
+   "z": "2742bc7d03025593",
+   "p": "2742bc7d03025593",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 42",
+   "x": "8000000036b7d1b8",
+   "y": "7d66ea11e6705010",
+   "z": "62a5c3d0ba77cafe",
+   "p": "7d66ea11e6705010",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 43",
+   "x": "e75fb2619c44f643",
+   "y": "e4bfb2619c44f643",
+   "z": "e58fb2619c44f643",
+   "p": "675fb2619c44f643",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 44",
+   "x": "a7d7caf6e40c57e6",
+   "y": "4448d7020ab3e050",
+   "z": "8000000000000000",
+   "p": "4448d7020ab3e050",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 45",
+   "x": "0b8f15cb3acfb698",
+   "y": "0b8f1a888c498fb6",
+   "z": "8b8f15cb3acfb698",
+   "p": "0b9aed05254ff66a",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 46",
+   "x": "fa0df32e7260d400",
+   "y": "fa0df898fd712edb",
+   "z": "7a0df32e7260d400",
+   "p": "7a19f189ac15b5e7",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 47",
+   "x": "0000000000000000",
+   "y": "94466dc317efc63c",
+   "z": "e6ac7d8bf903c35c",
+   "p": "66ac7d8bf903c35c",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 48",
+   "x": "f483d2bfbf4e33e9",
+   "y": "f483d34d6a37ce85",
+   "z": "7483d2bfbf4e33e9",
+   "p": "74912b057520373e",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 49",
+   "x": "5895dd567a31ff66",
+   "y": "4e92ef98a317a708",
+   "z": "96309331aea64564",
+   "p": "5895dd567a31ff66",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 50",
+   "x": "2a928ec498aa76e9",
+   "y": "0675d1aabca31b8d",
+   "z": "ac2d39ff6e207ea2",
+   "p": "2c2d39ff6e207ea3",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 51",
+   "x": "0000000000000000",
+   "y": "0000000000000000",
+   "z": "0000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 52",
+   "x": "9a1b5f181c555da4",
+   "y": "957b5f181c555da4",
+   "z": "984b5f181c555da4",
+   "p": "1a1b5f181c555da4",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 53",
+   "x": "ee89ed3090fad4d4",
+   "y": "ec19ed3090fad4d4",
+   "z": "ea49ed3090fad4d4",
+   "p": "6e89ed3090fad4d4",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 54",
+   "x": "c57f8aed510ab024",
+   "y": "fcac58e8146aca7a",
+   "z": "000045a8013f001e",
+   "p": "7cac58e8146aca7a",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 55",
+   "x": "0000000001735f80",
+   "y": "de041c93bb727653",
+   "z": "0000000000000000",
+   "p": "5e041c93bb727653",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 56",
+   "x": "52d5ab0dd6947f40",
+   "y": "52d5ab99448bae8f",
+   "z": "d2d5ab0dd6947f40",
+   "p": "52e2c40c05869440",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 57",
+   "x": "5ca0b97ef1015c5f",
+   "y": "c781171ebdae7ebc",
+   "z": "ba1ee56cf3450c4a",
+   "p": "5ca0b97ef1015c5f",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 58",
+   "x": "2a528885b2afe950",
+   "y": "2a528d280ac0c6ee",
+   "z": "aa528885b2afe950",
+   "p": "2a600e370a942cd5",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 59",
+   "x": "330cece06e7da8fc",
+   "y": "1d418a9eeef67bc8",
+   "z": "0d7bc949e027aee0",
+   "p": "330cece06e7da8fc",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 60",
+   "x": "0006010a5afc5dd2",
+   "y": "9b7ed910bf75cbc3",
+   "z": "9d52212339daaea3",
+   "p": "1d52212339daaea3",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 61",
+   "x": "4f2f29d3127ff894",
+   "y": "7e37a6e2c1191606",
+   "z": "0000000003ee2e08",
+   "p": "7e37a6e2c1191606",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 62",
+   "x": "0000000000000000",
+   "y": "31cdeafaeb55dcb4",
+   "z": "eb2c2b5dfe9e1b75",
+   "p": "6b2c2b5dfe9e1b75",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 63",
+   "x": "0000000000000000",
+   "y": "0000000000000000",
+   "z": "8000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 64",
+   "x": "5fc7ef6bf93e3606",
+   "y": "48f1482d40140532",
+   "z": "aa3af6a9322f58c8",
+   "p": "5fc7ef6bf93e3606",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 65",
+   "x": "115a8b29a4d5cc42",
+   "y": "00000000003fd1a5",
+   "z": "80000000000079e2",
+   "p": "115a8b29a4d5cc42",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 66",
+   "x": "73cf617b9ea9ca7b",
+   "y": "73cf643a540163af",
+   "z": "f3cf617b9ea9ca7b",
+   "p": "73db2dfe251c65d7",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 67",
+   "x": "410b11c0f4dbc750",
+   "y": "0000000000000000",
+   "z": "de785d68524a42f6",
+   "p": "5e785d68524a42f6",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 68",
+   "x": "6f2b97bd5997ddba",
+   "y": "6e49e95e5bcd0979",
+   "z": "2ffcb665dd82bd5c",
+   "p": "6f2b97bd5a5a877a",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 69",
+   "x": "9b7a32c87b095f84",
+   "y": "9b7a339313cae658",
+   "z": "1b7a32c87b095f84",
+   "p": "1b86b0791887f9dd",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 70",
+   "x": "473b1b641edac63f",
+   "y": "42ab1b641edac63f",
+   "z": "44db1b641edac63f",
+   "p": "473b1b641edac63f",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 71",
+   "x": "57f53003de04db00",
+   "y": "57f53556354b39f8",
+   "z": "d7f53003de04db00",
+   "p": "58025adf2143e1fc",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 72",
+   "x": "dd1dcdb9168c9888",
+   "y": "dd1dd1bccaa0f4b4",
+   "z": "5d1dcdb9168c9888",
+   "p": "5d29d0b169e3e0b5",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 73",
+   "x": "9791f6f2b5c06fd9",
+   "y": "93e1f6f2b5c06fd9",
+   "z": "9371f6f2b5c06fd9",
+   "p": "1791f6f2b5c06fd9",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 74",
+   "x": "800000000022403a",
+   "y": "0000000000000000",
+   "z": "0000000000000000",
+   "p": "000000000022403a",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 75",
+   "x": "62e766c960aac1c4",
+   "y": "62e7681679f17c8f",
+   "z": "e2e766c960aac1c4",
+   "p": "62f4448c8ebde055",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 76",
+   "x": "8000000000000000",
+   "y": "8000000000000000",
+   "z": "0000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 77",
+   "x": "b267e9723ceb8e6e",
+   "y": "b267e9b2ef386299",
+   "z": "3267e9723ceb8e6e",
+   "p": "3274b566a1f3e00f",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 78",
+   "x": "8000000000000000",
+   "y": "0000000000000000",
+   "z": "1e6f65986ab7ab8c",
+   "p": "1e6f65986ab7ab8c",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 79",
+   "x": "8000000001fd3f07",
+   "y": "8000000001fd5372",
+   "z": "0000000001fd3f07",
+   "p": "000000000372161b",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 80",
+   "x": "bfb8a050b2ab7cc0",
+   "y": "bfb8a62d1e679e14",
+   "z": "3fb8a050b2ab7cc0",
+   "p": "3fc55563bc6ecf55",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 81",
+   "x": "8000000000b4cd3c",
+   "y": "8000000000000000",
+   "z": "8000000000000000",
+   "p": "0000000000b4cd3c",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 82",
+   "x": "699034717803bc34",
+   "y": "699034dd9ce1087b",
+   "z": "e99034717803bc34",
+   "p": "699c118ef0d694ee",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 83",
+   "x": "1b29da773339befc",
+   "y": "0001995c4e0f5940",
+   "z": "894e9028bfc4d719",
+   "p": "1b29da773339befc",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 84",
+   "x": "51ce8987e4377552",
+   "y": "6623ae106b024d3f",
+   "z": "3cf25ee4a0d7477e",
+   "p": "6623ae106b024d3f",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 85",
+   "x": "7741dfe204bec8a0",
+   "y": "7311dfe204bec8a0",
+   "z": "7391dfe204bec8a0",
+   "p": "7741dfe204bec8a0",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 86",
+   "x": "3be6415c8e554290",
+   "y": "b0768a1aeb6177c7",
+   "z": "fa6f0624a4d47f29",
+   "p": "7a6f0624a4d47f29",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 87",
+   "x": "0000000000000000",
+   "y": "75073d6d754f98d3",
+   "z": "5a92ed33b8d2f662",
+   "p": "75073d6d754f98d3",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 88",
+   "x": "e3e4afccc1b5d870",
+   "y": "0813f345e6bdbfda",
+   "z": "5d034cfa3135ef59",
+   "p": "63e4afccc1b5d870",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 89",
+   "x": "ede78c00cf19f0dc",
+   "y": "ede78c5dcebc20c7",
+   "z": "6de78c00cf19f0dc",
+   "p": "6df464823ce22f91",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 90",
+   "x": "8ff5ee365819434c",
+   "y": "8e15ee365819434c",
+   "z": "8bc5ee365819434c",
+   "p": "0ff5ee365819434c",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 91",
+   "x": "eb1008bce7e2d004",
+   "y": "8000000000000000",
+   "z": "4022236a31ac3472",
+   "p": "6b1008bce7e2d004",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 92",
+   "x": "80003cc8e090ebbd",
+   "y": "800000000000360f",
+   "z": "bdb8ba4825d8a843",
+   "p": "3db8ba4825d8a843",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 93",
+   "x": "2be561de4949ef2c",
+   "y": "d1327f083f6b4c3e",
+   "z": "62e0d4a0d3ad1780",
+   "p": "62e0d4a0d3ad1780",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 94",
+   "x": "80000001ce090e78",
+   "y": "0000000003d85467",
+   "z": "017b2b797bf24880",
+   "p": "017b2b797bf24880",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 95",
+   "x": "8bdf2ce6a514edf8",
+   "y": "6c030fcec7811057",
+   "z": "800000000014a68f",
+   "p": "6c030fcec7811057",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 96",
+   "x": "90b311bce47cc582",
+   "y": "a5050cb59a368c23",
+   "z": "1c54415a0e922e40",
+   "p": "25050cb59a368c23",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 97",
+   "x": "80001101661cd65a",
+   "y": "572c22fb6337e629",
+   "z": "3cf54ba6ba9671a3",
+   "p": "572c22fb6337e629",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 98",
+   "x": "e68ff6fd5afc280c",
+   "y": "8d3d8ee27b88b558",
+   "z": "11c14135ae52b8b3",
+   "p": "668ff6fd5afc280c",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 99",
+   "x": "2a8054445078ee4a",
+   "y": "292054445078ee4a",
+   "z": "293054445078ee4a",
+   "p": "2a8054445078f0d7",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 100",
+   "x": "a66534b163130660",
+   "y": "a1b534b163130660",
+   "z": "a3c534b163130660",
+   "p": "266534b163130660",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 101",
+   "x": "381cc1ed05672196",
+   "y": "381cc6322c7f9fb4",
+   "z": "b81cc1ed05672196",
+   "p": "3828e8d90546550f",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 102",
+   "x": "35b74eece770d95b",
+   "y": "35b751673aa71b23",
+   "z": "b5b74eece770d95b",
+   "p": "35c4303970729dc2",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 103",
+   "x": "800102f7655fac9b",
+   "y": "800000000000817c",
+   "z": "800000000000817c",
+   "p": "000102f7655fac9b",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 104",
+   "x": "9df1b42a67f6a702",
+   "y": "0000000000000000",
+   "z": "00000000000122c1",
+   "p": "1df1b42a67f6a702",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 105",
+   "x": "800000037be75891",
+   "y": "832fcc2f5e1c6180",
+   "z": "c92bf4f53bbb1b00",
+   "p": "492bf4f53bbb1b00",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 106",
+   "x": "8000000000000013",
+   "y": "fc52019b2c27856c",
+   "z": "516863c0631671d6",
+   "p": "7c52019b2c27856c",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 107",
+   "x": "a3604a395a41b3da",
+   "y": "a3604d8d89c85e6c",
+   "z": "23604a395a41b3da",
+   "p": "236c38f65b2c5c63",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 108",
+   "x": "8000000000000000",
+   "y": "f7a31f1e88c02780",
+   "z": "0000000000000000",
+   "p": "77a31f1e88c02780",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 109",
+   "x": "46c949e31272f156",
+   "y": "434949e31272f156",
+   "z": "43e949e31272f156",
+   "p": "46c949e31272f156",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 110",
+   "x": "000000002d918bb9",
+   "y": "c9b729895b0792c4",
+   "z": "61d995422a6494bb",
+   "p": "61d995422a6494bb",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 111",
+   "x": "8000000000000000",
+   "y": "8000000000000000",
+   "z": "8000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 112",
+   "x": "7c7584121a8e5400",
+   "y": "7c7587658bc60061",
+   "z": "fc7584121a8e5400",
+   "p": "7c82a316e811a0d0",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 113",
+   "x": "4badd90873f869a4",
+   "y": "0000000000000000",
+   "z": "76055abc966f2d10",
+   "p": "76055abc966f2d10",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 114",
+   "x": "29ff91d66f40ffa0",
+   "y": "c28547ed2b28e9db",
+   "z": "8000000000085834",
+   "p": "428547ed2b28e9db",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 115",
+   "x": "0000008be0da0558",
+   "y": "62831f6d85095791",
+   "z": "872b67b0e78dbc20",
+   "p": "62831f6d85095791",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 116",
+   "x": "d7766131dae99718",
+   "y": "091653a4491cb57a",
+   "z": "69f66c922fc7f485",
+   "p": "69f66c922fc7f485",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 117",
+   "x": "605f545e9aeb75f4",
+   "y": "5d9f545e9aeb75f4",
+   "z": "5e6f545e9aeb75f4",
+   "p": "605f545e9aeb75f4",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 118",
+   "x": "a372331dc6b3e85c",
+   "y": "a042331dc6b3e85c",
+   "z": "a152331dc6b3e85c",
+   "p": "2372331dc6b3e85c",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 119",
+   "x": "4f9cc52ff2f5a7ac",
+   "y": "0000000000000003",
+   "z": "8559cb47d7ffac6a",
+   "p": "4f9cc52ff2f5a7ac",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 120",
+   "x": "800000001dc02eb6",
+   "y": "800000001dc6a936",
+   "z": "000000001dc02eb6",
+   "p": "00000000338b5b3e",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 121",
+   "x": "8000000000000000",
+   "y": "8000000000000000",
+   "z": "0000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 122",
+   "x": "6c47510a75ebe857",
+   "y": "8000000000000000",
+   "z": "73f3b102b2a56338",
+   "p": "73f3b102b2a56338",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 123",
+   "x": "8000000000000000",
+   "y": "8000000000000000",
+   "z": "8000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 124",
+   "x": "5bb6f1e8a244b9f0",
+   "y": "5bb6f60a862cd53e",
+   "z": "dbb6f1e8a244b9f0",
+   "p": "5bc3e025ba3249e9",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 125",
+   "x": "c7c6212da581e6b0",
+   "y": "c7c623d862f44891",
+   "z": "47c6212da581e6b0",
+   "p": "47d32af55567e05f",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 126",
+   "x": "132ff4ec7f28a997",
+   "y": "132ff7dddde4f384",
+   "z": "932ff4ec7f28a997",
+   "p": "133badbccb84eea0",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 127",
+   "x": "82c2e47dffafab47",
+   "y": "886f3ed6d6e6b625",
+   "z": "15b5c07120c9e078",
+   "p": "15b5c07120c9e078",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 128",
+   "x": "bc1bf8e129f5be52",
+   "y": "b7dbf8e129f5be52",
+   "z": "b8cbf8e129f5be52",
+   "p": "3c1bf8e129f5be52",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 129",
+   "x": "d72c5fb6b32a7fca",
+   "y": "e3d4a8476665dca8",
+   "z": "800000000000798b",
+   "p": "63d4a8476665dca8",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 130",
+   "x": "7ac87b48a90db7c0",
+   "y": "3d3e5423499cb35a",
+   "z": "84a39a165b71e8e5",
+   "p": "7ac87b48a90db7c0",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 131",
+   "x": "80000000b49c4932",
+   "y": "0000000000000000",
+   "z": "80000148ffdcf8ea",
+   "p": "00000149000e8c0b",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 132",
+   "x": "80000000002b88a6",
+   "y": "80000000002b9344",
+   "z": "00000000002b88a6",
+   "p": "00000000004b6d3b",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 133",
+   "x": "4e9e9059e9355d67",
+   "y": "4493e543704d9112",
+   "z": "8000000294416ee7",
+   "p": "4e9e9059e9355d67",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 134",
+   "x": "2498157d769fd0ce",
+   "y": "24981b72bc166103",
+   "z": "a498157d769fd0ce",
+   "p": "24a4dd3109956256",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 135",
+   "x": "4a803b3c01593232",
+   "y": "49003b3c01593232",
+   "z": "46003b3c01593232",
+   "p": "4a803b3c0159323a",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 136",
+   "x": "800000098370cbfa",
+   "y": "8ade12a20fbe541e",
+   "z": "0f118e4ace50176c",
+   "p": "0f118e4ace50176c",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 137",
+   "x": "bb7ae9916fcbbb05",
+   "y": "bb7aebb24f6b2b7d",
+   "z": "3b7ae9916fcbbb05",
+   "p": "3b874f27ce22f97b",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 138",
+   "x": "de0b7a0f60ae3b8e",
+   "y": "8e8a096425fa0364",
+   "z": "8000000001580b4e",
+   "p": "5e0b7a0f60ae3b8e",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 139",
+   "x": "18bef167ac60569c",
+   "y": "1bd7e2373080550a",
+   "z": "82fcc9eb0496b94a",
+   "p": "1bd7e2373080550a",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 140",
+   "x": "3fa4441b222e9d39",
+   "y": "3bb4441b222e9d39",
+   "z": "3b84441b222e9d39",
+   "p": "3fa4441b222e9d39",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 141",
+   "x": "8000000000000000",
+   "y": "ac870f9bfe722470",
+   "z": "8000000000000000",
+   "p": "2c870f9bfe722470",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 142",
+   "x": "2a2c59b2980407b8",
+   "y": "2a2c5e8aeb09506c",
+   "z": "aa2c59b2980407b8",
+   "p": "2a388ebfdd39fdd8",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 143",
+   "x": "00000003f8d4086e",
+   "y": "94a59ff951552b92",
+   "z": "513a8338a3e86bd8",
+   "p": "513a8338a3e86bd8",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 144",
+   "x": "0be50c7f1055705c",
+   "y": "62f4fc7ff0f7d36e",
+   "z": "62f501d7a1b63de2",
+   "p": "62fdb1a4068bf9ad",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 145",
+   "x": "1dda1e0225993a75",
+   "y": "1dda23d9b22a14b6",
+   "z": "9dda1e0225993a75",
+   "p": "1de69ff0a67a8188",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 146",
+   "x": "80000000000000ca",
+   "y": "8000000000000000",
+   "z": "8000000000000000",
+   "p": "00000000000000ca",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 147",
+   "x": "5fca2338847ea4c0",
+   "y": "e7653572a886d9dc",
+   "z": "0000000000000000",
+   "p": "67653572a886d9dc",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 148",
+   "x": "a12c21813374d000",
+   "y": "07c753a3fa4cd39e",
+   "z": "ecfa954affea36f0",
+   "p": "6cfa954affea36f0",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 149",
+   "x": "4d060943bfac8df0",
+   "y": "0000000000000000",
+   "z": "8f5da7d99a025023",
+   "p": "4d060943bfac8df0",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 150",
+   "x": "d77bd7e6dd11fe31",
+   "y": "d77bdbd0d2888bcc",
+   "z": "577bd7e6dd11fe31",
+   "p": "57881e12f7ffd347",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 151",
+   "x": "625f9d077ab0bbbc",
+   "y": "00000ae2dc032ea3",
+   "z": "8000000000028c90",
+   "p": "625f9d077ab0bbbc",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 152",
+   "x": "8000000000000000",
+   "y": "8000000000000000",
+   "z": "0000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 153",
+   "x": "4adc7191664241d6",
+   "y": "490c7191664241d6",
+   "z": "466c7191664241d6",
+   "p": "4adc7191664241d6",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 154",
+   "x": "66871f747faf463f",
+   "y": "87b81a74e64a31ad",
+   "z": "4184b621f94a5696",
+   "p": "66871f747faf463f",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 155",
+   "x": "875943161e180b20",
+   "y": "86d3f0ef0a0c4369",
+   "z": "4f6792065deac497",
+   "p": "4f6792065deac497",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 156",
+   "x": "0000000000000077",
+   "y": "4bf590402535b81e",
+   "z": "39d0463a11afbca1",
+   "p": "4bf590402535b81e",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 157",
+   "x": "47163b1751f1c410",
+   "y": "b9dd2dcaef890ec7",
+   "z": "5967a0ab9bf5b300",
+   "p": "5967a0ab9bf5b300",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 158",
+   "x": "5f0dacdcb7b37fd0",
+   "y": "000001a626e9a53a",
+   "z": "57cc57d7584678cc",
+   "p": "5f0dacdcb7b37fd0",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 159",
+   "x": "ba3bfd1d6ee56792",
+   "y": "df34b5ce9952da82",
+   "z": "8000000000000002",
+   "p": "5f34b5ce9952da82",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 160",
+   "x": "ee3dc88610c67040",
+   "y": "dadbe6c1c8de012e",
+   "z": "800000000002c798",
+   "p": "6e3dc88610c67040",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 161",
+   "x": "bb574c2ccd938661",
+   "y": "b8074c2ccd938661",
+   "z": "b7874c2ccd938661",
+   "p": "3b574c2ccd938661",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 162",
+   "x": "0000000000003bc3",
+   "y": "4f5f7ad18779f607",
+   "z": "e3182285f5a31976",
+   "p": "63182285f5a31976",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 163",
+   "x": "8000000000000000",
+   "y": "8000000000000000",
+   "z": "0000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 164",
+   "x": "800000000003bb0c",
+   "y": "7cfe18378bdcfade",
+   "z": "bd8a090efe064bf8",
+   "p": "7cfe18378bdcfade",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 165",
+   "x": "e4c51e5f164f604c",
+   "y": "78a14cd0c8fc29c9",
+   "z": "2588f7d4ee2cda78",
+   "p": "78a14cd0c8fc29c9",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 166",
+   "x": "0000000000000000",
+   "y": "72132d60b70cbbc0",
+   "z": "e15d65603fc873da",
+   "p": "72132d60b70cbbc0",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 167",
+   "x": "8000000000000000",
+   "y": "d30f265889700f37",
+   "z": "0f6cb52b5e275012",
+   "p": "530f265889700f37",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 168",
+   "x": "000000136b50e8ad",
+   "y": "99dad119144dd984",
+   "z": "eaff86a013c19ab0",
+   "p": "6aff86a013c19ab0",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 169",
+   "x": "367118c5c767a728",
+   "y": "346118c5c767a728",
+   "z": "331118c5c767a728",
+   "p": "367118c5c767a728",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 170",
+   "x": "5576160f9393db40",
+   "y": "50a6160f9393db40",
+   "z": "5406160f9393db40",
+   "p": "5576160f9393db6c",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 171",
+   "x": "23401ea6d88d30c0",
+   "y": "234021234a749fea",
+   "z": "a3401ea6d88d30c0",
+   "p": "234bed01919ddb37",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 172",
+   "x": "cea9d0ce082d465e",
+   "y": "3327de7c6a495dea",
+   "z": "5334fdec3b807b14",
+   "p": "5334fdec3b807b14",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 173",
+   "x": "8d9b4490140605b2",
+   "y": "8d9b47a4e026279d",
+   "z": "0d9b4490140605b2",
+   "p": "0da79e3bfd1484e1",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 174",
+   "x": "80000183e84d7803",
+   "y": "8000000000000000",
+   "z": "8000000000000000",
+   "p": "00000183e84d7803",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 175",
+   "x": "aecaed6b87b55a42",
+   "y": "aecaee4082a9a0e4",
+   "z": "2ecaed6b87b55a42",
+   "p": "2ed7521df6d050eb",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 176",
+   "x": "12983c79cf0be8ea",
+   "y": "10a83c79cf0be8ea",
+   "z": "0e883c79cf0be8ea",
+   "p": "12983c79cf0be8ea",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 177",
+   "x": "ef059a42247b4aa8",
+   "y": "ea759a42247b4aa8",
+   "z": "ed559a42247b4aa8",
+   "p": "6f059a42247b4aa8",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 178",
+   "x": "b15fa5526824bd13",
+   "y": "b15facfd7e086858",
+   "z": "315fa5526824bd13",
+   "p": "316b6a2a3809ccc8",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 179",
+   "x": "a538727040a662d8",
+   "y": "a53872760fd15898",
+   "z": "2538727040a662d8",
+   "p": "25452bf92818428b",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 180",
+   "x": "3865b3ad9d599e8f",
+   "y": "55bb30cc8383dda7",
+   "z": "0422eda6095c147e",
+   "p": "55bb30cc8383dda7",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 181",
+   "x": "a504502f040de736",
+   "y": "a458c0dff3aefae8",
+   "z": "73e85d848e2f2cea",
+   "p": "73e85d848e2f2cea",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 182",
+   "x": "db9cae70e4cec8ca",
+   "y": "da0cae70e4cec8ca",
+   "z": "d98cae70e4cec8ca",
+   "p": "5b9cae70e4cec8ce",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 183",
+   "x": "609ad217b20ede92",
+   "y": "609ad4769c801ba2",
+   "z": "e09ad217b20ede92",
+   "p": "60a73ae521777b1b",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 184",
+   "x": "8000000000000000",
+   "y": "2bb901ef9813ea7a",
+   "z": "ab12838f81edd5e0",
+   "p": "2bb901f005bab6db",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 185",
+   "x": "8dcc45455035c889",
+   "y": "670ca3b7672693fd",
+   "z": "70efdabfa3f7400b",
+   "p": "70efdabfa3f7400b",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 186",
+   "x": "1ac520ba9a9ca580",
+   "y": "485073c3e3cbaa08",
+   "z": "135a614850518102",
+   "p": "485073c3e3cbaa08",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 187",
+   "x": "2cea03914e51bc14",
+   "y": "3dcec3c9ed7ddf20",
+   "z": "800000000018e2ec",
+   "p": "3dcec3c9ed7ddf20",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 188",
+   "x": "8000000000000000",
+   "y": "800000352a5de963",
+   "z": "1ca45dc57f496d96",
+   "p": "1ca45dc57f496d96",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 189",
+   "x": "0000000000000000",
+   "y": "0000000000000000",
+   "z": "8000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 190",
+   "x": "c54703d011ecc9c9",
+   "y": "5add762ffd429f60",
+   "z": "a0ff8b353dcde06c",
+   "p": "5add762ffd429f60",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 191",
+   "x": "e2ecf3d8ce27c434",
+   "y": "800000000003c219",
+   "z": "49dbb175e32388bc",
+   "p": "62ecf3d8ce27c434",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 192",
+   "x": "8000000000000000",
+   "y": "75876c047800b8a8",
+   "z": "b72ce72c87ef4d20",
+   "p": "75876c047800b8a8",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 193",
+   "x": "c05dc8fc2dab8709",
+   "y": "c05dcb64dfef5335",
+   "z": "405dc8fc2dab8709",
+   "p": "4069cc20527dacf8",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 194",
+   "x": "aff52d63c7eae12a",
+   "y": "adc52d63c7eae12a",
+   "z": "abc52d63c7eae12a",
+   "p": "2ff52d63c7eae12a",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 195",
+   "x": "6b417a9432772854",
+   "y": "00005e3d82ae4ce0",
+   "z": "46e47bccc45a1ce8",
+   "p": "6b417a9432772854",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 196",
+   "x": "800000000b8badeb",
+   "y": "655ea145ab3e8cea",
+   "z": "52f9abe4162a9100",
+   "p": "655ea145ab3e8cea",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 197",
+   "x": "01bef66dfbfd3ed4",
+   "y": "01befdb5cc598969",
+   "z": "81bef66dfbfd3ed4",
+   "p": "01cad2977e09efc9",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 198",
+   "x": "861d565708602c32",
+   "y": "83dd565708602c32",
+   "z": "849d565708602c32",
+   "p": "061d565708602c41",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 199",
+   "x": "043ce35a807bb29f",
+   "y": "d2ce517d90e78ab2",
+   "z": "8000000000000000",
+   "p": "52ce517d90e78ab2",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 200",
+   "x": "000000000015d1ee",
+   "y": "000000000015d6dd",
+   "z": "800000000015d1ee",
+   "p": "000000000025cdf7",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 201",
+   "x": "01de56037a1a32b0",
+   "y": "000000000000000f",
+   "z": "000000000001e560",
+   "p": "01de56037a1a32b0",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 202",
+   "x": "16f11497d2ebdbb8",
+   "y": "e4a6bf18d95134da",
+   "z": "80000000144dc79c",
+   "p": "64a6bf18d95134da",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 203",
+   "x": "07ed49429e012910",
+   "y": "de96e966e1b7c498",
+   "z": "fb6a546de0808da2",
+   "p": "7b6a546de0808da2",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 204",
+   "x": "00011bae41a9c800",
+   "y": "8522cf6a4b76f2a4",
+   "z": "7455a3b3499891a0",
+   "p": "7455a3b3499891a0",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 205",
+   "x": "a8d9283163b9b663",
+   "y": "c138efa388203cff",
+   "z": "0000d733e83589d4",
+   "p": "4138efa388203cff",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 206",
+   "x": "b5b7bbfa161bfeee",
+   "y": "b107bbfa161bfeee",
+   "z": "b437bbfa161bfeee",
+   "p": "35b7bbfa161bfefa",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 207",
+   "x": "dd7f7756a376ba3f",
+   "y": "dd7f7c009ce9b0ab",
+   "z": "5d7f7756a376ba3f",
+   "p": "5d8b41796edb653c",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 208",
+   "x": "da0b633aec239ae6",
+   "y": "d86b633aec239ae6",
+   "z": "d5bb633aec239ae6",
+   "p": "5a0b633aec239ae7",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 209",
+   "x": "0000016a138d50f7",
+   "y": "0000016a68f160b3",
+   "z": "8000016a138d50f7",
+   "p": "0000027353cb0884",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 210",
+   "x": "8000000000000000",
+   "y": "8000000000000000",
+   "z": "0000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 211",
+   "x": "0000000000000000",
+   "y": "0000000000000000",
+   "z": "0000000000000000",
+   "p": "0000000000000000",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 212",
+   "x": "d469bd63b98b23f8",
+   "y": "79f1cf70481a693a",
+   "z": "8000000000000000",
+   "p": "79f1cf70481a693a",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 213",
+   "x": "c03b376edb745e0f",
+   "y": "bd2b376edb745e0f",
+   "z": "bb4b376edb745e0f",
+   "p": "403b376edb745e0f",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 214",
+   "x": "450d659beb244c00",
+   "y": "0e6a1e68af3f3808",
+   "z": "db671b73f1efddd0",
+   "p": "5b671b73f1efddd0",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 215",
+   "x": "c6971b9dcefb2332",
+   "y": "c6971eb5330bce2e",
+   "z": "46971b9dcefb2332",
+   "p": "46a403f777e08f23",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 216",
+   "x": "18bb5194359f2f42",
+   "y": "18bb51abca032da5",
+   "z": "98bb5194359f2f42",
+   "p": "18c7a8a4c41f6cc3",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 217",
+   "x": "f719fdca6c4f7ea4",
+   "y": "f719ff78ade15b94",
+   "z": "7719fdca6c4f7ea4",
+   "p": "772682d645ed5770",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 218",
+   "x": "44301f3d9e9269f2",
+   "y": "8000000000000000",
+   "z": "528c013beb3d59b6",
+   "p": "528c013beb3d59b6",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 219",
+   "x": "7a9c850dfcdb1e10",
+   "y": "898f572d685a8f1c",
+   "z": "fab8a38b73ed4706",
+   "p": "7ab9a654d695d4ff",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 220",
+   "x": "35c3f6475930c504",
+   "y": "924432823f95fe00",
+   "z": "000000001fff6172",
+   "p": "35c3f6475930c504",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 221",
+   "x": "0000008e5765893b",
+   "y": "000000000000008e",
+   "z": "0000000000000000",
+   "p": "0000008e5765893b",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 222",
+   "x": "24977d16556d73a0",
+   "y": "21977d16556d73a0",
+   "z": "22077d16556d73a0",
+   "p": "24977d16556d73a0",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 223",
+   "x": "800006e0d5076b56",
+   "y": "97f5b118daeaac90",
+   "z": "4ff449ebc3e7c222",
+   "p": "4ff449ebc3e7c222",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 224",
+   "x": "a800adf89e5f8b1b",
+   "y": "35fccf01d91abb26",
+   "z": "b3e469ae457ead2c",
+   "p": "35fccf01d91abb26",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 225",
+   "x": "0000000000003cef",
+   "y": "0000000000000000",
+   "z": "0000000000000000",
+   "p": "0000000000003cef",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 226",
+   "x": "5a0205f0071f3a0a",
+   "y": "5a0207d92019bb7a",
+   "z": "da0205f0071f3a0a",
+   "p": "5a0f38ad74bf7348",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 227",
+   "x": "b14183e8932689ac",
+   "y": "85d87684828b1b5e",
+   "z": "c35ca1ca7594a7b8",
+   "p": "435ca1ca7594a7b8",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 228",
+   "x": "0b3271171d4244b8",
+   "y": "0b32714b78c5c86a",
+   "z": "8b3271171d4244b8",
+   "p": "0b3ff1494d0cc875",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 229",
+   "x": "6ae143f0379751fe",
+   "y": "4370679c32396fc6",
+   "z": "ce353104ef4cd831",
+   "p": "6ae143f0379751fe",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 230",
+   "x": "000000000022fdaf",
+   "y": "0000000000000000",
+   "z": "0000000000000000",
+   "p": "000000000022fdaf",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 231",
+   "x": "97838834de455668",
+   "y": "96438834de455668",
+   "z": "93038834de455668",
+   "p": "17838834de45602c",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 232",
+   "x": "467c9f879b5ddf80",
+   "y": "00000000000005f0",
+   "z": "0000000000000003",
+   "p": "467c9f879b5ddf80",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 233",
+   "x": "7def98072c4b5ea6",
+   "y": "afa7173c46a64a7a",
+   "z": "af93765956a8b332",
+   "p": "7def98072c4b5ea6",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 234",
+   "x": "00000000023d100d",
+   "y": "00000000023d3cfb",
+   "z": "80000000023d100d",
+   "p": "0000000003e0acd0",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 235",
+   "x": "0000000000007287",
+   "y": "000000000000728a",
+   "z": "8000000000007287",
+   "p": "000000000000c660",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 236",
+   "x": "800000000006cf60",
+   "y": "0e4d47e76bc0d8db",
+   "z": "67a0a3f999f5bbd8",
+   "p": "67a0a3f999f5bbd8",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 237",
+   "x": "c4f86251ce4e9bc0",
+   "y": "c4f868495ea7123f",
+   "z": "44f86251ce4e9bc0",
+   "p": "45051fbafb6f55c5",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 238",
+   "x": "80000021134953f0",
+   "y": "80000021158f9762",
+   "z": "00000021134953f0",
+   "p": "000000394b156654",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 239",
+   "x": "8003c41c92b94122",
+   "y": "8003c484fef22c2a",
+   "z": "0003c41c92b94122",
+   "p": "0006862036b01474",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 240",
+   "x": "e6e18033b5e7e5d2",
+   "y": "e6e1830bd4f319b3",
+   "z": "66e18033b5e7e5d2",
+   "p": "66ee51947728d1db",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 241",
+   "x": "72414fb345490c80",
+   "y": "9ea0b9ae69a80888",
+   "z": "3b63ce75448db029",
+   "p": "72414fb345490c80",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 242",
+   "x": "df25d3e820258064",
+   "y": "da25d3e820258064",
+   "z": "dd05d3e820258064",
+   "p": "5f25d3e820258064",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 243",
+   "x": "8e2137978143816c",
+   "y": "0000000000000000",
+   "z": "a16abc55b2b5fcf0",
+   "p": "216abc55b2b5fcf0",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 244",
+   "x": "e11d40dc5eba6d7c",
+   "y": "de9d40dc5eba6d7c",
+   "z": "df4d40dc5eba6d7c",
+   "p": "611d40dc5eba6d7c",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 245",
+   "x": "1c6c0cb75d8b5840",
+   "y": "1abc0cb75d8b5840",
+   "z": "186c0cb75d8b5840",
+   "p": "1c6c0cb75d8b5840",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 246",
+   "x": "00000000000002c8",
+   "y": "00000000000002c8",
+   "z": "80000000000002c8",
+   "p": "00000000000004d1",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 247",
+   "x": "8ecc4a6480f8d7f1",
+   "y": "8ecc4bd224f90a63",
+   "z": "0ecc4a6480f8d7f1",
+   "p": "0ed88082206489b8",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 248",
+   "x": "ca0c9fada537c2ce",
+   "y": "ca0c9fc5e8e8213d",
+   "z": "4a0c9fada537c2ce",
+   "p": "4a18c9fba0c85fb7",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 249",
+   "x": "8485b696db9337a6",
+   "y": "8000000000000000",
+   "z": "852f9a1d9cd99210",
+   "p": "052f9a1e14334f83",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 250",
+   "x": "12d54efaf0cca218",
+   "y": "39d03542f498479d",
+   "z": "3c81cb98f981e6c8",
+   "p": "3c81cb98f981e6c8",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 251",
+   "x": "f71087544d530e1d",
+   "y": "840eb4488f25a7ef",
+   "z": "ccba409d2db0af6f",
+   "p": "771087544d530e1d",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 252",
+   "x": "da275d9304ef4738",
+   "y": "a566e7aed2a7e112",
+   "z": "ac113df31d38f855",
+   "p": "5a275d9304ef4738",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 253",
+   "x": "664d1e3571a35f38",
+   "y": "8000000000000000",
+   "z": "800000004d14f557",
+   "p": "664d1e3571a35f38",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 254",
+   "x": "8000000000067f25",
+   "y": "c0e531caf976d2a2",
+   "z": "12e0d842bbe179b7",
+   "p": "40e531caf976d2a2",
+   "tie": false
+  },
+  {
+   "label": "RV118 triple 255",
+   "x": "cc4fa82cfb6d9734",
+   "y": "80000003518e81d9",
+   "z": "64d712e0e89760fe",
+   "p": "64d712e0e89760fe",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 0",
+   "x": "40238507d4880584",
+   "y": "4010b1859457f638",
+   "z": "c030fc88ff7ff854",
+   "p": "403407bed5c45ec8",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 1",
+   "x": "bffef24f7cb248bc",
+   "y": "bfef11a54c14388c",
+   "z": "3ff82264dd2b0c12",
+   "p": "40051a8fb3bb754a",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 2",
+   "x": "bffcc46eca093e86",
+   "y": "bffe730dee795b88",
+   "z": "3fed0308b6345a78",
+   "p": "40062a3d2ddeda2c",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 3",
+   "x": "4002b6ae86e2d8cc",
+   "y": "c0170a489c0c9648",
+   "z": "400caf9abeff5ba4",
+   "p": "401cb51e470a9018",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 4",
+   "x": "3f9686275d8f9d00",
+   "y": "bfa9e3e0f30098ba",
+   "z": "bf9f96d1d00a7980",
+   "p": "3fb02cf4c6041751",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 5",
+   "x": "c01ec00e92338c82",
+   "y": "401ff07eccf3a6aa",
+   "z": "c00a51c50513e100",
+   "p": "40271fbfe4c9177c",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 6",
+   "x": "c0158f24e71a19b0",
+   "y": "c01cf30459fd8ae2",
+   "z": "4013447617c3fb24",
+   "p": "40247534b138070a",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 7",
+   "x": "3fdbdc9bd125ce74",
+   "y": "bfe113fe098eac18",
+   "z": "bfe962ebc1f2eb06",
+   "p": "3ff0cf2980662ce2",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 8",
+   "x": "3f5dfe554762d988",
+   "y": "bf766c648ebf574a",
+   "z": "bf62429cc56bfaac",
+   "p": "3f795871bf3974c6",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 9",
+   "x": "bf8d69fe8124e9ae",
+   "y": "bf6e2ff9a946a118",
+   "z": "bf8f5069ba24bc06",
+   "p": "3f95cf5fe855da0f",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 10",
+   "x": "bf7b2b992a2c80ae",
+   "y": "3f6121b8f016f250",
+   "z": "3f7896e311e9b4b8",
+   "p": "3f82d1043695cda8",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 11",
+   "x": "bfc581b3d43a08c0",
+   "y": "bfc4b7174796ba78",
+   "z": "bfdd9ffc01b1f2d0",
+   "p": "3fe09657b61098a9",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 12",
+   "x": "3f8f39043d23779a",
+   "y": "3f8a33bafb522864",
+   "z": "bf76ab8c269ea204",
+   "p": "3f95274ee6253683",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 13",
+   "x": "3ff5ce946dc7d668",
+   "y": "c004069795828a1c",
+   "z": "c00df0cdbf7bf046",
+   "p": "4012d138813922df",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 14",
+   "x": "40035dd74c014bf0",
+   "y": "3fdca91d2c2a9790",
+   "z": "3fe487492c563998",
+   "p": "40045a5283484011",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 15",
+   "x": "3f411f12ca8c3e70",
+   "y": "bf59ade331269418",
+   "z": "3f66507c17abf3a2",
+   "p": "3f6a191b5d07f9d7",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 16",
+   "x": "bf7bbef229caeef0",
+   "y": "3f71090ed936c3f0",
+   "z": "bfa71c8c02d32eba",
+   "p": "3fa777943fc9c5fd",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 17",
+   "x": "c00bb099b1f9972a",
+   "y": "bfb9d5a21661aa40",
+   "z": "c008f3056dc1aaa8",
+   "p": "4012a3ec6120e689",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 18",
+   "x": "bf6936665205a79c",
+   "y": "bf52f449b7e2bd1c",
+   "z": "bf68e00b9e25c4c2",
+   "p": "3f7255031be4b147",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 19",
+   "x": "bfc03612bdb6ed7e",
+   "y": "bfb105311ce90cec",
+   "z": "bfba3ab3802b8ee8",
+   "p": "3fc6858473c31925",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 20",
+   "x": "bf479ebeca891f7c",
+   "y": "bf4b0bdf482186d4",
+   "z": "3f3300c3c201ec88",
+   "p": "3f529276280b8ec8",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 21",
+   "x": "bf664b66b896e184",
+   "y": "3f740f7411755a60",
+   "z": "bf7e767aa40ecc1c",
+   "p": "3f8311ecc8fa1112",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 22",
+   "x": "c024fbb8b6847654",
+   "y": "40054a1c87bf9bb0",
+   "z": "401a77747759a710",
+   "p": "40295f45e5e72529",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 23",
+   "x": "bf40f30ce36f09fc",
+   "y": "bf3084d3a5ae8b50",
+   "z": "3f49f6c7eb3f1a08",
+   "p": "3f500b3e59d64bbc",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 24",
+   "x": "3ffe49661664dade",
+   "y": "bfd521780a0e75d0",
+   "z": "bff19ef1c9663a82",
+   "p": "4001b7c4374d0405",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 25",
+   "x": "bfb98296e363313c",
+   "y": "3fb2c1e5b6f9a298",
+   "z": "bfa7af32e82532c0",
+   "p": "3fc0e72a1db94728",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 26",
+   "x": "4026025b7f0528ea",
+   "y": "402a123966888b6e",
+   "z": "bff75c8deaa5d0d0",
+   "p": "40311f35b4ade8fc",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 27",
+   "x": "3fde1aa0406fa2a0",
+   "y": "3fed2c526b1a2b38",
+   "z": "3fed6d4c1d7fd65e",
+   "p": "3ff60b038d3494e0",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 28",
+   "x": "3f391af79ca0f780",
+   "y": "3f6a00afe57ff538",
+   "z": "3f5b7a0ef5b89950",
+   "p": "3f6d936b35837e57",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 29",
+   "x": "bf512ba8303b4058",
+   "y": "3f76b22a762b11e0",
+   "z": "bf27f928975f71c0",
+   "p": "3f771c48d29ce790",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 30",
+   "x": "3f8ad665250fb5d2",
+   "y": "bf5e3c6aacb46000",
+   "z": "3f69b61d49624240",
+   "p": "3f8bdaa7d99bd6b5",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 31",
+   "x": "4006a0f74bad1338",
+   "y": "3ff1a7a3d646ef60",
+   "z": "40145f874e470e6e",
+   "p": "4017b7e80f0e9efe",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 32",
+   "x": "c0183f15d9ecf910",
+   "y": "c0203de4d5aee93a",
+   "z": "c00fa844be23e598",
+   "p": "4025c20273f355f5",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 33",
+   "x": "bff3c2020c5504c8",
+   "y": "c01f82852d781246",
+   "z": "c0058d89a19a0014",
+   "p": "4020d53fd42f9833",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 34",
+   "x": "bfd0049a09552440",
+   "y": "4010479c18eba480",
+   "z": "3fd903e580ac9c40",
+   "p": "4010629f18ca19b1",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 35",
+   "x": "3f556d60b4fda880",
+   "y": "3f7de0b5fc7c623a",
+   "z": "bf63a8b9086c09bc",
+   "p": "3f7fe7f3b06c74b9",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 36",
+   "x": "bf55e66916e0ac12",
+   "y": "bf435e2d3415870c",
+   "z": "bf56a22c48010b18",
+   "p": "3f607987142076c4",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 37",
+   "x": "3fe57668ebcc182c",
+   "y": "3fe06666283ff6b4",
+   "z": "bfdc16af8f8f10e0",
+   "p": "3fee71b0536966ba",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 38",
+   "x": "3f4f4b3a20d609ac",
+   "y": "bf3e32cfaf2d3de8",
+   "z": "bf28300142d80f58",
+   "p": "3f51a259a0abedeb",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 39",
+   "x": "bf60b5f09a559e22",
+   "y": "bf4264a4d376c248",
+   "z": "3f65d3ff47637d48",
+   "p": "3f6bdf4720849ba4",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 40",
+   "x": "bf4b497d6a5d7d20",
+   "y": "3f401e5ea0348088",
+   "z": "3f5af0c975b6caac",
+   "p": "3f5f415aad569471",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 41",
+   "x": "402d90f1b5717d64",
+   "y": "c02eff9a0eb4f9dc",
+   "z": "400899ef0e450620",
+   "p": "4035a37143289a9a",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 42",
+   "x": "bfdcc6c94466cf20",
+   "y": "3fef213fc63a6658",
+   "z": "3feef02e19ac01c0",
+   "p": "3ff717f862002895",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 43",
+   "x": "c038a2868e64a338",
+   "y": "c0377860f4a3e32e",
+   "z": "c032ab0f2b65cfc8",
+   "p": "404367b3effce7b3",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 44",
+   "x": "c033e383892371c2",
+   "y": "bff792c141b3b680",
+   "z": "3fe20264e043e200",
+   "p": "4033f37f53150ec7",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 45",
+   "x": "bfbec67ce0d8c688",
+   "y": "bfa26c0019247164",
+   "z": "3fb996a896ec305a",
+   "p": "3fc488f1cba9aed3",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 46",
+   "x": "3f57aa8f58e18148",
+   "y": "bf628ac004eef226",
+   "z": "bf54480869b2fa18",
+   "p": "3f68389a4f5f2965",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 47",
+   "x": "bfcd8a1603c4b180",
+   "y": "4029c6db925106c0",
+   "z": "c012f06ce9fa3958",
+   "p": "402b770d4c8140f3",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 48",
+   "x": "bfc58cbbb98aa4bc",
+   "y": "3fb3828bc97f6478",
+   "z": "3f7aa72429987500",
+   "p": "3fc7ab6354219e42",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 49",
+   "x": "c001aab7d31b4c62",
+   "y": "40084d9fc2323fce",
+   "z": "bff93fbe75134484",
+   "p": "40104b967e15a6bd",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 50",
+   "x": "bf56ec591c935324",
+   "y": "bf4ab180ec36e8c8",
+   "z": "bf5aba034929ba14",
+   "p": "3f62d3e069023f33",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 51",
+   "x": "3f73a01a1e942774",
+   "y": "bf629ed0dd640470",
+   "z": "3f580f7614fe4148",
+   "p": "3f768a0b87e36256",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 52",
+   "x": "c008c0059df10b06",
+   "y": "c00b7b8700b839a8",
+   "z": "3ff6095e7ecc6ac4",
+   "p": "40134ba33d42f9ef",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 53",
+   "x": "bfa22d7f84aa8120",
+   "y": "bfc7a26104942b6a",
+   "z": "3fa7c11916673c00",
+   "p": "3fc8ca00e6517167",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 54",
+   "x": "bf8ed064e2753290",
+   "y": "bfaf208b042f70dc",
+   "z": "3fb9a61e752e1c4a",
+   "p": "3fbe3f6cce31472b",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 55",
+   "x": "c012d2ea3a46ec4a",
+   "y": "401472af15ff0a50",
+   "z": "3fe57ecf03a14660",
+   "p": "401bec375f6521ef",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 56",
+   "x": "3fab82a27ddbd800",
+   "y": "bfa6c176145ed0be",
+   "z": "bf9b2297d8b5532c",
+   "p": "3fb318b95c28f2ed",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 57",
+   "x": "bf9280ea349d7840",
+   "y": "bfb7df40836bd5f6",
+   "z": "3fb9a4b5db4ba886",
+   "p": "3fc1ab6adcd6b213",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 58",
+   "x": "bf8452a52a170f42",
+   "y": "bf577b66a1520e10",
+   "z": "bf6ccbb29330b1f0",
+   "p": "3f85c25357ad8f37",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 59",
+   "x": "3fe69c0fb7f041a8",
+   "y": "bfd684ba3cb1a07c",
+   "z": "3fd5b6b629bba064",
+   "p": "3feb7e13193327f7",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 60",
+   "x": "c00f1cba9cd8f850",
+   "y": "3fcf6a63cbe603c0",
+   "z": "400369daa4a93326",
+   "p": "40125cc58553b1f3",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 61",
+   "x": "c03706947231b332",
+   "y": "40100c98879dbd60",
+   "z": "c034f3d63a4a40ba",
+   "p": "403f63a94a01b690",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 62",
+   "x": "4043cfffb07f6ec4",
+   "y": "403e1d4553861488",
+   "z": "4044fb295e5b2252",
+   "p": "40504650f267a12d",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 63",
+   "x": "3fc273153c0a5d44",
+   "y": "3fb075aedbac0984",
+   "z": "3fc9c14eb3cd1470",
+   "p": "3fd05dcf1838db30",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 64",
+   "x": "bf8d213488d41420",
+   "y": "bfbb7944ec549bbc",
+   "z": "3fc06423a59c0046",
+   "p": "3fc576ae94ac50aa",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 65",
+   "x": "3fae0240129f5cfc",
+   "y": "3fba3b9496994798",
+   "z": "bfb71359d21fcfda",
+   "p": "3fc302fb67702f01",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 66",
+   "x": "3f4231ec3e6959c4",
+   "y": "3f3c1a0192bb29d4",
+   "z": "bf205bee6df44e20",
+   "p": "3f475987583a0d06",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 67",
+   "x": "3fbdb2be2a6e5570",
+   "y": "3fdd465309796b56",
+   "z": "bfc19f9bb84365c8",
+   "p": "3fdf75f3ec7df833",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 68",
+   "x": "bfed637392bc7e10",
+   "y": "3fd66ec03e121200",
+   "z": "bfe5ec125b8ca732",
+   "p": "3ff32bb5bf4b17b5",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 69",
+   "x": "3fcf54c08a99d088",
+   "y": "bfb176bbad24c820",
+   "z": "bfe944933d33fa28",
+   "p": "3fea8b425a890e35",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 70",
+   "x": "40349fcd201ef538",
+   "y": "404426f113f7dd9e",
+   "z": "c039c49eb46ef4ec",
+   "p": "404a0c0749737365",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 71",
+   "x": "3f77341c9363ca00",
+   "y": "bfcb8af65682f828",
+   "z": "3fc726d5339dca0a",
+   "p": "3fd1fe759d443d58",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 72",
+   "x": "bf52b60c46abe660",
+   "y": "3f7158401ff7514e",
+   "z": "3f5e236ea5382f60",
+   "p": "3f737b04b74e4391",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 73",
+   "x": "3f712132f2815a34",
+   "y": "bf43c224377a3930",
+   "z": "bf70d2af2ab97e16",
+   "p": "3f7822c66e57b3c7",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 74",
+   "x": "bfb9a79629fd300c",
+   "y": "bfccff9d38da5950",
+   "z": "bfc9b023afdd6c64",
+   "p": "3fd4677ac468d052",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 75",
+   "x": "3fbaacdb4d6c9fb0",
+   "y": "bf969c8bd8103780",
+   "z": "bfbbb530ec133348",
+   "p": "3fc36ff6a1fde803",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 76",
+   "x": "c0155ef631353aea",
+   "y": "bff3feaafb39e088",
+   "z": "c00b68cd97dbbda8",
+   "p": "4019e0092cb6e3a4",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 77",
+   "x": "bfa66f17aa7a0870",
+   "y": "bf9c83b7a14015e0",
+   "z": "bfcb504b48fc3646",
+   "p": "3fcc1c438898f587",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 78",
+   "x": "c02561eb2ebfd378",
+   "y": "4012b221c29d7b74",
+   "z": "4024fb1521e177c6",
+   "p": "402f619f2989450e",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 79",
+   "x": "bffc01bfcf11d5bc",
+   "y": "c009ee6052e36746",
+   "z": "3fe51bdbdb271f48",
+   "p": "400df07e831360b5",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 80",
+   "x": "bf5153099c6f99e8",
+   "y": "3f02d8dc45b153c0",
+   "z": "3f5ecb541a0760fe",
+   "p": "3f61ab3ffc697560",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 81",
+   "x": "bf4bd42f7538399a",
+   "y": "3f43a8f5512f4864",
+   "z": "bf4e9b3d0be99824",
+   "p": "3f56e68020413d26",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 82",
+   "x": "bf3a8f73cf420098",
+   "y": "3f35470df4f2cf00",
+   "z": "3f4f2598238d1f9c",
+   "p": "3f51bef5c73ef27f",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 83",
+   "x": "bfb953ab3865e500",
+   "y": "c00689696042b88a",
+   "z": "c0019e647a02026e",
+   "p": "400c9e0937c64522",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 84",
+   "x": "3fe147b44ea2d310",
+   "y": "401f1affde453318",
+   "z": "4006e1c6bf605c24",
+   "p": "40209b47979bae13",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 85",
+   "x": "4030438094370594",
+   "y": "403740aa62eaa124",
+   "z": "402d9b8430a38dd4",
+   "p": "404000aed76eee5e",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 86",
+   "x": "bfd23162e4b71348",
+   "y": "bfc3c4e15ad6b4b0",
+   "z": "bfef9979a9722d86",
+   "p": "3ff0a0441cee28fc",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 87",
+   "x": "3f44047a6349a812",
+   "y": "3f028d3852807ee0",
+   "z": "3f432e667b51faca",
+   "p": "3f4bbf8c9f0d09d7",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 88",
+   "x": "3fe03dcf98af3950",
+   "y": "3fe5927d49a6fa82",
+   "z": "3fbb7a01436aa890",
+   "p": "3feb3862109a8f43",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 89",
+   "x": "bfae002be651f584",
+   "y": "bfa170063c2b3cb4",
+   "z": "bfbbe442156be2fa",
+   "p": "3fc06c8114fc3e12",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 90",
+   "x": "3fe59cedbec5892e",
+   "y": "bfeb43ca2680e3ca",
+   "z": "3fd0dad416356c8c",
+   "p": "3ff1e62c05d93cae",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 91",
+   "x": "3f96cd886bcd278c",
+   "y": "bf882e32eb14e1fc",
+   "z": "bf7e0fb489ec9778",
+   "p": "3f9ae1b596d3a771",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 92",
+   "x": "bfef081113a8a91c",
+   "y": "3ff5960e2ef46790",
+   "z": "bfe6e09efdb97660",
+   "p": "3ffcf0bbe904b6fa",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 93",
+   "x": "3feb4cc8a97c5ca2",
+   "y": "bfd59a2d691de0e4",
+   "z": "3fd454063638dd60",
+   "p": "3fef119205cccd2a",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 94",
+   "x": "bfb8f0dbcb5905c4",
+   "y": "3fa967fbc8dab11c",
+   "z": "bf99ae16f4c5a940",
+   "p": "3fbcb76596ba1310",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 95",
+   "x": "bf6f8d5d7b374706",
+   "y": "3f3a6cf36f79def0",
+   "z": "3f59966793c7e7a8",
+   "p": "3f711a85d95b5e15",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 96",
+   "x": "bfe540911a91632e",
+   "y": "bfeb04ba84ab6526",
+   "z": "bfee1943ea9086b0",
+   "p": "3ff6d8555a9f9f5d",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 97",
+   "x": "bf76470ef5754a9a",
+   "y": "3f68e21c3f84ac20",
+   "z": "3f76d721a2df10aa",
+   "p": "3f811f7230fec429",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 98",
+   "x": "3ff1b1baf5fe0bd0",
+   "y": "4029b876ecc5efc6",
+   "z": "3fef4bde276673a0",
+   "p": "4029e3b54f9522f9",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 99",
+   "x": "3fe638f1cb1aacd2",
+   "y": "bfeb663ed13debce",
+   "z": "bfc5ab9ccd0d3510",
+   "p": "3ff1d89139896dab",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 100",
+   "x": "bff2f6b6165fb7e4",
+   "y": "400dc5e6af3675fe",
+   "z": "400068094f8160ba",
+   "p": "4011a55920c0e2b3",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 101",
+   "x": "3f8855238b46b570",
+   "y": "bfbf23fcf1723bf4",
+   "z": "bfb461c9e3f462e8",
+   "p": "3fc2abc10a8adb93",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 102",
+   "x": "3f82b50699082c00",
+   "y": "3fb778c1fc2e661c",
+   "z": "3fb0a06828280ea8",
+   "p": "3fbcdbdd0480f716",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 103",
+   "x": "3f8ce733e25fd300",
+   "y": "3f77fb2771bb38c0",
+   "z": "3f8efc062ee0c8b8",
+   "p": "3f9604a7a2bf1c22",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 104",
+   "x": "bf3ef843458d53d0",
+   "y": "3f431756638b9386",
+   "z": "3f1a9a7a804d2090",
+   "p": "3f48ce35156c93d8",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 105",
+   "x": "3f525e6feae995d0",
+   "y": "bf52540b5aafbd82",
+   "z": "bf553d852d6c6b64",
+   "p": "3f60c448cf113cf3",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 106",
+   "x": "bf952777d8f9d448",
+   "y": "3f69e7fcf6de6dd0",
+   "z": "bf8f7da0bb1ab1f8",
+   "p": "3f9a919df86d3b98",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 107",
+   "x": "bfce4cdc9a99e350",
+   "y": "3fe36a9a4e0987c8",
+   "z": "bfe80478a50e17a4",
+   "p": "3fefccb591b5f823",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 108",
+   "x": "3fbd819de0fbaa58",
+   "y": "3fc404acab4f2fa0",
+   "z": "3fcf516144aed016",
+   "p": "3fd3feb6e7872b48",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 109",
+   "x": "bfecf2b9fc8e6bee",
+   "y": "bfeed711c9673184",
+   "z": "3fd1b7c5d917c074",
+   "p": "3ff59b990b897cca",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 110",
+   "x": "40112cb9ae1b3f1c",
+   "y": "3ffe9b6cd58e9ca0",
+   "z": "401cf1035546babe",
+   "p": "402141a108c6c555",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 111",
+   "x": "3fbf02f9b308fcf0",
+   "y": "3fd0e1021ff7e660",
+   "z": "bfdda66fb48cb90c",
+   "p": "3fe17e6bf69e7b91",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 112",
+   "x": "3fa17b6aea266c60",
+   "y": "bfd9e2e30e981ee8",
+   "z": "3fef93e32136feea",
+   "p": "3ff1128982d4fff2",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 113",
+   "x": "40144ecbceed2522",
+   "y": "40124b5977b7a618",
+   "z": "40007c0eb8fc3154",
+   "p": "401c8c739c80b518",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 114",
+   "x": "3fcbb181bf468034",
+   "y": "3fcde42cfd0dff92",
+   "z": "bfcc5153991ac57c",
+   "p": "3fd8cf91440eb624",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 115",
+   "x": "bfbf8230a01511a8",
+   "y": "3fd6a3db5198a80c",
+   "z": "3fc40264582fd190",
+   "p": "3fd9f9ac25a4a155",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 116",
+   "x": "bffe8e65be8eadc6",
+   "y": "3ffa412b211b077e",
+   "z": "bfe042bfd60c617c",
+   "p": "40048c9c82aed9d2",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 117",
+   "x": "3fdf24c7291a8b66",
+   "y": "bfd087e8404667bc",
+   "z": "3fd1dc7a2d882616",
+   "p": "3fe3c331a9e04347",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 118",
+   "x": "3f3333d8708d6d80",
+   "y": "3f7d1eb0f7105590",
+   "z": "3f8f04d36fb34a48",
+   "p": "3f9122b99246f60f",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 119",
+   "x": "bf670e325787c2e0",
+   "y": "3fa331960bda826a",
+   "z": "bf8187c240931948",
+   "p": "3fa3bd876aabbdae",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 120",
+   "x": "3fd53ea9679c88d8",
+   "y": "3fdf42e4ed2d5318",
+   "z": "3ffc6ae0b48472e4",
+   "p": "3ffdf2837d1a893b",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 121",
+   "x": "c023dd6fe1dc0560",
+   "y": "404ba820b33cfc60",
+   "z": "3ff4a916e2a776c0",
+   "p": "404c1b449d2c028d",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 122",
+   "x": "4021e059b4ece090",
+   "y": "402abd26c97d8388",
+   "z": "c03ef4fca9f47fee",
+   "p": "40417149bcd68413",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 123",
+   "x": "3fe30aad1d1adef8",
+   "y": "bfedeb1fa23c1926",
+   "z": "3fa53bb2f47e2a60",
+   "p": "3ff1be93f79b58dc",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 124",
+   "x": "bfb1172cdcbbbbb8",
+   "y": "bfcecf04da9e646c",
+   "z": "bfb3ad29984297c4",
+   "p": "3fd0b9c27170cf13",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 125",
+   "x": "3fd271109766a020",
+   "y": "3fe032fb1c278b9e",
+   "z": "bfbfcab4c30bf810",
+   "p": "3fe30efd60088ecf",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 126",
+   "x": "bfbb1111a593ebd0",
+   "y": "bfef3d0e58de7708",
+   "z": "3fe159dc6771f194",
+   "p": "3ff1f260a95731ba",
+   "tie": false
+  },
+  {
+   "label": "RV115 gate triple 127",
+   "x": "bfa3c4ee6743827c",
+   "y": "3fab355a4992cf78",
+   "z": "3fa9bf7c60ed4488",
+   "p": "3fb52da49845303c",
+   "tie": false
+  }
+ ]
+}

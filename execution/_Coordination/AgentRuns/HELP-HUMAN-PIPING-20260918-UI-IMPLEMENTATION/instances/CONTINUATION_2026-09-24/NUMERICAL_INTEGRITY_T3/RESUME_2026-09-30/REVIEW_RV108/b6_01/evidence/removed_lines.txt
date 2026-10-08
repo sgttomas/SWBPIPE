@@ -1,0 +1,48 @@
+     1	+++ b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.test.ts
+     2	-  it('RV94 N-3: an invalid enum value in a not_required case\'s quality is refused at G7 with TS\'s own code', async () => {
+     3	-    // The scope clause's class on 07j's not_required entry (TS's G7 contract check fires before the base validator);
+     4	-    // the shared corpus probe g7_not_required_quality_enum_invalid is accuracy_evidence.
+     5	-      expect(await firstFailure(source, invocation), field).toEqual({ gate: 'G7', code: 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED' });
+     6	-    expect(probe.expected_by_reader.typescript).toEqual({ gate: 'G7', code: 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED' });
+     7	-  it('07l: 17 cases, 286 mutations and 28 must-pass entries; 15 bases and 18 must-pass entries are eligible', () => {
+     8	-    expect([corpus.cases.length, corpus.mutations.length, corpus.must_pass.length]).toEqual([17, 286, 28]);
+     9	-    const appended = corpus.mutations.slice(278);
+    10	+++ b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecision.ts
+    11	-    gate = 'G7'; const base = projection(s); need(sourceContract(base as MechanicsResult) === 'preview_physics', gate, 'SOURCE_PRODUCER_CONTRACT_UNSUPPORTED');
+    12	+++ b/projects/chirality-piping/apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
+    13	-const DECLARED = ["D-U7-4:ts_requires_live_native_capture", "F-U6b-2:python_refuses_transport", "F5:refused_statement_binding", "I67-F1:unregistered_invalid_statement", "I67-F2:display_only_binding_precheck", "RV92-N2-N5:ts_refuses_token_rows_at_the_header"];
+    14	-  it("are exactly the six ruled entries, each with a ruling, forms and one expectation per language, in closed field sets", () => {
+    15	-    // RV94 N-3 (U7 repair): an invalid enum value in a not_required case's quality, TS's G7 contract check first.
+    16	-    expect(caseFile.scope).toMatch(/An invalid enum value in a not_required case's quality is refused at G7 with each language's own code[^.]*TS SOURCE_PRODUCER_CONTRACT_UNSUPPORTED/);
+    17	+++ b/projects/chirality-piping/core/analysis_runs/compatibility.py
+    18	-        # The Python reader has no transport-metadata validator (Rust and TS
+    19	-        # have one): a receipt without raw rows cannot be checked here, so a
+    20	-        # transported successor is refused rather than admitted unchecked.
+    21	-        raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+    22	+++ b/projects/chirality-piping/core/analysis_runs/retained_precision.py
+    23	-def _validate_draft(source: Any, invocation: Any = None) -> dict[str, Any]:
+    24	-    """The ordered checks behind the public entry (D-U6-1)."""
+    25	-        gate="G1";_need(_shape(receipt,schema) and type(snapshot.get("results")) is list and all(_shape(r,schema["$defs"]["RawRow"]) for r in snapshot["results"]),gate,"RECEIPT_MISMATCH")
+    26	-        _need(_hash("retained_precision_publication_mp_v2",{k:v for k,v in snapshot.items() if k!="retained_precision"})==body["publication_sha256"],gate,"RECEIPT_MISMATCH")
+    27	+++ b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_carriers.rs
+    28	-/// committed" adds D-U7-4 (format v4).
+    29	-const DECLARED: [&str; 6] = [
+    30	-    "F-U6b-2:python_refuses_transport",
+    31	-    assert!(["G7 parity compares the reader's (gate, code)", "parity there compares only accept against refuse", "no carrier authenticates producer origin", "a blocked envelope is refused at G7 with each language's own base code", "Rust SOURCE_PREVIEW_PHYSICS_BLOCKED_ENVELOPE", "An invalid enum value in a not_required case's quality is refused at G7 with each language's own code", "Rust SOURCE_NUMERICAL_CASE_INVALID"].iter().all(|p| cases["scope"].as_str().unwrap().contains(p)));
+    32	+++ b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+    33	-/// 07l (U8-2) appends the 8 L = 0 mutations, making 286.
+    34	-    assert_eq!(mutations.len(), 286);
+    35	+++ b/projects/chirality-piping/tests/test_retained_precision_carriers.py
+    36	-    # The Python reader has no transport validator: a transported successor is refused.
+    37	-    raises("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", lambda s: c._source_contract(s, check_receipt=False), source)
+    38	-            "F-U6b-2:python_refuses_transport", "F5:refused_statement_binding",
+    39	-                                              "no carrier authenticates producer origin", "a blocked envelope is refused at G7 with each language's own base code", "Python SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", "An invalid enum value in a not_required case's quality is refused at G7 with each language's own code", "Python SOURCE_NUMERICAL_CASE_INVALID"))
+    40	+++ b/projects/chirality-piping/tests/test_retained_precision_contract.py
+    41	-    assert {"gate":error.value.gate,"code":error.value.code} == mutation["expected"]
+    42	-    """Snapshot 07l: 07k (07j plus RV94 N-3's G7 probe) plus U8's two producer-solved L = 0 bases and
+    43	-    their 8 mutations and 4 must-pass entries, appended so no existing slice moves (U8-2; 07k: U7 repair;
+    44	-    07j: U7 slice L, C04; 07i: D-U7-2; 07h: RV90 S1, N1, N2, N4):
+    45	-    17 cases, 286 mutations, 28 must-pass and the D37 table; only rehash "all" (D11); one expectation
+    46	-    assert (len(c["cases"]), len(c["mutations"]), len(c["must_pass"])) == (17, 286, 28)
+    47	-    assert [e["id"] for e in c["mutations"][278:]] == l0(["isolated_rotation_stop", "isolated_has_data", "isolated_estimate_coupled"]) + l0(["isolated_translation_rotation_stop"])
+    48	-    assert {e["base"] for e in c["mutations"][278:] + c["must_pass"][24:]} == {f"u8_l0_isolated_node_{mode}" for mode in L0_PINS}

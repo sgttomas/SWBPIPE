@@ -1,0 +1,31 @@
+RV109_JOB name=a1_wit_i3 dir=WT/rv109/a1_i3/projects/chirality-piping/core/product_physics target=rv109-a1-i3 stale=0 args=test --locked --offline --no-fail-fast --lib witness_ -- --ignored --nocapture --test-threads=1 start=2026-10-08T01:46:14Z
+I65_G5_WITNESS W1@1MiB SparseInteractive stack=1048576 ran=Successor
+I65_G5_WITNESS W1@1MiB DenseScrutiny stack=1048576 ran=Successor
+I65_G5_WITNESS W1 SparseInteractive stack=4194304 ran=Successor
+I65_G5_WITNESS W1 DenseScrutiny stack=4194304 ran=Successor
+test retained_memory::witness_tests::witness_w2_cap_maximal ... I65_G5_WITNESS W2 SparseInteractive stack=4194304 ran=Fallback("Preparation")
+I65_G5_WITNESS W2 DenseScrutiny stack=4194304 ran=Fallback("Preparation")
+I65_G5_WITNESS W2-deep SparseInteractive stack=4194304 ran=Successor
+I65_G5_WITNESS W2-deep SparseInteractive stack=1048576 ran=Successor
+I65_G5_WITNESS W2-deep DenseScrutiny stack=4194304 ran=Successor
+I65_G5_WITNESS W2-deep DenseScrutiny stack=1048576 ran=Successor
+test retained_memory::witness_tests::witness_w2b_cap_maximal_passed_report_no_triggered_case ... I65_G5_WITNESS W2b SparseInteractive stack=4194304 ran=Fallback("NoTriggeredCase")
+I65_G5_WITNESS W2b DenseScrutiny stack=4194304 ran=Fallback("NoTriggeredCase")
+test retained_memory::witness_tests::witness_w3_exact_selected ... I65_G5_WITNESS W3 SparseInteractive stack=4194304 ran=ExactSelected
+I65_G5_WITNESS W3 DenseScrutiny stack=4194304 ran=ExactSelected
+test retained_memory::witness_tests::witness_w4_preparation_refusal ... I65_G5_WITNESS W4 SparseInteractive stack=4194304 ran=Fallback("Preparation")
+I65_G5_WITNESS W4 DenseScrutiny stack=4194304 ran=Fallback("Preparation")
+test retained_memory::witness_tests::witness_w6_force_scaled ... I65_G5_WITNESS_INPUT W6 force_scaled=true
+I65_G5_WITNESS W6 SparseInteractive stack=4194304 ran=Fallback("Native")
+I65_G5_WITNESS_OUTCOME W6 SparseInteractive Fallback("Native")
+I65_G5_WITNESS W6 DenseScrutiny stack=4194304 ran=Fallback("Native")
+I65_G5_WITNESS_OUTCOME W6 DenseScrutiny Fallback("Native")
+test retained_memory::witness_tests::witness_w6_phys_r4_input_no_triggered_case ... I65_G5_WITNESS W6-PHYS-R4 SparseInteractive stack=4194304 ran=Fallback("NoTriggeredCase")
+I65_G5_WITNESS W6-PHYS-R4 DenseScrutiny stack=4194304 ran=Fallback("NoTriggeredCase")
+test retained_memory::witness_tests::witness_w7_fault_fallbacks ... I65_G5_WITNESS W7 native stack=4194304 ran=Fallback("Native")
+I65_G5_WITNESS W7 serializer stack=4194304 ran=Fallback("Serializer(ReceiptFailure { check: Encoding, field_path: \"cases[].run.invocation_after\" })")
+I65_G5_WITNESS W7 staging stack=4194304 ran=Fallback("Staging(StagingFault(\"pipe_stress_extrema[]\"))")
+I65_G5_WITNESS W7 precommit binding stack=4194304 ran=Fallback("Precommit { gate: \"G8\", code: \"RETAINED_PRECISION_INVOCATION_MISMATCH\" }")
+I65_G5_WITNESS W7 precommit corruption stack=4194304 ran=Fallback("Precommit { gate: \"G1\", code: \"RETAINED_PRECISION_RECEIPT_MISMATCH\" }")
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 574 filtered out; finished in 8.91s
+RV109_JOB_END name=a1_wit_i3 rc=0 end=2026-10-08T01:46:23Z

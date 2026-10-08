@@ -1,0 +1,4 @@
+head: 18a20d329fc09335f013131766d7f74dbfa7f675
+command: python -m pytest -q -p no:cacheprovider tools/practitioner_harness/test_live_baseline.py -k gen8 (cwd: records-PR checkout root, WT/records-pr-c; PYTHONDONTWRITEBYTECODE=1; VENV's python)
+1 passed, 10 deselected in 31.63s
+(an earlier staging, 0f76c8a56e, never pushed: 1 passed, 10 deselected in 29.00s; RV117 independently at 18a20d329f: 1 passed, 10 deselected)

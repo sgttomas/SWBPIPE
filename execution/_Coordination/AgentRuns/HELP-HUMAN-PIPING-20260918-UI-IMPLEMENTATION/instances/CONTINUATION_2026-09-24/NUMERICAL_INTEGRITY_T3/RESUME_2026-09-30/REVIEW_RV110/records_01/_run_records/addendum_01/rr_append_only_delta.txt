@@ -1,0 +1,6 @@
+H1 RR 1206006 2c84b7871b85aa0c 14181 lines
+H2 RR 1212894 a18317173140cac9 14240 lines
+H1 RR is exact byte prefix of H2 RR: True
+appended 6888 B, 59 lines
+   ## I88's SI1c verified and ruled; RV111 reviews it; SR-RS dispatched as I90 (ROOT, 2026-10-07 UTC)
+   ## RV110 passes #1108 with S-1; I85's ignored evidence committed; errata E-7 to E-9; #1108 takes the delta (ROOT, 2026-10-07 UTC)

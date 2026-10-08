@@ -1,0 +1,12 @@
+== BASE reader
+rp from chirality-piping
+(4b) beside a selected case: ('G5', 'RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH')
+W2-published not_required evaluation ('admitted', True, 'eligible')
+W2-published not_required formation ('admitted', True, 'eligible')
+N2 selected report: ('G5', 'RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH')
+== HEAD reader
+rp from chirality-piping
+(4b) beside a selected case: ('admitted', False, 'needs_recompute')
+W2-published not_required evaluation ('admitted', True, 'eligible')
+W2-published not_required formation ('admitted', True, 'eligible')
+N2 selected report: ('G5', 'RETAINED_PRECISION_ATTEMPT_MISMATCH')

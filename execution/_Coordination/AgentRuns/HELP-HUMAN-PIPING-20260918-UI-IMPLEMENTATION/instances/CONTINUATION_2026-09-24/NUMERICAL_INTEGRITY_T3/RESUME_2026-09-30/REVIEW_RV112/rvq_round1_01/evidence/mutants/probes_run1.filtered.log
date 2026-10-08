@@ -1,0 +1,18 @@
+test retained_memory::zz_rv112_probe::zz_rv112_g_b_bytes_per_case ... RV112_FORMS T11=155712 T11_late=38016 T11_seed=11968 late_bound=117696 complete_T11=155712
+RV112_SIZES CaseSlot=1560 ProductCapture=2160 OrdinarySeed=400 NestedTypedFacts=240 AdmissionLaw=368 RetainedAdmissionReport=928
+RV112_G_B input=milestone mode=sparse_interactive cases=1 mechanics=MECHANICS_SOLVED seeds=1 before_g_b=[780] parked_at_g_b=[0] at_g_c=2382 seed_bytes=1655 over_late_bound=[false]
+RV112_G_B input=milestone mode=sparse_interactive cases=2 mechanics=MECHANICS_SOLVED seeds=2 before_g_b=[780, 4577] parked_at_g_b=[0, 1] at_g_c=6211 seed_bytes=1710 over_late_bound=[false, false]
+RV112_G_B input=milestone mode=sparse_interactive cases=3 mechanics=MECHANICS_SOLVED seeds=3 before_g_b=[780, 6137, 8374] parked_at_g_b=[0, 1, 2] at_g_c=10024 seed_bytes=1765 over_late_bound=[false, false, false]
+thread 'retained_memory::zz_rv112_probe::zz_rv112_g_b_bytes_per_case' (88804108) panicked at src/zz_rv112_probe.rs:119:21:
+assertion `left == right` failed: milestone 3: the earlier cases' sites are unchanged by later cases
+  left: [780, 6137]
+ right: [780, 4577]
+assertion `left == right` failed: milestone 3: the earlier cases' sites are unchanged by later cases
+  left: [780, 6137]
+ right: [780, 4577]
+test retained_memory::zz_rv112_probe::zz_rv112_retained_error_text_reads_every_slot_at_c ... ok
+test retained_memory::zz_rv112_probe::zz_rv112_runner_input_is_refused_at_d1_4 ... RV112_RUNNER_SHAPE_AT_C mode=sparse_interactive domain=None
+RV112_RUNNER_SHAPE_AT_C mode=dense_scrutiny domain=None
+failures:
+failures:
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 574 filtered out; finished in 0.09s

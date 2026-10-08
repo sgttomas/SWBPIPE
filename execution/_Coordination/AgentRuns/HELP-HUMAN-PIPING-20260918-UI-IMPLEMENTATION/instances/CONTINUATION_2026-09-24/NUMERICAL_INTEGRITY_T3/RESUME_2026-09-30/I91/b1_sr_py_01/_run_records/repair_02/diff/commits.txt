@@ -1,0 +1,47 @@
+70d4a68bd78dae3fd60196e1085bd48944e1cbf4 Ryan C Tufts <ryan@chirality.ai> 2026-10-07T18:26:46-06:00
+  piping(T3 B1 SR-PY): repair 02, pin a source owner out of range as G3's own refusal (D16)
+Without its range conjunct, an owner index past the cases would still read G3
+COVERAGE through the fail-closed fallback (an IndexError). The item-1 test now
+asserts that the refusal is the check's own, with no cause.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+5f267db91d0e468d2d92773862ac78695b3bf3ff Ryan C Tufts <ryan@chirality.ai> 2026-10-07T18:25:40-06:00
+  piping(T3 B1 SR-PY): repair 02, RV113 N-1: the transport docstring states Python's gate
+`validate_retained_precision_transport`'s docstring now says that Python reports
+its base step (the header check and the preview-physics metadata check) at G7,
+and that the alignment set's item 4 moves the header check to G2. Wording only.
+
+Item 4 itself is held, not committed: relabelling the transport header check
+from G7 to G2 changes the transport verdict's gate of nine 07m mutations
+(286-293 and 277; code and detail unchanged), and the brief's stop rule forbids
+any 07m verdict change. It is returned to ROOT as a ready patch.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+a721e5848359a07e77c86169ce9ecb385d6c36b0 Ryan C Tufts <ryan@chirality.ai> 2026-10-07T18:22:34-06:00
+  piping(T3 B1 SR-PY): repair 02, the three-reader alignment set's items 1-3; S-4 and N-2 pins
+RR "RV113's three returns verified; I3 made at `2ba2f81863`; the three-reader
+alignment set ruled", items 1-3 and 6, in PY's lane:
+- Item 1, G3 COVERAGE, bound and unbound (TS `coverage`): each material basis
+  and each source at its index (the basis index check is new), a source's owner
+  its own case, a basis's case list unique and in range. The source index and
+  owner checks leave G8. The ordinary attempt's basis reference (it resolves to
+  a basis listing its case) is G5 ATTEMPT_MISMATCH (TS `ordinaryAttempts`). G8
+  keeps the invocation's facts.
+- Item 2, G8 INVOCATION_MISMATCH: no `reference_configurations` member (null
+  included), `pressure_contract` absent or null, `combinations` and
+  `components` absent or [].
+- Item 3, G5 ATTEMPT_MISMATCH in the ordinary class: C2's cause table for every
+  unavailable case whose cause is not prepared_product_failure, TS's form with
+  the `precondition` keying.
+- Tests: RV113 S-4's own-attempt `not_required` row (G5 ATTEMPT); N-2's stage-
+  rule test for the (4b) conjuncts held elsewhere; the (b)/(c) and D38 rows
+  whose first failure the placements move (G5 ATTEMPT, as TS); the explicit
+  count refusal (D16); new tests for items 1-3.
+
+The census over 07m (RV113's harness, three verdicts) has 0 changes against
+11cc14e3e6 and 0 misses against the corpus's Python expectations.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+

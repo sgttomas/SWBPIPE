@@ -1,0 +1,35 @@
+# I85's sum entries that do not verify in the committed tree (H = 145443e9e4 = NUM 25c745f905's execution tree)
+## entries whose file is absent from H
+R/I85/b1_st_01/SHA256SUMS: 5012d058a140bb8b2df7af9ddd619c541d1b9517b82d6951601a5820500f5494  _run_records/build/build01_norun.log  (absent from H)
+R/I85/b1_st_01/SHA256SUMS: 5f3f2afd8324d3e852ec20853aaeffe2c7073980b3efca76c0416dbef34b5a78  _run_records/build/build_identities.txt  (absent from H)
+R/I85/b1_st_01/SHA256SUMS: 4994ff1854d46b2822b4296b156152e7ce50924cc88be94ab48d4f0b76c8a581  _run_records/build/lib01.log  (absent from H)
+R/I85/b1_st_01/SHA256SUMS.repair_01: d87b5612f8ea68fd2501609ab2737ba813aa2cd28bda76ac40909e75cedbbc70  _run_records/repair_01/build/r1_lib01.log  (absent from H)
+## tracked in NUM's index (git ls-files): 0 files
+## why: git check-ignore -v
+projects/chirality-piping/.gitignore:20:build/	R/I85/b1_st_01/_run_records/build/build01_norun.log
+projects/chirality-piping/.gitignore:20:build/	R/I85/b1_st_01/_run_records/build/build_identities.txt
+projects/chirality-piping/.gitignore:20:build/	R/I85/b1_st_01/_run_records/build/lib01.log
+projects/chirality-piping/.gitignore:20:build/	R/I85/b1_st_01/_run_records/repair_01/build/r1_lib01.log
+## on disk in NUM's working tree (sha256 = the sum file's entry?)
+_run_records/build/build01_norun.log: disk 5012d058a140… sum 5012d058a140… MATCH; lines 205; home, private-temp or tmp paths 0; emails 0; token-shaped 0
+_run_records/build/build_identities.txt: disk 5f3f2afd8324… sum 5f3f2afd8324… MATCH; lines 5; home, private-temp or tmp paths 0; emails 0; token-shaped 0
+_run_records/build/lib01.log: disk 4994ff1854d4… sum 4994ff1854d4… MATCH; lines 698; home, private-temp or tmp paths 0; emails 0; token-shaped 0
+_run_records/repair_01/build/r1_lib01.log: disk d87b5612f8ea… sum d87b5612f8ea… MATCH; lines 700; home, private-temp or tmp paths 0; emails 0; token-shaped 0
+## the committed records that cite them
+R/I85/b1_st_01/REPAIR_01.md:152:  - `witness/`, `guards/`, `mutants/` (`mutants.json` and the filtered logs, including `mutant_R10_collision_only`), `build/` and `run_all.out`;
+R/I85/b1_st_01/RETURN.md:151:Each suite ran `cargo test --locked --offline --no-fail-fast`, registered (`RUSTFLAGS` unset) or Stale (`--cfg=i85_b1_st_stale`), in separate targets. The build identities
+R/I85/b1_st_01/SHA256SUMS:2:5012d058a140bb8b2df7af9ddd619c541d1b9517b82d6951601a5820500f5494  _run_records/build/build01_norun.log
+R/I85/b1_st_01/SHA256SUMS:3:5f3f2afd8324d3e852ec20853aaeffe2c7073980b3efca76c0416dbef34b5a78  _run_records/build/build_identities.txt
+R/I85/b1_st_01/SHA256SUMS:4:4994ff1854d46b2822b4296b156152e7ce50924cc88be94ab48d4f0b76c8a581  _run_records/build/lib01.log
+## RR's verification lines (H)
+12603:- `SHA256SUMS`: 34 of 34 OK, every file covered, no machine paths;
+13947:**I83 (B6) is verified.** `R/I83/b6_01/RETURN.md` sha256 `4e856c31…`; SHA256SUMS 34 of 34 OK. ROOT's own checks:
+13997:**I85 (I-P, ST) is verified.** `R/I85/b1_st_01/RETURN.md` sha256 `f4c1cadc…`; SHA256SUMS 60 of 60 OK; placeholder paths only. ROOT's checks:
+14171:I85's REPAIR_01 (`8d2d714e…`; 34 of 34 OK) is verified by ROOT: one test-only commit `98a77c716e`, PP `lib.rs` still `84fba5ca…`, and the mutant archi
+## other ignored paths under P/execution in NUM's working tree (git status --ignored)
+!! T3/REFERENCES/__pycache__/
+!! T3/RESUME_2026-09-30/I65/u4_g7_03/_run_records/__pycache__/
+!! T3/RESUME_2026-09-30/I85/b1_st_01/_run_records/build/
+!! T3/RESUME_2026-09-30/I85/b1_st_01/_run_records/repair_01/build/
+!! T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_01/imported/
+!! T3/RESUME_2026-09-30/REVIEW_RV56/source_bridge_repair_02/imported/

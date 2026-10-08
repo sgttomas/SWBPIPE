@@ -1,0 +1,21 @@
+# assignment IDs at N=030020aca3 (git grep -w over the whole tree; read-only)
+== I80: 37 lines in 16 files
+== I81: 11 lines in 4 files
+== I82: 6 lines in 2 files
+== I83: 2 lines in 2 files
+== I84: 0 lines in 0 files
+== RV103: 35 lines in 13 files
+== RV104: 14 lines in 6 files
+== RV105: 58 lines in 18 files
+== RV106: 3 lines in 2 files
+== RV107: 0 lines in 0 files
+== I83 lines:
+T3/ROOT_RULINGS_V1.md:13477:**IDs:** I81 and I82 are used. The next unused are **I83 and RV106**.
+WG:595:**Assignment IDs.** Dispatched on 2026-10-06: I68–I82, RV97–RV99 and RV101–RV105 (RV100 was 2026-10-05's, for #1088). Running: I81 (B1-0), I82 (B1-S), RV104 (SI1b). The next unused are **
+== RV106 lines:
+T3/ROOT_RULINGS_V1.md:13333:**IDs:** RV105 is used. The next unused are **I81 and RV106**.
+T3/ROOT_RULINGS_V1.md:13477:**IDs:** I81 and I82 are used. The next unused are **I83 and RV106**.
+WG:595:**Assignment IDs.** Dispatched on 2026-10-06: I68–I82, RV97–RV99 and RV101–RV105 (RV100 was 2026-10-05's, for #1088). Running: I81 (B1-0), I82 (B1-S), RV104 (SI1b). The next unused are **
+== I84 / RV107 binary or other matches:
+== dispatch briefs present: B1_0_PROBE.md B1_S_CAP_STUDY.md I80_T6S_PR_PACKAGE.md RV104_SI1B_REVIEW.md RV105_B0_REVIEW.md 
+== I81/I82 record folders at N: REVIEW_RV100 REVIEW_RV101 REVIEW_RV102 REVIEW_RV103 REVIEW_RV105 

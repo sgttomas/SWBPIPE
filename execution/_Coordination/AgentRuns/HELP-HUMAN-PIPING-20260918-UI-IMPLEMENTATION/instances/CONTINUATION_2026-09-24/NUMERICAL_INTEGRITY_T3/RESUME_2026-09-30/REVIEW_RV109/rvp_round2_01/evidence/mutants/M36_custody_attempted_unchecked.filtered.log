@@ -1,0 +1,9 @@
+RV109_JOB name=r2_mut_M36_custody_attempted_unchecked dir=WT/rv109/mut/projects/chirality-piping/core/product_physics target=rv109-r2-mut stale=0 args=test --locked --offline --no-fail-fast --lib start=2026-10-07T21:50:39Z
+test retained_facade_tests::b1_sp_r3p_2_3_custody_validates_a_and_orders_prior_errors ... FAILED
+test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+thread 'retained_facade_tests::b1_sp_r3p_2_3_custody_validates_a_and_orders_prior_errors' (96909577) panicked at src/retained_product.rs:227:55:
+thread 's11g_tests::t13_committed_fallback_uz_is_byte_identical' (96912678) panicked at src/s11g_tests.rs:1666:9:
+test result: FAILED. 571 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 66.27s
+error: test failed, to rerun pass `--lib`
+error: 1 target failed:
+RV109_JOB_END name=r2_mut_M36_custody_attempted_unchecked rc=101 end=2026-10-07T21:51:49Z

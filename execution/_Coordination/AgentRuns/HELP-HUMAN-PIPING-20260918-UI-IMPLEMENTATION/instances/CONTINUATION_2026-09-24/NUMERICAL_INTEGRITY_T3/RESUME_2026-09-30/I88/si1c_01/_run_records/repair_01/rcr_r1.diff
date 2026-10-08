@@ -1,0 +1,32 @@
+diff --git a/projects/chirality-piping/core/rules/rule_check_runner/src/lib.rs b/projects/chirality-piping/core/rules/rule_check_runner/src/lib.rs
+index 7e619c7a87..39e37d4d2a 100644
+--- a/projects/chirality-piping/core/rules/rule_check_runner/src/lib.rs
++++ b/projects/chirality-piping/core/rules/rule_check_runner/src/lib.rs
+@@ -686,10 +686,13 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
+             value: value.filter(|v| v.is_finite()),
+             unit: unit.clone(),
+             result_id,
+-            note: if non_finite {
+-                Some(NON_FINITE_INPUT_NOTE.to_string())
+-            } else {
+-                note
++            // N-4's note follows any note already there (a library's
++            // provenance, or "interval ±b from receipt"), which says where the
++            // value came from.
++            note: match (non_finite, note) {
++                (false, note) => note,
++                (true, None) => Some(NON_FINITE_INPUT_NOTE.to_string()),
++                (true, Some(existing)) => Some(format!("{existing}; {NON_FINITE_INPUT_NOTE}")),
+             },
+         });
+ 
+@@ -1252,7 +1255,8 @@ fn normalize_value_to_declared_unit(
+     Ok((normalized, declared.to_string()))
+ }
+ 
+-/// N-4 (T3-SI1c): the note on a supplied input whose value is not finite.
++/// N-4 (T3-SI1c): the note on a supplied input whose value is not finite,
++/// appended after "; " to a note the input already carries.
+ const NON_FINITE_INPUT_NOTE: &str =
+     "non-finite value (NaN or ±inf, after unit normalization): not bound";
+ 

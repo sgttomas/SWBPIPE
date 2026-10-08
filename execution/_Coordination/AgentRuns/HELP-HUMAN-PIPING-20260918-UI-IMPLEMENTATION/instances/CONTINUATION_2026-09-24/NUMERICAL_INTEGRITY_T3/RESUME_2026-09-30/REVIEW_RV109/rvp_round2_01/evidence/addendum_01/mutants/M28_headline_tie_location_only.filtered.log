@@ -1,0 +1,10 @@
+RV109_JOB name=a1_mut_M28_headline_tie_location_only dir=WT/rv109/a1_mut/projects/chirality-piping/core/product_physics target=rv109-a1-mut stale=0 args=test --locked --offline --no-fail-fast --lib start=2026-10-08T02:37:53Z
+test retained_facade_tests::b1_sp_sf2_selected_not_first_and_two_selected_pins ... FAILED
+test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+thread 'retained_facade_tests::b1_sp_sf2_selected_not_first_and_two_selected_pins' (100889836) panicked at src/retained_facade_tests.rs:2277:17:
+assertion `left == right` failed: c_b_a sparse_interactive: the max_displacement headline (M28, M32)
+  left: Object {"location_ref": String("node:section-b"), "result_ref": String("result:disp:node-section-b"), "unit": String("mm"), "value": Number(282.94212105225847)}
+ right: Object {"location_ref": String("node:section-b"), "result_ref": String("result:loadcase:case-b:disp:node-section-b"), "unit": String("mm"), "value": Number(282.94212105225847)}
+thread 's11g_tests::t13_committed_fallback_uz_is_byte_identical' (100940947) panicked at src/s11g_tests.rs:1666:9:
+test result: FAILED. 574 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 75.09s
+RV109_JOB_END name=a1_mut_M28_headline_tie_location_only rc=101 end=2026-10-08T02:39:13Z

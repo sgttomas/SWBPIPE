@@ -3,7 +3,7 @@ use super::super::{
     adaptive,
     origins::RecordedInvocation,
     recover::{End, Kind, QuantityId},
-    source::Component,
+    source::{Component, Dof},
 };
 use super::source_residual::ResidualWork;
 use super::*;
@@ -40,11 +40,19 @@ pub enum ProductMaterial {
         e_hat: f64,
         g_hat: f64,
     },
+    /// B3-K K3-1: the base common E and Poisson's ratio of the exact route. The
+    /// source lane encloses G = E/(2(1+nu)) from the exact E and nu (DEF-E); the
+    /// admitted K keeps the represented shear modulus as given.
+    BaseENu {
+        e: f64,
+        nu: f64,
+    },
 }
 impl ProductMaterial {
     fn operands(self) -> MaterialOperands {
         match self {
             Self::Base { e, g } | Self::Point { e, g, .. } => MaterialOperands::Ordinary { e, g },
+            Self::BaseENu { e, nu } => MaterialOperands::ExactENu { e, nu },
             Self::Interpolated {
                 t_lo,
                 t,
@@ -1044,7 +1052,7 @@ fn run_case(
     facts: &[ProductMemberFacts],
     spent: &mut ProductCertificateSpent<'_>,
 ) -> Result<(), ProductFailure> {
-    if !invocation.product_case_owner(run, owner) {
+    if invocation.product_owner(run, owner).is_none() {
         return Err(bad("recorded owner"));
     }
     let source = owner.source();
@@ -1114,6 +1122,11 @@ fn run_case(
 fn row_scales(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],spent:&mut ProductCertificateSpent<'_>)
     -> Result<Vec<[f64;4]>,ProductFailure> {
     let source=owner.source();
+    // B2-K (KD §5.2, R-7): a mechanics combination owner publishes no circular
+    // maximum, intensified row, mode, parity or modulus record. Its coverage is
+    // every native row and derivative slots 0-19 of each member (slot 20 stays
+    // empty); no mode record is required. Every other rule is the case's.
+    let combination=!owner.prep.factors.is_empty();
         let nb = source.body_count() as usize;
         let mut scales = reserve(nb)?;
         spent.capacities[6] = scales.capacity();
@@ -1161,6 +1174,10 @@ fn row_scales(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],spent:&
             }
             if r.case_id != spent.rows[0].case_id {
                 return Err(bad("case association"));
+            }
+            if combination && matches!(r.recipe, ProductRecipe::NonQuantity | ProductRecipe::DenseParityObservation
+                | ProductRecipe::ModulusBasisRecord | ProductRecipe::CircularMaximum { .. }) {
+                return Err(bad("combination row family"));
             }
             match r.recipe {
                 ProductRecipe::NonQuantity => {
@@ -1279,8 +1296,8 @@ fn row_scales(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],spent:&
             if !covered { return Err(bad("missing support coverage")); }
         }
         if native_coverage.iter().any(|v| !*v)
-            || derivative_coverage.iter().any(|v| !*v)
-            || !nonquantity
+            || derivative_coverage.iter().enumerate().any(|(j, v)| !*v && !(combination && j % 21 == 20))
+            || !(nonquantity || combination)
         {
             return Err(bad("missing final coverage"));
         }
@@ -1797,6 +1814,7 @@ impl<'s,'m> ProductProjectionSpent<'s,'m> {
 impl<'s,'m> ProductProofDraft<'s,'m> {
     pub fn lane_debug(&self)->impl std::fmt::Debug+'_ {(&self.data.k,&self.data.source)}
     pub fn project(mut self)->ProductProjectionSpent<'s,'m> {
+        let combination=!self.data.owner.prep.factors.is_empty();
         let result=(|| {
             let mut maxima=self.work.prepared_reserve(2,self.data.facts.len())?;
             self.work.projection_outcomes=self.work.prepared_reserve(5,self.data.specs.len())?;
@@ -1805,6 +1823,9 @@ impl<'s,'m> ProductProofDraft<'s,'m> {
                 if let Some(bits)=spec.observed {self.work.visit()?;self.data.values[i]=f64::from_bits(bits);continue;}
                 if let ProductRecipe::CircularMaximum{member}=spec.recipe {self.work.visit()?;maxima.push((i,member));continue;}
                 if matches!(spec.recipe,ProductRecipe::Native(QuantityId::SupportForceMagnitude(_)|QuantityId::SupportMomentMagnitude(_))){continue;}
+                // B2-K (DEF-C r2, A-1): a combination's displacement magnitude is
+                // formed from its frozen components in the second pass.
+                if combination && matches!(spec.recipe,ProductRecipe::Native(QuantityId::DisplacementMagnitude(_))){continue;}
                 let section=section_for(self.data.owner,self.data.facts,spec.recipe,&mut self.work)?;
                 let k=recipe(self.data.owner,&mut self.work,&self.data.k.rows,spec.recipe,section.as_ref(),self.data.facts,true)?;
                 let s=recipe(self.data.owner,&mut self.work,&self.data.source.rows,spec.recipe,section.as_ref(),self.data.facts,false)?;
@@ -1819,6 +1840,13 @@ impl<'s,'m> ProductProofDraft<'s,'m> {
                 };
                 let value=support_hypot(self.data.specs,&self.data.values,support,first,unit,&mut self.work)?;
                 self.work.visit()?;self.data.values[i]=value;
+            }
+            if combination {
+                for (i,spec) in self.data.specs.iter().enumerate() {
+                    let ProductRecipe::Native(QuantityId::DisplacementMagnitude(node))=spec.recipe else {continue};
+                    let value=displacement_norm(self.data.specs,&self.data.values,node,&mut self.work)?;
+                    self.work.visit()?;self.data.values[i]=value;
+                }
             }
             self.work.visit()?;
             let values=ProductValuesBuilder{values:std::mem::take(&mut self.data.values),maxima,
@@ -1850,6 +1878,119 @@ fn support_hypot(specs:&[ProductRowSpec<'_>],values:&[f64],support:u32,first:usi
     let value=xy.hypot(v[2]);
     if !value.is_finite() || value<0.0{return Err(bad("support projection hypot range"));}
     Ok(if value==0.0{0.0}else{value})
+}
+/// B2-K (DEF-C r2 `rows.displacement_magnitude`; REVISION_02 §2.2 as RR's
+/// SA4-1 amends it): a combination's displacement magnitude is RN64, ties to
+/// even, of the exact 3-norm of its node's frozen projected translations (mm).
+/// The components are found as `support_hypot` finds its slots: exactly one
+/// each, unit mm, finite; counted visits and one counted scalar operation.
+fn displacement_norm(specs:&[ProductRowSpec<'_>],values:&[f64],node:u32,
+    work:&mut ProductCertificateSpent<'_>)->Result<f64,ProductFailure> {
+    let mut v=[0.0;3];
+    if specs.len()!=values.len(){return Err(bad("displacement norm shape"));}
+    for j in 0..3 {
+        let recipe=ProductRecipe::Native(QuantityId::Displacement(Dof{node,component:Component::ALL[j]}));
+        let mut found=false;
+        for (i,spec) in specs.iter().enumerate() {
+            work.visit()?;
+            if spec.recipe!=recipe{continue;}
+            if found || spec.unit!=ProductUnit::Millimetre || !values[i].is_finite(){return Err(bad("displacement norm identity/unit"));}
+            work.visit()?;v[j]=values[i];found=true;
+        }
+        if !found{return Err(bad("displacement norm missing component"));}
+    }
+    work.visit()?;work.scalar_operations=work.scalar_operations.add(WorkTotal::exact_count(1));
+    if let Some(f)=work.status().fault(){return Err(ProductFailure{cause:Cause::Accounting(f)});}
+    let spent=rn64_norm3(v);
+    work.numeric.wide.merge(&spent.wide);work.numeric.sums.merge(&spent.sums);
+    let value=spent.result.map_err(|e|ProductFailure{cause:Cause::Helper(e)})?;
+    if let Some(f)=work.status().fault(){return Err(ProductFailure{cause:Cause::Accounting(f)});}
+    Ok(value)
+}
+/// The exact 3-norm's spent result: every context and sum's work is kept,
+/// failed prefixes included.
+pub(super) struct NormSpent {
+    pub(super) result:Result<f64,directed::certificate::HelperError>,
+    pub(super) wide:super::super::wide::multi::AttemptWork, pub(super) sums:SumWork,
+}
+/// RN64, ties to even, of sqrt(x^2 + y^2 + z^2) for finite binary64 x, y, z,
+/// decided exactly: S formed exactly; a 1024-bit nearest sqrt of RN1024(S)
+/// rounded once to binary64 as the estimate y0; then the exact sides
+/// sign(S - m^2) at y0's two midpoints. SA4-1: (a) the midpoints come from y0's
+/// actual binary64 neighbours, averaged exactly (at 2^-1022 both gaps are
+/// 2^-1074); (b) at y0 = MAX the upper midpoint is MAX + 2^970 and S at or
+/// above its square refuses; (c) an overflowing estimate is decided by that
+/// same comparison from y0 = MAX; (d) at most one correction step, a second is
+/// an invariant failure; (e) S > 0 with a zero or underflowing estimate is an
+/// invariant failure. S = 0 gives canonical +0.
+pub(super) fn rn64_norm3(v:[f64;3])->NormSpent {
+    use directed::certificate::HelperError;
+    let mut sums=SumWork::default();
+    let mut wide=super::super::wide::multi::AttemptWork::default();
+    let mut ctx=match WideContext::<16>::new(1024) {
+        Ok(c)=>c, Err(e)=>return NormSpent{result:Err(HelperError::Arithmetic(e.into())),wide,sums},
+    };
+    let result=norm3_core(v,&mut ctx,&mut sums);
+    wide.record(&ctx);
+    NormSpent{result,wide,sums}
+}
+const MAX_BITS:u64=0x7fef_ffff_ffff_ffff;
+fn norm3_core(v:[f64;3],ctx:&mut WideContext<16>,sums:&mut SumWork)
+    ->Result<f64,directed::certificate::HelperError> {
+    use directed::certificate::HelperError as H;
+    let arith=|e:AttemptStop|H::Arithmetic(e);
+    let mut x=[Endpoint::ZERO;3];
+    for (k,c) in v.iter().enumerate() {
+        x[k]=lift(*c).map_err(|e|match e {NumericError::Arithmetic(e)=>H::Arithmetic(e),_=>H::Invariant})?;
+    }
+    // S exactly, its sign, and the nearest 1024-bit sqrt of its 1024-bit rounding.
+    let mut s=ExactWideSum::new();
+    let estimate=(|| -> Result<Option<Endpoint>,AttemptStop> {
+        for c in &x {s.add_product(ctx,c,c,false)?;}
+        if s.signum()?==0 {return Ok(None);}
+        let rounded=s.round(ctx)?;
+        Ok(Some(ctx.sqrt(&rounded)?))
+    })();
+    sums.merge(&s.work());
+    let Some(q)=estimate.map_err(arith)? else {return Ok(0.0)};
+    use super::super::wide::multi::Binary64Outcome as B;
+    let mut y=match q.to_binary64() {
+        B::Normal(y)|B::Subnormal{value:y,..} if y>0.0 =>y.to_bits(),
+        B::Overflow{negative:false}=>MAX_BITS,
+        _=>return Err(H::Invariant),
+    };
+    // The exact value of a positive binary64 bit pattern; +inf's pattern is 2^1024.
+    let at=|bits:u64|->Result<Endpoint,H> {
+        if bits==0x7ff0_0000_0000_0000 {shift(&Endpoint::ONE,1024).map_err(|_|H::Invariant)}
+        else {lift(f64::from_bits(bits)).map_err(|_|H::Invariant)}
+    };
+    for step in 0..2 {
+        let here=at(y)?;
+        let mut side=|neighbour:u64|->Result<i8,H> {
+            let m=shift(&ctx.add(&here,&at(neighbour)?).map_err(|e|arith(e.into()))?,-1).map_err(|_|H::Invariant)?;
+            let mut d=ExactWideSum::new();
+            let sign=(|| -> Result<i8,AttemptStop> {
+                for c in &x {d.add_product(ctx,c,c,false)?;}
+                d.add_product(ctx,&m,&m,true)?;
+                Ok(d.signum()?)
+            })();
+            sums.merge(&d.work());
+            sign.map_err(arith)
+        };
+        let odd=y&1==1;
+        let upper=side(y+1)?;
+        let lower=side(y-1)?;
+        let up=upper>0 || (upper==0 && odd);
+        let down=lower<0 || (lower==0 && odd);
+        if !up && !down {return Ok(f64::from_bits(y));}
+        if step==1 || (up && down) {return Err(H::Invariant);}
+        if up && y==MAX_BITS {return Err(H::Binary64Range);}
+        if down && y==1 {return Err(H::Invariant);}
+        // One step to the actual binary64 neighbour (bit patterns are ordered).
+        let next=if up {y.checked_add(1)} else {y.checked_sub(1)};
+        y=next.ok_or(H::Invariant)?;
+    }
+    Err(H::Invariant)
 }
 pub struct CertifiedProductProof {
     work:ProductCertificateSpent<'static>, anchor:std::sync::Arc<ProofAnchor>,

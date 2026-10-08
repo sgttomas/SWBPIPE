@@ -1,0 +1,13 @@
+manifests 40; identical 38; differing 2
+
+== core/rules/expression_evaluator/Cargo.toml: baseline rc/passed/failed/ignored (0, 58, 0, 0)  candidate (0, 66, 0, 0)
+   added ok: 13
+   removed or changed: tests::blocks_generated_nan_table_arguments ... ok
+   removed or changed: tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking ... ok
+   removed or changed: tests::non_finite_quotients_outside_the_ratio_arm_still_carry_their_value ... ok
+   removed or changed: tests::non_finite_table_arguments_that_did_not_panic_are_unchanged ... ok
+   removed or changed: tests::same_dimension_quotients_that_did_not_panic_are_unchanged ... ok
+
+== core/rules/rule_check_runner/Cargo.toml: baseline rc/passed/failed/ignored (0, 35, 0, 0)  candidate (0, 44, 0, 0)
+   added ok: 10
+   removed or changed: a_nan_table_argument_check_blocks ... ok

@@ -1,0 +1,46 @@
+{
+ "base": {
+  "summary": {
+   "numTotalTestSuites": 512,
+   "numPassedTestSuites": 512,
+   "numFailedTestSuites": 0,
+   "numTotalTests": 3626,
+   "numPassedTests": 3626,
+   "numFailedTests": 0,
+   "numPendingTests": 0,
+   "numTodoTests": 0,
+   "success": true
+  },
+  "statuses": {
+   "passed": 3626
+  }
+ },
+ "head": {
+  "summary": {
+   "numTotalTestSuites": 513,
+   "numPassedTestSuites": 513,
+   "numFailedTestSuites": 0,
+   "numTotalTests": 3628,
+   "numPassedTests": 3628,
+   "numFailedTests": 0,
+   "numPendingTests": 0,
+   "numTodoTests": 0,
+   "success": true
+  },
+  "statuses": {
+   "passed": 3628
+  }
+ },
+ "added": [
+  [
+   "src/features/results/retainedPrecision.test.ts :: B1 SR-TS repair 01: (g) at G8, and the C2 cause table keyed by precondition (g): the model-scope members are PP's acceptance, at G8 INVOCATION before any PREPARATION check; unbound reads admit them",
+   "passed"
+  ],
+  [
+   "src/features/results/retainedPrecision.test.ts :: B1 SR-TS repair 01: (g) at G8, and the C2 cause table keyed by precondition C2's cause table: an unavailable_precondition code is keyed one-to-one by its precondition (N-2); the receipt_failure set form stands",
+   "passed"
+  ]
+ ],
+ "removed": [],
+ "changed": []
+}

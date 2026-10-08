@@ -1,0 +1,13 @@
+b8bc059e356e240e0d5bda9f18d6c22f4bf12332
+e33f3e2f1b0a0271da3ef4db8521b3981257b5ce
+true
+9
+projects/chirality-piping/core/rules/expression_evaluator/README.md
+projects/chirality-piping/core/rules/expression_evaluator/src/lib.rs
+projects/chirality-piping/core/rules/rule_check_runner/src/lib.rs
+projects/chirality-piping/core/rules/rule_check_runner/tests/point_path_non_finite_run.rs
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/SI1C/CHANGE_RECORD.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/SI1C/PR_BODY.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/SI1C/SHA256SUMS
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/SI1C/citations.json
+projects/chirality-piping/tests/test_rule_interval.py

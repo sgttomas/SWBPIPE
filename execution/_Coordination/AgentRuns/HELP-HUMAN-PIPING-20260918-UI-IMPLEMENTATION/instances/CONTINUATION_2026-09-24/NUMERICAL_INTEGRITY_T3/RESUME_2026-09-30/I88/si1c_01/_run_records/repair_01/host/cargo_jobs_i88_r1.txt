@@ -1,0 +1,461 @@
+2026-10-07T19:33:15Z WAIT pid=31470 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T19:33:35Z START pid=36223 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T19:33:38Z END rc=0 pid=36223 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T19:33:38Z WAIT pid=36302 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test i79_run_diff --test rv104_ee_diff --test rv104_run_diff --test si1c_family -- --test-threads=1
+2026-10-07T19:33:52Z START pid=39973 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test i79_run_diff --test rv104_ee_diff --test rv104_run_diff --test si1c_family -- --test-threads=1
+2026-10-07T19:34:36Z END rc=0 pid=39973 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T19:34:37Z WAIT pid=40487 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test rv104_run_full -- --test-threads=1
+2026-10-07T19:36:23Z START pid=57483 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test rv104_run_full -- --test-threads=1
+2026-10-07T19:36:50Z END rc=0 pid=57483 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T19:36:50Z WAIT pid=57665 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline
+2026-10-07T19:38:18Z START pid=70187 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline
+2026-10-07T19:38:20Z END rc=0 pid=70187 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T19:38:20Z WAIT pid=70225 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline -- --list
+2026-10-07T19:38:20Z START pid=70228 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline -- --list
+2026-10-07T19:38:20Z END rc=0 pid=70228 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T19:38:20Z WAIT pid=70241 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline
+2026-10-07T19:38:20Z START pid=70244 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline
+2026-10-07T19:38:21Z END rc=0 pid=70244 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T19:38:22Z WAIT pid=70379 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline -- --list
+2026-10-07T19:38:22Z START pid=70384 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline -- --list
+2026-10-07T19:38:22Z END rc=0 pid=70384 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T19:38:22Z WAIT pid=70398 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_pack_document args: test --locked --offline
+2026-10-07T19:38:22Z START pid=70401 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_pack_document args: test --locked --offline
+2026-10-07T19:38:22Z END rc=0 pid=70401 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_pack_document
+2026-10-07T19:38:23Z WAIT pid=70458 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_pack_document args: test --locked --offline -- --list
+2026-10-07T19:38:23Z START pid=70461 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_pack_document args: test --locked --offline -- --list
+2026-10-07T19:38:23Z END rc=0 pid=70461 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/rule_pack_document
+2026-10-07T19:38:23Z WAIT pid=70472 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/expression_evaluator args: fmt --check
+2026-10-07T19:38:23Z START pid=70475 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/expression_evaluator args: fmt --check
+2026-10-07T19:38:23Z END rc=0 pid=70475 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T19:38:23Z WAIT pid=70484 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/serialization/canonical_json args: build --locked --offline --release --features checked-cli --bin openpipestress_jcs_ijson
+2026-10-07T19:38:23Z START pid=70487 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/serialization/canonical_json args: build --locked --offline --release --features checked-cli --bin openpipestress_jcs_ijson
+2026-10-07T19:38:26Z END rc=0 pid=70487 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/serialization/canonical_json
+2026-10-07T19:38:26Z WAIT pid=70658 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/units args: build --locked --offline --release --features cli --bin openpipestress_units
+2026-10-07T19:38:26Z START pid=70661 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/units args: build --locked --offline --release --features cli --bin openpipestress_units
+2026-10-07T19:38:27Z END rc=0 pid=70661 cwd=WT/scratch/i88_si1c/trees/cand/projects/chirality-piping/core/units
+2026-10-07T19:39:12Z WAIT pid=72204 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T19:52:29Z START pid=98963 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T19:52:31Z END rc=0 pid=98963 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T19:52:31Z WAIT pid=99001 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:06:19Z START pid=31381 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:06:23Z END rc=0 pid=31381 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:06:23Z WAIT pid=31547 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:09:04Z START pid=40651 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:09:06Z END rc=101 pid=40651 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:09:06Z WAIT pid=40704 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:09:46Z START pid=49550 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:09:47Z END rc=0 pid=49550 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:09:47Z WAIT pid=49576 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:10:20Z START pid=57372 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:10:21Z END rc=101 pid=57372 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:10:21Z WAIT pid=57397 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:10:52Z START pid=65096 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:10:53Z END rc=101 pid=65096 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:10:53Z WAIT pid=65124 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:11:24Z START pid=73044 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:11:25Z END rc=101 pid=73044 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:11:25Z WAIT pid=73070 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:11:56Z START pid=80820 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:11:57Z END rc=101 pid=80820 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:11:57Z WAIT pid=80848 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:12:27Z START pid=88587 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:12:28Z END rc=101 pid=88587 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:12:28Z WAIT pid=88615 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:13:02Z START pid=97194 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:13:04Z END rc=0 pid=97194 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:13:04Z WAIT pid=97236 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:13:35Z START pid=5874 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:13:36Z END rc=101 pid=5874 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:13:36Z WAIT pid=5920 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:14:09Z START pid=13533 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:14:10Z END rc=0 pid=13533 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:14:10Z WAIT pid=13565 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:14:43Z START pid=21254 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:14:44Z END rc=101 pid=21254 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:14:44Z WAIT pid=21279 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:15:14Z START pid=28948 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:15:15Z END rc=0 pid=28948 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:15:15Z WAIT pid=28976 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:15:46Z START pid=36677 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:15:47Z END rc=101 pid=36677 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:15:47Z WAIT pid=36711 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:16:18Z START pid=44328 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:16:19Z END rc=0 pid=44328 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:16:19Z WAIT pid=44358 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:16:49Z START pid=51757 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:16:50Z END rc=101 pid=51757 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:16:50Z WAIT pid=51783 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:17:20Z START pid=59161 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:17:21Z END rc=101 pid=59161 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:17:21Z WAIT pid=59197 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:17:50Z START pid=66602 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:17:52Z END rc=101 pid=66602 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:17:52Z WAIT pid=66633 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:18:22Z START pid=74268 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:18:23Z END rc=0 pid=74268 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:18:23Z WAIT pid=74304 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:18:53Z START pid=81868 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:18:54Z END rc=101 pid=81868 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:18:54Z WAIT pid=81902 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:19:23Z START pid=89022 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:19:24Z END rc=0 pid=89022 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:19:24Z WAIT pid=89056 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:19:54Z START pid=96804 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:19:55Z END rc=101 pid=96804 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:19:55Z WAIT pid=96830 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:20:25Z START pid=5135 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:20:26Z END rc=0 pid=5135 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:20:26Z WAIT pid=5163 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:20:56Z START pid=12771 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:20:57Z END rc=101 pid=12771 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:20:57Z WAIT pid=12804 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:21:28Z START pid=20428 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:21:29Z END rc=101 pid=20428 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:21:29Z WAIT pid=20456 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:22:00Z START pid=28171 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:22:01Z END rc=101 pid=28171 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:22:01Z WAIT pid=28197 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:22:31Z START pid=35844 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:22:32Z END rc=101 pid=35844 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:22:32Z WAIT pid=35872 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:23:04Z START pid=43575 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:23:05Z END rc=101 pid=43575 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:23:05Z WAIT pid=43600 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:23:37Z START pid=51490 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:23:38Z END rc=0 pid=51490 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:23:38Z WAIT pid=51525 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:24:10Z START pid=59257 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:24:11Z END rc=0 pid=59257 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:24:11Z WAIT pid=59302 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:24:42Z START pid=67135 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:24:44Z END rc=0 pid=67135 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:24:44Z WAIT pid=67171 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:25:14Z START pid=74804 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:25:24Z END rc=0 pid=74804 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:25:24Z WAIT pid=74896 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:25:51Z START pid=81753 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:25:54Z END rc=0 pid=81753 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:25:54Z WAIT pid=81799 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:26:24Z START pid=89370 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:26:25Z END rc=0 pid=89370 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:26:25Z WAIT pid=89396 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:26:53Z START pid=96415 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:26:53Z END rc=0 pid=96415 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:26:53Z WAIT pid=96440 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:27:21Z START pid=4331 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:27:31Z END rc=0 pid=4331 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:27:31Z WAIT pid=4420 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:28:01Z START pid=11918 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:28:04Z END rc=0 pid=11918 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:28:04Z WAIT pid=11959 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:28:04Z START pid=11962 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:28:05Z END rc=0 pid=11962 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:28:05Z WAIT pid=11987 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:28:05Z START pid=11990 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:28:06Z END rc=0 pid=11990 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:28:06Z WAIT pid=12024 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:28:06Z START pid=12028 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:28:16Z END rc=0 pid=12028 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:28:16Z WAIT pid=12149 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:28:16Z START pid=12152 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:28:19Z END rc=0 pid=12152 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:28:19Z WAIT pid=12193 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:28:19Z START pid=12196 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:28:20Z END rc=0 pid=12196 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:28:20Z WAIT pid=12216 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:28:20Z START pid=12219 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:28:21Z END rc=0 pid=12219 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:28:21Z WAIT pid=12239 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:28:21Z START pid=12245 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:28:31Z END rc=0 pid=12245 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:28:31Z WAIT pid=12377 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:30:58Z START pid=48410 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:31:02Z END rc=0 pid=48410 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:31:02Z WAIT pid=48461 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:33:32Z START pid=84508 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:33:34Z END rc=101 pid=84508 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:33:34Z WAIT pid=84586 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:35:16Z START pid=86283 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:35:17Z END rc=0 pid=86283 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:35:17Z WAIT pid=86325 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:35:26Z START pid=86849 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:35:27Z END rc=0 pid=86849 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:35:27Z WAIT pid=86896 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:36:24Z START pid=88451 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:36:25Z END rc=0 pid=88451 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:36:25Z WAIT pid=88488 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:37:26Z START pid=89374 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:37:36Z END rc=0 pid=89374 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:37:36Z WAIT pid=89475 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:38:14Z START pid=89989 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:38:17Z END rc=0 pid=89989 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:38:17Z WAIT pid=90079 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:40:16Z START pid=91641 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:40:18Z END rc=101 pid=91641 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:40:18Z WAIT pid=91704 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:40:26Z START pid=91792 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:40:27Z END rc=0 pid=91792 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:40:27Z WAIT pid=91826 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:41:41Z START pid=92587 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:41:42Z END rc=101 pid=92587 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:41:42Z WAIT pid=92624 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:42:43Z START pid=93393 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:42:45Z END rc=0 pid=93393 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:42:45Z WAIT pid=93426 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:43:23Z START pid=93987 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:43:24Z END rc=101 pid=93987 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:43:24Z WAIT pid=94009 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:43:24Z START pid=94012 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:43:25Z END rc=101 pid=94012 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:43:25Z WAIT pid=94036 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:43:25Z START pid=94039 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:43:26Z END rc=0 pid=94039 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:43:26Z WAIT pid=94059 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:43:26Z START pid=94063 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:43:27Z END rc=0 pid=94063 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:43:27Z WAIT pid=94098 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:43:27Z START pid=94101 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:43:37Z END rc=0 pid=94101 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:43:37Z WAIT pid=94227 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:43:37Z START pid=94230 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:43:40Z END rc=0 pid=94230 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:43:40Z WAIT pid=94284 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:43:40Z START pid=94287 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:43:41Z END rc=101 pid=94287 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:43:41Z WAIT pid=94312 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:43:41Z START pid=94315 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:43:42Z END rc=101 pid=94315 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:43:42Z WAIT pid=94343 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:43:42Z START pid=94346 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:43:43Z END rc=0 pid=94346 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:43:43Z WAIT pid=94367 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:43:43Z START pid=94370 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:43:44Z END rc=0 pid=94370 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:43:44Z WAIT pid=94390 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:43:44Z START pid=94393 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:43:53Z END rc=0 pid=94393 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:43:53Z WAIT pid=94507 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:43:53Z START pid=94510 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:43:56Z END rc=0 pid=94510 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:43:57Z WAIT pid=94553 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:43:57Z START pid=94556 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:43:58Z END rc=0 pid=94556 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:43:58Z WAIT pid=94576 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:43:58Z START pid=94579 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:43:58Z END rc=0 pid=94579 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:43:58Z WAIT pid=94604 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:43:58Z START pid=94607 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:44:08Z END rc=0 pid=94607 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:44:08Z WAIT pid=94860 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:44:08Z START pid=94863 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:44:11Z END rc=0 pid=94863 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:44:11Z WAIT pid=94900 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:44:11Z START pid=94903 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:44:12Z END rc=0 pid=94903 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:44:12Z WAIT pid=94929 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:44:12Z START pid=94932 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:44:13Z END rc=0 pid=94932 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:44:13Z WAIT pid=94957 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:44:13Z START pid=94960 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:44:23Z END rc=0 pid=94960 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:44:23Z WAIT pid=95067 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:44:23Z START pid=95070 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:44:26Z END rc=0 pid=95070 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:44:26Z WAIT pid=95121 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:44:26Z START pid=95124 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:44:27Z END rc=0 pid=95124 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:44:27Z WAIT pid=95147 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:44:27Z START pid=95150 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T20:44:28Z END rc=0 pid=95150 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:44:28Z WAIT pid=95173 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:44:28Z START pid=95176 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test si1c_family --test rv104_ee_diff -- --test-threads=1
+2026-10-07T20:44:37Z END rc=0 pid=95176 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T20:44:38Z WAIT pid=95276 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:44:38Z START pid=95279 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --test i79_point_diff -- --test-threads=1
+2026-10-07T20:44:40Z END rc=0 pid=95279 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:44:41Z WAIT pid=95332 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:57:49Z START pid=2506 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T20:57:51Z END rc=0 pid=2506 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T20:57:51Z WAIT pid=2570 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:18:01Z WAIT pid=14035 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:18:51Z WAIT pid=14491 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:21:16Z START pid=16411 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:21:17Z END rc=0 pid=16411 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:21:17Z WAIT pid=16454 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:23:04Z START pid=17336 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:23:06Z END rc=0 pid=17336 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:23:06Z WAIT pid=17372 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:24:11Z START pid=17819 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:24:13Z END rc=0 pid=17819 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:24:13Z WAIT pid=17852 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:25:19Z START pid=18441 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:25:20Z END rc=101 pid=18441 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:25:20Z WAIT pid=18481 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:26:30Z START pid=19093 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:26:30Z END rc=0 pid=19093 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:26:30Z WAIT pid=19112 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:27:23Z START pid=19481 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:27:24Z END rc=101 pid=19481 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:27:24Z WAIT pid=19516 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:28:32Z START pid=19933 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:28:32Z END rc=0 pid=19933 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:28:32Z WAIT pid=19958 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:29:39Z START pid=20344 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:29:40Z END rc=101 pid=20344 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:29:40Z WAIT pid=20378 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:30:41Z START pid=20739 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:30:41Z END rc=0 pid=20739 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:30:41Z WAIT pid=20759 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:31:33Z START pid=21131 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:31:34Z END rc=101 pid=21131 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:31:34Z WAIT pid=21166 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:32:41Z START pid=21669 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:32:42Z END rc=0 pid=21669 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:32:42Z WAIT pid=21690 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:33:48Z START pid=22159 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:33:49Z END rc=101 pid=22159 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:33:49Z WAIT pid=22198 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:34:48Z START pid=22690 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:34:49Z END rc=0 pid=22690 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:34:49Z WAIT pid=22708 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:35:54Z START pid=23384 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:35:54Z END rc=101 pid=23384 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:35:54Z WAIT pid=23418 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:37:04Z START pid=24092 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:37:05Z END rc=0 pid=24092 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:37:05Z WAIT pid=24112 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:38:07Z START pid=24599 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:38:08Z END rc=101 pid=24599 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:38:08Z WAIT pid=24633 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:38:58Z START pid=25017 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:38:59Z END rc=0 pid=25017 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:38:59Z WAIT pid=25038 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:39:56Z START pid=25505 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:39:57Z END rc=101 pid=25505 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:39:57Z WAIT pid=25541 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:40:50Z START pid=26027 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:40:50Z END rc=0 pid=26027 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:40:50Z WAIT pid=26048 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:42:00Z START pid=26568 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:42:01Z END rc=101 pid=26568 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:42:01Z WAIT pid=26607 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:43:01Z START pid=27072 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:43:02Z END rc=0 pid=27072 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:43:02Z WAIT pid=27096 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:44:03Z START pid=27545 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:44:04Z END rc=101 pid=27545 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:44:04Z WAIT pid=27590 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:45:14Z START pid=28092 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:45:14Z END rc=0 pid=28092 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:45:14Z WAIT pid=28113 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:46:07Z START pid=28539 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:46:08Z END rc=101 pid=28539 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:46:08Z WAIT pid=28574 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:47:17Z START pid=29056 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:47:17Z END rc=0 pid=29056 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:47:17Z WAIT pid=29075 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:48:24Z START pid=29580 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:48:25Z END rc=101 pid=29580 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:48:25Z WAIT pid=29614 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:49:32Z START pid=30104 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:49:32Z END rc=0 pid=30104 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:49:32Z WAIT pid=30127 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:50:39Z START pid=30886 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:50:40Z END rc=101 pid=30886 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:50:40Z WAIT pid=30946 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:51:49Z START pid=31402 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:51:49Z END rc=0 pid=31402 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:51:49Z WAIT pid=31424 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:52:59Z START pid=31838 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:52:59Z END rc=101 pid=31838 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:52:59Z WAIT pid=31879 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:54:07Z START pid=32351 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:54:09Z END rc=0 pid=32351 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:54:09Z WAIT pid=32386 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:55:18Z START pid=32877 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:55:19Z END rc=0 pid=32877 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:55:19Z WAIT pid=32914 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:56:28Z START pid=33347 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:56:29Z END rc=0 pid=33347 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:56:29Z WAIT pid=33394 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:57:39Z START pid=33860 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:57:40Z END rc=0 pid=33860 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T21:57:40Z WAIT pid=33896 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:58:49Z START pid=34488 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T21:58:50Z END rc=0 pid=34488 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T21:58:50Z WAIT pid=34523 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:59:58Z START pid=34944 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T21:59:59Z END rc=0 pid=34944 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:00:00Z WAIT pid=34981 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:01:09Z START pid=35381 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:01:10Z END rc=101 pid=35381 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T22:01:10Z WAIT pid=35415 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:02:06Z START pid=35770 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:02:07Z END rc=0 pid=35770 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:02:07Z WAIT pid=35808 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:03:16Z START pid=36312 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:03:17Z END rc=101 pid=36312 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T22:03:17Z WAIT pid=36345 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:04:26Z START pid=36857 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:04:27Z END rc=101 pid=36857 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:04:27Z WAIT pid=36901 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:05:31Z START pid=37329 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:05:32Z END rc=101 pid=37329 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T22:05:32Z WAIT pid=37368 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:06:41Z START pid=37766 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:06:42Z END rc=0 pid=37766 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:06:42Z WAIT pid=37803 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:07:50Z START pid=38248 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:07:51Z END rc=101 pid=38248 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T22:07:51Z WAIT pid=38282 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:08:57Z START pid=38748 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:08:58Z END rc=0 pid=38748 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:08:58Z WAIT pid=38784 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:10:00Z START pid=39205 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:10:02Z END rc=101 pid=39205 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T22:10:02Z WAIT pid=39240 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:11:09Z START pid=39642 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:11:11Z END rc=101 pid=39642 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:11:11Z WAIT pid=39687 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:12:15Z START pid=40068 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:12:16Z END rc=101 pid=40068 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T22:12:16Z WAIT pid=40102 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:13:26Z START pid=40615 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:13:27Z END rc=101 pid=40615 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:13:27Z WAIT pid=40667 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:14:37Z START pid=41182 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:14:39Z END rc=101 pid=41182 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T22:14:39Z WAIT pid=41217 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:15:48Z START pid=41637 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:15:50Z END rc=0 pid=41637 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:15:50Z WAIT pid=41668 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:15:50Z START pid=41671 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:15:51Z END rc=0 pid=41671 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T22:15:51Z WAIT pid=41707 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:15:51Z START pid=41710 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:15:51Z END rc=0 pid=41710 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:15:51Z WAIT pid=41740 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:15:51Z START pid=41743 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:15:52Z END rc=0 pid=41743 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T22:15:52Z WAIT pid=41763 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:15:52Z START pid=41766 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:15:53Z END rc=0 pid=41766 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:15:53Z WAIT pid=41787 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:15:53Z START pid=41790 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:15:54Z END rc=0 pid=41790 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T22:15:54Z WAIT pid=41824 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:15:54Z START pid=41827 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:15:55Z END rc=0 pid=41827 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:15:55Z WAIT pid=41853 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:15:55Z START pid=41856 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:15:56Z END rc=0 pid=41856 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T22:15:56Z WAIT pid=41882 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:15:56Z START pid=41885 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:15:57Z END rc=0 pid=41885 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner
+2026-10-07T22:15:57Z WAIT pid=41912 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:15:57Z START pid=41915 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator args: test --locked --offline --lib
+2026-10-07T22:15:58Z END rc=0 pid=41915 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/expression_evaluator
+2026-10-07T22:15:58Z WAIT pid=41935 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:15:58Z START pid=41938 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner args: test --locked --offline --test point_path_non_finite_run
+2026-10-07T22:15:59Z END rc=0 pid=41938 cwd=WT/scratch/i88_si1c/trees/mut/projects/chirality-piping/core/rules/rule_check_runner

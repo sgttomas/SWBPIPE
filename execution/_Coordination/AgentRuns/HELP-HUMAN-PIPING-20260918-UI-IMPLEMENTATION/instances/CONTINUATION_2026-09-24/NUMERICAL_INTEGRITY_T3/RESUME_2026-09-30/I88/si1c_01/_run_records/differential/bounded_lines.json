@@ -1,0 +1,22 @@
+{
+ "b1 - - identical": 15191,
+ "b1 - n4 differs": 12953,
+ "b1 flagged - differs": 268,
+ "b1 flagged n4 differs": 67,
+ "bD - - identical": 19800,
+ "bD - n4 differs": 8241,
+ "bD flagged - differs": 321,
+ "bD flagged n4 differs": 117,
+ "bH - - identical": 15191,
+ "bH - n4 differs": 12953,
+ "bH flagged - differs": 268,
+ "bH flagged n4 differs": 67,
+ "bN - - identical": 19800,
+ "bN - n4 differs": 8241,
+ "bN flagged - differs": 321,
+ "bN flagged n4 differs": 117,
+ "bR - - identical": 19833,
+ "bR - n4 differs": 8311,
+ "bR flagged - differs": 335,
+ "interval_or_unevaluated_check_in_flagged_bounded_line identical": 2384
+}

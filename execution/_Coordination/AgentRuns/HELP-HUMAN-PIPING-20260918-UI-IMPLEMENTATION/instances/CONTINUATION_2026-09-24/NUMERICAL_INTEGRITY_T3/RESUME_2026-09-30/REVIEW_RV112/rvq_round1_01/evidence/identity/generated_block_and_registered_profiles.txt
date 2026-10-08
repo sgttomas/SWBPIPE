@@ -1,0 +1,7 @@
+i1 {'generated': '8618e8cba83fcdd895d4f10cdbf8992a207b14cd81ea530532e10b84cd956753', 'registered': '1789d67d4adf50da20adc08092857cc010ddc4d7d68bbfa984fd548d17331978', 'text_atoms': '18cea384650a117d13220d1dcf51c23503e0d1dc68810b10a8ad327e74389ca0', 'generated_lines': 1250, 'registered_lines': 14}
+sa {'generated': '8618e8cba83fcdd895d4f10cdbf8992a207b14cd81ea530532e10b84cd956753', 'registered': '1789d67d4adf50da20adc08092857cc010ddc4d7d68bbfa984fd548d17331978', 'text_atoms': '18cea384650a117d13220d1dcf51c23503e0d1dc68810b10a8ad327e74389ca0', 'generated_lines': 1250, 'registered_lines': 14}
+b1 {'generated': '8618e8cba83fcdd895d4f10cdbf8992a207b14cd81ea530532e10b84cd956753', 'registered': '1789d67d4adf50da20adc08092857cc010ddc4d7d68bbfa984fd548d17331978', 'text_atoms': '18cea384650a117d13220d1dcf51c23503e0d1dc68810b10a8ad327e74389ca0', 'generated_lines': 1250, 'registered_lines': 14}
+head {'generated': '8618e8cba83fcdd895d4f10cdbf8992a207b14cd81ea530532e10b84cd956753', 'registered': '1789d67d4adf50da20adc08092857cc010ddc4d7d68bbfa984fd548d17331978', 'text_atoms': '18cea384650a117d13220d1dcf51c23503e0d1dc68810b10a8ad327e74389ca0', 'generated_lines': 1250, 'registered_lines': 14}
+generated identical across i1, sa, b1, head: True
+registered identical across i1, sa, b1, head: True
+text_atoms identical across i1, sa, b1, head: True

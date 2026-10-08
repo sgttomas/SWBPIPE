@@ -2,7 +2,7 @@
 
 **Disposition: CLEAR for ROOT design disposition of sealed I57 ADDENDUM.md `845d5258bf`, manifest `f57f795d95`, preserved at NUM `11d6dbb6c1`. No unresolved actionable finding.** This is source/design review, not reader code approval, implementation acceptance, public activation, full F2a, memory/M qualification, merge or release. The owner's graceful-conclusion instruction means no implementation follows in this run.
 
-RV76 is a fresh TASK Type 2 under ROOT HELP_HUMAN /root through delegated-harness-native collaboration; no descendants. First actual host/cwd/UTC was Ryans-MacBook-Pro.local, /Users/ryan/.codex/worktrees/92ea/chirality, 2026-10-03T19:12:31Z. The clock and actual completion are retained separately. Root/TASK/P instructions and software-code-review were loaded from NUM, with actual origins/hashes in SOURCE_EVIDENCE_MANIFEST.json. No other role body or workflow was loaded. Scope was the new REVIEW_RV76/summary_coverage_01 and WT/scratch/rv76_summary_coverage_01 only.
+RV76 is a fresh TASK Type 2 under ROOT HELP_HUMAN /root through delegated-harness-native collaboration; no descendants. First actual host/cwd/UTC was <host>, <home>/.codex/worktrees/92ea/chirality, 2026-10-03T19:12:31Z. The clock and actual completion are retained separately. Root/TASK/P instructions and software-code-review were loaded from NUM, with actual origins/hashes in SOURCE_EVIDENCE_MANIFEST.json. No other role body or workflow was loaded. Scope was the new REVIEW_RV76/summary_coverage_01 and WT/scratch/rv76_summary_coverage_01 only.
 
 ## Independent source derivation
 

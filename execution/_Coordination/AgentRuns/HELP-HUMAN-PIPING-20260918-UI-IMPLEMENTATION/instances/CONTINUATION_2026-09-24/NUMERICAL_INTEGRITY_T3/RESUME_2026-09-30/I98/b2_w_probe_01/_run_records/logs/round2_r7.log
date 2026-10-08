@@ -1,0 +1,148 @@
+warning: function `derived` is never used
+   --> ARCH/projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1607:27
+     |
+1607 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+1607 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+1607 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1608:27
+     |
+1608 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+help: remove these parentheses
+     |
+1608 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+1608 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+     |
+
+warning: function `is_exact_pressure_result_kind` is never used
+     --> src/lib.rs:10337:4
+      |
+10337 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      |
+      = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   --> src/source_recovery.rs:146:9
+    |
+145 | pub(super) struct SpringAction {
+    |                   ------------ fields in this struct
+146 |     pub support_id: String,
+    |         ^^^^^^^^^^
+147 |     pub global_dof: usize,
+    |         ^^^^^^^^^^
+148 |     pub value: f64,
+    |         ^^^^^
+149 |     pub functional_index: usize,
+    |         ^^^^^^^^^^^^^^^^
+    |
+    = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:171:9
+    |
+170 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+171 |     pub dofs: usize,
+    |         ^^^^
+172 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+173 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+174 |     pub blocks: usize,
+    |         ^^^^^^
+175 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+176 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+177 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+178 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+179 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+180 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+181 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+182 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+183 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+184 |     pub max_relative_projection_error: f64,
+185 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:198:5
+    |
+192 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+198 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:224:12
+    |
+207 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+224 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 7 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 2 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (WT/targets/i98-b2w/debug/deps/open_pipe_stress_product_physics-e08917abb99aa3a9)
+
+running 1 test
+test retained_memory::zz_i98_probe::zz_i98_plain ... I98_FILE r7_cb1 file_sha=0c346f49bd4bbe28c6f3c63c4930af6ffad89b78015d46e642c51f39ac42adcb
+I98_FILE r7_cb2 file_sha=ce52d528d5bdfe8dcb66e10ba52cd33a4006c0b8430f6ad94d295e445e2aee8b
+I98_FILE r7_cb3_v1 file_sha=76bb983124a7ebc6562c83f5197a5e550160a12ff5d19ee0516a1318b9c9772b
+I98_CENSUS r7_cb1 input_sha=9c21d45e0ee9314946a7f2a7e88e55f73488d8cb1af0efd4912eb0a07399d3c1 profile=Registered census_complete=true domain=Some(Family(Invocation, LoadCases)) refusal=Some(Family(Invocation, LoadCases)) required=None loads_per_case=[128, 128] loads_total=256 combinations=1 over=["LoadCasesCapacity=2/1", "CombinationsCapacity=1/0"] at_cap=["Nodes=32/32", "NodesCapacity=32/32", "Members=32/32", "MembersCapacity=32/32", "Supports=32/32", "SupportsCapacity=32/32", "Loads=128/128", "LoadsCapacity=128/128", "ModelMaterials=4/4", "ModelMaterialsCapacity=4/4", "RequestMaterials=4/4", "RequestMaterialsCapacity=4/4", "TemperaturePoints=16/16", "TemperaturePointsCapacity=16/16", "MaterialExpansionLawsCapacity=4/4", "TypedTextBytes=128/128", "TypedTextCapacity=128/128", "RawTextBytes=128/128", "RawDepth=16/16"] rows=["Nodes=32/32", "NodesCapacity=32/32", "Members=32/32", "MembersCapacity=32/32", "Supports=32/32", "SupportsCapacity=32/32", "Restraints=66/192", "Springs=21/192", "Loads=128/128", "LoadsCapacity=128/128", "ModelMaterials=4/4", "RequestMaterials=4/4", "TemperaturePoints=16/16", "LoadCasesCapacity=2/1", "TypedTextBytes=128/128", "RawTextBytes=128/128", "RawKeyTextBytes=23/128", "RawValues=4719/16384", "RawDepth=16/16", "RawStringBytes=39571/65536", "RawKeyBytes=25704/65536", "RawArrayCapacity=573/32768", "RawStringCapacity=39571/131072", "RawKeyCapacity=25704/131072", "DigestCapacity=64/128", "ControlBytes=0/0"]
+I98_BEGIN r7_cb1 sparse_interactive registered=true input_sha=9c21d45e0ee9314946a7f2a7e88e55f73488d8cb1af0efd4912eb0a07399d3c1
+I98_ORDINARY r7_cb1 sparse_interactive status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=6306 plain_sha=36bf2e6cb292322ca34e704d6201a17b7f1dda5b31f558803e295ba498a28a72 plain_len=4073960 published_verdicts=[{"ref":"case:a","solve_quality":"sensitive"},{"ref":"case:b","solve_quality":"sensitive"}] rcond=["2.0384254872829075e-8", "2.0384254872829075e-8"] refinement_attempts=["0", "0"] assembly=["rel=5.517719525168333e-17 amp=2.7068536768165634e-9 load=0.0", "rel=5.517719525168333e-17 amp=2.7068536768165634e-9 load=0.0"] d5=["formation_check: reason=estimate; row=C0:N1:RX; doubled_correction=8.093801056572112e-14; scale=3.333666549241316e-5; trigger_ratio=2.427897612739378", "formation_check: reason=estimate; row=C0:N1:RX; doubled_correction=8.093801056572112e-14; scale=3.333666549241316e-5; trigger_ratio=2.427897612739378"] range_scaling=[] diagnostics={"COMBINATION_STRESS_MAXIMUM_UNAVAILABLE:info": 1, "LOAD_CATEGORY_PREVIEW_MAPPED:warning": 256, "NUMERICAL_INTEGRITY_SENSITIVE:warning": 2, "PREVIEW_HEADLINE_SCOPE_LOAD_CASES:info": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1} ms=159
+I98_PLAIN_FILE r7_cb1 sparse_interactive plain_r7_cb1_sparse_interactive.json sha=36bf2e6cb292322ca34e704d6201a17b7f1dda5b31f558803e295ba498a28a72
+I98_BEGIN r7_cb1 dense_scrutiny registered=true input_sha=9c21d45e0ee9314946a7f2a7e88e55f73488d8cb1af0efd4912eb0a07399d3c1
+I98_ORDINARY r7_cb1 dense_scrutiny status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=6308 plain_sha=93746eb90f5c6f0fa9f51d6b15d751cae5a50a4812fa7712e5e1ff8d638aefaf plain_len=4076655 published_verdicts=[{"ref":"case:a","solve_quality":"sensitive"},{"ref":"case:b","solve_quality":"sensitive"}] rcond=["2.0384254947051128e-8", "2.0384254947051128e-8"] refinement_attempts=["0", "0"] assembly=["rel=5.517719525168333e-17 amp=2.7068536669605133e-9 load=0.0", "rel=5.517719525168333e-17 amp=2.7068536669605133e-9 load=0.0"] d5=["formation_check: reason=estimate; row=C0:N1:RX; doubled_correction=1.6176971209150903e-13; scale=3.3336665371059296e-5; trigger_ratio=4.852606290728372", "formation_check: reason=estimate; row=C0:N1:RX; doubled_correction=1.6176971209150903e-13; scale=3.3336665371059296e-5; trigger_ratio=4.852606290728372"] range_scaling=[] diagnostics={"COMBINATION_STRESS_MAXIMUM_UNAVAILABLE:info": 1, "LOAD_CATEGORY_PREVIEW_MAPPED:warning": 256, "NUMERICAL_INTEGRITY_SENSITIVE:warning": 2, "PREVIEW_HEADLINE_SCOPE_LOAD_CASES:info": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1} ms=241
+I98_PLAIN_FILE r7_cb1 dense_scrutiny plain_r7_cb1_dense_scrutiny.json sha=93746eb90f5c6f0fa9f51d6b15d751cae5a50a4812fa7712e5e1ff8d638aefaf
+I98_CENSUS r7_cb2 input_sha=7f07d08e694947addf9e90f023fee9080b8b2a71d647260d528ce01c44c509a0 profile=Registered census_complete=true domain=Some(Family(Invocation, LoadCases)) refusal=Some(Family(Invocation, LoadCases)) required=None loads_per_case=[3, 2] loads_total=5 combinations=1 over=["LoadCasesCapacity=2/1", "CombinationsCapacity=1/0"] at_cap=["ModelMaterialsCapacity=4/4", "MaterialExpansionLawsCapacity=4/4"] rows=["Nodes=4/32", "NodesCapacity=4/32", "Members=2/32", "MembersCapacity=2/32", "Supports=5/32", "SupportsCapacity=5/32", "Restraints=12/192", "Springs=3/192", "Loads=3/128", "LoadsCapacity=3/128", "ModelMaterials=2/4", "RequestMaterials=0/4", "TemperaturePoints=0/16", "LoadCasesCapacity=2/1", "TypedTextBytes=46/128", "RawTextBytes=46/128", "RawKeyTextBytes=23/128", "RawValues=244/16384", "RawDepth=7/16", "RawStringBytes=1846/65536", "RawKeyBytes=1319/65536", "RawArrayCapacity=35/32768", "RawStringCapacity=1846/131072", "RawKeyCapacity=1319/131072", "DigestCapacity=64/128", "ControlBytes=0/0"]
+I98_BEGIN r7_cb2 sparse_interactive registered=true input_sha=7f07d08e694947addf9e90f023fee9080b8b2a71d647260d528ce01c44c509a0
+I98_ORDINARY r7_cb2 sparse_interactive status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=510 plain_sha=e6a60e91de4a21bf462b288ff2798c0614f9b42feaee258dfeecc729491f1fe5 plain_len=332062 published_verdicts=[{"ref":"case:a","solve_quality":"sensitive"},{"ref":"case:b","solve_quality":"checks_passed"}] rcond=["2.606477882912165e-8", "2.606477882912165e-8"] refinement_attempts=["0", "0"] assembly=["rel=0.0 amp=0.0 load=0.0", "rel=0.0 amp=0.0 load=0.0"] d5=["formation_check: reason=estimate; row=N1:RX; doubled_correction=8.093801056572112e-14; scale=3.333666549241316e-5; trigger_ratio=2.427897612739378 range_scaling: force_scale_exponent=518; basis=exact power-of-two", "none"] range_scaling=["518", "518"] diagnostics={"COMBINATION_STRESS_MAXIMUM_UNAVAILABLE:info": 1, "HIGH_DISPLACEMENT_REVIEW:warning": 1, "LOAD_CATEGORY_PREVIEW_MAPPED:warning": 5, "NUMERICAL_INTEGRITY_CHECKS_PASSED:info": 1, "NUMERICAL_INTEGRITY_SENSITIVE:warning": 1, "PREVIEW_HEADLINE_SCOPE_LOAD_CASES:info": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1} ms=12
+I98_PLAIN_FILE r7_cb2 sparse_interactive plain_r7_cb2_sparse_interactive.json sha=e6a60e91de4a21bf462b288ff2798c0614f9b42feaee258dfeecc729491f1fe5
+I98_BEGIN r7_cb2 dense_scrutiny registered=true input_sha=7f07d08e694947addf9e90f023fee9080b8b2a71d647260d528ce01c44c509a0
+I98_ORDINARY r7_cb2 dense_scrutiny status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=510 plain_sha=9527c9a0d1ca19618ef2291b4ef39b610570b98a04454280b8d318e703ec0fe9 plain_len=332461 published_verdicts=[{"ref":"case:a","solve_quality":"sensitive"},{"ref":"case:b","solve_quality":"checks_passed"}] rcond=["2.606477892402732e-8", "2.606477892402732e-8"] refinement_attempts=["0", "0"] assembly=["rel=0.0 amp=0.0 load=0.0", "rel=0.0 amp=0.0 load=0.0"] d5=["formation_check: reason=estimate; row=N1:RX; doubled_correction=1.6176971209150903e-13; scale=3.3336665371059296e-5; trigger_ratio=4.852606290728372 range_scaling: force_scale_exponent=518; basis=exact power-of-two", "none"] range_scaling=["518", "518"] diagnostics={"COMBINATION_STRESS_MAXIMUM_UNAVAILABLE:info": 1, "HIGH_DISPLACEMENT_REVIEW:warning": 1, "LOAD_CATEGORY_PREVIEW_MAPPED:warning": 5, "NUMERICAL_INTEGRITY_CHECKS_PASSED:info": 1, "NUMERICAL_INTEGRITY_SENSITIVE:warning": 1, "PREVIEW_HEADLINE_SCOPE_LOAD_CASES:info": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1} ms=12
+I98_PLAIN_FILE r7_cb2 dense_scrutiny plain_r7_cb2_dense_scrutiny.json sha=9527c9a0d1ca19618ef2291b4ef39b610570b98a04454280b8d318e703ec0fe9
+I98_CENSUS r7_cb3_v1 input_sha=05e9ae15f4b6155b5907dec9ed6a56084b511d26777cfd6c7e2ea8ebe998d28d profile=Registered census_complete=true domain=Some(Family(Invocation, LoadCases)) refusal=Some(Family(Invocation, LoadCases)) required=None loads_per_case=[3, 1] loads_total=4 combinations=1 over=["LoadCasesCapacity=2/1", "CombinationsCapacity=1/0"] at_cap=["ModelMaterialsCapacity=4/4", "MaterialExpansionLawsCapacity=4/4"] rows=["Nodes=3/32", "NodesCapacity=3/32", "Members=1/32", "MembersCapacity=1/32", "Supports=5/32", "SupportsCapacity=5/32", "Restraints=12/192", "Springs=3/192", "Loads=3/128", "LoadsCapacity=3/128", "ModelMaterials=1/4", "RequestMaterials=0/4", "TemperaturePoints=0/16", "LoadCasesCapacity=2/1", "TypedTextBytes=46/128", "RawTextBytes=46/128", "RawKeyTextBytes=23/128", "RawValues=198/16384", "RawDepth=7/16", "RawStringBytes=1452/65536", "RawKeyBytes=1067/65536", "RawArrayCapacity=31/32768", "RawStringCapacity=1452/131072", "RawKeyCapacity=1067/131072", "DigestCapacity=64/128", "ControlBytes=0/0"]
+I98_BEGIN r7_cb3_v1 sparse_interactive registered=true input_sha=05e9ae15f4b6155b5907dec9ed6a56084b511d26777cfd6c7e2ea8ebe998d28d
+I98_ORDINARY r7_cb3_v1 sparse_interactive status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=337 plain_sha=ef07035f0747fdf3107b64a4d6cf9d60833984419ba30b35ca1d10c03cc465b5 plain_len=211952 published_verdicts=[{"ref":"case:a","solve_quality":"sensitive"},{"ref":"case:b","solve_quality":"checks_passed"}] rcond=["2.606477882912165e-8", "2.606477882912165e-8"] refinement_attempts=["0", "0"] assembly=["rel=0.0 amp=0.0 load=0.0", "rel=0.0 amp=0.0 load=0.0"] d5=["formation_check: reason=estimate; row=N1:RX; doubled_correction=8.093801056572112e-14; scale=3.333666549241316e-5; trigger_ratio=2.427897612739378", "none"] range_scaling=[] diagnostics={"COMBINATION_STRESS_MAXIMUM_UNAVAILABLE:info": 1, "LOAD_CATEGORY_PREVIEW_MAPPED:warning": 4, "NUMERICAL_INTEGRITY_CHECKS_PASSED:info": 1, "NUMERICAL_INTEGRITY_SENSITIVE:warning": 1, "PREVIEW_HEADLINE_SCOPE_LOAD_CASES:info": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1} ms=6
+I98_PLAIN_FILE r7_cb3_v1 sparse_interactive plain_r7_cb3_v1_sparse_interactive.json sha=ef07035f0747fdf3107b64a4d6cf9d60833984419ba30b35ca1d10c03cc465b5
+I98_BEGIN r7_cb3_v1 dense_scrutiny registered=true input_sha=05e9ae15f4b6155b5907dec9ed6a56084b511d26777cfd6c7e2ea8ebe998d28d
+I98_ORDINARY r7_cb3_v1 dense_scrutiny status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=339 plain_sha=ac529dd9ecb9195463583ae3c3303714191e51cf0be7ed75170d6c8d05a15edf plain_len=214140 published_verdicts=[{"ref":"case:a","solve_quality":"sensitive"},{"ref":"case:b","solve_quality":"checks_passed"}] rcond=["2.606477892402732e-8", "2.606477892402732e-8"] refinement_attempts=["0", "0"] assembly=["rel=0.0 amp=0.0 load=0.0", "rel=0.0 amp=0.0 load=0.0"] d5=["formation_check: reason=estimate; row=N1:RX; doubled_correction=1.6176971209150903e-13; scale=3.3336665371059296e-5; trigger_ratio=4.852606290728372", "none"] range_scaling=[] diagnostics={"COMBINATION_STRESS_MAXIMUM_UNAVAILABLE:info": 1, "LOAD_CATEGORY_PREVIEW_MAPPED:warning": 4, "NUMERICAL_INTEGRITY_CHECKS_PASSED:info": 1, "NUMERICAL_INTEGRITY_SENSITIVE:warning": 1, "PREVIEW_HEADLINE_SCOPE_LOAD_CASES:info": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1} ms=7
+I98_PLAIN_FILE r7_cb3_v1 dense_scrutiny plain_r7_cb3_v1_dense_scrutiny.json sha=ac529dd9ecb9195463583ae3c3303714191e51cf0be7ed75170d6c8d05a15edf
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 558 filtered out; finished in 1.46s
+

@@ -1,0 +1,4 @@
+fixture sha256 2aa51bee095186b95463567f190198f82a69557a569bf8a6a7b318aad37ab0b1
+I98 input sha256 d28e1317d009704c45c689dbf0ee78e14f4e0263a04ea21377a2dbf8f496be9a
+authored order (reversed): [('load:2', 'RZ'), ('load:1', 'RY'), ('load:0', 'RX')]
+equal as JSON values: True

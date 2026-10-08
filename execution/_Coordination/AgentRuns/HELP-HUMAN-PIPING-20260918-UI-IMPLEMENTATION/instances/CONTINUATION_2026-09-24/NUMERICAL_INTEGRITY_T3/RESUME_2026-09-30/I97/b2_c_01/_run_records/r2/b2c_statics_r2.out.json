@@ -1,0 +1,78 @@
+{
+  "controls": {
+    "DEF_O_H": "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349",
+    "r1_DEF_C_H": "0c43cf427b35d35e291e42382d242bca3762b61344b705744127c7c9b4372b6f",
+    "r1_DEF_C_reproduces": true,
+    "r1_PTABLE_reproduces": true,
+    "v0_J1_SCHEMA_reproduces": true
+  },
+  "definition": {
+    "H_alternative_domain_retained_precision_combination_formation_v1": "941972e023e67561c94ba259b3d08fe1f328f8d600c9b347b2ae2ceefbcca621",
+    "H_retained_precision_formation_v1": "d3fde142aff9c05d709b2fc2a04add42e14c66be3e2b2ba82012da57edf3d957",
+    "ascii_only": true,
+    "bytes": 11165,
+    "canonical_bytes": true,
+    "file": "retained_precision_prepared_combination_v1.json",
+    "json_floats": 0,
+    "operand_definition_sha256_is_H_DEF_O": true,
+    "paths_changed_from_r1": [
+      "rows.displacement_magnitude",
+      "stages.observables"
+    ],
+    "raw_sha256": "3cebce55d1b31e0031628d7542a33a8debdfa37d2d258cb27dfbdfd1fc28db22",
+    "rows.displacement_magnitude": "finish the same node's frozen global_nodal_displacement_x/y/z rows; RN64, ties to even, of the exact 3-norm sqrt(x^2+y^2+z^2) of their frozen raw values (mm): each square and their sum formed exactly, the square root rounded once to binary64, the same bits on every platform; finite only (a norm beyond binary64's range refuses the row), canonical +0, SI by the projection's mm rule; formed in the kernel's projection for combination owners only; still certify dual physical norm and the unchanged 64-epsilon combination magnitude guard (base G7 combination_magnitudes), which the observables stage checks; not H of a lane norm hull and not a nested binary64 hypot",
+    "stages.observables": "base G7 combination_magnitudes on the frozen rows: one support-action row per support and component, and each displacement, force and moment magnitude p with |p-r| <= 64*eps*max(|p|,MIN_POSITIVE), r the binary64 hypot(hypot(x,y),z) of the same combination's published components; the case support coverage and guard; no preview case evidence, maximum or headline check; a failure is this combination's facade_certificate",
+    "support_magnitude_equal_to_DEF_O": true
+  },
+  "inputs": {
+    "DEF-O": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+    "PTABLE (main)": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+    "SCHEMA (main)": "07951edacfedd410c153929ee75bb5bada15dbd222369ec63240c678b233b61c",
+    "b2c_statics.py (v0, sealed)": "01b762eedc132c6cb35d856522d491c72d43385c60763c26e8393905bae84564",
+    "b2c_statics_r1.py (r1, sealed)": "d43878f64c7edf11569b0c4d5a21a4693271d9cc67b5d5fda8d34f844890ac68",
+    "r1 statics/r1/retained_precision_prepared_combination_v1.json": "6467c733ff5060afd3040172a5df91b12c228555254ae6d33d40555e06f30c03",
+    "r1 statics/r1/semantic_contract_v0_3_preview_physics_retained_1.json": "791c0a0d9a06ce4effac5914b40872fa808ce3208dfe6c2c6d51359d6ff41573",
+    "v0 statics/retained_precision_mp_v2.schema.json": "abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e"
+  },
+  "reviewed_inputs_cascade": {
+    "moved_from_r1": {
+      "DEF-C": [
+        "6467c733ff5060afd3040172a5df91b12c228555254ae6d33d40555e06f30c03",
+        "3cebce55d1b31e0031628d7542a33a8debdfa37d2d258cb27dfbdfd1fc28db22"
+      ],
+      "PTABLE": [
+        "791c0a0d9a06ce4effac5914b40872fa808ce3208dfe6c2c6d51359d6ff41573",
+        "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"
+      ]
+    },
+    "new_hashes": {
+      "DEF-C": "3cebce55d1b31e0031628d7542a33a8debdfa37d2d258cb27dfbdfd1fc28db22",
+      "PTABLE": "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c",
+      "SCHEMA": "abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e"
+    }
+  },
+  "schema": {
+    "contains_a_definition_hash": false,
+    "j1_merged_sha256": "abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e",
+    "unchanged_from_v0_statics": true
+  },
+  "table": {
+    "bytes": 53719,
+    "file": "semantic_contract_v0_3_preview_physics_retained_1.json",
+    "paths_changed_from_r1": [
+      "product_formation_definitions"
+    ],
+    "product_formation_definitions": [
+      {
+        "id": "RP-PREPARED-ORDINARY-DUAL-v1",
+        "sha256": "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349"
+      },
+      {
+        "id": "RP-PREPARED-COMBINATION-DUAL-v1",
+        "sha256": "d3fde142aff9c05d709b2fc2a04add42e14c66be3e2b2ba82012da57edf3d957"
+      }
+    ],
+    "roundtrip_indent2_ascii": true,
+    "sha256": "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"
+  }
+}

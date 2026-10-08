@@ -1,0 +1,38 @@
+A01	PLAN	census: per-case load rows read case 0 only (length and capacity)
+A02	RV112	census: Loads length from case 0 only (capacity still the maximum)
+A03	RV112	census: LoadsCapacity from case 0 only (length still the maximum)
+A04	RV112	census: Σ l_i is the maximum length, not the sum
+A05	RV112	census: Σ l_i counts case 0 only
+B01	PLAN	D1.4: refuses c ≥ C (admits c < C only)
+B02	PLAN	D1.4: admits c ≤ C + 1
+B03	RV112	D1.4: admits c = 0 (the empty check dropped)
+B04	RV112	D1.5: reads case 0 only
+B05	RV112	D1.5: skips case 0
+B06	RV112	D1.7: reads case 0's loads only
+C01	RV112	cap_rows: TotalLoads capped by l (128), not L
+C02	RV112	cap_rows: LoadCasesCapacity capped by 1 (D1's), not C
+C03	RV112	cap_rows: TotalLoads observes the largest case, not Σ
+D01	PLAN	G-B: running total dropped (observes 0)
+D02	PLAN	G-B: running total is the current case only
+D03	RV112	G-B: CaseLoadsTotal bounded by l, not L
+D04	RV112	G-B: CaseLoads and CaseLoadsTotal observations swapped
+E01	PLAN	G-C: EnvelopeResults ≤ P_final, not C·P_final
+E02	RV112	G-C: EnvelopeResultCapacity ≤ PushCap(P_final)
+E03	RV112	G-C: EnvelopeResultTextBytes ≤ 2·P_final·Text(row)
+E04	RV112	G-C: ContractEvidenceArrayElements without ×C
+E05	RV112	G-C: ContractEvidenceObjects without ×C
+E06	RV112	G-C: ContractEvidenceEntries without ×C
+E07	RV112	G-C: ContractEvidenceStringBytes without ×C
+E08	RV112	G-C: ContractEvidenceKeyBytes without ×C
+E09	RV112	G-C: RetainedErrorTextBytes ≤ (3m + 1)·Text(err), without ×C
+F01	PLAN	T-3 (e): seeds only (I1's predicate: non-empty and every initial)
+F02	PLAN	T-3 (e): requested ignored at G-C (the seed count passed as requested)
+F03	PLAN	T-3 (e): ≥ instead of ==
+F04	RV112	T-3 (e): ≤ instead of ==
+F05	RV112	T-3 (e): requested ≥ 1 dropped
+F06	RV112	T-3 (e): any seed's initial, not every
+F07	RV112	T-3 (e): compared with C, not the requested count
+G01	RV112	RetainedErrorTextBytes: the capture's own fields only (the unpatched reader)
+G02	RV112	RetainedErrorTextBytes: the parked slots only
+G03	RV112	RetainedErrorTextBytes: parked slots' error only (observable_error dropped)
+G04	RV112	RetainedErrorTextBytes: the first parked slot only

@@ -1,0 +1,36 @@
+## text-only occurrences at N (git grep -I -w)
+== I88: 14 lines
+T3/IMPLEMENTATION/B6_MERGE/RECORD.md:45:- **T3-SI1c** (I88) has its PR next.
+T3/RESUME_2026-09-30/I85/b1_st_01/REPAIR_01.md:20:- **Cargo:** 13 jobs, each through `WT/tools/t3_cargo.sh`, with RETURN.md's settings (`--locked --offline`, `CARGO_BUILD_JOBS=4`, `RUST_TEST_THREADS=2`, `TMPDIR` in `S`, 
+T3/RESUME_2026-09-30/REVIEW_RV109/rvp_round1_01/ADDENDUM_01.md:17:- **24 cargo jobs** (`E1/cargo_jobs_rv109_addendum_01.log`), each through `WT/tools/t3_cargo.sh` with REVIEW.md's settings, in fresh targets `WT/targets/r
+T3/ROOT_RULINGS_V1.md:14032:**IDs:** I87, RV108 and RV109 are used. The next unused are **I88 and RV110**.
+T3/ROOT_RULINGS_V1.md:14066:ROOT's decisions 4–15 (previous section) stand. **I88 implements SI1c** (D, with N4-1 and N-5) from main in `WT/s-i1c`, by `BRIEFS/SI1C_IMPLEMENT.md`.
+T3/ROOT_RULINGS_V1.md:14097:- implementers: I85 (ST repair) and I88 (SI1c);
+T3/ROOT_RULINGS_V1.md:14100:**IDs:** I88 is used. The next unused are **I89 and RV110**.
+T3/ROOT_RULINGS_V1.md:14158:- **T3-SI1c** (I88): its review, then its PR.
+T3/ROOT_RULINGS_V1.md:14175:**Phase 2 opens,** within at most three implementers (I88 holds one, for SI1c):
+T3/ROOT_RULINGS_V1.md:14179:  - SR-RS (`WT/b1-r`, from I1) starts when the first of I88 or I89 returns.
+WG:565:| T3-SI1c | Point-path boolean formulas over a NaN or infinite intermediate are decided and can pass (`NaN ≠ 100`, `inf ≥ 100`), where interval mode reads U (found by I79); with RV104 N-4 (the cause named for 
+WG:600:**Assignment IDs.** Dispatched 2026-10-06/07: I68–I87, RV97–RV99 and RV101–RV109 (RV100 was 2026-10-05's). Running: I85 (SP), I88 (SI1c), I89 (SA). Dispatched I68–I89, RV97–RV99 and RV101–RV109. The ne
+== I89: 7 lines
+T3/ROOT_RULINGS_V1.md:14100:**IDs:** I88 is used. The next unused are **I89 and RV110**.
+T3/ROOT_RULINGS_V1.md:14177:- **I89 (I-A): SA** in `WT/b1-a`, branch `codex/piping-t3-b1-a-20261007` from I1, by `BRIEFS/B1_SA.md`.
+T3/ROOT_RULINGS_V1.md:14179:  - SR-RS (`WT/b1-r`, from I1) starts when the first of I88 or I89 returns.
+T3/ROOT_RULINGS_V1.md:14181:**IDs:** I89 is used. The next unused are **I90 and RV110**.
+WG:568:| T3-B1/B6 | Multi-case breadth at S3 (one tier, D1 caps, C = 3, M ≤ 12 GiB selected at G6), per `R/I84/b1_plan_01/PLAN_v2.md` (accepted with RV107's A1 amendments); B6's reader items as their own PR first | T3-
+WG:600:**Assignment IDs.** Dispatched 2026-10-06/07: I68–I87, RV97–RV99 and RV101–RV109 (RV100 was 2026-10-05's). Running: I85 (SP), I88 (SI1c), I89 (SA). Dispatched I68–I89, RV97–RV99 and RV101–RV109. The ne
+WG:646:1. B1 phase 2: I89 returns SA → RV-Q round 1 (a fresh reviewer) → **I2** (ROOT merges into `b1` at an I85 commit). I85 returns at R3′. SR-RS (I90, `WT/b1-r` from I1) starts when the first of I88 or I89 retur
+== I90: 3 lines
+T3/ROOT_RULINGS_V1.md:14181:**IDs:** I89 is used. The next unused are **I90 and RV110**.
+WG:600:**Assignment IDs.** Dispatched 2026-10-06/07: I68–I87, RV97–RV99 and RV101–RV109 (RV100 was 2026-10-05's). Running: I85 (SP), I88 (SI1c), I89 (SA). Dispatched I68–I89, RV97–RV99 and RV101–RV109. The ne
+WG:646:1. B1 phase 2: I89 returns SA → RV-Q round 1 (a fresh reviewer) → **I2** (ROOT merges into `b1` at an I85 commit). I85 returns at R3′. SR-RS (I90, `WT/b1-r` from I1) starts when the first of I88 or I89 retur
+== I91: 0 lines
+== RV110: 7 lines
+T3/RESUME_2026-09-30/I87/si1c_plan_01/PLAN.md:582:**Who.** A fresh RV, the next unused (RV110), not RV104. The fresh-ID rule applies, and SI1c reverses tests that RV104's repair round added. RV104's committed harnesses a
+T3/RESUME_2026-09-30/I87/si1c_plan_01/PLAN.md:658:| 13 | The reviewer | A fresh RV (RV110) | ROOT |
+T3/ROOT_RULINGS_V1.md:14032:**IDs:** I87, RV108 and RV109 are used. The next unused are **I88 and RV110**.
+T3/ROOT_RULINGS_V1.md:14100:**IDs:** I88 is used. The next unused are **I89 and RV110**.
+T3/ROOT_RULINGS_V1.md:14181:**IDs:** I89 is used. The next unused are **I90 and RV110**.
+WG:600:**Assignment IDs.** Dispatched 2026-10-06/07: I68–I87, RV97–RV99 and RV101–RV109 (RV100 was 2026-10-05's). Running: I85 (SP), I88 (SI1c), I89 (SA). Dispatched I68–I89, RV97–RV99 and RV101–RV109. The ne
+WG:647:2. T3-SI1c: I88 returns; a fresh reviewer (RV110); then its PR (NUM carries no other unmerged slice).
+== RV111: 0 lines

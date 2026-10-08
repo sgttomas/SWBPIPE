@@ -1,0 +1,1057 @@
+diff --git a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+index 3de58bda85..c1084d1be0 100644
+--- a/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
++++ b/projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs
+@@ -2740 +2740,4 @@ fn d8_accounting_rules_on_shared_bases() {
+-/// selected or unavailable with receipt_failure.
++/// selected or unavailable with receipt_failure. B1's alignment set (item 3) puts
++/// C2's cause table first, in the ordinary class, so each D19 probe states the
++/// cause with its C2 phase and code; a cause its case cannot carry (a precondition
++/// beside a Run) is refused by that table at G5 ATTEMPT.
+@@ -2745 +2748,3 @@ fn d19_converse_cause_binding() {
+-    let preparation_error = base_source(&shared, P_BASE)["retained_precision"]["body"]["product_attempts"][1]["result"]["error"].clone();
++    let preparation_error = base_source(&shared, P_BASE)["retained_precision"]["body"]
++        ["product_attempts"][1]["result"]["error"]
++        .clone();
+@@ -2747,9 +2752,40 @@ fn d19_converse_cause_binding() {
+-    let precondition = json!({"kind":"unavailable_precondition","precondition":"capture","affected_refs":[]});
+-    for (name, base, edits) in [
+-        ("unavailable attempt under receipt_failure", F_BASE, vec![set(rb(json!(["cases", 1, "reason", "cause"])), receipt_failure.clone())]),
+-        ("unavailable attempt under unavailable_precondition", F_BASE, vec![set(rb(json!(["cases", 1, "reason", "cause"])), precondition.clone())]),
+-        ("preparation error with a selected Run under receipt_failure (RV79-B1c)", F_BASE, vec![
+-            set(rb(json!(["cases", 1, "reason", "cause"])), receipt_failure.clone()),
+-            set(rb(json!(["product_attempts", 1, "result", "error"])), preparation_error.clone()),
+-        ]),
+-        ("P' preparation failure under unavailable_precondition", P_BASE, vec![set(rb(json!(["cases", 1, "reason", "cause"])), precondition.clone())]),
++    let precondition =
++        json!({"kind":"unavailable_precondition","precondition":"capture","affected_refs":[]});
++    let receipt = json!({"code":"receipt_encoding","phase":"receipt","cause":receipt_failure});
++    for (name, base, edits, want) in [
++        (
++            "unavailable attempt under receipt_failure",
++            F_BASE,
++            vec![set(rb(json!(["cases", 1, "reason"])), receipt.clone())],
++            gate("G5", PRODUCT),
++        ),
++        (
++            "a precondition beside the case's Run (C2's table)",
++            F_BASE,
++            vec![set(
++                rb(json!(["cases", 1, "reason", "cause"])),
++                precondition.clone(),
++            )],
++            gate("G5", ATTEMPT),
++        ),
++        (
++            "preparation error with a selected Run under receipt_failure (RV79-B1c)",
++            F_BASE,
++            vec![
++                set(rb(json!(["cases", 1, "reason"])), receipt.clone()),
++                set(
++                    rb(json!(["product_attempts", 1, "result", "error"])),
++                    preparation_error.clone(),
++                ),
++            ],
++            gate("G5", PRODUCT),
++        ),
++        (
++            "P' preparation failure under unavailable_precondition",
++            P_BASE,
++            vec![set(
++                rb(json!(["cases", 1, "reason", "cause"])),
++                precondition.clone(),
++            )],
++            gate("G5", PRODUCT),
++        ),
+@@ -2757 +2793 @@ fn d19_converse_cause_binding() {
+-        assert_eq!(probe(&shared, base, edits), gate("G5", PRODUCT), "{name}");
++        assert_eq!(probe(&shared, base, edits), want, "{name}");
+@@ -2760 +2796 @@ fn d19_converse_cause_binding() {
+-    let unavailable_case = |cause: Value| {
++    let unavailable_case = |reason: Value| {
+@@ -2766,3 +2802,18 @@ fn d19_converse_cause_binding() {
+-            set(rb(json!(["cases", 1, "reason"])), json!({"code":"facade_certificate","phase":"facade","cause":cause})),
+-            set(rb(json!(["cases", 1, "diagnostic_ref"])), json!("diagnostic:retained:synthetic-zero-load")),
+-            set(json!(["diagnostics", base_source(&shared, "two_case_synthetic")["diagnostics"].as_array().unwrap().iter().position(|d| d["id"] == "diagnostic:retained:synthetic-zero-load").unwrap(), "code"]), json!("RETAINED_PRECISION_UNAVAILABLE")),
++            set(rb(json!(["cases", 1, "reason"])), reason),
++            set(
++                rb(json!(["cases", 1, "diagnostic_ref"])),
++                json!("diagnostic:retained:synthetic-zero-load"),
++            ),
++            set(
++                json!([
++                    "diagnostics",
++                    base_source(&shared, "two_case_synthetic")["diagnostics"]
++                        .as_array()
++                        .unwrap()
++                        .iter()
++                        .position(|d| d["id"] == "diagnostic:retained:synthetic-zero-load")
++                        .unwrap(),
++                    "code"
++                ]),
++                json!("RETAINED_PRECISION_UNAVAILABLE"),
++            ),
+@@ -2771 +2822,10 @@ fn d19_converse_cause_binding() {
+-    assert_eq!(probe(&shared, "two_case_synthetic", unavailable_case(precondition)), gate("G5", PRODUCT), "Ready attempt under a C2 cause");
++    let facade = json!({"kind":"facade_failure","owner_ref":{"kind":"case","index":1},"row_id":null,"recipe":"identity","operand_index":null,"check":"identity","predicate":null});
++    assert_eq!(
++        probe(
++            &shared,
++            "two_case_synthetic",
++            unavailable_case(json!({"code":"facade_certificate","phase":"facade","cause":facade}))
++        ),
++        gate("G5", PRODUCT),
++        "Ready attempt under a C2 cause"
++    );
+@@ -2774 +2834,5 @@ fn d19_converse_cause_binding() {
+-    assert_eq!(probe(&shared, "two_case_synthetic", unavailable_case(receipt_failure)), gate("G6", "RETAINED_PRECISION_ROW_METHOD_MISMATCH"), "Ready attempt under receipt_failure");
++    assert_eq!(
++        probe(&shared, "two_case_synthetic", unavailable_case(receipt)),
++        gate("G6", "RETAINED_PRECISION_ROW_METHOD_MISMATCH"),
++        "Ready attempt under receipt_failure"
++    );
+@@ -3498 +3562,9 @@ fn b1_d38_capture_before_any_run_beside_a_selected_case() {
+-    let attempt = |tail: Value| rb(json!(["product_attempts", 1]).as_array().unwrap().iter().cloned().chain(tail.as_array().unwrap().iter().cloned()).collect());
++    let attempt = |tail: Value| {
++        rb(json!(["product_attempts", 1])
++            .as_array()
++            .unwrap()
++            .iter()
++            .cloned()
++            .chain(tail.as_array().unwrap().iter().cloned())
++            .collect())
++    };
+@@ -3500,16 +3572,117 @@ fn b1_d38_capture_before_any_run_beside_a_selected_case() {
+-        ("m1 error kind native", vec![set(attempt(json!(["result", "error"])), json!({"kind": "native", "run_ref": 1}))], gate("G5", PRODUCT)),
+-        ("m2 native completed", vec![set(attempt(json!(["stages", "native"])), json!("completed"))], gate("G5", PRODUCT)),
+-        ("m3 run_ref while the case has no Run", vec![set(attempt(json!(["run_ref"])), json!(1))], gate("G5", PRODUCT)),
+-        ("m4 execution_order still lists the case", vec![set(rb(json!(["work", "execution_order"])), json!([{"kind": "case", "index": 0}, {"kind": "case", "index": 1}]))], gate("G3", COVERAGE)),
+-        ("m5 proof_start completed", vec![set(attempt(json!(["stages", "proof_start"])), json!("completed"))], gate("G5", PRODUCT)),
+-        ("m6 source_ref null with preparation completed", vec![set(attempt(json!(["source_ref"])), Value::Null)], gate("G5", PRODUCT)),
+-        ("m7 the case's source in the call's source_refs", vec![set(rb(json!(["calls", 0, "source_refs"])), json!([0, 1]))], gate("G5", ATTEMPT)),
+-        ("m7 the case's source in the group's source_refs", vec![set(rb(json!(["groups", 0, "source_refs"])), json!([0, 1]))], gate("G5", ATTEMPT)),
+-        ("m8 case source_ref differs from the attempt's", vec![set(rb(json!(["cases", 1, "source_ref"])), json!(0))], gate("G5", PRODUCT)),
+-        ("result ready", vec![set(attempt(json!(["result"])), json!({"kind": "ready"}))], gate("G5", PRODUCT)),
+-        ("preparation failed", vec![set(attempt(json!(["stages", "preparation"])), json!("failed"))], gate("G5", PRODUCT)),
+-        ("observables and G5a entered", vec![set(attempt(json!(["stages", "observables"])), json!("failed")), set(attempt(json!(["stages", "g5a"])), json!("failed"))], gate("G5", PRODUCT)),
+-        ("reason code kernel_unresolved", vec![set(rb(json!(["cases", 1, "reason", "code"])), json!("kernel_unresolved"))], gate("G5", PRODUCT)),
+-        ("reason phase kernel", vec![set(rb(json!(["cases", 1, "reason", "phase"])), json!("kernel"))], gate("G5", PRODUCT)),
+-        ("cause names the other attempt", vec![set(rb(json!(["cases", 1, "reason", "cause", "product_attempt_ref"])), json!(0))], gate("G5", PRODUCT)),
+-        ("cause not a prepared product failure", vec![set(rb(json!(["cases", 1, "reason", "cause"])), json!({"kind": "receipt_failure", "check": "association", "field_path": "b1"}))], gate("G5", PRODUCT)),
++        (
++            "m1 error kind native",
++            vec![set(
++                attempt(json!(["result", "error"])),
++                json!({"kind": "native", "run_ref": 1}),
++            )],
++            gate("G5", PRODUCT),
++        ),
++        (
++            "m2 native completed",
++            vec![set(
++                attempt(json!(["stages", "native"])),
++                json!("completed"),
++            )],
++            gate("G5", PRODUCT),
++        ),
++        (
++            "m3 run_ref while the case has no Run",
++            vec![set(attempt(json!(["run_ref"])), json!(1))],
++            gate("G5", PRODUCT),
++        ),
++        (
++            "m4 execution_order still lists the case",
++            vec![set(
++                rb(json!(["work", "execution_order"])),
++                json!([{"kind": "case", "index": 0}, {"kind": "case", "index": 1}]),
++            )],
++            gate("G3", COVERAGE),
++        ),
++        (
++            "m5 proof_start completed",
++            vec![set(
++                attempt(json!(["stages", "proof_start"])),
++                json!("completed"),
++            )],
++            gate("G5", PRODUCT),
++        ),
++        (
++            "m6 source_ref null with preparation completed",
++            vec![set(attempt(json!(["source_ref"])), Value::Null)],
++            gate("G5", PRODUCT),
++        ),
++        (
++            "m7 the case's source in the call's source_refs",
++            vec![set(rb(json!(["calls", 0, "source_refs"])), json!([0, 1]))],
++            gate("G5", ATTEMPT),
++        ),
++        (
++            "m7 the case's source in the group's source_refs",
++            vec![set(rb(json!(["groups", 0, "source_refs"])), json!([0, 1]))],
++            gate("G5", ATTEMPT),
++        ),
++        (
++            "m8 case source_ref differs from the attempt's",
++            vec![set(rb(json!(["cases", 1, "source_ref"])), json!(0))],
++            gate("G5", PRODUCT),
++        ),
++        (
++            "result ready",
++            vec![set(attempt(json!(["result"])), json!({"kind": "ready"}))],
++            gate("G5", PRODUCT),
++        ),
++        (
++            "preparation failed",
++            vec![set(
++                attempt(json!(["stages", "preparation"])),
++                json!("failed"),
++            )],
++            gate("G5", PRODUCT),
++        ),
++        (
++            "observables and G5a entered",
++            vec![
++                set(attempt(json!(["stages", "observables"])), json!("failed")),
++                set(attempt(json!(["stages", "g5a"])), json!("failed")),
++            ],
++            gate("G5", PRODUCT),
++        ),
++        (
++            "reason code kernel_unresolved",
++            vec![set(
++                rb(json!(["cases", 1, "reason", "code"])),
++                json!("kernel_unresolved"),
++            )],
++            gate("G5", PRODUCT),
++        ),
++        (
++            "reason phase kernel",
++            vec![set(
++                rb(json!(["cases", 1, "reason", "phase"])),
++                json!("kernel"),
++            )],
++            gate("G5", PRODUCT),
++        ),
++        (
++            "cause names the other attempt",
++            vec![set(
++                rb(json!([
++                    "cases",
++                    1,
++                    "reason",
++                    "cause",
++                    "product_attempt_ref"
++                ])),
++                json!(0),
++            )],
++            gate("G5", PRODUCT),
++        ),
++        // C2's cause table (B1's alignment set, item 3) refuses it first, in the ordinary class.
++        (
++            "cause not a prepared product failure",
++            vec![set(
++                rb(json!(["cases", 1, "reason", "cause"])),
++                json!({"kind": "receipt_failure", "check": "association", "field_path": "b1"}),
++            )],
++            gate("G5", ATTEMPT),
++        ),
+@@ -3738,0 +3912,799 @@ fn b1_g8_parity_rows_p2_to_p4_for_every_case() {
++
++// ---------------------------------------------------------------------------
++// B1 SR-RS repair 02 (I90): the three-reader alignment set (RR "RV113's three returns
++// verified; I3 made at `2ba2f81863`; the three-reader alignment set ruled", items 1-4).
++// Reader-local tests; 07n pins the shared entries.
++
++/// The reader's unbound verdict (no invocation): `{"admitted": eligible}`, or the first failure.
++fn b1_unbound(shared: &Value, entry: &Value) -> Value {
++    let (source, _) = apply_entry(shared, entry);
++    match rp::validate(&source, None) {
++        Ok(v) => serde_json::json!({"admitted": v.numerical_eligible}),
++        Err(e) => gate(e.gate, &e.code),
++    }
++}
++/// The transport verdict: `{"admitted": false}`, or the first failure.
++fn b1_transport(shared: &Value, entry: &Value) -> Value {
++    let (source, _) = apply_entry(shared, entry);
++    match rp::validate_transport_metadata(&source) {
++        Ok(v) => serde_json::json!({"admitted": v.numerical_eligible}),
++        Err(e) => gate(e.gate, &e.code),
++    }
++}
++fn b1_table(rows: Vec<(&str, Value, Value)>, verdict: impl Fn(&Value) -> Value) {
++    let mut misses = Vec::new();
++    for (name, entry, want) in rows {
++        let got = verdict(&entry);
++        if got != want {
++            misses.push(format!("{name}: got {got} want {want}"));
++        }
++    }
++    assert!(misses.is_empty(), "{}", misses.join("\n"));
++}
++
++/// Item 1, (f) and its family, at G3 COVERAGE bound and unbound: a material basis's and a
++/// source's index is its position; `case_indices` is unique and in range; a source's owner
++/// is its own case (the case at `owner.case_index` carries `owner.case_id`).
++#[test]
++fn b1_r2_f_family_at_g3_bound_and_unbound() {
++    use serde_json::json;
++    let shared = corpus();
++    let rows = vec![
++        (
++            "a basis index not its position",
++            b1_entry(
++                &shared,
++                ORD,
++                None,
++                vec![set(rb(json!(["material_bases", 0, "index"])), json!(1))],
++                vec![],
++            ),
++        ),
++        (
++            "two basis indices swapped",
++            b1_entry(
++                &shared,
++                "two_case_two_groups_synthetic",
++                None,
++                vec![
++                    set(rb(json!(["material_bases", 0, "index"])), json!(1)),
++                    set(rb(json!(["material_bases", 1, "index"])), json!(0)),
++                ],
++                vec![],
++            ),
++        ),
++        (
++            "a source index not its position",
++            b1_entry(
++                &shared,
++                ORD,
++                None,
++                vec![set(rb(json!(["sources", 0, "index"])), json!(1))],
++                vec![],
++            ),
++        ),
++        (
++            "two source indices swapped",
++            b1_entry(
++                &shared,
++                "two_case_synthetic",
++                None,
++                vec![
++                    set(rb(json!(["sources", 0, "index"])), json!(1)),
++                    set(rb(json!(["sources", 1, "index"])), json!(0)),
++                ],
++                vec![],
++            ),
++        ),
++        (
++            "case_indices with a duplicate",
++            b1_entry(
++                &shared,
++                "two_case_synthetic",
++                None,
++                vec![set(
++                    rb(json!(["material_bases", 0, "case_indices"])),
++                    json!([0, 1, 1]),
++                )],
++                vec![],
++            ),
++        ),
++        (
++            "case_indices out of range",
++            b1_entry(
++                &shared,
++                "two_case_synthetic",
++                None,
++                vec![set(
++                    rb(json!(["material_bases", 0, "case_indices"])),
++                    json!([0, 1, 2]),
++                )],
++                vec![],
++            ),
++        ),
++        (
++            "a source owner naming another case's id",
++            b1_entry(
++                &shared,
++                "two_case_synthetic",
++                None,
++                vec![set(
++                    rb(json!(["sources", 1, "owner", "case_id"])),
++                    json!("case:six-component-load"),
++                )],
++                vec![],
++            ),
++        ),
++    ];
++    let want = gate("G3", COVERAGE);
++    let bound: Vec<_> = rows
++        .iter()
++        .map(|(n, e)| (*n, e.clone(), want.clone()))
++        .collect();
++    b1_table(bound, |e| b1_verdict(&shared, e));
++    b1_table(
++        rows.into_iter()
++            .map(|(n, e)| (n, e, want.clone()))
++            .collect(),
++        |e| b1_unbound(&shared, e),
++    );
++}
++
++/// Item 1: the ordinary attempt's basis reference at G5 ATTEMPT bound and unbound (it
++/// resolves to a basis that lists its case). G8 still binds the basis to the invocation:
++/// a basis listing its cases out of the invocation's order is G8 PREPARATION bound and
++/// admitted unbound.
++#[test]
++fn b1_r2_ordinary_basis_reference_at_g5_attempt() {
++    use serde_json::json;
++    let shared = corpus();
++    let missing = b1_entry(
++        &shared,
++        P_BASE,
++        Some(NOT_REQUIRED),
++        vec![set(
++            rb(json!(["ordinary_attempts", 1, "material_basis_ref"])),
++            json!(7),
++        )],
++        vec![],
++    );
++    let omits = b1_entry(
++        &shared,
++        P_BASE,
++        Some(NOT_REQUIRED),
++        vec![set(
++            rb(json!(["material_bases", 0, "case_indices"])),
++            json!([0]),
++        )],
++        vec![],
++    );
++    let reordered = b1_entry(
++        &shared,
++        P_BASE,
++        Some(NOT_REQUIRED),
++        vec![set(
++            rb(json!(["material_bases", 0, "case_indices"])),
++            json!([1, 0]),
++        )],
++        vec![],
++    );
++    b1_table(
++        vec![
++            ("the basis missing", missing.clone(), gate("G5", ATTEMPT)),
++            (
++                "the basis not listing the case",
++                omits.clone(),
++                gate("G5", ATTEMPT),
++            ),
++            (
++                "the cases out of the invocation's order",
++                reordered.clone(),
++                gate("G8", PREP),
++            ),
++        ],
++        |e| b1_verdict(&shared, e),
++    );
++    b1_table(
++        vec![
++            ("the basis missing", missing, gate("G5", ATTEMPT)),
++            ("the basis not listing the case", omits, gate("G5", ATTEMPT)),
++            (
++                "the cases out of the invocation's order",
++                reordered,
++                admitted(false),
++            ),
++        ],
++        |e| b1_unbound(&shared, e),
++    );
++}
++
++/// Item 2, (g), at G8 INVOCATION, PP's acceptance: no `reference_configurations` member
++/// (null included); `pressure_contract` absent or null; `combinations` and `components`
++/// absent or []. Unbound reads do not see the invocation.
++#[test]
++fn b1_r2_g_model_scope_at_g8_invocation() {
++    use serde_json::json;
++    let shared = corpus();
++    let model = |k: &str| json!(["request", "model", k]);
++    let invocation = |edits: Vec<Value>| b1_entry(&shared, ORD, None, vec![], edits);
++    let refused = gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH");
++    b1_table(
++        vec![
++            (
++                "combinations null",
++                invocation(vec![set(model("combinations"), Value::Null)]),
++                refused.clone(),
++            ),
++            (
++                "combinations an object",
++                invocation(vec![set(model("combinations"), json!({"x": 1}))]),
++                refused.clone(),
++            ),
++            (
++                "combinations a string",
++                invocation(vec![set(model("combinations"), json!("x"))]),
++                refused.clone(),
++            ),
++            (
++                "components null",
++                invocation(vec![set(model("components"), Value::Null)]),
++                refused.clone(),
++            ),
++            (
++                "components a string",
++                invocation(vec![set(model("components"), json!("x"))]),
++                refused.clone(),
++            ),
++            (
++                "components an object",
++                invocation(vec![set(model("components"), json!({}))]),
++                refused.clone(),
++            ),
++            (
++                "reference_configurations null",
++                invocation(vec![set(model("reference_configurations"), Value::Null)]),
++                refused.clone(),
++            ),
++            (
++                "pressure_contract false",
++                invocation(vec![set(model("pressure_contract"), json!(false))]),
++                refused.clone(),
++            ),
++            (
++                "combinations and components []",
++                invocation(vec![
++                    set(model("combinations"), json!([])),
++                    set(model("components"), json!([])),
++                ]),
++                admitted(true),
++            ),
++            (
++                "combinations and components absent",
++                invocation(vec![
++                    remove(model("combinations")),
++                    remove(model("components")),
++                ]),
++                admitted(true),
++            ),
++            (
++                "pressure_contract null",
++                invocation(vec![set(model("pressure_contract"), Value::Null)]),
++                admitted(true),
++            ),
++        ],
++        |e| b1_verdict(&shared, e),
++    );
++    assert_eq!(
++        b1_unbound(
++            &shared,
++            &invocation(vec![set(model("combinations"), Value::Null)])
++        ),
++        admitted(false)
++    );
++}
++
++/// Item 3: C2's cause table at G5 ATTEMPT, in the ordinary class, for an unavailable case
++/// whose cause is not a prepared product failure. On 07j's two-case base, case 1 with a
++/// Ready attempt and its selected Run (rows without a method), by `validate`:
++/// `receipt_failure` and `facade_failure`, each satisfied and broken (a satisfied facade
++/// failure beside a Ready attempt then fails D19, G5 PRODUCT_ATTEMPT).
++#[test]
++fn b1_r2_c2_cause_table_receipt_and_facade() {
++    use serde_json::json;
++    let shared = corpus();
++    let base = base_source(&shared, "two_case_synthetic");
++    let mut rows = base["results"].as_array().unwrap().clone();
++    for r in rows
++        .iter_mut()
++        .filter(|r| r["basis_ref"]["ref_id"] == "case:zero-load")
++    {
++        r.as_object_mut().unwrap().remove("recovery_method");
++    }
++    let diagnostic = base["diagnostics"]
++        .as_array()
++        .unwrap()
++        .iter()
++        .position(|d| d["id"] == "diagnostic:retained:synthetic-zero-load")
++        .unwrap();
++    let case = |reason: Value| {
++        b1_entry(
++            &shared,
++            "two_case_synthetic",
++            None,
++            vec![
++                remove(rb(json!(["cases", 1, "method"]))),
++                remove(rb(json!(["cases", 1, "selection"]))),
++                remove(rb(json!(["cases", 1, "source_identity_sha256"]))),
++                set(rb(json!(["cases", 1, "status"])), json!("unavailable")),
++                set(rb(json!(["cases", 1, "reason"])), reason),
++                set(
++                    rb(json!(["cases", 1, "diagnostic_ref"])),
++                    json!("diagnostic:retained:synthetic-zero-load"),
++                ),
++                set(
++                    json!(["diagnostics", diagnostic, "code"]),
++                    json!("RETAINED_PRECISION_UNAVAILABLE"),
++                ),
++                set(json!(["results"]), Value::Array(rows.clone())),
++            ],
++            vec![],
++        )
++    };
++    let receipt = json!({"kind": "receipt_failure", "check": "encoding", "field_path": "retained_precision.body"});
++    let facade = |index: u64| json!({"kind": "facade_failure", "owner_ref": {"kind": "case", "index": index}, "row_id": null, "recipe": "identity", "operand_index": null, "check": "identity", "predicate": null});
++    let reason = |code: &str, phase: &str, cause: &Value| json!({"code": code, "phase": phase, "cause": cause});
++    b1_table(
++        vec![
++            (
++                "receipt_failure: receipt_encoding, receipt",
++                case(reason("receipt_encoding", "receipt", &receipt)),
++                admitted(false),
++            ),
++            (
++                "receipt_failure: publication_hash_range, receipt",
++                case(reason("publication_hash_range", "receipt", &receipt)),
++                admitted(false),
++            ),
++            (
++                "receipt_failure: invocation_not_representable, receipt",
++                case(reason("invocation_not_representable", "receipt", &receipt)),
++                admitted(false),
++            ),
++            (
++                "receipt_failure: phase kernel",
++                case(reason("kernel_unresolved", "kernel", &receipt)),
++                gate("G5", ATTEMPT),
++            ),
++            (
++                "receipt_failure: code facade_certificate",
++                case(reason("facade_certificate", "receipt", &receipt)),
++                gate("G5", ATTEMPT),
++            ),
++            (
++                "receipt_failure: phase preparation",
++                case(reason("source_unavailable", "preparation", &receipt)),
++                gate("G5", ATTEMPT),
++            ),
++            (
++                "facade_failure: satisfied (D19 next)",
++                case(reason("facade_certificate", "facade", &facade(1))),
++                gate("G5", PRODUCT),
++            ),
++            (
++                "facade_failure: phase kernel",
++                case(reason("facade_certificate", "kernel", &facade(1))),
++                gate("G5", ATTEMPT),
++            ),
++            (
++                "facade_failure: code receipt_encoding",
++                case(reason("receipt_encoding", "facade", &facade(1))),
++                gate("G5", ATTEMPT),
++            ),
++            (
++                "facade_failure: another case's owner",
++                case(reason("facade_certificate", "facade", &facade(0))),
++                gate("G5", ATTEMPT),
++            ),
++        ],
++        |e| b1_verdict(&shared, e),
++    );
++}
++
++/// Item 3 on G5's ordinary class (`reader_logic::ordinary`, the pass `validate` runs):
++/// `source_error`, `unavailable_precondition` keyed by its precondition, and a kernel
++/// reason, each satisfied and broken. 07j's base case 1 (unavailable, no source or Run)
++/// carries the first two; the kernel reason uses F_BASE's case 1 with its own refused Run
++/// (the (4a) witness's idle Run).
++#[test]
++fn b1_r2_c2_cause_table_source_precondition_kernel() {
++    use serde_json::json;
++    let shared = corpus();
++    let ordinary = |source: &Value| match rp::reader_logic::ordinary(source) {
++        Ok(()) => admitted(false),
++        Err(e) => gate(e.gate, &e.code),
++    };
++    let p = base_source(&shared, P_BASE);
++    let with_reason = |reason: Value, decline: Option<Value>| {
++        let mut s = p.clone();
++        s["retained_precision"]["body"]["cases"][1]["reason"] = reason;
++        if let Some(d) = decline {
++            s["retained_precision"]["body"]["cases"][1]["source_decline"] = d;
++        }
++        s
++    };
++    let error = json!({"tag": "no_nodes"});
++    let decline = |e: &Value| {
++        json!({
++            "input_owner": {"case_index": 1, "case_id": "case:unavailable-row", "material_basis_ref": 0},
++            "constructor_counts": {"nodes": 2, "members": 1, "springs": 0, "constraints": 6, "nodal_terms": 6, "stations": 3, "supports": 1, "id_utf8_bytes": 0, "directional_springs": 0},
++            "error": e
++        })
++    };
++    let source_error = json!({"kind": "source_error", "error": error});
++    let precondition = |which: &str| json!({"kind": "unavailable_precondition", "precondition": which, "affected_refs": []});
++    let reason = |code: &str, phase: &str, cause: Value| json!({"code": code, "phase": phase, "cause": cause});
++    let mut rows = vec![
++        (
++            "source_error: satisfied",
++            with_reason(
++                reason("source_unavailable", "preparation", source_error.clone()),
++                Some(decline(&error)),
++            ),
++            admitted(false),
++        ),
++        (
++            "source_error: no source_decline",
++            with_reason(
++                reason("source_unavailable", "preparation", source_error.clone()),
++                None,
++            ),
++            gate("G5", ATTEMPT),
++        ),
++        (
++            "source_error: the decline's error differs",
++            with_reason(
++                reason("source_unavailable", "preparation", source_error.clone()),
++                Some(decline(&json!({"tag": "no_members"}))),
++            ),
++            gate("G5", ATTEMPT),
++        ),
++        (
++            "source_error: phase routing",
++            with_reason(
++                reason("source_unavailable", "routing", source_error.clone()),
++                Some(decline(&error)),
++            ),
++            gate("G5", ATTEMPT),
++        ),
++        (
++            "source_error: code caller_not_qualified",
++            with_reason(
++                reason("caller_not_qualified", "preparation", source_error),
++                Some(decline(&error)),
++            ),
++            gate("G5", ATTEMPT),
++        ),
++        (
++            "unavailable_precondition: phase kernel",
++            with_reason(
++                reason("source_unavailable", "kernel", precondition("capture")),
++                None,
++            ),
++            gate("G5", ATTEMPT),
++        ),
++    ];
++    let keyed = [
++        ("caller", "caller_not_qualified"),
++        ("resource_admission", "resource_admission_not_available"),
++        ("upstream_no_wrap", "upstream_no_wrap_not_established"),
++        ("capture", "source_unavailable"),
++        ("source_family", "source_unavailable"),
++    ];
++    for (which, code) in keyed {
++        for phase in ["routing", "preparation"] {
++            rows.push((
++                "unavailable_precondition: its keyed code",
++                with_reason(reason(code, phase, precondition(which)), None),
++                admitted(false),
++            ));
++        }
++        for (_, other) in keyed.iter().filter(|(_, c)| *c != code) {
++            rows.push((
++                "unavailable_precondition: another precondition's code",
++                with_reason(reason(other, "preparation", precondition(which)), None),
++                gate("G5", ATTEMPT),
++            ));
++        }
++    }
++    // A kernel reason: F_BASE's case 1 with its own refused (idle) Run.
++    let body = &base_source(&shared, F_BASE)["retained_precision"]["body"];
++    let mut run = body["cases"][1]["run"].clone();
++    let before = run["invocation_before"].clone();
++    for (k, v) in [
++        ("records", json!([])),
++        ("attempts", json!([])),
++        ("case_charge", json!(0)),
++        ("invocation_increment", json!(0)),
++        ("invocation_after", before.clone()),
++    ] {
++        run[k] = v;
++    }
++    run["cache_after"] = run["cache_before"].clone();
++    let terminal = json!({"space": "refusal", "tag": "ledger_unavailable", "error": {"tag": "accumulator", "error": {"tag": "non_finite"}}});
++    run["kernel_terminal"] = json!({"kind": "refused", "reason": terminal});
++    let kernel = |code: &str, phase: &str, cause: Value| {
++        let (source, _) = apply_entry(
++            &shared,
++            &b1_entry(
++                &shared,
++                F_BASE,
++                None,
++                vec![
++                    set(rb(json!(["cases", 1, "run"])), run.clone()),
++                    set(
++                        rb(json!(["cases", 1, "reason"])),
++                        reason(code, phase, cause),
++                    ),
++                    set(rb(json!(["calls", 0, "invocation_after"])), before.clone()),
++                    set(rb(json!(["work", "charged"])), before.clone()),
++                ],
++                vec![],
++            ),
++        );
++        source
++    };
++    rows.extend([
++        (
++            "kernel reason: satisfied",
++            kernel("kernel_refused", "kernel", terminal.clone()),
++            admitted(false),
++        ),
++        (
++            "kernel reason: code kernel_unresolved",
++            kernel("kernel_unresolved", "kernel", terminal.clone()),
++            gate("G5", ATTEMPT),
++        ),
++        (
++            "kernel reason: phase facade",
++            kernel("kernel_refused", "facade", terminal.clone()),
++            gate("G5", ATTEMPT),
++        ),
++        (
++            "kernel reason: a cause other than the terminal's",
++            kernel(
++                "kernel_refused",
++                "kernel",
++                json!({"space": "refusal", "tag": "structure"}),
++            ),
++            gate("G5", ATTEMPT),
++        ),
++    ]);
++    let mut misses = Vec::new();
++    for (name, source, want) in rows {
++        let got = ordinary(&source);
++        if got != want {
++            misses.push(format!(
++                "{name}: got {got} want {want} ({})",
++                source["retained_precision"]["body"]["cases"][1]["reason"]
++            ));
++        }
++    }
++    assert!(misses.is_empty(), "{}", misses.join("\n"));
++}
++
++/// Item 4: transport keeps the header check at G2 and adds the preview-physics metadata
++/// check at G7 (`SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID`), as PY and TS run it. Each edit
++/// below passes the header and is refused by the metadata check; the header's own
++/// defects stay at G2.
++#[test]
++fn b1_r2_transport_metadata_at_g7() {
++    use serde_json::json;
++    let shared = corpus();
++    let ev = |tail: Value| {
++        let mut p = vec![json!("contract_evidence")];
++        p.extend(tail.as_array().unwrap().iter().cloned());
++        Value::Array(p)
++    };
++    let x = |k: &str| ev(json!(["preview_cases", 0, "pipe_stress_extrema", 0, k]));
++    let on = |base: &str, edits: Vec<Value>| b1_entry(&shared, base, None, edits, vec![]);
++    let g7 = gate("G7", "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID");
++    let limitations = base_source(&shared, ORD)["formulation_basis"]["limitations"].clone();
++    let mut shorter = limitations.as_array().unwrap().clone();
++    shorter.pop();
++    b1_table(
++        vec![
++            ("the base", on(ORD, vec![]), admitted(false)),
++            (
++                "a valid combination gate",
++                on(
++                    ORD,
++                    vec![set(
++                        ev(json!(["combination_gates"])),
++                        json!([{"combination_id": "c", "withheld": false, "reason": null}]),
++                    )],
++                ),
++                admitted(false),
++            ),
++            (
++                "carrier_evidence present",
++                on(ORD, vec![set(json!(["carrier_evidence"]), json!({}))]),
++                g7.clone(),
++            ),
++            (
++                "limitations other than the table's",
++                on(
++                    ORD,
++                    vec![set(
++                        json!(["formulation_basis", "limitations"]),
++                        Value::Array(shorter),
++                    )],
++                ),
++                g7.clone(),
++            ),
++            (
++                "contract_evidence with another member",
++                on(ORD, vec![set(ev(json!(["extra"])), json!([]))]),
++                g7.clone(),
++            ),
++            (
++                "preview_cases not a list",
++                on(ORD, vec![set(ev(json!(["preview_cases"])), json!({}))]),
++                g7.clone(),
++            ),
++            (
++                "a preview case missing a member",
++                on(
++                    ORD,
++                    vec![remove(ev(json!([
++                        "preview_cases",
++                        0,
++                        "intensified_measures"
++                    ])))],
++                ),
++                g7.clone(),
++            ),
++            (
++                "two preview cases with one id",
++                on(
++                    "two_case_synthetic",
++                    vec![set(
++                        ev(json!(["preview_cases", 1, "load_case_id"])),
++                        json!("case:six-component-load"),
++                    )],
++                ),
++                g7.clone(),
++            ),
++            (
++                "coverage complete with an unavailable pipe",
++                on(
++                    ORD,
++                    vec![set(
++                        ev(json!([
++                            "preview_cases",
++                            0,
++                            "stress_maximum_coverage",
++                            "unavailable_pipe_ids"
++                        ])),
++                        json!(["pipe:x"]),
++                    )],
++                ),
++                g7.clone(),
++            ),
++            (
++                "an extrema constant changed",
++                on(ORD, vec![set(x("approximation"), json!("other"))]),
++                g7.clone(),
++            ),
++            (
++                "an extrema fraction above 1",
++                on(ORD, vec![set(x("station_fraction"), json!(2.0))]),
++                g7.clone(),
++            ),
++            (
++                "an extrema span index negative",
++                on(ORD, vec![set(x("span_index"), json!(-1))]),
++                g7.clone(),
++            ),
++            (
++                "subdivisions above the maximum",
++                on(ORD, vec![set(x("subdivisions"), json!(131073))]),
++                g7.clone(),
++            ),
++            (
++                "extrema bounds inverted",
++                on(ORD, vec![set(x("value_lower_pa"), json!(41354910.5))]),
++                g7.clone(),
++            ),
++            (
++                "a withheld record with an unknown reason",
++                on(
++                    ORD,
++                    vec![set(
++                        ev(json!([
++                            "preview_cases",
++                            0,
++                            "support_attribution",
++                            "withheld"
++                        ])),
++                        json!([{"support_id": "support:other", "reason": "OTHER"}]),
++                    )],
++                ),
++                g7.clone(),
++            ),
++            (
++                "a support attributed and withheld",
++                on(
++                    ORD,
++                    vec![set(
++                        ev(json!([
++                            "preview_cases",
++                            0,
++                            "support_attribution",
++                            "withheld"
++                        ])),
++                        json!([{"support_id": "support:fixture-root", "reason": "CONSTANT_EFFORT_NOT_CONSUMED"}]),
++                    )],
++                ),
++                g7.clone(),
++            ),
++            (
++                "attribution sets differ between cases",
++                on(
++                    "two_case_synthetic",
++                    vec![set(
++                        ev(json!([
++                            "preview_cases",
++                            1,
++                            "support_attribution",
++                            "attributed_support_ids"
++                        ])),
++                        json!([]),
++                    )],
++                ),
++                g7.clone(),
++            ),
++            (
++                "an intensified measure in another place",
++                on(
++                    ORD,
++                    vec![set(
++                        ev(json!(["preview_cases", 0, "intensified_measures"])),
++                        json!([{"result_id": "r", "component_id": "k", "pipe_id": "p", "location": "midspan", "factor_role": "bend", "sif": 1.0, "sif_source_reference": "s", "section_modulus_m3": 1.0, "bending_moment_y_n_m": 0.0, "bending_moment_z_n_m": 0.0}]),
++                    )],
++                ),
++                g7.clone(),
++            ),
++            (
++                "a withheld gate without a code",
++                on(
++                    ORD,
++                    vec![set(
++                        ev(json!(["combination_gates"])),
++                        json!([{"combination_id": "c", "withheld": true, "reason": null}]),
++                    )],
++                ),
++                g7.clone(),
++            ),
++            (
++                "two gates with one id",
++                on(
++                    ORD,
++                    vec![set(
++                        ev(json!(["combination_gates"])),
++                        json!([{"combination_id": "c", "withheld": false, "reason": null}, {"combination_id": "c", "withheld": false, "reason": null}]),
++                    )],
++                ),
++                g7.clone(),
++            ),
++            (
++                "the header's own defect stays at G2",
++                on(
++                    ORD,
++                    vec![set(json!(["numerical_quality", "status"]), json!("other"))],
++                ),
++                gate("G2", "SOURCE_NUMERICAL_QUALITY_INVALID"),
++            ),
++        ],
++        |e| b1_transport(&shared, e),
++    );
++}

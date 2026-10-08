@@ -1,0 +1,15 @@
+cwd=WT/rv117/rv117_head (detached worktree of H)
+HEAD before: 18a20d329fc09335f013131766d7f74dbfa7f675
+status entries before (incl. ignored): 0
+python: Python 3.13.14
+cmd: VENV -m pytest -q -p no:cacheprovider -rA tools/practitioner_harness/test_live_baseline.py -k gen8
+start: 2026-10-07T22:33:16Z
+.                                                                        [100%]
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants
+1 passed, 10 deselected in 30.05s
+exit=0
+end: 2026-10-07T22:33:46Z
+HEAD after: 18a20d329fc09335f013131766d7f74dbfa7f675
+status entries after (incl. ignored): 0

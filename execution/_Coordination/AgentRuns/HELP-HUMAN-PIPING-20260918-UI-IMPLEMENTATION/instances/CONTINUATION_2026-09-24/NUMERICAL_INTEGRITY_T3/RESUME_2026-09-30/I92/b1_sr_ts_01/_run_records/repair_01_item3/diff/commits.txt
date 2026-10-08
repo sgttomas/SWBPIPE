@@ -1,0 +1,4 @@
+6fa6a64658f6e94c817d26e0cab28e5087b2cf01 1d9455c714a485fec24a6bbdd7e00ba298d53d7a
+  piping(T3 B1 SR-TS repair 01): a non-empty combinations list goes to G8 INVOCATION, not G3
+1d9455c714a485fec24a6bbdd7e00ba298d53d7a b82b9329233f4378401636d94da260c816db9e02
+  piping(T3 B1 SR-TS repair 01): the transport header at G2 with Rust's code; metadata stays at G7

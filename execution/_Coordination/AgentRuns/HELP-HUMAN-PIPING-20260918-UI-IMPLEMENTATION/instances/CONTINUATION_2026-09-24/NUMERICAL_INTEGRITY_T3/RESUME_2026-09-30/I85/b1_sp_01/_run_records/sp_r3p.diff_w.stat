@@ -1,0 +1,7 @@
+ .../core/product_physics/src/lib.rs                | 145 ++++++--
+ .../product_physics/src/retained_facade_tests.rs   | 213 ++++++++++++
+ .../core/product_physics/src/retained_product.rs   | 375 +++++++++++++++++++--
+ .../product_physics/src/retained_product_tests.rs  |  16 +-
+ .../src/retained_tests_hooks/grant2.rs             |  18 +-
+ .../core/product_physics/src/retained_wire.rs      |  11 +-
+ 6 files changed, 709 insertions(+), 69 deletions(-)

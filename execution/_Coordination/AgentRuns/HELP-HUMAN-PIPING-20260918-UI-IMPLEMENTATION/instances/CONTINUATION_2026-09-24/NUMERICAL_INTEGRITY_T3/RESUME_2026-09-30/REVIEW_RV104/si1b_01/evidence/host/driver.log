@@ -1,0 +1,31 @@
+2026-10-07T00:17:23Z begin run_cand
+2026-10-07T00:18:03Z end run_cand rc=0
+2026-10-07T00:18:03Z begin ee_base
+2026-10-07T00:19:09Z end ee_base rc=0
+2026-10-07T00:19:09Z begin run_base
+2026-10-07T00:19:35Z end run_base rc=0
+2026-10-07T00:19:35Z driver done: run_cand ee_base run_base
+2026-10-07T00:20:26Z begin run_cand
+2026-10-07T00:21:00Z end run_cand rc=0
+2026-10-07T00:21:00Z begin run_base
+2026-10-07T00:22:19Z end run_base rc=0
+2026-10-07T00:22:19Z driver done: run_cand run_base
+2026-10-07T00:22:35Z begin suite_base_expression_evaluator
+2026-10-07T00:22:37Z end suite_base_expression_evaluator rc=0
+2026-10-07T00:22:37Z begin suite_base_rule_check_runner
+2026-10-07T00:22:39Z end suite_base_rule_check_runner rc=0
+2026-10-07T00:22:39Z begin suite_base_rule_pack_document
+2026-10-07T00:22:40Z end suite_base_rule_pack_document rc=0
+2026-10-07T00:22:40Z begin suite_cand_expression_evaluator
+2026-10-07T00:22:41Z end suite_cand_expression_evaluator rc=0
+2026-10-07T00:22:41Z begin suite_cand_rule_check_runner
+2026-10-07T00:22:43Z end suite_cand_rule_check_runner rc=0
+2026-10-07T00:22:43Z begin suite_cand_rule_pack_document
+2026-10-07T00:22:44Z end suite_cand_rule_pack_document rc=0
+2026-10-07T00:22:44Z begin graft_ee_lib
+2026-10-07T00:22:45Z end graft_ee_lib rc=101
+2026-10-07T00:22:45Z begin graft_rcr
+2026-10-07T00:22:49Z end graft_rcr rc=101
+2026-10-07T00:22:49Z begin fmt_cand_ee
+2026-10-07T00:22:49Z end fmt_cand_ee rc=0
+2026-10-07T00:22:49Z driver done: suites graft fmt

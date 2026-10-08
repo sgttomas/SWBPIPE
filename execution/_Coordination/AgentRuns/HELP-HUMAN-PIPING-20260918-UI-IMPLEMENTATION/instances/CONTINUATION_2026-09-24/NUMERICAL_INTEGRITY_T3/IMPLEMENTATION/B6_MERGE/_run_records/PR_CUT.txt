@@ -1,0 +1,7 @@
+PR #1107 (draft, then ready), branch codex/piping-t3-b6-pr-20261007, head 1199726f695f92ddeccc36f7b47079dedf5b9854
+cut from main 025c1cf326f1b9ef827626f27d0e2b9cf5b415fe (worktree WT/b6-pr), one commit:
+  the 11 slice files checked out from a7de2a918f (git diff --name-only bfb26596bf a7de2a918f)
+  the 4 package files checked out from NUM c698a0b9a5 (IMPLEMENTATION/B6/{CHANGE_RECORD.md,PR_BODY.md,citations.json,SHA256SUMS})
+full-SHA dispatch: gh workflow run piping-desktop-e2e.yml --ref codex/piping-t3-b6-pr-20261007 -f target_base=025c1cf326f1b9ef827626f27d0e2b9cf5b415fe -> run 37621653258
+  (first attempt 37620732340 used the short SHA 025c1cf326 and was refused by e2e_plan.py's 40-hex rule)
+DEC-025: label B6_1199726f69, candidate WT/sweep-skewpin at 1199726f69, baseline WT/main-baseline at 025c1cf326, fresh targets

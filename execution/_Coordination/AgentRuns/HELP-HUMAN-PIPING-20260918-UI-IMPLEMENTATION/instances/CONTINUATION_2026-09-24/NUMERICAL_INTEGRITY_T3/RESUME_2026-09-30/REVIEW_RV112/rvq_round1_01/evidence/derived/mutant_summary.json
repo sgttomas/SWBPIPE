@@ -1,0 +1,833 @@
+{
+ "pristine": {
+  "result": [
+   "test result: FAILED. 562 passed; 1 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.99s"
+  ],
+  "failed": [
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "tests": 574
+ },
+ "mutants": {
+  "A01": {
+   "kind": "PLAN",
+   "desc": "census: per-case load rows read case 0 only (length and capacity)",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 559 passed; 4 failed; 11 ignored; 0 measured; 3 filtered out; finished in 50.52s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::actual_inputs_map_each_cap_fact": {
+     "at": "src/retained_memory_law_tests.rs:607:5",
+     "message": "assertion `left == right` failed: a later case at l + 1 | left: None | right: Some(Cap { fact: Loads, observed: 129, cap: 128 })"
+    },
+    "retained_memory::law_tests::nested_typed_census_reads_the_roster": {
+     "at": "src/retained_memory_law_tests.rs:418:5",
+     "message": "assertion `left == right` failed: the second case is the longest | left: (3, 10) | right: (4, 10)"
+    },
+    "retained_memory::law_tests::typed_capacity_and_units_rows_read_the_actual_owners": {
+     "at": "src/retained_memory_law_tests.rs:718:5",
+     "message": "assertion `left == right` failed: the last case's capacity | left: None | right: Some(Cap { fact: LoadsCapacity, observed: 3, cap: 128 })"
+    }
+   },
+   "tests_seen": 574
+  },
+  "A02": {
+   "kind": "RV112",
+   "desc": "census: Loads length from case 0 only (capacity still the maximum)",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 560 passed; 3 failed; 11 ignored; 0 measured; 3 filtered out; finished in 50.65s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::actual_inputs_map_each_cap_fact": {
+     "at": "src/retained_memory_law_tests.rs:607:5",
+     "message": "assertion `left == right` failed: a later case at l + 1 | left: Some(Cap { fact: LoadsCapacity, observed: 129, cap: 128 }) | right: Some(Cap { fact: Loads, observed: 129, cap: 128 })"
+    },
+    "retained_memory::law_tests::nested_typed_census_reads_the_roster": {
+     "at": "src/retained_memory_law_tests.rs:418:5",
+     "message": "assertion `left == right` failed: the second case is the longest | left: (3, 10) | right: (4, 10)"
+    }
+   },
+   "tests_seen": 574
+  },
+  "A03": {
+   "kind": "RV112",
+   "desc": "census: LoadsCapacity from case 0 only (length still the maximum)",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 560 passed; 3 failed; 11 ignored; 0 measured; 3 filtered out; finished in 51.25s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::nested_typed_census_reads_the_roster": {
+     "at": "src/retained_memory_law_tests.rs:419:5",
+     "message": "assertion `left == right` failed: the third case has the largest capacity | left: 3 | right: 43"
+    },
+    "retained_memory::law_tests::typed_capacity_and_units_rows_read_the_actual_owners": {
+     "at": "src/retained_memory_law_tests.rs:718:5",
+     "message": "assertion `left == right` failed: the last case's capacity | left: None | right: Some(Cap { fact: LoadsCapacity, observed: 3, cap: 128 })"
+    }
+   },
+   "tests_seen": 574
+  },
+  "A04": {
+   "kind": "RV112",
+   "desc": "census: Σ l_i is the maximum length, not the sum",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 558 passed; 5 failed; 11 ignored; 0 measured; 3 filtered out; finished in 50.09s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::actual_inputs_map_each_cap_fact": {
+     "at": "src/retained_memory_law_tests.rs:608:5",
+     "message": "assertion `left == right` failed | left: 129 | right: 135"
+    },
+    "retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:1588:5",
+     "message": "assertion `left == right` failed | left: (128, 128) | right: (384, 128)"
+    },
+    "retained_memory::law_tests::every_cap_row_admits_its_cap_and_refuses_cap_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:569:9",
+     "message": "assertion `left == right` failed: TotalLoads at its cap | left: (128, 384) | right: (384, 384)"
+    },
+    "retained_memory::law_tests::nested_typed_census_reads_the_roster": {
+     "at": "src/retained_memory_law_tests.rs:411:5",
+     "message": "assertion `left == right` failed | left: (Complete, 128, 128, 128) | right: (Complete, 128, 128, 384)"
+    }
+   },
+   "tests_seen": 574
+  },
+  "A05": {
+   "kind": "RV112",
+   "desc": "census: Σ l_i counts case 0 only",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 558 passed; 5 failed; 11 ignored; 0 measured; 3 filtered out; finished in 50.02s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::actual_inputs_map_each_cap_fact": {
+     "at": "src/retained_memory_law_tests.rs:608:5",
+     "message": "assertion `left == right` failed | left: 3 | right: 135"
+    },
+    "retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:1588:5",
+     "message": "assertion `left == right` failed | left: (128, 128) | right: (384, 128)"
+    },
+    "retained_memory::law_tests::every_cap_row_admits_its_cap_and_refuses_cap_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:569:9",
+     "message": "assertion `left == right` failed: TotalLoads at its cap | left: (128, 384) | right: (384, 384)"
+    },
+    "retained_memory::law_tests::nested_typed_census_reads_the_roster": {
+     "at": "src/retained_memory_law_tests.rs:411:5",
+     "message": "assertion `left == right` failed | left: (Complete, 128, 128, 128) | right: (Complete, 128, 128, 384)"
+    }
+   },
+   "tests_seen": 574
+  },
+  "B01": {
+   "kind": "PLAN",
+   "desc": "D1.4: refuses c ≥ C (admits c < C only)",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 555 passed; 8 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.69s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::actual_inputs_map_each_cap_fact": {
+     "at": "src/retained_memory_law_tests.rs:605:5",
+     "message": "assertion `left == right` failed: a later case at l | left: Some(Family(Invocation, LoadCases)) | right: None"
+    },
+    "retained_memory::law_tests::b1_sa_d1_4_admits_one_to_c_load_cases": {
+     "at": "src/retained_memory_law_tests.rs:1552:13",
+     "message": "assertion `left == right` failed: c = 3 SparseInteractive | left: Some(Family(Invocation, LoadCases)) | right: None"
+    },
+    "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases": {
+     "at": "src/retained_memory_law_tests.rs:1732:13",
+     "message": "assertion `left == right` failed: case 0's attempt fails and blocks: inside D1 | left: Some(Family(Invocation, LoadCases)) | right: None"
+    },
+    "retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:1596:9",
+     "message": "assertion `left == right` failed: Σ l_i = 384 | left: Err(Family(Invocation, LoadCases)) | right: Ok(())"
+    },
+    "retained_memory::law_tests::every_cap_row_admits_its_cap_and_refuses_cap_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:563:5",
+     "message": "assertion `left == right` failed: the cap-maximal C-case input is inside D1 | left: Some(Family(Invocation, LoadCases)) | right: None"
+    },
+    "retained_memory::law_tests::every_family_clause_refuses_with_its_fact": {
+     "at": "src/retained_memory_law_tests.rs:500:5",
+     "message": "assertion `left == right` failed: C cases: inside D1 | left: Some(Family(Invocation, LoadCases)) | right: None"
+    },
+    "retained_memory::law_tests::typed_capacity_and_units_rows_read_the_actual_owners": {
+     "at": "src/retained_memory_law_tests.rs:714:5",
+     "message": "assertion `left == right` failed | left: Some(Family(Invocation, LoadCases)) | right: None"
+    }
+   },
+   "tests_seen": 574
+  },
+  "B02": {
+   "kind": "PLAN",
+   "desc": "D1.4: admits c ≤ C + 1",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 556 passed; 7 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.83s"
+   ],
+   "killed_by": {
+    "retained_facade_tests::u3g2_direct_entry_no_w1_refusals_keep_exact_bytes": {
+     "at": "src/retained_facade_tests.rs:676:13",
+     "message": "assertion `left == right` failed: C + 1 cases SparseInteractive | left: Some(Caps) | right: Some(Invocation)"
+    },
+    "retained_memory::law_tests::admit_grants_a_permit_for_the_milestone_in_the_registered_build": {
+     "at": "src/retained_memory_law_tests.rs:366:9",
+     "message": "assertion `left == right` failed: C + 1 cases | left: Some(Cap { fact: LoadCasesCapacity, observed: 4, cap: 3 }) | right: Some(Family(Invocation, LoadCases))"
+    },
+    "retained_memory::law_tests::b1_sa_d1_4_admits_one_to_c_load_cases": {
+     "at": "src/retained_memory_law_tests.rs:1552:13",
+     "message": "assertion `left == right` failed: c = 4 SparseInteractive | left: Some(Cap { fact: LoadCasesCapacity, observed: 4, cap: 3 }) | right: Some(Family(Invocation, LoadCases))"
+    },
+    "retained_memory::law_tests::b1_sa_runner_oracle_literal_is_load_cases_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:1574:9",
+     "message": "assertion `left == right` failed: SparseInteractive | left: Some(Cap { fact: LoadCasesCapacity, observed: 4, cap: 3 }) | right: Some(Family(Invocation, LoadCases))"
+    },
+    "retained_memory::law_tests::every_family_clause_refuses_with_its_fact": {
+     "at": "src/retained_memory_law_tests.rs:464:5",
+     "message": "assertion `left == right` failed: C + 1 cases | left: Some(Cap { fact: LoadCasesCapacity, observed: 4, cap: 3 }) | right: Some(Family(Invocation, LoadCases))"
+    },
+    "retained_memory::tests::actual_retained_entry_dispatches_ordinary_once": {
+     "at": "src/retained_memory.rs:3065:13",
+     "message": "assertion `left == right` failed: C + 1 cases: outside D1 at D1.4 | left: Some(Cap { fact: LoadCasesCapacity, observed: 4, cap: 3 }) | right: Some(Family(Invocation, LoadCases))"
+    }
+   },
+   "tests_seen": 574
+  },
+  "B03": {
+   "kind": "RV112",
+   "desc": "D1.4: admits c = 0 (the empty check dropped)",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 560 passed; 3 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.80s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_d1_4_admits_one_to_c_load_cases": {
+     "at": "src/retained_memory_law_tests.rs:1552:13",
+     "message": "assertion `left == right` failed: c = 0 SparseInteractive | left: None | right: Some(Family(Invocation, LoadCases))"
+    },
+    "retained_memory::law_tests::every_family_clause_refuses_with_its_fact": {
+     "at": "src/retained_memory_law_tests.rs:465:5",
+     "message": "assertion `left == right` failed: 0 cases | left: None | right: Some(Family(Invocation, LoadCases))"
+    }
+   },
+   "tests_seen": 574
+  },
+  "B04": {
+   "kind": "RV112",
+   "desc": "D1.5: reads case 0 only",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 561 passed; 2 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.97s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::every_family_clause_refuses_with_its_fact": {
+     "at": "src/retained_memory_law_tests.rs:508:9",
+     "message": "assertion `left == right` failed: D1.5 on case 2: pressure_regions | left: None | right: Some(Family(Case, PressureRegions))"
+    }
+   },
+   "tests_seen": 574
+  },
+  "B05": {
+   "kind": "RV112",
+   "desc": "D1.5: skips case 0",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 561 passed; 2 failed; 11 ignored; 0 measured; 3 filtered out; finished in 50.10s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::every_family_clause_refuses_with_its_fact": {
+     "at": "src/retained_memory_law_tests.rs:470:5",
+     "message": "assertion `left == right` failed | left: None | right: Some(Family(Case, PressureRegions))"
+    }
+   },
+   "tests_seen": 574
+  },
+  "B06": {
+   "kind": "RV112",
+   "desc": "D1.7: reads case 0's loads only",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 561 passed; 2 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.98s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::every_family_clause_refuses_with_its_fact": {
+     "at": "src/retained_memory_law_tests.rs:514:5",
+     "message": "assertion `left == right` failed: D1.7 on case 2 | left: None | right: Some(Family(Loads, LoadTarget))"
+    }
+   },
+   "tests_seen": 574
+  },
+  "C01": {
+   "kind": "RV112",
+   "desc": "cap_rows: TotalLoads capped by l (128), not L",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 558 passed; 5 failed; 11 ignored; 0 measured; 3 filtered out; finished in 50.21s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::actual_inputs_map_each_cap_fact": {
+     "at": "src/retained_memory_law_tests.rs:605:5",
+     "message": "assertion `left == right` failed: a later case at l | left: Some(Cap { fact: TotalLoads, observed: 134, cap: 128 }) | right: None"
+    },
+    "retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:1596:9",
+     "message": "assertion `left == right` failed: Σ l_i = 384 | left: Err(Cap { fact: TotalLoads, observed: 384, cap: 128 }) | right: Ok(())"
+    },
+    "retained_memory::law_tests::every_cap_row_admits_its_cap_and_refuses_cap_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:563:5",
+     "message": "assertion `left == right` failed: the cap-maximal C-case input is inside D1 | left: Some(Cap { fact: TotalLoads, observed: 384, cap: 128 }) | right: None"
+    },
+    "retained_memory::law_tests::typed_capacity_and_units_rows_read_the_actual_owners": {
+     "at": "src/retained_memory_law_tests.rs:714:5",
+     "message": "assertion `left == right` failed | left: Some(Cap { fact: TotalLoads, observed: 384, cap: 128 }) | right: None"
+    }
+   },
+   "tests_seen": 574
+  },
+  "C02": {
+   "kind": "RV112",
+   "desc": "cap_rows: LoadCasesCapacity capped by 1 (D1's), not C",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 555 passed; 8 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.92s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::actual_inputs_map_each_cap_fact": {
+     "at": "src/retained_memory_law_tests.rs:605:5",
+     "message": "assertion `left == right` failed: a later case at l | left: Some(Cap { fact: LoadCasesCapacity, observed: 3, cap: 1 }) | right: None"
+    },
+    "retained_memory::law_tests::b1_sa_d1_4_admits_one_to_c_load_cases": {
+     "at": "src/retained_memory_law_tests.rs:1552:13",
+     "message": "assertion `left == right` failed: c = 2 SparseInteractive | left: Some(Cap { fact: LoadCasesCapacity, observed: 2, cap: 1 }) | right: None"
+    },
+    "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases": {
+     "at": "src/retained_memory_law_tests.rs:1732:13",
+     "message": "assertion `left == right` failed: case 0's attempt fails and blocks: inside D1 | left: Some(Cap { fact: LoadCasesCapacity, observed: 3, cap: 1 }) | right: None"
+    },
+    "retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:1596:9",
+     "message": "assertion `left == right` failed: Σ l_i = 384 | left: Err(Cap { fact: LoadCasesCapacity, observed: 3, cap: 1 }) | right: Ok(())"
+    },
+    "retained_memory::law_tests::every_cap_row_admits_its_cap_and_refuses_cap_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:563:5",
+     "message": "assertion `left == right` failed: the cap-maximal C-case input is inside D1 | left: Some(Cap { fact: LoadCasesCapacity, observed: 3, cap: 1 }) | right: None"
+    },
+    "retained_memory::law_tests::every_family_clause_refuses_with_its_fact": {
+     "at": "src/retained_memory_law_tests.rs:500:5",
+     "message": "assertion `left == right` failed: C cases: inside D1 | left: Some(Cap { fact: LoadCasesCapacity, observed: 3, cap: 1 }) | right: None"
+    },
+    "retained_memory::law_tests::typed_capacity_and_units_rows_read_the_actual_owners": {
+     "at": "src/retained_memory_law_tests.rs:714:5",
+     "message": "assertion `left == right` failed | left: Some(Cap { fact: LoadCasesCapacity, observed: 3, cap: 1 }) | right: None"
+    }
+   },
+   "tests_seen": 574
+  },
+  "C03": {
+   "kind": "RV112",
+   "desc": "cap_rows: TotalLoads observes the largest case, not Σ",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 560 passed; 3 failed; 11 ignored; 0 measured; 3 filtered out; finished in 50.00s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:1596:9",
+     "message": "assertion `left == right` failed: Σ l_i = 385 | left: Ok(()) | right: Err(Cap { fact: TotalLoads, observed: 385, cap: 384 })"
+    },
+    "retained_memory::law_tests::every_cap_row_admits_its_cap_and_refuses_cap_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:569:9",
+     "message": "assertion `left == right` failed: TotalLoads at its cap | left: (128, 384) | right: (384, 384)"
+    }
+   },
+   "tests_seen": 574
+  },
+  "D01": {
+   "kind": "PLAN",
+   "desc": "G-B: running total dropped (observes 0)",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 561 passed; 2 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.91s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_g_b_reads_each_case_and_the_running_total": {
+     "at": "src/retained_memory_law_tests.rs:1631:9",
+     "message": "assertion `left == right` failed | left: (3, 0) | right: (3, 3)"
+    }
+   },
+   "tests_seen": 574
+  },
+  "D02": {
+   "kind": "PLAN",
+   "desc": "G-B: running total is the current case only",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 560 passed; 3 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.90s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_g_b_reads_each_case_and_the_running_total": {
+     "at": "src/retained_memory_law_tests.rs:1631:9",
+     "message": "assertion `left == right` failed | left: (3, 3) | right: (3, 9)"
+    },
+    "retained_memory::law_tests::late_facts_read_the_actual_owners": {
+     "at": "src/retained_memory_law_tests.rs:1076:5",
+     "message": "assertion `left == right` failed | left: (3, 0) | right: (0, 0)"
+    }
+   },
+   "tests_seen": 574
+  },
+  "D03": {
+   "kind": "RV112",
+   "desc": "G-B: CaseLoadsTotal bounded by l, not L",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 559 passed; 4 failed; 11 ignored; 0 measured; 3 filtered out; finished in 50.07s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_g_b_reads_each_case_and_the_running_total": {
+     "at": "src/retained_memory_law_tests.rs:1609:5",
+     "message": "assertion `left == right` failed: CaseLoads ≤ l, CaseLoadsTotal ≤ L | left: (128, 128) | right: (128, 384)"
+    },
+    "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions": {
+     "at": "src/retained_memory_law_tests.rs:1788:5",
+     "message": "assertion `left == right` failed: G-B: n, m, m, g, l, L, min(6n, Σr), s, 4 + 4, T11 − T11_late_capture | left: [32, 32, 32, 32, 128, 128, 192, 192, 8, 117696] | right: [32, 32, 32, 32, 128, 384, 192, 192, 8, 117696]"
+    },
+    "retained_memory::law_tests::every_phase_fact_admits_its_cap_and_refuses_cap_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:904:5",
+     "message": "assertion `left == right` failed: D1's counts: n, m, m, g, l, L (B1 SA), k = min(6n, r), s, 4 + 4 | left: [32, 32, 32, 32, 128, 128, 192, 192, 8] | right: [32, 32, 32, 32, 128, 384, 192, 192, 8]"
+    }
+   },
+   "tests_seen": 574
+  },
+  "D04": {
+   "kind": "RV112",
+   "desc": "G-B: CaseLoads and CaseLoadsTotal observations swapped",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 560 passed; 3 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.98s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_g_b_reads_each_case_and_the_running_total": {
+     "at": "src/retained_memory_law_tests.rs:1631:9",
+     "message": "assertion `left == right` failed | left: (9, 3) | right: (3, 9)"
+    },
+    "retained_memory::law_tests::late_facts_read_the_actual_owners": {
+     "at": "src/retained_memory_law_tests.rs:1073:5",
+     "message": "assertion `left == right` failed | left: 0 | right: 3"
+    }
+   },
+   "tests_seen": 574
+  },
+  "E01": {
+   "kind": "PLAN",
+   "desc": "G-C: EnvelopeResults ≤ P_final, not C·P_final",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 559 passed; 4 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.35s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_envelope_results_bound_is_c_times_p_final": {
+     "at": "src/retained_memory_law_tests.rs:1664:5",
+     "message": "assertion `left == right` failed | left: (2115, 8192, 145605060) | right: (6345, 8192, 145605060)"
+    },
+    "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions": {
+     "at": "src/retained_memory_law_tests.rs:1813:5",
+     "message": "assertion `left == right` failed: G-C at C = 3 | left: [2115, 8192, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 201, 1659, 200448, 66360, 0, 155712, 11968, 4767744, 0] | right: [6345, 8192, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 201, 1659, 200448, 66360, 0, 155712, 11968, 4767744, 0]"
+    },
+    "retained_memory::law_tests::every_phase_fact_admits_its_cap_and_refuses_cap_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:912:5",
+     "message": "assertion `left == right` failed: C·P_final, PushCap(C·P_final) | left: (2115, 8192) | right: (6345, 8192)"
+    }
+   },
+   "tests_seen": 574
+  },
+  "E02": {
+   "kind": "RV112",
+   "desc": "G-C: EnvelopeResultCapacity ≤ PushCap(P_final)",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 559 passed; 4 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.53s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_envelope_results_bound_is_c_times_p_final": {
+     "at": "src/retained_memory_law_tests.rs:1664:5",
+     "message": "assertion `left == right` failed | left: (6345, 4096, 145605060) | right: (6345, 8192, 145605060)"
+    },
+    "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions": {
+     "at": "src/retained_memory_law_tests.rs:1813:5",
+     "message": "assertion `left == right` failed: G-C at C = 3 | left: [6345, 4096, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 201, 1659, 200448, 66360, 0, 155712, 11968, 4767744, 0] | right: [6345, 8192, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 201, 1659, 200448, 66360, 0, 155712, 11968, 4767744, 0]"
+    },
+    "retained_memory::law_tests::every_phase_fact_admits_its_cap_and_refuses_cap_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:912:5",
+     "message": "assertion `left == right` failed: C·P_final, PushCap(C·P_final) | left: (6345, 4096) | right: (6345, 8192)"
+    }
+   },
+   "tests_seen": 574
+  },
+  "E03": {
+   "kind": "RV112",
+   "desc": "G-C: EnvelopeResultTextBytes ≤ 2·P_final·Text(row)",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 559 passed; 4 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.46s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_envelope_results_bound_is_c_times_p_final": {
+     "at": "src/retained_memory_law_tests.rs:1664:5",
+     "message": "assertion `left == right` failed | left: (6345, 8192, 48535020) | right: (6345, 8192, 145605060)"
+    },
+    "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions": {
+     "at": "src/retained_memory_law_tests.rs:1813:5",
+     "message": "assertion `left == right` failed: G-C at C = 3 | left: [6345, 8192, 48535020, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 201, 1659, 200448, 66360, 0, 155712, 11968, 4767744, 0] | right: [6345, 8192, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 201, 1659, 200448, 66360, 0, 155712, 11968, 4767744, 0]"
+    },
+    "retained_memory::law_tests::every_phase_fact_admits_its_cap_and_refuses_cap_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:909:5",
+     "message": "assertion `left == right` failed: 2·C·P_final·Text(row) | left: 48535020 | right: 145605060"
+    }
+   },
+   "tests_seen": 574
+  },
+  "E04": {
+   "kind": "RV112",
+   "desc": "G-C: ContractEvidenceArrayElements without ×C",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 561 passed; 2 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.80s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions": {
+     "at": "src/retained_memory_law_tests.rs:1813:5",
+     "message": "assertion `left == right` failed: G-C at C = 3 | left: [6345, 8192, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 160, 201, 1659, 200448, 66360, 0, 155712, 11968, 4767744, 0] | right: [6345, 8192, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 201, 1659, 200448, 66360, 0, 155712, 11968, 4767744, 0]"
+    }
+   },
+   "tests_seen": 574
+  },
+  "E05": {
+   "kind": "RV112",
+   "desc": "G-C: ContractEvidenceObjects without ×C",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 561 passed; 2 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.84s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions": {
+     "at": "src/retained_memory_law_tests.rs:1813:5",
+     "message": "assertion `left == right` failed: G-C at C = 3 | left: [6345, 8192, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 67, 1659, 200448, 66360, 0, 155712, 11968, 4767744, 0] | right: [6345, 8192, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 201, 1659, 200448, 66360, 0, 155712, 11968, 4767744, 0]"
+    }
+   },
+   "tests_seen": 574
+  },
+  "E06": {
+   "kind": "RV112",
+   "desc": "G-C: ContractEvidenceEntries without ×C",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 561 passed; 2 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.86s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions": {
+     "at": "src/retained_memory_law_tests.rs:1813:5",
+     "message": "assertion `left == right` failed: G-C at C = 3 | left: [6345, 8192, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 201, 553, 200448, 66360, 0, 155712, 11968, 4767744, 0] | right: [6345, 8192, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 201, 1659, 200448, 66360, 0, 155712, 11968, 4767744, 0]"
+    }
+   },
+   "tests_seen": 574
+  },
+  "E07": {
+   "kind": "RV112",
+   "desc": "G-C: ContractEvidenceStringBytes without ×C",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 561 passed; 2 failed; 11 ignored; 0 measured; 3 filtered out; finished in 50.32s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions": {
+     "at": "src/retained_memory_law_tests.rs:1813:5",
+     "message": "assertion `left == right` failed: G-C at C = 3 | left: [6345, 8192, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 201, 1659, 66816, 66360, 0, 155712, 11968, 4767744, 0] | right: [6345, 8192, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 201, 1659, 200448, 66360, 0, 155712, 11968, 4767744, 0]"
+    }
+   },
+   "tests_seen": 574
+  },
+  "E08": {
+   "kind": "RV112",
+   "desc": "G-C: ContractEvidenceKeyBytes without ×C",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 561 passed; 2 failed; 11 ignored; 0 measured; 3 filtered out; finished in 50.02s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions": {
+     "at": "src/retained_memory_law_tests.rs:1813:5",
+     "message": "assertion `left == right` failed: G-C at C = 3 | left: [6345, 8192, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 201, 1659, 200448, 22120, 0, 155712, 11968, 4767744, 0] | right: [6345, 8192, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 201, 1659, 200448, 66360, 0, 155712, 11968, 4767744, 0]"
+    }
+   },
+   "tests_seen": 574
+  },
+  "E09": {
+   "kind": "RV112",
+   "desc": "G-C: RetainedErrorTextBytes ≤ (3m + 1)·Text(err), without ×C",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 560 passed; 3 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.94s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions": {
+     "at": "src/retained_memory_law_tests.rs:1813:5",
+     "message": "assertion `left == right` failed: G-C at C = 3 | left: [6345, 8192, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 201, 1659, 200448, 66360, 0, 155712, 11968, 1589248, 0] | right: [6345, 8192, 145605060, 9361, 16384, 137440472, 2599962, 2330, 0, 480, 201, 1659, 200448, 66360, 0, 155712, 11968, 4767744, 0]"
+    },
+    "retained_memory::law_tests::every_phase_fact_admits_its_cap_and_refuses_cap_plus_one": {
+     "at": "src/retained_memory_law_tests.rs:917:5",
+     "message": "assertion `left == right` failed: C·(3m + 1)·Text(err) | left: 1589248 | right: 4767744"
+    }
+   },
+   "tests_seen": 574
+  },
+  "F01": {
+   "kind": "PLAN",
+   "desc": "T-3 (e): seeds only (I1's predicate: non-empty and every initial)",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 561 passed; 2 failed; 11 ignored; 0 measured; 3 filtered out; finished in 50.07s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases": {
+     "at": "src/retained_memory_law_tests.rs:1716:9",
+     "message": "1: more seeds than requested cases"
+    }
+   },
+   "tests_seen": 574
+  },
+  "F02": {
+   "kind": "PLAN",
+   "desc": "T-3 (e): requested ignored at G-C (the seed count passed as requested)",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 561 passed; 2 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.80s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases": {
+     "at": "src/retained_memory_law_tests.rs:1740:13",
+     "message": "assertion `left == right` failed: case 0's attempt fails and blocks SparseInteractive | left: Ok(()) | right: Err(PhaseRefusal { gate: Complete, fact: OrdinarySolveNotAttempted, observed: 1, cap: 0 })"
+    }
+   },
+   "tests_seen": 574
+  },
+  "F03": {
+   "kind": "PLAN",
+   "desc": "T-3 (e): ≥ instead of ==",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 561 passed; 2 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.82s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases": {
+     "at": "src/retained_memory_law_tests.rs:1716:9",
+     "message": "1: more seeds than requested cases"
+    }
+   },
+   "tests_seen": 574
+  },
+  "F04": {
+   "kind": "RV112",
+   "desc": "T-3 (e): ≤ instead of ==",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 558 passed; 5 failed; 11 ignored; 0 measured; 3 filtered out; finished in 48.81s"
+   ],
+   "killed_by": {
+    "retained_facade_tests::u3g2_direct_entry_no_w1_refusals_keep_exact_bytes": {
+     "at": "src/retained_facade_tests.rs:699:26",
+     "message": "SparseInteractive: Some(Err(Preparation))"
+    },
+    "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases": {
+     "at": "src/retained_memory_law_tests.rs:1712:5",
+     "message": "no seed"
+    },
+    "retained_memory::law_tests::g_c_declines_w1_when_the_ordinary_solve_was_not_attempted": {
+     "at": "src/retained_memory_law_tests.rs:1468:17",
+     "message": "assertion `left == right` failed: document kind SparseInteractive | left: true | right: false"
+    },
+    "retained_memory::law_tests::registered_g_c_declines_only_unattempted_solves": {
+     "at": "src/retained_memory_law_tests.rs:1516:26",
+     "message": "document kind SparseInteractive: expected G-C's decline, got Some(Err(Preparation))"
+    }
+   },
+   "tests_seen": 574
+  },
+  "F05": {
+   "kind": "RV112",
+   "desc": "T-3 (e): requested ≥ 1 dropped",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 561 passed; 2 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.87s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases": {
+     "at": "src/retained_memory_law_tests.rs:1711:5",
+     "message": "no requested case"
+    }
+   },
+   "tests_seen": 574
+  },
+  "F06": {
+   "kind": "RV112",
+   "desc": "T-3 (e): any seed's initial, not every",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 561 passed; 2 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.83s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases": {
+     "at": "src/retained_memory_law_tests.rs:1719:9",
+     "message": "2: a seed without an attempt outcome"
+    }
+   },
+   "tests_seen": 574
+  },
+  "F07": {
+   "kind": "RV112",
+   "desc": "T-3 (e): compared with C, not the requested count",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 549 passed; 14 failed; 11 ignored; 0 measured; 3 filtered out; finished in 39.55s"
+   ],
+   "killed_by": {
+    "retained_facade_tests::b1_t4_two_body_case_b_is_a_no_triggered_case_pin": {
+     "at": "src/retained_facade_tests.rs:1272:13",
+     "message": "assertion `left == right` failed: two-body B SparseInteractive | left: Some(CompleteGate(PhaseRefusal { gate: Complete, fact: OrdinarySolveNotAttempted, observed: 1, cap: 0 })) | right: Some(NoTriggeredCase)"
+    },
+    "retained_facade_tests::u3g2_d_u6_5_carrier_fixtures_are_the_live_successors": {
+     "at": "src/retained_facade_tests.rs:823:53",
+     "message": "sparse_interactive: the registered Direct entry did not publish its successor"
+    },
+    "retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor": {
+     "at": "src/retained_facade_tests.rs:593:22",
+     "message": "sparse_interactive: Some(Err(CompleteGate(PhaseRefusal { gate: Complete, fact: OrdinarySolveNotAttempted, observed: 1, cap: 0 })))"
+    },
+    "retained_facade_tests::u3g2_direct_entry_w1_fallbacks_append_one_notice": {
+     "at": "src/retained_facade_tests.rs:644:13",
+     "message": "assertion `left == right` failed: preparation SparseInteractive | left: Some(CompleteGate(PhaseRefusal { gate: Complete, fact: OrdinarySolveNotAttempted, observed: 1, cap: 0 })) | right: Some(Preparation)"
+    },
+    "retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors": {
+     "at": "src/retained_facade_tests.rs:1088:53",
+     "message": "sparse_interactive: the registered Direct entry did not publish its successor"
+    },
+    "retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor": {
+     "at": "src/retained_facade_tests.rs:1056:22",
+     "message": "sparse_interactive: Some(Err(CompleteGate(PhaseRefusal { gate: Complete, fact: OrdinarySolveNotAttempted, observed: 1, cap: 0 })))"
+    },
+    "retained_facade_tests::u8_real_input_fallbacks_append_one_notice": {
+     "at": "src/retained_facade_tests.rs:945:13",
+     "message": "assertion `left == right` failed: first_load_only SparseInteractive: the real input's cause | left: Some(CompleteGate(PhaseRefusal { gate: Complete, fact: OrdinarySolveNotAttempted, observed: 1, cap: 0 })) | right: Some(Candidate)"
+    },
+    "retained_memory::law_tests::b1_sa_envelope_results_bound_is_c_times_p_final": {
+     "at": "src/retained_memory_law_tests.rs:1670:9",
+     "message": "assertion `left == right` failed: 6345 rows | left: Err((OrdinarySolveNotAttempted, 1, 0)) | right: Ok(())"
+    },
+    "retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases": {
+     "at": "src/retained_memory_law_tests.rs:1714:9",
+     "message": "1: one attempted seed per case"
+    },
+    "retained_memory::law_tests::complete_facts_read_the_actual_owners": {
+     "at": "src/retained_memory_law_tests.rs:1008:13",
+     "message": "OrdinarySolveNotAttempted: 1 > 0"
+    },
+    "retained_memory::law_tests::g_c_declines_w1_when_the_ordinary_solve_was_not_attempted": {
+     "at": "src/retained_memory_law_tests.rs:1468:17",
+     "message": "assertion `left == right` failed: milestone SparseInteractive | left: false | right: true"
+    },
+    "retained_memory::law_tests::registered_g_c_declines_only_unattempted_solves": {
+     "at": "src/retained_memory_law_tests.rs:1522:9",
+     "message": "SparseInteractive: the milestone publishes"
+    },
+    "retained_memory::witness_tests::b1_t4_w2b_and_w6_phys_r4_inputs_are_no_triggered_case_pins": {
+     "at": "src/retained_facade_tests.rs:1272:13",
+     "message": "assertion `left == right` failed: W2b's input SparseInteractive | left: Some(CompleteGate(PhaseRefusal { gate: Complete, fact: OrdinarySolveNotAttempted, observed: 1, cap: 0 })) | right: Some(NoTriggeredCase)"
+    }
+   },
+   "tests_seen": 574
+  },
+  "G01": {
+   "kind": "RV112",
+   "desc": "RetainedErrorTextBytes: the capture's own fields only (the unpatched reader)",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 561 passed; 2 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.98s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_retained_error_text_reads_every_case_slot": {
+     "at": "src/retained_memory_law_tests.rs:1844:9",
+     "message": "assertion `left == right` failed: SparseInteractive: both slots | left: 10 | right: 59"
+    }
+   },
+   "tests_seen": 574
+  },
+  "G02": {
+   "kind": "RV112",
+   "desc": "RetainedErrorTextBytes: the parked slots only",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 560 passed; 3 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.92s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_retained_error_text_reads_every_case_slot": {
+     "at": "src/retained_memory_law_tests.rs:1844:9",
+     "message": "assertion `left == right` failed: SparseInteractive: both slots | left: 49 | right: 59"
+    },
+    "retained_memory::law_tests::complete_facts_read_the_actual_owners": {
+     "at": "src/retained_memory_law_tests.rs:998:9",
+     "message": "assertion `left == right` failed | left: 0 | right: 49"
+    }
+   },
+   "tests_seen": 574
+  },
+  "G03": {
+   "kind": "RV112",
+   "desc": "RetainedErrorTextBytes: parked slots' error only (observable_error dropped)",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 561 passed; 2 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.94s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_retained_error_text_reads_every_case_slot": {
+     "at": "src/retained_memory_law_tests.rs:1844:9",
+     "message": "assertion `left == right` failed: SparseInteractive: both slots | left: 50 | right: 59"
+    }
+   },
+   "tests_seen": 574
+  },
+  "G04": {
+   "kind": "RV112",
+   "desc": "RetainedErrorTextBytes: the first parked slot only",
+   "status": "SURVIVED",
+   "result": [
+    "test result: FAILED. 562 passed; 1 failed; 11 ignored; 0 measured; 3 filtered out; finished in 49.99s"
+   ],
+   "killed_by": {},
+   "tests_seen": 574
+  },
+  "H01": {
+   "kind": "RV112",
+   "desc": "B-6: NOTICE_RESERVE_BYTES without ×C (const; its own build)",
+   "status": "KILLED",
+   "result": [
+    "test result: FAILED. 560 passed; 3 failed; 11 ignored; 0 measured; 3 filtered out; finished in 50.21s"
+   ],
+   "killed_by": {
+    "retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions": {
+     "at": "src/retained_memory_law_tests.rs:1822:5",
+     "message": "assertion `left == right` failed | left: 886 | right: 2658"
+    },
+    "retained_memory::law_tests::structural_budgets_are_u3s": {
+     "at": "src/retained_memory_law_tests.rs:1033:5",
+     "message": "assertion `left == right` failed: B-6 = NOTICE_RESERVE_BYTES × C | left: 886 | right: 2658"
+    }
+   },
+   "tests_seen": 574
+  }
+ }
+}

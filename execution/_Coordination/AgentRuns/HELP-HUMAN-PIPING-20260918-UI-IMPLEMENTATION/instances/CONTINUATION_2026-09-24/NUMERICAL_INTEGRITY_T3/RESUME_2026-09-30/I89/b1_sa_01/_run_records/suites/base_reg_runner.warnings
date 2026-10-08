@@ -1,0 +1,16 @@
+   1 error: 2 targets failed:
+   1 error: test failed, to rerun pass `--lib`
+   1 error: test failed, to rerun pass `--test load_reference_cli`
+   1 warning: `open_pipe_stress_mechanics_benchmarks` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_mechanics_benchmarks` to apply 1 suggestion)
+   1 warning: `open_pipe_stress_product_physics` (lib) generated 10 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics` to apply 2 suggestions)
+   1 warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+   1 warning: field `springs` is never read
+   1 warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   2 warning: function `derived` is never used
+   1 warning: function `expected_primary` is never used
+   1 warning: function `is_exact_pressure_result_kind` is never used
+   1 warning: function `solve_load_case` is never used
+   1 warning: method `spring_actions` is never used
+   1 warning: multiple fields are never read
+   2 warning: unnecessary parentheses around function argument
+   1 warning: unused imports: `EquivalentStaticMechanicsBasis` and `prepare_equivalent_static_loads`

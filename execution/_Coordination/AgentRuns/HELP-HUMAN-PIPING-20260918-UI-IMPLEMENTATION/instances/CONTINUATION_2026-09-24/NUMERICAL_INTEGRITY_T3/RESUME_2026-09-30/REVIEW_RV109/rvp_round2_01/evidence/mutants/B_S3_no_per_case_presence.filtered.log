@@ -1,0 +1,9 @@
+RV109_JOB name=r2_mut_B_S3_no_per_case_presence dir=WT/rv109/mut/projects/chirality-piping/core/product_physics target=rv109-r2-mut stale=0 args=test --locked --offline --no-fail-fast --lib start=2026-10-07T22:16:25Z
+test retained_facade_tests::b1_sp_r3p_7_custody_per_case_presence_parked_capture_and_native ... FAILED
+test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+thread 'retained_facade_tests::b1_sp_r3p_7_custody_per_case_presence_parked_capture_and_native' (97011500) panicked at src/retained_facade_tests.rs:1953:22:
+thread 's11g_tests::t13_committed_fallback_uz_is_byte_identical' (97016704) panicked at src/s11g_tests.rs:1666:9:
+test result: FAILED. 571 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 67.60s
+error: test failed, to rerun pass `--lib`
+error: 1 target failed:
+RV109_JOB_END name=r2_mut_B_S3_no_per_case_presence rc=101 end=2026-10-07T22:17:35Z

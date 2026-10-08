@@ -1,0 +1,26 @@
+# rv113 py job suite_head
+# queued 2026-10-07T19:51:55Z dir=rv113/py-head/projects/chirality-piping args: -m pytest -p no:cacheprovider --basetemp=WT/scratch/rv113_rvr_01/py/tmp/suite_head/basetemp -q -rs -rf -v --junitxml=WT/scratch/rv113_rvr_01/py/logs/suite_head.xml tests/test_adapter_framework_contract.py tests/test_analysis_run_schema.py tests/test_analysis_run_records.py tests/test_analysis_status_schema.py tests/test_analysis_run_compatibility.py tests/test_comparison_contracts.py tests/test_handoff_package_schema.py tests/test_handoff_export_workflow.py tests/test_load_reference_headless_artifacts.py tests/test_invented_example_models.py tests/test_load_reference_schema.py tests/test_load_reference_source_schema.py tests/test_persistence_schema.py tests/test_physics_consumer_contract.py tests/test_preview_physics_consumer_contract.py tests/test_precision_consumer_contract.py tests/test_project_persistence_service.py tests/test_result_export_v0_2.py tests/test_stress_neutral_physics_source.py tests/test_results_schema.py tests/test_source_block_schema_contract.py tests/test_stress_neutral_precision.py tests/test_stress_neutral_export_package.py tests/test_retained_precision_contract.py tests/test_retained_precision_schema.py tests/test_retained_precision_carriers.py tests/test_results_dispatcher_v0_3.py
+# start 2026-10-07T19:52:33Z
+...
+FAILED tests/test_handoff_package_schema.py::test_deterministic_sorted_compact_json_label_validates_checksum
+FAILED tests/test_handoff_package_schema.py::test_legacy_jcs_compatible_label_remains_valid
+FAILED tests/test_handoff_export_workflow.py::test_supplied_checksum_uses_narrow_label_and_is_carried_without_jcs_claim
+FAILED tests/test_handoff_export_workflow.py::test_export_workflow_is_deterministic_and_preserves_required_context
+FAILED tests/test_handoff_export_workflow.py::test_unsupported_and_approximate_target_behavior_is_explicit
+FAILED tests/test_handoff_export_workflow.py::test_unit_bearing_mapping_without_unit_metadata_is_blocked
+FAILED tests/test_handoff_export_workflow.py::test_invalid_mapping_inputs_are_controlled_source_blocks[missing-target_mapping_contract-EXP-TARGET-MAPPING-MISSING]
+FAILED tests/test_handoff_export_workflow.py::test_invalid_mapping_inputs_are_controlled_source_blocks[missing-target_fixture-EXP-TARGET-FIXTURE-MISSING]
+FAILED tests/test_handoff_export_workflow.py::test_invalid_mapping_inputs_are_controlled_source_blocks[missing-units_manifest-EXP-HANDOFF-MANIFEST-FIELD-MISSING]
+FAILED tests/test_handoff_export_workflow.py::test_invalid_mapping_inputs_are_controlled_source_blocks[null-target_mapping_contract-EXP-TARGET-MAPPING-MISSING]
+FAILED tests/test_handoff_export_workflow.py::test_invalid_mapping_inputs_are_controlled_source_blocks[null-target_fixture-EXP-TARGET-FIXTURE-MISSING]
+FAILED tests/test_handoff_export_workflow.py::test_invalid_mapping_inputs_are_controlled_source_blocks[null-units_manifest-EXP-HANDOFF-MANIFEST-FIELD-MISSING]
+FAILED tests/test_handoff_export_workflow.py::test_invalid_mapping_inputs_are_controlled_source_blocks[non-mapping-target_mapping_contract-EXP-TARGET-MAPPING-MISSING]
+FAILED tests/test_handoff_export_workflow.py::test_invalid_mapping_inputs_are_controlled_source_blocks[non-mapping-target_fixture-EXP-TARGET-FIXTURE-MISSING]
+FAILED tests/test_handoff_export_workflow.py::test_invalid_mapping_inputs_are_controlled_source_blocks[non-mapping-units_manifest-EXP-HANDOFF-MANIFEST-FIELD-MISSING]
+FAILED tests/test_handoff_export_workflow.py::test_empty_units_manifest_with_matching_null_source_ref_is_blocked
+FAILED tests/test_handoff_export_workflow.py::test_mapping_hash_and_units_mismatch_are_blocked_not_defaulted
+FAILED tests/test_handoff_export_workflow.py::test_target_fixture_authority_metadata_is_blocking_boundary_diagnostic
+FAILED tests/test_handoff_export_workflow.py::test_export_output_contains_no_prohibited_authority_claims
+FAILED tests/test_handoff_export_workflow.py::test_export_output_contains_no_prohibited_authority_claims
+=========== 19 failed, 1918 passed, 30 skipped in 825.26s (0:13:45) ============
+# end 2026-10-07T20:06:19Z rc=1

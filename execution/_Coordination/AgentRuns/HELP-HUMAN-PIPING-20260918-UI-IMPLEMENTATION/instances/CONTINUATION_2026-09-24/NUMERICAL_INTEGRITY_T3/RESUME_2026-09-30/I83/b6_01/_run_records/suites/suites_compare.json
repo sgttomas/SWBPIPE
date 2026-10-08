@@ -1,0 +1,88 @@
+{
+ "python": {
+  "base": {
+   "passed": 1896,
+   "skipped": 30
+  },
+  "head": {
+   "passed": 1922,
+   "skipped": 30
+  },
+  "added": [
+   "tests.test_retained_precision_carriers::test_transport_admits_the_untampered_successor_with_or_without_rows_and_never_eligible[dense_scrutiny]",
+   "tests.test_retained_precision_carriers::test_transport_admits_the_untampered_successor_with_or_without_rows_and_never_eligible[sparse_interactive]",
+   "tests.test_retained_precision_carriers::test_transport_applies_g2_negative_zero_d34[dense_scrutiny]",
+   "tests.test_retained_precision_carriers::test_transport_applies_g2_negative_zero_d34[sparse_interactive]",
+   "tests.test_retained_precision_carriers::test_transport_refuses_a_receipt_consistent_base_inconsistent_statement_at_g7[dense_scrutiny]",
+   "tests.test_retained_precision_carriers::test_transport_refuses_a_receipt_consistent_base_inconsistent_statement_at_g7[sparse_interactive]",
+   "tests.test_retained_precision_carriers::test_transport_refuses_rv92_tampered_successors[receipt_body_edit (unsealed)-dense_scrutiny]",
+   "tests.test_retained_precision_carriers::test_transport_refuses_rv92_tampered_successors[receipt_body_edit (unsealed)-sparse_interactive]",
+   "tests.test_retained_precision_carriers::test_transport_refuses_rv92_tampered_successors[receipt_empty-dense_scrutiny]",
+   "tests.test_retained_precision_carriers::test_transport_refuses_rv92_tampered_successors[receipt_empty-sparse_interactive]",
+   "tests.test_retained_precision_carriers::test_transport_refuses_rv92_tampered_successors[receipt_sha_zero-dense_scrutiny]",
+   "tests.test_retained_precision_carriers::test_transport_refuses_rv92_tampered_successors[receipt_sha_zero-sparse_interactive]",
+   "tests.test_retained_precision_carriers::test_transport_refuses_rv92_tampered_successors[receipt_sha_zero_no_invocation-dense_scrutiny]",
+   "tests.test_retained_precision_carriers::test_transport_refuses_rv92_tampered_successors[receipt_sha_zero_no_invocation-sparse_interactive]",
+   "tests.test_retained_precision_carriers::test_transport_refuses_rv92_tampered_successors[transport_no_results_receipt_zero-dense_scrutiny]",
+   "tests.test_retained_precision_carriers::test_transport_refuses_rv92_tampered_successors[transport_no_results_receipt_zero-sparse_interactive]",
+   "tests.test_retained_precision_contract::test_shared_draft_first_failure_controls[g7_contract_evidence_null]",
+   "tests.test_retained_precision_contract::test_shared_draft_first_failure_controls[g7_formulation_limitations_empty]",
+   "tests.test_retained_precision_contract::test_shared_draft_first_failure_controls[g7_quality_case_evidence_ref_empty]",
+   "tests.test_retained_precision_contract::test_shared_draft_first_failure_controls[g7_quality_case_extra_member]",
+   "tests.test_retained_precision_contract::test_shared_draft_first_failure_controls[g7_quality_status_invalid]",
+   "tests.test_retained_precision_contract::test_shared_draft_first_failure_controls[g7_selected_quality_enum_invalid]",
+   "tests.test_retained_precision_contract::test_shared_draft_first_failure_controls[g7_source_block_recovery_present]",
+   "tests.test_retained_precision_contract::test_shared_draft_first_failure_controls[g7_unavailable_quality_enum_invalid]",
+   "tests.test_retained_precision_contract::test_snapshot_07k_g7_probe_slice",
+   "tests.test_retained_precision_contract::test_snapshot_07m_g7_header_slice"
+  ],
+  "removed": [],
+  "changed_outcome": []
+ },
+ "vitest": {
+  "base": {
+   "passed": 3612
+  },
+  "head": {
+   "passed": 3620
+  },
+  "added": [
+   "src/features/results/retainedPrecision.test.ts :: 07g round (I61 U6e): F5 and RV79-N1 RV94 N-3 (B6, PLAN decision 11): an invalid enum value in a not_required case's quality is refused at G7 with the base readers' code #1",
+   "src/features/results/retainedPrecision.test.ts :: 07k and 07m slices (B6): the G7 base header codes, shared with Python and Rust (PLAN decision 11) 07k: mutation 277 is refused at G7 SOURCE_NUMERICAL_CASE_INVALID #1",
+   "src/features/results/retainedPrecision.test.ts :: 07k and 07m slices (B6): the G7 base header codes, shared with Python and Rust (PLAN decision 11) 07m: the N-3 class at its full width, then the sibling header classes, each with the base readers' code #1",
+   "src/features/results/retainedPrecision.test.ts :: 07l round (U8-2): counts and the appended producer-solved L = 0 entries 07l: 17 cases, 286 mutations and 28 must-pass entries (07m: 294 mutations); 15 bases and 18 must-pass entries are eligible #1",
+   "src/features/results/retainedPrecision.test.ts :: shared synthetic prepared receipt controls, never solver execution evidence g7_contract_evidence_null #1",
+   "src/features/results/retainedPrecision.test.ts :: shared synthetic prepared receipt controls, never solver execution evidence g7_formulation_limitations_empty #1",
+   "src/features/results/retainedPrecision.test.ts :: shared synthetic prepared receipt controls, never solver execution evidence g7_quality_case_evidence_ref_empty #1",
+   "src/features/results/retainedPrecision.test.ts :: shared synthetic prepared receipt controls, never solver execution evidence g7_quality_case_extra_member #1",
+   "src/features/results/retainedPrecision.test.ts :: shared synthetic prepared receipt controls, never solver execution evidence g7_quality_status_invalid #1",
+   "src/features/results/retainedPrecision.test.ts :: shared synthetic prepared receipt controls, never solver execution evidence g7_selected_quality_enum_invalid #1",
+   "src/features/results/retainedPrecision.test.ts :: shared synthetic prepared receipt controls, never solver execution evidence g7_source_block_recovery_present #1",
+   "src/features/results/retainedPrecision.test.ts :: shared synthetic prepared receipt controls, never solver execution evidence g7_unavailable_quality_enum_invalid #1",
+   "src/features/results/retainedPrecisionIntegration.test.tsx :: the declared differences, with TypeScript's expectations are exactly the five ruled entries, each with a ruling, forms and one expectation per language, in closed field sets #1"
+  ],
+  "removed": [
+   "src/features/results/retainedPrecision.test.ts :: 07g round (I61 U6e): F5 and RV79-N1 RV94 N-3: an invalid enum value in a not_required case's quality is refused at G7 with TS's own code #1",
+   "src/features/results/retainedPrecision.test.ts :: 07l round (U8-2): counts and the appended producer-solved L = 0 entries 07l: 17 cases, 286 mutations and 28 must-pass entries; 15 bases and 18 must-pass entries are eligible #1",
+   "src/features/results/retainedPrecisionIntegration.test.tsx :: the declared differences, with TypeScript's expectations F-U6b-2:python_refuses_transport / unedited on milestone_dense_scrutiny #1",
+   "src/features/results/retainedPrecisionIntegration.test.tsx :: the declared differences, with TypeScript's expectations F-U6b-2:python_refuses_transport / unedited on milestone_sparse_interactive #1",
+   "src/features/results/retainedPrecisionIntegration.test.tsx :: the declared differences, with TypeScript's expectations are exactly the six ruled entries, each with a ruling, forms and one expectation per language, in closed field sets #1"
+  ],
+  "changed_outcome": []
+ },
+ "rust": {
+  "base": {
+   "passed": 177
+  },
+  "head": {
+   "passed": 180
+  },
+  "added": [
+   "tests/retained_precision_carriers.rs :: b6_transport_refuses_rv92_tampered_successors",
+   "tests/retained_precision_contract.rs :: snapshot_07k_mutation_outcomes",
+   "tests/retained_precision_contract.rs :: snapshot_07m_mutation_outcomes"
+  ],
+  "removed": [],
+  "changed_outcome": []
+ }
+}

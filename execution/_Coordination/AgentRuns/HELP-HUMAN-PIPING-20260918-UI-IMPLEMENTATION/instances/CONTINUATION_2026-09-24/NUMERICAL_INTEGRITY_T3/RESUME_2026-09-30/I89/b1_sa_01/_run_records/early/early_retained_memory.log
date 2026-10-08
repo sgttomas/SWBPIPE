@@ -1,0 +1,495 @@
+warning: function `derived` is never used
+   --> WT/b1-a/projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1627:27
+     |
+1627 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+1627 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+1627 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1628:27
+     |
+1628 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+help: remove these parentheses
+     |
+1628 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+1628 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+     |
+
+warning: function `is_exact_pressure_result_kind` is never used
+     --> src/lib.rs:10387:4
+      |
+10387 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      |
+      = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   --> src/source_recovery.rs:146:9
+    |
+145 | pub(super) struct SpringAction {
+    |                   ------------ fields in this struct
+146 |     pub support_id: String,
+    |         ^^^^^^^^^^
+147 |     pub global_dof: usize,
+    |         ^^^^^^^^^^
+148 |     pub value: f64,
+    |         ^^^^^
+149 |     pub functional_index: usize,
+    |         ^^^^^^^^^^^^^^^^
+    |
+    = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:171:9
+    |
+170 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+171 |     pub dofs: usize,
+    |         ^^^^
+172 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+173 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+174 |     pub blocks: usize,
+    |         ^^^^^^
+175 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+176 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+177 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+178 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+179 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+180 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+181 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+182 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+183 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+184 |     pub max_relative_projection_error: f64,
+185 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:198:5
+    |
+192 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+198 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:224:12
+    |
+207 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+224 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 7 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 2 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running unittests src/lib.rs (WT/targets/i89-b1-sa/debug/deps/open_pipe_stress_product_physics-3ec460b388b580d3)
+
+running 60 tests
+test retained_memory::law_tests::admission_bound_adds_r_before_comparing_with_m ... ok
+test retained_memory::law_tests::admit_grants_a_permit_for_the_milestone_in_the_registered_build ... ok
+test retained_memory::law_tests::an_unreadable_reviewed_input_never_binds ... ok
+test retained_memory::law_tests::b1_sa_d1_4_admits_one_to_c_load_cases ... ok
+
+thread 'retained_memory::law_tests::b1_sa_envelope_results_bound_is_c_times_p_final' (88018126) panicked at src/retained_memory_law_tests.rs:1661:13:
+assertion `left == right` failed: SparseInteractive, 1 cases
+  left: "MODEL_INCOMPLETE"
+ right: "MECHANICS_SOLVED"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test retained_memory::law_tests::b1_sa_envelope_results_bound_is_c_times_p_final ... FAILED
+test retained_memory::law_tests::b1_sa_g_b_reads_each_case_and_the_running_total ... ok
+test retained_memory::law_tests::b1_sa_gate_bounds_at_c_are_the_stated_expressions ... ok
+test retained_memory::law_tests::b1_sa_runner_oracle_literal_is_load_cases_plus_one ... ok
+
+thread 'retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases' (88018157) panicked at src/retained_memory_law_tests.rs:1720:13:
+assertion `left == right` failed: case 0's attempt fails and blocks SparseInteractive: the later cases are unseeded
+  left: 0
+ right: 1
+test retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases ... FAILED
+test retained_memory::law_tests::b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one ... ok
+I65_G5_READER_LAYOUT Validation size=56 align=8
+I65_G5_READER_LAYOUT ValidationError size=64 align=8
+I65_G5_READER_LAYOUT RowClassification size=96 align=8
+I65_G5_READER_LAYOUT AccuracyClass size=16 align=8
+test retained_memory::law_tests::bindings_need_witnesses_inputs_and_reader_layouts ... ok
+test retained_memory::law_tests::bound_admits_at_m_and_refuses_above ... ok
+
+thread 'retained_memory::law_tests::challenge_bounds_are_the_profile' (88018188) panicked at src/retained_memory_law_tests.rs:1146:5:
+assertion `left == right` failed
+  left: [1856156348, 1875866796]
+ right: [1856156356, 1875866804]
+test retained_memory::law_tests::challenge_bounds_are_the_profile ... FAILED
+test retained_memory::law_tests::complete_facts_read_the_actual_owners ... ok
+test retained_memory::law_tests::d1_3_refuses_one_authored_law_among_several_materials ... ok
+test retained_memory::law_tests::encoder_roundtrip_covers_every_byte ... ok
+test retained_memory::law_tests::every_cap_row_admits_its_cap_and_refuses_cap_plus_one ... ok
+test retained_memory::law_tests::every_family_clause_refuses_with_its_fact ... ok
+test retained_memory::law_tests::every_phase_fact_admits_its_cap_and_refuses_cap_plus_one ... ok
+test retained_memory::law_tests::g_c_declines_w1_when_the_ordinary_solve_was_not_attempted ... ok
+test retained_memory::law_tests::gate_sums_saturate_and_the_longest_string_reads_every_diagnostic_field ... ok
+I65_G5_IDENTITY v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0
+test retained_memory::law_tests::identity_carries_every_key_in_order ... ok
+test retained_memory::law_tests::identity_matching_is_missing_stale_or_exact ... ok
+test retained_memory::law_tests::late_facts_read_the_actual_owners ... ok
+test retained_memory::law_tests::law_order_reports_the_first_failing_clause ... ok
+test retained_memory::law_tests::maximum_takes_every_phase ... ok
+test retained_memory::law_tests::milestone_and_cap_maximal_inputs_are_inside_d1 ... ok
+test retained_memory::law_tests::nested_typed_census_reads_the_roster ... ok
+I65_G5_PROFILE mode=sparse max_without_R=3508669430 E_mov_plus_R=3575778294 fraction_of_M=0.8881 phase=W3 publication (T16) with the staged copy
+I65_G5_PHASE mode=sparse phase=W1 requested=1847767748 moving=8388608 E_mov_plus_R=1923265220
+I65_G5_PHASE mode=sparse phase=W2 requested=1955578154 moving=8388608 E_mov_plus_R=2031075626
+I65_G5_PHASE mode=sparse phase=W3 requested=3319366149 moving=189303281 E_mov_plus_R=3575778294
+I65_G5_PHASE mode=sparse phase=W4 requested=3293008314 moving=189303281 E_mov_plus_R=3549420459
+I65_G5_PHASE mode=sparse phase=W5 requested=2127834236 moving=8388608 E_mov_plus_R=2203331708
+I65_G5_PHASE mode=sparse phase=X1 requested=3067229322 moving=189079500 E_mov_plus_R=3323417686
+I65_G5_PHASE mode=sparse phase=X2 requested=1768658128 moving=8388608 E_mov_plus_R=1844155600
+I65_G5_ESTIMATE_WEIGHT mode=sparse bytes=0
+I65_G5_PROFILE mode=dense max_without_R=3528379878 E_mov_plus_R=3595488742 fraction_of_M=0.8929 phase=W3 publication (T16) with the staged copy
+I65_G5_PHASE mode=dense phase=W1 requested=1867478196 moving=8388608 E_mov_plus_R=1942975668
+I65_G5_PHASE mode=dense phase=W2 requested=1975288602 moving=8388608 E_mov_plus_R=2050786074
+I65_G5_PHASE mode=dense phase=W3 requested=3339076597 moving=189303281 E_mov_plus_R=3595488742
+I65_G5_PHASE mode=dense phase=W4 requested=3312718762 moving=189303281 E_mov_plus_R=3569130907
+I65_G5_PHASE mode=dense phase=W5 requested=2147544684 moving=8388608 E_mov_plus_R=2223042156
+I65_G5_PHASE mode=dense phase=X1 requested=3086939770 moving=189079500 E_mov_plus_R=3343128134
+I65_G5_PHASE mode=dense phase=X2 requested=1788368576 moving=8388608 E_mov_plus_R=1863866048
+I65_G5_ESTIMATE_WEIGHT mode=dense bytes=0
+I65_G5_ATOM InBuild	Node(&String,())	208	200
+I65_G5_ATOM InBuild	Node(&str,&ResultItem)	384	376
+I65_G5_ATOM InBuild	Node(&str,())	296	288
+I65_G5_ATOM InBuild	Node((String,String),())	648	600
+I65_G5_ATOM InBuild	Node(String,())	384	376
+I65_G5_ATOM InBuild	Node(String,BTreeMap)	648	640
+I65_G5_ATOM InBuild	Node(String,ResultItem)	3640	3632
+I65_G5_ATOM SourceUpper	Node(String,RowTreatment)	1528	1520
+I65_G5_ATOM InBuild	Node(String,Value)	736	736
+I65_G5_ATOM SourceUpper	Node(TrackerKey,())	256	512
+I65_G5_ATOM SourceUpper	Node(TrackerKey,Tracker)	1224	4096
+I65_G5_ATOM InBuild	Node(usize,())	208	200
+I65_G5_ATOM InBuild	Node(usize,ResultItem)	3464	3456
+I65_G5_ATOM InBuild	Node(usize,String)	472	464
+I65_G5_ATOM Text	Text(audit_error)	16384	16384
+I65_G5_ATOM Text	Text(err)	16384	16384
+I65_G5_ATOM Text	Text(formation_detail)	16426	16426
+I65_G5_ATOM Text	Text(recovery_finding)	10466306	10466306
+I65_G5_ATOM Text	Text(row)	11474	11474
+I65_G5_ATOM Text	Text(sym)	368	368
+I65_G5_ATOM InBuild	s(&Value)	8	8
+I65_G5_ATOM InBuild	s(&str)	16	16
+I65_G5_ATOM InBuild	s((&str,&T))	24	24
+I65_G5_ATOM InBuild	s((&str,&Value))	24	32
+I65_G5_ATOM InBuild	s((&str,StressRecoveryResult))	192	216
+I65_G5_ATOM InBuild	s((&str,usize))	24	24
+I65_G5_ATOM InBuild	s((&str,usize,u64))	32	32
+I65_G5_ATOM SourceUpper	s((Content,Content))	64	64
+I65_G5_ATOM InBuild	s((EWS,EWS,f64))	4304	2216
+I65_G5_ATOM InBuild	s((QuantityId,Binary64Outcome))	40	32
+I65_G5_ATOM InBuild	s((QuantityId,u64))	24	16
+I65_G5_ATOM InBuild	s((String,DerivedSection))	88	120
+I65_G5_ATOM InBuild	s((String,ResultItem))	320	320
+I65_G5_ATOM InBuild	s((String,String))	48	48
+I65_G5_ATOM InBuild	s((String,[f64;3]))	48	48
+I65_G5_ATOM InBuild	s((String,[f64;6]))	72	72
+I65_G5_ATOM InBuild	s((String,f64,f64))	40	40
+I65_G5_ATOM InBuild	s((String,usize))	32	32
+I65_G5_ATOM InBuild	s((Wide,Wide,Wide))	432	432
+I65_G5_ATOM InBuild	s((bool,f64,Wide))	160	160
+I65_G5_ATOM InBuild	s((f64,f64))	16	16
+I65_G5_ATOM InBuild	s((u32,Kind,u64))	16	16
+I65_G5_ATOM InBuild	s((u32,SpringKind))	8	8
+I65_G5_ATOM InBuild	s((usize,(f64,f64)))	24	24
+I65_G5_ATOM InBuild	s((usize,ExactAccumulator,bool))	1104	1120
+I65_G5_ATOM InBuild	s((usize,LedgerNet))	48	40
+I65_G5_ATOM InBuild	s((usize,PublishedValue))	32	56
+I65_G5_ATOM InBuild	s((usize,VecPair))	32	32
+I65_G5_ATOM InBuild	s((usize,[f64;3],usize,[f64;3]))	64	64
+I65_G5_ATOM InBuild	s((usize,f64))	16	16
+I65_G5_ATOM InBuild	s((usize,f64,f64))	24	24
+I65_G5_ATOM InBuild	s((usize,usize))	16	16
+I65_G5_ATOM InBuild	s((usize,usize,Matrix12))	1168	1168
+I65_G5_ATOM InBuild	s((usize,usize,bool))	24	24
+I65_G5_ATOM InBuild	s(AdapterSnapshot)	296	512
+I65_G5_ATOM InBuild	s(AffineTerm)	32	32
+I65_G5_ATOM InBuild	s(AliasE)	80	32
+I65_G5_ATOM InBuild	s(AnalysisStatus)	1	24
+I65_G5_ATOM InBuild	s(ArcCasePrep)	432	1024
+I65_G5_ATOM InBuild	s(ArcGroupPrep)	368	1024
+I65_G5_ATOM InBuild	s(ArcPrepared)	32	512
+I65_G5_ATOM InBuild	s(AttemptRecord)	880	256
+I65_G5_ATOM InBuild	s(Authored<Vec<ExpansionLawInput>>)	24	32
+I65_G5_ATOM InBuild	s(BasisRecord)	72	96
+I65_G5_ATOM InBuild	s(Binary64Outcome)	24	24
+I65_G5_ATOM InBuild	s(BlockBound<16>)	592	576
+I65_G5_ATOM InBuild	s(BlockBound<4>)	208	192
+I65_G5_ATOM InBuild	s(BlockBound<8>)	336	320
+I65_G5_ATOM InBuild	s(BlockCertificate<16>)	1648	576
+I65_G5_ATOM InBuild	s(BlockCertificate<4>)	592	192
+I65_G5_ATOM InBuild	s(BlockCertificate<8>)	944	320
+I65_G5_ATOM InBuild	s(BlockNorms<16>)	1008	288
+I65_G5_ATOM InBuild	s(BlockNorms<4>)	336	96
+I65_G5_ATOM InBuild	s(BlockNorms<8>)	560	160
+I65_G5_ATOM InBuild	s(BlockRefusal)	24	48
+I65_G5_ATOM InBuild	s(BlockWitness)	120	120
+I65_G5_ATOM InBuild	s(BodyCoverage)	64	32
+I65_G5_ATOM InBuild	s(BodyGeometry)	24	160
+I65_G5_ATOM SourceUpper	s(BodyMapE)	52	56
+I65_G5_ATOM InBuild	s(BodyReport<16>)	1872	1152
+I65_G5_ATOM InBuild	s(BodyReport<4>)	624	384
+I65_G5_ATOM InBuild	s(BodyReport<8>)	1040	640
+I65_G5_ATOM InBuild	s(BoundedCoefficients<16>)	728	20736
+I65_G5_ATOM InBuild	s(BoundedCoefficients<4>)	248	6912
+I65_G5_ATOM InBuild	s(BoundedCoefficients<8>)	408	11520
+I65_G5_ATOM InBuild	s(CaptureError)	152	48
+I65_G5_ATOM InBuild	s(ConstraintMapE)	32	40
+I65_G5_ATOM InBuild	s(ContributionE)	8	40
+I65_G5_ATOM InBuild	s(ContributionRounding)	96	96
+I65_G5_ATOM InBuild	s(ConversionE)	32	48
+I65_G5_ATOM InBuild	s(ConversionEvent)	40	64
+I65_G5_ATOM InBuild	s(CoverageFact)	24	32
+I65_G5_ATOM SourceUpper	s(Derived)	336	360
+I65_G5_ATOM InBuild	s(Diagnostic)	144	152
+I65_G5_ATOM SourceUpper	s(EnclosureE)	288	304
+I65_G5_ATOM InBuild	s(ExactAccumulator)	1088	1104
+I65_G5_ATOM InBuild	s(ExactWideSum)	2144	1104
+I65_G5_ATOM InBuild	s(Expansion)	32	32
+I65_G5_ATOM InBuild	s(Expansion6)	192	144
+I65_G5_ATOM InBuild	s(FinalRowConversion)	32	64
+I65_G5_ATOM InBuild	s(FinalizedSourceBlockCase)	1328	1200
+I65_G5_ATOM InBuild	s(ForceContribution)	40	40
+I65_G5_ATOM InBuild	s(ForceTerm)	56	48
+I65_G5_ATOM InBuild	s(FrameElement)	136	200
+I65_G5_ATOM InBuild	s(FrameNode)	32	40
+I65_G5_ATOM InBuild	s(FunctionalDescriptor)	120	128
+I65_G5_ATOM SourceUpper	s(IntervalE)	288	32
+I65_G5_ATOM InBuild	s(LaneTerminal)	4168	256
+I65_G5_ATOM SourceUpper	s(LawE)	112	64
+I65_G5_ATOM InBuild	s(LazyE)	4304	2232
+I65_G5_ATOM InBuild	s(LinearSupport)	208	120
+I65_G5_ATOM InBuild	s(LoadFidelityRow)	104	160
+I65_G5_ATOM InBuild	s(MaterialDescriptor)	272	96
+I65_G5_ATOM InBuild	s(MaterialInput)	224	224
+I65_G5_ATOM InBuild	s(MaterialSelection)	272	64
+I65_G5_ATOM SourceUpper	s(MaximumE)	193	128
+I65_G5_ATOM InBuild	s(MechanicsEnvelope)	736	640
+I65_G5_ATOM InBuild	s(MemberIdentity)	64	120
+I65_G5_ATOM InBuild	s(MemberMapE)	64	64
+I65_G5_ATOM InBuild	s(MemberOperators<16>)	23632	20736
+I65_G5_ATOM InBuild	s(MemberOperators<4>)	7888	6912
+I65_G5_ATOM InBuild	s(MemberOperators<8>)	13136	11520
+I65_G5_ATOM InBuild	s(MemberRecord)	208	200
+I65_G5_ATOM InBuild	s(MemberRecovery)	696	696
+I65_G5_ATOM InBuild	s(NodalLoadContribution)	48	64
+I65_G5_ATOM InBuild	s(NodalMapE)	64	48
+I65_G5_ATOM InBuild	s(NodeMapE)	48	40
+I65_G5_ATOM InBuild	s(Node_SR)	184	64
+I65_G5_ATOM InBuild	s(OperationalSpent)	168	96
+I65_G5_ATOM InBuild	s(Option<BoundRefusal>)	16	56
+I65_G5_ATOM SourceUpper	s(Option<FormationRecord>)	56	64
+I65_G5_ATOM InBuild	s(Option<Wide<16>>)	144	152
+I65_G5_ATOM InBuild	s(Option<Wide<4>>)	48	56
+I65_G5_ATOM InBuild	s(Option<Wide<8>>)	80	88
+I65_G5_ATOM InBuild	s(Option<[f64;3]>)	32	32
+I65_G5_ATOM InBuild	s(Option<f64>)	16	16
+I65_G5_ATOM InBuild	s(Option<i32>)	8	8
+I65_G5_ATOM InBuild	s(Option<usize>)	16	16
+I65_G5_ATOM InBuild	s(OrdinarySeed)	400	400
+I65_G5_ATOM InBuild	s(Pair)	16	16
+I65_G5_ATOM InBuild	s(PivotEvidence)	48	48
+I65_G5_ATOM InBuild	s(PivotScreen<16>)	296	448
+I65_G5_ATOM InBuild	s(PivotScreen<4>)	104	160
+I65_G5_ATOM InBuild	s(PivotScreen<8>)	168	256
+I65_G5_ATOM InBuild	s(PrecisionState)	16	64
+I65_G5_ATOM InBuild	s(PreparedAttemptView)	1648	512
+I65_G5_ATOM InBuild	s(PreparedMemberEvent)	1304	256
+I65_G5_ATOM InBuild	s(PreviewLoadCase)	584	512
+I65_G5_ATOM InBuild	s(PreviewNode)	72	96
+I65_G5_ATOM InBuild	s(PreviewPipe)	400	384
+I65_G5_ATOM InBuild	s(PreviewSupport)	832	400
+I65_G5_ATOM InBuild	s(PrimitiveLoad)	88	120
+I65_G5_ATOM InBuild	s(PrimitiveLoadInput)	184	256
+I65_G5_ATOM InBuild	s(ProductMemberFacts)	160	512
+I65_G5_ATOM InBuild	s(ProductRecipe)	16	16
+I65_G5_ATOM InBuild	s(ProductRow)	112	96
+I65_G5_ATOM InBuild	s(ProductRowSpec)	72	96
+I65_G5_ATOM InBuild	s(ProductRowVerdict)	48	48
+I65_G5_ATOM InBuild	s(ProductValue)	9	32
+I65_G5_ATOM SourceUpper	s(Projection)	192	80
+I65_G5_ATOM InBuild	s(ProjectionOutcome)	32	64
+I65_G5_ATOM InBuild	s(PublishedRow)	64	64
+I65_G5_ATOM InBuild	s(PublishedValue)	24	48
+I65_G5_ATOM InBuild	s(QuadraticStressSpan)	88	64
+I65_G5_ATOM InBuild	s(QualifiedFunctionalProjection)	72	96
+I65_G5_ATOM InBuild	s(QualifiedProjection)	80	96
+I65_G5_ATOM InBuild	s(QuantityMeta)	20	32
+I65_G5_ATOM InBuild	s(Ratio)	64	64
+I65_G5_ATOM InBuild	s(RecordOutcome)	48	48
+I65_G5_ATOM InBuild	s(RecordedCase)	112	1024
+I65_G5_ATOM InBuild	s(RecordedInvocation)	240	1024
+I65_G5_ATOM InBuild	s(RecoveryRecord)	104	152
+I65_G5_ATOM SourceUpper	s(RegistryE)	1608	128
+I65_G5_ATOM InBuild	s(ResidualRow)	104	120
+I65_G5_ATOM InBuild	s(ResultBasisRef)	48	48
+I65_G5_ATOM InBuild	s(ResultItem)	296	296
+I65_G5_ATOM InBuild	s(RetainedFunctionalProjection)	64	72
+I65_G5_ATOM InBuild	s(RetainedProjection)	64	72
+I65_G5_ATOM InBuild	s(RetainedSolve)	2144	2048
+I65_G5_ATOM InBuild	s(Row6)	48	48
+I65_G5_ATOM InBuild	s(RowBinding)	64	64
+I65_G5_ATOM InBuild	s(RowClassification)	96	128
+I65_G5_ATOM SourceUpper	s(RowTreatment)	104	104
+I65_G5_ATOM InBuild	s(RunRow)	1	32
+I65_G5_ATOM InBuild	s(SectionMapE)	160	64
+I65_G5_ATOM InBuild	s(Shared<16>)	752	400
+I65_G5_ATOM InBuild	s(Shared<4>)	752	400
+I65_G5_ATOM InBuild	s(Shared<8>)	752	400
+I65_G5_ATOM InBuild	s(Solved<16>)	88	120
+I65_G5_ATOM InBuild	s(Solved<4>)	88	120
+I65_G5_ATOM InBuild	s(Solved<8>)	88	120
+I65_G5_ATOM InBuild	s(SolverObservations)	96	96
+I65_G5_ATOM InBuild	s(SpringAction)	48	48
+I65_G5_ATOM InBuild	s(SpringEntry)	112	80
+I65_G5_ATOM InBuild	s(SpringIdentity)	32	64
+I65_G5_ATOM InBuild	s(SpringMapE)	32	48
+I65_G5_ATOM InBuild	s(SrcConstraint)	16	16
+I65_G5_ATOM InBuild	s(SrcCoord)	24	24
+I65_G5_ATOM InBuild	s(SrcMember)	88	96
+I65_G5_ATOM InBuild	s(SrcNodal)	40	48
+I65_G5_ATOM InBuild	s(SrcSpring)	24	24
+I65_G5_ATOM InBuild	s(SrcStation)	16	24
+I65_G5_ATOM InBuild	s(SrcSupport)	64	72
+I65_G5_ATOM InBuild	s(StationMapE)	16	32
+I65_G5_ATOM InBuild	s(StationResultants)	64	104
+I65_G5_ATOM InBuild	s(StiffnessContribution)	24	24
+I65_G5_ATOM InBuild	s(StraightPipeElement)	176	256
+I65_G5_ATOM InBuild	s(StressFinding)	56	80
+I65_G5_ATOM InBuild	s(String)	24	24
+I65_G5_ATOM InBuild	s(SupportActions)	128	128
+I65_G5_ATOM InBuild	s(SupportCoverage)	6	64
+I65_G5_ATOM InBuild	s(SupportFinding)	56	80
+I65_G5_ATOM InBuild	s(SupportMapE)	38	64
+I65_G5_ATOM InBuild	s(SupportVector)	72	80
+I65_G5_ATOM InBuild	s(SymmetricMatrixEntry)	24	24
+I65_G5_ATOM SourceUpper	s(TableE)	56	48
+I65_G5_ATOM InBuild	s(Tag)	16	8
+I65_G5_ATOM InBuild	s(TemperaturePoint)	208	208
+I65_G5_ATOM InBuild	s(TermIdentity)	64	64
+I65_G5_ATOM InBuild	s(ThreadPacketOutput)	1712	2048
+I65_G5_ATOM SourceUpper	s(TrackerE)	4472	64
+I65_G5_ATOM InBuild	s(Validation)	56	96
+I65_G5_ATOM InBuild	s(Value)	32	32
+I65_G5_ATOM InBuild	s(Vec)	24	24
+I65_G5_ATOM InBuild	s(Vec<&ForceTerm>)	24	24
+I65_G5_ATOM InBuild	s(Vec<Expansion>)	24	24
+I65_G5_ATOM InBuild	s(Vec<Wide>)	24	24
+I65_G5_ATOM InBuild	s(Vec<f64>)	24	24
+I65_G5_ATOM InBuild	s(Vec<usize>)	24	24
+I65_G5_ATOM InBuild	s(VerificationReport<16>)	328	400
+I65_G5_ATOM InBuild	s(VerificationReport<4>)	328	400
+I65_G5_ATOM InBuild	s(VerificationReport<8>)	328	400
+I65_G5_ATOM InBuild	s(VerifyShared<16>)	688	240
+I65_G5_ATOM InBuild	s(VerifyShared<4>)	592	240
+I65_G5_ATOM InBuild	s(VerifyShared<8>)	624	240
+I65_G5_ATOM InBuild	s(Wide<16>)	144	144
+I65_G5_ATOM InBuild	s(Wide<4>)	48	48
+I65_G5_ATOM InBuild	s(Wide<8>)	80	80
+I65_G5_ATOM InBuild	s([PublishedValue;12])	288	576
+I65_G5_ATOM InBuild	s([bool;6])	6	6
+I65_G5_ATOM InBuild	s(f64)	8	8
+I65_G5_ATOM InBuild	s(u32)	4	4
+I65_G5_ATOM InBuild	s(u64)	8	8
+I65_G5_ATOM InBuild	s(usize)	8	8
+
+thread 'retained_memory::law_tests::profile_in_build_record' (88018337) panicked at src/retained_memory_law_tests.rs:1120:9:
+assertion `left == right` failed: mode 0
+  left: [1856156356, 1963966762, 3508669430, 3482311595, 2136222844, 3256308822, 1777046736]
+ right: [1856156348, 1963966754, 3508669422, 3482311587, 2136222836, 3256308814, 1777046728]
+test retained_memory::law_tests::profile_in_build_record ... FAILED
+test retained_memory::law_tests::profile_laws_hold_in_this_build ... ok
+test retained_memory::law_tests::profile_transcribes_the_python_chain_exactly ... ok
+test retained_memory::law_tests::raw_text_census_reads_lengths_and_control_bytes ... ok
+test retained_memory::law_tests::refusal_kinds_are_the_schema_preconditions ... ok
+test retained_memory::law_tests::actual_inputs_map_each_cap_fact ... ok
+test retained_memory::law_tests::reserved_stack_is_r_with_a_test_override ... ok
+test retained_memory::law_tests::restraint_capacity_total_is_the_sum_over_supports ... ok
+I65_G5_REVIEWED_INPUTS v1;Cargo.lock=4f494db6d8a6eca87e7a16d8561197f20b1951a033bd3a6c424acfff5613475b;../../schemas/physics_source_recovery.schema.json=3bb969555d5616af6eefdb68788ee4a74a8a3681c42fe9aae577a5d25a51ac5c;../../schemas/retained_precision_mp_v2.schema.json=07951edacfedd410c153929ee75bb5bada15dbd222369ec63240c678b233b61c;../../fixtures/results/retained_precision_prepared_ordinary_v1.json=3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296;../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json=c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8;../../fixtures/results/semantic_contract_v0_2.json=4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da;../../fixtures/results/semantic_contract_v0_3_precision_1.json=d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e;../../fixtures/results/semantic_contract_v0_3_physics_1.json=9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc;../../fixtures/results/semantic_contract_v0_3_load_reference_1.json=44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d;../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json=d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337;../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json=ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a;../../fixtures/results/semantic_contract_v0_3_physics_source_1.json=ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1;../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json=5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f;../../schemas/source_block_recovery.schema.json=544e196d2f7bef27276acc160aa19ab738a4f7949e846d2e8871328d2208129c
+test retained_memory::law_tests::reviewed_inputs_bind_the_lock_and_the_reader_statics ... ok
+test retained_memory::law_tests::sha256_matches_the_sha2_dependency ... ok
+I65_G5_BUDGET staged 95455410
+I65_G5_BUDGET successor 172256082
+I65_G5_BUDGET invocation 15782080
+I65_G5_BUDGET reader 1149391998
+I65_G5_BUDGET statics 5397696
+test retained_memory::law_tests::structural_budgets_are_u3s ... ok
+test retained_memory::law_tests::the_registered_profile_is_the_only_permit_source ... ok
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa960c49ca6366513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0c86ac1e74p-15, hi: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabf4dca3d9c99aec256413abb396e5c4fd862f22c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f37953e18cp-15 }, Enclosure { lo: +a4ed3f1b0e725c3dee78183f91e646f156191148fd9fd36f7e3d1cc100e6afcce1c43849dc784a6513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b [... cut: 55873 bytes, sha256 a5a384cd048e9c7832d6fc5526042f89b93ee090a8b6f3705ddcd4f058e19b4a]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"3ff0000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":1.0},{"bits":"0000000000000000","id":"result:disp:N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fb821e751965334","id":"result:disp:N1","kind":"displacement_magnitude","unit":"mm","value":0.09426732770800755},{"bits":"0000000000000000","id":"result:disp:N0:ux","kind":"global_nodal_displacement_x","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uy","kind":"global_nodal_displacement_y","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uz","kind":"global_nodal_displacement_z","unit":"mm","value":0.0},{"bits":"3f0179ec9cbd821d","id":"result:disp:N0:rx","kind":"global_nodal_rotation_x","unit":"rad","value":0.00003333333333333333},{"bits":"3e449da7e361ce4c","id":"result:disp:N0:ry","kind":"global_nodal_rotation_y [... cut: 38836 bytes, sha256 554a46440c56e0fe131eba2310cc175e641eb0b7b1568be5bf4809e10df34b2f]
+test retained_memory::law_tests::typed_capacity_and_units_rows_read_the_actual_owners ... ok
+test retained_memory::law_tests::typed_walk_reads_request_materials_and_temperature_point_ids ... ok
+test retained_memory::law_tests::unknown_stale_overflow_and_partial_refusals_keep_every_fact ... ok
+test retained_memory::tests::actual_retained_entry_dispatches_ordinary_once ... ok
+test retained_memory::tests::arithmetic_refusal_keeps_prefix_and_never_wraps ... ok
+test retained_memory::tests::missing_stale_overflow_and_unknowns_cannot_mint_a_permit ... ok
+test retained_memory::tests::object_keys_and_array_spare_capacity_are_observed ... ok
+test retained_memory::tests::prefix_depth_and_value_limits_are_honest ... ok
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +9b38ed9cc7eeccdd1bf88b3073ce3ad0fcc8448e3bd3c7fe5f4207ec3bdd98cd17eb4729fd9dba494a196b275115922a7a1627c400865ebcf7cd00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000p-9, hi: +9b38ed9cc7eeccdd1bf88b3073ce3ad0fcc8448e3bd3c7fe5f4207ec3bdd98cd17eb4729fd9dbdb6b5e694d8aeea6dd585e9d83bff79a143083300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000p-9 }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclo [... cut: 23402 bytes, sha256 66d5f1db2e8c3a05457b5bde2acaaa4f59d1b5c45b98cc62ada77c40df84590c]
+I51_FROZEN_REFUSAL {"g5a":"None","maxima":[{"member":0,"numbers":[0.0,0,0.0,3.046913209963226e-290,3.046913209963226e-290,3.046913209963226e-290,0.0,0],"row":81}],"mode":"sparse_interactive","numeric_pass":false,"observables":"None","rows":[{"bits":"3ff0000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":1.0},{"bits":"0000000000000000","id":"result:disp:N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"4002f2b3016367e7","id":"result:disp:N1","kind":"displacement_magnitude","unit":"mm","value":2.3685054882489456},{"bits":"0000000000000000","id":"result:disp:N0:ux","kind":"global_nodal_displacement_x","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uy","kind":"global_nodal_displacement_y","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uz","kind":"global_nodal_displacement_z","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:rx", [... cut: 31324 bytes, sha256 eca7cfbfedddde3fac46925568c2e40e8c884d1aa0fbafcf9610677db316fead]
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa960c49ca6366513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0c86ac1e74p-15, hi: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabf4dca3d9c99aec256413abb396e5c4fd862f22c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f37953e18cp-15 }, Enclosure { lo: +a4ed3f1b0e725c3dee78183f91e646f156191148fd9fd36f7e3d1cc100e6afcce1c43849dc784a6513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b [... cut: 55873 bytes, sha256 a5a384cd048e9c7832d6fc5526042f89b93ee090a8b6f3705ddcd4f058e19b4a]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"4000000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":2.0},{"bits":"3e2c76280d1333f1","id":"result:sparse-live:dense-parity-relative-delta","kind":"sparse_live_path_dense_parity_relative_delta","unit":"unitless","value":3.31336034355847e-9},{"bits":"0000000000000000","id":"result:disp:N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fb821e751965334","id":"result:disp:N1","kind":"displacement_magnitude","unit":"mm","value":0.09426732770800755},{"bits":"0000000000000000","id":"result:disp:N0:ux","kind":"global_nodal_displacement_x","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uy","kind":"global_nodal_displacement_y","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uz","kind":"global_nodal_displacement_z","unit":"mm","value":0.0},{"bits":"3f0179ec9cbd821d","id" [... cut: 39144 bytes, sha256 786ce70d7482f22ba1c350e495f1a7a09fe802961924b7d2356e604622d27ecb]
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +9b38ed9cc7eeccdd1bf88b3073ce3ad0fcc8448e3bd3c7fe5f4207ec3bdd98cd17eb4729fd9dba494a196b275115922a7a1627c400865ebcf7cd00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000p-9, hi: +9b38ed9cc7eeccdd1bf88b3073ce3ad0fcc8448e3bd3c7fe5f4207ec3bdd98cd17eb4729fd9dbdb6b5e694d8aeea6dd585e9d83bff79a143083300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000p-9 }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclo [... cut: 23402 bytes, sha256 66d5f1db2e8c3a05457b5bde2acaaa4f59d1b5c45b98cc62ada77c40df84590c]
+I51_FROZEN_REFUSAL {"g5a":"None","maxima":[{"member":0,"numbers":[0.0,0,0.0,3.046913209963226e-290,3.046913209963226e-290,3.046913209963226e-290,0.0,0],"row":81}],"mode":"dense_scrutiny","numeric_pass":false,"observables":"None","rows":[{"bits":"4000000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":2.0},{"bits":"0000000000000000","id":"result:disp:N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"4002f2b3016367e7","id":"result:disp:N1","kind":"displacement_magnitude","unit":"mm","value":2.3685054882489456},{"bits":"0000000000000000","id":"result:disp:N0:ux","kind":"global_nodal_displacement_x","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uy","kind":"global_nodal_displacement_y","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uz","kind":"global_nodal_displacement_z","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:rx","kin [... cut: 31320 bytes, sha256 383642385df8a2786a7fda9c43768e0ff3c5c5423f73671089914308a66d2d28]
+test retained_memory::law_tests::registered_g_c_declines_only_unattempted_solves ... ok
+test retained_memory::witness_tests::witness_headroom_w1_at_one_mebibyte ... ignored
+test retained_memory::witness_tests::witness_w1_milestone ... ignored
+test retained_memory::witness_tests::witness_w2_cap_maximal ... ignored
+test retained_memory::witness_tests::witness_w2_deep_milestone_publishes ... ignored
+test retained_memory::witness_tests::witness_w2b_cap_maximal_passed_report_no_triggered_case ... ignored
+test retained_memory::witness_tests::witness_w3_exact_selected ... ignored
+test retained_memory::witness_tests::witness_w4_preparation_refusal ... ignored
+test retained_memory::witness_tests::witness_w6_force_scaled ... ignored
+test retained_memory::witness_tests::witness_w6_phys_r4_input_no_triggered_case ... ignored
+test retained_memory::witness_tests::witness_w7_fault_fallbacks ... ignored
+test retained_memory::witness_tests::b1_t4_w2b_and_w6_phys_r4_inputs_are_no_triggered_case_pins ... ok
+
+failures:
+
+failures:
+    retained_memory::law_tests::b1_sa_envelope_results_bound_is_c_times_p_final
+    retained_memory::law_tests::b1_sa_t3_e_counts_the_requested_cases
+    retained_memory::law_tests::challenge_bounds_are_the_profile
+    retained_memory::law_tests::profile_in_build_record
+
+test result: FAILED. 46 passed; 4 failed; 10 ignored; 0 measured; 508 filtered out; finished in 3.07s
+
+error: test failed, to rerun pass `--lib`
+rc=101

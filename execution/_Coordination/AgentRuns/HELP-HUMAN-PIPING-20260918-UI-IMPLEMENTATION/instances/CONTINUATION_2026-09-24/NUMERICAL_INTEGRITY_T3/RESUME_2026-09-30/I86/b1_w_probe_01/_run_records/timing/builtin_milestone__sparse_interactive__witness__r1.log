@@ -1,0 +1,40 @@
+
+running 1 test
+test retained_memory::zz_i86_probe::zz_i86_once ... I86_FILE builtin_milestone file_sha=dcdc8e652edcddf656fae37fc70720f98c3d604b0f5100d6cdde356fa699140b
+I86_MARK call_start t_us=1791344762432363
+I86_MARK witness_ordinary_done t_us=1791344762464672
+I86_W1_START case=case
+I86_MARK w1_start t_us=1791344762464718
+I86_MARK prepared t_us=1791344762465588
+I86_NATIVE_OUTCOME Selected
+I86_MARK native_selected t_us=1791344762511241
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa960c49ca6366513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0c86ac1e74p-15, hi: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabf4dca3d9c99aec256413abb396e5c4fd862f22c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f37953e18cp-15 }, Enclosure { lo: +a4ed3f1b0e725c3dee78183f91e646f156191148fd9fd36f7e3d1cc100e6afcce1c43849dc784a6513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b...[cut by sanitize.py: 55873 bytes, sha256 a5a384cd048e9c7832d6fc5526042f89b93ee090a8b6f3705ddcd4f058e19b4a]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"3ff0000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":1.0},{"bits":"0000000000000000","id":"result:disp:N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fb821e751965334","id":"result:disp:N1","kind":"displacement_magnitude","unit":"mm","value":0.09426732770800755},{"bits":"0000000000000000","id":"result:disp:N0:ux","kind":"global_nodal_displacement_x","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uy","kind":"global_nodal_displacement_y","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uz","kind":"global_nodal_displacement_z","unit":"mm","value":0.0},{"bits":"3f0179ec9cbd821d","id":"result:disp:N0:rx","kind":"global_nodal_rotation_x","unit":"rad","value":0.00003333333333333333},{"bits":"3e449da7e361ce4c","id":"result:disp:N0:ry","kind":"global_nodal_rotation_y...[cut by sanitize.py: 38836 bytes, sha256 554a46440c56e0fe131eba2310cc175e641eb0b7b1568be5bf4809e10df34b2f]
+I86_MARK candidate t_us=1791344763066760
+I86_MARK staged t_us=1791344763066812
+I86_MARK serialized t_us=1791344763089790
+I86_MARK precommit_ok t_us=1791344763131771
+I86_MARK call_end t_us=1791344763132130
+I86_ONCE builtin_milestone sparse_interactive path=witness outcome=Successor phase=E_mov,max (successor) elapsed_ms=699
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 560 filtered out; finished in 0.71s
+
+        0.73 real         0.65 user         0.02 sys
+            24526848  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 736  page reclaims
+                1002  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   6  voluntary context switches
+                 553  involuntary context switches
+         11506402282  instructions retired
+          2898163401  cycles elapsed
+             8749440  peak memory footprint

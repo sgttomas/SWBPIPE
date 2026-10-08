@@ -1,0 +1,35 @@
+##### probes2
+=== raw_inv: (python | rust | ts head | ts base) -> count, example
+!! G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID | G7 SOURCE_PREVIEW_PHYSICS_BLOCKED_ENVELOPE | G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID | G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID -> 9 e.g. ordinary_prepared_synthetic|mechanics=MODEL_INCOMPLETE
+   G7 SOURCE_NUMERICAL_CASE_INVALID | G7 SOURCE_NUMERICAL_CASE_INVALID | G7 SOURCE_NUMERICAL_CASE_INVALID | G7 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED -> 9 e.g. ordinary_prepared_synthetic|two:case_enum+formulation_empty
+   ok/elig | ok/elig | ok/elig | ok/elig -> 6 e.g. ordinary_prepared_synthetic|case0.evidence_refs=[unknown_id]
+!! G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED | G7 SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN | G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED | G7 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED -> 3 e.g. ordinary_prepared_synthetic|two:contract_evidence_null+source_block_recovery
+!! G7 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED | G7 SOURCE_NUMERICAL_CASE_INVALID | G7 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED | G7 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED -> 3 e.g. ordinary_prepared_synthetic|two:carrier_evidence+case_enum
+=== raw_none: (python | rust | ts head | ts base) -> count, example
+!! G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID | G7 SOURCE_PREVIEW_PHYSICS_BLOCKED_ENVELOPE | G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID | G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID -> 9 e.g. ordinary_prepared_synthetic|mechanics=MODEL_INCOMPLETE
+   G7 SOURCE_NUMERICAL_CASE_INVALID | G7 SOURCE_NUMERICAL_CASE_INVALID | G7 SOURCE_NUMERICAL_CASE_INVALID | G7 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED -> 9 e.g. ordinary_prepared_synthetic|two:case_enum+formulation_empty
+   ok | ok | ok | ok -> 6 e.g. ordinary_prepared_synthetic|case0.evidence_refs=[unknown_id]
+!! G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED | G7 SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN | G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED | G7 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED -> 3 e.g. ordinary_prepared_synthetic|two:contract_evidence_null+source_block_recovery
+!! G7 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED | G7 SOURCE_NUMERICAL_CASE_INVALID | G7 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED | G7 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED -> 3 e.g. ordinary_prepared_synthetic|two:carrier_evidence+case_enum
+=== transport: (python | rust | ts head | ts base) -> count, example
+   ok | ok | ok | ok -> 15 e.g. ordinary_prepared_synthetic|mechanics=MODEL_INCOMPLETE
+!! G7 SOURCE_NUMERICAL_CASE_INVALID | G2 SOURCE_NUMERICAL_CASE_INVALID | ok | ok -> 6 e.g. ordinary_prepared_synthetic|case0.__proto__key
+!! G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED | G2 SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN | G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID | G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID -> 3 e.g. ordinary_prepared_synthetic|two:contract_evidence_null+source_block_recovery
+!! G7 SOURCE_NUMERICAL_CASE_INVALID | G2 SOURCE_NUMERICAL_CASE_INVALID | G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID | G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID -> 3 e.g. ordinary_prepared_synthetic|two:case_enum+formulation_empty
+!! G7 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED | G2 SOURCE_NUMERICAL_CASE_INVALID | G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID | G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID -> 3 e.g. ordinary_prepared_synthetic|two:carrier_evidence+case_enum
+=== c_transport: (python | rust | ts head | ts base) -> count, example
+   ok | ok | ok | ok -> 15 e.g. ordinary_prepared_synthetic|mechanics=MODEL_INCOMPLETE
+!! err SOURCE_NUMERICAL_CASE_INVALID | err SOURCE_NUMERICAL_CASE_INVALID | err SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED | err SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED -> 9 e.g. ordinary_prepared_synthetic|two:case_enum+formulation_empty
+!! err SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED | err SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN | err SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED | err SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED -> 3 e.g. ordinary_prepared_synthetic|two:contract_evidence_null+source_block_recovery
+!! err SOURCE_PRODUCER_CONTRACT_UNSUPPORTED | err SOURCE_NUMERICAL_CASE_INVALID | err SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED | err SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED -> 3 e.g. ordinary_prepared_synthetic|two:carrier_evidence+case_enum
+##### probes3
+=== raw_inv: (python | rust | ts head | ts base) -> count, example
+   G1 RETAINED_PRECISION_RECEIPT_MISMATCH | G1 RETAINED_PRECISION_RECEIPT_MISMATCH | G1 RETAINED_PRECISION_RECEIPT_MISMATCH | G1 RETAINED_PRECISION_RECEIPT_MISMATCH -> 18 e.g. ordinary_prepared_synthetic|T.results[0]=null
+=== raw_none: (python | rust | ts head | ts base) -> count, example
+   G1 RETAINED_PRECISION_RECEIPT_MISMATCH | G1 RETAINED_PRECISION_RECEIPT_MISMATCH | G1 RETAINED_PRECISION_RECEIPT_MISMATCH | G1 RETAINED_PRECISION_RECEIPT_MISMATCH -> 18 e.g. ordinary_prepared_synthetic|T.results[0]=null
+=== transport: (python | rust | ts head | ts base) -> count, example
+   ok | ok | ok | ok -> 12 e.g. ordinary_prepared_synthetic|T.results=str
+!! ok | ok | G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID | G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID -> 6 e.g. ordinary_prepared_synthetic|T.results[0]=null
+=== c_transport: (python | rust | ts head | ts base) -> count, example
+   ok | ok | ok | ok -> 12 e.g. ordinary_prepared_synthetic|T.results=str
+!! ok | ok | G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID | G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID -> 6 e.g. ordinary_prepared_synthetic|T.results[0]=null

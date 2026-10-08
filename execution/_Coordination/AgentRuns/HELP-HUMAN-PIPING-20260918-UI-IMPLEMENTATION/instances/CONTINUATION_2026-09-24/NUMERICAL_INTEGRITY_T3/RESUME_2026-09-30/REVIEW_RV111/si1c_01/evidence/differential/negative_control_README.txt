@@ -1,0 +1,1 @@
+Negative control (scratch copy of the candidate dumps): edited pc|interp_run_absorbed|d1|final (message), gen|5|0 (B(false)->B(true)), bd|add|12|12 (first hex digit of the value bits) and interval line 1001. Expected: every edit reported by the oracles.

@@ -1,0 +1,12 @@
+harness base rc=0
+harness head rc=0
+== r2_re start 2026-10-08T00:38:10Z
+== r2_re exit=0 2026-10-08T00:39:52Z
+r2_re: 193 ok, 0 failed, 0 ignored
+== r2_pins start 2026-10-08T00:39:53Z
+== r2_pins exit=0 2026-10-08T00:40:04Z
+r2_pins: 3 ok, 0 failed, 0 ignored
+== r2_pp start 2026-10-08T00:40:04Z
+== r2_pp exit=101 2026-10-08T00:41:44Z
+r2_pp: 712 ok, 1 failed, 11 ignored
+src/lib.rs :: test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED

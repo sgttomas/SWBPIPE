@@ -1,0 +1,139 @@
+{
+ "corner_division_encloses_both_quotients": true,
+ "exact_normal": {
+  "I_K_over_c": "15/2",
+  "Z_hat": "7",
+  "axis_bits_equal": true,
+  "currently_pinned_as_zero": true,
+  "hull": [
+   "7",
+   "15/2"
+  ],
+  "hull_contains_both": true,
+  "hull_positive": true,
+  "mode": 0,
+  "tokens": [
+   "+ep2",
+   "+fp2"
+  ]
+ },
+ "interpolated_cancellation_span": {
+  "I_K_over_c": "1/2",
+  "Z_hat": "1",
+  "axis_bits_equal": true,
+  "currently_pinned_as_zero": false,
+  "hull": [
+   "1/2",
+   "1"
+  ],
+  "hull_contains_both": true,
+  "hull_positive": true,
+  "mode": 2,
+  "tokens": [
+   "+8p-1",
+   "+8p0"
+  ]
+ },
+ "interpolated_negative_e": {
+  "I_K_over_c": "15/2",
+  "Z_hat": "7",
+  "axis_bits_equal": true,
+  "currently_pinned_as_zero": false,
+  "hull": [
+   "7",
+   "15/2"
+  ],
+  "hull_contains_both": true,
+  "hull_positive": true,
+  "mode": 2,
+  "tokens": [
+   "+ep2",
+   "+fp2"
+  ]
+ },
+ "interpolated_wide_span": {
+  "I_K_over_c": "1/2",
+  "Z_hat": "1",
+  "axis_bits_equal": true,
+  "currently_pinned_as_zero": false,
+  "hull": [
+   "1/2",
+   "1"
+  ],
+  "hull_contains_both": true,
+  "hull_positive": true,
+  "mode": 2,
+  "tokens": [
+   "+8p-1",
+   "+8p0"
+  ]
+ },
+ "ordinary_exact_product": {
+  "I_K_over_c": "4503599627370497/9007199254740992",
+  "Z_hat": "2",
+  "axis_bits_equal": true,
+  "currently_pinned_as_zero": false,
+  "hull": [
+   "4503599627370497/9007199254740992",
+   "2"
+  ],
+  "hull_contains_both": true,
+  "hull_positive": true,
+  "mode": 1,
+  "tokens": [
+   "+80000000000008p-1",
+   "+8p1"
+  ]
+ },
+ "ratio_amplification": {
+  "I_K_over_c": "1/2",
+  "Z_hat": "1",
+  "axis_bits_equal": true,
+  "currently_pinned_as_zero": true,
+  "hull": [
+   "1/2",
+   "1"
+  ],
+  "hull_contains_both": true,
+  "hull_positive": true,
+  "mode": 0,
+  "tokens": [
+   "+8p-1",
+   "+8p0"
+  ]
+ },
+ "subnormal_geometry_material": {
+  "I_K_over_c": "1/2",
+  "Z_hat": "1/202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784",
+  "axis_bits_equal": true,
+  "currently_pinned_as_zero": false,
+  "hull": [
+   "1/202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784",
+   "1/2"
+  ],
+  "hull_contains_both": true,
+  "hull_positive": true,
+  "mode": 1,
+  "tokens": [
+   "+8p-1074",
+   "+8p-1"
+  ]
+ },
+ "thin_cancellation": {
+  "I_K_over_c": "1/5070602400912917605986812821504",
+  "Z_hat": "1/5070602400912917605986812821504",
+  "axis_bits_equal": true,
+  "currently_pinned_as_zero": false,
+  "hull": [
+   "1/5070602400912917605986812821504",
+   "1/5070602400912917605986812821504"
+  ],
+  "hull_contains_both": true,
+  "hull_positive": true,
+  "mode": 1,
+  "tokens": [
+   "+8p-102",
+   "+8p-102"
+  ]
+ }
+}

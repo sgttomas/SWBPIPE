@@ -5,7 +5,7 @@
   "mechanism": "delegated-harness-native collaboration.spawn_agent",
   "descendants": false,
   "first_observation": {
-    "host": "Ryans-MacBook-Pro.local",
+    "host": "<host>",
     "cwd": "/Users/ryan/.codex/worktrees/92ea/chirality",
     "utc": "2026-10-03T19:05:51Z"
   },

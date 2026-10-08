@@ -1,0 +1,30 @@
+#!/bin/zsh
+# DEC-025 on a quiet host. Usage: run_dec025.sh <label> [<baseline worktree>]
+# Results go to WT/scratch/u9_dec025/<label>/ (and <label>_base/ for an optional baseline of main,
+# run first from the given worktree). Check out the candidate head in WT/sweep-skewpin first.
+# Completion means ALL-DONE in <label>/meta.txt; this wrapper says so explicitly and exits 3 if not.
+T=${0:A:h:h:h}
+S=$T/scratch/u9_dec025
+V=$T/../../projects/chirality-piping/.venv/bin/python
+LABEL=$1; BASE=$2
+[ -n "$LABEL" ] || { echo "usage: run_dec025.sh <label> [<baseline worktree>]"; exit 2; }
+[ -e $S/$LABEL/meta.txt ] && { echo "refusing: $S/$LABEL already has a run"; exit 2; }
+mkdir -p $S/$LABEL || exit 8
+Q=$S/$LABEL/quiet.log
+# 2026-10-07: a /usr/bin/lockf process still waiting for the T3 lock is not work; counting it as busy deadlocked
+# SI1b_b4f22e6ce7 (DEC-025 held the lock while a queued `lockf ... pytest` waited). The lock holder's child still counts.
+busy() { ps -axo pid,command | grep -E "cargo |rustc |pytest|vitest|/deps/[a-z_]+-[0-9a-f]{16}" | grep -v -E "grep|run_dec025.sh|/usr/bin/lockf " | wc -l | tr -d ' '; }
+echo "wait-start $(date -u +%FT%TZ) head $(git -C $T/sweep-skewpin rev-parse HEAD)" > $Q
+q=0; while true; do n=$(busy); if [ "$n" = "0" ]; then q=$((q+1)); else q=0; fi; echo "$(date -u +%T) busy=$n quiet=$q" >> $Q; [ $q -ge 6 ] && break; sleep 20; done
+echo "quiet $(date -u +%FT%TZ)" >> $Q
+pgrep -f memguard.sh > /dev/null || { echo "MEMGUARD DOWN" >> $Q; exit 9; }
+if [ -n "$BASE" ]; then
+  mkdir -p $S/${LABEL}_base || exit 8
+  echo "baseline-start $(date -u +%FT%TZ) head $(git -C $BASE rev-parse HEAD)" >> $Q
+  $T/scratch/calib/run_suites_nff.sh $BASE $S/${LABEL}_base/suites $T/targets/${LABEL}_base > $S/${LABEL}_base/suites.log 2>&1
+  echo "baseline-done $(date -u +%FT%TZ)" >> $Q
+fi
+echo "dec025-start $(date -u +%FT%TZ)" >> $Q
+$S/dec025_mac.sh $T/sweep-skewpin/projects/chirality-piping $S/$LABEL $V $T
+if grep -q '^ALL-DONE' $S/$LABEL/meta.txt 2>/dev/null; then echo "dec025-complete $(date -u +%FT%TZ)" >> $Q
+else echo "dec025-INCOMPLETE $(date -u +%FT%TZ): no ALL-DONE in meta.txt" >> $Q; exit 3; fi

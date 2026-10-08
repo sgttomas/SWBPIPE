@@ -1,0 +1,4 @@
+manifests 40; identical 39; differing 1
+
+== core/reporting/result_export/Cargo.toml: baseline rc/passed/failed/ignored (0, 177, 0, 0)  candidate (0, 180, 0, 0)
+   added ok: 3

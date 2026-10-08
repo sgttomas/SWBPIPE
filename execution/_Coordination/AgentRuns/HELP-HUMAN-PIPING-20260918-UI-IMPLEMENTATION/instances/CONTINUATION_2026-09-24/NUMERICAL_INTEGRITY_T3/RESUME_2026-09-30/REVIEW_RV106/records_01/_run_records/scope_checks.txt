@@ -1,0 +1,47 @@
+# RV106 scope checks; H=736f3fb7b27154732b27b716152d7446e321acf9 M=bfb26596bf81a90f98bfde06051f9a3b9907783a N=030020aca359953ee7b925a52852d11bc183f11c NUM-now=cc0c9f4e4e40981c702251d1006d96d5e4dee4db
+## parents of H
+736f3fb7b27154732b27b716152d7446e321acf9 bfb26596bf81a90f98bfde06051f9a3b9907783a
+rev-list --count M..H: 1
+## H commit header
+tree 6efac947ce9d4cdb375431b4b48b1bba9eab909f
+author-name Ryan C Tufts
+committer-name Ryan C Tufts
+author-date 2026-10-06T18:19:28-06:00
+commit-date 2026-10-06T18:19:28-06:00
+subject piping(T3): records after #1104 (records only)
+## H trailers
+Co-Authored-By: Claude Opus 5.5 <email>
+## is H ancestor of N / NC?
+H anc N: no
+H anc NC: no
+## is M ancestor of N?
+yes
+## NUM commits in M..N: 765
+NUM commits in M..N that are ancestors of H: 0
+## trees
+H tree 6efac947ce9d4cdb375431b4b48b1bba9eab909f
+N tree 6efac947ce9d4cdb375431b4b48b1bba9eab909f
+M tree f1b187abc2bff8cc28f13dd79290569ffec5e1ed
+H:P/execution 73594f312d2683c6114586ebfd6c1b393a2ead4a
+N:P/execution 73594f312d2683c6114586ebfd6c1b393a2ead4a
+NC:P/execution f5c7b7c3c6d227eb24345166f34e6a490dd24850
+## git diff N H --stat
+(end)
+## non-execution diff N vs M
+       0
+## non-execution diff M vs H
+       0
+## name-status M H counts
+ 218 A
+   2 M
+## paths outside P/execution
+       0
+## modified paths
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md
+projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md
+## modes of changed files
+ 218 100644
+   2 100755
+## NC vs N diff (execution, names)
+A	T3/IMPLEMENTATION/RECORDS_MERGE_2026-10-07/_run_records/gen8.txt
+A	T3/RESUME_2026-09-30/BRIEFS/RV106_RECORDS_PR5_REVIEW.md

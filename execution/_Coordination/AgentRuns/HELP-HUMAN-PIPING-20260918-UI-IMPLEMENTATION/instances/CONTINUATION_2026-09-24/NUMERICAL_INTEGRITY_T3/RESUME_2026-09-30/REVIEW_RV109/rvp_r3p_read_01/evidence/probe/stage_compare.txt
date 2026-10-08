@@ -1,0 +1,9 @@
+rows 112; identical at every stage boundary (after_run, prep outcome, after_prep, native, after_native, candidate, after_candidate, trace stages): 104; differing: 8
+  DIFF fixture:product_preview/source_blocks/multicase-dense_scrutiny.request.json [dense_scrutiny] fields ['after_prep', 'after_run', 'prep']; cases_seen at SP = 1
+  DIFF fixture:product_preview/source_blocks/multicase-dense_scrutiny.request.json [sparse_interactive] fields ['after_prep', 'after_run', 'prep']; cases_seen at SP = 1
+  DIFF fixture:product_preview/source_blocks/multicase-sparse_interactive.request.json [dense_scrutiny] fields ['after_prep', 'after_run', 'prep']; cases_seen at SP = 1
+  DIFF fixture:product_preview/source_blocks/multicase-sparse_interactive.request.json [sparse_interactive] fields ['after_prep', 'after_run', 'prep']; cases_seen at SP = 1
+  DIFF fixture:product_preview/source_blocks/ui/multicase-dense_scrutiny.request.json [dense_scrutiny] fields ['after_prep', 'after_run', 'prep']; cases_seen at SP = 1
+  DIFF fixture:product_preview/source_blocks/ui/multicase-dense_scrutiny.request.json [sparse_interactive] fields ['after_prep', 'after_run', 'prep']; cases_seen at SP = 1
+  DIFF fixture:product_preview/source_blocks/ui/multicase-sparse_interactive.request.json [dense_scrutiny] fields ['after_prep', 'after_run', 'prep']; cases_seen at SP = 1
+  DIFF fixture:product_preview/source_blocks/ui/multicase-sparse_interactive.request.json [sparse_interactive] fields ['after_prep', 'after_run', 'prep']; cases_seen at SP = 1

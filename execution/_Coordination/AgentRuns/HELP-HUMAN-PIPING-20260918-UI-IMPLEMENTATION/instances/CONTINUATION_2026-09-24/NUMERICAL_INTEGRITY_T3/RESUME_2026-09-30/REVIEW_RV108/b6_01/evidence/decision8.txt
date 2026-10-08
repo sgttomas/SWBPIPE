@@ -1,0 +1,42 @@
+=== base
+sparse_interactive package_view _transport_contract -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive package_view validate_stress_neutral_export_package_v0_3 -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive package_view validate_..._v0_3(source_envelope=successor) -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive package_view_with_receipt _transport_contract -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive package_view_with_receipt validate_stress_neutral_export_package_v0_3 -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive package_view_with_receipt validate_..._v0_3(source_envelope=successor) -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive full_successor_as_package _transport_contract -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive full_successor_as_package validate_stress_neutral_export_package_v0_3 -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive full_successor_as_package validate_..._v0_3(source_envelope=successor) -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive _source_contract(successor, check_receipt=False) -> ValueError SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny package_view _transport_contract -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny package_view validate_stress_neutral_export_package_v0_3 -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny package_view validate_..._v0_3(source_envelope=successor) -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny package_view_with_receipt _transport_contract -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny package_view_with_receipt validate_stress_neutral_export_package_v0_3 -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny package_view_with_receipt validate_..._v0_3(source_envelope=successor) -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny full_successor_as_package _transport_contract -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny full_successor_as_package validate_stress_neutral_export_package_v0_3 -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny full_successor_as_package validate_..._v0_3(source_envelope=successor) -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny _source_contract(successor, check_receipt=False) -> ValueError SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+=== cand
+sparse_interactive package_view _transport_contract -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive package_view validate_stress_neutral_export_package_v0_3 -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive package_view validate_..._v0_3(source_envelope=successor) -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive package_view_with_receipt _transport_contract -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive package_view_with_receipt validate_stress_neutral_export_package_v0_3 -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive package_view_with_receipt validate_..._v0_3(source_envelope=successor) -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive full_successor_as_package _transport_contract -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive full_successor_as_package validate_stress_neutral_export_package_v0_3 -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive full_successor_as_package validate_..._v0_3(source_envelope=successor) -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+sparse_interactive _source_contract(successor, check_receipt=False) -> openpipestress.result_semantics/0.3.0/preview-physics-retained-1
+dense_scrutiny package_view _transport_contract -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny package_view validate_stress_neutral_export_package_v0_3 -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny package_view validate_..._v0_3(source_envelope=successor) -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny package_view_with_receipt _transport_contract -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny package_view_with_receipt validate_stress_neutral_export_package_v0_3 -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny package_view_with_receipt validate_..._v0_3(source_envelope=successor) -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny full_successor_as_package _transport_contract -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny full_successor_as_package validate_stress_neutral_export_package_v0_3 -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny full_successor_as_package validate_..._v0_3(source_envelope=successor) -> ValueError: SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+dense_scrutiny _source_contract(successor, check_receipt=False) -> openpipestress.result_semantics/0.3.0/preview-physics-retained-1

@@ -1,0 +1,132 @@
+warning: function `derived` is never used
+   --> ARCH/projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1607:27
+     |
+1607 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+1607 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+1607 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1608:27
+     |
+1608 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+help: remove these parentheses
+     |
+1608 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+1608 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+     |
+
+warning: function `is_exact_pressure_result_kind` is never used
+     --> src/lib.rs:10337:4
+      |
+10337 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      |
+      = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   --> src/source_recovery.rs:146:9
+    |
+145 | pub(super) struct SpringAction {
+    |                   ------------ fields in this struct
+146 |     pub support_id: String,
+    |         ^^^^^^^^^^
+147 |     pub global_dof: usize,
+    |         ^^^^^^^^^^
+148 |     pub value: f64,
+    |         ^^^^^
+149 |     pub functional_index: usize,
+    |         ^^^^^^^^^^^^^^^^
+    |
+    = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:171:9
+    |
+170 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+171 |     pub dofs: usize,
+    |         ^^^^
+172 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+173 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+174 |     pub blocks: usize,
+    |         ^^^^^^
+175 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+176 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+177 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+178 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+179 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+180 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+181 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+182 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+183 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+184 |     pub max_relative_projection_error: f64,
+185 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:198:5
+    |
+192 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+198 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:224:12
+    |
+207 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+224 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 7 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 2 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (WT/targets/i98-b2w/debug/deps/open_pipe_stress_product_physics-e08917abb99aa3a9)
+
+running 1 test
+test retained_memory::zz_i98_probe::zz_i98_plain ... I98_FILE r7_cb1_halfb file_sha=7af8c0495438505c5137c6d474a27ec567e11387b03f5e1b071109cdead5584d
+I98_CENSUS r7_cb1_halfb input_sha=c1b85bd47605ca0df6f847be1b2b23b91c544d6981c4208f68b67d2c499a7ceb profile=Registered census_complete=true domain=Some(Family(Invocation, LoadCases)) refusal=Some(Family(Invocation, LoadCases)) required=None loads_per_case=[128, 128] loads_total=256 combinations=1 over=["LoadCasesCapacity=2/1", "CombinationsCapacity=1/0"] at_cap=["Nodes=32/32", "NodesCapacity=32/32", "Members=32/32", "MembersCapacity=32/32", "Supports=32/32", "SupportsCapacity=32/32", "Loads=128/128", "LoadsCapacity=128/128", "ModelMaterials=4/4", "ModelMaterialsCapacity=4/4", "RequestMaterials=4/4", "RequestMaterialsCapacity=4/4", "TemperaturePoints=16/16", "TemperaturePointsCapacity=16/16", "MaterialExpansionLawsCapacity=4/4", "TypedTextBytes=128/128", "TypedTextCapacity=128/128", "RawTextBytes=128/128", "RawDepth=16/16"] rows=["Nodes=32/32", "NodesCapacity=32/32", "Members=32/32", "MembersCapacity=32/32", "Supports=32/32", "SupportsCapacity=32/32", "Restraints=66/192", "Springs=21/192", "Loads=128/128", "LoadsCapacity=128/128", "ModelMaterials=4/4", "RequestMaterials=4/4", "TemperaturePoints=16/16", "LoadCasesCapacity=2/1", "TypedTextBytes=128/128", "RawTextBytes=128/128", "RawKeyTextBytes=23/128", "RawValues=4719/16384", "RawDepth=16/16", "RawStringBytes=39575/65536", "RawKeyBytes=25704/65536", "RawArrayCapacity=573/32768", "RawStringCapacity=39575/131072", "RawKeyCapacity=25704/131072", "DigestCapacity=64/128", "ControlBytes=0/0"]
+I98_BEGIN r7_cb1_halfb sparse_interactive registered=true input_sha=c1b85bd47605ca0df6f847be1b2b23b91c544d6981c4208f68b67d2c499a7ceb
+I98_ORDINARY r7_cb1_halfb sparse_interactive status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=6306 plain_sha=0a34ac876f8a5d2e08d75c0ab6bbfbf1ff9492a675e0a59d5d32100d020fd96e plain_len=4081618 published_verdicts=[{"ref":"case:a","solve_quality":"sensitive"},{"ref":"case:b","solve_quality":"sensitive"}] rcond=["2.0384254872829075e-8", "2.0384254872829075e-8"] refinement_attempts=["0", "0"] assembly=["rel=5.517719525168333e-17 amp=2.7068536768165634e-9 load=0.0", "rel=5.517719525168333e-17 amp=2.7068536768165634e-9 load=0.0"] d5=["formation_check: reason=estimate; row=C0:N1:RX; doubled_correction=8.093801056572112e-14; scale=3.333666549241316e-5; trigger_ratio=2.427897612739378", "formation_check: reason=estimate; row=C0:N1:RX; doubled_correction=8.093801056572112e-14; scale=3.333666549241316e-5; trigger_ratio=2.427897612739378"] range_scaling=[] diagnostics={"COMBINATION_STRESS_MAXIMUM_UNAVAILABLE:info": 1, "LOAD_CATEGORY_PREVIEW_MAPPED:warning": 256, "NUMERICAL_INTEGRITY_SENSITIVE:warning": 2, "PREVIEW_HEADLINE_SCOPE_LOAD_CASES:info": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1} ms=156
+I98_PLAIN_FILE r7_cb1_halfb sparse_interactive plain_r7_cb1_halfb_sparse_interactive.json sha=0a34ac876f8a5d2e08d75c0ab6bbfbf1ff9492a675e0a59d5d32100d020fd96e
+I98_BEGIN r7_cb1_halfb dense_scrutiny registered=true input_sha=c1b85bd47605ca0df6f847be1b2b23b91c544d6981c4208f68b67d2c499a7ceb
+I98_ORDINARY r7_cb1_halfb dense_scrutiny status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=6308 plain_sha=597c2644ccc653e979e24800a60bbe474934984b5069b188a2ddc8a5d2d75690 plain_len=4084481 published_verdicts=[{"ref":"case:a","solve_quality":"sensitive"},{"ref":"case:b","solve_quality":"sensitive"}] rcond=["2.0384254947051128e-8", "2.0384254947051128e-8"] refinement_attempts=["0", "0"] assembly=["rel=5.517719525168333e-17 amp=2.7068536669605133e-9 load=0.0", "rel=5.517719525168333e-17 amp=2.7068536669605133e-9 load=0.0"] d5=["formation_check: reason=estimate; row=C0:N1:RX; doubled_correction=1.6176971209150903e-13; scale=3.3336665371059296e-5; trigger_ratio=4.852606290728372", "formation_check: reason=estimate; row=C0:N1:RX; doubled_correction=1.6176971209150903e-13; scale=3.3336665371059296e-5; trigger_ratio=4.852606290728372"] range_scaling=[] diagnostics={"COMBINATION_STRESS_MAXIMUM_UNAVAILABLE:info": 1, "LOAD_CATEGORY_PREVIEW_MAPPED:warning": 256, "NUMERICAL_INTEGRITY_SENSITIVE:warning": 2, "PREVIEW_HEADLINE_SCOPE_LOAD_CASES:info": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1} ms=241
+I98_PLAIN_FILE r7_cb1_halfb dense_scrutiny plain_r7_cb1_halfb_dense_scrutiny.json sha=597c2644ccc653e979e24800a60bbe474934984b5069b188a2ddc8a5d2d75690
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 558 filtered out; finished in 1.29s
+

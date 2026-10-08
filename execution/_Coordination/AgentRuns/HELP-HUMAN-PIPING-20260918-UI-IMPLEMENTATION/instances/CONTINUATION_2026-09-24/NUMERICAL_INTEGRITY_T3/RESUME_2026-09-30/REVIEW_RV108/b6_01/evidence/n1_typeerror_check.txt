@@ -1,0 +1,11 @@
+projected base: openpipestress.result_semantics/0.3.0/preview-physics-1
+numerical_quality/status [] -> TypeError: unhashable type: 'list'
+numerical_quality/status {} -> TypeError: unhashable type: 'dict'
+numerical_quality/cases/0/structural_status [] -> TypeError: unhashable type: 'list'
+numerical_quality/cases/0/model_matrix_fidelity {} -> TypeError: unhashable type: 'dict'
+numerical_quality/cases/0/accuracy_evidence ["not_claimed"] -> TypeError: unhashable type: 'list'
+numerical_quality/cases/0/solve_quality ["sensitive"] -> TypeError: unhashable type: 'list'
+numerical_quality/cases/0/structural_status "mechanism_detected" -> ValueError: SOURCE_NUMERICAL_CASE_INVALID
+--- the same class on a preview-physics-1 package view (v0.3 packager validator), BASE behaviour unchanged by B6:
+numerical_quality.status "estimated" -> ValueError: SOURCE_NUMERICAL_QUALITY_INVALID
+numerical_quality.status [] -> TypeError: unhashable type: 'list'

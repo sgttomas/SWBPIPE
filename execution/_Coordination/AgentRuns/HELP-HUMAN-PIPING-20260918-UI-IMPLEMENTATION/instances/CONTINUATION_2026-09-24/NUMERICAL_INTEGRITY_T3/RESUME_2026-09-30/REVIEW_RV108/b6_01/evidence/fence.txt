@@ -1,0 +1,11 @@
+main later changes (bfb26596bf..025c1cf326) intersecting the 11 files:
+(none above this line means none)
+
+B6 hunks in retainedPrecisionIntegration.test.tsx:
+@@ -630,7 +630,8 @@ describe("the downgrade guard (F-5)", () => {
+@@ -643,7 +644,7 @@ const expectedSummary = (classes: readonly RowClassification[], source: Json, cu
+@@ -682,8 +683,12 @@ describe("the declared differences, with TypeScript's expectations", () => {
+T6S (d953e12187) hunks in the same file:
+@@ -90,7 +90,7 @@ import { computeModelHash, computeProjectEnvelopeHash } from "../../services/has
+@@ -889,12 +889,14 @@ describe.each(MODES)("%s: the class notices do not depend on standing (U7 slice
+@@ -905,28 +907,26 @@ describe.each(MODES)("%s: the T6 panels refuse a successor by an explicit gate (

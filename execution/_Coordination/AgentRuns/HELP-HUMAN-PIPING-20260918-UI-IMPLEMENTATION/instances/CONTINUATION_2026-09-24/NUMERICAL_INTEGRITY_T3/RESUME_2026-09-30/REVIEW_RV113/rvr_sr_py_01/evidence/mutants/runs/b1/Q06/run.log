@@ -1,0 +1,6 @@
+# queued 2026-10-07T20:11:56Z Q06 b1
+# start 2026-10-07T20:11:57Z RV113_MUT=Q06
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:12:27Z

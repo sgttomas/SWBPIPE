@@ -6,7 +6,7 @@
   "mechanism": "delegated-harness-native fresh child",
   "descendants": [],
   "engine": "Codex, inherited parent model; exact model ID not independently exposed",
-  "host": "Ryans-MacBook-Pro.local",
+  "host": "<host>",
   "initial_cwd": "/Users/ryan/.codex/worktrees/92ea/chirality",
   "entry_num_head": "c929c1168306da3002637ed813a739292417d46a",
   "supplied_expected_entry_prefix": "9a6cd1d43b",

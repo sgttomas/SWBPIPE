@@ -1,0 +1,5 @@
+the not_required case on its own named basis, correct: admitted standing=eligible
+  its basis's elastic modulus wrong: admitted standing=eligible
+  its basis's material selection wrong: admitted standing=eligible
+  its basis lists no material: admitted standing=eligible
+  its basis names another material: admitted standing=eligible

@@ -1,0 +1,26 @@
+main RR bytes 1153106 sha256 34d1838a96fee918dbe9cfec8459af7f8237b9d5e2e0ee43e5c2fa2c2ea111d4 lines 13504
+H RR bytes 1206006 sha256 2c84b7871b85aa0c0bc25e4ad264188838ce7a03f8e4cde844e052205d04598a lines 14181
+main is exact byte prefix of H: True
+appended bytes 52900 appended lines 677
+appended '## ' sections: 21
+   ## #1105 opened; RV106 reviews it; B6 dispatched to I83 (ROOT, 2026-10-07 UTC)
+   ## I81's B1-0 probe verified; W-C2's case C established; the re-basing ruled (ROOT, 2026-10-07 UTC)
+   ## RV104 passes SI1b; a small test repair round; notes routed (ROOT, 2026-10-07 UTC)
+   ## RV106 passes #1105; #1105 squash-merged; RV106's notes; I79's SI1b repair round (ROOT, 2026-10-07 UTC)
+   ## RV104 confirms SI1b's repair round; SI1b merged into NUM; PR #1106 cut (ROOT, 2026-10-07 UTC)
+   ## I82's study: P1 adopted as B1's target; B1's plan dispatched (ROOT, 2026-10-07 UTC)
+   ## Owner decision: memory up to 64 GiB is ROOT's; B1's target reopened (ROOT, 2026-10-07 UTC)
+   ## Owner decision: M's practical limit is 12 GiB; target machines (ROOT, 2026-10-07 UTC)
+   ## I82's addendum: B1's target is S3, one tier at D1's caps with C = 3 (ROOT, 2026-10-07 UTC)
+   ## I84's B1 plan returned; RV107 reviews it before ROOT's ruling R1 (ROOT, 2026-10-07 UTC)
+   ## R1: B1's plan ruled with seven amendments; I84 writes PLAN_v2; B6 first as its own PR (ROOT, 2026-10-07 UTC)
+   ## A deadlock in DEC-025's quiet check, fixed; SI1b's DEC-025 restarted (ROOT, 2026-10-07 UTC)
+   ## B1's PLAN_v2 accepted; RV107's A1 amendments; phase 1 dispatched (ROOT, 2026-10-07 UTC)
+   ## #1106 merged: T3-SI1b is on main (ROOT, 2026-10-07 UTC)
+   ## I86's SW probe accepted; I83's B6 return verified and ruled; RV108 and I87 dispatched (ROOT, 2026-10-07 UTC)
+   ## R3: I85's ST verified at checkpoint R3; RV-P round 1 dispatched as RV109 (ROOT, 2026-10-07 UTC)
+   ## I87's SI1c plan verified; SI1c changes public meaning, so the remedy goes to the owner (ROOT, 2026-10-07 UTC)
+   ## Owner decision: SI1c is option D, a repair within grammar 1.0.0; RV108 passes B6; RV109 passes ST with SF-1 (ROOT, 2026-10-07 UTC)
+   ## B6's PR #1107 cut; RV108 confirms its head; a dispatch with a short SHA, repeated with the full one (ROOT, 2026-10-07 UTC)
+   ## #1107 merged: T3-B6 is on main; B1's I1 and I1′ coincide (ROOT, 2026-10-07 UTC)
+   ## RV109 confirms ST's repair; I1 (= I1′) at `262bd687f0`; phase 2 opens with SP and SA (ROOT, 2026-10-07 UTC)

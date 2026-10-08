@@ -1,0 +1,8 @@
+patched retained_memory.rs 16cc41b943431a807b16ad12ba086b9c14e1463fd10edbd3351eff6ddb3b3351
+i2_preview_lib exit=101
+test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+test result: FAILED. 562 passed; 1 failed; 11 ignored; 0 measured; 0 filtered out; finished in 49.56s
+i2_unpatched_parked_test exit=101
+test retained_memory::law_tests::b1_sa_retained_error_text_reads_every_case_slot ... FAILED
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 573 filtered out; finished in 0.02s
+patch restored

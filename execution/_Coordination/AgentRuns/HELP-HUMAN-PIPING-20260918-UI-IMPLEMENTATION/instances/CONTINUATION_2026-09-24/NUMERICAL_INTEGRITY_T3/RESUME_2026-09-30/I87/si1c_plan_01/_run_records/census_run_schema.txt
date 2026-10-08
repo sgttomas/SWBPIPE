@@ -1,0 +1,4 @@
+point-run lines 45604 schema-invalid 14851
+18927 ('checks/#/bound_inputs/#/value', 'type', 'None') e.g. k_demo_0_24_0
+321 ('checks/#/computed_value/value', 'type', 'None') e.g. g_2_3
+statuses of checks carrying a null value: {'RULE_INPUTS_INCOMPLETE': 16654}

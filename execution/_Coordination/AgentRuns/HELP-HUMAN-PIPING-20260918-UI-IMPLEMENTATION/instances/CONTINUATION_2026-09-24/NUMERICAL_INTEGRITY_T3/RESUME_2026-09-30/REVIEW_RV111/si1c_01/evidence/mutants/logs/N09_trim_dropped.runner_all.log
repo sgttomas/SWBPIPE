@@ -1,0 +1,55 @@
+running 14 tests
+test tests::aggregate_is_worst_of_across_checks ... ok
+test tests::compatible_rule_check_units_normalize_to_declared_units ... ok
+test tests::emits_only_the_automatic_status_vocabulary ... ok
+test tests::failing_check_yields_user_rule_failed ... ok
+test tests::incompatible_rule_check_units_block_before_evaluation ... ok
+test tests::missing_limit_slot_blocks_as_incomplete ... ok
+test tests::missing_solver_input_blocks_without_evaluating ... ok
+test tests::passing_check_yields_user_rule_checked ... ok
+test tests::private_library_value_is_unsupplied_not_silently_passed ... ok
+test tests::private_library_value_resolves_from_library_binding_and_passes ... ok
+test tests::private_library_value_with_failing_library_value_reports_failure ... ok
+test tests::refused_solver_input_reports_incomplete_with_reason_never_a_pass ... ok
+test tests::status_outside_declared_result_statuses_is_downgraded ... ok
+test tests::unit_mismatch_between_ratio_and_limit_blocks ... ok
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+running 4 tests
+test unrecognized_relation_blocks_rather_than_defaulting ... ok
+test explicit_less_than_or_equal_matches_the_absent_default ... ok
+test less_than_relation_is_strict_at_the_boundary ... ok
+test greater_than_or_equal_relation_flips_the_acceptance ... ok
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 11 tests
+test every_value_passing_is_checked_with_the_all_pass_code ... ok
+test every_value_failing_is_failed_with_the_all_fail_code ... ok
+test a_divisor_range_containing_zero_is_indeterminate_with_its_finding ... ok
+test an_interval_input_outside_the_formula_leaves_the_point_path ... ok
+test bounded_checks_never_panic_where_the_point_path_can ... ok
+test an_invalid_bound_blocks_the_input ... ok
+test a_straddling_result_is_indeterminate_never_a_pass ... ok
+test a_downgraded_interval_check_emits_what_the_point_path_emits ... ok
+test duplicate_bounds_for_one_input_block_it ... ok
+test unit_normalization_steps_each_end_outward ... ok
+test without_bounds_the_run_is_byte_identical_to_run_rule_checks ... ok
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+running 3 tests
+test example_pack_missing_solver_input_is_rule_inputs_incomplete ... ok
+test example_pack_failing_run_is_user_rule_failed ... ok
+test example_pack_passing_run_is_user_rule_checked ... ok
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 8 tests
+test a_non_finite_raw_input_in_another_unit_is_named_and_still_unsupplied ... ok
+test a_boolean_check_over_an_overflow_blocks_at_the_producer ... ok
+test a_quantity_check_over_an_overflow_blocks_with_no_computed_value ... ok
+test an_overflowing_ratio_check_blocks_and_the_run_carries_on ... ok
+test a_nan_table_argument_check_blocks ... ok
+test a_non_finite_input_is_named_and_never_bound ... ok
+test an_unreferenced_non_finite_input_blocks_nothing ... ok
+test a_non_finite_limit_is_named_in_both_limit_blocks ... ok
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 1 test
+test rust_interval_mode_matches_every_shared_case ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+running 0 tests
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

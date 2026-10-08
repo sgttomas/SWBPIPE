@@ -83,7 +83,10 @@ def irrelevant(path):
     if path.startswith('projects/') and not path.startswith(PROJECT):
         return True  # Runtime is not adopted as a Piping product dependency.
     if path.startswith(PROJECT):
-        if path[len(PROJECT):] in {'AGENTS.md', 'CLAUDE.md', 'README.md'}:
+        # The portability policy is read only by the root governance harness
+        # (tools/practitioner_harness, tools/validation), never by a Piping
+        # build or test, so it is not a validation input despite its folder.
+        if path[len(PROJECT):] in {'AGENTS.md', 'CLAUDE.md', 'README.md', 'validation/portability_policy.json'}:
             return True
         return any(path.startswith(PROJECT + p) for p in
                    ('execution/', 'docs/', 'plans/', 'governance/', 'provenance/', 'loop/', 'validation/evidence/'))
@@ -282,7 +285,13 @@ def validate(root, plan):
             if plan['event'] == 'workflow_dispatch' and not re.fullmatch(r'[0-9a-fA-F]{40}', plan['target_base']):
                 raise ValueError('Manual target must be an immutable commit SHA')
             target = git(root, 'rev-parse', '--verify', plan['target_base'] + '^{commit}').strip()
-            git(root, 'merge-base', '--is-ancestor', target, plan['head'])
+            # A PR that changes no Piping input runs no Piping test, so its result
+            # does not depend on integration with the latest base; the diff is
+            # still taken from the merge base. Any Piping input, and any manual
+            # target, keeps the integration requirement.
+            if (plan['event'] != 'pull_request' or plan['mode'] != 'not-applicable'
+                    or plan['numerical_required']):
+                git(root, 'merge-base', '--is-ancestor', target, plan['head'])
         except (subprocess.CalledProcessError, ValueError):
             raise ValueError('Update the PR base: event target base is missing, unavailable or not integrated into head') from None
     if git(root, 'rev-parse', 'HEAD').strip() != plan['head']:

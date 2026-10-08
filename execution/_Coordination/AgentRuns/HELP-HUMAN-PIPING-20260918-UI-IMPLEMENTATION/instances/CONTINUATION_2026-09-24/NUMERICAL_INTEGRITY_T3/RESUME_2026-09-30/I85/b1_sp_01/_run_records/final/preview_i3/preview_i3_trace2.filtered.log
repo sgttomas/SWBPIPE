@@ -1,0 +1,9 @@
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+warning: `open_pipe_stress_product_physics` (lib test) generated 7 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 2 suggestions)
+     Running unittests src/lib.rs (WT/targets/i85-b1-st-preview/debug/deps/open_pipe_stress_product_physics-b2454eeb3b066591)
+test retained_facade_tests::b1_sp_w_c2_transaction_faults_and_abandonment ... I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa960c49ca6366513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0c86ac1e74p-15, hi: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabf4dca3d9c99aec256413abb396e5c4fd862f22c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f37953e18cp-15 }, Enclosure { lo: +a4ed3f1b0e725c3dee78183f91e646f156191148fd9fd36f7e3d1cc100e6afcce1c43849dc784a6513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f [... cut: 59101 bytes, sha256 b51de33c06e5ab0c958a3a52f33711baaeff38e0d84e376c3848eedf9c554f36]
+thread 'retained_facade_tests::b1_sp_w_c2_transaction_faults_and_abandonment' (95036195) panicked at src/retained_facade_tests.rs:1721:5:
+failures:
+failures:
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 583 filtered out; finished in 1.12s
+error: test failed, to rerun pass `--lib`

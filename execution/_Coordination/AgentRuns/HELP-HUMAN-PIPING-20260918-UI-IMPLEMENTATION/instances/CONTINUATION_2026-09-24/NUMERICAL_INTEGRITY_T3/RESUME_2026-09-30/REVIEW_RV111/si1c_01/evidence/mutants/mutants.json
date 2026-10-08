@@ -1,0 +1,520 @@
+{
+ "E01_add_unchecked": {
+  "ee_lib": {
+   "failed": [
+    "tests::blocks_generated_nan_table_arguments",
+    "tests::each_producer_blocks_where_its_result_overflows",
+    "tests::the_comparison_truth_table_is_unreachable"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "E02_mul_dimensionless_left_unchecked": {
+  "ee_lib": {
+   "failed": [
+    "tests::blocks_generated_nan_table_arguments",
+    "tests::absorbing_forms_block_instead_of_deciding",
+    "tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking",
+    "tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression",
+    "tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking",
+    "tests::each_producer_blocks_where_its_result_overflows",
+    "tests::non_finite_table_arguments_block_at_the_overflowing_multiply",
+    "tests::interval_mode_still_reads_these_overflows_indeterminate_without_a_finding",
+    "tests::same_dimension_quotients_that_did_not_panic_are_unchanged",
+    "tests::the_carried_non_finite_reproducers_block_at_the_multiply",
+    "tests::the_comparison_truth_table_is_unreachable"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "E03_mul_dimensionless_right_unchecked": {
+  "ee_lib": {
+   "failed": [
+    "tests::each_producer_blocks_where_its_result_overflows"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "E04_mul_derived_unchecked": {
+  "ee_lib": {
+   "failed": [
+    "tests::each_producer_blocks_where_its_result_overflows"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "E05_div_dimensionless_divisor_unchecked": {
+  "ee_lib": {
+   "failed": [
+    "tests::each_producer_blocks_where_its_result_overflows",
+    "tests::non_finite_quotients_outside_the_ratio_arm_block_at_divide",
+    "tests::the_comparison_truth_table_is_unreachable"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "E06_div_derived_unchecked": {
+  "ee_lib": {
+   "failed": [
+    "tests::each_producer_blocks_where_its_result_overflows",
+    "tests::non_finite_quotients_outside_the_ratio_arm_block_at_divide"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "E07_block_continues_with_value": {
+  "ee_lib": {
+   "failed": [
+    "tests::blocks_generated_nan_table_arguments",
+    "tests::absorbing_forms_block_instead_of_deciding",
+    "tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking",
+    "tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression",
+    "tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking",
+    "tests::non_finite_table_arguments_block_at_the_overflowing_multiply",
+    "tests::the_carried_non_finite_reproducers_block_at_the_multiply",
+    "tests::the_comparison_truth_table_is_unreachable"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "E08_nan_only": {
+  "ee_lib": {
+   "failed": [
+    "tests::blocks_generated_nan_table_arguments",
+    "tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression",
+    "tests::absorbing_forms_block_instead_of_deciding",
+    "tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking",
+    "tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking",
+    "tests::each_producer_blocks_where_its_result_overflows",
+    "tests::interval_mode_still_reads_these_overflows_indeterminate_without_a_finding",
+    "tests::non_finite_quotients_outside_the_ratio_arm_block_at_divide",
+    "tests::non_finite_table_arguments_block_at_the_overflowing_multiply",
+    "tests::same_dimension_quotients_that_did_not_panic_are_unchanged",
+    "tests::the_carried_non_finite_reproducers_block_at_the_multiply",
+    "tests::the_comparison_truth_table_is_unreachable"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "E09_is_infinite_for_not_finite": {
+  "diff_rc": 0,
+  "ee_lib": {
+   "failed": [],
+   "rc": 0
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": false,
+  "runner_pp": {
+   "failed": [],
+   "rc": 0
+  }
+ },
+ "E10_max_blocks": {
+  "ee_lib": {
+   "failed": [
+    "tests::finite_boundaries_still_evaluate"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "E11_subnormal_blocks": {
+  "ee_lib": {
+   "failed": [
+    "tests::finite_boundaries_still_evaluate",
+    "interval_tests::interval_outcomes_are_sound_against_the_point_path"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "E12_add_check_before_structure": {
+  "ee_lib": {
+   "failed": [
+    "tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "E13_mul_check_before_product_lookup": {
+  "ee_lib": {
+   "failed": [
+    "tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "E14_div_check_before_zero": {
+  "ee_lib": {
+   "failed": [
+    "tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression",
+    "tests::blocks_an_i73_differential_quotient_input",
+    "tests::a_blocked_ratio_stops_the_enclosing_expression",
+    "tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking",
+    "tests::rejects_division_by_zero",
+    "tests::same_dimension_quotients_that_did_not_panic_are_unchanged"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "E15_div_check_before_quotient_lookup": {
+  "ee_lib": {
+   "failed": [
+    "tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "E16_divide_subject": {
+  "ee_lib": {
+   "failed": [
+    "tests::each_producer_blocks_where_its_result_overflows",
+    "tests::non_finite_quotients_outside_the_ratio_arm_block_at_divide",
+    "tests::the_comparison_truth_table_is_unreachable"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "E17_derived_product_message": {
+  "ee_lib": {
+   "failed": [
+    "tests::each_producer_blocks_where_its_result_overflows"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "E18_ratio_arm_quotient_message": {
+  "ee_lib": {
+   "failed": [
+    "tests::a_blocked_ratio_stops_the_enclosing_expression",
+    "tests::blocks_an_i73_differential_quotient_input",
+    "tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "I01_rise_unchecked": {
+  "diff_rc": 0,
+  "ee_lib": {
+   "failed": [],
+   "rc": 0
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": false,
+  "runner_pp": {
+   "failed": [],
+   "rc": 0
+  }
+ },
+ "I02_offset_unchecked": {
+  "diff_rc": 0,
+  "ee_lib": {
+   "failed": [],
+   "rc": 0
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": false,
+  "runner_pp": {
+   "failed": [],
+   "rc": 0
+  }
+ },
+ "I03_run_unchecked": {
+  "ee_lib": {
+   "failed": [
+    "tests::each_producer_blocks_where_its_result_overflows",
+    "tests::interval_mode_still_reads_these_overflows_indeterminate_without_a_finding"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "I04_fraction_unchecked": {
+  "diff_rc": 0,
+  "ee_lib": {
+   "failed": [],
+   "rc": 0
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": false,
+  "runner_pp": {
+   "failed": [],
+   "rc": 0
+  }
+ },
+ "I05_product_unchecked": {
+  "diff_rc": 0,
+  "ee_lib": {
+   "failed": [],
+   "rc": 0
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": false,
+  "runner_pp": {
+   "failed": [],
+   "rc": 0
+  }
+ },
+ "I06_sum_unchecked": {
+  "ee_lib": {
+   "failed": [
+    "tests::each_producer_blocks_where_its_result_overflows"
+   ],
+   "rc": 101
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": true,
+  "runner_pp": {
+   "skipped": "killed by ee_lib"
+  }
+ },
+ "I07_four_unchecked_jointly": {
+  "diff_rc": 0,
+  "ee_lib": {
+   "failed": [],
+   "rc": 0
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": false,
+  "runner_pp": {
+   "failed": [],
+   "rc": 0
+  }
+ },
+ "L01_limit_raw_check_removed": {
+  "file": "core/rules/rule_check_runner/src/lib.rs",
+  "killed": true,
+  "runner_all": {
+   "failed": [
+    "a_non_finite_limit_is_named_in_both_limit_blocks"
+   ],
+   "rc": 101
+  }
+ },
+ "L02_limit_normalized_check_removed": {
+  "file": "core/rules/rule_check_runner/src/lib.rs",
+  "killed": true,
+  "runner_all": {
+   "failed": [
+    "a_non_finite_limit_is_named_in_both_limit_blocks"
+   ],
+   "rc": 101
+  }
+ },
+ "L04_limit_as_missing": {
+  "file": "core/rules/rule_check_runner/src/lib.rs",
+  "killed": true,
+  "runner_all": {
+   "failed": [
+    "a_non_finite_limit_is_named_in_both_limit_blocks"
+   ],
+   "rc": 101
+  }
+ },
+ "N02_raw_other_unit_supplied": {
+  "file": "core/rules/rule_check_runner/src/lib.rs",
+  "killed": true,
+  "runner_all": {
+   "failed": [
+    "a_non_finite_raw_input_in_another_unit_is_named_and_still_unsupplied"
+   ],
+   "rc": 101
+  }
+ },
+ "N03_note_dropped": {
+  "file": "core/rules/rule_check_runner/src/lib.rs",
+  "killed": true,
+  "runner_all": {
+   "failed": [
+    "a_non_finite_input_is_named_and_never_bound",
+    "an_unreferenced_non_finite_input_blocks_nothing",
+    "a_non_finite_raw_input_in_another_unit_is_named_and_still_unsupplied"
+   ],
+   "rc": 101
+  }
+ },
+ "N04_value_kept": {
+  "file": "core/rules/rule_check_runner/src/lib.rs",
+  "killed": true,
+  "runner_all": {
+   "failed": [
+    "a_non_finite_input_is_named_and_never_bound",
+    "an_unreferenced_non_finite_input_blocks_nothing"
+   ],
+   "rc": 101
+  }
+ },
+ "N06_dedup_removed": {
+  "diff_rc": 0,
+  "file": "core/rules/rule_check_runner/src/lib.rs",
+  "killed": false,
+  "runner_all": {
+   "failed": [],
+   "rc": 0
+  }
+ },
+ "N07_block_after_mode_dispatch": {
+  "file": "core/rules/rule_check_runner/src/lib.rs",
+  "killed": true,
+  "runner_all": {
+   "failed": [
+    "a_non_finite_input_is_named_and_never_bound"
+   ],
+   "rc": 101
+  }
+ },
+ "N08_unreferenced_input_blocks": {
+  "file": "core/rules/rule_check_runner/src/lib.rs",
+  "killed": true,
+  "runner_all": {
+   "failed": [
+    "an_unreferenced_non_finite_input_blocks_nothing"
+   ],
+   "rc": 101
+  }
+ },
+ "N09_trim_dropped": {
+  "diff_rc": 0,
+  "file": "core/rules/rule_check_runner/src/lib.rs",
+  "killed": false,
+  "runner_all": {
+   "failed": [],
+   "rc": 0
+  }
+ },
+ "X01_step_nan_check_removed": {
+  "diff_rc": 0,
+  "ee_lib": {
+   "failed": [],
+   "rc": 0
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": false,
+  "runner_pp": {
+   "skipped": "guard unreachable from the runner tests"
+  }
+ },
+ "X02_interpolate_nan_check_removed": {
+  "diff_rc": 0,
+  "ee_lib": {
+   "failed": [],
+   "rc": 0
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": false,
+  "runner_pp": {
+   "skipped": "guard unreachable from the runner tests"
+  }
+ },
+ "X03_ratio_check_infinite_only": {
+  "diff_rc": 0,
+  "ee_lib": {
+   "failed": [],
+   "rc": 0
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": false,
+  "runner_pp": {
+   "skipped": "guard unreachable from the runner tests"
+  }
+ },
+ "X04_nan_argument_code_out_of_range": {
+  "diff_rc": 0,
+  "ee_lib": {
+   "failed": [],
+   "rc": 0
+  },
+  "file": "core/rules/expression_evaluator/src/lib.rs",
+  "killed": false,
+  "runner_pp": {
+   "skipped": "guard unreachable from the runner tests"
+  }
+ }
+}

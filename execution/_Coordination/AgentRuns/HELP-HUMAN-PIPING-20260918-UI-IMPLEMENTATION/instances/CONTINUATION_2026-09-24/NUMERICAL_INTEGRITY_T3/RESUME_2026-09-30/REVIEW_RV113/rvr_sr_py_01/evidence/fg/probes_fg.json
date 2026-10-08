@@ -1,0 +1,424 @@
+[
+ {
+  "id": "f_mb_index_1",
+  "item": "(f)",
+  "base": "ordinary_prepared_synthetic",
+  "edits": [
+   {
+    "path": [
+     "retained_precision",
+     "body",
+     "material_bases",
+     0,
+     "index"
+    ],
+    "op": "set",
+    "value": 1
+   }
+  ],
+  "invocation_edits": [],
+  "rehash": "all",
+  "want": {
+   "observe": true
+  },
+  "want_i1": {
+   "observe": true
+  },
+  "note": "the one basis labelled 1"
+ },
+ {
+  "id": "f_mb_index_swapped",
+  "item": "(f)",
+  "base": "two_case_two_groups_synthetic",
+  "edits": [
+   {
+    "path": [
+     "retained_precision",
+     "body",
+     "material_bases",
+     0,
+     "index"
+    ],
+    "op": "set",
+    "value": 1
+   },
+   {
+    "path": [
+     "retained_precision",
+     "body",
+     "material_bases",
+     1,
+     "index"
+    ],
+    "op": "set",
+    "value": 0
+   }
+  ],
+  "invocation_edits": [],
+  "rehash": "all",
+  "want": {
+   "observe": true
+  },
+  "want_i1": {
+   "observe": true
+  },
+  "note": "two bases, labels swapped"
+ },
+ {
+  "id": "f_src_index_1",
+  "item": "(f) neighbour",
+  "base": "ordinary_prepared_synthetic",
+  "edits": [
+   {
+    "path": [
+     "retained_precision",
+     "body",
+     "sources",
+     0,
+     "index"
+    ],
+    "op": "set",
+    "value": 1
+   }
+  ],
+  "invocation_edits": [],
+  "rehash": "all",
+  "want": {
+   "observe": true
+  },
+  "want_i1": {
+   "observe": true
+  },
+  "note": "the one CaseSource labelled 1"
+ },
+ {
+  "id": "f_src_index_swapped",
+  "item": "(f) neighbour",
+  "base": "two_case_synthetic",
+  "edits": [
+   {
+    "path": [
+     "retained_precision",
+     "body",
+     "sources",
+     0,
+     "index"
+    ],
+    "op": "set",
+    "value": 1
+   },
+   {
+    "path": [
+     "retained_precision",
+     "body",
+     "sources",
+     1,
+     "index"
+    ],
+    "op": "set",
+    "value": 0
+   }
+  ],
+  "invocation_edits": [],
+  "rehash": "all",
+  "want": {
+   "observe": true
+  },
+  "want_i1": {
+   "observe": true
+  },
+  "note": "two CaseSources, labels swapped"
+ },
+ {
+  "id": "f_mb_case_indices_duplicate",
+  "item": "(f) neighbour",
+  "base": "two_case_synthetic",
+  "edits": [
+   {
+    "path": [
+     "retained_precision",
+     "body",
+     "material_bases",
+     0,
+     "case_indices"
+    ],
+    "op": "set",
+    "value": [
+     0,
+     1,
+     1
+    ]
+   }
+  ],
+  "invocation_edits": [],
+  "rehash": "all",
+  "want": {
+   "observe": true
+  },
+  "want_i1": {
+   "observe": true
+  },
+  "note": ""
+ },
+ {
+  "id": "f_mb_case_indices_out_of_range",
+  "item": "(f) neighbour",
+  "base": "two_case_synthetic",
+  "edits": [
+   {
+    "path": [
+     "retained_precision",
+     "body",
+     "material_bases",
+     0,
+     "case_indices"
+    ],
+    "op": "set",
+    "value": [
+     0,
+     1,
+     2
+    ]
+   }
+  ],
+  "invocation_edits": [],
+  "rehash": "all",
+  "want": {
+   "observe": true
+  },
+  "want_i1": {
+   "observe": true
+  },
+  "note": ""
+ },
+ {
+  "id": "f_src_owner_case_id_other",
+  "item": "(f) neighbour",
+  "base": "two_case_synthetic",
+  "edits": [
+   {
+    "path": [
+     "retained_precision",
+     "body",
+     "sources",
+     1,
+     "owner",
+     "case_id"
+    ],
+    "op": "set",
+    "value": "case:six-component-load"
+   }
+  ],
+  "invocation_edits": [],
+  "rehash": "all",
+  "want": {
+   "observe": true
+  },
+  "want_i1": {
+   "observe": true
+  },
+  "note": "source 1's owner names case 0's id at case_index 1"
+ },
+ {
+  "id": "g_reference_configurations_null",
+  "item": "(g)",
+  "base": "ordinary_prepared_synthetic",
+  "edits": [],
+  "invocation_edits": [
+   {
+    "path": [
+     "request",
+     "model",
+     "reference_configurations"
+    ],
+    "op": "set",
+    "value": null
+   }
+  ],
+  "rehash": "all",
+  "want": {
+   "observe": true
+  },
+  "want_i1": {
+   "observe": true
+  },
+  "note": ""
+ },
+ {
+  "id": "g_reference_configurations_empty",
+  "item": "(g)",
+  "base": "ordinary_prepared_synthetic",
+  "edits": [],
+  "invocation_edits": [
+   {
+    "path": [
+     "request",
+     "model",
+     "reference_configurations"
+    ],
+    "op": "set",
+    "value": []
+   }
+  ],
+  "rehash": "all",
+  "want": {
+   "observe": true
+  },
+  "want_i1": {
+   "observe": true
+  },
+  "note": ""
+ },
+ {
+  "id": "g_pressure_contract_null",
+  "item": "(g) neighbour",
+  "base": "ordinary_prepared_synthetic",
+  "edits": [],
+  "invocation_edits": [
+   {
+    "path": [
+     "request",
+     "model",
+     "pressure_contract"
+    ],
+    "op": "set",
+    "value": null
+   }
+  ],
+  "rehash": "all",
+  "want": {
+   "observe": true
+  },
+  "want_i1": {
+   "observe": true
+  },
+  "note": "control: null"
+ },
+ {
+  "id": "g_pressure_contract_empty_object",
+  "item": "(g) neighbour",
+  "base": "ordinary_prepared_synthetic",
+  "edits": [],
+  "invocation_edits": [
+   {
+    "path": [
+     "request",
+     "model",
+     "pressure_contract"
+    ],
+    "op": "set",
+    "value": {}
+   }
+  ],
+  "rehash": "all",
+  "want": {
+   "observe": true
+  },
+  "want_i1": {
+   "observe": true
+  },
+  "note": ""
+ },
+ {
+  "id": "g_pressure_contract_false",
+  "item": "(g) neighbour",
+  "base": "ordinary_prepared_synthetic",
+  "edits": [],
+  "invocation_edits": [
+   {
+    "path": [
+     "request",
+     "model",
+     "pressure_contract"
+    ],
+    "op": "set",
+    "value": false
+   }
+  ],
+  "rehash": "all",
+  "want": {
+   "observe": true
+  },
+  "want_i1": {
+   "observe": true
+  },
+  "note": ""
+ },
+ {
+  "id": "g_combinations_null",
+  "item": "(g) neighbour",
+  "base": "ordinary_prepared_synthetic",
+  "edits": [],
+  "invocation_edits": [
+   {
+    "path": [
+     "request",
+     "model",
+     "combinations"
+    ],
+    "op": "set",
+    "value": null
+   }
+  ],
+  "rehash": "all",
+  "want": {
+   "observe": true
+  },
+  "want_i1": {
+   "observe": true
+  },
+  "note": "control: null"
+ },
+ {
+  "id": "g_combinations_object",
+  "item": "(g) neighbour",
+  "base": "ordinary_prepared_synthetic",
+  "edits": [],
+  "invocation_edits": [
+   {
+    "path": [
+     "request",
+     "model",
+     "combinations"
+    ],
+    "op": "set",
+    "value": {
+     "x": 1
+    }
+   }
+  ],
+  "rehash": "all",
+  "want": {
+   "observe": true
+  },
+  "want_i1": {
+   "observe": true
+  },
+  "note": ""
+ },
+ {
+  "id": "g_components_string",
+  "item": "(g) neighbour",
+  "base": "ordinary_prepared_synthetic",
+  "edits": [],
+  "invocation_edits": [
+   {
+    "path": [
+     "request",
+     "model",
+     "components"
+    ],
+    "op": "set",
+    "value": "x"
+   }
+  ],
+  "rehash": "all",
+  "want": {
+   "observe": true
+  },
+  "want_i1": {
+   "observe": true
+  },
+  "note": ""
+ }
+]

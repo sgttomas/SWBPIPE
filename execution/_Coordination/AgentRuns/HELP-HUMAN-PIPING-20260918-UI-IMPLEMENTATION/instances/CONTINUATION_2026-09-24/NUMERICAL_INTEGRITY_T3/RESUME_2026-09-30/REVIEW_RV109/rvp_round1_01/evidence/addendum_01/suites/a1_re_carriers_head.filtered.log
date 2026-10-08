@@ -1,0 +1,21 @@
+RV109_JOB name=a1_re_carriers_head dir=WT/rv109/head/projects/chirality-piping/core/reporting/result_export target=rv109-a1-re stale=0 args=test --locked --offline --no-fail-fast --test retained_precision_carriers start=2026-10-07T13:33:22Z
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+     Running tests/retained_precision_carriers.rs (WT/targets/rv109-a1-re/debug/deps/retained_precision_carriers-a04a0fa8e5796e74)
+test u6_doc_hidden_seams_have_no_product_callers ... ok
+test u6_product_text_drops_only_test_gated_items ... ok
+test u6a_binding_refusal_follows_the_validated_class_only ... ok
+test u6a_classification_summary_counts_validated_classes ... ok
+test u6a_derivative_carries_the_receipt_and_it_comes_back_out ... ok
+test u6a_dispatch_admits_the_successor_through_the_accepted_reader_only ... ok
+test u6a_downgrades_to_a_base_identity_are_refused ... ok
+test u6a_each_class_maps_to_its_refusal_and_disclosure ... ok
+test u6a_legacy_sources_carrying_a_receipt_or_token_are_refused ... ok
+test u6a_receipt_binding_mismatches_are_refused ... ok
+test u6a_shared_carrier_cases_rust ... ok
+test u6a_standing_is_eligible_only_with_the_invocation_and_comes_only_from_the_receipt ... ok
+test u6a_standing_rule_conjuncts_with_eligibility_set ... ok
+test u7_a_solved_status_is_required_before_the_eligibility_conjunct ... ok
+test u7_d_u7_4_forms_rust_side_standing_and_summary ... ok
+test u6_declared_differences_rust ... ok
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 33.00s
+RV109_JOB_END name=a1_re_carriers_head rc=0 end=2026-10-07T13:34:03Z

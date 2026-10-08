@@ -1,0 +1,12 @@
+603e238517361e4e4ead1627bb90b8e5a35558ef piping(T3 B1 SP): post-I2 pins; RV112 N-3 and N-4; the seam's saturation pin
+eca6c00a723ff9f931f59b0fd8c17c4cbcda8941 piping(T3 B1): I2: merge SA (b1-a at 9812c83ded) into b1 at I85's c17340d50b
+c17340d50b431ce36815f6e546cb2ddf515d25f3 piping(T3 B1 SP): pin the cumulative observation capacity in W-C2's snapshots (RV109 R3P-8, S20)
+8db7906ee7ba2c5413a6edb691a5f4326d8b7834 piping(T3 B1 SP): RV109's R3P-9, one custody prelude
+0ec3651a36f7ee5d23431298368115d13bf34c6c piping(T3 B1 SP): RV109's R3P-1, R3P-2, R3P-3, R3P-6 and R3P-7
+59393e2d43f09ef86a83b9323b5744a87ac7ad67 piping(T3 B1 SP): the seam's comment says what it records
+89222942ee9c077130091ed0c1fffd026b7657bf piping(T3 B1 SP): T-13 and coexistence tests; the native hook fires only after a preparation
+7458527ff7c7e281fd8af713507fb6968028d739 piping(T3 B1 SP): T-8 to T-12 of the n-case transaction; c = 1 runs through it
+9812c83deddc34eaba0bcb8e4d71684fded900f5 piping(T3 B1 SA): RetainedErrorTextBytes reads every case's slot (SP's parked CaseSlots)
+77f4391a85ae41d5c6638f173c050798d8149cb9 piping(T3 B1 SA): merge b1 at SP's 56c5579f07 (T-2, T-5, T-6, T-7) into b1-a, as ROOT ruled, for the parked-slot reader
+56c5579f07b1cf3203c178e10add51bba0b24a58 piping(T3 B1 SP): T-2, T-5, T-6 and T-7 of the n-case transaction
+6b626067786523068188ccd29f9ac2db9ed50e7d piping(T3 B1 SA): admission at option S3 (C = 3, L = 384), G-B's running total, T-3 (e)

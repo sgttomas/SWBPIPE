@@ -1,0 +1,32 @@
+quotations checked: 31; resolved: 29; unresolved: 2
+WG:603	OK	T3's gate set and Git rules, consolidated after the handoff was made ephemeral
+WG:604	OK	DEC-025 on F finds a test-walker defect; repaired and refrozen as F′ = 5488136a19
+WG:605	OK	I61's U8 plan ruled; the owner pulls T6's successor-output slice forward; dispatches prepa
+WG:606	OK	Owner direction: proportionate CI; records-only PRs drop DEC-025 and the dispatch
+WG:606	OK	#1088 squash-merged; RV100's addendum notes; erratum E-5
+WG:607	OK	A follow-up records-only PR before the handoff
+WG:608	OK	RV100 passes #1088 at H; S-1 repaired by a re-cut; errata E-3 and E-4
+WG:609	OK	Stray scratch gathered; the cleanup procedure gains step 0
+WG:610	OK	Session resumed; main absorbed; U8 and S-I1 cut; …
+WG:610	OK	I73's checkpoint 1 and I74's plan ruled; D2 5b.3; …
+WG:611	OK	RV98 confirms U8's Pass B; operating adjustments after ROOT's self-assessment
+WG:612	OK	U8's full suite passes; I77's package accepted; NUM sequencing for the product PRs
+WG:613	OK	RV99 confirms #1100's amended head and the DEC-025 carry-over
+WG:614	OK	RV97 confirms #1102's head; A1-S-1 ruled: …
+WG:615	OK	RV102 passes #1101; S-1 and S-2 fixed before the merge
+WG:616	OK	I73's checkpoint 1 and I74's plan ruled; D2 5b.3; the T6 slice dispatched
+WG:617	OK	#1102 merged; DEC-025's suites rerun in a fresh target; B0 and T3-SI1b dispatched
+WG:617	OK	RV103 passes #1103; …
+WG:618	OK	B0 selected on DESIGN_v2; C3a's names reserved; B1 opens with a probe and the cap/M study
+WG:619	OK	Owner decision: ROOT may raise M up to 6.0 GiB without asking
+WG:620	OK	RV103 passes #1103; #1103 squash-merged; I79's return verified and ruled; RV104 dispatched
+WG:621	OK	I86's SW probe accepted; I83's B6 return verified and ruled; RV108 and I87 dispatched
+WG:622	OK	R3: I85's ST verified at checkpoint R3; RV-P round 1 dispatched as RV109
+WG:623	OK	B6's PR #1107 cut; RV108 confirms its head; a dispatch with a short SHA, repeated with the
+WG:624	OK	#1107 merged: T3-B6 is on main; B1's I1 and I1′ coincide
+WG:625	OK	RV109 confirms ST's repair; I1 (= I1′) at `262bd687f0`; phase 2 opens with SP and SA
+WG:626	OK	I87's SI1c plan verified; SI1c changes public meaning, so the remedy goes to the owner
+WG:627	OK	Owner decision: SI1c is option D, a repair within grammar 1.0.0; RV108 passes B6; RV109 pa
+RR:13615	OK	B0 selected on DESIGN_v2; …
+RR:14040	UNRESOLVED	Minor versions are additive-only; any breaking change…
+RR:14115	UNRESOLVED	Update the PR base: …

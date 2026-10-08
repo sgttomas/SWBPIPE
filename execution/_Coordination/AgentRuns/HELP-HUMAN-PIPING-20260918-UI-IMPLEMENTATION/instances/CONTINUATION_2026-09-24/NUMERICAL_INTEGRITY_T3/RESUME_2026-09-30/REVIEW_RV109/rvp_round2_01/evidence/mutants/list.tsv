@@ -1,0 +1,50 @@
+S7_custody_ignores_parked_native	T-6: native work in a parked slot is not refused
+S9_no_failure_snapshot	T-7/T-11: a failed preparation takes no terminal snapshot
+S10_failure_not_in_slot	T-7: a failed preparation's error is not kept in its slot
+S13_one_reserved_slot	T-5: one diagnostics slot reserved, whatever |A|
+S14_no_cross_notice_collision	T-5: two notices with one id are not refused
+S18_one_case_binder_at_c_ge_2	T-6: custody binds observations with the one-case binder at c >= 2
+S20_observation_bytes_assigned	the observation capacity record is the last case's, not the sum
+M02_detail_on_every_notice	T-12: C1:68's detail on every notice, not only the selected cases'
+M03_detail_bit_shifted	T-12: notice k reads bit k + 1
+M04_selected_bits_zero	T-12: no case is recorded as selected at abandonment
+M05_selected_bits_by_request	T-12: bit = request index, not the case's position in A
+M07_notices_reversed	T-12: the notices in reverse request order
+M06_cause_all_not_any	T-10: the cause is the stage every case reached, not the furthest any reached
+M08_w1_attempts_every_case	T-4/T-7: W1 attempts every requested case, not A
+M46_domain_c_plus_one	domain re-check: c = C + 1 is admitted
+M47_custody_cause_native	decision 5: a custody failure is named Native
+M48_no_t10_check	T-10: no check that a case is selected before T-11
+M49_staging_fault_ignored	decision 5: a staging fault does not abandon (the ordinary copy is serialized)
+M51_precommit_never_refuses	decision 5: precommit's refusal does not abandon
+M52_r_b_prime_dropped	N-5: R-b′'s recovery_demoted no longer refuses (the known limit)
+M09_runs_to_wrong_cases	T-8: the call's Runs are assigned to the submitted cases in reverse
+M10_any_run_selected	T-8: a Run of any terminal counts as selected
+M11_sources_back_reversed	T-8: the moved sources go back to the wrong cases
+M41_call_failure_selects	T-8: a call failure before any Run leaves the cases selectable
+M12_native_snapshot_late	T-11: a non-selected Run's snapshot is taken after T-9, not at its Run
+M13_frozen_snapshot_early	T-11: a selected case's snapshot is taken before its proof
+M33_scope_unqualified	T-9: a later case's row ids are bound unqualified
+M34_scope_evidence_zero	T-9: every case reads evidence case 0
+M36_custody_attempted_unchecked	T-6: A's indices are not validated
+M37_prior_error_own_first	T-6: the last case's prior error before the parked cases'
+M27_headline_tie_reversed	T-11 headline: a tie goes to the larger (case, location)
+M28_headline_tie_location_only	T-11 headline: a tie ignores the case id
+M29_no_stage_headlines	T-11 headline: the ordinary headlines are kept at c >= 2
+M31_headline_ignores_presence	T-11 headline: a headline is staged where the ordinary has none
+M32_headline_stress_only	T-11 headline: the displacement headline is not restaged
+M14_unavailable_diagnostics_first	T-11 staging: the unavailable diagnostics before the selected ones
+M15_selected_diagnostics_reversed	T-11 staging: the selected cases' diagnostics in reverse request order
+M38_not_required_gets_notice	T-11 staging: a not_required case gets the unavailable diagnostic
+M16_frozen_attempt_ref_zero	T-7: a selected case's source names attempt 0
+M17_frozen_attempt_id_zero	T-11: a selected case's product attempt has id 0
+M18_unavailable_attempt_ref_zero	T-7: an unavailable case's source names attempt 0
+M19_frozen_run_owner_ordinal	N-2: a selected case's Run owner is its batch ordinal
+M20_unavailable_run_owner_ordinal	N-2: an unavailable case's Run owner is its batch ordinal
+M21_call_owner_refs_ordinal	N-2: calls[].owner_refs name batch ordinals
+M22_execution_order_ordinal	N-2: work.execution_order names batch ordinals
+M23_source_index_zero	T-11: every source's index is 0
+M24_ordinals_over_all_attempts	N-2: batch ordinals over every attempt, not the prepared ones
+M25_material_first_case_only	D1.5: the material basis names case 0 only
+M26_diag_refs_first_case_only	D6a: a diagnostic naming several cases is referenced by the first only
+M43_facade_code_kernel	D4d: a refusal after a selected Run is coded as the kernel's

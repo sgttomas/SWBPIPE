@@ -1,0 +1,30 @@
+# I95 step 0: the c = 1 reproduction at main 2007709549 (Python only)
+## b3s_text_base.sh: the chain's outputs against I65 u4_g7_01 Pass A (text_g7/) and I82's d1_c1
+identical composite_text.caps.json
+identical g4_caps.caps.eps2.out.json
+identical ordinary_caps.caps.out.json
+identical producer_caps.caps.out.json
+identical profile_tree.json
+identical t07_repair.caps.out.json
+identical t08_closure.caps.log
+identical t25_g4.caps.eps2.out.json
+DIFFERS text_budget.caps.out.json
+DIFFERS text_budget_W.caps.out.json
+DIFFERS text_budget_X.caps.out.json
+DIFFERS text_budget_env.caps.out.json
+identical to I82 profile_trees/d1_c1.json: profile_tree.json
+(the four text_budget files differ only in line numbers; their rows, by I65's text_row_diff.py:)
+text_budget: {"rows": [2814, 2814], "changed": 0, "unmatched_positive_in_first": 0, "only_in_second": 0, "tav": [2150800830, 2150800830], "max_site": [2599962, 2599962], "D": [14734, 14734], "reachable_fns": [2770, 2772], "complete": [true, true]}
+text_budget_W: {"rows": [2814, 2814], "changed": 0, "unmatched_positive_in_first": 0, "only_in_second": 0, "tav": [1570041862, 1570041862], "max_site": [2599962, 2599962], "D": [9400, 9400], "reachable_fns": [2770, 2772], "complete": [true, true]}
+text_budget_X: {"rows": [2814, 2814], "changed": 0, "unmatched_positive_in_first": 0, "only_in_second": 0, "tav": [1440401002, 1440401002], "max_site": [2599962, 2599962], "D": [14723, 14723], "reachable_fns": [2770, 2772], "complete": [true, true]}
+text_budget_env: {"rows": [2814, 2814], "changed": 0, "unmatched_positive_in_first": 0, "only_in_second": 0, "tav": [642949448, 642949448], "max_site": [2599962, 2599962], "D": [9361, 9361], "reachable_fns": [2770, 2772], "complete": [true, true]}
+## linemap (Pass A ba1faa1c85 -> bd6b4be2c3): remapped / unmapped
+0 []
+## sens summary
+{"caps": {"l": 128}, "eps": 2, "text_complete": true, "D": 14734, "D_env": 9361, "TAV": 2150800830, "sparse": {"admission_phase": "W3", "E_mov_plus_R": 3504983749, "fraction_of_M": 0.8705, "X1": 0.8176, "W4": 0.8639, "margin_rule": true, "fits_M": true, "TAV_X": 1440401002, "TAV_W": 1570041862, "T25": 1348846906, "T16": 1268331449, "T17": 1149523110}, "dense": {"admission_phase": "W3", "E_mov_plus_R": 3524694197, "fraction_of_M": 0.8754, "X1": 0.8225, "W4": 0.8688, "margin_rule": true, "fits_M": true, "TAV_X": 1440401002, "TAV_W": 1570041862, "T25": 1348846906, "T16": 1268331449, "T17": 1149523110}}
+
+## I82's multi-case chain (b1_mc_chain.py, unchanged) on this basis: I82_PATCHES.json identical; profile trees
+identical I82_PATCHES.json
+c = 1: identical to I82 profile_trees/d1_c1.json
+c = 2: identical to I82 profile_trees/d1_c2.json
+c = 3: identical to I82 profile_trees/d1_c3.json

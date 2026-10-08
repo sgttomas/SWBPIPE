@@ -1,0 +1,136 @@
+running 64 tests
+test interval_tests::bound_forms_outward_ends_and_zero_bound_is_an_exact_point ... ok
+test interval_tests::rounding_that_hides_a_real_excess_is_not_a_pass ... ok
+test interval_tests::interpolation_covers_point_path_rounding_near_a_row ... ok
+test interval_tests::abs_covers_its_three_branches ... ok
+test interval_tests::interpolation_joins_outward_segment_enclosures ... ok
+test interval_tests::overlay_inputs_are_validated ... ok
+test interval_tests::division_by_a_range_containing_zero_is_indeterminate ... ok
+test interval_tests::every_floating_operation_steps_outward_even_on_points ... ok
+test interval_tests::an_overflowed_end_makes_the_whole_check_indeterminate ... ok
+test interval_tests::aggregates_are_endpoint_wise_and_an_interior_extremum_is_indeterminate ... ok
+test interval_tests::interval_arithmetic_encloses_every_sign_combination ... ok
+test interval_tests::kleene_logic_and_negative_controls ... ok
+test interval_tests::lookups_follow_the_point_path_for_points_and_hull_or_refuse_ranges ... ok
+test interval_tests::select_takes_a_branch_or_the_hull ... ok
+test tests::a_blocked_ratio_stops_the_enclosing_expression ... ok
+test tests::blocks_an_i73_differential_quotient_input ... ok
+test interval_tests::comparisons_are_three_valued_with_strict_ends ... ok
+test tests::blocks_exact_lookup_key_miss_inside_range ... ok
+test interval_tests::interval_mode_never_panics_where_the_point_path_can ... ok
+test tests::blocks_generated_nan_table_arguments ... FAILED
+test tests::absorbing_forms_block_instead_of_deciding ... FAILED
+test tests::blocks_malformed_or_missing_grammar_version ... ok
+test tests::blocks_malformed_tables ... ok
+test tests::blocks_out_of_range_table_arguments_without_extrapolation_or_clamping ... ok
+test tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking ... FAILED
+test tests::blocks_table_argument_dimension_and_unit_mismatches ... ok
+test tests::blocks_unsupported_grammar_version ... ok
+test tests::converts_same_dimension_division_to_dimensionless_ratio ... ok
+test tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression ... FAILED
+test tests::derived_product_unit_ref_is_commutative ... ok
+test tests::dimension_product_table_has_unique_commutative_keys ... ok
+test tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking ... FAILED
+test tests::dimension_enum_tracks_pkg02_canonical_vocabulary ... ok
+test tests::evaluates_invented_dimensionally_compatible_expression ... ok
+test interval_tests::structural_findings_match_the_point_path ... ok
+test tests::evaluates_logical_select_aggregate_and_abs ... ok
+test tests::interpolates_and_looks_up_user_tables ... ok
+test tests::each_producer_blocks_where_its_result_overflows ... FAILED
+test tests::finite_boundaries_still_evaluate ... ok
+test tests::maps_human_approval_status_to_boundary_finding ... ok
+test tests::non_finite_quotients_outside_the_ratio_arm_block_at_divide ... ok
+test tests::permits_dimensionless_scaling_without_derived_dimension_policy ... ok
+test tests::non_finite_table_arguments_block_at_the_overflowing_multiply ... FAILED
+test tests::interval_mode_still_reads_these_overflows_indeterminate_without_a_finding ... FAILED
+test tests::rejects_ambiguous_dimension_quotient ... ok
+test tests::rejects_dimension_mismatch ... ok
+test tests::rejects_division_by_zero ... ok
+test tests::rejects_missing_unit_metadata_at_boundary ... ok
+test tests::rejects_same_dimension_unit_mismatch_without_conversion_policy ... ok
+test tests::rejects_unrepresentable_dimensional_multiplication ... ok
+test tests::rejects_unsafe_host_access ... ok
+test tests::rejects_unsupported_expression_form ... ok
+test tests::reports_duplicate_binding ... ok
+test tests::reports_invalid_empty_reference ... ok
+test tests::reports_missing_required_value ... ok
+test tests::reports_missing_variable_binding ... ok
+test tests::reports_non_finite_literal ... ok
+test tests::resolves_enumerated_dimensional_multiplication_to_derived_dimension ... ok
+test tests::resolves_unique_dimension_quotient ... ok
+test tests::select_is_eager_so_unselected_branch_diagnostics_block ... ok
+test tests::same_dimension_quotients_that_did_not_panic_are_unchanged ... FAILED
+test tests::the_carried_non_finite_reproducers_block_at_the_multiply ... FAILED
+test tests::the_comparison_truth_table_is_unreachable ... FAILED
+test interval_tests::interval_outcomes_are_sound_against_the_point_path ... ok
+failures:
+---- tests::blocks_generated_nan_table_arguments stdout ----
+thread 'tests::blocks_generated_nan_table_arguments' (88534606) panicked at src/lib.rs:3925:13:
+assertion `left == right` failed
+  left: [(NonFiniteInput, "add_subtract", "sum or difference must be finite (it overflowed)")]
+ right: [(NonFiniteInput, "multiply", "product must be finite (it overflowed)")]
+---- tests::absorbing_forms_block_instead_of_deciding stdout ----
+thread 'tests::absorbing_forms_block_instead_of_deciding' (88534603) panicked at src/lib.rs:4185:13:
+assertion `left == right` failed: max(NaN, s)
+  left: [(NonFiniteInput, "add_subtract", "sum or difference must be finite (it overflowed)")]
+ right: [(NonFiniteInput, "multiply", "product must be finite (it overflowed)")]
+---- tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking stdout ----
+thread 'tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking' (88534609) panicked at src/lib.rs:3839:13:
+assertion `left == right` failed: None
+  left: [(NonFiniteInput, "add_subtract", "sum or difference must be finite (it overflowed)")]
+ right: [(NonFiniteInput, "multiply", "product must be finite (it overflowed)")]
+---- tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression stdout ----
+thread 'tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression' (88534602) panicked at src/lib.rs:4444:13:
+assertion `left == right` failed
+  left: [(MissingVariable, "missing", "variable reference is not bound")]
+ right: [(NonFiniteInput, "multiply", "product must be finite (it overflowed)")]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+---- tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking stdout ----
+thread 'tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking' (88534611) panicked at src/lib.rs:3634:13:
+assertion `left == right` failed
+  left: [(NonFiniteInput, "divide", "same-dimension quotient (ratio) must be finite")]
+ right: [(NonFiniteInput, "multiply", "product must be finite (it overflowed)")]
+---- tests::each_producer_blocks_where_its_result_overflows stdout ----
+thread 'tests::each_producer_blocks_where_its_result_overflows' (88534618) panicked at src/lib.rs:4083:13:
+assertion `left == right` failed: ratio x stress (dimensionless-left arm)
+  left: []
+ right: [(NonFiniteInput, "multiply", "product must be finite (it overflowed)")]
+---- tests::non_finite_table_arguments_block_at_the_overflowing_multiply stdout ----
+thread 'tests::non_finite_table_arguments_block_at_the_overflowing_multiply' (88534626) panicked at src/lib.rs:3860:17:
+assertion `left == right` failed: None nan
+  left: [(NonFiniteInput, "add_subtract", "sum or difference must be finite (it overflowed)")]
+ right: [(NonFiniteInput, "multiply", "product must be finite (it overflowed)")]
+---- tests::interval_mode_still_reads_these_overflows_indeterminate_without_a_finding stdout ----
+thread 'tests::interval_mode_still_reads_these_overflows_indeterminate_without_a_finding' (88534623) panicked at src/lib.rs:4478:13:
+assertion failed: point.is_blocked()
+---- tests::same_dimension_quotients_that_did_not_panic_are_unchanged stdout ----
+thread 'tests::same_dimension_quotients_that_did_not_panic_are_unchanged' (88534643) panicked at src/lib.rs:3707:9:
+assertion `left == right` failed
+  left: []
+ right: [(NonFiniteInput, "multiply", "product must be finite (it overflowed)")]
+---- tests::the_carried_non_finite_reproducers_block_at_the_multiply stdout ----
+thread 'tests::the_carried_non_finite_reproducers_block_at_the_multiply' (88534645) panicked at src/lib.rs:4112:13:
+assertion `left == right` failed
+  left: [(NonFiniteInput, "add_subtract", "sum or difference must be finite (it overflowed)")]
+ right: [(NonFiniteInput, "multiply", "product must be finite (it overflowed)")]
+---- tests::the_comparison_truth_table_is_unreachable stdout ----
+thread 'tests::the_comparison_truth_table_is_unreachable' (88534646) panicked at src/lib.rs:4240:17:
+assertion `left == right` failed: LessThan
+  left: []
+ right: [(NonFiniteInput, "multiply", "product must be finite (it overflowed)")]
+failures:
+    tests::a_producer_blocks_after_its_structural_checks_and_stops_the_expression
+    tests::absorbing_forms_block_instead_of_deciding
+    tests::blocks_generated_nan_table_arguments
+    tests::blocks_nan_interpolation_and_step_lookup_arguments_instead_of_panicking
+    tests::blocks_overflowing_same_dimension_quotient_instead_of_panicking
+    tests::each_producer_blocks_where_its_result_overflows
+    tests::interval_mode_still_reads_these_overflows_indeterminate_without_a_finding
+    tests::non_finite_table_arguments_block_at_the_overflowing_multiply
+    tests::same_dimension_quotients_that_did_not_panic_are_unchanged
+    tests::the_carried_non_finite_reproducers_block_at_the_multiply
+    tests::the_comparison_truth_table_is_unreachable
+test result: FAILED. 53 passed; 11 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+error: test failed, to rerun pass `--lib`
+error: 1 target failed:
+    `--lib`

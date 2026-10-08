@@ -1,0 +1,60 @@
+{
+ "A1_existing_note_only": {
+  "compile_error": false,
+  "failed": [
+   "a_non_finite_input_is_named_and_never_bound",
+   "the_n4_note_follows_an_existing_note"
+  ],
+  "killed": true,
+  "panic_kinds": {},
+  "rc": 101
+ },
+ "A1_note_prepended": {
+  "compile_error": false,
+  "failed": [
+   "a_non_finite_input_is_named_and_never_bound",
+   "the_n4_note_follows_an_existing_note"
+  ],
+  "killed": true,
+  "panic_kinds": {},
+  "rc": 101
+ },
+ "A1_note_replaces_existing": {
+  "compile_error": false,
+  "failed": [
+   "a_non_finite_input_is_named_and_never_bound",
+   "the_n4_note_follows_an_existing_note"
+  ],
+  "killed": true,
+  "panic_kinds": {},
+  "rc": 101
+ },
+ "A1_note_separator_space": {
+  "compile_error": false,
+  "failed": [
+   "a_non_finite_input_is_named_and_never_bound",
+   "the_n4_note_follows_an_existing_note"
+  ],
+  "killed": true,
+  "panic_kinds": {},
+  "rc": 101
+ },
+ "N06_dedup_removed": {
+  "compile_error": false,
+  "failed": [
+   "a_non_finite_input_listed_twice_is_named_once"
+  ],
+  "killed": true,
+  "panic_kinds": {},
+  "rc": 101
+ },
+ "N09_trim_dropped": {
+  "compile_error": false,
+  "failed": [
+   "a_non_finite_value_in_a_padded_copy_of_the_declared_unit_is_named_not_unsupplied"
+  ],
+  "killed": true,
+  "panic_kinds": {},
+  "rc": 101
+ }
+}

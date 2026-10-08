@@ -1,0 +1,430 @@
+[
+ {
+  "id": "R17_all_for_any",
+  "files": [
+   "core/product_physics/src/lib.rs"
+  ],
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_facade_tests::b1_sp_r3p_1_one_case_in_a_runs_on_its_own_slot",
+   "retained_facade_tests::b1_sp_w_c2_direct_entry_counts_one_run_through_g_c",
+   "retained_facade_tests::b1_sp_w_c2_through_retained_w1_publishes_t12",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_facade_tests::b1_sp_w_c2_direct_entry_counts_one_run_through_g_c",
+    "at": "src/retained_facade_tests.rs:1803:9",
+    "message": "assertion `left == right` failed: SparseInteractive: before SR-RS"
+   },
+   {
+    "test": "retained_facade_tests::b1_sp_w_c2_through_retained_w1_publishes_t12",
+    "at": "src/retained_facade_tests.rs:1772:9",
+    "message": "assertion `left == right` failed: SparseInteractive: not NoTriggeredCase (R17)"
+   },
+   {
+    "test": "retained_facade_tests::b1_sp_r3p_1_one_case_in_a_runs_on_its_own_slot",
+    "at": "src/retained_facade_tests.rs:1909:13",
+    "message": "assertion `left == right` failed: SparseInteractive"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 569 passed; 4 failed; 11 ignored; 0 measured; 0 filtered out; finished in 60.55s"
+  ],
+  "seconds": 235.2,
+  "restored_sha256": {
+   "core/product_physics/src/lib.rs": "f77e2273860f946539dd2a8580902fd1188a9d99158bcadbf0d8ddfb1c885b09"
+  }
+ },
+ {
+  "id": "S4_detail_placement",
+  "files": [
+   "core/product_physics/src/lib.rs"
+  ],
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_facade_tests::b1_sp_w_c2_through_retained_w1_publishes_t12",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_facade_tests::b1_sp_w_c2_through_retained_w1_publishes_t12",
+    "at": "src/retained_facade_tests.rs:1775:9",
+    "message": "assertion `left == right` failed: SparseInteractive: the detail on A's notice only"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 571 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 64.56s"
+  ],
+  "seconds": 266.1,
+  "restored_sha256": {
+   "core/product_physics/src/lib.rs": "f77e2273860f946539dd2a8580902fd1188a9d99158bcadbf0d8ddfb1c885b09"
+  }
+ },
+ {
+  "id": "S5_reservation_count",
+  "files": [
+   "core/product_physics/src/lib.rs"
+  ],
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_facade_tests::b1_sp_r3p_1_one_case_in_a_runs_on_its_own_slot",
+   "retained_facade_tests::b1_sp_t5_one_reserved_notice_per_case_in_a",
+   "retained_facade_tests::b1_sp_w_c2_through_retained_w1_publishes_t12",
+   "retained_facade_tests::b1_t4_retained_w1_applies_decision_21_and_keeps_a_seedless_case",
+   "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes",
+   "retained_facade_tests::u3_r1_carrier_names_exactly_one_publication",
+   "retained_facade_tests::u3_test_hooks_follow_the_reserved_stack_thread",
+   "retained_facade_tests::u3_unfired_hooks_come_back_across_the_hop",
+   "retained_facade_tests::u8_real_input_fallbacks_append_one_notice",
+   "retained_memory::law_tests::registered_g_c_declines_only_unattempted_solves",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_facade_tests::b1_sp_t5_one_reserved_notice_per_case_in_a",
+    "at": "src/retained_facade_tests.rs:1501:9",
+    "message": "1: every slot reserved before W1"
+   },
+   {
+    "test": "retained_facade_tests::b1_sp_r3p_1_one_case_in_a_runs_on_its_own_slot",
+    "at": "src/lib.rs:3115:13",
+    "message": "the notice's space was reserved before W1: rendering allocated nothing"
+   },
+   {
+    "test": "retained_facade_tests::b1_sp_w_c2_through_retained_w1_publishes_t12",
+    "at": "src/lib.rs:3115:13",
+    "message": "the notice's space was reserved before W1: rendering allocated nothing"
+   },
+   {
+    "test": "retained_facade_tests::b1_t4_retained_w1_applies_decision_21_and_keeps_a_seedless_case",
+    "at": "src/lib.rs:3115:13",
+    "message": "the notice's space was reserved before W1: rendering allocated nothing"
+   },
+   {
+    "test": "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes",
+    "at": "src/lib.rs:3115:13",
+    "message": "the notice's space was reserved before W1: rendering allocated nothing"
+   },
+   {
+    "test": "retained_facade_tests::u3_r1_carrier_names_exactly_one_publication",
+    "at": "src/lib.rs:3115:13",
+    "message": "the notice's space was reserved before W1: rendering allocated nothing"
+   },
+   {
+    "test": "<unnamed>",
+    "at": "src/lib.rs:3115:13",
+    "message": "the notice's space was reserved before W1: rendering allocated nothing"
+   },
+   {
+    "test": "<unnamed>",
+    "at": "src/lib.rs:3115:13",
+    "message": "the notice's space was reserved before W1: rendering allocated nothing"
+   },
+   {
+    "test": "<unnamed>",
+    "at": "src/lib.rs:3115:13",
+    "message": "the notice's space was reserved before W1: rendering allocated nothing"
+   },
+   {
+    "test": "<unnamed>",
+    "at": "src/lib.rs:3115:13",
+    "message": "the notice's space was reserved before W1: rendering allocated nothing"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 562 passed; 11 failed; 11 ignored; 0 measured; 0 filtered out; finished in 55.54s"
+  ],
+  "seconds": 1070.8,
+  "restored_sha256": {
+   "core/product_physics/src/lib.rs": "f77e2273860f946539dd2a8580902fd1188a9d99158bcadbf0d8ddfb1c885b09"
+  }
+ },
+ {
+  "id": "S6a_custody",
+  "files": [
+   "core/product_physics/src/retained_product.rs"
+  ],
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_facade_tests::b1_sp_r3p_2_3_custody_validates_a_and_orders_prior_errors",
+   "retained_facade_tests::b1_sp_r3p_7_custody_per_case_presence_parked_capture_and_native",
+   "retained_facade_tests::b1_sp_t6_custody_refuses_the_whole_invocation",
+   "retained_facade_tests::b1_sp_w_c2_transaction_faults_and_abandonment",
+   "retained_product_tests::i51_c0_isolated_late_hook_custody_and_prefixes",
+   "retained_product_tests::prepared_trace_actual_helper_refusal_and_earlier_old_prefix_are_retained",
+   "retained_product_tests::prepared_trace_prior_owned_cause_precedes_sticky_adapter_and_fresh_prelude_errors",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_facade_tests::b1_sp_r3p_2_3_custody_validates_a_and_orders_prior_errors",
+    "at": "src/retained_product.rs:227:55",
+    "message": "index out of bounds: the len is 2 but the index is 3"
+   },
+   {
+    "test": "retained_facade_tests::b1_sp_r3p_7_custody_per_case_presence_parked_capture_and_native",
+    "at": "src/retained_facade_tests.rs:1953:22",
+    "message": "custody passed"
+   },
+   {
+    "test": "retained_facade_tests::b1_sp_t6_custody_refuses_the_whole_invocation",
+    "at": "src/retained_facade_tests.rs:1463:22",
+    "message": "custody passed"
+   },
+   {
+    "test": "retained_facade_tests::b1_sp_w_c2_transaction_faults_and_abandonment",
+    "at": "src/retained_facade_tests.rs:1717:5",
+    "message": "assertion `left == right` failed: T-6 custody"
+   },
+   {
+    "test": "retained_product_tests::i51_c0_isolated_late_hook_custody_and_prefixes",
+    "at": "src/retained_product.rs:227:55",
+    "message": "index out of bounds: the len is 0 but the index is 1"
+   },
+   {
+    "test": "retained_product_tests::prepared_trace_actual_helper_refusal_and_earlier_old_prefix_are_retained",
+    "at": "src/retained_product_tests.rs:2792:71",
+    "message": "earlier failed capture"
+   },
+   {
+    "test": "retained_product_tests::prepared_trace_prior_owned_cause_precedes_sticky_adapter_and_fresh_prelude_errors",
+    "at": "src/retained_product_tests.rs:2887:75",
+    "message": "prior cause must refuse"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 565 passed; 8 failed; 11 ignored; 0 measured; 0 filtered out; finished in 60.18s"
+  ],
+  "seconds": 195.4,
+  "restored_sha256": {
+   "core/product_physics/src/retained_product.rs": "cac6e68d379fef76976491677a310a6dcd4d1e80a2f4bdd335025a37d782b24e"
+  }
+ },
+ {
+  "id": "RV_S3_per_case_presence",
+  "files": [
+   "core/product_physics/src/retained_product.rs"
+  ],
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_facade_tests::b1_sp_r3p_7_custody_per_case_presence_parked_capture_and_native",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_facade_tests::b1_sp_r3p_7_custody_per_case_presence_parked_capture_and_native",
+    "at": "src/retained_facade_tests.rs:1953:22",
+    "message": "custody passed"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 571 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 66.56s"
+  ],
+  "seconds": 117.9,
+  "restored_sha256": {
+   "core/product_physics/src/retained_product.rs": "cac6e68d379fef76976491677a310a6dcd4d1e80a2f4bdd335025a37d782b24e"
+  }
+ },
+ {
+  "id": "RV_S4_finish_parked_captures",
+  "files": [
+   "core/product_physics/src/retained_product.rs"
+  ],
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_facade_tests::b1_sp_r3p_7_custody_per_case_presence_parked_capture_and_native",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_facade_tests::b1_sp_r3p_7_custody_per_case_presence_parked_capture_and_native",
+    "at": "src/retained_facade_tests.rs:1953:22",
+    "message": "custody passed"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 571 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 66.52s"
+  ],
+  "seconds": 107.5,
+  "restored_sha256": {
+   "core/product_physics/src/retained_product.rs": "cac6e68d379fef76976491677a310a6dcd4d1e80a2f4bdd335025a37d782b24e"
+  }
+ },
+ {
+  "id": "RV_S7_parked_native",
+  "files": [
+   "core/product_physics/src/retained_product.rs"
+  ],
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_facade_tests::b1_sp_r3p_7_custody_per_case_presence_parked_capture_and_native",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_facade_tests::b1_sp_r3p_7_custody_per_case_presence_parked_capture_and_native",
+    "at": "src/retained_facade_tests.rs:1953:22",
+    "message": "custody passed"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 571 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 66.27s"
+  ],
+  "seconds": 108.1,
+  "restored_sha256": {
+   "core/product_physics/src/retained_product.rs": "cac6e68d379fef76976491677a310a6dcd4d1e80a2f4bdd335025a37d782b24e"
+  }
+ },
+ {
+  "id": "RV_S13_one_diagnostics_slot",
+  "files": [
+   "core/product_physics/src/lib.rs"
+  ],
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_facade_tests::b1_sp_t5_one_reserved_notice_per_case_in_a",
+   "retained_facade_tests::b1_sp_w_c2_through_retained_w1_publishes_t12",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_facade_tests::b1_sp_t5_one_reserved_notice_per_case_in_a",
+    "at": "src/retained_facade_tests.rs:1501:9",
+    "message": "2: every slot reserved before W1"
+   },
+   {
+    "test": "retained_facade_tests::b1_sp_w_c2_through_retained_w1_publishes_t12",
+    "at": "src/lib.rs:3115:13",
+    "message": "the notice's space was reserved before W1: rendering allocated nothing"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 570 passed; 3 failed; 11 ignored; 0 measured; 0 filtered out; finished in 63.52s"
+  ],
+  "seconds": 104.6,
+  "restored_sha256": {
+   "core/product_physics/src/lib.rs": "f77e2273860f946539dd2a8580902fd1188a9d99158bcadbf0d8ddfb1c885b09"
+  }
+ },
+ {
+  "id": "RV_S14_no_cross_notice_id_check",
+  "files": [
+   "core/product_physics/src/lib.rs"
+  ],
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_facade_tests::b1_sp_t5_one_reserved_notice_per_case_in_a",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_facade_tests::b1_sp_t5_one_reserved_notice_per_case_in_a",
+    "at": "src/retained_facade_tests.rs:1516:9",
+    "message": "two notices with one id"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 571 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 66.69s"
+  ],
+  "seconds": 107.7,
+  "restored_sha256": {
+   "core/product_physics/src/lib.rs": "f77e2273860f946539dd2a8580902fd1188a9d99158bcadbf0d8ddfb1c885b09"
+  }
+ },
+ {
+  "id": "RV_S20_capacity_assigned",
+  "files": [
+   "core/product_physics/src/retained_product.rs"
+  ],
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_facade_tests::b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_facade_tests::b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping",
+    "at": "src/retained_facade_tests.rs:1655:13",
+    "message": "assertion `left == right` failed: SparseInteractive: every case's id capacity"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 571 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 65.91s"
+  ],
+  "seconds": 108.6,
+  "restored_sha256": {
+   "core/product_physics/src/retained_product.rs": "cac6e68d379fef76976491677a310a6dcd4d1e80a2f4bdd335025a37d782b24e"
+  }
+ }
+]

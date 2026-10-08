@@ -1,0 +1,40 @@
+[
+ {
+  "id": "S8a2_domain_c_plus_1_truncated",
+  "files": [
+   "core/product_physics/src/lib.rs"
+  ],
+  "rc": 101,
+  "compiled": true,
+  "killed": true,
+  "failed_tests": [
+   "retained_facade_tests::b1_sp_domain_recheck_names_the_requested_cases",
+   "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+  ],
+  "panics": [
+   {
+    "test": "retained_facade_tests::b1_sp_domain_recheck_names_the_requested_cases",
+    "at": "src/retained_facade_tests.rs:1546:5",
+    "message": "assertion `left == right` failed: C + 1 cases"
+   },
+   {
+    "test": "retained_facade_tests::u3_each_stage_fault_falls_back_to_the_ordinary_bytes",
+    "at": "src/retained_facade_tests.rs:193:5",
+    "message": "assertion `left == right` failed: C + 1 cases: outside D1.4"
+   },
+   {
+    "test": "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+    "at": "src/s11g_tests.rs:1666:9",
+    "message": "SparseInteractive: committed bytes changed"
+   }
+  ],
+  "summary": [
+   "test result: FAILED. 570 passed; 3 failed; 11 ignored; 0 measured; 0 filtered out; finished in 67.10s"
+  ],
+  "seconds": 109.3,
+  "restored_sha256": {
+   "core/product_physics/src/lib.rs": "f77e2273860f946539dd2a8580902fd1188a9d99158bcadbf0d8ddfb1c885b09"
+  }
+ }
+]

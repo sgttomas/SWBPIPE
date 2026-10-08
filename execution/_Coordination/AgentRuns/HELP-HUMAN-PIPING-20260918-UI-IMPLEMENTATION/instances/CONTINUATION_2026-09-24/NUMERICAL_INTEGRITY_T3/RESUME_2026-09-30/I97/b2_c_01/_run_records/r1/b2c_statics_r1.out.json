@@ -1,0 +1,143 @@
+{
+  "controls": {
+    "DEF_O_H": "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349",
+    "v0_DEF_C_H": "9adf5178c7c1d5b81de340c2f0f605396e717a9264b59430df8d2a1306f21731",
+    "v0_DEF_C_reproduces": true,
+    "v0_J1_SCHEMA_reproduces": true,
+    "v0_PTABLE_reproduces": true,
+    "v0_SCHEMA_B2_diff_reproduces": true,
+    "v0_SCHEMA_J1_diff_reproduces": true
+  },
+  "definition": {
+    "DEF_O rows.support_magnitude": "finish same-support authenticated Fx/Fy/Fz or Mx/My/Mz slots; binary64 hypot(hypot(x,y),z), finite nonnegative and canonical +0; still certify dual physical norm and unchanged 64-epsilon component guard",
+    "H_alternative_domain_retained_precision_combination_formation_v1": "82fccc74bab3f05fbaba0fb1387f48eb314f40656387191f5a4e7408378c1ed5",
+    "H_retained_precision_formation_v1": "0c43cf427b35d35e291e42382d242bca3762b61344b705744127c7c9b4372b6f",
+    "ascii_only": true,
+    "bytes": 10863,
+    "canonical_bytes": true,
+    "file": "retained_precision_prepared_combination_v1.json",
+    "json_floats": 0,
+    "operand_definition_sha256_is_H_DEF_O": true,
+    "paths_changed_from_DEF_O": [
+      "acceptance.composition",
+      "hash_domains.preparation",
+      "id",
+      "inherits.operand_definition",
+      "lanes.admitted_k",
+      "lanes.loads",
+      "lanes.owner",
+      "preparation.arithmetic",
+      "preparation.combination",
+      "preparation.id",
+      "preparation.input_order",
+      "preparation.operands",
+      "preparation.operational",
+      "preparation.output_order",
+      "preparation.pi",
+      "preparation.primitive_requirements",
+      "preparation.replaces",
+      "preparation.rust_variant",
+      "preparation.sequence",
+      "rows.ancillary",
+      "rows.coverage",
+      "rows.displacement_magnitude",
+      "rows.maximum",
+      "rows.prescribed",
+      "scope.excludes",
+      "scope.loads",
+      "scope.operand_equality",
+      "scope.operand_sources",
+      "scope.owners",
+      "scope.trigger",
+      "stages",
+      "trust.G8",
+      "work.additional_product",
+      "work.native_meter"
+    ],
+    "paths_changed_from_v0_DEF_C": [
+      "lanes.loads",
+      "rows.displacement_magnitude",
+      "scope.operand_equality",
+      "stages.observables"
+    ],
+    "raw_sha256": "6467c733ff5060afd3040172a5df91b12c228555254ae6d33d40555e06f30c03",
+    "rows.displacement_magnitude": "finish the same node's frozen global_nodal_displacement_x/y/z rows; binary64 hypot(hypot(x,y),z) of their frozen raw values (mm), finite nonnegative and canonical +0, SI by the projection's mm rule; still certify dual physical norm and the unchanged 64-epsilon combination magnitude guard (base G7 combination_magnitudes), which the observables stage checks; not H of a lane norm hull",
+    "support_magnitude_equal_to_DEF_O": true
+  },
+  "inputs": {
+    "DEF-O": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+    "PTABLE (main)": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+    "SCHEMA (main)": "07951edacfedd410c153929ee75bb5bada15dbd222369ec63240c678b233b61c",
+    "b2c_statics.py (v0, sealed)": "01b762eedc132c6cb35d856522d491c72d43385c60763c26e8393905bae84564",
+    "v0 statics/SCHEMA_B2.diff": "ff3b88956ff399a50116b637fe2a9bf046271a54f2b842000ea85701672600d3",
+    "v0 statics/SCHEMA_J1.diff": "f674370d0c62f2fa8993f90b0b1828697b22598ed7214d64653c3ca94e125fd1",
+    "v0 statics/retained_precision_mp_v2.schema.json": "abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e",
+    "v0 statics/retained_precision_prepared_combination_v1.json": "03d40598be82a5df8867bb9a279b212b3acd53ba5f51ff85b9635e6cefaa69cc",
+    "v0 statics/semantic_contract_v0_3_preview_physics_retained_1.json": "863738f1aa81c7bdbf87c716b68e690c6104d7d25416df8ed4c28caece44d0e1"
+  },
+  "reviewed_inputs_cascade": {
+    "moved_from_v0": {
+      "DEF-C": [
+        "03d40598be82a5df8867bb9a279b212b3acd53ba5f51ff85b9635e6cefaa69cc",
+        "6467c733ff5060afd3040172a5df91b12c228555254ae6d33d40555e06f30c03"
+      ],
+      "PTABLE": [
+        "863738f1aa81c7bdbf87c716b68e690c6104d7d25416df8ed4c28caece44d0e1",
+        "791c0a0d9a06ce4effac5914b40872fa808ce3208dfe6c2c6d51359d6ff41573"
+      ]
+    },
+    "new_hashes": {
+      "DEF-C": "6467c733ff5060afd3040172a5df91b12c228555254ae6d33d40555e06f30c03",
+      "PTABLE": "791c0a0d9a06ce4effac5914b40872fa808ce3208dfe6c2c6d51359d6ff41573",
+      "SCHEMA": "abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e"
+    }
+  },
+  "schema": {
+    "CombinationAttempt.definition_id": {
+      "const": "RP-PREPARED-COMBINATION-DUAL-v1"
+    },
+    "OperandPreparation.definition_id": {
+      "const": "RP-PREPARED-ORDINARY-DUAL-v1"
+    },
+    "SCHEMA_B2_diff_sha256": "ff3b88956ff399a50116b637fe2a9bf046271a54f2b842000ea85701672600d3",
+    "SCHEMA_J1_diff_sha256": "f674370d0c62f2fa8993f90b0b1828697b22598ed7214d64653c3ca94e125fd1",
+    "b2_only_sha256": "841b2c5d77a81c9165b789eb7946a7c0ff347c3580338c848d97db403189b2da",
+    "contains_a_definition_or_table_hash": false,
+    "j1_merged_sha256": "abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e",
+    "unchanged_from_v0_statics": true
+  },
+  "table": {
+    "accuracy_classification_keys_changed_from_main": [
+      "scope"
+    ],
+    "bytes": 53719,
+    "file": "semantic_contract_v0_3_preview_physics_retained_1.json",
+    "formation_warrant_equal_to_v0_draft": true,
+    "members_added_to_main": [
+      "receipt_bindings"
+    ],
+    "members_changed_from_main": [
+      "product_formation_definitions",
+      "accuracy_classification",
+      "formation_warrant"
+    ],
+    "paths_changed_from_v0_draft": [
+      "accuracy_classification.scope",
+      "product_formation_definitions"
+    ],
+    "product_formation_definitions": [
+      {
+        "id": "RP-PREPARED-ORDINARY-DUAL-v1",
+        "sha256": "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349"
+      },
+      {
+        "id": "RP-PREPARED-COMBINATION-DUAL-v1",
+        "sha256": "0c43cf427b35d35e291e42382d242bca3762b61344b705744127c7c9b4372b6f"
+      }
+    ],
+    "receipt_bindings_equal_to_XTABLE": true,
+    "roundtrip_indent2_ascii": true,
+    "scope": "registered ordinary-prepared source, and registered prepared mechanics combinations (RP-PREPARED-COMBINATION-DUAL-v1: their own solve on the combined exact ledger, at least one operand selected); no exact-profile, subtraction or range extension; R-COMB-1: each quantity row of a retained_unavailable combination, and of an ordinary combination whose expression names a load case that is not not_required, is not_covered and withheld from binding with its value unchanged; record rows stay non_quantity",
+    "sha256": "791c0a0d9a06ce4effac5914b40872fa808ce3208dfe6c2c6d51359d6ff41573"
+  }
+}

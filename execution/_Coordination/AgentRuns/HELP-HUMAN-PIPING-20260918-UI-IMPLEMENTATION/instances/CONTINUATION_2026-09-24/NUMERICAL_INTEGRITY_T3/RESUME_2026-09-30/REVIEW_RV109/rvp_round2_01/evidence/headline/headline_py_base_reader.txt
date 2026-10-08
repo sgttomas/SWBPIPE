@@ -1,0 +1,127 @@
+Python base preview-physics reader (head), on the reviewer's projections of SP's staged successors (G7's input)
+wc2_ab_dense_scrutiny: staged PASS; ordinary base PASS
+   max_open_formula_stress keep-ordinary: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_displacement keep-ordinary: (same as staged)
+   max_displacement first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+wc2_ab_sparse_interactive: staged PASS; ordinary base PASS
+   max_open_formula_stress keep-ordinary: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_displacement keep-ordinary: (same as staged)
+   max_displacement first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+wc2_abc_dense_scrutiny: staged PASS; ordinary base PASS
+   max_open_formula_stress keep-ordinary: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_displacement keep-ordinary: (same as staged)
+   max_displacement first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+wc2_abc_sparse_interactive: staged PASS; ordinary base PASS
+   max_open_formula_stress keep-ordinary: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_displacement keep-ordinary: (same as staged)
+   max_displacement first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+wc2_ac_dense_scrutiny: staged PASS; ordinary base PASS
+   max_open_formula_stress keep-ordinary: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_displacement keep-ordinary: (same as staged)
+   max_displacement first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+wc2_ac_sparse_interactive: staged PASS; ordinary base PASS
+   max_open_formula_stress keep-ordinary: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_displacement keep-ordinary: (same as staged)
+   max_displacement first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+wc2_bac_dense_scrutiny: staged PASS; ordinary base PASS
+   max_open_formula_stress keep-ordinary: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_displacement keep-ordinary: (same as staged)
+   max_displacement first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+wc2_bac_sparse_interactive: staged PASS; ordinary base PASS
+   max_open_formula_stress keep-ordinary: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_displacement keep-ordinary: (same as staged)
+   max_displacement first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+wc2_bca_dense_scrutiny: staged PASS; ordinary base PASS
+   max_open_formula_stress keep-ordinary: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_displacement keep-ordinary: (same as staged)
+   max_displacement first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+wc2_bca_sparse_interactive: staged PASS; ordinary base PASS
+   max_open_formula_stress keep-ordinary: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_displacement keep-ordinary: (same as staged)
+   max_displacement first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+wc2_ca_dense_scrutiny: staged PASS; ordinary base PASS
+   max_open_formula_stress keep-ordinary: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_displacement keep-ordinary: (same as staged)
+   max_displacement first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+wc2_ca_sparse_interactive: staged PASS; ordinary base PASS
+   max_open_formula_stress keep-ordinary: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_displacement keep-ordinary: (same as staged)
+   max_displacement first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+wc2_cba_dense_scrutiny: staged PASS; ordinary base PASS
+   max_open_formula_stress keep-ordinary: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_displacement keep-ordinary: (same as staged)
+   max_displacement first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+wc2_cba_sparse_interactive: staged PASS; ordinary base PASS
+   max_open_formula_stress keep-ordinary: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_open_formula_stress null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: stress headline does not govern
+   max_displacement keep-ordinary: (same as staged)
+   max_displacement first-frozen-alias: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement selected-rows-only: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern
+   max_displacement null: REFUSED: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: displacement headline does not govern

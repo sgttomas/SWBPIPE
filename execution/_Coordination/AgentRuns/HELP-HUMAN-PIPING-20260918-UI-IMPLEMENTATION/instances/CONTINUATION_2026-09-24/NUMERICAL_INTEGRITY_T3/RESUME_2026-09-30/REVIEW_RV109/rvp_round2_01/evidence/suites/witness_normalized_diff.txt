@@ -1,0 +1,17 @@
+3c3
+< 1607 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+---
+> 1631 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+5c5
+< 1608 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+---
+> 1632 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+7c7
+< 10387 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+---
+> 10501 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+105c105
+< test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 551 filtered out; finished in 8.98s
+---
+> test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 574 filtered out; finished in 8.89s
+exit 1

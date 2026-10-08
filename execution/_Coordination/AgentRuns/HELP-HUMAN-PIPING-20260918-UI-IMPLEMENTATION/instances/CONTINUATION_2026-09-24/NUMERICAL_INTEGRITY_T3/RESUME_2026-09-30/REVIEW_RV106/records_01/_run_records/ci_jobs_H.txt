@@ -1,0 +1,13 @@
+37551425131	Harness Pre-merge Validation	Select App coverage	completed	success
+37551425131	Harness Pre-merge Validation	Harness pre-merge	completed	success
+37551425131	Harness Pre-merge Validation	App Runtime integration	completed	skipped
+37551425131	Harness Pre-merge Validation	App instruction bundle	completed	skipped
+37551425087	Piping Desktop E2E	Select source coverage	completed	success
+37551425087	Piping Desktop E2E	Numerical cargo suite	completed	skipped
+37551425087	Piping Desktop E2E	Desktop E2E (source mode)	completed	success
+37551425087	Piping Desktop E2E	Accessibility barrier and selected coverage	completed	skipped
+37551425087	Piping Desktop E2E	Source remainder (${{ matrix.shard }}/4)	completed	skipped
+37551425158	pec-tests	Select PEC coverage	completed	success
+37551425158	pec-tests	pec	completed	success
+37551425158	pec-tests	PEC workspace tests	completed	skipped
+37551425229	governance-harness	harness	completed	success

@@ -1,0 +1,12 @@
+RV109_JOB name=r2_mut_M27_headline_tie_reversed dir=WT/rv109/mut/projects/chirality-piping/core/product_physics target=rv109-r2-mut stale=0 args=test --locked --offline --no-fail-fast --lib start=2026-10-07T21:52:59Z
+test retained_facade_tests::b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping ... FAILED
+test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+thread 'retained_facade_tests::b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping' (96918455) panicked at src/retained_facade_tests.rs:1672:13:
+assertion `left == right` failed: SparseInteractive: the max_displacement headline
+  left: Object {"location_ref": String("node:section-b"), "result_ref": String("result:loadcase:case-c:disp:node-section-b"), "unit": String("mm"), "value": Number(282.94212105225847)}
+ right: Object {"location_ref": String("node:section-b"), "result_ref": String("result:loadcase:case-b:disp:node-section-b"), "unit": String("mm"), "value": Number(282.94212105225847)}
+thread 's11g_tests::t13_committed_fallback_uz_is_byte_identical' (96921398) panicked at src/s11g_tests.rs:1666:9:
+test result: FAILED. 571 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 65.24s
+error: test failed, to rerun pass `--lib`
+error: 1 target failed:
+RV109_JOB_END name=r2_mut_M27_headline_tie_reversed rc=101 end=2026-10-07T21:54:07Z

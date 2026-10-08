@@ -1,0 +1,16 @@
+T3 execution records from the integration branch at 030020aca3, after
+#1104: the merge records for #1103 and #1104 (with T6S's DEC-025
+comparison and the package's draft run records), RV101's two addenda,
+RV103's and RV105's reviews, I75's REPAIR_01, I78's B0 design and
+revision, I79's SI1b return, the B1/RV104/RV105 briefs, U8's sealed
+counts extract (RV103 S-1) and its seal, and SESSION_2026-10-06's
+SHA256SUMS.dec025_mac (RV103 N-3); the rulings (append-only, including
+the owner's decision of 2026-10-06 on the memory ceiling M) and the
+work graph's T3 section. 218 added, 2 modified, 0 deleted, all under
+projects/chirality-piping/execution/.
+
+Gates (records-only): GEN-8 on the exact head; the automatic CI; an
+independent agent review (RV106: PASS, 0/0/5). Not personal review by
+the owner.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

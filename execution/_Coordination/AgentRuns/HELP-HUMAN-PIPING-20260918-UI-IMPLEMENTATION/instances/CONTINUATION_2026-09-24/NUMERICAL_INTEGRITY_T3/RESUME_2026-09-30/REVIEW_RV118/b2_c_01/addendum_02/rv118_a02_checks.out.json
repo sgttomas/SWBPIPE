@@ -1,0 +1,172 @@
+{
+ "DEF-C r2": {
+  "DEF-O H (control)": "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349",
+  "H (my JCS)": "d3fde142aff9c05d709b2fc2a04add42e14c66be3e2b2ba82012da57edf3d957",
+  "H, alternative domain": "941972e023e67561c94ba259b3d08fe1f328f8d600c9b347b2ae2ceefbcca621",
+  "ascii only, no trailing newline": true,
+  "operand_definition.sha256 == H(DEF-O)": true,
+  "r1_to_r2_changed_leaves": [
+   "rows.displacement_magnitude",
+   "stages.observables"
+  ],
+  "raw is its own JCS": true,
+  "rows.displacement_magnitude verbatim in REVISION_02 \u00a71.1": true,
+  "stages.entered": [
+   "native",
+   "proof_start",
+   "projection",
+   "maxima",
+   "values",
+   "aliases",
+   "certificate",
+   "observables",
+   "g5a"
+  ],
+  "stages.observables verbatim in REVISION_02 \u00a73": true,
+  "support_magnitude == DEF-O support_magnitude": true
+ },
+ "PTABLE r2": {
+  "formation hashes recompute": [
+   true,
+   true
+  ],
+  "indent-2 ASCII, one trailing newline": true,
+  "r1_to_r2_changed_leaves": [
+   "product_formation_definitions"
+  ],
+  "receipt_bindings == XTABLE (JCS)": true,
+  "scope == r1 scope": true
+ },
+ "SCHEMA J1": {
+  "DEF-C r2 raw present": false,
+  "H(DEF-C r2) present": false,
+  "PTABLE r2 raw present": false
+ },
+ "inputs": {
+  "DEF-C r1": "6467c733ff5060afd3040172a5df91b12c228555254ae6d33d40555e06f30c03",
+  "DEF-C r2": "3cebce55d1b31e0031628d7542a33a8debdfa37d2d258cb27dfbdfd1fc28db22",
+  "DEF-O": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+  "PTABLE r1": "791c0a0d9a06ce4effac5914b40872fa808ce3208dfe6c2c6d51359d6ff41573",
+  "PTABLE r2": "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c",
+  "SCHEMA J1": "abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e",
+  "XTABLE": "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d"
+ },
+ "nc3_ts_test_vectors": {
+  "edit_not_refused": [
+   "smallest subnormal",
+   "three smallest subnormals",
+   "two smallest subnormals"
+  ],
+  "vectors": [
+   {
+    "label": "A-5 midpoint, ties to even",
+    "p": "3f80000004000000",
+    "p + 256 subnormal ulps refused": false,
+    "p accepted by the guard": true,
+    "p*(1+2^-40) equals p": false,
+    "p*(1+2^-40) refused by the guard": true,
+    "p_is_subnormal_or_zero": false
+   },
+   {
+    "label": "A-5 midpoint plus 2^-1074: rounds up",
+    "p": "3f80000004000001",
+    "p + 256 subnormal ulps refused": false,
+    "p accepted by the guard": true,
+    "p*(1+2^-40) equals p": false,
+    "p*(1+2^-40) refused by the guard": true,
+    "p_is_subnormal_or_zero": false
+   },
+   {
+    "label": "smallest subnormal",
+    "p": "0000000000000001",
+    "p + 256 subnormal ulps refused": true,
+    "p accepted by the guard": true,
+    "p*(1+2^-40) equals p": true,
+    "p*(1+2^-40) refused by the guard": false,
+    "p_is_subnormal_or_zero": true
+   },
+   {
+    "label": "three smallest subnormals",
+    "p": "0000000000000002",
+    "p + 256 subnormal ulps refused": true,
+    "p accepted by the guard": true,
+    "p*(1+2^-40) equals p": true,
+    "p*(1+2^-40) refused by the guard": false,
+    "p_is_subnormal_or_zero": true
+   },
+   {
+    "label": "two smallest subnormals",
+    "p": "0000000000000001",
+    "p + 256 subnormal ulps refused": true,
+    "p accepted by the guard": true,
+    "p*(1+2^-40) equals p": true,
+    "p*(1+2^-40) refused by the guard": false,
+    "p_is_subnormal_or_zero": true
+   },
+   {
+    "label": "largest subnormal, three times",
+    "p": "001bb67ae8584ca9",
+    "p + 256 subnormal ulps refused": true,
+    "p accepted by the guard": true,
+    "p*(1+2^-40) equals p": false,
+    "p*(1+2^-40) refused by the guard": true,
+    "p_is_subnormal_or_zero": false
+   },
+   {
+    "label": "MIN_POSITIVE and a subnormal",
+    "p": "0010000000000000",
+    "p + 256 subnormal ulps refused": true,
+    "p accepted by the guard": true,
+    "p*(1+2^-40) equals p": false,
+    "p*(1+2^-40) refused by the guard": true,
+    "p_is_subnormal_or_zero": false
+   },
+   {
+    "label": "1e308 three times -> finite",
+    "p": "7feed4df0150215a",
+    "p + 256 subnormal ulps refused": false,
+    "p accepted by the guard": true,
+    "p*(1+2^-40) equals p": false,
+    "p*(1+2^-40) refused by the guard": true,
+    "p_is_subnormal_or_zero": false
+   },
+   {
+    "label": "1e200 (an unscaled hypot would overflow)",
+    "p": "69821a2f9c3d2c96",
+    "p + 256 subnormal ulps refused": false,
+    "p accepted by the guard": true,
+    "p*(1+2^-40) equals p": false,
+    "p*(1+2^-40) refused by the guard": true,
+    "p_is_subnormal_or_zero": false
+   },
+   {
+    "label": "1e-200 (an unscaled hypot would underflow)",
+    "p": "167536793539fd32",
+    "p + 256 subnormal ulps refused": false,
+    "p accepted by the guard": true,
+    "p*(1+2^-40) equals p": false,
+    "p*(1+2^-40) refused by the guard": true,
+    "p_is_subnormal_or_zero": false
+   }
+  ]
+ },
+ "step4_edge_at_min_positive": {
+  "S < (2^-1022 - 2^-1076)^2 (the half-as-far midpoint: a step down)": true,
+  "S >= (2^-1022 - 2^-1075)^2 (true midpoint: stay at MIN_POSITIVE)": true,
+  "in exact_norm_vectors.json": false,
+  "lower neighbour of MIN_POSITIVE": "000fffffffffffff",
+  "rn64": "0010000000000000",
+  "rn64 == MIN_POSITIVE": true,
+  "tie": false,
+  "x": "000fffffffffffff",
+  "y": "0000000004000000",
+  "z": "0000000000000000"
+ },
+ "vectors": {
+  "agree": 411,
+  "count": 411,
+  "differences": [],
+  "refused": 1,
+  "ties": 2
+ }
+}

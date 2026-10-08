@@ -1,0 +1,12 @@
+git diff --stat cc81e78801 b5cb7faaeb:
+ .../tests/retained_precision_contract.rs           | 81 +++++++++++++++++++++-
+ 1 file changed, 78 insertions(+), 3 deletions(-)
+
+RE src sha256 at cc81e78801 (git) and in the b5cb7faaeb archive:
+retained_precision.rs c6965da0720997e24fac1ef2016568f33ffa216feac86605c2a7bf891780d0f5 c6965da0720997e24fac1ef2016568f33ffa216feac86605c2a7bf891780d0f5 identical
+source_blocks.rs e388416b2619a2ab1e51c10467bba06140c2c254f39bc8d03650ff860a76a13e e388416b2619a2ab1e51c10467bba06140c2c254f39bc8d03650ff860a76a13e identical
+semantic_contract.rs fbbc1a165d2008275c13771b89396e4e975d581de0b5826826316ed73730818a fbbc1a165d2008275c13771b89396e4e975d581de0b5826826316ed73730818a identical
+lib.rs 375b07313518a0cdd09e317b83b9ca7536acef5c80fd4cd0a94920fd8bf2486d 375b07313518a0cdd09e317b83b9ca7536acef5c80fd4cd0a94920fd8bf2486d identical
+derivative.rs 85d22b77bf9c2270495ba558e9eff3a9ce25fb0b89b75f3cf0da24caa70fb9a4 85d22b77bf9c2270495ba558e9eff3a9ce25fb0b89b75f3cf0da24caa70fb9a4 identical
+
+diff -rq of the RE src trees: projects/chirality-piping/core/reporting/result_export/tests/retained_precision_contract.rs 

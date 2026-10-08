@@ -1,0 +1,16 @@
+tests/retained_precision_admission.rs :: test borrowed_census_allocates_nothing_and_retains_spare_capacity_facts ... ok
+tests/retained_precision_admission.rs :: test deep_unknown_raw_field_declines_census_without_restricting_ordinary ... ok
+tests/retained_precision_admission.rs :: test exact_and_invalid_ordinary_results_are_preserved ... ok
+tests/retained_precision_admission.rs :: test legacy_native_and_typed_call_graphs_cannot_acquire_retained_admission ... ok
+tests/retained_precision_admission.rs :: test retained_direct_preserves_actual_ordinary_both_modes_and_generic_identity ... ok
+tests/s11f_site_test.rs :: test rule_1_and_forbidden_calls_the_product_never_folds_or_uses_untyped_seams ... ok
+tests/s11f_site_test.rs :: test rule_2_values_are_copied_only_in_allow_listed_functions ... ok
+tests/s11f_site_test.rs :: test rule_3_force_bindings_are_mutated_only_in_allow_listed_functions ... ok
+tests/s11f_site_test.rs :: test rule_4_generic_kernels_are_called_only_by_observation_lanes ... ok
+tests/s11f_site_test.rs :: test rule_5_the_ledger_producers_are_exactly_the_section_4_2_list ... ok
+tests/s11f_site_test.rs :: test rule_6_kernel_functions_that_touch_the_force_are_the_listed_sites ... ok
+tests/s11f_site_test.rs :: test rule_8_every_accumulation_in_the_listed_files_is_in_the_table ... ok
+tests/s11f_site_test.rs :: test scanner_self_checks ... ok
+tests/s11f_site_test.rs :: test sparse_direct_factor_inherits_the_prepared_ledger_binding ... ok
+tests/s11f_site_test.rs :: test t10b_routing_site_calls_the_tested_predicates ... ok
+tests/s11f_site_test.rs :: test t8_every_case_force_producer_is_classified ... ok

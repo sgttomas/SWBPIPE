@@ -2,7 +2,7 @@
   "role": "TASK Type 2 I59",
   "parent": "ROOT HELP_HUMAN /root",
   "mechanism": "delegated-harness-native collaboration.spawn_agent",
-  "host": "Ryans-MacBook-Pro.local",
+  "host": "<host>",
   "actual_cwd": "/Users/ryan/.codex/worktrees/92ea/chirality",
   "receipt_utc": "2026-10-03T19:06:16.402330+00:00",
   "checkpoint15_utc": "2026-10-03T19:21:16.402330+00:00",

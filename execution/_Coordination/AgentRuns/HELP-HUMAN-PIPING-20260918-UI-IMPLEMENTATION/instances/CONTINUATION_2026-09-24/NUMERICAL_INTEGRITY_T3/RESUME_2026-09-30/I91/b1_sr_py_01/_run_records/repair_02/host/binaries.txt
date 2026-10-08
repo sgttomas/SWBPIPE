@@ -1,0 +1,4 @@
+I91's own CLI builds (WT/tools/t3_cargo.sh, 2026-10-08 00:13-00:17 UTC, in WT/b1-p before repair 02's first commit; repair 02 changes no CLI source: `git diff --stat 11cc14e3e6..HEAD` over core/serialization and core/units is empty):
+549cc2ca31d750c4e2f82f6a8b114df1af2c5de546668e4fe2d913f1d423d9a9  WT/targets/i91-b1-sr-py/checked-json/release/openpipestress_jcs_ijson
+6a52871d366eb09eeaeb2ca7aab30295645fec0d8f82ea2e4be3e6bede49c70d  WT/targets/i91-b1-sr-py/checked-json/release/openpipestress_jcs_binary64
+57064fa92f4e41934ef7873e463446d2a7ef2dfd6b8cf22c4cbe104eb0d74a33  WT/targets/i91-b1-sr-py/units-authority/release/openpipestress_units

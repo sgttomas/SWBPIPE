@@ -1,0 +1,62 @@
+{
+ "base": {
+  "summary": {
+   "numTotalTestSuites": 511,
+   "numPassedTestSuites": 511,
+   "numFailedTestSuites": 0,
+   "numTotalTests": 3620,
+   "numPassedTests": 3620,
+   "numFailedTests": 0,
+   "numPendingTests": 0,
+   "numTodoTests": 0,
+   "success": true
+  },
+  "statuses": {
+   "passed": 3620
+  }
+ },
+ "head": {
+  "summary": {
+   "numTotalTestSuites": 512,
+   "numPassedTestSuites": 512,
+   "numFailedTestSuites": 0,
+   "numTotalTests": 3626,
+   "numPassedTests": 3626,
+   "numFailedTests": 0,
+   "numPendingTests": 0,
+   "numTodoTests": 0,
+   "success": true
+  },
+  "statuses": {
+   "passed": 3626
+  }
+ },
+ "added": [
+  [
+   "src/features/results/retainedPrecision.test.ts :: B1 SR-TS: R-D38 (4b), F-1 text B per case and the not_required rule (reader-local, synthetic n-case receipts) G5 not_required (DESIGN_v2 \u00a73.3, decision 9): a W2-published case with the verdict checks_passed is admitted and eligible",
+   "passed"
+  ],
+  [
+   "src/features/results/retainedPrecision.test.ts :: B1 SR-TS: R-D38 (4b), F-1 text B per case and the not_required rule (reader-local, synthetic n-case receipts) G8 P1 and the requested mode, for every case, report PREPARATION; mode code 3 is refused",
+   "passed"
+  ],
+  [
+   "src/features/results/retainedPrecision.test.ts :: B1 SR-TS: R-D38 (4b), F-1 text B per case and the not_required rule (reader-local, synthetic n-case receipts) G8 P2-P4 for every case: at most one parity row, none in sparse_interactive, none on a W2-published case; a dense b = 0 case may lack one",
+   "passed"
+  ],
+  [
+   "src/features/results/retainedPrecision.test.ts :: B1 SR-TS: R-D38 (4b), F-1 text B per case and the not_required rule (reader-local, synthetic n-case receipts) R-D38 (4b): a capture failure before any Run beside a selected case is admitted (needs_recompute); m1-m8 and the other (4b) conjuncts are refused",
+   "passed"
+  ],
+  [
+   "src/features/results/retainedPrecision.test.ts :: B1 SR-TS: R-D38 (4b), F-1 text B per case and the not_required rule (reader-local, synthetic n-case receipts) RV108 N4: transport reads no rows, so a non-object results entry is admitted on transport (as in Rust and Python); the full reader refuses it at G1",
+   "passed"
+  ],
+  [
+   "src/features/results/retainedPrecision.test.ts :: B1 SR-TS: R-D38 (4b), F-1 text B per case and the not_required rule (reader-local, synthetic n-case receipts) RV108 N6: the G7 header codes named by baseHeaderCode's doc, for list- and dict-valued enums and the two documented differences",
+   "passed"
+  ]
+ ],
+ "removed": [],
+ "changed": []
+}

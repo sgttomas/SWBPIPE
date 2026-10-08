@@ -6,7 +6,7 @@
 //! execution; successful allocation alone qualifies neither memory nor a caller.
 use super::adaptive::{
     self, AttemptStop, CaseLimit, CasePrep, CoreRun, ExecutionOutcome, GroupCache, InvocationMeter,
-    Refusal, RetainedSolve, RunWork, StageWork,
+    PreparedCaseSource, Refusal, RetainedSolve, RunWork, StageWork,
 };
 use super::combine::{self, CombinationReason};
 use super::source::PrimitiveSource;
@@ -18,6 +18,9 @@ pub enum OriginError {
     CountRange(&'static str),
     Capacity,
     Allocation,
+    /// No matching recorded origin for this operand: a selected operand without
+    /// its own selected origin, or (B2-K, ROOT ruling R-1) a prepared operand
+    /// whose named source is out of range, not a case's, or not its full bytes.
     MissingSelectedOrigin { operand: usize },
 }
 
@@ -35,6 +38,17 @@ impl OriginCapacity {
     pub fn for_calls(
         case_batch_lengths: &[usize],
         combination_operand_lengths: &[usize],
+    ) -> Result<Self, OriginError> {
+        Self::for_invocation(case_batch_lengths, combination_operand_lengths, 0)
+    }
+    /// B2-K (KD §1.2, §2.2 (b1)): `cases` counts native case ordinals, the
+    /// batches' and the registered prepared sources'; `runs` = batch cases +
+    /// combinations and `builds` = 7·runs, as for `for_calls`. With no prepared
+    /// source it is `for_calls` exactly, its `CountRange` names included (N-6).
+    pub fn for_invocation(
+        case_batch_lengths: &[usize],
+        combination_operand_lengths: &[usize],
+        prepared_sources: usize,
     ) -> Result<Self, OriginError> {
         let mut cases = 0usize;
         for &n in case_batch_lengths {
@@ -62,6 +76,13 @@ impl OriginCapacity {
         let builds = runs
             .checked_mul(7)
             .ok_or(OriginError::CountRange("builds"))?;
+        let cases = cases
+            .checked_add(prepared_sources)
+            .ok_or(OriginError::CountRange("case ordinal"))?;
+        // One source per native case ordinal and one per combination.
+        cases
+            .checked_add(combinations)
+            .ok_or(OriginError::CountRange("record allocation"))?;
         Ok(Self {
             calls,
             cases,
@@ -261,6 +282,31 @@ pub struct CallOrigin {
     pub invocation_after: WorkTotal,
     pub result: CallResult,
 }
+/// B2-K (KD §1.2): a recorded combination operand. `Prepared` names its
+/// registered source id explicitly: equal K4SRC bytes may belong to different
+/// owners (C2 §3), so the source is never found by identity.
+#[derive(Debug, Clone, Copy)]
+pub enum RecordedOperand<'a> {
+    Selected(&'a RetainedSolve),
+    Prepared {
+        source: usize,
+        prepared: &'a PreparedCaseSource,
+    },
+}
+impl<'a> RecordedOperand<'a> {
+    fn prep(&self) -> &'a CasePrep {
+        match *self {
+            Self::Selected(solve) => &solve.prep,
+            Self::Prepared { prepared, .. } => prepared.prep(),
+        }
+    }
+    fn selected(&self) -> Option<&'a RetainedSolve> {
+        match *self {
+            Self::Selected(solve) => Some(solve),
+            Self::Prepared { .. } => None,
+        }
+    }
+}
 #[derive(Debug, Clone)]
 pub enum RecordedKernelCombination {
     PreSourceRefusal {
@@ -316,7 +362,13 @@ impl RecordedInvocation {
             used_operands: 0,
             store: OriginStore {
                 calls: reserved(capacity.calls)?,
-                sources: reserved(capacity.runs)?,
+                // Equal to `runs` under `for_calls`; prepared sources add cases.
+                sources: reserved(
+                    capacity
+                        .cases
+                        .checked_add(capacity.combinations)
+                        .ok_or(OriginError::CountRange("record allocation"))?,
+                )?,
                 groups: reserved(capacity.runs)?,
                 builds: reserved(capacity.builds)?,
                 runs: reserved(capacity.runs)?,
@@ -352,7 +404,10 @@ impl RecordedInvocation {
             .used_cases
             .checked_add(sources.len())
             .ok_or(OriginError::CountRange("case ordinal"))?;
-        if self.store.calls.len() >= self.capacity.calls || next > self.capacity.cases {
+        if self.store.calls.len() >= self.capacity.calls
+            || next > self.capacity.cases
+            || !self.runs_fit(sources.len())
+        {
             return Err(OriginError::Capacity);
         }
         // Reserve per-call reference arrays before any source preparation or work.
@@ -410,9 +465,69 @@ impl RecordedInvocation {
         Ok(out)
     }
 
+    /// SF-1: a case batch of `n` keeps one Run for every remaining declared
+    /// combination: runs.len() + n + (combinations - used) <= runs. Dormant
+    /// under `for_calls`; under `for_invocation` it stops a batch spending a
+    /// prepared ordinal, so no registry outgrows its reservation.
+    fn runs_fit(&self, n: usize) -> bool {
+        let remaining = self
+            .capacity
+            .combinations
+            .checked_sub(self.used_combinations);
+        remaining
+            .and_then(|r| self.store.runs.len().checked_add(n)?.checked_add(r))
+            .is_some_and(|needed| needed <= self.capacity.runs)
+    }
+
+    /// B2-K (KD §2.2 (b1), I6): registers a prepared case source as one
+    /// `SourceOrigin`, owner `Case(next native case ordinal)`. No Call, no Run,
+    /// no meter change. Returns the source id that `RecordedOperand::Prepared`
+    /// names.
+    pub fn register_prepared_source(
+        &mut self,
+        prepared: &PreparedCaseSource,
+    ) -> Result<usize, OriginError> {
+        let next = self
+            .used_cases
+            .checked_add(1)
+            .ok_or(OriginError::CountRange("case ordinal"))?;
+        if next > self.capacity.cases {
+            return Err(OriginError::Capacity);
+        }
+        let id = self.store.sources.len();
+        self.store.sources.push(SourceOrigin {
+            id,
+            owner: NativeOwner::Case(self.used_cases),
+            identity: prepared.identity().to_vec(),
+            stiffness: prepared.source().stiffness_encoding(),
+            combination_ledger: None,
+        });
+        self.used_cases = next;
+        Ok(id)
+    }
+
+    /// Every operand a selected solve: `solve_combination_sources` with
+    /// `RecordedOperand::Selected`, byte for byte (KD I2).
     pub fn solve_combination(
         &mut self,
         operands: &[(f64, &RetainedSolve)],
+        limit: CaseLimit,
+    ) -> Result<RecordedKernelCombination, OriginError> {
+        let mut sources = reserved(operands.len())?;
+        for &(factor, solve) in operands {
+            sources.push((factor, RecordedOperand::Selected(solve)));
+        }
+        self.solve_combination_sources(&sources, limit)
+    }
+
+    /// B2-K (KD §1.4): the recorded combination over selected and prepared
+    /// operands. Order: capacity; the Call; `NoOperands`, `NestedCombination`,
+    /// `OperandsDiffer`; `NoSelectedOperand`; custody per operand in authored
+    /// order (R-1); the combined preparation; the Run on the first selected
+    /// operand's group, importing slots from selected operands only (I4).
+    pub fn solve_combination_sources(
+        &mut self,
+        operands: &[(f64, RecordedOperand<'_>)],
         limit: CaseLimit,
     ) -> Result<RecordedKernelCombination, OriginError> {
         let next = self
@@ -430,14 +545,22 @@ impl RecordedInvocation {
         let mut owners = reserved(1)?;
         let source_refs = reserved(1)?;
         let run_refs = reserved(1)?;
-        for &(factor, solve) in operands {
-            let selected = self
-                .store
-                .selected
-                .iter()
-                .position(|s| Arc::ptr_eq(&s.prep, &solve.prep));
+        for &(factor, operand) in operands {
+            let (selected, source) = match operand {
+                RecordedOperand::Selected(solve) => {
+                    let selected = self
+                        .store
+                        .selected
+                        .iter()
+                        .position(|s| Arc::ptr_eq(&s.prep, &solve.prep));
+                    (selected, selected.map(|i| self.store.selected[i].source))
+                }
+                RecordedOperand::Prepared { source, .. } => {
+                    (None, (source < self.store.sources.len()).then_some(source))
+                }
+            };
             requested.push(RequestedOperand {
-                source: selected.map(|i| self.store.selected[i].source),
+                source,
                 factor_bits: factor.to_bits(),
             });
             selected_indices.push(selected);
@@ -463,22 +586,43 @@ impl RecordedInvocation {
             result: CallResult::Runs,
         });
         // Keep native validation precedence before the additional custody check.
-        if let Err(reason) = combine::validate_operands(operands) {
+        let preps: Vec<(f64, &CasePrep)> =
+            operands.iter().map(|(c, o)| (*c, o.prep())).collect();
+        if let Err(reason) = combine::validate_preps(&preps) {
             return Ok(self.pre_source(call, CombinationStage::OperandValidation, reason));
         }
-        for (operand, (_, solve)) in operands.iter().enumerate() {
-            let valid = selected_indices[operand].is_some_and(|i| {
-                let selected = &self.store.selected[i];
-                self.store.sources[selected.source].identity == solve.prep.identity
-                    && solve.cache.matches_origins(&selected.slots)
-            });
+        let Some(first_selected) = operands.iter().find_map(|o| o.1.selected()) else {
+            return Ok(self.pre_source(
+                call,
+                CombinationStage::OperandValidation,
+                CombinationReason::NoSelectedOperand,
+            ));
+        };
+        for (operand, (_, recorded)) in operands.iter().enumerate() {
+            let valid = match *recorded {
+                RecordedOperand::Selected(solve) => selected_indices[operand].is_some_and(|i| {
+                    let selected = &self.store.selected[i];
+                    self.store.sources[selected.source].identity == solve.prep.identity
+                        && solve.cache.matches_origins(&selected.slots)
+                }),
+                // I7: an in-range registered case source with no combination
+                // ledger and the prepared source's full K4SRC bytes. A source
+                // whose run selected (and whose freeze failed) is accepted (R-11).
+                RecordedOperand::Prepared { source, prepared } => {
+                    self.store.sources.get(source).is_some_and(|origin| {
+                        matches!(origin.owner, NativeOwner::Case(_))
+                            && origin.combination_ledger.is_none()
+                            && origin.identity[..] == *prepared.identity()
+                    })
+                }
+            };
             if !valid {
                 let error = OriginError::MissingSelectedOrigin { operand };
                 self.store.calls[call].result = CallResult::OriginRefusal(error.clone());
                 return Ok(RecordedKernelCombination::OriginRefusal { call, error });
             }
         }
-        let prep = match combine::prepare_operands(operands) {
+        let prep = match combine::prepare_preps(&preps) {
             Ok(p) => p,
             Err(reason) => {
                 return Ok(self.pre_source(call, CombinationStage::CombinedPreparation, reason))
@@ -496,7 +640,9 @@ impl RecordedInvocation {
         let mut imports = [None; 7];
         let mut slots = [None; 7];
         for (operand_index, selected) in selected_indices.iter().enumerate() {
-            let selected = &self.store.selected[selected.expect("association checked")];
+            // Prepared operands contribute no slot (I4); authored index kept.
+            let Some(selected) = selected else { continue };
+            let selected = &self.store.selected[*selected];
             for slot in OriginSlot::ALL {
                 let i = slot.index();
                 if slots[i].is_none() {
@@ -521,7 +667,12 @@ impl RecordedInvocation {
             imports,
             slots,
         });
-        let mut cache = GroupCache::merged(operands.iter().map(|o| &o.1.cache));
+        let mut cache = GroupCache::merged(
+            operands
+                .iter()
+                .filter_map(|o| o.1.selected())
+                .map(|s| &s.cache),
+        );
         assert!(
             cache.matches_origins(&slots),
             "actual merged slot inventory"
@@ -530,7 +681,7 @@ impl RecordedInvocation {
         let mut trace = RunTrace::new(&mut self.store.builds, call, run_id, group, slots);
         let run = adaptive::run_core_with_origins(
             prep,
-            operands[0].1.group.clone(),
+            first_selected.group.clone(),
             &mut cache,
             limit,
             &mut self.meter,
@@ -792,11 +943,17 @@ impl RecordedInvocation {
     ) -> super::product_certificate::final_case::ProductCertificateSpent<'a> {
         super::product_certificate::final_case::certify(self, run, selected, facts, rows)
     }
-    pub(crate) fn product_case_owner(&self, run:usize, solve:&RetainedSolve)->bool {
-        self.store.selected.iter().any(|s| s.run==run && Arc::ptr_eq(&s.prep,&solve.prep)
-            && matches!(self.store.runs[run].owner, NativeOwner::Case(_))
+    /// B2-K (KD §1.5, I9): the recorded selected owner of `run`, a case or a
+    /// combination. The same selected-origin conditions as before (run, the
+    /// prep `Arc`, the full identity bytes, the cache snapshot), plus the kind's
+    /// consistency: a case owner has no factors, a combination owner has some.
+    pub(crate) fn product_owner(&self, run:usize, solve:&RetainedSolve)->Option<NativeOwner> {
+        let owner=self.store.runs.get(run)?.owner;
+        let kind=match owner {NativeOwner::Case(_)=>solve.prep.factors.is_empty(),
+            NativeOwner::Combination(_)=>!solve.prep.factors.is_empty()};
+        (kind && self.store.selected.iter().any(|s| s.run==run && Arc::ptr_eq(&s.prep,&solve.prep)
             && self.store.sources[s.source].identity==solve.prep.identity
-            && solve.cache.matches_origins(&s.slots))
+            && solve.cache.matches_origins(&s.slots))).then_some(owner)
     }
 }
 
@@ -818,7 +975,7 @@ impl std::fmt::Debug for ProductOwnerStamp {
 }
 impl RecordedInvocation {
     pub(crate) fn product_owner_stamp(&self,run:usize,owner:&RetainedSolve)->Option<ProductOwnerStamp> {
-        self.product_case_owner(run,owner).then(||ProductOwnerStamp{prep:Arc::clone(&owner.prep),run})
+        self.product_owner(run,owner).map(|_|ProductOwnerStamp{prep:Arc::clone(&owner.prep),run})
     }
 }
 
