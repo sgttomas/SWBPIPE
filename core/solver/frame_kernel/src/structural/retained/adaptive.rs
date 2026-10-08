@@ -5174,6 +5174,25 @@ impl GroupCache {
     }
 }
 
+/// Test-only (B2-K K-05): each resident slot's shared-build address, in
+/// `OriginSlot::ALL` order (0 when absent or failed), to pin which operand's
+/// build a combination imported.
+#[cfg(test)]
+impl GroupCache {
+    pub(crate) fn test_slot_addresses(&self) -> [usize; 7] {
+        macro_rules! addr {
+            ($s:expr) => {
+                match &$s {
+                    Some(Ok(arc)) => Arc::as_ptr(arc) as *const u8 as usize,
+                    _ => 0,
+                }
+            };
+        }
+        [addr!(self.s128), addr!(self.s256), addr!(self.s512), addr!(self.s1024),
+            addr!(self.v256), addr!(self.v512), addr!(self.v1024)]
+    }
+}
+
 /// A test-only seed of the final state (R7 §7's SEEDED-COMMON and
 /// SEEDED-SOFT): added after the gate and before recovery, at every precision.
 #[cfg(test)]

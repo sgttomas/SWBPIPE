@@ -638,12 +638,21 @@ fn b2k_k05_a_prepared_first_operand_keeps_authored_order_and_takes_the_group_of_
             (1.0, RecordedOperand::Selected(x)), (1.0, RecordedOperand::Selected(y))], limit()).unwrap());
         let ExecutionOutcome::Selected(e) = &out.outcome else { panic!() };
         assert!(Arc::ptr_eq(&e.group, &x.group));
+        // Imports come from the first selected operand in authored order.
+        let (got, want) = (e.cache.test_slot_addresses(), x.cache.test_slot_addresses());
+        for i in 0..7 {
+            if want[i] != 0 { assert_eq!(got[i], want[i], "slot {i}"); }
+        }
         let mut meter = InvocationMeter::new(u64::MAX);
         let CombinationOutcome::Selected(u) = RetainedCombination::solve_sources(&[
             (1.0, super::super::combine::CombinationOperand::Prepared(&pb)),
             (1.0, super::super::combine::CombinationOperand::Retained(x)),
             (1.0, super::super::combine::CombinationOperand::Retained(y))], limit(), &mut meter) else { panic!() };
         assert!(Arc::ptr_eq(&u.group, &x.group));
+        let (got, want) = (u.cache.test_slot_addresses(), x.cache.test_slot_addresses());
+        for i in 0..7 {
+            if want[i] != 0 { assert_eq!(got[i], want[i], "unrecorded slot {i}"); }
+        }
     }
 }
 #[test]
@@ -735,4 +744,24 @@ fn b2k_w05_w06_custody_of_terminal_work_and_imports_from_selected_operands_only(
         reason: CombinationReason::Refused(super::super::adaptive::Refusal::Structure), attempts: attempts.clone() }, work };
     assert!(matches!(&refused, super::super::combine::RecordedCombination::WithRun { outcome: CombinationOutcome::Unresolved { attempts, .. }, .. } if !attempts.is_empty()));
     assert!(matches!(refused.into_legacy(), CombinationOutcome::Unresolved { attempts, .. } if attempts.is_empty()));
+}
+#[test]
+fn b2k_k03_each_i7_check_refuses_on_its_own() {
+    // I7's three conditions are redundant in any actual store (a case source
+    // never has a combination ledger, and a combination's K4CMB bytes are never
+    // a K4SRC). Each is shown live by tampering one recorded fact.
+    let (a, b) = (models::model("N05").source(), models::model("N05-TRANSVERSE").source());
+    let mut ctx = b2k_ctx(&[1], &[2, 2, 2], 1);
+    let cases = ctx.solve_cases(std::slice::from_ref(&a), limit()).unwrap();
+    let pb = PreparedCaseSource::new(b).unwrap();
+    let id = ctx.register_prepared_source(&pb).unwrap();
+    let ops = |ctx: &mut RecordedInvocation| ctx.solve_combination_sources(&[(1.0, RecordedOperand::Selected(selected(&cases[0]))),
+        (1.0, RecordedOperand::Prepared { source: id, prepared: &pb })], limit()).unwrap();
+    ctx.store.sources[id].owner = NativeOwner::Combination(0);
+    assert!(matches!(ops(&mut ctx), RecordedKernelCombination::OriginRefusal { error: OriginError::MissingSelectedOrigin { operand: 1 }, .. }));
+    ctx.store.sources[id].owner = NativeOwner::Case(1);
+    ctx.store.sources[id].combination_ledger = Some(b"K4LED\x01\x00\x00\x00\x00".to_vec());
+    assert!(matches!(ops(&mut ctx), RecordedKernelCombination::OriginRefusal { error: OriginError::MissingSelectedOrigin { operand: 1 }, .. }));
+    ctx.store.sources[id].combination_ledger = None;
+    assert!(matches!(ops(&mut ctx), RecordedKernelCombination::WithRun { .. }));
 }

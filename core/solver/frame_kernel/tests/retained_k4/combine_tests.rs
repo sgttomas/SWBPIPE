@@ -697,3 +697,43 @@ fn parts_of(s: &PrimitiveSource) -> SourceParts {
         directional_springs: s.directional_springs().to_vec(), constraints: s.constraints().to_vec(),
         loads: s.loads().to_vec(), stations: s.stations().to_vec(), supports: s.supports().to_vec() }
 }
+
+#[test]
+fn b2k_c01_existing_combinations_print_their_bytes() {
+    // C01's cross-build witness. Old API only, so the same text runs at J2k: for
+    // every model combination, the legacy recorded outcome and meter, and the
+    // recorded custody (calls, sources, groups, builds, runs, meter), each as
+    // the length and a fixed-key SipHash of its Debug bytes.
+    use super::super::adaptive::ExecutionOutcome;
+    use super::super::origins::{OriginCapacity, RecordedInvocation};
+    use std::hash::{DefaultHasher, Hash, Hasher};
+    let digest = |s: String| {
+        let mut h = DefaultHasher::new();
+        s.hash(&mut h);
+        format!("len={} hash={:016x}", s.len(), h.finish())
+    };
+    for c in models::combos() {
+        let mut operands: Vec<(f64, Box<RetainedSolve>)> = Vec::new();
+        for (f, n) in &c.operands {
+            match solve_case(models::model(n).source(), unlimited(), &mut InvocationMeter::new(u64::MAX)) {
+                CaseOutcome::Selected(s) => operands.push((*f, s)),
+                other => println!("B2K_C01 {} operand {n} unavailable {}", c.name, digest(format!("{other:?}"))),
+            }
+        }
+        if operands.len() != c.operands.len() { continue; }
+        let refs: Vec<(f64, &RetainedSolve)> = operands.iter().map(|(f, s)| (*f, s.as_ref())).collect();
+        let mut meter = InvocationMeter::new(u64::MAX);
+        let outcome = RetainedCombination::solve_recorded(&refs, unlimited(), &mut meter);
+        println!("B2K_C01 {} legacy {} meter {:?}", c.name, digest(format!("{outcome:?}")), meter);
+        let sources: Vec<_> = c.operands.iter().map(|(_, n)| models::model(n).source()).collect();
+        let mut ctx = RecordedInvocation::new(u64::MAX,
+            OriginCapacity::for_calls(&[sources.len()], &[sources.len()]).unwrap()).unwrap();
+        let cases = ctx.solve_cases(&sources, unlimited()).unwrap();
+        let ops: Vec<(f64, &RetainedSolve)> = c.operands.iter().zip(&cases).map(|((f, _), case)| match &case.outcome {
+            ExecutionOutcome::Selected(s) => (*f, s.as_ref()), other => panic!("{other:?}") }).collect();
+        let recorded = ctx.solve_combination(&ops, unlimited());
+        println!("B2K_C01 {} recorded {} calls {} sources {} groups {} builds {} runs {} meter {:?}", c.name,
+            digest(format!("{recorded:?}")), digest(format!("{:?}", ctx.calls())), digest(format!("{:?}", ctx.sources())),
+            digest(format!("{:?}", ctx.groups())), digest(format!("{:?}", ctx.builds())), digest(format!("{:?}", ctx.runs())), ctx.meter());
+    }
+}
