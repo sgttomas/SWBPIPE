@@ -339,6 +339,10 @@ B3B_REFUSALS = {
     "x23 a component added to the invocation": (_model(lambda m: m.update(components=[{"id": "component:x"}])), INVOCATION),
     "x24 authored nu unit empty": (_model(lambda m: m["materials"][0]["poisson_ratio"].update(unit="")), PREPARATION),
     "x25 authored constitutive_basis removed": (_model(lambda m: m["materials"][0].pop("constitutive_basis")), PREPARATION),
+    "x27 policy changed": (_set_body("policy", "M03-INTEGRITY-MP-v3"), UNSUPPORTED),
+    "x28 facade_policy changed": (_set_body("facade_policy", "RP-FACADE-SI-v3"), UNSUPPORTED),
+    "x29 receipt_version 2": (_set_body("receipt_version", 2), UNSUPPORTED),
+    "x30 the owner's exact_cases entry listed twice": (_evidence([lambda e: e.update(exact_cases=[e["exact_cases"][0], deepcopy(e["exact_cases"][0])])]), SECTION),
     "x26 G_hat one ulp high, every copy consistent": (lambda s, i: _g_hat_forged(s, i), PREPARATION),
     "x17 physics-1 headline altered": (_envelope(lambda s: s["summary"]["max_open_formula_stress"].update(value=ulp(s["summary"]["max_open_formula_stress"]["value"]))), BASE_G7),
 }
@@ -591,6 +595,14 @@ def dispatch(source, check_receipt=True):
         return str(error)
 
 
+def built(source):
+    """The AnalysisRun record, or the builder's refusal text (the builder validates what it built)."""
+    try:
+        return c.build_analysis_run(source, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:b3b"}, input_manifest_hash="1" * 64)
+    except ValueError as error:
+        return str(error)
+
+
 def requested(invocation):
     return [{"ref_type": "load_case", "ref_id": case["id"]} for case in invocation["request"]["model"]["load_cases"]]
 
@@ -612,7 +624,8 @@ def test_b3b_carriers(mode):
     rows = {row["id"]: row for row in source["results"]}
     for item in classes:
         assert c.rule_binding_refusal(source, rows[item["result_id"]]) == c._class_binding_refusal(item["class"])
-    record = c.build_analysis_run(source, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:b3b"}, input_manifest_hash="1" * 64)
+    record = built(source)
+    assert isinstance(record, dict), record
     run = record["analysis_run"]
     assert run.get("retained_precision") == source["retained_precision"] and "contract_evidence" not in run
     assert run["reproducibility"]["semantic_contract"] == {"id": c.PHYSICS_RETAINED_CONTRACT_ID, "sha256": c.PHYSICS_RETAINED_CONTRACT_SHA256}
@@ -636,7 +649,8 @@ def test_b3b_stress_neutral_packager_refuses_the_exact_successor(mode):
     from core.handoff.stress_neutral import package_v0_3 as sn
     from tests.test_stress_neutral_physics_source import arguments
     source, _ = m3x(mode)
-    record = c.build_analysis_run(source, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:b3b"}, input_manifest_hash="1" * 64)
+    record = built(source)
+    assert isinstance(record, dict), record
     try:
         sn.build_stress_neutral_export_package_v0_3(source_envelope=source, analysis_record=record, **arguments(source, record))
         refused = None
