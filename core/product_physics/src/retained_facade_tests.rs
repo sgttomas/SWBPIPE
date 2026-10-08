@@ -2898,11 +2898,14 @@ fn b3b_exact_observables_refuse_each_evidence_defect() {
         ("an extra evidence member", Box::new(|e: &mut Value| { e["preview_cases"] = json!([]); }), "observable: evidence shape"),
         ("pressure evidence", Box::new(|e: &mut Value| { e["pressure"] = json!([{}]); }), "observable: exact pressure/connector evidence"),
         ("connector evidence", Box::new(|e: &mut Value| { e["connector"] = json!([{}]); }), "observable: exact pressure/connector evidence"),
+        ("a second exact case", Box::new(|e: &mut Value| { let c = e["exact_cases"][0].clone(); e["exact_cases"].as_array_mut().unwrap().push(c); }), "observable: evidence case"),
         ("recovery_method", Box::new(|e: &mut Value| { e["exact_cases"][0]["recovery_method"] = json!("x"); }), "observable: case shape"),
         ("load case id", Box::new(|e: &mut Value| { e["exact_cases"][0]["load_case_id"] = json!("other"); }), "observable: evidence case"),
         ("profile mode", Box::new(|e: &mut Value| { e["exact_cases"][0]["profile_mode"] = json!("legacy_pressure_v1"); }), "observable: exact profile/material basis"),
         ("material basis", Box::new(|e: &mut Value| { e["exact_cases"][0]["material_basis"] = json!("resolved_per_member_load_reference_state_v1"); }), "observable: exact profile/material basis"),
         ("incomplete coverage", Box::new(|e: &mut Value| { e["exact_cases"][0]["stress_maximum_coverage"]["complete"] = json!(false); }), "observable: maximum coverage"),
+        ("an unavailable pipe", Box::new(|e: &mut Value| { e["exact_cases"][0]["stress_maximum_coverage"]["unavailable_pipe_ids"] = json!(["M1"]); }), "observable: maximum coverage"),
+        ("a coverage member", Box::new(|e: &mut Value| { e["exact_cases"][0]["stress_maximum_coverage"]["outside_domain_pipe_ids"] = json!([]); }), "observable: stress coverage shape"),
         ("an assembly group", Box::new(|e: &mut Value| { e["exact_cases"][0]["pressure_rhs_assembly"]["groups"] = json!([{}]); }), "observable: exact pressure assembly groups"),
         ("a nonzero assembled entry", Box::new(|e: &mut Value| { e["exact_cases"][0]["pressure_rhs_assembly"]["assembled_pressure_rhs_global"][3] = json!(1.0); }), "observable: exact pressure assembly vector"),
         ("a nonzero cap entry", Box::new(|e: &mut Value| { e["exact_cases"][0]["pressure_rhs_assembly"]["rounded_cap_rhs_global"][0] = json!(-1e-300); }), "observable: exact pressure assembly vector"),
@@ -3031,4 +3034,33 @@ fn b3b_p4_w1_calls_no_pressure_runtime_builder() {
         }
     }
     assert!(w1.contains("fn w1_route(") && w1.contains("fn w1_budget("), "the route and budget are decided in the W1 section");
+}
+
+/// The exact route at c = 2 with both cases selected: `m3x` with a copy of its case (`case-2`, its
+/// load ids suffixed). Each selected case's attempt regenerates its own `exact_cases` entry only
+/// (DEF-E `evidence`, S-2's "owner case"), at evidence index 0 and 1, with case-qualified row ids
+/// after the first; the successor meets B3-D's requirements (no pin: not a selected witness).
+#[test]
+fn b3b_two_selected_exact_cases_each_regenerate_their_own_entry() {
+    let mut raw = raw();
+    let mut second = raw["model"]["load_cases"][0].clone();
+    second["id"] = json!("case-2");
+    for load in second["primitive_loads"].as_array_mut().unwrap() {
+        load["id"] = json!(format!("{}:2", load["id"].as_str().unwrap()));
+    }
+    raw["model"]["load_cases"].as_array_mut().unwrap().push(second);
+    let raw = exact3(raw);
+    for mode in MODES {
+        let label = format!("two cases {mode:?}");
+        let plain = plain(mode, &raw);
+        let plain_value: Value = serde_json::from_slice(&plain).unwrap();
+        let (envelope, retained, captured) = exact_w1(&raw, mode);
+        let successor = captured.unwrap_or_else(|| panic!("{label}: {retained:?}"));
+        exact_outcome(&label, &retained, &successor, &envelope, &plain, &["case", "case-2"]);
+        assert_exact_successor(&label, &successor, &plain_value, &["selected", "selected"]);
+        let entries = successor["contract_evidence"]["exact_cases"].as_array().unwrap();
+        assert_eq!(entries.iter().map(|e| e["load_case_id"].as_str().unwrap()).collect::<Vec<_>>(), ["case", "case-2"], "{label}");
+        assert_eq!(entries[0]["pipe_sections"], entries[1]["pipe_sections"], "{label}: the same prepared section in both entries");
+        assert!(successor["results"].as_array().unwrap().iter().any(|r| r["id"].as_str().unwrap().starts_with("result:loadcase:case-2:")), "{label}: qualified ids");
+    }
 }

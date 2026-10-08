@@ -3232,6 +3232,7 @@ fn b3b_exact_material_check_refuses_each_defect() {
     assert_eq!(err(material(2e11, Some(0.25), None, B)), "exact material derived shear modulus");
     assert_eq!(err(material(2e11, Some(0.3), Some(f64::from_bits(g(2e11, 0.3).to_bits() + 1)), B)), "exact material derived shear modulus");
     assert_eq!(err(material(2e11, Some(0.3), Some(f64::from_bits(g(2e11, 0.3).to_bits() - 1)), B)), "exact material derived shear modulus");
+    assert_eq!(err(material(-2e11, Some(0.25), Some(g(-2e11, 0.25)), B)), "exact material derived shear modulus", "a negative normal G-hat");
     let tiny = 1e-310;
     assert!(g(tiny, 0.25).is_subnormal());
     assert_eq!(err(material(tiny, Some(0.25), Some(g(tiny, 0.25)), B)), "exact material derived shear modulus");
