@@ -715,3 +715,120 @@ def test_r2_noticed_ordinary_envelope_keeps_its_base_behaviour(mode):
     assert record["analysis_run"]["diagnostics"][-1]["source_annotation"]["code"] == "RETAINED_PRECISION_UNAVAILABLE"
     assert "retained_precision" not in record["analysis_run"]
     assert all(c.rule_binding_refusal(noticed, row) is None for row in noticed["results"])
+
+
+# RV108 N1 (B1 SR-PY; RR "SR-PY prepared; the N1 guard in `_source_contract` ruled in"): a list- or
+# dict-valued enum in the base header. `_source_contract`'s membership tests raised TypeError on an
+# unhashable value; each now refuses a non-string with the base header code, as Rust and TS do.
+N1_FIELDS = [(["numerical_quality", "status"], "SOURCE_NUMERICAL_QUALITY_INVALID")] + [
+    (["numerical_quality", "cases", 0, key], "SOURCE_NUMERICAL_CASE_INVALID")
+    for key in ("solve_quality", "structural_status", "model_matrix_fidelity", "accuracy_evidence")]
+N1_UNHASHABLE = [[], {}, ["sensitive"], {"sensitive": 1}]
+
+
+def n1_edit(source, path, value):
+    source = deepcopy(source)
+    parent = source
+    for part in path[:-1]:
+        parent = parent[part]
+    parent[path[-1]] = deepcopy(value)
+    return source
+
+
+def value_error_only(fn, *args):
+    """A caller that catches ValueError only, as the v0.3 packager's own callers do. Anything else
+    that escapes it (before N1, a TypeError) is reported by name, so the equality assertion that
+    follows fails on it instead of reading it as a refusal."""
+    try:
+        fn(*args)
+    except ValueError as error:
+        return str(error)
+    except Exception as error:  # noqa: BLE001 - the escape itself is what is asserted against
+        return f"escaped {type(error).__name__}: {error}"
+    return "ok"
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_rv108_n1_base_header_refuses_a_non_string_enum_with_its_code(mode):
+    """The base dispatch on the reader's projection (a preview-physics-1 envelope), raw and transport:
+    each unhashable enum value gives the base header code. Hashable non-strings and strings outside
+    the vocabulary read as before (the same codes); the unedited envelope is admitted."""
+    source, _ = milestone(mode)
+    base = projected(source)
+    assert c._source_contract(base)[0] == c.PREVIEW_PHYSICS_CONTRACT_ID
+    for path, code in N1_FIELDS:
+        for value in N1_UNHASHABLE + [None, 3, True, "estimated", ""]:
+            edited = n1_edit(base, path, value)
+            for check_receipt in (True, False):
+                assert value_error_only(lambda s: c._source_contract(s, check_receipt=check_receipt), edited) == code, (path, value, check_receipt)
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_rv108_n1_retained_reader_reports_the_base_header_code_at_g7(mode):
+    """The retained path: a hash-consistent successor with an unhashable enum in a header field that
+    no earlier gate reads is refused with the base header code (no longer the G7 fallback
+    SOURCE_PREVIEW_PHYSICS_INVALID): at G7 raw, with and without its invocation; at G2 by the transport
+    validator (repair 02, the alignment set's item 4); and by the raw and transport dispatch."""
+    source, invocation = milestone(mode)
+    # solve_quality is read at G5 first (a list is no verdict), so its G7 code is pinned on the base dispatch.
+    for path, code in [field for field in N1_FIELDS if field[0][-1] != "solve_quality"]:
+        for value in N1_UNHASHABLE:
+            edited = rehash(n1_edit(source, path, value))
+            for fn, gate in ((lambda s: rp.validate_retained_precision(s, deepcopy(invocation)), "G7"), (rp.validate_retained_precision, "G7"), (rp.validate_retained_precision_transport, "G2")):
+                with pytest.raises(rp.RetainedPrecisionError) as error:
+                    fn(deepcopy(edited))
+                assert (error.value.gate, error.value.code, error.value.detail) == (gate, code, code), (path, value)
+            for check_receipt in (True, False):
+                assert value_error_only(lambda s: c._source_contract(s, check_receipt=check_receipt), edited) == code, (path, value, check_receipt)
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_rv108_n1_stress_neutral_packager_validator_refuses_with_a_value_error(mode):
+    """The ValueError-only caller RV108 named: the v0.3 packager's validator on a preview-physics-1
+    package view. An unhashable enum is refused with the base header code, a ValueError; before, a
+    TypeError escaped it."""
+    from core.handoff.stress_neutral import package_v0_3 as sn
+    from tests.test_stress_neutral_physics_source import arguments
+    source, _ = milestone(mode)
+    base = projected(source)
+    record = build(base)
+    packet = sn.build_stress_neutral_export_package_v0_3(source_envelope=base, analysis_record=record, **arguments(base, record))
+    assert value_error_only(sn.validate_stress_neutral_export_package_v0_3, deepcopy(packet)) == "ok"
+    for path, code in N1_FIELDS:
+        for value in N1_UNHASHABLE:
+            assert value_error_only(sn.validate_stress_neutral_export_package_v0_3, n1_edit(packet, path, value)) == code, (path, value)
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_repair02_transport_reports_the_header_at_g2_and_the_metadata_at_g7(mode):
+    """The alignment set, item 4 (RR "RV113's three returns verified; …"): on transport, the base header check
+    is G2 with the header's code (Rust's gate), and the preview-physics metadata check stays G7. Both run. Raw
+    reads keep both at G7. RV113 N-1 and SR-TS N-1."""
+    source, invocation = milestone(mode)
+    header = rehash(n1_edit(source, ["numerical_quality", "status"], "estimated"))
+    case = rehash(n1_edit(source, ["numerical_quality", "cases", 0, "accuracy_evidence"], "estimated"))
+    formulation = rehash(n1_edit(source, ["formulation_basis", "limitations"], []))
+    metadata = deepcopy(source)
+    metadata["contract_evidence"]["combination_gates"] = "not-an-array"
+    metadata = rehash(metadata)
+    limitations = rehash(n1_edit(source, ["formulation_basis", "limitations"], ["another non-empty limitation"]))
+
+    def transport(s):
+        with pytest.raises(rp.RetainedPrecisionError) as error:
+            rp.validate_retained_precision_transport(deepcopy(s))
+        return error.value.gate, error.value.code
+
+    def raw(s):
+        with pytest.raises(rp.RetainedPrecisionError) as error:
+            rp.validate_retained_precision(deepcopy(s), deepcopy(invocation))
+        return error.value.gate, error.value.code
+
+    assert transport(header) == ("G2", "SOURCE_NUMERICAL_QUALITY_INVALID")
+    assert transport(case) == ("G2", "SOURCE_NUMERICAL_CASE_INVALID")
+    assert transport(formulation) == ("G2", "SOURCE_FORMULATION_BASIS_UNSUPPORTED")
+    assert transport(metadata) == ("G7", "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID")
+    assert transport(limitations) == ("G7", "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID")
+    assert raw(header) == ("G7", "SOURCE_NUMERICAL_QUALITY_INVALID")
+    assert raw(metadata)[0] == "G7"
+    # The dispatch's text is unchanged by the gate: the reader's code (header) or full text (metadata).
+    assert value_error_only(lambda s: c._source_contract(s, check_receipt=False), header) == "SOURCE_NUMERICAL_QUALITY_INVALID"

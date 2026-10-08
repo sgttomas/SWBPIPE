@@ -604,6 +604,7 @@ def _g5_native_checks(body, runs, fail, wf):
     for item in runs + body["builds"] + [g["preparation"] for g in body["groups"]]:
         fail(not any(o.get("tag") == "work_accounting" for o in _objects(item)))
     current = 0
+    built_refs = set()  # builds referenced by their building record (R-D38 (4b)'s Build conjunct)
     for call_id, call in enumerate(body["calls"]):
         fail(call["id"] == call_id and call["invocation_before"] == current, "WORK_MISMATCH")
         fail(len(call["run_refs"]) == len(call["source_refs"]) == len(call["owner_refs"]))
@@ -668,7 +669,9 @@ def _g5_native_checks(body, runs, fail, wf):
                     fail(build["work"] == cost and build["group"] == run["origin"]["group"], "WORK_MISMATCH")
                     fail(build["slot"] == ("s" if part == "shared" else "v") + str(r["precision"]), "WORK_MISMATCH")
                     for key, count in build["stages"].items(): shared_stages[key] += count
-                    if built: fail(build["origin"] == {"call": call_id, "run": ri, "physical_record": r["index"], "phase": part}, "WORK_MISMATCH")
+                    if built:
+                        fail(build["origin"] == {"call": call_id, "run": ri, "physical_record": r["index"], "phase": part}, "WORK_MISMATCH")
+                        built_refs.add(int(bi))
                     else: fail(build["origin"]["run"] < ri or (build["origin"]["run"] == ri and build["origin"]["physical_record"] < r["index"]), "WORK_MISMATCH")
                 fail(shared_stages == w["shared_stages"], "WORK_MISMATCH")
             fragments = []
@@ -738,6 +741,10 @@ def _g5_native_checks(body, runs, fail, wf):
         call = _ref(body["calls"], group["call"])
         fail(call is not None and len(set(group["source_refs"])) == len(group["source_refs"]) and all(si in call["source_refs"] for si in group["source_refs"]))
     fail(body["work"]["charged"] == current, "WORK_MISMATCH")
+    # Every Build is referenced by its building record (C1 build provenance; WORK), as Rust's
+    # `builds_seen` and TypeScript's `seenBuilds` require. So no Build outlives its Run, and none
+    # names a case whose native stage failed before any Run (R-D38 (4b), DESIGN_v2 §2).
+    fail(built_refs == set(range(len(body["builds"]))), "WORK_MISMATCH")
     for call_id, call in enumerate(body["calls"]):
         # C2:143 call-local groups at first equality of full stiffness bytes, first-seen order;
         # an idle (group-null) run never formed a group (adaptive.rs `solve_cases_projected`).
@@ -816,7 +823,34 @@ def _conversion_kind_ok(outcome):
 STAGE_ORDER = ["preparation", "native", "proof_start", "projection", "maxima", "values", "aliases", "certificate", "observables", "g5a"]
 
 
-def _g5_stages(a, case, fail):
+def _d38_capture_before_run(a, case, ai):
+    """R-D38 (4b) (DESIGN_v2 §2; RR:8823; C1:103, C3:167): a native capture failure before any Run,
+    beside a registered prepared source (C2 §3 registers a CaseSource once it is constructed and its
+    maps validate, whatever the outcome). G5 PRODUCT_ATTEMPT. The conjuncts here: the case has no Run
+    and the attempt no proof; an unavailable `capture` result; the stage record done(1, [failed]),
+    preparation completed, native failed and every later stage not_entered; the case unavailable with
+    `prepared_product_failure` naming this attempt and reason (source_unavailable, preparation), D4d's
+    mapping for a capture with no Run; and a non-null source reference equal to the case's own
+    ([r01: N-6]; TS already requires it). The caller's branch gives `run_ref` null.
+
+    The rest of (4b) holds for every receipt elsewhere: `_g5_products` resolves a non-null source
+    reference to a CaseSource whose preparation binds this attempt; G3 binds `execution_order` to
+    the cases' Runs; G5's native class binds every Call position to its Run's own case and source,
+    every Group source to its Call, and every Build to its building record (`_g5_native_checks`)."""
+    st = a["stages"]
+    reason = case.get("reason") or {}
+    cause = reason.get("cause") or {}
+    return (case.get("run") is None and a["proof"] is None
+            and a["result"]["kind"] == "unavailable" and a["result"]["error"]["kind"] == "capture"
+            and st["preparation"] == "completed" and st["native"] == "failed"
+            and all(st[k] == "not_entered" for k in STAGE_ORDER[2:])
+            and case["status"] == "unavailable" and cause.get("kind") == "prepared_product_failure"
+            and cause.get("product_attempt_ref") == ai
+            and (reason.get("code"), reason.get("phase")) == ("source_unavailable", "preparation")
+            and a["source_ref"] is not None and a["source_ref"] == case.get("source_ref"))
+
+
+def _g5_stages(a, case, fail, ai):
     """Checklist P2, P6, P11 (C3:196-201, 253-257; retained_receipt.rs `PreparedTrace::enter` through `PreparedTrace::checked`, `project`)."""
     st, proof = a["stages"], a["proof"]
     pipeline = [st[k] for k in STAGE_ORDER[:8]]
@@ -833,6 +867,10 @@ def _g5_stages(a, case, fail):
     run = case.get("run")
     if st["native"] == "not_entered":
         fail(a["run_ref"] is None)
+    elif st["native"] == "failed" and a["run_ref"] is None:
+        # R-D38 (DESIGN_v2 §2; RR:8823): an entered native stage has a Run (4a, below), except a
+        # native capture failure before any Run beside a registered prepared source (4b).
+        fail(_d38_capture_before_run(a, case, ai))
     else:
         fail(a["run_ref"] is not None and run is not None and (st["native"] == "completed") == (run["kernel_terminal"]["kind"] == "selected"))
     fail((st["preparation"] == "completed") == (a["source_ref"] is not None) or st["preparation"] == "not_entered" and a["source_ref"] is None)
@@ -893,6 +931,12 @@ ERROR_STAGE_RECORDS = _error_stage_records()
 
 
 RCOND_LABEL = "sensitivity to matrix-entry perturbation, not to authored parameters"
+# C2's cause table (the alignment set, item 3): a receipt failure's codes, as a set (C2 does not key them to
+# `check`); an unavailable precondition's code, keyed one to one by `precondition`.
+RECEIPT_FAILURE_CODES = ("receipt_encoding", "publication_hash_range", "invocation_not_representable")
+PRECONDITION_CODES = {"caller": "caller_not_qualified", "resource_admission": "resource_admission_not_available",
+                      "upstream_no_wrap": "upstream_no_wrap_not_established", "capture": "source_unavailable",
+                      "source_family": "source_unavailable"}
 
 
 def _g5_ordinary(body, cases, diags, quality):
@@ -904,6 +948,10 @@ def _g5_ordinary(body, cases, diags, quality):
     ids = set(by_id)
     for i, c in enumerate(cases):
         o = body["ordinary_attempts"][i]
+        # The ordinary attempt's material basis resolves to a basis that lists its case (the alignment set,
+        # item 1; TS `ordinaryAttempts`), the ordinary class's reference rule, as D4b is the product class's.
+        basis = _ref(body["material_bases"], o["material_basis_ref"])
+        fail(basis is not None and i in basis["case_indices"])
         refs = o["diagnostic_refs"]
         # D6a (C1:100, C1:148, C2:166): untyped refs are unique and resolve.
         fail(len(set(refs)) == len(refs) and all(x in by_id for x in refs))
@@ -915,14 +963,40 @@ def _g5_ordinary(body, cases, diags, quality):
         fail(refs == [d["id"] for d in diags if isinstance(d.get("affected_refs"), list) and name in d["affected_refs"]
                       and not str(d.get("code")).startswith("RETAINED_PRECISION_")])
         fail(o["initial"]["kind"] != "not_attempted" if c["status"] in ("selected", "not_required") else True)
+        # RV108 N2: a quality case without `solve_quality` has no published verdict. Each rule
+        # below that reads the verdict then fails with its own G5 ATTEMPT code, as Rust's null and
+        # TypeScript's undefined do, never through the fail-closed fallback's PRODUCT_ATTEMPT code.
+        # A case for which no rule here reads the verdict passes this pass unchanged, and G7's base
+        # header then refuses the missing member (SOURCE_NUMERICAL_CASE_INVALID), as before.
+        verdict = quality[i]["solve_quality"] if "solve_quality" in quality[i] else None
         if o["initial"]["kind"] == "report":
-            fail(o["initial"]["report_diagnostic_ref"] in by_id and o["initial"]["outcome"] == quality[i]["solve_quality"])
+            fail(o["initial"]["report_diagnostic_ref"] in by_id and o["initial"]["outcome"] == verdict)
         if c["status"] == "not_required":
-            fail(c["product_attempt_ref"] is None and quality[i]["solve_quality"] == "checks_passed")
+            fail(c["product_attempt_ref"] is None and verdict == "checks_passed")
         if c["status"] == "selected":
             # D6b (C1:101; C2:153, :164; source_receipt.rs `OrdinaryAttempt::wire`): only an attempted trigger selects.
-            fail(quality[i]["solve_quality"] in ("sensitive", "unresolved", "failed"))
+            fail(verdict in ("sensitive", "unresolved", "failed"))
             fail(c["selection"]["rcond_label"] == RCOND_LABEL)
+        cause = c["reason"]["cause"] if c["status"] == "unavailable" else None
+        if cause is not None and cause.get("kind") != "prepared_product_failure":
+            # C2's cause table (CONTRACT_DELTA:72-74), for every unavailable case whose cause is not a
+            # prepared product failure (the alignment set, item 3; TS `ordinaryAttempts`, with the
+            # precondition keying). D4d's table covers prepared_product_failure in the product class.
+            phase, code, run = c["reason"]["phase"], c["reason"]["code"], c.get("run")
+            if cause.get("kind") == "source_error":
+                fail(phase == "preparation" and code == "source_unavailable" and run is None
+                     and c.get("source_decline") is not None and _same(c["source_decline"]["error"], cause["error"]))
+            elif cause.get("kind") == "receipt_failure":
+                fail(phase == "receipt" and code in RECEIPT_FAILURE_CODES)
+            elif cause.get("kind") == "facade_failure":
+                fail(phase == "facade" and code == "facade_certificate" and run is not None and run["kernel_terminal"]["kind"] == "selected"
+                     and _same(cause["owner_ref"], {"kind": "case", "index": i}))
+            elif cause.get("kind") == "unavailable_precondition":
+                fail(phase in ("routing", "preparation") and run is None and code == PRECONDITION_CODES.get(cause["precondition"]))
+            else:
+                # A kernel reason: the cause is the case's own Run's terminal reason.
+                fail(phase == "kernel" and run is not None and code == "kernel_" + run["kernel_terminal"]["kind"]
+                     and _same(cause, run["kernel_terminal"]["reason"]))
         listed = set(refs)
         cid = c["basis_ref"]["ref_id"]
         resolves = lambda ref: ref is None or (ref in listed and ref in by_id and cid in (by_id[ref].get("affected_refs") or []))
@@ -1032,7 +1106,7 @@ def _g5_products(body, rows_by_case):
                     value = 0.0 if outcome["kind"] == "underflow" else from_bits(outcome["value"])
                     fail(bits(float(row["value"])) == bits(value if value != 0 else 0.0))
         _g5_coverage(a, case, source, fail)
-        _g5_stages(a, case, fail)
+        _g5_stages(a, case, fail, ai)
         for ok in _accounting_rules(a): wf(ok)
         if a["result"]["kind"] == "ready":
             fail(source is not None and a["run_ref"] is not None and case["run"]["kernel_terminal"]["kind"] == "selected")
@@ -1415,13 +1489,19 @@ def _g5_numeric(body, rows_by_case, phase=None):
 
 def _g8(body, source, invocation):
     need = lambda ok, code="PREPARATION_MISMATCH": _need(ok, "G8", code)
+    # The invocation is exactly {request, solver_mode} with a known solver mode (I91 repair 01, findings d1
+    # and d2), as Rust's `g8` (its first two `need`s) and TS's `invocationBinding` (its first `fail`) require.
+    need(type(invocation) is dict and set(invocation) == {"request", "solver_mode"}
+         and invocation["solver_mode"] in ("sparse_interactive", "dense_scrutiny"), "INVOCATION_MISMATCH")
     try: need(_hash("source_blocks_invocation_v1", invocation) == body["invocation"]["value"], "INVOCATION_MISMATCH")
     except RetainedPrecisionError: raise
     except (ValueError, RuntimeError): need(False, "INVOCATION_MISMATCH")
     request = invocation["request"]; model = request["model"]
     need(model["project"]["id"] == source["model_ref"], "INVOCATION_MISMATCH")
-    need(model.get("schema_version") in ("0.1.0", "0.2.0", "0.3.0") and not model.get("pressure_contract") and not model.get("combinations"), "INVOCATION_MISMATCH")
-    need(not model.get("components"), "INVOCATION_MISMATCH")
+    # The model scope, as PP accepts it (the alignment set, item 2): no reference_configurations member (null
+    # included); pressure_contract absent or null; combinations and components absent or [].
+    need(model.get("schema_version") in ("0.1.0", "0.2.0", "0.3.0") and model.get("pressure_contract") is None and model.get("combinations", []) == [], "INVOCATION_MISMATCH")
+    need(model.get("components", []) == [] and "reference_configurations" not in model, "INVOCATION_MISMATCH")
     nodes, pipes, supports = model["nodes"], model["pipe_segments"], model["supports"]
     need(len({x["id"] for x in nodes}) == len(nodes) and len({x["id"] for x in pipes}) == len(pipes) and len({x["id"] for x in supports}) == len(supports))
     materials = request.get("materials") or model.get("materials", [])
@@ -1459,12 +1539,56 @@ def _g8(body, source, invocation):
         axial = (x[6]*x[8])/length; torsion = (x[7]*x[9])/length
         need(math.isfinite(axial) and math.isfinite(torsion) and abs(axial) >= 2.0**-1022 and abs(torsion) >= 2.0**-1022)
         return {"kind":"ready","length":bits(length),"axial_stiffness":bits(axial),"torsional_stiffness":bits(torsion),"normalization":[bits(d*inverse) for d in delta]}
+    # DESIGN_v2 §3.3 (decision 9) and F-1 text B (§3.2, decision 8): after the invocation, project and
+    # model-scope checks, one loop in request order over every case (selected, unavailable or
+    # not_required: every case's rows come from the one ordinary run). G3 binds case i to ordinary
+    # attempt i and to the invocation's case i. Each check is PREPARATION_MISMATCH.
+    mode = invocation["solver_mode"]
+    mode_code = {"sparse_interactive": 1, "dense_scrutiny": 2}[mode]
+    selectors, case_bases = [], []
+    for i, case in enumerate(body["cases"]):
+        o = body["ordinary_attempts"][i]
+        # 1. The requested mode.
+        need(o["requested_mode"] == mode)
+        # 2. The ordinary attempt's material basis is its case's selector, numbered in first-seen order
+        # over the request's cases (I91 repair 01, finding b), as Rust's `g8` (`case_bases`) and TS's
+        # `invocationBinding` (`knownSelectors`) number it. This binds every case, sourced or not.
+        raw_case = model["load_cases"][i]
+        named, temperature = raw_case.get("modulus_basis_ref"), raw_case.get("modulus_basis_temperature")
+        need(named is None or temperature is None)
+        selector = {"kind":"named","id":named} if named is not None else {"kind":"temperature","kelvin":bits(unit(temperature,"temperature"))} if temperature is not None else {"kind":"base"}
+        if selector not in selectors: selectors.append(selector)
+        case_bases.append(selectors.index(selector))
+        need(o["material_basis_ref"] == case_bases[i])
+        case_rows = [r for r in source["results"] if r["basis_ref"]["ref_id"] == case["basis_ref"]["ref_id"]]
+        modes = [r for r in case_rows if r["kind"] == "linear_solver_mode_basis"]
+        # 3. P1: exactly one mode row, valued with the mode code (1 sparse, 2 dense).
+        need(len(modes) == 1 and type(modes[0]["value"]) in (int, float) and modes[0]["value"] == mode_code)
+        parity = sum(1 for r in case_rows if r["kind"] == "sparse_live_path_dense_parity_relative_delta")
+        # 4. P2: at most one parity row. P3: none in sparse_interactive. P4: none when W2 published
+        # (b != 0; OQ5). A dense b = 0 case may lack it (a failed observation lane); that deletion
+        # is the disclosed limit.
+        need(parity <= 1 and (parity == 0 or mode == "dense_scrutiny") and (parity == 0 or o["w2"]["kind"] != "published"))
+    # One material basis per distinct selector, in first-seen order, each listing exactly the cases
+    # that use it (I91 repair 01, finding c), as Rust's `g8` and TS's `invocationBinding` require.
+    need(len(body["material_bases"]) == len(selectors))
+    used = {p["material"] for p in pipes}
+    for mi, mb in enumerate(body["material_bases"]):
+        need(mb["selector"] == selectors[mi] and mb["case_indices"] == [i for i, k in enumerate(case_bases) if k == mi])
+        # Every basis's materials, whether or not a CaseSource uses it (I91 repair 01, finding e): the used
+        # materials in input order, each selected for the basis's cases, as Rust's `g8` (its material
+        # bases loop) and TS's `invocationBinding` (`b.material_bases.forEach`) check them. A basis used
+        # only by cases without a source (a not_required case) was never checked before.
+        need([m["input_index"] for m in mb["materials"]] == [j for j, m in enumerate(materials) if m["id"] in used])
+        for m in mb["materials"]:
+            raw = materials[int(m["input_index"])]; pair, selection = selected_material(raw, model["load_cases"][mb["case_indices"][0]])
+            need(m["id"] == raw["id"] and m["selection"] == selection and m["shear_origin"] == {"kind":"explicit_g"} and [m["elastic_modulus"],m["shear_modulus"]] == [bits(v) for v in pair])
     for si, s in enumerate(body["sources"]):
-        need(s["index"] == si and s["owner"]["kind"] == "case")
+        # The source's index and owner are G3's (the alignment set, item 1); here, the invocation's facts.
         for include_loads, field in ((True, "kernel_source_sha256"), (False, "stiffness_sha256")):
             need(hashlib.sha256(_native_source_encoding(s, include_loads)).hexdigest() == s[field])
         ci = int(s["owner"]["case_index"]); case = model["load_cases"][ci]
-        need(case["id"] == s["owner"]["case_id"] and not case.get("pressure_regions") and case.get("equivalent_static") is None)
+        need(not case.get("pressure_regions") and case.get("equivalent_static") is None)
         maps = s["id_maps"]
         need(len(maps["nodes"]) == len(nodes) and len(maps["members"]) == len(pipes) and len(maps["support_ids"]) == len(supports))
         need(len(nodes)*6 <= 0xffffffff and len(pipes)*3 <= 0xffffffff)
@@ -1595,15 +1719,23 @@ def validate_retained_precision(source: Any, invocation: Any = None) -> dict[str
 
 
 def validate_retained_precision_transport(source: Any) -> dict[str, Any]:
-    """F-U6b-2 (B6): G0-G2 and the unchanged base transport metadata only, the twin of Rust
-    `validate_transport_metadata` and TS `validateRetainedPrecisionTransport`. Omitted raw publication
-    bytes are never reconstructed or verified, so a transported statement is never eligible."""
+    """F-U6b-2 (B6): G0-G2, then the unchanged base step on the transport projection (no rows read).
+    On G0-G2 this is the twin of Rust `validate_transport_metadata` and TS
+    `validateRetainedPrecisionTransport`: the same checks, gates and codes. At the base step it runs
+    both of theirs, and every reader runs both (RV108 N6(a); the alignment set, item 4): the base header
+    check, reported here at G2 with the header's code, as Rust reports it (RV113 N-1); then the
+    preview-physics transport metadata check, reported at G7 (SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID).
+    Omitted raw publication bytes are never reconstructed or verified, so a transported statement is
+    never eligible."""
     return _validate_draft(source, None, raw=False)
 
 
-def _transport_g7(snapshot: dict[str, Any]) -> None:
-    """The base transport metadata check on the reader's projection (no rows are read). A failure keeps
-    the base validator's leading code, with its full text as detail, as at the raw G7."""
+def _transport_base(snapshot: dict[str, Any]) -> None:
+    """The base step on the reader's transport projection (no rows are read): `_source_contract` runs the base
+    header check, then the preview-physics transport metadata check. A failure keeps the base validator's
+    leading code, with its full text as detail, as at the raw G7. Its gate (the alignment set, item 4): the
+    metadata check raises only SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID, and the header check never does
+    (it runs first, and every header code differs), so that code is G7's and every other is the header's, G2."""
     projected=deepcopy(snapshot);del projected["retained_precision"]
     projected["producer"]["semantic_contract_id"]="openpipestress.result_semantics/0.3.0/preview-physics-1";projected["formulation_basis"]["profile_id"]="product_preview_mechanics_v1"
     for row in projected["results"] if type(projected.get("results")) is list else []:
@@ -1612,7 +1744,8 @@ def _transport_g7(snapshot: dict[str, Any]) -> None:
     try:_source_contract(projected,check_receipt=False)
     except ValueError as exc:
         text=str(exc);match=re.match(r"[A-Z][A-Z0-9_]*",text)
-        error=RetainedPrecisionError("G7",match.group(0) if match else "SOURCE_PREVIEW_PHYSICS_INVALID");error.detail=text
+        code=match.group(0) if match else "SOURCE_PREVIEW_PHYSICS_INVALID"
+        error=RetainedPrecisionError("G7" if code in ("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID","SOURCE_PREVIEW_PHYSICS_INVALID") else "G2",code);error.detail=text
         raise error from exc
 
 
@@ -1662,7 +1795,7 @@ def _validate_draft(source: Any, invocation: Any = None, *, raw: bool = True) ->
                         _need(prep["sha256"]==_hash("retained_precision_preparation_v1",_preparation_payload(a)),gate,"RECEIPT_MISMATCH")
         gate="G2";_encoding(receipt,schema);_need(not _negative_zero(receipt),gate,"ENCODING_MISMATCH");_normalize_integrals(receipt)  # D34, then D32
         if not raw:
-            gate="G7";_transport_g7(snapshot)
+            gate="G7";_transport_base(snapshot)  # a header failure is raised at G2 (item 4); an escape still falls back at G7
             return {"invocation_bound":False,"numerical_eligible":False,"standing":"needs_recompute","publication_sha256":body["publication_sha256"],"classifications":[]}
         gate="G3";cases=body["cases"];quality=snapshot["numerical_quality"]["cases"]
         ids=[c["basis_ref"]["ref_id"] for c in cases]
@@ -1674,6 +1807,14 @@ def _validate_draft(source: Any, invocation: Any = None, *, raw: bool = True) ->
             seen.add(row["id"]);rows[row["basis_ref"]["ref_id"]].append(row)
         _need(len(body["ordinary_attempts"])==len(cases),gate,"COVERAGE_MISMATCH")
         for s in body["sources"]:_need(len(s["body_membership"])>0,gate,"COVERAGE_MISMATCH")  # D29
+        # The receipt's own references, bound and unbound (RR "RV113's three returns verified; ...; the three-reader
+        # alignment set ruled", item 1; TS `coverage`): each source and each material basis sits at its index, a
+        # source's owner is its own case, and a basis's case list is unique and in range.
+        for si,s in enumerate(body["sources"]):
+            ci=_integral(s["owner"]["case_index"])
+            _need(s["index"]==si and s["owner"]["kind"]=="case" and ci is not None and 0<=ci<len(cases) and ids[ci]==s["owner"]["case_id"],gate,"COVERAGE_MISMATCH")
+        for mi,mb in enumerate(body["material_bases"]):
+            _need(mb["index"]==mi and len(set(mb["case_indices"]))==len(mb["case_indices"]) and all(x<len(cases) for x in mb["case_indices"]),gate,"COVERAGE_MISMATCH")
         refs=[c["product_attempt_ref"] for c in cases if c["product_attempt_ref"] is not None]
         _need(sorted(refs)==list(range(len(body["product_attempts"]))),gate,"COVERAGE_MISMATCH")
         for ai,a in enumerate(body["product_attempts"]):
