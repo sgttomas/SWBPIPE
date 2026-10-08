@@ -5390,6 +5390,7 @@ fn b3b_shapes(shared: &Value) -> Vec<(ExactShape, Value)> {
     for (name, base, edits) in rv120_forgeries() {
         out.push((ExactShape { name, base, edits, invocation_edits: vec![], after: vec![] }, gate("G8", PREPARATION)));
     }
+    out.extend(rv120_probes(shared));
     if std::env::var("B3B_EXACT_BASE").is_ok() {
         out.push((ExactShape { name: "base", base: FILE_BASE, edits: vec![], invocation_edits: vec![], after: vec![] }, Value::Null));
         out.extend(b3b_rows(shared, FILE_BASE));
@@ -5468,6 +5469,72 @@ fn rv120_forgeries() -> Vec<(&'static str, &'static str, Vec<Value>)> {
             set(json!(["retained_precision", "body", "sources", 0, "stiffness_sha256"]), json!("d7aa429e5be25210f15a34f7138f7178efbbc443d6a016cc35f857268d9ec194")),
         ]),
     ]
+}
+/// RV120's probes for repair 02 (REVIEW_RV120 b3_readers_01, `gen_b3_probes.py`): N2, an
+/// `exact_cases` entry for a case not in the invocation (entry 0 copied, renamed), on the
+/// synthetic exact base and lane P's sparse m3x successor; and F1's G5b order probes on the
+/// exact `two_case_synthetic` (case 0's evidence `As_m2` one ulp, with or without case 1's
+/// body-scale force or section-term area changed). Bound: G7 (physics-1's base code) for N2;
+/// the shared G5b's SCALE or SECTION code, then the exact evidence, for F1.
+fn rv120_probes(shared: &Value) -> Vec<(ExactShape, Value)> {
+    use serde_json::json;
+    let mut out = Vec::new();
+    for base in [ORD, "m3x_sparse_interactive"] {
+        let (source, _) = exact_base(shared, base);
+        let entry = source["contract_evidence"]["exact_cases"][0].clone();
+        let mut other = entry.clone();
+        other["load_case_id"] = json!("case:rv120-other");
+        out.push((
+            ExactShape { name: "RV120 N2: an exact_cases entry for a case not in the invocation", base, edits: vec![set(json!(["contract_evidence", "exact_cases"]), json!([entry, other]))], invocation_edits: vec![], after: vec![] },
+            gate("G7", "SOURCE_PHYSICS_NUMERICAL_CASE_COVERAGE"),
+        ));
+    }
+    let base = "two_case_synthetic";
+    let (source, _) = exact_base(shared, base);
+    let as_m2 = json!(ulps(source["contract_evidence"]["exact_cases"][0]["pipe_sections"][0]["As_m2"].as_f64().unwrap(), 1));
+    let evidence = set(json!(["contract_evidence", "exact_cases", 0, "pipe_sections", 0, "As_m2"]), as_m2);
+    let force = set(rb(json!(["cases", 1, "selection", "body_scales", 0, "force"])), json!("0000000000000001"));
+    let area = set(rb(json!(["cases", 1, "selection", "section_terms", 0, "area"])), json!("3f00000000000000"));
+    for (name, edits, want) in [
+        ("RV120 F1 control: case 0's evidence As_m2 one ulp", vec![evidence.clone()], gate("G5b", SECTION)),
+        ("RV120 F1 control: case 1's body_scales force one ulp", vec![force.clone()], gate("G5b", "RETAINED_PRECISION_SCALE_MISMATCH")),
+        ("RV120 F1 order: case 0's evidence As_m2 and case 1's body_scales force", vec![evidence.clone(), force], gate("G5b", "RETAINED_PRECISION_SCALE_MISMATCH")),
+        ("RV120 F1 order: case 0's evidence As_m2 and case 1's section term area", vec![evidence, area], gate("G5b", SECTION)),
+    ] {
+        out.push((ExactShape { name, base, edits, invocation_edits: vec![], after: vec![] }, want));
+    }
+    out
+}
+/// RV120 N2: RS's physics-1 transport check reads RV120's probe with one code, run after
+/// run (it iterates its cases in array order, as TS and PY do): entry 0 passes, and the
+/// copy's maximum result ids repeat entry 0's. Bound and unbound stay at G7's case coverage.
+#[test]
+fn b3b_rv120_n2_transport_code_is_array_ordered_and_stable() {
+    use serde_json::json;
+    let shared = corpus();
+    let probes: Vec<_> = rv120_probes(&shared).into_iter().filter(|(s, _)| s.name.starts_with("RV120 N2: ")).collect();
+    assert_eq!(probes.len(), 2);
+    let mut digests = Vec::new();
+    for (shape, _) in &probes {
+        let (source, invocation) = b3b_input(&shared, shape);
+        digests.push(sha256_canonical(&json!([source, invocation])));
+        let want = json!({"bound": {"gate": "G7", "code": "SOURCE_PHYSICS_NUMERICAL_CASE_COVERAGE"},
+            "unbound": {"gate": "G7", "code": "SOURCE_PHYSICS_NUMERICAL_CASE_COVERAGE"},
+            "transport": {"gate": "G7", "code": "SOURCE_PHYSICS_TRANSPORT_MAXIMUM_RESULT"}});
+        // Each call builds fresh hash maps (a fresh random order), so a hash-ordered loop
+        // would show both of the probe's first failures well within these runs.
+        for run in 0..64 {
+            assert_eq!(readings(&source, &invocation), want, "{} [{}], run {run}", shape.name, shape.base);
+        }
+    }
+    assert_eq!(digests, RV120_N2_INPUTS, "RV120's N2 inputs");
+}
+/// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
+const RV120_N2_INPUTS: [&str; 2] = ["b73004449c1894a0b562032d7352d18cae0ad351f7e58d91a1572e76963530a0", "a6bb4fdf601064c2946e440b15a6bb7cb320839c9c3097fff11b2f632c6a09fe"];
+fn sha256_canonical(v: &Value) -> String {
+    use open_pipe_stress_canonical_json::canonical_json;
+    use sha2::{Digest, Sha256};
+    format!("{:x}", Sha256::digest(canonical_json(v).as_bytes()))
 }
 /// The forgeries' materialized inputs: sha256 of the canonical JSON of `[source, invocation]`
 /// (`canonical_json`), the same bytes as RV120's input lines (checked against its index).
@@ -5651,7 +5718,7 @@ fn b3b_exact_successor_shapes_first_failures() {
         }
     }
     assert!(misses.is_empty(), "{}", misses.join("\n"));
-    assert_eq!(shapes.iter().filter(|(s, _)| s.base != FILE_BASE && s.base != "<s1:file>").count(), 3 + 52 + 2 + 2 * (1 + 52 + 1) + 4);
+    assert_eq!(shapes.iter().filter(|(s, _)| s.base != FILE_BASE && s.base != "<s1:file>").count(), 3 + 52 + 2 + 2 * (1 + 52 + 1) + 4 + 2 + 4);
 }
 fn observe_validation(r: Result<rp::Validation, rp::ValidationError>) -> Value {
     match r {
