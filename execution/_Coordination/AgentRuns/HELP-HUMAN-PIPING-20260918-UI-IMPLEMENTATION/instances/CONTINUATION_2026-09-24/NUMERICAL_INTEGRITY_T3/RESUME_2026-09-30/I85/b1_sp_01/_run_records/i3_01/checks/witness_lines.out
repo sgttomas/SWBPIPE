@@ -1,0 +1,3 @@
+base: 28 witness lines, 10 witness tests, results ['test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 574 filtered out; finished in Ns']
+head: 28 witness lines, 10 witness tests, results ['test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 577 filtered out; finished in Ns']
+witness lines identical: True; tests identical: True; results identical but for the filtered-out count (the lib's +3 tests): True

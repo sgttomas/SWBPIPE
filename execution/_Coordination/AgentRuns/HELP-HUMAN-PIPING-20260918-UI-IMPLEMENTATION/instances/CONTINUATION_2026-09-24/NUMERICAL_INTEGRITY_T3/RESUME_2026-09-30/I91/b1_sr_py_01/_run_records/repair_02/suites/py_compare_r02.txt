@@ -1,0 +1,6 @@
+python {'passed': 1937, 'skipped': 30} -> {'passed': 1942, 'skipped': 30} added 5 {'passed': 5} removed 0 changed 0
+  + tests.test_retained_precision_contract::test_b1_d38_stage_rule_refuses_each_conjunct_held_elsewhere
+  + tests.test_retained_precision_contract::test_b1_repair02_c2_cause_table_in_the_reader
+  + tests.test_retained_precision_contract::test_b1_repair02_c2_cause_table_reader_logic
+  + tests.test_retained_precision_contract::test_b1_repair02_model_scope_at_g8_invocation
+  + tests.test_retained_precision_contract::test_b1_repair02_receipt_references_at_g3_and_the_ordinary_basis_at_g5

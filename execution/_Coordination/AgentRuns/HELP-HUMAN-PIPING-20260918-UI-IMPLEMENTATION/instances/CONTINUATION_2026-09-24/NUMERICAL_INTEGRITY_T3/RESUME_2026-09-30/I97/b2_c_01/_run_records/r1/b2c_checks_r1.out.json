@@ -1,0 +1,134 @@
+{
+  "n12_n5_schema": {
+    "all_agree": true,
+    "body": [
+      {
+        "agrees": true,
+        "case": "operand_preparations [DEF-O id]",
+        "expected_valid": true,
+        "jsonschema": true,
+        "py_walker": true
+      },
+      {
+        "agrees": true,
+        "case": "operand_preparations [DEF-C id]",
+        "expected_valid": false,
+        "jsonschema": false,
+        "py_walker": false
+      }
+    ],
+    "first_failure_for_DEF_C_on_an_operand_preparation": "G1 (schema const), not G0",
+    "g0_row9_membership_passes_for_DEF_C": true,
+    "instances": [
+      {
+        "agrees": true,
+        "case": "DEF-O id (control)",
+        "def": "OperandPreparation",
+        "expected_valid": true,
+        "jsonschema": true,
+        "py_walker": true
+      },
+      {
+        "agrees": true,
+        "case": "DEF-C id (N-12)",
+        "def": "OperandPreparation",
+        "expected_valid": false,
+        "jsonschema": false,
+        "py_walker": false
+      },
+      {
+        "agrees": true,
+        "case": "refused, capture origin (N-5: admitted, so G5 refuses)",
+        "def": "OperandPreparation",
+        "expected_valid": true,
+        "jsonschema": true,
+        "py_walker": true
+      },
+      {
+        "agrees": true,
+        "case": "ready (control)",
+        "def": "CombinationAttempt",
+        "expected_valid": true,
+        "jsonschema": true,
+        "py_walker": true
+      },
+      {
+        "agrees": true,
+        "case": "unavailable, capture origin (N-5)",
+        "def": "CombinationAttempt",
+        "expected_valid": true,
+        "jsonschema": true,
+        "py_walker": true
+      },
+      {
+        "agrees": true,
+        "case": "unavailable, observable origin (N-5)",
+        "def": "CombinationAttempt",
+        "expected_valid": true,
+        "jsonschema": true,
+        "py_walker": true
+      }
+    ],
+    "ptable_r1_definition_ids": [
+      "RP-PREPARED-ORDINARY-DUAL-v1",
+      "RP-PREPARED-COMBINATION-DUAL-v1"
+    ]
+  },
+  "s2_layout": {
+    "c1_range_A_then_2A": {
+      "authored": [
+        "range(A)",
+        "mechanics distinct"
+      ],
+      "c": 1,
+      "r1": true,
+      "v0": false
+    },
+    "in_domain_shapes": 18,
+    "r1_holds_for_all": true,
+    "v0_fails": [
+      "c=1: range(A), mechanics distinct",
+      "c=1: range(A), range(A)"
+    ]
+  },
+  "s4_guard": {
+    "at": [
+      "0x0.0p+0",
+      "0x0.0003ef42860c3p-1022",
+      "-0x0.0000000000001p-1022"
+    ],
+    "at_err": [
+      "-0x1.f237594c664eep-28",
+      "0x1.e1094d643f784p-29",
+      "0x1.19799812dea11p-40"
+    ],
+    "guard_failures": 0,
+    "max relative error of nested math.hypot vs the exact norm, in eps (normal results)": 0.8688513601328121,
+    "max |p-r| / (64 eps max(|p|,MIN_POSITIVE)) over 1-ulp models": 0.0625,
+    "nonfinite_triples_skipped (refused by the recipe: finite only)": 0,
+    "pairs_per_triple": 81,
+    "triples": 4013
+  },
+  "s6_rehash": {
+    "after_an_operand_preparation_edit": {
+      "07e rule (today's harnesses)": [
+        "operand preparation of source 2"
+      ],
+      "stated_order (07o)": [],
+      "wrong order (5 before 4 before 2)": [
+        "operand 1 identity"
+      ]
+    },
+    "one_pass_is_a_fixed_point": true,
+    "relations_broken_after_one_pass_of_the_stated_order": [],
+    "stated_order": [
+      "1 case preparation",
+      "2 operand preparation",
+      "3 selected case identity",
+      "4 operand identity",
+      "5 combination identity",
+      "6 publication",
+      "7 receipt"
+    ]
+  }
+}

@@ -1,0 +1,181 @@
+W-C2 rows: 6
+
+## abc sparse_interactive  input ea5c13b1d21c  plain 42b24d16e5fe
+  verdicts [['case-a', 'Sensitive'], ['case-b', 'ChecksPassed'], ['case-c', 'Sensitive']]  A=[0, 2]
+  attempts after T-7 [[0, 0, True], [2, 1, True]]; ends after T-8 ['selected', 'native']; after T-9 ['frozen', 'native']; selected bits 1
+  run: request 0 id 0 owner Case(0) terminal selected precision 128 attempts 2
+  run: request 2 id 1 owner Case(1) terminal unresolved Ceiling precision None attempts 4
+  counts: run [728, 513, 431, 1734, 9678, 1322, 109, 125, 2282, 12340]
+          prep [790, 1539, 667, 3341, 21508, 2905, 162, 127, 3345, 20499]
+          native [790, 1539, 671, 3341, 21508, 2905, 163, 127, 3345, 20995]
+          freeze [792, 6030, 1567, 10418, 216920, 9499, 178, 476, 3424, 63866]
+  snapshots after T-8 [None, [790, 1539, 671, 3341, 21508, 2905, 163, 127, 3345, 20995]]
+  snapshots after T-9 [[792, 6030, 1567, 10418, 216920, 9499, 178, 476, 3424, 63866], [790, 1539, 671, 3341, 21508, 2905, 163, 127, 3345, 20995]]
+  staging counts [792, 6030, 1567, 10418, 216920, 9499, 178, 476, 3424, 63866]; serialize counts [792, 6543, 1738, 13828, 313976, 12734, 179, 647, 3424, 74810]; ordinary untouched True
+  successor c7a1859330e9e36e receipt cccb9664e1c58f05 reader: PASS eligible=false  G7 on the projection: PASS 0.3.0
+  cases [{"par": 0, "reason": null, "source_ref": 0, "status": "selected", "terminal": {"kind": "selected", "reason": null}}, {"par": null, "reason": null, "source_ref": null, "status": "not_required", "terminal": null}, {"par": 1, "reason": {"cause": {"kind": "prepared_product_failure", "product_attempt_ref": 1}, "code": "kernel_unresolved", "phase": "kernel"}, "source_ref": 1, "status": "unavailable", "terminal": {"kind": "unresolved", "reason": {"space": "unresolved", "tag": "ceiling"}}}]
+  calls [{"owner_refs": [{"index": 0, "kind": "case"}, {"index": 2, "kind": "case"}], "source_refs": [0, 1], "run_refs": [0, 1], "invocation_before": 0, "invocation_after": 13429678}]
+  execution_order [{"index": 0, "kind": "case"}, {"index": 2, "kind": "case"}]  charged 13429678
+  groups [{"call": 0, "first_source_ref": 0, "id": 0, "preparation": {"kind": "ready"}, "source_refs": [0, 1], "stiffness_sha256": "8d929aaa80840eacdd2e65c21f591b7fe9c3b0776954d329200d4b57580f5516"}]
+  builds 7: [{"group": 0, "id": 0, "origin": {"call": 0, "phase": "shared", "physical_record": 0, "run": 0}, "reason": null, "slot": "s128", "stages": {"assembly": 2290, "bound": 0, "bounded_formation": 0, "bounded_gate": 0, "charge": 0, "condition": 171264, "estimate": 0, "factor": 70435, "formation": 68063, "recovery": 0, "refinement": 0, "residual_formation": 73175, "rhs": 0, "scale": 0, "shift": 0, "solve
+  run origins [{"call": 0, "group": 0, "owner_ref": {"index": 0, "kind": "case"}, "position": 0, "source_ref": 0}, null, {"call": 0, "group": 0, "owner_ref": {"index": 2, "kind": "case"}, "position": 1, "source_ref": 1}]
+  pa counts [[792, 6030, 1567, 10418, 216920, 9499, 178, 476, 3424, 63866], [790, 1539, 671, 3341, 21508, 2905, 163, 127, 3345, 20995]]; last frozen snapshot == counts after T-9: True
+  max_displacement: ordinary case case-b -> staged case case-b; ordinary {'location_ref': 'node:section-b', 'result_ref': 'result:loadcase:case-b:disp:node-section-b', 'unit': 'mm', 'value': 282.94212105225847} staged {'location_ref': 'node:section-b', 'result_ref': 'result:loadcase:case-b:disp:node-section-b', 'unit': 'mm', 'value': 282.94212105225847}
+     G7 staged: PASS 0.3.0 | keep-ordinary: PASS 0.3.0 | first-frozen alias: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING | selected-rows-only: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING
+  max_open_formula_stress: ordinary case case-a -> staged case case-c; ordinary {'location_ref': 'M1', 'result_ref': 'result:elastic-maximum:6:case-a:2:M1', 'unit': 'Pa', 'value': 2.5172202259989904e-08} staged {'location_ref': 'M1', 'result_ref': 'result:elastic-maximum:6:case-c:2:M1', 'unit': 'Pa', 'value': 2.5172202259989904e-08}
+     G7 staged: PASS 0.3.0 | keep-ordinary: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING | first-frozen alias: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING | selected-rows-only: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING
+  checks: 31 run, failed: []
+  N-16 case-a: one-case verdict Sensitive end selected terminal selected attempts 2; batch Run equal: True
+  N-16 case-b: one-case verdict ChecksPassed end native terminal unresolved Ceiling attempts 4; batch Run equal: None
+  N-16 case-c: one-case verdict Sensitive end native terminal unresolved Ceiling attempts 4; batch Run equal: False
+
+## abc dense_scrutiny  input ea5c13b1d21c  plain c382c16e1907
+  verdicts [['case-a', 'Sensitive'], ['case-b', 'ChecksPassed'], ['case-c', 'Sensitive']]  A=[0, 2]
+  attempts after T-7 [[0, 0, True], [2, 1, True]]; ends after T-8 ['selected', 'native']; after T-9 ['frozen', 'native']; selected bits 1
+  run: request 0 id 0 owner Case(0) terminal selected precision 128 attempts 2
+  run: request 2 id 1 owner Case(1) terminal unresolved Ceiling precision None attempts 4
+  counts: run [728, 513, 431, 1734, 9648, 1322, 109, 125, 2267, 12325]
+          prep [790, 1539, 667, 3341, 21448, 2905, 162, 127, 3330, 20484]
+          native [790, 1539, 671, 3341, 21448, 2905, 163, 127, 3330, 20980]
+          freeze [792, 6030, 1567, 10418, 216840, 9499, 178, 476, 3409, 63851]
+  snapshots after T-8 [None, [790, 1539, 671, 3341, 21448, 2905, 163, 127, 3330, 20980]]
+  snapshots after T-9 [[792, 6030, 1567, 10418, 216840, 9499, 178, 476, 3409, 63851], [790, 1539, 671, 3341, 21448, 2905, 163, 127, 3330, 20980]]
+  staging counts [792, 6030, 1567, 10418, 216840, 9499, 178, 476, 3409, 63851]; serialize counts [792, 6543, 1738, 13828, 313886, 12734, 179, 647, 3409, 74795]; ordinary untouched True
+  successor a77c010b4ae7ffa9 receipt 612e23ca4b90604b reader: PASS eligible=false  G7 on the projection: PASS 0.3.0
+  cases [{"par": 0, "reason": null, "source_ref": 0, "status": "selected", "terminal": {"kind": "selected", "reason": null}}, {"par": null, "reason": null, "source_ref": null, "status": "not_required", "terminal": null}, {"par": 1, "reason": {"cause": {"kind": "prepared_product_failure", "product_attempt_ref": 1}, "code": "kernel_unresolved", "phase": "kernel"}, "source_ref": 1, "status": "unavailable", "terminal": {"kind": "unresolved", "reason": {"space": "unresolved", "tag": "ceiling"}}}]
+  calls [{"owner_refs": [{"index": 0, "kind": "case"}, {"index": 2, "kind": "case"}], "source_refs": [0, 1], "run_refs": [0, 1], "invocation_before": 0, "invocation_after": 13429678}]
+  execution_order [{"index": 0, "kind": "case"}, {"index": 2, "kind": "case"}]  charged 13429678
+  groups [{"call": 0, "first_source_ref": 0, "id": 0, "preparation": {"kind": "ready"}, "source_refs": [0, 1], "stiffness_sha256": "8d929aaa80840eacdd2e65c21f591b7fe9c3b0776954d329200d4b57580f5516"}]
+  builds 7: [{"group": 0, "id": 0, "origin": {"call": 0, "phase": "shared", "physical_record": 0, "run": 0}, "reason": null, "slot": "s128", "stages": {"assembly": 2290, "bound": 0, "bounded_formation": 0, "bounded_gate": 0, "charge": 0, "condition": 171264, "estimate": 0, "factor": 70435, "formation": 68063, "recovery": 0, "refinement": 0, "residual_formation": 73175, "rhs": 0, "scale": 0, "shift": 0, "solve
+  run origins [{"call": 0, "group": 0, "owner_ref": {"index": 0, "kind": "case"}, "position": 0, "source_ref": 0}, null, {"call": 0, "group": 0, "owner_ref": {"index": 2, "kind": "case"}, "position": 1, "source_ref": 1}]
+  pa counts [[792, 6030, 1567, 10418, 216840, 9499, 178, 476, 3409, 63851], [790, 1539, 671, 3341, 21448, 2905, 163, 127, 3330, 20980]]; last frozen snapshot == counts after T-9: True
+  max_displacement: ordinary case case-b -> staged case case-b; ordinary {'location_ref': 'node:section-b', 'result_ref': 'result:loadcase:case-b:disp:node-section-b', 'unit': 'mm', 'value': 282.9421210522583} staged {'location_ref': 'node:section-b', 'result_ref': 'result:loadcase:case-b:disp:node-section-b', 'unit': 'mm', 'value': 282.9421210522583}
+     G7 staged: PASS 0.3.0 | keep-ordinary: PASS 0.3.0 | first-frozen alias: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING | selected-rows-only: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING
+  max_open_formula_stress: ordinary case case-a -> staged case case-c; ordinary {'location_ref': 'M1', 'result_ref': 'result:elastic-maximum:6:case-a:2:M1', 'unit': 'Pa', 'value': 4.619475839070268e-08} staged {'location_ref': 'M1', 'result_ref': 'result:elastic-maximum:6:case-c:2:M1', 'unit': 'Pa', 'value': 4.619475839070268e-08}
+     G7 staged: PASS 0.3.0 | keep-ordinary: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING | first-frozen alias: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING | selected-rows-only: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING
+  checks: 31 run, failed: []
+  N-16 case-a: one-case verdict Sensitive end selected terminal selected attempts 2; batch Run equal: True
+  N-16 case-b: one-case verdict ChecksPassed end native terminal unresolved Ceiling attempts 4; batch Run equal: None
+  N-16 case-c: one-case verdict Sensitive end native terminal unresolved Ceiling attempts 4; batch Run equal: False
+
+## cba sparse_interactive  input 0e69a4c6bc1c  plain c2ed1a983c88
+  verdicts [['case-c', 'Sensitive'], ['case-b', 'ChecksPassed'], ['case-a', 'Sensitive']]  A=[0, 2]
+  attempts after T-7 [[0, 0, True], [2, 1, True]]; ends after T-8 ['native', 'selected']; after T-9 ['native', 'frozen']; selected bits 2
+  run: request 0 id 0 owner Case(0) terminal unresolved Ceiling precision None attempts 4
+  run: request 2 id 1 owner Case(1) terminal selected precision 128 attempts 2
+  counts: run [728, 513, 431, 1734, 9678, 1322, 109, 125, 2282, 12340]
+          prep [790, 1539, 667, 3341, 21508, 2905, 162, 127, 3345, 20499]
+          native [790, 1539, 671, 3341, 21508, 2905, 163, 127, 3345, 20995]
+          freeze [792, 6030, 1567, 10418, 225240, 9499, 178, 736, 3440, 63882]
+  snapshots after T-8 [[790, 1539, 671, 3341, 21508, 2905, 163, 127, 3345, 20995], None]
+  snapshots after T-9 [[790, 1539, 671, 3341, 21508, 2905, 163, 127, 3345, 20995], [792, 6030, 1567, 10418, 225240, 9499, 178, 736, 3440, 63882]]
+  staging counts [792, 6030, 1567, 10418, 225240, 9499, 178, 736, 3440, 63882]; serialize counts [792, 6543, 1738, 13828, 326456, 12734, 179, 1037, 3440, 74826]; ordinary untouched True
+  successor ea9a484657ca3de9 receipt 863d692fa90d4502 reader: PASS eligible=false  G7 on the projection: PASS 0.3.0
+  cases [{"par": 0, "reason": {"cause": {"kind": "prepared_product_failure", "product_attempt_ref": 0}, "code": "kernel_unresolved", "phase": "kernel"}, "source_ref": 0, "status": "unavailable", "terminal": {"kind": "unresolved", "reason": {"space": "unresolved", "tag": "ceiling"}}}, {"par": null, "reason": null, "source_ref": null, "status": "not_required", "terminal": null}, {"par": 1, "reason": null, "source_ref": 1, "status": "selected", "terminal": {"kind": "selected", "reason": null}}]
+  calls [{"owner_refs": [{"index": 0, "kind": "case"}, {"index": 2, "kind": "case"}], "source_refs": [0, 1], "run_refs": [0, 1], "invocation_before": 0, "invocation_after": 13429678}]
+  execution_order [{"index": 0, "kind": "case"}, {"index": 2, "kind": "case"}]  charged 13429678
+  groups [{"call": 0, "first_source_ref": 0, "id": 0, "preparation": {"kind": "ready"}, "source_refs": [0, 1], "stiffness_sha256": "8d929aaa80840eacdd2e65c21f591b7fe9c3b0776954d329200d4b57580f5516"}]
+  builds 7: [{"group": 0, "id": 0, "origin": {"call": 0, "phase": "shared", "physical_record": 0, "run": 0}, "reason": null, "slot": "s128", "stages": {"assembly": 2290, "bound": 0, "bounded_formation": 0, "bounded_gate": 0, "charge": 0, "condition": 171264, "estimate": 0, "factor": 70435, "formation": 68063, "recovery": 0, "refinement": 0, "residual_formation": 73175, "rhs": 0, "scale": 0, "shift": 0, "solve
+  run origins [{"call": 0, "group": 0, "owner_ref": {"index": 0, "kind": "case"}, "position": 0, "source_ref": 0}, null, {"call": 0, "group": 0, "owner_ref": {"index": 2, "kind": "case"}, "position": 1, "source_ref": 1}]
+  pa counts [[790, 1539, 671, 3341, 21508, 2905, 163, 127, 3345, 20995], [792, 6030, 1567, 10418, 225240, 9499, 178, 736, 3440, 63882]]; last frozen snapshot == counts after T-9: True
+  max_displacement: ordinary case case-b -> staged case case-b; ordinary {'location_ref': 'node:section-b', 'result_ref': 'result:loadcase:case-b:disp:node-section-b', 'unit': 'mm', 'value': 282.94212105225847} staged {'location_ref': 'node:section-b', 'result_ref': 'result:loadcase:case-b:disp:node-section-b', 'unit': 'mm', 'value': 282.94212105225847}
+     G7 staged: PASS 0.3.0 | keep-ordinary: PASS 0.3.0 | first-frozen alias: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING | selected-rows-only: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING
+  max_open_formula_stress: ordinary case case-a -> staged case case-c; ordinary {'location_ref': 'M1', 'result_ref': 'result:elastic-maximum:6:case-a:2:M1', 'unit': 'Pa', 'value': 2.5172202259989904e-08} staged {'location_ref': 'M1', 'result_ref': 'result:elastic-maximum:6:case-c:2:M1', 'unit': 'Pa', 'value': 2.5172202259989904e-08}
+     G7 staged: PASS 0.3.0 | keep-ordinary: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING | first-frozen alias: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING | selected-rows-only: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING
+  checks: 31 run, failed: []
+  N-16 case-a: one-case verdict Sensitive end selected terminal selected attempts 2; batch Run equal: False
+  N-16 case-b: one-case verdict ChecksPassed end native terminal unresolved Ceiling attempts 4; batch Run equal: None
+  N-16 case-c: one-case verdict Sensitive end native terminal unresolved Ceiling attempts 4; batch Run equal: True
+
+## cba dense_scrutiny  input 0e69a4c6bc1c  plain 370c400429d5
+  verdicts [['case-c', 'Sensitive'], ['case-b', 'ChecksPassed'], ['case-a', 'Sensitive']]  A=[0, 2]
+  attempts after T-7 [[0, 0, True], [2, 1, True]]; ends after T-8 ['native', 'selected']; after T-9 ['native', 'frozen']; selected bits 2
+  run: request 0 id 0 owner Case(0) terminal unresolved Ceiling precision None attempts 4
+  run: request 2 id 1 owner Case(1) terminal selected precision 128 attempts 2
+  counts: run [728, 513, 431, 1734, 9648, 1322, 109, 125, 2267, 12325]
+          prep [790, 1539, 667, 3341, 21448, 2905, 162, 127, 3330, 20484]
+          native [790, 1539, 671, 3341, 21448, 2905, 163, 127, 3330, 20980]
+          freeze [792, 6030, 1567, 10418, 225160, 9499, 178, 736, 3425, 63867]
+  snapshots after T-8 [[790, 1539, 671, 3341, 21448, 2905, 163, 127, 3330, 20980], None]
+  snapshots after T-9 [[790, 1539, 671, 3341, 21448, 2905, 163, 127, 3330, 20980], [792, 6030, 1567, 10418, 225160, 9499, 178, 736, 3425, 63867]]
+  staging counts [792, 6030, 1567, 10418, 225160, 9499, 178, 736, 3425, 63867]; serialize counts [792, 6543, 1738, 13828, 326366, 12734, 179, 1037, 3425, 74811]; ordinary untouched True
+  successor c719bd8d3281d3bd receipt 7aeecbac57426a21 reader: PASS eligible=false  G7 on the projection: PASS 0.3.0
+  cases [{"par": 0, "reason": {"cause": {"kind": "prepared_product_failure", "product_attempt_ref": 0}, "code": "kernel_unresolved", "phase": "kernel"}, "source_ref": 0, "status": "unavailable", "terminal": {"kind": "unresolved", "reason": {"space": "unresolved", "tag": "ceiling"}}}, {"par": null, "reason": null, "source_ref": null, "status": "not_required", "terminal": null}, {"par": 1, "reason": null, "source_ref": 1, "status": "selected", "terminal": {"kind": "selected", "reason": null}}]
+  calls [{"owner_refs": [{"index": 0, "kind": "case"}, {"index": 2, "kind": "case"}], "source_refs": [0, 1], "run_refs": [0, 1], "invocation_before": 0, "invocation_after": 13429678}]
+  execution_order [{"index": 0, "kind": "case"}, {"index": 2, "kind": "case"}]  charged 13429678
+  groups [{"call": 0, "first_source_ref": 0, "id": 0, "preparation": {"kind": "ready"}, "source_refs": [0, 1], "stiffness_sha256": "8d929aaa80840eacdd2e65c21f591b7fe9c3b0776954d329200d4b57580f5516"}]
+  builds 7: [{"group": 0, "id": 0, "origin": {"call": 0, "phase": "shared", "physical_record": 0, "run": 0}, "reason": null, "slot": "s128", "stages": {"assembly": 2290, "bound": 0, "bounded_formation": 0, "bounded_gate": 0, "charge": 0, "condition": 171264, "estimate": 0, "factor": 70435, "formation": 68063, "recovery": 0, "refinement": 0, "residual_formation": 73175, "rhs": 0, "scale": 0, "shift": 0, "solve
+  run origins [{"call": 0, "group": 0, "owner_ref": {"index": 0, "kind": "case"}, "position": 0, "source_ref": 0}, null, {"call": 0, "group": 0, "owner_ref": {"index": 2, "kind": "case"}, "position": 1, "source_ref": 1}]
+  pa counts [[790, 1539, 671, 3341, 21448, 2905, 163, 127, 3330, 20980], [792, 6030, 1567, 10418, 225160, 9499, 178, 736, 3425, 63867]]; last frozen snapshot == counts after T-9: True
+  max_displacement: ordinary case case-b -> staged case case-b; ordinary {'location_ref': 'node:section-b', 'result_ref': 'result:loadcase:case-b:disp:node-section-b', 'unit': 'mm', 'value': 282.9421210522583} staged {'location_ref': 'node:section-b', 'result_ref': 'result:loadcase:case-b:disp:node-section-b', 'unit': 'mm', 'value': 282.9421210522583}
+     G7 staged: PASS 0.3.0 | keep-ordinary: PASS 0.3.0 | first-frozen alias: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING | selected-rows-only: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING
+  max_open_formula_stress: ordinary case case-a -> staged case case-c; ordinary {'location_ref': 'M1', 'result_ref': 'result:elastic-maximum:6:case-a:2:M1', 'unit': 'Pa', 'value': 4.619475839070268e-08} staged {'location_ref': 'M1', 'result_ref': 'result:elastic-maximum:6:case-c:2:M1', 'unit': 'Pa', 'value': 4.619475839070268e-08}
+     G7 staged: PASS 0.3.0 | keep-ordinary: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING | first-frozen alias: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING | selected-rows-only: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING
+  checks: 31 run, failed: []
+  N-16 case-a: one-case verdict Sensitive end selected terminal selected attempts 2; batch Run equal: False
+  N-16 case-b: one-case verdict ChecksPassed end native terminal unresolved Ceiling attempts 4; batch Run equal: None
+  N-16 case-c: one-case verdict Sensitive end native terminal unresolved Ceiling attempts 4; batch Run equal: True
+
+## aa2 sparse_interactive  input 7b7bbed0851c  plain b74a225f2103
+  verdicts [['case-a', 'Sensitive'], ['case-a2', 'Sensitive']]  A=[0, 1]
+  attempts after T-7 [[0, 0, True], [1, 1, True]]; ends after T-8 ['selected', 'selected']; after T-9 ['frozen', 'frozen']; selected bits 3
+  run: request 0 id 0 owner Case(0) terminal selected precision 128 attempts 2
+  run: request 1 id 1 owner Case(1) terminal selected precision 128 attempts 2
+  counts: run [486, 342, 286, 1161, 6398, 885, 76, 82, 1542, 7822]
+          prep [548, 1026, 516, 2237, 14586, 1939, 127, 83, 2579, 15859]
+          native [548, 1026, 520, 2237, 14586, 1939, 128, 83, 2579, 16355]
+          freeze [552, 10008, 2312, 16391, 415120, 15127, 158, 1041, 2755, 102115]
+  snapshots after T-8 [None, None]
+  snapshots after T-9 [[550, 5517, 1416, 9314, 209998, 8533, 143, 432, 2658, 59226], [552, 10008, 2312, 16391, 415120, 15127, 158, 1041, 2755, 102115]]
+  staging counts [552, 10008, 2312, 16391, 415120, 15127, 158, 1041, 2755, 102115]; serialize counts [552, 11034, 2654, 23211, 614084, 21597, 160, 1513, 2755, 124003]; ordinary untouched True
+  successor 529233eb989aca35 receipt 41f330856d4c6e94 reader: PASS eligible=true  G7 on the projection: PASS 0.3.0
+  cases [{"par": 0, "reason": null, "source_ref": 0, "status": "selected", "terminal": {"kind": "selected", "reason": null}}, {"par": 1, "reason": null, "source_ref": 1, "status": "selected", "terminal": {"kind": "selected", "reason": null}}]
+  calls [{"owner_refs": [{"index": 0, "kind": "case"}, {"index": 1, "kind": "case"}], "source_refs": [0, 1], "run_refs": [0, 1], "invocation_before": 0, "invocation_after": 4521598}]
+  execution_order [{"index": 0, "kind": "case"}, {"index": 1, "kind": "case"}]  charged 4521598
+  groups [{"call": 0, "first_source_ref": 0, "id": 0, "preparation": {"kind": "ready"}, "source_refs": [0, 1], "stiffness_sha256": "8d929aaa80840eacdd2e65c21f591b7fe9c3b0776954d329200d4b57580f5516"}]
+  builds 3: [{"group": 0, "id": 0, "origin": {"call": 0, "phase": "shared", "physical_record": 0, "run": 0}, "reason": null, "slot": "s128", "stages": {"assembly": 2290, "bound": 0, "bounded_formation": 0, "bounded_gate": 0, "charge": 0, "condition": 171264, "estimate": 0, "factor": 70435, "formation": 68063, "recovery": 0, "refinement": 0, "residual_formation": 73175, "rhs": 0, "scale": 0, "shift": 0, "solve
+  run origins [{"call": 0, "group": 0, "owner_ref": {"index": 0, "kind": "case"}, "position": 0, "source_ref": 0}, {"call": 0, "group": 0, "owner_ref": {"index": 1, "kind": "case"}, "position": 1, "source_ref": 1}]
+  pa counts [[550, 5517, 1416, 9314, 209998, 8533, 143, 432, 2658, 59226], [552, 10008, 2312, 16391, 415120, 15127, 158, 1041, 2755, 102115]]; last frozen snapshot == counts after T-9: True
+  max_displacement: ordinary case case-a -> staged case case-a; ordinary {'location_ref': 'N1', 'result_ref': 'result:disp:N1', 'unit': 'mm', 'value': 0.09426732782247198} staged {'location_ref': 'N1', 'result_ref': 'result:disp:N1', 'unit': 'mm', 'value': 0.09426732770800755}
+     G7 staged: PASS 0.3.0 | keep-ordinary: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING | first-frozen alias: PASS 0.3.0 | selected-rows-only: PASS 0.3.0
+  max_open_formula_stress: ordinary case case-a -> staged case case-a; ordinary {'location_ref': 'M1', 'result_ref': 'result:elastic-maximum:6:case-a:2:M1', 'unit': 'Pa', 'value': 2.5172202259989904e-08} staged {'location_ref': 'M1', 'result_ref': 'result:elastic-maximum:6:case-a:2:M1', 'unit': 'Pa', 'value': 8.170865639376687e-92}
+     G7 staged: PASS 0.3.0 | keep-ordinary: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING | first-frozen alias: PASS 0.3.0 | selected-rows-only: PASS 0.3.0
+  checks: 29 run, failed: []
+  N-16 case-a: one-case verdict Sensitive end selected terminal selected attempts 2; batch Run equal: True
+  N-16 case-a2: one-case verdict Sensitive end selected terminal selected attempts 2; batch Run equal: False
+
+## aa2 dense_scrutiny  input 7b7bbed0851c  plain 3b1d61f34998
+  verdicts [['case-a', 'Sensitive'], ['case-a2', 'Sensitive']]  A=[0, 1]
+  attempts after T-7 [[0, 0, True], [1, 1, True]]; ends after T-8 ['selected', 'selected']; after T-9 ['frozen', 'frozen']; selected bits 3
+  run: request 0 id 0 owner Case(0) terminal selected precision 128 attempts 2
+  run: request 1 id 1 owner Case(1) terminal selected precision 128 attempts 2
+  counts: run [486, 342, 286, 1161, 6378, 885, 76, 82, 1532, 7812]
+          prep [548, 1026, 516, 2237, 14546, 1939, 127, 83, 2569, 15849]
+          native [548, 1026, 520, 2237, 14546, 1939, 128, 83, 2569, 16345]
+          freeze [552, 10008, 2312, 16391, 415040, 15127, 158, 1041, 2745, 102105]
+  snapshots after T-8 [None, None]
+  snapshots after T-9 [[550, 5517, 1416, 9314, 209938, 8533, 143, 432, 2648, 59216], [552, 10008, 2312, 16391, 415040, 15127, 158, 1041, 2745, 102105]]
+  staging counts [552, 10008, 2312, 16391, 415040, 15127, 158, 1041, 2745, 102105]; serialize counts [552, 11034, 2654, 23211, 613984, 21597, 160, 1513, 2745, 123993]; ordinary untouched True
+  successor f4075cdc80eff270 receipt 30001ccf42ad12ac reader: PASS eligible=true  G7 on the projection: PASS 0.3.0
+  cases [{"par": 0, "reason": null, "source_ref": 0, "status": "selected", "terminal": {"kind": "selected", "reason": null}}, {"par": 1, "reason": null, "source_ref": 1, "status": "selected", "terminal": {"kind": "selected", "reason": null}}]
+  calls [{"owner_refs": [{"index": 0, "kind": "case"}, {"index": 1, "kind": "case"}], "source_refs": [0, 1], "run_refs": [0, 1], "invocation_before": 0, "invocation_after": 4521598}]
+  execution_order [{"index": 0, "kind": "case"}, {"index": 1, "kind": "case"}]  charged 4521598
+  groups [{"call": 0, "first_source_ref": 0, "id": 0, "preparation": {"kind": "ready"}, "source_refs": [0, 1], "stiffness_sha256": "8d929aaa80840eacdd2e65c21f591b7fe9c3b0776954d329200d4b57580f5516"}]
+  builds 3: [{"group": 0, "id": 0, "origin": {"call": 0, "phase": "shared", "physical_record": 0, "run": 0}, "reason": null, "slot": "s128", "stages": {"assembly": 2290, "bound": 0, "bounded_formation": 0, "bounded_gate": 0, "charge": 0, "condition": 171264, "estimate": 0, "factor": 70435, "formation": 68063, "recovery": 0, "refinement": 0, "residual_formation": 73175, "rhs": 0, "scale": 0, "shift": 0, "solve
+  run origins [{"call": 0, "group": 0, "owner_ref": {"index": 0, "kind": "case"}, "position": 0, "source_ref": 0}, {"call": 0, "group": 0, "owner_ref": {"index": 1, "kind": "case"}, "position": 1, "source_ref": 1}]
+  pa counts [[550, 5517, 1416, 9314, 209938, 8533, 143, 432, 2648, 59216], [552, 10008, 2312, 16391, 415040, 15127, 158, 1041, 2745, 102105]]; last frozen snapshot == counts after T-9: True
+  max_displacement: ordinary case case-a -> staged case case-a; ordinary {'location_ref': 'N1', 'result_ref': 'result:disp:N1', 'unit': 'mm', 'value': 0.0942673274792288} staged {'location_ref': 'N1', 'result_ref': 'result:disp:N1', 'unit': 'mm', 'value': 0.09426732770800755}
+     G7 staged: PASS 0.3.0 | keep-ordinary: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING | first-frozen alias: PASS 0.3.0 | selected-rows-only: PASS 0.3.0
+  max_open_formula_stress: ordinary case case-a -> staged case case-a; ordinary {'location_ref': 'M1', 'result_ref': 'result:elastic-maximum:6:case-a:2:M1', 'unit': 'Pa', 'value': 4.619475839070268e-08} staged {'location_ref': 'M1', 'result_ref': 'result:elastic-maximum:6:case-a:2:M1', 'unit': 'Pa', 'value': 8.170865639376687e-92}
+     G7 staged: PASS 0.3.0 | keep-ordinary: SOURCE_PREVIEW_PHYSICS_HEADLINE_BINDING | first-frozen alias: PASS 0.3.0 | selected-rows-only: PASS 0.3.0
+  checks: 29 run, failed: []
+  N-16 case-a: one-case verdict Sensitive end selected terminal selected attempts 2; batch Run equal: True
+  N-16 case-a2: one-case verdict Sensitive end selected terminal selected attempts 2; batch Run equal: False
+
+## one-case rows
+  case-a sparse_interactive: verdict Sensitive end selected terminal selected precision 128 attempts 2; retained_w1: Successor
+  case-a dense_scrutiny: verdict Sensitive end selected terminal selected precision 128 attempts 2; retained_w1: Successor
+  case-b sparse_interactive: verdict ChecksPassed end native terminal unresolved Ceiling precision None attempts 4; retained_w1: NoTriggeredCase
+  case-b dense_scrutiny: verdict ChecksPassed end native terminal unresolved Ceiling precision None attempts 4; retained_w1: NoTriggeredCase
+  case-c sparse_interactive: verdict Sensitive end native terminal unresolved Ceiling precision None attempts 4; retained_w1: Native
+  case-c dense_scrutiny: verdict Sensitive end native terminal unresolved Ceiling precision None attempts 4; retained_w1: Native

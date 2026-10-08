@@ -1,0 +1,198 @@
+warning: function `derived` is never used
+   --> ARCH/projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1607:27
+     |
+1607 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+1607 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+1607 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1608:27
+     |
+1608 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+help: remove these parentheses
+     |
+1608 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+1608 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+     |
+
+warning: function `is_exact_pressure_result_kind` is never used
+     --> src/lib.rs:10337:4
+      |
+10337 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      |
+      = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   --> src/source_recovery.rs:146:9
+    |
+145 | pub(super) struct SpringAction {
+    |                   ------------ fields in this struct
+146 |     pub support_id: String,
+    |         ^^^^^^^^^^
+147 |     pub global_dof: usize,
+    |         ^^^^^^^^^^
+148 |     pub value: f64,
+    |         ^^^^^
+149 |     pub functional_index: usize,
+    |         ^^^^^^^^^^^^^^^^
+    |
+    = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:171:9
+    |
+170 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+171 |     pub dofs: usize,
+    |         ^^^^
+172 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+173 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+174 |     pub blocks: usize,
+    |         ^^^^^^
+175 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+176 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+177 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+178 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+179 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+180 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+181 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+182 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+183 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+184 |     pub max_relative_projection_error: f64,
+185 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:198:5
+    |
+192 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+198 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:224:12
+    |
+207 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+224 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 7 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 2 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (WT/targets/i98-b2w/debug/deps/open_pipe_stress_product_physics-e08917abb99aa3a9)
+
+running 1 test
+test retained_memory::zz_i98_probe::zz_i98_files ... I98_FILE cb1_a_halfb_canonical file_sha=012fec523898bc8323e95d0ff6074e22152cbbcffb03ef8d729c5cb6a6a43a83
+I98_CENSUS cb1_a_halfb_canonical input_sha=9f789113a903749431deda688b5d0813430f2e757a1b656e4d155b9019583cba profile=Registered census_complete=true domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None loads_per_case=[256] loads_total=256 combinations=0 over=["Loads=256/128", "LoadsCapacity=256/128"] at_cap=["Nodes=32/32", "NodesCapacity=32/32", "Members=32/32", "MembersCapacity=32/32", "Supports=32/32", "SupportsCapacity=32/32", "ModelMaterials=4/4", "ModelMaterialsCapacity=4/4", "RequestMaterials=4/4", "RequestMaterialsCapacity=4/4", "TemperaturePoints=16/16", "TemperaturePointsCapacity=16/16", "LoadCasesCapacity=1/1", "MaterialExpansionLawsCapacity=4/4", "TypedTextBytes=128/128", "TypedTextCapacity=128/128", "RawTextBytes=128/128", "RawDepth=16/16"] rows=["Nodes=32/32", "NodesCapacity=32/32", "Members=32/32", "MembersCapacity=32/32", "Supports=32/32", "SupportsCapacity=32/32", "Restraints=66/192", "Springs=21/192", "Loads=256/128", "LoadsCapacity=256/128", "ModelMaterials=4/4", "RequestMaterials=4/4", "TemperaturePoints=16/16", "LoadCasesCapacity=1/1", "TypedTextBytes=128/128", "RawTextBytes=128/128", "RawKeyTextBytes=23/128", "RawValues=4701/16384", "RawDepth=16/16", "RawStringBytes=39379/65536", "RawKeyBytes=25611/65536", "RawArrayCapacity=569/32768", "RawStringCapacity=39379/131072", "RawKeyCapacity=25611/131072", "DigestCapacity=64/128", "ControlBytes=0/0"]
+I98_BEGIN cb1_a_halfb_canonical sparse_interactive registered=true input_sha=9f789113a903749431deda688b5d0813430f2e757a1b656e4d155b9019583cba
+I98_ORDINARY cb1_a_halfb_canonical sparse_interactive status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=2113 plain_sha=43e1d53e24476b521320fe8d3fccbeaf062e3f3e75b89cd31f587420db48be58 plain_len=1455638 published_verdicts=[{"ref":"case:a-half-b","solve_quality":"sensitive"}] rcond=["2.0384254872829075e-8"] refinement_attempts=["0"] assembly=["rel=5.517719525168333e-17 amp=2.7068536768165634e-9 load=0.0"] d5=["formation_check: reason=estimate; row=C0:N1:RX; doubled_correction=4.046900528286056e-14; scale=1.666833274620658e-5; trigger_ratio=2.427897612739378"] range_scaling=[] diagnostics={"LOAD_CATEGORY_PREVIEW_MAPPED:warning": 256, "NUMERICAL_INTEGRITY_SENSITIVE:warning": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1, "SOURCE_BLOCK_RECOVERY_UNAVAILABLE:info": 1} ms=96
+I98_ADMISSION cb1_a_halfb_canonical sparse_interactive profile=Registered allowance=Unselected refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None census_complete=true
+I98_W1 cb1_a_halfb_canonical sparse_interactive cause=None (no permit, no W1) phase=none (no W1 phase work) counts=Counts { runs: 1, complete_gates: 0 } one_run_through_g_c=false armed_before=[] armed_after=[] envelope_is_plain=true published_successor=false notices=0 bytes_eq_with_notice_plain_case_none=false bytes_eq_plain=true published_sha=43e1d53e24476b521320fe8d3fccbeaf062e3f3e75b89cd31f587420db48be58 published_len=1455638 direct_ms=97
+I98_MARK witness_ordinary_done t_us=1791417624974621
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case:a-half-b","solve_quality":"sensitive"}] seeds=[{"case":"case:a-half-b","d5_ref":"diagnostic:numerical-integrity:case:a-half-b","initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_SENSITIVE","ref":"diagnostic:numerical-integrity:case:a-half-b"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case:a-half-b
+I98_MARK w1_start t_us=1791417624981883
+I98_MARK prepared t_us=1791417624999183
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417625576064
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa960c49ca6366513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0c86ac1e74p-16, hi: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabf4dca3d9c99aec256413abb396e5c4fd862f22c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f37953e18cp-16 }, Enclosure { lo: +a4ed3f1b0e725c3dee78183f91e646f156191148fd9fd36f7e3d1cc100e6afcce1c43849dc784a6513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b...[cut by sanitize.py: 443989 bytes, sha256 5dbe4c593ce65470f46826f8fa1d1852892308315eb8223ee0b93b9c3ee1913e]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"3ff0000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":1.0},{"bits":"0000000000000000","id":"result:disp:C0-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fa821e751965334","id":"result:disp:C0-N1","kind":"displacement_magnitude","unit":"mm","value":0.04713366385400378},{"bits":"0000000000000000","id":"result:disp:C1-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fa821e751965334","id":"result:disp:C1-N1","kind":"displacement_magnitude","unit":"mm","value":0.04713366385400378},{"bits":"0000000000000000","id":"result:disp:C2-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fa821e751965334","id":"result:disp:C2-N1","kind":"displacement_magnitude","unit":"mm","value":0.04713366385400378},{"bits":"0000000000000000","id":"result:disp:C3-N0","kind":"displacement_magnitud...[cut by sanitize.py: 706434 bytes, sha256 c318617dbbc357011d0b90e0574e7c0d6e56ce133df06332cef02652cbeed489]
+I98_MARK candidate t_us=1791417640521050
+I98_MARK staged t_us=1791417640521656
+I98_MARK serialized t_us=1791417640915643
+I98_MARK precommit_ok t_us=1791417641854182
+I98_WITNESS cb1_a_halfb_canonical sparse_interactive stack=4194304 ran=Successor furthest_phase=E_mov,max (successor) ms=16982
+I98_BYPASS_GA cb1_a_halfb_canonical sparse_interactive profile=Registered refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None census_complete=true
+I98_BYPASS_GB cb1_a_halfb_canonical sparse_interactive stack=67108864 late_refusal=Some(PhaseRefusal { gate: Late, fact: CaseLoads, observed: 256, cap: 128 }) exact_selected=false capture_error=Some("Association(\"missing successful prepared late source hook\")")
+I98_MARK bypass_ordinary_done t_us=1791417642055553
+I98_BYPASS_GC cb1_a_halfb_canonical sparse_interactive complete=Ok(())
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case:a-half-b","solve_quality":"sensitive"}] seeds=[{"case":"case:a-half-b","d5_ref":"diagnostic:numerical-integrity:case:a-half-b","initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_SENSITIVE","ref":"diagnostic:numerical-integrity:case:a-half-b"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case:a-half-b
+I98_MARK w1_start t_us=1791417642063552
+I98_MARK prepared t_us=1791417642080423
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417642658532
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa960c49ca6366513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0c86ac1e74p-16, hi: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabf4dca3d9c99aec256413abb396e5c4fd862f22c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f37953e18cp-16 }, Enclosure { lo: +a4ed3f1b0e725c3dee78183f91e646f156191148fd9fd36f7e3d1cc100e6afcce1c43849dc784a6513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b...[cut by sanitize.py: 443989 bytes, sha256 5dbe4c593ce65470f46826f8fa1d1852892308315eb8223ee0b93b9c3ee1913e]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"3ff0000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":1.0},{"bits":"0000000000000000","id":"result:disp:C0-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fa821e751965334","id":"result:disp:C0-N1","kind":"displacement_magnitude","unit":"mm","value":0.04713366385400378},{"bits":"0000000000000000","id":"result:disp:C1-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fa821e751965334","id":"result:disp:C1-N1","kind":"displacement_magnitude","unit":"mm","value":0.04713366385400378},{"bits":"0000000000000000","id":"result:disp:C2-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fa821e751965334","id":"result:disp:C2-N1","kind":"displacement_magnitude","unit":"mm","value":0.04713366385400378},{"bits":"0000000000000000","id":"result:disp:C3-N0","kind":"displacement_magnitud...[cut by sanitize.py: 706434 bytes, sha256 c318617dbbc357011d0b90e0574e7c0d6e56ce133df06332cef02652cbeed489]
+I98_MARK candidate t_us=1791417657532347
+I98_MARK staged t_us=1791417657532909
+I98_MARK serialized t_us=1791417657904434
+I98_MARK precommit_ok t_us=1791417658793320
+I98_BYPASS_SUCCESSOR cb1_a_halfb_canonical sparse_interactive sha=cff7df87c12520927aa6adc16bb011347690ddc5b240f58ca0bc32b3784c186a len=2276531 receipt_sha256="601e118f4f7167e5c1982c3e30b317e4cdc0c3c7274d780702741ca0def16915" rust_reader=PASS invocation_bound=true numerical_eligible=true classifications=2113 case_status="selected"
+I98_BYPASS cb1_a_halfb_canonical sparse_interactive stack=67108864 ran=Successor furthest_phase=E_mov,max (successor) ms=17907
+I98_BEGIN cb1_a_halfb_canonical dense_scrutiny registered=true input_sha=9f789113a903749431deda688b5d0813430f2e757a1b656e4d155b9019583cba
+I98_ORDINARY cb1_a_halfb_canonical dense_scrutiny status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=2114 plain_sha=16d8f7d36f351c7116731848ffa8c1f396beb030b8d9a81023d49c9c6be93bd9 plain_len=1457036 published_verdicts=[{"ref":"case:a-half-b","solve_quality":"sensitive"}] rcond=["2.0384254947051128e-8"] refinement_attempts=["0"] assembly=["rel=5.517719525168333e-17 amp=2.7068536669605133e-9 load=0.0"] d5=["formation_check: reason=estimate; row=C0:N1:RX; doubled_correction=8.088485604575451e-14; scale=1.6668332685529648e-5; trigger_ratio=4.852606290728372"] range_scaling=[] diagnostics={"LOAD_CATEGORY_PREVIEW_MAPPED:warning": 256, "NUMERICAL_INTEGRITY_SENSITIVE:warning": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1, "SOURCE_BLOCK_RECOVERY_UNAVAILABLE:info": 1} ms=142
+I98_ADMISSION cb1_a_halfb_canonical dense_scrutiny profile=Registered allowance=Unselected refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None census_complete=true
+I98_W1 cb1_a_halfb_canonical dense_scrutiny cause=None (no permit, no W1) phase=none (no W1 phase work) counts=Counts { runs: 1, complete_gates: 0 } one_run_through_g_c=false armed_before=[] armed_after=[] envelope_is_plain=true published_successor=false notices=0 bytes_eq_with_notice_plain_case_none=false bytes_eq_plain=true published_sha=16d8f7d36f351c7116731848ffa8c1f396beb030b8d9a81023d49c9c6be93bd9 published_len=1457036 direct_ms=142
+I98_MARK witness_ordinary_done t_us=1791417660558424
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case:a-half-b","solve_quality":"sensitive"}] seeds=[{"case":"case:a-half-b","d5_ref":"diagnostic:numerical-integrity:case:a-half-b","initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_SENSITIVE","ref":"diagnostic:numerical-integrity:case:a-half-b"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case:a-half-b
+I98_MARK w1_start t_us=1791417660565858
+I98_MARK prepared t_us=1791417660583330
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417661183525
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa960c49ca6366513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0c86ac1e74p-16, hi: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabf4dca3d9c99aec256413abb396e5c4fd862f22c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f37953e18cp-16 }, Enclosure { lo: +a4ed3f1b0e725c3dee78183f91e646f156191148fd9fd36f7e3d1cc100e6afcce1c43849dc784a6513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b...[cut by sanitize.py: 443989 bytes, sha256 5dbe4c593ce65470f46826f8fa1d1852892308315eb8223ee0b93b9c3ee1913e]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"4000000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":2.0},{"bits":"3e2c76280d1333f1","id":"result:sparse-live:dense-parity-relative-delta","kind":"sparse_live_path_dense_parity_relative_delta","unit":"unitless","value":3.31336034355847e-9},{"bits":"0000000000000000","id":"result:disp:C0-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fa821e751965334","id":"result:disp:C0-N1","kind":"displacement_magnitude","unit":"mm","value":0.04713366385400378},{"bits":"0000000000000000","id":"result:disp:C1-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fa821e751965334","id":"result:disp:C1-N1","kind":"displacement_magnitude","unit":"mm","value":0.04713366385400378},{"bits":"0000000000000000","id":"result:disp:C2-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fa821e75196533...[cut by sanitize.py: 706746 bytes, sha256 8ebb8ed12d0fd9ee161b73978a7cf7f075e53b24970977b179f02747834de3c4]
+I98_MARK candidate t_us=1791417676151966
+I98_MARK staged t_us=1791417676152564
+I98_MARK serialized t_us=1791417676525705
+I98_MARK precommit_ok t_us=1791417677414432
+I98_WITNESS cb1_a_halfb_canonical dense_scrutiny stack=4194304 ran=Successor furthest_phase=E_mov,max (successor) ms=17004
+I98_BYPASS_GA cb1_a_halfb_canonical dense_scrutiny profile=Registered refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None census_complete=true
+I98_BYPASS_GB cb1_a_halfb_canonical dense_scrutiny stack=67108864 late_refusal=Some(PhaseRefusal { gate: Late, fact: CaseLoads, observed: 256, cap: 128 }) exact_selected=false capture_error=Some("Association(\"missing successful prepared late source hook\")")
+I98_MARK bypass_ordinary_done t_us=1791417677694357
+I98_BYPASS_GC cb1_a_halfb_canonical dense_scrutiny complete=Ok(())
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case:a-half-b","solve_quality":"sensitive"}] seeds=[{"case":"case:a-half-b","d5_ref":"diagnostic:numerical-integrity:case:a-half-b","initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_SENSITIVE","ref":"diagnostic:numerical-integrity:case:a-half-b"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case:a-half-b
+I98_MARK w1_start t_us=1791417677702333
+I98_MARK prepared t_us=1791417677719064
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417678292566
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa960c49ca6366513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0c86ac1e74p-16, hi: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabf4dca3d9c99aec256413abb396e5c4fd862f22c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f37953e18cp-16 }, Enclosure { lo: +a4ed3f1b0e725c3dee78183f91e646f156191148fd9fd36f7e3d1cc100e6afcce1c43849dc784a6513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b...[cut by sanitize.py: 443989 bytes, sha256 5dbe4c593ce65470f46826f8fa1d1852892308315eb8223ee0b93b9c3ee1913e]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"4000000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":2.0},{"bits":"3e2c76280d1333f1","id":"result:sparse-live:dense-parity-relative-delta","kind":"sparse_live_path_dense_parity_relative_delta","unit":"unitless","value":3.31336034355847e-9},{"bits":"0000000000000000","id":"result:disp:C0-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fa821e751965334","id":"result:disp:C0-N1","kind":"displacement_magnitude","unit":"mm","value":0.04713366385400378},{"bits":"0000000000000000","id":"result:disp:C1-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fa821e751965334","id":"result:disp:C1-N1","kind":"displacement_magnitude","unit":"mm","value":0.04713366385400378},{"bits":"0000000000000000","id":"result:disp:C2-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fa821e75196533...[cut by sanitize.py: 706746 bytes, sha256 8ebb8ed12d0fd9ee161b73978a7cf7f075e53b24970977b179f02747834de3c4]
+I98_MARK candidate t_us=1791417693490817
+I98_MARK staged t_us=1791417693491412
+I98_MARK serialized t_us=1791417693884577
+I98_MARK precommit_ok t_us=1791417694818296
+I98_BYPASS_SUCCESSOR cb1_a_halfb_canonical dense_scrutiny sha=ed7b1fa34197bcdb8643a7a4452a6a3f7782e6607fa9d089746d2e1815ae4df6 len=2277854 receipt_sha256="2828996eb73d5a22d15a7e4d5ce9901c6658aa905006d7acd465147fdc985309" rust_reader=PASS invocation_bound=true numerical_eligible=true classifications=2114 case_status="selected"
+I98_BYPASS cb1_a_halfb_canonical dense_scrutiny stack=67108864 ran=Successor furthest_phase=E_mov,max (successor) ms=18315
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 558 filtered out; finished in 71.48s
+

@@ -1,0 +1,66 @@
+== I96 in H (P/execution):
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-source-value-repair-artifacts/r2-sm
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/shell/dist-budget-repair.json.gz matches
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-repair/layout-01/compa
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-repair/prior-b4-artifa
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/worker/browser-2/b4-table-editing-B4-M
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CI_REPAIR/ROOT_DISC
+T3/RESUME_2026-09-30/BRIEFS/RV116_RVD_DESIGN_REVIEW.md:11:- **The design:** `R/I96/b3_d_01/DESIGN.md` (sha256 `ad7942f66c906270003c7c7fd98bb7c64900183dc47b31796844fb051e37b69b`).
+T3/RESUME_2026-09-30/BRIEFS/RV116_RVD_DESIGN_REVIEW.md:37:     - Reproduce I96's finding that SourceAnnulus's published sections are not correctly rounded: one ulp on n05/n06's I, J and Z, and 75 % of
+T3/RESUME_2026-09-30/BRIEFS/RV116_RVD_DESIGN_REVIEW.md:50:   - **No new failure code.** Check first failures against I96's 07o list (§6.4).
+T3/RESUME_2026-09-30/REVIEW_RV115/b2_kd_01/ADDENDUM_01.md:1:# RV115 (RV-K) ADDENDUM_01: B3-K's kernel items in I96's B3 design (documents only)
+T3/RESUME_2026-09-30/REVIEW_RV115/b2_kd_01/ADDENDUM_01.md:3:TASK (Type 2), RV115, holding RV-K, for ROOT (HELP_HUMAN, Agent 0), who is the return path. I made no delegation. 2026-10-07 UTC. This adden
+T3/RESUME_2026-09-30/REVIEW_RV115/b2_kd_01/ADDENDUM_01.md:5:**The subject:** `R/I96/b3_d_01/DESIGN.md`, sha256 `ad7942f66c906270003c7c7fd98bb7c64900183dc47b31796844fb051e37b69b` (verified; its SHA256S
+== I97 in H (P/execution):
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-completed-artifacts/ui-foundat
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-completed-artifacts/ui-foundat
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-dist-final-artifacts/ui-foundation-
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-source-value-repair-artifacts/linea
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-source-value-repair-artifacts/r2-sm
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3B-CODEX/_run_records/browser/artifacts/b3b-project-persisten
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-repair/drawer-before/d
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/C3-CODEX/_run_records/worker/connected/artifacts/c3-viewport-v
+T3/RESUME_2026-09-30/REVIEW_RV116/b3_d_01/REVIEW.md:137:  **The one open item is the shared spelling of `receipt_bindings` with B2-C.** B2-C has not been dispatched (RR: the next unused id is I97), so
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-
+== I98 in H (P/execution):
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-CANVAS/screenshots/C2/dark_dpr1_hover_selected_pipe.png matc
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-CANVAS/screenshots/C2/dark_dpr1_several_selected_fitted.png 
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/full-source-value-repair-artifacts/r2-sm
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B3-CODEX/_run_records/shell/source-portal-repair-artifacts/ui-
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/worker/native-fit/fail-before-artifact
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/node-sort-undo/browser-diagnosis/b4-ta
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/worker/browser-final/b4-table-editing-
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/worker/19-portal-fail-before/artifacts
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_r
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_DIST_ROUNDO
+Binary file 18a20d329f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/fidelity/03-se
+== RV116 in H (P/execution):
+T3/RESUME_2026-09-30/BRIEFS/RV116_RVD_DESIGN_REVIEW.md:1:# RV116 (RV-D): independent review of B3-D, the B3 design (documents only)
+T3/RESUME_2026-09-30/REVIEW_RV115/b2_kd_01/ADDENDUM_01.md:3:TASK (Type 2), RV115, holding RV-K, for ROOT (HELP_HUMAN, Agent 0), who is the return path. I made no delegation. 2026-10-07 UTC. This adden
+T3/RESUME_2026-09-30/REVIEW_RV115/b2_kd_01/ADDENDUM_01.md:197:- **Kernel content only.** I reviewed B3-K's kernel content. The rest of I96's design is RV116's.
+T3/RESUME_2026-09-30/REVIEW_RV116/b3_d_01/ADDENDUM_01.md:1:# RV116 (RV-D) ADDENDUM_01: confirmation of I96's B3-D REVISION_01
+T3/RESUME_2026-09-30/REVIEW_RV116/b3_d_01/ADDENDUM_01.md:3:TASK (Type 2), RV116, holding RV-D for B3, for ROOT (HELP_HUMAN, Agent 0), who is the return path. I made no delegation. 2026-10-07 UTC. This
+T3/RESUME_2026-09-30/REVIEW_RV116/b3_d_01/REVIEW.md:1:# RV116 (RV-D): independent review of I96's B3-D design (documents only)
+T3/RESUME_2026-09-30/REVIEW_RV116/b3_d_01/REVIEW.md:3:TASK (Type 2), RV116, holding RV-D for B3, for ROOT (HELP_HUMAN, Agent 0), who is the return path. I am a fresh instance, wrote none of the design
+T3/RESUME_2026-09-30/REVIEW_RV116/b3_d_01/REVIEW.md:210:| # | Decision | RV116 | Reason |
+T3/RESUME_2026-09-30/REVIEW_RV116/b3_d_01/REVIEW.md:250:2. **B3D-1 to B3D-18** (6 and 16 are already ruled). RV116 agrees with all eighteen.
+T3/RESUME_2026-09-30/REVIEW_RV116/b3_d_01/addendum_01/RUN_ADDENDUM.md:1:# RV116 addendum 01: execution record
+T3/RESUME_2026-09-30/REVIEW_RV116/b3_d_01/addendum_01/RUN_ADDENDUM.md:8:| A2 | `cp WT/scratch/rv116_rvd/rv116_checks.py .` (RV116's own canonicalizer, sha256 `5224be42…`, as sealed in `evidence/`), 
+T3/RESUME_2026-09-30/REVIEW_RV116/b3_d_01/addendum_01/regeneration_r1.txt:1:RV116 addendum 01: regeneration of I96's revision-01 statics from RV116's own scratch copies of the two generators.
+== RV117 in H (P/execution):
+T3/ROOT_RULINGS_V1.md:14778:**IDs:** RV116 is used. The next unused are **I97 and RV117**.
+WG:613:- **The next unused** are **I97 and RV117**.
+== RV118 in H (P/execution):
+== I-folders and REVIEW folders at H:
+I90 I91 I92 I93 I94 I95 I96 REVIEW_RV110 REVIEW_RV111 REVIEW_RV112 REVIEW_RV113 REVIEW_RV114 REVIEW_RV115 REVIEW_RV116 == I97 (text files, P/execution, at H):
+T3/RESUME_2026-09-30/REVIEW_RV116/b3_d_01/REVIEW.md:137:  **The one open item is the shared spelling of `receipt_bindings` with B2-C.** B2-C has not been dispat
+T3/ROOT_RULINGS_V1.md:14708:**B3-D dispatched as I96** (the B3 design, documents only) by `BRIEFS/B3D_DESIGN.md`, in the slot I94 freed. **Implementers running:
+T3/ROOT_RULINGS_V1.md:14778:**IDs:** RV116 is used. The next unused are **I97 and RV117**.
+WG:613:- **The next unused** are **I97 and RV117**.
+== RV117 (text files, P/execution, at H):
+T3/ROOT_RULINGS_V1.md:14778:**IDs:** RV116 is used. The next unused are **I97 and RV117**.
+WG:613:- **The next unused** are **I97 and RV117**.
+== RV118 (text files, P/execution, at H):

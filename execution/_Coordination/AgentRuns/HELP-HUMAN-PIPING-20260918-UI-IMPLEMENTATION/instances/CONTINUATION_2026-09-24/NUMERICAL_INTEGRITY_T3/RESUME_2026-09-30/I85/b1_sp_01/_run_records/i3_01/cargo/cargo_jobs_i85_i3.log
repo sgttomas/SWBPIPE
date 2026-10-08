@@ -1,0 +1,195 @@
+2026-10-08T00:11:49Z WAIT pid=7917 cwd=WT/scratch/i85_b1_st/base_i3/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast
+2026-10-08T00:11:49Z START pid=7920 cwd=WT/scratch/i85_b1_st/base_i3/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast
+2026-10-08T00:13:42Z END rc=101 pid=7920 cwd=WT/scratch/i85_b1_st/base_i3/projects/chirality-piping/core/product_physics
+2026-10-08T00:13:42Z WAIT pid=9356 cwd=WT/scratch/i85_b1_st/base_i3/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast
+2026-10-08T00:13:46Z START pid=9545 cwd=WT/scratch/i85_b1_st/base_i3/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast
+2026-10-08T00:14:40Z WAIT pid=10352 cwd=WT/b1/projects/chirality-piping/core/product_physics args: test --locked --offline --lib b1_sp_ -- --nocapture
+2026-10-08T00:15:21Z END rc=101 pid=9545 cwd=WT/scratch/i85_b1_st/base_i3/projects/chirality-piping/core/product_physics
+2026-10-08T00:15:21Z WAIT pid=10655 cwd=WT/scratch/i85_b1_st/base_i3/projects/chirality-piping/core/runner/headless args: test --locked --offline --no-fail-fast
+2026-10-08T00:15:21Z START pid=10674 cwd=WT/b1/projects/chirality-piping/core/product_physics args: test --locked --offline --lib b1_sp_ -- --nocapture
+2026-10-08T00:15:50Z END rc=101 pid=10674 cwd=WT/b1/projects/chirality-piping/core/product_physics
+2026-10-08T00:15:50Z START pid=10865 cwd=WT/scratch/i85_b1_st/base_i3/projects/chirality-piping/core/runner/headless args: test --locked --offline --no-fail-fast
+2026-10-08T00:16:14Z WAIT pid=11178 cwd=WT/b1/projects/chirality-piping/core/product_physics args: test --locked --offline --lib b1_sp_sf2 b1_sp_constructor -- --nocapture
+2026-10-08T00:16:48Z END rc=101 pid=10865 cwd=WT/scratch/i85_b1_st/base_i3/projects/chirality-piping/core/runner/headless
+2026-10-08T00:16:48Z WAIT pid=11484 cwd=WT/scratch/i85_b1_st/base_i3/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib witness_ -- --ignored --nocapture --test-threads=1
+2026-10-08T00:16:51Z START pid=11637 cwd=WT/b1/projects/chirality-piping/core/product_physics args: test --locked --offline --lib b1_sp_sf2 b1_sp_constructor -- --nocapture
+2026-10-08T00:16:51Z END rc=1 pid=11637 cwd=WT/b1/projects/chirality-piping/core/product_physics
+2026-10-08T00:16:51Z START pid=11642 cwd=WT/scratch/i85_b1_st/base_i3/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast --lib witness_ -- --ignored --nocapture --test-threads=1
+2026-10-08T00:17:00Z WAIT pid=11737 cwd=WT/b1/projects/chirality-piping/core/product_physics args: test --locked --offline --lib b1_sp_ -- --nocapture b1_sp_sf2 b1_sp_constructor
+2026-10-08T00:17:01Z END rc=0 pid=11642 cwd=WT/scratch/i85_b1_st/base_i3/projects/chirality-piping/core/product_physics
+2026-10-08T00:17:01Z START pid=11744 cwd=WT/b1/projects/chirality-piping/core/product_physics args: test --locked --offline --lib b1_sp_ -- --nocapture b1_sp_sf2 b1_sp_constructor
+2026-10-08T00:17:01Z WAIT pid=11761 cwd=WT/scratch/i85_b1_st/base_i3/projects/chirality-piping/core/product_physics args: test --locked --offline --lib -- --exact retained_facade_tests::u3_permitted_path_publishes_the_pinned_successor retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor
+2026-10-08T00:17:31Z END rc=0 pid=11744 cwd=WT/b1/projects/chirality-piping/core/product_physics
+2026-10-08T00:17:31Z START pid=12003 cwd=WT/scratch/i85_b1_st/base_i3/projects/chirality-piping/core/product_physics args: test --locked --offline --lib -- --exact retained_facade_tests::u3_permitted_path_publishes_the_pinned_successor retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor
+2026-10-08T00:17:34Z END rc=0 pid=12003 cwd=WT/scratch/i85_b1_st/base_i3/projects/chirality-piping/core/product_physics
+2026-10-08T00:18:29Z WAIT pid=14428 cwd=WT/b1/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast
+2026-10-08T00:18:51Z START pid=14629 cwd=WT/b1/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast
+2026-10-08T00:19:03Z WAIT pid=15046 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: test --locked --offline --lib --no-fail-fast
+2026-10-08T00:21:35Z WAIT pid=28180 cwd=WT/b1/projects/chirality-piping/core/product_physics args: test --locked --offline --lib b1_sp_ -- --nocapture
+2026-10-08T00:22:15Z START pid=37327 cwd=WT/b1/projects/chirality-piping/core/product_physics args: test --locked --offline --lib b1_sp_ -- --nocapture
+2026-10-08T00:22:47Z END rc=0 pid=37327 cwd=WT/b1/projects/chirality-piping/core/product_physics
+2026-10-08T00:23:49Z WAIT pid=44593 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: test --locked --offline --lib --no-fail-fast
+2026-10-08T00:23:58Z WAIT pid=46446 cwd=WT/b1/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast
+2026-10-08T00:25:01Z START pid=60823 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: test --locked --offline --lib --no-fail-fast
+2026-10-08T00:26:23Z END rc=101 pid=60823 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:26:23Z START pid=64783 cwd=WT/b1/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast
+2026-10-08T00:26:23Z WAIT pid=64786 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: test --locked --offline --lib --no-fail-fast
+2026-10-08T00:28:22Z END rc=101 pid=64783 cwd=WT/b1/projects/chirality-piping/core/product_physics
+2026-10-08T00:28:22Z WAIT pid=66381 cwd=WT/b1/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast
+2026-10-08T00:28:52Z START pid=66635 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: test --locked --offline --lib --no-fail-fast
+2026-10-08T00:30:13Z END rc=101 pid=66635 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:30:13Z WAIT pid=67364 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: test --locked --offline --lib --no-fail-fast
+2026-10-08T00:34:28Z START pid=25164 cwd=WT/b1/projects/chirality-piping/core/product_physics args: test --locked --offline --no-fail-fast
+2026-10-08T00:36:15Z END rc=101 pid=25164 cwd=WT/b1/projects/chirality-piping/core/product_physics
+2026-10-08T00:36:15Z WAIT pid=26674 cwd=WT/b1/projects/chirality-piping/core/runner/headless args: %CRG% test --locked --offline --no-fail-fast
+2026-10-08T00:36:15Z START pid=26695 slot=cargo_job.slot2.lock cwd=WT/b1/projects/chirality-piping/core/runner/headless args: %CRG% test --locked --offline --no-fail-fast
+2026-10-08T00:37:12Z END rc=101 pid=26695 slot=cargo_job.slot2.lock cwd=WT/b1/projects/chirality-piping/core/runner/headless
+2026-10-08T00:37:12Z WAIT pid=27905 cwd=WT/b1/projects/chirality-piping/core/product_physics args: %CRG% test --locked --offline --no-fail-fast --lib witness_ -- --ignored --nocapture --test-threads=1
+2026-10-08T00:37:13Z START pid=27918 slot=cargo_job.slot2.lock cwd=WT/b1/projects/chirality-piping/core/product_physics args: %CRG% test --locked --offline --no-fail-fast --lib witness_ -- --ignored --nocapture --test-threads=1
+2026-10-08T00:37:13Z START pid=27920 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: test --locked --offline --lib --no-fail-fast
+2026-10-08T00:37:22Z END rc=0 pid=27918 slot=cargo_job.slot2.lock cwd=WT/b1/projects/chirality-piping/core/product_physics
+2026-10-08T00:37:22Z WAIT pid=28229 cwd=WT/b1/projects/chirality-piping/core/reporting/result_export args: %CRG% test --locked --offline --no-fail-fast --test retained_precision_carriers
+2026-10-08T00:37:22Z START pid=28241 slot=cargo_job.slot2.lock cwd=WT/b1/projects/chirality-piping/core/reporting/result_export args: %CRG% test --locked --offline --no-fail-fast --test retained_precision_carriers
+2026-10-08T00:37:59Z END rc=0 pid=28241 slot=cargo_job.slot2.lock cwd=WT/b1/projects/chirality-piping/core/reporting/result_export
+2026-10-08T00:37:59Z WAIT pid=28566 cwd=WT/b1/projects/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib -- --exact retained_facade_tests::u3_permitted_path_publishes_the_pinned_successor retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor retained_facade_tests::b1_sp_w_c2_direct_entry_publishes_the_pinned_successor --nocapture
+2026-10-08T00:37:59Z START pid=28578 slot=cargo_job.slot2.lock cwd=WT/b1/projects/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib -- --exact retained_facade_tests::u3_permitted_path_publishes_the_pinned_successor retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor retained_facade_tests::b1_sp_w_c2_direct_entry_publishes_the_pinned_successor --nocapture
+2026-10-08T00:38:04Z END rc=0 pid=28578 slot=cargo_job.slot2.lock cwd=WT/b1/projects/chirality-piping/core/product_physics
+2026-10-08T00:38:36Z END rc=101 pid=27920 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:39:34Z WAIT pid=29555 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:39:34Z START pid=29569 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:40:58Z END rc=101 pid=29569 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:40:58Z WAIT pid=37469 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:40:58Z START pid=37486 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:42:19Z END rc=101 pid=37486 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:42:19Z WAIT pid=48157 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:42:19Z START pid=48182 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:43:41Z END rc=101 pid=48182 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:43:41Z WAIT pid=60347 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:43:41Z START pid=60361 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:45:03Z END rc=101 pid=60361 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:45:03Z WAIT pid=71993 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:45:03Z START pid=72007 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:46:10Z END rc=101 pid=72007 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:46:10Z WAIT pid=82536 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:46:11Z START pid=82557 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:47:25Z END rc=101 pid=82557 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:47:25Z WAIT pid=94754 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:47:25Z START pid=94779 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:48:40Z END rc=101 pid=94779 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:48:40Z WAIT pid=6644 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:48:40Z START pid=6668 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:49:55Z END rc=101 pid=6668 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:49:55Z WAIT pid=18062 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:49:55Z START pid=18086 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:51:14Z END rc=101 pid=18086 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:51:14Z WAIT pid=29035 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:51:14Z START pid=29055 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:52:23Z END rc=101 pid=29055 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:52:23Z WAIT pid=38833 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:52:23Z START pid=38854 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:53:35Z END rc=101 pid=38854 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:53:35Z WAIT pid=47661 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:53:35Z START pid=47673 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:54:37Z END rc=101 pid=47673 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:54:37Z WAIT pid=52777 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:54:37Z START pid=52796 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:55:36Z END rc=101 pid=52796 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:55:36Z WAIT pid=61300 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:55:36Z START pid=61323 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:56:43Z END rc=101 pid=61323 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:56:43Z WAIT pid=70200 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:56:43Z START pid=70212 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:57:48Z END rc=101 pid=70212 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:57:48Z WAIT pid=70965 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:57:53Z START pid=71651 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:59:03Z END rc=101 pid=71651 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T00:59:03Z WAIT pid=73682 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T00:59:03Z START pid=73694 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:00:08Z END rc=101 pid=73694 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:00:08Z WAIT pid=76458 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:00:08Z START pid=76484 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:01:28Z END rc=101 pid=76484 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:01:28Z WAIT pid=94620 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:01:28Z START pid=94658 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:02:49Z END rc=101 pid=94658 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:02:49Z WAIT pid=14374 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:02:49Z START pid=14412 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:04:09Z END rc=101 pid=14412 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:04:09Z WAIT pid=32651 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:04:09Z START pid=32685 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:05:29Z END rc=101 pid=32685 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:05:29Z WAIT pid=50341 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:05:29Z START pid=50376 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:06:49Z END rc=101 pid=50376 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:06:49Z WAIT pid=67929 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:06:49Z START pid=67966 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:08:06Z END rc=101 pid=67966 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:08:06Z WAIT pid=85659 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:08:06Z START pid=85697 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:09:40Z END rc=101 pid=85697 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:09:40Z WAIT pid=2269 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:09:40Z START pid=2294 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:11:06Z END rc=101 pid=2294 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:11:06Z WAIT pid=24525 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:11:06Z START pid=24555 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:12:25Z END rc=101 pid=24555 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:12:25Z WAIT pid=46388 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:12:25Z START pid=46415 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:13:42Z END rc=101 pid=46415 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:13:42Z WAIT pid=54898 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:13:42Z START pid=54910 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:14:58Z END rc=101 pid=54910 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:14:58Z WAIT pid=61768 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:14:58Z START pid=61791 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:16:22Z END rc=101 pid=61791 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:16:22Z WAIT pid=77697 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:16:22Z START pid=77725 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:17:40Z END rc=101 pid=77725 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:17:40Z WAIT pid=92975 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:17:40Z START pid=92995 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:19:14Z END rc=101 pid=92995 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:19:14Z WAIT pid=99428 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:19:14Z START pid=99440 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:20:35Z END rc=101 pid=99440 slot=cargo_job.slot2.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:21:19Z WAIT pid=1414 cwd=WT/b1/projects/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib b1_sp_ -- --nocapture
+2026-10-08T01:21:19Z START pid=1428 slot=cargo_job.slot3.lock cwd=WT/b1/projects/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib b1_sp_ -- --nocapture
+2026-10-08T01:21:50Z END rc=0 pid=1428 slot=cargo_job.slot3.lock cwd=WT/b1/projects/chirality-piping/core/product_physics
+2026-10-08T01:22:27Z WAIT pid=2256 cwd=WT/b1/projects/chirality-piping/core/product_physics args: %CRG% test --locked --offline --no-fail-fast
+2026-10-08T01:22:27Z START pid=2270 slot=cargo_job.slot3.lock cwd=WT/b1/projects/chirality-piping/core/product_physics args: %CRG% test --locked --offline --no-fail-fast
+2026-10-08T01:24:13Z END rc=101 pid=2270 slot=cargo_job.slot3.lock cwd=WT/b1/projects/chirality-piping/core/product_physics
+2026-10-08T01:24:14Z WAIT pid=4136 cwd=WT/b1/projects/chirality-piping/core/product_physics args: %CRG% test --locked --offline --no-fail-fast
+2026-10-08T01:24:14Z START pid=4152 slot=cargo_job.slot3.lock cwd=WT/b1/projects/chirality-piping/core/product_physics args: %CRG% test --locked --offline --no-fail-fast
+2026-10-08T01:25:57Z END rc=101 pid=4152 slot=cargo_job.slot3.lock cwd=WT/b1/projects/chirality-piping/core/product_physics
+2026-10-08T01:25:58Z WAIT pid=21071 cwd=WT/b1/projects/chirality-piping/core/runner/headless args: %CRG% test --locked --offline --no-fail-fast
+2026-10-08T01:25:58Z START pid=21099 slot=cargo_job.slot3.lock cwd=WT/b1/projects/chirality-piping/core/runner/headless args: %CRG% test --locked --offline --no-fail-fast
+2026-10-08T01:26:45Z END rc=101 pid=21099 slot=cargo_job.slot3.lock cwd=WT/b1/projects/chirality-piping/core/runner/headless
+2026-10-08T01:26:45Z WAIT pid=25017 cwd=WT/b1/projects/chirality-piping/core/product_physics args: %CRG% test --locked --offline --no-fail-fast --lib witness_ -- --ignored --nocapture --test-threads=1
+2026-10-08T01:26:45Z START pid=25031 slot=cargo_job.slot3.lock cwd=WT/b1/projects/chirality-piping/core/product_physics args: %CRG% test --locked --offline --no-fail-fast --lib witness_ -- --ignored --nocapture --test-threads=1
+2026-10-08T01:26:54Z END rc=0 pid=25031 slot=cargo_job.slot3.lock cwd=WT/b1/projects/chirality-piping/core/product_physics
+2026-10-08T01:26:54Z WAIT pid=26249 cwd=WT/b1/projects/chirality-piping/core/reporting/result_export args: %CRG% test --locked --offline --no-fail-fast --test retained_precision_carriers
+2026-10-08T01:26:54Z START pid=26291 slot=cargo_job.slot3.lock cwd=WT/b1/projects/chirality-piping/core/reporting/result_export args: %CRG% test --locked --offline --no-fail-fast --test retained_precision_carriers
+2026-10-08T01:27:28Z END rc=0 pid=26291 slot=cargo_job.slot3.lock cwd=WT/b1/projects/chirality-piping/core/reporting/result_export
+2026-10-08T01:27:28Z WAIT pid=34170 cwd=WT/b1/projects/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib -- --exact retained_facade_tests::u3_permitted_path_publishes_the_pinned_successor retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor retained_facade_tests::b1_sp_w_c2_direct_entry_publishes_the_pinned_successor --nocapture
+2026-10-08T01:27:28Z START pid=34209 slot=cargo_job.slot3.lock cwd=WT/b1/projects/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib -- --exact retained_facade_tests::u3_permitted_path_publishes_the_pinned_successor retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor retained_facade_tests::b1_sp_w_c2_direct_entry_publishes_the_pinned_successor --nocapture
+2026-10-08T01:27:33Z END rc=0 pid=34209 slot=cargo_job.slot3.lock cwd=WT/b1/projects/chirality-piping/core/product_physics
+2026-10-08T01:27:33Z WAIT pid=35605 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:27:33Z START pid=35634 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:28:53Z END rc=101 pid=35634 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:28:53Z WAIT pid=50896 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:28:53Z START pid=50934 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:30:10Z END rc=101 pid=50934 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:30:10Z WAIT pid=69640 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:30:10Z START pid=69679 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:31:27Z END rc=101 pid=69679 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:31:27Z WAIT pid=87095 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:31:27Z START pid=87120 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:32:39Z END rc=101 pid=87120 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:32:39Z WAIT pid=2269 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:32:39Z START pid=2294 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:33:55Z END rc=101 pid=2294 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:33:55Z WAIT pid=13227 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:33:55Z START pid=13241 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:35:13Z END rc=101 pid=13241 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics
+2026-10-08T01:35:13Z WAIT pid=23454 cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:35:14Z START pid=23481 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics args: %CRG% test --locked --offline --lib --no-fail-fast
+2026-10-08T01:36:32Z END rc=101 pid=23481 slot=cargo_job.slot3.lock cwd=WT/scratch/i85_b1_st/sp03/mut3/chirality-piping/core/product_physics

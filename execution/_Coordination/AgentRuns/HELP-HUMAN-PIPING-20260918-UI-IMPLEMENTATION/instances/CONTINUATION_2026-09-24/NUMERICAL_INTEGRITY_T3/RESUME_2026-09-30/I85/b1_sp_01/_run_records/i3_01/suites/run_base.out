@@ -1,0 +1,38 @@
+== start 2026-10-08T00:11:49Z
+== base_reg_pp start 2026-10-08T00:11:49Z
+== base_reg_pp exit=101 2026-10-08T00:13:42Z
+base_reg_pp: 730 ok, 6 failed, 11 ignored
+src/lib.rs :: test retained_facade_tests::b1_sp_r3p_1_one_case_in_a_runs_on_its_own_slot ... FAILED
+src/lib.rs :: test retained_facade_tests::b1_sp_w_c2_direct_entry_counts_one_run_through_g_c ... FAILED
+src/lib.rs :: test retained_facade_tests::b1_sp_w_c2_through_retained_w1_publishes_t12 ... FAILED
+src/lib.rs :: test retained_facade_tests::b1_sp_w_c2_transaction_faults_and_abandonment ... FAILED
+src/lib.rs :: test retained_facade_tests::b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping ... FAILED
+src/lib.rs :: test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+== base_stale_pp start 2026-10-08T00:13:42Z
+== base_stale_pp exit=101 2026-10-08T00:15:21Z
+base_stale_pp: 731 ok, 5 failed, 11 ignored
+src/lib.rs :: test retained_facade_tests::b1_sp_r3p_1_one_case_in_a_runs_on_its_own_slot ... FAILED
+src/lib.rs :: test retained_facade_tests::b1_sp_w_c2_through_retained_w1_publishes_t12 ... FAILED
+src/lib.rs :: test retained_facade_tests::b1_sp_w_c2_transaction_faults_and_abandonment ... FAILED
+src/lib.rs :: test retained_facade_tests::b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping ... FAILED
+src/lib.rs :: test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+== base_reg_runner start 2026-10-08T00:15:21Z
+== base_reg_runner exit=101 2026-10-08T00:16:48Z
+base_reg_runner: 85 ok, 2 failed, 0 ignored
+src/lib.rs :: test load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes ... FAILED
+tests/load_reference_cli.rs :: test cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route ... FAILED
+== base_reg_witness start 2026-10-08T00:16:48Z
+== base_reg_witness exit=0 2026-10-08T00:17:01Z
+base_reg_witness: 0 ok, 0 failed, 0 ignored
+pins rc=0
+test retained_facade_tests::u3_permitted_path_publishes_the_pinned_successor ... ok
+test retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor ... ok
+test retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor ... ok
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 581 filtered out; finished in 3.00s
+dbb3d477364248fb9ae15f7b9cff44410c2bffe45f783dd02d96eca663b0ac88  retained_precision_l0_successor_dense_scrutiny.json
+93c6c86548b9d263cba9d9869010043d23ed1c9f2f304dd9f82eb705eb350876  retained_precision_l0_successor_sparse_interactive.json
+6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5  u3_successor_dense_scrutiny.json
+ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc  u3_successor_sparse_interactive.json
+6cd1d249e5352aaffbd2b7d7349c74a1d0e0572df35500f66be49c3cad95c9b5  u3g2_successor_dense_scrutiny.json
+ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc  u3g2_successor_sparse_interactive.json
+== end 2026-10-08T00:17:34Z

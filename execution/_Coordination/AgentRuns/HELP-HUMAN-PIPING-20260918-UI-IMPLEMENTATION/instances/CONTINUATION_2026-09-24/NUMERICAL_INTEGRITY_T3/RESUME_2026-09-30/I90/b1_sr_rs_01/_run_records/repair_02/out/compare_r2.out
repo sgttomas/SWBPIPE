@@ -1,0 +1,37 @@
+CENSUS 339 entries: 0 changes (input, bound, unbound, transport, standing) b5cb7faaeb -> head; 0 misses against the corpus's Rust expectations
+PROBES 135: 135 as ruled (or unchanged where no item rules); 0 not
+PROBES changed b5cb7faaeb -> head: 18
+CHANGED x_reason_cause_receipt_failure 3 C2 {"bound": "G5 PRODUCT_ATTEMPT_MISMATCH", "unbound": "G5 PRODUCT_ATTEMPT_MISMATCH", "transport": "admitted eligible=false"} -> {"bound": "G5 ATTEMPT_MISMATCH", "unbound": "G5 ATTEMPT_MISMATCH", "transport": "admitted eligible=false"}
+CHANGED c2_receipt_phase_kernel 3 C2 {"bound": "admitted eligible=false", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"} -> {"bound": "G5 ATTEMPT_MISMATCH", "unbound": "G5 ATTEMPT_MISMATCH", "transport": "admitted eligible=false"}
+CHANGED c2_receipt_code_facade 3 C2 {"bound": "admitted eligible=false", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"} -> {"bound": "G5 ATTEMPT_MISMATCH", "unbound": "G5 ATTEMPT_MISMATCH", "transport": "admitted eligible=false"}
+CHANGED c2_receipt_phase_preparation 3 C2 {"bound": "admitted eligible=false", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"} -> {"bound": "G5 ATTEMPT_MISMATCH", "unbound": "G5 ATTEMPT_MISMATCH", "transport": "admitted eligible=false"}
+CHANGED c2_facade_phase_kernel 3 C2 {"bound": "G5 PRODUCT_ATTEMPT_MISMATCH", "unbound": "G5 PRODUCT_ATTEMPT_MISMATCH", "transport": "admitted eligible=false"} -> {"bound": "G5 ATTEMPT_MISMATCH", "unbound": "G5 ATTEMPT_MISMATCH", "transport": "admitted eligible=false"}
+CHANGED f_mb_index_1 1 (f) {"bound": "G8 PREPARATION_MISMATCH", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"} -> {"bound": "G3 COVERAGE_MISMATCH", "unbound": "G3 COVERAGE_MISMATCH", "transport": "admitted eligible=false"}
+CHANGED f_mb_index_swapped 1 (f) {"bound": "G8 PREPARATION_MISMATCH", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"} -> {"bound": "G3 COVERAGE_MISMATCH", "unbound": "G3 COVERAGE_MISMATCH", "transport": "admitted eligible=false"}
+CHANGED f_src_index_1 1 (f) {"bound": "G8 PREPARATION_MISMATCH", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"} -> {"bound": "G3 COVERAGE_MISMATCH", "unbound": "G3 COVERAGE_MISMATCH", "transport": "admitted eligible=false"}
+CHANGED f_src_index_swapped 1 (f) {"bound": "G8 PREPARATION_MISMATCH", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"} -> {"bound": "G3 COVERAGE_MISMATCH", "unbound": "G3 COVERAGE_MISMATCH", "transport": "admitted eligible=false"}
+CHANGED f_mb_case_indices_duplicate 1 (f) {"bound": "G8 PREPARATION_MISMATCH", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"} -> {"bound": "G3 COVERAGE_MISMATCH", "unbound": "G3 COVERAGE_MISMATCH", "transport": "admitted eligible=false"}
+CHANGED f_mb_case_indices_out_of_range 1 (f) {"bound": "G8 PREPARATION_MISMATCH", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"} -> {"bound": "G3 COVERAGE_MISMATCH", "unbound": "G3 COVERAGE_MISMATCH", "transport": "admitted eligible=false"}
+CHANGED f_src_owner_case_id_other 1 (f) {"bound": "G5 ATTEMPT_MISMATCH", "unbound": "G5 ATTEMPT_MISMATCH", "transport": "admitted eligible=false"} -> {"bound": "G3 COVERAGE_MISMATCH", "unbound": "G3 COVERAGE_MISMATCH", "transport": "admitted eligible=false"}
+CHANGED g_combinations_null 2 (g) {"bound": "admitted eligible=true", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"} -> {"bound": "G8 INVOCATION_MISMATCH", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"}
+CHANGED g_combinations_object 2 (g) {"bound": "admitted eligible=true", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"} -> {"bound": "G8 INVOCATION_MISMATCH", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"}
+CHANGED g_components_string 2 (g) {"bound": "admitted eligible=true", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"} -> {"bound": "G8 INVOCATION_MISMATCH", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"}
+CHANGED r_b_basis_ref_7 1 ordinary basis {"bound": "G8 PREPARATION_MISMATCH", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"} -> {"bound": "G5 ATTEMPT_MISMATCH", "unbound": "G5 ATTEMPT_MISMATCH", "transport": "admitted eligible=false"}
+CHANGED r_c_basis_omits_case_1 1 ordinary basis {"bound": "G8 PREPARATION_MISMATCH", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"} -> {"bound": "G5 ATTEMPT_MISMATCH", "unbound": "G5 ATTEMPT_MISMATCH", "transport": "admitted eligible=false"}
+CHANGED r_c_missing_sourceless_basis 1 ordinary basis {"bound": "G8 PREPARATION_MISMATCH", "unbound": "admitted eligible=false", "transport": "admitted eligible=false"} -> {"bound": "G5 ATTEMPT_MISMATCH", "unbound": "G5 ATTEMPT_MISMATCH", "transport": "admitted eligible=false"}
+TS present: equal on all three verdicts for 120 of 135
+TS-DIFF ["n6_structural_status_list", {"transport": ["G2 SOURCE_NUMERICAL_CASE_INVALID", "admitted eligible=false"]}]
+TS-DIFF ["n6_structural_status_dict", {"transport": ["G2 SOURCE_NUMERICAL_CASE_INVALID", "admitted eligible=false"]}]
+TS-DIFF ["n6_model_matrix_fidelity_list", {"transport": ["G2 SOURCE_NUMERICAL_CASE_INVALID", "admitted eligible=false"]}]
+TS-DIFF ["n6_model_matrix_fidelity_dict", {"transport": ["G2 SOURCE_NUMERICAL_CASE_INVALID", "admitted eligible=false"]}]
+TS-DIFF ["n6_accuracy_evidence_list", {"transport": ["G2 SOURCE_NUMERICAL_CASE_INVALID", "admitted eligible=false"]}]
+TS-DIFF ["n6_accuracy_evidence_dict", {"transport": ["G2 SOURCE_NUMERICAL_CASE_INVALID", "admitted eligible=false"]}]
+TS-DIFF ["n6_status_list", {"transport": ["G2 SOURCE_NUMERICAL_QUALITY_INVALID", "admitted eligible=false"]}]
+TS-DIFF ["n6_status_dict", {"transport": ["G2 SOURCE_NUMERICAL_QUALITY_INVALID", "admitted eligible=false"]}]
+TS-DIFF ["n6_carrier_evidence_with_case_defect", {"bound": ["G7 SOURCE_NUMERICAL_CASE_INVALID", "G7 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"], "unbound": ["G7 SOURCE_NUMERICAL_CASE_INVALID", "G7 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"], "transport": ["G2 SOURCE_NUMERICAL_CASE_INVALID", "G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"]}]
+TS-DIFF ["n6_contract_evidence_null_and_source_block_recovery", {"bound": ["G7 SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN", "G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"], "unbound": ["G7 SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN", "G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"], "transport": ["G2 SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN", "G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"]}]
+TS-DIFF ["g_reference_configurations_null", {"bound": ["G8 INVOCATION_MISMATCH", "admitted eligible=true"]}]
+TS-DIFF ["g_reference_configurations_empty", {"bound": ["G8 INVOCATION_MISMATCH", "admitted eligible=true"]}]
+TS-DIFF ["g_pressure_contract_false", {"bound": ["G8 INVOCATION_MISMATCH", "admitted eligible=true"]}]
+TS-DIFF ["g_combinations_null", {"bound": ["G8 INVOCATION_MISMATCH", "admitted eligible=true"]}]
+TS-DIFF ["g_combinations_object", {"bound": ["G8 INVOCATION_MISMATCH", "admitted eligible=true"]}]

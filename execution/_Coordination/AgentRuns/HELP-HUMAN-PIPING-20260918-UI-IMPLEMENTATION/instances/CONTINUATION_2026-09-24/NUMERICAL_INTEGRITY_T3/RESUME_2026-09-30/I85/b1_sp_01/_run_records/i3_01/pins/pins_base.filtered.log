@@ -1,0 +1,7 @@
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+warning: `open_pipe_stress_product_physics` (lib test) generated 7 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 2 suggestions)
+     Running unittests src/lib.rs (WT/targets/i85-b1-st/base/debug/deps/open_pipe_stress_product_physics-637af00340a09651)
+test retained_facade_tests::u3_permitted_path_publishes_the_pinned_successor ... ok
+test retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor ... ok
+test retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor ... ok
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 581 filtered out; finished in 3.00s

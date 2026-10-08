@@ -1,0 +1,9 @@
+NUM's projects/chirality-piping/execution/ at 0b8299e496: the T3 records after #1108 (4f37590bfb). 1,043 added, 2 modified (the T3 rulings and the work graph), 0 deleted. Nothing outside execution/.
+
+It adds: RV110's ADDENDUM_01 and RECORDS_MERGE_2026-10-07B; B1's phase 2 (I85's SP with R3' and its return before I3; I89's SA with its follow-up and the E-10 redaction; I90's SR-RS with its repair; I91's SR-PY with its repair; I92's SR-TS; RV109's early read of SP; RV112's review of SA; RV113's round 1 on SR-RS); T3-SI1c's repair round (I88's REPAIR_01) with RV111's review and ADDENDUM_01; B2/B3 phase 0 (I93's plan and REVISION_01 with RV114's review; I94's B2-KD with RV115's review and addendum; I95's B3-S; I96's B3-D and REVISION_01 with RV116's review and addendum); the briefs; errata E-10 and E-11; the T3 rulings and the work graph.
+
+I88's SI1c return and RV109's confirmation of ST's repair were already on main. Not in this PR: SI1c's package (with its own PR, #1112), and the records of reviews still running (RV109's round 2 on SP, RV113's confirmation of SR-RS's repair and its reviews of SR-TS and SR-PY), which follow in the next records PR.
+
+Screened: strict screen clean with gzipped files decompressed; no symlink; validate_run_record_leaks.py PASS (1,044 files). GEN-8 passed at the head. Reviewed by RV117 (PASS, 0/0/5). Agent reviews, not personal owner review.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

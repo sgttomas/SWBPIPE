@@ -1,0 +1,12 @@
+339 entries; 9 changes against R01; other changes (a stop): 0
+  277 g7_not_required_quality_enum_invalid: transport G7 SOURCE_NUMERICAL_CASE_INVALID -> G2 SOURCE_NUMERICAL_CASE_INVALID (detail unchanged: True); RS at 6e3e4fe219: G2 SOURCE_NUMERICAL_CASE_INVALID; equal: True
+  286 g7_selected_quality_enum_invalid: transport G7 SOURCE_NUMERICAL_CASE_INVALID -> G2 SOURCE_NUMERICAL_CASE_INVALID (detail unchanged: True); RS at 6e3e4fe219: G2 SOURCE_NUMERICAL_CASE_INVALID; equal: True
+  287 g7_unavailable_quality_enum_invalid: transport G7 SOURCE_NUMERICAL_CASE_INVALID -> G2 SOURCE_NUMERICAL_CASE_INVALID (detail unchanged: True); RS at 6e3e4fe219: G2 SOURCE_NUMERICAL_CASE_INVALID; equal: True
+  288 g7_quality_case_evidence_ref_empty: transport G7 SOURCE_NUMERICAL_CASE_INVALID -> G2 SOURCE_NUMERICAL_CASE_INVALID (detail unchanged: True); RS at 6e3e4fe219: G2 SOURCE_NUMERICAL_CASE_INVALID; equal: True
+  289 g7_quality_case_extra_member: transport G7 SOURCE_NUMERICAL_CASE_INVALID -> G2 SOURCE_NUMERICAL_CASE_INVALID (detail unchanged: True); RS at 6e3e4fe219: G2 SOURCE_NUMERICAL_CASE_INVALID; equal: True
+  290 g7_quality_status_invalid: transport G7 SOURCE_NUMERICAL_QUALITY_INVALID -> G2 SOURCE_NUMERICAL_QUALITY_INVALID (detail unchanged: True); RS at 6e3e4fe219: G2 SOURCE_NUMERICAL_QUALITY_INVALID; equal: True
+  291 g7_formulation_limitations_empty: transport G7 SOURCE_FORMULATION_BASIS_UNSUPPORTED -> G2 SOURCE_FORMULATION_BASIS_UNSUPPORTED (detail unchanged: True); RS at 6e3e4fe219: G2 SOURCE_FORMULATION_BASIS_UNSUPPORTED; equal: True
+  292 g7_contract_evidence_null: transport G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED -> G2 SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED (detail unchanged: True); RS at 6e3e4fe219: G2 SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED; equal: True
+  293 g7_source_block_recovery_present: transport G7 SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN -> G2 SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN (detail unchanged: True); RS at 6e3e4fe219: G2 SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN; equal: True
+transport gate and code equal to RS at 6e3e4fe219: R01 330 of 339, head 339 of 339
+OK

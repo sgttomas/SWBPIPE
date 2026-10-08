@@ -1,0 +1,10 @@
+RV109_JOB name=a1_mut_M16_frozen_attempt_ref_zero dir=WT/rv109/a1_mut/projects/chirality-piping/core/product_physics target=rv109-a1-mut stale=0 args=test --locked --offline --no-fail-fast --lib start=2026-10-08T02:34:04Z
+test retained_facade_tests::b1_sp_sf2_selected_not_first_and_two_selected_pins ... FAILED
+test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+thread 'retained_facade_tests::b1_sp_sf2_selected_not_first_and_two_selected_pins' (100774659) panicked at src/retained_facade_tests.rs:2259:17:
+assertion `left == right` failed: c_b_a sparse_interactive request 2: its source's owner and attempt (T-7; M16)
+  left: (Number(2), Number(0))
+ right: (Number(2), Number(1))
+thread 's11g_tests::t13_committed_fallback_uz_is_byte_identical' (100800914) panicked at src/s11g_tests.rs:1666:9:
+test result: FAILED. 574 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 72.93s
+RV109_JOB_END name=a1_mut_M16_frozen_attempt_ref_zero rc=101 end=2026-10-08T02:35:22Z

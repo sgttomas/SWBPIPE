@@ -1,0 +1,7 @@
+n05 sparse_interactive: equal to the committed n05-sparse_interactive.raw.json as a JSON value: True
+n05 dense_scrutiny: equal to the committed n05-dense_scrutiny.raw.json as a JSON value: True
+n06 sparse_interactive: equal to the committed n06-sparse_interactive.raw.json as a JSON value: True
+n06 dense_scrutiny: equal to the committed n06-dense_scrutiny.raw.json as a JSON value: True
+fields sparse_interactive: equal to the committed fields-sparse_interactive.raw.json as a JSON value: True
+fields dense_scrutiny: equal to the committed fields-dense_scrutiny.raw.json as a JSON value: True
+TOTAL unequal: 0

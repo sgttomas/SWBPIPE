@@ -1,0 +1,212 @@
+[
+ {
+  "id": "Q01",
+  "file": "retained_precision.py",
+  "what": "per-case loop scope: requested mode, (b), P1 and P2-P4 checked on selected cases only (I1's sourced scope)",
+  "edits": 4
+ },
+ {
+  "id": "Q02",
+  "file": "retained_precision.py",
+  "what": "requested mode check removed",
+  "edits": 1
+ },
+ {
+  "id": "Q03",
+  "file": "retained_precision.py",
+  "what": "P1: at least one mode row instead of exactly one",
+  "edits": 1
+ },
+ {
+  "id": "Q04",
+  "file": "retained_precision.py",
+  "what": "P1: mode code 3 (or the other mode's code) accepted",
+  "edits": 1
+ },
+ {
+  "id": "Q05",
+  "file": "retained_precision.py",
+  "what": "P2 removed (several parity rows)",
+  "edits": 1
+ },
+ {
+  "id": "Q06",
+  "file": "retained_precision.py",
+  "what": "P3 removed (a parity row in sparse_interactive)",
+  "edits": 1
+ },
+ {
+  "id": "Q07",
+  "file": "retained_precision.py",
+  "what": "P4 removed (a parity row on a W2-published case)",
+  "edits": 1
+ },
+ {
+  "id": "Q08",
+  "file": "retained_precision.py",
+  "what": "(b) removed: the ordinary attempt's material basis per case",
+  "edits": 1
+ },
+ {
+  "id": "Q09",
+  "file": "retained_precision.py",
+  "what": "(c) count removed: one basis per selector",
+  "edits": 1
+ },
+ {
+  "id": "Q10",
+  "file": "retained_precision.py",
+  "what": "(c) exact case lists removed (selector kept)",
+  "edits": 1
+ },
+ {
+  "id": "Q11",
+  "file": "retained_precision.py",
+  "what": "(e) removed: a basis's materials checked only through a CaseSource",
+  "edits": 2
+ },
+ {
+  "id": "Q12",
+  "file": "retained_precision.py",
+  "what": "(d1) removed: the invocation's members",
+  "edits": 1
+ },
+ {
+  "id": "Q13",
+  "file": "retained_precision.py",
+  "what": "(d2) removed: the solver mode is one of the two",
+  "edits": 1
+ },
+ {
+  "id": "Q14",
+  "file": "retained_precision.py",
+  "what": "not_required: initial must be a report (Rust's dropped conjunct restored; one shared edit carries Q14-Q18)",
+  "edits": 1
+ },
+ {
+  "id": "Q15",
+  "file": "retained_precision.py",
+  "what": "not_required: the initial report's outcome must be checks_passed (Rust's dropped conjunct restored)",
+  "edits": 0
+ },
+ {
+  "id": "Q16",
+  "file": "retained_precision.py",
+  "what": "not_required: W2 must be not_triggered (Rust's dropped conjunct restored)",
+  "edits": 0
+ },
+ {
+  "id": "Q17",
+  "file": "retained_precision.py",
+  "what": "not_required: product_attempt_ref null dropped",
+  "edits": 0
+ },
+ {
+  "id": "Q18",
+  "file": "retained_precision.py",
+  "what": "not_required: the verdict checks_passed dropped",
+  "edits": 0
+ },
+ {
+  "id": "Q19",
+  "file": "retained_precision.py",
+  "what": "(4b) branch removed (I1: an entered native stage needs a Run)",
+  "edits": 1
+ },
+ {
+  "id": "Q20",
+  "file": "retained_precision.py",
+  "what": "(4b) predicate always true (every conjunct dropped)",
+  "edits": 1
+ },
+ {
+  "id": "Q21",
+  "file": "retained_precision.py",
+  "what": "(4b): the case's Run and the attempt's proof absent dropped",
+  "edits": 1
+ },
+ {
+  "id": "Q22",
+  "file": "retained_precision.py",
+  "what": "(4b): an unavailable capture result dropped",
+  "edits": 1
+ },
+ {
+  "id": "Q23",
+  "file": "retained_precision.py",
+  "what": "(4b): stages after native not_entered dropped",
+  "edits": 1
+ },
+ {
+  "id": "Q24",
+  "file": "retained_precision.py",
+  "what": "(4b): preparation completed dropped",
+  "edits": 1
+ },
+ {
+  "id": "Q25",
+  "file": "retained_precision.py",
+  "what": "(4b): the cause naming this attempt dropped",
+  "edits": 1
+ },
+ {
+  "id": "Q26",
+  "file": "retained_precision.py",
+  "what": "(4b): the reason (source_unavailable, preparation) dropped",
+  "edits": 1
+ },
+ {
+  "id": "Q27",
+  "file": "retained_precision.py",
+  "what": "(4b): a non-null source reference equal to the case's dropped",
+  "edits": 1
+ },
+ {
+  "id": "Q28",
+  "file": "retained_precision.py",
+  "what": "(4b): the case unavailable with prepared_product_failure dropped",
+  "edits": 1
+ },
+ {
+  "id": "Q29",
+  "file": "retained_precision.py",
+  "what": "the Build check removed (every Build referenced by its building record)",
+  "edits": 1
+ },
+ {
+  "id": "Q30",
+  "file": "retained_precision.py",
+  "what": "N2 removed: a missing solve_quality read by key (KeyError to the fallback)",
+  "edits": 1
+ },
+ {
+  "id": "Q31",
+  "file": "compatibility.py",
+  "what": "N1 guard removed: numerical_quality.status",
+  "edits": 1
+ },
+ {
+  "id": "Q32",
+  "file": "compatibility.py",
+  "what": "N1 guard removed: case solve_quality",
+  "edits": 1
+ },
+ {
+  "id": "Q33",
+  "file": "compatibility.py",
+  "what": "N1 guard removed: case structural_status",
+  "edits": 1
+ },
+ {
+  "id": "Q34",
+  "file": "compatibility.py",
+  "what": "N1 guard removed: case model_matrix_fidelity",
+  "edits": 1
+ },
+ {
+  "id": "Q35",
+  "file": "compatibility.py",
+  "what": "N1 guard removed: case accuracy_evidence",
+  "edits": 1
+ }
+]

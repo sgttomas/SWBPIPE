@@ -1,0 +1,85 @@
+RV118 (RV-C) ADDENDUM_01: hashes, reproductions and code sites
+Placeholders as in REVIEW.md; O = R/I97/b2_c_01. Lines cite the named head.
+
+== 1. Inputs (shasum -a 256, verified) ==
+2afb59046e2b96c3e11b8474d53038e8584f879c95e9992ce5619965b03f2b74  R/BRIEFS/B2C_REVISION_01.md
+6f6a583f601fa4f6111001196eeb1488a71f674547ff12bb109fc7cddcea38a1  O/REVISION_01.md
+165cd4b1c0b5ed3f83f9230435c0a3ab2284211c90908daa647610bba81d9d28  O/CONTRACT.md
+fe640ca5fb312440a8766762bcd0cf10b49997b3c37ef9a0f6924fda77989b0a  R/REVIEW_RV118/b2_c_01/REVIEW.md
+7cd7a1b4ed2e2295f6b696315c441301b7faeffe7561d8db58acc32442e68bdf  R/REVIEW_RV115/b2_kd_01/ADDENDUM_02.md
+4bd3e234eeb16f36e7bb96c98725a8537379b3c4be47ba6d2270d4983505dc63  R/REVIEW_RV115/b2_kd_01/ADDENDUM_03.md
+e224899a51aa0bee6cedebb678d581b69a6ab0eb77d566270676080706a1a51f  R/I98/b2_w_probe_01/PROBE.md
+4e8c33a45616d4f0975aa74f159157ed9c5e0da7f3d306a002646bc704aabed3  R/I94/b2_kd_01/DESIGN.md (KD)
+Checksum files: O/SHA256SUMS.revision_01 10 of 10 OK; O/SHA256SUMS 13 of 13 OK;
+  R/REVIEW_RV118/b2_c_01/SHA256SUMS 7 of 7 OK; R/REVIEW_RV115/b2_kd_01/SHA256SUMS.addendum_03 4 of 4 OK.
+
+== 2. Statics and reproductions ==
+J1 SCHEMA text (O/statics)          abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e
+SCHEMA_J1.diff (O/statics)          f674370d0c62f2fa8993f90b0b1828697b22598ed7214d64653c3ca94e125fd1
+SCHEMA_B2.diff (O/statics)          ff3b88956ff399a50116b637fe2a9bf046271a54f2b842000ea85701672600d3
+DEF-C r1 raw (O/statics/r1)         6467c733ff5060afd3040172a5df91b12c228555254ae6d33d40555e06f30c03
+PTABLE r1 (O/statics/r1)            791c0a0d9a06ce4effac5914b40872fa808ce3208dfe6c2c6d51359d6ff41573
+DEF-C r1 H (my JCS)                 0c43cf427b35d35e291e42382d242bca3762b61344b705744127c7c9b4372b6f
+DEF-C r1 H, alternative domain      82fccc74bab3f05fbaba0fb1387f48eb314f40656387191f5a4e7408378c1ed5
+DEF-O H (control)                   a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349
+A3 b2c_statics_r1.py x2: diff -r identical; DEF-C r1, PTABLE r1 and b2c_statics_r1.out.json (ce73b0af...) cmp-equal to O.
+A4 b2c_checks_r1.py x2: cmp-equal to O/_run_records/r1/b2c_checks_r1.out.json (60ebd223...).
+A5 b2c_collisions_r1.sh at NUM d1d6517455: body equal to O's (header at ba7bbae589); every new base id and
+   internal name 0 hits; "count_range" quoted in 4 files; "name" common.
+A6 rv118_r1_checks.py x2 identical: DEF-C v0 -> r1 leaves {lanes.loads, rows.displacement_magnitude,
+   scope.operand_equality, stages.observables (added)}; support_magnitude == DEF-O's; PTABLE v0 draft -> r1 leaves
+   {accuracy_classification.scope, product_formation_definitions}; main -> r1: 3 changed + receipt_bindings added,
+   only scope within accuracy_classification; receipt_bindings == XTABLE (JCS); formation_warrant == v0 draft;
+   S-2: 19 shapes, r1 rule fails none, v0 fails "c=1 range(A), mech" and "c=1 range(A), range(A)";
+   S-4 r1 guard: 20,000 triples, 404,105 pairs, 0 failures, largest 0.0625 of the allowance.
+A7 rv118_a01_option_ii.py x2 identical: option (ii) guard: 20,000 triples, 88,350 pairs, 0 failures, at most 3.0
+   ulps, 0.046875 of the allowance; exact rounding cross-checked against both neighbours' midpoints on 18,972 triples;
+   all 8 signed-zero triples give +0; m69's x(1+2^-40) edit is at least 63.72 allowances away for all 34,740 normal
+   magnitudes (r1 and (ii)); the tie example's exact norm is a binary64 midpoint and RN64 (ties to even) takes the
+   lower, even neighbour.
+J1 SCHEMA: 0 occurrences of 9adf5178, 0c43cf42, 863738f1, c74742ce, 791c0a0d, a7ed7ca0, 03d40598, 6467c733, 3e0779a4;
+   ids RP-PREPARED-ORDINARY-DUAL-v1 and RP-PREPARED-COMBINATION-DUAL-v1 2 each (unchanged by r1 and by (ii)).
+
+== 3. Code sites ==
+-- FK at NUM (P/core equal at d1d6517455 and 827dc41c2e) --
+final_case.rs:117-125    ProductUnit {Millimetre, Radian, Newton, NewtonMetre, Megapascal, Pascal, Record}
+final_case.rs:598        fn sqrt(w, a: Endpoint, t: Toward) (directed wide square root)
+final_case.rs:1557-1577  ProductRowSpec.observed: None for quantity rows (:1566); Some(..) only for NonQuantity,
+                         DenseParityObservation, ModulusBasisRecord (:1570, :1574, :1577)
+final_case.rs:1799-1829  ProductProofDraft::project: pass 1 skips support magnitudes (:1807), hull-projects every other
+                         Native recipe incl. DisplacementMagnitude (:1808-1813); pass 2 support_hypot (:1815-1823)
+final_case.rs:1831-1853  support_hypot: v[0].hypot(v[1]), then .hypot(v[2]); counted visits and scalar_operations
+final_case.rs:1889-1891  certify_final: the final row's value must equal the frozen value, and observed if set
+recover.rs:53-75         QuantityId::{Displacement(Dof), DisplacementMagnitude(u32), ..., SupportForceMagnitude,
+                         SupportMomentMagnitude}
+wide.rs:785-917, wide/multi.rs:564, :1214   wide square roots (sqrt_significand returns an inexact flag)
+KD §5.7                  "Nothing else: the lanes, seeds, projection, values builder ... are owner-generic"
+KD §9.2                  B2-K 18-28 h; no line for a magnitude recipe
+-- PP at NUM --
+lib.rs:13236-13328       append_combined_vector_magnitude: combined.value = vector[0].hypot(vector[1]).hypot(vector[2])
+preview_physics.rs:900   the ordinary route's combination displacement_magnitude uses it
+-- b1 at 03f55e7178 (equal to 603e238517 for these files) --
+retained_product.rs:474-508 (refusal :503-506)  ProductCapture::normalized
+retained_product.rs:3469-3475                   prepared_case_seen
+retained_product.rs:3504-3517                   prepared_case_source
+retained_product.rs:2254-2272                   observables_view (combination_gates must be empty)
+retained_memory.rs:291-297                      nested typed facts: combination owners not read
+retained_memory.rs:893-899                      domain_clauses: rows[..CAP_ROWS - 1], then rows[CAP_ROWS - 1..]
+retained_memory.rs:869                          ControlBytes is the last cap row
+-- b1-r at 6e3e4fe219 (RS) --
+retained_precision.rs:36          RowClassification.normalized_bits: u64
+retained_precision.rs:162-172     absolute_bound(value, scale): scale 0 gives the scale-only bound
+retained_precision.rs:567-569     g1: need(shape(r, schema()), "G1", "RECEIPT_MISMATCH") first
+retained_precision.rs:904         g5_native
+retained_precision.rs:2061        g5_products
+retained_precision.rs:2490-2493   row_kind: combination_modulus_basis_record -> non_quantity
+retained_precision.rs:2570-2578   normalized(row): mm /1000, kN and kN*m *1000, MPa *1e6
+retained_precision.rs:3203-3256   g5b; :3291-3360 g5c (class threshold |n| >= 2^-34*S; absolute_verified list)
+retained_precision.rs:3488        g8; :3518-3520 the combinations refusal
+-- b1-p at 2843a59a16 (PY) --
+retained_precision.py:1149 NONQUANTITY; :1503 G8 combinations; :1821 owner kind "case"; :1846 execution_order
+-- b1-t at 6fa6a64658 (TS) --
+retainedPrecision.ts:107 NONQUANTITY; :268 execution_order; :1143 absentOrEmpty('combinations')
+-- I98 PROBE --
+§5 rows and §8: r7_cb1_halfb 7af8c049..., r7_cb1 0c346f49..., r7_cb2 ce52d528..., r7_cb3_v1 76bb9831...
+§2.3: the proxy's D6b refusal (RS g5_ordinary and PY _g5_ordinary), one selected case ordinarily checks_passed

@@ -1,0 +1,306 @@
+warning: function `derived` is never used
+   --> ARCH/projects/chirality-piping/core/reporting/result_export/src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1607:27
+     |
+1607 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+1607 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+1607 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:1608:27
+     |
+1608 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+help: remove these parentheses
+     |
+1608 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+1608 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+     |
+
+warning: function `is_exact_pressure_result_kind` is never used
+     --> src/lib.rs:10337:4
+      |
+10337 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      |
+      = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   --> src/source_recovery.rs:146:9
+    |
+145 | pub(super) struct SpringAction {
+    |                   ------------ fields in this struct
+146 |     pub support_id: String,
+    |         ^^^^^^^^^^
+147 |     pub global_dof: usize,
+    |         ^^^^^^^^^^
+148 |     pub value: f64,
+    |         ^^^^^
+149 |     pub functional_index: usize,
+    |         ^^^^^^^^^^^^^^^^
+    |
+    = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:171:9
+    |
+170 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+171 |     pub dofs: usize,
+    |         ^^^^
+172 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+173 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+174 |     pub blocks: usize,
+    |         ^^^^^^
+175 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+176 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+177 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+178 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+179 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+180 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+181 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+182 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+183 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+184 |     pub max_relative_projection_error: f64,
+185 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:198:5
+    |
+192 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+198 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:224:12
+    |
+207 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+224 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 7 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 2 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running unittests src/lib.rs (WT/targets/i98-b2w/debug/deps/open_pipe_stress_product_physics-e08917abb99aa3a9)
+
+running 1 test
+test retained_memory::zz_i98_probe::zz_i98_files ... I98_FILE cause_milestone_reversed file_sha=d28e1317d009704c45c689dbf0ee78e14f4e0263a04ea21377a2dbf8f496be9a
+I98_FILE cb1_ab_canonical file_sha=b6ef31eb63a80499c2301cada1cb9742d210b494e118625b452eb97722594a50
+I98_CENSUS cause_milestone_reversed input_sha=f610fa6bec6ec33534546125379c4fd289f583a87c71caa911cc98fa16fd03e0 profile=Registered census_complete=true domain=None refusal=None required=Some(3575778286) loads_per_case=[3] loads_total=3 combinations=0 over=[] at_cap=["ModelMaterialsCapacity=4/4", "LoadCasesCapacity=1/1", "MaterialExpansionLawsCapacity=4/4"] rows=["Nodes=2/32", "NodesCapacity=2/32", "Members=1/32", "MembersCapacity=1/32", "Supports=4/32", "SupportsCapacity=4/32", "Restraints=6/192", "Springs=3/192", "Loads=3/128", "LoadsCapacity=3/128", "ModelMaterials=1/4", "RequestMaterials=0/4", "TemperaturePoints=0/16", "LoadCasesCapacity=1/1", "TypedTextBytes=46/128", "RawTextBytes=46/128", "RawKeyTextBytes=23/128", "RawValues=150/16384", "RawDepth=7/16", "RawStringBytes=1039/65536", "RawKeyBytes=855/65536", "RawArrayCapacity=18/32768", "RawStringCapacity=1039/131072", "RawKeyCapacity=855/131072", "DigestCapacity=64/128", "ControlBytes=0/0"]
+I98_BEGIN cause_milestone_reversed sparse_interactive registered=true input_sha=f610fa6bec6ec33534546125379c4fd289f583a87c71caa911cc98fa16fd03e0
+I98_ORDINARY cause_milestone_reversed sparse_interactive status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=98 plain_sha=3c3f90228329af6596a0e5fb6c84262c5ec2a88e9c95a4bb578bec5095ca0e1f plain_len=68250 published_verdicts=[{"ref":"case","solve_quality":"sensitive"}] rcond=["2.606477882912165e-8"] refinement_attempts=["0"] assembly=["rel=0.0 amp=0.0 load=0.0"] d5=["formation_check: reason=estimate; row=N1:RX; doubled_correction=8.093801056572112e-14; scale=3.333666549241316e-5; trigger_ratio=2.427897612739378"] range_scaling=[] diagnostics={"LOAD_CATEGORY_PREVIEW_MAPPED:warning": 3, "NUMERICAL_INTEGRITY_SENSITIVE:warning": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1, "SOURCE_BLOCK_RECOVERY_UNAVAILABLE:info": 1} ms=4
+I98_MARK ordinary_done t_us=1791417306600156
+I98_SEEDS site=permitted_run mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case","solve_quality":"sensitive"}] seeds=[{"case":"case","d5_ref":"diagnostic:numerical-integrity:case","initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_SENSITIVE","ref":"diagnostic:numerical-integrity:case"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case","solve_quality":"sensitive"}] seeds=[{"case":"case","d5_ref":"diagnostic:numerical-integrity:case","initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_SENSITIVE","ref":"diagnostic:numerical-integrity:case"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case
+I98_MARK w1_start t_us=1791417306600998
+I98_MARK prepared t_us=1791417306601602
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417306644812
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa960c49ca6366513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0c86ac1e74p-15, hi: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabf4dca3d9c99aec256413abb396e5c4fd862f22c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f37953e18cp-15 }, Enclosure { lo: +a4ed3f1b0e725c3dee78183f91e646f156191148fd9fd36f7e3d1cc100e6afcce1c43849dc784a6513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b...[cut by sanitize.py: 55873 bytes, sha256 a5a384cd048e9c7832d6fc5526042f89b93ee090a8b6f3705ddcd4f058e19b4a]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"3ff0000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":1.0},{"bits":"0000000000000000","id":"result:disp:N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fb821e751965334","id":"result:disp:N1","kind":"displacement_magnitude","unit":"mm","value":0.09426732770800755},{"bits":"0000000000000000","id":"result:disp:N0:ux","kind":"global_nodal_displacement_x","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uy","kind":"global_nodal_displacement_y","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uz","kind":"global_nodal_displacement_z","unit":"mm","value":0.0},{"bits":"3f0179ec9cbd821d","id":"result:disp:N0:rx","kind":"global_nodal_rotation_x","unit":"rad","value":0.00003333333333333333},{"bits":"3e449da7e361ce4c","id":"result:disp:N0:ry","kind":"global_nodal_rotation_y...[cut by sanitize.py: 38836 bytes, sha256 554a46440c56e0fe131eba2310cc175e641eb0b7b1568be5bf4809e10df34b2f]
+I98_MARK candidate t_us=1791417307208084
+I98_MARK staged t_us=1791417307208131
+I98_MARK serialized t_us=1791417307228295
+I98_PRECOMMIT_ERROR ValidationError { gate: "G8", code: "RETAINED_PRECISION_PREPARATION_MISMATCH", detail: None }
+I98_PRECOMMIT_DUMP precommit_refused_sparse_interactive_53830c7eab94.json
+I98_ADMISSION cause_milestone_reversed sparse_interactive profile=Registered allowance=Unselected refusal=None domain=None required=Some(3575778286) census_complete=true
+I98_W1 cause_milestone_reversed sparse_interactive cause=Err(Precommit { gate: "G8", code: "RETAINED_PRECISION_PREPARATION_MISMATCH" }) phase=W4 counts=Counts { runs: 1, complete_gates: 1 } one_run_through_g_c=true armed_before=[] armed_after=[] envelope_is_plain=false published_successor=false notices=1 bytes_eq_with_notice_plain_case_none=true bytes_eq_plain=false published_sha=f7097fabfb341828c8de1c48750399a6d0136a01ff210d61649fc44c1338f021 published_len=68569 direct_ms=675
+I98_MARK witness_ordinary_done t_us=1791417307281384
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case","solve_quality":"sensitive"}] seeds=[{"case":"case","d5_ref":"diagnostic:numerical-integrity:case","initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_SENSITIVE","ref":"diagnostic:numerical-integrity:case"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case
+I98_MARK w1_start t_us=1791417307281762
+I98_MARK prepared t_us=1791417307282326
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417307324372
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa960c49ca6366513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0c86ac1e74p-15, hi: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabf4dca3d9c99aec256413abb396e5c4fd862f22c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f37953e18cp-15 }, Enclosure { lo: +a4ed3f1b0e725c3dee78183f91e646f156191148fd9fd36f7e3d1cc100e6afcce1c43849dc784a6513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b...[cut by sanitize.py: 55873 bytes, sha256 a5a384cd048e9c7832d6fc5526042f89b93ee090a8b6f3705ddcd4f058e19b4a]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"3ff0000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":1.0},{"bits":"0000000000000000","id":"result:disp:N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fb821e751965334","id":"result:disp:N1","kind":"displacement_magnitude","unit":"mm","value":0.09426732770800755},{"bits":"0000000000000000","id":"result:disp:N0:ux","kind":"global_nodal_displacement_x","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uy","kind":"global_nodal_displacement_y","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uz","kind":"global_nodal_displacement_z","unit":"mm","value":0.0},{"bits":"3f0179ec9cbd821d","id":"result:disp:N0:rx","kind":"global_nodal_rotation_x","unit":"rad","value":0.00003333333333333333},{"bits":"3e449da7e361ce4c","id":"result:disp:N0:ry","kind":"global_nodal_rotation_y...[cut by sanitize.py: 38836 bytes, sha256 554a46440c56e0fe131eba2310cc175e641eb0b7b1568be5bf4809e10df34b2f]
+I98_MARK candidate t_us=1791417307860355
+I98_MARK staged t_us=1791417307860403
+I98_MARK serialized t_us=1791417307880636
+I98_PRECOMMIT_ERROR ValidationError { gate: "G8", code: "RETAINED_PRECISION_PREPARATION_MISMATCH", detail: None }
+I98_PRECOMMIT_DUMP precommit_refused_sparse_interactive_53830c7eab94.json
+I98_WITNESS cause_milestone_reversed sparse_interactive stack=4194304 ran=Fallback(Precommit { gate: "G8", code: "RETAINED_PRECISION_PREPARATION_MISMATCH" }) furthest_phase=W4 ms=642
+I98_BYPASS_GA cause_milestone_reversed sparse_interactive profile=Registered refusal=None domain=None required=Some(3575778286) census_complete=true
+I98_BYPASS_GB cause_milestone_reversed sparse_interactive stack=67108864 late_refusal=None exact_selected=false capture_error=None
+I98_MARK bypass_ordinary_done t_us=1791417307927384
+I98_BYPASS_GC cause_milestone_reversed sparse_interactive complete=Ok(())
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case","solve_quality":"sensitive"}] seeds=[{"case":"case","d5_ref":"diagnostic:numerical-integrity:case","initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_SENSITIVE","ref":"diagnostic:numerical-integrity:case"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case
+I98_MARK w1_start t_us=1791417307927829
+I98_MARK prepared t_us=1791417307928416
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417307971030
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa960c49ca6366513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0c86ac1e74p-15, hi: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabf4dca3d9c99aec256413abb396e5c4fd862f22c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f37953e18cp-15 }, Enclosure { lo: +a4ed3f1b0e725c3dee78183f91e646f156191148fd9fd36f7e3d1cc100e6afcce1c43849dc784a6513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b...[cut by sanitize.py: 55873 bytes, sha256 a5a384cd048e9c7832d6fc5526042f89b93ee090a8b6f3705ddcd4f058e19b4a]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"3ff0000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":1.0},{"bits":"0000000000000000","id":"result:disp:N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fb821e751965334","id":"result:disp:N1","kind":"displacement_magnitude","unit":"mm","value":0.09426732770800755},{"bits":"0000000000000000","id":"result:disp:N0:ux","kind":"global_nodal_displacement_x","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uy","kind":"global_nodal_displacement_y","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uz","kind":"global_nodal_displacement_z","unit":"mm","value":0.0},{"bits":"3f0179ec9cbd821d","id":"result:disp:N0:rx","kind":"global_nodal_rotation_x","unit":"rad","value":0.00003333333333333333},{"bits":"3e449da7e361ce4c","id":"result:disp:N0:ry","kind":"global_nodal_rotation_y...[cut by sanitize.py: 38836 bytes, sha256 554a46440c56e0fe131eba2310cc175e641eb0b7b1568be5bf4809e10df34b2f]
+I98_MARK candidate t_us=1791417308518308
+I98_MARK staged t_us=1791417308518358
+I98_MARK serialized t_us=1791417308539547
+I98_PRECOMMIT_ERROR ValidationError { gate: "G8", code: "RETAINED_PRECISION_PREPARATION_MISMATCH", detail: None }
+I98_PRECOMMIT_DUMP precommit_refused_sparse_interactive_53830c7eab94.json
+I98_BYPASS cause_milestone_reversed sparse_interactive stack=67108864 ran=Fallback(Precommit { gate: "G8", code: "RETAINED_PRECISION_PREPARATION_MISMATCH" }) furthest_phase=W4 ms=681
+I98_BEGIN cause_milestone_reversed dense_scrutiny registered=true input_sha=f610fa6bec6ec33534546125379c4fd289f583a87c71caa911cc98fa16fd03e0
+I98_ORDINARY cause_milestone_reversed dense_scrutiny status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=99 plain_sha=12b5f7b31b900f98c2ef9f227a7db6117dabd82afebc42be0b6ee9776f1eede1 plain_len=69366 published_verdicts=[{"ref":"case","solve_quality":"sensitive"}] rcond=["2.606477892402732e-8"] refinement_attempts=["0"] assembly=["rel=0.0 amp=0.0 load=0.0"] d5=["formation_check: reason=estimate; row=N1:RX; doubled_correction=1.6176971209150903e-13; scale=3.3336665371059296e-5; trigger_ratio=4.852606290728372"] range_scaling=[] diagnostics={"LOAD_CATEGORY_PREVIEW_MAPPED:warning": 3, "NUMERICAL_INTEGRITY_SENSITIVE:warning": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1, "SOURCE_BLOCK_RECOVERY_UNAVAILABLE:info": 1} ms=4
+I98_MARK ordinary_done t_us=1791417308618875
+I98_SEEDS site=permitted_run mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case","solve_quality":"sensitive"}] seeds=[{"case":"case","d5_ref":"diagnostic:numerical-integrity:case","initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_SENSITIVE","ref":"diagnostic:numerical-integrity:case"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case","solve_quality":"sensitive"}] seeds=[{"case":"case","d5_ref":"diagnostic:numerical-integrity:case","initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_SENSITIVE","ref":"diagnostic:numerical-integrity:case"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case
+I98_MARK w1_start t_us=1791417308619718
+I98_MARK prepared t_us=1791417308620336
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417308663676
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa960c49ca6366513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0c86ac1e74p-15, hi: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabf4dca3d9c99aec256413abb396e5c4fd862f22c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f37953e18cp-15 }, Enclosure { lo: +a4ed3f1b0e725c3dee78183f91e646f156191148fd9fd36f7e3d1cc100e6afcce1c43849dc784a6513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b...[cut by sanitize.py: 55873 bytes, sha256 a5a384cd048e9c7832d6fc5526042f89b93ee090a8b6f3705ddcd4f058e19b4a]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"4000000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":2.0},{"bits":"3e2c76280d1333f1","id":"result:sparse-live:dense-parity-relative-delta","kind":"sparse_live_path_dense_parity_relative_delta","unit":"unitless","value":3.31336034355847e-9},{"bits":"0000000000000000","id":"result:disp:N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fb821e751965334","id":"result:disp:N1","kind":"displacement_magnitude","unit":"mm","value":0.09426732770800755},{"bits":"0000000000000000","id":"result:disp:N0:ux","kind":"global_nodal_displacement_x","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uy","kind":"global_nodal_displacement_y","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uz","kind":"global_nodal_displacement_z","unit":"mm","value":0.0},{"bits":"3f0179ec9cbd821d","id"...[cut by sanitize.py: 39144 bytes, sha256 786ce70d7482f22ba1c350e495f1a7a09fe802961924b7d2356e604622d27ecb]
+I98_MARK candidate t_us=1791417309200690
+I98_MARK staged t_us=1791417309200737
+I98_MARK serialized t_us=1791417309221005
+I98_PRECOMMIT_ERROR ValidationError { gate: "G8", code: "RETAINED_PRECISION_PREPARATION_MISMATCH", detail: None }
+I98_PRECOMMIT_DUMP precommit_refused_dense_scrutiny_2eca92d60bcc.json
+I98_ADMISSION cause_milestone_reversed dense_scrutiny profile=Registered allowance=Unselected refusal=None domain=None required=Some(3595488734) census_complete=true
+I98_W1 cause_milestone_reversed dense_scrutiny cause=Err(Precommit { gate: "G8", code: "RETAINED_PRECISION_PREPARATION_MISMATCH" }) phase=W4 counts=Counts { runs: 1, complete_gates: 1 } one_run_through_g_c=true armed_before=[] armed_after=[] envelope_is_plain=false published_successor=false notices=1 bytes_eq_with_notice_plain_case_none=true bytes_eq_plain=false published_sha=18daad980395dfb83e6900f2e48585f9ae912c832b4b917a01de43689d9b1354 published_len=69685 direct_ms=645
+I98_MARK witness_ordinary_done t_us=1791417309270410
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case","solve_quality":"sensitive"}] seeds=[{"case":"case","d5_ref":"diagnostic:numerical-integrity:case","initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_SENSITIVE","ref":"diagnostic:numerical-integrity:case"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case
+I98_MARK w1_start t_us=1791417309270802
+I98_MARK prepared t_us=1791417309271371
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417309313604
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa960c49ca6366513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0c86ac1e74p-15, hi: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabf4dca3d9c99aec256413abb396e5c4fd862f22c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f37953e18cp-15 }, Enclosure { lo: +a4ed3f1b0e725c3dee78183f91e646f156191148fd9fd36f7e3d1cc100e6afcce1c43849dc784a6513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b...[cut by sanitize.py: 55873 bytes, sha256 a5a384cd048e9c7832d6fc5526042f89b93ee090a8b6f3705ddcd4f058e19b4a]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"4000000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":2.0},{"bits":"3e2c76280d1333f1","id":"result:sparse-live:dense-parity-relative-delta","kind":"sparse_live_path_dense_parity_relative_delta","unit":"unitless","value":3.31336034355847e-9},{"bits":"0000000000000000","id":"result:disp:N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fb821e751965334","id":"result:disp:N1","kind":"displacement_magnitude","unit":"mm","value":0.09426732770800755},{"bits":"0000000000000000","id":"result:disp:N0:ux","kind":"global_nodal_displacement_x","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uy","kind":"global_nodal_displacement_y","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uz","kind":"global_nodal_displacement_z","unit":"mm","value":0.0},{"bits":"3f0179ec9cbd821d","id"...[cut by sanitize.py: 39144 bytes, sha256 786ce70d7482f22ba1c350e495f1a7a09fe802961924b7d2356e604622d27ecb]
+I98_MARK candidate t_us=1791417309848347
+I98_MARK staged t_us=1791417309848390
+I98_MARK serialized t_us=1791417309868706
+I98_PRECOMMIT_ERROR ValidationError { gate: "G8", code: "RETAINED_PRECISION_PREPARATION_MISMATCH", detail: None }
+I98_PRECOMMIT_DUMP precommit_refused_dense_scrutiny_2eca92d60bcc.json
+I98_WITNESS cause_milestone_reversed dense_scrutiny stack=4194304 ran=Fallback(Precommit { gate: "G8", code: "RETAINED_PRECISION_PREPARATION_MISMATCH" }) furthest_phase=W4 ms=641
+I98_BYPASS_GA cause_milestone_reversed dense_scrutiny profile=Registered refusal=None domain=None required=Some(3595488734) census_complete=true
+I98_BYPASS_GB cause_milestone_reversed dense_scrutiny stack=67108864 late_refusal=None exact_selected=false capture_error=None
+I98_MARK bypass_ordinary_done t_us=1791417309915899
+I98_BYPASS_GC cause_milestone_reversed dense_scrutiny complete=Ok(())
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case","solve_quality":"sensitive"}] seeds=[{"case":"case","d5_ref":"diagnostic:numerical-integrity:case","initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_SENSITIVE","ref":"diagnostic:numerical-integrity:case"},"legacy":"unavailable(stage=source closure)","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case
+I98_MARK w1_start t_us=1791417309916370
+I98_MARK prepared t_us=1791417309916973
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417309959174
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa960c49ca6366513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0c86ac1e74p-15, hi: +8bcf64e5ec10eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabf4dca3d9c99aec256413abb396e5c4fd862f22c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f35ba781948b0fcd6e9e06522c3f37953e18cp-15 }, Enclosure { lo: +a4ed3f1b0e725c3dee78183f91e646f156191148fd9fd36f7e3d1cc100e6afcce1c43849dc784a6513da9bec544c691a3b0279d0dd3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b74f0329161f9add3c0ca4587e6b...[cut by sanitize.py: 55873 bytes, sha256 a5a384cd048e9c7832d6fc5526042f89b93ee090a8b6f3705ddcd4f058e19b4a]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"4000000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":2.0},{"bits":"3e2c76280d1333f1","id":"result:sparse-live:dense-parity-relative-delta","kind":"sparse_live_path_dense_parity_relative_delta","unit":"unitless","value":3.31336034355847e-9},{"bits":"0000000000000000","id":"result:disp:N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"3fb821e751965334","id":"result:disp:N1","kind":"displacement_magnitude","unit":"mm","value":0.09426732770800755},{"bits":"0000000000000000","id":"result:disp:N0:ux","kind":"global_nodal_displacement_x","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uy","kind":"global_nodal_displacement_y","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:N0:uz","kind":"global_nodal_displacement_z","unit":"mm","value":0.0},{"bits":"3f0179ec9cbd821d","id"...[cut by sanitize.py: 39144 bytes, sha256 786ce70d7482f22ba1c350e495f1a7a09fe802961924b7d2356e604622d27ecb]
+I98_MARK candidate t_us=1791417310493534
+I98_MARK staged t_us=1791417310493602
+I98_MARK serialized t_us=1791417310513598
+I98_PRECOMMIT_ERROR ValidationError { gate: "G8", code: "RETAINED_PRECISION_PREPARATION_MISMATCH", detail: None }
+I98_PRECOMMIT_DUMP precommit_refused_dense_scrutiny_2eca92d60bcc.json
+I98_BYPASS cause_milestone_reversed dense_scrutiny stack=67108864 ran=Fallback(Precommit { gate: "G8", code: "RETAINED_PRECISION_PREPARATION_MISMATCH" }) furthest_phase=W4 ms=639
+I98_CENSUS cb1_ab_canonical input_sha=38b6ec5defe19be36730a3b8413898e17e85944af9aff365e5128536acd7ecd4 profile=Registered census_complete=true domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None loads_per_case=[256] loads_total=256 combinations=0 over=["Loads=256/128", "LoadsCapacity=256/128"] at_cap=["Nodes=32/32", "NodesCapacity=32/32", "Members=32/32", "MembersCapacity=32/32", "Supports=32/32", "SupportsCapacity=32/32", "ModelMaterials=4/4", "ModelMaterialsCapacity=4/4", "RequestMaterials=4/4", "RequestMaterialsCapacity=4/4", "TemperaturePoints=16/16", "TemperaturePointsCapacity=16/16", "LoadCasesCapacity=1/1", "MaterialExpansionLawsCapacity=4/4", "TypedTextBytes=128/128", "TypedTextCapacity=128/128", "RawTextBytes=128/128", "RawDepth=16/16"] rows=["Nodes=32/32", "NodesCapacity=32/32", "Members=32/32", "MembersCapacity=32/32", "Supports=32/32", "SupportsCapacity=32/32", "Restraints=66/192", "Springs=21/192", "Loads=256/128", "LoadsCapacity=256/128", "ModelMaterials=4/4", "RequestMaterials=4/4", "TemperaturePoints=16/16", "LoadCasesCapacity=1/1", "TypedTextBytes=128/128", "RawTextBytes=128/128", "RawKeyTextBytes=23/128", "RawValues=4701/16384", "RawDepth=16/16", "RawStringBytes=39373/65536", "RawKeyBytes=25611/65536", "RawArrayCapacity=569/32768", "RawStringCapacity=39373/131072", "RawKeyCapacity=25611/131072", "DigestCapacity=64/128", "ControlBytes=0/0"]
+I98_BEGIN cb1_ab_canonical sparse_interactive registered=true input_sha=38b6ec5defe19be36730a3b8413898e17e85944af9aff365e5128536acd7ecd4
+I98_ORDINARY cb1_ab_canonical sparse_interactive status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=2113 plain_sha=cea9a24cc969537aa2c6d44f97b3fe146ad2dbdfc5cef57c89250bb29d006593 plain_len=1415151 published_verdicts=[{"ref":"case:ab","solve_quality":"checks_passed"}] rcond=["2.0384254872829075e-8"] refinement_attempts=["0"] assembly=["rel=5.517719525168333e-17 amp=2.7068536768165634e-9 load=0.0"] d5=["none"] range_scaling=[] diagnostics={"LOAD_CATEGORY_PREVIEW_MAPPED:warning": 256, "NUMERICAL_INTEGRITY_CHECKS_PASSED:info": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1} ms=88
+I98_ADMISSION cb1_ab_canonical sparse_interactive profile=Registered allowance=Unselected refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None census_complete=true
+I98_W1 cb1_ab_canonical sparse_interactive cause=None (no permit, no W1) phase=none (no W1 phase work) counts=Counts { runs: 1, complete_gates: 0 } one_run_through_g_c=false armed_before=[] armed_after=[] envelope_is_plain=true published_successor=false notices=0 bytes_eq_with_notice_plain_case_none=false bytes_eq_plain=true published_sha=cea9a24cc969537aa2c6d44f97b3fe146ad2dbdfc5cef57c89250bb29d006593 published_len=1415151 direct_ms=89
+I98_MARK witness_ordinary_done t_us=1791417311082622
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case:ab","solve_quality":"checks_passed"}] seeds=[{"case":"case:ab","d5_ref":null,"initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_CHECKS_PASSED","ref":"diagnostic:numerical-integrity:case:ab"},"legacy":"not_required","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case:ab
+I98_MARK w1_start t_us=1791417311090125
+I98_MARK prepared t_us=1791417311108017
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417311563722
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure {...[cut by sanitize.py: 81256 bytes, sha256 a07f27b74f4ff76eb4d5ca56e95724db8c70b2a54b9ab606473ff2877c7ab9b2]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"3ff0000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":1.0},{"bits":"0000000000000000","id":"result:disp:C0-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C0-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C1-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C1-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C2-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C2-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C3-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"00000000000...[cut by sanitize.py: 682238 bytes, sha256 aba3b859242eec7c32303e537bbe3dbbe6df2620bfdadd9ee1e566645a062519]
+I98_MARK candidate t_us=1791417325089742
+I98_MARK staged t_us=1791417325090375
+I98_MARK serialized t_us=1791417325471314
+I98_PRECOMMIT_ERROR ValidationError { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH", detail: None }
+I98_PRECOMMIT_DUMP precommit_refused_sparse_interactive_41ef9ead521e.json
+I98_WITNESS cb1_ab_canonical sparse_interactive stack=4194304 ran=Fallback(Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH" }) furthest_phase=W4 ms=15051
+I98_BYPASS_GA cb1_ab_canonical sparse_interactive profile=Registered refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None census_complete=true
+I98_BYPASS_GB cb1_ab_canonical sparse_interactive stack=67108864 late_refusal=Some(PhaseRefusal { gate: Late, fact: CaseLoads, observed: 256, cap: 128 }) exact_selected=false capture_error=Some("Association(\"missing successful prepared late source hook\")")
+I98_MARK bypass_ordinary_done t_us=1791417326221931
+I98_BYPASS_GC cb1_ab_canonical sparse_interactive complete=Ok(())
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case:ab","solve_quality":"checks_passed"}] seeds=[{"case":"case:ab","d5_ref":null,"initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_CHECKS_PASSED","ref":"diagnostic:numerical-integrity:case:ab"},"legacy":"not_required","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case:ab
+I98_MARK w1_start t_us=1791417326230334
+I98_MARK prepared t_us=1791417326247820
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417326689496
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure {...[cut by sanitize.py: 81256 bytes, sha256 a07f27b74f4ff76eb4d5ca56e95724db8c70b2a54b9ab606473ff2877c7ab9b2]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"3ff0000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":1.0},{"bits":"0000000000000000","id":"result:disp:C0-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C0-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C1-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C1-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C2-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C2-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C3-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"00000000000...[cut by sanitize.py: 682238 bytes, sha256 aba3b859242eec7c32303e537bbe3dbbe6df2620bfdadd9ee1e566645a062519]
+I98_MARK candidate t_us=1791417340146460
+I98_MARK staged t_us=1791417340147032
+I98_MARK serialized t_us=1791417340520955
+I98_PRECOMMIT_ERROR ValidationError { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH", detail: None }
+I98_PRECOMMIT_DUMP precommit_refused_sparse_interactive_41ef9ead521e.json
+I98_BYPASS cb1_ab_canonical sparse_interactive stack=67108864 ran=Fallback(Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH" }) furthest_phase=W4 ms=14927
+I98_BEGIN cb1_ab_canonical dense_scrutiny registered=true input_sha=38b6ec5defe19be36730a3b8413898e17e85944af9aff365e5128536acd7ecd4
+I98_ORDINARY cb1_ab_canonical dense_scrutiny status={"mechanics":"MECHANICS_SOLVED","professional_acceptance":"NOT_PROVIDED","rule_check":"RULE_INPUTS_INCOMPLETE"} results=2114 plain_sha=70517e77e04abd6e87a493e416cc26c022d6dd468e35c5c757ee4117cc08197d plain_len=1416392 published_verdicts=[{"ref":"case:ab","solve_quality":"checks_passed"}] rcond=["2.0384254947051128e-8"] refinement_attempts=["0"] assembly=["rel=5.517719525168333e-17 amp=2.7068536669605133e-9 load=0.0"] d5=["none"] range_scaling=[] diagnostics={"LOAD_CATEGORY_PREVIEW_MAPPED:warning": 256, "NUMERICAL_INTEGRITY_CHECKS_PASSED:info": 1, "RULE_CHECK_INPUTS_MISSING:warning": 1} ms=128
+I98_ADMISSION cb1_ab_canonical dense_scrutiny profile=Registered allowance=Unselected refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None census_complete=true
+I98_W1 cb1_ab_canonical dense_scrutiny cause=None (no permit, no W1) phase=none (no W1 phase work) counts=Counts { runs: 1, complete_gates: 0 } one_run_through_g_c=false armed_before=[] armed_after=[] envelope_is_plain=true published_successor=false notices=0 bytes_eq_with_notice_plain_case_none=false bytes_eq_plain=true published_sha=70517e77e04abd6e87a493e416cc26c022d6dd468e35c5c757ee4117cc08197d published_len=1416392 direct_ms=130
+I98_MARK witness_ordinary_done t_us=1791417341697507
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case:ab","solve_quality":"checks_passed"}] seeds=[{"case":"case:ab","d5_ref":null,"initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_CHECKS_PASSED","ref":"diagnostic:numerical-integrity:case:ab"},"legacy":"not_required","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case:ab
+I98_MARK w1_start t_us=1791417341704714
+I98_MARK prepared t_us=1791417341721786
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417342161673
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure {...[cut by sanitize.py: 81256 bytes, sha256 a07f27b74f4ff76eb4d5ca56e95724db8c70b2a54b9ab606473ff2877c7ab9b2]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"4000000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":2.0},{"bits":"0000000000000000","id":"result:sparse-live:dense-parity-relative-delta","kind":"sparse_live_path_dense_parity_relative_delta","unit":"unitless","value":0.0},{"bits":"0000000000000000","id":"result:disp:C0-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C0-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C1-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C1-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C2-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C2-N1","kind":"displacement...[cut by sanitize.py: 682534 bytes, sha256 bac43a5d733d648980a171d467ae0e300faabcefdfa75cc3eeecba130b406583]
+I98_MARK candidate t_us=1791417355608159
+I98_MARK staged t_us=1791417355608779
+I98_MARK serialized t_us=1791417355998055
+I98_PRECOMMIT_ERROR ValidationError { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH", detail: None }
+I98_PRECOMMIT_DUMP precommit_refused_dense_scrutiny_0a04a91bf295.json
+I98_WITNESS cb1_ab_canonical dense_scrutiny stack=4194304 ran=Fallback(Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH" }) furthest_phase=W4 ms=15011
+I98_BYPASS_GA cb1_ab_canonical dense_scrutiny profile=Registered refusal=Some(Cap { fact: Loads, observed: 256, cap: 128 }) domain=Some(Cap { fact: Loads, observed: 256, cap: 128 }) required=None census_complete=true
+I98_BYPASS_GB cb1_ab_canonical dense_scrutiny stack=67108864 late_refusal=Some(PhaseRefusal { gate: Late, fact: CaseLoads, observed: 256, cap: 128 }) exact_selected=false capture_error=Some("Association(\"missing successful prepared late source hook\")")
+I98_MARK bypass_ordinary_done t_us=1791417356849704
+I98_BYPASS_GC cb1_ab_canonical dense_scrutiny complete=Ok(())
+I98_SEEDS site=retained_w1 mechanics="MECHANICS_SOLVED" exact_selected=false quality=[{"ref":"case:ab","solve_quality":"checks_passed"}] seeds=[{"case":"case:ab","d5_ref":null,"initial":{"kind":"report","outcome":"NUMERICAL_INTEGRITY_CHECKS_PASSED","ref":"diagnostic:numerical-integrity:case:ab"},"legacy":"not_required","load_row_finding":false,"recovery_demoted":false,"w2":{"kind":"not_triggered"}}]
+I98_W1_START case=case:ab
+I98_MARK w1_start t_us=1791417356858056
+I98_MARK prepared t_us=1791417356875333
+I98_NATIVE_OUTCOME Selected
+I98_MARK native_selected t_us=1791417357316856
+I51_DUAL_LANES (LaneReadouts { anchor: ProofAnchor { owner: ProductOwnerStamp { run: 0, .. } }, law: AdmittedK, rows: [Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure { lo: Z+, hi: Z+ }, Enclosure {...[cut by sanitize.py: 81256 bytes, sha256 a07f27b74f4ff76eb4d5ca56e95724db8c70b2a54b9ab606473ff2877c7ab9b2]
+I51_FROZEN_ROWS {"g5a":"None","numeric_pass":true,"observables":"None","rows":[{"bits":"4000000000000000","id":"result:solver-mode:linear-solve-basis","kind":"linear_solver_mode_basis","unit":"mode_code","value":2.0},{"bits":"0000000000000000","id":"result:sparse-live:dense-parity-relative-delta","kind":"sparse_live_path_dense_parity_relative_delta","unit":"unitless","value":0.0},{"bits":"0000000000000000","id":"result:disp:C0-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C0-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C1-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C1-N1","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C2-N0","kind":"displacement_magnitude","unit":"mm","value":0.0},{"bits":"0000000000000000","id":"result:disp:C2-N1","kind":"displacement...[cut by sanitize.py: 682534 bytes, sha256 bac43a5d733d648980a171d467ae0e300faabcefdfa75cc3eeecba130b406583]
+I98_MARK candidate t_us=1791417370752666
+I98_MARK staged t_us=1791417370753229
+I98_MARK serialized t_us=1791417371125871
+I98_PRECOMMIT_ERROR ValidationError { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH", detail: None }
+I98_PRECOMMIT_DUMP precommit_refused_dense_scrutiny_0a04a91bf295.json
+I98_BYPASS cb1_ab_canonical dense_scrutiny stack=67108864 ran=Fallback(Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH" }) furthest_phase=W4 ms=14948
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 558 filtered out; finished in 65.11s
+

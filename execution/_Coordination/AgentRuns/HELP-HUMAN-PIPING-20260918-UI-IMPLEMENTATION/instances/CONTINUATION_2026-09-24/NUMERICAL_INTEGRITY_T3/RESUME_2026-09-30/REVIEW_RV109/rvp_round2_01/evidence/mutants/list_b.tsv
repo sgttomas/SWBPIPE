@@ -1,0 +1,5 @@
+B_S3_no_per_case_presence	decision 19: the per-case final mode/parity presence check is dropped (R3′ S3)
+B_S4_finish_ignores_parked_late_hooks	T-2/T-6: the final hook no longer checks the parked cases' late captures (R3′ S4)
+B_R3P4_every_slot_submitted	R3P-4: the call submits every requested case's slot source, not the prepared attempts
+B_M53_notices_for_every_case	T-5: a notice is reserved (and published) for every requested case, not A
+B_M54_cause_preparation_before_native	T-10: with no case selected, Preparation outranks Native

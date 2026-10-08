@@ -1,0 +1,94 @@
+{
+  "DEF-C": {
+    "r1 displacement_magnitude": "finish the same node's frozen global_nodal_displacement_x/y/z rows; binary64 hypot(hypot(x,y),z) of their frozen raw values (mm), finite nonnegative and canonical +0, SI by the projection's mm rule; still certify dual physical norm and the unchanged 64-epsilon combination magnitude guard (base G7 combination_magnitudes), which the observables stage checks; not H of a lane norm hull",
+    "r1 lanes.loads": "each loaded DOF's exact combined net N_g (the owner's K4LED: every operand term's exact product c_i*v_ij, summed exactly per DOF) enclosed outward at 1024 bits as [RD1024(N_g),RU1024(N_g)], in free residual rows and constrained reaction offsets; prescribed coordinates exact zero; data flags from each individual product (c_i!=0 and v_ij!=0), never from a net, so an exactly cancelled net stays data; the enclosure never takes an operand's individual terms, a binary64 product or a rounded net",
+    "r1 scope.operand_equality": "equal K4STF bytes, layout, stations and supports (kernel OperandsDiffer) and equal prepared section facts across all operands and the combination: material basis, the selected material operands of every member bit for bit, normalized D, effective wall and the prepared A,I,J,Z,c bits of every member, as the operands' preparations and CaseSource section_terms state them",
+    "r1 stages.entered": [
+      "native",
+      "proof_start",
+      "projection",
+      "maxima",
+      "values",
+      "aliases",
+      "certificate",
+      "observables",
+      "g5a"
+    ],
+    "r1 stages.observables": "base G7 combination_magnitudes on the frozen rows: one support-action row per support and component, and each displacement, force and moment magnitude within 64 epsilon relative of binary64 hypot(hypot(x,y),z) of the same combination's published components; the case support coverage and guard; no preview case evidence, maximum or headline check; a failure is this combination's facade_certificate",
+    "r1 support_magnitude == DEF-O support_magnitude": true,
+    "v0_to_r1_changed_leaves": [
+      "lanes.loads",
+      "rows.displacement_magnitude",
+      "scope.operand_equality",
+      "stages.observables (added)"
+    ]
+  },
+  "PTABLE": {
+    "accuracy_classification keys changed from main": [
+      "scope"
+    ],
+    "formation_warrant == v0 draft": true,
+    "indent-2 ASCII, one trailing newline": true,
+    "main_to_r1_members_added": [
+      "receipt_bindings"
+    ],
+    "main_to_r1_members_changed": [
+      "product_formation_definitions",
+      "accuracy_classification",
+      "formation_warrant"
+    ],
+    "pfd hashes recompute": [
+      true,
+      true
+    ],
+    "product_formation_definitions": [
+      {
+        "id": "RP-PREPARED-ORDINARY-DUAL-v1",
+        "sha256": "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349"
+      },
+      {
+        "id": "RP-PREPARED-COMBINATION-DUAL-v1",
+        "sha256": "0c43cf427b35d35e291e42382d242bca3762b61344b705744127c7c9b4372b6f"
+      }
+    ],
+    "receipt_bindings == XTABLE (JCS)": true,
+    "scope r1": "registered ordinary-prepared source, and registered prepared mechanics combinations (RP-PREPARED-COMBINATION-DUAL-v1: their own solve on the combined exact ledger, at least one operand selected); no exact-profile, subtraction or range extension; R-COMB-1: each quantity row of a retained_unavailable combination, and of an ordinary combination whose expression names a load case that is not not_required, is not_covered and withheld from binding with its value unchanged; record rows stay non_quantity",
+    "v0_draft_to_r1_changed_leaves": [
+      "accuracy_classification.scope",
+      "product_formation_definitions"
+    ]
+  },
+  "hashes": {
+    "DEF-C r1 H": "0c43cf427b35d35e291e42382d242bca3762b61344b705744127c7c9b4372b6f",
+    "DEF-C r1 H, alternative domain": "82fccc74bab3f05fbaba0fb1387f48eb314f40656387191f5a4e7408378c1ed5",
+    "DEF-C r1 ascii only, no trailing newline": true,
+    "DEF-C r1 operand_definition.sha256 == H(DEF-O)": true,
+    "DEF-C r1 raw is its own JCS": true,
+    "DEF-C v0 H": "9adf5178c7c1d5b81de340c2f0f605396e717a9264b59430df8d2a1306f21731",
+    "DEF-O H (control)": "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349"
+  },
+  "inputs": {
+    "DEF-C r1": "6467c733ff5060afd3040172a5df91b12c228555254ae6d33d40555e06f30c03",
+    "DEF-C v0": "03d40598be82a5df8867bb9a279b212b3acd53ba5f51ff85b9635e6cefaa69cc",
+    "DEF-O": "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
+    "PTABLE main": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+    "PTABLE r1": "791c0a0d9a06ce4effac5914b40872fa808ce3208dfe6c2c6d51359d6ff41573",
+    "PTABLE v0 draft": "863738f1aa81c7bdbf87c716b68e690c6104d7d25416df8ed4c28caece44d0e1",
+    "XTABLE": "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d"
+  },
+  "s2_layout": {
+    "revision_01_rule_fails": [],
+    "shapes_enumerated": 19,
+    "v0_rule_fails": [
+      "c=1 range(A) , mech",
+      "c=1 range(A) , range(A)"
+    ]
+  },
+  "s4_guard": {
+    "failure_count": 0,
+    "failures": [],
+    "largest_fraction_of_allowance": 0.0625,
+    "pairs": 404105,
+    "triples": 20000
+  }
+}

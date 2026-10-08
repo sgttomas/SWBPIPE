@@ -1,0 +1,12 @@
+4f37590bfb parents: 2007709549e9701b302e0eb62a1474d82acc1c40 
+4f37590bfb tree: 45a54c110999faba371042936714cd03e48e3de0; ea3b1443ea tree: 45a54c110999faba371042936714cd03e48e3de0; 6f983f12f3 tree: 45a54c110999faba371042936714cd03e48e3de0
+4f37590bfb date/subject: 2026-10-07T08:42:26-06:00 | 2026-10-07T08:42:26-06:00 | piping(T3): records through B6's merge and B1's phase 2 (records only) (#1108)
+name-status 2007709549..4f37590bfb:  869 A    2 M 
+commit message (subject + blank + body) vs SQUASH_BODY.txt:
+  subject: piping(T3): records through B6's merge and B1's phase 2 (records only) (#1108)
+  body == SQUASH_BODY (trailing whitespace stripped): True
+{"baseRefOid":"2007709549e9701b302e0eb62a1474d82acc1c40","headRefOid":"ea3b1443ea4214ccb1975a25390fb382dc77674d","mergeCommit":"4f37590bfbfbd766fbba0ec6f24a9274fbf8f146","mergedAt":"2026-10-07T14:42:26Z","state":"MERGED"}
+37637875013 Piping Desktop E2E pull_request success ea3b1443ea
+37637874699 Harness Pre-merge Validation pull_request success ea3b1443ea
+37637874697 pec-tests pull_request success ea3b1443ea
+37637874737 governance-harness pull_request success ea3b1443ea

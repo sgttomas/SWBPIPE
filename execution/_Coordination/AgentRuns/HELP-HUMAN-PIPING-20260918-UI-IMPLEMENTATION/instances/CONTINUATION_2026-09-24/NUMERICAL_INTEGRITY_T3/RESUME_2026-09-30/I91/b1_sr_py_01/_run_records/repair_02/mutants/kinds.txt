@@ -1,0 +1,80 @@
+N0: passes, 0 of 468 tests fail
+F-mb-index: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_receipt_references_at_g3_and_the_ordinary_basis_at_g5: failure: tests/test_retained_precision_contract.py:1437: AssertionError | assert {'material_ba...MATCH')), ...} == {'material_ba...MATCH')), ...}
+F-mb-unique: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_receipt_references_at_g3_and_the_ordinary_basis_at_g5: failure: tests/test_retained_precision_contract.py:1437: AssertionError | AssertionError: assert {'material_ba...MATCH')), ...} == {'material_ba...MATCH')), ...}
+F-mb-range: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_receipt_references_at_g3_and_the_ordinary_basis_at_g5: failure: tests/test_retained_precision_contract.py:1437: AssertionError | AssertionError: assert {'material_ba...MATCH')), ...} == {'material_ba...MATCH')), ...}
+F-src-index: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_receipt_references_at_g3_and_the_ordinary_basis_at_g5: failure: tests/test_retained_precision_contract.py:1437: AssertionError | assert {'material_ba...mpute')), ...} == {'material_ba...MATCH')), ...}
+F-src-kind: SURVIVES, 0 of 20 tests fail
+F-src-range: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_receipt_references_at_g3_and_the_ordinary_basis_at_g5: failure: tests/test_retained_precision_contract.py:1442: AssertionError | AssertionError: assert ('G3', 'RETAI...ut of range')) == ('G3', 'RETAI...SMATCH', None)
+F-src-id: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_receipt_references_at_g3_and_the_ordinary_basis_at_g5: failure: tests/test_retained_precision_contract.py:1437: AssertionError | assert {'material_ba...MATCH')), ...} == {'material_ba...MATCH')), ...}
+G5-basis-off: killed, 3 of 20 tests fail; by assertion: yes
+  test_b1_repair01_g8_material_basis_of_every_case_and_exact_case_indices: failure: tests/test_retained_precision_contract.py:1337: AssertionError | assert {'(b) not_req...SMATCH'), ...} == {'(b) not_req...SMATCH'), ...}
+  test_b1_repair01_g8_every_material_basis_has_its_materials_checked: failure: tests/test_retained_precision_contract.py:1385: AssertionError | AssertionError: assert ('G8', 'RETAI...ION_MISMATCH') == ('G5', 'RETAI...MPT_MISMATCH')
+  test_b1_repair02_receipt_references_at_g3_and_the_ordinary_basis_at_g5: failure: tests/test_retained_precision_contract.py:1448: AssertionError | assert {"the not_req..._recompute'))} == {"the not_req...T_MISMATCH'))}
+G5-basis-resolve: killed, 2 of 20 tests fail; by assertion: yes
+  test_b1_repair01_g8_material_basis_of_every_case_and_exact_case_indices: failure: tests/test_retained_precision_contract.py:1337: AssertionError | assert {'(b) not_req...SMATCH'), ...} == {'(b) not_req...SMATCH'), ...}
+  test_b1_repair02_receipt_references_at_g3_and_the_ordinary_basis_at_g5: failure: tests/test_retained_precision_contract.py:1448: AssertionError | assert {"the not_req..._recompute'))} == {"the not_req...T_MISMATCH'))}
+G-refconf: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_model_scope_at_g8_invocation: failure: tests/test_retained_precision_contract.py:1470: AssertionError | AssertionError: assert {'reference_c...SMATCH'), ...} == {'reference_c...SMATCH'), ...}
+G-pressure-falsy: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_model_scope_at_g8_invocation: failure: tests/test_retained_precision_contract.py:1470: AssertionError | AssertionError: assert {'reference_c...igible'), ...} == {'reference_c...SMATCH'), ...}
+G-combinations-falsy: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_model_scope_at_g8_invocation: failure: tests/test_retained_precision_contract.py:1470: AssertionError | AssertionError: assert {'reference_c...SMATCH'), ...} == {'reference_c...SMATCH'), ...}
+G-components-falsy: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_model_scope_at_g8_invocation: failure: tests/test_retained_precision_contract.py:1470: AssertionError | AssertionError: assert {'reference_c...SMATCH'), ...} == {'reference_c...SMATCH'), ...}
+C2-off: killed, 3 of 20 tests fail; by assertion: yes
+  test_b1_d38_capture_before_any_run_beside_a_selected_case: failure: tests/test_retained_precision_contract.py:1097: AssertionError | AssertionError: assert {'m1 error ki...SMATCH'), ...} == {'m1 error ki...SMATCH'), ...}
+  test_b1_repair02_c2_cause_table_reader_logic: failure: tests/test_retained_precision_contract.py:1553: AssertionError | AssertionError: assert {'receipt_fai...d': 'ok', ...} == {'receipt_fai...SMATCH'), ...}
+  test_b1_repair02_c2_cause_table_in_the_reader: failure: tests/test_retained_precision_contract.py:1584: AssertionError | AssertionError: assert {'c2_receipt_...ompute'), ...} == {'c2_receipt_...SMATCH'), ...}
+C2-source-decline: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_c2_cause_table_reader_logic: failure: tests/test_retained_precision_contract.py:1553: AssertionError | assert {'receipt_fai...SMATCH'), ...} == {'receipt_fai...SMATCH'), ...}
+C2-receipt-phase: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_c2_cause_table_reader_logic: failure: tests/test_retained_precision_contract.py:1553: AssertionError | AssertionError: assert {'receipt_fai...SMATCH'), ...} == {'receipt_fai...SMATCH'), ...}
+C2-receipt-code: killed, 2 of 20 tests fail; by assertion: yes
+  test_b1_repair02_c2_cause_table_reader_logic: failure: tests/test_retained_precision_contract.py:1553: AssertionError | AssertionError: assert {'receipt_fai...SMATCH'), ...} == {'receipt_fai...SMATCH'), ...}
+  test_b1_repair02_c2_cause_table_in_the_reader: failure: tests/test_retained_precision_contract.py:1584: AssertionError | AssertionError: assert {'c2_receipt_...SMATCH'), ...} == {'c2_receipt_...SMATCH'), ...}
+C2-facade-run: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_c2_cause_table_reader_logic: failure: tests/test_retained_precision_contract.py:1553: AssertionError | AssertionError: assert {'receipt_fai...SMATCH'), ...} == {'receipt_fai...SMATCH'), ...}
+C2-facade-owner: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_c2_cause_table_reader_logic: failure: tests/test_retained_precision_contract.py:1553: AssertionError | assert {'receipt_fai...SMATCH'), ...} == {'receipt_fai...SMATCH'), ...}
+C2-precondition-set: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_c2_cause_table_reader_logic: failure: tests/test_retained_precision_contract.py:1553: AssertionError | AssertionError: assert {'receipt_fai...SMATCH'), ...} == {'receipt_fai...SMATCH'), ...}
+C2-precondition-run: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_c2_cause_table_reader_logic: failure: tests/test_retained_precision_contract.py:1553: AssertionError | AssertionError: assert {'receipt_fai...SMATCH'), ...} == {'receipt_fai...SMATCH'), ...}
+C2-kernel-code: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_c2_cause_table_reader_logic: failure: tests/test_retained_precision_contract.py:1553: AssertionError | AssertionError: assert {'receipt_fai...SMATCH'), ...} == {'receipt_fai...SMATCH'), ...}
+C2-kernel-cause: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair02_c2_cause_table_reader_logic: failure: tests/test_retained_precision_contract.py:1553: AssertionError | AssertionError: assert {'receipt_fai...SMATCH'), ...} == {'receipt_fai...SMATCH'), ...}
+Q17: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_g5_not_required_admits_a_w2_published_case: failure: tests/test_retained_precision_contract.py:1188: AssertionError | AssertionError: assert ('G5', 'RETAI...MPT_MISMATCH') == ('G5', 'RETAI...MPT_MISMATCH')
+D38-capture: killed, 2 of 20 tests fail; by assertion: yes
+  test_b1_d38_reader_logic_names_every_conjunct: failure: tests/test_retained_precision_contract.py:1125: AssertionError | AssertionError: 3
+  test_b1_d38_stage_rule_refuses_each_conjunct_held_elsewhere: failure: tests/test_retained_precision_contract.py:343: Failed | Failed: DID NOT RAISE RetainedPrecisionError
+D38-reason: killed, 2 of 20 tests fail; by assertion: yes
+  test_b1_d38_reader_logic_names_every_conjunct: failure: tests/test_retained_precision_contract.py:1125: AssertionError | AssertionError: 9
+  test_b1_d38_stage_rule_refuses_each_conjunct_held_elsewhere: failure: tests/test_retained_precision_contract.py:343: Failed | Failed: DID NOT RAISE RetainedPrecisionError
+D38-names-a: killed, 2 of 20 tests fail; by assertion: yes
+  test_b1_d38_reader_logic_names_every_conjunct: failure: tests/test_retained_precision_contract.py:1106: AssertionError | AssertionError: assert not True
+  test_b1_d38_stage_rule_refuses_each_conjunct_held_elsewhere: failure: tests/test_retained_precision_contract.py:343: Failed | Failed: DID NOT RAISE RetainedPrecisionError
+D38-case-status: killed, 2 of 20 tests fail; by assertion: yes
+  test_b1_d38_reader_logic_names_every_conjunct: failure: tests/test_retained_precision_contract.py:1125: AssertionError | AssertionError: 7
+  test_b1_d38_stage_rule_refuses_each_conjunct_held_elsewhere: failure: tests/test_retained_precision_contract.py:343: Failed | Failed: DID NOT RAISE RetainedPrecisionError
+D38-no-run-no-proof: killed, 2 of 20 tests fail; by assertion: yes
+  test_b1_d38_reader_logic_names_every_conjunct: failure: tests/test_retained_precision_contract.py:1125: AssertionError | AssertionError: 0
+  test_b1_d38_stage_rule_refuses_each_conjunct_held_elsewhere: failure: tests/test_retained_precision_contract.py:343: Failed | Failed: DID NOT RAISE RetainedPrecisionError
+R-c-count: killed, 1 of 20 tests fail; by assertion: yes
+  test_b1_repair01_g8_material_basis_of_every_case_and_exact_case_indices: failure: tests/test_retained_precision_contract.py:1352: AssertionError | AssertionError: assert ('G8', 'RETAI...ut of range')) == ('G8', 'RETAI...SMATCH', None)
+PRE (baseline, not a mutant): 7 of 468 tests fail on R01's reader
+  test_b1_d38_capture_before_any_run_beside_a_selected_case: failure: tests/test_retained_precision_contract.py:1097: AssertionError | AssertionError: assert {'m1 error ki...SMATCH'), ...} == {'m1 error ki...SMATCH'), ...}
+  test_b1_repair01_g8_material_basis_of_every_case_and_exact_case_indices: failure: tests/test_retained_precision_contract.py:1337: AssertionError | assert {'(b) not_req...SMATCH'), ...} == {'(b) not_req...SMATCH'), ...}
+  test_b1_repair01_g8_every_material_basis_has_its_materials_checked: failure: tests/test_retained_precision_contract.py:1385: AssertionError | AssertionError: assert ('G8', 'RETAI...ION_MISMATCH') == ('G5', 'RETAI...MPT_MISMATCH')
+  test_b1_repair02_receipt_references_at_g3_and_the_ordinary_basis_at_g5: failure: tests/test_retained_precision_contract.py:1437: AssertionError | assert {'material_ba...mpute')), ...} == {'material_ba...MATCH')), ...}
+  test_b1_repair02_model_scope_at_g8_invocation: failure: tests/test_retained_precision_contract.py:1470: AssertionError | AssertionError: assert {'reference_c...igible'), ...} == {'reference_c...SMATCH'), ...}
+  test_b1_repair02_c2_cause_table_reader_logic: failure: tests/test_retained_precision_contract.py:1525: AttributeError | AttributeError: module 'core.analysis_runs.retained_precision' has no attribute 'PRECONDITION_CODES'
+  test_b1_repair02_c2_cause_table_in_the_reader: failure: tests/test_retained_precision_contract.py:1584: AssertionError | AssertionError: assert {'c2_receipt_...ompute'), ...} == {'c2_receipt_...SMATCH'), ...}
+mutant kills not by an assertion: 0

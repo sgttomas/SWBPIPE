@@ -1,0 +1,10 @@
+merge-base(main, I2)=2007709549
+I2 eca6c00a72 vs merge-base:  12 files changed, 3327 insertions(+), 588 deletions(-)
+I2 vs I1:  11 files changed, 2872 insertions(+), 535 deletions(-)
+I2 vs main e33f3e2f1b (two-dot, product paths only):
+lib.rs retained_facade_tests.rs retained_memory.rs retained_memory_law_tests.rs retained_memory_witness_tests.rs retained_product.rs retained_product_tests.rs retained_receipt.rs grant2.rs retained_wire.rs retained_wire_tests.rs retained_precision_admission.rs 
+a6801b8a29: I90 paths added: 63
+next commit after a6801b8a29: a74aa63084 piping(T3): untrack I90's in-progress records swept into a6801b8a29; staging practice (records only)
+  I90 paths deleted there: 63
+I89 _run_records files at bc37d43a0a: 74
+files under I89/_run_records differing bc37d43a0a -> H: 65 (M/A/D:   19 A   46 M )

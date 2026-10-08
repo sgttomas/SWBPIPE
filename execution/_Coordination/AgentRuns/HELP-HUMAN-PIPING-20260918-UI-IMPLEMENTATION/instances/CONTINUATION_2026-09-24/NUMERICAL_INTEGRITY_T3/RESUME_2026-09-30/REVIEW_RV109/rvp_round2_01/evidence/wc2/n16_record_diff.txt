@@ -1,0 +1,51 @@
+N-16 at record level: each batch Run against the same case's one-case Run (head 603e238517, the reviewer's probe)
+abc sparse_interactive       case-a  batch position Case(0)  terminal/precision/records equal: True; record fields differing: none
+abc sparse_interactive       case-c  batch position Case(1)  terminal/precision/records equal: True; record fields differing: ['shared_built_here', 'verification_shared_built_here']
+      attempt 0: ['+ shared_built_here: true', '- shared_built_here: false']
+      attempt 1: ['+ shared_built_here: true', '+ verification_shared_built_here: true', '- shared_built_here: false', '- verification_shared_built_here: false']
+abc dense_scrutiny           case-a  batch position Case(0)  terminal/precision/records equal: True; record fields differing: none
+abc dense_scrutiny           case-c  batch position Case(1)  terminal/precision/records equal: True; record fields differing: ['shared_built_here', 'verification_shared_built_here']
+      attempt 0: ['+ shared_built_here: true', '- shared_built_here: false']
+      attempt 1: ['+ shared_built_here: true', '+ verification_shared_built_here: true', '- shared_built_here: false', '- verification_shared_built_here: false']
+cba sparse_interactive       case-c  batch position Case(0)  terminal/precision/records equal: True; record fields differing: none
+cba sparse_interactive       case-a  batch position Case(1)  terminal/precision/records equal: True; record fields differing: ['shared_built_here', 'verification_shared_built_here']
+      attempt 0: ['+ shared_built_here: true', '- shared_built_here: false']
+      attempt 1: ['+ shared_built_here: true', '+ verification_shared_built_here: true', '- shared_built_here: false', '- verification_shared_built_here: false']
+cba dense_scrutiny           case-c  batch position Case(0)  terminal/precision/records equal: True; record fields differing: none
+cba dense_scrutiny           case-a  batch position Case(1)  terminal/precision/records equal: True; record fields differing: ['shared_built_here', 'verification_shared_built_here']
+      attempt 0: ['+ shared_built_here: true', '- shared_built_here: false']
+      attempt 1: ['+ shared_built_here: true', '+ verification_shared_built_here: true', '- shared_built_here: false', '- verification_shared_built_here: false']
+bac sparse_interactive       case-a  batch position Case(0)  terminal/precision/records equal: True; record fields differing: none
+bac sparse_interactive       case-c  batch position Case(1)  terminal/precision/records equal: True; record fields differing: ['shared_built_here', 'verification_shared_built_here']
+      attempt 0: ['+ shared_built_here: true', '- shared_built_here: false']
+      attempt 1: ['+ shared_built_here: true', '+ verification_shared_built_here: true', '- shared_built_here: false', '- verification_shared_built_here: false']
+bac dense_scrutiny           case-a  batch position Case(0)  terminal/precision/records equal: True; record fields differing: none
+bac dense_scrutiny           case-c  batch position Case(1)  terminal/precision/records equal: True; record fields differing: ['shared_built_here', 'verification_shared_built_here']
+      attempt 0: ['+ shared_built_here: true', '- shared_built_here: false']
+      attempt 1: ['+ shared_built_here: true', '+ verification_shared_built_here: true', '- shared_built_here: false', '- verification_shared_built_here: false']
+bca sparse_interactive       case-c  batch position Case(0)  terminal/precision/records equal: True; record fields differing: none
+bca sparse_interactive       case-a  batch position Case(1)  terminal/precision/records equal: True; record fields differing: ['shared_built_here', 'verification_shared_built_here']
+      attempt 0: ['+ shared_built_here: true', '- shared_built_here: false']
+      attempt 1: ['+ shared_built_here: true', '+ verification_shared_built_here: true', '- shared_built_here: false', '- verification_shared_built_here: false']
+bca dense_scrutiny           case-c  batch position Case(0)  terminal/precision/records equal: True; record fields differing: none
+bca dense_scrutiny           case-a  batch position Case(1)  terminal/precision/records equal: True; record fields differing: ['shared_built_here', 'verification_shared_built_here']
+      attempt 0: ['+ shared_built_here: true', '- shared_built_here: false']
+      attempt 1: ['+ shared_built_here: true', '+ verification_shared_built_here: true', '- shared_built_here: false', '- verification_shared_built_here: false']
+ac sparse_interactive        case-a  batch position Case(0)  terminal/precision/records equal: True; record fields differing: none
+ac sparse_interactive        case-c  batch position Case(1)  terminal/precision/records equal: True; record fields differing: ['shared_built_here', 'verification_shared_built_here']
+      attempt 0: ['+ shared_built_here: true', '- shared_built_here: false']
+      attempt 1: ['+ shared_built_here: true', '+ verification_shared_built_here: true', '- shared_built_here: false', '- verification_shared_built_here: false']
+ac dense_scrutiny            case-a  batch position Case(0)  terminal/precision/records equal: True; record fields differing: none
+ac dense_scrutiny            case-c  batch position Case(1)  terminal/precision/records equal: True; record fields differing: ['shared_built_here', 'verification_shared_built_here']
+      attempt 0: ['+ shared_built_here: true', '- shared_built_here: false']
+      attempt 1: ['+ shared_built_here: true', '+ verification_shared_built_here: true', '- shared_built_here: false', '- verification_shared_built_here: false']
+ca sparse_interactive        case-c  batch position Case(0)  terminal/precision/records equal: True; record fields differing: none
+ca sparse_interactive        case-a  batch position Case(1)  terminal/precision/records equal: True; record fields differing: ['shared_built_here', 'verification_shared_built_here']
+      attempt 0: ['+ shared_built_here: true', '- shared_built_here: false']
+      attempt 1: ['+ shared_built_here: true', '+ verification_shared_built_here: true', '- shared_built_here: false', '- verification_shared_built_here: false']
+ca dense_scrutiny            case-c  batch position Case(0)  terminal/precision/records equal: True; record fields differing: none
+ca dense_scrutiny            case-a  batch position Case(1)  terminal/precision/records equal: True; record fields differing: ['shared_built_here', 'verification_shared_built_here']
+      attempt 0: ['+ shared_built_here: true', '- shared_built_here: false']
+      attempt 1: ['+ shared_built_here: true', '+ verification_shared_built_here: true', '- shared_built_here: false', '- verification_shared_built_here: false']
+ab sparse_interactive        case-a  batch position Case(0)  terminal/precision/records equal: True; record fields differing: none
+ab dense_scrutiny            case-a  batch position Case(0)  terminal/precision/records equal: True; record fields differing: none

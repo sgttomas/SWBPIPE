@@ -1,0 +1,98 @@
+{
+ "runs": {
+  "i1": {
+   "passed": 1903,
+   "failed": 19,
+   "skipped": 30
+  },
+  "head": {
+   "passed": 1918,
+   "failed": 19,
+   "skipped": 30
+  },
+  "i1+fix": {
+   "passed": 20
+  },
+  "head+fix": {
+   "passed": 20
+  }
+ },
+ "after_fix": {
+  "i1": {
+   "passed": 1922,
+   "skipped": 30
+  },
+  "head": {
+   "passed": 1937,
+   "skipped": 30
+  }
+ },
+ "superseded": {
+  "i1": 20,
+  "head": 20
+ },
+ "added": [
+  [
+   "tests.test_retained_precision_carriers::test_rv108_n1_base_header_refuses_a_non_string_enum_with_its_code[dense_scrutiny]",
+   "passed"
+  ],
+  [
+   "tests.test_retained_precision_carriers::test_rv108_n1_base_header_refuses_a_non_string_enum_with_its_code[sparse_interactive]",
+   "passed"
+  ],
+  [
+   "tests.test_retained_precision_carriers::test_rv108_n1_retained_reader_reports_the_base_header_code_at_g7[dense_scrutiny]",
+   "passed"
+  ],
+  [
+   "tests.test_retained_precision_carriers::test_rv108_n1_retained_reader_reports_the_base_header_code_at_g7[sparse_interactive]",
+   "passed"
+  ],
+  [
+   "tests.test_retained_precision_carriers::test_rv108_n1_stress_neutral_packager_validator_refuses_with_a_value_error[dense_scrutiny]",
+   "passed"
+  ],
+  [
+   "tests.test_retained_precision_carriers::test_rv108_n1_stress_neutral_packager_validator_refuses_with_a_value_error[sparse_interactive]",
+   "passed"
+  ],
+  [
+   "tests.test_retained_precision_contract::test_b1_d38_capture_before_any_run_beside_a_selected_case",
+   "passed"
+  ],
+  [
+   "tests.test_retained_precision_contract::test_b1_d38_reader_logic_names_every_conjunct",
+   "passed"
+  ],
+  [
+   "tests.test_retained_precision_contract::test_b1_g5_not_required_admits_a_w2_published_case",
+   "passed"
+  ],
+  [
+   "tests.test_retained_precision_contract::test_b1_g8_mode_row_and_requested_mode_for_every_case",
+   "passed"
+  ],
+  [
+   "tests.test_retained_precision_contract::test_b1_g8_parity_rows_p2_to_p4_for_every_case",
+   "passed"
+  ],
+  [
+   "tests.test_retained_precision_contract::test_b1_repair01_g8_every_material_basis_has_its_materials_checked",
+   "passed"
+  ],
+  [
+   "tests.test_retained_precision_contract::test_b1_repair01_g8_invocation_members_and_solver_mode",
+   "passed"
+  ],
+  [
+   "tests.test_retained_precision_contract::test_b1_repair01_g8_material_basis_of_every_case_and_exact_case_indices",
+   "passed"
+  ],
+  [
+   "tests.test_retained_precision_contract::test_b1_rv108_n2_a_missing_verdict_is_g5_attempt",
+   "passed"
+  ]
+ ],
+ "removed": [],
+ "changed": []
+}

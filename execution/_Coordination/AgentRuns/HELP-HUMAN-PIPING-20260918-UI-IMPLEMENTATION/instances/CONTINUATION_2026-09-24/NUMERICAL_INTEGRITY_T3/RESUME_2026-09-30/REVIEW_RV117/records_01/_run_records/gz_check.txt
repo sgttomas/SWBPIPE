@@ -1,0 +1,11 @@
+gzipped added files: 8
+file	gz_bytes	raw_bytes	lines	parses	home/tmp/private paths	email	token-shaped	cred words	host data	hostname attr	strict	owner name	WT placeholder
+_run_records/n1_differential/base.json.gz	55105	1526249	10312	yes	0	0	0	0	0	0	0	0	0
+_run_records/n1_differential/compare.txt.gz	9262	590199	6594	yes	0	0	0	0	0	0	0	0	0
+_run_records/n1_differential/head.json.gz	54484	1562945	10312	yes	0	0	0	0	0	0	0	0	0
+repair_01/suites/py_r01.xml.gz	26980	337821	1	yes	0	0	0	0	1	1	0	1	1
+repair_01/suites/py_r01b.xml.gz	26778	337809	1	yes	0	0	0	0	1	1	0	1	1
+_run_records/suites/py_base.xml.gz	26625	335517	1	yes	0	0	0	0	1	1	0	1	1
+_run_records/suites/py_head.xml.gz	26913	337340	1	yes	0	0	0	0	1	1	0	1	1
+_run_records/suites/py_head2.xml.gz	26662	337366	1	yes	0	0	0	0	1	1	0	1	1
+TOTAL lines 27223	home/tmp/private paths=0	email=0	token-shaped=0	cred words=0	host data=5	hostname attr=5	strict=0	owner name=5	WT placeholder=5

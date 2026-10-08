@@ -1,0 +1,333 @@
+# RV113 SR-PY jobs: queued/start/end stamps from each job's own log (every job under lockf -k WT/guard/cargo_job.lock)
+== census_head.log
+# queued 2026-10-07T19:33:52Z dir=rv113/py-head/projects/chirality-piping args: WT/scratch/rv113_rvr_01/tools/rv113_py_harness.py P@HEAD census WT/scratch/rv113_rvr_01/py/census/py_head.jsonl
+# start 2026-10-07T19:35:50Z
+# end 2026-10-07T19:36:23Z rc=0
+== census_i1.log
+# queued 2026-10-07T19:33:01Z dir=rv113/py-i1/projects/chirality-piping args: WT/scratch/rv113_rvr_01/tools/rv113_py_harness.py P@I1 census WT/scratch/rv113_rvr_01/py/census/py_i1.jsonl
+# start 2026-10-07T19:33:01Z
+# end 2026-10-07T19:33:35Z rc=0
+== fg_py_head.log
+# queued 2026-10-07T19:52:33Z dir=rv113/py-head/projects/chirality-piping args: WT/scratch/rv113_rvr_01/tools/rv113_py_harness.py P@HEAD probes WT/scratch/rv113_rvr_01/py/fg/probes_fg.json WT/scratch/rv113_rvr_01/py/fg/py_head_fg.jsonl
+# start 2026-10-07T20:06:23Z
+# end 2026-10-07T20:06:25Z rc=0
+== fg_py_i1.log
+# queued 2026-10-07T19:46:31Z dir=rv113/py-i1/projects/chirality-piping args: WT/scratch/rv113_rvr_01/tools/rv113_py_harness.py P@I1 probes WT/scratch/rv113_rvr_01/py/fg/probes_fg.json WT/scratch/rv113_rvr_01/py/fg/py_i1_fg.jsonl
+# start 2026-10-07T19:52:31Z
+# end 2026-10-07T19:52:33Z rc=0
+== probes_head.log
+# queued 2026-10-07T19:36:23Z dir=rv113/py-head/projects/chirality-piping args: WT/scratch/rv113_rvr_01/tools/rv113_py_harness.py P@HEAD probes WT/scratch/rv113_rvr_01/ts/probes/probes_v5.json WT/scratch/rv113_rvr_01/py/probes/py_head_v5.jsonl
+# start 2026-10-07T19:38:05Z
+# end 2026-10-07T19:38:18Z rc=0
+== probes_i1.log
+# queued 2026-10-07T19:33:35Z dir=rv113/py-i1/projects/chirality-piping args: WT/scratch/rv113_rvr_01/tools/rv113_py_harness.py P@I1 probes WT/scratch/rv113_rvr_01/ts/probes/probes_v5.json WT/scratch/rv113_rvr_01/py/probes/py_i1_v5.jsonl
+# start 2026-10-07T19:33:38Z
+# end 2026-10-07T19:33:52Z rc=0
+== rp_py_head.log
+# queued 2026-10-07T20:12:31Z dir=rv113/py-head/projects/chirality-piping args: WT/scratch/rv113_rvr_01/tools/rv113_py_harness.py P@HEAD probes WT/scratch/rv113_rvr_01/py/rp/probes_rp.json WT/scratch/rv113_rvr_01/py/rp/py_head_rp.jsonl
+# start 2026-10-07T20:13:04Z
+# end 2026-10-07T20:13:06Z rc=0
+== rp_py_i1.log
+# queued 2026-10-07T20:12:23Z dir=rv113/py-i1/projects/chirality-piping args: WT/scratch/rv113_rvr_01/tools/rv113_py_harness.py P@I1 probes WT/scratch/rv113_rvr_01/py/rp/probes_rp.json WT/scratch/rv113_rvr_01/py/rp/py_i1_rp.jsonl
+# start 2026-10-07T20:12:28Z
+# end 2026-10-07T20:12:31Z rc=0
+== scdiff_head.log
+# queued 2026-10-07T19:35:50Z dir=rv113/py-head/projects/chirality-piping args: WT/scratch/rv113_rvr_01/tools/rv113_source_contract_diff.py P@HEAD WT/scratch/rv113_rvr_01/py/diff/sc_head.jsonl
+# start 2026-10-07T19:36:50Z
+# end 2026-10-07T19:38:05Z rc=0
+== scdiff_i1.log
+# queued 2026-10-07T19:33:42Z dir=rv113/py-i1/projects/chirality-piping args: WT/scratch/rv113_rvr_01/tools/rv113_source_contract_diff.py P@I1 WT/scratch/rv113_rvr_01/py/diff/sc_i1.jsonl
+# start 2026-10-07T19:34:36Z
+# end 2026-10-07T19:35:50Z rc=0
+== suite_head.log
+# queued 2026-10-07T19:51:55Z dir=rv113/py-head/projects/chirality-piping args: -m pytest -p no:cacheprovider --basetemp=WT/scratch/rv113_rvr_01/py/tmp/suite_head/basetemp -q -rs -rf -v --junitxml=WT/scratch/rv113_rvr_01/py/logs/suite_head.xml tests/test_adapter_framework_contract.py tests/test_analysis_run_schema.py tests/test_analysis_run_records.py tests/test_analysis_status_schema.py tests/test_analysis_run_compatibility.py tests/test_comparison_contracts.py tests/test_handoff_package_schema.py tests/test_handoff_export_workflow.py tests/test_load_reference_headless_artifacts.py tests/test_invented_example_models.py tests/test_load_reference_schema.py tests/test_load_reference_source_schema.py tests/test_persistence_schema.py tests/test_physics_consumer_contract.py tests/test_preview_physics_consumer_contract.py tests/test_precision_consumer_contract.py tests/test_project_persistence_service.py tests/test_result_export_v0_2.py tests/test_stress_neutral_physics_source.py tests/test_results_schema.py tests/test_source_block_schema_contract.py tests/test_stress_neutral_precision.py tests/test_stress_neutral_export_package.py tests/test_retained_precision_contract.py tests/test_retained_precision_schema.py tests/test_retained_precision_carriers.py tests/test_results_dispatcher_v0_3.py
+# start 2026-10-07T19:52:33Z
+# end 2026-10-07T20:06:19Z rc=1
+== suite_head_handoff.log
+# queued 2026-10-07T20:09:14Z dir=rv113/py-head/projects/chirality-piping args: -m pytest -p no:cacheprovider --basetemp=WT/scratch/rv113_rvr_01/py/tmp/suite_head_handoff/basetemp -q -rs -rf -v --junitxml=WT/scratch/rv113_rvr_01/py/logs/suite_head_handoff.xml tests/test_handoff_package_schema.py tests/test_handoff_export_workflow.py
+# start 2026-10-07T20:09:49Z
+# end 2026-10-07T20:09:49Z rc=0
+== suite_i1.log
+# queued 2026-10-07T19:38:35Z dir=rv113/py-i1/projects/chirality-piping args: -m pytest -p no:cacheprovider --basetemp=WT/scratch/rv113_rvr_01/py/tmp/suite_i1/basetemp -q -rs -rf -v --junitxml=WT/scratch/rv113_rvr_01/py/logs/suite_i1.xml tests/test_adapter_framework_contract.py tests/test_analysis_run_schema.py tests/test_analysis_run_records.py tests/test_analysis_status_schema.py tests/test_analysis_run_compatibility.py tests/test_comparison_contracts.py tests/test_handoff_package_schema.py tests/test_handoff_export_workflow.py tests/test_load_reference_headless_artifacts.py tests/test_invented_example_models.py tests/test_load_reference_schema.py tests/test_load_reference_source_schema.py tests/test_persistence_schema.py tests/test_physics_consumer_contract.py tests/test_preview_physics_consumer_contract.py tests/test_precision_consumer_contract.py tests/test_project_persistence_service.py tests/test_result_export_v0_2.py tests/test_stress_neutral_physics_source.py tests/test_results_schema.py tests/test_source_block_schema_contract.py tests/test_stress_neutral_precision.py tests/test_stress_neutral_export_package.py tests/test_retained_precision_contract.py tests/test_retained_precision_schema.py tests/test_retained_precision_carriers.py tests/test_results_dispatcher_v0_3.py
+# start 2026-10-07T19:38:35Z
+# end 2026-10-07T19:51:55Z rc=1
+== suite_i1_handoff.log
+# queued 2026-10-07T20:06:28Z dir=rv113/py-i1/projects/chirality-piping args: -m pytest -p no:cacheprovider --basetemp=WT/scratch/rv113_rvr_01/py/tmp/suite_i1_handoff/basetemp -q -rs -rf -v --junitxml=WT/scratch/rv113_rvr_01/py/logs/suite_i1_handoff.xml tests/test_handoff_package_schema.py tests/test_handoff_export_workflow.py
+# start 2026-10-07T20:09:13Z
+# end 2026-10-07T20:09:14Z rc=0
+== fg_rs.log
+# start 2026-10-07T20:06:25Z dir=rv113/fg-rs/projects/chirality-piping/core/reporting/result_export target=targets/rv113-fgrs args: test --locked --offline --test rv113_census -- rv113_probes --exact
+# end 2026-10-07T20:09:13Z rc=0
+== rp_rs.log
+# start 2026-10-07T20:13:06Z dir=rv113/fg-rs/projects/chirality-piping/core/reporting/result_export target=targets/rv113-fgrs args: test --locked --offline --test rv113_census -- rv113_probes --exact
+# end 2026-10-07T20:13:39Z rc=0
+== fg_ts.log
+# queued 2026-10-07T20:09:13Z dir=rv113/fg-ts/projects/chirality-piping/apps/desktop tool=vitest args: run src/features/results/rv113Census.test.ts
+# start 2026-10-07T20:09:47Z
+# end 2026-10-07T20:09:49Z rc=0
+== rp_ts.log
+# queued 2026-10-07T20:13:39Z dir=rv113/fg-ts/projects/chirality-piping/apps/desktop tool=vitest args: run src/features/results/rv113Census.test.ts
+# start 2026-10-07T20:14:10Z
+# end 2026-10-07T20:14:12Z rc=0
+== mutant b1 NONE
+# queued 2026-10-07T19:52:47Z NONE b1
+# start 2026-10-07T20:06:25Z RV113_MUT=unset
+pytest rc=0
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:06:55Z
+== mutant b1 Q01
+# queued 2026-10-07T20:06:55Z Q01 b1
+# start 2026-10-07T20:09:14Z RV113_MUT=Q01
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:09:46Z
+== mutant b1 Q02
+# queued 2026-10-07T20:09:46Z Q02 b1
+# start 2026-10-07T20:09:49Z RV113_MUT=Q02
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:10:20Z
+== mutant b1 Q03
+# queued 2026-10-07T20:10:20Z Q03 b1
+# start 2026-10-07T20:10:21Z RV113_MUT=Q03
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:10:52Z
+== mutant b1 Q04
+# queued 2026-10-07T20:10:52Z Q04 b1
+# start 2026-10-07T20:10:53Z RV113_MUT=Q04
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:11:24Z
+== mutant b1 Q05
+# queued 2026-10-07T20:11:24Z Q05 b1
+# start 2026-10-07T20:11:25Z RV113_MUT=Q05
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:11:56Z
+== mutant b1 Q06
+# queued 2026-10-07T20:11:56Z Q06 b1
+# start 2026-10-07T20:11:57Z RV113_MUT=Q06
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:12:27Z
+== mutant b1 Q07
+# queued 2026-10-07T20:12:27Z Q07 b1
+# start 2026-10-07T20:12:31Z RV113_MUT=Q07
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:13:02Z
+== mutant b1 Q08
+# queued 2026-10-07T20:13:02Z Q08 b1
+# start 2026-10-07T20:13:06Z RV113_MUT=Q08
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:13:35Z
+== mutant b1 Q09
+# queued 2026-10-07T20:13:35Z Q09 b1
+# start 2026-10-07T20:13:39Z RV113_MUT=Q09
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:14:09Z
+== mutant b1 Q10
+# queued 2026-10-07T20:14:09Z Q10 b1
+# start 2026-10-07T20:14:12Z RV113_MUT=Q10
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:14:43Z
+== mutant b1 Q11
+# queued 2026-10-07T20:14:43Z Q11 b1
+# start 2026-10-07T20:14:44Z RV113_MUT=Q11
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:15:14Z
+== mutant b1 Q12
+# queued 2026-10-07T20:15:14Z Q12 b1
+# start 2026-10-07T20:15:15Z RV113_MUT=Q12
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:15:46Z
+== mutant b1 Q13
+# queued 2026-10-07T20:15:46Z Q13 b1
+# start 2026-10-07T20:15:47Z RV113_MUT=Q13
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:16:18Z
+== mutant b1 Q14
+# queued 2026-10-07T20:16:18Z Q14 b1
+# start 2026-10-07T20:16:19Z RV113_MUT=Q14
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:16:49Z
+== mutant b1 Q15
+# queued 2026-10-07T20:16:49Z Q15 b1
+# start 2026-10-07T20:16:50Z RV113_MUT=Q15
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:17:20Z
+== mutant b1 Q16
+# queued 2026-10-07T20:17:20Z Q16 b1
+# start 2026-10-07T20:17:21Z RV113_MUT=Q16
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:17:50Z
+== mutant b1 Q17
+# queued 2026-10-07T20:17:50Z Q17 b1
+# start 2026-10-07T20:17:52Z RV113_MUT=Q17
+pytest rc=0
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:18:22Z
+== mutant b1 Q18
+# queued 2026-10-07T20:18:22Z Q18 b1
+# start 2026-10-07T20:18:23Z RV113_MUT=Q18
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:18:53Z
+== mutant b1 Q19
+# queued 2026-10-07T20:18:53Z Q19 b1
+# start 2026-10-07T20:18:54Z RV113_MUT=Q19
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:19:23Z
+== mutant b1 Q20
+# queued 2026-10-07T20:19:23Z Q20 b1
+# start 2026-10-07T20:19:24Z RV113_MUT=Q20
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:19:54Z
+== mutant b1 Q21
+# queued 2026-10-07T20:19:54Z Q21 b1
+# start 2026-10-07T20:19:55Z RV113_MUT=Q21
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:20:25Z
+== mutant b1 Q22
+# queued 2026-10-07T20:20:25Z Q22 b1
+# start 2026-10-07T20:20:26Z RV113_MUT=Q22
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:20:56Z
+== mutant b1 Q23
+# queued 2026-10-07T20:20:56Z Q23 b1
+# start 2026-10-07T20:20:57Z RV113_MUT=Q23
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:21:28Z
+== mutant b1 Q24
+# queued 2026-10-07T20:21:28Z Q24 b1
+# start 2026-10-07T20:21:29Z RV113_MUT=Q24
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:22:00Z
+== mutant b1 Q25
+# queued 2026-10-07T20:22:00Z Q25 b1
+# start 2026-10-07T20:22:01Z RV113_MUT=Q25
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:22:31Z
+== mutant b1 Q26
+# queued 2026-10-07T20:22:31Z Q26 b1
+# start 2026-10-07T20:22:32Z RV113_MUT=Q26
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:23:04Z
+== mutant b1 Q27
+# queued 2026-10-07T20:23:04Z Q27 b1
+# start 2026-10-07T20:23:05Z RV113_MUT=Q27
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:23:37Z
+== mutant b1 Q28
+# queued 2026-10-07T20:23:37Z Q28 b1
+# start 2026-10-07T20:23:38Z RV113_MUT=Q28
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:24:10Z
+== mutant b1 Q29
+# queued 2026-10-07T20:24:10Z Q29 b1
+# start 2026-10-07T20:24:11Z RV113_MUT=Q29
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:24:42Z
+== mutant b1 Q30
+# queued 2026-10-07T20:24:42Z Q30 b1
+# start 2026-10-07T20:24:44Z RV113_MUT=Q30
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:25:14Z
+== mutant b1 Q31
+# queued 2026-10-07T20:25:14Z Q31 b1
+# start 2026-10-07T20:25:24Z RV113_MUT=Q31
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:25:51Z
+== mutant b1 Q32
+# queued 2026-10-07T20:25:51Z Q32 b1
+# start 2026-10-07T20:25:54Z RV113_MUT=Q32
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:26:24Z
+== mutant b1 Q33
+# queued 2026-10-07T20:26:24Z Q33 b1
+# start 2026-10-07T20:26:25Z RV113_MUT=Q33
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:26:53Z
+== mutant b1 Q34
+# queued 2026-10-07T20:26:53Z Q34 b1
+# start 2026-10-07T20:26:53Z RV113_MUT=Q34
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:27:21Z
+== mutant b1 Q35
+# queued 2026-10-07T20:27:21Z Q35 b1
+# start 2026-10-07T20:27:31Z RV113_MUT=Q35
+pytest rc=1
+probes v5 rc=0
+probes fg rc=0
+# end 2026-10-07T20:28:01Z
+== mutant full NONE
+# queued 2026-10-07T20:28:25Z NONE full
+# start 2026-10-07T20:28:31Z RV113_MUT=unset
+pytest rc=0
+# end 2026-10-07T20:30:58Z
+== mutant full Q17
+# queued 2026-10-07T20:30:58Z Q17 full
+# start 2026-10-07T20:31:02Z RV113_MUT=Q17
+pytest rc=0
+# end 2026-10-07T20:33:32Z

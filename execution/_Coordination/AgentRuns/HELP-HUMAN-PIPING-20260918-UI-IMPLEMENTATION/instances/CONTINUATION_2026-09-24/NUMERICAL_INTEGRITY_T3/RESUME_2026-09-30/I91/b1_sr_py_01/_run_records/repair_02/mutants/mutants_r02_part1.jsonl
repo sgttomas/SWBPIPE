@@ -1,0 +1,2 @@
+{"id": "N0", "mutant": "no mutation (head)", "file": null, "rc": 0, "tests": 468, "failed": [], "outcome": "passes"}
+{"id": "F-mb-index", "mutant": "G3: a material basis's index unchecked (the new check)", "file": "core/analysis_runs/retained_precision.py", "rc": 1, "tests": 20, "failed": ["test_b1_repair02_receipt_references_at_g3_and_the_ordinary_basis_at_g5"], "outcome": "killed"}

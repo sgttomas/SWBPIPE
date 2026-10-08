@@ -1,0 +1,7768 @@
+{
+ "census": {
+  "entries": 339,
+  "verdicts": 1017,
+  "changes_against_11cc14e3e6": [],
+  "misses_against_corpus": []
+ },
+ "probes": {
+  "v5": {
+   "count": 103,
+   "tally": {
+    "('bound', 'changed')": 5,
+    "('bound', 'eq_rs')": 96,
+    "('bound', 'eq_ts')": 103,
+    "('bound', 'ne_rs')": 7,
+    "('bound', 'same')": 98,
+    "('transport', 'eq_rs')": 93,
+    "('transport', 'eq_ts')": 93,
+    "('transport', 'ne_rs')": 10,
+    "('transport', 'ne_ts')": 10,
+    "('transport', 'same')": 103,
+    "('unbound', 'changed')": 5,
+    "('unbound', 'eq_rs')": 96,
+    "('unbound', 'eq_ts')": 103,
+    "('unbound', 'ne_rs')": 7,
+    "('unbound', 'same')": 98
+   },
+   "rows": [
+    {
+     "id": "d38_base",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "m1_error_kind_native",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "m2_native_completed",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "m3_run_ref_without_run",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "m4_execution_order_lists_case",
+     "bound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "rs": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "rs": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "m5_proof_start_completed",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "m6_attempt_source_null",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "m7_call_source_refs_lists_source",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "m7_group0_lists_source",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "m7_own_group_kept",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "m7_call_position_without_run",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "m8_case_source_other",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "m8_case_source_null",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_builds_of_removed_run_kept",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_charged_not_recomputed",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_call_after_not_recomputed",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_case_run_kept",
+     "bound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "rs": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "rs": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_cause_capture_accounting",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_WORK_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_cause_native_unavailable",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_preparation_failed",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_test_hook_shape_no_source",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_cause_names_attempt0",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_reason_code_kernel_unresolved",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_reason_phase_kernel",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_reason_cause_receipt_failure",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_proof_kept",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_observables_g5a_entered",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_values_entered",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_result_ready",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_attempt_source_of_case0",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_selected_diagnostic_kept",
+     "bound": {
+      "py_r02": [
+       "G4",
+       "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G4",
+       "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+      ],
+      "rs": [
+       "G4",
+       "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+      ],
+      "ts": [
+       "G4",
+       "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G4",
+       "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G4",
+       "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+      ],
+      "rs": [
+       "G4",
+       "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+      ],
+      "ts": [
+       "G4",
+       "RETAINED_PRECISION_DIAGNOSTIC_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_recovery_method_kept",
+     "bound": {
+      "py_r02": [
+       "G6",
+       "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G6",
+       "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+      ],
+      "rs": [
+       "G6",
+       "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+      ],
+      "ts": [
+       "G6",
+       "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G6",
+       "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G6",
+       "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+      ],
+      "rs": [
+       "G6",
+       "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+      ],
+      "ts": [
+       "G6",
+       "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "x_native_not_entered_no_run",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "f38_base",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "m7_call_position0_names_source1",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "a4_native_failed_with_refused_run",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "a4_capture_with_refused_run",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "a4_reason_as_4b",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g8_unavailable_mode_code_2_in_sparse",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g8_unavailable_mode_code_3",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g8_unavailable_mode_row_duplicated",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g8_unavailable_mode_row_removed",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g8_unavailable_parity_in_sparse_P3",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g8_unavailable_parity_with_method_G6_first",
+     "bound": {
+      "py_r02": [
+       "G6",
+       "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G6",
+       "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+      ],
+      "rs": [
+       "G6",
+       "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+      ],
+      "ts": [
+       "G6",
+       "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G6",
+       "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G6",
+       "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+      ],
+      "rs": [
+       "G6",
+       "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+      ],
+      "ts": [
+       "G6",
+       "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g8_unavailable_requested_mode_flipped",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g8_selected_mode_code_2_in_sparse",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g8_d38_case_mode_code_3",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g8_d38_case_parity_in_sparse_P3",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "dz_no_parity_b0_admitted",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "dz_parity_case0_only",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "dz_parity_both",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "dz_parity_twice_case1_P2",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "dz_parity_case1_w2_published_P4",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "dz_parity_case0_w2_published_P4",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "dz_no_parity_case1_w2_published",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "dz_parity_case1_w2_failed",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "fz_unavailable_one_parity_b0",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "fz_unavailable_two_parity_P2",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "fz_unavailable_parity_w2_published_P4",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "fz_unavailable_no_parity",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "limit_l0_dense_parity_deleted",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "limit_l0_dense_parity_deleted_indices_unshifted",
+     "bound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "rs": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "rs": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "limit_dense_synthetic_parity_deleted",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "limit_l0_sparse_mode_row_deleted_P1",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nr_must_pass",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nr_w2_published_evaluation",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nr_w2_published_formation",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nr_w2_failed_checks_passed",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nr_structural_failure_not_triggered",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nr_report_outcome_sensitive",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nr_initial_not_attempted",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nr_verdict_sensitive",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nr_w2_published_verdict_sensitive",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nr_verdict_not_assessed",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nr_report_with_w2_published",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nr_product_attempt_ref_with_attempt",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nr_product_attempt_ref_dangling",
+     "bound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "rs": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "rs": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nz_w2_published_no_parity",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nz_w2_published_parity_P4",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nz_report_parity_b0",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "nz_report_no_parity_b0",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "orphan_source_beside_t7",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "c2_receipt_ok",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "c2_receipt_phase_kernel",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "c2_receipt_code_facade",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "c2_receipt_phase_preparation",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "c2_facade_ok",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "c2_facade_phase_kernel",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "n4_null_first",
+     "bound": {
+      "py_r02": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "rs": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "ts": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "rs": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "ts": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "n4_null_appended",
+     "bound": {
+      "py_r02": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "rs": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "ts": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "rs": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "ts": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "n4_number_first",
+     "bound": {
+      "py_r02": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "rs": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "ts": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "rs": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "ts": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "n4_string_first",
+     "bound": {
+      "py_r02": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "rs": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "ts": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "rs": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "ts": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "n4_array_first",
+     "bound": {
+      "py_r02": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "rs": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "ts": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "rs": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ],
+      "ts": [
+       "G1",
+       "RETAINED_PRECISION_RECEIPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "n6_structural_status_list",
+     "bound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G2",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "n6_structural_status_dict",
+     "bound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G2",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "n6_model_matrix_fidelity_list",
+     "bound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G2",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "n6_model_matrix_fidelity_dict",
+     "bound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G2",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "n6_accuracy_evidence_list",
+     "bound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G2",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "n6_accuracy_evidence_dict",
+     "bound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "rs": [
+       "G2",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "n6_status_list",
+     "bound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "rs": [
+       "G2",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "n6_status_dict",
+     "bound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "rs": [
+       "G2",
+       "SOURCE_NUMERICAL_QUALITY_INVALID"
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "n6_carrier_evidence_with_case_defect",
+     "bound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "G7",
+       "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"
+      ],
+      "rs": [
+       "G2",
+       "SOURCE_NUMERICAL_CASE_INVALID"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+      ]
+     }
+    },
+    {
+     "id": "n6_contract_evidence_null_and_source_block_recovery",
+     "bound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G7",
+       "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
+      ],
+      "rs": [
+       "G7",
+       "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "G7",
+       "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
+      ],
+      "py_11cc14e3e6": [
+       "G7",
+       "SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED"
+      ],
+      "rs": [
+       "G2",
+       "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+      ],
+      "ts": [
+       "G7",
+       "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"
+      ]
+     }
+    }
+   ]
+  },
+  "fg": {
+   "count": 15,
+   "tally": {
+    "('bound', 'changed')": 12,
+    "('bound', 'eq_rs')": 5,
+    "('bound', 'eq_ts')": 10,
+    "('bound', 'ne_rs')": 10,
+    "('bound', 'ne_ts')": 5,
+    "('bound', 'same')": 3,
+    "('transport', 'eq_rs')": 15,
+    "('transport', 'eq_ts')": 15,
+    "('transport', 'same')": 15,
+    "('unbound', 'changed')": 7,
+    "('unbound', 'eq_rs')": 8,
+    "('unbound', 'eq_ts')": 15,
+    "('unbound', 'ne_rs')": 7,
+    "('unbound', 'same')": 8
+   },
+   "rows": [
+    {
+     "id": "f_mb_index_1",
+     "bound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "f_mb_index_swapped",
+     "bound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "f_src_index_1",
+     "bound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "f_src_index_swapped",
+     "bound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "f_mb_case_indices_duplicate",
+     "bound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "f_mb_case_indices_out_of_range",
+     "bound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "f_src_owner_case_id_other",
+     "bound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "ts": [
+       "G3",
+       "RETAINED_PRECISION_COVERAGE_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g_reference_configurations_null",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g_reference_configurations_empty",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g_pressure_contract_null",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g_pressure_contract_empty_object",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g_pressure_contract_false",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g_combinations_null",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g_combinations_object",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "g_components_string",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    }
+   ]
+  },
+  "rp": {
+   "count": 17,
+   "tally": {
+    "('bound', 'changed')": 3,
+    "('bound', 'eq_rs')": 14,
+    "('bound', 'eq_ts')": 17,
+    "('bound', 'ne_rs')": 3,
+    "('bound', 'same')": 14,
+    "('transport', 'eq_rs')": 17,
+    "('transport', 'eq_ts')": 17,
+    "('transport', 'same')": 17,
+    "('unbound', 'changed')": 3,
+    "('unbound', 'eq_rs')": 14,
+    "('unbound', 'eq_ts')": 17,
+    "('unbound', 'ne_rs')": 3,
+    "('unbound', 'same')": 14
+   },
+   "rows": [
+    {
+     "id": "r_control_07j",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "r_b_basis_ref_7",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "r_b_basis_ref_1_second_basis",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "r_c_basis_omits_case_1",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "r_c_cases_out_of_order",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "r_c_extra_empty_basis",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "r_d1_extra_member",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "r_d2_mode_unknown",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "r_d2_mode_list",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "r_d2_mode_removed",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "r_d2_mode_null",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_INVOCATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "r_e_control_named_basis",
+     "bound": {
+      "py_r02": [
+       "admitted",
+       true
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       true
+      ],
+      "rs": [
+       "admitted",
+       true
+      ],
+      "ts": [
+       "admitted",
+       true
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "r_e_elastic_modulus_wrong",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "r_e_selection_base",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "r_e_material_id_other",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "r_e_no_material",
+     "bound": {
+      "py_r02": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    },
+    {
+     "id": "r_c_missing_sourceless_basis",
+     "bound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "rs": [
+       "G8",
+       "RETAINED_PRECISION_PREPARATION_MISMATCH"
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "unbound": {
+      "py_r02": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "G5",
+       "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+      ]
+     },
+     "transport": {
+      "py_r02": [
+       "admitted",
+       false
+      ],
+      "py_11cc14e3e6": [
+       "admitted",
+       false
+      ],
+      "rs": [
+       "admitted",
+       false
+      ],
+      "ts": [
+       "admitted",
+       false
+      ]
+     }
+    }
+   ]
+  }
+ }
+}

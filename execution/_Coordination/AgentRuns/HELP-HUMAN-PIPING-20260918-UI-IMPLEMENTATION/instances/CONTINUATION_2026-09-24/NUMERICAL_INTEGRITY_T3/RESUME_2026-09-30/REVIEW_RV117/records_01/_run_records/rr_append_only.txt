@@ -1,0 +1,37 @@
+main RR bytes 1212894 sha256 a18317173140cac9 lines 14240
+head RR bytes 1282756 sha256 f20fddef4fa0ca21 lines 14962
+main is exact byte prefix of head: True
+head == NUM 0b8299e496: True
+appended bytes 69862 lines 722
+appended sections 30
+   ## RV110 confirms #1108's delta; #1108 squash-merged (ROOT, 2026-10-07 UTC)
+   ## R3′: SP's first part verified; c = 1 through the n-case path; no serializer split; RV109 reads early (ROOT, 2026-10-07 UTC)
+   ## I89's SA verified and ruled; the parked-slot patch goes on `b1-a`; the seam saturates; RV-Q round 1 dispatched as RV112 (ROOT, 2026-10-07 UTC)
+   ## SR-PY prepared; the N1 guard in `_source_contract` ruled in (ROOT, 2026-10-07 UTC)
+   ## I89's follow-up verified; SA's records redacted in place; SR-PY dispatched as I91 (ROOT, 2026-10-07 UTC)
+   ## I90's SR-RS verified; RV-R round 1 dispatched as RV113; SR-TS dispatched as I92 (ROOT, 2026-10-07 UTC)
+   ## RV113 passes SR-RS with S-1; an SR-RS repair round queued; test binaries run under the lock (ROOT, 2026-10-07 UTC)
+   ## RV109's early read of SP: R3P-1 must land before I2; the notes folded into SP (ROOT, 2026-10-07 UTC)
+   ## I92's SR-TS verified; RV113 reviews it; SR-RS's repair round starts in I92's slot (ROOT, 2026-10-07 UTC)
+   ## I91's SR-PY verified; the Build check accepted; PY's four false accepts repaired before RV-R (ROOT, 2026-10-07 UTC)
+   ## RV112 passes SA; G-B's byte bound corrected at SQ; I2 opens (ROOT, 2026-10-07 UTC)
+   ## I2: SA merged into `b1` at `eca6c00a72` (ROOT, 2026-10-07 UTC)
+   ## I91's SR-PY repair verified; (e) kept; (f) and (g) to RV-R; SR-PY goes to RV113 (ROOT, 2026-10-07 UTC)
+   ## B2/B3's plan dispatched as I93 while B1 implements (ROOT, 2026-10-07 UTC)
+   ## RV111 passes SI1c; I88's repair round dispatched (ROOT, 2026-10-07 UTC)
+   ## I93's B2/B3 plan returned; RV114 reviews it before ROOT rules (ROOT, 2026-10-07 UTC)
+   ## B2/B3 R1: I93's plan accepted with RV114's amendments; I93 writes REVISION_01; the owner informed (ROOT, 2026-10-07 UTC)
+   ## I93's REVISION_01 accepted; phase 0 opens with B2-KD (I94) (ROOT, 2026-10-07 UTC)
+   ## SP returned before I3; the headline rule accepted; RV-P round 2 dispatched (ROOT, 2026-10-07 UTC)
+   ## I94's B2-KD design returned; RV115 (RV-K) reviews it before ROOT rules (ROOT, 2026-10-07 UTC)
+   ## I95's B3-S: the exact route fits at 10.5 GiB; per-route pricing ruled; decision 26 answered (ROOT, 2026-10-07 UTC)
+   ## RV115 (RV-K) accepts B2-KD with amendments; R-1 to R-11 ruled (ROOT, 2026-10-07 UTC)
+   ## I96's B3-D design returned; RV116 (RV-D) reviews it; RV115 checks K3-2 (ROOT, 2026-10-07 UTC)
+   ## RV115's addendum accepts B3-K (K3-1, K3-2); the kernel items of B3-D ruled (ROOT, 2026-10-07 UTC)
+   ## RV116 (RV-D) accepts B3-D with amendments; B3-D ruled; I96 revises the draft statics (ROOT, 2026-10-07 UTC)
+   ## I96's B3-D revision 01 verified; RV116 confirms it (ROOT, 2026-10-07 UTC)
+   ## I88's SI1c repair round 1 verified; RV111 confirms it (ROOT, 2026-10-07 UTC)
+   ## RV116 confirms B3-D's revision 01; B3-D is final for J1 (ROOT, 2026-10-07 UTC)
+   ## NUM absorbs main with #1109's RV58 fixture repair; run records carry no machine-local symlinks (ROOT, 2026-10-07 UTC)
+   ## RV111 confirms SI1c's repair round; SI1c merges into NUM; its PR is prepared (ROOT, 2026-10-07 UTC)
+first appended line number: 14241

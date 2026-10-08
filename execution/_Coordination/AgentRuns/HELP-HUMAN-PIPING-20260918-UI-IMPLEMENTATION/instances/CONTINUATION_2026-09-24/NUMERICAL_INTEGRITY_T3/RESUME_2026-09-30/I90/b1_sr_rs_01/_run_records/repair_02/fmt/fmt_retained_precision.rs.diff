@@ -1,0 +1,473 @@
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:276:
+             _ => None,
+         };
+         if let Some(x) = integer {
+-            *v = if x < 0.0 { json!(x as i64) } else { json!(x as u64) };
++            *v = if x < 0.0 {
++                json!(x as i64)
++            } else {
++                json!(x as u64)
++            };
+         }
+     }
+     if !floats(&source["retained_precision"]) {
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1052:
+                     // ran: no report and no verification-pass work.
+                     // D21: a verification shared build is also pass evidence; natively
+                     // it is obtained only inside verify_precision (adaptive.rs `verify_precision`).
+-                    if record["outcome"]["kind"] == "failed" && escalating(&record["outcome"]["reason"]) {
++                    if record["outcome"]["kind"] == "failed"
++                        && escalating(&record["outcome"]["reason"])
++                    {
+                         af(record["verification"].is_null()
+                             && u(&record["work"]["verification_lme"]) == 0
+                             && record["verification_shared_build_ref"].is_null())?;
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1180:
+                     wf(u(v) == shared_stages.get(k.as_str()).copied().unwrap_or(0))?;
+                 }
+                 amounts.push((
+-                    tw(sum([own, u(&w["shared_lme"]), u(&w["verification_shared_lme"])])),
+                     tw(sum([
+                         own,
++                        u(&w["shared_lme"]),
++                        u(&w["verification_shared_lme"]),
++                    ])),
++                    tw(sum([
++                        own,
+                         if w["shared_built_here"] == true {
+                             u(&w["shared_lme"])
+                         } else {
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1308:
+                     } else {
+                         af((index == ci && cr["role"] == "candidate")
+                             || Some(index) == verification)?;
+-                        charges.push(
+-                            amounts[index as usize]
+-                                .0
+-                                .checked_sub(stop)
+-                                .unwrap_or_else(|| {
+-                                    work_ok.set(false);
+-                                    0
+-                                }),
+-                        );
+-                        debits.push(
+-                            amounts[index as usize]
+-                                .1
+-                                .checked_sub(stop)
+-                                .unwrap_or_else(|| {
+-                                    work_ok.set(false);
+-                                    0
+-                                }),
+-                        );
++                        charges.push(amounts[index as usize].0.checked_sub(stop).unwrap_or_else(
++                            || {
++                                work_ok.set(false);
++                                0
++                            },
++                        ));
++                        debits.push(amounts[index as usize].1.checked_sub(stop).unwrap_or_else(
++                            || {
++                                work_ok.set(false);
++                                0
++                            },
++                        ));
+                     }
+                 }
+                 wf(tw(sum(charges)) == u(&a["case_charge"])
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1431:
+             .collect();
+         let mut order: Vec<(Value, Vec<Value>)> = Vec::new();
+         let mut of_run = Vec::new();
+-        for (ri, si) in list(&call["run_refs"]).iter().zip(list(&call["source_refs"])) {
++        for (ri, si) in list(&call["run_refs"])
++            .iter()
++            .zip(list(&call["source_refs"]))
++        {
+             let (_, _, run) = runs
+                 .get(u(ri) as usize)
+                 .copied()
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1451:
+             of_run.push((run, gi));
+         }
+         af(call_groups.len() == order.len()
+-            && call_groups
+-                .iter()
+-                .zip(&order)
+-                .all(|(g, (k, m))| g["stiffness_sha256"] == *k && list(&g["source_refs"]) == m.as_slice()))?;
++            && call_groups.iter().zip(&order).all(|(g, (k, m))| {
++                g["stiffness_sha256"] == *k && list(&g["source_refs"]) == m.as_slice()
++            }))?;
+         for (run, gi) in of_run {
+             let g = call_groups[gi];
+             af(run["origin"]["group"] == g["id"])?;
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1493:
+     }
+ }
+ fn escalating(reason: &Value) -> bool {
+-    stop_of(reason).is_some_and(|s| matches!(text(&s["tag"]), "pivot" | "condition" | "residual_gate"))
++    stop_of(reason)
++        .is_some_and(|s| matches!(text(&s["tag"]), "pivot" | "condition" | "residual_gate"))
+ }
+ /// Checklist N1-N10 schedule replay of the native ladder (FK/adaptive.rs:
+ /// 4519-4766): candidates at the 128/256/512 slots; an escalating candidate
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1525:
+             && !terminal["reason"].is_null())?;
+         if let Some(b) = body {
+             if r["origin"]["group"].is_null() {
+-                af(u(&r["invocation_before"]) >= u(&b["work"]["invocation_limit"])
+-                    && *terminal
+-                        == json!({"kind":"unresolved","reason":{"space":"unresolved","tag":"budget","scope":"invocation"}}))?;
++                af(
++                    u(&r["invocation_before"]) >= u(&b["work"]["invocation_limit"])
++                        && *terminal
++                            == json!({"kind":"unresolved","reason":{"space":"unresolved","tag":"budget","scope":"invocation"}}),
++                )?;
+             } else {
+-                let g = at(&b["groups"], &r["origin"]["group"], "G5", "ATTEMPT_MISMATCH")?;
++                let g = at(
++                    &b["groups"],
++                    &r["origin"]["group"],
++                    "G5",
++                    "ATTEMPT_MISMATCH",
++                )?;
+                 if g["preparation"]["kind"] == "ready" {
+-                    af(terminal["kind"] == "refused" && terminal["reason"]["tag"] == "ledger_unavailable")?;
++                    af(terminal["kind"] == "refused"
++                        && terminal["reason"]["tag"] == "ledger_unavailable")?;
+                 }
+             }
+         }
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1585:
+                     && vr["outcome"]["kind"] == "failed"
+                     && v["reason"] == vr["outcome"]["reason"]
+                     && kind == "rejected"
+-                    && a["outcome"]["reason"] == json!({"space":"attempt","tag":"verification_failed"}))?;
++                    && a["outcome"]["reason"]
++                        == json!({"space":"attempt","tag":"verification_failed"}))?;
+             } else {
+                 af(v["phase"] == "completed" && v["reason"].is_null())?;
+                 if vr["role"] == "verification" {
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1592:
+-                    af(vr["outcome"]["kind"] == if kind == "accepted" { "verified" } else { "solved" })?;
++                    af(vr["outcome"]["kind"]
++                        == if kind == "accepted" {
++                            "verified"
++                        } else {
++                            "solved"
++                        })?;
+                 } else {
+                     af(vr["role"] == "verification_then_candidate" && kind == "rejected")?;
+                 }
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1609:
+                     escalated = true;
+                 } else {
+                     ended = true;
+-                    end_stop = stop_of(&a["outcome"]["reason"]).cloned().unwrap_or(Value::Null);
++                    end_stop = stop_of(&a["outcome"]["reason"])
++                        .cloned()
++                        .unwrap_or(Value::Null);
+                 }
+             }
+             _ if v["phase"] == "failed" => {
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1631:
+             }
+             _ => {
+                 ended = true;
+-                end_stop = stop_of(&a["outcome"]["reason"]).cloned().unwrap_or(Value::Null);
++                end_stop = stop_of(&a["outcome"]["reason"])
++                    .cloned()
++                    .unwrap_or(Value::Null);
+             }
+         }
+     }
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1668:
+         "negative_energy" => Some(
+             json!({"kind":"refused","reason":{"space":"refusal","tag":"negative_energy","i":stop["i"],"j":stop["j"]}}),
+         ),
+-        "structure" => Some(json!({"kind":"refused","reason":{"space":"refusal","tag":"structure"}})),
++        "structure" => {
++            Some(json!({"kind":"refused","reason":{"space":"refusal","tag":"structure"}}))
++        }
+         "count_range" => unresolved("count_range", &["name"]),
+         "work_accounting" => unresolved("work_accounting", &["fault"]),
+         "budget" => unresolved("budget", &["scope"]),
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1793:
+     let owner = if (p(0), p(1)) == (Some("preparation"), Some("members")) {
+         index(2).map(|i| &a["preparation"]["members"][i]["work"])
+     } else if (p(0), p(1), p(2)) == (Some("result"), Some("error"), Some("section")) {
+-        list(&a["preparation"]["members"]).last().map(|m| &m["work"])
++        list(&a["preparation"]["members"])
++            .last()
++            .map(|m| &m["work"])
+     } else if (p(0), p(1)) == (Some("proof"), Some("lanes")) {
+         index(2).map(|i| &proof["lanes"][i]["work"])
+     } else if (p(0), p(1), p(2)) == (Some("result"), Some("error"), Some("cause"))
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1835:
+             g5a_roots.push(cause);
+         }
+     }
+-    for check in a["proof"]["checks"].as_object().into_iter().flat_map(|c| c.values()) {
++    for check in a["proof"]["checks"]
++        .as_object()
++        .into_iter()
++        .flat_map(|c| c.values())
++    {
+         if check["kind"] == "failed" && check["error"]["kind"] == "g5a" {
+             g5a_roots.push(&check["error"]["cause"]);
+         }
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1844:
+         let mut inner = Vec::new();
+         located(root, &mut Vec::new(), &mut inner);
+         for (_, x) in inner {
+-            if x.get("kind").is_some_and(|k| k == "operational" || k == "arithmetic") {
++            if x.get("kind")
++                .is_some_and(|k| k == "operational" || k == "arithmetic")
++            {
+                 if let Some(cause) = x.get("cause").filter(|c| c.is_object()) {
+                     out.push(cause);
+                 }
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1868:
+     let mut objs = Vec::new();
+     located(a, &mut Vec::new(), &mut objs);
+     let r1 = a["adapter"]["fault"].is_null()
+-        && !objs
+-            .iter()
+-            .any(|(_, o)| o.get("kind").is_some_and(|k| k == "accounting") && o.contains_key("event"));
+-    let r2 = !objs.iter().any(|(_, o)| o.get("lost") == Some(&Value::Bool(true)))
++        && !objs.iter().any(|(_, o)| {
++            o.get("kind").is_some_and(|k| k == "accounting") && o.contains_key("event")
++        });
++    let r2 = !objs
++        .iter()
++        .any(|(_, o)| o.get("lost") == Some(&Value::Bool(true)))
+         && !operational_errors(a)
+             .iter()
+             .any(|e| e["kind"] == "accounting" && e.get("event").is_none());
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:1878:
+     let r3 = objs.iter().all(|(path, o)| {
+-        let spelled = (o.get("kind").is_some_and(|k| k == "work_accounting" || k == "work")
++        let spelled = (o
++            .get("kind")
++            .is_some_and(|k| k == "work_accounting" || k == "work")
+             || o.get("tag").is_some_and(|t| t == "work_accounting"))
+             && o.contains_key("fault");
+         !spelled
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:2427:
+                 || (certified && is("observables", "not_entered") && is("g5a", "not_entered"))
+                 || all_completed
+         }
+-        "proof" => matches!(first_failed, Some("proof_start" | "projection" | "certificate")),
++        "proof" => matches!(
++            first_failed,
++            Some("proof_start" | "projection" | "certificate")
++        ),
+         "abandoned" => {
+             matches!(first_failed, Some("maxima" | "aliases"))
+                 || (first_failed.is_none()
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:2814:
+             ("force", "support_force_magnitude"),
+             ("moment", "support_moment_magnitude"),
+         ] {
+-            add(json!({"tag":tag,"support":g["id"]}), kind, u(&g["node"]), false)?;
++            add(
++                json!({"tag":tag,"support":g["id"]}),
++                kind,
++                u(&g["node"]),
++                false,
++            )?;
+         }
+     }
+     Ok(Value::Array(layout))
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:2870:
+     // order when the case was opened).
+     fail(source["layout"] == canonical_layout(source)?)?;
+     let coverage = list(coverage);
+-    fail(
+-        coverage.len() == nb
+-            && coverage
+-                .iter()
+-                .map(|e| u(&e["body"]))
+-                .eq(0..nb as u64),
+-    )?;
++    fail(coverage.len() == nb && coverage.iter().map(|e| u(&e["body"])).eq(0..nb as u64))?;
+     let resolution = match sel {
+         Some(s) => &s["resolution_scale"],
+         None => &verification["resolution"],
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:2903:
+             }
+         }
+         let l = extents[bi];
+-        let e = [
+-            f(&resolution[bi]["force"]),
+-            f(&resolution[bi]["moment"]),
+-        ];
++        let e = [f(&resolution[bi]["force"]), f(&resolution[bi]["moment"])];
+         let floor = match sel {
+             Some(s) if !s["floor"].is_null() => [
+                 f(&s["floor"][bi]["force"]) > 0.0,
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:2941:
+         let estimate = [present[2] && hats[0], present[3] && hats[1]];
+         // Native p512: every force/moment row is non-input-derived, so the
+         // charge flags equal the force/moment stop flags; otherwise estimate.
+-        let charge = if p == 512 { [stop[2], stop[3]] } else { estimate };
++        let charge = if p == 512 {
++            [stop[2], stop[3]]
++        } else {
++            estimate
++        };
+         for k in 0..4 {
+             if stop[k] {
+                 want_stop.push((bi as u64, k));
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:4231:
+         // (a T1 (a)-omitted disclosure is absent from the published envelope).
+         let exact: Vec<&Value> = ds
+             .iter()
+-            .filter(|d| list(&d["affected_refs"]).contains(cid) && !text(&d["code"]).starts_with("RETAINED_PRECISION_"))
++            .filter(|d| {
++                list(&d["affected_refs"]).contains(cid)
++                    && !text(&d["code"]).starts_with("RETAINED_PRECISION_")
++            })
+             .map(|d| &d["id"])
+             .collect();
+         fail(list(&o["diagnostic_refs"]).iter().collect::<Vec<_>>() == exact)?;
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:4259:
+         // not_required (T-4). PY `_g5_ordinary` and TS `ordinaryAttempts`
+         // apply the same rule.
+         if c["status"] == "not_required" {
+-            fail(c["product_attempt_ref"].is_null() && quality["solve_quality"] == "checks_passed")?;
++            fail(
++                c["product_attempt_ref"].is_null() && quality["solve_quality"] == "checks_passed",
++            )?;
+         }
+         // The report-outcome equality is kept; its W2 guard is equivalent
+         // under D6c, since W2 runs only after a failed ordinary attempt.
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:4757:
+     let normalized = integral_receipt(source);
+     let source: &Value = &normalized;
+     let projected = project(source, false)?;
+-    crate::semantic_contract::for_source_metadata(&projected)
+-        .map_err(|code| ValidationError {
+-            gate: "G2",
+-            code,
+-            detail: None,
+-        })?;
++    crate::semantic_contract::for_source_metadata(&projected).map_err(|code| ValidationError {
++        gate: "G2",
++        code,
++        detail: None,
++    })?;
+     // B1's alignment set, item 4: the header check stays at G2; the preview-physics
+     // transport metadata check runs at G7, as PY and TS run it.
+     preview_physics_transport_metadata(&projected).map_err(base_error)?;
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:4782:
+ mod u6e_reader_round_tests {
+     use super::*;
+     fn corpus() -> Value {
+-        serde_json::from_str(include_str!("../../../../fixtures/results/retained_precision_cases.json")).unwrap()
++        serde_json::from_str(include_str!(
++            "../../../../fixtures/results/retained_precision_cases.json"
++        ))
++        .unwrap()
+     }
+ 
+     #[test]
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:4789:
+     fn d37_error_stages_matches_the_corpus_table_rv79_n1() {
+         let table = corpus()["d37"].clone();
+-        let order: Vec<String> = table["stage_order"].as_array().unwrap().iter().map(|s| s.as_str().unwrap().to_owned()).collect();
++        let order: Vec<String> = table["stage_order"]
++            .as_array()
++            .unwrap()
++            .iter()
++            .map(|s| s.as_str().unwrap().to_owned())
++            .collect();
+         let pipeline: Vec<&str> = STAGE8.to_vec();
+         assert_eq!(order[..8], pipeline[..], "the pipeline order");
+         assert_eq!(order[8..], ["observables".to_owned(), "g5a".to_owned()]);
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:4795:
+-        let records: Vec<String> = table["records"].as_array().unwrap().iter().map(|r| r.as_str().unwrap().to_owned()).collect();
++        let records: Vec<String> = table["records"]
++            .as_array()
++            .unwrap()
++            .iter()
++            .map(|r| r.as_str().unwrap().to_owned())
++            .collect();
+         assert_eq!(records.len(), 25);
+         let stages = |r: &str| -> Value {
+-            Value::Object(order.iter().zip(r.chars()).map(|(k, m)| (k.clone(), table["marks"][m.to_string().as_str()].clone())).collect())
++            Value::Object(
++                order
++                    .iter()
++                    .zip(r.chars())
++                    .map(|(k, m)| (k.clone(), table["marks"][m.to_string().as_str()].clone()))
++                    .collect(),
++            )
+         };
+-        let mut kinds: Vec<String> = table["kinds"].as_object().unwrap().keys().cloned().collect();
+-        kinds.extend(table["unknown_kinds"].as_array().unwrap().iter().map(|k| k.as_str().unwrap().to_owned()));
++        let mut kinds: Vec<String> = table["kinds"]
++            .as_object()
++            .unwrap()
++            .keys()
++            .cloned()
++            .collect();
++        kinds.extend(
++            table["unknown_kinds"]
++                .as_array()
++                .unwrap()
++                .iter()
++                .map(|k| k.as_str().unwrap().to_owned()),
++        );
+         let mut misses = Vec::new();
+         for kind in &kinds {
+-            let allowed = table["kinds"].get(kind.as_str()).and_then(Value::as_array).cloned().unwrap_or_default();
++            let allowed = table["kinds"]
++                .get(kind.as_str())
++                .and_then(Value::as_array)
++                .cloned()
++                .unwrap_or_default();
+             for r in &records {
+                 let attempt = json!({"stages": stages(r), "result": {"kind": "unavailable", "error": {"kind": kind}}});
+                 if error_stages(&attempt) != allowed.contains(&json!(r)) {
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:4816:
+     fn rv80_n2_integral_receipt_touches_only_the_receipt() {
+         let shared = corpus();
+         let mut source = shared["cases"][0]["source"].clone();
+-        let charged = source["retained_precision"]["body"]["work"]["charged"].as_u64().unwrap();
++        let charged = source["retained_precision"]["body"]["work"]["charged"]
++            .as_u64()
++            .unwrap();
+         source["retained_precision"]["body"]["work"]["charged"] = json!(charged as f64);
+         source["results"][1]["value"] = json!(17.0);
+         source["diagnostics"][0]["probe"] = json!(3.0);
+Diff in WT/b1-r/projects/chirality-piping/core/reporting/result_export/src/retained_precision.rs:4823:
+         let normalized = integral_receipt(&source);
+-        assert!(matches!(normalized, std::borrow::Cow::Owned(_)), "the receipt's integral float is normalized");
++        assert!(
++            matches!(normalized, std::borrow::Cow::Owned(_)),
++            "the receipt's integral float is normalized"
++        );
+         assert!(normalized["retained_precision"]["body"]["work"]["charged"].is_u64());
+-        assert_eq!(normalized["retained_precision"]["body"]["work"]["charged"], json!(charged));
++        assert_eq!(
++            normalized["retained_precision"]["body"]["work"]["charged"],
++            json!(charged)
++        );
+         for (key, value) in source.as_object().unwrap() {
+             if key != "retained_precision" {
+-                assert_eq!(serde_json::to_string(&normalized[key.as_str()]).unwrap(), serde_json::to_string(value).unwrap(), "{key} is byte-identical");
++                assert_eq!(
++                    serde_json::to_string(&normalized[key.as_str()]).unwrap(),
++                    serde_json::to_string(value).unwrap(),
++                    "{key} is byte-identical"
++                );
+             }
+         }
+-        assert!(normalized["results"][1]["value"].is_f64(), "a row's 17.0 stays 17.0");
++        assert!(
++            normalized["results"][1]["value"].is_f64(),
++            "a row's 17.0 stays 17.0"
++        );
+     }
+ }
+ 

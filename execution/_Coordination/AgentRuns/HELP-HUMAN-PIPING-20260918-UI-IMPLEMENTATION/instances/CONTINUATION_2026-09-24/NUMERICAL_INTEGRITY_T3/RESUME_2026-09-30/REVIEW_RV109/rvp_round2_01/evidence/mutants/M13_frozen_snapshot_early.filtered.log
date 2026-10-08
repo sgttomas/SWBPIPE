@@ -1,0 +1,28 @@
+RV109_JOB name=r2_mut_M13_frozen_snapshot_early dir=WT/rv109/mut/projects/chirality-piping/core/product_physics target=rv109-r2-mut stale=0 args=test --locked --offline --no-fail-fast --lib start=2026-10-07T21:47:17Z
+test retained_facade_tests::b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping ... FAILED
+test retained_facade_tests::u3_permitted_path_publishes_the_pinned_successor ... FAILED
+test retained_facade_tests::u3g2_d_u6_5_carrier_fixtures_are_the_live_successors ... FAILED
+test retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor ... FAILED
+test retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors ... FAILED
+test retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor ... FAILED
+test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+thread 'retained_facade_tests::b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping' (96893831) panicked at src/retained_facade_tests.rs:1650:9:
+thread 'retained_facade_tests::u3_permitted_path_publishes_the_pinned_successor' (96894468) panicked at src/retained_facade_tests.rs:89:9:
+assertion `left == right` failed: sparse_interactive: U1's pinned successor bytes
+  left: ("a08516ccf12a80560a94b1831d3a69eb787d6e5c8882bc21067c23b0544bcdc9", Some("6b3f1ccff0de46a055936c817c5c89f8888cc884e64104fae5f06a380c331773"))
+ right: ("ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc", Some("efc1a39bbe83840df6bd0761c932b8020285d3b8c005ba8fd0b45ba10d667494"))
+thread 'retained_facade_tests::u3g2_d_u6_5_carrier_fixtures_are_the_live_successors' (96894604) panicked at src/retained_facade_tests.rs:844:9:
+thread 'retained_facade_tests::u3g2_direct_entry_publishes_the_pinned_successor' (96894630) panicked at src/retained_facade_tests.rs:611:9:
+assertion `left == right` failed: sparse_interactive: U1's pinned successor bytes
+  left: ("a08516ccf12a80560a94b1831d3a69eb787d6e5c8882bc21067c23b0544bcdc9", Some("6b3f1ccff0de46a055936c817c5c89f8888cc884e64104fae5f06a380c331773"))
+ right: ("ac6986b0680e0df9d88c33a5bf4635372fc3b83cbb9080da44e6d32dbdca59dc", Some("efc1a39bbe83840df6bd0761c932b8020285d3b8c005ba8fd0b45ba10d667494"))
+thread 'retained_facade_tests::u8_d_u6_5_l0_fixtures_are_the_live_successors' (96894661) panicked at src/retained_facade_tests.rs:1107:9:
+thread 'retained_facade_tests::u8_l0_isolated_node_publishes_pinned_successor' (96894677) panicked at src/retained_facade_tests.rs:1074:9:
+assertion `left == right` failed: sparse_interactive: the pinned L = 0 successor
+  left: ("77f1efa86bd1ea55f598fbc67f2179efd1adf32cb90f42d8909e4021d8357a04", Some("69c53b32ec40a242cbe682b0c03d93cdc099a3d76c2ee4e780c6080d32f52b75"), "6860efa887f53a2fe0eacec5b8065dc84cee71a2ea3aebeeabdcea75aff86c99")
+ right: ("93c6c86548b9d263cba9d9869010043d23ed1c9f2f304dd9f82eb705eb350876", Some("c00cbe76954e5188c63b0ef69738cd40a8db15d303b1113a86524e6c3119dd72"), "9b425066029969b992278306a678303717400a5f16636d3427c5b9b8150ac83a")
+thread 's11g_tests::t13_committed_fallback_uz_is_byte_identical' (96896456) panicked at src/s11g_tests.rs:1666:9:
+test result: FAILED. 566 passed; 7 failed; 11 ignored; 0 measured; 0 filtered out; finished in 64.16s
+error: test failed, to rerun pass `--lib`
+error: 1 target failed:
+RV109_JOB_END name=r2_mut_M13_frozen_snapshot_early rc=101 end=2026-10-07T21:48:24Z

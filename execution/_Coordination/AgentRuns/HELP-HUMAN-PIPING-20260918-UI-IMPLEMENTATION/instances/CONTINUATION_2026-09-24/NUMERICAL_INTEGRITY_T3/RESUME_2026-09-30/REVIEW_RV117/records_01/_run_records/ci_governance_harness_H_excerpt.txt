@@ -1,0 +1,8 @@
+harness	Run actions/checkout@v4	2026-10-07T22:30:25.4387338Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules --filter=blob:none origin +refs/heads/*:refs/remotes/orig
+harness	Run actions/checkout@v4	2026-10-07T22:30:28.4160442Z ##[group]Checking out the ref
+harness	Run actions/checkout@v4	2026-10-07T22:30:28.4161193Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/1111/merge
+harness	Run actions/checkout@v4	2026-10-07T22:30:57.7492080Z Note: switching to 'refs/remotes/pull/1111/merge'.
+harness	Run actions/checkout@v4	2026-10-07T22:30:57.7500040Z HEAD is now at 2931f9176 Merge 18a20d329fc09335f013131766d7f74dbfa7f675 into e33f3e2f1b0a0271da3ef4db8521b3981257b5ce
+harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-07T22:31:25.9591178Z   CHIRALITY_REQUIRE_LIVE_TESTS: 1
+harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-07T22:31:27.3748674Z     "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI
+harness	Tools test suite and self-check (routed on PRs; full on main pushes)	2026-10-07T22:33:00.9744385Z 1161 passed, 48 subtests passed in 93.13s (0:01:33)

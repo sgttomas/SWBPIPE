@@ -1,0 +1,92 @@
+PR head 2881cb1969f0aa7b670b9185c453699b5f5b80d7 over b8bc059e356e240e0d5bda9f18d6c22f4bf12332; package from NUM 73e8087df7
+
+M	T/IMPLEMENTATION/SI1C/CHANGE_RECORD.md
+M	T/IMPLEMENTATION/SI1C/PR_BODY.md
+M	T/IMPLEMENTATION/SI1C/SHA256SUMS
+M	T/IMPLEMENTATION/SI1C/citations.json
+
+CHANGE_RECORD.md PR=dc1cba7aa9942e641135d0f126443dff84b9fb51 NUM73e8087df7=dc1cba7aa9942e641135d0f126443dff84b9fb51
+PR_BODY.md PR=897d7248a9f4d482d832ca2b862e5fd757a374b1 NUM73e8087df7=897d7248a9f4d482d832ca2b862e5fd757a374b1
+SHA256SUMS PR=0d7ea1c1f558be6186566302d1743bd28565d30a NUM73e8087df7=0d7ea1c1f558be6186566302d1743bd28565d30a
+citations.json PR=6569c900c6223291b5b62cb544b27060e0566fd6 NUM73e8087df7=6569c900c6223291b5b62cb544b27060e0566fd6
+
+diff --git a/T/IMPLEMENTATION/SI1C/CHANGE_RECORD.md b/T/IMPLEMENTATION/SI1C/CHANGE_RECORD.md
+index 58a277782f..dc1cba7aa9 100644
+--- a/T/IMPLEMENTATION/SI1C/CHANGE_RECORD.md
++++ b/T/IMPLEMENTATION/SI1C/CHANGE_RECORD.md
+@@ -10,8 +10,8 @@ Five maintained files under `projects/chirality-piping/`. Their maintained diff
+|---|---|---|
+| `core/rules/expression_evaluator/src/lib.rs` | +823 / −139: the finiteness check at every arithmetic and interpolation producer (`finite_result`, `interpolate_point`); doc comments; 7 new tests, 4 renamed and 1 split in two (57 → 65) | `bfa5878cb140c15f` |
+| `core/rules/expression_evaluator/README.md` | +9 / −2: the evaluation-order and finiteness lines | `08499c9664830d7d` |
+| `core/rules/rule_check_runner/src/lib.rs` | +87 / −4: N-4. A non-finite caller value[-or limit-] is named and never [-bound-]{+bound; a non-finite limit is named+} | `c4ed16f9db4483ea` |
+| `core/rules/rule_check_runner/tests/point_path_non_finite_run.rs` | +534 / −11: 9 new runner tests, [-1 revised,-]{+and+} 1 renamed {+with its expectation revised (2 → 11)+} | `4ad39fd8e99ac8b2` |
+| `tests/test_rule_interval.py` | +23 / −5: the Python point-path oracle aligned to the same rule | `6bcd6508d8006fd7` |
+
+## 2. What it does
+@@ -26,17 +26,17 @@ Five maintained files under `projects/chirality-piping/`. Their maintained diff
+  - each of interpolation's six floating steps.
+
+  The same-dimension ratio arm keeps SI1b's block. So no point-path result rests on a non-finite intermediate.
+- **N-4, in `rule_check_runner`** (RV104's N-4, I87's variant N4-1). The runner tests a caller-supplied value and a value-slot limit before and after unit normalization. A non-finite [-one-]{+input+} is named with one blocking `NonFiniteInput`, never bound, and noted. If the input already carries a note, N-4's note follows it after "; ". {+A non-finite limit is named with one blocking `NonFiniteInput` whose subject is the slot. This applies in point and bounded runs alike.+} No status, diagnostic or relation changes.
+- **N-5, comments only:** the `Logical` and `Select` evaluation-order wording, and the README.
+- **The Python oracle** (`point_value`'s float branch) blocks on the same non-finite steps. Every assertion is unchanged.
+
+## 3. What it does not do
+
+- **No byte changes for other inputs.** Every input with no non-finite intermediate and no [-N-4-]{+non-finite caller+} value {+or limit (N-4)+} gives byte-identical results, in the evaluator and in `run_rule_checks`.
+- [-**Interval mode-]{+**The interval evaluator+} is unchanged, byte for [-byte:** `evaluate_interval` and-]{+byte** (`evaluate_interval`).+} `run_rule_checks_with_bounds` with b > [-0.-]{+0 is byte-identical except where N-4 applies, as in point runs.+}
+- **No new finding code, and no schema, dependency, lock, src-tauri or desktop change.**
+- **Outside the F2a D1 milestone's build closure** (the rules crates; `R/I61/u8_plan_01/PLAN.md` §3), so there is no Pass B.
+- **A test comment's "I87 §2.4"** means `R/I87/si1c_plan_01/PLAN.md` §2.4, the plan's [-consumer-row-]{+comparison truth+} table. `check_citations.py` does not parse that form, and the path resolves on NUM. Record names elsewhere in comments (I79's reproducers, RV104's probe 29, RV111's input) are evidence labels, not document citations.
+
+## 4. Review
+
+@@ -46,7 +46,7 @@ Five maintained files under `projects/chirality-piping/`. Their maintained diff
+  - all six pass conditions hold, with 0 violations.
+- **RV111 reviewed it independently,** with its own generator, an instrumented base, and a Python transcription:
+  - all 88,155 evaluator lines where main computed a non-finite intermediate now block at their producer (46,902 had been decided booleans and 21,868 finite quantities);
+  - everything else is byte-identical: 56,252 evaluator lines, 60,174 runner lines, and all 433,221 interval [-lines;-]{+evaluation lines. The bounded runner lines differ only where an N-4 value is present;+}
+  - N-4 holds on 35,304 runner lines, with no status change;
+  - **Verdict:** PASS, 0 BLOCKING, 1 SHOULD-FIX, 3 NOTE.
+- **The repair round** (I88 REPAIR_01, with ROOT's rulings 2 and 3):
+@@ -54,7 +54,7 @@ Five maintained files under `projects/chirality-piping/`. Their maintained diff
+  - the N-4 note is appended to an existing note, with a pin for each kind;
+  - a test is split, and test names now say what they pin (N-2).
+
+  RV111 confirmed the round, with {+its own mutants and harness and+} no residual finding (ADDENDUM_01). [-It used its own mutants:-]{+Its mutants are killed by assertions. Its harness found that+} every changed runner line differs only by an appended note, and {+that the+} interval [-mode is-]{+evaluation lines are+} identical to [-main.-]{+main's.+}
+- **Mutants:** I88 ran 57 at the head, and 40 were killed. The 17 survivors are equivalent: reasoned, and with 0 of 808,318 differential lines differing. RV111 confirmed I88's equivalences, and its own note mutants (replace, prepend, separator, existing-only) and SF-1's N06 and N09 are killed by assertions.
+
+## 5. Gates
+diff --git a/T/IMPLEMENTATION/SI1C/PR_BODY.md b/T/IMPLEMENTATION/SI1C/PR_BODY.md
+index 14dc85e55b..897d7248a9 100644
+--- a/T/IMPLEMENTATION/SI1C/PR_BODY.md
++++ b/T/IMPLEMENTATION/SI1C/PR_BODY.md
+@@ -1,17 +1,17 @@
+**piping(T3 SI1c): point-path rule evaluation blocks at an overflowing or NaN intermediate instead of deciding on it**
+
+On the ordinary point path, a rule formula whose arithmetic overflowed or produced NaN could still decide a pass or a fail. For example, `NaN ≠ 100` and `inf ≥ 100` read as decided. Interval mode reads the same formulas as indeterminate. This PR makes the point path block, with the existing `NonFiniteInput` finding, at the operation whose result is not finite. This is the owner's decision (option D, a repair within grammar 1.0.0). {+It also names a non-finite caller value or limit in the runner (N-4).+} Every other input gives byte-identical results.
+
+## What changes
+
+- **`expression_evaluator`:** every arithmetic and interpolation producer checks that its result is finite. If it is not, the producer blocks with `NonFiniteInput` and a message naming the operation. The producers are add and subtract, multiply, divide, and each interpolation step. SI1b's ratio block is kept.
+- **`rule_check_runner`:** a caller-supplied value[-or a value-slot limit-] that is NaN or infinite, before or after unit normalization, is named with one blocking `NonFiniteInput`, never bound, and noted. An existing note keeps its place, and the N-4 note follows it. {+A non-finite value-slot limit is named with the slot as the finding's subject. This applies in point and bounded runs alike.+} No status changes.
+- **Comments and the README** state the `Logical` and `Select` evaluation order. The Python point-path oracle in `tests/test_rule_interval.py` follows the same rule.
+
+## What stays the same
+
+- **Every input with no non-finite intermediate {+and no non-finite caller value or limit+} gives byte-identical results,** in the evaluator and in `run_rule_checks`. Two independent differentials checked this, over about 370,000 point-path evaluator lines and 400,000 runner lines in all.
+- [-**Interval mode-]{+**The interval evaluator+} is unchanged:** all 433,221 interval {+evaluation+} lines in the independent differential are identical. {+Bounded rule checks change only where N-4 applies.+}
+- **No new finding code, and no grammar version, conformance-corpus, schema, dependency or lock change.**
+- **The rules crates are outside the F2a D1 milestone's build,** so the registered identity is untouched.
+
+diff --git a/T/IMPLEMENTATION/SI1C/citations.json b/T/IMPLEMENTATION/SI1C/citations.json
+index ffb609b3af..6569c900c6 100644
+--- a/T/IMPLEMENTATION/SI1C/citations.json
++++ b/T/IMPLEMENTATION/SI1C/citations.json
+@@ -1,6 +1,6 @@
+{
+  "schema": "u9-citation-index-v1",
+  "about": "Resolves every record and design-document citation that T3-SI1c's PR adds to maintained source (the 5 files of main..SI1c). SI1c adds no citation in a form this checker parses. One test comment cites \"I87 §2.4\", meaning R/I87/si1c_plan_01/PLAN.md §2.4 (the plan's [-consumer-row-]{+comparison truth+} table), which resolves at num_commit. Record names in comments (I79's reproducers, RV104's probe 29, RV111's input) are evidence labels, not document citations. Verify with main's check_citations.py.",
+  "num_branch": "codex/piping-numerical-integrity-20260926",
+  "num_commit": "769d0d0f4638d817749d3c9fe5d861cc36fd2ba3",
+  "github": "https://github.com/sgttomas/chirality",

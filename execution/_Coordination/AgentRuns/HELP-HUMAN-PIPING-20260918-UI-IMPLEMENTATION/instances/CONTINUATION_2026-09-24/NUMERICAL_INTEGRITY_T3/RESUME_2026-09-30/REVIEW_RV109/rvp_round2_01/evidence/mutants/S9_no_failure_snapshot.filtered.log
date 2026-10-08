@@ -1,0 +1,30 @@
+RV109_JOB name=r2_mut_S9_no_failure_snapshot dir=WT/rv109/mut/projects/chirality-piping/core/product_physics target=rv109-r2-mut stale=0 args=test --locked --offline --no-fail-fast --lib start=2026-10-07T21:21:16Z
+test retained_facade_tests::b1_sp_t6_t7_custody_once_then_one_attempt_per_case_in_a ... FAILED
+test retained_facade_tests::b1_sp_w_c2_transaction_faults_and_abandonment ... FAILED
+test retained_product_tests::i61_failure_prefixes_null_complete_and_adapter_prefix ... FAILED
+test retained_product_tests::prepared_trace_actual_helper_refusal_and_earlier_old_prefix_are_retained ... FAILED
+test retained_product_tests::prepared_trace_preserves_prelude_swap_helper_evaluator_and_source_failure_prefixes ... FAILED
+test retained_wire_tests::u1g2_preparation_refusal_representation ... FAILED
+test retained_wire_tests::u1g2_source_constructor_refusal_fails_closed ... FAILED
+test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+thread 'retained_facade_tests::b1_sp_t6_t7_custody_once_then_one_attempt_per_case_in_a' (96781572) panicked at src/retained_facade_tests.rs:1440:17:
+assertion `left == right` failed: SparseInteractive failing Some(0) request 0: a failed attempt's terminal snapshot
+  left: false
+ right: true
+thread 'retained_facade_tests::b1_sp_w_c2_transaction_faults_and_abandonment' (96781822) panicked at src/retained_facade_tests.rs:1721:5:
+assertion `left == right` failed: T-7 on C
+  left: (Serializer(ReceiptFailure { check: Association, field_path: "product_attempts[]" }), 1)
+ right: (Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH" }, 1)
+thread 'retained_product_tests::i61_failure_prefixes_null_complete_and_adapter_prefix' (96783762) panicked at src/retained_product_tests.rs:3010:65:
+thread 'retained_product_tests::prepared_trace_actual_helper_refusal_and_earlier_old_prefix_are_retained' (96783777) panicked at src/retained_product_tests.rs:2781:103:
+thread 'retained_product_tests::prepared_trace_preserves_prelude_swap_helper_evaluator_and_source_failure_prefixes' (96783877) panicked at src/retained_product_tests.rs:2752:107:
+thread 'retained_wire_tests::u1g2_preparation_refusal_representation' (96784299) panicked at src/retained_wire_tests.rs:492:115:
+thread 'retained_wire_tests::u1g2_source_constructor_refusal_fails_closed' (96784303) panicked at src/retained_wire_tests.rs:619:5:
+assertion `left == right` failed
+  left: Some(ReceiptFailure { check: Association, field_path: "product_attempts[]" })
+ right: Some(ReceiptFailure { check: Untranslated, field_path: "cases[].source_decline" })
+thread 's11g_tests::t13_committed_fallback_uz_is_byte_identical' (96784486) panicked at src/s11g_tests.rs:1666:9:
+test result: FAILED. 565 passed; 8 failed; 11 ignored; 0 measured; 0 filtered out; finished in 55.98s
+error: test failed, to rerun pass `--lib`
+error: 1 target failed:
+RV109_JOB_END name=r2_mut_S9_no_failure_snapshot rc=101 end=2026-10-07T21:23:04Z

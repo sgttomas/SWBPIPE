@@ -1,0 +1,1242 @@
+[
+ {
+  "id": "NONE",
+  "family": "control",
+  "description": "RV113_MUT unset",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [],
+  "killed_by_candidate_assertion": false,
+  "probe_verdict_changes": []
+ },
+ {
+  "id": "T01",
+  "family": "D38",
+  "description": "(4b) branch without `native === 'failed'` (a completed native stage with no Run reaches (4b))",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: R-D38 (4b): a capture failure before any Run beside a selected case is admitted (needs_recompute); m1-m8 and the other (4b) conjuncts are refused"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "m2_native_completed",
+    "control": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   }
+  ]
+ },
+ {
+  "id": "T02",
+  "family": "D38",
+  "description": "every failed native stage must be (4b) ((4a), a failed stage with its Run, refused)",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: D30: a native error names its own nonselected Run"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "a4_native_failed_with_refused_run",
+    "control": {
+     "admitted": false
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "a4_capture_with_refused_run",
+    "control": {
+     "admitted": false
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   }
+  ]
+ },
+ {
+  "id": "T03",
+  "family": "D38",
+  "description": "the relaxed check restored: native entered <=> a Run",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: R-D38 (4b): a capture failure before any Run beside a selected case is admitted (needs_recompute); m1-m8 and the other (4b) conjuncts are refused"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "d38_base",
+    "control": {
+     "admitted": false
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "x_cause_capture_accounting",
+    "control": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_WORK_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "x_cause_native_unavailable",
+    "control": {
+     "admitted": false
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "x_recovery_method_kept",
+    "control": {
+     "gate": "G6",
+     "code": "RETAINED_PRECISION_ROW_METHOD_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "f38_base",
+    "control": {
+     "admitted": false
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "g8_d38_case_mode_code_3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "g8_d38_case_parity_in_sparse_P3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   }
+  ]
+ },
+ {
+  "id": "T04",
+  "family": "D38",
+  "description": "(4b)'s predicate replaced by true",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [],
+  "killed_by_candidate_assertion": false,
+  "probe_verdict_changes": []
+ },
+ {
+  "id": "T05",
+  "family": "D38",
+  "description": "(4b)'s predicate reduced to the source equality alone (the minimal form)",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [],
+  "killed_by_candidate_assertion": false,
+  "probe_verdict_changes": []
+ },
+ {
+  "id": "T06",
+  "family": "D38",
+  "description": "(4b)'s source equality dropped",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [],
+  "killed_by_candidate_assertion": false,
+  "probe_verdict_changes": []
+ },
+ {
+  "id": "T07",
+  "family": "D38",
+  "description": "(4b)'s 'a source binding this attempt' dropped",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [],
+  "killed_by_candidate_assertion": false,
+  "probe_verdict_changes": []
+ },
+ {
+  "id": "T16",
+  "family": "G8",
+  "description": "the requested-mode check's code back to INVOCATION_MISMATCH",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G8 P1 and the requested mode, for every case, report PREPARATION; mode code 3 is refused"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "g8_unavailable_requested_mode_flipped",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_INVOCATION_MISMATCH"
+    }
+   }
+  ]
+ },
+ {
+  "id": "T18",
+  "family": "G8",
+  "description": "P1-P4 for case 0 only (the per-case loop narrowed)",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G8 P1 and the requested mode, for every case, report PREPARATION; mode code 3 is refused",
+   "retainedPrecision.test.ts :: G8 P2-P4 for every case: at most one parity row, none in sparse_interactive, none on a W2-published case; a dense b = 0 case may lack one"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "g8_unavailable_mode_code_2_in_sparse",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_unavailable_mode_code_3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_unavailable_mode_row_duplicated",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_unavailable_mode_row_removed",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_unavailable_parity_in_sparse_P3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_d38_case_mode_code_3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_d38_case_parity_in_sparse_P3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "dz_parity_twice_case1_P2",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   },
+   {
+    "id": "dz_parity_case1_w2_published_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   },
+   {
+    "id": "fz_unavailable_two_parity_P2",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "fz_unavailable_parity_w2_published_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "nz_w2_published_parity_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "T19",
+  "family": "G8",
+  "description": "P1-P4 for selected cases only",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G8 P1 and the requested mode, for every case, report PREPARATION; mode code 3 is refused",
+   "retainedPrecision.test.ts :: G8 P2-P4 for every case: at most one parity row, none in sparse_interactive, none on a W2-published case; a dense b = 0 case may lack one"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "g8_unavailable_mode_code_2_in_sparse",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_unavailable_mode_code_3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_unavailable_mode_row_duplicated",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_unavailable_mode_row_removed",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_unavailable_parity_in_sparse_P3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_d38_case_mode_code_3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_d38_case_parity_in_sparse_P3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "fz_unavailable_two_parity_P2",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "fz_unavailable_parity_w2_published_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "nz_w2_published_parity_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "T21",
+  "family": "G8",
+  "description": "P1-P4 read case 0's rows for every case (rows mis-indexed)",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G8 P1 and the requested mode, for every case, report PREPARATION; mode code 3 is refused",
+   "retainedPrecision.test.ts :: G8 P2-P4 for every case: at most one parity row, none in sparse_interactive, none on a W2-published case; a dense b = 0 case may lack one"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "g8_unavailable_mode_code_2_in_sparse",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_unavailable_mode_code_3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_unavailable_mode_row_duplicated",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_unavailable_mode_row_removed",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_unavailable_parity_in_sparse_P3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_d38_case_mode_code_3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_d38_case_parity_in_sparse_P3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "dz_parity_twice_case1_P2",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   },
+   {
+    "id": "dz_no_parity_case1_w2_published",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    }
+   },
+   {
+    "id": "fz_unavailable_two_parity_P2",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "nz_w2_published_no_parity",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    }
+   }
+  ]
+ },
+ {
+  "id": "T15",
+  "family": "G8",
+  "description": "mode code 3 restored in sparse_interactive",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G8 P1 and the requested mode, for every case, report PREPARATION; mode code 3 is refused"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "g8_unavailable_mode_code_3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_d38_case_mode_code_3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   }
+  ]
+ },
+ {
+  "id": "T17",
+  "family": "G8",
+  "description": "P1's code back to INVOCATION_MISMATCH",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G8 P1 and the requested mode, for every case, report PREPARATION; mode code 3 is refused"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "g8_unavailable_mode_code_2_in_sparse",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_INVOCATION_MISMATCH"
+    }
+   },
+   {
+    "id": "g8_unavailable_mode_code_3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_INVOCATION_MISMATCH"
+    }
+   },
+   {
+    "id": "g8_unavailable_mode_row_duplicated",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_INVOCATION_MISMATCH"
+    }
+   },
+   {
+    "id": "g8_unavailable_mode_row_removed",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_INVOCATION_MISMATCH"
+    }
+   },
+   {
+    "id": "g8_selected_mode_code_2_in_sparse",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_INVOCATION_MISMATCH"
+    }
+   },
+   {
+    "id": "g8_d38_case_mode_code_3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_INVOCATION_MISMATCH"
+    }
+   },
+   {
+    "id": "limit_l0_sparse_mode_row_deleted_P1",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_INVOCATION_MISMATCH"
+    }
+   }
+  ]
+ },
+ {
+  "id": "T10",
+  "family": "G8",
+  "description": "P4 reads case 0's ordinary attempt",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G8 P2-P4 for every case: at most one parity row, none in sparse_interactive, none on a W2-published case; a dense b = 0 case may lack one"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "dz_parity_case1_w2_published_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   },
+   {
+    "id": "fz_unavailable_parity_w2_published_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "nz_w2_published_parity_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "T11",
+  "family": "G8",
+  "description": "P4 stricter: a parity row only beside W2 not_triggered",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G8 P2-P4 for every case: at most one parity row, none in sparse_interactive, none on a W2-published case; a dense b = 0 case may lack one"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "dz_parity_case1_w2_failed",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    }
+   }
+  ]
+ },
+ {
+  "id": "T12",
+  "family": "G8",
+  "description": "P4 dropped",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G8 P2-P4 for every case: at most one parity row, none in sparse_interactive, none on a W2-published case; a dense b = 0 case may lack one"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "dz_parity_case1_w2_published_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   },
+   {
+    "id": "dz_parity_case0_w2_published_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   },
+   {
+    "id": "fz_unavailable_parity_w2_published_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "nz_w2_published_parity_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "T13",
+  "family": "G8",
+  "description": "P2 widened to at most two",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G8 P2-P4 for every case: at most one parity row, none in sparse_interactive, none on a W2-published case; a dense b = 0 case may lack one"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "dz_parity_twice_case1_P2",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   },
+   {
+    "id": "fz_unavailable_two_parity_P2",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   }
+  ]
+ },
+ {
+  "id": "T14",
+  "family": "G8",
+  "description": "P3 dropped",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G8 P2-P4 for every case: at most one parity row, none in sparse_interactive, none on a W2-published case; a dense b = 0 case may lack one"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "g8_unavailable_parity_in_sparse_P3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   },
+   {
+    "id": "g8_d38_case_parity_in_sparse_P3",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "admitted": false
+    }
+   }
+  ]
+ },
+ {
+  "id": "T30",
+  "family": "G5",
+  "description": "not_required: `product_attempt_ref === null` dropped (RV113 S-1's conjunct)",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G5 not_required (DESIGN_v2 \u00a73.3, decision 9): a W2-published case with the verdict checks_passed is admitted and eligible"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "nr_product_attempt_ref_with_attempt",
+    "control": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH"
+    }
+   }
+  ]
+ },
+ {
+  "id": "T31",
+  "family": "G5",
+  "description": "not_required: verdict checks_passed dropped",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G5 not_required (DESIGN_v2 \u00a73.3, decision 9): a W2-published case with the verdict checks_passed is admitted and eligible"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "nr_w2_published_verdict_sensitive",
+    "control": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "T32",
+  "family": "G5",
+  "description": "not_required: `initial !== not_attempted` dropped",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G5 not_required (DESIGN_v2 \u00a73.3, decision 9): a W2-published case with the verdict checks_passed is admitted and eligible"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "nr_initial_not_attempted",
+    "control": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "T33",
+  "family": "G5",
+  "description": "not_required: Rust's dropped conjunct `initial.kind === report` added",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G5 not_required (DESIGN_v2 \u00a73.3, decision 9): a W2-published case with the verdict checks_passed is admitted and eligible",
+   "retainedPrecision.test.ts :: G8 P2-P4 for every case: at most one parity row, none in sparse_interactive, none on a W2-published case; a dense b = 0 case may lack one"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "nr_w2_published_evaluation",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nr_w2_published_formation",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nr_w2_failed_checks_passed",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nr_structural_failure_not_triggered",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nz_w2_published_no_parity",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nz_w2_published_parity_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   }
+  ]
+ },
+ {
+  "id": "T34",
+  "family": "G5",
+  "description": "not_required: Rust's dropped conjunct `initial.outcome === checks_passed` added",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G5 not_required (DESIGN_v2 \u00a73.3, decision 9): a W2-published case with the verdict checks_passed is admitted and eligible",
+   "retainedPrecision.test.ts :: G8 P2-P4 for every case: at most one parity row, none in sparse_interactive, none on a W2-published case; a dense b = 0 case may lack one"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "nr_w2_published_evaluation",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nr_w2_published_formation",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nr_w2_failed_checks_passed",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nr_structural_failure_not_triggered",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nz_w2_published_no_parity",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nz_w2_published_parity_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   }
+  ]
+ },
+ {
+  "id": "T35",
+  "family": "G5",
+  "description": "not_required: Rust's dropped conjunct `w2 === not_triggered` added",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G5 not_required (DESIGN_v2 \u00a73.3, decision 9): a W2-published case with the verdict checks_passed is admitted and eligible",
+   "retainedPrecision.test.ts :: G8 P2-P4 for every case: at most one parity row, none in sparse_interactive, none on a W2-published case; a dense b = 0 case may lack one"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "nr_w2_published_evaluation",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nr_w2_published_formation",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nr_w2_failed_checks_passed",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nz_w2_published_no_parity",
+    "control": {
+     "admitted": true
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   },
+   {
+    "id": "nz_w2_published_parity_P4",
+    "control": {
+     "gate": "G8",
+     "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    }
+   }
+  ]
+ },
+ {
+  "id": "T36",
+  "family": "G5",
+  "description": "the report-outcome equality dropped",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: G5 not_required (DESIGN_v2 \u00a73.3, decision 9): a W2-published case with the verdict checks_passed is admitted and eligible"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "nr_report_outcome_sensitive",
+    "control": {
+     "gate": "G5",
+     "code": "RETAINED_PRECISION_ATTEMPT_MISMATCH"
+    },
+    "mutant": {
+     "admitted": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "T40",
+  "family": "N4",
+  "description": "RV108 N4's rule removed (a non-object row reaches Object.hasOwn)",
+  "tests_collected": 806,
+  "files_failed_to_load": [],
+  "candidate_tests_failing": [
+   "retainedPrecision.test.ts :: RV108 N4: transport reads no rows, so a non-object results entry is admitted on transport (as in Rust and Python); the full reader refuses it at G1"
+  ],
+  "killed_by_candidate_assertion": true,
+  "probe_verdict_changes": [
+   {
+    "id": "n4_null_first",
+    "control": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    }
+   },
+   {
+    "id": "n4_null_appended",
+    "control": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    },
+    "mutant": {
+     "gate": "G1",
+     "code": "RETAINED_PRECISION_RECEIPT_MISMATCH"
+    }
+   }
+  ]
+ }
+]

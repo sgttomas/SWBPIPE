@@ -1,0 +1,30 @@
+== base_reg_pp -> cand_reg_pp
+   base {'ok': 730, 'FAILED': 6, 'ignored': 11}; head {'ok': 738, 'FAILED': 1, 'ignored': 11}
+   - src/lib.rs :: retained_facade_tests::b1_sp_w_c2_direct_entry_counts_one_run_through_g_c (FAILED)
+   + src/lib.rs :: retained_facade_tests::b1_sp_constructor_ordinal_is_the_authored_index (ok)
+   + src/lib.rs :: retained_facade_tests::b1_sp_sf2_selected_not_first_and_two_selected_pins (ok)
+   + src/lib.rs :: retained_facade_tests::b1_sp_w_c2_direct_entry_publishes_the_pinned_successor (ok)
+   + src/lib.rs :: retained_facade_tests::b1_sp_w_c2_fixtures_are_the_live_successors (ok)
+   ~ src/lib.rs :: retained_facade_tests::b1_sp_r3p_1_one_case_in_a_runs_on_its_own_slot: FAILED -> ok
+   ~ src/lib.rs :: retained_facade_tests::b1_sp_w_c2_through_retained_w1_publishes_t12: FAILED -> ok
+   ~ src/lib.rs :: retained_facade_tests::b1_sp_w_c2_transaction_faults_and_abandonment: FAILED -> ok
+   ~ src/lib.rs :: retained_facade_tests::b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping: FAILED -> ok
+   exactly the expected delta: True
+== base_stale_pp -> cand_stale_pp
+   base {'ok': 731, 'FAILED': 5, 'ignored': 11}; head {'ok': 738, 'FAILED': 1, 'ignored': 11}
+   - src/lib.rs :: retained_facade_tests::b1_sp_w_c2_direct_entry_counts_one_run_through_g_c (ok)
+   + src/lib.rs :: retained_facade_tests::b1_sp_constructor_ordinal_is_the_authored_index (ok)
+   + src/lib.rs :: retained_facade_tests::b1_sp_sf2_selected_not_first_and_two_selected_pins (ok)
+   + src/lib.rs :: retained_facade_tests::b1_sp_w_c2_direct_entry_publishes_the_pinned_successor (ok)
+   + src/lib.rs :: retained_facade_tests::b1_sp_w_c2_fixtures_are_the_live_successors (ok)
+   ~ src/lib.rs :: retained_facade_tests::b1_sp_r3p_1_one_case_in_a_runs_on_its_own_slot: FAILED -> ok
+   ~ src/lib.rs :: retained_facade_tests::b1_sp_w_c2_through_retained_w1_publishes_t12: FAILED -> ok
+   ~ src/lib.rs :: retained_facade_tests::b1_sp_w_c2_transaction_faults_and_abandonment: FAILED -> ok
+   ~ src/lib.rs :: retained_facade_tests::b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping: FAILED -> ok
+   exactly the expected delta: True
+== base_reg_runner -> cand_reg_runner
+   base {'ok': 85, 'FAILED': 2, 'ignored': 0}; head {'ok': 85, 'FAILED': 2, 'ignored': 0}
+   exactly the expected delta: True
+== head: registered against Stale
+   identical
+ALL AS EXPECTED

@@ -1,0 +1,742 @@
+{
+  "all_agree": true,
+  "body_level": {
+    "combinations_as_ids": {
+      "jsonschema": false,
+      "py_walker": false
+    },
+    "empty_operand_preparations": {
+      "jsonschema": false,
+      "py_walker": false
+    },
+    "jsonschema": true,
+    "py_walker": true
+  },
+  "combination_branch_hits": {
+    "base_withheld": [
+      false,
+      false,
+      false,
+      true
+    ],
+    "ordinary": [
+      false,
+      false,
+      true,
+      false
+    ],
+    "retained_selected": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "retained_unavailable": [
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "counts": {
+    "negative": 50,
+    "positive": 31
+  },
+  "disjointness": [
+    {
+      "a_valid_a": true,
+      "a_valid_b": false,
+      "b_valid_a": false,
+      "b_valid_b": true,
+      "pair": "CaseSource/CombinationSource",
+      "py_a_valid_b": false,
+      "py_b_valid_a": false
+    },
+    {
+      "a_valid_a": true,
+      "a_valid_b": false,
+      "b_valid_a": false,
+      "b_valid_b": true,
+      "pair": "Call/MechanicsCombinationCall",
+      "py_a_valid_b": false,
+      "py_b_valid_a": false
+    },
+    {
+      "a_valid_a": true,
+      "a_valid_b": false,
+      "b_valid_a": false,
+      "b_valid_b": true,
+      "pair": "Group/CombinationGroup",
+      "py_a_valid_b": false,
+      "py_b_valid_a": false
+    },
+    {
+      "a_valid_a": true,
+      "a_valid_b": false,
+      "b_valid_a": false,
+      "b_valid_b": true,
+      "pair": "ProductAttempt/CombinationAttempt",
+      "py_a_valid_b": false,
+      "py_b_valid_a": false
+    },
+    {
+      "a_valid_a": true,
+      "a_valid_b": false,
+      "b_valid_a": false,
+      "b_valid_b": true,
+      "pair": "Reason/CombinationReason",
+      "py_a_valid_b": false,
+      "py_b_valid_a": false
+    }
+  ],
+  "instances": [
+    {
+      "agrees": true,
+      "case": "mechanics, two terms, negative factor",
+      "def": "CombinationExpression",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "mechanics, repeated case (schema admits; C-1 is a G5 rule)",
+      "def": "CombinationExpression",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "mechanics, no terms",
+      "def": "CombinationExpression",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "mechanics, term with load_case member (model spelling)",
+      "def": "CombinationExpression",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "subtraction",
+      "def": "CombinationExpression",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "subtraction missing subtrahend",
+      "def": "CombinationExpression",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "range, one operand",
+      "def": "CombinationExpression",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "range, empty operands",
+      "def": "CombinationExpression",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "range, unknown mode",
+      "def": "CombinationExpression",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "range with terms member",
+      "def": "CombinationExpression",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "retained_selected",
+      "def": "Combination",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "retained_selected with null call_ref",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "retained_selected with null run",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "retained_selected with diagnostic_ref",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "retained_unavailable, Run not selected",
+      "def": "Combination",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "retained_unavailable, facade",
+      "def": "Combination",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "retained_unavailable, count_range pre-source",
+      "def": "Combination",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "retained_unavailable, combined ledger refusal",
+      "def": "Combination",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "retained_unavailable, operand_source_unavailable",
+      "def": "Combination",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "retained_unavailable without diagnostic_ref",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "retained_unavailable with source_identity_sha256",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "retained_unavailable, unknown phase",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "ordinary subtraction",
+      "def": "Combination",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "ordinary range",
+      "def": "Combination",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "ordinary with call_ref",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "ordinary with gate code reason",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "base_withheld",
+      "def": "Combination",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "base_withheld with rows",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "base_withheld with reason no_retained_mechanics",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "unknown disposition",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "basis ref_id missing",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "no_operands",
+      "def": "CombinationReason",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "nested_combination",
+      "def": "CombinationReason",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "operands_differ",
+      "def": "CombinationReason",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "no_selected_operand",
+      "def": "CombinationReason",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "combination_unresolved (C2 run tag, not used in B2)",
+      "def": "CombinationReason",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "count_range without name",
+      "def": "CombinationReason",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "ledger_unavailable without error",
+      "def": "CombinationReason",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "refusal space",
+      "def": "CombinationReason",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "one operand",
+      "def": "CombinationSource",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "no operands",
+      "def": "CombinationSource",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "case owner",
+      "def": "CombinationSource",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "with preparation member",
+      "def": "CombinationSource",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "operand with case_id",
+      "def": "CombinationSource",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "runs",
+      "def": "MechanicsCombinationCall",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "pre_source_refusal at combined preparation",
+      "def": "MechanicsCombinationCall",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "empty requested_operands (C2: representable)",
+      "def": "MechanicsCombinationCall",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "no owner",
+      "def": "MechanicsCombinationCall",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "two sources",
+      "def": "MechanicsCombinationCall",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "unknown stage",
+      "def": "MechanicsCombinationCall",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "origin_refusal result (never serialized)",
+      "def": "MechanicsCombinationCall",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "case_batch kind",
+      "def": "MechanicsCombinationCall",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "imports from operand 1",
+      "def": "CombinationGroup",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "empty imports",
+      "def": "CombinationGroup",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "no imports member",
+      "def": "CombinationGroup",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "unknown slot",
+      "def": "CombinationGroup",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "import without build",
+      "def": "CombinationGroup",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "native failed, no proof",
+      "def": "CombinationAttempt",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "null run_ref",
+      "def": "CombinationAttempt",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "null source_ref",
+      "def": "CombinationAttempt",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "with ordinary_attempt_ref",
+      "def": "CombinationAttempt",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "with operational",
+      "def": "CombinationAttempt",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "case owner",
+      "def": "CombinationAttempt",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "exact definition id",
+      "def": "CombinationAttempt",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "stage value 'entered'",
+      "def": "CombinationAttempt",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "exact definition id (B3b enum)",
+      "def": "ProductAttempt",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "combination owner",
+      "def": "ProductAttempt",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "refused, two requesters",
+      "def": "OperandPreparation",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "prepared with members",
+      "def": "OperandPreparation",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "refused with a native error",
+      "def": "OperandPreparation",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "combination definition id",
+      "def": "OperandPreparation",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "other purpose",
+      "def": "OperandPreparation",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "stages object instead of stage",
+      "def": "OperandPreparation",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "combination owner",
+      "def": "OperandPreparation",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "operational without old_coverage",
+      "def": "OperandPreparation",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "operand-prepared",
+      "def": "CaseSource",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "both refs",
+      "def": "CaseSource",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "operand_preparation_failure",
+      "def": "UnavailableCause",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "operand_source_unavailable",
+      "def": "UnavailableCause",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "CombinationReason",
+      "def": "UnavailableCause",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "operand_source_unavailable with operand_preparation_ref",
+      "def": "UnavailableCause",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    }
+  ]
+}

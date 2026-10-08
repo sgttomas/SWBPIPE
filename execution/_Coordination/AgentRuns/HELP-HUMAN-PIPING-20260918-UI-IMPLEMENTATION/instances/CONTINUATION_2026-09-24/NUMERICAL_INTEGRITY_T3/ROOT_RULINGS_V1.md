@@ -14960,3 +14960,701 @@ The suites: EE lib 64 → 65; the runner's `point_path_non_finite_run` 8 → 11;
 
    There is no Pass B: the rules crates are outside PP's closure.
 4. **The records-only PR** (`codex/piping-t3-records-20261007c`, cut at NUM `00658c76c1`) is re-staged at this commit, so it carries RV111's addendum. It leaves out SI1c's package, which goes to main with SI1c's own PR.
+
+## RV109 passes SP in RV-P round 2; SF-1 and SF-2 go to I3's pinning step; B2-C dispatched as I97 (ROOT, 2026-10-07 UTC)
+
+**RV109's round 2 on SP at `603e238517`:** `R/REVIEW_RV109/rvp_round2_01/REVIEW.md` sha256 `206fd360…`. SHA256SUMS `1863f506…` 125 of 125 OK. The strict screen is clean, including gzipped files, with no links and no `build` folder. **PASS, 0 BLOCKING, 2 SHOULD-FIX, 4 NOTE.** Independently:
+- **T-1 to T-13** hold against DESIGN_v2.
+- **c = 1** is byte-identical to I1: 106 probe rows, adapter counts at every W1 stage boundary on 100 rows, and the committed pins.
+- **W-C2 was re-derived:**
+  - ordinals {0, 2};
+  - charged work 13,429,678 equals the call's `invocation_after`;
+  - one group, with C's records reusing A's builds;
+  - the snapshot points and the staging order are as specified;
+  - before I3, precommit stops at G5 `ATTEMPT_MISMATCH`, as planned.
+- **The headline rule** is the governing row: RS's G7 and PY accept it and refuse each alternative.
+- **On RV109's scratch I3 merge** (SR-RS `b5cb7faaeb`), all six of I85's expected pins reproduce exactly, and T-7-on-C ends at G8 `PREPARATION_MISMATCH`.
+- **Mutants:** 55 run, 44 killed.
+- **The suites against I1:** only +15 SP and +8 SA tests.
+- **The ledger** is extended by 115 hunks, all SP's.
+- R3P-1 to R3P-9 and RV112 N-4 are closed.
+
+**Rulings:**
+1. **SF-1: yes, the two build-provenance flags are N-16 outcomes.** In a two-Run batch, the second Run's records differ from its one-case run in `shared_built_here` (p128, p256) and `verification_shared_built_here` (p256). This is C2 §4 group-build sharing: one stiffness gives one group, and the second Run reuses s128, s256 and v256, built by the first.
+   - **At I3's pinning step, I85 does two things:**
+     - records the difference and its cause in its records;
+     - strengthens the test to compare the whole record set. The only exception is those flags on the second Run, asserted exactly.
+   - No product change.
+2. **SF-2: add the (C, B, A) and (A, A2) pins at I3,** in both modes. I85 shows that RV109's six survivors, M15, M16, M17, M19, M28 and M32, are then killed by assertions. M15 matters most: the reader accepts it, and it violates T-11's request order.
+3. **N-4: the plan's sentence is wrong, and the guard is not extended now.** PLAN_v2 §1 says s11f's rule 8 scans `retained_product.rs`, but `RULE8_FILES` does not list it.
+   - **Erratum E-12:** PLAN_v2 §1's sentence is corrected by this ruling.
+   - **To SQ's brief:** either add `retained_product.rs` to `RULE8_FILES` with its site table, or record why its arithmetic lies outside rule 8's scope. A reviewer must be able to check either.
+4. **N-1:** no producer-side origin check for an unavailable case's CaseSource. The head is correct, and the reader refuses the mutant at G8 after I3. This is noted for RV-X1.
+5. **N-2:** M46 and M26 are equivalent, M31 is unreachable in D1's domain, and M43 has no input. Accepted.
+6. **N-3, to SQ:** since I2, `b1`'s registered Direct entry publishes c ≥ 2 successors, for example I86's cap-maximal three-case input (6.65 MB, both modes) and (A, C) in sparse. They are candidate qualification inputs. This is on `b1` only; nothing c ≥ 2 is on main.
+
+**The transaction is settled for B2-C** (N-9's condition). T-1 to T-13 as RV109 confirmed them at `603e238517` are B2's basis. The I3 pins add tests, not transaction changes.
+
+**Dispatched: I97, B2-C (the B2 contract),** by `BRIEFS/B2C_CONTRACT.md`. Documents and code reading only.
+- **Implementers running:** I97.
+- **Waiting:** I85's I3 step, for RV113's confirmation of SR-RS's repair.
+
+**IDs:** the next unused are I98 and RV118.
+
+## #1112's package corrected twice; RV111 confirms the final head (ROOT, 2026-10-07 UTC)
+
+**PR #1112 (SI1c), cut at `b8bc059e35`.** ROOT's gates passed at the cut: `source_equality.py` 5/5, `check_citations.py`, `validate_run_record_leaks.py` and GEN-8. The full-SHA dispatch was 37696852261. The exact-head DEC-025 (`SI1c_b8bc059e35`) started under the lock.
+
+**RV111 confirmed the scope, the package and equality** in `ADDENDUM_02` (`5f08916a…`), with SF-1: three sentences overstated byte identity by leaving out N-4. Its N-1 and N-2 were wording notes. ROOT corrected the package, giving head `2881cb1969` (package-only).
+
+**RV111 confirmed that re-cut** in `ADDENDUM_03` (`23264979…`), with R-1: in a bounded run, a check that binds no bound follows the point path, so D applies to it. I88 counted 1,513 such lines (RETURN §4.2, condition 4). ROOT corrected the package again, giving head **`13d02273f4`** (package-only).
+
+**RV111 confirmed the final head** in `ADDENDUM_04` (`58e6af64…`, 7 of 7 OK).
+- The delta is only the three package files.
+- CHANGE_RECORD's sentence is exact.
+- **R-2 (NOTE):** PR_BODY's "a check that binds a solver bound reads in interval mode" holds for a nonzero bound only. A bound of exactly zero binds the exact point, so that check reads on the point path. **Ruled:** no re-cut for one word. CHANGE_RECORD §3, the authoritative record, says "with b > 0" and is exact. SI1C_MERGE's record states the correction.
+
+**The gates at `13d02273f4`:**
+- `se_3`, `citations_3`, `leaks_3` and `gen8_3` all PASS;
+- the full-SHA dispatch was re-run as 37697773464.
+
+**DEC-025 `SI1c_b8bc059e35` carries over to `13d02273f4`.** Both deltas change only `IMPLEMENTATION/SI1C/`, which no DEC-025 suite reads (RR "RV99 confirms #1100's amended head and the DEC-025 carry-over").
+
+**What remains before the merge:**
+- DEC-025's ALL-DONE;
+- the automatic CI and the dispatch green on `13d02273f4`;
+- then ready, and `gh pr merge 1112 --merge --match-head-commit 13d02273f4…`.
+
+## RV117 passes #1111; #1111 squash-merged; errata E-13 and E-14; the host's name joins the screen (ROOT, 2026-10-07 UTC)
+
+**RV117's review:** `R/REVIEW_RV117/records_01/REVIEW.md` sha256 `fb368f74…`; SHA256SUMS `e3d47596…` 45 of 45 OK; the strict screen is clean, with no links. **PASS, 0 BLOCKING, 0 SHOULD-FIX, 5 NOTE.** Independently:
+- **Scope:** H's tree equals N's (1,043 A / 2 M / 0 D, all under `P/execution`). It shares no path with #1112.
+- **No mode-120000 entry.** `R/REVIEW_RV58/` is byte-equal to main's.
+- **The leak validator** gives PASS on M..H.
+- **The 8 `.gz` files** decompress and screen clean, apart from N-4.
+- **GEN-8:** 1 passed.
+- **The sum files:** 29 added sum files (1,012 entries) verify, and 35 files (1,370 entries) with main's.
+- No redacted original and no pre-redaction blob of E-10 is in H.
+- **CI:** 4/4.
+- All 26 cited hashes match.
+- **No owner-held decision was taken by ROOT,** and no owner decision was made in the span.
+
+**#1111 was squash-merged** as `54f1ba1f6d` (2026-10-07T23:00:19Z), with main unmoved and the corrected squash body (N-3). The record is `IMPLEMENTATION/RECORDS_MERGE_2026-10-07C/`. NUM absorbed main at `039b17727f`; the RR conflict resolved to NUM's tree, with no tree change.
+
+**Rulings on RV117's notes:**
+1. **N-1: the work graph is brought current in this commit.** From now on, ROOT updates the work graph's T3 section in the same commit as any RR section that changes a position, the next IDs or the next safe action. RV117 found it lagging three times.
+2. **N-2, erratum E-13:** `RECORDS_MERGE_2026-10-07B/_run_records/CI_RUNS.txt` lists H1's (`145443e9e4`) runs, while its RECORD.md cites it as CI on H2. The fact stated is true: H2 `ea3b1443ea`'s four automatic runs succeeded (37637875013 Piping Desktop E2E, 37637874699 Harness Pre-merge Validation, 37637874697 pec-tests, 37637874737 governance-harness). The sealed file is not changed.
+3. **N-5, erratum E-14** (four slips in this file):
+   - "I2: SA merged into `b1` at `eca6c00a72`": `b1`'s maintained diff from **main** at I2 is 12 files. The 11 stated is the count against I1 `262bd687f0`. ROOT verified both counts.
+   - "I93's B2/B3 plan returned; …": "Decisions 17–19 stay owner-held" means **I93's decisions 22–24** (B0's 17–19, as I93 renumbered them).
+   - "I96's B3-D revision 01 verified; …": `0d5bb812…` is the **patched SCHEMA's** hash. `SCHEMA_ENUM.diff` itself is `b1597c7b…`.
+   - "NUM absorbs main with #1109's …": #1109's first commit is `4a58bf2a7d`, its head `b928a20f98`, and it merged as `cccc41a293`. It also changed `tools/validation/`, not only records.
+4. **N-4: the host's name joins ROOT's commit-time screen.** I91's five pytest junit `.gz` files carry the machine's name in their `hostname` attribute. The strict screen had no hostname form, and the leak validator skips `.gz`. The name is already on main in 11 T3 records since #1084, so #1111 adds no new kind of exposure.
+   - **From now on:** ROOT's screen also checks for the machine's full host name and `\.local\b`, in text and in decompressed `.gz`. A record that carries it is redacted (`<host>`) before its first commit, or its run output is re-recorded without the attribute. Sealed files are not changed in place.
+   - Briefs say: pytest junit output goes into records only after the `hostname` attribute is removed.
+   - **No repository-wide redaction:** whether historical records on main are rewritten is the owner's call, and ROOT does not propose it for this exposure.
+5. **For information** (no finding): #1109's `FIXTURE_MATERIALIZATION.md` quotes the old absolute link target. It is one of the many historical T3 files on main with such paths. This is noted only.
+
+**IDs:** RV117 is used. The next unused are **I98 and RV118** (I97 is B2-C, running).
+
+## I97's B2-C returned and verified; RV118 (RV-C) reviews it; RV115 checks DEF-C (ROOT, 2026-10-07 UTC)
+
+**I97's contract:** `R/I97/b2_c_01/CONTRACT.md` sha256 `165cd4b1…`. SHA256SUMS `d8f032d1…` 13 of 13 OK. The strict screen is clean, with no links, no host name and nothing ignored.
+- **The three `\.local\b` hits are main's SCHEMA `$id`** (`https://openpipestress.local/schemas/…`). That is a product identifier, not a machine name, and it is accepted. **The host-name screen (RR "RV117 passes #1111; …", ruling 4) applies to the machine's name.** A `.local` hit is judged by what it names.
+- **ROOT rebuilt all five statics byte for byte** with I97's `b2c_statics.py` (VENV, scratch output; nothing written into I96's records):
+  - DEF-C `03d40598…`;
+  - PTABLE revised `863738f1…`;
+  - `SCHEMA_B2.diff` `ff3b8895…`;
+  - the merged J1 SCHEMA `abf3225c…`;
+  - `SCHEMA_J1.diff` `f674370d…`.
+- **In brief:**
+  - **T-10a and T-10b** sit after T-10 and before T-11, and every z = 0 byte is unchanged. B1's code needs z ≥ 1 extensions at T-6′, T-8′, T-9′ and T-11′.
+  - **DEF-C** `RP-PREPARED-COMBINATION-DUAL-v1` has H(`retained_precision_formation_v1`) `9adf5178…` (R-10, the domain reused).
+  - **`CombinationAttempt`** is a separate closed `$def` in a union (C-3).
+  - **R-COMB-1** is recommended as reader-derived (R).
+  - **PTABLE:** `receipt_bindings` is identical to XTABLE's, and `formation_warrant` becomes a list (C-8).
+  - **D1.4:** C_eq ≤ 3 and ids disjoint (C-9). CAP_ROWS goes 47 → 53.
+  - **07o:** 14 bases and must-pass entries, and 64 mutations.
+  - **J1 needs three edits beyond REVISION §1.4's constants:** RS `g0`, TS `header`, and PP's `u1_constants_bound_to_in_tree_fixtures`. REVIEWED_INPUTS goes 14 → 17.
+  - **The estimates** add about 12–19 h agent: B2-A 5–8, B2-P 26–38, B2 readers 39–55, SC2's B2 part 7–10, J1 1.5–2.5.
+- **Disclosed:** one text substitution in I97's scratch copy of `b2c_checks.py` used the host's `python3`. No output came from it.
+
+**Decisions C-1 to C-16 are ROOT's** (none is owner-held). ROOT rules on them after RV-C's review. B2's public meaning is not exposed before B8. R-COMB-1 stays as the owner was informed (DN §4.2).
+
+**Dispatched:**
+- **RV118, a fresh RV-C,** by `BRIEFS/RV118_RVC_CONTRACT_REVIEW.md`. It holds RV-C for B2's statics at J1.
+- **RV115 (RV-K),** resumed to check DEF-C's numerical content: CONTRACT §3, R-7, R-8 and R-10, and the certificate's applicability to the combined ledger.
+
+**Implementers running:** none. I85 waits for I3. **IDs:** RV118 is used. The next unused are **I98 and RV119**.
+
+## #1112 merged: T3-SI1c is on main (ROOT, 2026-10-07 UTC)
+
+**The merge.** [#1112](https://github.com/sgttomas/chirality/pull/1112) merged at 2026-10-07T23:27:14Z as **`0b6c5d7362`**, with `gh pr merge 1112 --merge --match-head-commit 13d02273f4…`.
+- **Parents:** main `54f1ba1f6d` (#1111's squash, records only, sharing no path) and the PR head `13d02273f4`.
+- **Main's diff** is the 5 slice files plus the 4 package files: 9 files, +1,788 / −161.
+
+The record is `IMPLEMENTATION/SI1C_MERGE/` (RECORD.md, `_run_records/`, `dec025/`; SHA256SUMS, 28 entries).
+
+**The gates, all on the candidate:**
+- **RV111's review:** PASS (0/1/3), with ADDENDUM_01 to ADDENDUM_04.
+- **ROOT's checks at each of the three heads:** `source_equality.py` 5/5, `check_citations.py`, `validate_run_record_leaks.py` and GEN-8.
+- **Hosted CI on `13d02273f4`:** 4/4 automatic runs, and the full-SHA dispatch 37697773464 succeeded. The first dispatch succeeded on `b8bc059e35`; the second was cancelled when the third superseded it.
+- **The exact-head DEC-025 `SI1c_b8bc059e35`:** ALL-DONE against main `e33f3e2f1b`.
+  - 38 of 40 manifests are identical. EE goes 58 → 66 and the runner 35 → 44, by added, renamed and split tests only.
+  - pytest: 3,799 passed, 32 skipped. vitest: 141 files, 3,620 tests. Both builds exit 0.
+  - The sweep stopped at the known Mac `t13`.
+  - **It carries over to `13d02273f4`:** the two later commits changed only `IMPLEMENTATION/SI1C/`, and main's move after the cut changed only `P/execution/`.
+- **Pass B:** not applicable.
+
+**RV111's R-2 is corrected in the merge record:** PR_BODY's interval sentence holds for a nonzero bound.
+
+**NUM absorbed main** at `46d3f6f937` with no tree change. NUM already carried SI1c (`083e1a06e9`) and the final package. **No product slice is now unmerged in NUM.** B1 stays on `b1` until PR-B1.
+
+**What follows:**
+- **S-I2's planning** accounts for SI1c and RV111's N-3.
+- **The post-merge cleanup** gains `s-i1c`, `si1c-pr` and `records-pr-c`, at the next idle host.
+
+## B2-W and B3-W dispatched as I98 and I99; RV113 asked for status (ROOT, 2026-10-07 UTC)
+
+**The probes are released.** RV109's round 2 is done, and RV113 has had no lock job since 20:13Z. The lock has been idle since SI1c's DEC-025 ended at 23:21Z, and no implementer is running.
+- **I98 runs B2-W and I99 runs B3-W,** by `BRIEFS/B2W_B3W_PROBES.md`, on archives of main `0b6c5d7362`.
+- **B1 keeps its priority:** before each heavy job, a probe waits while more than one `lockf` process is running, so that an already-queued job, such as I85's at I3 or RV113's, goes first.
+- **The cap:** I98 and I99, with I85 at I3, make three implementers.
+
+**RV113:** no activity has been seen since about 21:18Z: no process, no write, and no lock job since 20:13Z. Its SR-TS REVIEW.md is written (20:27Z, uncommitted). ROOT asked it for its position, with the instruction to return the SR-TS verdict and the SR-RS repair confirmation first, if blocked, because I3 waits on the latter.
+
+**IDs:** I98 and I99 are used. The next unused are **I100 and RV119**.
+
+## RV115 (RV-K) accepts DEF-C's numerical content (ROOT, 2026-10-07 UTC)
+
+**RV115's addendum:** `R/REVIEW_RV115/b2_kd_01/ADDENDUM_02.md` sha256 `7cd7a1b4…`. `SHA256SUMS.addendum_02` 4 of 4 OK, and the earlier sums still verify. The strict screen is clean, with no host name and no links. **ACCEPT, 0 BLOCKING, 0 SHOULD-FIX, 5 NOTE.**
+- **R-8 is sufficient.** The K law is fixed by K4STF, layout, stations and supports. The G law and the K-lane stress facts are fixed by DEF-C's bindings (material basis, D, t_eff, and the prepared A, I, J, Z and c). Every operand's certificate and the combination's bound the same law pair. The cross-operand facts the kernel cannot check sit at G8.
+- **R-7:** recounted independently, 129 = 7·3 + 50·2 + 8·1, with unique row ids and no maximum, intensified or record rows.
+- **R-10:** RV115 rebuilt H with its own canonicaliser. DEF-O gives `a7ed7ca0…` (the control), and DEF-C gives `9adf5178…`. DEF-C's `operand_definition.sha256` equals H(DEF-O).
+- **The proof statement** is as RV115's B2-KD review found sound. Every member the proof relies on is byte-identical to DEF-O's, leaf by leaf. There is no preparation stage, and C-12 holds.
+
+**The notes are routed:**
+- **NB-1 and NB-3:** wording, for B2-C's revision if RV118 asks for one. Otherwise they go to J1's text check. NB-1 is "the selected material operands of every member, bit for bit". NB-3 is that data flags stay per individual product, never per net.
+- **NB-2 to I98 (B2-W):** a W1a confirmation of R-7's row count on an in-domain W-CB1 or W-CB2 input. I97's fixture lies outside W1a.
+- **NB-4 to B2-K's brief:** RV115's N-3 is adopted. The kernel compares the prescription bits with +0.0, so DEF-C's "exact positive zero" and the predicate agree literally.
+- **NB-5:** no action.
+
+**DEF-C stands for ROOT's B2-C ruling,** which waits for RV118 (RV-C).
+
+## I99's B3-W verified; B3's witnesses selected; P-2 is required; B3a's exceptions restated (ROOT, 2026-10-07 UTC)
+
+**I99's probe:** `R/I99/b3_w_probe_01/PROBE.md` sha256 `1628a8e3…`. SHA256SUMS 38 of 38 OK. The strict screen and the host-name screen are clean, with no `.gz`, no links and no `build` folder; nothing is ignored. The archive and target are deleted. ROOT checked the input hashes against the record and the committed fixtures: n05 `332319ee…`, n06 `5551f164…` and `fields` `7f8ff9d5…` are the committed `physics_source` requests. No stop rule fired.
+
+**What it found** (both modes unless a mode is named; ordinary route, 8M exact-block budget per case; on main, Direct refuses every 0.3.0 input at D1.3):
+- **n05 and n06 select** under physics-source-1 (`retained_source_blocks_exact_v1`).
+- **`m3x` does not select.** It is the milestone authored as 0.3.0 exact, with E and ν and `pressure_regions: []`. Its exact-block attempt is refused at source closure, and it is `sensitive` by K-D5 at `N1:RX`, as the 0.1.0 milestone is.
+- **With empty regions, `m3x` publishes 98 rows (sparse) and 99 (dense).** That is I96 §3's formula, and its `pipe_sections` carry SourceAnnulus's bits, as I96 §1.3 states.
+- **No exact input reaches native on main** (the capture refuses exact models). The native terminal is a proxy from the 0.1.0 milestone.
+- **A mixed exact base:** `m3x_mix_anchor`, whose second case is a 1 N load on N0's rigid UX. In both modes, `case` is `sensitive` and `case:b` is `checks_passed`, and neither selects. `case:b` has zero response. The `axial` and `lateral` variants mix only in dense.
+- **B3a (`m3l`):** the ordinary bytes differ from the 0.1.0 milestone's in exactly one JSON path, the `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` message (a namespace refusal, 38,336 units charged instead of 46,628). There is no model echo in the envelope. On the private driver, W1 reaches precommit and is refused at G8 `RETAINED_PRECISION_INVOCATION_MISMATCH`, because the reader requires `pressure_contract` null.
+- **P-2:** `fields` selects at 8M. At 4M its finalization replay exceeds the budget, giving `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` and 0 results. n05 and n06 differ in 4 paths between the budgets.
+- **Controls:** runs 2 and 3 are identical. I81's and I86's lines reproduce with 0 differences. The n05, n06 and `fields` outputs equal the committed raw fixtures.
+
+**Rulings:**
+1. **B3b's witnesses:**
+   - **the exact successor** is `m3x` (`0ffbea35…`; Value `c920a96d…`);
+   - **the coexistence pins** are n05 and n06, which must keep the exact ordinary bytes;
+   - **the mixed exact base** is `m3x_mix_anchor` (`3c9a6fdb…`). Its second case's zero response is a legitimate `not_required` case, and the base is labelled so. ROOT does not ask for the fourth variant.
+
+   These go into B3b-P's brief and 07o. B3b-P establishes the exact native, candidate and two-case results, which this probe could reach only by proxy.
+2. **P-2 is required for correctness, not only parity.** Without it, `fields` on the Direct entry would lose T-3 (c) and publish a blocked envelope. **To B3b-P's brief:**
+   - `fields` (`7f8ff9d5…`) joins P-2's pins, alongside n05 and n06;
+   - the receipt's `legacy_source_work[].limit` follows the same budget.
+3. **B3a's expected exceptions are restated exactly** (this corrects PLAN §1.3's and B3-W's "except the model echo"). **To B3a-A's and the readers' briefs:**
+   - **B3a's ordinary bytes** equal the 0.1.0 milestone's except the one `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` message;
+   - **its successor** differs from the milestone's in exactly `invocation.value` (the model echo), `legacy_source_work[0].charged` and `receipt_sha256`;
+   - the producer needs no further change. On main only D1.3 and the readers' G8 `pressure_contract` predicate stand in the way, which is B3a's planned scope.
+4. **B3a's base** is `m3l` (`c32170b3…`; Value `2f5ff465…`).
+
+**I99 is idle.** The probe's unsanitised outputs stay in its scratch, by the cleanup rule.
+
+## RV113's three returns verified; I3 made at `2ba2f81863`; the three-reader alignment set ruled (ROOT, 2026-10-07 UTC)
+
+**RV113's returns:** ROOT verified each report's sums. The strict and host-name screens are clean across all three, including 154 decompressed `.gz` files, with no links and no `build` folder.
+- **SR-TS at `7e47e51b5d`:** `R/REVIEW_RV113/rvr_sr_ts_01/REVIEW.md` `d44dec19…` (31 OK). **PASS, 0/1/2.**
+  - **S-1:** only TS enforces C2's code/phase/cause compatibility.
+  - **N-1:** the transport header readings differ.
+  - **N-2:** TS's C2 table is coarser than one-to-one.
+- **SR-RS repair round 1 at `b5cb7faaeb`:** `rvr_sr_rs_01/ADDENDUM_01.md` `10ca3fe4…` (SHA256SUMS.addendum_01 9 OK). **CONFIRMED:** M20, M02 and M11 now fail at assertions; there is no RS `src` change, and the suite's only change is the added test.
+- **SR-PY at `11cc14e3e6`:** `rvr_sr_py_01/REVIEW.md` `d8611e59…` (245 OK). **PASS, 0/4/2.**
+  - **The census over 07m:** 0 changes I1 → head and 0 misses. PY equals TS on all 339 entries' bound verdicts, and RS except the declared G7 split.
+  - **The 103 probes:** PY agrees with RS on every B1 shape.
+  - **The N1 differential holds** over 16,563 inputs.
+  - **The suites** go 1,922 → 1,937, all added.
+  - **Mutants:** 34 of 35 killed.
+  - **The findings:** S-1 is (f)'s family; S-2 is REPAIR_01's (b)/(c) claim, wrong for TS; S-3 is (g)'s family; S-4 is the `not_required` null-attempt conjunct unpinned in PY (Q17). N-1 and N-2 are notes.
+- **RV113's host slips are disclosed:** a timed-out wait followed by a second wait on the same job, both ending with the job; and one mutant chain stopped while it was still queued. Nothing of another job was touched.
+
+**I3 is made.** ROOT merged `b1-r` (`b5cb7faaeb`) into `b1` at I85's clean commit `603e238517`, with `--no-ff`, as **`2ba2f81863`**. The two sides are file-disjoint: SR-RS's 3 RE files against SP's and SA's. It is pushed. **I85 resumes** by `BRIEFS/B1_SP_I3.md`: W-C2's pins, SF-1 and SF-2.
+
+**The three-reader alignment set**, ruled together (SR-PY §10; SR-TS S-1, N-1 and N-2). None changes a 07m verdict, and B1's producer emits none of these shapes. These are reader refusals of forged or mislabelled receipts, with no public meaning before B8.
+1. **(f) and its family go to G3 COVERAGE** in all three readers: `material_bases[].index` and `sources[].index` equal their positions; `case_indices` has no duplicates and is in range; and a source's owner is its own case.
+   - **The ordinary attempt's basis reference goes to G5 ATTEMPT_MISMATCH.** These are TS's placements. RS and PY add or move the checks, and PY adds the `material_bases[].index` check.
+   - G8 keeps only the facts derived from the invocation.
+   - 07n pins the family bound and unbound. 07m's `integral_float_integers_and_references` stays a must-pass.
+2. **(g), the model-scope members, go to G8 INVOCATION_MISMATCH,** in the model-scope check before any PREPARATION check. PP's acceptance is the rule:
+   - no `reference_configurations` member, null included;
+   - `pressure_contract` absent or null;
+   - `combinations` and `components` absent or `[]`.
+
+   This is B1's rule. B2's contract (combinations) and B3a (`pressure_contract`) change it in their own scopes.
+3. **The C2 cause table** is applied at G5 ATTEMPT_MISMATCH, in the ordinary class, in all three readers, for every unavailable case whose cause is not `prepared_product_failure`. **The table is TS's present form, with N-2's keying where C2 states it:**
+   - `source_error`: phase `preparation`; code `source_unavailable`; no Run; and a `source_decline` whose error equals the cause's.
+   - `unavailable_precondition`: phase `routing` or `preparation`, with no Run. **The code is keyed one-to-one by `precondition`:** `caller` → `caller_not_qualified`; `resource_admission` → `resource_admission_not_available`; `upstream_no_wrap` → `upstream_no_wrap_not_established`; `capture` and `source_family` → `source_unavailable`.
+   - `receipt_failure`: phase `receipt`; code one of `receipt_encoding`, `publication_hash_range` and `invocation_not_representable`. C2 does not key these codes to `check`, so the set form stands, and a per-`check` keying is deferred until a check-to-code map is written.
+   - `facade_failure`: phase `facade`; code `facade_certificate`; the Run's terminal is `selected`; and `owner_ref` is the case itself.
+   - Kernel reasons: phase `kernel`; a Run is present; code `kernel_<terminal kind>`; and the cause equals the Run's terminal reason.
+
+   07n pins each branch, satisfied and broken.
+4. **The transport scope.** The **header check goes at G2** in all three readers, as RS has it: PY relabels it from G7, and TS adds it. The **preview-physics metadata check goes at G7** in all three: RS adds it, and PY and TS keep it. Both checks then run in every reader.
+5. **S-2:** REPAIR_01's claim that (b) and (c) give the same gate and code in all three readers is corrected by I91's next record. SC writes 07n's (b) and (c) entries only after this set lands, with inputs whose first failure is the same in all three readers.
+6. **S-4** (PY) is a test-only repair: one test row, as SR-RS's. **N-1 and N-2 (PY)** are folded into I91's round.
+
+**The repair rounds**, by file lane. Repairs come before new starts, and the cap is three implementers (I85 at I3, and I98 on B2-W, which is running):
+- **I91, SR-PY repair 02,** now: items 1–6.
+- **I90, SR-RS repair 02** (items 1–4, on `b1-r`; merged again before I4), when I98 returns.
+- **I92, SR-TS repair 01** (items 2–4), when I85 returns.
+
+RV113 confirms each round. I4 follows them, with SR-PY and SR-TS and SR-RS's round 2.
+
+## I98's B2-W verified; B2's witnesses selected (W-CB1 rebased); the nodal-term ordinal is a producer defect, fixed at I3; I90's round 2 dispatched (ROOT, 2026-10-07 UTC)
+
+**I98's probe:** `R/I98/b2_w_probe_01/PROBE.md` sha256 `e224899a…`. SHA256SUMS 62 of 62 OK. The strict, host-name and `.local` screens are clean, with no `.gz` and no links. The archive and targets are deleted. ROOT checked the key input hashes against the record. No stop rule fired.
+- **W-CB1's proxy (A + B, 256 loads, unnetted)** nets to exactly 0 on all 21 loaded DOFs.
+  - G-A and G-B refuse it over the cap.
+  - With them bypassed, native is Selected, and the certificate, staging and serializer pass. Precommit then refuses at G5 `ATTEMPT_MISMATCH` through D6b, a case-only rule (a `selected` case must not be ordinarily `checks_passed`).
+  - **1·A + 0.5·B publishes a successor in both modes**, and the Rust reader passes it, with non-zero rows. A + C falls back at Candidate.
+- **W-CB3:** variant v1 qualifies: B is a 1 N `global_y` force on the L = 0 base's restrained isolated node N2. B alone is `not_required`, and A + B publishes, with both readers passing.
+- **W-CB2:** case C reproduces I81 field for field, so it still predicts `retained_unavailable` / `combination_unresolved`.
+- **R-7 (RV115 NB-2)** is confirmed on four W1a requests in both modes: 168, 111, 2,080 and 2,080 combination rows, each equal to 7n + 50m + 8g.
+- **Controls:** two rounds are identical, and I81's and I86's lines reproduce (109 comparisons, 0 differences).
+- **I98's host slips** are disclosed in its §9: an empty-input host `python3` run, a wrong tool help call, and a `lockf` with no command. None did anything.
+
+**Rulings:**
+1. **W-CB1 is rebased on 1·A + 0.5·B,** with base `r7_cb1_halfb.json` `7af8c049…` and proxy `cb1_a_halfb_canonical.json` `012fec52…`. It is the measured witness for S1, the challenge and RSS_TIME. As planned, A + B would measure a zero solution. **A + B is kept as an additional labelled cancellation pin** (`r7_cb1.json` `0c346f49…`): it shows the combined ledger preserves exact cancellation.
+2. **W-CB2** is `r7_cb2.json` (`ce52d528…`). **W-CB3** is `r7_cb3_v1.json` (`76bb9831…`), with one OperandPreparation. W-CB4 is split per RV118's S-5, in B2-C's revision.
+3. **D6b is a case rule.** B2-C's revision states that D6b does not apply to combination entries, and that no combination analogue refuses a `retained_selected` combination for being ordinarily `checks_passed` (to B2-C's revision).
+4. **The nodal-term ordinal is a producer defect.** PP `retained_wire.rs` writes `constructor_ordinal` as the term's canonical position. All three readers (RS and PY G8, and TS, checked by ROOT) derive it as the authored ordinal, as C2's row reads (CONTRACT_DELTA:104: a "stable constructor_ordinal breaks indistinguishable duplicates for provenance only").
+   - **The consequence:** an in-domain case whose loads are not authored in canonical order falls back at precommit G8 with one notice. This is fail-safe, but it denies a certified successor, on main and on B1. It is latent on main in the registered dev/test build, with no product caller.
+   - **The fix is SP's** (`retained_wire.rs` is in SP's fence): `constructor_ordinal: t.original`. Every existing pin was authored in canonical order, so no existing byte changes.
+   - **It is added to I85's I3 step,** with a new pin for `cause_milestone_reversed` (`d28e1317…`), which publishes in both modes, and a killed mutant. RV109 (RV-P) reviews it with the step.
+   - **07n gains** an out-of-order-authored base (SC).
+   - PR-B1's change record states it as a repaired latent defect of main.
+
+**I90's SR-RS repair round 2** is dispatched in I98's slot, by `BRIEFS/B1_SR_RS_REPAIR_02.md` (items 1–4 of the alignment set, on `b1-r`).
+- **Implementers running:** I85 (I3 step), I91 (SR-PY repair 02) and I90 (SR-RS repair 02).
+- **Queued:** I92 (SR-TS repair 01), then I97 (B2-C revision).
+
+## RV118 (RV-C) accepts B2-C with amendments; B2-C ruled; C-1 to C-16 selected; I97 revises (ROOT, 2026-10-07 UTC)
+
+**RV118's review:** `R/REVIEW_RV118/b2_c_01/REVIEW.md` sha256 `fe640ca5…`. SHA256SUMS `352befe1…` 7 of 7 OK. The strict, host-name and `.local` screens are clean, with no links. **ACCEPT WITH AMENDMENTS, 0 BLOCKING, 6 SHOULD-FIX, 15 NOTE.** Independently:
+- **The statics:** `b2c_statics.py` rebuilds all six outputs byte for byte, twice. RV118's own JCS gives DEF-C's H `9adf5178…`, with DEF-O's `a7ed7ca0…` as the control. DEF-O's bytes and its six pins are unchanged. `receipt_bindings` equals XTABLE's as JCS and as text.
+- **The schema:** 81 own instances agree under jsonschema and PY's walker, and every new `oneOf` is disjoint.
+- **The transaction:** T-10a and T-10b sit correctly. RV115's N-5 is stated.
+- **C-3's union** is the right form, and B3b's enum hunk applies unchanged.
+- **J1:** the three extra edits are necessary and, with REVISION §1.4, sufficient.
+- **The decisions:** RV118 agrees with all of C-1 to C-16.
+- **Public meaning:** none changes before B8, and no owner-held choice is touched.
+
+**Rulings:**
+1. **S-4: (a) and (b) both.**
+   - **(a):** DEF-C's combination displacement magnitude takes DEF-O's support-magnitude pattern: binary64 hypot of the published components, certified. So G7's base guard (each combination's magnitude against hypot of its own components, within 64ε) holds by construction.
+   - **(b):** the combination's observables stage runs G7's `combination_magnitudes` guard, so any residual failure is a per-combination `facade_certificate`, not a whole-successor abandonment. The observables stage is defined.
+   - **Consequence:** DEF-C's bytes, its H, and PTABLE's hash are regenerated by I97 with `b2c_statics.py`. **RV115 (RV-K) confirms (a)'s numerical content,** and RV118 confirms the revision. RV115's NB-1 and NB-3 wording rides the same regeneration.
+2. **S-3:** `combination_modulus_basis_record` rows stay `non_quantity`, as DN's closed table and all three readers class them. R-COMB-1's `not_covered` applies to quantity rows only.
+3. **N-7: adopted.** PTABLE's one revision states R-COMB-1 in `accuracy_classification.scope`. Its hash moves anyway under ruling 1.
+4. **N-12:** an OperandPreparation carrying DEF-C's id is refused by SCHEMA, as N-8 refuses the exact id there. The first failure is the schema gate's in all three readers. C3a-7's G0 row and §8 row 9 are aligned to that.
+5. **C-1 to C-16 are selected.** C-4 (the cause `operand_source_unavailable`) is recorded as **an amendment of C3a rule 4** ("null `call_ref` only with this cause"), and it supersedes KD §2.1's mapping (N-2).
+6. **To I97's revision:**
+   - **S-1:** §2.2 gains the four B1 sites that refuse any model combination: three capture hooks at T-2, and `observables_view` at T-9.
+   - **S-2:** T-6′ follows the producer's actual row layout, with the modulus-basis records after every combination's rows. No in-domain authored order falls back for layout.
+   - **S-5:** W-CB4 splits into W-CB4a (A − B) and W-CB4b (range(A, B)), each with C_eq = 3, and m28's base is fixed.
+   - **S-6:** 07o's "rehash all" is defined for B2's derived hashes, in order. SC2's harnesses gain it, including PY's operand-prepared source.
+   - **The NOTEs taken:** N-1, N-2, N-3, N-4, N-5 (G5 refuses a `CaptureError {kind: origin}` in a combination attempt or operand preparation), N-6, N-8, N-9, N-10 (also to B2-A's brief), N-11 (G3 checks the order of `operand_preparations[]` and the operand-prepared CaseSources), N-14 and N-15 (the estimates). **N-13 is declined:** the forged `base_withheld` reason is fail-safe.
+   - **From I98:** W-CB1 is 1·A + 0.5·B, with A + B as a labelled cancellation pin. W-CB3 is v1. D6b is case-only, with no combination analogue.
+   - **From RV115:** NB-1 ("the selected material operands of every member, bit for bit") and NB-3 (data flags stay per individual product, never per net).
+
+**Order:** I97's revision (`BRIEFS/B2C_REVISION_01.md`) is dispatched in the next free implementer slot after I92's SR-TS round, because B1's repairs come first. Then RV115 confirms (a), and RV118 confirms the revision. B2-C is then final for J1.
+
+## Owner decision: development jobs may use up to 64 GiB, the product stays at 12 GiB; the host runs three heavy jobs at once (ROOT, 2026-10-08 UTC)
+
+**The owner's direction, quoted:** "For the sake of testing and development on this Macbook Pro with 128 GB of ram you can go up to the agreed 64 GB for your tasks (this is desirable when it reduces the development time), but for the sake of the product and what will be shipped for use the 12 GB cap ought to remain (unless a compelling argument can convince me otherwise)."
+- **The product:** M ≤ 12 GiB stands, as do the target machines (32 GB workstations, 16 GB still practical). Raising it needs a compelling argument put to the owner. Decision 22 (three cases plus a combination at D1's caps, about 13.25 GiB) stays owner-held, and is not proposed.
+- **Development and test jobs on this Mac may use up to 64 GiB** when that saves development time.
+
+**Why the host rule changes.** On 2026-10-07 the single lock was busy 8.9 h of 24.2 h (37%). Yet agents waited 45.1 agent-hours for it in total: median 29 s, p90 210 s, max 376 min (`cargo_jobs.log`). The Mac has 18 cores and 128 GiB, and was 95% free. The cost was queueing, not memory.
+
+**The new host rule** (replaces "one cargo job at a time across all T3 work", with the owner's direction as its basis):
+1. **Up to three heavy T3 jobs run at once, one per lock slot.** `WT/tools/t3_slot.sh <command>` runs any heavy command (pytest, vitest, a test binary, a probe). `WT/tools/t3_cargo.sh <cargo args>` now runs in a slot too.
+   - Slot 1 is the original `guard/cargo_job.lock`, so `lockf -k cargo_job.lock <cmd>` still works, as a slot-1 job.
+   - Slots 2 and 3 are `cargo_job.slot2.lock` and `cargo_job.slot3.lock`. Slot jobs try 2 and 3 first.
+2. **A memory gate:** a slot job starts only while T3's resident memory is under 48 GiB and the system has at least 50% free. That keeps T3 within 64 GiB with one more job's headroom. The memory guard (SIGKILL below 35% free) stays as the backstop, and every wrapper refuses to start without it.
+3. **Exclusive jobs take all three slots,** through `WT/tools/t3_exclusive.sh <command>`: DEC-025, and every RSS, peak-memory or timing measurement of the product (SQ's and SQ2's RSS_TIME, the challenge, and the S1 witnesses' peaks). Those measure the product against its 12 GiB cap, on a quiet host.
+   - An exclusive job queues for slot 1. Only once it holds slot 1 does it mark itself pending, so new slot jobs wait, and it takes slots 2 and 3 as their running jobs end.
+   - DEC-025's quiet check now also ignores waiting slot wrappers (`run_dec025.sh`).
+4. **Unchanged:**
+   - one wait per job, ending when its process has gone;
+   - never kill another job;
+   - every cargo `--locked --offline`;
+   - fresh targets for DEC-025 suites;
+   - **each agent still runs one heavy job of its own at a time,** unless its brief says otherwise. The parallelism is across agents.
+
+**Tested:**
+- three `t3_slot.sh` jobs ran in slots 2 and 3 alongside an agent's slot-1 job, the third starting when a slot freed;
+- exit codes and stderr pass through;
+- a stale `exclusive.pending` with a dead owner is ignored.
+
+A first version marked the exclusive job pending while it still waited behind slot 1's queue, which held back new slot jobs. ROOT stopped its own test before any agent's job was affected, and reordered the stages as above. The old wrapper is kept in ROOT's scratch.
+
+**Briefs from now on** name `t3_slot.sh` for heavy non-cargo commands and `t3_exclusive.sh` for DEC-025 and measurements. Running agents may keep their present commands.
+
+## Owner clarification: 64 GiB is T3's own allocation; the machine may run to 100 GiB, and jobs start under 90 GiB (ROOT, 2026-10-08 UTC)
+
+**The owner, quoted:** "oh and I meant 64 GiB allocated for your work, not 64 GiB total used on this machine. You can load this up to 100 GiB total and start jobs when there's less than 90 GiB total memory consumption. If this helps speed up throughput."
+
+**The host now follows it** (amending the preceding section):
+1. **The memory guard's floor is 22% free,** which is about 99.8 GiB used of 128 GiB, so T3 jobs are killed only above about 100 GiB in total. It was 35%, about 83 GiB.
+   - ROOT started a new guard with the 22% floor (PID 29411) before stopping the old one (PID 5387), so the host was never unguarded.
+   - `memguard.sh`'s default is now 22%.
+2. **The start gate:** a slot job starts only while the system has at least 30% free (under about 90 GiB used in total) and T3's own resident memory is under 52 GiB, so that one more job stays within T3's 64 GiB.
+3. **Four slots** (`cargo_job.slot4.lock` added). Memory no longer binds at three, and the Mac has 18 cores. Exclusive jobs take all four.
+
+**Unchanged:** the product's M ≤ 12 GiB, exclusive mode for DEC-025 and product measurements, each agent one heavy job at a time, and the three-implementer cap. The cap is a coordination limit, not a memory one.
+
+## I90's SR-RS repair round 2 verified; RV113 confirms it; I92's SR-TS round dispatched (ROOT, 2026-10-08 UTC)
+
+**I90's repair:** `R/I90/b1_sr_rs_01/REPAIR_02.md` sha256 `a315bc7f…`. ROOT verified:
+- SHA256SUMS.repair_02 75 of 75, and the earlier sums (64 and 23) still verify;
+- the screens are clean;
+- `b1-r` is at `6e3e4fe219`, one commit over `b5cb7faaeb`, touching RS's 2 files (`source_blocks.rs` unchanged). It is clean and pushed;
+- the 3 removed assertions are each replaced by an explicit expectation.
+
+**Erratum E-15:** 8 sealed files under `_run_records/repair_02/out/` were hidden by `.gitignore`'s `**/out/` rule. ROOT force-added them (E-7's rule) and committed them at `d914194721`.
+
+**I90's claims,** for RV113 to confirm:
+- every item behaves as ruled;
+- RV113's census harness shows 0 changes and 0 misses over 339 entries;
+- 135 of 135 probes read as ruled, and RS equals TS on 120. The other 15 are TS's side: 8 header probes, 2 compound probes and 5 (g) probes;
+- RE goes 187 → 193;
+- PP and the c = 1 pins are unchanged;
+- 20 of 20 mutants are killed.
+
+**Rulings on I90's points:**
+1. **The metadata check is RS's own copy** of TS's and PY's. Adding a metadata-only entry to the Rust base reader would touch a base reader, which PLAN_v2 §1 makes a stop. That is accepted, kept in step by review. One Rust source of truth (`validate_transport_metadata` in `preview_physics_evidence.rs`) is noted for a later ruled scope, at B7.
+2. **To SQ's brief:** RS's new production loops (G3's over `sources` and `material_bases`/`case_indices`, and `g5_ordinary`'s per-case basis lookup) join SQ's TEXT-rule inventory for RS's re-qualification.
+3. **I90's host note is accepted:** it stopped its own queued job, before that job took a slot, to keep one heavy job at a time.
+
+**Dispatched:**
+- **RV113** confirms SR-RS round 2 (ADDENDUM_02).
+- **I92's SR-TS repair 01** goes into I90's slot (`BRIEFS/B1_SR_TS_REPAIR_01.md`).
+
+**Implementers running:** I85 (I3 step), I91 (SR-PY repair 02) and I92 (SR-TS repair 01). I97's B2-C revision is next in the queue.
+
+## I91's and I92's rounds verified; the header move's nine transport changes ruled in; TS's G3 combinations conjunct moves to G8 (ROOT, 2026-10-08 UTC)
+
+**I91's SR-PY repair 02:** `R/I91/b1_sr_py_01/REPAIR_02.md` sha256 `f7e50348…`, with SHA256SUMS.repair_02 56 of 56 OK. The earlier sums still verify, and the screens are clean, including the decompressed `.gz` files and the junit `hostname` attribute.
+- `b1-p` is at `70d4a68bd7`: three commits over `11cc14e3e6`, touching PY's 2 files. It is clean.
+- **The one removed assertion** (`dict.fromkeys(got, PREP)`) is replaced by explicit per-input expectations, with G5 ATTEMPT for the basis reference as ruled.
+- **Items 1–3, 5 and 6 are done, and S-2 is corrected** (REPAIR_02 §6).
+- **The census** shows 0 of 1,017 outcomes changed. The suites go 1,937 → 1,942.
+- **Mutants:** 29 of 30 are killed. F-src-kind cannot be killed, because the schema refuses first at G1.
+
+**I92's SR-TS repair 01:** `R/I92/b1_sr_ts_01/REPAIR_01.md` sha256 `592d6164…`, with SHA256SUMS.repair_01 36 of 36 OK. The earlier sums still verify, and the screens are clean.
+- `b1-t` is at `b82b932923`, one commit over `7e47e51b5d`. It is clean.
+- **(g) and the C2 precondition keying are committed.** (f) is confirmed with no change.
+- **The census** shows 0 changes. vitest goes 3,626 → 3,628.
+- **Mutants:** 18 of 18 killed.
+
+**Both implementers stopped correctly on the header move,** and held it as a tested patch. Item 4's (and item 3's) header move to G2 necessarily changes the transport verdict of 07m's nine header mutations (entries 277 and 286–293, RV113 N-1's nine), and the briefs' census rule said no 07m verdict may change. ROOT's briefs were inconsistent there.
+
+**Rulings:**
+1. **The census rule applies to the input, bound and unbound verdicts.** The transport verdicts of those nine entries change as the alignment set's item 4 rules, onto RS's G2 reading:
+   - PY: G7 → G2, with code and detail unchanged;
+   - TS: six admitted → G2, and three G7 `SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID` → G2.
+
+   No corpus entry pins a transport verdict. Any other change remains a stop. **I91 and I92 commit their held patches** (both apply cleanly, and both were tested). Each records the commit in a new record (`REPAIR_02_ITEM4.md`, `REPAIR_01_ITEM3.md`), leaving the sealed ones untouched.
+2. **TS's G3 combinations conjunct** (TS's stand-in for C1's combination-coverage row) is removed. A non-empty `combinations` is then refused at G8 INVOCATION by the (g) rule, as in RS and PY, and TT's two rows follow. B2's contract brings combination coverage at G3 in its own scope.
+3. **SC's 07n** pins the C2 precondition keying, which no 07m entry or probe carries (I92), and the nine transport readings.
+
+**Then:**
+- RV113 confirms SR-PY repair 02 (with item 4) and SR-TS repair 01 (with item 3 and the conjunct), alongside SR-RS round 2, which it is confirming now;
+- then **I4**: ROOT merges `b1-r` (again), `b1-p` and `b1-t` into `b1`.
+
+**Host:** the exclusive-mode test passed. It queued for slot 1 behind a long pytest, took all slots, ran, and cleared its pending mark.
+
+## I92's SR-TS commits and I85's I3 step verified; RV109 confirms SP; RV113 queues SR-TS (ROOT, 2026-10-08 UTC)
+
+**I92's SR-TS commits:** `b1-t` is at `6fa6a64658`, pushed. Over `b82b932923` there are two commits:
+- `1d9455c714`: the header at G2, the held patch applied byte for byte;
+- `6fa6a64658`: the G3 combinations conjunct removed, with TT's two rows moved to G8 bound and two unbound rows added.
+
+The record is `REPAIR_01_ITEM3.md` `8f1fc645…`, with SHA256SUMS.repair_01_item3 13 of 13; the sealed REPAIR_01 still verifies. It also corrects REPAIR_01 §1's +47 to +48.
+- **The census:** input, bound and unbound 0; transport 9 (entries 277 and 286–293, onto RS's reading); 0 misses.
+- **TS equals RS** on 338 of 339 entries and 133 of 135 probes. The differences are the declared per-reader G7 codes.
+- **vitest** 3,626 → 3,629; tsc clean.
+- **Mutants:** 26 of 26 killed.
+
+RV113 confirms it after SR-RS round 2.
+
+**I85's I3 step:** `R/I85/b1_sp_01/I3_01.md` sha256 `5084603d…`. SHA256SUMS.i3_01 120 of 120, and the earlier sums still verify. The screens are clean. It is committed at `03d4266d40`.
+- `b1` is at `03f55e7178`, pushed: three commits over I3 `2ba2f81863`.
+- **The only product source change** is `retained_wire.rs`'s one line, `constructor_ordinal: t.original`, with its comment. ROOT read it.
+- **Every removed assertion has a post-I3 replacement:**
+  - N-16 is compared record by record, with exactly the three flags as the exception (SF-1);
+  - T-7-on-C expects G8 `PREPARATION_MISMATCH`;
+  - the "before SR-RS" expectations became the published-successor pins.
+- **The W-C2 pins equal the front-run.** The SF-2 pins (C, B, A) and (A, A2), and the ordinal pin (`cause_milestone_reversed` publishes in both modes, each ordinal equal to its primitive-load index), are added.
+- **The c = 1 pins are unchanged.**
+- **Mutants:** 35 of 35, and RV109's six and O1 die on their own assertions at the head.
+- **PP:** registered 730/6 → 738/1; Stale 731/5 → 738/1. Only t13 still fails.
+- **Host breach, disclosed:** two of I85's jobs overlapped for 51 s at the switch to slots, and a SIGSTOPped `lockf` held slot 1 idle for 57 s. Nothing was damaged and nothing was killed. **Rule restated: an agent with jobs in flight when the host changes finishes them one at a time, and must not use signals on its own lock processes.**
+
+**RV109 (RV-P)** confirms the I3 step: the pins, SF-1, SF-2, and the ordinal fix's c = 1 byte identity and pin. It extends the PR-head ledger to `03f55e7178`. I85's scratch and targets stay until RV109 is done.
+
+**B1's position:**
+- SP is complete pending RV109.
+- Each reader's round is done: RS `6e3e4fe219`, PY `70d4a68bd7` with item 4 being committed, and TS `6fa6a64658`. RV113 confirms each.
+- **Then I4:** ROOT merges `b1-r`, `b1-p` and `b1-t` into `b1`.
+- **Then SC** (07n, I-PY), and **SQ** (I-A).
+
+**Implementers running:** I91 (item 4's commit) and I97 (B2-C revision). One slot is free. **SC is next:** it waits for I4, so ROOT prepares SC's brief now.
+
+## I91's item 4 verified and `b1-p` pushed; I97's B2-C revision 01 verified; RV113 queues SR-PY; RV115 and RV118 confirm the revision (ROOT, 2026-10-08 UTC)
+
+**I91's item 4:** `R/I91/b1_sr_py_01/REPAIR_02_ITEM4.md` sha256 `06a72494…`, with SHA256SUMS.repair_02_item4 41 of 41 OK. The sealed REPAIR_02 still verifies. The screens are clean, with the `.gz` file decompressed, and nothing is ignored.
+- `b1-p` is at `2843a59a16`, pushed: four commits over R01 `11cc14e3e6`.
+- **Item 4's diff is byte-identical to the held patch** (`357098ba…`, which ROOT read for the ruling). Its one changed assertion is the ruled expectation (the header at G2 on transport); everything else is added.
+- **The census over 07m against R01:** exactly the nine ruled transport changes (entries 277 and 286–293, G7 → G2, code and detail unchanged), each equal to RS's at `6e3e4fe219`. Input, bound and unbound: 0 changes. 0 misses. Transport now equals RS on 339 of 339.
+- **Python suites:** 1,937 → 1,944 passed, 30 skipped. +7 added; none removed or changed.
+- **Mutants:** item 4's three are killed by assertions; PRE fails exactly the four new or changed tests.
+- REPAIR_02.md still reads "item 4 held". REPAIR_02_ITEM4.md supersedes that part, as ruling 1 of "I91's and I92's rounds verified; …" ordered.
+
+**I97's B2-C revision 01:** `R/I97/b2_c_01/REVISION_01.md` sha256 `6f6a583f…`, with SHA256SUMS.revision_01 10 of 10 OK. The sealed CONTRACT.md, SHA256SUMS (13 of 13), `statics/` and `_run_records/` are untouched. The screens are clean; the only `.local` hits are SCHEMA's sealed `$id`, a schema identifier.
+- **ROOT reran `b2c_statics_r1.py`** in its own scratch and reproduced DEF-C r1, PTABLE r1 and the run's report byte for byte.
+- **The statics:** DEF-C r1 raw `6467c733…`, H `0c43cf42…`; PTABLE `791c0a0d…`. SCHEMA_B2.diff `ff3b8895…` and the J1 SCHEMA `abf3225c…` are unchanged. J1's reviewed inputs are SCHEMA `abf3225c…`, PTABLE `791c0a0d…` and DEF-C `6467c733…`.
+- **All twelve items are addressed.** S-4 (a) takes DEF-O's hypot pattern, so G7's 64ε guard holds by construction (a 16× margin, checked on 4,013 triples). The observables stage is defined. §10 has 19 bases and 69 mutations.
+- **I97's choices within the rulings** (REVISION §9.2) go to RV118. ROOT rules none of them before its review.
+
+**Confirmations:**
+- **RV113 (RV-R)** confirms SR-PY repair 02 with item 4 (REPAIR_02 and REPAIR_02_ITEM4, `b1-p` `2843a59a16`), after SR-RS round 2 and SR-TS repair 01.
+- **RV115 (RV-K)** confirms S-4 (a)'s numerical content (REVISION §1.1, DEF-C r1).
+- **RV118 (RV-C)** confirms the revision, including the §9.2 choices. B2-C is then final for J1, with its names reserved.
+
+**Implementers running:** none. I-PY (I91) takes SC after I4, by `BRIEFS/B1_SC.md`. No other B1 or B2/B3 unit can start before I4 or J0.
+
+## RV115 confirms S-4 (a)'s soundness with SA3-1; the combination's displacement magnitude becomes one exact rounding (ROOT, 2026-10-08 UTC)
+
+**RV115 (RV-K) ADDENDUM_03:** `R/REVIEW_RV115/b2_kd_01/ADDENDUM_03.md` sha256 `4bd3e234…`, with SHA256SUMS.addendum_03 4 of 4 OK. Its sealed SHA256SUMS, `.addendum_01` and `.addendum_02` still verify. The screens are clean.
+- **Soundness CONFIRMED:** 0 BLOCKING, 1 SHOULD-FIX, 5 NOTEs.
+- The recipe cannot publish a magnitude outside the dual enclosure, because the kernel's final gate measures the published value. The coverage bound holds as an upper bound (9,000 of 9,000 trials).
+- **G7's 64ε guard holds by construction** for any two hypot implementations each within about 32 ulps (a margin of at least 16× with faithful libraries).
+- DEF-C r1 changes exactly four leaf paths from v0. RV115 rebuilt H `0c43cf42…` independently. NB-1 and NB-3 are worded as asked.
+
+**SA3-1 (SHOULD-FIX): S-4 (a) costs certificate availability, and makes the published bits platform-dependent.** The gate's relative allowance covers one round-to-nearest; the nested hypot brings two, on the producer's libm. With a point enclosure, r1 fails 10–17 % of near-scale rows with a correctly rounded hypot and 63–100 % with an adversarial faithful one, against v0's 9–13 %. In 98 % of those failures every component row passes.
+
+**Ruled: option (ii).** A combination's `displacement_magnitude` is **RN64 of the exact 3-norm of its frozen published components** (mm): computed exactly, rounded once, the same bits on every platform.
+- **Why:** in RV115's model it restores v0's availability (379 vs 378, 315 vs 314, 292 vs 273 per 3,000). G7 still holds by construction, with |p − r| ≤ 2.5 ulps (a 25× margin). The retained route's published bits no longer depend on the OS's `hypot`. Option (i) would only measure a loss that (ii) removes.
+- **Scope:** only the combination displacement-magnitude row that S-4 (a) changed. DEF-C's `support_magnitude` stays DEF-O's, byte for byte, as does DEF-O itself (frozen in B1).
+- **§1.1's text is corrected:** the coverage argument is an upper bound, not availability parity.
+- **NC-2 is taken:** `stages.observables` states the guard's formula, 64ε·max(|p|, MIN_POSITIVE).
+- **I97 writes revision 02** after RV118's confirmation of revision 01 returns, so one revision carries both. It gives the exact recipe (exact sum of squares, then a correctly rounded square root), the kernel's cost in B2-P, DEF-C r2, H and PTABLE. **If the cost exceeds 4 h of B2-P, I97 returns before writing, and ROOT reconsiders (i).** RV115 then confirms (ii)'s numerics, and RV118 confirms revision 02.
+
+**Routed (DEF-O's availability, a later unit):**
+- **NC-1:** DEF-O's mm→SI projection (`y / 1000.0` after RN64) is a second rounding against an allowance sized for one. With a point enclosure, about 7 % of top-scale mm component rows fail the sharper predicates.
+- **The same property for support magnitudes** (DEF-O's `support_magnitude`, nested hypot), in cases and combinations.
+
+Both are availability limits of the frozen DEF-O, not soundness defects: a failing row falls back and never publishes outside the enclosure. **SQ measures them** on its cap-maximal inputs: the share of `SharperExact` fallbacks each causes. ROOT then decides whether a DEF-O revision goes into a later unit. They are not attributed to RV97's, I98's or I99's fallbacks until measured.
+
+**NC-3 and NC-4** are recorded:
+- TS's `Math.hypot` has no specified accuracy, and an unscaled hypot overflows near 1e±154 mm. Flush-to-zero and x87 modes are not targets. **SC2** adds a TS test of `consistentNorm` on adversarial and subnormal triples.
+- The recipe reads the same raw bits the guard reads.
+
+## RV118 confirms B2-C revision 01; the exact rounding is formed in the kernel's projection (B2-K); I97 writes revision 02 (ROOT, 2026-10-08 UTC)
+
+**RV118 (RV-C) ADDENDUM_01:** `R/REVIEW_RV118/b2_c_01/ADDENDUM_01.md` sha256 `774b06bd…`, with SHA256SUMS.addendum_01 7 of 7 OK. The sealed REVIEW.md and SHA256SUMS still verify. The screens are clean; the only `.local` hit is the screen's own rule text.
+- **CONFIRMED:** 0 BLOCKING, 1 SHOULD-FIX (routing), 5 NOTEs. Every amendment and NOTE is applied as ruled (N-13 was declined, and is correctly omitted). RV118 reran I97's r1 scripts twice and reproduced DEF-C r1, PTABLE r1 and the checks byte for byte, and H with its own JCS.
+- **All eight of I97's §9.2 choices are accepted.** They stand.
+- §10's 19 bases and 69 mutations are consistent: every designed first failure is reachable under S-6's rehash.
+- **Option (ii) changes none of these:** the observables stage, §10.1's G7 row, m69 or the witnesses' expectations. RV118 measured |p − r| ≤ 3 ulps over 20,000 triples, 3/64 of the allowance.
+- **Disclosed slip:** one host `python3 -c` call read a scratch file and wrote nothing.
+
+**A-1 (SHOULD-FIX) is accepted.** ROOT read FK `final_case.rs` `certify_final` (`:1884–1894`). It refuses any row whose value bits differ from those the projection froze, and PP's `observed` bits exist only for record rows. So (ii)'s formation is in FK's `ProductProofDraft::project`, for combination owners only: **lane K (B2-K), not B2-P.** B2-P keeps the observables stage.
+- **The 4 h threshold of the SA3-1 ruling reads against B2-K.**
+- B2-K's brief gains the branch in KD §5.7, a K-09 diagnose check of the published bits, K-13 byte identity for case magnitudes, and RV-K's review.
+
+**The NOTEs go into revision 02:** A-2 (S-3's parenthesis), A-3 (two predicted bases), A-4 (m69's and m50's rows), A-5 (ties to even, with r1's clauses kept) and A-6 (the shape count). So do RV115's NC-2 and NC-3.
+
+**I97 writes revision 02** by `BRIEFS/B2C_REVISION_02.md` (sha256 `d82dba65…`): (ii) with a reference implementation, A-1's site and B2-K's cost, and the NOTEs. It regenerates DEF-C r2, H and PTABLE r2 into `statics/r2/`.
+- **Then:** RV115 confirms (ii)'s numerics, and RV118 revision 02.
+- **B2-C is final for J1** once both confirm. J1's inputs become SCHEMA `abf3225c…` with PTABLE r2 and DEF-C r2.
+
+**Screen widened (E-16, recorded with the redaction):** the host-name term includes the machine's network name and the laptop-model form, case-insensitive, beside the machine's earlier host-name form (RR "RV117 passes #1111; …", ruling 4). Every new brief carries it.
+
+## I97's B2-C revision 02 verified; RV115 and RV118 confirm it (ROOT, 2026-10-08 UTC)
+
+**I97's revision 02:** `R/I97/b2_c_01/REVISION_02.md` sha256 `79007dcd…`, with SHA256SUMS.revision_02 9 of 9 OK. The sealed SHA256SUMS (13 of 13) and `.revision_01` (10 of 10) still verify, and CONTRACT, REVISION_01, `statics/` and `statics/r1/` are unchanged. The screens are clean, the host-name and `MacBook` terms included.
+- **ROOT reran both r2 scripts** in its own scratch. They reproduce DEF-C r2, PTABLE r2, the statics report, the checks output and `exact_norm_vectors.json` (411 vectors) byte for byte.
+- **The statics:** DEF-C r2 raw `3cebce55…`, H `d3fde142…`; PTABLE r2 `b2b4a54d…`. The J1 SCHEMA `abf3225c…` is unchanged. Against r1, DEF-C changes two paths and PTABLE one.
+- **(ii):** RN64, ties to even, of the exact 3-norm of the frozen raw mm components, with r1's other clauses kept.
+  - The reference `rn64_norm3` agrees with an independent midpoint oracle, and bit for bit with RV118's `rn64_sqrt`, on 32,027 triples.
+  - G7 measures at most 3 ulps (3/64 of the allowance), with 0 failures over 144,598 pairs.
+  - **The midpoint side must be decided exactly:** this host's nested hypot, or a sum rounded to 1,024 bits, rounds I97's example the wrong way.
+- **B2-K's cost is 2.5–3.5 h, under the 4 h threshold.** It reuses FK's exact arithmetic only (`ExactWideSum`, `WideContext::<16>::sqrt`, and the pattern of `directed::certificate::sqrt_owned`). B2-K becomes 21.5–33.5 h; B2-P is unchanged.
+- **A-1 to A-6, NC-2 and NC-3** are applied.
+
+**Routed to B2-K's brief:** the KD §5.7 branch, the K-09 check with the vectors (including the midpoint + 2⁻¹⁰⁷⁴ vector, decided exactly), K-13 byte identity for case magnitudes, unit tests, and RV-K's review.
+
+**Confirmations:**
+- **RV115 (RV-K)** confirms (ii)'s numerics: REVISION_02 §1–§2, DEF-C r2 and its H, and the reference implementation.
+- **RV118 (RV-C)** confirms revision 02.
+- **B2-C is then final for J1,** with reviewed inputs SCHEMA `abf3225c…`, PTABLE r2 `b2b4a54d…` and DEF-C r2 `3cebce55…`.
+
+## Erratum E-16: RV113's SR-PY evidence carried the junit host attribute; redacted on NUM by the owner's decision (ROOT, 2026-10-08 UTC)
+
+**What:** 42 gzipped junit files under `R/REVIEW_RV113/rvr_sr_py_01/evidence/` carried the junit `hostname` attribute, with the machine's network name. ROOT's screen at commit time looked only for the machine's other host-name form (RR "RV117 passes #1111; …", ruling 4), so it missed them. ROOT found them while cutting the next records PR. None reached main.
+
+**The owner chose redaction in place on NUM** (option 1 of three), as E-10's was. The auto-mode safety check refused ROOT's rewrite of a reviewer's sealed files, so **the owner ran ROOT's script.** ROOT then verified the result against the originals at `c8e54918cd`:
+- 42 `.gz` files and `SHA256SUMS` changed, and nothing else;
+- each file differs from its original only by the removed attribute;
+- `SHA256SUMS` changed in exactly those 42 lines, and is 245 of 245 OK;
+- `REVIEW.md` is unchanged (`d8611e59…`).
+
+**The record:** `IMPLEMENTATION/REDACTION_E16/RECORD.md` (sha256 `e3af69ba…`), with each file's old and new sha256. **The redacted originals' list gains the 42 files.** The originals survive only in NUM's history.
+
+**Rules from now on:**
+- the host-name screen covers the machine's network name and any `MacBook` form, case-insensitive, beside the earlier form;
+- every brief carries it;
+- a screen hit stops the commit until ROOT has read it.
+
+**Main's earlier records:** 11 T3 records on main from 2026-10-03 carry the network name, and RV76's REVIEW.md carries one home-relative path. They predate this session's screens. Cleaning main's tree is the owner's choice; the owner has been told.
+
+**Addendum to E-16 (ROOT's own correction):**
+- **The rule existed; ROOT applied it wrongly.** RR "RV117 passes #1111; …", ruling 4 (2026-10-07) already required the screen to check the machine's full host name and `\.local\b` in decompressed `.gz` files, and N-4 named this very attribute. ROOT then screened with the machine's other host-name form, and judged `.local` hits in text only. So E-16 is a lapse in applying ruling 4, not a gap in the rule. `REDACTION_E16/RECORD.md` says the screen "looked for the machine's other host-name form only"; that is accurate, but it does not say the rule already covered this. This addendum supplies that.
+- **Main also carries the attribute in I91's five junit `.gz` files** (`R/I91/b1_sr_py_01/_run_records/suites/`), merged with #1111 under ruling 4's "no new kind of exposure". That is besides the 11 records from 2026-10-03 and RV76's path. The owner has been told.
+- **The records-PR screen** reads every hit in the PR's added and changed lines, in text and in decompressed `.gz`. The remaining hits are pattern or rule text, the owner's own words, or an already-redacted `<host>` placeholder.
+
+## RV115 and RV118 confirm B2-C revision 02: B2-C is final for J1; SA4-1 and B-2 go to B2-K's brief, B-1 to SC2's; E-17 and two portability registrations (ROOT, 2026-10-08 UTC)
+
+**RV115 (RV-K) ADDENDUM_04:** `R/REVIEW_RV115/b2_kd_01/ADDENDUM_04.md` sha256 `ed6acc50…`, with SHA256SUMS.addendum_04 4 of 4 OK. The earlier sums still verify, and the screens are clean.
+- **CONFIRMED:** 0 BLOCKING, 1 SHOULD-FIX, 5 NOTEs.
+- The recipe is exact as stated. `rn64_norm3` agrees bit for bit, tie flags included, with RV115's independent oracle on 18,018 triples and I97's 411 vectors.
+- Availability is v0's.
+- G7 measures at most 2.0 ulps against an exact faithful nested hypot.
+- B2-K's planned formation is sound under SA4-1's conditions.
+- DEF-C r2 changes exactly two paths from r1, and H `d3fde142…` rebuilds independently.
+
+**RV118 (RV-C) ADDENDUM_02:** `R/REVIEW_RV118/b2_c_01/ADDENDUM_02.md` sha256 `be20b10b…`, with SHA256SUMS.addendum_02 5 of 5 OK. The earlier sums still verify, and the screens are clean.
+- **CONFIRMED:** 0 BLOCKING, 1 SHOULD-FIX (routing), 2 NOTEs.
+- RV118 reproduced I97's r2 scripts and H independently.
+- A-1 to A-6 are applied, and (ii) is placed consistently.
+- J1's inputs and the estimates are consistent.
+
+**B2-C is final for J1.** Its reviewed inputs are:
+- SCHEMA `abf3225c…`;
+- PTABLE r2 `b2b4a54d…`;
+- DEF-C r2 `3cebce55…` (H `d3fde142…`).
+
+The record is `R/I97/b2_c_01/`: CONTRACT, REVISION_01 and REVISION_02. Its names are reserved. **No revision 03:** each finding below corrects a later brief, not the contract's statics.
+
+**Routed to B2-K's brief** (B2-K runs after J0; these supersede REVISION_02 §2.2 step 4's midpoint wording):
+- **SA4-1 (a):** both midpoints come from y₀'s actual binary64 neighbours, averaged exactly, never from a binade rule. At 2⁻¹⁰²² both gaps are 2⁻¹⁰⁷⁴.
+- **SA4-1 (b):** at y₀ = MAX, the upper midpoint is MAX + 2⁹⁷⁰, and S at or above its square refuses.
+- **SA4-1 (c), and B-2 (b):** an overflowing estimate is decided by the same exact comparison (one more `signum`), not refused on the estimate.
+- **SA4-1 (d):** at most one correction step; a second is an invariant failure.
+- **SA4-1 (e):** a zero or underflowing estimate when S > 0 is an invariant failure.
+- **The vectors:** K-09's vector set and the unit tests add RV115's counterexample (`000fffffffffffff`, `0000000004000001`, 0), RV118's witness (`000fffffffffffff`, 2⁻¹⁰⁴⁸, 0), and a near-threshold triple. Each is expected at MIN_POSITIVE. `exact_norm_vectors.json` stays sealed; B2-K's brief carries the additions.
+- **NA4-5:** the ordinary and retained routes now form combination magnitudes differently, up to about 2 ulps apart. G7 holds on both. B2-K's and B2-P's records state it.
+
+**Routed to SC2's brief, B-1:** REVISION_02 §4.5's TS `consistentNorm` test refuses p·(1 + 2⁻⁴⁰) only for p ≥ MIN_POSITIVE. For smaller p, +0 included, it refuses p + 256·2⁻¹⁰⁷⁴.
+
+**Erratum E-17: ROOT's brief `BRIEFS/B2W_B3W_PROBES.md` spells out the screen pattern,** which GEN-8 reads as machine-absolute paths (line 59). It breaks RR "Records PR #1084: redactions, GEN-8 repair and re-cut", whose rule says ROOT's living documents carry no machine-absolute-path form.
+- **The brief is as-issued:** I98's and I99's probes ran under it and cite it. So it is not rewritten. It is registered as a hash-bound `control_path_exception` (role CONTROL), as #1084's 43 as-issued briefs were.
+- **From now on,** briefs name the strict pattern ("the strict pattern of B1_COMMON") and never spell it out.
+
+**RV117's sealed `REVIEW_RV117/records_01/REVIEW.md`** quotes two `/tmp/` snippets from I89's, I91's and I92's mutant scripts (line 154). GEN-8 reads them as machine paths. A reviewer's sealed record is not rewritten, so it is registered as a hash-bound `historical_role_override` (role EVIDENCE), as #1084's 211 review and TASK records were.
+
+**Both registrations** are made under the owner's standing authorization. They follow #1084's owner-approved registration and `f9ff31f163`'s precedent for as-issued T1 briefs. The next records PR carries them in `P/validation/portability_policy.json`, and its reviewer checks them.
+
+## Records PR #1114 opened; RV119 reviews it (ROOT, 2026-10-08 UTC)
+
+**[#1114](https://github.com/sgttomas/chirality/pull/1114)**, branch `codex/piping-t3-records-20261008`, head `57f078b4c8`: one commit on main `f4358eb0be`.
+- **Content:** NUM's `execution/` at `96cf68289f` (1,055 added, 2 modified, 0 deleted), plus E-17's two appended entries in `P/validation/portability_policy.json`.
+- **The cut:** main changed nothing under piping's `execution/` since NUM's merge base `0b6c5d7362`.
+- **Gates at the head:**
+  - GEN-8: passed. Its first run failed on E-17's two files, which are now registered.
+  - `validate_run_record_leaks.py`: PASS on 1,056 files, with one size warning (an 8.1 MB evidence file).
+  - ROOT's screen: every remaining hit read and judged.
+- **The PR description was corrected once before review.** I96's B3-D revision 01 and RV116's addendum were already on main with #1111, and RV113's confirmation of SR-RS's repair was missing.
+
+**RV119** reviews it, by `BRIEFS/RV119_RECORDS_PR8_REVIEW.md` (sha256 `62078533…`). **The next unused IDs are I100 and RV120.**
+
+## RV109 confirms SP's I3 step: SP is complete (ROOT, 2026-10-08 UTC)
+
+**RV109 (RV-P) ADDENDUM_01 to round 2:** `R/REVIEW_RV109/rvp_round2_01/ADDENDUM_01.md` sha256 `f065a1f6…`, with SHA256SUMS.addendum_01 51 of 51 OK. Round 2's SHA256SUMS (125) still verifies, and so do I85's I3_01 (`5084603d…`, 120 sums). The screens are clean on all 52 new files, decompressed `.gz` and host names included.
+
+**CONFIRMED: 0 BLOCKING, 0 SHOULD-FIX, 2 NOTEs.** RV109 independently confirmed:
+- **W-C2:** its own document, built through the registered Direct entry, is byte-identical to each committed fixture in both modes, at I3 and at the head.
+- **SF-1:** the whole-record comparison has exactly the three flag exemptions, and two test mutants show it is live.
+- **SF-2:** the pins equal its own successors, and its six round-2 patches die at their named assertions.
+- **The ordinal fix:**
+  - c = 1 identity holds on 124 of 132 probe rows. The 8 others are its four out-of-order inputs, each moving from a G8 fallback to a published successor that the RS and PY readers accept.
+  - All 86 existing hex-literal pins remain.
+  - Reverting the fix is killed by the new test's own assertion.
+- **The suites:** PP registered 730/6 → 738/1 and Stale 568/5 → 575/1; only t13 still fails, as at I3.
+- **The ledger:** every ST and SP hunk through `03f55e7178` is now reviewed by RV-P.
+
+**SP is complete.** B1's position: SP done, and the three readers' rounds await RV113's confirmations; then I4.
+
+**The NOTEs, routed:**
+- **N-1:** the ordinal fix relies on one nodal term per primitive load, which holds in D1, and the RS and PY readers derive it the same way. A later domain admitting a load with several terms makes `constructor_ordinal` per-term in the producer and all three readers together. This is routed to F2b's planning; B2's combinations are unaffected.
+- **N-2:** nothing now pins the c ≥ 2 notice path through the Direct entry (T-12 at c ≥ 2 is pinned through `retained_w1` with injected faults; Direct calls the same function). A Direct variant with a fault armed is optional, and goes to SQ.
+
+**Cleanup done:** I85's scratch (3.3 GB) and its five targets (about 31 GB) are deleted, as RR planned once RV109 finished. RV109's own copies and targets are already deleted.
+
+## RV119 passes #1114 with S-1; the owner has ROOT's two hostname lines reworded (E-18); a run-time host screen; errata to E-16's account (ROOT, 2026-10-08 UTC)
+
+**RV119's review of #1114** (head `57f078b4c8`): `R/REVIEW_RV119/records_01/REVIEW.md` sha256 `ef2c9538…`, with SHA256SUMS 67 of 67 OK. The screens are clean. Its records reach main with the next records PR, as RV117's did.
+- **PASS: 0 BLOCKING, 1 SHOULD-FIX, 3 NOTEs.**
+- **Scope:** the PR's `execution/` equals NUM's at `96cf68289f`, plus only E-17's two policy entries. There are no symlinks.
+- **Screens:** the leak validator passes, and all 156 `.gz` files decompress and screen clean. E-16's 42 files match the record, and none of E-10's or REDACTIONS.json's originals is present.
+- **GEN-8** passes (RV119's own run).
+- **Sums:** all 28 added sum files verify.
+- **Citations:** all 228 hash, path and heading citations resolve.
+- **Owner-held decisions:** ROOT took none, and every owner quotation is verbatim.
+- **CI:** 4/4 on the head.
+
+**S-1 (SHOULD-FIX): #1114 would put the machine's earlier host-name form on main for the first time,** in three lines:
+- ROOT's RR line in "RV118 confirms B2-C revision 01; …" ("Screen widened"), spelled out;
+- ROOT's brief `BRIEFS/B2C_REVISION_02.md`, line 41, spelled out;
+- I90's sealed `_run_records/repair_02/scripts/write_records_r2.sh`, line 35, in character-class form inside its own screen pattern.
+
+**The owner chose (2026-10-08, "Redact my two lines"):** ROOT's two lines are reworded in place to describe the form; I90's sealed script stays as executed. So main carries the form only inside that one regex.
+
+**Erratum E-18, the two rewordings,** made before the lines reach main. The meaning is unchanged.
+- **RR:** "beside `…`" becomes "beside the machine's earlier host-name form (RR "RV117 passes #1111; …", ruling 4)". The line is past main's prefix, as E-2's repair was.
+- **`BRIEFS/B2C_REVISION_02.md`:** its host-name rule names the forms instead of spelling them. Its sha256 changes from `d82dba65…` to `d1d213d8…`. RR "RV118 confirms B2-C revision 01; …" and I97's REVISION_02 cite the old hash; this maps it.
+
+**A run-time host screen (RV119's recommendation):** `WT/tools/t3_host_screen.py`, outside every repository.
+- **The names it screens:** this machine's names, read at run time (hostname, LocalHostName, ComputerName). The plain hostname follows the network, so the tool also reads earlier names from a private list beside it.
+- **The forms it matches:** plain, split, escaped and character-class, plus the junit `hostname` attribute and the strict path forms.
+- **It never prints a name:** every match is shown as `<host>`.
+- **It now runs on every records commit and every records PR,** and a hit stops the commit until ROOT has read it.
+- On #1114's head it finds all three of S-1's lines, which the literal screens missed.
+
+**N-2, errata to E-16's account** (RR "Erratum E-16: …" and its addendum, and the sealed `REDACTION_E16/RECORD.md`):
+- RV76's path on main is home-rooted absolute, not "home-relative". It is registered in the portability policy.
+- I91's five junit `.gz` files on main sit in two folders: three in `suites/` and two in `repair_01/suites/`.
+
+What the owner was told named the path correctly.
+
+**N-1:** the work graph's T3 section is brought current in this commit. **N-3:** the squash body says "the owner's own words", and states that RV109's round 2 reviewed SP before I3.
+
+**Then:**
+1. #1114 gains one commit: NUM's `execution/` at this commit. It adds RV109's ADDENDUM_01, the two rewordings, these RR sections and the work graph; RV119's own records stay out.
+2. RV119 confirms the delta (ADDENDUM_01).
+3. ROOT squash-merges with `--match-head-commit`.

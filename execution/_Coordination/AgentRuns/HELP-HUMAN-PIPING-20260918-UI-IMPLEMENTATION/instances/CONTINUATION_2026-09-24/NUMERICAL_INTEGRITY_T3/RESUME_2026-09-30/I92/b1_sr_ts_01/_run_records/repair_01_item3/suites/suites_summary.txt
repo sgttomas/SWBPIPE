@@ -1,0 +1,4 @@
+I92 B1 SR-TS repair 01, item 3 and the G3 conjunct: the whole desktop vitest suite and tsc, test by test, against 7e47e51b5d.
+Each run: one job through WT/tools/t3_slot.sh, in a git archive of P without execution/ (NMS linked; the eight wasm assets copied).
+  base  7e47e51b5d:   vitest 141 files, 3626 passed; tsc --noEmit rc 0, no output (REPAIR_01's base run)
+  head  6fa6a64658:   vitest 141 files, 3629 passed; tsc rc 0, no output; against base: +3 added, 0 removed, 0 changed (suites_compare.json)

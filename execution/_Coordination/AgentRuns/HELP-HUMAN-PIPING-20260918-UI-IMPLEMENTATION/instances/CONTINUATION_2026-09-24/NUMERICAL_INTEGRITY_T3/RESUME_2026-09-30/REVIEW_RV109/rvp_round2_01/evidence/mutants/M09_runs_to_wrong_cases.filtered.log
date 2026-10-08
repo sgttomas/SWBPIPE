@@ -1,0 +1,27 @@
+RV109_JOB name=r2_mut_M09_runs_to_wrong_cases dir=WT/rv109/mut/projects/chirality-piping/core/product_physics target=rv109-r2-mut stale=0 args=test --locked --offline --no-fail-fast --lib start=2026-10-07T21:42:00Z
+test retained_facade_tests::b1_sp_w_c2_direct_entry_counts_one_run_through_g_c ... FAILED
+test retained_facade_tests::b1_sp_w_c2_through_retained_w1_publishes_t12 ... FAILED
+test retained_facade_tests::b1_sp_w_c2_transaction_faults_and_abandonment ... FAILED
+test retained_facade_tests::b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping ... FAILED
+test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+thread 'retained_facade_tests::b1_sp_w_c2_direct_entry_counts_one_run_through_g_c' (96869520) panicked at src/retained_facade_tests.rs:1803:9:
+assertion `left == right` failed: SparseInteractive: before SR-RS
+  left: Some(Serializer(ReceiptFailure { check: Association, field_path: "cases[].run.origin" }))
+ right: Some(Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH" })
+thread 'retained_facade_tests::b1_sp_w_c2_through_retained_w1_publishes_t12' (96869540) panicked at src/retained_facade_tests.rs:1772:9:
+assertion `left == right` failed: SparseInteractive: not NoTriggeredCase (R17)
+  left: Some(Serializer(ReceiptFailure { check: Association, field_path: "cases[].run.origin" }))
+ right: Some(Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH" })
+thread 'retained_facade_tests::b1_sp_w_c2_transaction_faults_and_abandonment' (96869795) panicked at src/retained_facade_tests.rs:1738:5:
+assertion `left == right` failed: staging
+  left: (Staging(StagingFault("pipe_stress_extrema[]")), 2)
+ right: (Staging(StagingFault("pipe_stress_extrema[]")), 1)
+thread 'retained_facade_tests::b1_sp_w_c2_transaction_outcomes_and_ordinal_mapping' (96870183) panicked at src/retained_facade_tests.rs:1615:9:
+assertion `left == right` failed: SparseInteractive: before SR-RS, B's not_required fails G5; A was selected
+  left: Some((Serializer(ReceiptFailure { check: Association, field_path: "cases[].run.origin" }), 2))
+ right: Some((Precommit { gate: "G5", code: "RETAINED_PRECISION_ATTEMPT_MISMATCH" }, 1))
+thread 's11g_tests::t13_committed_fallback_uz_is_byte_identical' (96873112) panicked at src/s11g_tests.rs:1666:9:
+test result: FAILED. 568 passed; 5 failed; 11 ignored; 0 measured; 0 filtered out; finished in 56.87s
+error: test failed, to rerun pass `--lib`
+error: 1 target failed:
+RV109_JOB_END name=r2_mut_M09_runs_to_wrong_cases rc=101 end=2026-10-07T21:43:01Z

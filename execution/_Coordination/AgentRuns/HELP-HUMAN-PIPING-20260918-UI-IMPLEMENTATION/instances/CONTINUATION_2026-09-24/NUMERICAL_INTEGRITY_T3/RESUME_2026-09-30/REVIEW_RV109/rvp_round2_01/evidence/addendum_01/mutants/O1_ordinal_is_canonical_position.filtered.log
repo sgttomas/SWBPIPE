@@ -1,0 +1,10 @@
+RV109_JOB name=a1_mut_O1_ordinal_is_canonical_position dir=WT/rv109/a1_mut/projects/chirality-piping/core/product_physics target=rv109-a1-mut stale=0 args=test --locked --offline --no-fail-fast --lib start=2026-10-08T02:41:44Z
+test retained_facade_tests::b1_sp_constructor_ordinal_is_the_authored_index ... FAILED
+test s11g_tests::t13_committed_fallback_uz_is_byte_identical ... FAILED
+thread 'retained_facade_tests::b1_sp_constructor_ordinal_is_the_authored_index' (101034914) panicked at src/retained_facade_tests.rs:2325:9:
+assertion `left == right` failed: sparse_interactive: the authored index, in canonical order
+  left: [(Number(0), Number(2)), (Number(1), Number(1)), (Number(2), Number(0))]
+ right: [(Number(2), Number(2)), (Number(1), Number(1)), (Number(0), Number(0))]
+thread 's11g_tests::t13_committed_fallback_uz_is_byte_identical' (101071917) panicked at src/s11g_tests.rs:1666:9:
+test result: FAILED. 574 passed; 2 failed; 11 ignored; 0 measured; 0 filtered out; finished in 76.03s
+RV109_JOB_END name=a1_mut_O1_ordinal_is_canonical_position rc=101 end=2026-10-08T02:43:03Z

@@ -1,0 +1,64 @@
+== m3x sparse_interactive: 4M 437100452f60 (69456 B; physics-1; MECHANICS_SOLVED; 98 results) vs 8M 5978e4dc9f8e (69456 B; physics-1; MECHANICS_SOLVED; 98 results): 1 differing paths
+   $.diagnostics[3].message: "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupp -> "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupp
+== m3x dense_scrutiny: 4M 43f99d280fc6 (70540 B; physics-1; MECHANICS_SOLVED; 99 results) vs 8M d616999bdea4 (70540 B; physics-1; MECHANICS_SOLVED; 99 results): 1 differing paths
+   $.diagnostics[3].message: "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupp -> "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupp
+== n05 sparse_interactive: 4M 6e4053ace986 (115957 B; physics-source-1; MECHANICS_SOLVED; 81 results) vs 8M f222706855fc (115957 B; physics-source-1; MECHANICS_SOLVED; 81 results): 4 differing paths
+   $.diagnostics[2].message: "requested_mode=sparse_interactive; selected_method=retained_source_blocks_exact_v1; complete source-bound displacement/member/station/device projections preced -> "requested_mode=sparse_interactive; selected_method=retained_source_blocks_exact_v1; complete source-bound displacement/member/station/device projections preced
+   $.source_block_recovery.body.cases[0].work.limit: 4000000 -> 8000000
+   $.source_block_recovery.body.publication_sha256: "c710b56e17b618bcb020decfc704279426c42437fe99d9eb43167e05c208c38d" -> "ab84db233925453fcb7dc77dae6647a8734c89568072d1742837a50115e0aa1f"
+   $.source_block_recovery.receipt_sha256: "e4d7a9a868cf75771454fec0bc5bd855c52750d4b11d26e1818e85704acdb5ef" -> "87c5a52fec099cb2978acf34a74d387b6fb8e44f2dd7ee536099ffa768962f9a"
+== n05 dense_scrutiny: 4M e2200d33d5a8 (117214 B; physics-source-1; MECHANICS_SOLVED; 82 results) vs 8M d963aa24e0e1 (117214 B; physics-source-1; MECHANICS_SOLVED; 82 results): 4 differing paths
+   $.diagnostics[2].message: "requested_mode=dense_scrutiny; selected_method=retained_source_blocks_exact_v1; complete source-bound displacement/member/station/device projections precede bi -> "requested_mode=dense_scrutiny; selected_method=retained_source_blocks_exact_v1; complete source-bound displacement/member/station/device projections precede bi
+   $.source_block_recovery.body.cases[0].work.limit: 4000000 -> 8000000
+   $.source_block_recovery.body.publication_sha256: "5059312b6438678582132f63778f40dffb4906649cdc19ca616c764bc9a59635" -> "494a13a264381634efce2a9d922137e10ce59f342cb8df02285ef33488b4d5f0"
+   $.source_block_recovery.receipt_sha256: "9a37d9f578471e3dfe18a5a531ff3825c9a942bb13002a99962880634e1ce755" -> "5d64ccb07982279406bf325cbee286a1fc08818ebbbdf4b2e5a8709a2b4c1e49"
+== n06 sparse_interactive: 4M dee127c85452 (108899 B; physics-source-1; MECHANICS_SOLVED; 81 results) vs 8M f283835844a1 (108899 B; physics-source-1; MECHANICS_SOLVED; 81 results): 4 differing paths
+   $.diagnostics[3].message: "requested_mode=sparse_interactive; selected_method=retained_source_blocks_exact_v1; complete source-bound displacement/member/station/device projections preced -> "requested_mode=sparse_interactive; selected_method=retained_source_blocks_exact_v1; complete source-bound displacement/member/station/device projections preced
+   $.source_block_recovery.body.cases[0].work.limit: 4000000 -> 8000000
+   $.source_block_recovery.body.publication_sha256: "833204cad3b64ac53345e33c84cfe8706aa49a47b6be5ee32e1867c8258a631b" -> "92a529ba5931f4a34fb60f54a6673e112f72993c8ab1957a9504871577579251"
+   $.source_block_recovery.receipt_sha256: "08b9dc03f2d795a833d2a40e7674582cff4d6bb5e3fce7e1c2f8386299e5e6c5" -> "f7617a6557e5357b42890134de02836c20c416de2f9d57dee202770c0f9dc7a2"
+== n06 dense_scrutiny: 4M bb05a0a4d6ef (108887 B; physics-source-1; MECHANICS_SOLVED; 81 results) vs 8M 64c8113d9828 (108887 B; physics-source-1; MECHANICS_SOLVED; 81 results): 4 differing paths
+   $.diagnostics[3].message: "requested_mode=dense_scrutiny; selected_method=retained_source_blocks_exact_v1; complete source-bound displacement/member/station/device projections precede bi -> "requested_mode=dense_scrutiny; selected_method=retained_source_blocks_exact_v1; complete source-bound displacement/member/station/device projections precede bi
+   $.source_block_recovery.body.cases[0].work.limit: 4000000 -> 8000000
+   $.source_block_recovery.body.publication_sha256: "d0ff8902d355044e1d25e2f68cf2da6ce1946c089a069e351fc10cf0960398c4" -> "752107ff31b04748a6a52366bff710255d24730c823a7ab9b9a4a21c6342ab74"
+   $.source_block_recovery.receipt_sha256: "6ed73365cb2d8996f7cc9da36b2241f93a23dd9eed500eacbe5836326f5f303d" -> "639d15b61f1ad369283df41e6dad6d3d60f023c7ae316f77de81825ef817179b"
+== fields sparse_interactive: 4M d315de6bea49 (17172 B; physics-1; MODEL_INCOMPLETE; 0 results) vs 8M 234a3eda03f8 (123529 B; physics-source-1; MECHANICS_SOLVED; 81 results): 14 differing paths
+   $.contract_evidence.exact_cases[len]: 0 -> 1
+   $.diagnostics[7].message: "requested_mode=sparse_interactive; selected_method=retained_source_blocks_exact_v1; complete source-bound displacement/member/station/device projections preced -> "requested_mode=sparse_interactive; selected_method=retained_source_blocks_exact_v1; complete source-bound displacement/member/station/device projections preced
+   $.diagnostics[9].affected_refs: ["case"] -> "<absent>"
+   $.diagnostics[9].code: "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED" -> "RULE_CHECK_INPUTS_MISSING"
+   $.diagnostics[9].id: "diagnostic:source-recovery:case:finalization" -> "diagnostic:physics:rule-inputs-missing"
+   $.diagnostics[9].message: "captured source replay: RecoveryFailure { stage: \"expected invocation replay\", helper_stage: Replay, error: Exact(Budget), work: WorkReport { charged: 399915 -> "rule-check inputs and protected criteria are absent; no compliance result is produced"
+   $.diagnostics[9].severity: "blocking" -> "warning"
+   $.producer.semantic_contract_id: "openpipestress.result_semantics/0.3.0/physics-1" -> "openpipestress.result_semantics/0.3.0/physics-source-1"
+   $.results[len]: 0 -> 81
+   $.run_id: "run:preview-linear-static-blocked" -> "run:preview-linear-static-001"
+   $.source_block_recovery: "<absent>" -> {"body": {"cases": [{"basis_ref": {"ref_id": "case", "ref_type": "load_case"}, "derived_checks": [{"absolute_error_bound": 1.7347234759768075e-18, "functional_i
+   $.status.mechanics: "MODEL_INCOMPLETE" -> "MECHANICS_SOLVED"
+   ... 2 more
+== fields dense_scrutiny: 4M 25f99c97262e (17361 B; physics-1; MODEL_INCOMPLETE; 0 results) vs 8M 16fac25fb57c (124966 B; physics-source-1; MECHANICS_SOLVED; 82 results): 14 differing paths
+   $.contract_evidence.exact_cases[len]: 0 -> 1
+   $.diagnostics[7].message: "requested_mode=dense_scrutiny; selected_method=retained_source_blocks_exact_v1; complete source-bound displacement/member/station/device projections precede bi -> "requested_mode=dense_scrutiny; selected_method=retained_source_blocks_exact_v1; complete source-bound displacement/member/station/device projections precede bi
+   $.diagnostics[9].affected_refs: ["case"] -> "<absent>"
+   $.diagnostics[9].code: "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED" -> "RULE_CHECK_INPUTS_MISSING"
+   $.diagnostics[9].id: "diagnostic:source-recovery:case:finalization" -> "diagnostic:physics:rule-inputs-missing"
+   $.diagnostics[9].message: "captured source replay: RecoveryFailure { stage: \"expected invocation replay\", helper_stage: Replay, error: Exact(Budget), work: WorkReport { charged: 398813 -> "rule-check inputs and protected criteria are absent; no compliance result is produced"
+   $.diagnostics[9].severity: "blocking" -> "warning"
+   $.producer.semantic_contract_id: "openpipestress.result_semantics/0.3.0/physics-1" -> "openpipestress.result_semantics/0.3.0/physics-source-1"
+   $.results[len]: 0 -> 82
+   $.run_id: "run:preview-linear-static-blocked" -> "run:preview-linear-static-001"
+   $.source_block_recovery: "<absent>" -> {"body": {"cases": [{"basis_ref": {"ref_id": "case", "ref_type": "load_case"}, "derived_checks": [{"absolute_error_bound": 1.7347234759768075e-18, "functional_i
+   $.status.mechanics: "MODEL_INCOMPLETE" -> "MECHANICS_SOLVED"
+   ... 2 more
+== milestone sparse_interactive: 4M 9c7ec1a144a7 (68250 B; preview-physics-1; MECHANICS_SOLVED; 98 results) vs 8M 90daa4d720e0 (68250 B; preview-physics-1; MECHANICS_SOLVED; 98 results): 1 differing paths
+   $.diagnostics[3].message: "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupp -> "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupp
+== milestone dense_scrutiny: 4M 21ca629c27e6 (69366 B; preview-physics-1; MECHANICS_SOLVED; 99 results) vs 8M 2376ccf09583 (69366 B; preview-physics-1; MECHANICS_SOLVED; 99 results): 1 differing paths
+   $.diagnostics[3].message: "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupp -> "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupp
+== m3l sparse_interactive: 4M 92c18d907561 (68295 B; preview-physics-1; MECHANICS_SOLVED; 98 results) vs 8M 670cf18cacef (68295 B; preview-physics-1; MECHANICS_SOLVED; 98 results): 1 differing paths
+   $.diagnostics[3].message: "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupp -> "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupp
+== m3l dense_scrutiny: 4M d4ecc214cf19 (69411 B; preview-physics-1; MECHANICS_SOLVED; 99 results) vs 8M 581f6c0563b8 (69411 B; preview-physics-1; MECHANICS_SOLVED; 99 results): 1 differing paths
+   $.diagnostics[3].message: "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupp -> "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupp
+== m3x_mix_anchor sparse_interactive: 4M 91938efc83a9 (132446 B; physics-1; MECHANICS_SOLVED; 196 results) vs 8M fe460c898d05 (132446 B; physics-1; MECHANICS_SOLVED; 196 results): 1 differing paths
+   $.diagnostics[3].message: "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupp -> "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupp
+== m3x_mix_anchor dense_scrutiny: 4M 077f6268d7ad (134569 B; physics-1; MECHANICS_SOLVED; 198 results) vs 8M 8d10892485a3 (134569 B; physics-1; MECHANICS_SOLVED; 198 results): 1 differing paths
+   $.diagnostics[3].message: "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupp -> "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupp

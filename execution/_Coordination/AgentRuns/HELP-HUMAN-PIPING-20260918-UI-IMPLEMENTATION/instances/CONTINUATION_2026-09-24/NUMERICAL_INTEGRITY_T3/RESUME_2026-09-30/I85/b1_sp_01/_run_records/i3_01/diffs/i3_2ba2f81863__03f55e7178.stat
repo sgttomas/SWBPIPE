@@ -1,0 +1,5 @@
+ projects/chirality-piping/core/product_physics/src/retained_facade_tests.rs                          |   371 +-
+ projects/chirality-piping/core/product_physics/src/retained_wire.rs                                  |     5 +-
+ projects/chirality-piping/fixtures/results/retained_precision_w_c2_successor_dense_scrutiny.json     | 18583 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ projects/chirality-piping/fixtures/results/retained_precision_w_c2_successor_sparse_interactive.json | 18583 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 37499 insertions(+), 43 deletions(-)

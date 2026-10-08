@@ -1,0 +1,27 @@
+c=1 rows: I1 110, head 110; identical in every compared field: 102; differing: 8
+fields compared: after_candidate, after_native, after_prep, after_run, after_serialize, after_staging, candidate, cases_seen, native, prep, reader, serializer, snapshot, staged_summary, staging, successor_sha
+  DIFF first_two_loads_swapped [dense_scrutiny]: ['reader', 'successor_sha']
+    reader: I1="G8 RETAINED_PRECISION_PREPARATION_MISMATCH" head="PASS"
+    successor_sha: I1="22d0421a67bcfd75b4e86576ac425e75866bf1b4413d66af3b9f7f21c1a6e327" head="8b0e6af8f40c5a07fcee72cb743ea6b3385ec0e944a88239ede99d6c3219b266"
+  DIFF first_two_loads_swapped [sparse_interactive]: ['reader', 'successor_sha']
+    reader: I1="G8 RETAINED_PRECISION_PREPARATION_MISMATCH" head="PASS"
+    successor_sha: I1="79d71fdf3ac0ee1e0f064086f00e84a102c2d96f0fc84153d8604ec00e239af7" head="e8edcc998934c97e890bb16d9dcd891f62aaf4a6229379e0f385d0f1723e2a3b"
+  DIFF l0_reversed [dense_scrutiny]: ['reader', 'successor_sha']
+    reader: I1="G8 RETAINED_PRECISION_PREPARATION_MISMATCH" head="PASS"
+    successor_sha: I1="979bfb13c5ca5821ac26a51bf577fb98e61ca5ba61789dedf0757fbffa58ec03" head="485c1c65e009d6b46c108cdf07628ad26a1dd5382b4e34f6c65dbd37e068a3f5"
+  DIFF l0_reversed [sparse_interactive]: ['reader', 'successor_sha']
+    reader: I1="G8 RETAINED_PRECISION_PREPARATION_MISMATCH" head="PASS"
+    successor_sha: I1="231a807fe0cb1ad78067aca951651dfb9cabc474ca4a27c242dd39d54d65e64a" head="ab367d68773e4b6469337a9243031de2c82be40050cab55cba727f880ef8b17c"
+  DIFF milestone_reversed [dense_scrutiny]: ['reader', 'successor_sha']
+    reader: I1="G8 RETAINED_PRECISION_PREPARATION_MISMATCH" head="PASS"
+    successor_sha: I1="ee91b5a4b206ef32c121a49f5cd45ce5df78cd726ec7c4ea6f28aa02c2890dc0" head="b70edc6d002c92692f00a247702353f79e6410acf17eb385b3d2c2500ca76d8e"
+  DIFF milestone_reversed [sparse_interactive]: ['reader', 'successor_sha']
+    reader: I1="G8 RETAINED_PRECISION_PREPARATION_MISMATCH" head="PASS"
+    successor_sha: I1="a2e730900641e859ebe35f81b6c7f3a095a6a6a89ef220c3e240f4fcf4af379c" head="93aa043538bbc01e0a7bcef4e381f88468edfd6792769b7041d7f6483ad959b1"
+  DIFF two_body_a_reversed [dense_scrutiny]: ['reader', 'successor_sha']
+    reader: I1="G8 RETAINED_PRECISION_PREPARATION_MISMATCH" head="PASS"
+    successor_sha: I1="ce66687ca2893642b7de042470b46d86363f77b07180f7a55fca1e639d2cd163" head="1e00ee85ccfae2d33a61bbc332b905ec5a4f0c07a91c5d093b67b65847abd91d"
+  DIFF two_body_a_reversed [sparse_interactive]: ['reader', 'successor_sha']
+    reader: I1="G8 RETAINED_PRECISION_PREPARATION_MISMATCH" head="PASS"
+    successor_sha: I1="f860d06a689ac86c9547bacf1743fbf05ef2de9c25b2d803278b623bb6a38f11" head="3f34939ba0ef6915d1af2b02a872a71405e3d5919b7f3049d1a4eccf76b2eb8e"
+head rows by furthest stage reached: {"candidate": 10, "native": 8, "preparation": 56, "successor": 36}

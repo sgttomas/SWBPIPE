@@ -1,0 +1,22 @@
+build rc=0
+control: 102 ok, 0 failed: 
+F1: 101 ok, 1 failed: b1_r2_f_family_at_g3_bound_and_unbound 
+F2: 101 ok, 1 failed: b1_r2_f_family_at_g3_bound_and_unbound 
+F3: 101 ok, 1 failed: b1_r2_f_family_at_g3_bound_and_unbound 
+F4: 101 ok, 1 failed: b1_r2_f_family_at_g3_bound_and_unbound 
+F5: 101 ok, 1 failed: b1_r2_f_family_at_g3_bound_and_unbound 
+F6: 101 ok, 1 failed: b1_r2_ordinary_basis_reference_at_g5_attempt 
+G1: 101 ok, 1 failed: b1_r2_g_model_scope_at_g8_invocation 
+G2: 101 ok, 1 failed: b1_r2_g_model_scope_at_g8_invocation 
+C1: 98 ok, 4 failed: b1_d38_capture_before_any_run_beside_a_selected_case b1_r2_c2_cause_table_source_precondition_kernel b1_r2_c2_cause_table_receipt_and_facade d19_converse_cause_binding 
+C2: 101 ok, 1 failed: b1_r2_c2_cause_table_source_precondition_kernel 
+C3: 101 ok, 1 failed: b1_r2_c2_cause_table_source_precondition_kernel 
+C4: 100 ok, 2 failed: b1_r2_c2_cause_table_source_precondition_kernel d19_converse_cause_binding 
+C5: 100 ok, 2 failed: b1_d38_capture_before_any_run_beside_a_selected_case b1_r2_c2_cause_table_receipt_and_facade 
+C6: 101 ok, 1 failed: b1_r2_c2_cause_table_receipt_and_facade 
+C7: 101 ok, 1 failed: b1_r2_c2_cause_table_source_precondition_kernel 
+T1: 101 ok, 1 failed: b1_r2_transport_metadata_at_g7 
+T2: 101 ok, 1 failed: b1_r2_transport_metadata_at_g7 
+T3: 101 ok, 1 failed: b1_r2_transport_metadata_at_g7 
+T4: 101 ok, 1 failed: b1_r2_transport_metadata_at_g7 
+T5: 101 ok, 1 failed: b1_r2_transport_metadata_at_g7 

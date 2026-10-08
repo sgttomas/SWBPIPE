@@ -5921,6 +5921,14 @@
       "role": "EVIDENCE",
       "reason": "T3 TASK or review run record; it preserves the machine-local paths of its run as exact provenance and is cited by the T3 rulings, so it cannot be relativized.",
       "authority": "Owner approval in the T3 ROOT session of 2026-10-05 (\"Approve and merge\"); T3 ROOT_RULINGS_V1, \"Records PR #1084: GEN-8 flags historical records; the owner approves their portability registration\"."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/REVIEW_RV117/records_01/REVIEW.md",
+      "sha256": "fb368f741d1573e98642d1cbe11f440d59d5268087909db2a0859e694818142c",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "T3 TASK or review run record; it quotes scratch-path snippets from the run records it reviewed as exact provenance and is sealed and cited by the T3 rulings, so it cannot be relativized.",
+      "authority": "HELP_HUMAN ROOT (T3) under the owner's standing authorization, following the owner-approved registration of #1084 and f9ff31f163; T3 ROOT_RULINGS_V1, \"RV115 and RV118 confirm B2-C revision 02: B2-C is final for J1; SA4-1 and B-2 go to B2-K's brief, B-1 to SC2's; E-17 and two portability registrations\"."
     }
   ],
   "control_path_exceptions": [
@@ -6659,6 +6667,14 @@
       "role": "CONTROL",
       "reason": "Immutable as-issued plan of a T3 TASK (I42), retained verbatim as the plan its work ran under, so the machine paths it recorded cannot be relativized.",
       "authority": "Owner approval in the T3 ROOT session of 2026-10-05 (\"Approve and merge\"); T3 ROOT_RULINGS_V1, \"Records PR #1084: GEN-8 flags historical records; the owner approves their portability registration\"."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/B2W_B3W_PROBES.md",
+      "sha256": "b7e2fdc726f86075b01121b8ec99cc4cc94c2836a6ec1a8b2835de8b0686daea",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable as-issued copy of a T3 TASK dispatch brief; it is the historical instruction its work ran under, and it quotes the records screen's pattern, which reads as machine paths, so it cannot be rewritten (T3 erratum E-17).",
+      "authority": "HELP_HUMAN ROOT (T3) under the owner's standing authorization, following the owner-approved registration of #1084 and f9ff31f163; T3 ROOT_RULINGS_V1, \"RV115 and RV118 confirm B2-C revision 02: B2-C is final for J1; SA4-1 and B-2 go to B2-K's brief, B-1 to SC2's; E-17 and two portability registrations\"."
     }
   ]
 }

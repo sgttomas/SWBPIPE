@@ -1,0 +1,489 @@
+{
+  "body_instances": [
+    {
+      "case": "B1 body unchanged",
+      "expected_valid": true,
+      "jsonschema": true,
+      "main_jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "case": "operand_preparations: []",
+      "expected_valid": false,
+      "jsonschema": false,
+      "main_jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "case": "operand_preparations: [one]",
+      "expected_valid": true,
+      "jsonschema": true,
+      "main_jsonschema": false,
+      "py_walker": true
+    },
+    {
+      "case": "combinations: [retained_selected]",
+      "expected_valid": true,
+      "jsonschema": true,
+      "main_jsonschema": false,
+      "py_walker": true
+    }
+  ],
+  "committed_successor_fixtures": {
+    "retained_precision_l0_successor_dense_scrutiny.json": {
+      "j1": {
+        "jsonschema": true,
+        "py_walker": true
+      },
+      "main": {
+        "jsonschema": true,
+        "py_walker": true
+      }
+    },
+    "retained_precision_l0_successor_sparse_interactive.json": {
+      "j1": {
+        "jsonschema": true,
+        "py_walker": true
+      },
+      "main": {
+        "jsonschema": true,
+        "py_walker": true
+      }
+    },
+    "retained_precision_milestone_successor_dense_scrutiny.json": {
+      "j1": {
+        "jsonschema": true,
+        "py_walker": true
+      },
+      "main": {
+        "jsonschema": true,
+        "py_walker": true
+      }
+    },
+    "retained_precision_milestone_successor_sparse_interactive.json": {
+      "j1": {
+        "jsonschema": true,
+        "py_walker": true
+      },
+      "main": {
+        "jsonschema": true,
+        "py_walker": true
+      }
+    },
+    "retained_precision_successor_derivative_dense_scrutiny.json": {
+      "j1": {
+        "jsonschema": true,
+        "py_walker": true
+      },
+      "main": {
+        "jsonschema": true,
+        "py_walker": true
+      }
+    },
+    "retained_precision_successor_derivative_sparse_interactive.json": {
+      "j1": {
+        "jsonschema": true,
+        "py_walker": true
+      },
+      "main": {
+        "jsonschema": true,
+        "py_walker": true
+      }
+    }
+  },
+  "corpus": {
+    "cases": 17,
+    "main_vs_j1_shape_differences": [],
+    "must_pass": 28,
+    "mutations": 294,
+    "verdict_counts": {
+      "[\"base\", [\"main\", true, true], [\"j1\", true, true]]": 17,
+      "[\"must_pass\", \"main js/py\", [true, true], \"j1 js/py\", [true, true]]": 28,
+      "[\"mutation\", \"main js/py\", [false, false], \"j1 js/py\", [false, false]]": 28,
+      "[\"mutation\", \"main js/py\", [false, true], \"j1 js/py\", [false, true]]": 2,
+      "[\"mutation\", \"main js/py\", [true, true], \"j1 js/py\", [true, true]]": 263,
+      "[\"mutation\", \"no receipt object\"]": 1
+    }
+  },
+  "existing_schema_tests_emulated": {
+    "all_objects_closed_j1": true,
+    "unavailable_precondition_window": {
+      "j1": true,
+      "main": true
+    }
+  },
+  "meta_validation": {
+    "j1": "valid",
+    "main": "valid"
+  },
+  "new_defs_all_agree": true,
+  "new_defs_instances": [
+    {
+      "agrees": true,
+      "case": "retained_selected",
+      "def": "Combination",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "retained_unavailable, operand_preparation_failure",
+      "def": "Combination",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "retained_unavailable, pre_source_refusal",
+      "def": "Combination",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "retained_unavailable, operand_source_unavailable",
+      "def": "Combination",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "ordinary (range)",
+      "def": "Combination",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "base_withheld",
+      "def": "Combination",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "base_withheld with a row id (maxItems 0)",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "ordinary with a run member (closed)",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "ordinary with another reason",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "base_withheld with an unknown gate code",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "selected without a call_ref",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "basis ref_type load_case",
+      "def": "Combination",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "two operands",
+      "def": "CombinationSource",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "with a case member (nodal_terms)",
+      "def": "CombinationSource",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "runs",
+      "def": "MechanicsCombinationCall",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "pre_source_refusal (no_selected_operand)",
+      "def": "MechanicsCombinationCall",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "two owners",
+      "def": "MechanicsCombinationCall",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "a case owner",
+      "def": "MechanicsCombinationCall",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "a mechanics call as a case batch call",
+      "def": "Call",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "with imports",
+      "def": "CombinationGroup",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "a combination group with imports, as Group (closed)",
+      "def": "Group",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "copied proof and trace",
+      "def": "CombinationAttempt",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "with the ordinary definition id",
+      "def": "CombinationAttempt",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "with a preparation stage",
+      "def": "CombinationAttempt",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "a case attempt with the combination id",
+      "def": "ProductAttempt",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "prepared",
+      "def": "OperandPreparation",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    },
+    {
+      "agrees": true,
+      "case": "with the exact id (RV116 N-8)",
+      "def": "OperandPreparation",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "empty requested_by",
+      "def": "OperandPreparation",
+      "expected_valid": false,
+      "jsonschema": false,
+      "py_walker": false
+    },
+    {
+      "agrees": true,
+      "case": "an operand-prepared source",
+      "def": "CaseSource",
+      "expected_valid": true,
+      "jsonschema": true,
+      "py_walker": true
+    }
+  ],
+  "r7_row_set": {
+    "case_row_kinds": {
+      "component_equal_factor_intensified_bending_stress_v1": 2,
+      "displacement_magnitude": 3,
+      "element_local_axial_force": 10,
+      "element_local_axial_normal_stress": 10,
+      "element_local_bending_moment_y": 10,
+      "element_local_bending_moment_z": 10,
+      "element_local_bending_normal_stress_y": 10,
+      "element_local_bending_normal_stress_z": 10,
+      "element_local_shear_force_y": 10,
+      "element_local_shear_force_z": 10,
+      "element_local_torsional_moment": 10,
+      "element_local_torsional_shear_stress": 10,
+      "global_nodal_displacement_x": 3,
+      "global_nodal_displacement_y": 3,
+      "global_nodal_displacement_z": 3,
+      "global_nodal_rotation_x": 3,
+      "global_nodal_rotation_y": 3,
+      "global_nodal_rotation_z": 3,
+      "linear_solver_mode_basis": 1,
+      "pipe_elastic_normal_stress_maximum_v2": 2,
+      "support_reaction_component_v2": 6,
+      "support_reaction_force_magnitude_v2": 1,
+      "support_reaction_moment_magnitude_v2": 1
+    },
+    "combination:\u03a3": {
+      "absent_kinds": [
+        "pipe_elastic_normal_stress_maximum_v2",
+        "component_equal_factor_intensified_bending_stress_v1",
+        "linear_solver_mode_basis",
+        "sparse_live_path_dense_parity_relative_delta",
+        "modulus_basis_record",
+        "combination_modulus_basis_record"
+      ],
+      "action_rows": 60,
+      "contiguous_after_case_rows": true,
+      "expected_7n_50m_8g": 129,
+      "kinds": {
+        "displacement_magnitude": 3,
+        "element_local_axial_force": 10,
+        "element_local_axial_normal_stress": 10,
+        "element_local_bending_moment_y": 10,
+        "element_local_bending_moment_z": 10,
+        "element_local_bending_normal_stress_y": 10,
+        "element_local_bending_normal_stress_z": 10,
+        "element_local_shear_force_y": 10,
+        "element_local_shear_force_z": 10,
+        "element_local_torsional_moment": 10,
+        "element_local_torsional_shear_stress": 10,
+        "global_nodal_displacement_x": 3,
+        "global_nodal_displacement_y": 3,
+        "global_nodal_displacement_z": 3,
+        "global_nodal_rotation_x": 3,
+        "global_nodal_rotation_y": 3,
+        "global_nodal_rotation_z": 3,
+        "support_reaction_component_v2": 6,
+        "support_reaction_force_magnitude_v2": 1,
+        "support_reaction_moment_magnitude_v2": 1
+      },
+      "rows": 129,
+      "stress_rows_per_member": {
+        "pipe:\u03b1-\u03b2": 20,
+        "pipe:\u03b2-\u03b3": 20
+      },
+      "stress_sites": [
+        "end_i",
+        "end_j",
+        "midspan",
+        "quarter_1",
+        "quarter_3"
+      ]
+    },
+    "combination_gates": [
+      {
+        "combination_id": "combination:\u03a3",
+        "reason": null,
+        "withheld": false
+      }
+    ],
+    "contract": "openpipestress.result_semantics/0.3.0/preview-physics-1",
+    "fixture": "preview_physics_unicode_ids_sparse.json",
+    "g": 1,
+    "m": 2,
+    "n": 3
+  },
+  "vocabulary": {
+    "j1": [
+      "$comment",
+      "$defs",
+      "$id",
+      "$ref",
+      "$schema",
+      "additionalProperties",
+      "const",
+      "enum",
+      "items",
+      "maxItems",
+      "maximum",
+      "minItems",
+      "minLength",
+      "minimum",
+      "oneOf",
+      "pattern",
+      "properties",
+      "required",
+      "title",
+      "type",
+      "x-rp-encoding"
+    ],
+    "j1_subset_of_main": true,
+    "main": [
+      "$comment",
+      "$defs",
+      "$id",
+      "$ref",
+      "$schema",
+      "additionalProperties",
+      "const",
+      "enum",
+      "items",
+      "maxItems",
+      "maximum",
+      "minItems",
+      "minLength",
+      "minimum",
+      "oneOf",
+      "pattern",
+      "properties",
+      "required",
+      "title",
+      "type",
+      "x-rp-encoding"
+    ]
+  }
+}
