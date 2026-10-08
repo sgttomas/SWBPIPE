@@ -1,8 +1,9 @@
 """B3's Python reader controls: B3a's 0.3.0 legacy namespace (G8) and B3b's `<physics-retained>` branch.
 
-Until lane P's m3l and m3x successors land, the bases are synthetic receipts derived from PP's pinned milestone
-successor (D-U6-5) and resealed by the 07e format rule (preparation hashes, source identities, publication,
-receipt). They are reader controls, not producer execution or native Current evidence.
+The bases are synthetic receipts derived from PP's pinned milestone successor (D-U6-5) and resealed by the 07e format
+rule (preparation hashes, source identities, publication, receipt). They are reader controls, not producer execution or
+native Current evidence. Since lane P's B3b-P landed, every B3b shape is also read on its producer-solved m3x
+successors (`EXACT_PINNED`); B3a's m3l has no producer fixture (PP: "B3a's m3l needs no producer change").
 - m3l: the milestone's request with schema 0.3.0 and {"version": "1.0.0", "mode": "legacy_pressure_v1"}, as I99's
   m3l input (RR "I99's B3-W verified; …", ruling 4); its receipt differs only in the invocation digest.
 """
@@ -402,9 +403,29 @@ B3B_PASSES = {
 }
 
 
-def exact_shape(mode, label):
-    """(source, invocation) for one B3b shape, sealed by the format rule with the route's H (DEF-O's for entry 11)."""
-    source, invocation = m3x(mode)
+# Lane P's producer-solved m3x successors (B3b-P, b2 8d3419b542; PP retained_facade_tests.rs `EXACT_PINNED`):
+# document and receipt sha256, as RS pins them. Every B3b shape is also read on each.
+EXACT_PINNED = {"sparse_interactive": ("02465c6c92ac2e4360a77910cb54803590b5a11042dfddb223bf78f9e856e5d6", "b1b4a6682260ca6bc499950b30f0f7179a77c038e266cc4b42045ed86ed3896f"),
+                "dense_scrutiny": ("31f10f04f6f335dfb1a7e5f904198972903bfc9208660031bbfaa5c547d347cc", "eabd2fc57b42158ad415ae664e7c712c1c4db21258b667251758172f3a5b776d")}
+KINDS = ("synthetic", "producer")
+
+
+def m3x_producer(mode):
+    raw = (ROOT / f"fixtures/results/retained_precision_exact_successor_{mode}.json").read_bytes()
+    assert hashlib.sha256(raw).hexdigest() == EXACT_PINNED[mode][0]
+    doc = json.loads(raw)
+    assert doc["source"]["retained_precision"]["receipt_sha256"] == EXACT_PINNED[mode][1] and doc["invocation"]["solver_mode"] == mode
+    return doc["source"], doc["invocation"]
+
+
+def exact_base(mode, kind="synthetic"):
+    return m3x(mode) if kind == "synthetic" else m3x_producer(mode)
+
+
+def exact_shape(mode, label, kind="synthetic"):
+    """(source, invocation) for one B3b shape on the synthetic or the producer's m3x base, sealed by the format rule
+    with the route's H (DEF-O's for entry 11)."""
+    source, invocation = exact_base(mode, kind)
     if label.startswith("09"):
         base, base_invocation = milestone(mode)
         base = deepcopy(base)
@@ -450,17 +471,39 @@ def test_b3b_m3x_synthetic_base_is_eligible_and_classified_as_the_milestone(mode
 
 @pytest.mark.parametrize("label", sorted(B3B_REFUSALS) + sorted(B3B_SPECIAL))
 @pytest.mark.parametrize("mode", MODES)
-def test_b3b_m3x_mutations(mode, label):
+@pytest.mark.parametrize("kind", KINDS)
+def test_b3b_m3x_mutations(kind, mode, label):
     expected = B3B_REFUSALS[label][1] if label in B3B_REFUSALS else B3B_SPECIAL[label]
-    source, invocation = exact_shape(mode, label)
+    source, invocation = exact_shape(mode, label, kind)
     assert outcome(source, invocation) == expected
 
 
 @pytest.mark.parametrize("label", sorted(B3B_PASSES))
 @pytest.mark.parametrize("mode", MODES)
-def test_b3b_m3x_must_pass(mode, label):
-    source, invocation = exact_shape(mode, label)
+@pytest.mark.parametrize("kind", KINDS)
+def test_b3b_m3x_must_pass(kind, mode, label):
+    source, invocation = exact_shape(mode, label, kind)
     assert outcome(source, invocation) == ("pass", True, "eligible")
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_b3b_producer_m3x_successor_pins(mode):
+    """Lane P's m3x successors read eligible with their invocation (needs_recompute without it and on transport), in the
+    milestone's classes, through the reader's exact route and the carriers' dispatch."""
+    source, invocation = m3x_producer(mode)
+    assert outcome(source, invocation) == ("pass", True, "eligible")
+    assert outcome(source, None) == ("pass", False, "needs_recompute")
+    assert outcome(source, None, transport=True) == ("pass", False, "needs_recompute")
+    got = rp.validate_retained_precision(source, invocation)["classifications"]
+    counts = [sum(1 for c in got if c["class"] == k) for k in ("relative_verified", "absolute_verified", "input_derived", "non_quantity")]
+    assert counts == [25, 69, 3, 1 if mode == "sparse_interactive" else 2]
+    # Every quantity row as the synthetic base classes it, bit for bit (the dense parity observation, a non_quantity
+    # row, is the producer's own run).
+    synthetic = rp.validate_retained_precision(*m3x(mode))["classifications"]
+    quantity = lambda classes: [(c["class"], c["normalized_bits"], c["scale_bits"], c["bound_bits"]) for c in classes if c["class"] != "non_quantity"]
+    assert quantity(got) == quantity(synthetic)
+    assert dispatch(source)[0] == c.PHYSICS_RETAINED_CONTRACT_ID
+    assert c.numerical_use_standing(source, requested(invocation), invocation) == "numerically_eligible"
 
 
 @pytest.mark.parametrize("label, s_c", [("x10 authored nu unit not 1", False), ("x24 authored nu unit empty", False), ("x11 authored nu 0.5", False),
@@ -495,16 +538,17 @@ def test_b3b_g5b_evidence_check_runs_only_on_the_exact_branch():
 
 
 @pytest.mark.parametrize("mode", MODES)
-def test_b3b_transport(mode):
-    source, _ = m3x(mode)
+@pytest.mark.parametrize("kind", KINDS)
+def test_b3b_transport(kind, mode):
+    source, _ = exact_base(mode, kind)
     assert outcome(source, None, transport=True) == ("pass", False, "needs_recompute")
     for label in ("16 connector non-empty", "18 recovery_method added to an exact_cases entry"):
-        broken, _ = exact_shape(mode, label)
+        broken, _ = exact_shape(mode, label, kind)
         assert outcome(broken, None, transport=True) == BASE_G7, label
     for label in ("01 identity relabelled preview (profile kept)", "04 projection_policy changed"):
-        broken, _ = exact_shape(mode, label)
+        broken, _ = exact_shape(mode, label, kind)
         assert outcome(broken, None, transport=True) == UNSUPPORTED, label
-    broken, _ = exact_shape(mode, "11 S-1: the preparation hash over a payload with DEF-O's H")
+    broken, _ = exact_shape(mode, "11 S-1: the preparation hash over a payload with DEF-O's H", kind)
     assert outcome(broken, None, transport=True) == RECEIPT
 
 
