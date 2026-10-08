@@ -461,7 +461,10 @@ fn every_family_clause_refuses_with_its_fact() {
         change(&mut raw);
         domain(raw)
     };
-    assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.3.0")), family(C::Namespace, F::SchemaVersion));
+    // B3a (B3-D §4.1): 0.3.0 is a namespace branch (L3) whose contract is required, so 0.3.0
+    // without one refuses with `PressureContract`; a schema in no branch with `SchemaVersion`.
+    assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.3.0")), family(C::Namespace, F::PressureContract));
+    assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.4.0")), family(C::Namespace, F::SchemaVersion));
     assert_eq!(with(&|r| r["model"]["schema_version"] = json!("0.2.0")), None, "0.2.0 is in the namespace");
     assert_eq!(with(&|r| r["model"]["pressure_contract"] = json!({})), family(C::Namespace, F::PressureContract));
     assert_eq!(with(&|r| r["model"]["reference_configurations"] = Value::Null), family(C::Namespace, F::ReferenceConfigurations));
@@ -1853,5 +1856,128 @@ fn b1_sa_retained_error_text_reads_every_case_slot() {
         observer.observable_error = Some(CaptureError::Association(String::with_capacity(3)));
         let o = complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &observer, requested_cases: 2 });
         assert_eq!(o.iter().find(|x| x.fact == PhaseFact::RetainedErrorTextBytes).unwrap().observed, 40 + 9 + 7 + 3, "{mode:?}: both slots");
+    }
+}
+
+// ---- B3a-A: D1.3 admits 0.3.0 `legacy_pressure_v1` (I93 PLAN §1.3; B3-D §4.1) ----------
+
+/// `raw` authored as 0.3.0 `legacy_pressure_v1` with zero pressure: I99's `legacy3` (B3-W's
+/// `m3l` when `raw` is the milestone): the schema and the contract change, nothing else.
+fn legacy3(mut raw: Value) -> Value {
+    raw["model"]["schema_version"] = json!("0.3.0");
+    raw["model"]["pressure_contract"] = json!({"version": "1.0.0", "mode": "legacy_pressure_v1"});
+    raw
+}
+
+/// D1.3's branch L3: 0.3.0 with exactly `{1.0.0, legacy_pressure_v1}` is inside D1, alone and
+/// with C cases, in both modes, and the registered build grants it a permit. Every contract
+/// that does not match its schema's branch refuses with `PressureContract`; a schema in no
+/// branch with `SchemaVersion` (B3-D §4.1's refusal map). D1.5 and D1.7 are unchanged on L3.
+#[test]
+fn b3a_d1_3_admits_the_legacy_pressure_contract_on_0_3_0() {
+    use D1Clause as C;
+    use FamilyFact as F;
+    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    for raw in [legacy3(milestone()), legacy3(milestone_cases(caps::LOAD_CASES)), legacy3(cap_maximal_cases(caps::LOAD_CASES))] {
+        for mode in MODES {
+            let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
+            assert_eq!(namespace_branch(&request.model), Ok(NamespaceBranch::LegacyPressure));
+            let admitted = admit(&capture, &request, Entry::Direct);
+            let report = match &admitted {
+                Ok((_, report)) | Err(report) => *report,
+            };
+            assert_eq!(report.law().domain, None, "{mode:?}: L3 is inside D1");
+            assert_eq!(report.law().refusal, d1_1_refusal(), "{mode:?}");
+            assert_eq!(admitted.is_ok(), registered, "{mode:?}: a permit in the registered build");
+        }
+    }
+    let contract = |schema: &str, contract: Value| {
+        let mut raw = milestone();
+        raw["model"]["schema_version"] = json!(schema);
+        raw["model"]["pressure_contract"] = contract;
+        domain(raw)
+    };
+    let legacy = json!({"version": "1.0.0", "mode": "legacy_pressure_v1"});
+    assert_eq!(contract("0.3.0", legacy.clone()), None);
+    for (label, schema, value, fact) in [
+        ("0.3.0 with no contract", "0.3.0", Value::Null, F::PressureContract),
+        ("0.3.0, version 1.0.1", "0.3.0", json!({"version": "1.0.1", "mode": "legacy_pressure_v1"}), F::PressureContract),
+        ("0.3.0, version absent", "0.3.0", json!({"mode": "legacy_pressure_v1"}), F::PressureContract),
+        ("0.3.0, mode absent", "0.3.0", json!({"version": "1.0.0"}), F::PressureContract),
+        ("0.3.0, empty contract", "0.3.0", json!({}), F::PressureContract),
+        ("0.3.0, another mode", "0.3.0", json!({"version": "1.0.0", "mode": "exact_straight_pressure_v2"}), F::PressureContract),
+        ("0.3.0, the mode's case", "0.3.0", json!({"version": "1.0.0", "mode": "Legacy_pressure_v1"}), F::PressureContract),
+        ("0.3.0, the exact contract (B3b)", "0.3.0", json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}), F::PressureContract),
+        ("0.2.0 with the legacy contract", "0.2.0", legacy.clone(), F::PressureContract),
+        ("0.1.0 with the legacy contract", "0.1.0", legacy.clone(), F::PressureContract),
+        ("0.4.0 with the legacy contract", "0.4.0", legacy.clone(), F::SchemaVersion),
+        ("0.3 with the legacy contract", "0.3", legacy.clone(), F::SchemaVersion),
+    ] {
+        assert_eq!(contract(schema, value), family(C::Namespace, fact), "{label}");
+    }
+    // D1.5 is unchanged on L3: no pressure region, not even an empty list.
+    let mut regions = legacy3(milestone());
+    regions["model"]["load_cases"][0]["pressure_regions"] = json!([]);
+    assert_eq!(domain(regions), family(C::Case, F::PressureRegions));
+    // N-11 (B3-D §4.1): a zero-magnitude legacy pressure load is outside D1.7 (an element
+    // target, refused first), while a nodal force whose free-text category is `pressure` is a
+    // nodal term under D1.7.
+    let mut element = legacy3(milestone());
+    element["model"]["load_cases"][0]["primitive_loads"][2] = json!({"id": "load:p", "category": "pressure",
+        "target": {"type": "element", "pipe": "M1"}, "direction": "internal", "magnitude": {"value": 0.0, "unit": "Pa"}, "dimension": "pressure"});
+    assert_eq!(domain(element), family(C::Loads, F::LoadTarget));
+    let mut nodal = legacy3(milestone());
+    nodal["model"]["load_cases"][0]["primitive_loads"][2]["category"] = json!("pressure");
+    assert_eq!(domain(nodal), None);
+    // The contract's two typed strings are read by the census (D1.9's typed text rows).
+    let base = nested_typed_census(&serde_json::from_value(milestone()).unwrap());
+    let l3 = nested_typed_census(&serde_json::from_value(legacy3(milestone())).unwrap());
+    assert_eq!(l3.strings, base.strings + 2, "version and mode");
+    for field in ["version", "mode"] {
+        let report = admitted_typed(legacy3(milestone()), |r| {
+            let c = r.model.pressure_contract.as_mut().unwrap();
+            let s = if field == "version" { c.version.as_mut() } else { c.mode.as_mut() };
+            s.unwrap().reserve_exact(200);
+        });
+        assert!(cap(CapFact::TypedTextCapacity)(report.law().domain), "{field}: {:?}", report.law().domain);
+    }
+}
+
+/// B3a's oracles on the Direct entry: a 0.3.0 contract outside L3 publishes the exact
+/// ordinary bytes with no successor (no permit). `m3l` itself is admitted in the registered
+/// build, so W1 runs: until the readers' B3a (J5) the accepted Rust reader refuses its
+/// successor at G8 (`pressure_contract` must be null; I99 §5), and the ordinary rows stand.
+#[test]
+fn b3a_direct_entry_oracles() {
+    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    for mode in MODES {
+        let mut outside = legacy3(milestone());
+        outside["model"]["pressure_contract"]["version"] = json!("1.0.1");
+        let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(outside.clone(), mode).unwrap()).unwrap();
+        let direct = crate::run_linear_static_preview_value_with_retained_direct(outside, mode).unwrap();
+        assert_eq!(direct.admission().unwrap().law().domain, family(D1Clause::Namespace, FamilyFact::PressureContract), "{mode:?}");
+        assert!(direct.retained().is_none() && direct.successor().is_none(), "{mode:?}: no permit, no W1");
+        assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain, "{mode:?}: the exact ordinary bytes");
+        let m3l = legacy3(milestone());
+        let plain = crate::run_linear_static_preview_value_with_mode(m3l.clone(), mode).unwrap();
+        let direct = crate::run_linear_static_preview_value_with_retained_direct(m3l, mode).unwrap();
+        let report = direct.admission().unwrap();
+        assert_eq!(report.law().domain, None, "{mode:?}");
+        if !registered {
+            assert_eq!(report.law().refusal, d1_1_refusal(), "{mode:?}");
+            assert!(direct.retained().is_none());
+            continue;
+        }
+        assert_eq!(report.law().refusal, None, "{mode:?}: admitted");
+        println!("I103_B3A_M3L_DIRECT mode={} retained={:?}", mode.as_str(), direct.retained().map(|r| r.as_ref().err()));
+        match direct.retained() {
+            Some(Ok(_)) => {}
+            Some(Err(crate::W1Fallback::Precommit { gate, .. })) => {
+                assert_eq!(*gate, "G8", "{mode:?}");
+                assert_eq!(serde_json::to_value(&direct.envelope().results).unwrap(), serde_json::to_value(&plain.results).unwrap(),
+                    "{mode:?}: the ordinary rows stand");
+            }
+            other => panic!("{mode:?}: W1 ran to a successor or the reader's G8 refusal, not {other:?}"),
+        }
     }
 }

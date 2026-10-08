@@ -291,9 +291,10 @@ pub(super) fn raw_text_census(root: &Value) -> RawTextFacts {
 
 /// RESIDUALS.md T03: the nested typed owners of a D1 request, read from the
 /// borrowed typed request (actual lengths and capacities, never construction
-/// history). Owners of excluded families (hangers, nonlinear supports, pressure,
-/// sections, components, combinations, generated and load-state inputs) are not
-/// read: their presence is refused by D1.3–D1.6 instead. Allocation-free.
+/// history). Owners of excluded families (hangers, nonlinear supports, pressure
+/// regions, sections, components, combinations, generated and load-state inputs) are
+/// not read: their presence is refused by D1.3–D1.6 instead. Allocation-free. B3a: the
+/// pressure contract's strings are read (D1.3's branch L3 admits one).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) struct NestedTypedFacts {
     pub(super) status: CensusStatus,
@@ -368,6 +369,11 @@ impl TypedWalk {
             self.material(material)?;
         }
         self.string(&m.schema_version)?;
+        // B3a: D1.3 admits a pressure contract on branch L3, so its two typed strings are read.
+        if let Some(contract) = &m.pressure_contract {
+            self.optional(&contract.version)?;
+            self.optional(&contract.mode)?;
+        }
         self.string(&m.document_kind)?;
         self.string(&m.project.id)?;
         let s = &m.analysis_status;
@@ -716,6 +722,30 @@ fn census_complete_part(f: &DomainFacts<'_>) -> Result<(), AdmissionRefusal> {
     }
     Ok(())
 }
+/// D1.3's namespace branches (B3-D §4.1). One decision per request: `family_clauses`
+/// applies the branch's own D1.4 and D1.5 clauses, which is also the route split G5's
+/// per-route pricing needs (B3-D §4.4).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum NamespaceBranch {
+    /// L: schema 0.1.0 or 0.2.0, no pressure contract.
+    Legacy,
+    /// L3 (B3a): schema 0.3.0 with the `legacy_pressure_v1` contract, version 1.0.0.
+    LegacyPressure,
+}
+/// The pressure contract `{version, mode}` matched exactly (typed: `PressureContractInput`
+/// denies unknown fields, so these two members are the whole contract).
+fn contract_is(contract: &crate::PressureContractInput, version: &str, mode: &str) -> bool {
+    contract.version.as_deref() == Some(version) && contract.mode.as_deref() == Some(mode)
+}
+/// D1.3's branch of `m`, or the fact that refuses it (B3-D §4.1's refusal map).
+pub(super) fn namespace_branch(m: &crate::PreviewModel) -> Result<NamespaceBranch, FamilyFact> {
+    match (m.schema_version.as_str(), &m.pressure_contract) {
+        ("0.1.0" | "0.2.0", None) => Ok(NamespaceBranch::Legacy),
+        ("0.3.0", Some(c)) if contract_is(c, "1.0.0", "legacy_pressure_v1") => Ok(NamespaceBranch::LegacyPressure),
+        ("0.1.0" | "0.2.0" | "0.3.0", _) => Err(FamilyFact::PressureContract),
+        _ => Err(FamilyFact::SchemaVersion),
+    }
+}
 /// D1.3–D1.8 over the borrowed typed request (DOMAIN.md §1, G2_AMENDMENTS §3).
 fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionRefusal> {
     use crate::Authored;
@@ -723,12 +753,14 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     use FamilyFact as F;
     let refuse = |clause, fact| Err(AdmissionRefusal::Family(clause, fact));
     let m = &request.model;
-    // D1.3: the legacy source-blocks namespace, no sections (S-4).
-    if !matches!(m.schema_version.as_str(), "0.1.0" | "0.2.0") {
-        return refuse(C::Namespace, F::SchemaVersion);
-    }
-    if m.pressure_contract.is_some() {
-        return refuse(C::Namespace, F::PressureContract);
+    // D1.3: the namespace branch, decided once from (schema, contract) (B3-D §4.1, §4.3):
+    // branch L, 0.1.0 or 0.2.0 with no pressure contract; or branch L3 (B3a), 0.3.0 with
+    // exactly `{version "1.0.0", mode "legacy_pressure_v1"}`. A schema in no branch refuses
+    // with `SchemaVersion`, a contract that does not match its schema's branch with
+    // `PressureContract`. Then, on every branch, no sections (S-4).
+    match namespace_branch(m) {
+        Ok(NamespaceBranch::Legacy | NamespaceBranch::LegacyPressure) => {}
+        Err(fact) => return refuse(C::Namespace, fact),
     }
     if !matches!(m.reference_configurations, Authored::Absent) {
         return refuse(C::Namespace, F::ReferenceConfigurations);
