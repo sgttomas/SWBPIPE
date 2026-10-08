@@ -6,7 +6,7 @@ import { sourceBlockModeMatches } from "../results/sourceBlockRecovery";
 import { validatePhysicsEvidence } from "../results/physicsResultEvidence";
 import { validatePreviewPhysicsEvidence } from "../results/previewPhysicsEvidence";
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
-import { sourceContract, numericalResultStanding, sourceSemanticBinding, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN } from '../results/numericalResultQuality';
+import { sourceContract, numericalResultStanding, sourceSemanticBinding, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, isRetainedRoute } from '../results/numericalResultQuality';
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from '../../types';
 import { canonicalJsonString, canonicalSha256Hex, canonicalSha256HexCheckedV1, checkedJsonText } from '../../services/hashService';
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, modelLoadBasisRefs } from '../../services/analysisRunCompatibility';
@@ -69,11 +69,11 @@ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,so
   if(route!=='legacy'){e.producer=structuredClone(source.producer);e.numerical_quality=structuredClone(source.numerical_quality);e.formulation_basis=structuredClone(source.formulation_basis);e.semantic_contract_ref=ref('semantic_contract',sourceSemanticBinding(source).id);}
   if(route==='source_blocks'||route==='physics_source')e.source_block_recovery=structuredClone(source.source_block_recovery);
   else if(Object.hasOwn(e,'source_block_recovery'))throw new Error('SOURCE_RECOVERY_METADATA_CONTRADICTION');
-  if(route==='physics'||route==='physics_source'||route==='preview_physics'||route==='retained_preview_physics')e.contract_evidence=structuredClone(source.contract_evidence);
+  if(route==='physics'||route==='physics_source'||route==='preview_physics'||isRetainedRoute(route))e.contract_evidence=structuredClone(source.contract_evidence);
   else if(Object.hasOwn(e,'contract_evidence'))throw new Error('SOURCE_PHYSICAL_METADATA_MISMATCH');
   // D2 4.9.7: the successor's receipt travels with the document, whole. A receipt on any
   // other identity's document is refused by the validation that ends this function.
-  if(route==='retained_preview_physics')e.retained_precision=structuredClone(source.retained_precision);
+  if(isRetainedRoute(route))e.retained_precision=structuredClone(source.retained_precision);
   e.result_sets=[e.result_sets[0]];
   e.schema_version=version;e.model_ref=ref('model_payload',source.model_ref);
   const source_origin_ref=ref('source_origin_binding',origin.origin_id);
@@ -129,12 +129,12 @@ export async function validateResultDocument(doc:JsonObject,source:MechanicsResu
   // T6S-4 (Rust `validate_document`): the successor's classes from the accepted reader (no invocation).
   const classes=await retainedRowClassesFromReader(source);
   // D2 4.9.7: the copied receipt equals the source's, whole; no other identity's document carries one.
-  if(route==='retained_preview_physics')requireEqual(doc.result_envelope.retained_precision,source.retained_precision,'RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH');
+  if(isRetainedRoute(route))requireEqual(doc.result_envelope.retained_precision,source.retained_precision,'RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH');
   else if(Object.hasOwn(doc.result_envelope,'retained_precision'))throw new Error(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
   if(route==='legacy')rejectLegacyDerivativeMetadata(doc.result_envelope);if(resultSchemaVersion(doc)!==(route!=='legacy'?"0.3.0":"0.2.0"))throw new Error("DERIVATIVE_VERSION_MISMATCH");
   if(route!=='legacy'){for(const key of ['producer','numerical_quality','formulation_basis'] as const)requireEqual(doc.result_envelope[key],source[key],'SOURCE_NUMERICAL_METADATA_MISMATCH');requireEqual(doc.result_envelope.semantic_contract_ref,ref('semantic_contract',sourceSemanticBinding(source).id),'SEMANTIC_CONTRACT_MISMATCH');}
   if(route==='source_blocks'||route==='physics_source'){await validateRetainedRecoverySource(source);requireEqual(doc.result_envelope.source_block_recovery,source.source_block_recovery,'SOURCE_RECOVERY_METADATA_MISMATCH');}else if(Object.hasOwn(doc.result_envelope,'source_block_recovery'))throw new Error('SOURCE_RECOVERY_METADATA_CONTRADICTION');
-  if(route==='physics'||route==='physics_source'||route==='preview_physics'||route==='retained_preview_physics'){if(route==='physics')validatePhysicsEvidence(source);if(route==='preview_physics')validatePreviewPhysicsEvidence(source);requireEqual(doc.result_envelope.contract_evidence,source.contract_evidence,'SOURCE_PHYSICAL_METADATA_MISMATCH');}
+  if(route==='physics'||route==='physics_source'||route==='preview_physics'||isRetainedRoute(route)){if(route==='physics')validatePhysicsEvidence(source);if(route==='preview_physics')validatePreviewPhysicsEvidence(source);requireEqual(doc.result_envelope.contract_evidence,source.contract_evidence,'SOURCE_PHYSICAL_METADATA_MISMATCH');}
   else if(Object.hasOwn(doc.result_envelope,'contract_evidence'))throw new Error('SOURCE_PHYSICAL_METADATA_MISMATCH');
   const e=doc.result_envelope,accounts=e.row_accounting,annotations=e.source_annotations,witnesses=e.unit_preservation_witnesses;
   if(!Array.isArray(accounts)||!Array.isArray(annotations)||accounts.length!==source.results.length||annotations.length!==source.results.length)throw new Error("ROW_ACCOUNTING_CARDINALITY");

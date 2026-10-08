@@ -1220,14 +1220,14 @@ function pressureContractIs(contract: unknown, version: string, mode: string): b
  * `pressure_contract` absent or JSON null; or branch L3, schema 0.3.0 with exactly
  * `{"version":"1.0.0","mode":"legacy_pressure_v1"}`. Anything else (0.3.0 without a contract, `{}`, `false`, `""`, `0`,
  * an extra key, 0.2.0 with a contract, 0.4.0) is outside the namespace. */
-/** D1.3 on the exact route (B3b): schema 0.3.0 with exactly `{"version":"2.0.0","mode":"exact_straight_pressure_v2"}`. */
-function exactNamespace(model: Obj): boolean {
-  return model.schema_version === '0.3.0' && pressureContractIs(model.pressure_contract, '2.0.0', 'exact_straight_pressure_v2');
-}
 function legacyNamespace(model: Obj): boolean {
   if (model.schema_version === '0.1.0' || model.schema_version === '0.2.0') return !Object.hasOwn(model, 'pressure_contract') || model.pressure_contract === null;
   if (model.schema_version === '0.3.0') return pressureContractIs(model.pressure_contract, '1.0.0', 'legacy_pressure_v1');
   return false;
+}
+/** D1.3 on the exact route (B3b): schema 0.3.0 with exactly `{"version":"2.0.0","mode":"exact_straight_pressure_v2"}`. */
+function exactNamespace(model: Obj): boolean {
+  return model.schema_version === '0.3.0' && pressureContractIs(model.pressure_contract, '2.0.0', 'exact_straight_pressure_v2');
 }
 async function invocationBinding(b: Obj, source: Obj, invocation: Obj, route: Route): Promise<void> {
   const fail = (ok: unknown, code = 'PREPARATION_MISMATCH') => need(ok, 'G8', code);

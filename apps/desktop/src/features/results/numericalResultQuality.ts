@@ -33,10 +33,25 @@ export const LOAD_REFERENCE_SOURCE_CONTRACT_SHA256 = "d1628194a7730f427843b00228
 export const PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1";
 export const PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c";
 export const PREVIEW_PHYSICS_RETAINED_PROFILE = "product_preview_retained_w1a_v2";
+/** B3b (B3-D §6.1, §7): the exact successor `<physics-retained>` and its pinned table
+ * (XTABLE). Like the preview successor, header dispatch only selects the route
+ * (`retained_physics`); the statement is checked only by the accepted reader's exact
+ * route, and standing comes only from that reader's registered validation. */
+export const PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1";
+export const PHYSICS_RETAINED_CONTRACT_SHA256 = "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d";
+export const PHYSICS_RETAINED_PROFILE = "exact_straight_retained_w1a_v2";
+/** Either successor identity: only these may carry a `retained_precision` receipt. */
+export function isRetainedIdentity(id: unknown): boolean {
+  return id === PREVIEW_PHYSICS_RETAINED_CONTRACT_ID || id === PHYSICS_RETAINED_CONTRACT_ID;
+}
+/** Either successor route: the preview successor or the exact one. */
+export function isRetainedRoute(route: string): route is "retained_preview_physics" | "retained_physics" {
+  return route === "retained_preview_physics" || route === "retained_physics";
+}
 /** A receipt member, or a raw row with the W1 method token, offered under any
  * other identity (I66 F-5: the base readers' closed lists do not name it). */
 export const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
-export type SourceContract = "legacy" | "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics" | "load_reference" | "load_reference_source" | "retained_preview_physics" | "unsupported";
+export type SourceContract = "legacy" | "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics" | "load_reference" | "load_reference_source" | "retained_preview_physics" | "retained_physics" | "unsupported";
 export function sourceSemanticBinding(source: MechanicsResult) {
   const route = sourceContract(source);
   if (route === "physics_source") return { id: PHYSICS_SOURCE_CONTRACT_ID, sha256: PHYSICS_SOURCE_CONTRACT_SHA256 };
@@ -47,6 +62,7 @@ export function sourceSemanticBinding(source: MechanicsResult) {
   if (route === "load_reference") return { id: LOAD_REFERENCE_CONTRACT_ID, sha256: LOAD_REFERENCE_CONTRACT_SHA256 };
   if (route === "load_reference_source") return { id: LOAD_REFERENCE_SOURCE_CONTRACT_ID, sha256: LOAD_REFERENCE_SOURCE_CONTRACT_SHA256 };
   if (route === "retained_preview_physics") return { id: PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, sha256: PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 };
+  if (route === "retained_physics") return { id: PHYSICS_RETAINED_CONTRACT_ID, sha256: PHYSICS_RETAINED_CONTRACT_SHA256 };
   throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
 }
 /** Exact known (readable) contract binding. This does not authenticate a
@@ -69,7 +85,7 @@ const statuses = ["not_assessed", "checks_passed", "sensitive", "unresolved", "f
  * true when an identity other than the successor carries a `retained_precision`
  * member or a raw row with the W1 method token. Such a source is unsupported. */
 export function retainedPrecisionDowngrade(source: MechanicsResult): boolean {
-  if (source.producer?.semantic_contract_id === PREVIEW_PHYSICS_RETAINED_CONTRACT_ID) return false;
+  if (isRetainedIdentity(source.producer?.semantic_contract_id)) return false;
   return Object.hasOwn(source, "retained_precision")
     || (Array.isArray(source.results) && source.results.some(row => (row as { recovery_method?: unknown } | null)?.recovery_method === RETAINED_METHOD));
 }
@@ -87,6 +103,9 @@ export function sourceContract(source: MechanicsResult): SourceContract {
   const joined = p?.semantic_contract_id === LOAD_REFERENCE_SOURCE_CONTRACT_ID;
   // U6d: the successor's header route; its receipt is checked only by the reader.
   const retained = p?.semantic_contract_id === PREVIEW_PHYSICS_RETAINED_CONTRACT_ID;
+  // B3b: the exact successor's header route, likewise.
+  const retainedExact = p?.semantic_contract_id === PHYSICS_RETAINED_CONTRACT_ID;
+  const receiptObject = !!source.retained_precision && typeof source.retained_precision === "object" && !Array.isArray(source.retained_precision);
   if (composite ? !physicsSourceReceiptShape(source.source_block_recovery) : blocks ? !sourceBlockReceiptShape(source.source_block_recovery) : joined ? !loadReferenceSourceReceiptShape(source.source_block_recovery) : Object.hasOwn(source, "source_block_recovery")) return "unsupported";
   const evidenceObject = !!source.contract_evidence && typeof source.contract_evidence === "object" && !Array.isArray(source.contract_evidence);
   return source.schema_version === "0.2.0"
@@ -94,7 +113,7 @@ export function sourceContract(source: MechanicsResult): SourceContract {
     && keys(q, ["value_representation", "publication_quantization", "integrity_policy", "status", "cases"])
     && keys(f, ["profile_id", "limitations"])
     && p?.component_name === "open_pipe_stress_product_physics"
-    && p.component_version === "0.2.0" && [PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID].includes(p.semantic_contract_id)
+    && p.component_version === "0.2.0" && [PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PHYSICS_RETAINED_CONTRACT_ID].includes(p.semantic_contract_id)
     && q?.value_representation === "finite_binary64" && q.publication_quantization === "none"
     && q.integrity_policy === "M03-INTEGRITY-v1" && Array.isArray(q.cases)
     && statuses.includes(q.status)
@@ -108,10 +127,11 @@ export function sourceContract(source: MechanicsResult): SourceContract {
       : preview ? f?.profile_id === "product_preview_mechanics_v1" && evidenceObject
       : loadReference ? f?.profile_id === LOAD_REFERENCE_PROFILE && evidenceObject
       : joined ? f?.profile_id === LOAD_REFERENCE_SOURCE_PROFILE && evidenceObject
-      : retained ? f?.profile_id === PREVIEW_PHYSICS_RETAINED_PROFILE && evidenceObject && !!source.retained_precision && typeof source.retained_precision === "object" && !Array.isArray(source.retained_precision)
+      : retained ? f?.profile_id === PREVIEW_PHYSICS_RETAINED_PROFILE && evidenceObject && receiptObject
+      : retainedExact ? f?.profile_id === PHYSICS_RETAINED_PROFILE && evidenceObject && receiptObject
       : f?.profile_id === "product_preview_mechanics_v1" && source.contract_evidence == null) && Array.isArray(f.limitations)
     && f.limitations.length > 0 && f.limitations.every(x => typeof x === "string" && x.length > 0)
-    ? (composite ? "physics_source" : blocks ? "source_blocks" : preview ? "preview_physics" : loadReference ? "load_reference" : joined ? "load_reference_source" : retained ? "retained_preview_physics" : p.semantic_contract_id === PHYSICS_CONTRACT_ID ? "physics" : "precision") : "unsupported";
+    ? (composite ? "physics_source" : blocks ? "source_blocks" : preview ? "preview_physics" : loadReference ? "load_reference" : joined ? "load_reference_source" : retained ? "retained_preview_physics" : retainedExact ? "retained_physics" : p.semantic_contract_id === PHYSICS_CONTRACT_ID ? "physics" : "precision") : "unsupported";
 }
 /** The base ordinary-eligibility predicate for one `numerical_quality` case,
  * shared by the generic standing below and the successor's `not_required`
@@ -133,7 +153,7 @@ export function ordinaryCaseEligible(c: NonNullable<MechanicsResult["numerical_q
 export async function sourceContractTransport(source: MechanicsResult): Promise<Exclude<SourceContract, "unsupported">> {
   const route = sourceContract(source);
   if (route === "unsupported") throw new Error(retainedPrecisionDowngrade(source) ? RETAINED_PRECISION_DOWNGRADE_FORBIDDEN : "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED");
-  if (route === "retained_preview_physics") await validateRetainedPrecisionTransport(source);
+  if (isRetainedRoute(route)) await validateRetainedPrecisionTransport(source);
   return route;
 }
 /** TS's standing status for each carrier token of the successor (RV92 N-8: carriers
@@ -155,7 +175,7 @@ export function numericalResultStanding(source: MechanicsResult, model?: (Pick<P
     // eligible in T1, as in Rust and Python.
     return { contract, status: "needs_recompute" as const, eligible: false, findings: loadReferenceSourceStanding(source).findings };
   }
-  else if (contract === "retained_preview_physics") {
+  else if (isRetainedRoute(contract)) {
     // U6d (D2 4.9.4; plan 3): standing reads only the registered accepted-reader
     // validation of these exact bytes. numerical_quality never contributes.
     const standing = retainedPrecisionStanding(source, model);

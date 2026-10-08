@@ -1,4 +1,4 @@
-import { numericalResultStanding, sourceContract } from "./numericalResultQuality";
+import { numericalResultStanding, sourceContract, isRetainedRoute } from "./numericalResultQuality";
 import { validateRetainedPrecision } from "./retainedPrecision";
 import { useState } from "react";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, ModelHashEvidence, ProjectEnvelopeHashEvidence, PreviewModel } from "../../types";
@@ -287,7 +287,7 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
   // U6d reopen: a saved successor is revalidated by the accepted reader without an
   // invocation (its first code is a finding), and the AnalysisRun's copy must equal
   // its receipt. Nothing registers here, so standing stays needs_recompute.
-  if (mechanicsResult && sourceContract(mechanicsResult) === "retained_preview_physics") {
+  if (mechanicsResult && isRetainedRoute(sourceContract(mechanicsResult))) {
     try { await validateRetainedPrecision(mechanicsResult); } catch (error) { findings.push((error as Error).message); }
     if (record && !(await sameSavedReceipt(record.retained_precision, mechanicsResult.retained_precision))) findings.push(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
   }

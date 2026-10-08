@@ -30,7 +30,7 @@ import { computeModelHash } from "../../services/hashService";
 import { hasNativeMechanicsInvocation, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
 import { initialSolveJob } from "../workspace/solveJobAudit";
 import {
-  LOAD_REFERENCE_OUTPUT_REFUSAL, RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE, RETAINED_PRECISION_OUTPUT_REFUSAL,
+  LOAD_REFERENCE_OUTPUT_REFUSAL, RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE, RETAINED_PRECISION_OUTPUT_REFUSAL, RETAINED_PHYSICS_OUTPUT_REFUSAL,
   isLoadReferenceRoute, loadReferenceOutputRefusal, refuseLoadReferenceOutput,
 } from "./loadReferenceOutputAvailability";
 import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE, isFreshSemanticResult } from "./knownSemanticLimitations";
@@ -125,6 +125,9 @@ describe("the shared refusal", () => {
     expect(RETAINED_PRECISION_OUTPUT_REFUSAL).toContain("routed to T6");
     expect(RETAINED_PRECISION_OUTPUT_REFUSAL.toLowerCase()).not.toMatch(/invalid|unsupported/);
     expect(RETAINED_PRECISION_OUTPUT_REFUSAL).not.toBe(LOAD_REFERENCE_OUTPUT_REFUSAL);
+    // B3b (B3D-14): the exact successor's own reason, re-exported beside the preview one, which is untouched.
+    expect(RETAINED_PHYSICS_OUTPUT_REFUSAL).toBe(`${RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE}: This output of retained-precision results (physics-retained-1) is not yet available on the desktop; only the result JSON and stress-neutral exports admit a numerically eligible result. It is routed to T6. The result remains readable here; this is not a finding about the result.`);
+    expect(RETAINED_PRECISION_OUTPUT_REFUSAL).toContain("(preview-physics-retained-1)");
     for (const mode of MODES) {
       const { result } = await successor(mode);
       expect(isLoadReferenceRoute(result)).toBe(false);
