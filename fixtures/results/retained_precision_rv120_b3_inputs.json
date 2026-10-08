@@ -1,6 +1,6 @@
 {
- "description": "RV120 (RV-R2, B3 readers) inputs pinned in the Python reader's B3 tests (I100 B3 repair 01): its G5b order probe with its controls (F1), and its four E/G-hat forgeries (F2). Each is stated as edits from a base the tests already hold, in the shared corpus grammar (07n), and is resealed by the 07e format rule with DEF-E's H. It re-materializes byte-equal to RV120's input: input_sha256 is RV120's INPUTS_INDEX value, the sha256 of the compact, key-sorted JSON of [source, invocation]. Repair 02 (I101) adds RV120's N2 probe, an exact_cases entry for a case not in the invocation, on both bases.",
- "record": "R/REVIEW_RV120/b3_readers_01/evidence/readers: g5b_order_inputs.jsonl.gz, forge_eg_inputs.jsonl.gz, INPUTS_INDEX.jsonl; N2: b3_probes (its INPUTS_INDEX sha256)",
+ "description": "RV120 (RV-R2, B3 readers) inputs pinned in the Python reader's B3 tests (I100 B3 repair 01): its G5b order probe with its controls (F1), and its four E/G-hat forgeries (F2). Each is stated as edits from a base the tests already hold, in the shared corpus grammar (07n), and is resealed by the 07e format rule with DEF-E's H. It re-materializes byte-equal to RV120's input: input_sha256 is RV120's INPUTS_INDEX value, the sha256 of the compact, key-sorted JSON of [source, invocation]. Repair 02 (I101) adds RV120's N2 probe, an exact_cases entry for a case not in the invocation, on both bases. Repair 03 (I101) adds the N2b two-fault probe on the exact two_case_synthetic (one entry's profile_mode, the other's material_basis) and its swap, materialized by the Rust reader's B3b shape list.",
+ "record": "R/REVIEW_RV120/b3_readers_01/evidence/readers: g5b_order_inputs.jsonl.gz, forge_eg_inputs.jsonl.gz, INPUTS_INDEX.jsonl; N2: b3_probes (its INPUTS_INDEX sha256); N2b: the Rust reader's B3B_INPUTS_OUT (repair 03)",
  "bases": {
   "corpus": "fixtures/results/retained_precision_cases.json, the case with this id (RS's exact construction starts from it)",
   "m3x_producer": "fixtures/results/retained_precision_exact_successor_<mode>.json (lane P's m3x successor)"
@@ -4445,6 +4445,1092 @@
     }
    ],
    "invocation_edits": []
+  },
+  {
+   "base": [
+    "corpus",
+    "two_case_synthetic"
+   ],
+   "name": "N2b: entry 0's profile_mode and entry 1's material_basis [two_case_synthetic]",
+   "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (case profile/material basis; transport: evidence shape)",
+   "input_sha256": "4b0c7b62bc86bba8c267ee02213e3d4e4432ef3208a0185e860aecabb496a446",
+   "edits": [
+    {
+     "path": [
+      "contract_evidence",
+      "combination_gates"
+     ],
+     "op": "remove"
+    },
+    {
+     "path": [
+      "contract_evidence",
+      "preview_cases"
+     ],
+     "op": "remove"
+    },
+    {
+     "path": [
+      "contract_evidence",
+      "connector"
+     ],
+     "op": "set",
+     "value": []
+    },
+    {
+     "path": [
+      "contract_evidence",
+      "exact_cases"
+     ],
+     "op": "set",
+     "value": [
+      {
+       "load_case_id": "case:six-component-load",
+       "material_basis": "base_material_common_E_nu",
+       "pipe_materials": [
+        {
+         "E_pa": 200000000000.0,
+         "G_pa": 77000000000.0,
+         "alpha_per_kelvin": null,
+         "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+         "material_id": "material:fixture-isotropic",
+         "nu": 0.2987012987012987,
+         "pipe_id": "pipe:fixture-span",
+         "provenance": "synthetic_integration_input_not_library_data",
+         "thermal_consumed": false
+        }
+       ],
+       "pipe_sections": [
+        {
+         "Ai_m2": 0.007853981633974482,
+         "As_m2": 0.0034557519189487725,
+         "I_m4": 5.270021676396878e-06,
+         "J_m4": 1.0540043352793756e-05,
+         "Z_m3": 8.783369460661463e-05,
+         "effective_wall_thickness_m": 0.01,
+         "geometry_basis": "authored_normalized_od_wall_v1",
+         "outside_diameter_m": 0.12,
+         "pipe_id": "pipe:fixture-span",
+         "ri_m": 0.049999999999999996,
+         "ro_m": 0.06
+        }
+       ],
+       "pipe_stress_extrema": [
+        {
+         "approximation": "piecewise_quadratic_straight_section_statics",
+         "certified_gap_pa": 5.2154064178466803e-08,
+         "coefficient_basis": "j_side_section_equilibrium_binary64",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "global_upper_bound_pa": 41354908.75465697,
+         "local_fraction": 0.0,
+         "pipe_id": "pipe:fixture-span",
+         "result_id": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
+         "span_index": 0,
+         "station_fraction": 0.0,
+         "subdivisions": 0,
+         "value_lower_pa": 41354908.75465692,
+         "value_upper_pa": 41354908.75465697
+        }
+       ],
+       "pressure_rhs_assembly": {
+        "assembled_pressure_rhs_global": [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "cancellation_screen": 0.0,
+        "dof_order": [
+         "Fx",
+         "Fy",
+         "Fz",
+         "Mx",
+         "My",
+         "Mz"
+        ],
+        "dof_units": [
+         "N",
+         "N",
+         "N",
+         "N*m",
+         "N*m",
+         "N*m"
+        ],
+        "groups": [],
+        "load_case_id": "case:six-component-load",
+        "method": "source_factor_grouped_pressure_rhs_v1",
+        "node_order": [
+         "node:fixture-root",
+         "node:fixture-tip"
+        ],
+        "rounded_cap_and_eigen_ledgers_are_observational": true,
+        "rounded_cap_rhs_global": [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "rounded_poisson_rhs_global": [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "screen_is_not_numerical_qualification": true,
+        "screen_limit": 1e-09,
+        "screen_roundoff_multiplier": 32
+       },
+       "profile_mode": "x",
+       "stress_maximum_coverage": {
+        "complete": true,
+        "unavailable_pipe_ids": []
+       }
+      },
+      {
+       "load_case_id": "case:zero-load",
+       "material_basis": 0,
+       "pipe_materials": [
+        {
+         "E_pa": 200000000000.0,
+         "G_pa": 77000000000.0,
+         "alpha_per_kelvin": null,
+         "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+         "material_id": "material:fixture-isotropic",
+         "nu": 0.2987012987012987,
+         "pipe_id": "pipe:fixture-span",
+         "provenance": "synthetic_integration_input_not_library_data",
+         "thermal_consumed": false
+        }
+       ],
+       "pipe_sections": [
+        {
+         "Ai_m2": 0.007853981633974482,
+         "As_m2": 0.0034557519189487725,
+         "I_m4": 5.270021676396878e-06,
+         "J_m4": 1.0540043352793756e-05,
+         "Z_m3": 8.783369460661463e-05,
+         "effective_wall_thickness_m": 0.01,
+         "geometry_basis": "authored_normalized_od_wall_v1",
+         "outside_diameter_m": 0.12,
+         "pipe_id": "pipe:fixture-span",
+         "ri_m": 0.049999999999999996,
+         "ro_m": 0.06
+        }
+       ],
+       "pipe_stress_extrema": [
+        {
+         "approximation": "piecewise_quadratic_straight_section_statics",
+         "certified_gap_pa": 0.0,
+         "coefficient_basis": "j_side_section_equilibrium_binary64",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "global_upper_bound_pa": 0.0,
+         "local_fraction": 0.0,
+         "pipe_id": "pipe:fixture-span",
+         "result_id": "result:elastic-maximum:14:case:zero-load:17:pipe:fixture-span",
+         "span_index": 0,
+         "station_fraction": 0.0,
+         "subdivisions": 0,
+         "value_lower_pa": 0.0,
+         "value_upper_pa": 0.0
+        }
+       ],
+       "pressure_rhs_assembly": {
+        "assembled_pressure_rhs_global": [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "cancellation_screen": 0.0,
+        "dof_order": [
+         "Fx",
+         "Fy",
+         "Fz",
+         "Mx",
+         "My",
+         "Mz"
+        ],
+        "dof_units": [
+         "N",
+         "N",
+         "N",
+         "N*m",
+         "N*m",
+         "N*m"
+        ],
+        "groups": [],
+        "load_case_id": "case:zero-load",
+        "method": "source_factor_grouped_pressure_rhs_v1",
+        "node_order": [
+         "node:fixture-root",
+         "node:fixture-tip"
+        ],
+        "rounded_cap_and_eigen_ledgers_are_observational": true,
+        "rounded_cap_rhs_global": [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "rounded_poisson_rhs_global": [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "screen_is_not_numerical_qualification": true,
+        "screen_limit": 1e-09,
+        "screen_roundoff_multiplier": 32
+       },
+       "profile_mode": "exact_straight_pressure_v2",
+       "stress_maximum_coverage": {
+        "complete": true,
+        "unavailable_pipe_ids": []
+       }
+      }
+     ]
+    },
+    {
+     "path": [
+      "contract_evidence",
+      "pressure"
+     ],
+     "op": "set",
+     "value": []
+    },
+    {
+     "path": [
+      "formulation_basis",
+      "limitations",
+      0
+     ],
+     "op": "set",
+     "value": "Small-displacement homogeneous-isotropic straight circular members with explicit common E/nu selection; G is derived, and source OD/effective wall define the section."
+    },
+    {
+     "path": [
+      "formulation_basis",
+      "limitations",
+      1
+     ],
+     "op": "set",
+     "value": "Pressure is internal differential with zero external pressure, explicit case-scoped collinear equal-bore regions and closure-transfer paths; pressure bends, joints and nonlinear support composition remain unimplemented."
+    },
+    {
+     "path": [
+      "formulation_basis",
+      "limitations",
+      2
+     ],
+     "op": "set",
+     "value": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
+    },
+    {
+     "path": [
+      "formulation_basis",
+      "limitations",
+      3
+     ],
+     "op": "set",
+     "value": "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
+    },
+    {
+     "path": [
+      "formulation_basis",
+      "limitations",
+      4
+     ],
+     "op": "set",
+     "value": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+    },
+    {
+     "path": [
+      "formulation_basis",
+      "limitations",
+      5
+     ],
+     "op": "set",
+     "value": "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline."
+    },
+    {
+     "path": [
+      "formulation_basis",
+      "limitations",
+      6
+     ],
+     "op": "set",
+     "value": "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+    },
+    {
+     "path": [
+      "formulation_basis",
+      "profile_id"
+     ],
+     "op": "set",
+     "value": "exact_straight_retained_w1a_v2"
+    },
+    {
+     "path": [
+      "producer",
+      "semantic_contract_id"
+     ],
+     "op": "set",
+     "value": "openpipestress.result_semantics/0.3.0/physics-retained-1"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "material_bases",
+      0,
+      "materials",
+      0,
+      "shear_origin",
+      "constitutive_basis"
+     ],
+     "op": "set",
+     "value": "homogeneous_isotropic_E_nu_v1"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "material_bases",
+      0,
+      "materials",
+      0,
+      "shear_origin",
+      "kind"
+     ],
+     "op": "set",
+     "value": "derived_e_nu"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "material_bases",
+      0,
+      "materials",
+      0,
+      "shear_origin",
+      "poisson_ratio"
+     ],
+     "op": "set",
+     "value": "3fd31dec0d4c77b0"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      0,
+      "definition_id"
+     ],
+     "op": "set",
+     "value": "RP-PREPARED-EXACT-DUAL-v1"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "definition_id"
+     ],
+     "op": "set",
+     "value": "RP-PREPARED-EXACT-DUAL-v1"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "sources",
+      0,
+      "section_terms",
+      0,
+      "geometry",
+      "route"
+     ],
+     "op": "set",
+     "value": "exact"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "sources",
+      1,
+      "section_terms",
+      0,
+      "geometry",
+      "route"
+     ],
+     "op": "set",
+     "value": "exact"
+    }
+   ],
+   "invocation_edits": [
+    {
+     "path": [
+      "request",
+      "model",
+      "load_cases",
+      0,
+      "pressure_regions"
+     ],
+     "op": "set",
+     "value": []
+    },
+    {
+     "path": [
+      "request",
+      "model",
+      "load_cases",
+      1,
+      "pressure_regions"
+     ],
+     "op": "set",
+     "value": []
+    },
+    {
+     "path": [
+      "request",
+      "model",
+      "materials",
+      0,
+      "constitutive_basis"
+     ],
+     "op": "set",
+     "value": "homogeneous_isotropic_E_nu_v1"
+    },
+    {
+     "path": [
+      "request",
+      "model",
+      "materials",
+      0,
+      "poisson_ratio"
+     ],
+     "op": "set",
+     "value": {
+      "unit": "1",
+      "value": 0.2987012987012987
+     }
+    },
+    {
+     "path": [
+      "request",
+      "model",
+      "pressure_contract"
+     ],
+     "op": "set",
+     "value": {
+      "mode": "exact_straight_pressure_v2",
+      "version": "2.0.0"
+     }
+    },
+    {
+     "path": [
+      "request",
+      "model",
+      "schema_version"
+     ],
+     "op": "set",
+     "value": "0.3.0"
+    }
+   ]
+  },
+  {
+   "base": [
+    "corpus",
+    "two_case_synthetic"
+   ],
+   "name": "N2b: entry 0's material_basis and entry 1's profile_mode [two_case_synthetic]",
+   "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (case profile/material basis; transport: evidence shape)",
+   "input_sha256": "531279516823371aca26ea5a9952b10514b939bfae1284dbd48962f59f774ddd",
+   "edits": [
+    {
+     "path": [
+      "contract_evidence",
+      "combination_gates"
+     ],
+     "op": "remove"
+    },
+    {
+     "path": [
+      "contract_evidence",
+      "preview_cases"
+     ],
+     "op": "remove"
+    },
+    {
+     "path": [
+      "contract_evidence",
+      "connector"
+     ],
+     "op": "set",
+     "value": []
+    },
+    {
+     "path": [
+      "contract_evidence",
+      "exact_cases"
+     ],
+     "op": "set",
+     "value": [
+      {
+       "load_case_id": "case:six-component-load",
+       "material_basis": 0,
+       "pipe_materials": [
+        {
+         "E_pa": 200000000000.0,
+         "G_pa": 77000000000.0,
+         "alpha_per_kelvin": null,
+         "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+         "material_id": "material:fixture-isotropic",
+         "nu": 0.2987012987012987,
+         "pipe_id": "pipe:fixture-span",
+         "provenance": "synthetic_integration_input_not_library_data",
+         "thermal_consumed": false
+        }
+       ],
+       "pipe_sections": [
+        {
+         "Ai_m2": 0.007853981633974482,
+         "As_m2": 0.0034557519189487725,
+         "I_m4": 5.270021676396878e-06,
+         "J_m4": 1.0540043352793756e-05,
+         "Z_m3": 8.783369460661463e-05,
+         "effective_wall_thickness_m": 0.01,
+         "geometry_basis": "authored_normalized_od_wall_v1",
+         "outside_diameter_m": 0.12,
+         "pipe_id": "pipe:fixture-span",
+         "ri_m": 0.049999999999999996,
+         "ro_m": 0.06
+        }
+       ],
+       "pipe_stress_extrema": [
+        {
+         "approximation": "piecewise_quadratic_straight_section_statics",
+         "certified_gap_pa": 5.2154064178466803e-08,
+         "coefficient_basis": "j_side_section_equilibrium_binary64",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "global_upper_bound_pa": 41354908.75465697,
+         "local_fraction": 0.0,
+         "pipe_id": "pipe:fixture-span",
+         "result_id": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
+         "span_index": 0,
+         "station_fraction": 0.0,
+         "subdivisions": 0,
+         "value_lower_pa": 41354908.75465692,
+         "value_upper_pa": 41354908.75465697
+        }
+       ],
+       "pressure_rhs_assembly": {
+        "assembled_pressure_rhs_global": [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "cancellation_screen": 0.0,
+        "dof_order": [
+         "Fx",
+         "Fy",
+         "Fz",
+         "Mx",
+         "My",
+         "Mz"
+        ],
+        "dof_units": [
+         "N",
+         "N",
+         "N",
+         "N*m",
+         "N*m",
+         "N*m"
+        ],
+        "groups": [],
+        "load_case_id": "case:six-component-load",
+        "method": "source_factor_grouped_pressure_rhs_v1",
+        "node_order": [
+         "node:fixture-root",
+         "node:fixture-tip"
+        ],
+        "rounded_cap_and_eigen_ledgers_are_observational": true,
+        "rounded_cap_rhs_global": [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "rounded_poisson_rhs_global": [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "screen_is_not_numerical_qualification": true,
+        "screen_limit": 1e-09,
+        "screen_roundoff_multiplier": 32
+       },
+       "profile_mode": "exact_straight_pressure_v2",
+       "stress_maximum_coverage": {
+        "complete": true,
+        "unavailable_pipe_ids": []
+       }
+      },
+      {
+       "load_case_id": "case:zero-load",
+       "material_basis": "base_material_common_E_nu",
+       "pipe_materials": [
+        {
+         "E_pa": 200000000000.0,
+         "G_pa": 77000000000.0,
+         "alpha_per_kelvin": null,
+         "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+         "material_id": "material:fixture-isotropic",
+         "nu": 0.2987012987012987,
+         "pipe_id": "pipe:fixture-span",
+         "provenance": "synthetic_integration_input_not_library_data",
+         "thermal_consumed": false
+        }
+       ],
+       "pipe_sections": [
+        {
+         "Ai_m2": 0.007853981633974482,
+         "As_m2": 0.0034557519189487725,
+         "I_m4": 5.270021676396878e-06,
+         "J_m4": 1.0540043352793756e-05,
+         "Z_m3": 8.783369460661463e-05,
+         "effective_wall_thickness_m": 0.01,
+         "geometry_basis": "authored_normalized_od_wall_v1",
+         "outside_diameter_m": 0.12,
+         "pipe_id": "pipe:fixture-span",
+         "ri_m": 0.049999999999999996,
+         "ro_m": 0.06
+        }
+       ],
+       "pipe_stress_extrema": [
+        {
+         "approximation": "piecewise_quadratic_straight_section_statics",
+         "certified_gap_pa": 0.0,
+         "coefficient_basis": "j_side_section_equilibrium_binary64",
+         "enclosure_scope": "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate",
+         "global_upper_bound_pa": 0.0,
+         "local_fraction": 0.0,
+         "pipe_id": "pipe:fixture-span",
+         "result_id": "result:elastic-maximum:14:case:zero-load:17:pipe:fixture-span",
+         "span_index": 0,
+         "station_fraction": 0.0,
+         "subdivisions": 0,
+         "value_lower_pa": 0.0,
+         "value_upper_pa": 0.0
+        }
+       ],
+       "pressure_rhs_assembly": {
+        "assembled_pressure_rhs_global": [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "cancellation_screen": 0.0,
+        "dof_order": [
+         "Fx",
+         "Fy",
+         "Fz",
+         "Mx",
+         "My",
+         "Mz"
+        ],
+        "dof_units": [
+         "N",
+         "N",
+         "N",
+         "N*m",
+         "N*m",
+         "N*m"
+        ],
+        "groups": [],
+        "load_case_id": "case:zero-load",
+        "method": "source_factor_grouped_pressure_rhs_v1",
+        "node_order": [
+         "node:fixture-root",
+         "node:fixture-tip"
+        ],
+        "rounded_cap_and_eigen_ledgers_are_observational": true,
+        "rounded_cap_rhs_global": [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "rounded_poisson_rhs_global": [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "screen_is_not_numerical_qualification": true,
+        "screen_limit": 1e-09,
+        "screen_roundoff_multiplier": 32
+       },
+       "profile_mode": "x",
+       "stress_maximum_coverage": {
+        "complete": true,
+        "unavailable_pipe_ids": []
+       }
+      }
+     ]
+    },
+    {
+     "path": [
+      "contract_evidence",
+      "pressure"
+     ],
+     "op": "set",
+     "value": []
+    },
+    {
+     "path": [
+      "formulation_basis",
+      "limitations",
+      0
+     ],
+     "op": "set",
+     "value": "Small-displacement homogeneous-isotropic straight circular members with explicit common E/nu selection; G is derived, and source OD/effective wall define the section."
+    },
+    {
+     "path": [
+      "formulation_basis",
+      "limitations",
+      1
+     ],
+     "op": "set",
+     "value": "Pressure is internal differential with zero external pressure, explicit case-scoped collinear equal-bore regions and closure-transfer paths; pressure bends, joints and nonlinear support composition remain unimplemented."
+    },
+    {
+     "path": [
+      "formulation_basis",
+      "limitations",
+      2
+     ],
+     "op": "set",
+     "value": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
+    },
+    {
+     "path": [
+      "formulation_basis",
+      "limitations",
+      3
+     ],
+     "op": "set",
+     "value": "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
+    },
+    {
+     "path": [
+      "formulation_basis",
+      "limitations",
+      4
+     ],
+     "op": "set",
+     "value": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+    },
+    {
+     "path": [
+      "formulation_basis",
+      "limitations",
+      5
+     ],
+     "op": "set",
+     "value": "The circular normal-stress maximum bounds the supplied binary64 section-statical coefficients; solver/coefficient formation error is separate, and incomplete coverage withholds the headline."
+    },
+    {
+     "path": [
+      "formulation_basis",
+      "limitations",
+      6
+     ],
+     "op": "set",
+     "value": "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+    },
+    {
+     "path": [
+      "formulation_basis",
+      "profile_id"
+     ],
+     "op": "set",
+     "value": "exact_straight_retained_w1a_v2"
+    },
+    {
+     "path": [
+      "producer",
+      "semantic_contract_id"
+     ],
+     "op": "set",
+     "value": "openpipestress.result_semantics/0.3.0/physics-retained-1"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "material_bases",
+      0,
+      "materials",
+      0,
+      "shear_origin",
+      "constitutive_basis"
+     ],
+     "op": "set",
+     "value": "homogeneous_isotropic_E_nu_v1"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "material_bases",
+      0,
+      "materials",
+      0,
+      "shear_origin",
+      "kind"
+     ],
+     "op": "set",
+     "value": "derived_e_nu"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "material_bases",
+      0,
+      "materials",
+      0,
+      "shear_origin",
+      "poisson_ratio"
+     ],
+     "op": "set",
+     "value": "3fd31dec0d4c77b0"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      0,
+      "definition_id"
+     ],
+     "op": "set",
+     "value": "RP-PREPARED-EXACT-DUAL-v1"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "product_attempts",
+      1,
+      "definition_id"
+     ],
+     "op": "set",
+     "value": "RP-PREPARED-EXACT-DUAL-v1"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "sources",
+      0,
+      "section_terms",
+      0,
+      "geometry",
+      "route"
+     ],
+     "op": "set",
+     "value": "exact"
+    },
+    {
+     "path": [
+      "retained_precision",
+      "body",
+      "sources",
+      1,
+      "section_terms",
+      0,
+      "geometry",
+      "route"
+     ],
+     "op": "set",
+     "value": "exact"
+    }
+   ],
+   "invocation_edits": [
+    {
+     "path": [
+      "request",
+      "model",
+      "load_cases",
+      0,
+      "pressure_regions"
+     ],
+     "op": "set",
+     "value": []
+    },
+    {
+     "path": [
+      "request",
+      "model",
+      "load_cases",
+      1,
+      "pressure_regions"
+     ],
+     "op": "set",
+     "value": []
+    },
+    {
+     "path": [
+      "request",
+      "model",
+      "materials",
+      0,
+      "constitutive_basis"
+     ],
+     "op": "set",
+     "value": "homogeneous_isotropic_E_nu_v1"
+    },
+    {
+     "path": [
+      "request",
+      "model",
+      "materials",
+      0,
+      "poisson_ratio"
+     ],
+     "op": "set",
+     "value": {
+      "unit": "1",
+      "value": 0.2987012987012987
+     }
+    },
+    {
+     "path": [
+      "request",
+      "model",
+      "pressure_contract"
+     ],
+     "op": "set",
+     "value": {
+      "mode": "exact_straight_pressure_v2",
+      "version": "2.0.0"
+     }
+    },
+    {
+     "path": [
+      "request",
+      "model",
+      "schema_version"
+     ],
+     "op": "set",
+     "value": "0.3.0"
+    }
+   ]
   }
  ]
 }
