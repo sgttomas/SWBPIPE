@@ -872,6 +872,8 @@ def _rv120_want(text):
 
 RV120_G5B = [s for s in RV120["shapes"] if s["name"].startswith("X G5b")]
 RV120_FORGERIES = [s for s in RV120["shapes"] if s["name"].startswith("forge")]
+RV120_N2 = [s for s in RV120["shapes"] if s["name"].startswith("X G8: an exact_cases entry")]
+REPAIR03_N2B = [s for s in RV120["shapes"] if s["name"].startswith("N2b: ")]
 
 
 @pytest.mark.parametrize("shape", RV120_G5B, ids=[s["name"] for s in RV120_G5B])
@@ -894,3 +896,55 @@ def test_repair01_rv120_forgeries_are_refused_at_g8(shape):
     assert outcome(source, invocation) == PREPARATION
     assert outcome(source, None) == ("pass", False, "needs_recompute")
     assert outcome(source, None, transport=True) == ("pass", False, "needs_recompute")
+
+
+@pytest.mark.parametrize("shape", RV120_N2, ids=[s["name"] for s in RV120_N2])
+def test_repair02_rv120_n2_reads_the_cases_in_array_order(shape):
+    """N2 (I101 repair 02): an exact_cases entry for a case not in the invocation (entry 0 copied, renamed), on RV120's
+    synthetic exact base and lane P's m3x successor. Bound and unbound read G7's case coverage. On transport the cases
+    are read in array order, so entry 0 passes and the copy's repeated maximum result id is read, run after run, as RS
+    (array-ordered since repair 02) and TS read it."""
+    assert len(RV120_N2) == 2
+    source, invocation = rv120_input(shape)
+
+    def read(bound, transport):
+        try:
+            if transport:
+                rp.validate_retained_precision_transport(deepcopy(source))
+            else:
+                rp.validate_retained_precision(deepcopy(source), deepcopy(invocation) if bound else None)
+        except rp.RetainedPrecisionError as error:
+            return (error.gate, error.code, error.detail)
+        return None
+
+    coverage = ("G7", "SOURCE_PHYSICS_EVIDENCE_INVALID", "SOURCE_PHYSICS_EVIDENCE_INVALID: case coverage")
+    for _ in range(8):
+        assert read(True, False) == coverage
+        assert read(False, False) == coverage
+        assert read(False, True) == ("G7", "SOURCE_PHYSICS_EVIDENCE_INVALID", "SOURCE_PHYSICS_EVIDENCE_INVALID: transport maximum result ID")
+
+
+@pytest.mark.parametrize("shape", REPAIR03_N2B, ids=[s["name"] for s in REPAIR03_N2B])
+def test_repair03_n2b_reads_the_cases_in_array_order(shape):
+    """N2b (I101 repair 03): two faults in the two exact_cases entries of the exact two_case_synthetic (one entry's
+    profile_mode "x", the other's material_basis not a string), and the swap, on the Rust reader's materialized input
+    (input_sha256). PY reads its cases in array order (a dict's insertion order), and both faults fail its one case check,
+    so bound and unbound read G7 "case profile/material basis", run after run; transport refuses the evidence shape."""
+    assert len(REPAIR03_N2B) == 2
+    source, invocation = rv120_input(shape)
+
+    def read(bound, transport):
+        try:
+            if transport:
+                rp.validate_retained_precision_transport(deepcopy(source))
+            else:
+                rp.validate_retained_precision(deepcopy(source), deepcopy(invocation) if bound else None)
+        except rp.RetainedPrecisionError as error:
+            return (error.gate, error.code, error.detail)
+        return None
+
+    case = ("G7", "SOURCE_PHYSICS_EVIDENCE_INVALID", "SOURCE_PHYSICS_EVIDENCE_INVALID: case profile/material basis")
+    for _ in range(8):
+        assert read(True, False) == case
+        assert read(False, False) == case
+        assert read(False, True) == ("G7", "SOURCE_PHYSICS_EVIDENCE_INVALID", "SOURCE_PHYSICS_EVIDENCE_INVALID: transport evidence shape")
