@@ -33,7 +33,7 @@ No committed input lies in that band, no committed pin moves, and no true mechan
 
 m08's expectation uses `norm2`. B1's glibc-only variants are retired. The ring check allows the absolute escape only for the near-zero residues (RV125 A1-N1). `t13` and the runner's two `load_reference` tests now pass on the Mac.
 
-On glibc every committed pin holds. A value formed elsewhere from a hypot chain, or where a libm `hypot` was misrounded, can move by one ulp on either platform; the change record lists every moved value with its components.
+On glibc every committed pin holds. A value formed elsewhere from a hypot chain, or where a libm `hypot` was misrounded, can move by one or two ulps on either platform (two where a former two-`hypot` chain was off by two); the change record lists every moved value with its components.
 
 **Evidence:**
 - the 40 manifests on the Mac: 0 FAILED;

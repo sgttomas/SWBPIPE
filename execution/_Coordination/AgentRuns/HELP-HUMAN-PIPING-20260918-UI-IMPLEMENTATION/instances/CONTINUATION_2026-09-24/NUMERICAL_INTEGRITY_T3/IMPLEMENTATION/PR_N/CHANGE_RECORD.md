@@ -116,18 +116,18 @@ WORKING_ITEMS gives each verdict.
 | Gate | Revision | Verdict |
 |---|---|---|
 | RV126 (RV-N): fresh review of the norm module and every call site | `dab19291a8` | **FAIL on B-1 only** (1 BLOCKING, 1 SHOULD-FIX, 8 NOTE; `R/REVIEW_RV126/pr_n_01/REVIEW.md`). B-1 ruled accept, option (i) (§1). S-1 and the notes are answered by repair round 01 (`8ca80508b6`) and this package |
-| RV126's confirmation of repair round 01 | the repaired PR head | pending |
-| Pass B (I107), confirmed by RV124 (D1 call sites, §5) | `8dd64c1835`; the repair commit is comment-only and line-neutral | pending |
-| I112: T9 and the both-entry gate (published bytes on D1) | B `7eae707bb7` against C `8dd64c1835`; as above | pending |
+| RV126's confirmation of repair round 01 | `0c7490e1be` | **PASS**, 0 BLOCKING, 0 SHOULD-FIX, 8 NOTE, all answered (`R/REVIEW_RV126/pr_n_01/ADDENDUM_01.md`) |
+| Pass B (I107), confirmed by RV124 (D1 call sites, §5) | `8dd64c1835`, carried over to `0c7490e1be` (token-identical code) | **DELTAS TO READ, no stop**; TEXT, forms and M unchanged; outcomes change only by `t13` and the two `load_reference` tests (FAILED → ok). **RV124 CONFIRMED**, with the carry-over (`R/I107/pr_n_passb_01/`, `R/REVIEW_RV124/pr_n_passb_01/CONFIRM.md`) |
+| I112: T9 and the both-entry gate (published bytes on D1) | B `7eae707bb7` against C `8dd64c1835`, carried over to `0c7490e1be` | **T9 PASS; part 1 PASS** (884 of 884 under ROOT's rule: a difference passes only where the candidate is the exact correctly rounded norm of its own components and the base is the libm `hypot` (chain) value; 5,254 moved magnitudes, 10 of them by two ulps, and norm values in two diagnostic texts); gate_check 0 trusted breach triples on both sides; **part 2 PASS** (`R/I112/pr_n_gates_01/`) |
 | Linux diagnostic dispatch 37820998162 | `7bd84e0526` | **success** (§3) |
 | Full-SHA dispatch 37824479785 | `dab19291a8` | **success** (§3) |
-| Hosted CI on the PR | PR head | pending |
-| Full-SHA dispatch | the repaired PR head | pending |
-| GEN-8 | PR head | pending |
-| Exact-head DEC-025 with src-tauri | PR head | pending |
+| Hosted CI on the PR | `0c7490e1be` | **success** |
+| Full-SHA dispatch 37833181297 (`target_base` `7eae707bb7`) | `0c7490e1be` | **success** |
+| GEN-8 | `0c7490e1be` | **1 passed** |
+| Exact-head DEC-025 with src-tauri | `0c7490e1be` against a fresh main baseline `7eae707bb7` | **ALL-DONE**. The sweep passes every surface on the Mac for the first time (no platform failure remains). 40 manifests: 0 FAILED; the only changed outcomes are `t13` and the two `load_reference` tests (FAILED → ok); +11 added and 3 removed (the norm's tests; three frame_kernel doc tests renamed by a line shift). pytest 4,426 passed, 32 skipped; vitest 141 files, 4,245 tests; both builds exit 0. src-tauri 116 = 116, identical. The record is the merge record |
 | `source_equality.py` (checks 1–5) | the code commit plus this package | PASS, recorded in `R/I109/pr_n_package_01/` |
 | `check_citations.py` | the code commit plus this package | PASS, recorded in `R/I109/pr_n_package_01/` |
-| `source_equality.py` and `check_citations.py` | the repaired PR head | recorded in `R/I109/pr_n_repair_01/` |
+| `source_equality.py` and `check_citations.py` | `0c7490e1be` | **PASS** against NUM `09a8af1d19` (22 maintained files), run by WORKING_ITEMS; and in `R/I109/pr_n_repair_01/` |
 
 ## 5. The D1 call sites
 
