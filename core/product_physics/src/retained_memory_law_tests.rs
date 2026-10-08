@@ -2349,3 +2349,30 @@ fn b3b_direct_entry_keeps_the_exact_ordinary_bytes() {
         }
     }
 }
+
+/// RV122 SF-2 (its probe B as the witness): on branch E the explicitly empty `pressure_regions`
+/// list is a typed owner, and its capacity must be 0, on any case. With spare capacity it
+/// refuses with `PressureRegionsCapacity` (resource admission), as the control, an empty
+/// `sections` owner with spare capacity, refuses with `SectionsCapacity` at D1.9. Length 0 with
+/// capacity 0, which every parsed request has, is admitted.
+#[test]
+fn b3b_exact_regions_capacity_is_read() {
+    let spare = |case: usize, capacity: usize| {
+        admitted_typed(exact3(milestone_cases(caps::LOAD_CASES)), |r| r.model.load_cases[case].pressure_regions = Some(Vec::with_capacity(capacity)))
+            .law()
+            .domain
+    };
+    for case in [0, caps::LOAD_CASES - 1] {
+        assert_eq!(spare(case, 65_536), Some(AdmissionRefusal::Cap { fact: CapFact::PressureRegionsCapacity, observed: 65_536, cap: 0 }), "case {case}");
+        assert_eq!(spare(case, 1), Some(AdmissionRefusal::Cap { fact: CapFact::PressureRegionsCapacity, observed: 1, cap: 0 }), "case {case}");
+        assert_eq!(spare(case, 0), None, "case {case}: length 0, capacity 0");
+    }
+    let parsed: LinearStaticPreviewRequest = serde_json::from_value(exact3(milestone_cases(caps::LOAD_CASES))).unwrap();
+    assert!(parsed.model.load_cases.iter().all(|case| case.pressure_regions.as_ref().is_some_and(|r| r.is_empty() && r.capacity() == 0)),
+        "a parsed request's empty list has capacity 0");
+    assert_eq!(domain(exact3(milestone())), None);
+    let refusal = AdmissionRefusal::Cap { fact: CapFact::PressureRegionsCapacity, observed: 1, cap: 0 };
+    assert_eq!(refusal.precondition().as_str(), "resource_admission");
+    let control = admitted_typed(exact3(milestone()), |r| r.model.sections.reserve_exact(1));
+    assert!(matches!(control.law().domain, Some(AdmissionRefusal::Cap { fact: CapFact::SectionsCapacity, cap: 0, .. })), "{:?}", control.law().domain);
+}
