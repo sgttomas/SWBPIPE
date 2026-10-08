@@ -5301,9 +5301,20 @@ struct ExactShape {
     invocation_edits: Vec<Value>,
     after: Vec<Value>,
 }
+/// The optional file base: `B3B_EXACT_BASE` names a `{source, invocation}` file (for
+/// example lane P's `m3x` exact successor); every shape is then also read on it.
+const FILE_BASE: &str = "<file>";
+fn exact_base(shared: &Value, base: &str) -> (Value, Value) {
+    if base == FILE_BASE {
+        let path = std::env::var("B3B_EXACT_BASE").unwrap();
+        let doc: Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+        return (doc["source"].clone(), doc["invocation"].clone());
+    }
+    exact_successor(shared, base)
+}
 fn exact_shape_input(shared: &Value, shape: &ExactShape) -> (Value, Value) {
     use open_pipe_stress_result_export::source_blocks::domain_hash;
-    let (mut source, mut invocation) = exact_successor(shared, shape.base);
+    let (mut source, mut invocation) = exact_base(shared, shape.base);
     for e in &shape.edits {
         edit(&mut source, e);
     }
@@ -5330,36 +5341,58 @@ const SECTION: &str = "RETAINED_PRECISION_SECTION_MISMATCH";
 /// REVISION_01 §4.3's B3b list on the synthetic exact successor (entries 1-32;
 /// entry 9 relabels the shared preview base), plus this reader's added shapes.
 /// The expected first failures are bound; `B3B_SHAPES_OUT` writes every shape's
-/// bound, unbound and transport readings (JSON lines) for the three-reader
-/// comparison.
+/// bound, unbound and transport readings (JSON lines), and `B3B_INPUTS_OUT` the
+/// materialized inputs, for the three-reader comparison.
 fn b3b_shapes(shared: &Value) -> Vec<(ExactShape, Value)> {
+    let mut out = Vec::new();
+    for b in EXACT_BASES {
+        out.push((ExactShape { name: "base", base: b, edits: vec![], invocation_edits: vec![], after: vec![] }, Value::Null));
+    }
+    out.extend(b3b_rows(shared, ORD));
+    // 09: the shared preview base relabelled physics-retained-1 (identity and profile).
+    out.push((ExactShape { name: "09 the preview successor relabelled physics-retained-1", base: "<preview:ordinary_prepared_synthetic>", edits: vec![], invocation_edits: vec![], after: vec![] }, gate("G0", UNSUPPORTED)));
+    // 11 (S-1): the preparation hash over a payload with DEF-O's H; source
+    // identity, publication and receipt hashes recomputed.
+    out.push((ExactShape { name: "11 S-1: the preparation hashed with DEF-O's H", base: "<s1:ordinary_prepared_synthetic>", edits: vec![], invocation_edits: vec![], after: vec![] }, gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")));
+    if std::env::var("B3B_EXACT_BASE").is_ok() {
+        out.push((ExactShape { name: "base", base: FILE_BASE, edits: vec![], invocation_edits: vec![], after: vec![] }, Value::Null));
+        out.extend(b3b_rows(shared, FILE_BASE));
+        out.push((ExactShape { name: "11 S-1: the preparation hashed with DEF-O's H", base: "<s1:file>", edits: vec![], invocation_edits: vec![], after: vec![] }, gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")));
+    }
+    out
+}
+/// REVISION_01 §4.3's entries and the added shapes on one exact base, with every
+/// edited value taken from that base (its owner entry, material, nu, case and pipe).
+fn b3b_rows(shared: &Value, base_name: &'static str) -> Vec<(ExactShape, Value)> {
     use serde_json::json;
     let ce = |tail: Value| {
         let mut p = vec![json!("contract_evidence"), json!("exact_cases"), json!(0)];
         p.extend(tail.as_array().unwrap().iter().cloned());
         Value::Array(p)
     };
-    let (base, _) = exact_successor(shared, ORD);
+    let (base, base_invocation) = exact_base(shared, base_name);
     let entry = &base["contract_evidence"]["exact_cases"][0];
     let section = |k: &str| entry["pipe_sections"][0][k].as_f64().unwrap();
     let material = |k: &str| entry["pipe_materials"][0][k].as_f64().unwrap();
+    let receipt_g = decode_bits(&base["retained_precision"]["body"]["material_bases"][0]["materials"][0]["shear_modulus"]);
+    let base_model = &base_invocation["request"]["model"];
+    let authored_nu = base_model["materials"][0]["poisson_ratio"]["value"].as_f64().unwrap();
+    let (case_id, pipe_id) = (base_model["load_cases"][0]["id"].clone(), base_model["pipe_segments"][0]["id"].clone());
     let model = |tail: Value| {
         let mut p = vec![json!("request"), json!("model")];
         p.extend(tail.as_array().unwrap().iter().cloned());
         Value::Array(p)
     };
-    let shape = |name, edits, invocation_edits, after| ExactShape { name, base: ORD, edits, invocation_edits, after };
+    let shape = |name, edits, invocation_edits, after| ExactShape { name, base: base_name, edits, invocation_edits, after };
     let g0 = gate("G0", UNSUPPORTED);
     let inv = gate("G8", INVOCATION);
     let prep = gate("G8", PREPARATION);
     let sec = gate("G5b", SECTION);
     let mut out = Vec::new();
-    for b in EXACT_BASES {
-        out.push((ExactShape { name: "base", base: b, edits: vec![], invocation_edits: vec![], after: vec![] }, Value::Null));
-    }
     let rows = vec![
         ("01 identity -> the preview id", vec![set(json!(["producer", "semantic_contract_id"]), json!(rp::CONTRACT_ID))], vec![], vec![], g0.clone()),
         ("02 profile -> the preview profile", vec![set(json!(["formulation_basis", "profile_id"]), json!(rp::PROFILE))], vec![], vec![], g0.clone()),
+        ("02b producer component_version 0.2.1", vec![set(json!(["producer", "component_version"]), json!("0.2.1"))], vec![], vec![], g0.clone()),
         ("03 an attempt's definition_id -> the ordinary id", vec![set(rb(json!(["product_attempts", 0, "definition_id"])), json!(rp::DEFINITION_ID))], vec![], vec![], g0.clone()),
         ("04 projection_policy changed", vec![set(rb(json!(["projection_policy"])), json!("RP-LOGICAL-ATTEMPTS-v2"))], vec![], vec![], g0.clone()),
         ("04b policy changed", vec![set(rb(json!(["policy"])), json!("M03-INTEGRITY-MP-v3"))], vec![], vec![], g0.clone()),
@@ -5381,6 +5414,7 @@ fn b3b_shapes(shared: &Value) -> Vec<(ExactShape, Value)> {
         ("15f the owner entry's pipe section listed twice", vec![set(ce(json!(["pipe_sections"])), json!([entry["pipe_sections"][0], entry["pipe_sections"][0]]))], vec![], vec![], sec.clone()),
         ("15g the owner entry's As_m2 a string", vec![set(ce(json!(["pipe_sections", 0, "As_m2"])), json!(format!("{}", section("As_m2"))))], vec![], vec![], sec.clone()),
         ("15h the owner entry listed twice", vec![set(json!(["contract_evidence", "exact_cases"]), json!([entry, entry]))], vec![], vec![], sec.clone()),
+        ("16b contract_evidence removed", vec![remove(json!(["contract_evidence"]))], vec![], vec![], sec.clone()),
         ("16 connector non-empty", vec![set(json!(["contract_evidence", "connector"]), json!([{"id": "connector:x"}]))], vec![], vec![], gate("G7", "SOURCE_PHYSICS_CONNECTOR_UNSUPPORTED")),
         ("17 an entry's G_pa three ulps", vec![set(ce(json!(["pipe_materials", 0, "G_pa"])), json!(ulps(material("G_pa"), 3)))], vec![], vec![], gate("G7", "SOURCE_PHYSICS_MATERIAL_G_BINDING")),
         ("18 recovery_method added to an exact_cases entry", vec![set(ce(json!(["recovery_method"])), json!("retained_source_blocks_exact_v1"))], vec![], vec![], gate("G7", "SOURCE_PHYSICS_CASE_SHAPE")),
@@ -5390,18 +5424,19 @@ fn b3b_shapes(shared: &Value) -> Vec<(ExactShape, Value)> {
         ("21b invocation contract with an extra key", vec![], vec![set(model(json!(["pressure_contract"])), json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2", "extra": null}))], vec![], inv.clone()),
         ("21c invocation contract version 2.0.1", vec![], vec![set(model(json!(["pressure_contract"])), json!({"version": "2.0.1", "mode": "exact_straight_pressure_v2"}))], vec![], inv.clone()),
         ("21d invocation contract removed (0.3.0, absent)", vec![], vec![remove(model(json!(["pressure_contract"])))], vec![], inv.clone()),
-        ("22 a combination added to the invocation", vec![], vec![set(model(json!(["combinations"])), json!([{"id": "combination:x", "kind": "algebraic", "terms": [{"load_case": "case:six-component-load", "factor": 1.0}]}]))], vec![], inv.clone()),
+        ("22 a combination added to the invocation", vec![], vec![set(model(json!(["combinations"])), json!([{"id": "combination:x", "kind": "algebraic", "terms": [{"load_case": case_id, "factor": 1.0}]}]))], vec![], inv.clone()),
         ("22b a component added to the invocation", vec![], vec![set(model(json!(["components"])), json!([{"id": "component:x"}]))], vec![], inv.clone()),
         ("23 a case naming modulus_basis_ref", vec![], vec![set(model(json!(["load_cases", 0, "modulus_basis_ref"])), json!("point:x"))], vec![], prep.clone()),
         ("24 a material's shear_origin -> explicit_g", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_origin"])), json!({"kind": "explicit_g"}))], vec![], vec![], prep.clone()),
-        ("25 a material's shear_modulus one ulp", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_modulus"])), json!(format!("{:016x}", ulps(7.7e10, 1).to_bits())))], vec![], vec![], prep.clone()),
-        ("26 shear_origin.poisson_ratio bits changed", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_origin", "poisson_ratio"])), json!(format!("{:016x}", ulps(EXACT_NU, 1).to_bits())))], vec![], vec![], prep.clone()),
-        ("27 authored nu changed in the invocation", vec![], vec![set(model(json!(["materials", 0, "poisson_ratio", "value"])), json!(ulps(EXACT_NU, 1)))], vec![], prep.clone()),
-        ("28 S-C only: an entry's pipe_materials nu one ulp", vec![set(ce(json!(["pipe_materials", 0, "nu"])), json!(ulps(EXACT_NU, 1)))], vec![], vec![], prep.clone()),
+        ("24b a material's selection -> named_point", vec![set(rb(json!(["material_bases", 0, "materials", 0, "selection"])), json!({"kind": "named_point", "point_id": "point:x"}))], vec![], vec![], prep.clone()),
+        ("25 a material's shear_modulus one ulp", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_modulus"])), json!(format!("{:016x}", ulps(receipt_g, 1).to_bits())))], vec![], vec![], prep.clone()),
+        ("26 shear_origin.poisson_ratio bits changed", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_origin", "poisson_ratio"])), json!(format!("{:016x}", ulps(material("nu"), 1).to_bits())))], vec![], vec![], prep.clone()),
+        ("27 authored nu changed in the invocation", vec![], vec![set(model(json!(["materials", 0, "poisson_ratio", "value"])), json!(ulps(authored_nu, 1)))], vec![], prep.clone()),
+        ("28 S-C only: an entry's pipe_materials nu one ulp", vec![set(ce(json!(["pipe_materials", 0, "nu"])), json!(ulps(material("nu"), 1)))], vec![], vec![], prep.clone()),
         ("29 N-6: an entry's G_pa one ulp", vec![set(ce(json!(["pipe_materials", 0, "G_pa"])), json!(ulps(material("G_pa"), 1)))], vec![], vec![], prep.clone()),
         ("30 a case's pressure_regions -> null", vec![], vec![set(model(json!(["load_cases", 0, "pressure_regions"])), Value::Null)], vec![], prep.clone()),
         ("30b a case's pressure_regions absent", vec![], vec![remove(model(json!(["load_cases", 0, "pressure_regions"])))], vec![], prep.clone()),
-        ("31 a case's pressure_regions -> one region", vec![], vec![set(model(json!(["load_cases", 0, "pressure_regions"])), json!([{"id": "region:x", "member_pipe_ids": ["pipe:fixture-span"], "pressure": {"value": 0, "unit": "Pa"}}]))], vec![], prep.clone()),
+        ("31 a case's pressure_regions -> one region", vec![], vec![set(model(json!(["load_cases", 0, "pressure_regions"])), json!([{"id": "region:x", "member_pipe_ids": [pipe_id], "pressure": {"value": 0, "unit": "Pa"}}]))], vec![], prep.clone()),
         ("32 a member's geometry.route -> preview", vec![set(rb(json!(["sources", 0, "section_terms", 0, "geometry", "route"])), json!("preview"))], vec![], vec![], prep.clone()),
         ("32b the authored poisson_ratio unit -> \"\"", vec![], vec![set(model(json!(["materials", 0, "poisson_ratio", "unit"])), json!(""))], vec![], prep.clone()),
         ("32c the authored constitutive_basis removed (S-C)", vec![], vec![remove(model(json!(["materials", 0, "constitutive_basis"])))], vec![], prep.clone()),
@@ -5409,11 +5444,6 @@ fn b3b_shapes(shared: &Value) -> Vec<(ExactShape, Value)> {
     for (name, edits, invocation_edits, after, want) in rows {
         out.push((shape(name, edits, invocation_edits, after), want));
     }
-    // 09: the shared preview base relabelled physics-retained-1 (identity and profile).
-    out.push((ExactShape { name: "09 the preview successor relabelled physics-retained-1", base: "<preview:ordinary_prepared_synthetic>", edits: vec![], invocation_edits: vec![], after: vec![] }, g0.clone()));
-    // 11 (S-1): the preparation hash over a payload with DEF-O's H; source
-    // identity, publication and receipt hashes recomputed.
-    out.push((ExactShape { name: "11 S-1: the preparation hashed with DEF-O's H", base: "<s1:ordinary_prepared_synthetic>", edits: vec![], invocation_edits: vec![], after: vec![] }, gate("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")));
     out
 }
 fn b3b_input(shared: &Value, shape: &ExactShape) -> (Value, Value) {
@@ -5427,8 +5457,8 @@ fn b3b_input(shared: &Value, shape: &ExactShape) -> (Value, Value) {
             rehash(&mut source);
             (source, case["invocation"].clone())
         }
-        "<s1:ordinary_prepared_synthetic>" => {
-            let (mut source, invocation) = exact_successor(shared, ORD);
+        "<s1:ordinary_prepared_synthetic>" | "<s1:file>" => {
+            let (mut source, invocation) = exact_base(shared, if shape.base == "<s1:file>" { FILE_BASE } else { ORD });
             rehash_with(&mut source, rp::DEFINITION_HASH);
             (source, invocation)
         }
@@ -5459,8 +5489,18 @@ fn b3b_exact_successor_shapes_first_failures() {
             writeln!(f, "{}", serde_json::to_string(l).unwrap()).unwrap();
         }
     }
+    // `B3B_INPUTS_OUT`: every shape's materialized statement and invocation (JSON lines),
+    // for the other readers' comparison on identical bytes.
+    if let Ok(path) = std::env::var("B3B_INPUTS_OUT") {
+        let mut f = std::fs::File::create(path).unwrap();
+        for (shape, want) in &shapes {
+            let (source, invocation) = b3b_input(&shared, shape);
+            let line = serde_json::json!({"name": shape.name, "base": shape.base, "expected_bound": want, "source": source, "invocation": invocation});
+            writeln!(f, "{}", serde_json::to_string(&line).unwrap()).unwrap();
+        }
+    }
     assert!(misses.is_empty(), "{}", misses.join("\n"));
-    assert_eq!(shapes.len(), 3 + 47 + 2);
+    assert_eq!(shapes.iter().filter(|(s, _)| s.base != FILE_BASE && s.base != "<s1:file>").count(), 3 + 50 + 2);
 }
 fn observe_validation(r: Result<rp::Validation, rp::ValidationError>) -> Value {
     match r {
@@ -5500,8 +5540,21 @@ fn b3b_exact_successor_readings_standing_and_dispatch() {
         downgraded["formulation_basis"]["profile_id"] = json!("exact_straight_pressure_v2");
         assert_eq!(sc::for_source(&downgraded).unwrap_err(), sc::RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
     }
-    // S-C's own code is the detail of G8's PREPARATION_MISMATCH (B3D-13).
+    // Unbound and transport readings of three shapes: a G8 shape reads unbound and on
+    // transport; removing the evidence is G5b bound and unbound, and on transport
+    // physics-1's own transport-shape code at G7 (no header refusal: physics-1's
+    // header does not require the evidence, as preview-physics-1's does).
     let shapes = b3b_shapes(&shared);
+    for (prefix, want) in [
+        ("29 ", json!({"bound": {"gate": "G8", "code": PREPARATION}, "unbound": {"ok": {"eligible": false}}, "transport": {"ok": {"eligible": false}}})),
+        ("16b ", json!({"bound": {"gate": "G5b", "code": SECTION}, "unbound": {"gate": "G5b", "code": SECTION}, "transport": {"gate": "G7", "code": "SOURCE_PHYSICS_TRANSPORT_SHAPE"}})),
+        ("01 ", json!({"bound": {"gate": "G0", "code": UNSUPPORTED}, "unbound": {"gate": "G0", "code": UNSUPPORTED}, "transport": {"gate": "G0", "code": UNSUPPORTED}})),
+    ] {
+        let (shape, _) = shapes.iter().find(|(s, _)| s.name.starts_with(prefix)).unwrap();
+        let (source, invocation) = b3b_input(&shared, shape);
+        assert_eq!(readings(&source, &invocation), want, "{}", shape.name);
+    }
+    // S-C's own code is the detail of G8's PREPARATION_MISMATCH (B3D-13).
     let (shape, _) = shapes.iter().find(|(s, _)| s.name.starts_with("28 ")).unwrap();
     let (source, invocation) = b3b_input(&shared, shape);
     let e = rp::validate(&source, Some(&invocation)).unwrap_err();
@@ -5510,4 +5563,65 @@ fn b3b_exact_successor_readings_standing_and_dispatch() {
     // The table pins: identity, profile and bytes.
     assert_eq!(sc::verify_physics_retained_table(b"{}").unwrap_err(), "SOURCE_PHYSICS_RETAINED_TABLE_HASH");
     assert_eq!(sc::physics_retained_contract()["formulation_profile_id"], rp::EXACT_PROFILE);
+}
+
+/// B3b (D2 §4.9.7; B3-D §7): derivative.rs carries the exact successor's
+/// `contract_evidence` and its receipt whole, and validates the document against
+/// the source. The base and origin are a minimal 0.2.0 scaffold of the desktop's
+/// (T6S-2's `desktop_base` and `desktop_origin`, retained_precision_derivative_golden.rs);
+/// the exact successor's golden, on lane P's `m3x` successors, is lane T's.
+#[test]
+fn b3b_exact_successor_derivative_carries_the_receipt_and_evidence() {
+    use open_pipe_stress_result_export::{derivative as d, semantic_contract as sc};
+    use serde_json::json;
+    let shared = corpus();
+    for base in EXACT_BASES {
+        let (source, invocation) = exact_successor(&shared, base);
+        let model = &invocation["request"]["model"];
+        let run = source["run_id"].as_str().unwrap();
+        let project = model["project"]["id"].as_str().unwrap();
+        let provenance = json!({"source_name":"b3b exact successor derivative control","source_location":"core/reporting/result_export/tests/retained_precision_contract.rs","source_license":"project-local","contributor":"test","contributor_certification":"test","redistribution_status":"private_only","review_status":"pending"});
+        let diagnostics: Vec<Value> = source["diagnostics"].as_array().unwrap().iter().map(|x| json!({
+            "code": x["code"], "class": "ASSUMPTION_WARNING", "severity": x["severity"],
+            "source": {"ref_type":"source","ref_id":x["source"]}, "affected_object": {"ref_type":"preview_entity","ref_id":x["affected_refs"][0]},
+            "message": x["message"], "remediation": "Review source model and preview limitations.", "provenance": provenance})).collect();
+        let mut statuses = vec!["HUMAN_REVIEW_REQUIRED".to_string(), source["status"]["mechanics"].as_str().unwrap().into(), source["status"]["rule_check"].as_str().unwrap().into()];
+        statuses.sort();
+        let doc_base = json!({
+            "schema_version": "0.2.0", "deliverable_id": "DEL-08-04", "package_id": "PKG-08", "scope_item": "SOW-046", "objectives": ["OBJ-007", "OBJ-009"],
+            "export_format_status": {"baseline_format":"schema_first_json_result_envelope","additional_formats":"TBD","public_transport_protocol":"TBD","local_fea_package_format":"TBD","external_adapter_formats":"TBD"},
+            "result_envelope": {
+                "schema_version": "0.2.0", "envelope_id": format!("result-envelope:{run}"), "model_ref": d::reference("model_payload", project),
+                "run_ref": d::reference("analysis_run", run),
+                "solver_version": {"solver_name": source["producer"]["component_name"], "solver_version": source["producer"]["component_version"], "solver_build_ref": "test:b3b-exact-derivative-control"},
+                "unit_system_ref": d::reference("unit_system", &format!("{project}:units")),
+                "load_basis_refs": model["load_cases"].as_array().unwrap().iter().map(|c| d::reference("LoadCase", c["id"].as_str().unwrap())).collect::<Vec<_>>(),
+                "result_sets": [{"set_id":format!("result-set:{run}:mechanics"),"set_type":"mechanics","basis_ref":d::reference("analysis_run", run),"values":[]}],
+                "diagnostics": diagnostics, "provenance": provenance,
+                "reproducibility": {"model_hash":null,"run_hashes":[],"audit_manifest_ref":d::reference("audit_manifest", "test:b3b-manifest"),"deterministic_ordering":true},
+                "analysis_status": statuses,
+                "professional_boundary": {"human_review_required":true,"software_makes_compliance_claim":false,"software_makes_certification_claim":false,"software_makes_sealing_claim":false,"software_makes_approval_claim":false,"software_makes_authentication_claim":false},
+                "downstream_use": {"review":true,"regression_comparison":true,"report_consumption":true,"headless_automation":true,"governed_downstream_tooling":true,"additional_export_formats":"TBD"},
+            }
+        });
+        let origin = json!({
+            "origin_id": "source-origin:current-received", "origin_class": "received_current_dimension_absent",
+            "qualification_ref": d::reference("current_manifest", "test:b3b-manifest"), "authentic_producer_available": false,
+            "received_carrier_checksum": d::checksum(&source, "received_current_dimension_absent_carrier", d::reference("received_current_carrier", run)).unwrap(),
+            "original_producer_checksum": null,
+            "origin_limit": "Test-built origin: a reader-local synthetic exact successor, not a qualified Current received carrier",
+            "actual_model_ref": d::reference("model_payload", project), "mechanics_run_ref": d::reference("mechanics_run", run),
+            "request_model_ref": null, "request_run_ref": null, "request_alias_disclosure": null,
+        });
+        let doc = d::derive_document(doc_base, model, &source, origin, None).unwrap_or_else(|e| panic!("{base}: {e}"));
+        let e = &doc["result_envelope"];
+        assert_eq!(e["retained_precision"], source["retained_precision"], "{base}: the receipt travels whole");
+        assert_eq!(e["contract_evidence"], source["contract_evidence"], "{base}: physics-1's evidence as received");
+        assert_eq!(e["semantic_contract_ref"], d::reference("semantic_contract", sc::PHYSICS_RETAINED_ID));
+        d::validate_document(&doc, &source).unwrap();
+        // A document without the receipt is refused against the exact successor.
+        let mut stripped = doc.clone();
+        stripped["result_envelope"].as_object_mut().unwrap().remove("retained_precision");
+        assert_eq!(d::validate_document(&stripped, &source).unwrap_err(), d::RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH);
+    }
 }
