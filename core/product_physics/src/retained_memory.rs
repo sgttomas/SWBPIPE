@@ -640,9 +640,8 @@ pub(super) enum FamilyFact {
     Sections,
     SectionRef,
     LoadCases,
-    /// B2-A: no longer a D1.4 refusal on L and L3 (combinations are counted by D1.9); kept for
-    /// the exact route's D1.4 clause (B3b-A, B3-D §4.2).
-    #[allow(dead_code)]
+    /// B3b-A (B3-D §4.2; RR "I95's B3-S: …", ruling 4): the exact route's D1.4 clause. On L and
+    /// L3 combinations are counted by D1.9 (B2-A).
     Combinations,
     /// B2-A (C-9): a combination id equal to a load-case id.
     CombinationIds,
@@ -801,6 +800,9 @@ pub(super) enum NamespaceBranch {
     Legacy,
     /// L3 (B3a): schema 0.3.0 with the `legacy_pressure_v1` contract, version 1.0.0.
     LegacyPressure,
+    /// E (B3b): schema 0.3.0 with the `exact_straight_pressure_v2` contract, version 2.0.0.
+    /// Its own D1.4 and D1.5 clauses apply (B3-D §4.2).
+    Exact,
 }
 /// The pressure contract `{version, mode}` matched exactly (typed: `PressureContractInput`
 /// denies unknown fields, so these two members are the whole contract).
@@ -812,6 +814,7 @@ pub(super) fn namespace_branch(m: &crate::PreviewModel) -> Result<NamespaceBranc
     match (m.schema_version.as_str(), &m.pressure_contract) {
         ("0.1.0" | "0.2.0", None) => Ok(NamespaceBranch::Legacy),
         ("0.3.0", Some(c)) if contract_is(c, "1.0.0", "legacy_pressure_v1") => Ok(NamespaceBranch::LegacyPressure),
+        ("0.3.0", Some(c)) if contract_is(c, "2.0.0", "exact_straight_pressure_v2") => Ok(NamespaceBranch::Exact),
         ("0.1.0" | "0.2.0" | "0.3.0", _) => Err(FamilyFact::PressureContract),
         _ => Err(FamilyFact::SchemaVersion),
     }
@@ -823,15 +826,16 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     use FamilyFact as F;
     let refuse = |clause, fact| Err(AdmissionRefusal::Family(clause, fact));
     let m = &request.model;
-    // D1.3: the namespace branch, decided once from (schema, contract) (B3-D §4.1, §4.3):
-    // branch L, 0.1.0 or 0.2.0 with no pressure contract; or branch L3 (B3a), 0.3.0 with
-    // exactly `{version "1.0.0", mode "legacy_pressure_v1"}`. A schema in no branch refuses
-    // with `SchemaVersion`, a contract that does not match its schema's branch with
-    // `PressureContract`. Then, on every branch, no sections (S-4).
-    match namespace_branch(m) {
-        Ok(NamespaceBranch::Legacy | NamespaceBranch::LegacyPressure) => {}
+    // D1.3: the namespace branch, decided once from (schema, contract) (B3-D §4.1–§4.3):
+    // branch L, 0.1.0 or 0.2.0 with no pressure contract; branch L3 (B3a), 0.3.0 with
+    // exactly `{version "1.0.0", mode "legacy_pressure_v1"}`; or branch E (B3b), 0.3.0 with
+    // exactly `{version "2.0.0", mode "exact_straight_pressure_v2"}` (0.4.0 stays out). A
+    // schema in no branch refuses with `SchemaVersion`, a contract that does not match its
+    // schema's branch with `PressureContract`. Then, on every branch, no sections (S-4).
+    let exact = match namespace_branch(m) {
+        Ok(branch) => branch == NamespaceBranch::Exact,
         Err(fact) => return refuse(C::Namespace, fact),
-    }
+    };
     if !matches!(m.reference_configurations, Authored::Absent) {
         return refuse(C::Namespace, F::ReferenceConfigurations);
     }
@@ -854,15 +858,27 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     if m.load_cases.is_empty() || m.load_cases.len() > caps::LOAD_CASES {
         return refuse(C::Invocation, F::LoadCases);
     }
+    // D1.4's exact clause (B3-D §4.2; RR "I95's B3-S: …", ruling 4): no combination on the
+    // exact route, which the ordinary route also blocks, so its forms never price
+    // combination text. B2-C's combination clauses apply on L and L3 only.
+    if exact && !m.combinations.is_empty() {
+        return refuse(C::Invocation, F::Combinations);
+    }
     if m.combinations.iter().any(|combination| m.load_cases.iter().any(|case| case.id == combination.id)) {
         return refuse(C::Invocation, F::CombinationIds);
     }
     if !m.components.is_empty() {
         return refuse(C::Invocation, F::Components);
     }
-    // D1.5 (B1 SA): every case, in request order.
+    // D1.5 (B1 SA): every case, in request order. B3b (B3-D §4.2): on branch E every case's
+    // `pressure_regions` is explicitly empty (`Some([])`, as physics-source-1 requires); absent
+    // or non-empty refuses. On L and L3 it is absent.
     for case in &m.load_cases {
-        if case.pressure_regions.is_some() {
+        let regions_in_domain = match &case.pressure_regions {
+            Some(regions) => exact && regions.is_empty(),
+            None => !exact,
+        };
+        if !regions_in_domain {
             return refuse(C::Case, F::PressureRegions);
         }
         if case.equivalent_static.is_some() {
