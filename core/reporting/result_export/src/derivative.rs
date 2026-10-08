@@ -4,7 +4,7 @@
 use crate::retained_precision::AccuracyClass;
 use crate::semantic_contract::{
     canonical_metadata_in, complete_metadata, for_source, retained_row_classes, signature_in,
-    PREVIEW_PHYSICS_RETAINED_ID, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN,
+    PHYSICS_RETAINED_ID, PREVIEW_PHYSICS_RETAINED_ID, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN,
 };
 use open_pipe_stress_canonical_json::canonical_json;
 use serde_json::{json, Value};
@@ -12,6 +12,14 @@ use sha2::{Digest, Sha256};
 use std::collections::HashSet;
 
 pub const CANONICALIZATION: &str = "openpipestress_jcs_ijson_v1";
+/// Either successor identity (preview, or the exact `<physics-retained>`, B3b):
+/// its receipt travels with the document, whole (D2 4.9.7).
+fn is_successor(source: &Value) -> bool {
+    matches!(
+        source["producer"]["semantic_contract_id"].as_str(),
+        Some(PREVIEW_PHYSICS_RETAINED_ID | PHYSICS_RETAINED_ID)
+    )
+}
 /// D-U6-2 (D2 4.9.9, option A): a successor row whose validated class is
 /// `absolute_verified` or `not_covered` is withheld from the derivative's
 /// values and disclosed with one of these reason codes. The bound is the
@@ -151,6 +159,7 @@ pub fn derive_document(
                     | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
                     | crate::semantic_contract::PREVIEW_PHYSICS_ID
                     | PREVIEW_PHYSICS_RETAINED_ID
+                    | PHYSICS_RETAINED_ID
             )
         ) {
             e["contract_evidence"] = source["contract_evidence"].clone();
@@ -170,7 +179,7 @@ pub fn derive_document(
         // D2 4.9.7: the successor's receipt travels with the document, whole.
         // A receipt on any other identity's document is refused by the
         // validate_document call that ends this function.
-        if source["producer"]["semantic_contract_id"] == PREVIEW_PHYSICS_RETAINED_ID {
+        if is_successor(source) {
             e["retained_precision"] = source["retained_precision"].clone();
         }
         e["semantic_contract_ref"] = reference(
@@ -404,7 +413,7 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
     }
     // D2 4.9.7: the copied receipt equals the source's, whole; no other
     // identity's document carries one.
-    if source["producer"]["semantic_contract_id"] == PREVIEW_PHYSICS_RETAINED_ID {
+    if is_successor(source) {
         if doc["result_envelope"]["retained_precision"] != source["retained_precision"] {
             return Err(RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH.into());
         }
