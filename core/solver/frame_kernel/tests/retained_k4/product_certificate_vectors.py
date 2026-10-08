@@ -309,6 +309,11 @@ def norm3_vectors():
     for sx in (0,1):
         for sy in (0,1):
             for sz in (0,1): curated.append((sx<<63,sy<<63,sz<<63))
+    # RV121 RK-1: exact overflow ties S = (MAX + 2^970)^2 (the estimate overflows to
+    # y0 = MAX, odd, and only the upper tie clause refuses), each with z one ulp below and above.
+    for t in OVERFLOW_TIES:
+        assert sum(b64(f64b(b))**2 for b in t)==(MAXF+F(2)**970)**2, 'an exact overflow tie'
+        curated+=[t,(t[0],t[1],t[2]-1),(t[0],t[1],t[2]+1)]
     out+=curated
     # constructed exact midpoints m = d*r (54 bits, odd) with (a,b,c,d) a Pythagorean
     # quadruple: x,y,z = a*r,b*r,c*r are binary64; then one ulp-of-r perturbations.
@@ -326,8 +331,13 @@ def norm3_vectors():
     for _ in range(60):
         out.append(tuple(rng.getrandbits(63)|(rng.getrandbits(1)<<63) for _ in range(3)))
     return [v for v in out if all(math.isfinite(f64b(x)) for x in v)]
+OVERFLOW_TIES=((0x7fefffffffffffe5,0x7e7443426b800000,0x7e4d4ef94a000000),
+    (0x7fefffffffffffcf,0x7e7a9363c2c00000,0x7e60b36dff000000),
+    (0x7fefffffffffff9d,0x7e815d0f7a400000,0x7e733c7a6ec00000))
 NORM3=[(x,y,z,norm3(x,y,z)) for x,y,z in norm3_vectors()]
 assert sum(1 for v in NORM3[:4] if v[3]==0x0010000000000000)==3, 'SA4-1 vectors at MIN_POSITIVE'
+for t in OVERFLOW_TIES:
+    assert [r for x,y,z,r in NORM3 if (x,y)==t[:2]]==[None,0x7fefffffffffffff,None], 'tie refused, below MAX, above refused'
 b2k_text,b2k_summary=b2k_fixture()
 b2k_text+='#[rustfmt::skip]\npub(super) const NORM3: &[(u64, u64, u64, Option<u64>)] = &[\n'+''.join(
     f'    (0x{x:016x}, 0x{y:016x}, 0x{z:016x}, {"None" if r is None else f"Some(0x{r:016x})"}),\n' for x,y,z,r in NORM3)+'];\n'

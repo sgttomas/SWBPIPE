@@ -1434,13 +1434,20 @@ fn b2k_c05_the_combination_coverage_rule() {
     missing.retain(|r| !matches!(r.3, ProductRecipe::Stress { site: ProductSite::Station(18), stress: ProductStress::Torsion, .. }));
     assert_eq!(missing.len(), rows.len() - 1);
     assert_eq!(begin(&missing), Some("missing final coverage"));
-    // A case owner still requires its maximum and mode record.
+    // A case owner still requires its maximum and its mode record, each on its own
+    // (RV121 RK-3: without the maximum alone, only slot 20's rule refuses).
     let case = s.case("A");
     let case_run = s.cases[0].run;
-    let specs_rows = b3k_rows(case, false, false);
-    let specs = b3k_specs(&specs_rows, "A");
-    let e = s.invocation.begin_prepared_product(case_run, case, &facts, &specs).into_ready().err().unwrap();
-    assert!(matches!(e.failure().cause, Cause::Association("missing final coverage")));
+    let case_begin = |maxima: bool, mode: bool| {
+        let rows = b3k_rows(case, maxima, mode);
+        let specs = b3k_specs(&rows, "A");
+        s.invocation.begin_prepared_product(case_run, case, &facts, &specs).into_ready().err()
+            .map(|e| match &e.failure().cause { Cause::Association(a) => *a, other => panic!("{other:?}") })
+    };
+    assert_eq!(case_begin(true, true), None, "the complete case row set");
+    assert_eq!(case_begin(false, true), Some("missing final coverage"), "the maximum alone missing (slot 20)");
+    assert_eq!(case_begin(true, false), Some("missing final coverage"), "the mode record alone missing");
+    assert_eq!(case_begin(false, false), Some("missing final coverage"));
 }
 fn b2k_print_row(name: &str, i: usize, spec: &ProductRowSpec<'_>, value: f64, k: &Enclosure, g: &Enclosure,
     v: &ProductRowVerdict, components: Option<[f64; 3]>) {
@@ -1463,6 +1470,7 @@ fn b2k_k09_full_prepared_proof_certifies_combinations_and_prints_the_diagnose_ro
     let s = b2k_specimen(&B2K_ALL);
     let facts = b2k_facts();
     let mut certified = Vec::new();
+    let mut failing = Vec::new();
     for name in B2K_ALL {
         let (run, owner) = s.combination(name);
         assert_eq!(s.invocation.product_owner(run, owner), Some(NativeOwner::Combination(B2K_ALL.iter().position(|n| *n == name).unwrap())));
@@ -1505,6 +1513,17 @@ fn b2k_k09_full_prepared_proof_certifies_combinations_and_prints_the_diagnose_ro
             b2k_print_row(name, i, spec, frozen[i], &lanes[i].0, &lanes[i].1, &verdicts[i], components[i]);
         }
         certified.push((name, outcome.is_ok(), verdicts.iter().filter(|v| !v.passed).count()));
+        let failing_here: Vec<String> = specs.iter().zip(&verdicts).filter(|(_, v)| !v.passed).map(|(spec, v)| {
+            // Each failing row is a relative MPa bending row whose two sharper
+            // predicates fail and whose two decimal predicates hold.
+            assert!(matches!(spec.recipe, ProductRecipe::Stress { stress: ProductStress::BendingY | ProductStress::BendingZ, .. })
+                && spec.unit == ProductUnit::Megapascal, "{name} {}", spec.id);
+            assert_eq!((v.class, v.predicates), (Some(adaptive::RowClass::RelativeVerified),
+                [Some(false), Some(false), Some(true), Some(true)]), "{name} {}", spec.id);
+            b2k_recipe_key(spec.recipe)
+        }).collect();
+        assert_eq!(outcome.is_ok(), failing_here.is_empty(), "{name}");
+        failing.push((name, failing_here));
         // The net-case control: a case whose loads are the combination's exact
         // products (each split exactly into binary64 terms) has the same K4LED
         // and the same publication, and its proof decides every shared row the
@@ -1527,6 +1546,15 @@ fn b2k_k09_full_prepared_proof_certifies_combinations_and_prints_the_diagnose_ro
         }
     }
     println!("B2K_CERTIFIED {certified:?}");
+    // RV121 RK-4: the observed certification pattern, pinned. C2, C3, C6, C7 and
+    // C9 certify every row; C1, C4 and C5 each lose two MPa bending rows and C8
+    // one, to DEF-O's projection rounding (the net cases above fail the same rows).
+    let lost: &[&str] = &["z7.I.1", "z7.17.1"];
+    let expected: Vec<(&str, Vec<String>)> = B2K_ALL.iter().map(|&name| (name, match name {
+        "C1" | "C4" | "C5" => lost.iter().map(|k| k.to_string()).collect(),
+        "C8" => vec!["z7.J.1".to_string()],
+        _ => Vec::new() })).collect();
+    assert_eq!(failing, expected);
 }
 /// The net case of a combination: one case whose loads are every exact
 /// product c_i*v_ij, split exactly into binary64 terms (the product and its
@@ -1555,6 +1583,45 @@ fn b2k_net_case(name: &str) -> (RecordedInvocation, RecordedCase) {
     let mut invocation = RecordedInvocation::new(u64::MAX, OriginCapacity::for_calls(&[1], &[]).unwrap()).unwrap();
     let mut cases = invocation.solve_cases(&[source], CaseLimit::new(u64::MAX)).unwrap();
     (invocation, cases.remove(0))
+}
+/// RV121 RK-2 (REVISION_02 §2.3 item 5; K-13): a case owner's displacement
+/// magnitude stays the hull projection of its two lanes, frozen in the first
+/// pass; (ii) is a combination's formation only. On the net cases of C7 and C9
+/// the two formations differ by one ulp at the tip, so the frozen bits decide.
+#[test]
+fn b2k_k13_a_case_owner_keeps_its_hull_projected_displacement_magnitude() {
+    let facts = b2k_facts();
+    for (name, tip) in [("C7", 0x3f4e_cfb0_60a2_22f8_u64), ("C9", 0x64ce_cfb0_60a2_22f8)] {
+        let (invocation, case) = b2k_net_case(name);
+        let owner = b2k_selected(&case);
+        assert_eq!(invocation.product_owner(case.run, owner), Some(NativeOwner::Case(0)));
+        assert!(owner.prep.factors.is_empty(), "{name}: the net case is a case owner");
+        let rows = b3k_rows(owner, true, true);
+        let specs = b3k_specs(&rows, "net");
+        let draft = invocation.begin_prepared_product(case.run, owner, &facts, &specs).into_ready()
+            .unwrap_or_else(|e| panic!("{name}: begin {:?}", e.failure()));
+        let (projected, builder) = draft.project().into_ready().unwrap_or_else(|e| panic!("{name}: project {:?}", e.failure()));
+        let maxima = b3k_maxima(&projected).unwrap();
+        let (values, _) = builder.complete_maxima(&maxima).into_ready().unwrap();
+        let frozen: Vec<f64> = (0..values.len()).map(|i| *values.value(i).unwrap()).collect();
+        let mut magnitudes = Vec::new();
+        for (i, spec) in specs.iter().enumerate() {
+            let ProductRecipe::Native(QuantityId::DisplacementMagnitude(node)) = spec.recipe else { continue };
+            // The hull projection, formed here from both lanes' recipe enclosures.
+            let mut w = ProductCertificateSpent::new(&[]);
+            w.projection_outcomes = w.prepared_reserve(5, 1).unwrap();
+            let section = section_for(owner, &facts, spec.recipe, &mut w).unwrap();
+            let k = recipe(owner, &mut w, &projected.data.k.rows, spec.recipe, section.as_ref(), &facts, true).unwrap();
+            let g = recipe(owner, &mut w, &projected.data.source.rows, spec.recipe, section.as_ref(), &facts, false).unwrap();
+            let hulled = project_hull(hull(k, g), spec.unit, i, &mut w).unwrap();
+            assert_eq!(frozen[i].to_bits(), hulled.to_bits(), "{name} m{node}: the hull projection");
+            // (ii) of the frozen components, which a case does not publish.
+            let c: [f64; 3] = std::array::from_fn(|j| frozen[specs.iter().position(|x| x.recipe
+                == ProductRecipe::Native(QuantityId::Displacement(Dof { node, component: Component::ALL[j] }))).unwrap()]);
+            magnitudes.push((node, frozen[i].to_bits(), rn64_norm3(c).result.unwrap().to_bits()));
+        }
+        assert_eq!(magnitudes, [(0, 0, 0), (1, tip, tip + 1)], "{name}: frozen tip magnitude and (ii)");
+    }
 }
 #[test]
 fn b2k_k06_both_certificate_entries_accept_a_recorded_combination_owner_only() {
@@ -1600,6 +1667,12 @@ const B2K_NORM3: &[(u64, u64, u64, Option<u64>)] = &[
     (0x7fefffffffffffff, 0x7e40000000000000, 0, Some(0x7fefffffffffffff)), // MAX, 2^997
     (0x7fefffffffffffff, 0x7e50000000000000, 0, None),                     // MAX, 2^998: beyond binary64
     (0x7fefffffffffffff, 0x7fefffffffffffff, 0, None),
+    // RV121 RK-1: S = (MAX + 2^970)^2 exactly. The estimate overflows to y0 = MAX
+    // (odd) and the upper side is an exact tie, which ties to even (2^1024): refused
+    // (SA4-1 (b), "at or above"). z one ulp below gives MAX, one ulp above refuses.
+    (0x7fefffffffffffe5, 0x7e7443426b800000, 0x7e4d4ef94a000000, None),
+    (0x7fefffffffffffe5, 0x7e7443426b800000, 0x7e4d4ef949ffffff, Some(0x7fefffffffffffff)),
+    (0x7fefffffffffffe5, 0x7e7443426b800000, 0x7e4d4ef94a000001, None),
     (0x8000000000000000, 0, 0x8000000000000000, Some(0)),                   // signed zeros: +0
     (1, 0, 0, Some(1)),
     (0xc008000000000000, 0x4010000000000000, 0x4028000000000000, Some(0x402a000000000000)), // (-3, 4, 12) = 13
