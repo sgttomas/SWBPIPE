@@ -1723,8 +1723,9 @@ def validate_retained_precision_transport(source: Any) -> dict[str, Any]:
     On G0-G2 this is the twin of Rust `validate_transport_metadata` and TS
     `validateRetainedPrecisionTransport`: the same checks, gates and codes. At the base step it runs
     both of theirs (RV108 N6(a)): the base header check, which Rust runs alone (reported as G2), and
-    the preview-physics transport metadata check, which TS runs alone. So a header or evidence defect
-    there can carry a different reader-level code in each language. Omitted raw publication bytes are
+    the preview-physics transport metadata check, which TS runs alone. Python reports either at G7 (RV113
+    N-1; the alignment set's item 4 moves the header check to G2), so a header or evidence defect there
+    can carry a different reader-level gate or code in each language. Omitted raw publication bytes are
     never reconstructed or verified, so a transported statement is never eligible."""
     return _validate_draft(source, None, raw=False)
 
