@@ -32,9 +32,9 @@ def milestone(mode):
     return doc["source"], doc["invocation"]
 
 
-def reseal(source, invocation):
-    """The 07e format rule on a copy: the invocation digest, each complete preparation hash, the selected cases'
-    source identities, then publication and receipt."""
+def reseal(source, invocation, definition_hash=rp.DEFINITION_HASH):
+    """The 07e format rule on a copy: the invocation digest, each complete preparation hash with the route's
+    definition hash (S-1; B3-D REVISION_01 §2), the selected cases' source identities, then publication and receipt."""
     source = deepcopy(source)
     body = source["retained_precision"]["body"]
     body["invocation"]["value"] = rp._hash("source_blocks_invocation_v1", invocation)
@@ -43,7 +43,7 @@ def reseal(source, invocation):
         if prep is not None:
             attempt = body["product_attempts"][int(prep["attempt_ref"])]
             if all(m["result"]["kind"] == "prepared" for m in attempt["preparation"]["members"]):
-                prep["sha256"] = rp._hash("retained_precision_preparation_v1", rp._preparation_payload(attempt))
+                prep["sha256"] = rp._hash("retained_precision_preparation_v1", rp._preparation_payload(attempt, definition_hash))
     for case in body["cases"]:
         if case["status"] == "selected":
             case["source_identity_sha256"] = rp._source_hash(body["sources"][int(case["source_ref"])])
@@ -140,3 +140,455 @@ def test_b3a_tightening_0_3_0_needs_the_legacy_contract():
     bare = edited_invocation(invocation, lambda m: m.update(schema_version="0.3.0"))
     assert "pressure_contract" not in bare["request"]["model"]
     assert outcome(reseal(source, bare), bare) == INVOCATION
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# B3b: the `<physics-retained>` branch (B3-D §6 with REVISION_01; RV116's rulings). The synthetic exact base is the
+# milestone successor re-expressed on I99's m3x request (0ffbea35…): schema 0.3.0, the exact contract, E and
+# nu = 0.25 (so G_hat = E/2.5 = 80 GPa, the milestone's G, bit for bit), explicitly empty regions; the receipt with
+# derived_e_nu, the exact route and DEF-E (prepared section bits unchanged, B3D-3); physics-1's contract_evidence
+# whose case entry states the prepared section (B3D-4); the preparation hash with DEF-E's H (S-1).
+
+from core.analysis_runs import compatibility as c  # noqa: E402
+
+EXACT = {"version": "2.0.0", "mode": "exact_straight_pressure_v2"}
+NU = 0.25
+PHYSICS_1_LIMITATIONS = json.loads((ROOT / "fixtures/results/physics_connected_mechanics_sparse.json").read_text())["formulation_basis"]["limitations"]
+UNSUPPORTED = ("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+RECEIPT = ("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")
+SECTION = ("G5b", "RETAINED_PRECISION_SECTION_MISMATCH")
+BASE_G7 = ("G7", "SOURCE_PHYSICS_EVIDENCE_INVALID")
+
+
+def m3x_invocation(invocation):
+    def change(model):
+        model.update(schema_version="0.3.0", pressure_contract=dict(EXACT))
+        for material in model["materials"]:
+            material.pop("shear_modulus", None)
+            material.update(constitutive_basis="homogeneous_isotropic_E_nu_v1", poisson_ratio={"value": NU, "unit": "1"})
+        for case in model["load_cases"]:
+            case["pressure_regions"] = []
+    return edited_invocation(invocation, change)
+
+
+def exact_evidence(source, invocation):
+    """physics-1's closed contract_evidence for the synthetic base: per case, the prepared section (B3D-4), E, nu and
+    G_hat, the preview successor's regenerated extrema, complete coverage and the all-zero pressure RHS."""
+    body = source["retained_precision"]["body"]
+    model = invocation["request"]["model"]
+    preview = {case["load_case_id"]: case for case in source["contract_evidence"]["preview_cases"]}
+    materials = {m["id"]: m for m in model["materials"]}
+    nodes = [n["id"] for n in model["nodes"]]
+    entries = []
+    for case in body["cases"]:
+        cid = case["basis_ref"]["ref_id"]
+        src = body["sources"][int(case["source_ref"])]
+        sections, published = [], []
+        for term, pipe in zip(src["section_terms"], model["pipe_segments"]):
+            g = term["geometry"]
+            od, wall = rp.from_bits(g["normalized_od"]), rp.from_bits(g["effective_wall"])
+            ri = od * 0.5 - wall
+            sections.append({"pipe_id": pipe["id"], "geometry_basis": "authored_normalized_od_wall_v1", "outside_diameter_m": od,
+                             "effective_wall_thickness_m": wall, "ro_m": rp.from_bits(g["actual_radius"]), "ri_m": ri, "Ai_m2": 3.141592653589793 * ri * ri,
+                             "As_m2": rp.from_bits(term["area"]), "I_m4": rp.from_bits(g["actual_second_moment"]),
+                             "J_m4": rp.from_bits(g["actual_polar_moment"]), "Z_m3": rp.from_bits(term["section_modulus"])})
+            material = materials[pipe["material"]]
+            e = material["elastic_modulus"]["value"]
+            published.append({"pipe_id": pipe["id"], "material_id": material["id"], "E_pa": e, "nu": NU, "G_pa": e / (2.0 * (1.0 + NU)),
+                              "constitutive_basis": "homogeneous_isotropic_E_nu_v1", "thermal_consumed": False, "alpha_per_kelvin": None,
+                              "provenance": material["provenance"]})
+        zero = [0.0] * (6 * len(nodes))
+        entries.append({"load_case_id": cid, "profile_mode": "exact_straight_pressure_v2", "material_basis": "base_material_common_E_nu",
+                        "pipe_materials": published, "pipe_sections": sections, "pipe_stress_extrema": deepcopy(preview[cid]["pipe_stress_extrema"]),
+                        "stress_maximum_coverage": {"complete": True, "unavailable_pipe_ids": []},
+                        "pressure_rhs_assembly": {"method": "source_factor_grouped_pressure_rhs_v1", "load_case_id": cid, "node_order": nodes,
+                                                  "dof_order": ["Fx", "Fy", "Fz", "Mx", "My", "Mz"], "dof_units": ["N", "N", "N", "N*m", "N*m", "N*m"],
+                                                  "assembled_pressure_rhs_global": list(zero), "groups": [], "rounded_cap_rhs_global": list(zero),
+                                                  "rounded_poisson_rhs_global": list(zero), "rounded_cap_and_eigen_ledgers_are_observational": True,
+                                                  "cancellation_screen": 0.0, "screen_limit": 1e-9, "screen_roundoff_multiplier": 32,
+                                                  "screen_is_not_numerical_qualification": True}})
+    return {"pressure": [], "connector": [], "exact_cases": entries}
+
+
+def m3x(mode):
+    source, invocation = milestone(mode)
+    invocation = m3x_invocation(invocation)
+    source = deepcopy(source)
+    source["producer"]["semantic_contract_id"] = rp.EXACT_CONTRACT_ID
+    source["formulation_basis"] = {"limitations": list(PHYSICS_1_LIMITATIONS), "profile_id": rp.EXACT_PROFILE}
+    source["contract_evidence"] = exact_evidence(source, invocation)
+    body = source["retained_precision"]["body"]
+    for basis in body["material_bases"]:
+        for material in basis["materials"]:
+            material["shear_origin"] = {"kind": "derived_e_nu", "poisson_ratio": rp.bits(NU), "constitutive_basis": "homogeneous_isotropic_E_nu_v1"}
+    for src in body["sources"]:
+        for term in src["section_terms"]:
+            term["geometry"]["route"] = "exact"
+    for attempt in body["product_attempts"]:
+        attempt["definition_id"] = rp.EXACT_DEFINITION_ID
+    for work in body["legacy_source_work"]:
+        work["limit"] = 8_000_000  # P-2 (RR "I99's B3-W verified; …", ruling 2)
+    return reseal(source, invocation, rp.EXACT_DEFINITION_HASH), invocation
+
+
+def ulp(value, steps=1):
+    import struct
+    return struct.unpack(">d", (int(rp.bits(value), 16) + steps).to_bytes(8, "big"))[0]
+
+
+def _evidence(path):
+    """An edit of the owner (first) exact_cases entry, or of contract_evidence itself."""
+    def apply(source, invocation):
+        target = source["contract_evidence"]
+        for key in path[:-1]:
+            target = target[key]
+        path[-1](target)
+        return source, invocation
+    return apply
+
+
+def _receipt(change):
+    def apply(source, invocation):
+        change(source["retained_precision"]["body"])
+        return source, invocation
+    return apply
+
+
+def _envelope(change):
+    def apply(source, invocation):
+        change(source)
+        return source, invocation
+    return apply
+
+
+def _model(change):
+    def apply(source, invocation):
+        return source, edited_invocation(invocation, change)
+    return apply
+
+
+def _set_body(key, value):
+    return _receipt(lambda b: b.update({key: value}))
+
+
+def _section(key, steps=1):
+    return _evidence(["exact_cases", 0, "pipe_sections", 0, lambda p: p.update({key: ulp(p[key], steps)})])
+
+
+def _material(key, value):
+    return _evidence(["exact_cases", 0, "pipe_materials", 0, lambda m: m.update({key: value(m[key])})])
+
+
+def _receipt_material(change):
+    return _receipt(lambda b: change(b["material_bases"][0]["materials"][0]))
+
+
+# Each entry: the edit on the synthetic exact base (sealed again with DEF-E's H unless stated), then PY's first failure.
+# Numbers 1 to 32 are B3-D REVISION_01 §4.3's list; x-entries are added shapes for the three-reader comparison.
+B3B_REFUSALS = {
+    "01 identity relabelled preview (profile kept)": (_envelope(lambda s: s["producer"].update(semantic_contract_id=rp.CONTRACT_ID)), UNSUPPORTED),
+    "02 profile relabelled preview": (_envelope(lambda s: s["formulation_basis"].update(profile_id=rp.PROFILE)), UNSUPPORTED),
+    "03 an attempt's definition_id ordinary": (_receipt(lambda b: b["product_attempts"][0].update(definition_id=rp.DEFINITION_ID)), UNSUPPORTED),
+    "04 projection_policy changed": (_set_body("projection_policy", "RP-LOGICAL-ATTEMPTS-v2"), UNSUPPORTED),
+    "05 work_policy changed": (_set_body("work_policy", "W1-LME-20B-60B-v2"), UNSUPPORTED),
+    "06 canonicalization changed": (_set_body("canonicalization", "openpipestress_jcs_ijson_v2"), UNSUPPORTED),
+    "07 work.case_limit changed": (_receipt(lambda b: b["work"].update(case_limit=20_000_000_001)), UNSUPPORTED),
+    "08 work.invocation_limit changed": (_receipt(lambda b: b["work"].update(invocation_limit=60_000_000_001)), UNSUPPORTED),
+    "12 owner pipe_sections As_m2 one ulp": (_section("As_m2"), SECTION),
+    "13 owner pipe_sections Z_m3 one ulp": (_section("Z_m3"), SECTION),
+    "14 owner pipe_sections I_m4 one ulp": (_section("I_m4"), SECTION),
+    "15 owner pipe_sections ro_m one ulp": (_section("ro_m"), SECTION),
+    "16 connector non-empty": (_evidence([lambda e: e.update(connector=[{"id": "connector:x"}])]), BASE_G7),
+    "17 pipe_materials G_pa three ulps": (_material("G_pa", lambda v: ulp(v, 3)), BASE_G7),
+    "18 recovery_method added to an exact_cases entry": (_evidence(["exact_cases", 0, lambda e: e.update(recovery_method="retained_source_blocks_exact_v1")]), BASE_G7),
+    "19 invocation contract legacy": (_model(lambda m: m.update(pressure_contract=dict(LEGACY))), INVOCATION),
+    "20 invocation schema 0.4.0": (_model(lambda m: m.update(schema_version="0.4.0")), INVOCATION),
+    "21 invocation pressure_contract false": (_model(lambda m: m.update(pressure_contract=False)), INVOCATION),
+    "22 a combination added to the invocation": (_model(lambda m: m.update(combinations=[{"id": "combination:x", "label": "x", "terms": [{"load_case": "case", "factor": 1.0}]}])), INVOCATION),
+    "23 a case naming modulus_basis_ref": (_model(lambda m: m["load_cases"][0].update(modulus_basis_ref="point:x")), PREPARATION),
+    "24 shear_origin explicit_g": (_receipt_material(lambda m: m.update(shear_origin={"kind": "explicit_g"})), PREPARATION),
+    "25 receipt shear_modulus one ulp": (_receipt_material(lambda m: m.update(shear_modulus=rp.bits(ulp(rp.from_bits(m["shear_modulus"]))))), PREPARATION),
+    "26 shear_origin.poisson_ratio bits changed": (_receipt_material(lambda m: m["shear_origin"].update(poisson_ratio=rp.bits(ulp(NU)))), PREPARATION),
+    "27 authored nu changed in the invocation": (_model(lambda m: m["materials"][0]["poisson_ratio"].update(value=ulp(NU))), PREPARATION),
+    "28 S-C only: an entry's pipe_materials nu one ulp": (_material("nu", ulp), PREPARATION),
+    "29 N-6: an entry's pipe_materials G_pa one ulp": (_material("G_pa", ulp), PREPARATION),
+    "30 a case's pressure_regions null": (_model(lambda m: m["load_cases"][0].update(pressure_regions=None)), PREPARATION),
+    "31 a case's pressure_regions with one region": (_model(lambda m: m["load_cases"][0].update(pressure_regions=[{"id": "region:x", "members": ["M1"], "pressure": {"value": 0.0, "unit": "Pa"}}])), PREPARATION),
+    "32 a member's geometry.route preview": (_receipt(lambda b: b["sources"][0]["section_terms"][0]["geometry"].update(route="preview")), PREPARATION),
+    "x01 owner pipe_sections J_m4 one ulp": (_section("J_m4"), SECTION),
+    "x02 owner pipe_sections outside_diameter_m one ulp": (_section("outside_diameter_m"), SECTION),
+    "x03 owner pipe_sections effective_wall_thickness_m one ulp": (_section("effective_wall_thickness_m"), SECTION),
+    "x04 the owner entry's load_case_id renamed": (_evidence(["exact_cases", 0, lambda e: e.update(load_case_id="case:other")]), SECTION),
+    "x05 exact_cases empty": (_evidence([lambda e: e.update(exact_cases=[])]), SECTION),
+    "x06 contract_evidence removed": (_envelope(lambda s: s.pop("contract_evidence")), SECTION),
+    "x07 a case's pressure_regions removed": (_model(lambda m: m["load_cases"][0].pop("pressure_regions")), PREPARATION),
+    "x08 a case with analysis_state": (_model(lambda m: m["load_cases"][0].update(analysis_state={"kind": "load_reference"})), PREPARATION),
+    "x09 authored E one ulp": (_model(lambda m: m["materials"][0]["elastic_modulus"].update(value=ulp(m["materials"][0]["elastic_modulus"]["value"]))), PREPARATION),
+    "x10 authored nu unit not 1": (_model(lambda m: m["materials"][0]["poisson_ratio"].update(unit="percent")), PREPARATION),
+    "x11 authored nu 0.5": (_model(lambda m: m["materials"][0]["poisson_ratio"].update(value=0.5)), PREPARATION),
+    "x12 authored constitutive_basis changed": (_model(lambda m: m["materials"][0].update(constitutive_basis="orthotropic_v1")), PREPARATION),
+    "x13 invocation contract mode only": (_model(lambda m: m["pressure_contract"].update(mode="legacy_pressure_v1")), INVOCATION),
+    "x14 invocation contract extra key": (_model(lambda m: m["pressure_contract"].update(extra="x")), INVOCATION),
+    "x15 invocation contract removed": (_model(lambda m: m.pop("pressure_contract")), INVOCATION),
+    "x16 invocation schema 0.2.0": (_model(lambda m: m.update(schema_version="0.2.0")), INVOCATION),
+    "x18 a named point basis equal to the base, named in the receipt": (lambda s, i: _named_point(s, i), PREPARATION),
+    "x19 the owner entry's pipe section listed twice": (_evidence(["exact_cases", 0, lambda e: e.update(pipe_sections=[e["pipe_sections"][0], deepcopy(e["pipe_sections"][0])])]), SECTION),
+    "x20 the owner entry's As_m2 a string": (_evidence(["exact_cases", 0, "pipe_sections", 0, lambda p: p.update(As_m2=repr(p["As_m2"]))]), SECTION),
+    "x21 invocation contract version 2.0.1": (_model(lambda m: m["pressure_contract"].update(version="2.0.1")), INVOCATION),
+    "x22 invocation contract with an extra null key": (_model(lambda m: m["pressure_contract"].update(extra=None)), INVOCATION),
+    "x23 a component added to the invocation": (_model(lambda m: m.update(components=[{"id": "component:x"}])), INVOCATION),
+    "x24 authored nu unit empty": (_model(lambda m: m["materials"][0]["poisson_ratio"].update(unit="")), PREPARATION),
+    "x25 authored constitutive_basis removed": (_model(lambda m: m["materials"][0].pop("constitutive_basis")), PREPARATION),
+    "x17 physics-1 headline altered": (_envelope(lambda s: s["summary"]["max_open_formula_stress"].update(value=ulp(s["summary"]["max_open_formula_stress"]["value"]))), BASE_G7),
+}
+def _named_point(source, invocation):
+    """Kills the base-only selection guards: a case naming a temperature point whose E and nu equal the base's, with the
+    receipt's basis selector named accordingly; S-C's own selection then agrees, so only D1.5-exact refuses it."""
+    def change(model):
+        material = model["materials"][0]
+        material["temperature_points"] = [{"id": "point:x", "temperature": {"value": 20.0, "unit": "degC"},
+                                           "elastic_modulus": deepcopy(material["elastic_modulus"]), "poisson_ratio": deepcopy(material["poisson_ratio"])}]
+        model["load_cases"][0]["modulus_basis_ref"] = "point:x"
+    source["retained_precision"]["body"]["material_bases"][0]["selector"] = {"kind": "named", "id": "point:x"}
+    return source, edited_invocation(invocation, change)
+
+
+B3B_PASSES = {
+    "p01 an authored redundant G in the invocation (ignored by the producer)": _model(lambda m: m["materials"][0].update(shear_modulus={"unit": "Pa", "value": 8.0e10})),
+}
+
+
+def exact_shape(mode, label):
+    """(source, invocation) for one B3b shape, sealed by the format rule with the route's H (DEF-O's for entry 11)."""
+    source, invocation = m3x(mode)
+    if label.startswith("09"):
+        base, base_invocation = milestone(mode)
+        base = deepcopy(base)
+        base["producer"]["semantic_contract_id"] = rp.EXACT_CONTRACT_ID
+        base["formulation_basis"]["profile_id"] = rp.EXACT_PROFILE
+        return reseal(base, base_invocation), base_invocation
+    if label.startswith("10"):
+        source["producer"]["semantic_contract_id"] = rp.CONTRACT_ID
+        source["formulation_basis"]["profile_id"] = rp.PROFILE
+        return reseal(source, invocation, rp.EXACT_DEFINITION_HASH), invocation
+    if label.startswith("11"):
+        return reseal(source, invocation, rp.DEFINITION_HASH), invocation
+    change = B3B_REFUSALS[label][0] if label in B3B_REFUSALS else B3B_PASSES[label]
+    source, invocation = change(deepcopy(source), deepcopy(invocation))
+    return reseal(source, invocation, rp.EXACT_DEFINITION_HASH), invocation
+
+
+B3B_SPECIAL = {"09 the preview milestone successor relabelled physics-retained-1": UNSUPPORTED,
+               "10 the exact successor relabelled preview-physics-retained-1": UNSUPPORTED,
+               "11 S-1: the preparation hash over a payload with DEF-O's H": RECEIPT}
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_b3b_m3x_synthetic_base_is_eligible_and_classified_as_the_milestone(mode):
+    source, invocation = m3x(mode)
+    assert outcome(source, invocation) == ("pass", True, "eligible")
+    assert outcome(source, None) == ("pass", False, "needs_recompute")
+    assert outcome(source, None, transport=True) == ("pass", False, "needs_recompute")
+    got = rp.validate_retained_precision(source, invocation)
+    base_source, base_invocation = milestone(mode)
+    want = rp.validate_retained_precision(base_source, base_invocation)
+    assert got["numerical_eligible"] is True and got["standing"] == "eligible" and got["invocation_bound"] is True
+    assert got["classifications"] == want["classifications"]
+    unbound = rp.validate_retained_precision(source)
+    assert (unbound["invocation_bound"], unbound["numerical_eligible"]) == (False, False)
+    transport = rp.validate_retained_precision_transport(source)
+    assert (transport["numerical_eligible"], transport["standing"], transport["classifications"]) == (False, "needs_recompute", [])
+    # The base's own physics-1 validator accepts the projection (G7).
+    assert dispatch(rp._project(source, rp.EXACT_ROUTE))[0] == "openpipestress.result_semantics/0.3.0/physics-1"
+    # The preview reader's path is not taken: G0 dispatches on the identity.
+    assert rp.ROUTES[source["producer"]["semantic_contract_id"]] is rp.EXACT_ROUTE
+
+
+@pytest.mark.parametrize("label", sorted(B3B_REFUSALS) + sorted(B3B_SPECIAL))
+@pytest.mark.parametrize("mode", MODES)
+def test_b3b_m3x_mutations(mode, label):
+    expected = B3B_REFUSALS[label][1] if label in B3B_REFUSALS else B3B_SPECIAL[label]
+    source, invocation = exact_shape(mode, label)
+    assert outcome(source, invocation) == expected
+
+
+@pytest.mark.parametrize("label", sorted(B3B_PASSES))
+@pytest.mark.parametrize("mode", MODES)
+def test_b3b_m3x_must_pass(mode, label):
+    source, invocation = exact_shape(mode, label)
+    assert outcome(source, invocation) == ("pass", True, "eligible")
+
+
+def test_b3b_s1_payload_carries_the_route_hash():
+    """S-1 at G1 and G8: the exact base's preparation hash is computed over DEF-E's H; the same payload with DEF-O's H
+    differs, and is refused at G1 (entry 11)."""
+    source, invocation = m3x("sparse_interactive")
+    body = source["retained_precision"]["body"]
+    attempt = body["product_attempts"][0]
+    prep = body["sources"][0]["preparation"]["sha256"]
+    assert prep == rp._hash("retained_precision_preparation_v1", rp._preparation_payload(attempt, rp.EXACT_DEFINITION_HASH))
+    assert prep != rp._hash("retained_precision_preparation_v1", rp._preparation_payload(attempt))
+
+
+def test_b3b_g5b_evidence_check_runs_only_on_the_exact_branch():
+    """The preview branch has no physics-1 evidence: its G5b is unchanged; the exact branch binds the owner entry."""
+    source, invocation = milestone("sparse_interactive")
+    assert "exact_cases" not in source["contract_evidence"]
+    assert rp.validate_retained_precision(source, invocation)["numerical_eligible"] is True
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_b3b_transport(mode):
+    source, _ = m3x(mode)
+    assert outcome(source, None, transport=True) == ("pass", False, "needs_recompute")
+    for label in ("16 connector non-empty", "18 recovery_method added to an exact_cases entry"):
+        broken, _ = exact_shape(mode, label)
+        assert outcome(broken, None, transport=True) == BASE_G7, label
+    for label in ("01 identity relabelled preview (profile kept)", "04 projection_policy changed"):
+        broken, _ = exact_shape(mode, label)
+        assert outcome(broken, None, transport=True) == UNSUPPORTED, label
+    broken, _ = exact_shape(mode, "11 S-1: the preparation hash over a payload with DEF-O's H")
+    assert outcome(broken, None, transport=True) == RECEIPT
+
+
+def _packaged(tmp_path, monkeypatch, edit_table=None, edit_definition=None):
+    """A test-only packaged copy of the exact route's three statics (B3-D §2.4; REV §2: a corpus entry cannot change a
+    table), with the reader's ROOT pointed at it and its table constant pinned to the copy's bytes."""
+    results = tmp_path / "fixtures/results"
+    results.mkdir(parents=True)
+    for name in ("semantic_contract_v0_3_physics_retained_1.json", "retained_precision_prepared_exact_v1.json", "semantic_contract_v0_3_physics_1.json"):
+        (results / name).write_bytes((ROOT / "fixtures/results" / name).read_bytes())
+    table = json.loads((results / "semantic_contract_v0_3_physics_retained_1.json").read_text())
+    if edit_table is not None:
+        edit_table(table)
+        raw = (json.dumps(table, indent=2, ensure_ascii=True) + "\n").encode()
+        (results / "semantic_contract_v0_3_physics_retained_1.json").write_bytes(raw)
+        monkeypatch.setattr(rp, "EXACT_TABLE_HASH", hashlib.sha256(raw).hexdigest())
+    if edit_definition is not None:
+        definition = json.loads((results / "retained_precision_prepared_exact_v1.json").read_text())
+        edit_definition(definition)
+        (results / "retained_precision_prepared_exact_v1.json").write_text(json.dumps(definition, sort_keys=True, separators=(",", ":")))
+    monkeypatch.setattr(rp, "ROOT", tmp_path)
+
+
+def _g0(source):
+    try:
+        rp._g0_exact(source["retained_precision"])
+        return "pass"
+    except rp.RetainedPrecisionError as error:
+        return (error.gate, error.code, error.detail)
+
+
+def test_b3b_g0_reads_the_packaged_table(tmp_path, monkeypatch):
+    source, _ = m3x("sparse_interactive")
+    _packaged(tmp_path, monkeypatch)
+    assert _g0(source) == "pass"
+
+
+@pytest.mark.parametrize("label, edit", [
+    ("receipt_bindings.projection_policy", lambda t: t["receipt_bindings"].update(projection_policy="RP-LOGICAL-ATTEMPTS-v2")),
+    ("receipt_bindings.work.case_limit", lambda t: t["receipt_bindings"]["work"].update(case_limit=1)),
+    ("receipt_bindings.method", lambda t: t["receipt_bindings"].update(method="other_method")),
+    ("receipt_policy", lambda t: t.update(receipt_policy="M03-INTEGRITY-MP-v3")),
+    ("accuracy_classification.policy", lambda t: t["accuracy_classification"].update(policy="RP-FACADE-SI-v3")),
+])
+def test_b3b_g0_table_constant_cross_check(tmp_path, monkeypatch, label, edit):
+    """§2.4 step 6 (decision 31, N-12), reader-local: a test-only table whose bound value differs from the reader's
+    constant is refused by the cross-check, even with the table's own hash pinned to it."""
+    source, _ = m3x("sparse_interactive")
+    _packaged(tmp_path, monkeypatch, edit_table=edit)
+    assert _g0(source) == ("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", "table/constant cross-check"), label
+
+
+def test_b3b_g0_constant_drift_is_refused_by_the_cross_check(monkeypatch):
+    source, _ = m3x("sparse_interactive")
+    monkeypatch.setattr(rp, "RECEIPT_BINDINGS", dict(rp.RECEIPT_BINDINGS, work_policy="W1-LME-20B-60B-v2"))
+    assert _g0(source) == ("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", "table/constant cross-check")
+
+
+@pytest.mark.parametrize("label, edit, expected", [
+    ("identity", lambda t: t.update(semantic_contract_id="openpipestress.result_semantics/0.3.0/physics-retained-2"), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
+    ("profile", lambda t: t.update(formulation_profile_id="exact_straight_retained_w1a_v3"), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
+    ("bound definition", lambda t: t["product_formation_definitions"][0].update(sha256="0" * 64), "RETAINED_PRECISION_FORMATION_MISMATCH"),
+    ("a second definition", lambda t: t["product_formation_definitions"].append({"id": "RP-PREPARED-ORDINARY-DUAL-v1", "sha256": rp.DEFINITION_HASH}), "RETAINED_PRECISION_FORMATION_MISMATCH"),
+    ("inherited hash", lambda t: t.update(inherited_semantic_contract_sha256="0" * 64), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
+])
+def test_b3b_g0_table_steps_3_to_5(tmp_path, monkeypatch, label, edit, expected):
+    source, _ = m3x("sparse_interactive")
+    _packaged(tmp_path, monkeypatch, edit_table=edit)
+    assert _g0(source)[:2] == ("G0", expected), label
+
+
+def test_b3b_g0_table_bytes_and_definition_hash(tmp_path, monkeypatch):
+    source, _ = m3x("sparse_interactive")
+    _packaged(tmp_path, monkeypatch, edit_definition=lambda d: d.update(version=2))
+    assert _g0(source)[:2] == ("G0", "RETAINED_PRECISION_FORMATION_MISMATCH")
+    monkeypatch.setattr(rp, "ROOT", ROOT)
+    monkeypatch.setattr(rp, "EXACT_TABLE_HASH", "0" * 64)
+    assert _g0(source)[:2] == UNSUPPORTED
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# The exact successor through the Python carriers (compatibility.py): dispatch, standing, classes, binding refusal
+# and the AnalysisRun record, which carries the receipt and, as physics-1's, no contract_evidence.
+
+
+def dispatch(source, check_receipt=True):
+    try:
+        return c._source_contract(source, check_receipt=check_receipt)
+    except ValueError as error:
+        return str(error)
+
+
+def requested(invocation):
+    return [{"ref_type": "load_case", "ref_id": case["id"]} for case in invocation["request"]["model"]["load_cases"]]
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_b3b_carriers(mode):
+    source, invocation = m3x(mode)
+    assert dispatch(source) == (c.PHYSICS_RETAINED_CONTRACT_ID, c.PHYSICS_RETAINED_CONTRACT_SHA256, c._PHYSICS_RETAINED_CONTRACT_PATH)
+    assert dispatch(source, check_receipt=False)[0] == c.PHYSICS_RETAINED_CONTRACT_ID
+    assert hashlib.sha256(c._PHYSICS_RETAINED_CONTRACT_PATH.read_bytes()).hexdigest() == c.PHYSICS_RETAINED_CONTRACT_SHA256 == rp.EXACT_TABLE_HASH
+    assert c.is_fresh_contract_id(c.PHYSICS_RETAINED_CONTRACT_ID)
+    refs = requested(invocation)
+    assert c.numerical_use_standing(source, refs) == "needs_recompute"
+    assert c.numerical_use_standing(source, refs, invocation) == "numerically_eligible"
+    assert c.numerical_use_standing(source, refs, m3l(mode)[1]) == "unsupported"
+    classes = rp.validate_retained_precision(source, invocation)["classifications"]
+    summary = c.classification_summary(source, invocation, refs)
+    assert len(summary) == 1 and summary[0]["relative_verified"] == sum(1 for x in classes if x["class"] == "relative_verified")
+    rows = {row["id"]: row for row in source["results"]}
+    for item in classes:
+        assert c.rule_binding_refusal(source, rows[item["result_id"]]) == c._class_binding_refusal(item["class"])
+    record = c.build_analysis_run(source, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:b3b"}, input_manifest_hash="1" * 64)
+    run = record["analysis_run"]
+    assert run.get("retained_precision") == source["retained_precision"] and "contract_evidence" not in run
+    assert run["reproducibility"]["semantic_contract"] == {"id": c.PHYSICS_RETAINED_CONTRACT_ID, "sha256": c.PHYSICS_RETAINED_CONTRACT_SHA256}
+    c.validate_analysis_run_v0_3(record, source)
+    dropped = deepcopy(record)
+    del dropped["analysis_run"]["retained_precision"]
+    with pytest.raises(ValueError) as error:
+        c.validate_analysis_run_v0_3(dropped, source)
+    assert str(error.value) == c.ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH
+    # F-5: physics-1 carrying the receipt is a downgrade; the reader's G7 text comes back on a refused successor.
+    downgraded = rp._project(source, rp.EXACT_ROUTE)
+    downgraded["retained_precision"] = deepcopy(source["retained_precision"])
+    assert dispatch(downgraded) == c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN
+    broken, _ = exact_shape(mode, "16 connector non-empty")
+    assert dispatch(broken).startswith("SOURCE_PHYSICS_EVIDENCE_INVALID")
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_b3b_stress_neutral_packager_refuses_the_exact_successor(mode):
+    """As the preview successor (T6's refusal stands in the Python packager; lane T's carriers are TS and schemas)."""
+    from core.handoff.stress_neutral import package_v0_3 as sn
+    from tests.test_stress_neutral_physics_source import arguments
+    source, _ = m3x(mode)
+    record = c.build_analysis_run(source, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:b3b"}, input_manifest_hash="1" * 64)
+    try:
+        sn.build_stress_neutral_export_package_v0_3(source_envelope=source, analysis_record=record, **arguments(source, record))
+        refused = None
+    except ValueError as error:
+        refused = str(error)
+    assert refused == "SN-SOURCE-METHOD-UNSUPPORTED"

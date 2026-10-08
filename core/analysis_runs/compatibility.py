@@ -167,8 +167,8 @@ def _build_analysis_run(
         envelope["analysis_run"]["source_block_recovery"] = deepcopy(received["source_block_recovery"])
     if contract_id in {PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}:
         envelope["analysis_run"]["contract_evidence"] = deepcopy(received["contract_evidence"])
-    # C1:162; D2 4.9.6: the successor's AnalysisRun carries its complete receipt.
-    if contract_id == PREVIEW_PHYSICS_RETAINED_CONTRACT_ID:
+    # C1:162; D2 4.9.6: the successor's AnalysisRun carries its complete receipt (B3b: either successor).
+    if contract_id in RETAINED_CONTRACTS:
         envelope["analysis_run"]["retained_precision"] = deepcopy(received["retained_precision"])
     envelope["analysis_run"]["hashes"].insert(0, _checksum("analysis_run_record", run_ref, analysis_record_projection(envelope), hash_fn))
     return envelope
@@ -221,6 +221,13 @@ _PREVIEW_PHYSICS_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_
 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"
 _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_preview_physics_retained_1.json")
+# B3b (B3-D §2, §6.1): the exact successor over physics-1. As the preview successor, its statements are checked
+# only by the accepted reader, which dispatches on this identity, and its standing comes only from that reader.
+PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
+PHYSICS_RETAINED_CONTRACT_SHA256 = "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d"
+_PHYSICS_RETAINED_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_physics_retained_1.json")
+RETAINED_CONTRACTS = {PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: (PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH),
+                      PHYSICS_RETAINED_CONTRACT_ID: (PHYSICS_RETAINED_CONTRACT_SHA256, _PHYSICS_RETAINED_CONTRACT_PATH)}
 RETAINED_METHOD = "contribution_preserving_multiprecision_v1"
 RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
 ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH = "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH"
@@ -232,12 +239,12 @@ RULE_QUANTITY_NOT_COVERED = "RULE_QUANTITY_NOT_COVERED"
 FRESH_CONTRACT_IDS = frozenset({PREVIEW_PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID,
                                 # T1 activation (DESIGN 10.3, SF-4): 0.4.0 exact-route identities only.
                                 LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID,
-                                # U6b (D-U6-6): membership is not standing.
-                                PREVIEW_PHYSICS_RETAINED_CONTRACT_ID})
+                                # U6b (D-U6-6): membership is not standing. B3b likewise.
+                                PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PHYSICS_RETAINED_CONTRACT_ID})
 # Every current-record identity, which the 0.3 AnalysisRun builder and validator admit.
 CURRENT_RECORD_CONTRACT_IDS = frozenset({PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID,
                                          PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID,
-                                         PREVIEW_PHYSICS_RETAINED_CONTRACT_ID})
+                                         PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PHYSICS_RETAINED_CONTRACT_ID})
 PRECISION_1_HISTORICAL_SEMANTICS = "PRECISION_1_HISTORICAL_SEMANTICS"
 SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS = "SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS"
 RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE = "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"
@@ -263,7 +270,8 @@ def _same_canonical(a: Any, b: Any) -> bool:
 
 def _is_retained(source: Any) -> bool:
     producer = source.get("producer") if isinstance(source, Mapping) else None
-    return isinstance(producer, Mapping) and producer.get("semantic_contract_id") == PREVIEW_PHYSICS_RETAINED_CONTRACT_ID
+    contract = producer.get("semantic_contract_id") if isinstance(producer, Mapping) else None
+    return isinstance(contract, str) and contract in RETAINED_CONTRACTS
 
 
 def _retained_validation(source: Mapping[str, Any], invocation: Any = None) -> dict[str, Any]:
@@ -294,9 +302,10 @@ def _retained_contract(source: Mapping[str, Any], *, check_receipt: bool) -> tup
         # F-U6b-2 (B6): a transported successor (its receipt, with or without raw
         # rows) is checked by the reader's transport validator, never admitted unchecked.
         _retained_transport(source)
-        return PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH
-    _retained_validation(source)
-    return PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH
+    else:
+        _retained_validation(source)
+    contract = source["producer"]["semantic_contract_id"]
+    return (contract, *RETAINED_CONTRACTS[contract])
 
 
 def _not_required_cases_ordinarily_eligible(source: Mapping[str, Any], cases: list[Any]) -> bool:
@@ -732,7 +741,7 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
             raise ValueError("ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH")
     elif "contract_evidence" in run:
         raise ValueError("ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN")
-    if contract_id == PREVIEW_PHYSICS_RETAINED_CONTRACT_ID:
+    if contract_id in RETAINED_CONTRACTS:
         if "retained_precision" not in run or not _same_canonical(run["retained_precision"], source["retained_precision"]):
             raise ValueError(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH)
     elif "retained_precision" in run:
