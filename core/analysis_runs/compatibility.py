@@ -277,8 +277,9 @@ def _retained_validation(source: Mapping[str, Any], invocation: Any = None) -> d
 
 
 def _retained_transport(source: Mapping[str, Any]) -> dict[str, Any]:
-    """F-U6b-2 (B6): the accepted reader's transport checks on a successor (G0-G2 and
-    the unchanged base transport metadata on its projection), as Rust's
+    """F-U6b-2 (B6): the accepted reader's transport checks on a successor (G0-G2, then
+    the base header in Rust's order and the preview-physics transport metadata on its
+    projection; RR "I4 made at `30f3d1b24a`; …", rulings 1 and 2), as Rust's
     for_source_metadata and TS's sourceContractTransport run theirs; never eligible.
     A G7 failure keeps the base validator's own text, every other gate its code."""
     from .retained_precision import RetainedPrecisionError, validate_retained_precision_transport
