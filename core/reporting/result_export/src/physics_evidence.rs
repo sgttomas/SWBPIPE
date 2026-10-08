@@ -382,7 +382,11 @@ pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> C
     let mut extrema_ids = HashSet::new();
     let mut coverage_complete = true;
     let mut all_members: Option<HashSet<&str>> = None;
-    for (case_id, case) in &cases {
+    // N2b (RV120; WORKING_ITEMS' ruling): every loop of this validator runs in array order,
+    // as TS's and PY's do, so its first failure (the code) never depends on a hash map's or
+    // set's per-process order. The maps and sets only detect duplicates and answer lookups.
+    for case in array(&evidence["exact_cases"])? {
+        let case_id = text(&case["load_case_id"])?;
         require(
             keys(
                 case,
@@ -418,10 +422,10 @@ pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> C
         } else {
             all_members = Some(members.clone());
         }
-        for m in materials.values() {
+        for m in array(&case["pipe_materials"])? {
             material(m)?;
         }
-        for s in sections.values() {
+        for s in array(&case["pipe_sections"])? {
             geometry(s)?;
         }
         let coverage = &case["stress_maximum_coverage"];
@@ -442,7 +446,8 @@ pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> C
                 == members.difference(&unavailable).copied().collect(),
             "EXTREMA_MEMBER_COVERAGE",
         )?;
-        for (pipe, ex) in extrema {
+        for ex in array(&case["pipe_stress_extrema"])? {
+            let pipe = text(&ex["pipe_id"])?;
             if composite && case["recovery_method"] == crate::physics_source::EXACT {
                 crate::physics_source::validate_maximum(source, case, ex, &rows)?;
                 require(
@@ -480,7 +485,7 @@ pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> C
             require(
                 row["kind"] == "pipe_elastic_normal_stress_maximum_v2"
                     && row["entity_ref"] == pipe
-                    && case_basis(row)? == *case_id,
+                    && case_basis(row)? == case_id,
                 "EXTREMA_RESULT_BINDING",
             )?;
             for k in ["station_fraction", "local_fraction"] {
@@ -507,11 +512,12 @@ pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> C
             )?;
             require(ex["approximation"] == "piecewise_quadratic_straight_section_statics" && ex["coefficient_basis"] == "j_side_section_equilibrium_binary64" && ex["enclosure_scope"] == "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate", "EXTREMA_BASIS")?;
         }
-        case_members.insert(*case_id, members);
+        case_members.insert(case_id, members);
     }
     let mut slots = HashSet::new();
     let mut support_components: HashMap<(&str, &str), HashSet<&str>> = HashMap::new();
-    for (id, row) in &rows {
+    for row in array(&source["results"])? {
+        let id = text(&row["id"])?;
         number(&row["value"])?;
         text(&row["unit"])?;
         text(&row["entity_ref"])?;
@@ -636,9 +642,10 @@ pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> C
             !members.is_empty() && members.is_subset(&case_members[case]),
             "REGION_MEMBER_COVERAGE",
         )?;
-        for member in &members {
+        for member in array(&region["member_pipe_ids"])? {
+            let member = text(member)?;
             require(
-                owned_members.insert((case, *member)),
+                owned_members.insert((case, member)),
                 "REGION_MEMBER_OVERLAP",
             )?;
         }
@@ -652,7 +659,8 @@ pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> C
                 duplicates.keys().copied().collect::<HashSet<_>>() == members,
                 "REGION_DUPLICATE_COVERAGE",
             )?;
-            for (member, duplicate) in duplicates {
+            for duplicate in array(&region[field])? {
+                let member = text(&duplicate["pipe_id"])?;
                 require(
                     without(duplicate, extra) == *basis[member],
                     "REGION_DUPLICATE_CONTRADICTION",
@@ -673,7 +681,7 @@ pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> C
             applied.keys().copied().collect::<HashSet<_>>() == members,
             "APPLIED_MEMBER_COVERAGE",
         )?;
-        for item in applied.values() {
+        for item in array(&region["applied_loads"])? {
             require(
                 keys(
                     item,
@@ -759,10 +767,11 @@ pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> C
             .map(|(id, _)| *id)
             .collect();
         require(actual == expected, "REGION_RESULT_BINDING")?;
-        for id in actual {
-            require(bound_results.insert(id), "REGION_RESULT_DUPLICATE")?;
+        for id in array(&region["result_ids"])? {
+            require(bound_results.insert(text(id)?), "REGION_RESULT_DUPLICATE")?;
         }
-        for member in &members {
+        for member in array(&region["member_pipe_ids"])? {
+            let member = text(member)?;
             for (kind, components) in [
                 (
                     "pipe_wall_endpoint_action_v2",
@@ -794,7 +803,7 @@ pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> C
                 for component in components {
                     for station in stations {
                         require(
-                            slots.contains(&(case, *member, kind, *component, *station)),
+                            slots.contains(&(case, member, kind, *component, *station)),
                             "PRESSURE_ROW_COVERAGE",
                         )?;
                     }
@@ -802,13 +811,18 @@ pub(crate) fn validate_physics_evidence_in(source: &Value, composite: bool) -> C
             }
         }
     }
-    for (id, row) in &rows {
+    for row in array(&source["results"])? {
+        let id = text(&row["id"])?;
         if pressure_kind(row["kind"].as_str().unwrap_or("")) {
             require(bound_results.contains(id), "PRESSURE_ROW_UNBOUND")?;
         }
     }
-    for (case_id, case) in &cases {
-        assembly(&case["pressure_rhs_assembly"], case_id, &regions)?;
+    for case in array(&evidence["exact_cases"])? {
+        assembly(
+            &case["pressure_rhs_assembly"],
+            text(&case["load_case_id"])?,
+            &regions,
+        )?;
     }
     let headline = &source["summary"]["max_open_formula_stress"];
     if !headline.is_null() {
