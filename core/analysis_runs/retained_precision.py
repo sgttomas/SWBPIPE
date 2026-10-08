@@ -1487,6 +1487,25 @@ def _g5_numeric(body, rows_by_case, phase=None):
     return classes
 
 
+LEGACY_PRESSURE_CONTRACT = {"version": "1.0.0", "mode": "legacy_pressure_v1"}
+
+
+def _pressure_contract_is(model, expected):
+    """Exactly the JSON object `expected`: the two keys, each value that exact string (B3-D REVISION_01 §3)."""
+    value = model.get("pressure_contract")
+    return type(value) is dict and value.keys() == expected.keys() and all(value[k] == expected[k] for k in expected)
+
+
+def _legacy_namespace(model):
+    """G8's namespace on the preview successor (B3a; B3-D §6.3 and REVISION_01 §3, N-4), type-strict: branch L,
+    schema 0.1.0 or 0.2.0 with `pressure_contract` absent or JSON null; or branch L3, schema 0.3.0 with exactly
+    {"version": "1.0.0", "mode": "legacy_pressure_v1"}. 0.3.0 without that contract is refused (B3D-10)."""
+    version = model.get("schema_version")
+    if version in ("0.1.0", "0.2.0") and type(version) is str:
+        return model.get("pressure_contract") is None
+    return version == "0.3.0" and _pressure_contract_is(model, LEGACY_PRESSURE_CONTRACT)
+
+
 def _g8(body, source, invocation):
     need = lambda ok, code="PREPARATION_MISMATCH": _need(ok, "G8", code)
     # The invocation is exactly {request, solver_mode} with a known solver mode (I91 repair 01, findings d1
@@ -1499,8 +1518,8 @@ def _g8(body, source, invocation):
     request = invocation["request"]; model = request["model"]
     need(model["project"]["id"] == source["model_ref"], "INVOCATION_MISMATCH")
     # The model scope, as PP accepts it (the alignment set, item 2): no reference_configurations member (null
-    # included); pressure_contract absent or null; combinations and components absent or [].
-    need(model.get("schema_version") in ("0.1.0", "0.2.0", "0.3.0") and model.get("pressure_contract") is None and model.get("combinations", []) == [], "INVOCATION_MISMATCH")
+    # included); the namespace (B3a, below); combinations and components absent or [].
+    need(_legacy_namespace(model) and model.get("combinations", []) == [], "INVOCATION_MISMATCH")
     need(model.get("components", []) == [] and "reference_configurations" not in model, "INVOCATION_MISMATCH")
     nodes, pipes, supports = model["nodes"], model["pipe_segments"], model["supports"]
     need(len({x["id"] for x in nodes}) == len(nodes) and len({x["id"] for x in pipes}) == len(pipes) and len({x["id"] for x in supports}) == len(supports))
