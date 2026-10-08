@@ -375,7 +375,7 @@ fn u1_constants_bound_to_in_tree_fixtures() {
     let definition: Value = serde_json::from_str(DEFINITION).unwrap();
     let table: Value = serde_json::from_str(TABLE).unwrap();
     assert_eq!(wire::domain_hash("retained_precision_formation_v1", &definition).as_deref(), Some(wire::DEFINITION_SHA256));
-    assert_eq!(table["product_formation_definitions"], json!([{"id":wire::DEFINITION_ID,"sha256":wire::DEFINITION_SHA256}]));
+    assert_eq!(table["product_formation_definitions"], json!([{"id":wire::DEFINITION_ID,"sha256":wire::DEFINITION_SHA256},{"id":"RP-PREPARED-COMBINATION-DUAL-v1","sha256":"d3fde142aff9c05d709b2fc2a04add42e14c66be3e2b2ba82012da57edf3d957"}]));
     assert_eq!(table["semantic_contract_id"], json!(wire::RETAINED_SEMANTIC_ID));
     assert_eq!(table["formulation_profile_id"], json!(wire::RETAINED_PROFILE_ID));
     assert_eq!(table["receipt_policy"], json!(wire::POLICY));

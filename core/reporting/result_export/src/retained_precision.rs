@@ -493,7 +493,7 @@ const TABLE_BYTES: &[u8] = include_bytes!(
 );
 const INHERITED_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json");
-const TABLE_HASH: &str = "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8";
+const TABLE_HASH: &str = "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c";
 fn sha256_hex(bytes: &[u8]) -> String {
     use sha2::{Digest, Sha256};
     Sha256::digest(bytes)
@@ -530,7 +530,7 @@ fn g0(source: &Value) -> VResult {
             "FORMATION_MISMATCH",
         )? == DEFINITION_HASH
             && table()["product_formation_definitions"]
-                == json!([{"id":DEFINITION_ID,"sha256":DEFINITION_HASH}]),
+                == json!([{"id":DEFINITION_ID,"sha256":DEFINITION_HASH},{"id":"RP-PREPARED-COMBINATION-DUAL-v1","sha256":"d3fde142aff9c05d709b2fc2a04add42e14c66be3e2b2ba82012da57edf3d957"}]),
         "G0",
         "FORMATION_MISMATCH",
     )?;

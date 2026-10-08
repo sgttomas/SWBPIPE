@@ -31,7 +31,7 @@ export const LOAD_REFERENCE_SOURCE_CONTRACT_SHA256 = "d1628194a7730f427843b00228
  * so that this module's top level never reads a binding across the import cycle
  * (the reader's G7 calls `sourceContract`). Imported bindings are read in functions only. */
 export const PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1";
-export const PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8";
+export const PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c";
 export const PREVIEW_PHYSICS_RETAINED_PROFILE = "product_preview_retained_w1a_v2";
 /** A receipt member, or a raw row with the W1 method token, offered under any
  * other identity (I66 F-5: the base readers' closed lists do not name it). */

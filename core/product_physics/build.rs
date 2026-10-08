@@ -30,7 +30,7 @@ fn main() {
     let _ = writeln!(out, "cargo:rustc-env={IDENTITY_VARIABLE}={identity}");
     // The reviewed inputs: the PP lock and the reader's statics, by SHA-256.
     let root = std::env::var_os("CARGO_MANIFEST_DIR").map(std::path::PathBuf::from);
-    let digests: [Option<[u8; 32]>; 14] = std::array::from_fn(|i| {
+    let digests: [Option<[u8; 32]>; 17] = std::array::from_fn(|i| {
         let path = root.as_ref()?.join(REVIEWED_INPUTS[i]);
         std::fs::read(path).ok().map(|bytes| sha256(&bytes))
     });

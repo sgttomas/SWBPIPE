@@ -219,7 +219,7 @@ _PREVIEW_PHYSICS_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_
 # checked only by the accepted reader (`retained_precision`), and its standing
 # comes only from that reader's verified receipt (D1 5 item 3).
 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8"
+PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"
 _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _CONTRACT_PATH.with_name("semantic_contract_v0_3_preview_physics_retained_1.json")
 RETAINED_METHOD = "contribution_preserving_multiprecision_v1"
 RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"

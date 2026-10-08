@@ -84,7 +84,7 @@ def test_results_successor_branch_is_explicit_and_old_branches_reject_receipt():
 
 SUCC = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PREVIEW = "openpipestress.result_semantics/0.3.0/preview-physics-1"
-SUCC_SHA = "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8"
+SUCC_SHA = "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"
 PREVIEW_SHA = "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a"
 PROFILE = "product_preview_retained_w1a_v2"
 CODES = ["retained_precision_absolute_verified", "retained_precision_not_covered"]

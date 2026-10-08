@@ -98,7 +98,7 @@ const SUMMARY_COVERAGE_COMPLETE = true;
 const COVERAGE_KEYS = ['body', 'has_data', 'stop'];
 const BASE_ID = 'openpipestress.result_semantics/0.3.0/preview-physics-1';
 const BASE_HASH = 'ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a';
-const TABLE_HASH = 'c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8';
+const TABLE_HASH = 'b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c';
 const COMPONENTS = ['UX', 'UY', 'UZ', 'RX', 'RY', 'RZ'];
 const KINDS = ['translation', 'rotation', 'force', 'moment'];
 const SLOTS = ['s128', 's256', 's512', 's1024', 'v256', 'v512', 'v1024'];
@@ -184,7 +184,7 @@ async function header(source: Obj): Promise<void> {
   const producer = isObj(source) ? source.producer : undefined;
   fail(isObj(producer) && producer.semantic_contract_id === RETAINED_PRECISION_ID && source.formulation_basis?.profile_id === RETAINED_PRECISION_PROFILE);
   fail(source.schema_version === '0.2.0' && producer.component_name === 'open_pipe_stress_product_physics' && producer.component_version === '0.2.0');
-  fail(table.semantic_contract_id === RETAINED_PRECISION_ID && table.formulation_profile_id === RETAINED_PRECISION_PROFILE && table.inherited_semantic_contract_sha256 === BASE_HASH && same(table.product_formation_definitions, [{ id: PREPARED_DEFINITION_ID, sha256: PREPARED_DEFINITION_HASH }]), 'FORMATION_MISMATCH');
+  fail(table.semantic_contract_id === RETAINED_PRECISION_ID && table.formulation_profile_id === RETAINED_PRECISION_PROFILE && table.inherited_semantic_contract_sha256 === BASE_HASH && same(table.product_formation_definitions, [{ id: PREPARED_DEFINITION_ID, sha256: PREPARED_DEFINITION_HASH }, { id: 'RP-PREPARED-COMBINATION-DUAL-v1', sha256: 'd3fde142aff9c05d709b2fc2a04add42e14c66be3e2b2ba82012da57edf3d957' }]), 'FORMATION_MISMATCH');
   fail(await hash('retained_precision_formation_v1', definition) === PREPARED_DEFINITION_HASH, 'FORMATION_MISMATCH');
   fail(await sha256Text(tableBytes) === TABLE_HASH && await sha256Text(inheritedTableBytes) === table.inherited_semantic_contract_sha256);
   // Settled reading (D2): with the retained-precision contract named, an absent or mistyped

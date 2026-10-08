@@ -112,7 +112,7 @@ pub const PREVIEW_PHYSICS_SHA256: &str =
 pub const PREVIEW_PHYSICS_RETAINED_ID: &str = crate::retained_precision::CONTRACT_ID;
 pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PROFILE;
 pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
-    "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8";
+    "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";

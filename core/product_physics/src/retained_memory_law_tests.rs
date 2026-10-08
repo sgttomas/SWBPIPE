@@ -245,13 +245,15 @@ fn sha256_matches_the_sha2_dependency() {
 #[test]
 fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     use sha2::{Digest, Sha256};
-    // G4 NOTES §3 and ORIGINS.json `statics`: the reviewed hashes at NUM b1f80234dc.
-    const REVIEWED: [&str; 14] = [
+    // G4 NOTES §3 and ORIGINS.json `statics`: the reviewed hashes at NUM b1f80234dc, with
+    // J1's interim registration (I93 REVISION_01 §1.4): SCHEMA and PTABLE as B2-C selected
+    // them (`abf3225c…`, `b2b4a54d…`), then DEF-C, DEF-E and XTABLE appended (B3D-18).
+    const REVIEWED: [&str; 17] = [
         "4f494db6d8a6eca87e7a16d8561197f20b1951a033bd3a6c424acfff5613475b",
         "3bb969555d5616af6eefdb68788ee4a74a8a3681c42fe9aae577a5d25a51ac5c",
-        "07951edacfedd410c153929ee75bb5bada15dbd222369ec63240c678b233b61c",
+        "abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e",
         "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
-        "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8",
+        "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c",
         "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
         "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e",
         "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
@@ -261,9 +263,12 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1",
         "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f",
         "544e196d2f7bef27276acc160aa19ab738a4f7949e846d2e8871328d2208129c",
+        "3cebce55d1b31e0031628d7542a33a8debdfa37d2d258cb27dfbdfd1fc28db22",
+        "71f63d3916fa37ad0021ffb6ad993760a274166fe7ef275d7435c6856ed5642e",
+        "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
-    let files: [&[u8]; 14] = [
+    let files: [&[u8]; 17] = [
         include_bytes!("../Cargo.lock"),
         include_bytes!("../../../schemas/physics_source_recovery.schema.json"),
         include_bytes!("../../../schemas/retained_precision_mp_v2.schema.json"),
@@ -278,12 +283,15 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_physics_source_1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json"),
         include_bytes!("../../../schemas/source_block_recovery.schema.json"),
+        include_bytes!("../../../fixtures/results/retained_precision_prepared_combination_v1.json"),
+        include_bytes!("../../../fixtures/results/retained_precision_prepared_exact_v1.json"),
+        include_bytes!("../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"),
     ];
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets the reviewed inputs");
     assert_eq!(option_env!("OPS_RETAINED_REVIEWED_INPUTS"), Some(compiled));
     let mut tokens = compiled.split(';');
     assert_eq!(tokens.next(), Some("v1"));
-    for (i, token) in tokens.by_ref().take(14).enumerate() {
+    for (i, token) in tokens.by_ref().take(17).enumerate() {
         let (path, hex) = token.split_once('=').unwrap();
         assert_eq!(path, build_identity::REVIEWED_INPUTS[i]);
         assert_eq!(hex, format!("{:x}", Sha256::digest(files[i])), "{path}: build.rs's digest");
@@ -291,7 +299,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     }
     assert_eq!(tokens.next(), None);
     println!("I65_G5_REVIEWED_INPUTS {compiled}");
-    // Each reviewed static is the reader's own input: result_export names it.
+    // Each reviewed static of G4's set is the reader's own input: result_export names it.
+    // J1's three appended statics (DEF-C, DEF-E, XTABLE) are not yet: RS packages DEF-C in
+    // B2's reader work (B2-C REVISION_01 N-8) and DEF-E and XTABLE in B3b's. Until then
+    // they are bound here by hash only, and the check below covers G4's 13 statics.
     let reader = [
         include_str!("../../reporting/result_export/src/retained_precision.rs"),
         include_str!("../../reporting/result_export/src/physics_source.rs"),
@@ -299,7 +310,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         include_str!("../../reporting/result_export/src/source_blocks.rs"),
     ]
     .concat();
-    for path in &build_identity::REVIEWED_INPUTS[1..] {
+    for path in &build_identity::REVIEWED_INPUTS[1..14] {
         let name = path.rsplit('/').next().unwrap();
         assert!(reader.contains(&format!("{name}\"")), "{name} is an include_str! input of the reader");
     }
@@ -1346,17 +1357,17 @@ fn gate_sums_saturate_and_the_longest_string_reads_every_diagnostic_field() {
 #[test]
 fn an_unreadable_reviewed_input_never_binds() {
     let layouts = READER_LAYOUTS;
-    let read = build_identity::encode_reviewed_inputs(&[Some([7; 32]); 14]);
+    let read = build_identity::encode_reviewed_inputs(&[Some([7; 32]); 17]);
     assert!(!read.contains("unavailable"));
     assert!(bindings_hold(true, Some(&read), &read, &layouts, &layouts), "every input read: the record binds");
-    for i in 0..14 {
-        let mut digests = [Some([7u8; 32]); 14];
+    for i in 0..17 {
+        let mut digests = [Some([7u8; 32]); 17];
         digests[i] = None;
         let unread = build_identity::encode_reviewed_inputs(&digests);
         assert!(unread.contains("=unavailable"));
         assert!(!bindings_hold(true, Some(&unread), &unread, &layouts, &layouts), "input {i} unreadable");
     }
-    let none = build_identity::encode_reviewed_inputs(&[None; 14]);
+    let none = build_identity::encode_reviewed_inputs(&[None; 17]);
     assert!(!bindings_hold(true, Some(&none), &none, &layouts, &layouts), "no input read");
     assert_eq!(identity_match(Some(build_identity::IDENTITY_UNAVAILABLE), [build_identity::IDENTITY_UNAVAILABLE].into_iter()),
         Err(ProfileStatus::Stale), "the identity's own unavailable value is Stale");

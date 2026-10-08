@@ -267,7 +267,7 @@
             "ae55503d44a4750714a35c423623e38cf4132099134097193024d1635bfbc88a",
             "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d",
             "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337",
-            "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8"
+            "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"
           ]
         },
         "signature_id": {
@@ -354,7 +354,7 @@
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
             },
             "sha256": {
-              "const": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8"
+              "const": "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"
             }
           }
         }
@@ -1102,7 +1102,7 @@
                       "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
                     },
                     "sha256": {
-                      "const": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8"
+                      "const": "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"
                     }
                   }
                 }
@@ -1117,7 +1117,7 @@
                         "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
                       },
                       "sha256": {
-                        "const": "c74742ce6a936384e00986006e6a0b2e6bb11f190451e876eed9ffa11903c6a8"
+                        "const": "b2b4a54d610aa38c66f5d31921c2d8f3113313e33eb6933e45093ba6f1e3667c"
                       }
                     }
                   }
