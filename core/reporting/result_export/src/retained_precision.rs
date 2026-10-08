@@ -4050,12 +4050,18 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
             s["owner"]["case_id"] == case["id"]
                 && u(&s["material_basis_ref"]) == case_bases[ci] as u64,
         )?;
-        // Exact route, G8 step 8: `pressure_regions` present and [] (D1.5-exact).
+        // G8's sourced-case check, both routes (ROOT's ruling on I100's B3 addendum 01; D1.5
+        // read through C1's "no 0.4 extension"): `pressure_regions` present and [] on the
+        // exact route (step 8, D1.5-exact), absent, null or [] on the preview route (B3D-11's
+        // leniency), type-strict; `equivalent_static` absent or null; no `analysis_state`
+        // member, null included. A key PP's typed load case lacks, such as a case-level
+        // `pressure`, is not read.
         fail(
             if route.exact {
                 case.get("pressure_regions").is_some_and(|r| r.as_array().is_some_and(Vec::is_empty))
             } else {
-                list(&case["pressure_regions"]).is_empty()
+                case.get("pressure_regions")
+                    .is_none_or(|r| r.is_null() || r.as_array().is_some_and(Vec::is_empty))
             } && case["equivalent_static"].is_null()
                 && !case
                     .as_object()

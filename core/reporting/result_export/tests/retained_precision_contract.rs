@@ -5407,6 +5407,7 @@ fn b3b_rows(shared: &Value, base_name: &'static str) -> Vec<(ExactShape, Value)>
     let section = |k: &str| entry["pipe_sections"][0][k].as_f64().unwrap();
     let material = |k: &str| entry["pipe_materials"][0][k].as_f64().unwrap();
     let receipt_g = decode_bits(&base["retained_precision"]["body"]["material_bases"][0]["materials"][0]["shear_modulus"]);
+    let receipt_e = decode_bits(&base["retained_precision"]["body"]["material_bases"][0]["materials"][0]["elastic_modulus"]);
     let base_model = &base_invocation["request"]["model"];
     let authored_nu = base_model["materials"][0]["poisson_ratio"]["value"].as_f64().unwrap();
     let (case_id, pipe_id) = (base_model["load_cases"][0]["id"].clone(), base_model["pipe_segments"][0]["id"].clone());
@@ -5459,8 +5460,15 @@ fn b3b_rows(shared: &Value, base_name: &'static str) -> Vec<(ExactShape, Value)>
         ("22 a combination added to the invocation", vec![], vec![set(model(json!(["combinations"])), json!([{"id": "combination:x", "kind": "algebraic", "terms": [{"load_case": case_id, "factor": 1.0}]}]))], vec![], inv.clone()),
         ("22b a component added to the invocation", vec![], vec![set(model(json!(["components"])), json!([{"id": "component:x"}]))], vec![], inv.clone()),
         ("23 a case naming modulus_basis_ref", vec![], vec![set(model(json!(["load_cases", 0, "modulus_basis_ref"])), json!("point:x"))], vec![], prep.clone()),
+        // D1.5: only the base common E/nu, even a named point equal to the base, with
+        // the receipt's selector naming it alike (step 3 alone refuses it).
+        ("23b a case naming a point equal to the base, the receipt's selector alike", vec![set(rb(json!(["material_bases", 0, "selector"])), json!({"kind": "named", "id": "point:base"}))], vec![
+            set(model(json!(["materials", 0, "temperature_points"])), json!([{"id": "point:base", "elastic_modulus": base_model["materials"][0]["elastic_modulus"], "poisson_ratio": base_model["materials"][0]["poisson_ratio"]}])),
+            set(model(json!(["load_cases", 0, "modulus_basis_ref"])), json!("point:base")),
+        ], vec![], prep.clone()),
         ("24 a material's shear_origin -> explicit_g", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_origin"])), json!({"kind": "explicit_g"}))], vec![], vec![], prep.clone()),
         ("24b a material's selection -> named_point", vec![set(rb(json!(["material_bases", 0, "materials", 0, "selection"])), json!({"kind": "named_point", "point_id": "point:x"}))], vec![], vec![], prep.clone()),
+        ("25b a material's elastic_modulus one ulp", vec![set(rb(json!(["material_bases", 0, "materials", 0, "elastic_modulus"])), json!(format!("{:016x}", ulps(receipt_e, 1).to_bits())))], vec![], vec![], prep.clone()),
         ("25 a material's shear_modulus one ulp", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_modulus"])), json!(format!("{:016x}", ulps(receipt_g, 1).to_bits())))], vec![], vec![], prep.clone()),
         ("26 shear_origin.poisson_ratio bits changed", vec![set(rb(json!(["material_bases", 0, "materials", 0, "shear_origin", "poisson_ratio"])), json!(format!("{:016x}", ulps(material("nu"), 1).to_bits())))], vec![], vec![], prep.clone()),
         ("27 authored nu changed in the invocation", vec![], vec![set(model(json!(["materials", 0, "poisson_ratio", "value"])), json!(ulps(authored_nu, 1)))], vec![], prep.clone()),
@@ -5533,7 +5541,7 @@ fn b3b_exact_successor_shapes_first_failures() {
         }
     }
     assert!(misses.is_empty(), "{}", misses.join("\n"));
-    assert_eq!(shapes.iter().filter(|(s, _)| s.base != FILE_BASE && s.base != "<s1:file>").count(), 3 + 50 + 2 + 2 * (1 + 50 + 1));
+    assert_eq!(shapes.iter().filter(|(s, _)| s.base != FILE_BASE && s.base != "<s1:file>").count(), 3 + 52 + 2 + 2 * (1 + 52 + 1));
 }
 fn observe_validation(r: Result<rp::Validation, rp::ValidationError>) -> Value {
     match r {
@@ -5657,4 +5665,83 @@ fn b3b_exact_successor_derivative_carries_the_receipt_and_evidence() {
         stripped["result_envelope"].as_object_mut().unwrap().remove("retained_precision");
         assert_eq!(d::validate_document(&stripped, &source).unwrap_err(), d::RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH);
     }
+}
+
+/// ROOT's ruling on I100's B3 addendum 01: G8's sourced-case check, on the preview and
+/// exact routes. A sourced case passes only with `pressure_regions` absent, null or []
+/// (type-strict; [] only on the exact route), `equivalent_static` absent or null, and no
+/// `analysis_state` member (null included); a case-level `pressure`, a key PP's typed case
+/// lacks, is not read. I100's 22 values on PP's milestone successors, both modes (an
+/// invocation edit, resealed with DEF-O's H), and its x08 (`analysis_state`) and p02 (a
+/// case-level `pressure`) on the synthetic and m3x exact successors (DEF-E's H): bound G8
+/// or eligible; unbound and on transport never refused and never eligible (G8 does not run).
+#[test]
+fn b3_add1_g8_sourced_case_on_the_preview_and_exact_routes() {
+    use open_pipe_stress_result_export::source_blocks::domain_hash;
+    use serde_json::json;
+    const MILESTONES: [(&str, &str); 2] = [
+        ("sparse_interactive", include_str!("../../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json")),
+        ("dense_scrutiny", include_str!("../../../../fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json")),
+    ];
+    let preview: Vec<(&str, Value, bool)> = vec![
+        ("analysis_state", json!({"kind": "load_reference_state"}), false),
+        ("analysis_state", Value::Null, false),
+        ("analysis_state", json!({}), false),
+        ("pressure", json!({"value": 1000.0, "unit": "Pa"}), true),
+        ("pressure", Value::Null, true),
+        ("pressure", json!(0), true),
+        ("pressure_regions", json!("x"), false),
+        ("pressure_regions", json!({}), false),
+        ("pressure_regions", json!({"id": "region:x"}), false),
+        ("pressure_regions", json!(0), false),
+        ("pressure_regions", json!(1), false),
+        ("pressure_regions", json!(true), false),
+        ("pressure_regions", json!(false), false),
+        ("pressure_regions", json!(""), false),
+        ("pressure_regions", json!([]), true),
+        ("pressure_regions", Value::Null, true),
+        ("pressure_regions", json!([{"id": "region:x", "member_pipe_ids": ["M1"]}]), false),
+        ("equivalent_static", json!({}), false),
+        ("equivalent_static", json!(false), false),
+        ("equivalent_static", json!(0), false),
+        ("equivalent_static", Value::Null, true),
+        ("notes", json!("free text"), true),
+    ];
+    let exact: Vec<(&str, Value, bool)> = vec![
+        ("analysis_state", json!({"kind": "load_reference"}), false),
+        ("pressure", json!({"value": 1000.0, "unit": "Pa"}), true),
+    ];
+    let want = |passes: bool| {
+        let bound = if passes { json!({"ok": {"eligible": true}}) } else { json!({"gate": "G8", "code": PREPARATION}) };
+        json!({"bound": bound, "unbound": {"ok": {"eligible": false}}, "transport": {"ok": {"eligible": false}}})
+    };
+    let mut misses = Vec::new();
+    let mut checked = 0;
+    let mut read = |label: String, source: &Value, invocation: &Value, rows: &[(&str, Value, bool)]| {
+        assert_eq!(readings(source, invocation), want(true), "{label}: the base");
+        for (key, value, passes) in rows {
+            let mut invocation = invocation.clone();
+            invocation["request"]["model"]["load_cases"][0][*key] = value.clone();
+            let mut source = source.clone();
+            source["retained_precision"]["body"]["invocation"]["value"] =
+                domain_hash("source_blocks_invocation_v1", &invocation).unwrap().into();
+            rehash(&mut source);
+            let got = readings(&source, &invocation);
+            if got != want(*passes) {
+                misses.push(format!("{label}: {key} = {value}: got {got}, want {}", want(*passes)));
+            }
+            checked += 1;
+        }
+    };
+    for (mode, text) in MILESTONES {
+        let doc: Value = serde_json::from_str(text).unwrap();
+        read(format!("milestone {mode}"), &doc["source"], &doc["invocation"], &preview);
+    }
+    let shared = corpus();
+    for base in EXACT_BASES.into_iter().chain(M3X.map(|m| m.0)) {
+        let (source, invocation) = exact_base(&shared, base);
+        read(base.to_string(), &source, &invocation, &exact);
+    }
+    assert!(misses.is_empty(), "{}", misses.join("\n"));
+    assert_eq!(checked, 2 * 22 + 5 * 2);
 }
