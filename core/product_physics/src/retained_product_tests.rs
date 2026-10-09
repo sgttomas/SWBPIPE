@@ -2458,7 +2458,7 @@ fn b2p_early_hook_refuses_combinations_outside_d14() {
         request.model.combinations=vec![serde_json::from_value(serde_json::json!({"id":"C","basis":"mechanics",
             "terms":vec![serde_json::json!({"load_case":case,"factor":1.0});terms]})).unwrap()];
         o.case_source(&request.model,&built,&request.model.materials,&request.model.load_cases[0],
-            &boundary.restrained_dofs,&boundary.springs,&application,&[],&[]);
+            &boundary.restrained_dofs,&boundary.springs,&application,&[]);
         let expected=(terms==4).then_some("prepared case/no-combination source scope");
         assert_eq!(o.error.as_ref().map(|e|e.to_string()).as_deref(),expected,"h = {terms}");
         request.model.combinations.clear();
