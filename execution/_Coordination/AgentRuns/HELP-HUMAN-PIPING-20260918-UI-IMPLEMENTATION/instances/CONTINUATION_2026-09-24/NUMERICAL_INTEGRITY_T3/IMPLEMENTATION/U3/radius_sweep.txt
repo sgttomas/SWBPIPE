@@ -1,4 +1,4 @@
-# T2 radius sweep (ROOT's condition on item 1), run by WORKING_ITEMS at NUM 29710d848e (U3 merged; equal to the U3 PR's maintained files)
+# T2 radius sweep (ROOT's condition on item 1), run by WORKING_ITEMS at NUM 29710d848e (U3 merged). The U3 PR's maintained files equal NUM's from ed012c7ccf on (RV127 A2-B-1)
 # old hashes: the 12 source-block raw sha256 values removed from source_blocks/generation.json (main -> NUM), and the 4 sha256 constants removed from PP/tests/f1b_w2_runtime.rs
 # command, per hash h: git grep -F -l "$h" HEAD
 # result: hits outside projects/chirality-piping/execution/: 0

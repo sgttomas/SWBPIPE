@@ -1,9 +1,10 @@
 # U3: the legacy pressure contract is retired product-wide: change record
 
-- **Branch:** `codex/piping-t3-pressure-retire-20261008`, cut from main `7eae707bb7`.
-- **Product head:** `fe657e3a68`. The package is a separate commit on top of it, and changes no product file.
+- **Development branch:** `codex/piping-t3-pressure-retire-20261008`, cut from main `7eae707bb7`; its product head is `fe657e3a68`.
+- **The PR (#1168):** `codex/piping-t3-pressure-retire-pr-20261009` on main `ba500defa4`. The code is two commits, `8a12de28db` and `ed012c7ccf`; the package commits change no product file. Outside `execution/`, the PR's maintained files equal NUM's U3 merge (`d92d05a31c`, with main absorbed) from `ed012c7ccf` on.
+- **Erratum (RV127 A2-B-1):** the first code commit `8a12de28db` missed I114's deletion of `invented_mechanics_result.json` and the precision-1 pair. The cut listed paths with rename detection on, which paired the three deletions with the new demo results. `ed012c7ccf` deletes them. `source_equality.py`'s path sets now use `--no-renames`, and against `8a12de28db` the fixed tool fails checks 1, 2 and 5.
 - **Commits:** 18 product commits on the branch's first-parent line. One of them, `1e9724fb94`, merges I114's demo lane (`9744ed7e69`, 3 commits from `4c0d5d7c00`).
-- **Size:** the PR changes 133 maintained files (121 modified, 6 deleted, 3 added, 3 renamed). Nothing under `execution/` changes outside this package.
+- **Size:** the PR changes 136 maintained files, counted without rename detection (121 modified, 9 deleted, 6 added). Nothing under `execution/` changes outside this package.
 - **Implemented by:**
   - I110 (T3): `R/I110/pressure_retire_01/` (the inventory and plan), then `pressure_retire_02/` to `pressure_retire_06/` (rounds 2 to 6);
   - I114: the demo lane, `R/I114/demo_fixtures_01/` and `demo_fixtures_02/`;
@@ -265,7 +266,7 @@ WORKING_ITEMS gives each verdict.
 | T9 and the both-entry gate: conditions of the profile re-pin | the U3 head | **pending** |
 | Linux diagnostic dispatch 37830652481 | `4c0d5d7c00` | **success** |
 | Linux diagnostic dispatch 37854458718 | `6b6543dc1e` | **success** |
-| Linux and full-SHA dispatches, hosted CI on the PR, GEN-8, exact-head DEC-025 with src-tauri | the final head | **pending** |
+| Linux and full-SHA dispatches, hosted CI on the PR, GEN-8, exact-head DEC-025 with src-tauri | the final head | **pending**. GEN-8 passed at `98733368f9`, and reruns at the final head |
 | The merge with main `ec5d397359` (PR-N) | — | **pending** (WORKING_ITEMS). One conflict, in `PP/src/lib.rs`'s imports: main adds `correct_norm::{norm2, norm3}`; this branch drops `exact_rounded_sum`, whose last use was the legacy pressure path. Keeping both changes resolves it, and PP compiles with the resolution (`cargo check --tests`, the same warnings as main). Every other file merges cleanly |
 | `source_equality.py` (checks 1 to 5) and `check_citations.py` (main's `IMPLEMENTATION/F2A_D1/` tools) | the package commit, as scratch heads: this branch with main `ec5d397359` merged (the PR side) and NUM `a31c14e4d3` with this branch merged (the integration side), each with the import resolution above | **PASS**: 133 maintained paths, equal in blob and mode; 4 execution files, all in this package, whose SHA256SUMS verify; citations 2 resolved, 0 unresolved. Recorded in `R/I110/pressure_retire_06/`. WORKING_ITEMS reruns both against its NUM commit |
 
