@@ -15,7 +15,8 @@ the undertaking, and its work graph carries the state.
    `{REPO_ROOT}/docs/alignment-manual/README.md`. Read the Agent User
    Manual's headings to three levels (`grep -nE '^#{1,3} '` on its
    Markdown), then read the Field Book in full.
-2. Read `loop/PROJECT_GUIDANCE.md` in full before you write anything.
+2. Read `loop/PROJECT_GUIDANCE.md` in full before any dispatch, review, fan-in,
+   reliance, or write.
 3. Read the work graph of the undertaking the steering names. If it has
    none, construct one.
 
