@@ -4,8 +4,8 @@ Resolve `REPO_ROOT` from the active checkout and set `WORKING_ROOT` to
 `{REPO_ROOT}/projects/chirality-piping`. Paths below are relative to
 `WORKING_ROOT` unless they begin with `{REPO_ROOT}`.
 
-This file binds Piping to Root `AGENTS.md`, the active role, project
-`AGENTS.md`, the bundled workflows and the manuals. It states only what is
+This file binds Piping to Root `AGENTS.md`, the active role,
+`loop/PROJECT_GUIDANCE.md`, the bundled workflows and the manuals. It states only what is
 specific to Piping and stated in none of them. The human's steering selects
 the undertaking, and its work graph carries the state.
 
@@ -15,7 +15,7 @@ the undertaking, and its work graph carries the state.
    `{REPO_ROOT}/docs/alignment-manual/README.md`. Read the Agent User
    Manual's headings to three levels (`grep -nE '^#{1,3} '` on its
    Markdown), then read the Field Book in full.
-2. Read project `AGENTS.md` in full before you write anything.
+2. Read `loop/PROJECT_GUIDANCE.md` in full before you write anything.
 3. Read the work graph of the undertaking the steering names. If it has
    none, construct one.
 
@@ -66,7 +66,7 @@ Load each workflow when it is needed, as
   one. Codified rulings are the `DEC` entries in the decomposition's §12.
   Notices are `execution/_Coordination/NOTICE_*.md`, and run records are in
   `execution/_Coordination/AgentRuns/<RunID>/`.
-- **Checks.** `software-workflow.json`, as project `AGENTS.md` describes
+- **Checks.** `software-workflow.json`, as `loop/PROJECT_GUIDANCE.md` describes
   under "Software checks".
 - **Task Management.** `execution/_Coordination/_TaskManagement/REGISTER.csv`.
 - **Work graphs.** `execution/_Coordination/WorkGraphs/`.

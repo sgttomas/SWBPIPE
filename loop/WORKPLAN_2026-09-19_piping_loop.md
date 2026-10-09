@@ -5,7 +5,7 @@ follows the subsequently adopted shared loop instructions.
 
 The current development-loop entry is `loop/LOOP_INIT.md`, which binds Piping
 to the shared workflows and manuals that carry the reusable procedure;
-`projects/chirality-piping/AGENTS.md` supplies standing responsibilities and
+`projects/chirality-piping/loop/PROJECT_GUIDANCE.md` supplies standing responsibilities and
 constraints. Current local development graphs are Git-tracked at
 `execution/_Coordination/WorkGraphs/<undertaking>/WORK_GRAPH.md`, relative to the
 project, and the human's steering selects the graph. AgentRuns holds linked
