@@ -1527,7 +1527,6 @@ impl ProductCapture {
         springs: &[SpringEntry],
         application: &LoadApplication,
         thermal: &[ThermalElementLoad],
-        pressure: &[PressureThrustLoad],
     ) {
         if self.prepared_probe {
             if self.error.is_some() {return;}
@@ -1535,12 +1534,11 @@ impl ProductCapture {
             return;
         }
         self.case_calls=self.case_calls.checked_add(1).expect("bounded cases");
-        self.capture_case_source(model,built,materials,case,restrained,springs,application,thermal,pressure);
+        self.capture_case_source(model,built,materials,case,restrained,springs,application,thermal);
     }
     fn capture_case_source(&mut self, model:&PreviewModel, built:&BuiltModel,
         materials:&[MaterialInput], case:&PreviewLoadCase, restrained:&[usize],
-        springs:&[SpringEntry], application:&LoadApplication, thermal:&[ThermalElementLoad],
-        pressure:&[PressureThrustLoad]) {
+        springs:&[SpringEntry], application:&LoadApplication, thermal:&[ThermalElementLoad]) {
         if self.error.is_some() {
             return;
         }
@@ -1560,7 +1558,6 @@ impl ProductCapture {
             || !built.user_stiffness_elements.is_empty()
             || !built.curved_bend_elements.is_empty()
             || !thermal.is_empty()
-            || !pressure.is_empty()
             || !application.element_uniform_loads.is_empty()
             || !application.imposed_displacements.is_empty()
             || case.equivalent_static.is_some()
@@ -3503,7 +3500,7 @@ impl ProductCapture {
     }
     pub(super) fn prepared_case_source(&mut self,source_selected:bool,model:&PreviewModel,
         built:&BuiltModel,materials:&[MaterialInput],case:&PreviewLoadCase,restrained:&[usize],
-        springs:&[SpringEntry],application:&LoadApplication,thermal:&[ThermalElementLoad],pressure:&[PressureThrustLoad]) {
+        springs:&[SpringEntry],application:&LoadApplication,thermal:&[ThermalElementLoad]) {
         // B1 (RV112 N-4): after a G-B refusal, a later case's late hook does nothing: the first
         // refusal stands, and no later G-B check, running total or late capture follows.
         if !self.prepared_probe || self.error.is_some() || self.late_refusal.is_some() {return;}
@@ -3534,7 +3531,7 @@ impl ProductCapture {
             let facts=super::retained_memory::LateFacts{model,built,materials,case,restrained,springs,capture:&*self};
             if let Err(refusal)=permit.check_late(&facts) {self.late_refusal=Some(refusal);return;}
         }
-        self.capture_case_source(model,built,materials,case,restrained,springs,application,thermal,pressure);
+        self.capture_case_source(model,built,materials,case,restrained,springs,application,thermal);
     }
 }
 fn prepared_reserve<T>(adapter:&AdapterWork,capacities:&mut [usize;16],slot:usize,n:usize)->Result<Vec<T>,CaptureError> {
@@ -4274,7 +4271,7 @@ impl ProductCapture {
                     torsion_constant:m.torsion_constant,mass_per_length:None},y_reference:m.y_reference};
             let section=DerivedSection{area:f.area,internal_area:0.0,second_moment:f.second_moment,
                 torsion_constant:f.torsion_constant,section_modulus:f.section_modulus,torsion_radius:f.radius,
-                membrane_radius:f.radius,wall_thickness:f.effective_wall};
+                wall_thickness:f.effective_wall};
             self.capture_entry(AdapterEvent::LibraryBoundary)?;
             let maximum=exact_straight_summary_extrema(&pipe,&ends,&[],&section,None).map_err(CaptureError::Association)?;
             let gap=work.op(ScalarOperation::Sub,maximum.value_upper,maximum.value_lower).map_err(CaptureError::PreparedArithmetic)?;

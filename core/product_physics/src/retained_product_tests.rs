@@ -2461,7 +2461,7 @@ fn i51_c0_isolated_late_hook_custody_and_prefixes() {
         let mode_row=i51_c0_mode_observation();
         if name!="missing early" {
             o.case_source(&request.model,&built,&request.model.materials,&request.model.load_cases[0],
-                &boundary.restrained_dofs,&boundary.springs,&application,&[],&[]);
+                &boundary.restrained_dofs,&boundary.springs,&application,&[]);
         }
         assert!(o.source.is_none() && o.source_capture_entries==0 && o.native_pair().is_none());
         if name!="missing observations" && name!="missing early" {
@@ -2487,12 +2487,12 @@ fn i51_c0_isolated_late_hook_custody_and_prefixes() {
         }
         if name!="missing late" {
             o.prepared_case_source(name=="selected",&request.model,&built,&request.model.materials,&request.model.load_cases[0],
-                &boundary.restrained_dofs,&boundary.springs,&application,&[],&[]);
+                &boundary.restrained_dofs,&boundary.springs,&application,&[]);
         }
         if name=="duplicate" {
             let entries=o.source_capture_entries;
             o.prepared_case_source(false,&request.model,&built,&request.model.materials,&request.model.load_cases[0],
-                &boundary.restrained_dofs,&boundary.springs,&application,&[],&[]);
+                &boundary.restrained_dofs,&boundary.springs,&application,&[]);
             assert_eq!(o.source_capture_entries,entries);
         }
         assert!(o.native_pair().is_none(),"zero native calls");
@@ -2500,7 +2500,7 @@ fn i51_c0_isolated_late_hook_custody_and_prefixes() {
             assert!(matches!(o.error,Some(CaptureError::Accounting(_))),"{name}: {:?}",o.error);
             let counts=o.adapter.counts.get();
             o.prepared_case_source(false,&request.model,&built,&request.model.materials,&request.model.load_cases[0],
-                &boundary.restrained_dofs,&boundary.springs,&application,&[],&[]);
+                &boundary.restrained_dofs,&boundary.springs,&application,&[]);
             assert_eq!(o.adapter.counts.get(),counts,"prior fault blocks repeat source work");
         }
         // B1 SP (T-2): each requested case's late capture is its own, so a request naming a
@@ -2573,16 +2573,16 @@ fn i51_c0_isolated_guard_accounting_boundaries() {
                 let mut o=ProductCapture::prepared_probe();o.invocation(Some(&inv),PreviewSolverMode::SparseInteractive);
                 o.normalized(&request.model,&request.model.materials,false);
                 if late {
-                    o.case_source(&request.model,&built,&request.model.materials,case,&boundary.restrained_dofs,&boundary.springs,&empty,&[],&[]);
+                    o.case_source(&request.model,&built,&request.model.materials,case,&boundary.restrained_dofs,&boundary.springs,&empty,&[]);
                     o.solver_observations(case,PreviewSolverMode::SparseInteractive,&[i51_c0_mode_observation()]);
                 }
                 let mut counters=o.adapter.counts.get();counters[event as usize]=u64::MAX-offset;o.adapter.counts.set(counters);
-                if late {o.prepared_case_source(false,&request.model,&built,&request.model.materials,case,&boundary.restrained_dofs,&boundary.springs,&empty,&[],&[]);}
-                else {o.case_source(&request.model,&built,&request.model.materials,case,&boundary.restrained_dofs,&boundary.springs,&empty,&[],&[]);}
+                if late {o.prepared_case_source(false,&request.model,&built,&request.model.materials,case,&boundary.restrained_dofs,&boundary.springs,&empty,&[]);}
+                else {o.case_source(&request.model,&built,&request.model.materials,case,&boundary.restrained_dofs,&boundary.springs,&empty,&[]);}
                 assert!(matches!(o.error,Some(CaptureError::Accounting(_))),"late={late} event={event:?} offset={offset}: {:?}",o.error);
                 assert_eq!(o.source_capture_entries,0);assert!(o.source.is_none() && o.native_pair().is_none());
                 let after=o.adapter.counts.get();
-                o.prepared_case_source(false,&request.model,&built,&request.model.materials,case,&boundary.restrained_dofs,&boundary.springs,&empty,&[],&[]);
+                o.prepared_case_source(false,&request.model,&built,&request.model.materials,case,&boundary.restrained_dofs,&boundary.springs,&empty,&[]);
                 assert_eq!(o.adapter.counts.get(),after);checked+=1;
                 println!("I51_C0_BOUNDARY late={late} event={event:?} offset={offset} source_entries=0 native_calls=0 prefix={after:?}");
             }

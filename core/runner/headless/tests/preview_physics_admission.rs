@@ -251,13 +251,9 @@ fn no_headless_path_binds_solver_rows_to_rules() {
 #[test]
 fn realized_joint_is_refused_as_a_sanitized_blocked_envelope() {
     let mut model = read("fixtures/product_preview/invented_preview_model.json");
-    // Pressure is incidental; zero it in memory so only the joint refusal applies.
+    // Pressure is incidental; remove it in memory so only the joint refusal applies.
     for case in model["load_cases"].as_array_mut().unwrap() {
-        for load in case["primitive_loads"].as_array_mut().unwrap() {
-            if load["category"] == "pressure" {
-                load["magnitude"]["value"] = json!(0.0);
-            }
-        }
+        case["primitive_loads"].as_array_mut().unwrap().retain(|load| !(load["category"] == "pressure" || load["dimension"] == "pressure"));
     }
     let payload = json!({"model":model,"materials":[]});
     for mode in MODES {

@@ -159,7 +159,7 @@ describe.each(MODES)("%s: the AnalysisRun copies the receipt and validates its e
 });
 
 describe("the historical v0.2 builder never drops a receipt (RV91 SF-1; Python's F-U6b-3 twin)", () => {
-  const legacy = () => JSON.parse(readFileSync(resolve(root, "fixtures/product_preview/invented_mechanics_result.json"), "utf8")) as MechanicsResult;
+  const legacy = () => JSON.parse(readFileSync(resolve(root, "fixtures/product_preview/invented_demo_result_legacy_0_1.json"), "utf8")) as MechanicsResult;
   const legacyManifest = (source: MechanicsResult) => ({ manifest_ref: { object_type: "InputManifest", ref: "manifest:invented-legacy" }, manifest_sha256: "1".repeat(64), manifest: { model_basis: { model_ref: source.model_ref }, solver_basis: { solver_name: "synthetic", solver_version: "1", solver_build_ref: "synthetic@1" } } });
   // Both legacy record shapes the builder accepts (RV91 N-1 on round 02): 0.1.0 and 0.2.0.
   const shaped = (version: string) => { const source = bindSourceResultDimensions(legacy()) as Json; source.schema_version = version; return source; };

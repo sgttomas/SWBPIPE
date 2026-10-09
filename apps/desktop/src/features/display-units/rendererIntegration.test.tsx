@@ -1,4 +1,5 @@
-import precisionResult from "../../../../../fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json";
+// Actual preview-physics-1 producer output with mechanics-combination rows (no joint, no legacy pressure).
+import combinationResult from "../../../../../fixtures/results/preview_physics_unicode_ids_sparse.json";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { DisplayUnitSelector, DisplayUnitsProvider } from "./index";
@@ -131,7 +132,9 @@ describe("shared display preference in result renderers", () => {
   });
 
   it("resolves current comparison dimensions from source semantics without altering absent declarations", async () => {
-    const result = structuredClone(precisionResult) as MechanicsResult;
+    const result = structuredClone(combinationResult) as MechanicsResult;
+    // The panel's test ids replace characters outside [a-zA-Z0-9:_-] (the fixture's ids carry unicode).
+    const testId = (id: string) => id.replace(/[^a-zA-Z0-9:_-]+/g, "-");
     const before = JSON.stringify(result);
     const compared = comparison();
     const kinds = ["element_local_axial_force", "element_local_bending_moment_z"];
@@ -140,7 +143,7 @@ describe("shared display preference in result renderers", () => {
       const left = result.results.find(row => right.source_result_refs!.includes(row.id))!;
       expect(right.dimension).toBeUndefined();
       expect(left.dimension).toBeUndefined();
-      return { ...compared.result_deltas[0], mapping_id: `precision:${index}`, left_result_id: left.id, right_result_id: right.id, unit: right.unit, left_value: left.value, right_value: right.value, raw_delta: right.value - left.value, absolute_delta: Math.abs(right.value - left.value) };
+      return { ...compared.result_deltas[0], mapping_id: `source:${index}`, left_result_id: left.id, right_result_id: right.id, unit: right.unit, left_value: left.value, right_value: right.value, raw_delta: right.value - left.value, absolute_delta: Math.abs(right.value - left.value) };
     });
     const convert = converter();
     const view = (source: MechanicsResult) => <DisplayUnitsProvider initialPreference="US" converter={convert}><ComparisonPanel comparison={compared} result={source} onSelectResult={() => {}} /></DisplayUnitsProvider>;
@@ -154,15 +157,15 @@ describe("shared display preference in result renderers", () => {
     const contradictory = structuredClone(result);
     contradictory.results.find(row => row.id === compared.result_deltas[0].right_result_id)!.metadata!.component = "bending_moment_z";
     rendered.rerender(view(contradictory));
-    expect(screen.getByTestId(`comparison-delta-${compared.result_deltas[0].right_result_id}`)).toHaveTextContent("unknown");
+    expect(screen.getByTestId(`comparison-delta-${testId(compared.result_deltas[0].right_result_id)}`)).toHaveTextContent("unknown");
     const future = structuredClone(result);
     future.schema_version = "0.4.0";
     rendered.rerender(view(future));
-    expect(screen.getByTestId(`comparison-delta-${compared.result_deltas[1].right_result_id}`)).toHaveTextContent("unknown");
+    expect(screen.getByTestId(`comparison-delta-${testId(compared.result_deltas[1].right_result_id)}`)).toHaveTextContent("unknown");
     const unknown = structuredClone(result);
     unknown.results.find(row => row.id === compared.result_deltas[0].right_result_id)!.kind = "unregistered_force_like_kind";
     rendered.rerender(view(unknown));
-    expect(screen.getByTestId(`comparison-delta-${compared.result_deltas[0].right_result_id}`)).toHaveTextContent("unknown");
+    expect(screen.getByTestId(`comparison-delta-${testId(compared.result_deltas[0].right_result_id)}`)).toHaveTextContent("unknown");
   });
 
   it("converts rule-check picker and reference preview values without changing selections or pack JSON", async () => {

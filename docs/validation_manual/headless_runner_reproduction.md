@@ -151,15 +151,23 @@ From `projects/chirality-piping`:
 
 ```bash
 python3 validation/witness/inputs/generate_del1005_payload_binding_inputs.py
-cargo run --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- run-benchmark --input validation/witness/inputs/del1005_payload_binding_benchmark_single_case_input.json --output <scratch-output>/del1005_benchmark_single_case.json
-cargo run --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- run-benchmark --input validation/witness/inputs/del1005_payload_binding_benchmark_multi_case_input.json --output <scratch-output>/del1005_benchmark_multi_case.json
-cargo run --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- run-regression --input validation/witness/inputs/del1005_payload_binding_regression_full_suite_input.json --output <scratch-output>/del1005_regression_full_suite.json
-cargo run --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- run-benchmark --input validation/witness/inputs/del1005_payload_binding_benchmark_payload_missing_input.json --output <scratch-output>/del1005_benchmark_payload_missing.json
-cargo run --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- run-regression --input validation/witness/inputs/del1005_payload_binding_regression_payload_missing_input.json --output <scratch-output>/del1005_regression_payload_missing.json
+cargo run --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- run-benchmark --explicit-local-private-intent --input validation/witness/inputs/del1005_payload_binding_benchmark_single_case_input.json --output <scratch-output>/del1005_benchmark_single_case.json
+cargo run --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- run-benchmark --explicit-local-private-intent --input validation/witness/inputs/del1005_payload_binding_benchmark_multi_case_input.json --output <scratch-output>/del1005_benchmark_multi_case.json
+cargo run --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- run-regression --explicit-local-private-intent --input validation/witness/inputs/del1005_payload_binding_regression_full_suite_input.json --output <scratch-output>/del1005_regression_full_suite.json
+cargo run --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- run-benchmark --explicit-local-private-intent --input validation/witness/inputs/del1005_payload_binding_benchmark_payload_missing_input.json --output <scratch-output>/del1005_benchmark_payload_missing.json
+cargo run --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- run-regression --explicit-local-private-intent --input validation/witness/inputs/del1005_payload_binding_regression_payload_missing_input.json --output <scratch-output>/del1005_regression_payload_missing.json
 ```
 
 Expected exits are 0, 0, 0, 1, 1 respectively. The two payload-missing cases
 prove the fail-closed diagnostics, not successful suite execution.
+
+The runner now wraps its CLI output in the local-private export control
+(`payload`, `decisions`, `findings`, `blocked`, `summary`). Without
+`--explicit-local-private-intent` that control blocks the export
+(`LOCAL_PRIVATE_INTENT_REQUIRED`, exit 1) and no `--output` file is written.
+With the flag, each output's `payload` member equals the committed witness
+document as JSON (checked 2026-10-08 at the U3 branch head; the committed files
+predate the wrapper and keep their own key order).
 
 ### Per-Case Reporting and Fail-Closed Semantics
 

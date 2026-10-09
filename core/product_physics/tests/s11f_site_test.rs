@@ -26,8 +26,9 @@
 //!   `s11f_product_tests::f1_*`, `f2_*`, `f3_*`, `f11_*`, `f12_*` and `f14_*`
 //!   (the product publishes the correctly rounded net where the fold differs),
 //!   in both modes, which also covers the sparse_direct path;
-//! - rule 3 and the E-sites of rule 8: `f2_*` (E5, E7, E12), `f8_*` (E8-E11)
-//!   and `f10_*` (E15, E16);
+//! - rule 3 and the E-sites of rule 8: `f2_*` (E5, E7, E12) and `f8_*`
+//!   (E8-E11); E15 and E16, the legacy pressure sums, were retired with
+//!   legacy pressure (U3);
 //! - T1's sites: `f4_*`, `f5_*` and `f6_*`; KS1 through the product: `f9_*`;
 //! - RV1-N6 (the product never calls the public binary64 residual):
 //!   `n6_product_residual_rows_use_the_exact_numerator`.
@@ -214,8 +215,6 @@ const FORBIDDEN_PRODUCT_CALLS: &[&str] = &[
 const PRODUCERS: &[(&str, &str, &str)] = &[
     ("PP/lib.rs", "push_nodal_loads", "nodal loads: one term per load"),
     ("PP/lib.rs", "add_uniform_element_loads", "straight and curved uniform equivalents: one term per (load, DOF)"),
-    ("PP/lib.rs", "add_pressure_thrust_loads", "straight thrust pairs: fl(P*x_a) per axis"),
-    ("PP/lib.rs", "add_curved_bend_pressure_thrust_load", "curved thrust caps fl(P*t_a) and one term per wall slot"),
     ("PP/lib.rs", "add_thermal_equivalent_loads", "straight thermal pairs and T1 eigen pairs: fl(P*x_a) per axis"),
     ("PP/lib.rs", "add_curved_bend_thermal_equivalent_load", "curved thermal: push_formed_product(K_rc, fl(eps*chord_c)) per nonzero column (S11-G: the same exact product term)"),
     ("PP/lib.rs", "push_exact_pressure_operands", "exact pressure: each source group's operand"),
@@ -509,7 +508,6 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/lib.rs", "add_curved_bend_stiffness_contributions", 1, "stiffness assembly"),
     ("PP/lib.rs", "append_component_stress_multiplier_results", 1, "integer: appended count"),
     ("PP/lib.rs", "append_curved_bend_macro_element_results", 1, "integer: appended count"),
-    ("PP/lib.rs", "append_expansion_joint_pressure_thrust_results", 1, "integer: appended count (E16 itself is the exact sum below)"),
     ("PP/lib.rs", "append_expansion_joint_user_stiffness_results", 1, "integer: appended count"),
     ("PP/lib.rs", "append_nonlinear_residual_observation_results", 3, "max folds of residual observations"),
     ("PP/lib.rs", "append_spring_hanger_user_input_results", 3, "integer: appended count"),
@@ -531,13 +529,9 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/lib.rs", "exact_straight_end_forces", 0, "E5"),
     ("PP/lib.rs", "exact_straight_summary_extrema", 0, "E7"),
     ("PP/lib.rs", "restrained_reactions", 0, "E12 (F1b: `SparseStiffness::reactions`, whose formed row is K1's `multiply`)"),
-    ("PP/lib.rs", "pressure_for_pipe", 0, "E15"),
-    ("PP/lib.rs", "pressure_thrusts_for_pipe", 0, "E5/E9/E11 inputs: one entry per thrust load"),
     ("PP/lib.rs", "curved_bend_uniform_intensities_by_pipe", 0, "E10 removed: one intensity per load"),
     ("PP/lib.rs", "push_nodal_loads", 0, "producer"),
     ("PP/lib.rs", "add_uniform_element_loads", 0, "producer"),
-    ("PP/lib.rs", "add_pressure_thrust_loads", 0, "producer"),
-    ("PP/lib.rs", "add_curved_bend_pressure_thrust_load", 0, "producer"),
     ("PP/lib.rs", "add_thermal_equivalent_loads", 0, "producer"),
     ("PP/lib.rs", "add_curved_bend_thermal_equivalent_load", 0, "producer"),
     ("PP/lib.rs", "push_exact_pressure_operands", 0, "producer"),
@@ -564,8 +558,6 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("SP/lib.rs", "multiply_matrix_vector", 1, "formed elastic term K_e*u (section 2.2)"),
     ("SP/lib.rs", "equivalent_nodal_load_terms_with_spans", 0, "E1 per-load terms (E5's input)"),
     ("CB/lib.rs", "consistent_uniform_nodal_loads", 2, "one source's consistent equivalent (section 2.2)"),
-    ("CB/lib.rs", "consistent_radial_pressure_nodal_loads", 2, "one source's consistent equivalent (section 2.2)"),
-    ("CB/lib.rs", "arc_section_resultants_with_radial_pressure", 3, "no product caller since S11-F (E11 uses arc_section_resultant_terms); kept for CB's callers and tests"),
     ("CB/lib.rs", "cross_quad", 1, "flexibility quadrature (stiffness formation)"),
     ("CB/lib.rs", "rotate_to_global", 1, "formed rotation"),
     ("CB/lib.rs", "quad", 1, "flexibility quadrature (stiffness formation)"),
@@ -1369,18 +1361,6 @@ const FORMATION_SITES: &[(&str, &str, &[&str], Option<&[&str]>)] = &[
             "Formation::CannotBound",
         ],
         Some(&["false"]),
-    ),
-    (
-        "add_pressure_thrust_loads",
-        "formed: straight thrust RoundedProduct fl(P*x_a), self-equilibrated pair",
-        &["Formation::RoundedProduct"],
-        Some(&["true"]),
-    ),
-    (
-        "add_curved_bend_pressure_thrust_load",
-        "formed: cap RoundedProduct (self-equilibrated), wall vector CannotBound",
-        &["Formation::RoundedProduct", "Formation::CannotBound"],
-        Some(&["true", "false"]),
     ),
     (
         "add_thermal_equivalent_loads",

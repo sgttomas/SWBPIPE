@@ -77,7 +77,7 @@ const moduleBody = [
 await page.addInitScript(() => {
   globalThis.__uifLoadDiagnostic = { fixtureModuleEvaluated: null, navigationStart: performance.now() };
 });
-await page.route(/(?:invented_preview_model-[^/]+\.js|fixtures\/product_preview\/invented_preview_model\.json)(?:\?.*)?$/, (route) =>
+await page.route(/(?:invented_demo_model-[^/]+\.js|fixtures\/product_preview\/invented_demo_model\.json)(?:\?.*)?$/, (route) =>
   route.fulfill({ status: 200, contentType: "application/javascript", body: moduleBody }));
 
 const navigationStarted = Date.now();

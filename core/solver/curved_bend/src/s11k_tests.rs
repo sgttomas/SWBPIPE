@@ -48,21 +48,10 @@ fn k9_terms_sum_exactly_to_the_combined_section_value() {
                     fraction,
                     [0.0; 6],
                     &[[0.0, g, 0.0], [0.0, n, 0.0], [0.0, -g, 0.0]],
-                    &[],
                 )
                 .unwrap();
             for c in 0..6 {
                 assert_eq!(terms[c].to_bits(), (combined[c] + 0.0).to_bits(), "{c}");
-            }
-            // Thrust terms (G, n, -G) likewise sum to the thrust n alone.
-            let thrust_only = bend
-                .arc_section_resultants_with_radial_pressure(fraction, [0.0; 6], [0.0; 3], n)
-                .unwrap();
-            let thrust_terms = bend
-                .arc_section_resultant_terms(fraction, [0.0; 6], &[], &[g, n, -g])
-                .unwrap();
-            for c in 0..6 {
-                assert_eq!(thrust_terms[c].to_bits(), (thrust_only[c] + 0.0).to_bits());
             }
         }
     }
@@ -77,7 +66,7 @@ fn k9_single_input_controls_are_bit_identical() {
             .arc_section_resultants(fraction, force, [0.0; 3])
             .unwrap();
         let terms = bend
-            .arc_section_resultant_terms(fraction, force, &[], &[])
+            .arc_section_resultant_terms(fraction, force, &[])
             .unwrap();
         for c in 0..6 {
             assert_eq!(
@@ -89,7 +78,7 @@ fn k9_single_input_controls_are_bit_identical() {
         let w = [0.4, -190.0, 3.0];
         let today = bend.arc_section_resultants(fraction, [0.0; 6], w).unwrap();
         let terms = bend
-            .arc_section_resultant_terms(fraction, [0.0; 6], &[w], &[])
+            .arc_section_resultant_terms(fraction, [0.0; 6], &[w])
             .unwrap();
         for c in 0..6 {
             assert_eq!(

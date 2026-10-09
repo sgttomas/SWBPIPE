@@ -590,7 +590,7 @@ describe("the downgrade guard (F-5)", () => {
     expect(retainedPrecisionDowngrade(s)).toBe(false);
   });
   it("applies to every other identity, including legacy 0.1.0 and an unparseable header", () => {
-    const legacy = JSON.parse(readFileSync(resolve(root, "fixtures/product_preview/invented_mechanics_result.json"), "utf8"));
+    const legacy = JSON.parse(readFileSync(resolve(root, "fixtures/product_preview/invented_demo_result_legacy_0_1.json"), "utf8"));
     expect(sourceContract(legacy)).toBe("legacy");
     expect(sourceContract({ ...legacy, retained_precision: {} })).toBe("unsupported");
     expect(numericalResultStanding({ ...legacy, retained_precision: {} }, null).findings).toStrictEqual([RETAINED_PRECISION_DOWNGRADE_FORBIDDEN]);

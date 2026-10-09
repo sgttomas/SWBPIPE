@@ -64,7 +64,6 @@ has an explicit public-original hand-calculation note.
 | `MECH-INCLINED-MEMBER-TRANSFORM` | `inclined_member_transform.md` |
 | `MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL` | `expansion_loop_curved_bend_thermal.md` |
 | `MECH-CURVED-BEND-DISTRIBUTED-FIXED-END` | `curved_bend_distributed_load_fixed_end.md` |
-| `MECH-CURVED-BEND-PRESSURE-THRUST-ARC` | `curved_bend_pressure_thrust_arc.md` |
 | `MECH-TP-PMM-P3-OCCLOADGEN-EQUIVALENT-STATIC` | `tp_pmm_p3_occloadgen_equivalent_static.md` |
 | `MECH-TP-PMM-P3-SUBSPAN-WIND-EXPOSURE` | `tp_pmm_p3_subspan_wind_exposure.md` |
 | `MECH-CONSTANT-EFFORT-SUPPORT-APPLIED-LOAD` | `constant_effort_support_applied_load.md` |
@@ -82,9 +81,11 @@ has an explicit public-original hand-calculation note.
 - `tp_phys_007_station_sweep_resultants.md` records the invented ordered
   station-resultant sweep case.
 - `tp_phys_008_thermal_pressure_axial_effects.md` records the invented
-  thermal-restraint plus pressure-thrust axial-effect case.
+  thermal-restraint axial-effect case (its pressure-thrust half was removed
+  with the legacy pressure contract, U3).
 - `tp_phys_009_combined_load_axial_effects.md` records the invented combined
-  distributed user-load plus thermal/pressure axial-effect integration case.
+  distributed user-load plus thermal axial-effect integration case (its
+  pressure-thrust half was removed with the legacy pressure contract, U3).
 - `tp_phys_014_canonical_analytical_payload.md` records the invented canonical
   analytical payload consumption case.
 - `tp_phys_015a_canonical_solve_result_envelope.md` records the

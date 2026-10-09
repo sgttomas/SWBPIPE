@@ -246,7 +246,6 @@ impl CapturedInvocation {
                 load_case: case,
                 load_application: &application,
                 thermal_loads: &eigen,
-                pressure_thrust_loads: &[],
                 load_state: Some(resolved),
             })
             .map_err(|e| bad(format!("captured source replay: {e:?}")))?;
@@ -363,7 +362,6 @@ impl CapturedInvocation {
                 load_case: case,
                 load_application: &application,
                 thermal_loads: &[],
-                pressure_thrust_loads: &[],
                 load_state: None,
             })
             .map_err(|e| bad(format!("captured source replay: {e:?}")))?;
@@ -669,7 +667,6 @@ impl FinalizedSourceBlockCase {
                     load_case: input.load_case,
                     load_application: input.load_application,
                     thermal_loads: input.thermal_loads,
-                    pressure_thrust_loads: input.pressure_thrust_loads,
                     load_state: input.load_state,
                 })
                 .map_err(|e| bad(format!("current source binding: {e:?}")))?;

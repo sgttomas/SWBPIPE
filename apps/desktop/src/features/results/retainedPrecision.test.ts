@@ -1288,6 +1288,9 @@ describe('B1 SR-TS repair 01: (g) at G8, and the C2 cause table keyed by precond
       ['pressure_contract false', [set(model('pressure_contract'), false)]],
       ['pressure_contract {}', [set(model('pressure_contract'), {})]],
       ['pressure_contract 0', [set(model('pressure_contract'), 0)]],
+      // U3: the retired legacy pressure label is refused here, at any schema.
+      ['pressure_contract 1.0.0/legacy_pressure_v1 (retired)', [set(model('pressure_contract'), { version: '1.0.0', mode: 'legacy_pressure_v1' })]],
+      ['schema 0.3.0 with pressure_contract 1.0.0/legacy_pressure_v1 (retired)', [set(model('schema_version'), '0.3.0'), set(model('pressure_contract'), { version: '1.0.0', mode: 'legacy_pressure_v1' })]],
       ['combinations null', [set(model('combinations'), null)]],
       ['combinations {"x": 1}', [set(model('combinations'), { x: 1 })]],
       ['components null', [set(model('components'), null)]],

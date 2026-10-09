@@ -45,7 +45,7 @@ describe("current-session input manifest", () => {
     expect(first.manifest_sha256).toMatch(/^[0-9a-f]{64}$/);
     expect(first.manifest_ref).toEqual({
       object_type: "InputManifest",
-      ref: `input-manifest:project-invented-loop-01:${first.manifest_sha256}`,
+      ref: `input-manifest:project-invented-demo-loop-01:${first.manifest_sha256}`,
     });
     expect(first.canonical_bytes).toBe(
       JSON.stringify(JSON.parse(first.canonical_bytes)),
@@ -100,7 +100,7 @@ describe("current-session input manifest", () => {
     );
     const wrongPrefix = structuredClone(evidence);
     wrongPrefix.manifest_ref.ref =
-      `result-envelope:project-invented-loop-01:${evidence.manifest_sha256}`;
+      `result-envelope:project-invented-demo-loop-01:${evidence.manifest_sha256}`;
     await expect(
       verifyCurrentSessionInputManifest(wrongPrefix),
     ).rejects.toThrow("INPUT-MANIFEST-HASH-MISMATCH");

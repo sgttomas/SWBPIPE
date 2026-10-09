@@ -1,4 +1,4 @@
-import { loadPreviewModel, loadBundledMechanicsReference, hasNativeMechanicsInvocation } from "../../services/previewService";
+import { loadBundledMechanicsReference, hasNativeMechanicsInvocation } from "../../services/previewService";
 import { buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 // Rider coverage for TP-SEAM-CORPUS-001 (operation-seam unification plan §3
@@ -225,8 +225,9 @@ describe("LocalFeaHandoffPanel result-summary boundary hygiene", () => {
 
 // Pure received-hash inspection of preserved reference data. This constructs
 // an analysis record, never a native invocation or Current/qualified export.
-async function referencePrecisionAnalysis() {
-  const model = await loadPreviewModel(), reference = await loadBundledMechanicsReference();
+async function referenceAnalysis() {
+  // The bundled reference carries its own demo model; the session model is not its basis.
+  const reference = await loadBundledMechanicsReference(), model = reference.model;
   const result = reference.source;
   const manifest = {
     model_basis: { model_ref: model.project.id, model_payload: model },
@@ -244,7 +245,7 @@ async function referencePrecisionAnalysis() {
 
 describe("Local FEA received-result hash binding", () => {
   it("retains the reference received hash and discloses unsupported future versions", async () => {
-    const session = await referencePrecisionAnalysis();
+    const session = await referenceAnalysis();
     const before = JSON.stringify(session);
     const packet = buildLocalFeaHandoffPacket(session);
     expect(packet.handoff_package.source_refs.result_hash.value).toBe(session.receivedHash);

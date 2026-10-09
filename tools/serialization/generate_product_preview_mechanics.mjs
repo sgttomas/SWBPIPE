@@ -1,8 +1,9 @@
 // Generate example transport data from the actual product. No numerical outcome
-// is upgraded, and the immutable legacy fixture is never a write destination.
-// Default mode: the historical precision-1 pair, which it refuses to overwrite
-// with any other identity. `--preview-physics-1`: the preview-physics-1 pair and
-// its own record; the precision-1 pair and record are never its destinations.
+// is upgraded, and no input model is ever a write destination.
+// Default mode: the browser's bundled demo, the valid invented_demo_model's
+// solved preview-physics-1 pair, plus its historical-format carrier (below), and
+// their record. `--preview-physics-1`: the refused invented_preview_model's
+// preview-physics-1 pair and its own record. Neither mode writes the other's files.
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, readdirSync, lstatSync, realpathSync,
@@ -13,18 +14,24 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const manifest = "core/product_physics/Cargo.toml";
 const generator = "core/product_physics/examples/preview_result.rs";
-const input = "fixtures/product_preview/invented_preview_model.json";
-const legacy = "fixtures/product_preview/invented_mechanics_result.json";
 const recipe = "tools/serialization/generate_product_preview_mechanics.mjs";
-const precisionRecordPath = "fixtures/product_preview/precision_fixture_generation.json";
-const precisionOutput = suffix => `fixtures/product_preview/invented_mechanics_result_precision_1_${suffix}.json`;
-const previewOutput = suffix => `fixtures/product_preview/invented_mechanics_result_preview_physics_1_${suffix}.json`;
+const previewContract = "openpipestress.result_semantics/0.3.0/preview-physics-1";
+// Both models are compiled into the generator, so both are inputs of every run.
+const models = {
+  demo: "fixtures/product_preview/invented_demo_model.json",
+  refused: "fixtures/product_preview/invented_preview_model.json",
+};
 const configs = {
-  precision: { contract: "openpipestress.result_semantics/0.3.0/precision-1", output: precisionOutput,
-    record: precisionRecordPath, stagePrefix: ".precision-generation-", label: "Precision" },
-  preview: { contract: "openpipestress.result_semantics/0.3.0/preview-physics-1", output: previewOutput,
+  demo: { contract: previewContract, model: "invented_demo_model", input: models.demo, requireSolved: true,
+    output: suffix => `fixtures/product_preview/invented_demo_result_preview_physics_1_${suffix}.json`,
+    legacyCarrier: "fixtures/product_preview/invented_demo_result_legacy_0_1.json",
+    record: "fixtures/product_preview/demo_fixture_generation.json", stagePrefix: ".demo-generation-", label: "Demo" },
+  preview: { contract: previewContract, model: "invented_preview_model", input: models.refused, requireSolved: false,
+    output: suffix => `fixtures/product_preview/invented_mechanics_result_preview_physics_1_${suffix}.json`,
+    legacyCarrier: null,
     record: "fixtures/product_preview/preview_physics_fixture_generation.json", stagePrefix: ".preview-physics-generation-", label: "Preview-physics" },
 };
+const destinations = config => [config.record, ...modes.map(([, suffix]) => config.output(suffix)), ...(config.legacyCarrier ? [config.legacyCarrier] : [])];
 const modes = [
   ["sparse_interactive", "sparse", 1],
   ["dense_scrutiny", "dense", 2],
@@ -87,7 +94,7 @@ function dependencyInventory(meta) {
     .sort((a, b) => JSON.stringify(a) < JSON.stringify(b) ? -1 : JSON.stringify(a) > JSON.stringify(b) ? 1 : 0);
 }
 function sourceInventory(meta) {
-  const names = new Set([manifest, generator, input, legacy, recipe, "package.json"]);
+  const names = new Set([manifest, generator, models.demo, models.refused, recipe, legacySemantics, "package.json"]);
   function walk(relative) {
     for (const entry of readdirSync(checkedPath(relative, "directory"), { withFileTypes: true })) {
       if (["target", ".git", "node_modules", "__pycache__"].includes(entry.name)) continue;
@@ -120,11 +127,12 @@ function validate(result, mode, value, model, config) {
   exact(result.document_kind, "openpipestress.product_preview.mechanics_result", "unexpected document kind");
   exact(result.producer?.component_name, "open_pipe_stress_product_physics", "unexpected producer");
   exact(result.producer?.component_version, "0.2.0", "unexpected producer version");
-  // The default mode refuses rather than overwrite precision-1 fixtures with
-  // another identity (a fresh non-exact solve is preview-physics-1 after T0R).
+  // A fresh non-exact solve is preview-physics-1 (T0R); any other identity is refused.
   exact(result.producer?.semantic_contract_id, config.contract, `unexpected semantics for ${config.label} mode`);
   exact(result.model_ref, model.project.id, "output/input model mismatch");
   if (!["MECHANICS_SOLVED", "MODEL_INCOMPLETE"].includes(result.status?.mechanics)) fail("unknown mechanics status");
+  // The bundled demo must be a solved result; a refusal is never installed as the demo.
+  if (config.requireSolved && result.status.mechanics !== "MECHANICS_SOLVED") fail(`${config.label} model did not solve: ${result.status.mechanics}`);
   const quality = result.numerical_quality;
   const statuses = ["checks_passed", "sensitive", "not_assessed", "unresolved", "failed"];
   if (!quality || !statuses.includes(quality.status) || !Array.isArray(quality.cases)) fail("missing numerical evidence");
@@ -165,6 +173,114 @@ function validate(result, mode, value, model, config) {
   }
 }
 
+// The historical-format carrier of the demo's sparse output, for consumers that
+// read the legacy 0.1.0 result format. It is the producer's exact text with:
+// - the four 0.2.0 header members (producer, numerical_quality,
+//   formulation_basis, contract_evidence) removed;
+// - schema_version set to 0.1.0;
+// - every result row whose kind the historical 0.1.0 result semantics
+//   (`legacySemantics`) do not define removed, since a 0.1.0 reader has no
+//   meaning for it;
+// - a summary headline whose result row was removed set to null (withheld), so
+//   no reference dangles, and a nonzero summary count of a removed kind's rows
+//   (`carrierCountedKinds`) set to null, so the summary describes only the rows
+//   the carrier carries.
+// Every remaining byte is the producer's; no kept row, value, other summary
+// member or diagnostic is changed. It is a format carrier for readers' tests,
+// not a producer output and not a legacy computation.
+const carrierRemoved = ["producer", "numerical_quality", "formulation_basis", "contract_evidence"];
+const legacySemantics = "fixtures/results/semantic_contract_v0_2.json";
+// Summary counts and the row kind each counts (the producer sets
+// component_stress_modifier_count to the number of intensified bending rows).
+const carrierCountedKinds = { component_stress_modifier_count: "component_equal_factor_intensified_bending_stress_v1" };
+function legacyKinds() {
+  const kinds = new Set((parse(bytes(legacySemantics)).rows ?? []).map(row => row.kind));
+  if (!kinds.size || [...kinds].some(kind => typeof kind !== "string" || !kind)) fail("legacy carrier: no historical result kinds");
+  return kinds;
+}
+function legacyCarrier(raw) {
+  const kinds = legacyKinds();
+  const lines = decode(raw).split("\n");
+  const kept = [];
+  let skipping = false;
+  for (const line of lines) {
+    // A pretty-printed top-level member starts with exactly two spaces and a quote.
+    const member = /^  "([^"]+)": /.exec(line);
+    if (member) skipping = carrierRemoved.includes(member[1]);
+    else if (line === "}") skipping = false;
+    if (!skipping) kept.push(line);
+  }
+  const close = kept.lastIndexOf("}");
+  if (close < 1) fail("legacy carrier: no closing brace");
+  kept[close - 1] = kept[close - 1].replace(/,$/, "");
+  const schema = kept.findIndex(line => line === '  "schema_version": "0.2.0",');
+  if (schema < 0 || kept.filter(line => line.startsWith('  "schema_version": ')).length !== 1) fail("legacy carrier: schema_version line");
+  kept[schema] = '  "schema_version": "0.1.0",';
+  // Result rows are the pretty-printed elements of "results" at four spaces.
+  const open = kept.indexOf('  "results": [');
+  const end = kept.findIndex((line, index) => index > open && /^  \],?$/.test(line));
+  if (open < 0 || end < 0 || kept.filter(line => line === '  "results": [').length !== 1) fail("legacy carrier: results array");
+  const elements = [];
+  for (let index = open + 1; index < end;) {
+    if (kept[index] !== "    {") fail("legacy carrier: result row start");
+    const stop = kept.findIndex((line, at) => at > index && /^    \},?$/.test(line));
+    if (stop < 0) fail("legacy carrier: result row end");
+    const block = kept.slice(index, stop + 1);
+    block[block.length - 1] = "    }";
+    elements.push(block);
+    index = stop + 1;
+  }
+  const rows = elements.filter(block => kinds.has(JSON.parse(block.join("\n")).kind));
+  const keptIds = new Set(rows.map(block => JSON.parse(block.join("\n")).id));
+  rows.forEach((block, index) => { block[block.length - 1] = index === rows.length - 1 ? "    }" : "    },"; });
+  let carried = [...kept.slice(0, open + 1), ...rows.flat(), ...kept.slice(end)];
+  // Summary headlines are pretty-printed members of "summary" at four spaces.
+  const summaryOpen = carried.indexOf('  "summary": {');
+  const summaryEnd = carried.findIndex((line, index) => index > summaryOpen && /^  \},?$/.test(line));
+  if (summaryOpen < 0 || summaryEnd < 0) fail("legacy carrier: summary object");
+  const summary = [];
+  const nulled = [];
+  for (let index = summaryOpen + 1; index < summaryEnd;) {
+    const member = /^    "([^"]+)": (.*)$/.exec(carried[index]);
+    if (!member) fail("legacy carrier: summary member");
+    if (member[2] !== "{") {
+      const counted = carrierCountedKinds[member[1]];
+      if (counted && !kinds.has(counted) && JSON.parse(member[2].replace(/,$/, "")) !== 0) {
+        nulled.push(member[1]);
+        summary.push(`    "${member[1]}": null${member[2].endsWith(",") ? "," : ""}`);
+      } else summary.push(carried[index]);
+      index += 1;
+      continue;
+    }
+    const stop = carried.findIndex((line, at) => at > index && /^    \},?$/.test(line));
+    if (stop < 0) fail("legacy carrier: summary member end");
+    const block = carried.slice(index, stop + 1);
+    const value = JSON.parse(`{${block.join("\n").replace(/,$/, "")}}`)[member[1]];
+    if (typeof value?.result_ref === "string" && !keptIds.has(value.result_ref)) {
+      nulled.push(member[1]);
+      summary.push(`    "${member[1]}": null${block[block.length - 1].endsWith(",") ? "," : ""}`);
+    } else summary.push(...block);
+    index = stop + 1;
+  }
+  carried = [...carried.slice(0, summaryOpen + 1), ...summary, ...carried.slice(summaryEnd)];
+  const payload = Buffer.from(carried.join("\n"));
+  // Structural check: exactly the source minus the four members and the
+  // undefined kinds' rows, schema 0.1.0, key order kept.
+  const expected = parse(raw);
+  for (const key of carrierRemoved) {
+    if (!Object.hasOwn(expected, key)) fail(`legacy carrier: source lacks ${key}`);
+    delete expected[key];
+  }
+  expected.schema_version = "0.1.0";
+  expected.results = expected.results.filter(row => kinds.has(row.kind));
+  for (const key of nulled) expected.summary[key] = null;
+  exact(JSON.stringify(parse(payload)), JSON.stringify(expected), "legacy carrier differs from its source");
+  const ids = new Set(expected.results.map(row => row.id));
+  if (Object.values(expected.summary).some(value => typeof value?.result_ref === "string" && !ids.has(value.result_ref))) fail("legacy carrier: dangling summary reference");
+  return { payload, removedKinds: [...new Set(parse(raw).results.map(row => row.kind).filter(kind => !kinds.has(kind)))].sort(),
+    removedRows: parse(raw).results.length - expected.results.length, nulledSummary: nulled };
+}
+
 // Capture/validation finish before staging. Durable rollback preimages are
 // written and synced before any replacement; the hash record commits last.
 // Process/power-loss multi-file atomicity is not claimed.
@@ -173,9 +289,10 @@ function replaceSet(items, config) {
   const stage = mkdtempSync(path.join(directory, config.stagePrefix));
   const stageRelative = portable(stage);
   checkedPath(stageRelative, "directory");
-  const allowed = new Set([config.record, ...modes.map(([, suffix]) => config.output(suffix))]);
-  // The preview mode never writes the historical precision-1 pair or its record.
-  const forbidden = new Set([legacy, ...(config === configs.preview ? [precisionRecordPath, ...modes.map(([, suffix]) => precisionOutput(suffix))] : [])]);
+  const allowed = new Set(destinations(config));
+  // No mode writes an input model or another mode's files.
+  const forbidden = new Set([models.demo, models.refused,
+    ...Object.values(configs).filter(other => other !== config).flatMap(destinations)]);
   const staged = [];
   const installed = [];
   let retainRecovery = false;
@@ -188,7 +305,7 @@ function replaceSet(items, config) {
     finally { closeSync(descriptor); }
   }
   try {
-    if (items.length !== allowed.size || new Set(items.map(([name]) => name)).size !== allowed.size) fail("generation requires exactly three distinct destinations");
+    if (items.length !== allowed.size || new Set(items.map(([name]) => name)).size !== allowed.size) fail(`generation requires exactly ${allowed.size} distinct destinations`);
     items.forEach(([name, payload], index) => {
       if (!allowed.has(name) || forbidden.has(name)) fail("forbidden generation destination");
       const target = checkedPath(name, "file", true);
@@ -242,49 +359,60 @@ function replaceSet(items, config) {
 try {
   const usage = "usage: node tools/serialization/generate_product_preview_mechanics.mjs [--preview-physics-1]";
   if (process.argv.length > 3 || (process.argv.length === 3 && process.argv[2] !== "--preview-physics-1")) fail(usage);
-  const config = process.argv.length === 3 ? configs.preview : configs.precision;
+  const config = process.argv.length === 3 ? configs.preview : configs.demo;
   validateRoot();
   checkedPath("fixtures/product_preview", "directory");
-  for (const fixed of [manifest, generator, input, legacy, recipe, "package.json"]) checkedPath(fixed, "file");
+  for (const fixed of [manifest, generator, models.demo, models.refused, recipe, "package.json"]) checkedPath(fixed, "file");
   const meta = metadata();
   const before = sourceInventory(meta);
   const beforeText = JSON.stringify(before);
-  const model = parse(bytes(input));
+  const model = parse(bytes(config.input));
   const outputs = [];
   const fixtureWrites = [];
   for (const [mode, suffix, value] of modes) {
-    const args = ["run", "--offline", "--locked", "--quiet", "--manifest-path", manifest, "--example", "preview_result", "--", mode];
+    const args = ["run", "--offline", "--locked", "--quiet", "--manifest-path", manifest, "--example", "preview_result", "--", mode, config.model];
     const captured = command("cargo", args);
     const result = parse(captured.stdout);
     validate(result, mode, value, model, config);
     const outputPath = config.output(suffix);
     fixtureWrites.push([outputPath, captured.stdout]); // exact raw stdout, no reserialization
+    // stderr is passed through, not recorded: cargo's warnings carry the checkout's
+    // absolute paths, so a hash of it would differ in every checkout.
     outputs.push({ mode, path: outputPath, sha256: sha(captured.stdout), command: ["cargo", ...args],
-      stderr_sha256: sha(captured.stderr), exit_code: 0, model_ref: result.model_ref,
+      exit_code: 0, model_ref: result.model_ref,
       mechanics_status: result.status.mechanics, numerical_status: result.numerical_quality.status,
       row_count: result.results.length, load_case_ids: result.numerical_quality.cases.map(c => c.basis_ref.ref_id) });
+  }
+  const derivedOutputs = [];
+  if (config.legacyCarrier) {
+    const [source, raw] = fixtureWrites.find(([name]) => name === config.output("sparse"));
+    const { payload, removedKinds, removedRows, nulledSummary } = legacyCarrier(raw);
+    fixtureWrites.push([config.legacyCarrier, payload]);
+    derivedOutputs.push({ path: config.legacyCarrier, sha256: sha(payload), derived_from: { path: source, sha256: sha(raw) },
+      schema_version: "0.1.0", removed_members: carrierRemoved,
+      historical_kinds: { path: legacySemantics, sha256: before[legacySemantics] }, removed_row_kinds: removedKinds, removed_row_count: removedRows,
+      row_count: parse(payload).results.length, nulled_summary_members: nulledSummary,
+      derivation: "The derived_from file's exact bytes with the removed top-level members deleted, schema_version set to 0.1.0, the rows of the removed_row_kinds (kinds the historical_kinds file does not define) deleted, and each nulled_summary_members member set to null: a headline whose row was deleted, or a nonzero count of a removed kind's rows. No kept row, value, other summary member or diagnostic changed. A historical-format carrier for legacy-format readers' tests, not producer output." });
   }
   const afterMeta = metadata();
   exact(JSON.stringify(dependencyInventory(afterMeta)), JSON.stringify(dependencyInventory(meta)), "dependency resolution changed during generation");
   const after = sourceInventory(afterMeta);
-  exact(JSON.stringify(after), beforeText, "source/input/lock/legacy changed during generation; no fixture replacement");
+  exact(JSON.stringify(after), beforeText, "source/input/lock changed during generation; no fixture replacement");
   const record = {
     record_kind: "actual_product_generated_example_fixture_basis", path_base: "projects/chirality-piping",
     recipe: { path: recipe, sha256: before[recipe] }, generator: { path: generator, sha256: before[generator] },
-    input_model: { path: input, sha256: before[input] },
-    historical_fixture_preserved: { path: legacy, sha256: before[legacy] },
-    ...(config === configs.preview ? { semantic_contract_id: config.contract,
-      historical_precision_fixtures_preserved: [precisionRecordPath, ...modes.map(([, suffix]) => precisionOutput(suffix))]
-        .map(name => ({ path: name, sha256: sha(bytes(name)) })) } : {}),
+    input_model: { path: config.input, sha256: before[config.input], generator_argument: config.model },
+    semantic_contract_id: config.contract,
     source_input_files: before, source_input_files_after: after,
     inventory_json_sha256: sha(Buffer.from(beforeText)),
     dependencies: dependencyInventory(meta),
     tools: { node: process.version, cargo: decode(command("cargo", ["--version"]).stdout).trim(), rustc: decode(command("rustc", ["--version"]).stdout).trim() },
-    outputs, provenance: "Actual unchanged-input Rust executions; raw stdout retained as fixture bytes. No headers, quality or numeric values synthesized. Example transport data, not independent physics or source/build authentication.",
+    outputs, ...(derivedOutputs.length ? { derived_outputs: derivedOutputs } : {}),
+    provenance: "Actual unchanged-input Rust executions; raw stdout retained as fixture bytes. No headers, quality or numeric values synthesized. Example transport data, not independent physics or source/build authentication.",
   };
   exact(JSON.stringify(sourceInventory(meta)), beforeText, "source/input changed before commit");
   replaceSet([...fixtureWrites, [config.record, Buffer.from(`${JSON.stringify(record, null, 2)}\n`)]], config);
-  process.stdout.write(`${JSON.stringify({ generated: outputs.map(output => output.path), record: config.record })}\n`);
+  process.stdout.write(`${JSON.stringify({ generated: [...outputs, ...derivedOutputs].map(output => output.path), record: config.record })}\n`);
 } catch (error) {
   process.stderr.write(`Product preview fixture generation failed: ${error.message}\n`);
   process.exitCode = 1;

@@ -14,9 +14,14 @@
 use serde::Serialize;
 use serde_json::{json, Value};
 
-/// Automatic migration target for legacy model documents. Explicit pressure
-/// profiles use the separately supported 0.3.0 identity below; legacy documents
-/// are never silently assigned a pressure formulation or closure inputs.
+/// Automatic migration target for model documents without a pressure contract
+/// (0.1.0, 0.2.0). Explicit pressure profiles use the separately supported 0.3.0
+/// identity below; a document without a contract is never silently assigned a
+/// pressure formulation or closure inputs. Such documents are pressure-free: the
+/// legacy pressure contract is retired product-wide (U3), so the product refuses
+/// a pressure primitive in them, and a 0.3.0 document declaring
+/// 1.0.0/legacy_pressure_v1, with PRESSURE_MODEL_REAUTHOR_REQUIRED on solve. No
+/// migration rewrites either; the user re-authors to the exact profile.
 /// DEC-033 (2026-06-12): 0.2.0 adds the optional combination shape fields
 /// introduced by TP-APP-R2-COMBEXPR-001; any change to what a document can
 /// contain bumps minor, with patch reserved for non-shape changes.

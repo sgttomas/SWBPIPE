@@ -7,8 +7,8 @@ import {createNativeMechanicsReplay,nativeMechanicsReplayPair} from '../../test/
 const invokeMock=vi.hoisted(()=>vi.fn());
 vi.mock('@tauri-apps/api/core',()=>({invoke:invokeMock}));
 afterEach(()=>{invokeMock.mockReset();delete (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__;});
-import modelJson from '../../../../../fixtures/product_preview/invented_preview_model.json';
-import resultJson from '../../../../../fixtures/product_preview/invented_mechanics_result.json';
+import modelJson from '../../../../../fixtures/product_preview/invented_demo_model.json';
+import resultJson from '../../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json';
 import metadataFixtures from '../../../../../fixtures/results/invented/result_export_v0_2.json';
 import annotationFixtures from '../../../../../fixtures/results/invented/result_export_v0_2_rejections.json';
 import type {PreviewModel,MechanicsResult} from '../../types';

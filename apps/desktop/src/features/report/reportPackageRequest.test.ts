@@ -3,10 +3,12 @@ import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../../te
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 afterEach(() => { invokeMock.mockReset(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; });
-import { buildAnalysisRunPreview, buildPreviewComparison, loadPreviewModel, runPreviewMechanics } from "../../services/previewService";
+import { buildAnalysisRunPreview, buildPreviewComparison, runPreviewMechanics } from "../../services/previewService";
 import { canonicalSha256Hex, canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
-import historicalResult from "../../../../../fixtures/product_preview/invented_mechanics_result.json";
+import historicalResult from "../../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json";
+import demoModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
+import inventedPreviewModel from "../../../../../fixtures/product_preview/invented_preview_model.json";
 import { analysisRecordProjection, buildAnalysisRunV02, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import {resultSemantics} from "../results/resultSemantics";
@@ -23,12 +25,13 @@ import componentProvenanceProjection from "../../../../../fixtures/reports/inven
 // exercised below the gate with the historical precision-1 session as data
 // (`assembleReportPackageRequestBelowAvailabilityGate`, a test-only seam).
 
-// Unit transport simulation: the unchanged historical 0.1.0 producer record for
-// the invented model is returned through mocked native IPC, so the production
+// Unit transport simulation: the bundled demo's historical-format (0.1.0) carrier
+// is returned through mocked native IPC for the demo model, so the production
 // registrar binds it to the actual captured request. NOT a live solve or native
 // UI witness; it only keeps the legacy report-package path under test.
+const loadDemoModel = async () => structuredClone(demoModel) as PreviewModel;
 async function legacySession(solverBuildRef = "open_pipe_stress_product_physics@0.1.0") {
-  const model = await loadPreviewModel();
+  const model = await loadDemoModel();
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   invokeMock.mockImplementation(async (command: string) => {
     if (command !== "run_preview_mechanics_with_solver_mode") throw new Error(`LEGACY_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
@@ -73,9 +76,11 @@ async function currentSession(profile: "precision" | "physics" | "preview" = "pr
 }
 
 // Historical projection compatibility only: no fresh solve is requested for
-// the provenance-edited model, and the received legacy carrier stays unchanged.
+// the provenance-edited model. The received legacy carrier's rows stand for the
+// given model's record (its model_ref is bound to that model); nothing else changes.
 async function legacyProvenanceSession(model: PreviewModel) {
   const result = structuredClone(historicalResult) as MechanicsResult;
+  result.model_ref = model.project.id;
   const inputManifest = await buildCurrentSessionInputManifest({
     model,
     solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: "open_pipe_stress_product_physics@0.1.0", solver_mode: "sparse_interactive", settings: {} },
@@ -87,7 +92,10 @@ async function legacyProvenanceSession(model: PreviewModel) {
 
 describe("report-package current-session request", () => {
   it("preserves the legacy component-provenance oracle through pure report projection", async () => {
-    const modelWithMissingProvenance = structuredClone(await loadPreviewModel());
+    // The cross-layer oracle is pinned on the invented preview model (not the
+    // default session model, which is the demo); the projection reads only the
+    // model's component provenance.
+    const modelWithMissingProvenance = structuredClone(inventedPreviewModel) as unknown as PreviewModel;
     const missingComponent = modelWithMissingProvenance.components.find(
       (component) => component.id === "component:C-140"
     );
@@ -110,7 +118,7 @@ describe("report-package current-session request", () => {
     const projected = await buildRenderableReportInput({ model, result, analysisRun, projectSummary: null });
     const historicalIdentity = { solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: "open_pipe_stress_product_physics@0.1.0" };
     expect(analysisRun.analysis_run.solver_version).toMatchObject({ solver_name: historicalIdentity.solver_name, solver_version: historicalIdentity.solver_version, build_ref: { ref: historicalIdentity.solver_build_ref } });
-    expect(result).toEqual(historicalResult);
+    expect(result).toEqual({ ...historicalResult, model_ref: model.project.id });
     const sections = projected.report_sections;
     const presentId = componentProvenanceProjection.present_component.value.value_id;
     const missingId = componentProvenanceProjection.missing_component.value.value_id;
@@ -213,7 +221,7 @@ describe("report-package current-session request", () => {
   });
 
   it("preserves historical fixture component and hanger input oracles as an unqualified projection", async () => {
-    const session = await legacyProvenanceSession(await loadPreviewModel());
+    const session = await legacyProvenanceSession(await loadDemoModel());
     const before = JSON.stringify(session);
     const projection = projectReceivedReportResults(session.result, session.analysisRun);
     const report = await buildRenderableReportInput({ ...session, projectSummary: null });
@@ -402,7 +410,7 @@ describe("report-package current-session request", () => {
     ).rejects.toThrow("INPUT-MANIFEST-HASH-MISMATCH");
 
     for (const ref of [
-      `result-envelope:project-invented-loop-01:${inputManifest.manifest_sha256}`,
+      `result-envelope:project-invented-demo-loop-01:${inputManifest.manifest_sha256}`,
       `input-manifest:project-different:${inputManifest.manifest_sha256}`
     ]) {
       const wrongIdentity = structuredClone(inputManifest);
@@ -437,7 +445,7 @@ describe("report-package current-session request", () => {
   });
 
   it("discloses a synthetic unknown row on the unqualified historical projection without inferring force from N", async () => {
-    const { model, result, inputManifest } = await legacyProvenanceSession(await loadPreviewModel());
+    const { model, result, inputManifest } = await legacyProvenanceSession(await loadDemoModel());
     const annotated = structuredClone(result);
     const unknownId = "result:test:unregistered-source";
     annotated.results.push({ id: unknownId, entity_ref: model.project.id, kind: "unregistered_source_kind", value: 1, unit: "N" });

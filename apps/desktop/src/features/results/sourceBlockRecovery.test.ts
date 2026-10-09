@@ -55,24 +55,29 @@ import request5Text from '../../../../../fixtures/product_preview/source_blocks/
 const request5 = JSON.parse(request5Text);
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { invoke } from '@tauri-apps/api/core';
-import { runPreviewMechanics, startPreviewMechanicsJob, pollPreviewMechanicsJob, cancelPreviewMechanicsJob, hasNativeMechanicsInvocation, retainedNativeMechanicsInvocation, loadBundledMechanicsReference } from '../../services/previewService';
+import { loadPreviewModel, runPreviewMechanics, startPreviewMechanicsJob, pollPreviewMechanicsJob, cancelPreviewMechanicsJob, hasNativeMechanicsInvocation, retainedNativeMechanicsInvocation, loadBundledMechanicsReference } from '../../services/previewService';
 vi.mock('@tauri-apps/api/core', () => ({invoke:vi.fn()}));
 afterEach(() => { delete (window as any).__TAURI_INTERNALS__; window.localStorage.clear(); vi.resetAllMocks(); });
-import precisionFixture from '../../../../../fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json';
-import modelFixture from '../../../../../fixtures/product_preview/invented_preview_model.json';
+import ordinaryFixture from '../../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json';
+import modelFixture from '../../../../../fixtures/product_preview/invented_demo_model.json';
 import { canonicalSha256HexCheckedV1 } from '../../services/hashService';
 import { sourceContract, numericalResultStanding, PRECISION_CONTRACT_ID } from './numericalResultQuality';
 import { SOURCE_BLOCKS_CONTRACT_ID, sourceBlockReceiptShape, validateSourceBlockRecovery, sourceBlockStanding, retainedSourceBlockInvocation } from './sourceBlockRecovery';
 import type { MechanicsResult, PreviewModel } from '../../types';
 
 // Synthetic validator control, not a claimed product/source-recovery execution.
-// The underlying ordinary producer rows are genuine; the wrapper is deliberately
-// built here to probe structural/header/binding rejection independently of solve.
+// The underlying ordinary producer rows are genuine (the bundled demo's sparse
+// output); the wrapper is deliberately built here to probe structural/header/binding
+// rejection independently of solve. Its preview evidence is not part of the wrapper.
 async function ordinaryControl() {
-  const source = structuredClone(precisionFixture) as MechanicsResult;
+  const source = structuredClone(ordinaryFixture) as MechanicsResult;
+  delete source.contract_evidence;
   const model = structuredClone(modelFixture) as PreviewModel;
   model.combinations = [];
-  source.results = source.results.filter(r => r.basis_ref?.ref_type !== 'combination');
+  // The source-blocks ordinary ledger carries only rows of its own kinds, so the
+  // five preview-physics-1-only kinds are left out of this synthetic wrapper.
+  const previewOnly = ['support_reaction_component_v2', 'support_reaction_force_magnitude_v2', 'support_reaction_moment_magnitude_v2', 'pipe_elastic_normal_stress_maximum_v2', 'component_equal_factor_intensified_bending_stress_v1'];
+  source.results = source.results.filter(r => r.basis_ref?.ref_type !== 'combination' && !previewOnly.includes(r.kind));
   const invocation = {request:{model,materials:[]},solver_mode:'sparse_interactive' as const};
   source.producer!.semantic_contract_id = SOURCE_BLOCKS_CONTRACT_ID;
   const body = {
@@ -97,12 +102,12 @@ async function rehash(source: MechanicsResult) {
 describe('source-blocks receipt boundary', () => {
   it('rejects receipt presence on ordinary, legacy and unknown headers, including falsy values', () => {
     for (const value of [null,false,0,{},'']) {
-      const source = structuredClone(precisionFixture) as MechanicsResult;source.source_block_recovery=value;
+      const source = structuredClone(ordinaryFixture) as MechanicsResult;source.source_block_recovery=value;
       expect(sourceContract(source)).toBe('unsupported');
-      source.schema_version='0.1.0';delete source.producer;delete source.numerical_quality;delete source.formulation_basis;
+      source.schema_version='0.1.0';delete source.producer;delete source.numerical_quality;delete source.formulation_basis;delete source.contract_evidence;
       expect(sourceContract(source)).toBe('unsupported');
     }
-    const unknown=structuredClone(precisionFixture) as MechanicsResult;unknown.producer!.semantic_contract_id=SOURCE_BLOCKS_CONTRACT_ID+'/future';expect(sourceContract(unknown)).toBe('unsupported');
+    const unknown=structuredClone(ordinaryFixture) as MechanicsResult;unknown.producer!.semantic_contract_id=SOURCE_BLOCKS_CONTRACT_ID+'/future';expect(sourceContract(unknown)).toBe('unsupported');
   });
   it('does not relabel an ordinary-only wrapper as a successful new method', async () => {
     const {source,invocation}=await ordinaryControl();
@@ -235,9 +240,16 @@ describe('actual invocation boundary using mocked IPC and genuine received fixtu
   });
   it('browser references never establish fresh Current provenance',async ()=>{
     const reference=await loadBundledMechanicsReference();expect(reference.standing).toBe('reference_only');
-    expect(hasNativeMechanicsInvocation(reference.source,modelFixture as PreviewModel)).toBe(false);
-    await expect(runPreviewMechanics(modelFixture as PreviewModel)).rejects.toThrow('BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY');
-    await expect(startPreviewMechanicsJob(modelFixture as PreviewModel)).rejects.toThrow('BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY');
+    expect(reference.model).toEqual(modelFixture);
+    expect(hasNativeMechanicsInvocation(reference.source,reference.model)).toBe(false);
+    const session=await loadPreviewModel();
+    await expect(runPreviewMechanics(session)).rejects.toThrow('BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY');
+    await expect(startPreviewMechanicsJob(session)).rejects.toThrow('BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY');
+    // The reference's own demo model is also the default session model, so a browser solve of it is reference-only; an edited copy is refused as an edited model.
+    expect(reference.model).toEqual(session);
+    await expect(runPreviewMechanics(reference.model)).rejects.toThrow('BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY');
+    const edited=structuredClone(reference.model) as PreviewModel;edited.nodes[0].position.y+=0.5;
+    await expect(runPreviewMechanics(edited)).rejects.toThrow('BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL');
   });
   it('invalidates method registration after actual context mutation or signed-zero mutation',async ()=>{
     const {raw,request,mode}=genuinePairs[0];const source=structuredClone(raw) as MechanicsResult;const invocation={request:structuredClone(request),solver_mode:mode};

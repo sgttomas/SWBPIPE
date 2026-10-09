@@ -24,9 +24,13 @@ refs:
 ## Test Purpose And Problem Statement
 
 Invented mechanics benchmark for the straight-pipe axial-effect path. The
-fixture combines fixed-fixed thermal restraint with closed-end pressure thrust,
-then checks equivalent nodal loads and axial-resultant recovery with zero
-displacement.
+fixture applies fixed-fixed thermal restraint, then checks equivalent nodal
+loads and axial-resultant recovery with zero displacement.
+
+The fixture's former closed-end pressure-thrust half (`p = 90.0 Pa` over
+`A_internal = 0.1 m^2`, `F = p A_internal = 9.0 N`) was removed with the legacy
+pressure contract (U3, piping T3): it was a second copy of the retired legacy
+thrust. The fixture id is kept for continuity.
 
 All inputs are invented or user-entered fixture data; nothing is copied from
 protected standards, commercial software examples, or proprietary data.

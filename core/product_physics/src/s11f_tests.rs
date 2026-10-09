@@ -244,13 +244,11 @@ fn case_ledger(request: &Value, case_index: usize) -> (Vec<ForceTerm>, Assembled
         &built.sections,
         &mut diagnostics,
     );
-    let thrust = build_pressure_thrust_loads(&model, load_case, &pipe_map, &built.sections);
     let ledger = case_force_ledger(
         &model,
         &built,
         &application,
         &bends,
-        &thrust,
         &thermal,
         None,
         &load_case.id,
@@ -1082,12 +1080,6 @@ fn thermal(id: &str, pipe: &str, delta_t: f64) -> Value {
         "dimension": "temperature_interval", "provenance": INVENTED})
 }
 
-fn pressure(id: &str, pipe: &str, value: f64) -> Value {
-    json!({"id": id, "category": "pressure", "target": {"type": "element", "pipe": pipe},
-        "direction": "global_x", "magnitude": {"value": value, "unit": "Pa"},
-        "dimension": "pressure", "provenance": INVENTED})
-}
-
 fn request_of(model: Value) -> Value {
     json!({"model": model, "materials": []})
 }
@@ -1747,105 +1739,6 @@ fn f8_curved_bend_thermal_terms_are_exact_products() {
         }
     }
     panic!("precondition: no searched (T, -T') pair separates exact and rounded products");
-}
-
-// ---------------------------------------------------- F10: E15 and E16
-
-/// A 3 m pipe (OD 0.168 m, wall 0.007 m) anchored at its root, carrying an
-/// expansion joint (solver consumption `mechanics_geometry_and_user_flexibility`,
-/// effective area 0.018 m^2, axial user stiffness 3.2e6 N/m only, so no
-/// lateral-stiffness refusal) and the given pressure loads.
-fn pressure_joint(loads: Vec<Value>) -> Value {
-    let mut model = preview_model("pressure");
-    model["nodes"] = json!([node("n0", 0.0, 0.0, 0.0), node("n1", 3.0, 0.0, 0.0)]);
-    model["pipe_segments"] = json!([pipe("p", "n0", "n1", 0.168, 0.007)]);
-    model["materials"] = json!([material()]);
-    model["supports"] = json!([support(
-        "a0",
-        "n0",
-        "anchor",
-        &["UX", "UY", "UZ", "RX", "RY", "RZ"]
-    )]);
-    model["components"] = json!([{
-        "id": "component:joint", "label": "Invented expansion joint", "kind": "expansion_joint", "node": "n1",
-        "geometry": {"expansion_joint_pipe_ref": "p", "effective_area": {"value": 0.018, "unit": "m^2"},
-            "movement_limit": {"value": 0.045, "unit": "m"},
-            "hardware_reference": "invented_user_entered_tie_rod_limit_metadata_no_catalog",
-            "manufacturer_reference": "invented_user_entered_manufacturer_reference_no_catalog",
-            "pressure_thrust_reference": "load_side_pressure_thrust_user_review_required",
-            "expansion_joint_source_reference": "invented_user_entered_expansion_joint_preview_geometry"},
-        "modifiers": {"axial_stiffness_user_value": {"value": 3200000, "unit": "N/m"},
-            "source_reference": "invented_user_entered_expansion_joint_stiffness_no_catalog_or_code_table"},
-        "mechanics_interface": {"solver_consumption": "mechanics_geometry_and_user_flexibility",
-            "rule_check_consumption": "user_rule_pack_inputs_only"},
-        "completeness": [{"finding_id": "finding:joint", "status": "complete",
-            "diagnostic_code": "EXPANSION_JOINT_STIFFNESS_DATA_MISSING", "missing_field_kinds": []}],
-        "provenance": INVENTED}]);
-    model["load_cases"][0]["primitive_loads"] = json!(loads);
-    request_of(model)
-}
-
-/// F10 (S11B-2): pressure loads (P, 0.3 Pa, -P), P = 1e8 and 1e80 Pa, on a
-/// pipe with an expansion joint carrying the matching thrust loads. The
-/// published hoop and longitudinal stresses (E15) and
-/// `expansion_joint_pressure_thrust_load_review` (E16) equal the values for
-/// the net pressure 0.3 Pa alone, bit for bit.
-///
-/// E15 and E16 are unreachable from a fresh product solve: a nonzero legacy
-/// pressure load is refused (`PRESSURE_MODEL_REAUTHOR_REQUIRED`,
-/// `pressure_runtime.rs`), so they are exercised inside the test-only
-/// `historical_pressure_reference::with_scope` (manager/ROOT, 2026-09-27).
-#[test]
-fn f10_pressure_and_joint_thrust_g1e8() {
-    f10_pressure(1e8);
-}
-
-#[test]
-fn f10_pressure_and_joint_thrust_g1e80() {
-    f10_pressure(1e80);
-}
-
-fn f10_pressure(p: f64) {
-    {
-        assert_ne!(fold(&[p, 0.3, -p]), 0.3, "precondition: pressure fold");
-        let area = 0.018;
-        assert_ne!(
-            fold(&[p * area, 0.3 * area, -p * area]),
-            0.3 * area,
-            "precondition: thrust fold"
-        );
-        let request = pressure_joint(vec![
-            pressure("p:0", "p", p),
-            pressure("p:1", "p", 0.3),
-            pressure("p:2", "p", -p),
-        ]);
-        let net = pressure_joint(vec![pressure("p:1", "p", 0.3)]);
-        let entries: &[Entry] = if p < 9.0e15 {
-            &[Entry::Captured, Entry::Typed]
-        } else {
-            &[Entry::Typed]
-        };
-        for &entry in entries {
-            for mode in MODES {
-                let envelope = crate::historical_pressure_reference::with_scope(|| {
-                    solved(entry, &request, mode)
-                });
-                let reference =
-                    crate::historical_pressure_reference::with_scope(|| solved(entry, &net, mode));
-                let thrust = case_rows(&envelope, "case")
-                    .find(|r| r.kind == "expansion_joint_pressure_thrust_load_review")
-                    .unwrap_or_else(|| panic!("F10 P={p}: no thrust review row"));
-                assert_eq!(thrust.value, 0.3 * area, "F10 P={p} {entry:?} {mode:?}");
-                let mut rows = value_bits(&envelope, "case");
-                let mut reference_rows = value_bits(&reference, "case");
-                // The review row's id and its source list name the loads; the
-                // value is compared above.
-                rows.retain(|id, _| !id.starts_with("result:pressure-thrust"));
-                reference_rows.retain(|id, _| !id.starts_with("result:pressure-thrust"));
-                assert_eq!(rows, reference_rows, "F10 P={p} {entry:?} {mode:?}");
-            }
-        }
-    }
 }
 
 // ------------------------------------------------ RV1-N6 behavioural backing
